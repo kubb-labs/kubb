@@ -1,5 +1,5 @@
-import EventEmitter from 'events'
-import { v4 as uuidv4 } from 'uuid';
+import EventEmitter from 'eventemitter3'
+import { v4 as uuidv4 } from 'uuid'
 
 import { getFileManagerEvents } from './events'
 
