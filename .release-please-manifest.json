@@ -4,5 +4,5 @@
   "packages/swagger": "0.37.1",
   "packages/swagger-typescript": "0.37.1",
   "packages/swagger-react-query": "0.37.1",
-  ".": "0.0.0"
+  ".": "1.0.0"
 }
