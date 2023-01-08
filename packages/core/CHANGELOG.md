@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.5](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.4...@kubb/core-v0.37.5) (2023-01-08)
+
+
+### Bug Fixes
+
+* also save esm and cjs for browser ([991b239](https://github.com/stijnvanhulle/kubb/commit/991b239885b841a242887c97835086a8ec131397))
+
 ## [0.37.4](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.3...@kubb/core-v0.37.4) (2023-01-08)
 
 
