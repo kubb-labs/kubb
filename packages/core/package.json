@@ -11,9 +11,9 @@
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
   "main": "dist/index.js",
-  "unpkg": "dist/index.global.js",
+  "unpkg": "dist/browser/index.global.js",
   "module": "dist/index.mjs",
-  "browser": "build/index.global.js",
+  "browser": "dist/browser/index.global.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -34,9 +34,7 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "pnpm build:node && pnpm build:browser",
-    "build:node": "tsup",
-    "build:browser": "tsup --target=es5",
+    "build": "tsup",
     "start": "tsup --watch",
     "release": "pnpm publish --no-git-check",
     "prepack": "pnpm build",
