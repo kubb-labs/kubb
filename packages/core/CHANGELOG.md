@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.4](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.3...@kubb/core-v0.37.4) (2023-01-08)
+
+
+### Bug Fixes
+
+* build for browser ([8b09762](https://github.com/stijnvanhulle/kubb/commit/8b09762e3da68d767fc05141294c5a5a16673ba6))
+
 ## [0.37.3](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.2...@kubb/core-v0.37.3) (2023-01-08)
 
 
