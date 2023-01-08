@@ -209,6 +209,7 @@ importers:
       memfs: ^3.4.13
       openapi-types: ^12.1.0
       path-browserify: ^1.0.1
+      process: ^0.11.10
       rimraf: ^3.0.2
       stream-browserify: ^3.0.0
       tsup: ^6.5.0
@@ -228,6 +229,7 @@ importers:
       memfs: 3.4.13
       openapi-types: 12.1.0
       path-browserify: 1.0.1
+      process: 0.11.10
       stream-browserify: 3.0.0
       tsup: 6.5.0_typescript@4.9.4
       util: 0.12.5
@@ -8795,6 +8797,11 @@ packages:
   /proc-log/3.0.0:
     resolution: {integrity: sha512-++Vn7NS4Xf9NacaU9Xq3URUuqZETPsf8L4j5/ckhaRYsfPeRyzGw+iDjFhV/Jr3uNmTvvddEJFWh5R1gRgUH8A==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+    dev: true
+
+  /process/0.11.10:
+    resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
+    engines: {node: '>= 0.6.0'}
     dev: true
 
   /progress/2.0.3:
