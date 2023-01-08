@@ -26,6 +26,7 @@ export default defineConfig([
     splitting: false,
     clean: false,
     dts: false,
+    globalName: 'kubb',
     platform: 'browser',
     esbuildOptions: (options) => {
       options.alias = {
