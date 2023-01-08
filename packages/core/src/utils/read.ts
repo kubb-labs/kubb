@@ -22,7 +22,7 @@ export const getPathMode = (path: string | undefined | null): PathMode | undefin
 
 export const read = async (path: string) => {
   try {
-    return fs.readFile(path)
+    return fs.readFile(path, { encoding: 'utf8' })
   } catch (err) {
     console.error(err)
     throw err

@@ -3,7 +3,7 @@ import { build } from './build'
 
 export * from './config'
 export * from './build'
-export { CorePluginOptions, createPlugin } from './plugin'
+export { CorePluginOptions, createPlugin, name } from './plugin'
 export * from './utils'
 export * from './types'
 export * from './managers'

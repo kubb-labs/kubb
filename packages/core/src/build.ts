@@ -1,5 +1,6 @@
 import { PluginManager } from './managers/pluginManager'
-import { clean } from './utils/write'
+import { clean, read } from './utils'
+import pathParser from 'path'
 
 import type { FileManager } from './managers/fileManager'
 import type { PluginContext, TransformResult, LogLevel, KubbPlugin } from './types'
@@ -81,6 +82,12 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
   })
 
   await pluginManager.hookParallel('buildStart', [config])
+
+  pluginManager.fileManager.add({
+    path: typeof config.input === 'string' ? 'input' : pathParser.resolve(config.root, config.input.path),
+    fileName: typeof config.input === 'string' ? 'input' : config.input.path,
+    source: typeof config.input === 'string' ? config.input : await read(pathParser.resolve(config.root, config.input.path)),
+  })
 }
 
 export type KubbBuild = (options: BuildOptions) => Promise<BuildOutput>
