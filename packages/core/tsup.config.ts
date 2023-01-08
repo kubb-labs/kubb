@@ -33,6 +33,7 @@ export default defineConfig([
     esbuildOptions: (options) => {
       options.alias = {
         fs: 'memfs',
+        'graceful-fs': 'memfs',
         path: 'path-browserify'
       }
     },
