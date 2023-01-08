@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.8](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.37.7...@kubb/swagger-v0.37.8) (2023-01-08)
+
+
+### Miscellaneous Chores
+
+* **@kubb/swagger:** Synchronize undefined versions
+
 ## [0.37.7](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.37.6...@kubb/swagger-v0.37.7) (2023-01-08)
 
 
