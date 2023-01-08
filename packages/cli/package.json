@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "0.37.4",
+  "version": "0.37.5",
   "description": "Generator cli",
   "repository": {
     "type": "git",
