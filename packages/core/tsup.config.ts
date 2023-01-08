@@ -36,6 +36,6 @@ export default defineConfig([
       }
     },
     shims: true,
-    format: ['iife'],
+    format: ['cjs', 'esm', 'iife'],
   },
 ])
