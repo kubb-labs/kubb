@@ -26,6 +26,9 @@ export default defineConfig([
     splitting: false,
     clean: false,
     dts: false,
+    banner: {
+      js: "import { createRequire } from 'module';const require = createRequire(import.meta.url);",
+    },
     esbuildOptions: (options) => {
       options.alias = {
         fs: 'memfs',
