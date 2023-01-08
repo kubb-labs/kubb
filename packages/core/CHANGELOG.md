@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.3](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.2...@kubb/core-v0.37.3) (2023-01-08)
+
+
+### Bug Fixes
+
+* build core for browser API's ([1d68e15](https://github.com/stijnvanhulle/kubb/commit/1d68e15a6b350f6ccde339c128a1d42049782da6))
+
 ## [0.37.2](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.1...@kubb/core-v0.37.2) (2023-01-08)
 
 
