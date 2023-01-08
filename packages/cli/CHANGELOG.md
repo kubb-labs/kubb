@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.2](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.37.1...@kubb/cli-v0.37.2) (2023-01-08)
+
+
+### Bug Fixes
+
+* bring back changelog ([30573e4](https://github.com/stijnvanhulle/kubb/commit/30573e41027f01d79182b17f1f78152447d9401a))
+
 ## [0.37.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.37.0...@kubb/cli-v0.37.1) (2023-01-08)
 
 ### Miscellaneous Chores
