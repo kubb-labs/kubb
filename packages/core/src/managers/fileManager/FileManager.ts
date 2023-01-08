@@ -1,5 +1,5 @@
 import EventEmitter from 'events'
-import { randomUUID } from 'crypto'
+import { v4 as uuidv4 } from 'uuid';
 
 import { getFileManagerEvents } from './events'
 
@@ -59,7 +59,7 @@ export class FileManager {
   }
 
   add(file: File) {
-    const cacheItem = { id: randomUUID(), file, status: 'new' as Status }
+    const cacheItem = { id: uuidv4(), file, status: 'new' as Status }
 
     this.cache.set(cacheItem.id, cacheItem)
     this.events.emitFile(cacheItem.id, file)

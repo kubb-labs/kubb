@@ -9,6 +9,14 @@
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "keywords": [
+    "typescript",
+    "plugins",
+    "kubb",
+    "codegen",
+    "swagger",
+    "openapi"
+  ],
   "sideEffects": false,
   "main": "dist/index.js",
   "unpkg": "dist/index.global.js",

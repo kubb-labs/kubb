@@ -9,6 +9,12 @@
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "keywords": [
+    "typescript",
+    "plugins",
+    "kubb",
+    "codegen"
+  ],
   "sideEffects": false,
   "main": "dist/index.js",
   "unpkg": "dist/index.global.js",
@@ -21,6 +27,12 @@
       "import": "./dist/index.mjs",
       "module": "./dist/index.mjs",
       "default": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser/index.d.ts",
+      "import": "./dist/browser/index.mjs",
+      "module": "./dist/browser/index.mjs",
+      "default": "./dist/browser/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -53,14 +65,15 @@
     "events": "^3.3.0",
     "fs-extra": "^11.1.0",
     "prettier": "^2.8.2",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "memfs": "^3.4.13",
-    "path-browserify": "^1.0.1",
-    "crypto-browserify": "^3.12.0",
     "@types/fs-extra": "^9.0.13",
+    "crypto-browserify": "^3.12.0",
+    "memfs": "^3.4.13",
     "openapi-types": "^12.1.0",
+    "path-browserify": "^1.0.1",
     "tsup": "^6.5.0"
   },
   "publishConfig": {
