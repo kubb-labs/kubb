@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.14](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.13...@kubb/core-v0.37.14) (2023-01-08)
+
+
+### Bug Fixes
+
+* add process for browser ([1497bc5](https://github.com/stijnvanhulle/kubb/commit/1497bc5ee4c3f6acf554dc81b0bcaeed889a7121))
+
 ## [0.37.13](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.12...@kubb/core-v0.37.13) (2023-01-08)
 
 
