@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.12](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.11...@kubb/core-v0.37.12) (2023-01-08)
+
+
+### Bug Fixes
+
+* add banner for index.global.js ([91548c3](https://github.com/stijnvanhulle/kubb/commit/91548c3f72c6e7074df8bfec02a66b2bd03a4c7a))
+
 ## [0.37.11](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.10...@kubb/core-v0.37.11) (2023-01-08)
 
 
