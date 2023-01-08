@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.11](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.10...@kubb/core-v0.37.11) (2023-01-08)
+
+
+### Bug Fixes
+
+* use core without fs-extra, see safeWriteFileToPath + removal of prettier format ([822d733](https://github.com/stijnvanhulle/kubb/commit/822d73312c84f989f6f55523f4bec23b6c8fdb78))
+
 ## [0.37.10](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.9...@kubb/core-v0.37.10) (2023-01-08)
 
 
