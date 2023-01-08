@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.13](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.12...@kubb/core-v0.37.13) (2023-01-08)
+
+
+### Bug Fixes
+
+* use of stream-browserify and platform browser ([37e453a](https://github.com/stijnvanhulle/kubb/commit/37e453a38cbe57e00f9318d19fb24ce3673adaaf))
+
 ## [0.37.12](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.11...@kubb/core-v0.37.12) (2023-01-08)
 
 
