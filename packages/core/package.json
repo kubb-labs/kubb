@@ -34,7 +34,9 @@
     "!/**/__tests__/**"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "pnpm build:node && pnpm build:browser",
+    "build:node": "tsup",
+    "build:browser": "tsup --target=es5",
     "start": "tsup --watch",
     "release": "pnpm publish --no-git-check",
     "prepack": "pnpm build",
@@ -56,6 +58,9 @@
     "typescript": "^4.9.4"
   },
   "devDependencies": {
+    "memfs": "^3.4.13",
+    "path-browserify": "^1.0.1",
+    "crypto-browserify": "^3.12.0",
     "@types/fs-extra": "^9.0.13",
     "openapi-types": "^12.1.0",
     "tsup": "^6.5.0"
