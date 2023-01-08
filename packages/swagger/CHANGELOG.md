@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.7](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.37.6...@kubb/swagger-v0.37.7) (2023-01-08)
+
+
+### Bug Fixes
+
+* browser subpackage ([b8b3c19](https://github.com/stijnvanhulle/kubb/commit/b8b3c191d10465b0ddeabf3ecdf77d564b597f35))
+
 ## [0.37.6](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.37.5...@kubb/swagger-v0.37.6) (2023-01-08)
 
 
