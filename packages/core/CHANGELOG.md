@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.8](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.7...@kubb/core-v0.37.8) (2023-01-08)
+
+
+### Bug Fixes
+
+* graceful-fs alias for browser ([993114b](https://github.com/stijnvanhulle/kubb/commit/993114b46419c2d7142d2f9196b4ec5810cb1a56))
+
 ## [0.37.7](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.6...@kubb/core-v0.37.7) (2023-01-08)
 
 
