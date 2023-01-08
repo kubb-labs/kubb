@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.10](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.9...@kubb/core-v0.37.10) (2023-01-08)
+
+
+### Bug Fixes
+
+* another try with browser ([43e6de0](https://github.com/stijnvanhulle/kubb/commit/43e6de0fc692bee7fd6c23506cc5efd437ad01b9))
+
 ## [0.37.9](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.8...@kubb/core-v0.37.9) (2023-01-08)
 
 
