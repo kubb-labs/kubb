@@ -34,8 +34,10 @@ export default defineConfig([
         events: 'eventemitter3',
         path: 'path-browserify',
         stream: 'stream-browserify',
+        process: 'process/browser',
       }
       options.define = {
+        global: 'globalThis',
         process: JSON.stringify({ env: {} }),
       }
     },
