@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.16](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.15...@kubb/core-v0.37.16) (2023-01-08)
+
+
+### Bug Fixes
+
+* global as globalThis to support node and browser ([fba5f9c](https://github.com/stijnvanhulle/kubb/commit/fba5f9c7d2e9903a787370f9c617a625f5a786b9))
+
 ## [0.37.15](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.14...@kubb/core-v0.37.15) (2023-01-08)
 
 
