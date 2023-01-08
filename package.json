@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Monorepo template",
   "repository": {
@@ -12,11 +12,12 @@
   "workspaces": {
     "packages": [
       "packages/**",
-      "docs/**"
+      "docs/**",
+      "examples/**"
     ]
   },
   "scripts": {
-    "build": "turbo run build --ignore='playground/**/*' --ignore='docs/**/*' --ignore='examples/**/*'",
+    "build": "turbo run build",
     "generate": "turbo run generate",
     "start": "turbo run start",
     "graph": "nx graph ",
