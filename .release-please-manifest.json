@@ -1,7 +1,7 @@
 {
-  "packages/core": "0.37.14",
-  "packages/cli": "0.37.14",
-  "packages/swagger": "0.37.14",
-  "packages/swagger-typescript": "0.37.14",
-  "packages/swagger-react-query": "0.37.14"
+  "packages/core": "0.37.15",
+  "packages/cli": "0.37.15",
+  "packages/swagger": "0.37.15",
+  "packages/swagger-typescript": "0.37.15",
+  "packages/swagger-react-query": "0.37.15"
 }

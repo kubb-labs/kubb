@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.15](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.14...@kubb/core-v0.37.15) (2023-01-08)
+
+
+### Bug Fixes
+
+* process define ([f145111](https://github.com/stijnvanhulle/kubb/commit/f1451110ec9c67ecfd9841e6d08a05b586151e66))
+
 ## [0.37.14](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.13...@kubb/core-v0.37.14) (2023-01-08)
 
 
