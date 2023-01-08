@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.17](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.16...@kubb/core-v0.37.17) (2023-01-08)
+
+
+### Bug Fixes
+
+* globalName kubb ([040eb6e](https://github.com/stijnvanhulle/kubb/commit/040eb6eabcdd747ac8d572152c4394a8bdca2a69))
+
 ## [0.37.16](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.15...@kubb/core-v0.37.16) (2023-01-08)
 
 
