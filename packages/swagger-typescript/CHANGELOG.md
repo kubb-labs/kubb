@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.4](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.37.3...@kubb/swagger-typescript-v0.37.4) (2023-01-08)
+
+
+### Miscellaneous Chores
+
+* **@kubb/swagger-typescript:** Synchronize undefined versions
+
 ## [0.37.3](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.37.2...@kubb/swagger-typescript-v0.37.3) (2023-01-08)
 
 
