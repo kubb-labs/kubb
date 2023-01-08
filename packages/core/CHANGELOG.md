@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.9](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.8...@kubb/core-v0.37.9) (2023-01-08)
+
+
+### Bug Fixes
+
+* remove browser exports ([35e21ea](https://github.com/stijnvanhulle/kubb/commit/35e21ea5575d65414111820fa4a44c17fd68740d))
+
 ## [0.37.8](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.7...@kubb/core-v0.37.8) (2023-01-08)
 
 
