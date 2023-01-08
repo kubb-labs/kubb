@@ -1,0 +1,18 @@
+const { defineConfig } = require('@kubb/core')
+const createSwagger = require('@kubb/swagger').default
+const createSwaggerTypescript = require('@kubb/swagger-typescript').default
+const createSwaggerReactQuery = require('@kubb/swagger-react-query').default
+
+module.exports = defineConfig(() => {
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+    logLevel: 'info',
+    plugins: [createSwagger({ version: '3' }), createSwaggerTypescript({}), createSwaggerReactQuery({})],
+  }
+})

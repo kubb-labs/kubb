@@ -1,0 +1,60 @@
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import Link from 'next/link'
+
+# @kubb/swagger
+
+With the Swagger plugin you can create JSON schema's out of a Swagger file. 
+Inside this package you can also use some utils to create your own Swagger plugin. 
+We already provide a [react-query plugin](/docs/usage/swagger-react-query) but if you want to create a plugin for SWR you can use this package to get the core utils.(check if a schema is v2 or v3, generate a OAS object, ...).
+
+
+## Installation
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab>
+    ```bash copy
+    pnpm i -D @kubb/swagger
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    npm i -D @kubb/swagger
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    yarn add -D @kubb/swagger
+    ```
+  </Tab>
+</Tabs>
+
+
+## Options
+### version
+The version of Swagger/OpenAPI that you want to use.
+
+<Callout type="warning">
+ Under construction, only OpenAPI v3 is supported
+</Callout>
+
+Type: `'3'` <br/>
+Required: `true`
+
+### validate
+Validate your input(see kubb.config) based on @apidevtools/swagger-parser
+
+Type: `boolean` <br/>
+Default: `true`
+
+
+### output
+Relative path to save the JSON models.
+False will not generate the schema JSON's.
+
+Type: `string | false` <br/>
+Default: `"schemas"`
+
+
+## Depended
+
+- [`@kubb/core`](/docs/usage/core)

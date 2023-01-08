@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://kubb.dev
+
+# Sitemaps
+Sitemap: https://kubb.dev/sitemap.xml

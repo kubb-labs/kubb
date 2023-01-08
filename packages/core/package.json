@@ -1,0 +1,67 @@
+{
+  "name": "@kubb/core",
+  "version": "0.37.1",
+  "description": "Generator core",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/stijnvanhulle/kubb.git",
+    "directory": "packages/core"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "sideEffects": false,
+  "main": "dist/index.js",
+  "unpkg": "dist/index.global.js",
+  "module": "dist/index.mjs",
+  "browser": "build/index.global.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "module": "./dist/index.mjs",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {}
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "start": "tsup --watch",
+    "release": "pnpm publish --no-git-check",
+    "prepack": "pnpm build",
+    "pre-commit": "echo 'pre-commit not configured'",
+    "pre-push": "pnpm typecheck",
+    "test": "jest --config ../../jest.config.js --passWithNoTests --runInBand --testPathPattern=packages/core/src",
+    "test:local": "jest --config ../../jest.config.js --testPathPattern=packages/core/src --maxWorkers=50%",
+    "test:watch": "jest --config ../../jest.config.js --testPathPattern=packages/core/src --maxWorkers=25% --watch",
+    "upgrade": "ncu -u",
+    "upgrade:local": "ncu --interactive --doctor",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "change-case": "^4.1.2",
+    "directory-tree": "^3.5.1",
+    "events": "^3.3.0",
+    "fs-extra": "^11.1.0",
+    "prettier": "^2.8.2",
+    "typescript": "^4.9.4"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.13",
+    "openapi-types": "^12.1.0",
+    "tsup": "^6.5.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "strictNullChecks": true,
+    "jsx": "react",
+    "declaration": true,
+    "outDir": "es",
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "../../node_modules/@types"
+    ],
+    "paths": {
+      "@kubb/core":["../core/src/index.ts"],
+      "@kubb/swagger":["../swagger/src/index.ts"],
+      "@kubb/swagger-typescript":["../swagger-typescript/src/index.ts"],
+      "@kubb/swagger-react-query":["../swagger-react-query/src/index.ts"]
+    }
+  },
+  "include": ["./src/**/*"],
+  "exclude": [
+    "**/node_modules",
+    "**/types/**",
+    "**/*.test.ts"
+  ]
+}

@@ -1,0 +1,65 @@
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import Link from 'next/link'
+
+# Quick start
+
+## Example with auto search config
+ ```bash copy
+kubb
+```
+
+## Example with config and no plugins
+ ```bash copy
+kubb --config kubb.config.ts
+```
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig(async () => {
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+    logLevel: 'info',
+    plugins: [],
+  }
+})
+```
+
+
+## Example with config and Swagger plugins
+ ```bash copy
+kubb --config kubb.config.ts
+```
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTypescript from '@kubb/swagger-typescript'
+import createSwaggerReactQuery from '@kubb/swagger-react-query'
+
+export default defineConfig(async () => {
+  await setTimeout(() => {
+    // wait for 1s, async behaviour
+    return Promise.resolve(true)
+  }, 1000)
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+    logLevel: 'info',
+    plugins: [createSwagger({ version: '3' }), createSwaggerTypescript({}), createSwaggerReactQuery({})],
+  }
+})
+```
+
+See [kubb/examples/simple/kubb.config.ts](https://github.com/stijnvanhulle/kubb/blob/main/examples/simple/kubb.config.ts) on Github.

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "start": {
+      "dependsOn": [
+        "^start"
+      ],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": [],
+      "outputs": [
+        "coverage/**"
+      ]
+    },
+    "typecheck": {
+      "dependsOn": [],
+      "outputs": []
+    },
+    "pre-commit": {
+      "dependsOn": [],
+      "outputs": []
+    },
+    "pre-push": {
+      "dependsOn": [],
+      "outputs": []
+    },
+    "release": {
+      "dependsOn": [],
+      "outputs": []
+    },
+    "generate": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": []
+    }
+  }
+}

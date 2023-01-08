@@ -1,0 +1,26 @@
+{
+  "simple": {
+    "title": "Simple PetStore",
+    "theme": {
+      "layout": "full",
+      "footer": true,
+      "toc": false
+    }
+  },
+  "simple-single": {
+    "title": "Simple with one file for models PetStore",
+    "theme": {
+      "layout": "full",
+      "footer": true,
+      "toc": false
+    }
+  },
+  "advanced": {
+    "title": "Advanced PetStore",
+    "theme": {
+      "layout": "full",
+      "footer": true,
+      "toc": false
+    }
+  }
+}

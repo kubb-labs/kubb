@@ -1,0 +1,14 @@
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import Link from 'next/link'
+
+# Configuration File
+
+Kubb uses [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) for configuration file support. This means you can configure Kubb via (in order of precedence):
+
+- A "kubb" key in your package.json file.
+- A `.kubbrc` file written in JSON or YAML.
+- A `.kubbrc.json` file.
+- A `.kubbrc.js`, `.kubbrc.cjs`, `kubb.config.js`, or `kubb.config.cjs` file that exports an object using module.exports.
+- A `.kubbrc.ts` or `kubb.config.ts` file that exports an object using export default
+
+See [kubb.config.ts](/docs/configuration/config-typescript) on how to configure Kubb.

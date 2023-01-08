@@ -1,0 +1,7 @@
+{
+  "core": "@kubb/core",
+  "cli": "@kubb/cli",
+  "swagger": "@kubb/swagger",
+  "swagger-typescript": "@kubb/swagger-typescript",
+  "swagger-react-query": "@kubb/swagger-react-query"
+}

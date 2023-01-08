@@ -1,0 +1,96 @@
+import { PluginManager } from './managers/pluginManager'
+import { clean } from './utils/write'
+
+import type { FileManager } from './managers/fileManager'
+import type { PluginContext, TransformResult, LogLevel, KubbPlugin } from './types'
+
+type BuildOutput = {
+  fileManager: FileManager
+}
+
+// Same type as ora
+type Spinner = {
+  start: (text?: string) => Spinner
+  succeed: (text: string) => Spinner
+  fail: (text?: string) => Spinner
+  stopAndPersist: (options: { text: string }) => Spinner
+  render: () => Spinner
+  text: string
+  info: (text: string) => Spinner
+}
+
+export type Logger = {
+  log: (message: string, logLevel: LogLevel) => void
+  spinner?: Spinner
+}
+type BuildOptions = {
+  config: PluginContext['config']
+  mode: 'development' | 'production'
+  logger?: Logger
+}
+
+async function transformReducer(this: PluginContext, _previousCode: string, result: TransformResult, _plugin: KubbPlugin) {
+  if (result === null) {
+    return null
+  }
+  return result
+}
+
+async function buildImplementation(options: BuildOptions, done: (output: BuildOutput) => void) {
+  const { config, logger } = options
+
+  if (config.output.clean) {
+    await clean(config.output.path)
+  }
+
+  const pluginManager = new PluginManager(config, { logger })
+  const { plugins, fileManager } = pluginManager
+
+  try {
+    await pluginManager.hookParallel<'validate', true>('validate', [plugins])
+  } catch (e: any) {
+    return
+  }
+
+  fileManager.events.onSuccess(async () => {
+    await pluginManager.hookParallel('buildEnd')
+    setTimeout(() => {
+      done({ fileManager })
+    }, 1000)
+  })
+
+  fileManager.events.onAdd(async (id, file) => {
+    const { path } = file
+    let { source: code } = file
+
+    const loadedResult = await pluginManager.hookFirst('load', [path])
+    if (loadedResult) {
+      code = loadedResult
+    }
+
+    if (code) {
+      const transformedCode = await pluginManager.hookReduceArg0('transform', [code, path], transformReducer)
+
+      if (typeof config.input === 'object') {
+        await pluginManager.hookParallel('writeFile', [transformedCode, path])
+      }
+
+      fileManager.setStatus(id, 'success')
+      fileManager.remove(id)
+    }
+  })
+
+  await pluginManager.hookParallel('buildStart', [config])
+}
+
+export type KubbBuild = (options: BuildOptions) => Promise<BuildOutput>
+
+export function build(options: BuildOptions): Promise<BuildOutput> {
+  return new Promise((resolve, reject) => {
+    try {
+      buildImplementation(options, resolve)
+    } catch (e) {
+      reject(e)
+    }
+  })
+}

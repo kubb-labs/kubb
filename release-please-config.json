@@ -1,0 +1,64 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "separate-pull-requests": false,
+  "packages": {
+    "packages/core": {
+      "component": "@kubb/core",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": true
+    },
+    "packages/swagger": {
+      "component": "@kubb/swagger",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": true
+    },
+    "packages/swagger-typescript": {
+      "component": "@kubb/swagger-typescript",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": true
+    },
+    "packages/swagger-react-query": {
+      "component": "@kubb/swagger-react-query",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": true
+    },
+    "packages/cli": {
+      "component": "@kubb/cli",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": true
+    }
+  },
+  "plugins": [
+    {
+      "type": "linked-versions",
+      "group-name": "@kubb",
+      "components": [
+        "@kubb/core",
+        "@kubb/swagger",
+        "@kubb/swagger-typescript",
+        "@kubb/swagger-react-query",
+        "@kubb/cli"
+      ]
+    }
+  ]
+}

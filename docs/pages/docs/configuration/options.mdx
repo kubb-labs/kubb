@@ -1,0 +1,202 @@
+import { Callout } from 'nextra-theme-docs'
+
+# Options
+
+This page is a reference to the different ways of configuring your Kubb projects.
+By setting the following options you can override the default behaviour of Kubb and even extend with your own plugins.
+
+Configuration options for the following are described on this page:
+
+## root
+Project root directory. Can be an absolute path, or a path relative from the location of the config file itself.
+
+Type: `string` <br/>
+Default: `process.cwd()`
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig(async ({mode}) => {
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    }
+  },
+})
+```
+
+## input
+Input can also be a string if that's the case Kubb will not use the fileSystem to save the files.
+
+### input.path
+Path to be used as the input. Can be an absolute path, or a path relative from the defined root option.
+
+Type: `string` <br/>
+Required: `true`
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig(async ({mode}) => {
+  return {
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    }
+  },
+})
+```
+
+## output
+### output.path
+Path to be used to export all generated files. Can be an absolute path, or a path relative from the defined root option.
+
+Type: `string` <br/>
+Required: `true`
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig(async ({mode}) => {
+  return {
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    }
+  },
+})
+```
+
+### clean
+Remove previous generated files and folders.
+Type: `boolean` <br/>
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig(async ({mode}) => {
+  return {
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+      clean: true
+    },
+    logLevel: "info"
+  },
+})
+```
+
+## plugins
+Array of Kubb plugins to use. The plugin/package can forsee some options that you need to pass through.
+Sometimes a plugin is depended on another plugin, if that's the case you will get an error back from the plugin you installed.
+
+### plugins[0]
+
+#### Typescript
+
+Type: `Plugin` <br/>
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig(async ({mode}) => {
+  return {
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+     plugins: [createSwagger({ version: '3' })],
+  },
+})
+```
+
+#### JSON
+When using JSON the structure will be a little bit different. 
+Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/plugins/) make it possible to use plugins with extra options.
+```
+[NAME PLUGIN, {...options}]
+```
+
+```json filename="kubb.json" copy
+{
+  "$schema": "@kubb/core/schemas/config.json",
+  "root": ".",
+  "input": {
+    "path": "./petStore.yaml"
+  },
+  "output": {
+    "path": "./src/gen"
+  },
+  "plugins": [
+    [
+      "@kubb/swagger",
+      {
+        "version": "3"
+      }
+    ]
+  ]
+}
+```
+
+
+## logLevel
+Log level to report when using the CLI
+<Callout type="warning">
+ Under construction, only info is implemented.
+</Callout>
+Type: `'error' | 'warn' | 'info' | 'silent'` <br/>
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig(async ({mode}) => {
+  return {
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+    logLevel: "info"
+  },
+})
+```
+
+## hooks
+Hooks that will be called when a specific action is triggered in Kubb.
+
+### done
+Hook that will be triggerend at the end of all executions.
+Type: `string | string[]` <br/>
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig(async ({mode}) => {
+  return {
+    hooks: {
+      end: ["prettier"]
+    },
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+    logLevel: "info"
+  },
+})
+```

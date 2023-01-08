@@ -1,0 +1,5 @@
+[*]
+indent_style =  space
+indent_size = 2
+end_of_line = LF
+tab_width = 2

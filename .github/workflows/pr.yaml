@@ -1,0 +1,56 @@
+name: pr
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: 'Test'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+          registry-url: https://registry.npmjs.org
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm --prefer-offline install
+      - run: pnpm run test
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+  lint:
+    name: 'Lint'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+          registry-url: https://registry.npmjs.org
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm --prefer-offline install
+      - run: pnpm run lint
+  typecheck:
+    name: 'Typecheck'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.14.2
+          registry-url: https://registry.npmjs.org
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm --prefer-offline install
+      - run: pnpm run typecheck

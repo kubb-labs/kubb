@@ -1,0 +1,15 @@
+{
+  "$schema": "../config.json",
+  "root": "./schemas",
+  "input": {
+    "schema": "./mocks/schema.json"
+  },
+  "output": {
+   "path": "./gen"
+  },
+  "logLevel": "info",
+  "plugins": [[
+    "test", {"mode": "typescript", "version": "3"}
+  ]]
+  
+}

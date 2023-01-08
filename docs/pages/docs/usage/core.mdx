@@ -1,0 +1,70 @@
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import Link from 'next/link'
+
+# @kubb/core
+
+## Installation
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab>
+    ```bash copy
+    pnpm i -D @kubb/core
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    npm i -D @kubb/core
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    yarn add -D @kubb/core
+    ```
+  </Tab>
+</Tabs>
+
+
+## Usage
+
+### Simple example
+
+```typescript
+import { build } from "@kubb/core"
+
+build({ config, mode: "development" })
+```
+
+### Advanced example
+
+```typescript
+import { build } from "@kubb/core"
+
+import type { BuildOptions } from '@kubb/core'
+
+const spinner = ora({
+  color: "blue",
+  text: pc.blue("Generating files")
+}).start()
+
+const logger: BuildOptions['logger'] = {
+    log(message, logLevel) {
+      if (logLevel === 'error') {
+        spinner.fail(message)
+      }
+      spinner[logLevel](message)
+    },
+    spinner,
+  }
+
+await build({
+  config: {
+    ...config,
+    root: config.root || process.cwd(),
+  },
+  mode: options.mode || 'development',
+  logger,
+})
+```
+
+Start the build process based on a defined config(see [UserConfig](https://github.com/stijnvanhulle/kubb/blob/main/packages/core/src/config.ts) type). 
+This will trigger the different plugins and their created lifecycle methods.

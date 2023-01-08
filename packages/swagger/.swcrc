@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/swcrc",
+  "module": {
+    "type": "es6"
+  },
+  "jsc": {
+    "baseUrl": "./",
+    "paths": {},
+    "target": "es5",
+    "parser": {
+      "syntax": "typescript",
+      "tsx": false
+    }
+  },
+  "sourceMaps": true
+}

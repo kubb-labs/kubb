@@ -1,0 +1,68 @@
+import { Callout } from 'nextra-theme-docs'
+
+# Lifecycle
+
+<Callout type="warning">
+ Under construction
+</Callout>
+
+[Type system](https://github.com/stijnvanhulle/kubb/blob/d0c14eeca9bc6e22ceacb2ef9b5c67fa4f523302/packages/core/src/types.ts#L13)
+
+
+## 1. validate
+
+`hookParallel`: Valdiate all plugins to see if their depended plugins are installed and configured.
+
+```typescript
+  validate: (this: PluginContext, plugins: Plugin[]) => WithPromise<ValidationResult>
+```
+
+## 2. buildStart
+
+`hookParallel`: Start of the lifecycle of a plugin.
+
+```typescript
+  buildStart: (this: PluginContext, kubbConfig: KubbConfig) => WithPromise<void>
+```
+
+## 3. resolveId
+
+`hookFirst`: Resolve to an id based on fileName(example: `./Pet.ts`) and directory(example: `./models`). 
+
+```typescript
+ resolveId: (this: PluginContext, fileName: string, directory?: string, options?: Record<string, any>) => string | null | undefined
+```
+
+## 4. load
+
+`hookFirst`: Makes it possible to run async logic to override the path defined previously by `resolveId`.
+
+```typescript
+  load: (this: PluginContext, path: Path) => WithPromise<TransformResult | null>
+```
+
+## 5. transform
+
+`hookReduceArg0`: Transform the source-code.
+
+```typescript
+  transform: (this: PluginContext, source: string, path: Path) => WithPromise<TransformResult>
+```
+
+## 6. writeFile
+
+`hookParallel`: Write the result to the file-system based on the id(defined by `resolveId` or changed by `load`).
+
+```typescript
+  writeFile: (this: PluginContext, source: string | undefined, path: Path) => WithPromise<void>
+```
+
+## 7. buildEnd
+
+`hookParallel`: End of the plugin lifecycle.
+
+```typescript
+  buildEnd: (this: PluginContext) => WithPromise<void>
+```
+
+Inspired by: [rollup.netlify.app/guide/en/#build-hooks](https://deploy-preview-230--rollup.netlify.app/guide/en/#build-hooks)

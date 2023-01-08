@@ -1,0 +1,29 @@
+{
+  "$schema": "@kubb/core/schemas/config.json",
+  "root": ".",
+  "input": {
+    "path": "./petStore.yaml"
+  },
+  "output": {
+    "path": "./src/gen"
+  },
+  "logLevel": "info",
+  "plugins": [
+    [
+      "@kubb/swagger",
+      {
+        "version": "3"
+      }
+    ],
+    [
+      "@kubb/swagger-typescript",
+      {
+      }
+    ],
+    [
+      "@kubb/swagger-react-query",
+      {
+      }
+    ]
+  ]
+}

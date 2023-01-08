@@ -1,0 +1,53 @@
+name: ci
+
+on:
+  push:
+    branches:    
+      - main
+      - 'releases/**'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+      name: Build and Test
+      timeout-minutes: 15
+      runs-on: ubuntu-latest
+      # To use Remote Caching, uncomment the next lines and follow the steps below.
+      # env:
+      #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      #  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+ 
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 2
+ 
+        - uses: pnpm/action-setup@v2.2.4
+          with:
+            version: 7.14.2
+ 
+        - name: Setup Node.js environment
+          uses: actions/setup-node@v3
+          with:
+            node-version: 16
+            cache: 'pnpm'
+            registry-url: 'https://registry.npmjs.org'
+ 
+        - name: Install dependencies
+          run: pnpm install
+ 
+        - name: Build
+          run: pnpm build
+ 
+        - name: Test
+          run: pnpm test
+
+        - name: Release
+          if: ${{ success() && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          run: pnpm release --filter=[HEAD^1]

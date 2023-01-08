@@ -1,0 +1,102 @@
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import Link from 'next/link'
+
+# @kubb/cli
+
+## Installation
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab>
+    ```bash copy
+    pnpm i -D @kubb/cli
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    npm i -D @kubb/cli
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    yarn add -D @kubb/cli
+    ```
+  </Tab>
+</Tabs>
+
+## Usage
+
+```sh copy
+npx kubb --config kubb.config.ts
+```
+
+## Options
+
+```mdx
+Usage: kubb [options]
+
+Generate
+
+Options:
+  -m, --mode <mode>    Mode of Kubb, development or production
+                       (default: "development")
+  -c, --config <path>   Path to @kubb config
+  -d, --debug          Debug mode (default: false)
+  -w, --watch          Watch mode based on the input file
+  -V, --version        output the version number
+  -h, --help           display help for command
+```
+
+
+### --config (-c)
+
+Path to @kubb config
+
+```sh copy
+npx kubb -c config.ts
+```
+
+### --debug (-d)
+
+Debug mode (default: false)
+
+```sh copy
+npx kubb -d
+```
+
+### --mode (-m)
+
+Mode (default: development)
+
+```sh copy
+npx kubb -d
+```
+
+### --watch (-w)
+
+Watch mode based on the input file
+
+```sh copy
+npx kubb -d
+```
+
+### --version (-v)
+
+Return version used by Kubb
+
+```sh copy
+npx kubb -v
+```
+
+### --help (-h)
+
+Return all commands possible
+
+```sh copy
+npx kubb -h
+```
+
+## Depended
+
+- [`@kubb/core`](/docs/usage/core)
+
+See [getting-started](/docs/getting-started) on how to configure Kubb.

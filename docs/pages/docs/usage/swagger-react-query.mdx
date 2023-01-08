@@ -1,0 +1,49 @@
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import Link from 'next/link'
+
+# @kubb/swagger-react-query
+
+With the Swagger React-Query plugin you can create queryHooks for the definitions inside a Swagger file.
+
+## Installation
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab>
+    ```bash copy
+    pnpm i -D @kubb/swagger-react-query
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    npm i -D @kubb/swagger-react-query
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    yarn add -D @kubb/swagger-react-query
+    ```
+  </Tab>
+</Tabs>
+
+## Options
+
+
+### output
+Output to save the ReactQuery hooks.
+
+Type: `string` <br/>
+Default: `"hooks"`
+
+
+### types
+Options to override models used for React-Query
+#### output
+Relative path to store models/type related to a react-query hook(params, request, response)
+
+Type: `string` <br/>
+Default: `""`
+
+## Depended
+
+- [`@kubb/swagger`](/docs/usage/swagger)
+- [`@kubb/swagger-typescript`](/docs/usage/swagger-typescript)

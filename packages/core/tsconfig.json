@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "strictNullChecks": true,
+    "jsx": "react",
+    "declaration": true,
+    "outDir": "es",
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "../../node_modules/@types"
+    ],
+    "paths": {
+     
+    }
+  },
+  "include": ["./src/**/*"],
+  "exclude": [
+    "**/node_modules",
+    "**/types/**",
+    "**/*.test.ts"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "index": {
+    "title": "Introduction",
+    "type": "page",
+    "display": "hidden",
+    "theme": {
+      "sidebar": false
+    }
+  },
+  "docs": {
+    "title": "Docs",
+    "type": "page"
+  },
+  "examples": {
+    "title": "Examples",
+    "type": "page"
+  },
+  "playground": {
+    "title": "Playground",
+    "type": "page",
+    "theme": {
+      "layout": "raw",
+      "footer": true,
+      "sidebar": false,
+      "toc": false,
+      "pagination": false
+    }
+  },
+  "about": {
+    "display": "hidden",
+    "theme": {
+      "layout": "full",
+      "footer": true,
+      "toc": false,
+      "pagination": false
+    }
+  },
+  "faq": {
+    "title": "FAQ",
+    "type": "menu",
+    "items": {
+      "about": {
+        "title": "About Kubb",
+        "href": "/about",
+        "hidden": true
+      }
+    }
+  }
+}

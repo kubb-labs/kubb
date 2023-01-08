@@ -1,0 +1,42 @@
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import Link from 'next/link'
+
+# @kubb/swagger-typescript
+
+With the Swagger Typescript plugin you can create Typescript types based on a Swagger file.
+
+## Installation
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab>
+    ```bash copy
+    pnpm i -D @kubb/swagger-typescript
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    npm i -D @kubb/swagger-typescript
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    yarn add -D @kubb/swagger-typescript
+    ```
+  </Tab>
+</Tabs>
+
+
+
+## Options
+
+### output
+Relative path to save the Typescript types.
+When output is a file it will save all models inside that file else it will create a file per schema item.
+
+Type: `string` <br/>
+Default: `"models"`
+
+
+## Depended
+
+- [`@kubb/swagger`](/docs/usage/swagger)
