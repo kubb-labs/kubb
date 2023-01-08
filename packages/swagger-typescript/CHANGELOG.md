@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.6](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.37.5...@kubb/swagger-typescript-v0.37.6) (2023-01-08)
+
+
+### Bug Fixes
+
+* correct browser tag ([3d8477a](https://github.com/stijnvanhulle/kubb/commit/3d8477a4ec148ecbfc9ca796f173d4d3c06790cb))
+
 ## [0.37.5](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.37.4...@kubb/swagger-typescript-v0.37.5) (2023-01-08)
 
 
