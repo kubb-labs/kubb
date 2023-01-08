@@ -17,9 +17,7 @@
   ],
   "sideEffects": false,
   "main": "dist/index.js",
-  "unpkg": "dist/index.global.js",
   "module": "dist/index.mjs",
-  "browser": "dist/index.global.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -27,12 +25,6 @@
       "import": "./dist/index.mjs",
       "module": "./dist/index.mjs",
       "default": "./dist/index.js"
-    },
-    "./browser": {
-      "types": "./dist/browser/index.d.ts",
-      "import": "./dist/browser/index.mjs",
-      "module": "./dist/browser/index.mjs",
-      "default": "./dist/browser/index.js"
     },
     "./package.json": "./package.json"
   },

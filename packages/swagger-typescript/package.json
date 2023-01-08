@@ -19,9 +19,7 @@
   ],
   "sideEffects": false,
   "main": "dist/index.js",
-  "unpkg": "dist/index.global.js",
   "module": "dist/index.mjs",
-  "browser": "dist/index.global.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
