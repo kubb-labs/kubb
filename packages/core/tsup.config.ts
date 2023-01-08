@@ -26,16 +26,14 @@ export default defineConfig([
     splitting: false,
     clean: false,
     dts: false,
-    banner: {
-      js: "import { createRequire } from 'module';const require = createRequire(import.meta.url);",
-    },
+    platform: 'browser',
     esbuildOptions: (options) => {
       options.alias = {
         fs: 'memfs',
         'graceful-fs': 'memfs',
-        Buffer: 'buffer',
         events: 'eventemitter3',
         path: 'path-browserify',
+        stream: 'stream-browserify',
       }
     },
     shims: true,
