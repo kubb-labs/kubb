@@ -35,6 +35,9 @@ export default defineConfig([
         path: 'path-browserify',
         stream: 'stream-browserify',
       }
+      options.define = {
+        process: JSON.stringify({ env: {} }),
+      }
     },
     shims: true,
     format: ['iife'],
