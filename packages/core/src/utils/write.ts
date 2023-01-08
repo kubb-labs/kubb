@@ -1,28 +1,43 @@
 /* eslint-disable consistent-return */
-import fse from 'fs-extra'
+import { promises as fs } from 'fs'
+import pathParser from 'path'
 
-import { format } from './format'
+import rimraf from 'rimraf'
 
-type WriteOptions = {
-  format: boolean
+
+const safeWriteFileToPath = async (path: string, data: any) => {
+  // resolve the full path and get just the directory, ignoring the file and extension
+  const passedPath = pathParser.dirname(pathParser.resolve(path))
+  // make the directory, recursively. Theoretically, if every directory in the path exists, this won't do anything.
+  await fs.mkdir(passedPath, { recursive: true })
+  // write the file to the newly created directory
+  return fs.writeFile(pathParser.resolve(path), data, { encoding: 'utf-8' })
 }
 
-export const write = async (data: string, path: string, options: WriteOptions = { format: false }) => {
-  const formattedData = options.format ? format(data) : data
+export const write = async (data: string, path: string) => {
+  
 
   try {
-    await fse.stat(path)
-    const oldContent = await fse.readFile(path, { encoding: 'utf-8' })
-    if (oldContent?.toString() === formattedData) {
+    await fs.stat(path)
+    const oldContent = await fs.readFile(path, { encoding: 'utf-8' })
+    if (oldContent?.toString() === data) {
       return
     }
   } catch (_err) {
-    return fse.outputFile(path, formattedData, { encoding: 'utf-8' })
+    return safeWriteFileToPath(path, data)
   }
 
-  return fse.outputFile(path, formattedData, { encoding: 'utf-8' })
+  return safeWriteFileToPath(path, data)
 }
 
 export const clean = async (path: string) => {
-  return fse.remove(path)
+  return new Promise((resolve, reject) => {
+    rimraf(path, (err) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(true)
+      }
+    })
+  })
 }

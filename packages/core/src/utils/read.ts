@@ -1,6 +1,5 @@
 import pathParser from 'path'
-
-import fse from 'fs-extra'
+import { promises as fs } from 'fs'
 
 // TODO check for a better way or resolving the relative path
 export const getRelativePath = (root?: string | null, file?: string | null) => {
@@ -21,9 +20,9 @@ export const getPathMode = (path: string | undefined | null): PathMode | undefin
   return pathParser.extname(path) ? 'file' : 'directory'
 }
 
-export const read = async (path: string, encoding = 'utf8') => {
+export const read = async (path: string) => {
   try {
-    return fse.readFile(path, encoding)
+    return fs.readFile(path)
   } catch (err) {
     console.error(err)
     throw err

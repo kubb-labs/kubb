@@ -1,5 +1,4 @@
 export * from './isPromise'
 export * from './write'
 export * from './cache'
-export * from './format'
 export * from './read'

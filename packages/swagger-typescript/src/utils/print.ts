@@ -1,12 +1,6 @@
 import ts, { factory } from 'typescript'
 
-import { format } from '@kubb/core'
-
-type Options = {
-  format?: boolean
-}
-
-export const print = (elements: ts.Node | Array<ts.Node | undefined>, fileName = 'print.ts', options: Options = { format: false }) => {
+export const print = (elements: ts.Node | Array<ts.Node | undefined>, fileName = 'print.ts') => {
   let nodes: Array<ts.Node | undefined> = []
   if (Array.isArray(elements)) {
     nodes = elements
@@ -20,8 +14,5 @@ export const print = (elements: ts.Node | Array<ts.Node | undefined>, fileName =
   const printer = ts.createPrinter()
   const outputFile = printer.printList(ts.ListFormat.MultiLine, nodesArray, sourceFile)
 
-  if (options.format) {
-    return format(outputFile)
-  }
   return outputFile
 }

@@ -1,10 +1,10 @@
 import pathParser from 'path'
 
-import { format } from '@kubb/core'
 import { oasPathParser } from '@kubb/swagger'
 
 import { TypeGenerator } from './TypeGenerator'
 
+import { format } from '../../mocks/format'
 import { print } from '../utils/print'
 
 import type { OpenAPIV3 } from 'openapi-types'
@@ -19,11 +19,11 @@ describe('TypeGenerator simple', () => {
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.build(schemas?.Pet as OpenAPIV3.SchemaObject, 'Pet')
 
-    const output = print(node, undefined, { format: true })
+    const output = print(node, undefined)
 
     expect(output).toBeDefined()
 
-    expect(output).toEqual(
+    expect(format(output)).toEqual(
       format(`
     export type Pet = {
         id: number
@@ -41,10 +41,10 @@ describe('TypeGenerator simple', () => {
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.build(schemas?.Pets as OpenAPIV3.SchemaObject, 'Pets')
 
-    const output = print(node, undefined, { format: true })
+    const output = print(node, undefined)
 
     expect(output).toBeDefined()
-    expect(output).toEqual(
+    expect(format(output)).toEqual(
       format(`
    export type Pets = {
     id: number
@@ -67,10 +67,10 @@ describe('TypeGenerator with refs', () => {
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.build(schemas?.Pets as OpenAPIV3.SchemaObject, 'Pets')
 
-    const output = print(node, undefined, { format: true })
+    const output = print(node, undefined)
 
     expect(output).toBeDefined()
-    expect(output).toEqual(
+    expect(format(output)).toEqual(
       format(`
       export type Pets = Pet[]
     `)

@@ -11,6 +11,9 @@ const formatOptions: Options = {
   bracketSameLine: false,
   endOfLine: 'auto',
 }
-export const format = (text: string) => {
+export const format = (text?: string) => {
+  if (!text) {
+    return undefined
+  }
   return prettierFormat(text, formatOptions)
 }

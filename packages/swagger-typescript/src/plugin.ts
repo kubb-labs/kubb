@@ -53,7 +53,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return
       }
 
-      await this.fileManager.write(source, path, { format: true })
+      await this.fileManager.write(source, path)
     },
     async buildStart() {
       const oas = await swaggerApi.getOas(this.config)

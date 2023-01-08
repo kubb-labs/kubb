@@ -201,16 +201,14 @@ importers:
 
   packages/core:
     specifiers:
-      '@types/fs-extra': ^9.0.13
       change-case: ^4.1.2
       crypto-browserify: ^3.12.0
       directory-tree: ^3.5.1
       eventemitter3: ^5.0.0
-      fs-extra: ^11.1.0
       memfs: ^3.4.13
       openapi-types: ^12.1.0
       path-browserify: ^1.0.1
-      prettier: ^2.8.2
+      rimraf: ^3.0.2
       tsup: ^6.5.0
       typescript: ^4.9.4
       uuid: ^9.0.0
@@ -218,12 +216,10 @@ importers:
       change-case: 4.1.2
       directory-tree: 3.5.1
       eventemitter3: 5.0.0
-      fs-extra: 11.1.0
-      prettier: 2.8.2
+      rimraf: 3.0.2
       typescript: 4.9.4
       uuid: 9.0.0
     devDependencies:
-      '@types/fs-extra': 9.0.13
       crypto-browserify: 3.12.0
       memfs: 3.4.13
       openapi-types: 12.1.0
@@ -283,6 +279,7 @@ importers:
       lodash.upperfirst: ^4.3.1
       oas: ^20.3.0
       openapi-types: ^12.1.0
+      prettier: ^2.8.2
       tsup: ^6.5.0
       typescript: ^4.9.4
     dependencies:
@@ -300,6 +297,7 @@ importers:
       '@types/lodash.uniq': 4.5.7
       '@types/lodash.upperfirst': 4.3.7
       openapi-types: 12.1.0
+      prettier: 2.8.2
       tsup: 6.5.0_typescript@4.9.4
       typescript: 4.9.4
 
@@ -1989,12 +1987,6 @@ packages:
 
   /@types/estree/1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
-
-  /@types/fs-extra/9.0.13:
-    resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
-    dependencies:
-      '@types/node': 18.11.18
-    dev: true
 
   /@types/graceful-fs/4.1.5:
     resolution: {integrity: sha512-anKkLmZZ+xm4p8JWBf4hElkM4XR+EZeA2M9BAkkTldmcyDY4mbdIJnRghDJH3Ov5ooY7/UAoENtmdMSkaAd7Cw==}
@@ -4957,6 +4949,7 @@ packages:
       graceful-fs: 4.2.10
       jsonfile: 6.1.0
       universalify: 2.0.0
+    dev: true
 
   /fs-minipass/2.1.0:
     resolution: {integrity: sha512-V/JgOLFCS+R6Vcq0slCuaeWEdNC3ouDlJMNIsacH2VtALiu9mV4LPrHc5cDl8k5aw6J8jwgWWpiTo5RYhmIzvg==}
@@ -6500,6 +6493,7 @@ packages:
       universalify: 2.0.0
     optionalDependencies:
       graceful-fs: 4.2.10
+    dev: true
 
   /jsonify/0.0.1:
     resolution: {integrity: sha512-2/Ki0GcmuqSrgFyelQq9M05y7PS0mEwuIzrf3f1fPqkVDVRvZrPZtVSMHxdgo8Aq0sxAOb/cr2aqqA3LeWHVPg==}
@@ -8730,6 +8724,7 @@ packages:
     resolution: {integrity: sha512-BtRV9BcncDyI2tsuS19zzhzoxD8Dh8LiCx7j7tHzrkz8GFXAexeWFdi22mjE1d16dftH2qNaytVxqiRTGlMfpw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
+    dev: true
 
   /pretty-format/23.6.0:
     resolution: {integrity: sha512-zf9NV1NSlDLDjycnwm6hpFATCGl/K1lt0R/GdkAK2O5LN/rwJoB+Mh93gGJjut4YbmecbfgLWVGSTCr0Ewvvbw==}
@@ -10552,6 +10547,7 @@ packages:
   /universalify/2.0.0:
     resolution: {integrity: sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==}
     engines: {node: '>= 10.0.0'}
+    dev: true
 
   /untildify/4.0.0:
     resolution: {integrity: sha512-KK8xQ1mkzZeg9inewmFVDNkg3l5LUhoq9kN6iWYB/CC9YMG8HA+c1Q8HwDe6dEX7kErrEVNVBO3fWsVq5iDgtw==}

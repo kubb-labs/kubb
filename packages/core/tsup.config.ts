@@ -24,20 +24,18 @@ export default defineConfig([
     sourcemap: true,
     minify: false,
     splitting: false,
-    clean: true,
-    dts: true,
-    // banner: {
-    //   js: "import { createRequire } from 'module';const require = createRequire(import.meta.url);",
-    // },
+    clean: false,
+    dts: false,
     esbuildOptions: (options) => {
       options.alias = {
         fs: 'memfs',
         'graceful-fs': 'memfs',
+        Buffer: 'buffer',
         events: 'eventemitter3',
         path: 'path-browserify',
       }
     },
     shims: true,
-    format: ['cjs', 'esm', 'iife'],
+    format: ['iife'],
   },
 ])
