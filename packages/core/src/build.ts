@@ -1,12 +1,13 @@
+import pathParser from 'path'
+
 import { PluginManager } from './managers/pluginManager'
 import { clean, read } from './utils'
-import pathParser from 'path'
 
 import type { FileManager } from './managers/fileManager'
 import type { PluginContext, TransformResult, LogLevel, KubbPlugin } from './types'
 
 type BuildOutput = {
-  fileManager: FileManager
+  files: FileManager['files']
 }
 
 // Same type as ora
@@ -56,7 +57,7 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
   fileManager.events.onSuccess(async () => {
     await pluginManager.hookParallel('buildEnd')
     setTimeout(() => {
-      done({ fileManager })
+      done({ files: fileManager.files })
     }, 1000)
   })
 
