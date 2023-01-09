@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.18](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.17...@kubb/core-v0.37.18) (2023-01-08)
+
+
+### Bug Fixes
+
+* add input file to fileManager(when no plugins are defined) + read with correct encoding + export name for corePlugin ([70edbcb](https://github.com/stijnvanhulle/kubb/commit/70edbcb26891c570b560bf44e40bfb63d01daaa6))
+
 ## [0.37.17](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.16...@kubb/core-v0.37.17) (2023-01-08)
 
 
