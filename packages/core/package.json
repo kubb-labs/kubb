@@ -17,7 +17,9 @@
   ],
   "sideEffects": false,
   "main": "dist/index.js",
+  "unpkg": "dist/index.global.js",
   "module": "dist/index.mjs",
+  "browser": "build/index.global.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -60,15 +62,15 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "openapi-types": "^12.1.0",
     "assert": "^2.0.0",
     "crypto-browserify": "^3.12.0",
     "memfs": "^3.4.13",
-    "openapi-types": "^12.1.0",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0",
-    "tsup": "^6.5.0",
-    "util": "^0.12.5"
+    "util": "^0.12.5",
+    "tsup": "^6.5.0"
   },
   "publishConfig": {
     "access": "public",

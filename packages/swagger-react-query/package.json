@@ -22,7 +22,9 @@
   ],
   "sideEffects": false,
   "main": "dist/index.js",
+  "unpkg": "dist/index.global.js",
   "module": "dist/index.mjs",
+  "browser": "build/index.global.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -62,7 +64,17 @@
   "devDependencies": {
     "openapi-types": "^12.1.0",
     "tsup": "^6.5.0",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "assert": "^2.0.0",
+    "crypto-browserify": "^3.12.0",
+    "memfs": "^3.4.13",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
+    "eventemitter3": "^5.0.0",
+    "https-browserify": "^1.0.0",
+    "http-browserify": "^1.7.0",
+    "util": "^0.12.5"
   },
   "publishConfig": {
     "access": "public",

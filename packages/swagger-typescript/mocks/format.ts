@@ -13,7 +13,7 @@ const formatOptions: Options = {
 }
 export const format = (text?: string) => {
   if (!text) {
-    return undefined
+    return text
   }
   return prettierFormat(text, formatOptions)
 }

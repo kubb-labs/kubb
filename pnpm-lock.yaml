@@ -238,29 +238,59 @@ importers:
     specifiers:
       '@apidevtools/swagger-parser': ^10.1.0
       '@kubb/core': workspace:*
+      assert: ^2.0.0
+      crypto-browserify: ^3.12.0
+      eventemitter3: ^5.0.0
+      http-browserify: ^1.7.0
+      https-browserify: ^1.0.0
+      memfs: ^3.4.13
       oas: ^20.3.0
       openapi-types: ^12.1.0
+      path-browserify: ^1.0.1
+      process: ^0.11.10
+      stream-browserify: ^3.0.0
       tsup: ^6.5.0
       typescript: ^4.9.4
+      util: ^0.12.5
     dependencies:
       '@apidevtools/swagger-parser': 10.1.0_openapi-types@12.1.0
       '@kubb/core': link:../core
       oas: 20.3.0
     devDependencies:
+      assert: 2.0.0
+      crypto-browserify: 3.12.0
+      eventemitter3: 5.0.0
+      http-browserify: 1.7.0
+      https-browserify: 1.0.0
+      memfs: 3.4.13
       openapi-types: 12.1.0
+      path-browserify: 1.0.1
+      process: 0.11.10
+      stream-browserify: 3.0.0
       tsup: 6.5.0_typescript@4.9.4
       typescript: 4.9.4
+      util: 0.12.5
 
   packages/swagger-react-query:
     specifiers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
       '@kubb/swagger-typescript': workspace:*
+      assert: ^2.0.0
       change-case: ^4.1.2
+      crypto-browserify: ^3.12.0
+      eventemitter3: ^5.0.0
+      http-browserify: ^1.7.0
+      https-browserify: ^1.0.0
+      memfs: ^3.4.13
       oas: ^20.3.0
       openapi-types: ^12.1.0
+      path-browserify: ^1.0.1
+      process: ^0.11.10
+      stream-browserify: ^3.0.0
       tsup: ^6.5.0
       typescript: ^4.9.4
+      util: ^0.12.5
     dependencies:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
@@ -268,9 +298,19 @@ importers:
       change-case: 4.1.2
       oas: 20.3.0
     devDependencies:
+      assert: 2.0.0
+      crypto-browserify: 3.12.0
+      eventemitter3: 5.0.0
+      http-browserify: 1.7.0
+      https-browserify: 1.0.0
+      memfs: 3.4.13
       openapi-types: 12.1.0
+      path-browserify: 1.0.1
+      process: 0.11.10
+      stream-browserify: 3.0.0
       tsup: 6.5.0_typescript@4.9.4
       typescript: 4.9.4
+      util: 0.12.5
 
   packages/swagger-typescript:
     specifiers:
@@ -280,16 +320,26 @@ importers:
       '@types/lodash.get': ^4.4.7
       '@types/lodash.uniq': ^4.5.7
       '@types/lodash.upperfirst': ^4.3.7
+      assert: ^2.0.0
       change-case: ^4.1.2
+      crypto-browserify: ^3.12.0
+      eventemitter3: ^5.0.0
+      http-browserify: ^1.7.0
+      https-browserify: ^1.0.0
       lodash.camelcase: ^4.3.0
       lodash.get: ^4.4.2
       lodash.uniq: ^4.5.0
       lodash.upperfirst: ^4.3.1
+      memfs: ^3.4.13
       oas: ^20.3.0
       openapi-types: ^12.1.0
+      path-browserify: ^1.0.1
       prettier: ^2.8.2
+      process: ^0.11.10
+      stream-browserify: ^3.0.0
       tsup: ^6.5.0
       typescript: ^4.9.4
+      util: ^0.12.5
     dependencies:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
@@ -304,10 +354,20 @@ importers:
       '@types/lodash.get': 4.4.7
       '@types/lodash.uniq': 4.5.7
       '@types/lodash.upperfirst': 4.3.7
+      assert: 2.0.0
+      crypto-browserify: 3.12.0
+      eventemitter3: 5.0.0
+      http-browserify: 1.7.0
+      https-browserify: 1.0.0
+      memfs: 3.4.13
       openapi-types: 12.1.0
+      path-browserify: 1.0.1
       prettier: 2.8.2
+      process: 0.11.10
+      stream-browserify: 3.0.0
       tsup: 6.5.0_typescript@4.9.4
       typescript: 4.9.4
+      util: 0.12.5
 
 packages:
 
@@ -1769,7 +1829,6 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-darwin-x64/1.3.25:
@@ -1778,7 +1837,6 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-linux-arm-gnueabihf/1.3.25:
@@ -1787,7 +1845,6 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-linux-arm64-gnu/1.3.25:
@@ -1796,7 +1853,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-linux-arm64-musl/1.3.25:
@@ -1805,7 +1861,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-linux-x64-gnu/1.3.25:
@@ -1814,7 +1869,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-linux-x64-musl/1.3.25:
@@ -1823,7 +1877,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-win32-arm64-msvc/1.3.25:
@@ -1832,7 +1885,6 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-win32-ia32-msvc/1.3.25:
@@ -1841,7 +1893,6 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core-win32-x64-msvc/1.3.25:
@@ -1850,7 +1901,6 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@swc/core/1.3.25:
@@ -1868,7 +1918,6 @@ packages:
       '@swc/core-win32-arm64-msvc': 1.3.25
       '@swc/core-win32-ia32-msvc': 1.3.25
       '@swc/core-win32-x64-msvc': 1.3.25
-    dev: true
 
   /@swc/helpers/0.4.14:
     resolution: {integrity: sha512-4C7nX/dvpzB7za4Ql9K81xK3HPxCpHMgwTZVyf+9JQ6VUbn9jjZVN7/Nkdz/Ugzs2CSjqnL/UPXroiVBVHUWUw==}
@@ -1996,8 +2045,8 @@ packages:
   /@types/estree/1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
 
-  /@types/graceful-fs/4.1.5:
-    resolution: {integrity: sha512-anKkLmZZ+xm4p8JWBf4hElkM4XR+EZeA2M9BAkkTldmcyDY4mbdIJnRghDJH3Ov5ooY7/UAoENtmdMSkaAd7Cw==}
+  /@types/graceful-fs/4.1.6:
+    resolution: {integrity: sha512-Sig0SNORX9fdW+bQuTEovKj3uHcUL6LQKbCrrqb1X7J6/ReAbhCXRAhc+SMejhLELFj2QcyuxmUooZ4bt5ReSw==}
     dependencies:
       '@types/node': 18.11.18
     dev: true
@@ -2302,8 +2351,8 @@ packages:
     resolution: {integrity: sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==}
     dev: true
 
-  /@yarnpkg/parsers/3.0.0-rc.34:
-    resolution: {integrity: sha512-NhEA0BusInyk7EiJ7i7qF1Mkrb6gGjZcQQ/W1xxGazxapubEmGO7v5WSll6hWxFXE2ngtLj8lflq1Ff5VtqEww==}
+  /@yarnpkg/parsers/3.0.0-rc.35:
+    resolution: {integrity: sha512-J6ySgEdQUqAmlttvZOoXOEsrDTAnHyR/MtEvuAG5a+gwKY/2Cc7xn4CWcpgfuwkp+0a4vXmt2BDwzacDoGDN1g==}
     engines: {node: '>=14.15.0'}
     dependencies:
       js-yaml: 3.14.1
@@ -2315,6 +2364,10 @@ packages:
     hasBin: true
     dependencies:
       argparse: 2.0.1
+    dev: true
+
+  /Base64/0.2.1:
+    resolution: {integrity: sha512-reGEWshDmTDQDsCec/HduOO9Wyj6yMOupMfhIf3ugN1TDlK2NQW4DDJSqNNtp380SNcvRfXtO8HSCQot0d0SMw==}
     dev: true
 
   /JSONStream/1.3.5:
@@ -3492,7 +3545,7 @@ packages:
     dependencies:
       '@types/node': 18.11.18
       cosmiconfig: 8.0.0
-      ts-node: 10.9.1_awa2wsr5thmg3i7jqycphctjfq
+      ts-node: 10.9.1_h4s5tc4wq4kcse7jq5bao6xoy4
       typescript: 4.9.4
 
   /cosmiconfig/8.0.0:
@@ -4711,7 +4764,6 @@ packages:
 
   /eventemitter3/5.0.0:
     resolution: {integrity: sha512-riuVbElZZNXLeLEoprfNYoDSwTBRR44X3mnhdI1YcnENpWTCsTTVZ2zFuqQcpoyqPQIUXdiPEU0ECAq0KQRaHg==}
-    dev: false
 
   /evp_bytestokey/1.0.3:
     resolution: {integrity: sha512-/f2Go4TognH/KvCISP7OUsHn85hT9nUkxxA9BEWxFn+Oj9o8ZNLm/40hdlgSLyuOimsrTKLUMEorQexp/aPQeA==}
@@ -5451,6 +5503,13 @@ packages:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
     dev: true
 
+  /http-browserify/1.7.0:
+    resolution: {integrity: sha512-Irf/LJXmE3cBzU1eaR4+NEX6bmVLqt1wkmDiA7kBwH7zmb0D8kBAXsDmQ88hhj/qv9iEZKlyGx/hrMcFi8sOHw==}
+    dependencies:
+      Base64: 0.2.1
+      inherits: 2.0.4
+    dev: true
+
   /http-cache-semantics/4.1.0:
     resolution: {integrity: sha512-carPklcUh7ROWRK7Cv27RPtdhYhUsela/ue5/jKzjegVvXDqM2ILE9Q2BGn9JZJh1g87cp56su/FgQSzcWS8cQ==}
     dev: true
@@ -5476,6 +5535,10 @@ packages:
     dependencies:
       quick-lru: 5.1.1
       resolve-alpn: 1.2.1
+    dev: true
+
+  /https-browserify/1.0.0:
+    resolution: {integrity: sha512-J+FkSdyD+0mA0N+81tMotaRMfSL9SGi+xpD3T6YApKsc3bGSXJlfXri3VyFOeYkfLRQisDk1W+jIFFKBeUBbBg==}
     dev: true
 
   /https-proxy-agent/5.0.1:
@@ -6127,7 +6190,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.3.1
-      '@types/graceful-fs': 4.1.5
+      '@types/graceful-fs': 4.1.6
       '@types/node': 18.11.18
       anymatch: 3.1.3
       fb-watchman: 2.0.2
@@ -8115,7 +8178,7 @@ packages:
       '@parcel/watcher': 2.0.4
       '@swc/core': 1.3.25
       '@yarnpkg/lockfile': 1.1.0
-      '@yarnpkg/parsers': 3.0.0-rc.34
+      '@yarnpkg/parsers': 3.0.0-rc.35
       '@zkochan/js-yaml': 0.0.6
       axios: 1.2.2
       chalk: 4.1.0
@@ -10147,6 +10210,7 @@ packages:
       typescript: 4.9.4
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
+    dev: false
 
   /ts-node/10.9.1_h4s5tc4wq4kcse7jq5bao6xoy4:
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
@@ -10178,7 +10242,6 @@ packages:
       typescript: 4.9.4
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
-    dev: true
 
   /tsconfig-paths/3.14.1:
     resolution: {integrity: sha512-fxDhWnFSLt3VuTwtvJt5fpwxBHg5AdKWMsgcPOOIilyjymcYVZoCQF8fvFRezCNfblEXmi+PcM1eYHeOAgXCOQ==}
