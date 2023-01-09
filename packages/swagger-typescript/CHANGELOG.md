@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.21](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.37.20...@kubb/swagger-typescript-v0.37.21) (2023-01-09)
+
+
+### Bug Fixes
+
+* swagger-typescript os alias ([3be1962](https://github.com/stijnvanhulle/kubb/commit/3be19620abdf114b34d2c731f7942d08a5d3ab90))
+
 ## [0.37.20](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.37.19...@kubb/swagger-typescript-v0.37.20) (2023-01-09)
 
 
