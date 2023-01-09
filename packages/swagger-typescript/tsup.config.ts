@@ -42,7 +42,7 @@ export default defineConfig([
       }
       options.define = {
         global: 'globalThis',
-        __filename: '',
+        __filename: JSON.stringify(''),
         process: JSON.stringify({ env: {} }),
       }
     },
