@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.37.20](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.37.19...@kubb/swagger-typescript-v0.37.20) (2023-01-09)
+
+
+### Bug Fixes
+
+* cleanup devdeps ([92c5a00](https://github.com/stijnvanhulle/kubb/commit/92c5a0003739047326baade146938f5ca013654d))
+* umd module for all packages ([2b99a4b](https://github.com/stijnvanhulle/kubb/commit/2b99a4b61cec48f65f3be97713455c54cfb12e1f))
+
 ## [0.37.19](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.37.18...@kubb/swagger-typescript-v0.37.19) (2023-01-09)
 
 
