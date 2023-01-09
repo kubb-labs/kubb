@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger",
-  "version": "0.37.20",
+  "version": "0.37.21",
   "description": "Generator swagger",
   "repository": {
     "type": "git",
