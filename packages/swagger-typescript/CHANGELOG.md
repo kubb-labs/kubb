@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.22](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.37.21...@kubb/swagger-typescript-v0.37.22) (2023-01-09)
+
+
+### Bug Fixes
+
+* add fake  __filename ([8d102de](https://github.com/stijnvanhulle/kubb/commit/8d102de60c979d3fffa21207489da3294bbdc89b))
+
 ## [0.37.21](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.37.20...@kubb/swagger-typescript-v0.37.21) (2023-01-09)
 
 
