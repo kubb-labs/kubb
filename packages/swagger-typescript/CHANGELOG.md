@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.24](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.37.23...@kubb/swagger-typescript-v0.37.24) (2023-01-09)
+
+
+### Bug Fixes
+
+* revert umd creation for packages that uses ts compiler ([26e4130](https://github.com/stijnvanhulle/kubb/commit/26e4130374f440864d937a6890d99f1c545cb639))
+
 ## [0.37.23](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.37.22...@kubb/swagger-typescript-v0.37.23) (2023-01-09)
 
 
