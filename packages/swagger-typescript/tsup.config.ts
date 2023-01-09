@@ -38,6 +38,7 @@ export default defineConfig([
         process: 'process/browser',
         https: 'https-browserify',
         http: 'http-browserify',
+        os: 'os-browserify',
       }
       options.define = {
         global: 'globalThis',
