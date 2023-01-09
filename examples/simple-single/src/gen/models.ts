@@ -1,51 +1,3 @@
-export type PostPetsPetidRequest = any | null
-
-export type PostPetsPetidResponse = any | null
-
-export type ListPetsParams = {
-  /**
-   * @type string | undefined
-   */
-  limit?: string | undefined
-}
-
-/**
- * @description A paged array of pets
- */
-export type ListPetsResponse = Pets
-
-export type CreatePetsRequest = {
-  /**
-   * @type string
-   */
-  name: string
-  /**
-   * @type string
-   */
-  tag: string
-}
-
-/**
- * @description Expected response to a valid post
- */
-export type CreatePetsResponse = Pet
-
-export type ShowPetByIdParams = {
-  /**
-   * @type string | undefined
-   */
-  petId?: string | undefined
-  /**
-   * @type string | undefined
-   */
-  testId?: string | undefined
-}
-
-/**
- * @description Expected response to a valid request
- */
-export type ShowPetByIdResponse = Pet
-
 export type Person = {
   /**
    * @type integer int64
@@ -96,3 +48,51 @@ export type Error = {
    */
   message: string
 }
+
+export type PostPetsPetidRequest = any | null
+
+export type PostPetsPetidResponse = any | null
+
+export type ListPetsParams = {
+  /**
+   * @type string | undefined
+   */
+  limit?: string | undefined
+}
+
+/**
+ * @description A paged array of pets
+ */
+export type ListPetsResponse = Pets
+
+export type CreatePetsRequest = {
+  /**
+   * @type string
+   */
+  name: string
+  /**
+   * @type string
+   */
+  tag: string
+}
+
+/**
+ * @description Expected response to a valid post
+ */
+export type CreatePetsResponse = Pet
+
+export type ShowPetByIdParams = {
+  /**
+   * @type string | undefined
+   */
+  petId?: string | undefined
+  /**
+   * @type string | undefined
+   */
+  testId?: string | undefined
+}
+
+/**
+ * @description Expected response to a valid request
+ */
+export type ShowPetByIdResponse = Pet
