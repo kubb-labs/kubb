@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.19](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.18...@kubb/core-v0.37.19) (2023-01-09)
+
+
+### Bug Fixes
+
+* result of build(core) will be array of files ([057861c](https://github.com/stijnvanhulle/kubb/commit/057861ccda4048c2fee546bda38939ce65d47fa1))
+
 ## [0.37.18](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.17...@kubb/core-v0.37.18) (2023-01-08)
 
 
