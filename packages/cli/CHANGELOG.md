@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.26](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.37.25...@kubb/cli-v0.37.26) (2023-01-10)
+
+
+### Bug Fixes
+
+* correct use of catcher ([6865076](https://github.com/stijnvanhulle/kubb/commit/6865076b5901e1851f529f9fb480f30cc2dd3e77))
+
 ## [0.37.25](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.37.24...@kubb/cli-v0.37.25) (2023-01-10)
 
 

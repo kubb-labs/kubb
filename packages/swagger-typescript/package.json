@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-typescript",
-  "version": "0.37.25",
+  "version": "0.37.26",
   "description": "Generator swagger-typescript",
   "repository": {
     "type": "git",
