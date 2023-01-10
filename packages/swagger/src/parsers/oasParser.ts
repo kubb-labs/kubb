@@ -16,35 +16,25 @@ type Options = {
   validate?: boolean
 }
 export const oasPathParser = async (path: string, { validate }: Options = {}) => {
-  try {
-    if (validate) {
-      await SwaggerParser.validate(path)
-    }
-
-    const api = (await SwaggerParser.parse(path)) as OASDocument
-
-    if (!isOpenApiV3Document(api)) {
-      throw new Error('OpenAPI Document version not supported')
-    }
-    return new Oas(api)
-  } catch (e) {
-    console.log(e.message)
-    throw e
+  if (validate) {
+    await SwaggerParser.validate(path)
   }
+
+  const api = (await SwaggerParser.parse(path)) as OASDocument
+
+  if (!isOpenApiV3Document(api)) {
+    throw new Error('OpenAPI Document version not supported')
+  }
+  return new Oas(api)
 }
 
 export const oasParser = async (config: KubbConfig, options: Options = {}) => {
   let path = ''
-  try {
-    if (typeof config.input === 'string') {
-      path = JSON.parse(config.input)
-    } else {
-      path = pathParser.resolve(config.root, config.input.path)
-    }
-
-    return oasPathParser(path, options)
-  } catch (e) {
-    console.log(e.message)
-    throw e
+  if (typeof config.input === 'string') {
+    path = JSON.parse(config.input)
+  } else {
+    path = pathParser.resolve(config.root, config.input.path)
   }
+
+  return oasPathParser(path, options)
 }

@@ -232,8 +232,8 @@ export class PluginManager {
 
     if (this.logger?.spinner) {
       this.logger.spinner.fail(text)
-      throw e
     }
+    throw e
   }
 }
 
