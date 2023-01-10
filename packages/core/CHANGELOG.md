@@ -1,4 +1,11 @@
 # Changelog
+## [0.37.25](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.24...@kubb/core-v0.37.25) (2023-01-10)
+
+
+### Bug Fixes
+
+* always throw error ([e0528b4](https://github.com/stijnvanhulle/kubb/commit/e0528b4859497c6feb03c61126b4bbdfa578d060))
+
 ## [0.37.24](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.23...@kubb/core-v0.37.24) (2023-01-09)
 
 
