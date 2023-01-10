@@ -4,7 +4,6 @@ import pathParser from 'path'
 
 import rimraf from 'rimraf'
 
-
 const safeWriteFileToPath = async (path: string, data: any) => {
   // resolve the full path and get just the directory, ignoring the file and extension
   const passedPath = pathParser.dirname(pathParser.resolve(path))
@@ -15,8 +14,6 @@ const safeWriteFileToPath = async (path: string, data: any) => {
 }
 
 export const write = async (data: string, path: string) => {
-  
-
   try {
     await fs.stat(path)
     const oldContent = await fs.readFile(path, { encoding: 'utf-8' })

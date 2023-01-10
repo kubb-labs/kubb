@@ -204,7 +204,9 @@ export class PluginManager {
           return result
         })
       })
-      .catch((e: Error) => this.catcher<H>(e, plugin, hookName))
+      .catch((e: Error) => {
+        this.catcher<H>(e, plugin, hookName)
+      })
   }
 
   /**
@@ -230,10 +232,7 @@ export class PluginManager {
   private catcher<H extends PluginLifecycleHooks>(e: Error, plugin: KubbPlugin, hookName: H) {
     const text = `${e.message} (plugin: ${plugin.name}, hook: ${hookName})\n`
 
-    if (this.logger?.spinner) {
-      this.logger.spinner.fail(text)
-    }
-    throw e
+    throw new Error(text, { cause: e })
   }
 }
 

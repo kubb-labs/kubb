@@ -1,3 +1,4 @@
+/* eslint-disable no-async-promise-executor */
 import pathParser from 'path'
 
 import { PluginManager } from './managers/pluginManager'
@@ -48,11 +49,7 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
   const pluginManager = new PluginManager(config, { logger })
   const { plugins, fileManager } = pluginManager
 
-  try {
-    await pluginManager.hookParallel<'validate', true>('validate', [plugins])
-  } catch (e: any) {
-    return
-  }
+  await pluginManager.hookParallel<'validate', true>('validate', [plugins])
 
   fileManager.events.onSuccess(async () => {
     await pluginManager.hookParallel('buildEnd')
@@ -94,9 +91,9 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
 export type KubbBuild = (options: BuildOptions) => Promise<BuildOutput>
 
 export function build(options: BuildOptions): Promise<BuildOutput> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      buildImplementation(options, resolve)
+      await buildImplementation(options, resolve)
     } catch (e) {
       reject(e)
     }

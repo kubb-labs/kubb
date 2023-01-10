@@ -64,8 +64,10 @@ export async function run({ config, options, spinner }: RunProps) {
 
     await onDone(config)
   } catch (err) {
-    spinner.fail('Something went wrong\n')
-    console.error(err)
+    spinner.fail(`Something went wrong\n${err?.message}`)
+    if (options.debug) {
+      console.error(err)
+    }
   }
 
   return true
