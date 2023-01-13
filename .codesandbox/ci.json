@@ -1,0 +1,4 @@
+{
+  "packages": ["packages/cli", "packages/core", "packages/swagger", "packages/swagger-react-query", "packages/swagger-typescript"],
+  "sandboxes": ["new", "vanilla"]
+}
