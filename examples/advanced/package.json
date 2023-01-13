@@ -27,7 +27,7 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-react-query": "workspace:*",
     "@kubb/swagger-typescript": "workspace:*",
-    "@tanstack/react-query": "^4.20.9",
+    "@tanstack/react-query": "^4.22.0",
     "axios": "^1.2.2",
     "tsup": "^6.5.0",
     "react": "^18.2.0",

@@ -57,7 +57,7 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-typescript": "workspace:*",
     "change-case": "^4.1.2",
-    "oas": "^20.3.0"
+    "oas": "^20.4.0"
   },
   "devDependencies": {
     "openapi-types": "^12.1.0",

@@ -52,7 +52,7 @@
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "@kubb/core": "workspace:*",
-    "oas": "^20.3.0"
+    "oas": "^20.4.0"
   },
   "devDependencies": {
     "openapi-types": "^12.1.0",

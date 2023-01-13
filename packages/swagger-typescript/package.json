@@ -57,7 +57,7 @@
     "lodash.get": "^4.4.2",
     "lodash.camelcase": "^4.3.0",
     "lodash.upperfirst": "^4.3.1",
-    "oas": "^20.3.0"
+    "oas": "^20.4.0"
   },
   "devDependencies": {
     "openapi-types": "^12.1.0",
