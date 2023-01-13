@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.27](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.37.26...@kubb/cli-v0.37.27) (2023-01-13)
+
+
+### Bug Fixes
+
+* tsup node ([50bbf4f](https://github.com/stijnvanhulle/kubb/commit/50bbf4fc401bfb148c8ba0c080fab40169df96eb))
+
 ## [0.37.26](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.37.25...@kubb/cli-v0.37.26) (2023-01-10)
 
 

@@ -1,4 +1,12 @@
 # Changelog
+## [0.37.27](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.26...@kubb/core-v0.37.27) (2023-01-13)
+
+
+### Bug Fixes
+
+* rimraf upgrade ([6a8ffd1](https://github.com/stijnvanhulle/kubb/commit/6a8ffd111c24f14ae006312a254b7936441a3d1c))
+* tsup node ([50bbf4f](https://github.com/stijnvanhulle/kubb/commit/50bbf4fc401bfb148c8ba0c080fab40169df96eb))
+
 ## [0.37.26](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.37.25...@kubb/core-v0.37.26) (2023-01-10)
 
 
