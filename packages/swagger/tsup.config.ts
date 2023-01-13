@@ -14,6 +14,7 @@ export default defineConfig({
   banner: {
     js: "import { createRequire } from 'module';const require = createRequire(import.meta.url);",
   },
+  platform: 'node',
   shims: true,
   format: ['cjs', 'esm'],
 })
