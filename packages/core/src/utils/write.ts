@@ -28,13 +28,5 @@ export const write = async (data: string, path: string) => {
 }
 
 export const clean = async (path: string) => {
-  return new Promise((resolve, reject) => {
-    rimraf(path, (err) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(true)
-      }
-    })
-  })
+  return rimraf(path)
 }
