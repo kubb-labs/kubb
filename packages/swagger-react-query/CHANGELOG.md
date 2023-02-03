@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.28](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.37.27...@kubb/swagger-react-query-v0.37.28) (2023-02-03)
+
+
+### Bug Fixes
+
+* upgrade packages ([dcc2f7e](https://github.com/stijnvanhulle/kubb/commit/dcc2f7e1f97ca494785abbb581025d46ae6ceacd))
+
 ## [0.37.27](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.37.26...@kubb/swagger-react-query-v0.37.27) (2023-01-13)
 
 
