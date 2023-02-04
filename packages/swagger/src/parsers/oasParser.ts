@@ -18,8 +18,9 @@ type Options = {
 }
 
 const convertSwagger2ToOpenApi = (document: OASDocument): Promise<OASDocument> => {
+  const options = { anchors: true }
   return new Promise((resolve, reject) => {
-    swagger2openapi.convertObj(document, {}, (err, value) => {
+    swagger2openapi.convertObj(document, options, (err, value) => {
       if (err) {
         reject(err)
       } else {
@@ -29,12 +30,12 @@ const convertSwagger2ToOpenApi = (document: OASDocument): Promise<OASDocument> =
   })
 }
 
-export const oasPathParser = async (path: string, { validate }: Options = {}) => {
+export const oasPathParser = async (pathOrApi: string, { validate }: Options = {}) => {
   if (validate) {
-    await SwaggerParser.validate(path)
+    await SwaggerParser.validate(pathOrApi)
   }
 
-  const document = (await SwaggerParser.parse(path)) as OASDocument
+  const document = (await SwaggerParser.parse(pathOrApi)) as OASDocument
 
   if (!isOpenApiV3Document(document)) {
     const convertedDocument = await convertSwagger2ToOpenApi(document)
@@ -44,12 +45,12 @@ export const oasPathParser = async (path: string, { validate }: Options = {}) =>
 }
 
 export const oasParser = async (config: KubbConfig, options: Options = {}) => {
-  let path = ''
+  let pathOrApi = ''
   if (typeof config.input === 'string') {
-    path = JSON.parse(config.input)
+    pathOrApi = JSON.parse(config.input)
   } else {
-    path = pathParser.resolve(config.root, config.input.path)
+    pathOrApi = pathParser.resolve(config.root, config.input.path)
   }
 
-  return oasPathParser(path, options)
+  return oasPathParser(pathOrApi, options)
 }
