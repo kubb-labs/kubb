@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.30](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.37.29...@kubb/swagger-v0.37.30) (2023-02-04)
+
+
+### Bug Fixes
+
+* set anchors to true for swagger2openapi converter ([a487232](https://github.com/stijnvanhulle/kubb/commit/a487232ae978d007e6e30d4de82520430020b1ff))
+
 ## [0.37.29](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.37.28...@kubb/swagger-v0.37.29) (2023-02-04)
 
 
