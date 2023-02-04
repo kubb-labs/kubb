@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.37.29](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.37.28...@kubb/swagger-v0.37.29) (2023-02-04)
+
+
+### Bug Fixes
+
+* convert Swagger 2.0 to 3.0 with swagger2openapi ([8a166d5](https://github.com/stijnvanhulle/kubb/commit/8a166d527f09026222401185e5fa2bdaed383883))
+
 ## [0.37.28](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.37.27...@kubb/swagger-v0.37.28) (2023-02-03)
 
 
