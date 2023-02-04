@@ -1,6 +1,7 @@
 import pathParser from 'path'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
+import swagger2openapi from 'swagger2openapi'
 
 import type { KubbConfig } from '@kubb/core'
 
@@ -15,17 +16,31 @@ const Oas: typeof OasType = require('oas').default
 type Options = {
   validate?: boolean
 }
+
+const convertSwagger2ToOpenApi = (document: OASDocument): Promise<OASDocument> => {
+  return new Promise((resolve, reject) => {
+    swagger2openapi.convertObj(document, {}, (err, value) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(value.openapi)
+      }
+    })
+  })
+}
+
 export const oasPathParser = async (path: string, { validate }: Options = {}) => {
   if (validate) {
     await SwaggerParser.validate(path)
   }
 
-  const api = (await SwaggerParser.parse(path)) as OASDocument
+  const document = (await SwaggerParser.parse(path)) as OASDocument
 
-  if (!isOpenApiV3Document(api)) {
-    throw new Error('OpenAPI Document version not supported')
+  if (!isOpenApiV3Document(document)) {
+    const convertedDocument = await convertSwagger2ToOpenApi(document)
+    return new Oas(convertedDocument)
   }
-  return new Oas(api)
+  return new Oas(document)
 }
 
 export const oasParser = async (config: KubbConfig, options: Options = {}) => {
