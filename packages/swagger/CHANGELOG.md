@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.38.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.37.30...@kubb/swagger-v0.38.0) (2023-02-11)
+
+
+### Bug Fixes
+
+* remove version for swagger-plugin(auto checked by the oasParser) ([3f9a298](https://github.com/stijnvanhulle/kubb/commit/3f9a2985598ba9dfc77e4f5c14d5e514ae9e3dd8))
+
 ## [0.37.30](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.37.29...@kubb/swagger-v0.37.30) (2023-02-04)
 
 
