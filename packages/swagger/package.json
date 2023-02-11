@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "openapi-types": "^12.1.0",
-    "tsup": "^6.5.0",
+    "tsup": "^6.6.0",
     "typescript": "^4.9.5"
   },
   "publishConfig": {
