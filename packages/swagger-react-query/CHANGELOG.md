@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.39.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.38.0...@kubb/swagger-react-query-v0.39.0) (2023-02-11)
+
+
+### Features
+
+* imports for fileManager ([1e021e7](https://github.com/stijnvanhulle/kubb/commit/1e021e7210ad6b76d94ecf6c038bccc568188979))
+
 ## [0.38.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.37.30...@kubb/swagger-react-query-v0.38.0) (2023-02-11)
 
 
