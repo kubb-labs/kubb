@@ -72,6 +72,22 @@ export class FileManager {
     })
   }
 
+  build(file: File){
+    const importSource= file.imports?.reduce(((prev, curr)=>{
+      if(Array.isArray(curr.name)){
+        return `${prev}\nimport ${curr.type? "type ": ""}{ ${curr.name.join(',')} } from "${curr.path}";`
+      } 
+
+      return `${prev}\nimport ${curr.type? "type ": ""}${curr.name} from "${curr.path}";`
+    }),"")
+
+    if(importSource){
+      return `${importSource}\n${file.source}`
+    }
+
+    return file.source
+  }
+
   addOrAppend(file: File) {
     const previousCache = this.getCacheByPath(file.path)
 
@@ -80,6 +96,7 @@ export class FileManager {
       return this.add({
         ...file,
         source: `${previousCache.file.source}\n${file.source}`,
+        imports: [...(previousCache.file.imports|| []), ...(file.imports || [])]
       })
     }
     return this.add(file)

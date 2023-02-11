@@ -117,6 +117,7 @@ export class OperationGenerator extends Generator<Options> {
         path: typeFilePath,
         fileName: typeName,
         source: typeSource,
+       
       })
     }
 
@@ -127,13 +128,7 @@ export class OperationGenerator extends Generator<Options> {
     const comments = this.getComments(operation)
 
     const source = `
-          import { useQuery } from "@tanstack/react-query";
-          import axios from "axios";
-          import { parseTemplate } from 'url-template';
-  
-          import type { ${schemas.response.name}, ${schemas.params.name} } from "${getRelativePath(hookFilePath, typeFilePath)}";
-  
-          ${createJSDocBlockText({ comments })}
+         ${createJSDocBlockText({ comments })}
           export const ${camelCase(`use ${operation.getOperationId()}`)} = (params: ${schemas.params.name}) => {
             return useQuery<${schemas.response.name}>({
               queryKey: ["${hookName}"],
@@ -146,11 +141,31 @@ export class OperationGenerator extends Generator<Options> {
             })
           };
       `
-
+   
+     
     return addFile({
       path: hookFilePath,
       fileName: hookId,
       source,
+      imports:[
+        {
+          name: ["useQuery"],
+          path: "@tanstack/react-query"
+        },
+        {
+          name: 'axios',
+          path: "axios"
+        },
+        {
+          name: ["parseTemplate"],
+          path: "url-template"
+        },
+        {
+          name: [schemas.response.name,schemas.params.name],
+          path: getRelativePath(hookFilePath, typeFilePath),
+          type: true
+        }
+      ]
     })
   }
 
@@ -197,11 +212,6 @@ export class OperationGenerator extends Generator<Options> {
     const comments = this.getComments(operation)
 
     const source = `
-        import { useMutation } from "@tanstack/react-query";
-        import axios from "axios";
-
-        import type { ${schemas.request.name}, ${schemas.response.name} } from "${getRelativePath(hookFilePath, typeFilePath)}";
-
         ${createJSDocBlockText({ comments })}
         export const ${camelCase(`use ${operation.getOperationId()}`)} = () => {
           return useMutation<${schemas.response.name}, unknown, ${schemas.request.name}>({
@@ -218,6 +228,21 @@ export class OperationGenerator extends Generator<Options> {
       path: hookFilePath,
       fileName: hookId,
       source,
+      imports:[
+        {
+          name: ["useMutation"],
+          path: "@tanstack/react-query"
+        },
+        {
+          name: 'axios',
+          path: "axios"
+        },
+        {
+          name: [schemas.request.name,schemas.response.name],
+          path: getRelativePath(hookFilePath, typeFilePath),
+          type: true
+        }
+      ]
     })
 
     // end hook creation

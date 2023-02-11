@@ -22,6 +22,12 @@ export type EmittedFile = {
   options?: Record<string, any>
 }
 
+type Import={
+  name: string | string[]
+  path: string
+  type?: boolean
+}
+
 export type File = {
   /**
    * Name to be used to dynamicly create the fileName(based on input.path)
@@ -32,6 +38,7 @@ export type File = {
    */
   path: string
   source: string
+  imports?: Import[]
 }
 
 export type UUID = string

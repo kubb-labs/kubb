@@ -125,20 +125,24 @@ export function createTypeAliasDeclaration({
 }) {
   return factory.createTypeAliasDeclaration(modifiers, name, typeParameters, type)
 }
-/* TODO add import default and use that to replace(in OperationGenerator):
- import { useQuery } from "@tanstack/react-query";
-          import axios from "axios";
-          import { parseTemplate } from 'url-template';
 
-*/
-export function createImportDeclaration({ propertyNames, path }: { propertyNames: Array<ts.Identifier | string>; path: string }) {
+export function createImportDeclaration({ name, path }: { name: string | Array<ts.Identifier | string>; path: string }) {
+  if (!Array.isArray(name)) {
+    return factory.createImportDeclaration(
+      undefined,
+      factory.createImportClause(false, factory.createIdentifier(name), undefined),
+      factory.createStringLiteral(path),
+      undefined
+    )
+  }
+
   return factory.createImportDeclaration(
     undefined,
     factory.createImportClause(
       true,
       undefined,
       factory.createNamedImports(
-        propertyNames.map((propertyName) => {
+        name.map((propertyName) => {
           return factory.createImportSpecifier(false, undefined, typeof propertyName === 'string' ? factory.createIdentifier(propertyName) : propertyName)
         })
       )
