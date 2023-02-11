@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.38.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.37.30...@kubb/swagger-react-query-v0.38.0) (2023-02-11)
+
+
+### Features
+
+* swagger-typescript api ([559d8a4](https://github.com/stijnvanhulle/kubb/commit/559d8a4b386d58da530b0f4b36fd8752056b23aa))
+
 ## [0.37.30](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.37.29...@kubb/swagger-react-query-v0.37.30) (2023-02-04)
 
 
