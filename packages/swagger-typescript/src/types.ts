@@ -1,5 +1,9 @@
 import type { PluginFactoryOptions } from '@kubb/core'
 
+export type Api = {
+  resolveId: (fileName: string, directory: string | undefined) => string | null
+}
+
 export type Options = {
   /**
    * Relative path to save the Typescript types.
@@ -9,4 +13,4 @@ export type Options = {
   output?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<Options, false, undefined>
+export type PluginOptions = PluginFactoryOptions<Options, false, Api>

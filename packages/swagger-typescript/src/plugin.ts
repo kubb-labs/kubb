@@ -12,7 +12,7 @@ import { writeIndexes } from './utils/write'
 import { TypeBuilder } from './builders'
 
 import type { OpenAPIV3 } from 'openapi-types'
-import type { PluginOptions } from './types'
+import type { Api, PluginOptions } from './types'
 
 export const pluginName = 'swagger-typescript' as const
 
@@ -20,9 +20,30 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'models' } = options
   let swaggerApi: SwaggerApi
 
+  const api: Api = {
+    resolveId(fileName, directory) {
+      if (!directory) {
+        return null
+      }
+
+      const mode = getPathMode(pathParser.resolve(directory, output))
+
+      if (mode === 'file') {
+        /**
+         * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
+         * Other plugins then need to call addOrAppend instead of just add from the fileManager class
+         */
+        return pathParser.resolve(directory, output)
+      }
+
+      return pathParser.resolve(directory, output, fileName)
+    },
+  }
+
   return {
     name: pluginName,
     kind: 'schema',
+    api,
     validate(plugins) {
       const valid = validatePlugins(plugins, [swaggerPluginName])
       if (valid) {
@@ -32,21 +53,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return valid
     },
     resolveId(fileName, directory) {
-      if (!directory) {
-        return null
-      }
-
-      const mode = getPathMode(pathParser.resolve(this.config.root, this.config.output.path, output))
-
-      if (mode === 'file') {
-        /**
-         * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
-         * Other plugins then need to call addOrAppend instead of just add from the fileManager class
-         */
-        return pathParser.resolve(this.config.root, this.config.output.path, output)
-      }
-
-      return pathParser.resolve(directory, output, fileName)
+      return api.resolveId(fileName, directory)
     },
     async writeFile(source, path) {
       if (!path.endsWith('.ts') || !source) {
@@ -74,9 +81,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
               schema,
               name,
             })
-            .addImports(async (fileResolverName) => {
+            .addImports(async (name) => {
               const resolvedTypeId = await this.resolveId({
-                fileName: `${fileResolverName}.ts`,
+                fileName: `${name}.ts`,
                 directory,
                 pluginName,
               })

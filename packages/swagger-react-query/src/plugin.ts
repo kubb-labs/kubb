@@ -4,6 +4,7 @@ import { getRelativePath, createPlugin, validatePlugins } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-typescript'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi } from '@kubb/swagger'
+import type { Api as SwaggerTypescriptApi } from '@kubb/swagger-typescript'
 
 import { OperationGenerator } from './generators'
 
@@ -14,6 +15,7 @@ export const pluginName = 'swagger-react-query' as const
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'hooks', types = { output: '' } } = options
   let swaggerApi: SwaggerApi
+  let swaggerTypescriptApi: SwaggerTypescriptApi
 
   return {
     name: pluginName,
@@ -22,6 +24,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const valid = validatePlugins(plugins, [swaggerPluginName, swaggerTypescriptPluginName])
       if (valid) {
         swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api
+        swaggerTypescriptApi= plugins.find(plugin=>plugin.name===swaggerTypescriptPluginName)?.api
       }
 
       return valid
