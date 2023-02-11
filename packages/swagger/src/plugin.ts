@@ -10,7 +10,7 @@ import type { OpenAPIV3 } from 'openapi-types'
 export const pluginName = 'swagger' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'schemas', validate = true, version = '3' } = options
+  const { output = 'schemas', validate = true } = options
   const api: Api = {
     getOas: (config) => oasParser(config, { validate }),
     options,
@@ -21,10 +21,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     kind: 'schema',
     api,
     resolveId(fileName, directory) {
-      if (!directory || output === false) {
+      if (!directory) {
         return null
       }
-      return pathParser.resolve(directory, output, fileName)
+      return pathParser.resolve(directory, fileName)
     },
     async writeFile(source, path) {
       if (!path.endsWith('.json') || !source) {
@@ -34,13 +34,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       await this.fileManager.write(source, path)
     },
     async buildStart() {
+      if(output === false){
+        return undefined
+      }
+
       const oas = await api.getOas(this.config)
       const schemas = oas.getDefinition().components?.schemas || {}
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
         const path = await this.resolveId({
           fileName: `${name}.json`,
-          directory: pathParser.resolve(this.config.root, this.config.output.path),
+          directory: pathParser.resolve(this.config.root, this.config.output.path, output),
           pluginName,
         })
 

@@ -9,13 +9,6 @@ export type Api = {
 
 export type Options = {
   /**
-   * The version of Swagger/OpenAPI that you want to use.
-   *
-   * ! Under construction, only OpenAPI v3 is supported
-   */
-  version: '3'
-
-  /**
    * Validate your input(see kubb.config) based on @apidevtools/swagger-parser
    * @default true
    */
