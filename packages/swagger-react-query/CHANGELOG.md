@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.41.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.40.0...@kubb/swagger-react-query-v0.41.0) (2023-02-16)
+
+
+### Features
+
+* react-query plugin output in one file(with correct imports) ([2bd3af4](https://github.com/stijnvanhulle/kubb/commit/2bd3af4fdf188b5ac7c1335a97229479e471af85))
+
+
+### Bug Fixes
+
+* add options to every plugin + removal of EmittedFile type ([a31b427](https://github.com/stijnvanhulle/kubb/commit/a31b4275ca0904deb97fbc1b4c4827f6fbfd020d))
+
 ## [0.40.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.39.1...@kubb/swagger-react-query-v0.40.0) (2023-02-16)
 
 
