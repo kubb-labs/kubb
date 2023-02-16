@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-react-query",
-  "version": "0.39.1",
+  "version": "0.40.0",
   "description": "Generator swagger-react-query",
   "repository": {
     "type": "git",

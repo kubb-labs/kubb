@@ -1,4 +1,11 @@
 # Changelog
+## [0.40.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.39.1...@kubb/core-v0.40.0) (2023-02-16)
+
+
+### Features
+
+* use of @humanwhocodes/module-importer(like eslint) to get plugins when they are used in a JSON format ([b4715ef](https://github.com/stijnvanhulle/kubb/commit/b4715efb6d835f72b5f135245c1dde13d228fb77))
+
 ## [0.39.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.39.0...@kubb/core-v0.39.1) (2023-02-16)
 
 
