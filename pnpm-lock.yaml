@@ -228,9 +228,11 @@ importers:
 
   packages/core:
     specifiers:
+      '@types/lodash.uniq': ^4.5.7
       change-case: ^4.1.2
       directory-tree: ^3.5.1
       eventemitter3: ^5.0.0
+      lodash.uniq: ^4.5.0
       openapi-types: ^12.1.0
       rimraf: ^3.0.2
       tsup: ^6.6.3
@@ -240,10 +242,12 @@ importers:
       change-case: 4.1.2
       directory-tree: 3.5.1
       eventemitter3: 5.0.0
+      lodash.uniq: 4.5.0
       rimraf: 3.0.2
       typescript: 4.9.5
       uuid: 9.0.0
     devDependencies:
+      '@types/lodash.uniq': 4.5.7
       openapi-types: 12.1.0
       tsup: 6.6.3_typescript@4.9.5
 

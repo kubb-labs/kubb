@@ -1,6 +1,6 @@
 import pathParser from 'path'
 
-import { getRelativePath, createPlugin, validatePlugins } from '@kubb/core'
+import { getRelativePath, createPlugin, validatePlugins, getPathMode } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-typescript'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi } from '@kubb/swagger'
@@ -37,6 +37,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (options?.type === 'model') {
         return pathParser.resolve(directory, output, types.output, fileName)
       }
+
+      const mode = getPathMode(pathParser.resolve(directory, output))
+
+      if (mode === 'file') {
+        /**
+         * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
+         * Other plugins then need to call addOrAppend instead of just add from the fileManager class
+         */
+        return pathParser.resolve(directory, output)
+      }
+
       return pathParser.resolve(directory, output, fileName)
     },
     async buildStart() {

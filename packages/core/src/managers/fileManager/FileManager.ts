@@ -1,4 +1,5 @@
 import EventEmitter from 'eventemitter3'
+import uniq from 'lodash.uniq'
 import { v4 as uuidv4 } from 'uuid'
 
 import { getFileManagerEvents } from './events'
@@ -54,10 +55,13 @@ export class FileManager {
 
     file.imports?.forEach((curr) => {
       const exists = imports.find((imp) => imp.path === curr.path)
-      if (exists) {
-        exists.name = [...exists.name, ...curr.name]
-      } else {
+      if (!exists) {
         imports.push(curr)
+        return
+      }
+
+      if (exists && Array.isArray(curr.name)) {
+        exists.name = uniq([...exists.name, ...curr.name])
       }
     })
 
