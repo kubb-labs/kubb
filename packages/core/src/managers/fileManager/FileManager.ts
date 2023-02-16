@@ -104,7 +104,10 @@ export class FileManager {
   }
 
   build(file: File) {
-    return this.getSource(file)
+    return {
+      ...file,
+      source: this.getSource(file),
+    }
   }
 
   addOrAppend(file: File) {

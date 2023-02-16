@@ -54,14 +54,14 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
   fileManager.events.onSuccess(async () => {
     await pluginManager.hookParallel('buildEnd')
     setTimeout(() => {
-      done({ files: fileManager.files })
+      done({ files: fileManager.files.map((file) => fileManager.build(file)) })
     }, 1000)
   })
 
   fileManager.events.onAdd(async (id, file) => {
     const { path } = file
 
-    let code = fileManager.build(file)
+    let { source: code } = fileManager.build(file)
 
     const loadedResult = await pluginManager.hookFirst('load', [path])
     if (loadedResult) {
