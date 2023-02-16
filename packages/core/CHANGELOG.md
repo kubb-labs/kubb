@@ -1,4 +1,11 @@
 # Changelog
+## [0.39.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.39.0...@kubb/core-v0.39.1) (2023-02-16)
+
+
+### Bug Fixes
+
+* upgrade packages + cleanup ([66ca9cf](https://github.com/stijnvanhulle/kubb/commit/66ca9cf7835f0da347f263e9ac1c14eecfa7d036))
+
 ## [0.39.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.38.0...@kubb/core-v0.39.0) (2023-02-11)
 
 
