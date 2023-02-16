@@ -4,7 +4,6 @@ import type Oas from 'oas'
 
 export type Api = {
   getOas: (config: KubbConfig) => Promise<Oas>
-  options: Options
 }
 
 export type Options = {

@@ -42,6 +42,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
   return {
     name: pluginName,
+    options,
     kind: 'schema',
     api,
     validate(plugins) {

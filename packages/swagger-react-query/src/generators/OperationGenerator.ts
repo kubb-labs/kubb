@@ -117,7 +117,6 @@ export class OperationGenerator extends Generator<Options> {
         path: typeFilePath,
         fileName: typeName,
         source: typeSource,
-       
       })
     }
 
@@ -141,31 +140,30 @@ export class OperationGenerator extends Generator<Options> {
             })
           };
       `
-   
-     
+
     return addFile({
       path: hookFilePath,
       fileName: hookId,
       source,
-      imports:[
+      imports: [
         {
-          name: ["useQuery"],
-          path: "@tanstack/react-query"
+          name: ['useQuery'],
+          path: '@tanstack/react-query',
         },
         {
           name: 'axios',
-          path: "axios"
+          path: 'axios',
         },
         {
-          name: ["parseTemplate"],
-          path: "url-template"
+          name: ['parseTemplate'],
+          path: 'url-template',
         },
         {
-          name: [schemas.response.name,schemas.params.name],
+          name: [schemas.response.name, schemas.params.name],
           path: getRelativePath(hookFilePath, typeFilePath),
-          type: true
-        }
-      ]
+          type: true,
+        },
+      ],
     })
   }
 
@@ -228,21 +226,21 @@ export class OperationGenerator extends Generator<Options> {
       path: hookFilePath,
       fileName: hookId,
       source,
-      imports:[
+      imports: [
         {
-          name: ["useMutation"],
-          path: "@tanstack/react-query"
+          name: ['useMutation'],
+          path: '@tanstack/react-query',
         },
         {
           name: 'axios',
-          path: "axios"
+          path: 'axios',
         },
         {
-          name: [schemas.request.name,schemas.response.name],
+          name: [schemas.request.name, schemas.response.name],
           path: getRelativePath(hookFilePath, typeFilePath),
-          type: true
-        }
-      ]
+          type: true,
+        },
+      ],
     })
 
     // end hook creation

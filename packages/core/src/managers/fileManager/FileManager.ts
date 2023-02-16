@@ -49,6 +49,33 @@ export class FileManager {
     return count
   }
 
+  private getSource(file: File) {
+    const imports: File['imports'] = []
+
+    file.imports?.forEach((curr) => {
+      const exists = imports.find((imp) => imp.path === curr.path)
+      if (exists) {
+        exists.name = [...exists.name, ...curr.name]
+      } else {
+        imports.push(curr)
+      }
+    })
+
+    const importSource = imports.reduce((prev, curr) => {
+      if (Array.isArray(curr.name)) {
+        return `${prev}\nimport ${curr.type ? 'type ' : ''}{ ${curr.name.join(',')} } from "${curr.path}";`
+      }
+
+      return `${prev}\nimport ${curr.type ? 'type ' : ''}${curr.name} from "${curr.path}";`
+    }, '')
+
+    if (importSource) {
+      return `${importSource}\n${file.source}`
+    }
+
+    return file.source
+  }
+
   get files() {
     const files: File[] = []
     this.cache.forEach((item) => {
@@ -72,32 +99,8 @@ export class FileManager {
     })
   }
 
-  build(file: File){
-    const imports: File["imports"]=[]
-
-    file.imports?.forEach((curr)=>{
-      const exists = imports.find(imp=>imp.path===curr.path)
-      if(exists){
-       exists.name=[...exists.name, ...curr.name]
-      }else{
-        imports.push(curr)
-      }
-    })
-
-
-    const importSource= imports.reduce(((prev, curr)=>{
-      if(Array.isArray(curr.name)){
-        return `${prev}\nimport ${curr.type? "type ": ""}{ ${curr.name.join(',')} } from "${curr.path}";`
-      } 
-
-      return `${prev}\nimport ${curr.type? "type ": ""}${curr.name} from "${curr.path}";`
-    }),"")
-
-    if(importSource){
-      return `${importSource}\n${file.source}`
-    }
-
-    return file.source
+  build(file: File) {
+    return this.getSource(file)
   }
 
   addOrAppend(file: File) {
@@ -108,7 +111,7 @@ export class FileManager {
       return this.add({
         ...file,
         source: `${previousCache.file.source}\n${file.source}`,
-        imports: [...(previousCache.file.imports|| []), ...(file.imports || [])]
+        imports: [...(previousCache.file.imports || []), ...(file.imports || [])],
       })
     }
     return this.add(file)

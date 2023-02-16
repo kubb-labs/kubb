@@ -1,28 +1,4 @@
-/**
- * @deprecated Use userFile instead
- */
-export type EmittedFile = {
-  /**
-   *  equal to importee when getting passed through resolveId
-   */
-  id: string
-  /**
-   * The importer is the fully resolved id of the importing module.
-   */
-  importer?: string
-  /**
-   * Name to be used to dynamicly create the fileName(based on input.path)
-   */
-  name?: string
-  /**
-   * FileName will be the end result so no input.path will not be added
-   */
-  fileName?: string
-  source?: string
-  options?: Record<string, any>
-}
-
-type Import={
+type Import = {
   name: string | string[]
   path: string
   type?: boolean

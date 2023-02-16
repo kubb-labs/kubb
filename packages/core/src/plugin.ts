@@ -2,7 +2,7 @@ import pathParser from 'path'
 
 import { createPluginCache } from './utils'
 
-import type { FileManager, EmittedFile, File } from './managers/fileManager'
+import type { FileManager } from './managers/fileManager'
 import type { PluginContext, KubbPlugin, PluginFactoryOptions } from './types'
 
 type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (
@@ -39,35 +39,15 @@ export type CorePluginOptions = PluginFactoryOptions<Options, false, PluginConte
 
 export const name = 'core' as const
 
-const isEmittedFile = (result: EmittedFile | File): result is EmittedFile => {
-  return !!(result as any).id
-}
-
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
   const { fileManager, resolveId, load } = options
-  const indexFiles: File[] = []
 
   const api: PluginContext = {
     get config() {
       return options.config
     },
     fileManager,
-    async addFile(file, options) {
-      if (isEmittedFile(file)) {
-        const resolvedId = await resolveId({ fileName: file.id, directory: file.importer, options: file.options })
-        const path = resolvedId || file.importer || file.id
-
-        return fileManager.add({
-          path,
-          fileName: file.name || file.id,
-          source: file.source || '',
-        })
-      }
-
-      if (options?.root) {
-        indexFiles.push(file)
-      }
-
+    async addFile(file) {
       return fileManager.addOrAppend(file)
     },
     resolveId,
@@ -77,6 +57,7 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
 
   return {
     name,
+    options,
     api,
     resolveId(fileName, directory) {
       if (!directory) {

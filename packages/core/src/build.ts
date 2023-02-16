@@ -60,8 +60,8 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
 
   fileManager.events.onAdd(async (id, file) => {
     const { path } = file
-  
-    let code =fileManager.build(file)
+
+    let code = fileManager.build(file)
 
     const loadedResult = await pluginManager.hookFirst('load', [path])
     if (loadedResult) {

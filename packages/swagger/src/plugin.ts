@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 import pathParser from 'path'
 
 import { createPlugin } from '@kubb/core'
@@ -13,11 +14,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'schemas', validate = true } = options
   const api: Api = {
     getOas: (config) => oasParser(config, { validate }),
-    options,
   }
 
   return {
     name: pluginName,
+    options,
     kind: 'schema',
     api,
     resolveId(fileName, directory) {
@@ -34,7 +35,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       await this.fileManager.write(source, path)
     },
     async buildStart() {
-      if(output === false){
+      if (output === false) {
         return undefined
       }
 

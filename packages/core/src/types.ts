@@ -1,4 +1,4 @@
-import type { FileManager, EmittedFile, File } from './managers/fileManager'
+import type { FileManager, File } from './managers/fileManager'
 import type { Cache } from './utils/cache'
 
 export type MaybePromise<T> = Promise<T> | T
@@ -98,6 +98,10 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * Defined an api that can be used by other plugins
    */
   api?: TOptions['api']
+  /**
+   * Options set for a specific plugin(see kubb.config.ts)
+   */
+  options?: TOptions['options']
 } & Partial<PluginLifecycle>
 
 // use of type objects
@@ -166,7 +170,7 @@ export type PluginContext = {
   config: KubbConfig
   cache: Cache
   fileManager: FileManager
-  addFile: (emitedFile: EmittedFile | File, options?: { root?: true }) => Promise<File>
+  addFile: (file: File) => Promise<File>
   resolveId: (params: ResolveIdParams) => MaybePromise<OptionalPath>
   load: (id: string) => MaybePromise<TransformResult | void>
 }
