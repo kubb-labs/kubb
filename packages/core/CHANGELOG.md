@@ -1,4 +1,11 @@
 # Changelog
+## [0.41.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.41.0...@kubb/core-v0.41.1) (2023-02-16)
+
+
+### Bug Fixes
+
+* build with core ([3609c81](https://github.com/stijnvanhulle/kubb/commit/3609c811447d49751bf38048f5b4f1a1ea272132))
+
 ## [0.41.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.40.0...@kubb/core-v0.41.0) (2023-02-16)
 
 
