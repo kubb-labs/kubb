@@ -62,4 +62,31 @@ export default defineConfig(async () => {
 })
 ```
 
+## Example with config and Swagger plugins in JSON format
+ ```bash copy
+kubb --config kubb.config.ts
+```
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig(() => {
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+    logLevel: 'info',
+    plugins: [
+      ['@kubb/swagger', { output: false }],
+      ['@kubb/swagger-typescript', { output: 'models/ts' }],
+      ['@kubb/swagger-react-query', { output: './reactQuery', types: { output: 'models' } }],
+    ],
+  }
+})
+```
+
 See [kubb/examples/simple/kubb.config.ts](https://github.com/stijnvanhulle/kubb/blob/main/examples/simple/kubb.config.ts) on Github.

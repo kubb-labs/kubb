@@ -1,7 +1,4 @@
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTypescript from '@kubb/swagger-typescript'
-import createSwaggerReactQuery from '@kubb/swagger-react-query'
 
 export default defineConfig(async () => {
   await setTimeout(() => {
@@ -22,9 +19,12 @@ export default defineConfig(async () => {
     },
     // logLevel: 'info',
     plugins: [
-      createSwagger({ output: false }),
-      createSwaggerTypescript({ output: 'models/ts' }),
-      createSwaggerReactQuery({ output: './reactQuery', types: { output: 'models' } }),
+      ['@kubb/swagger', { output: false }],
+      ['@kubb/swagger-typescript', { output: 'models/ts' }],
+      ['@kubb/swagger-react-query', { output: './reactQuery', types: { output: 'models' } }],
+      // createSwagger({ output: false }),
+      // createSwaggerTypescript({ output: 'models/ts' }),
+      // createSwaggerReactQuery({ output: './reactQuery', types: { output: 'models' } }),
     ],
   }
 })
