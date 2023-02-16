@@ -63,7 +63,7 @@
   },
   "devDependencies": {
     "openapi-types": "^12.1.0",
-    "tsup": "^6.6.0"
+    "tsup": "^6.6.3"
   },
   "publishConfig": {
     "access": "public",

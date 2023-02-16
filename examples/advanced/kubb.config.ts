@@ -22,7 +22,7 @@ export default defineConfig(async () => {
     },
     // logLevel: 'info',
     plugins: [
-      createSwagger({ version: '3', output: false }),
+      createSwagger({ output: false }),
       createSwaggerTypescript({ output: 'models/ts' }),
       createSwaggerReactQuery({ output: './reactQuery', types: { output: 'models' } }),
     ],

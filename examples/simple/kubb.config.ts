@@ -16,5 +16,5 @@ export default defineConfig({
     done: 'eslint --fix ./src/gen',
   },
   logLevel: 'warn',
-  plugins: [createSwagger({ version: '3' }), createSwaggerTypescript({ output: 'models' }), createSwaggerReactQuery({ output: './hooks' })],
+  plugins: [createSwagger({}), createSwaggerTypescript({ output: 'models' }), createSwaggerReactQuery({ output: './hooks' })],
 })
