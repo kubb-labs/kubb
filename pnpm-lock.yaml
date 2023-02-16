@@ -193,7 +193,9 @@ importers:
 
   packages/cli:
     specifiers:
+      '@humanwhocodes/module-importer': ^1.0.1
       '@kubb/core': workspace:*
+      '@kubb/swagger': workspace:*
       '@types/node': ^18.13.0
       chokidar: ^3.5.3
       commander: ^10.0.0
@@ -207,6 +209,7 @@ importers:
       tsup: ^6.6.3
       typescript: ^4.9.5
     dependencies:
+      '@humanwhocodes/module-importer': 1.0.1
       '@kubb/core': link:../core
       chokidar: 3.5.3
       commander: 10.0.0
@@ -218,6 +221,7 @@ importers:
       string-argv: 0.3.1
       ts-node: 10.9.1_4bewfcp2iebiwuold25d6rgcsy
     devDependencies:
+      '@kubb/swagger': link:../swagger
       '@types/node': 18.13.0
       tsup: 6.6.3_6qtx7vkbdhwvdm4crzlegk4mvi
       typescript: 4.9.5
@@ -1156,7 +1160,6 @@ packages:
   /@humanwhocodes/module-importer/1.0.1:
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
     engines: {node: '>=12.22'}
-    dev: true
 
   /@humanwhocodes/momoa/2.0.4:
     resolution: {integrity: sha512-RE815I4arJFtt+FVeU1Tgp9/Xvecacji8w/V6XtXsWWH/wz/eNkNbhb+ny/+PlVZjV0rxQpRSQKNKE3lcktHEA==}

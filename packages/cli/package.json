@@ -41,6 +41,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@humanwhocodes/module-importer": "^1.0.1",
     "@kubb/core": "workspace:*",
     "chokidar": "^3.5.3",
     "commander": "^10.0.0",
@@ -53,6 +54,7 @@
     "ts-node": "^10.9.1"
   },
   "devDependencies": {
+    "@kubb/swagger": "workspace:*",
     "@types/node": "^18.13.0",
     "tsup": "^6.6.3",
     "typescript": "^4.9.5"

@@ -1,3 +1,6 @@
+import { ModuleImporter } from '@humanwhocodes/module-importer'
+// see https://github.com/eslint/eslint/blob/740b20826fadc5322ea5547c1ba41793944e571d/lib/cli.js
+
 import type { KubbUserConfig, KubbJSONPlugin } from '@kubb/core'
 
 const isJSONPlugins = (plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): plugins is KubbJSONPlugin[] => {
@@ -6,12 +9,19 @@ const isJSONPlugins = (plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): p
   })
 }
 
+const importPlugin = async (name: string, options: Record<string, any>) => {
+  const importer = new ModuleImporter(process.cwd())
+
+  const importedPlugin: any = process.env.NODE_ENV === 'test' ? await import(name) : await importer.import(name)
+
+  return importedPlugin?.default?.default ? importedPlugin.default.default(options) : importedPlugin.default(options)
+}
+
 export const getPlugins = (plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): Promise<KubbUserConfig['plugins']> => {
   if (isJSONPlugins(plugins)) {
     const promises = plugins.map(async (plugin) => {
       const [name, options = {}] = plugin
-      const importedPlugin = await import(name)
-      return importedPlugin?.default ? importedPlugin.default(options) : importedPlugin(options)
+      return importPlugin(name, options)
     })
     return Promise.all(promises)
   }

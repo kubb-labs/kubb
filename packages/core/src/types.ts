@@ -3,14 +3,19 @@ import type { Cache } from './utils/cache'
 
 export type MaybePromise<T> = Promise<T> | T
 
-export type KubbUserConfig<IsJSON = false> = Omit<KubbConfig, 'root'> & {
+export type KubbUserConfig = Omit<KubbConfig, 'root'> & {
   /**
    * Project root directory. Can be an absolute path, or a path relative from
    * the location of the config file itself.
    * @default process.cwd()
    */
   root?: string
-  plugins?: IsJSON extends true ? KubbJSONPlugin[] : KubbPlugin[]
+  /**
+   * Plugin type can be KubbJSONPlugin or KubbPlugin
+   * Example: ['@kubb/swagger', { output: false }]
+   * Or: createSwagger({ output: false })
+   */
+  plugins?: Array<unknown>
 }
 
 /**
