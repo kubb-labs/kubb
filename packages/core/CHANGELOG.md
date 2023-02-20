@@ -1,4 +1,11 @@
 # Changelog
+## [0.42.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.42.0...@kubb/core-v0.42.1) (2023-02-20)
+
+
+### Bug Fixes
+
+* fileManager.getSource public + cleanup ([9fc7df7](https://github.com/stijnvanhulle/kubb/commit/9fc7df76d7a7b4a9af0c1b34a629370ea7d21f9b))
+
 ## [0.42.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.41.1...@kubb/core-v0.42.0) (2023-02-20)
 
 
