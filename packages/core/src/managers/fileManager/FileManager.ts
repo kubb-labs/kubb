@@ -50,7 +50,7 @@ export class FileManager {
     return count
   }
 
-  private getSource(file: File) {
+  public getSource(file: File) {
     // TODO make generic check
     if (!file.fileName.endsWith('.ts')) {
       return file.source
@@ -119,13 +119,6 @@ export class FileManager {
       })
     }
     return this.add(file)
-  }
-
-  build(file: File) {
-    return {
-      ...file,
-      source: this.getSource(file),
-    }
   }
 
   combine(files: Array<File | null>) {

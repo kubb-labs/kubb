@@ -21,10 +21,10 @@ export default defineConfig(async () => {
     plugins: [
       ['@kubb/swagger', { output: false }],
       ['@kubb/swagger-typescript', { output: 'models/ts' }],
-      ['@kubb/swagger-react-query', { output: './reactQuery', types: { output: 'models' } }],
+      ['@kubb/swagger-react-query', { output: './reactQuery' }],
       // createSwagger({ output: false }),
       // createSwaggerTypescript({ output: 'models/ts' }),
-      // createSwaggerReactQuery({ output: './reactQuery', types: { output: 'models' } }),
+      // createSwaggerReactQuery({ output: './reactQuery' }),
     ],
   }
 })

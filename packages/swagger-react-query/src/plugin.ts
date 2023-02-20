@@ -13,7 +13,7 @@ import type { PluginOptions } from './types'
 export const pluginName = 'swagger-react-query' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', types = { output: '' } } = options
+  const { output = 'hooks' } = options
   let swaggerApi: SwaggerApi
   let swaggerTypescriptApi: SwaggerTypescriptApi
 
@@ -33,9 +33,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     resolveId(fileName, directory, options: { type: 'model' }) {
       if (!directory) {
         return null
-      }
-      if (options?.type === 'model') {
-        return pathParser.resolve(directory, output, types.output, fileName)
       }
 
       const mode = getPathMode(pathParser.resolve(directory, output))
