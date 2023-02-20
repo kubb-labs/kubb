@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.42.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.41.1...@kubb/swagger-react-query-v0.42.0) (2023-02-20)
+
+
+### Features
+
+* move typescript logic to swagger-typescript package ([d4b6d2b](https://github.com/stijnvanhulle/kubb/commit/d4b6d2b8035de648bb583662d5c022a37dff8f74))
+
+
+### Bug Fixes
+
+* better use of fileManager and single file(mode file) ([af010b9](https://github.com/stijnvanhulle/kubb/commit/af010b9ae07b48cedc9d7328d121fb562aba1af0))
+
 ## [0.41.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.41.0...@kubb/swagger-react-query-v0.41.1) (2023-02-16)
 
 
