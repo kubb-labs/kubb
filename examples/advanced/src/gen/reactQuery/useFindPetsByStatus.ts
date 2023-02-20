@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { parseTemplate } from 'url-template'
 
-import type { FindPetsByStatusResponse, FindPetsByStatusParams } from './models/FindPetsByStatus'
+import type { FindPetsByStatusResponse, FindPetsByStatusParams } from '../models/ts/FindPetsByStatus'
 
 /**
  * @description Multiple status values can be provided with comma separated strings

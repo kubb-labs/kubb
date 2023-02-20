@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { parseTemplate } from 'url-template'
 
-import type { GetInventoryResponse, GetInventoryParams } from './models/GetInventory'
+import type { GetInventoryResponse, GetInventoryParams } from '../models/ts/GetInventory'
 
 /**
  * @description Returns a map of status codes to quantities

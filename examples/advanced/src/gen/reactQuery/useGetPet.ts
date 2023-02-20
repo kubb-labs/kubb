@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { parseTemplate } from 'url-template'
 
-import type { GetPetResponse, GetPetParams } from './models/GetPet'
+import type { GetPetResponse, GetPetParams } from '../models/ts/GetPet'
 
 /**
  * @link /pet

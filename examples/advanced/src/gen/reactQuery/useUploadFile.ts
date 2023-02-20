@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
-import type { UploadFileRequest, UploadFileResponse } from './models/UploadFile'
+import type { UploadFileRequest, UploadFileResponse } from '../models/ts/UploadFile'
 
 /**
  * @summary uploads an image

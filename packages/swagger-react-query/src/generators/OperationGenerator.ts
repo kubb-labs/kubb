@@ -4,8 +4,7 @@ import { camelCase, capitalCase } from 'change-case'
 
 import type { PluginContext, File } from '@kubb/core'
 import { Generator, getRelativePath } from '@kubb/core'
-import type { FileResolver } from '@kubb/swagger-typescript'
-import { createJSDocBlockText, TypeBuilder } from '@kubb/swagger-typescript'
+import { createJSDocBlockText, pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-typescript'
 
 import { pluginName } from '../plugin'
 
@@ -17,24 +16,9 @@ import type { OpenAPIV3 } from 'openapi-types'
 type Options = {
   oas: Oas
   context: PluginContext
-  fileResolverFactory?: (hookId: string, typePluginName?: string) => FileResolver
-  typePluginName?: string
 }
 
 export class OperationGenerator extends Generator<Options> {
-  async build() {
-    const { oas } = this.options
-    const paths = oas.getPaths()
-    const promises: Promise<File | null>[] = []
-
-    Object.keys(paths).forEach((path) => {
-      promises.push(this.getGet(path))
-      promises.push(this.getPost(path))
-    })
-
-    await Promise.all(promises)
-  }
-
   private getSchemas(operation: Operation) {
     // TODO create function to get schema out of paramaters
     const schemaOperationPathParameters = operation.getParameters().filter((v) => v.in === 'path' || v.in === 'query')
@@ -80,7 +64,7 @@ export class OperationGenerator extends Generator<Options> {
 
   async getGet(path: string) {
     const { resolveId, addFile, config } = this.options.context
-    const { oas, fileResolverFactory, typePluginName } = this.options
+    const { oas } = this.options
     const directory = pathParser.resolve(config.root, config.output.path)
     const operation = oas.operation(path, 'get')
 
@@ -103,24 +87,7 @@ export class OperationGenerator extends Generator<Options> {
     const schemas = this.getSchemas(operation)
 
     const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: typePluginName, options: { type: 'model' } })
-
-    const typeSource = await new TypeBuilder(oas)
-      .add(schemas.params)
-      .add(schemas.response)
-      .addImports(fileResolverFactory?.(hookId, typePluginName))
-      .addJSDocs()
-      .print()
-
-    if (typeFilePath) {
-      await addFile({
-        path: typeFilePath,
-        fileName: typeName,
-        source: typeSource,
-      })
-    }
-
-    // end type creation
+    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // hook creation
 
@@ -169,7 +136,7 @@ export class OperationGenerator extends Generator<Options> {
 
   async getPost(path: string) {
     const { resolveId, addFile, config } = this.options.context
-    const { oas, fileResolverFactory, typePluginName } = this.options
+    const { oas } = this.options
     const directory = pathParser.resolve(config.root, config.output.path)
     const operation = oas.operation(path, 'post')
 
@@ -187,23 +154,7 @@ export class OperationGenerator extends Generator<Options> {
     const schemas = this.getSchemas(operation)
 
     const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: typePluginName, options: { type: 'model' } })
-    const typeSource = await new TypeBuilder(oas)
-      .add(schemas.request)
-      .add(schemas.response)
-      .addImports(fileResolverFactory?.(hookId, typePluginName))
-      .addJSDocs()
-      .print()
-
-    if (typeFilePath) {
-      await addFile({
-        path: typeFilePath,
-        fileName: typeName,
-        source: typeSource,
-      })
-    }
-
-    // end type creation
+    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // hook creation
 
@@ -244,5 +195,18 @@ export class OperationGenerator extends Generator<Options> {
     })
 
     // end hook creation
+  }
+
+  async build() {
+    const { oas } = this.options
+    const paths = oas.getPaths()
+    const promises: Promise<File | null>[] = []
+
+    Object.keys(paths).forEach((path) => {
+      promises.push(this.getGet(path))
+      promises.push(this.getPost(path))
+    })
+
+    await Promise.all(promises)
   }
 }

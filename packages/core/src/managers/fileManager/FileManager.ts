@@ -51,6 +51,10 @@ export class FileManager {
   }
 
   private getSource(file: File) {
+    // TODO make generic check
+    if (!file.fileName.endsWith('.ts')) {
+      return file.source
+    }
     const imports: File['imports'] = []
 
     file.imports?.forEach((curr) => {

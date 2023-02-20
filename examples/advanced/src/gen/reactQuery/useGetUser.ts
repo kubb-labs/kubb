@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { parseTemplate } from 'url-template'
 
-import type { GetUserResponse, GetUserParams } from './models/GetUser'
+import type { GetUserResponse, GetUserParams } from '../models/ts/GetUser'
 
 /**
  * @link /user

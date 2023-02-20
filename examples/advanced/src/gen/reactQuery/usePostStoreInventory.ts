@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
-import type { PostStoreInventoryRequest, PostStoreInventoryResponse } from './models/PostStoreInventory'
+import type { PostStoreInventoryRequest, PostStoreInventoryResponse } from '../models/ts/PostStoreInventory'
 
 /**
  * @link /store/inventory

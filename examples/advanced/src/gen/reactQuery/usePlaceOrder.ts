@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
-import type { PlaceOrderRequest, PlaceOrderResponse } from './models/PlaceOrder'
+import type { PlaceOrderRequest, PlaceOrderResponse } from '../models/ts/PlaceOrder'
 
 /**
  * @description Place a new order in the store

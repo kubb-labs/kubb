@@ -1,4 +1,4 @@
-import type { Pet } from '../../models/ts/Pet'
+import type { Pet } from './Pet'
 
 export type FindPetsByStatusParams = {
   /**

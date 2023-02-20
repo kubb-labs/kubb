@@ -1,4 +1,3 @@
-export * from './models'
 export * from './useAddPet'
 export * from './useCreateUser'
 export * from './useCreateUsersWithListInput'

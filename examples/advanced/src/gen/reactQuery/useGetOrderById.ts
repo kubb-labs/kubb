@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { parseTemplate } from 'url-template'
 
-import type { GetOrderByIdResponse, GetOrderByIdParams } from './models/GetOrderById'
+import type { GetOrderByIdResponse, GetOrderByIdParams } from '../models/ts/GetOrderById'
 
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.

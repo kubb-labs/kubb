@@ -1,4 +1,4 @@
-import type { User } from '../../models/ts/User'
+import type { User } from './User'
 
 export type GetUserByNameParams = {
   /**

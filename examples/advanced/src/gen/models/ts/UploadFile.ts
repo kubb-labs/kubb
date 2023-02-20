@@ -1,4 +1,4 @@
-import type { ApiResponse } from '../../models/ts/ApiResponse'
+import type { ApiResponse } from './ApiResponse'
 
 export type UploadFileRequest = any | null
 

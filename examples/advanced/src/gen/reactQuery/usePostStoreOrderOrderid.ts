@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
-import type { PostStoreOrderOrderidRequest, PostStoreOrderOrderidResponse } from './models/PostStoreOrderOrderid'
+import type { PostStoreOrderOrderidRequest, PostStoreOrderOrderidResponse } from '../models/ts/PostStoreOrderOrderid'
 
 /**
  * @link /store/order/{orderId}

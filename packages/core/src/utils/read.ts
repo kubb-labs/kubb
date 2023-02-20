@@ -13,9 +13,9 @@ export const getRelativePath = (root?: string | null, file?: string | null) => {
 
 export type PathMode = 'file' | 'directory'
 
-export const getPathMode = (path: string | undefined | null): PathMode | undefined => {
+export const getPathMode = (path: string | undefined | null): PathMode => {
   if (!path) {
-    return undefined
+    return 'directory'
   }
   return pathParser.extname(path) ? 'file' : 'directory'
 }

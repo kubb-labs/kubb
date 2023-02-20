@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { parseTemplate } from 'url-template'
 
-import type { GetUserCreatewithlistResponse, GetUserCreatewithlistParams } from './models/GetUserCreatewithlist'
+import type { GetUserCreatewithlistResponse, GetUserCreatewithlistParams } from '../models/ts/GetUserCreatewithlist'
 
 /**
  * @link /user/createWithList

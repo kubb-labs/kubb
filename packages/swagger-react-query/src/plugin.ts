@@ -1,6 +1,6 @@
 import pathParser from 'path'
 
-import { getRelativePath, createPlugin, validatePlugins, getPathMode } from '@kubb/core'
+import { createPlugin, validatePlugins, getPathMode } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-typescript'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi } from '@kubb/swagger'
@@ -52,25 +52,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     },
     async buildStart() {
       const oas = await swaggerApi.getOas(this.config)
-      const directory = pathParser.resolve(this.config.root, this.config.output.path)
 
       const operationGenerator = new OperationGenerator({
         oas,
         context: this,
-        // TODO find better way of doing this
-        typePluginName: types.output ? pluginName : swaggerTypescriptPluginName,
-        fileResolverFactory: (fileName, typePluginName) => async (name) => {
-          // Used when a react-query type(request, response, params) has an import of a global type
-          const filePath = await this.resolveId({ fileName, directory, pluginName: typePluginName, options: { type: 'model' } })
-          // refs import, will always been created with the swaggerTypescript plugin, our global type
-          const resolvedTypeId = await this.resolveId({
-            fileName: `${name}.ts`,
-            directory,
-            pluginName: swaggerTypescriptPluginName,
-          })
-
-          return getRelativePath(filePath, resolvedTypeId)
-        },
       })
 
       await operationGenerator.build()

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { parseTemplate } from 'url-template'
 
-import type { GetStoreOrderResponse, GetStoreOrderParams } from './models/GetStoreOrder'
+import type { GetStoreOrderResponse, GetStoreOrderParams } from '../models/ts/GetStoreOrder'
 
 /**
  * @link /store/order

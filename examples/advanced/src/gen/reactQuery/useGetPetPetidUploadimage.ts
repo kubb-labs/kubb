@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { parseTemplate } from 'url-template'
 
-import type { GetPetPetidUploadimageResponse, GetPetPetidUploadimageParams } from './models/GetPetPetidUploadimage'
+import type { GetPetPetidUploadimageResponse, GetPetPetidUploadimageParams } from '../models/ts/GetPetPetidUploadimage'
 
 /**
  * @link /pet/{petId}/uploadImage

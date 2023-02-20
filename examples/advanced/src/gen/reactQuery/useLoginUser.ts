@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { parseTemplate } from 'url-template'
 
-import type { LoginUserResponse, LoginUserParams } from './models/LoginUser'
+import type { LoginUserResponse, LoginUserParams } from '../models/ts/LoginUser'
 
 /**
  * @summary Logs user into the system

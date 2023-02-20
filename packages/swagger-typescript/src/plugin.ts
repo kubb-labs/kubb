@@ -10,6 +10,7 @@ import type { Api as SwaggerApi } from '@kubb/swagger'
 
 import { writeIndexes } from './utils/write'
 import { TypeBuilder } from './builders'
+import { OperationGenerator } from './generators/OperationGenerator'
 
 import type { OpenAPIV3 } from 'openapi-types'
 import type { Api, PluginOptions } from './types'
@@ -132,6 +133,16 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           source: source.join('\n'),
         })
       }
+
+      const operationGenerator = new OperationGenerator({
+        oas,
+        mode,
+        directory,
+        fileManager: this.fileManager,
+        resolveId: api.resolveId,
+      })
+
+      await operationGenerator.build()
     },
     async buildEnd() {
       await writeIndexes(this.config.root, this.config.output.path, { extensions: /\.ts/, exclude: [/schemas/, /json/] })

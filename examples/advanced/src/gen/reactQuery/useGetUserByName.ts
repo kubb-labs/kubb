@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { parseTemplate } from 'url-template'
 
-import type { GetUserByNameResponse, GetUserByNameParams } from './models/GetUserByName'
+import type { GetUserByNameResponse, GetUserByNameParams } from '../models/ts/GetUserByName'
 
 /**
  * @summary Get user by user name

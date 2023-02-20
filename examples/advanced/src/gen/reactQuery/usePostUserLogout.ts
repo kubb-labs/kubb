@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
-import type { PostUserLogoutRequest, PostUserLogoutResponse } from './models/PostUserLogout'
+import type { PostUserLogoutRequest, PostUserLogoutResponse } from '../models/ts/PostUserLogout'
 
 /**
  * @link /user/logout

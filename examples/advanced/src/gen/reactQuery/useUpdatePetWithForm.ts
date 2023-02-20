@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
-import type { UpdatePetWithFormRequest, UpdatePetWithFormResponse } from './models/UpdatePetWithForm'
+import type { UpdatePetWithFormRequest, UpdatePetWithFormResponse } from '../models/ts/UpdatePetWithForm'
 
 /**
  * @summary Updates a pet in the store with form data

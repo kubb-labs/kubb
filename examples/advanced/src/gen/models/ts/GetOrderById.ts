@@ -1,4 +1,4 @@
-import type { Order } from '../../models/ts/Order'
+import type { Order } from './Order'
 
 export type GetOrderByIdParams = {
   /**

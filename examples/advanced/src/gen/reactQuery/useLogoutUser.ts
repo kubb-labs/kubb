@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { parseTemplate } from 'url-template'
 
-import type { LogoutUserResponse, LogoutUserParams } from './models/LogoutUser'
+import type { LogoutUserResponse, LogoutUserParams } from '../models/ts/LogoutUser'
 
 /**
  * @summary Logs out current logged in user session

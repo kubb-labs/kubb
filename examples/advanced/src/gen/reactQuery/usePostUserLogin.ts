@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
-import type { PostUserLoginRequest, PostUserLoginResponse } from './models/PostUserLogin'
+import type { PostUserLoginRequest, PostUserLoginResponse } from '../models/ts/PostUserLogin'
 
 /**
  * @link /user/login

@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
-import type { PostPetFindbystatusRequest, PostPetFindbystatusResponse } from './models/PostPetFindbystatus'
+import type { PostPetFindbystatusRequest, PostPetFindbystatusResponse } from '../models/ts/PostPetFindbystatus'
 
 /**
  * @link /pet/findByStatus
