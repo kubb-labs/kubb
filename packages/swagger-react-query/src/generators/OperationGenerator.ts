@@ -2,7 +2,7 @@ import pathParser from 'path'
 
 import { camelCase, capitalCase } from 'change-case'
 
-import type { PluginContext, File } from '@kubb/core'
+import type { PluginContext, File, FileManager } from '@kubb/core'
 import { Generator, getRelativePath } from '@kubb/core'
 import { createJSDocBlockText, pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-typescript'
 
@@ -15,7 +15,9 @@ import type { OpenAPIV3 } from 'openapi-types'
 
 type Options = {
   oas: Oas
-  context: PluginContext
+  directory: string
+  fileManager: FileManager
+  resolveId: PluginContext['resolveId']
 }
 
 export class OperationGenerator extends Generator<Options> {
@@ -63,9 +65,8 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async getGet(path: string) {
-    const { resolveId, addFile, config } = this.options.context
-    const { oas } = this.options
-    const directory = pathParser.resolve(config.root, config.output.path)
+    const { oas, directory, resolveId } = this.options
+
     const operation = oas.operation(path, 'get')
 
     // hook setup
@@ -108,7 +109,7 @@ export class OperationGenerator extends Generator<Options> {
           };
       `
 
-    return addFile({
+    return {
       path: hookFilePath,
       fileName: hookId,
       source,
@@ -131,13 +132,12 @@ export class OperationGenerator extends Generator<Options> {
           type: true,
         },
       ],
-    })
+    }
   }
 
   async getPost(path: string) {
-    const { resolveId, addFile, config } = this.options.context
-    const { oas } = this.options
-    const directory = pathParser.resolve(config.root, config.output.path)
+    const { oas, directory, resolveId } = this.options
+
     const operation = oas.operation(path, 'post')
 
     // hook setup
@@ -173,7 +173,7 @@ export class OperationGenerator extends Generator<Options> {
         };
     `
 
-    return addFile({
+    return {
       path: hookFilePath,
       fileName: hookId,
       source,
@@ -192,21 +192,29 @@ export class OperationGenerator extends Generator<Options> {
           type: true,
         },
       ],
-    })
+    }
 
     // end hook creation
   }
 
   async build() {
-    const { oas } = this.options
+    const { oas, fileManager } = this.options
     const paths = oas.getPaths()
     const promises: Promise<File | null>[] = []
+    const filePromises: Promise<File>[] = []
 
     Object.keys(paths).forEach((path) => {
       promises.push(this.getGet(path))
       promises.push(this.getPost(path))
     })
 
-    await Promise.all(promises)
+    const files = await Promise.all(promises).then((files) => {
+      return fileManager.combine(files)
+    })
+
+    files.forEach((file) => {
+      filePromises.push(fileManager.addOrAppend(file))
+    })
+    return Promise.all(filePromises)
   }
 }

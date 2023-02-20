@@ -107,13 +107,6 @@ export class FileManager {
     })
   }
 
-  build(file: File) {
-    return {
-      ...file,
-      source: this.getSource(file),
-    }
-  }
-
   addOrAppend(file: File) {
     const previousCache = this.getCacheByPath(file.path)
 
@@ -126,6 +119,32 @@ export class FileManager {
       })
     }
     return this.add(file)
+  }
+
+  build(file: File) {
+    return {
+      ...file,
+      source: this.getSource(file),
+    }
+  }
+
+  combine(files: Array<File | null>) {
+    return files.filter(Boolean).reduce((acc, curr: File) => {
+      const prevIndex = acc.findIndex((item) => item.path === curr.path)
+
+      if (prevIndex !== -1) {
+        const prev = acc[prevIndex]
+        acc[prevIndex] = {
+          ...curr,
+          source: `${prev.source}\n${curr.source}`,
+          imports: [...(prev.imports || []), ...(curr.imports || [])],
+        }
+      } else {
+        acc.push(curr)
+      }
+
+      return acc
+    }, [] as File[])
   }
 
   setStatus(id: UUID, status: Status) {

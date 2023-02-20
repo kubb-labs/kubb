@@ -52,10 +52,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     },
     async buildStart() {
       const oas = await swaggerApi.getOas(this.config)
+      const directory = pathParser.resolve(this.config.root, this.config.output.path)
 
       const operationGenerator = new OperationGenerator({
         oas,
-        context: this,
+        directory,
+        fileManager: this.fileManager,
+        resolveId: this.resolveId,
       })
 
       await operationGenerator.build()

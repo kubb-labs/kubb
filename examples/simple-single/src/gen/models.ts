@@ -49,10 +49,6 @@ export type Error = {
   message: string
 }
 
-export type PostPetsPetidRequest = any | null
-
-export type PostPetsPetidResponse = any | null
-
 export type ListPetsParams = {
   /**
    * @type string | undefined
@@ -96,3 +92,7 @@ export type ShowPetByIdParams = {
  * @description Expected response to a valid request
  */
 export type ShowPetByIdResponse = Pet
+
+export type PostPetsPetidRequest = any | null
+
+export type PostPetsPetidResponse = any | null
