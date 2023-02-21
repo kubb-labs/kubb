@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.43.3](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.43.2...@kubb/cli-v0.43.3) (2023-02-21)
+
+
+### Miscellaneous Chores
+
+* **@kubb/cli:** Synchronize undefined versions
+
+## [0.43.2](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.43.1...@kubb/cli-v0.43.2) (2023-02-21)
+
+
+### Miscellaneous Chores
+
+* **@kubb/cli:** Synchronize undefined versions
+
 ## [0.43.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-zod-v0.43.0...@kubb/swagger-zod-v0.43.1) (2023-02-21)
 
 
