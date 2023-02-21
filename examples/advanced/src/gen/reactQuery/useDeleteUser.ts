@@ -11,7 +11,7 @@ import type { DeleteUserRequest, DeleteUserResponse } from '../models/ts/DeleteU
 export const useDeleteUser = () => {
   return useMutation<DeleteUserResponse, unknown, DeleteUserRequest>({
     mutationFn: (data) => {
-      return axios.delete('/user/{username}', data).then((res) => res.data)
+      return axios.delete('/user/{username}').then((res) => res.data)
     },
   })
 }

@@ -314,7 +314,7 @@ export class OperationGenerator extends Generator<Options> {
           return useMutation<${schemas.response.name}, unknown, ${schemas.request.name}>({
             mutationFn: (data) => {
               return axios
-              .delete("${operation.path}", data)
+              .delete("${operation.path}")
               .then((res) => res.data)
             }
           })

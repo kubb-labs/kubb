@@ -11,7 +11,7 @@ import type { DeleteOrderRequest, DeleteOrderResponse } from '../models/ts/Delet
 export const useDeleteOrder = () => {
   return useMutation<DeleteOrderResponse, unknown, DeleteOrderRequest>({
     mutationFn: (data) => {
-      return axios.delete('/store/order/{orderId}', data).then((res) => res.data)
+      return axios.delete('/store/order/{orderId}').then((res) => res.data)
     },
   })
 }

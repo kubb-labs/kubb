@@ -11,7 +11,7 @@ import type { DeletePetRequest, DeletePetResponse } from '../models/ts/DeletePet
 export const useDeletePet = () => {
   return useMutation<DeletePetResponse, unknown, DeletePetRequest>({
     mutationFn: (data) => {
-      return axios.delete('/pet/{petId}', data).then((res) => res.data)
+      return axios.delete('/pet/{petId}').then((res) => res.data)
     },
   })
 }
