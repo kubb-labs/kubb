@@ -5,7 +5,7 @@ import upperFirst from 'lodash.upperfirst'
 
 import { SchemaGenerator } from '@kubb/core'
 
-import { appendJSDocToNode, createIndexSignature, createPropertySignature, createTypeAliasDeclaration, keywordTypeNodes, modifier } from '../utils/codegen'
+import { keywordTypeNodes } from '../utils/codegen'
 import { isReference } from '../utils/isReference'
 import { getReference } from '../utils/getReference'
 
@@ -21,7 +21,7 @@ export type Refs = Record<string, { node: ts.TypeReferenceNode; name: string }>
 type Options = {
   withJSDocs?: boolean
 }
-export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.TypeAliasDeclaration> {
+export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, string> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
 
@@ -37,22 +37,32 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   }
 
   build(schema: OpenAPIV3.SchemaObject, name: string, description?: string) {
-    const type = this.getTypeFromSchema(schema, name)
-
-    const node = createTypeAliasDeclaration({
-      modifiers: [modifier.export],
-      name,
-      type,
-    })
-
+    const input = this.getTypeFromSchema(schema, name)
     if (description) {
-      return appendJSDocToNode({
-        node,
-        comments: [`@description ${description}`],
-      })
+      // return appendJSDocToNode({
+      //   node,
+      //   comments: [`@description ${description}`],
+      // })
     }
 
-    return node
+    const parseProperty = (item: [string, any]): string => {
+      // eslint-disable-next-line prefer-const
+      let [fn, args = ''] = item || []
+      // if (fn === 'object') return ` ${parseZodValidationSchemaDefinition(args)}`
+      // if (fn === 'array') return `.array(${Array.isArray(args) ? `zod${args.map(parseProperty).join('')}` : parseProperty(args)})`
+
+      if (fn === 'object') {
+        args = '{}'
+      }
+
+      return `.${fn}(${args})`
+    }
+
+    console.log(input, input.map(parseProperty).join(''))
+
+    const zodOutput = !input.length ? '' : `zod${input.map(parseProperty).join('')}`
+
+    return `export const ${name} = ${zodOutput};`
   }
 
   /**
@@ -60,57 +70,57 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, name: string): ts.TypeNode {
-    const type = this.getBaseTypeFromSchema(schema, name)
-    if (schema) {
-      return type
+  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, name: string): [string, any][] {
+    const validationFunctions = this.getBaseTypeFromSchema(schema, name)
+    if (validationFunctions) {
+      return validationFunctions
     }
 
-    return factory.createUnionTypeNode([type, keywordTypeNodes.null])
+    return []
   }
 
   /**
    * Recursively creates a type literal with the given props.
    */
-  private getTypeFromProperties(
-    props: {
-      [prop: string]: OpenAPIV3.SchemaObject
-    },
-    required?: string[],
-    additionalProperties?: boolean | OpenAPIV3.SchemaObject
-  ) {
-    const members: ts.TypeElement[] = Object.keys(props).map((name) => {
-      const schema = props[name]
-      const isRequired = required && required.includes(name)
-      let type = this.getTypeFromSchema(schema, name)
-      if (!isRequired) {
-        type = factory.createUnionTypeNode([type, keywordTypeNodes.undefined])
-      }
-      const propertySignature = createPropertySignature({
-        questionToken: !isRequired,
-        name,
-        type,
-      })
-      if (this.options.withJSDocs) {
-        return appendJSDocToNode({
-          node: propertySignature,
-          comments: [
-            schema.description && `@description ${schema.description}`,
-            schema.type && `@type ${schema.type}${isRequired ? '' : ' | undefined'} ${schema.format || ''}`,
-            schema.example && `@example ${schema.example}`,
-          ],
-        })
-      }
+  // private getTypeFromProperties(
+  //   props: {
+  //     [prop: string]: OpenAPIV3.SchemaObject
+  //   },
+  //   required?: string[],
+  //   additionalProperties?: boolean | OpenAPIV3.SchemaObject
+  // ) {
+  //   const members: ts.TypeElement[] = Object.keys(props).map((name) => {
+  //     const schema = props[name]
+  //     const isRequired = required && required.includes(name)
+  //     let type = this.getTypeFromSchema(schema, name)
+  //     if (!isRequired) {
+  //       type = factory.createUnionTypeNode([type, keywordTypeNodes.undefined])
+  //     }
+  //     const propertySignature = createPropertySignature({
+  //       questionToken: !isRequired,
+  //       name,
+  //       type,
+  //     })
+  //     if (this.options.withJSDocs) {
+  //       return appendJSDocToNode({
+  //         node: propertySignature,
+  //         comments: [
+  //           schema.description && `@description ${schema.description}`,
+  //           schema.type && `@type ${schema.type}${isRequired ? '' : ' | undefined'} ${schema.format || ''}`,
+  //           schema.example && `@example ${schema.example}`,
+  //         ],
+  //       })
+  //     }
 
-      return propertySignature
-    })
-    if (additionalProperties) {
-      const type = additionalProperties === true ? keywordTypeNodes.any : this.getTypeFromSchema(additionalProperties)
+  //     return propertySignature
+  //   })
+  //   if (additionalProperties) {
+  //     const type = additionalProperties === true ? keywordTypeNodes.any : this.getTypeFromSchema(additionalProperties)
 
-      members.push(createIndexSignature(type))
-    }
-    return factory.createTypeLiteralNode(members)
-  }
+  //     members.push(createIndexSignature(type))
+  //   }
+  //   return factory.createTypeLiteralNode(members)
+  // }
 
   private resolve<T>(obj: T | OpenAPIV3.ReferenceObject) {
     if (!isReference(obj)) return obj
@@ -153,13 +163,13 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  private getBaseTypeFromSchema(schema?: OpenAPIV3.SchemaObject, name?: string): ts.TypeNode {
+  private getBaseTypeFromSchema(schema?: OpenAPIV3.SchemaObject, name?: string): [string, any][] {
     if (!schema) {
-      return keywordTypeNodes.any
+      return [[keywordTypeNodes.any, undefined]]
     }
 
     if (isReference(schema)) {
-      return this.getRefAlias(schema)
+      // return this.getRefAlias(schema)
     }
 
     if (schema.oneOf) {
@@ -179,25 +189,25 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if ('items' in schema) {
       // items -> array
-      return factory.createArrayTypeNode(this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, name))
+      // return factory.createArrayTypeNode(this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, name))
     }
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      return this.getTypeFromProperties(schema.properties || ({} as any), schema.required, schema.additionalProperties as any)
+      // return this.getTypeFromProperties(schema.properties || ({} as any), schema.required, schema.additionalProperties as any)
     }
 
     if (schema.type) {
       // string, boolean, null, number
       if (schema.type in keywordTypeNodes) {
-        return keywordTypeNodes[schema.type]
+        return keywordTypeNodes[schema.type] ? [[keywordTypeNodes[schema.type], undefined]] : [[schema.type, undefined]]
       }
     }
 
     if (schema.format === 'binary') {
-      return factory.createTypeReferenceNode('Blob', [])
+      // TODO binary
     }
 
-    return keywordTypeNodes.any
+    return [[keywordTypeNodes.any, undefined]]
   }
 }

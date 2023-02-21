@@ -3,5 +3,6 @@
   "packages/cli": "0.42.1",
   "packages/swagger": "0.42.1",
   "packages/swagger-typescript": "0.42.1",
+  "packages/swagger-zod": "0.42.1",
   "packages/swagger-react-query": "0.42.1"
 }

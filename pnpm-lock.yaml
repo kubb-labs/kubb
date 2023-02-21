@@ -126,22 +126,26 @@ importers:
       '@kubb/swagger': workspace:*
       '@kubb/swagger-react-query': workspace:*
       '@kubb/swagger-typescript': workspace:*
+      '@kubb/swagger-zod': workspace:*
       '@tanstack/react-query': ^4.24.6
       axios: ^1.3.3
       react: ^18.2.0
       tsup: ^6.6.3
       url-template: ^3.1.0
+      zod: ^3.20.6
     dependencies:
       '@kubb/cli': link:../../packages/cli
       '@kubb/core': link:../../packages/core
       '@kubb/swagger': link:../../packages/swagger
       '@kubb/swagger-react-query': link:../../packages/swagger-react-query
       '@kubb/swagger-typescript': link:../../packages/swagger-typescript
+      '@kubb/swagger-zod': link:../../packages/swagger-zod
       '@tanstack/react-query': 4.24.6_react@18.2.0
       axios: 1.3.3
       react: 18.2.0
       tsup: 6.6.3
       url-template: 3.1.0
+      zod: 3.20.6
 
   examples/simple:
     specifiers:
@@ -292,6 +296,43 @@ importers:
       typescript: 4.9.5
 
   packages/swagger-typescript:
+    specifiers:
+      '@kubb/core': workspace:*
+      '@kubb/swagger': workspace:*
+      '@types/camelcase': ^5.2.0
+      '@types/lodash.get': ^4.4.7
+      '@types/lodash.uniq': ^4.5.7
+      '@types/lodash.upperfirst': ^4.3.7
+      change-case: ^4.1.2
+      lodash.camelcase: ^4.3.0
+      lodash.get: ^4.4.2
+      lodash.uniq: ^4.5.0
+      lodash.upperfirst: ^4.3.1
+      oas: ^20.4.0
+      openapi-types: ^12.1.0
+      prettier: ^2.8.4
+      tsup: ^6.6.3
+      typescript: ^4.9.5
+    dependencies:
+      '@kubb/core': link:../core
+      '@kubb/swagger': link:../swagger
+      change-case: 4.1.2
+      lodash.camelcase: 4.3.0
+      lodash.get: 4.4.2
+      lodash.uniq: 4.5.0
+      lodash.upperfirst: 4.3.1
+      oas: 20.4.0
+    devDependencies:
+      '@types/camelcase': 5.2.0
+      '@types/lodash.get': 4.4.7
+      '@types/lodash.uniq': 4.5.7
+      '@types/lodash.upperfirst': 4.3.7
+      openapi-types: 12.1.0
+      prettier: 2.8.4
+      tsup: 6.6.3_typescript@4.9.5
+      typescript: 4.9.5
+
+  packages/swagger-zod:
     specifiers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
@@ -2160,7 +2201,7 @@ packages:
   /@swc/helpers/0.4.14:
     resolution: {integrity: sha512-4C7nX/dvpzB7za4Ql9K81xK3HPxCpHMgwTZVyf+9JQ6VUbn9jjZVN7/Nkdz/Ugzs2CSjqnL/UPXroiVBVHUWUw==}
     dependencies:
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /@swc/jest/0.2.24_@swc+core@1.3.35:
@@ -3447,7 +3488,7 @@ packages:
     resolution: {integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==}
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /camelcase-css/2.0.1:
@@ -3494,7 +3535,7 @@ packages:
     resolution: {integrity: sha512-ds37W8CytHgwnhGGTi88pcPyR15qoNkOpYwmMMfnWqqWgESapLqvDx6huFjQ5vqWSn2Z06173XNA7LtMOeUh1A==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
       upper-case-first: 2.0.2
     dev: false
 
@@ -3555,7 +3596,7 @@ packages:
       path-case: 3.0.4
       sentence-case: 3.0.4
       snake-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /char-regex/1.0.2:
@@ -3837,7 +3878,7 @@ packages:
     resolution: {integrity: sha512-I2hSBi7Vvs7BEuJDr5dDHfzb/Ruj3FyvFyh7KLilAjNQw3Be+xgqUBA2W6scVEcL0hL1dwPRtIqEPVUCKkSsyQ==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
       upper-case: 2.0.2
     dev: false
 
@@ -4264,7 +4305,7 @@ packages:
     resolution: {integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /dot-prop/5.3.0:
@@ -5701,7 +5742,7 @@ packages:
     resolution: {integrity: sha512-H/vuk5TEEVZwrR0lp2zed9OCo1uAILMlx0JEMgC26rzyJJ3N1v6XkwHHXJQdR2doSjcGPM6OKPYoJgf0plJ11Q==}
     dependencies:
       capital-case: 1.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /hmac-drbg/1.0.1:
@@ -7161,7 +7202,7 @@ packages:
   /lower-case/2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
     dependencies:
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /lowercase-keys/3.0.0:
@@ -8278,7 +8319,7 @@ packages:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
     dependencies:
       lower-case: 2.0.2
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /node-addon-api/3.2.1:
@@ -8900,7 +8941,7 @@ packages:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /parent-module/1.0.1:
@@ -8977,7 +9018,7 @@ packages:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /path-browserify/1.0.1:
@@ -8988,7 +9029,7 @@ packages:
     resolution: {integrity: sha512-qO4qCFjXqVTrcbPt/hQfhTQ+VhFsqNKOPtytgNKkKxSoEp3XPUQ8ObFuePylOIok5gjn69ry8XiULxCwot3Wfg==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /path-exists/4.0.0:
@@ -9880,7 +9921,7 @@ packages:
     resolution: {integrity: sha512-8LS0JInaQMCRoQ7YUytAo/xUu5W2XnQxV2HI/6uM6U7CITS1RqPElr30V6uIqyMKM9lJGRVFy5/4CuzcixNYSg==}
     dependencies:
       no-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
       upper-case-first: 2.0.2
     dev: false
 
@@ -10004,7 +10045,7 @@ packages:
     resolution: {integrity: sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==}
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /socks-proxy-agent/7.0.0:
@@ -10706,13 +10747,8 @@ packages:
     resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
     dev: true
 
-  /tslib/2.4.1:
-    resolution: {integrity: sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA==}
-    dev: false
-
   /tslib/2.5.0:
     resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
-    dev: true
 
   /tsup/6.6.3:
     resolution: {integrity: sha512-OLx/jFllYlVeZQ7sCHBuRVEQBBa1tFbouoc/gbYakyipjVQdWy/iQOvmExUA/ewap9iQ7tbJf9pW0PgcEFfJcQ==}
@@ -11199,13 +11235,13 @@ packages:
   /upper-case-first/2.0.2:
     resolution: {integrity: sha512-514ppYHBaKwfJRK/pNC6c/OxfGa0obSnAl106u97Ed0I625Nin96KAjttZF6ZL3e1XLtphxnqrOi9iWgm+u+bg==}
     dependencies:
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /upper-case/2.0.2:
     resolution: {integrity: sha512-KgdgDGJt2TpuwBUIjgG6lzw2GWFRCW9Qkfkiv0DxqHHLYJHmtmdUIKcZd8rHgFSjopVTlw6ggzCm1b8MFQwikg==}
     dependencies:
-      tslib: 2.4.1
+      tslib: 2.5.0
     dev: false
 
   /uri-js/4.4.1:
@@ -11654,6 +11690,10 @@ packages:
 
   /zod/3.20.2:
     resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
+    dev: false
+
+  /zod/3.20.6:
+    resolution: {integrity: sha512-oyu0m54SGCtzh6EClBVqDDlAYRz4jrVtKwQ7ZnsEmMI9HnzuZFj8QFwAY1M5uniIYACdGvv0PBWPF2kO0aNofA==}
     dev: false
 
   /zwitch/2.0.4:

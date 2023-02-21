@@ -1,0 +1,76 @@
+{
+  "name": "@kubb/swagger-zod",
+  "version": "0.42.1",
+  "description": "Generator swagger-zod",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/stijnvanhulle/kubb.git",
+    "directory": "packages/swagger-zod"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "keywords": [
+    "zod",
+    "plugins",
+    "kubb",
+    "codegen",
+    "swagger",
+    "openapi"
+  ],
+  "sideEffects": false,
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "module": "./dist/index.mjs",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "start": "tsup --watch",
+    "release": "pnpm publish --no-git-check",
+    "prepack": "pnpm build",
+    "pre-commit": "echo 'pre-commit not configured'",
+    "pre-push": "pnpm typecheck",
+    "test": "jest --config ../../jest.config.js --passWithNoTests --runInBand --testPathPattern=packages/swagger-zod/src",
+    "test:local": "jest --config ../../jest.config.js --testPathPattern=packages/swagger-zod/src --maxWorkers=50%",
+    "test:watch": "jest --config ../../jest.config.js --testPathPattern=packages/swagger-zod/src --maxWorkers=25% --watch",
+    "upgrade": "ncu -u",
+    "upgrade:local": "ncu --interactive --doctor",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@kubb/core": "workspace:*",
+    "@kubb/swagger": "workspace:*",
+    "change-case": "^4.1.2",
+    "lodash.uniq": "^4.5.0",
+    "lodash.get": "^4.4.2",
+    "lodash.camelcase": "^4.3.0",
+    "lodash.upperfirst": "^4.3.1",
+    "oas": "^20.4.0"
+  },
+  "devDependencies": {
+    "openapi-types": "^12.1.0",
+    "@types/lodash.uniq": "^4.5.7",
+    "@types/camelcase": "^5.2.0",
+    "@types/lodash.get": "^4.4.7",
+    "@types/lodash.upperfirst": "^4.3.7",
+    "tsup": "^6.6.3",
+    "typescript": "^4.9.5",
+    "prettier": "^2.8.4"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}
