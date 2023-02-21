@@ -1,4 +1,11 @@
 # Changelog
+## [0.43.2](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.43.1...@kubb/core-v0.43.2) (2023-02-21)
+
+
+### Bug Fixes
+
+* reverse files before returning all files(build core) ([eac087d](https://github.com/stijnvanhulle/kubb/commit/eac087d1d09dce9b682064d5c731f6270f2727cd))
+
 ## [0.43.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.43.0...@kubb/core-v0.43.1) (2023-02-21)
 
 

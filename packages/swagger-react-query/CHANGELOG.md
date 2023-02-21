@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.43.2](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.43.1...@kubb/swagger-react-query-v0.43.2) (2023-02-21)
+
+
+### Miscellaneous Chores
+
+* **@kubb/swagger-react-query:** Synchronize undefined versions
+
 ## [0.43.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.43.0...@kubb/swagger-react-query-v0.43.1) (2023-02-21)
 
 
