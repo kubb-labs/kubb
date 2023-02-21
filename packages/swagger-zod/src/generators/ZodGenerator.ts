@@ -55,6 +55,9 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           args = '{}'
         }
         const argsObject = Object.entries(args)
+          .filter(([_key, schema]: [string, any]) => {
+            return schema && typeof schema.map === 'function'
+          })
           .map(([key, schema]: [string, any]) => `"${key}": ${schema.map(parseProperty).join('')}`)
           .join(',')
 
