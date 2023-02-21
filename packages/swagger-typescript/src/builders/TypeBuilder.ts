@@ -6,16 +6,19 @@ import type Oas from 'oas'
 import type { OpenAPIV3 } from 'openapi-types'
 
 type Item = { schema: OpenAPIV3.SchemaObject; name: string; description?: string }
+
+type Config = {
+  fileResolver?: FileResolver
+  nameResolver?: (name: string) => string
+  withJSDocs?: boolean
+  withImports?: boolean
+}
 export class TypeBuilder {
   private oas: Oas
 
   private items: Item[] = []
 
-  private withJSDocs: boolean
-
-  private withImport: boolean
-
-  private fileResolver?: FileResolver
+  private config: Config = {}
 
   constructor(oas: Oas) {
     this.oas = oas
@@ -29,15 +32,12 @@ export class TypeBuilder {
     return this
   }
 
-  addImports(fileResolver?: FileResolver) {
-    this.fileResolver = fileResolver
-    this.withImport = true
+  configure(config: Config) {
+    this.config = config
 
-    return this
-  }
-
-  addJSDocs() {
-    this.withJSDocs = true
+    if (this.config.fileResolver) {
+      this.config.withImports = true
+    }
 
     return this
   }
@@ -53,8 +53,8 @@ export class TypeBuilder {
       return 0
     }
     const generated = this.items.sort(typeSorter).map(({ schema, name, description }) => {
-      const generator = new TypeGenerator(this.oas, { withJSDocs: this.withJSDocs })
-      const type = generator.build(schema, name, description)
+      const generator = new TypeGenerator(this.oas, { withJSDocs: this.config.withJSDocs, nameResolver: this.config.nameResolver })
+      const type = generator.build(schema, this.config.nameResolver?.(name) || name, description)
 
       return {
         refs: generator.refs,
@@ -68,8 +68,8 @@ export class TypeBuilder {
       return `${acc}\n${formatedType}`
     }, '')
 
-    if (this.withImport) {
-      const importsGenerator = new ImportsGenerator({ fileResolver: this.fileResolver })
+    if (this.config.withImports) {
+      const importsGenerator = new ImportsGenerator({ fileResolver: this.config.fileResolver })
       const codeImports = await importsGenerator.build(generated)
 
       if (codeImports) {

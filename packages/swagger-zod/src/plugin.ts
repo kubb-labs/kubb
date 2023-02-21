@@ -4,6 +4,8 @@
 
 import pathParser from 'path'
 
+import { camelCase } from 'change-case'
+
 import { getRelativePath, createPlugin, getPathMode, validatePlugins } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi } from '@kubb/swagger'
@@ -70,9 +72,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const directory = pathParser.resolve(this.config.root, this.config.output.path)
       const mode = getPathMode(pathParser.resolve(directory, output))
 
+      const nameResolver = (name: string) => camelCase(`${name}Schema`)
+
       if (mode === 'directory') {
         const mapFolderSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
-          const path = await this.resolveId({ fileName: `${name}.ts`, directory, pluginName })
+          const path = await this.resolveId({ fileName: `${nameResolver(name)}.ts`, directory, pluginName })
 
           if (!path) {
             return null
@@ -83,21 +87,24 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
               schema,
               name,
             })
-            .addImports(async (name) => {
-              const resolvedTypeId = await this.resolveId({
-                fileName: `${name}.ts`,
-                directory,
-                pluginName,
-              })
+            .configure({
+              nameResolver,
+              fileResolver: async (name) => {
+                const resolvedTypeId = await this.resolveId({
+                  fileName: `${name}.ts`,
+                  directory,
+                  pluginName,
+                })
 
-              return getRelativePath(path, resolvedTypeId)
+                return getRelativePath(path, resolvedTypeId)
+              },
+              withJSDocs: true,
             })
-            .addJSDocs()
             .print()
 
           return this.addFile({
             path,
-            fileName: `${name}.ts`,
+            fileName: `${nameResolver(name)}.ts`,
             source: typescriptCode,
             imports: [
               {
@@ -122,7 +129,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
               schema,
               name,
             })
-            .addJSDocs()
+            .configure({
+              nameResolver,
+              withJSDocs: true,
+            })
             .print()
         }
 
@@ -135,7 +145,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         await this.addFile({
           path,
-          fileName: output,
+          fileName: `${nameResolver(output)}.ts`,
           source: source.join('\n'),
           imports: [
             {
@@ -151,6 +161,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         mode,
         directory,
         fileManager: this.fileManager,
+        nameResolver,
         resolveId: api.resolveId,
       })
 

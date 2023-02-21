@@ -17,6 +17,7 @@ type Options = {
   resolveId: Api['resolveId']
   mode: PathMode
   fileManager: FileManager
+  nameResolver: (name: string) => string
   directory: string
 }
 
@@ -57,12 +58,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async getGet(path: string) {
-    const { resolveId, directory, mode, oas } = this.options
+    const { resolveId, directory, mode, nameResolver, oas } = this.options
 
     const operation = oas.operation(path, 'get')
     const schemas = this.getSchemas(operation)
 
-    const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
+    const typeName = `${nameResolver(operation.getOperationId())}.ts`
     const typeFilePath = await resolveId(typeName, directory)
 
     const fileResolver: FileResolver = async (name) => {
@@ -74,7 +75,7 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(filePath, resolvedTypeId)
     }
 
-    const typeSource = await new TypeBuilder(oas).add(schemas.params).add(schemas.response).addImports(fileResolver).addJSDocs().print()
+    const typeSource = await new TypeBuilder(oas).add(schemas.params).add(schemas.response).configure({ fileResolver, withJSDocs: true }).print()
 
     if (typeFilePath) {
       return {
@@ -88,12 +89,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async getPost(path: string) {
-    const { resolveId, directory, mode, oas } = this.options
+    const { resolveId, directory, mode, nameResolver, oas } = this.options
 
     const operation = oas.operation(path, 'post')
     const schemas = this.getSchemas(operation)
 
-    const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
+    const typeName = `${nameResolver(operation.getOperationId())}.ts`
     const typeFilePath = await resolveId(typeName, directory)
 
     const fileResolver: FileResolver = async (name) => {
@@ -105,7 +106,7 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(filePath, resolvedTypeId)
     }
 
-    const typeSource = await new TypeBuilder(oas).add(schemas.request).add(schemas.response).addImports(fileResolver).addJSDocs().print()
+    const typeSource = await new TypeBuilder(oas).add(schemas.request).add(schemas.response).configure({ fileResolver, withJSDocs: true }).print()
 
     if (typeFilePath) {
       return {

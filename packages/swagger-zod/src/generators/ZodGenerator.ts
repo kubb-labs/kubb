@@ -1,6 +1,5 @@
 /* eslint-disable no-param-reassign */
-import camelCase from 'lodash.camelcase'
-import upperFirst from 'lodash.upperfirst'
+import { pascalCase } from 'change-case'
 
 import { SchemaGenerator } from '@kubb/core'
 
@@ -20,6 +19,7 @@ export type Refs = Record<string, Name>
 
 type Options = {
   withJSDocs?: boolean
+  nameResolver?: (name: string) => string
 }
 export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, string> {
   // Collect the types of all referenced schemas so we can export them later
@@ -30,7 +30,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   // Keep track of already used type aliases
   typeAliases: Record<string, number> = {}
 
-  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true }) {
+  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, nameResolver: (name) => name }) {
     super(options)
 
     return this
@@ -182,10 +182,10 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
     if (!ref) {
       const schema = this.resolve<OpenAPIV3.SchemaObject>(obj)
-      const name = this.getUniqueAlias(upperFirst(camelCase(schema.title) || $ref.replace(/.+\//, '')))
+      const name = this.getUniqueAlias(pascalCase(schema.title || $ref.replace(/.+\//, '')))
 
       // eslint-disable-next-line no-multi-assign
-      ref = this.refs[$ref] = name
+      ref = this.refs[$ref] = this.options.nameResolver?.(name) || name
     }
 
     return [['ref', ref || keywordZodNodes.any]]
