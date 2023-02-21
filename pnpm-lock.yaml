@@ -304,10 +304,8 @@ importers:
       '@types/lodash.uniq': ^4.5.7
       '@types/lodash.upperfirst': ^4.3.7
       change-case: ^4.1.2
-      lodash.camelcase: ^4.3.0
       lodash.get: ^4.4.2
       lodash.uniq: ^4.5.0
-      lodash.upperfirst: ^4.3.1
       oas: ^20.4.0
       openapi-types: ^12.1.0
       prettier: ^2.8.4
@@ -317,10 +315,8 @@ importers:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
       change-case: 4.1.2
-      lodash.camelcase: 4.3.0
       lodash.get: 4.4.2
       lodash.uniq: 4.5.0
-      lodash.upperfirst: 4.3.1
       oas: 20.4.0
     devDependencies:
       '@types/camelcase': 5.2.0
@@ -341,10 +337,8 @@ importers:
       '@types/lodash.uniq': ^4.5.7
       '@types/lodash.upperfirst': ^4.3.7
       change-case: ^4.1.2
-      lodash.camelcase: ^4.3.0
       lodash.get: ^4.4.2
       lodash.uniq: ^4.5.0
-      lodash.upperfirst: ^4.3.1
       oas: ^20.4.0
       openapi-types: ^12.1.0
       prettier: ^2.8.4
@@ -354,10 +348,8 @@ importers:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
       change-case: 4.1.2
-      lodash.camelcase: 4.3.0
       lodash.get: 4.4.2
       lodash.uniq: 4.5.0
-      lodash.upperfirst: 4.3.1
       oas: 20.4.0
     devDependencies:
       '@types/camelcase': 5.2.0
@@ -7165,6 +7157,7 @@ packages:
 
   /lodash.upperfirst/4.3.1:
     resolution: {integrity: sha512-sReKOYJIJf74dhJONhU4e0/shzi1trVbSWDOhKYE5XV2O+H7Sb2Dihwuc7xWxVl+DgFPyTqIN3zMfT9cq5iWDg==}
+    dev: true
 
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
