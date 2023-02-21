@@ -54,9 +54,8 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
   fileManager.events.onSuccess(async () => {
     await pluginManager.hookParallel('buildEnd')
     setTimeout(() => {
-      // TODO check why we need to reverse the files(last in for a single file is only working with reverse)
-      done({ files: fileManager.files.reverse().map((file) => ({ ...file, source: fileManager.getSource(file) })) })
-    }, 1000)
+      done({ files: fileManager.files.map((file) => ({ ...file, source: fileManager.getSource(file) })) })
+    }, 500)
   })
 
   fileManager.events.onAdd(async (id, file) => {

@@ -111,7 +111,7 @@ export class FileManager {
     const previousCache = this.getCacheByPath(file.path)
 
     if (previousCache) {
-      this.remove(previousCache.id)
+      this.replace(previousCache.id)
       return this.add({
         ...file,
         source: `${previousCache.file.source}\n${file.source}`,
@@ -165,6 +165,15 @@ export class FileManager {
 
     this.setStatus(id, 'removed')
     this.events.emitRemove(id, cacheItem.file)
+  }
+
+  replace(id: UUID) {
+    const cacheItem = this.getCache(id)
+    if (!cacheItem) {
+      return
+    }
+
+    this.cache.delete(id)
   }
 
   async write(...params: Parameters<typeof write>) {
