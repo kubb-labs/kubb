@@ -108,16 +108,35 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
         const schema = props[name]
         const isRequired = required && required.includes(name)
-        // const subValidationFunctions = this.getTypeFromSchema(schema, name)
 
-        validationFunctions.push(...this.getTypeFromSchema(schema as OpenAPIV3.SchemaObject, name))
+        if (!schema.enum) {
+          // when we have an enum we will convert that to z.enum() instead z.string().enum()
+          validationFunctions.push(...this.getTypeFromSchema(schema as OpenAPIV3.SchemaObject, name))
+        }
 
-        if (!isRequired) {
-          validationFunctions.push(['optional', undefined])
+        if (schema.enum) {
+          validationFunctions.push(['enum', [`[${schema.enum.map((value) => `'${value}'`).join(', ')}]`]])
         }
 
         if (this.options.withJSDocs && schema.description) {
           validationFunctions.push(['describe', `"${schema.description}"`])
+        }
+        const min = schema.minimum ?? schema.exclusiveMinimum ?? schema.minLength ?? undefined
+        const max = schema.maximum ?? schema.exclusiveMaximum ?? schema.maxLength ?? undefined
+        const matches = schema.pattern ?? undefined
+
+        if (min !== undefined) {
+          validationFunctions.push(['min', min])
+        }
+        if (max !== undefined) {
+          validationFunctions.push(['max', max])
+        }
+        if (matches) {
+          validationFunctions.push(['matches', matches])
+        }
+
+        if (!isRequired) {
+          validationFunctions.push(['optional', undefined])
         }
 
         return {

@@ -8,5 +8,5 @@ export const User = zod.object({
   email: zod.string().optional(),
   password: zod.string().optional(),
   phone: zod.string().optional(),
-  userStatus: zod.number().optional().describe('User Status'),
+  userStatus: zod.number().describe('User Status').optional(),
 })

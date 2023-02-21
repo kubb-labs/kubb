@@ -5,6 +5,6 @@ export const Order = zod.object({
   petId: zod.number().optional(),
   quantity: zod.number().optional(),
   shipDate: zod.string().optional(),
-  status: zod.string().optional().describe('Order Status'),
+  status: zod.enum(['placed', 'approved', 'delivered']).describe('Order Status').optional(),
   complete: zod.boolean().optional(),
 })

@@ -3,7 +3,7 @@ import pathParser from 'path'
 import { oasPathParser } from '@kubb/swagger'
 
 import { ImportsGenerator } from './ImportsGenerator'
-import { TypeGenerator } from './TypeGenerator'
+import { ZodGenerator } from './ZodGenerator'
 
 import { format } from '../../mocks/format'
 import { print } from '../utils/print'
@@ -15,7 +15,7 @@ describe('ImportsGenerator', () => {
 
   test('generate type for Pets with custom fileResolver', async () => {
     const oas = await oasPathParser(path)
-    const typeGenerator = new TypeGenerator(oas, { withJSDocs: false })
+    const typeGenerator = new ZodGenerator(oas, { withJSDocs: false })
     const importsGenerator = new ImportsGenerator({ fileResolver: (name) => Promise.resolve(`#models/${name}`) })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -24,11 +24,12 @@ describe('ImportsGenerator', () => {
     const importsNode = await importsGenerator.build([
       {
         refs: typeGenerator.refs,
+        name: 'Pets',
         type: node,
       },
     ])
 
-    const output = importsNode && print([...importsNode, node], undefined)
+    const output = importsNode && print([...importsNode], undefined) + node
 
     expect(output).toBeDefined()
     expect(format(output)).toEqual(
