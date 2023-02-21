@@ -3,5 +3,6 @@
   "cli": "@kubb/cli",
   "swagger": "@kubb/swagger",
   "swagger-typescript": "@kubb/swagger-typescript",
+  "swagger-zod": "@kubb/swagger-zod",
   "swagger-react-query": "@kubb/swagger-react-query"
 }

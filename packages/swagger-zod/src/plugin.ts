@@ -20,7 +20,7 @@ import type { Api, PluginOptions } from './types'
 export const pluginName = 'swagger-zod' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'models' } = options
+  const { output = 'zod' } = options
   let swaggerApi: SwaggerApi
 
   const api: Api = {
