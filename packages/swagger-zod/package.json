@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-zod",
-  "version": "0.43.1",
+  "version": "0.43.3",
   "description": "Generator swagger-zod",
   "repository": {
     "type": "git",
