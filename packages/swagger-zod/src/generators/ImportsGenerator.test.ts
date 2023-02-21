@@ -34,8 +34,8 @@ describe('ImportsGenerator', () => {
     expect(output).toBeDefined()
     expect(format(output)).toEqual(
       format(`
-      import type { Pet } from '#models/Pet'
-      export type Pets = Pet[]
+      import { Pet } from '#models/Pet'
+      export const Pets = zod.array(Pet)
     `)
     )
   })
