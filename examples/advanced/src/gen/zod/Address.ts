@@ -1,3 +1,8 @@
 import zod from 'zod'
 
-export const Address = zod.object({})
+export const Address = zod.object({
+  street: zod.string().optional(),
+  city: zod.string().optional(),
+  state: zod.string().optional(),
+  zip: zod.string().optional(),
+})

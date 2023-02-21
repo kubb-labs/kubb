@@ -1,4 +1,6 @@
 import zod from 'zod'
 
-export const CreateUsersWithListInputRequest = zod.any()
-export const CreateUsersWithListInputResponse = zod.any()
+import { User } from './User'
+
+export const CreateUsersWithListInputRequest = zod.array(User)
+export const CreateUsersWithListInputResponse = User

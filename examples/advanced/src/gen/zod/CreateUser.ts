@@ -1,4 +1,6 @@
 import zod from 'zod'
 
-export const CreateUserRequest = zod.any()
+import { User } from './User'
+
+export const CreateUserRequest = User
 export const CreateUserResponse = zod.any()

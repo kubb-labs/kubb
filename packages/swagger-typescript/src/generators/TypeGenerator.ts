@@ -16,7 +16,8 @@ import type { OpenAPIV3 } from 'openapi-types'
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
 export type FileResolver = (name: string) => Promise<string | null | undefined>
-export type Refs = Record<string, { node: ts.TypeReferenceNode; name: string }>
+type Name = string
+export type Refs = Record<string, Name>
 
 type Options = {
   withJSDocs?: boolean
@@ -60,7 +61,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, name: string): ts.TypeNode {
+  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, name?: string): ts.TypeNode {
     const type = this.getBaseTypeFromSchema(schema, name)
     if (schema) {
       return type
@@ -143,17 +144,17 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const name = this.getUniqueAlias(upperFirst(camelCase(schema.title) || $ref.replace(/.+\//, '')))
 
       // eslint-disable-next-line no-multi-assign
-      ref = this.refs[$ref] = { node: factory.createTypeReferenceNode(name, undefined), name }
+      ref = this.refs[$ref] = name
     }
 
-    return ref.node
+    return factory.createTypeReferenceNode(ref, undefined)
   }
 
   /**
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  private getBaseTypeFromSchema(schema?: OpenAPIV3.SchemaObject, name?: string): ts.TypeNode {
+  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | undefined, name?: string): ts.TypeNode {
     if (!schema) {
       return keywordTypeNodes.any
     }

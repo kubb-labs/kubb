@@ -1,4 +1,4 @@
-import zod from 'zod'
+import { Pet } from './Pet'
 
-export const AddPetRequest = zod.any()
-export const AddPetResponse = zod.any()
+export const AddPetRequest = Pet
+export const AddPetResponse = Pet

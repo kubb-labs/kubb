@@ -1,7 +1,8 @@
-import { ZodGenerator } from '../generators'
+import { ImportsGenerator, ZodGenerator } from '../generators'
 
 import type { FileResolver } from '../generators'
 import type Oas from 'oas'
+import { print } from '../utils'
 import type { OpenAPIV3 } from 'openapi-types'
 
 type Item = { schema: OpenAPIV3.SchemaObject; name: string; description?: string }
@@ -56,6 +57,7 @@ export class ZodBuilder {
       const type = generator.build(schema, name, description)
       return {
         refs: generator.refs,
+        name,
         type,
       }
     })
@@ -65,15 +67,15 @@ export class ZodBuilder {
       return `${acc}\n${formatedType}`
     }, '')
 
-    // if (this.withImport) {
-    //   const importsGenerator = new ImportsGenerator({ fileResolver: this.fileResolver })
-    //   const codeImports = await importsGenerator.build(generated)
+    if (this.withImport) {
+      const importsGenerator = new ImportsGenerator({ fileResolver: this.fileResolver })
+      const codeImports = await importsGenerator.build(generated)
 
-    //   if (codeImports) {
-    //     const formatedImports = print(codeImports)
-    //     return [formatedImports, code].join('\n')
-    //   }
-    // }
+      if (codeImports) {
+        const formatedImports = print(codeImports)
+        return [formatedImports, code].join('\n')
+      }
+    }
 
     return code
   }

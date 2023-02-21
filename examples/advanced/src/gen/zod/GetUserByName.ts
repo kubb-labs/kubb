@@ -1,4 +1,6 @@
 import zod from 'zod'
 
-export const GetUserByNameParams = zod.object({})
-export const GetUserByNameResponse = zod.any()
+import { User } from './User'
+
+export const GetUserByNameParams = zod.object({ username: zod.string().optional() })
+export const GetUserByNameResponse = User

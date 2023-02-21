@@ -1,4 +1,6 @@
 import zod from 'zod'
 
-export const GetOrderByIdParams = zod.object({})
-export const GetOrderByIdResponse = zod.any()
+import { Order } from './Order'
+
+export const GetOrderByIdParams = zod.object({ orderId: zod.number().optional() })
+export const GetOrderByIdResponse = Order

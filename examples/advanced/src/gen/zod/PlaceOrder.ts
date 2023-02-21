@@ -1,4 +1,4 @@
-import zod from 'zod'
+import { Order } from './Order'
 
-export const PlaceOrderRequest = zod.any()
-export const PlaceOrderResponse = zod.any()
+export const PlaceOrderRequest = Order
+export const PlaceOrderResponse = Order

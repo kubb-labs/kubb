@@ -58,6 +58,7 @@ export class TypeBuilder {
 
       return {
         refs: generator.refs,
+        name,
         type,
       }
     })

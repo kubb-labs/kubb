@@ -1,4 +1,6 @@
 import zod from 'zod'
 
-export const FindPetsByStatusParams = zod.object({})
-export const FindPetsByStatusResponse = zod.any()
+import { Pet } from './Pet'
+
+export const FindPetsByStatusParams = zod.object({ status: zod.string().optional() })
+export const FindPetsByStatusResponse = zod.array(Pet)
