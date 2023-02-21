@@ -1,7 +1,7 @@
 type Import = {
   name: string | string[]
   path: string
-  type?: boolean
+  isTypeOnly?: boolean
 }
 
 export type File = {

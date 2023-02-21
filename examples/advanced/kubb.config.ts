@@ -22,6 +22,7 @@ export default defineConfig(async () => {
       ['@kubb/swagger', { output: false }],
       ['@kubb/swagger-typescript', { output: 'models/ts' }],
       ['@kubb/swagger-react-query', { output: './reactQuery' }],
+      ['@kubb/swagger-zod', { output: './zod' }],
       // createSwagger({ output: false }),
       // createSwaggerTypescript({ output: 'models/ts' }),
       // createSwaggerReactQuery({ output: './reactQuery' }),

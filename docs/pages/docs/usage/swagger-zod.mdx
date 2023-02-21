@@ -1,0 +1,39 @@
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import Link from 'next/link'
+
+# @kubb/swagger-zod
+
+With the Swagger Zod plugin you can use Zod to validate your schema's based on a Swagger file.
+
+## Installation
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab>
+    ```bash copy
+    pnpm i -D @kubb/swagger-zod
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    npm i -D @kubb/swagger-zod
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    yarn add -D @kubb/swagger-zod
+    ```
+  </Tab>
+</Tabs>
+
+## Options
+
+
+### output
+Output to save the Zod schemas.
+
+Type: `string` <br/>
+Default: `"zod"`
+
+## Depended
+
+- [`@kubb/swagger`](/docs/usage/swagger)

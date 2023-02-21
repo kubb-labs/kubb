@@ -71,10 +71,10 @@ export class FileManager {
 
     const importSource = imports.reduce((prev, curr) => {
       if (Array.isArray(curr.name)) {
-        return `${prev}\nimport ${curr.type ? 'type ' : ''}{ ${curr.name.join(',')} } from "${curr.path}";`
+        return `${prev}\nimport ${curr.isTypeOnly ? 'type ' : ''}{ ${curr.name.join(',')} } from "${curr.path}";`
       }
 
-      return `${prev}\nimport ${curr.type ? 'type ' : ''}${curr.name} from "${curr.path}";`
+      return `${prev}\nimport ${curr.isTypeOnly ? 'type ' : ''}${curr.name} from "${curr.path}";`
     }, '')
 
     if (importSource) {

@@ -92,7 +92,3 @@ export type ShowPetByIdParams = {
  * @description Expected response to a valid request
  */
 export type ShowPetByIdResponse = Pet
-
-export type PostPetsPetidRequest = any | null
-
-export type PostPetsPetidResponse = any | null

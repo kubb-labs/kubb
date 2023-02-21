@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { factory } from 'typescript'
-import camelCase from 'lodash.camelcase'
-import upperFirst from 'lodash.upperfirst'
+import { pascalCase } from 'change-case'
 
 import { SchemaGenerator } from '@kubb/core'
 
@@ -16,12 +15,14 @@ import type { OpenAPIV3 } from 'openapi-types'
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
 export type FileResolver = (name: string) => Promise<string | null | undefined>
-export type Refs = Record<string, { node: ts.TypeReferenceNode; name: string }>
+type Name = string
+export type Refs = Record<string, Name>
 
 type Options = {
   withJSDocs?: boolean
+  nameResolver?: (name: string) => string
 }
-export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.Node> {
+export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.TypeAliasDeclaration> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
 
@@ -30,13 +31,13 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   // Keep track of already used type aliases
   typeAliases: Record<string, number> = {}
 
-  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true }) {
+  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, nameResolver: (name) => name }) {
     super(options)
 
     return this
   }
 
-  build(schema: OpenAPIV3.SchemaObject, name: string, description?: string): ts.TypeAliasDeclaration {
+  build(schema: OpenAPIV3.SchemaObject, name: string, description?: string) {
     const type = this.getTypeFromSchema(schema, name)
 
     const node = createTypeAliasDeclaration({
@@ -60,7 +61,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  private getTypeFromSchema(schema?: OpenAPIV3.SchemaObject, name?: string): ts.TypeNode {
+  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, name?: string): ts.TypeNode {
     const type = this.getBaseTypeFromSchema(schema, name)
     if (schema) {
       return type
@@ -140,20 +141,20 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (!ref) {
       const schema = this.resolve<OpenAPIV3.SchemaObject>(obj)
-      const name = this.getUniqueAlias(upperFirst(camelCase(schema.title) || $ref.replace(/.+\//, '')))
+      const name = this.getUniqueAlias(pascalCase(schema.title || $ref.replace(/.+\//, '')))
 
       // eslint-disable-next-line no-multi-assign
-      ref = this.refs[$ref] = { node: factory.createTypeReferenceNode(name, undefined), name }
+      ref = this.refs[$ref] = this.options.nameResolver?.(name) || name
     }
 
-    return ref.node
+    return factory.createTypeReferenceNode(ref, undefined)
   }
 
   /**
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  private getBaseTypeFromSchema(schema?: OpenAPIV3.SchemaObject, name?: string): ts.TypeNode {
+  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | undefined, name?: string): ts.TypeNode {
     if (!schema) {
       return keywordTypeNodes.any
     }
@@ -189,7 +190,9 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.type) {
       // string, boolean, null, number
-      if (schema.type in keywordTypeNodes) return keywordTypeNodes[schema.type]
+      if (schema.type in keywordTypeNodes) {
+        return keywordTypeNodes[schema.type]
+      }
     }
 
     if (schema.format === 'binary') {

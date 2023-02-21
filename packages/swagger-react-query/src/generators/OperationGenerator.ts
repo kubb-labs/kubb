@@ -1,5 +1,3 @@
-import pathParser from 'path'
-
 import { camelCase, capitalCase } from 'change-case'
 
 import type { PluginContext, File, FileManager } from '@kubb/core'
@@ -38,10 +36,12 @@ export class OperationGenerator extends Generator<Options> {
     )
 
     const data = {
-      params: {
-        name: capitalCase(`${operation.getOperationId()} "Params"`, { delimiter: '' }),
-        schema: schemaOperationPathParametersSchema,
-      },
+      params: operation.hasParameters()
+        ? {
+            name: capitalCase(`${operation.getOperationId()} "Params"`, { delimiter: '' }),
+            schema: schemaOperationPathParametersSchema,
+          }
+        : undefined,
       request: {
         name: capitalCase(`${operation.getOperationId()} "Request"`, { delimiter: '' }),
         description: (operation.schema.requestBody as RequestBodyObject)?.description,
@@ -69,6 +69,8 @@ export class OperationGenerator extends Generator<Options> {
 
     const operation = oas.operation(path, 'get')
 
+    if (!operation.schema.operationId) return null
+
     // hook setup
     const hookName = `${camelCase(`use ${operation.getOperationId()}`)}`
     const hookId = `${hookName}.ts`
@@ -94,20 +96,36 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = this.getComments(operation)
 
-    const source = `
+    let source = `
          ${createJSDocBlockText({ comments })}
-          export const ${camelCase(`use ${operation.getOperationId()}`)} = (params: ${schemas.params.name}) => {
+          export const ${camelCase(`use ${operation.getOperationId()}`)} = ()=> {
             return useQuery<${schemas.response.name}>({
               queryKey: ["${hookName}"],
               queryFn: () => {
-                const template = parseTemplate("${operation.path}").expand(params)
                 return axios
-                  .get(template)
+                  .get("${operation.path}")
                   .then((res) => res.data)
               }
             })
           };
       `
+
+    if (schemas.params) {
+      source = `
+        ${createJSDocBlockText({ comments })}
+         export const ${camelCase(`use ${operation.getOperationId()}`)} = (params: ${schemas.params.name})=> {
+           return useQuery<${schemas.response.name}>({
+             queryKey: ["${hookName}"],
+             queryFn: () => {
+               const template = parseTemplate("${operation.path}").expand(${schemas.params ? 'params' : ''})
+               return axios
+                 .get(template)
+                 .then((res) => res.data)
+             }
+           })
+         };
+     `
+    }
 
     return {
       path: hookFilePath,
@@ -127,7 +145,7 @@ export class OperationGenerator extends Generator<Options> {
           path: 'url-template',
         },
         {
-          name: [schemas.response.name, schemas.params.name],
+          name: [schemas.response.name, schemas.params?.name].filter(Boolean) as string[],
           path: getRelativePath(hookFilePath, typeFilePath),
           type: true,
         },
@@ -139,6 +157,8 @@ export class OperationGenerator extends Generator<Options> {
     const { oas, directory, resolveId } = this.options
 
     const operation = oas.operation(path, 'post')
+
+    if (!operation.schema.operationId) return null
 
     // hook setup
     const hookName = `${camelCase(`use ${operation.getOperationId()}`)}`
@@ -197,6 +217,134 @@ export class OperationGenerator extends Generator<Options> {
     // end hook creation
   }
 
+  async getPut(path: string) {
+    const { oas, directory, resolveId } = this.options
+
+    const operation = oas.operation(path, 'put')
+
+    if (!operation.schema.operationId) return null
+
+    // hook setup
+    const hookName = `${camelCase(`use ${operation.getOperationId()}`)}`
+    const hookId = `${hookName}.ts`
+    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName })
+    if (!hookFilePath) {
+      return null
+    }
+    // end hook setup
+
+    // type creation
+
+    const schemas = this.getSchemas(operation)
+
+    const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
+    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
+
+    // hook creation
+
+    const comments = this.getComments(operation)
+
+    const source = `
+        ${createJSDocBlockText({ comments })}
+        export const ${camelCase(`use ${operation.getOperationId()}`)} = () => {
+          return useMutation<${schemas.response.name}, unknown, ${schemas.request.name}>({
+            mutationFn: (data) => {
+              return axios
+              .put("${operation.path}", data)
+              .then((res) => res.data)
+            }
+          })
+        };
+    `
+
+    return {
+      path: hookFilePath,
+      fileName: hookId,
+      source,
+      imports: [
+        {
+          name: ['useMutation'],
+          path: '@tanstack/react-query',
+        },
+        {
+          name: 'axios',
+          path: 'axios',
+        },
+        {
+          name: [schemas.request.name, schemas.response.name],
+          path: getRelativePath(hookFilePath, typeFilePath),
+          type: true,
+        },
+      ],
+    }
+
+    // end hook creation
+  }
+
+  async getDelete(path: string) {
+    const { oas, directory, resolveId } = this.options
+
+    const operation = oas.operation(path, 'delete')
+
+    if (!operation.schema.operationId) return null
+
+    // hook setup
+    const hookName = `${camelCase(`use ${operation.getOperationId()}`)}`
+    const hookId = `${hookName}.ts`
+    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName })
+    if (!hookFilePath) {
+      return null
+    }
+    // end hook setup
+
+    // type creation
+
+    const schemas = this.getSchemas(operation)
+
+    const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
+    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
+
+    // hook creation
+
+    const comments = this.getComments(operation)
+
+    const source = `
+        ${createJSDocBlockText({ comments })}
+        export const ${camelCase(`use ${operation.getOperationId()}`)} = () => {
+          return useMutation<${schemas.response.name}, unknown, ${schemas.request.name}>({
+            mutationFn: (data) => {
+              return axios
+              .delete("${operation.path}", data)
+              .then((res) => res.data)
+            }
+          })
+        };
+    `
+
+    return {
+      path: hookFilePath,
+      fileName: hookId,
+      source,
+      imports: [
+        {
+          name: ['useMutation'],
+          path: '@tanstack/react-query',
+        },
+        {
+          name: 'axios',
+          path: 'axios',
+        },
+        {
+          name: [schemas.request.name, schemas.response.name],
+          path: getRelativePath(hookFilePath, typeFilePath),
+          type: true,
+        },
+      ],
+    }
+
+    // end hook creation
+  }
+
   async build() {
     const { oas, fileManager } = this.options
     const paths = oas.getPaths()
@@ -206,6 +354,8 @@ export class OperationGenerator extends Generator<Options> {
     Object.keys(paths).forEach((path) => {
       promises.push(this.getGet(path))
       promises.push(this.getPost(path))
+      promises.push(this.getPut(path))
+      promises.push(this.getDelete(path))
     })
 
     const files = await Promise.all(promises).then((files) => {
