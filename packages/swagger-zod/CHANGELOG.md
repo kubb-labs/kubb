@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.43.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-zod-v0.43.0...@kubb/swagger-zod-v0.43.1) (2023-02-21)
+
+
+### Bug Fixes
+
+* filter out if schema.map is not a function ([57250ed](https://github.com/stijnvanhulle/kubb/commit/57250edded807b9641a61ffeefee2f96a1349f80))
+
 ## [0.43.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-zod-v0.42.1...@kubb/swagger-zod-v0.43.0) (2023-02-21)
 
 
