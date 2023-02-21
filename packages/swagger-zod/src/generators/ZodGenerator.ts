@@ -73,8 +73,6 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       return `.${fn}(${args})`
     }
 
-    console.log(JSON.stringify(input, undefined, 2))
-
     const zodOutput = !input.length ? '' : `${input.map(parseProperty).join('')}`
 
     return `export const ${name} = ${zodOutput};`
