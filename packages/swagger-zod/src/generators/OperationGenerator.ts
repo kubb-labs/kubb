@@ -61,8 +61,9 @@ export class OperationGenerator extends Generator<Options> {
     const { resolveId, directory, mode, nameResolver, oas } = this.options
 
     const operation = oas.operation(path, 'get')
-    const schemas = this.getSchemas(operation)
+    if (!operation.schema.operationId) return null
 
+    const schemas = this.getSchemas(operation)
     const typeName = `${nameResolver(operation.getOperationId())}.ts`
     const typeFilePath = await resolveId(typeName, directory)
 
@@ -98,8 +99,10 @@ export class OperationGenerator extends Generator<Options> {
     const { resolveId, directory, mode, nameResolver, oas } = this.options
 
     const operation = oas.operation(path, 'post')
-    const schemas = this.getSchemas(operation)
 
+    if (!operation.schema.operationId) return null
+
+    const schemas = this.getSchemas(operation)
     const typeName = `${nameResolver(operation.getOperationId())}.ts`
     const typeFilePath = await resolveId(typeName, directory)
 

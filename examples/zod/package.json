@@ -1,0 +1,35 @@
+{
+  "name": "zod-pet-store",
+  "version": "0.0.1",
+  "description": "Zod PetStore example",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/stijnvanhulle/kubb.git",
+    "directory": "packages/examples/zod"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "sideEffects": false,
+  "scripts": {
+    "generate": "pnpm generate:ts",
+    "generate:ts": "kubb --config kubb.config.ts",
+    "generate:json": "kubb --config kubb.json",
+    "generate:js": "kubb --config .kubbrc",
+    "build": "tsup",
+    "start": "tsup --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@kubb/cli": "workspace:*",
+    "@kubb/core": "workspace:*",
+    "@kubb/swagger": "workspace:*",
+    "@kubb/swagger-zod": "workspace:*",
+    "@kubb/swagger-typescript": "workspace:*",
+    "zod": "^3.20.6",
+    "tsup": "^6.6.3",
+    "react": "^18.2.0",
+    "url-template": "^3.1.0"
+  }
+}

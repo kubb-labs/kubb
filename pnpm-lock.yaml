@@ -195,6 +195,28 @@ importers:
       tsup: 6.6.3
       url-template: 3.1.0
 
+  examples/zod:
+    specifiers:
+      '@kubb/cli': workspace:*
+      '@kubb/core': workspace:*
+      '@kubb/swagger': workspace:*
+      '@kubb/swagger-typescript': workspace:*
+      '@kubb/swagger-zod': workspace:*
+      react: ^18.2.0
+      tsup: ^6.6.3
+      url-template: ^3.1.0
+      zod: ^3.20.6
+    dependencies:
+      '@kubb/cli': link:../../packages/cli
+      '@kubb/core': link:../../packages/core
+      '@kubb/swagger': link:../../packages/swagger
+      '@kubb/swagger-typescript': link:../../packages/swagger-typescript
+      '@kubb/swagger-zod': link:../../packages/swagger-zod
+      react: 18.2.0
+      tsup: 6.6.3
+      url-template: 3.1.0
+      zod: 3.20.6
+
   packages/cli:
     specifiers:
       '@humanwhocodes/module-importer': ^1.0.1

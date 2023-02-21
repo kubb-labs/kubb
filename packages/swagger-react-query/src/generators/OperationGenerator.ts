@@ -1,5 +1,3 @@
-import pathParser from 'path'
-
 import { camelCase, capitalCase } from 'change-case'
 
 import type { PluginContext, File, FileManager } from '@kubb/core'
@@ -68,6 +66,8 @@ export class OperationGenerator extends Generator<Options> {
     const { oas, directory, resolveId } = this.options
 
     const operation = oas.operation(path, 'get')
+
+    if (!operation.schema.operationId) return null
 
     // hook setup
     const hookName = `${camelCase(`use ${operation.getOperationId()}`)}`
@@ -139,6 +139,8 @@ export class OperationGenerator extends Generator<Options> {
     const { oas, directory, resolveId } = this.options
 
     const operation = oas.operation(path, 'post')
+
+    if (!operation.schema.operationId) return null
 
     // hook setup
     const hookName = `${camelCase(`use ${operation.getOperationId()}`)}`
