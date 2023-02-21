@@ -24,6 +24,7 @@ describe('ImportsGenerator', () => {
     const importsNode = await importsGenerator.build([
       {
         refs: typeGenerator.refs,
+        name: 'Pets',
         type: node,
       },
     ])

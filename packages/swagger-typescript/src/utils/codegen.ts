@@ -126,11 +126,11 @@ export function createTypeAliasDeclaration({
   return factory.createTypeAliasDeclaration(modifiers, name, typeParameters, type)
 }
 
-export function createImportDeclaration({ name, path }: { name: string | Array<ts.Identifier | string>; path: string }) {
+export function createImportDeclaration({ name, path, isTypeOnly }: { name: string | Array<ts.Identifier | string>; path: string; isTypeOnly?: boolean }) {
   if (!Array.isArray(name)) {
     return factory.createImportDeclaration(
       undefined,
-      factory.createImportClause(false, factory.createIdentifier(name), undefined),
+      factory.createImportClause(isTypeOnly ?? false, factory.createIdentifier(name), undefined),
       factory.createStringLiteral(path),
       undefined
     )
@@ -139,7 +139,7 @@ export function createImportDeclaration({ name, path }: { name: string | Array<t
   return factory.createImportDeclaration(
     undefined,
     factory.createImportClause(
-      true,
+      isTypeOnly ?? true,
       undefined,
       factory.createNamedImports(
         name.map((propertyName) => {
