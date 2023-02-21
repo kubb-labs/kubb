@@ -1,4 +1,11 @@
 # Changelog
+## [0.43.3](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.43.2...@kubb/core-v0.43.3) (2023-02-21)
+
+
+### Bug Fixes
+
+* better way of replacing(hard delete) ([71ff388](https://github.com/stijnvanhulle/kubb/commit/71ff3887f3d3ebdb141339611a673242c38f1efa))
+
 ## [0.43.2](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.43.1...@kubb/core-v0.43.2) (2023-02-21)
 
 
