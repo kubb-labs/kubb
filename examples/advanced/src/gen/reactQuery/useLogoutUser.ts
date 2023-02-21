@@ -1,19 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { parseTemplate } from 'url-template'
 
-import type { LogoutUserResponse, LogoutUserParams } from '../models/ts/LogoutUser'
+import type { LogoutUserResponse } from '../models/ts/LogoutUser'
 
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-export const useLogoutUser = (params: LogoutUserParams) => {
+export const useLogoutUser = () => {
   return useQuery<LogoutUserResponse>({
     queryKey: ['useLogoutUser'],
     queryFn: () => {
-      const template = parseTemplate('/user/logout').expand(params)
-      return axios.get(template).then((res) => res.data)
+      return axios.get('/user/logout').then((res) => res.data)
     },
   })
 }

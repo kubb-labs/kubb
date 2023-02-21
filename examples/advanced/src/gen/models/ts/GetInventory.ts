@@ -1,5 +1,3 @@
-export type GetInventoryParams = {}
-
 /**
  * @description successful operation
  */

@@ -26,8 +26,10 @@ export class TypeBuilder {
     return this
   }
 
-  add(item: Item) {
-    this.items.push(item)
+  add(item: Item | undefined) {
+    if (item) {
+      this.items.push(item)
+    }
 
     return this
   }
