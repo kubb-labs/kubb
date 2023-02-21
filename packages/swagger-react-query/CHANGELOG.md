@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.43.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.43.0...@kubb/swagger-react-query-v0.43.1) (2023-02-21)
+
+
+### Bug Fixes
+
+* useDelete without body ([47bf697](https://github.com/stijnvanhulle/kubb/commit/47bf69781c4312eea6b272788ec76551f9f9e9b2))
+
 ## [0.43.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.42.1...@kubb/swagger-react-query-v0.43.0) (2023-02-21)
 
 
