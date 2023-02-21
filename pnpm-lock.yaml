@@ -127,7 +127,7 @@ importers:
       '@kubb/swagger-react-query': workspace:*
       '@kubb/swagger-typescript': workspace:*
       '@kubb/swagger-zod': workspace:*
-      '@tanstack/react-query': ^4.24.6
+      '@tanstack/react-query': ^4.24.9
       axios: ^1.3.3
       react: ^18.2.0
       tsup: ^6.6.3
@@ -140,7 +140,7 @@ importers:
       '@kubb/swagger-react-query': link:../../packages/swagger-react-query
       '@kubb/swagger-typescript': link:../../packages/swagger-typescript
       '@kubb/swagger-zod': link:../../packages/swagger-zod
-      '@tanstack/react-query': 4.24.6_react@18.2.0
+      '@tanstack/react-query': 4.24.9_react@18.2.0
       axios: 1.3.3
       react: 18.2.0
       tsup: 6.6.3
@@ -2218,6 +2218,10 @@ packages:
     resolution: {integrity: sha512-Tfru6YTDTCpX7dKVwHp/sosw/dNjEdzrncduUjIkQxn7n7u+74HT2ZrGtwwrU6Orws4x7zp3FKRqBPWVVhpx9w==}
     dev: false
 
+  /@tanstack/query-core/4.24.9:
+    resolution: {integrity: sha512-pZQ2NpdaHzx8gPPkAPh06d6zRkjfonUzILSYBXrdHDapP2eaBbGsx5L4/dMF+fyAglFzQZdDDzZgAykbM20QVw==}
+    dev: false
+
   /@tanstack/react-query/4.24.6_react@18.2.0:
     resolution: {integrity: sha512-pbJUVZCS4pcXS0kZiY+mVJ01ude0GrH5OXT2g9whcqSveRG/YVup/XdA9NdRpSMGkP2HxDRxxRNsTXkniWeIIA==}
     peerDependencies:
@@ -2231,6 +2235,23 @@ packages:
         optional: true
     dependencies:
       '@tanstack/query-core': 4.24.6
+      react: 18.2.0
+      use-sync-external-store: 1.2.0_react@18.2.0
+    dev: false
+
+  /@tanstack/react-query/4.24.9_react@18.2.0:
+    resolution: {integrity: sha512-6WLwUT9mrngIinRtcZjrWOUENOuLbWvQpKmU6DZCo2iPQVA+qvv3Ji90Amme4AkUyWQ8ZSSRTnAFq8V2tj2ACg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@tanstack/query-core': 4.24.9
       react: 18.2.0
       use-sync-external-store: 1.2.0_react@18.2.0
     dev: false
