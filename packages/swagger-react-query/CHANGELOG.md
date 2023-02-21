@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.43.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.42.1...@kubb/swagger-react-query-v0.43.0) (2023-02-21)
+
+
+### Features
+
+* add put and delete operations + params for URL type ([21ab4cf](https://github.com/stijnvanhulle/kubb/commit/21ab4cff7ceab496718119e6abc145e96125b364))
+
+
+### Bug Fixes
+
+* when post/get does not exist, do not generate type/hook/schema ([16b5648](https://github.com/stijnvanhulle/kubb/commit/16b5648b613a66811d1b24be0d6065bb84b3143a))
+
 ## [0.42.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.42.0...@kubb/swagger-react-query-v0.42.1) (2023-02-20)
 
 
