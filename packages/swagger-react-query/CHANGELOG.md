@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.46.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.45.1...@kubb/swagger-react-query-v0.46.0) (2023-02-22)
+
+
+### Features
+
+* querOptions for react-query(for non React hooks) ([a2a3a15](https://github.com/stijnvanhulle/kubb/commit/a2a3a154a86f998af1a9e6a5212764fadc73a9ae))
+
 ## [0.45.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.45.0...@kubb/swagger-react-query-v0.45.1) (2023-02-22)
 
 
