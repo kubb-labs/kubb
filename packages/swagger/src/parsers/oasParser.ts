@@ -4,7 +4,7 @@ import { URL } from 'url'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import swagger2openapi from 'swagger2openapi'
 
-import type { KubbConfig } from '@kubb/core'
+import { isURL, KubbConfig } from '@kubb/core'
 
 import { isOpenApiV3Document } from '../utils'
 
@@ -47,17 +47,10 @@ export const oasPathParser = async (pathOrApi: string, { validate }: Options = {
 
 export const oasParser = async (config: KubbConfig, options: Options = {}) => {
   let pathOrApi = ''
-  if (typeof config.input === 'string') {
-    pathOrApi = JSON.parse(config.input)
+  if (isURL(config.input.path)) {
+    pathOrApi = config.input.path
   } else {
-    try {
-      const url = new URL(config.input.path)
-      if (url) {
-        pathOrApi = config.input.path
-      }
-    } catch (error) {
-      pathOrApi = pathParser.resolve(config.root, config.input.path)
-    }
+    pathOrApi = pathParser.resolve(config.root, config.input.path)
   }
 
   return oasPathParser(pathOrApi, options)

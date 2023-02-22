@@ -37,11 +37,6 @@ const program = new Command(moduleName)
       if (options.watch) {
         const config = await getConfig(result, options)
 
-        if (typeof config.input === 'string') {
-          spinner.warn(pc.red('Input as a string cannot be used together with watch '))
-          return
-        }
-
         startWatcher(
           async (paths) => {
             await run({ config, spinner, options })

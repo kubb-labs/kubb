@@ -1,3 +1,4 @@
+import { isURL } from './utils/isURL'
 /* eslint-disable no-async-promise-executor */
 import pathParser from 'path'
 
@@ -71,9 +72,7 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
     if (code) {
       const transformedCode = await pluginManager.hookReduceArg0('transform', [code, path], transformReducer)
 
-      if (typeof config.input === 'object') {
-        await pluginManager.hookParallel('writeFile', [transformedCode, path])
-      }
+      await pluginManager.hookParallel('writeFile', [transformedCode, path])
 
       fileManager.setStatus(id, 'success')
       fileManager.remove(id)
@@ -83,9 +82,9 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
   await pluginManager.hookParallel('buildStart', [config])
 
   pluginManager.fileManager.add({
-    path: typeof config.input === 'string' ? 'input' : pathParser.resolve(config.root, config.input.path),
-    fileName: typeof config.input === 'string' ? 'input' : config.input.path,
-    source: typeof config.input === 'string' ? config.input : await read(pathParser.resolve(config.root, config.input.path)),
+    path: isURL(config.input.path) ? config.input.path : pathParser.resolve(config.root, config.input.path),
+    fileName: isURL(config.input.path) ? 'input' : config.input.path,
+    source: isURL(config.input.path) ? config.input.path : await read(pathParser.resolve(config.root, config.input.path)),
   })
 }
 
