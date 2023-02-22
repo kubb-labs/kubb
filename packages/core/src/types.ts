@@ -44,6 +44,11 @@ export type KubbConfig = {
      * Remove previous generated files and folders.
      */
     clean?: boolean
+    /**
+     * Write output to the fileSystem
+     * @default true
+     */
+    write?: boolean
   }
   /**
    * Array of Kubb plugins to use.

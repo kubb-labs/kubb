@@ -94,6 +94,27 @@ export default defineConfig(async ({mode}) => {
   },
 })
 ```
+### write
+Write output to the fileSystem.
+Type: `boolean` <br/>
+Default: `true`
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig(async ({mode}) => {
+  return {
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+      clean: true
+    },
+    logLevel: "info"
+  },
+})
+```
 
 ## plugins
 Array of Kubb plugins to use. The plugin/package can forsee some options that you need to pass through.

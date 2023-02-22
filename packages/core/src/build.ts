@@ -1,7 +1,7 @@
-import { isURL } from './utils/isURL'
 /* eslint-disable no-async-promise-executor */
 import pathParser from 'path'
 
+import { isURL } from './utils/isURL'
 import { PluginManager } from './managers/pluginManager'
 import { clean, read } from './utils'
 
@@ -72,7 +72,9 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
     if (code) {
       const transformedCode = await pluginManager.hookReduceArg0('transform', [code, path], transformReducer)
 
-      await pluginManager.hookParallel('writeFile', [transformedCode, path])
+      if (config.output.write || config.output.write === undefined) {
+        await pluginManager.hookParallel('writeFile', [transformedCode, path])
+      }
 
       fileManager.setStatus(id, 'success')
       fileManager.remove(id)

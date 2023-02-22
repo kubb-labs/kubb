@@ -55,6 +55,10 @@ export async function run({ config, options, spinner }: RunProps) {
       config: {
         root: process.cwd(),
         ...config,
+        output: {
+          write: true,
+          ...config.output,
+        },
       },
       mode: options.mode || 'development',
       logger,
