@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.44.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.44.0...@kubb/cli-v0.44.1) (2023-02-22)
+
+
+### Bug Fixes
+
+* input.path is now required and can also be an URL ([5559c47](https://github.com/stijnvanhulle/kubb/commit/5559c4702fc0142853ff316233921c19702469f9))
+
 ## [0.44.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.43.3...@kubb/cli-v0.44.0) (2023-02-22)
 
 
