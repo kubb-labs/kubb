@@ -1,11 +1,11 @@
 import pathParser from 'path'
 
 import { oasPathParser } from '@kubb/swagger'
+import { format } from '@kubb/core'
 
 import { ImportsGenerator } from './ImportsGenerator'
 import { TypeGenerator } from './TypeGenerator'
 
-import { format } from '../../mocks/format'
 import { print } from '../utils/print'
 
 import type { OpenAPIV3 } from 'openapi-types'
@@ -32,10 +32,10 @@ describe('ImportsGenerator', () => {
     const output = importsNode && print([...importsNode, node], undefined)
 
     expect(output).toBeDefined()
-    expect(format(output)).toEqual(
+    expect(format(output!)).toEqual(
       format(`
-      import type { Pet } from '#models/Pet'
-      export type Pets = Pet[]
+      import type { Pet } from "#models/Pet";
+      export type Pets = Pet[];
     `)
     )
   })

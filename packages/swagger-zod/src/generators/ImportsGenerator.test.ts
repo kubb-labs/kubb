@@ -1,11 +1,11 @@
 import pathParser from 'path'
 
 import { oasPathParser } from '@kubb/swagger'
+import { format } from '@kubb/core'
 
 import { ImportsGenerator } from './ImportsGenerator'
 import { ZodGenerator } from './ZodGenerator'
 
-import { format } from '../../mocks/format'
 import { print } from '../utils/print'
 
 import type { OpenAPIV3 } from 'openapi-types'
@@ -32,10 +32,10 @@ describe('ImportsGenerator', () => {
     const output = importsNode && print([...importsNode], undefined) + node
 
     expect(output).toBeDefined()
-    expect(format(output)).toEqual(
+    expect(format(output!)).toEqual(
       format(`
-      import { Pet } from '#models/Pet'
-      export const Pets = zod.array(Pet)
+      import { Pet } from "#models/Pet";
+      export const Pets = zod.array(Pet);
     `)
     )
   })

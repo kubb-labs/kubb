@@ -24,15 +24,21 @@ export const findPetsByStatusQueryOptions = <TData = FindPetsByStatusResponse>(p
  */
 export const useFindPetsByStatus = <TData = FindPetsByStatusResponse>(
   params?: FindPetsByStatusQueryParams,
-  options?: { query?: UseQueryOptions<TData> }
-): UseQueryResult<TData> & { queryKey: QueryKey } => {
+  options?: {
+    query?: UseQueryOptions<TData>
+  }
+): UseQueryResult<TData> & {
+  queryKey: QueryKey
+} => {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
 
   const query = useQuery<TData>({
     ...findPetsByStatusQueryOptions<TData>(params),
     ...queryOptions,
-  }) as UseQueryResult<TData> & { queryKey: QueryKey }
+  }) as UseQueryResult<TData> & {
+    queryKey: QueryKey
+  }
 
   query.queryKey = queryKey
 

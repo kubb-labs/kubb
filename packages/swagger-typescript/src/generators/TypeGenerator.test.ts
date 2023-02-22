@@ -1,10 +1,10 @@
 import pathParser from 'path'
 
 import { oasPathParser } from '@kubb/swagger'
+import { format } from '@kubb/core'
 
 import { TypeGenerator } from './TypeGenerator'
 
-import { format } from '../../mocks/format'
 import { print } from '../utils/print'
 
 import type { OpenAPIV3 } from 'openapi-types'
@@ -26,10 +26,10 @@ describe('TypeGenerator simple', () => {
     expect(format(output)).toEqual(
       format(`
     export type Pet = {
-        id: number
-        name: string
-        tag?: string | undefined
-    }
+        id: number;
+        name: string;
+        tag?: string | undefined;
+    };
     `)
     )
   })
@@ -47,10 +47,10 @@ describe('TypeGenerator simple', () => {
     expect(format(output)).toEqual(
       format(`
    export type Pets = {
-    id: number
-    name: string
-    tag?: string | undefined
-  }[]
+    id: number;
+    name: string;
+    tag?: string | undefined;
+  }[];
     `)
     )
   })
@@ -72,7 +72,7 @@ describe('TypeGenerator with refs', () => {
     expect(output).toBeDefined()
     expect(format(output)).toEqual(
       format(`
-      export type Pets = Pet[]
+      export type Pets = Pet[];
     `)
     )
   })

@@ -28,15 +28,21 @@ export const getUserByNameQueryOptions = <TData = GetUserByNameResponse>(
 export const useGetUserByName = <TData = GetUserByNameResponse>(
   username: GetUserByNamePathParams['username'],
   params?: GetUserByNameQueryParams,
-  options?: { query?: UseQueryOptions<TData> }
-): UseQueryResult<TData> & { queryKey: QueryKey } => {
+  options?: {
+    query?: UseQueryOptions<TData>
+  }
+): UseQueryResult<TData> & {
+  queryKey: QueryKey
+} => {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username, params)
 
   const query = useQuery<TData>({
     ...getUserByNameQueryOptions<TData>(username, params),
     ...queryOptions,
-  }) as UseQueryResult<TData> & { queryKey: QueryKey }
+  }) as UseQueryResult<TData> & {
+    queryKey: QueryKey
+  }
 
   query.queryKey = queryKey
 

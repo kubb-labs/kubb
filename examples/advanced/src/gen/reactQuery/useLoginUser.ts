@@ -23,15 +23,21 @@ export const loginUserQueryOptions = <TData = LoginUserResponse>(params?: LoginU
  */
 export const useLoginUser = <TData = LoginUserResponse>(
   params?: LoginUserQueryParams,
-  options?: { query?: UseQueryOptions<TData> }
-): UseQueryResult<TData> & { queryKey: QueryKey } => {
+  options?: {
+    query?: UseQueryOptions<TData>
+  }
+): UseQueryResult<TData> & {
+  queryKey: QueryKey
+} => {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 
   const query = useQuery<TData>({
     ...loginUserQueryOptions<TData>(params),
     ...queryOptions,
-  }) as UseQueryResult<TData> & { queryKey: QueryKey }
+  }) as UseQueryResult<TData> & {
+    queryKey: QueryKey
+  }
 
   query.queryKey = queryKey
 
