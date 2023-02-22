@@ -42,6 +42,7 @@ export class OperationGenerator extends Generator<Options> {
             schema: schemaOperationPathParametersSchema,
           }
         : undefined,
+      queryParams: undefined,
       request: {
         name: capitalCase(`${operation.getOperationId()} "Request"`, { delimiter: '' }),
         description: (operation.schema.requestBody as RequestBodyObject)?.description,
@@ -95,45 +96,75 @@ export class OperationGenerator extends Generator<Options> {
     // hook creation
 
     const comments = this.getComments(operation)
-
-    let source = `
-         ${createJSDocBlockText({ comments })}
-          export const ${camelCase(`use ${operation.getOperationId()}`)} = ()=> {
-            return useQuery<${schemas.response.name}>({
-              queryKey: ["${hookName}"],
-              queryFn: () => {
-                return axios
-                  .get("${operation.path}")
-                  .then((res) => res.data)
-              }
-            })
-          };
-      `
+    const sources: string[] = []
+    const queryKey = `${camelCase(`${operation.getOperationId()}QueryKey`)}`
 
     if (schemas.params) {
-      source = `
+      sources.push(`
+        export const ${queryKey} = (params?: ${schemas.params.name}) => ["${operation.path}", ...(params ? [params] : [])] as const;
+      `)
+
+      sources.push(`
         ${createJSDocBlockText({ comments })}
-         export const ${camelCase(`use ${operation.getOperationId()}`)} = (params: ${schemas.params.name})=> {
-           return useQuery<${schemas.response.name}>({
-             queryKey: ["${hookName}"],
+         export const ${hookName} = <TData = ${schemas.response.name}>(params: ${
+        schemas.params.name
+      }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
+          const { query: queryOptions } = options ?? {};
+          const queryKey = queryOptions?.queryKey ?? ${queryKey}(params);
+          
+          const query = useQuery<TData>({
+             queryKey,
              queryFn: () => {
-               const template = parseTemplate("${operation.path}").expand(${schemas.params ? 'params' : ''})
+               const template = parseTemplate("${operation.path}").expand(params as any);
                return axios
                  .get(template)
-                 .then((res) => res.data)
-             }
-           })
+                 .then((res) => res.data);
+             },
+             ...queryOptions
+           }) as UseQueryResult<TData> & { queryKey: QueryKey };
+
+           query.queryKey = queryKey;
+
+           return query;
          };
-     `
+     `)
+    } else {
+      sources.push(`
+      export const ${queryKey} = () => ["${operation.path}"] as const;
+    `)
+
+      sources.push(`
+      ${createJSDocBlockText({ comments })}
+       export const ${hookName} = <TData = ${
+        schemas.response.name
+      }>(options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
+        const { query: queryOptions } = options ?? {};
+        const queryKey = queryOptions?.queryKey ?? ${queryKey}();
+
+        const query = useQuery<TData>({
+           queryKey,
+           queryFn: () => {
+             return axios
+               .get("${operation.path}")
+               .then((res) => res.data)
+           },
+           ...queryOptions
+         }) as UseQueryResult<TData> & { queryKey: QueryKey };
+
+         query.queryKey = queryKey;
+
+         return query;
+       };
+   `)
     }
 
     return {
       path: hookFilePath,
       fileName: hookId,
-      source,
+      source: sources.join('\n'),
       imports: [
         {
-          name: ['useQuery'],
+          name: ['useQuery', 'QueryKey', 'UseQueryResult', 'UseQueryOptions'],
           path: '@tanstack/react-query',
         },
         {
@@ -147,7 +178,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: [schemas.response.name, schemas.params?.name].filter(Boolean) as string[],
           path: getRelativePath(hookFilePath, typeFilePath),
-          type: true,
+          isTypeOnly: true,
         },
       ],
     }
@@ -182,14 +213,19 @@ export class OperationGenerator extends Generator<Options> {
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export const ${camelCase(`use ${operation.getOperationId()}`)} = () => {
-          return useMutation<${schemas.response.name}, unknown, ${schemas.request.name}>({
+        export const ${hookName} = <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(options?: {
+          mutation?: UseMutationOptions<TData, unknown, TVariables>
+        }) => {
+          const { mutation: mutationOptions } = options ?? {};
+
+          return useMutation<TData, unknown, TVariables>({
             mutationFn: (data) => {
               return axios
               .post("${operation.path}", data)
               .then((res) => res.data)
-            }
-          })
+            },
+            ...mutationOptions
+          });
         };
     `
 
@@ -199,7 +235,7 @@ export class OperationGenerator extends Generator<Options> {
       source,
       imports: [
         {
-          name: ['useMutation'],
+          name: ['useMutation', 'UseMutationOptions'],
           path: '@tanstack/react-query',
         },
         {
@@ -209,7 +245,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: [schemas.request.name, schemas.response.name],
           path: getRelativePath(hookFilePath, typeFilePath),
-          type: true,
+          isTypeOnly: true,
         },
       ],
     }
@@ -246,14 +282,19 @@ export class OperationGenerator extends Generator<Options> {
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export const ${camelCase(`use ${operation.getOperationId()}`)} = () => {
-          return useMutation<${schemas.response.name}, unknown, ${schemas.request.name}>({
+        export const ${hookName} = <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(options?: {
+          mutation?: UseMutationOptions<TData, unknown, TVariables>
+        }) => {
+          const { mutation: mutationOptions } = options ?? {};
+
+          return useMutation<TData, unknown, TVariables>({
             mutationFn: (data) => {
               return axios
               .put("${operation.path}", data)
               .then((res) => res.data)
-            }
-          })
+            },
+            ...mutationOptions
+          });
         };
     `
 
@@ -263,7 +304,7 @@ export class OperationGenerator extends Generator<Options> {
       source,
       imports: [
         {
-          name: ['useMutation'],
+          name: ['useMutation', 'UseMutationOptions'],
           path: '@tanstack/react-query',
         },
         {
@@ -273,7 +314,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: [schemas.request.name, schemas.response.name],
           path: getRelativePath(hookFilePath, typeFilePath),
-          type: true,
+          isTypeOnly: true,
         },
       ],
     }
@@ -310,14 +351,19 @@ export class OperationGenerator extends Generator<Options> {
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export const ${camelCase(`use ${operation.getOperationId()}`)} = () => {
-          return useMutation<${schemas.response.name}, unknown, ${schemas.request.name}>({
+        export const ${hookName} = <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(options?: {
+          mutation?: UseMutationOptions<TData, unknown, TVariables>
+        }) => {
+          const { mutation: mutationOptions } = options ?? {};
+
+          return useMutation<TData, unknown, TVariables>({
             mutationFn: (data) => {
               return axios
               .delete("${operation.path}")
               .then((res) => res.data)
-            }
-          })
+            },
+            ...mutationOptions
+          });
         };
     `
 
@@ -327,7 +373,7 @@ export class OperationGenerator extends Generator<Options> {
       source,
       imports: [
         {
-          name: ['useMutation'],
+          name: ['useMutation', 'UseMutationOptions'],
           path: '@tanstack/react-query',
         },
         {
@@ -337,7 +383,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: [schemas.request.name, schemas.response.name],
           path: getRelativePath(hookFilePath, typeFilePath),
-          type: true,
+          isTypeOnly: true,
         },
       ],
     }

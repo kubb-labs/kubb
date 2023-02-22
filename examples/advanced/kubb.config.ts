@@ -8,6 +8,7 @@ export default defineConfig(async () => {
   return {
     root: '.',
     input: {
+      // path: './test.json',
       path: './petStore.yaml',
     },
     output: {

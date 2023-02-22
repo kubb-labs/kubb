@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
+import type { UseMutationOptions } from '@tanstack/react-query'
 import type { UpdatePetRequest, UpdatePetResponse } from '../models/ts/UpdatePet'
 
 /**
@@ -8,10 +9,15 @@ import type { UpdatePetRequest, UpdatePetResponse } from '../models/ts/UpdatePet
  * @summary Update an existing pet
  * @link /pet
  */
-export const useUpdatePet = () => {
-  return useMutation<UpdatePetResponse, unknown, UpdatePetRequest>({
+export const useUpdatePet = <TData = UpdatePetResponse, TVariables = UpdatePetRequest>(options?: {
+  mutation?: UseMutationOptions<TData, unknown, TVariables>
+}) => {
+  const { mutation: mutationOptions } = options ?? {}
+
+  return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
       return axios.put('/pet', data).then((res) => res.data)
     },
+    ...mutationOptions,
   })
 }
