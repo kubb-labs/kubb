@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.47.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.47.0...@kubb/swagger-react-query-v0.47.1) (2023-02-22)
+
+
+### Bug Fixes
+
+* refactor of operationgenerator + baseOperationGenerator for swagger package ([2f4739b](https://github.com/stijnvanhulle/kubb/commit/2f4739b25e3a456f44647ee46272cd341975152b))
+
 ## [0.47.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.46.0...@kubb/swagger-react-query-v0.47.0) (2023-02-22)
 
 
