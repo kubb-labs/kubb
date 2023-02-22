@@ -16,7 +16,7 @@ export const useUpdatePet = <TData = UpdatePetResponse, TVariables = UpdatePetRe
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.put('/pet', data).then((res) => res.data)
+      return axios.put(`/pet`, data).then((res) => res.data)
     },
     ...mutationOptions,
   })

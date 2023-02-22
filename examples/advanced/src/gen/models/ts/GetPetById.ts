@@ -2,9 +2,9 @@ import type { Pet } from './Pet'
 
 export type GetPetByIdPathParams = {
   /**
-   * @type integer | undefined int64
+   * @type integer int64
    */
-  petId?: number | undefined
+  petId: number
 }
 
 export type GetPetByIdQueryParams = {}

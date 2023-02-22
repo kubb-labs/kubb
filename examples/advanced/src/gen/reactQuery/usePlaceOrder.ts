@@ -16,7 +16,7 @@ export const usePlaceOrder = <TData = PlaceOrderResponse, TVariables = PlaceOrde
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.post('/store/order', data).then((res) => res.data)
+      return axios.post(`/store/order`, data).then((res) => res.data)
     },
     ...mutationOptions,
   })

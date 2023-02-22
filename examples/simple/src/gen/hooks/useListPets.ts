@@ -1,30 +1,26 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { parseTemplate } from 'url-template'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions } from '@tanstack/react-query'
-import type { ListPetsResponse, ListPetsPathParams, ListPetsQueryParams } from '../models/ListPets'
+import type { ListPetsResponse, ListPetsQueryParams } from '../models/ListPets'
 
-export const listPetsQueryKey = (pathParams?: ListPetsPathParams, queryParams?: ListPetsQueryParams) =>
-  ['/pets', ...(pathParams ? [pathParams] : []), ...(queryParams ? [queryParams] : [])] as const
+export const listPetsQueryKey = (params?: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
 
 /**
  * @summary List all pets
  * @link /pets
  */
 export const useListPets = <TData = ListPetsResponse>(
-  pathParams: ListPetsPathParams,
-  queryParams: ListPetsQueryParams,
+  params: ListPetsQueryParams,
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData> & { queryKey: QueryKey } => {
   const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? listPetsQueryKey(pathParams, queryParams)
+  const queryKey = queryOptions?.queryKey ?? listPetsQueryKey(params)
 
   const query = useQuery<TData>({
     queryKey,
     queryFn: () => {
-      const template = parseTemplate('/pets').expand(pathParams as any)
-      return axios.get(template).then((res) => res.data)
+      return axios.get(`/pets`).then((res) => res.data)
     },
     ...queryOptions,
   }) as UseQueryResult<TData> & { queryKey: QueryKey }

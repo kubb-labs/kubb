@@ -15,7 +15,7 @@ export const useCreatePets = <TData = CreatePetsResponse, TVariables = CreatePet
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.post('/pets', data).then((res) => res.data)
+      return axios.post(`/pets`, data).then((res) => res.data)
     },
     ...mutationOptions,
   })

@@ -2,21 +2,24 @@ import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { UpdateUserRequest, UpdateUserResponse } from '../models/ts/UpdateUser'
+import type { UpdateUserRequest, UpdateUserResponse, UpdateUserPathParams } from '../models/ts/UpdateUser'
 
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/{username}
  */
-export const useUpdateUser = <TData = UpdateUserResponse, TVariables = UpdateUserRequest>(options?: {
-  mutation?: UseMutationOptions<TData, unknown, TVariables>
-}) => {
+export const useUpdateUser = <TData = UpdateUserResponse, TVariables = UpdateUserRequest>(
+  username: UpdateUserPathParams['username'],
+  options?: {
+    mutation?: UseMutationOptions<TData, unknown, TVariables>
+  }
+) => {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.put('/user/{username}', data).then((res) => res.data)
+      return axios.put(`/user/${username}`, data).then((res) => res.data)
     },
     ...mutationOptions,
   })

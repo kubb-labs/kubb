@@ -1,12 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { parseTemplate } from 'url-template'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions } from '@tanstack/react-query'
 import type { GetPetByIdResponse, GetPetByIdPathParams, GetPetByIdQueryParams } from '../models/ts/GetPetById'
 
-export const getPetByIdQueryKey = (pathParams?: GetPetByIdPathParams, queryParams?: GetPetByIdQueryParams) =>
-  ['/pet/{petId}', ...(pathParams ? [pathParams] : []), ...(queryParams ? [queryParams] : [])] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId'], params?: GetPetByIdQueryParams) =>
+  [`/pet/${petId}`, ...(params ? [params] : [])] as const
 
 /**
  * @description Returns a single pet
@@ -14,18 +13,17 @@ export const getPetByIdQueryKey = (pathParams?: GetPetByIdPathParams, queryParam
  * @link /pet/{petId}
  */
 export const useGetPetById = <TData = GetPetByIdResponse>(
-  pathParams: GetPetByIdPathParams,
-  queryParams: GetPetByIdQueryParams,
+  petId: GetPetByIdPathParams['petId'],
+  params: GetPetByIdQueryParams,
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData> & { queryKey: QueryKey } => {
   const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(pathParams, queryParams)
+  const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId, params)
 
   const query = useQuery<TData>({
     queryKey,
     queryFn: () => {
-      const template = parseTemplate('/pet/{petId}').expand(pathParams as any)
-      return axios.get(template).then((res) => res.data)
+      return axios.get(`/pet/${petId}`).then((res) => res.data)
     },
     ...queryOptions,
   }) as UseQueryResult<TData> & { queryKey: QueryKey }

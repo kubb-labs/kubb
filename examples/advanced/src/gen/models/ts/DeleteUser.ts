@@ -1,8 +1,8 @@
 export type DeleteUserPathParams = {
   /**
-   * @type string | undefined
+   * @type string
    */
-  username?: string | undefined
+  username: string
 }
 
 export type DeleteUserRequest = any | null

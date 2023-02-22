@@ -1,12 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { parseTemplate } from 'url-template'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions } from '@tanstack/react-query'
 import type { GetOrderByIdResponse, GetOrderByIdPathParams, GetOrderByIdQueryParams } from '../models/ts/GetOrderById'
 
-export const getOrderByIdQueryKey = (pathParams?: GetOrderByIdPathParams, queryParams?: GetOrderByIdQueryParams) =>
-  ['/store/order/{orderId}', ...(pathParams ? [pathParams] : []), ...(queryParams ? [queryParams] : [])] as const
+export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId'], params?: GetOrderByIdQueryParams) =>
+  [`/store/order/${orderId}`, ...(params ? [params] : [])] as const
 
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
@@ -14,18 +13,17 @@ export const getOrderByIdQueryKey = (pathParams?: GetOrderByIdPathParams, queryP
  * @link /store/order/{orderId}
  */
 export const useGetOrderById = <TData = GetOrderByIdResponse>(
-  pathParams: GetOrderByIdPathParams,
-  queryParams: GetOrderByIdQueryParams,
+  orderId: GetOrderByIdPathParams['orderId'],
+  params: GetOrderByIdQueryParams,
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData> & { queryKey: QueryKey } => {
   const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(pathParams, queryParams)
+  const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId, params)
 
   const query = useQuery<TData>({
     queryKey,
     queryFn: () => {
-      const template = parseTemplate('/store/order/{orderId}').expand(pathParams as any)
-      return axios.get(template).then((res) => res.data)
+      return axios.get(`/store/order/${orderId}`).then((res) => res.data)
     },
     ...queryOptions,
   }) as UseQueryResult<TData> & { queryKey: QueryKey }

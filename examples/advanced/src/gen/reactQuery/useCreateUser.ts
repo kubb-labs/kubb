@@ -16,7 +16,7 @@ export const useCreateUser = <TData = CreateUserResponse, TVariables = CreateUse
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.post('/user', data).then((res) => res.data)
+      return axios.post(`/user`, data).then((res) => res.data)
     },
     ...mutationOptions,
   })

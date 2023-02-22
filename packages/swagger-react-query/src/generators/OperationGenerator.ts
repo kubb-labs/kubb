@@ -26,13 +26,14 @@ export class OperationGenerator extends Generator<Options> {
       (schema, pathParameters) => {
         return {
           ...schema,
+          required: [...schema.required!, pathParameters.required ? pathParameters.name : undefined].filter(Boolean) as string[],
           properties: {
             ...schema.properties,
             [pathParameters.name]: pathParameters.schema as OpenAPIV3.SchemaObject,
           },
         }
       },
-      { type: 'object', properties: {} } as OpenAPIV3.SchemaObject
+      { type: 'object', required: [], properties: {} } as OpenAPIV3.SchemaObject
     )
 
     const schemaOperationQueryParams = operation.getParameters().filter((v) => v.in === 'query')
@@ -40,13 +41,14 @@ export class OperationGenerator extends Generator<Options> {
       (schema, pathParameters) => {
         return {
           ...schema,
+          required: [...schema.required!, pathParameters.required ? pathParameters.name : undefined].filter(Boolean) as string[],
           properties: {
             ...schema.properties,
             [pathParameters.name]: pathParameters.schema as OpenAPIV3.SchemaObject,
           },
         }
       },
-      { type: 'object', properties: {} } as OpenAPIV3.SchemaObject
+      { type: 'object', required: [], properties: {} } as OpenAPIV3.SchemaObject
     )
 
     const data = {
@@ -117,126 +119,147 @@ export class OperationGenerator extends Generator<Options> {
     const comments = this.getComments(operation)
     const sources: string[] = []
     const queryKey = `${camelCase(`${operation.getOperationId()}QueryKey`)}`
+    let url = operation.path
+    let pathParamsTyped = ''
+    let pathParams = ''
+
+    if (schemas.pathParams) {
+      // TODO move to it's own function(utils)
+      url = url.replaceAll('{', '${')
+
+      pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
+        .reduce((acc, [key, value], index, arr) => {
+          acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
+
+          return acc
+        }, [] as string[])
+        .join('')
+      pathParams = Object.entries(schemas.pathParams.schema.properties!)
+        .reduce((acc, [key, value], index, arr) => {
+          acc.push(`${key},`)
+
+          return acc
+        }, [] as string[])
+        .join('')
+    }
 
     if (schemas.queryParams && !schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = (queryParams?: ${schemas.queryParams.name}) => ["${operation.path}", ...(queryParams ? [queryParams] : [])] as const;
+        export const ${queryKey} = (params?: ${schemas.queryParams.name}) => [\`${url}\`, ...(params ? [params] : [])] as const;
       `)
 
       sources.push(`
-      ${createJSDocBlockText({ comments })}
-       export const ${hookName} = <TData = ${schemas.response.name}>(queryParams: ${
+        ${createJSDocBlockText({ comments })}
+        export const ${hookName} = <TData = ${schemas.response.name}>(params: ${
         schemas.queryParams.name
       }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
-        const { query: queryOptions } = options ?? {};
-        const queryKey = queryOptions?.queryKey ?? ${queryKey}(queryParams);
-        
-        const query = useQuery<TData>({
-           queryKey,
-           queryFn: () => {
-             return axios
-               .get("${operation.path}")
-               .then((res) => res.data);
-           },
-           ...queryOptions
-         }) as UseQueryResult<TData> & { queryKey: QueryKey };
+          const { query: queryOptions } = options ?? {};
+          const queryKey = queryOptions?.queryKey ?? ${queryKey}(params);
+          
+          const query = useQuery<TData>({
+            queryKey,
+            queryFn: () => {
+              return axios
+                .get(\`${url}\`)
+                .then((res) => res.data);
+            },
+            ...queryOptions
+          }) as UseQueryResult<TData> & { queryKey: QueryKey };
 
-         query.queryKey = queryKey;
+          query.queryKey = queryKey;
 
-         return query;
-       };
-   `)
+          return query;
+        };
+      `)
     }
 
     if (!schemas.queryParams && schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = (pathParams?: ${schemas.pathParams.name}) => ["${operation.path}", ...(pathParams ? [pathParams] : [])] as const;
+        export const ${queryKey} = (${pathParamsTyped}) => [\`${url}\`] as const;
       `)
 
       sources.push(`
-      ${createJSDocBlockText({ comments })}
-       export const ${hookName} = <TData = ${schemas.response.name}>(pathParams: ${schemas.pathParams.name}
-    }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
-        const { query: queryOptions } = options ?? {};
-        const queryKey = queryOptions?.queryKey ?? ${queryKey}(pathParams);
-        
-        const query = useQuery<TData>({
-           queryKey,
-           queryFn: () => {
-             const template = parseTemplate("${operation.path}").expand(pathParams as any);
-             return axios
-               .get(template)
-               .then((res) => res.data);
-           },
-           ...queryOptions
-         }) as UseQueryResult<TData> & { queryKey: QueryKey };
+        ${createJSDocBlockText({ comments })}
+        export const ${hookName} = <TData = ${schemas.response.name}>(${pathParamsTyped}
+      }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
+          const { query: queryOptions } = options ?? {};
+          const queryKey = queryOptions?.queryKey ?? ${queryKey}(${pathParams});
+          
+          const query = useQuery<TData>({
+            queryKey,
+            queryFn: () => {
+              return axios
+                .get(\`${url}\`)
+                .then((res) => res.data);
+            },
+            ...queryOptions
+          }) as UseQueryResult<TData> & { queryKey: QueryKey };
 
-         query.queryKey = queryKey;
+          query.queryKey = queryKey;
 
-         return query;
-       };
-   `)
+          return query;
+        };
+      `)
     }
 
     if (schemas.queryParams && schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = (pathParams?: ${schemas.pathParams.name}, queryParams?: ${schemas.queryParams.name}) => ["${operation.path}", ...(pathParams ? [pathParams] : []), ...(queryParams ? [queryParams] : [])] as const;
+        export const ${queryKey} = (${pathParamsTyped} params?: ${schemas.queryParams.name}) => [\`${url}\`, ...(params ? [params] : [])] as const;
       `)
 
       sources.push(`
-      ${createJSDocBlockText({ comments })}
-       export const ${hookName} = <TData = ${schemas.response.name}>(pathParams: ${schemas.pathParams.name}, queryParams: ${
+        ${createJSDocBlockText({ comments })}
+        export const ${hookName} = <TData = ${schemas.response.name}>(${pathParamsTyped} params: ${
         schemas.queryParams.name
       }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
-        const { query: queryOptions } = options ?? {};
-        const queryKey = queryOptions?.queryKey ?? ${queryKey}(pathParams, queryParams);
-        
-        const query = useQuery<TData>({
-           queryKey,
-           queryFn: () => {
-             const template = parseTemplate("${operation.path}").expand(pathParams as any);
-             return axios
-               .get(template)
-               .then((res) => res.data);
-           },
-           ...queryOptions
-         }) as UseQueryResult<TData> & { queryKey: QueryKey };
+          const { query: queryOptions } = options ?? {};
+          const queryKey = queryOptions?.queryKey ?? ${queryKey}(${pathParams} params);
+          
+          const query = useQuery<TData>({
+            queryKey,
+            queryFn: () => {
+              return axios
+                .get(\`${url}\`)
+                .then((res) => res.data);
+            },
+            ...queryOptions
+          }) as UseQueryResult<TData> & { queryKey: QueryKey };
 
-         query.queryKey = queryKey;
+          query.queryKey = queryKey;
 
-         return query;
-       };
-   `)
+          return query;
+        };
+      `)
     }
 
     if (!schemas.queryParams && !schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = () => ["${operation.path}"] as const;
+        export const ${queryKey} = () => [\`${url}\`] as const;
       `)
 
       sources.push(`
-      ${createJSDocBlockText({ comments })}
-       export const ${hookName} = <TData = ${
+        ${createJSDocBlockText({ comments })}
+        export const ${hookName} = <TData = ${
         schemas.response.name
       }>(options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
-        const { query: queryOptions } = options ?? {};
-        const queryKey = queryOptions?.queryKey ?? ${queryKey}();
+          const { query: queryOptions } = options ?? {};
+          const queryKey = queryOptions?.queryKey ?? ${queryKey}();
 
-        const query = useQuery<TData>({
-           queryKey,
-           queryFn: () => {
-             return axios
-               .get("${operation.path}")
-               .then((res) => res.data)
-           },
-           ...queryOptions
-         }) as UseQueryResult<TData> & { queryKey: QueryKey };
+          const query = useQuery<TData>({
+            queryKey,
+            queryFn: () => {
+              return axios
+                .get(\`${url}\`)
+                .then((res) => res.data)
+            },
+            ...queryOptions
+          }) as UseQueryResult<TData> & { queryKey: QueryKey };
 
-         query.queryKey = queryKey;
+          query.queryKey = queryKey;
 
-         return query;
-       };
-   `)
+          return query;
+        };
+      `)
     }
 
     return {
@@ -251,10 +274,6 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: 'axios',
           path: 'axios',
-        },
-        {
-          name: ['parseTemplate'],
-          path: 'url-template',
         },
         {
           name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
@@ -292,9 +311,25 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = this.getComments(operation)
 
+    let url = operation.path
+    let pathParamsTyped = ''
+
+    if (schemas.pathParams) {
+      // TODO move to it's own function(utils)
+      url = url.replaceAll('{', '${')
+
+      pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
+        .reduce((acc, [key, value], index, arr) => {
+          acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
+
+          return acc
+        }, [] as string[])
+        .join('')
+    }
+
     const source = `
         ${createJSDocBlockText({ comments })}
-        export const ${hookName} = <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(options?: {
+        export const ${hookName} = <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
           mutation?: UseMutationOptions<TData, unknown, TVariables>
         }) => {
           const { mutation: mutationOptions } = options ?? {};
@@ -302,7 +337,7 @@ export class OperationGenerator extends Generator<Options> {
           return useMutation<TData, unknown, TVariables>({
             mutationFn: (data) => {
               return axios
-              .post("${operation.path}", data)
+              .post(\`${url}\`, data)
               .then((res) => res.data)
             },
             ...mutationOptions
@@ -324,7 +359,7 @@ export class OperationGenerator extends Generator<Options> {
           path: 'axios',
         },
         {
-          name: [schemas.request.name, schemas.response.name],
+          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
           path: getRelativePath(hookFilePath, typeFilePath),
           isTypeOnly: true,
         },
@@ -361,9 +396,25 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = this.getComments(operation)
 
+    let url = operation.path
+    let pathParamsTyped = ''
+
+    if (schemas.pathParams) {
+      // TODO move to it's own function(utils)
+      url = url.replaceAll('{', '${')
+
+      pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
+        .reduce((acc, [key, value], index, arr) => {
+          acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
+
+          return acc
+        }, [] as string[])
+        .join('')
+    }
+
     const source = `
         ${createJSDocBlockText({ comments })}
-        export const ${hookName} = <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(options?: {
+        export const ${hookName} = <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
           mutation?: UseMutationOptions<TData, unknown, TVariables>
         }) => {
           const { mutation: mutationOptions } = options ?? {};
@@ -371,7 +422,7 @@ export class OperationGenerator extends Generator<Options> {
           return useMutation<TData, unknown, TVariables>({
             mutationFn: (data) => {
               return axios
-              .put("${operation.path}", data)
+              .put(\`${url}\`, data)
               .then((res) => res.data)
             },
             ...mutationOptions
@@ -393,7 +444,7 @@ export class OperationGenerator extends Generator<Options> {
           path: 'axios',
         },
         {
-          name: [schemas.request.name, schemas.response.name],
+          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
           path: getRelativePath(hookFilePath, typeFilePath),
           isTypeOnly: true,
         },
@@ -430,9 +481,25 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = this.getComments(operation)
 
+    let url = operation.path
+    let pathParamsTyped = ''
+
+    if (schemas.pathParams) {
+      // TODO move to it's own function(utils)
+      url = url.replaceAll('{', '${')
+
+      pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
+        .reduce((acc, [key, value], index, arr) => {
+          acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
+
+          return acc
+        }, [] as string[])
+        .join('')
+    }
+
     const source = `
         ${createJSDocBlockText({ comments })}
-        export const ${hookName} = <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(options?: {
+        export const ${hookName} = <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
           mutation?: UseMutationOptions<TData, unknown, TVariables>
         }) => {
           const { mutation: mutationOptions } = options ?? {};
@@ -440,7 +507,7 @@ export class OperationGenerator extends Generator<Options> {
           return useMutation<TData, unknown, TVariables>({
             mutationFn: (data) => {
               return axios
-              .delete("${operation.path}")
+              .delete(\`${url}\`)
               .then((res) => res.data)
             },
             ...mutationOptions
@@ -462,7 +529,7 @@ export class OperationGenerator extends Generator<Options> {
           path: 'axios',
         },
         {
-          name: [schemas.request.name, schemas.response.name],
+          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
           path: getRelativePath(hookFilePath, typeFilePath),
           isTypeOnly: true,
         },

@@ -1,8 +1,8 @@
 export type DeletePetPathParams = {
   /**
-   * @type integer | undefined int64
+   * @type integer int64
    */
-  petId?: number | undefined
+  petId: number
 }
 
 export type DeletePetRequest = any | null

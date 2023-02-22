@@ -2,9 +2,9 @@ import type { User } from './User'
 
 export type GetUserByNamePathParams = {
   /**
-   * @type string | undefined
+   * @type string
    */
-  username?: string | undefined
+  username: string
 }
 
 export type GetUserByNameQueryParams = {}

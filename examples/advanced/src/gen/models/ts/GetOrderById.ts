@@ -2,9 +2,9 @@ import type { Order } from './Order'
 
 export type GetOrderByIdPathParams = {
   /**
-   * @type integer | undefined int64
+   * @type integer int64
    */
-  orderId?: number | undefined
+  orderId: number
 }
 
 export type GetOrderByIdQueryParams = {}

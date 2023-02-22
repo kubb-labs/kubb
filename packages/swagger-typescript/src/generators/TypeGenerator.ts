@@ -82,6 +82,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   ) {
     const members: ts.TypeElement[] = Object.keys(props).map((name) => {
       const schema = props[name]
+
       const isRequired = required && required.includes(name)
       let type = this.getTypeFromSchema(schema, name)
       if (!isRequired) {

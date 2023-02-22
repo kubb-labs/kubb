@@ -131,7 +131,6 @@ importers:
       axios: ^1.3.3
       react: ^18.2.0
       tsup: ^6.6.3
-      url-template: ^3.1.0
       zod: ^3.20.6
     dependencies:
       '@kubb/cli': link:../../packages/cli
@@ -144,7 +143,6 @@ importers:
       axios: 1.3.3
       react: 18.2.0
       tsup: 6.6.3
-      url-template: 3.1.0
       zod: 3.20.6
 
   examples/simple:
@@ -158,7 +156,6 @@ importers:
       axios: ^1.3.3
       react: ^18.2.0
       tsup: ^6.6.3
-      url-template: ^3.1.0
     dependencies:
       '@kubb/cli': link:../../packages/cli
       '@kubb/core': link:../../packages/core
@@ -169,7 +166,6 @@ importers:
       axios: 1.3.3
       react: 18.2.0
       tsup: 6.6.3
-      url-template: 3.1.0
 
   examples/simple-single:
     specifiers:
@@ -182,7 +178,6 @@ importers:
       axios: ^1.3.3
       react: ^18.2.0
       tsup: ^6.6.3
-      url-template: ^3.1.0
     dependencies:
       '@kubb/cli': link:../../packages/cli
       '@kubb/core': link:../../packages/core
@@ -193,7 +188,6 @@ importers:
       axios: 1.3.3
       react: 18.2.0
       tsup: 6.6.3
-      url-template: 3.1.0
 
   examples/zod:
     specifiers:
@@ -204,7 +198,6 @@ importers:
       '@kubb/swagger-zod': workspace:*
       react: ^18.2.0
       tsup: ^6.6.3
-      url-template: ^3.1.0
       zod: ^3.20.6
     dependencies:
       '@kubb/cli': link:../../packages/cli
@@ -214,7 +207,6 @@ importers:
       '@kubb/swagger-zod': link:../../packages/swagger-zod
       react: 18.2.0
       tsup: 6.6.3
-      url-template: 3.1.0
       zod: 3.20.6
 
   packages/cli:
@@ -11291,11 +11283,6 @@ packages:
       querystringify: 2.2.0
       requires-port: 1.0.0
     dev: true
-
-  /url-template/3.1.0:
-    resolution: {integrity: sha512-vB/eHWttzhN+NZzk9FcQB2h1cSEgb7zDYyvyxPhw02LYw7YqIzO+w1AqkcKvZ51gPH8o4+nyiWve/xuQqMdJZw==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    dev: false
 
   /url/0.11.0:
     resolution: {integrity: sha512-kbailJa29QrtXnxgq+DdCEGlbTeYM2eJUxsz6vjZavrCYPMIFHMKQmSKYAIuUK2i7hgPm28a8piX5NTUtM/LKQ==}

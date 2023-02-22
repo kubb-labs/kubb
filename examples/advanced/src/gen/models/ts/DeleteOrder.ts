@@ -1,8 +1,8 @@
 export type DeleteOrderPathParams = {
   /**
-   * @type integer | undefined int64
+   * @type integer int64
    */
-  orderId?: number | undefined
+  orderId: number
 }
 
 export type DeleteOrderRequest = any | null

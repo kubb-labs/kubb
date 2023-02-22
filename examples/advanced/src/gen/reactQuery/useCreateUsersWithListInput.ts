@@ -16,7 +16,7 @@ export const useCreateUsersWithListInput = <TData = CreateUsersWithListInputResp
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.post('/user/createWithList', data).then((res) => res.data)
+      return axios.post(`/user/createWithList`, data).then((res) => res.data)
     },
     ...mutationOptions,
   })

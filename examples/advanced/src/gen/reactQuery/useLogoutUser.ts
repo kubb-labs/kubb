@@ -4,7 +4,7 @@ import axios from 'axios'
 import type { QueryKey, UseQueryResult, UseQueryOptions } from '@tanstack/react-query'
 import type { LogoutUserResponse } from '../models/ts/LogoutUser'
 
-export const logoutUserQueryKey = () => ['/user/logout'] as const
+export const logoutUserQueryKey = () => [`/user/logout`] as const
 
 /**
  * @summary Logs out current logged in user session
@@ -17,7 +17,7 @@ export const useLogoutUser = <TData = LogoutUserResponse>(options?: { query?: Us
   const query = useQuery<TData>({
     queryKey,
     queryFn: () => {
-      return axios.get('/user/logout').then((res) => res.data)
+      return axios.get(`/user/logout`).then((res) => res.data)
     },
     ...queryOptions,
   }) as UseQueryResult<TData> & { queryKey: QueryKey }

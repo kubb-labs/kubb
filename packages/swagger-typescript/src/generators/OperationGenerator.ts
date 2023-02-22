@@ -29,13 +29,14 @@ export class OperationGenerator extends Generator<Options> {
       (schema, pathParameters) => {
         return {
           ...schema,
+          required: [...schema.required!, pathParameters.required ? pathParameters.name : undefined].filter(Boolean) as string[],
           properties: {
             ...schema.properties,
             [pathParameters.name]: pathParameters.schema as OpenAPIV3.SchemaObject,
           },
         }
       },
-      { type: 'object', properties: {} } as OpenAPIV3.SchemaObject
+      { type: 'object', required: [], properties: {} } as OpenAPIV3.SchemaObject
     )
 
     const schemaOperationQueryParams = operation.getParameters().filter((v) => v.in === 'query')
@@ -43,13 +44,14 @@ export class OperationGenerator extends Generator<Options> {
       (schema, pathParameters) => {
         return {
           ...schema,
+          required: [...schema.required!, pathParameters.required ? pathParameters.name : undefined].filter(Boolean) as string[],
           properties: {
             ...schema.properties,
             [pathParameters.name]: pathParameters.schema as OpenAPIV3.SchemaObject,
           },
         }
       },
-      { type: 'object', properties: {} } as OpenAPIV3.SchemaObject
+      { type: 'object', required: [], properties: {} } as OpenAPIV3.SchemaObject
     )
 
     const data = {

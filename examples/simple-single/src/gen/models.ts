@@ -81,13 +81,13 @@ export type CreatePetsResponse = Pet
 
 export type ShowPetByIdPathParams = {
   /**
-   * @type string | undefined
+   * @type string
    */
-  petId?: string | undefined
+  petId: string
   /**
-   * @type string | undefined
+   * @type string
    */
-  testId?: string | undefined
+  testId: string
 }
 
 export type ShowPetByIdQueryParams = {}
