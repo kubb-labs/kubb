@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.43.4](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.43.3...@kubb/swagger-v0.43.4) (2023-02-22)
+
+
+### Bug Fixes
+
+* input.path can be an URL ([d221364](https://github.com/stijnvanhulle/kubb/commit/d221364fc54982ff61988d7bfa05bbe78bdc7cb5))
+
 ## [0.43.3](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.43.2...@kubb/swagger-v0.43.3) (2023-02-21)
 
 

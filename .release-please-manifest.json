@@ -1,8 +1,8 @@
 {
-  "packages/core": "0.43.3",
-  "packages/cli": "0.43.3",
-  "packages/swagger": "0.43.3",
-  "packages/swagger-typescript": "0.43.3",
-  "packages/swagger-zod": "0.43.3",
-  "packages/swagger-react-query": "0.43.3"
+  "packages/core": "0.43.4",
+  "packages/cli": "0.43.4",
+  "packages/swagger": "0.43.4",
+  "packages/swagger-typescript": "0.43.4",
+  "packages/swagger-zod": "0.44.0",
+  "packages/swagger-react-query": "0.43.4"
 }
