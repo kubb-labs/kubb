@@ -1,10 +1,21 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
-import type { QueryKey, UseQueryResult, UseQueryOptions } from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
 import type { GetInventoryResponse } from '../models/ts/GetInventory'
 
 export const getInventoryQueryKey = () => [`/store/inventory`] as const
+
+export const getInventoryQueryOptions = <TData = GetInventoryResponse>(): QueryOptions<TData> => {
+  const queryKey = getInventoryQueryKey()
+
+  return {
+    queryKey,
+    queryFn: () => {
+      return axios.get(`/store/inventory`).then((res) => res.data)
+    },
+  }
+}
 
 /**
  * @description Returns a map of status codes to quantities
@@ -16,10 +27,7 @@ export const useGetInventory = <TData = GetInventoryResponse>(options?: { query?
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
 
   const query = useQuery<TData>({
-    queryKey,
-    queryFn: () => {
-      return axios.get(`/store/inventory`).then((res) => res.data)
-    },
+    ...getInventoryQueryOptions<TData>(),
     ...queryOptions,
   }) as UseQueryResult<TData> & { queryKey: QueryKey }
 

@@ -149,20 +149,32 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export const ${hookName} = <TData = ${schemas.response.name}>(params: ${
+        export const ${camelCase(`${operation.getOperationId()}QueryOptions`)} = <TData = ${schemas.response.name}>(params: ${
         schemas.queryParams.name
-      }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
-          const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey ?? ${queryKey}(params);
-          
-          const query = useQuery<TData>({
+      }): QueryOptions<TData> => {
+          const queryKey = ${queryKey}(params);
+
+          return {
             queryKey,
             queryFn: () => {
               return axios
                 .get(\`${url}\`)
                 .then((res) => res.data);
             },
+          };
+        };
+      `)
+
+      sources.push(`
+        ${createJSDocBlockText({ comments })}
+        export const ${hookName} = <TData = ${schemas.response.name}>(params?: ${
+        schemas.queryParams.name
+      }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
+          const { query: queryOptions } = options ?? {};
+          const queryKey = queryOptions?.queryKey ?? ${queryKey}(params);
+          
+          const query = useQuery<TData>({
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}(params),
             ...queryOptions
           }) as UseQueryResult<TData> & { queryKey: QueryKey };
 
@@ -179,6 +191,23 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
+        export const ${camelCase(`${operation.getOperationId()}QueryOptions`)} = <TData = ${
+        schemas.response.name
+      }>(${pathParamsTyped}): QueryOptions<TData> => {
+          const queryKey = ${queryKey}(${pathParams});
+
+          return {
+            queryKey,
+            queryFn: () => {
+              return axios
+                .get(\`${url}\`)
+                .then((res) => res.data);
+            },
+          };
+        };
+      `)
+
+      sources.push(`
         ${createJSDocBlockText({ comments })}
         export const ${hookName} = <TData = ${schemas.response.name}>(${pathParamsTyped}
       }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
@@ -186,12 +215,7 @@ export class OperationGenerator extends Generator<Options> {
           const queryKey = queryOptions?.queryKey ?? ${queryKey}(${pathParams});
           
           const query = useQuery<TData>({
-            queryKey,
-            queryFn: () => {
-              return axios
-                .get(\`${url}\`)
-                .then((res) => res.data);
-            },
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams}),
             ...queryOptions
           }) as UseQueryResult<TData> & { queryKey: QueryKey };
 
@@ -208,20 +232,32 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export const ${hookName} = <TData = ${schemas.response.name}>(${pathParamsTyped} params: ${
+        export const ${camelCase(`${operation.getOperationId()}QueryOptions`)} = <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${
         schemas.queryParams.name
-      }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
-          const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey ?? ${queryKey}(${pathParams} params);
-          
-          const query = useQuery<TData>({
+      }): QueryOptions<TData> => {
+          const queryKey = ${queryKey}(${pathParams} params);
+
+          return {
             queryKey,
             queryFn: () => {
               return axios
                 .get(\`${url}\`)
                 .then((res) => res.data);
             },
+          };
+        };
+      `)
+
+      sources.push(`
+        ${createJSDocBlockText({ comments })}
+        export const ${hookName} = <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${
+        schemas.queryParams.name
+      }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
+          const { query: queryOptions } = options ?? {};
+          const queryKey = queryOptions?.queryKey ?? ${queryKey}(${pathParams} params);
+          
+          const query = useQuery<TData>({
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams} params),
             ...queryOptions
           }) as UseQueryResult<TData> & { queryKey: QueryKey };
 
@@ -238,6 +274,21 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
+      export const ${camelCase(`${operation.getOperationId()}QueryOptions`)} = <TData = ${schemas.response.name}>(): QueryOptions<TData> => {
+        const queryKey = ${queryKey}();
+
+        return {
+          queryKey,
+          queryFn: () => {
+            return axios
+              .get(\`${url}\`)
+              .then((res) => res.data);
+          },
+        };
+      };
+    `)
+
+      sources.push(`
         ${createJSDocBlockText({ comments })}
         export const ${hookName} = <TData = ${
         schemas.response.name
@@ -246,12 +297,7 @@ export class OperationGenerator extends Generator<Options> {
           const queryKey = queryOptions?.queryKey ?? ${queryKey}();
 
           const query = useQuery<TData>({
-            queryKey,
-            queryFn: () => {
-              return axios
-                .get(\`${url}\`)
-                .then((res) => res.data)
-            },
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(),
             ...queryOptions
           }) as UseQueryResult<TData> & { queryKey: QueryKey };
 
@@ -268,7 +314,7 @@ export class OperationGenerator extends Generator<Options> {
       source: sources.join('\n'),
       imports: [
         {
-          name: ['useQuery', 'QueryKey', 'UseQueryResult', 'UseQueryOptions'],
+          name: ['useQuery', 'QueryKey', 'UseQueryResult', 'UseQueryOptions', 'QueryOptions'],
           path: '@tanstack/react-query',
         },
         {

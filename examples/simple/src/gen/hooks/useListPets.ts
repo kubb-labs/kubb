@@ -1,27 +1,35 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
-import type { QueryKey, UseQueryResult, UseQueryOptions } from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
 import type { ListPetsResponse, ListPetsQueryParams } from '../models/ListPets'
 
 export const listPetsQueryKey = (params?: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
+
+export const listPetsQueryOptions = <TData = ListPetsResponse>(params?: ListPetsQueryParams): QueryOptions<TData> => {
+  const queryKey = listPetsQueryKey(params)
+
+  return {
+    queryKey,
+    queryFn: () => {
+      return axios.get(`/pets`).then((res) => res.data)
+    },
+  }
+}
 
 /**
  * @summary List all pets
  * @link /pets
  */
 export const useListPets = <TData = ListPetsResponse>(
-  params: ListPetsQueryParams,
+  params?: ListPetsQueryParams,
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData> & { queryKey: QueryKey } => {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? listPetsQueryKey(params)
 
   const query = useQuery<TData>({
-    queryKey,
-    queryFn: () => {
-      return axios.get(`/pets`).then((res) => res.data)
-    },
+    ...listPetsQueryOptions<TData>(params),
     ...queryOptions,
   }) as UseQueryResult<TData> & { queryKey: QueryKey }
 
