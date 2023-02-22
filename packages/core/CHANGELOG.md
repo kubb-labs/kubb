@@ -1,4 +1,11 @@
 # Changelog
+## [0.47.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.46.0...@kubb/core-v0.47.0) (2023-02-22)
+
+
+### Features
+
+* format with js-beautify instead of Prettier(works also in the browser) ([ecc0952](https://github.com/stijnvanhulle/kubb/commit/ecc0952c929aa71bac8a3bb0cf400289c7dee142))
+
 ## [0.46.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.45.1...@kubb/core-v0.46.0) (2023-02-22)
 
 
