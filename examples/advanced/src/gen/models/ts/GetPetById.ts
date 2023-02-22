@@ -1,11 +1,13 @@
 import type { Pet } from './Pet'
 
-export type GetPetByIdParams = {
+export type GetPetByIdPathParams = {
   /**
    * @type integer | undefined int64
    */
   petId?: number | undefined
 }
+
+export type GetPetByIdQueryParams = {}
 
 /**
  * @description successful operation

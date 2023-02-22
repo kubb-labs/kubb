@@ -2,5 +2,6 @@ import zod from 'zod'
 
 import { userSchema } from './userSchema'
 
-export const getUserByNameParamsSchema = zod.object({ username: zod.string().optional() })
+export const getUserByNamePathParamsSchema = zod.object({ username: zod.string().optional() })
+export const getUserByNameQueryParamsSchema = zod.object({})
 export const getUserByNameResponseSchema = userSchema

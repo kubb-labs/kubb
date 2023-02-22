@@ -1,4 +1,4 @@
-export type DeletePetParams = {
+export type DeletePetPathParams = {
   /**
    * @type integer | undefined int64
    */

@@ -1,4 +1,4 @@
-export type DeleteUserParams = {
+export type DeleteUserPathParams = {
   /**
    * @type string | undefined
    */

@@ -3,9 +3,10 @@ import axios from 'axios'
 import { parseTemplate } from 'url-template'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions } from '@tanstack/react-query'
-import type { FindPetsByStatusResponse, FindPetsByStatusParams } from '../models/ts/FindPetsByStatus'
+import type { FindPetsByStatusResponse, FindPetsByStatusPathParams, FindPetsByStatusQueryParams } from '../models/ts/FindPetsByStatus'
 
-export const findPetsByStatusQueryKey = (params?: FindPetsByStatusParams) => ['/pet/findByStatus', ...(params ? [params] : [])] as const
+export const findPetsByStatusQueryKey = (pathParams?: FindPetsByStatusPathParams, queryParams?: FindPetsByStatusQueryParams) =>
+  ['/pet/findByStatus', ...(pathParams ? [pathParams] : []), ...(queryParams ? [queryParams] : [])] as const
 
 /**
  * @description Multiple status values can be provided with comma separated strings
@@ -13,16 +14,17 @@ export const findPetsByStatusQueryKey = (params?: FindPetsByStatusParams) => ['/
  * @link /pet/findByStatus
  */
 export const useFindPetsByStatus = <TData = FindPetsByStatusResponse>(
-  params: FindPetsByStatusParams,
+  pathParams: FindPetsByStatusPathParams,
+  queryParams: FindPetsByStatusQueryParams,
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData> & { queryKey: QueryKey } => {
   const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(pathParams, queryParams)
 
   const query = useQuery<TData>({
     queryKey,
     queryFn: () => {
-      const template = parseTemplate('/pet/findByStatus').expand(params as any)
+      const template = parseTemplate('/pet/findByStatus').expand(pathParams as any)
       return axios.get(template).then((res) => res.data)
     },
     ...queryOptions,

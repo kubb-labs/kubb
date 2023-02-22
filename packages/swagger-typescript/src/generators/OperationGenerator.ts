@@ -24,8 +24,22 @@ type Options = {
 export class OperationGenerator extends Generator<Options> {
   private getSchemas(operation: Operation) {
     // TODO create function to get schema out of paramaters
-    const schemaOperationPathParameters = operation.getParameters().filter((v) => v.in === 'path' || v.in === 'query')
-    const schemaOperationPathParametersSchema = schemaOperationPathParameters.reduce(
+    const schemaOperationPathParams = operation.getParameters().filter((v) => v.in === 'path')
+    const schemaOperationPathParamsSchema = schemaOperationPathParams.reduce(
+      (schema, pathParameters) => {
+        return {
+          ...schema,
+          properties: {
+            ...schema.properties,
+            [pathParameters.name]: pathParameters.schema as OpenAPIV3.SchemaObject,
+          },
+        }
+      },
+      { type: 'object', properties: {} } as OpenAPIV3.SchemaObject
+    )
+
+    const schemaOperationQueryParams = operation.getParameters().filter((v) => v.in === 'query')
+    const schemaOperationQueryParamsSchema = schemaOperationQueryParams.reduce(
       (schema, pathParameters) => {
         return {
           ...schema,
@@ -39,10 +53,16 @@ export class OperationGenerator extends Generator<Options> {
     )
 
     const data = {
-      params: operation.hasParameters()
+      pathParams: operation.hasParameters()
         ? {
-            name: capitalCase(`${operation.getOperationId()} "Params"`, { delimiter: '' }),
-            schema: schemaOperationPathParametersSchema,
+            name: capitalCase(`${operation.getOperationId()} "PathParams"`, { delimiter: '' }),
+            schema: schemaOperationPathParamsSchema,
+          }
+        : undefined,
+      queryParams: operation.hasParameters()
+        ? {
+            name: capitalCase(`${operation.getOperationId()} "QueryParams"`, { delimiter: '' }),
+            schema: schemaOperationQueryParamsSchema,
           }
         : undefined,
       request: {
@@ -79,7 +99,12 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(filePath, resolvedTypeId)
     }
 
-    const typeSource = await new TypeBuilder(oas).add(schemas.params).add(schemas.response).configure({ fileResolver, withJSDocs: true }).print()
+    const typeSource = await new TypeBuilder(oas)
+      .add(schemas.pathParams)
+      .add(schemas.queryParams)
+      .add(schemas.response)
+      .configure({ fileResolver, withJSDocs: true })
+      .print()
 
     if (typeFilePath) {
       return {
@@ -113,7 +138,47 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const typeSource = await new TypeBuilder(oas)
-      .add(schemas.params)
+      .add(schemas.pathParams)
+      .add(schemas.queryParams)
+      .add(schemas.request)
+      .add(schemas.response)
+      .configure({ fileResolver, withJSDocs: true })
+      .print()
+
+    if (typeFilePath) {
+      return {
+        path: typeFilePath,
+        fileName: typeName,
+        source: typeSource,
+      }
+    }
+
+    return null
+  }
+
+  async getPut(path: string) {
+    const { resolveId, directory, mode, nameResolver, oas } = this.options
+
+    const operation = oas.operation(path, 'put')
+
+    if (!operation.schema.operationId) return null
+
+    const schemas = this.getSchemas(operation)
+    const typeName = `${nameResolver(operation.getOperationId())}.ts`
+    const typeFilePath = await resolveId(typeName, directory)
+
+    const fileResolver: FileResolver = async (name) => {
+      // Used when a react-query type(request, response, params) has an import of a global type
+      const filePath = await resolveId(mode === 'file' ? '' : typeName, directory)
+      // refs import, will always been created with the swaggerTypescript plugin, our global type
+      const resolvedTypeId = await resolveId(`${name}.ts`, directory)
+
+      return getRelativePath(filePath, resolvedTypeId)
+    }
+
+    const typeSource = await new TypeBuilder(oas)
+      .add(schemas.pathParams)
+      .add(schemas.queryParams)
       .add(schemas.request)
       .add(schemas.response)
       .configure({ fileResolver, withJSDocs: true })
@@ -151,44 +216,11 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const typeSource = await new TypeBuilder(oas)
-      .add(schemas.params)
+      .add(schemas.pathParams)
       .add(schemas.request)
       .add(schemas.response)
       .configure({ fileResolver, withJSDocs: true })
       .print()
-
-    if (typeFilePath) {
-      return {
-        path: typeFilePath,
-        fileName: typeName,
-        source: typeSource,
-      }
-    }
-
-    return null
-  }
-
-  async getPut(path: string) {
-    const { resolveId, directory, mode, nameResolver, oas } = this.options
-
-    const operation = oas.operation(path, 'put')
-
-    if (!operation.schema.operationId) return null
-
-    const schemas = this.getSchemas(operation)
-    const typeName = `${nameResolver(operation.getOperationId())}.ts`
-    const typeFilePath = await resolveId(typeName, directory)
-
-    const fileResolver: FileResolver = async (name) => {
-      // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = await resolveId(mode === 'file' ? '' : typeName, directory)
-      // refs import, will always been created with the swaggerTypescript plugin, our global type
-      const resolvedTypeId = await resolveId(`${name}.ts`, directory)
-
-      return getRelativePath(filePath, resolvedTypeId)
-    }
-
-    const typeSource = await new TypeBuilder(oas).add(schemas.request).add(schemas.response).configure({ fileResolver, withJSDocs: true }).print()
 
     if (typeFilePath) {
       return {

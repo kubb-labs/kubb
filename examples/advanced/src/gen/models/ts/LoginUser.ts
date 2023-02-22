@@ -1,4 +1,6 @@
-export type LoginUserParams = {
+export type LoginUserPathParams = {}
+
+export type LoginUserQueryParams = {
   /**
    * @type string | undefined
    */

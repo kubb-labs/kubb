@@ -1,6 +1,8 @@
 import type { Pets } from './Pets'
 
-export type ListPetsParams = {
+export type ListPetsPathParams = {}
+
+export type ListPetsQueryParams = {
   /**
    * @type string | undefined
    */

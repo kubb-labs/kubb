@@ -24,8 +24,22 @@ type Options = {
 export class OperationGenerator extends Generator<Options> {
   private getSchemas(operation: Operation) {
     // TODO create function to get schema out of paramaters
-    const schemaOperationPathParameters = operation.getParameters().filter((v) => v.in === 'path' || v.in === 'query')
-    const schemaOperationPathParametersSchema = schemaOperationPathParameters.reduce(
+    const schemaOperationPathParams = operation.getParameters().filter((v) => v.in === 'path')
+    const schemaOperationPathParamsSchema = schemaOperationPathParams.reduce(
+      (schema, pathParameters) => {
+        return {
+          ...schema,
+          properties: {
+            ...schema.properties,
+            [pathParameters.name]: pathParameters.schema as OpenAPIV3.SchemaObject,
+          },
+        }
+      },
+      { type: 'object', properties: {} } as OpenAPIV3.SchemaObject
+    )
+
+    const schemaOperationQueryParams = operation.getParameters().filter((v) => v.in === 'query')
+    const schemaOperationQueryParamsSchema = schemaOperationQueryParams.reduce(
       (schema, pathParameters) => {
         return {
           ...schema,
@@ -39,10 +53,16 @@ export class OperationGenerator extends Generator<Options> {
     )
 
     const data = {
-      params: operation.hasParameters()
+      pathParams: operation.hasParameters()
         ? {
-            name: capitalCase(`${operation.getOperationId()} "Params"`, { delimiter: '' }),
-            schema: schemaOperationPathParametersSchema,
+            name: capitalCase(`${operation.getOperationId()} "PathParams"`, { delimiter: '' }),
+            schema: schemaOperationPathParamsSchema,
+          }
+        : undefined,
+      queryParams: operation.hasParameters()
+        ? {
+            name: capitalCase(`${operation.getOperationId()} "QueryParams"`, { delimiter: '' }),
+            schema: schemaOperationQueryParamsSchema,
           }
         : undefined,
       request: {
@@ -78,7 +98,12 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(filePath, resolvedTypeId)
     }
 
-    const typeSource = await new ZodBuilder(oas).add(schemas.params).add(schemas.response).configure({ fileResolver, nameResolver, withJSDocs: true }).print()
+    const typeSource = await new ZodBuilder(oas)
+      .add(schemas.pathParams)
+      .add(schemas.queryParams)
+      .add(schemas.response)
+      .configure({ fileResolver, nameResolver, withJSDocs: true })
+      .print()
 
     if (typeFilePath) {
       return {
@@ -118,7 +143,8 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const typeSource = await new ZodBuilder(oas)
-      .add(schemas.params)
+      .add(schemas.pathParams)
+      .add(schemas.queryParams)
       .add(schemas.request)
       .add(schemas.response)
       .configure({ fileResolver, nameResolver, withJSDocs: true })
@@ -162,7 +188,8 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const typeSource = await new ZodBuilder(oas)
-      .add(schemas.params)
+      .add(schemas.pathParams)
+      .add(schemas.queryParams)
       .add(schemas.request)
       .add(schemas.response)
       .configure({ fileResolver, nameResolver, withJSDocs: true })
@@ -206,7 +233,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const typeSource = await new ZodBuilder(oas)
-      .add(schemas.params)
+      .add(schemas.pathParams)
       .add(schemas.request)
       .add(schemas.response)
       .configure({ fileResolver, nameResolver, withJSDocs: true })

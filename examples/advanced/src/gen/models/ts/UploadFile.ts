@@ -1,10 +1,13 @@
 import type { ApiResponse } from './ApiResponse'
 
-export type UploadFileParams = {
+export type UploadFilePathParams = {
   /**
    * @type integer | undefined int64
    */
   petId?: number | undefined
+}
+
+export type UploadFileQueryParams = {
   /**
    * @type string | undefined
    */

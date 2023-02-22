@@ -49,7 +49,9 @@ export type Error = {
   message: string
 }
 
-export type ListPetsParams = {
+export type ListPetsPathParams = {}
+
+export type ListPetsQueryParams = {
   /**
    * @type string | undefined
    */
@@ -77,7 +79,7 @@ export type CreatePetsRequest = {
  */
 export type CreatePetsResponse = Pet
 
-export type ShowPetByIdParams = {
+export type ShowPetByIdPathParams = {
   /**
    * @type string | undefined
    */
@@ -87,6 +89,8 @@ export type ShowPetByIdParams = {
    */
   testId?: string | undefined
 }
+
+export type ShowPetByIdQueryParams = {}
 
 /**
  * @description Expected response to a valid request

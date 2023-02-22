@@ -1,4 +1,4 @@
-export type DeleteOrderParams = {
+export type DeleteOrderPathParams = {
   /**
    * @type integer | undefined int64
    */

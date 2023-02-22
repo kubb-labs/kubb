@@ -1,6 +1,8 @@
 import type { Pet } from './Pet'
 
-export type FindPetsByTagsParams = {
+export type FindPetsByTagsPathParams = {}
+
+export type FindPetsByTagsQueryParams = {
   /**
    * @type array | undefined
    */

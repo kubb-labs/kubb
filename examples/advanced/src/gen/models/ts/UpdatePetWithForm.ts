@@ -1,8 +1,11 @@
-export type UpdatePetWithFormParams = {
+export type UpdatePetWithFormPathParams = {
   /**
    * @type integer | undefined int64
    */
   petId?: number | undefined
+}
+
+export type UpdatePetWithFormQueryParams = {
   /**
    * @type string | undefined
    */
