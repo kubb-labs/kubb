@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.45.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.44.2...@kubb/swagger-react-query-v0.45.0) (2023-02-22)
+
+
+### Features
+
+* queryKey + TData for hooks created by @kubb/swagger-react-query ([0675e59](https://github.com/stijnvanhulle/kubb/commit/0675e5939a672864d7a282e4e35167321d6e42a3))
+* use of PathParams and QueryParams ([f60dd4f](https://github.com/stijnvanhulle/kubb/commit/f60dd4f6a389bfb4712671ed9c17ef838637c8a5))
+* use of pathParams to create function arguments for ReactQuery GET hooks ([e6994fc](https://github.com/stijnvanhulle/kubb/commit/e6994fc9576122d1aaf2edabab65d871f43a6e8a))
+
 ## [0.44.2](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.44.1...@kubb/swagger-react-query-v0.44.2) (2023-02-22)
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.45.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.44.2...@kubb/swagger-v0.45.0) (2023-02-22)
+
+
+### Miscellaneous Chores
+
+* **@kubb/swagger:** Synchronize undefined versions
+
 ## [0.44.2](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.44.1...@kubb/swagger-v0.44.2) (2023-02-22)
 
 

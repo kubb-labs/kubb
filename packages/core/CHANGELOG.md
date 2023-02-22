@@ -1,4 +1,11 @@
 # Changelog
+## [0.45.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.44.2...@kubb/core-v0.45.0) (2023-02-22)
+
+
+### Features
+
+* use of pathParams to create function arguments for ReactQuery GET hooks ([e6994fc](https://github.com/stijnvanhulle/kubb/commit/e6994fc9576122d1aaf2edabab65d871f43a6e8a))
+
 ## [0.44.2](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.44.1...@kubb/core-v0.44.2) (2023-02-22)
 
 
