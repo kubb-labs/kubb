@@ -65,6 +65,7 @@
         "@kubb/core",
         "@kubb/swagger",
         "@kubb/swagger-typescript",
+        "@kubb/swagger-zod",
         "@kubb/swagger-react-query",
         "@kubb/cli"
       ]
