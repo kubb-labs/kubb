@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.45.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-zod-v0.45.0...@kubb/swagger-zod-v0.45.1) (2023-02-22)
+
+
+### Bug Fixes
+
+* do not write indexes when output.write is false ([0c96139](https://github.com/stijnvanhulle/kubb/commit/0c961392dcb56fa6b7d0334317fc36181e45e561))
+
 ## [0.45.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-zod-v0.44.2...@kubb/swagger-zod-v0.45.0) (2023-02-22)
 
 
