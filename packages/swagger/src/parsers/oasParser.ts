@@ -1,4 +1,5 @@
 import pathParser from 'path'
+import { URL } from 'url'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
 import swagger2openapi from 'swagger2openapi'
@@ -49,7 +50,14 @@ export const oasParser = async (config: KubbConfig, options: Options = {}) => {
   if (typeof config.input === 'string') {
     pathOrApi = JSON.parse(config.input)
   } else {
-    pathOrApi = pathParser.resolve(config.root, config.input.path)
+    try {
+      const url = new URL(config.input.path)
+      if (url) {
+        pathOrApi = config.input.path
+      }
+    } catch (error) {
+      pathOrApi = pathParser.resolve(config.root, config.input.path)
+    }
   }
 
   return oasPathParser(pathOrApi, options)
