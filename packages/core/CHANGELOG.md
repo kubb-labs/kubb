@@ -1,4 +1,11 @@
 # Changelog
+## [0.44.2](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.44.1...@kubb/core-v0.44.2) (2023-02-22)
+
+
+### Bug Fixes
+
+* if URL then do not write to fileSystem + write option for output ([8945dbe](https://github.com/stijnvanhulle/kubb/commit/8945dbe51de9a7354135f2404b2d086acd8ba744))
+
 ## [0.44.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.44.0...@kubb/core-v0.44.1) (2023-02-22)
 
 
