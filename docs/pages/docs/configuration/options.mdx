@@ -109,7 +109,8 @@ export default defineConfig(async ({mode}) => {
     },
     output: {
       path: './src/gen',
-      clean: true
+      clean: true,
+      write: true
     },
     logLevel: "info"
   },
@@ -164,7 +165,8 @@ Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/pl
     [
       "@kubb/swagger",
       {
-        "version": "3"
+       "output": "schemas", 
+       "validate" :true
       }
     ]
   ]

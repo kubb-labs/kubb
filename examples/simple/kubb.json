@@ -12,17 +12,20 @@
     [
       "@kubb/swagger",
       {
-        "version": "3"
+        "output": "schemas", 
+        "validate" :true
       }
     ],
     [
       "@kubb/swagger-typescript",
       {
+        "output": "models"
       }
     ],
     [
       "@kubb/swagger-react-query",
       {
+        "output": "hooks"
       }
     ]
   ]

@@ -39,7 +39,7 @@ build({ config, mode: "development" })
 ```typescript
 import { build } from "@kubb/core"
 
-import type { BuildOptions } from '@kubb/core'
+import type { BuildOptions, File } from '@kubb/core'
 
 const spinner = ora({
   color: "blue",
@@ -56,7 +56,7 @@ const logger: BuildOptions['logger'] = {
     spinner,
   }
 
-await build({
+const files: File[] = await build({
   config: {
     ...config,
     root: config.root || process.cwd(),
