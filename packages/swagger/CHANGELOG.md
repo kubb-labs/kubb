@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.48.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.47.1...@kubb/swagger-v0.48.0) (2023-02-23)
+
+
+### Features
+
+* oasBuilder ([2001bb9](https://github.com/stijnvanhulle/kubb/commit/2001bb9f6b4b65a4d67e1e3b4f75517c109c2a44))
+
 ## [0.47.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.47.0...@kubb/swagger-v0.47.1) (2023-02-22)
 
 
