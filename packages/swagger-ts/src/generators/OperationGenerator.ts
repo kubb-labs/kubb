@@ -31,7 +31,7 @@ export class OperationGenerator extends Generator<Options> {
     const fileResolver: FileResolver = async (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
       const filePath = await resolveId(mode === 'file' ? '' : typeName, directory)
-      // refs import, will always been created with the swaggerTypescript plugin, our global type
+      // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = await resolveId(`${name}.ts`, directory)
 
       return getRelativePath(filePath, resolvedTypeId)
@@ -69,7 +69,7 @@ export class OperationGenerator extends Generator<Options> {
     const fileResolver: FileResolver = async (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
       const filePath = await resolveId(mode === 'file' ? '' : typeName, directory)
-      // refs import, will always been created with the swaggerTypescript plugin, our global type
+      // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = await resolveId(`${name}.ts`, directory)
 
       return getRelativePath(filePath, resolvedTypeId)
@@ -108,7 +108,7 @@ export class OperationGenerator extends Generator<Options> {
     const fileResolver: FileResolver = async (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
       const filePath = await resolveId(mode === 'file' ? '' : typeName, directory)
-      // refs import, will always been created with the swaggerTypescript plugin, our global type
+      // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = await resolveId(`${name}.ts`, directory)
 
       return getRelativePath(filePath, resolvedTypeId)
@@ -147,7 +147,7 @@ export class OperationGenerator extends Generator<Options> {
     const fileResolver: FileResolver = async (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
       const filePath = await resolveId(mode === 'file' ? '' : typeName, directory)
-      // refs import, will always been created with the swaggerTypescript plugin, our global type
+      // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = await resolveId(`${name}.ts`, directory)
 
       return getRelativePath(filePath, resolvedTypeId)

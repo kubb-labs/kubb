@@ -40,7 +40,7 @@ kubb --config kubb.config.ts
 ```typescript filename="kubb.config.ts" copy
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTypescript from '@kubb/swagger-ts'
+import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerReactQuery from '@kubb/swagger-react-query'
 
 export default defineConfig(async () => {
@@ -57,7 +57,7 @@ export default defineConfig(async () => {
       path: './src/gen',
     },
     logLevel: 'info',
-    plugins: [createSwagger({  }), createSwaggerTypescript({}), createSwaggerReactQuery({})],
+    plugins: [createSwagger({  }), createSwaggerTS({}), createSwaggerReactQuery({})],
   }
 })
 ```

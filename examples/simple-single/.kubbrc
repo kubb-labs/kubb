@@ -1,6 +1,6 @@
 const { defineConfig } = require('@kubb/core')
 const createSwagger = require('@kubb/swagger').default
-const createSwaggerTypescript = require('@kubb/swagger-ts').default
+const createSwaggerTS = require('@kubb/swagger-ts').default
 const createSwaggerReactQuery = require('@kubb/swagger-react-query').default
 
 module.exports = defineConfig(() => {
@@ -13,6 +13,6 @@ module.exports = defineConfig(() => {
       path: './src/gen',
     },
     logLevel: 'info',
-    plugins: [createSwagger({  }), createSwaggerTypescript({}), createSwaggerReactQuery({})],
+    plugins: [createSwagger({  }), createSwaggerTS({}), createSwaggerReactQuery({})],
   }
 })
