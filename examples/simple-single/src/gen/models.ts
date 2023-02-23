@@ -1,3 +1,14 @@
+export type Error = {
+  /**
+   * @type integer int32
+   */
+  code: number
+  /**
+   * @type string
+   */
+  message: string
+}
+
 export type Person = {
   /**
    * @type integer int64
@@ -37,17 +48,6 @@ export type Pet = {
 }
 
 export type Pets = Pet[]
-
-export type Error = {
-  /**
-   * @type integer int32
-   */
-  code: number
-  /**
-   * @type string
-   */
-  message: string
-}
 
 export type ListPetsPathParams = {}
 

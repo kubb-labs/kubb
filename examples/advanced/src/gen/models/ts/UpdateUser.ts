@@ -9,9 +9,9 @@ export type UpdateUserPathParams = {
 
 export type UpdateUserQueryParams = {}
 
+export type UpdateUserResponse = any | null
+
 /**
  * @description Update an existent user in the store
  */
 export type UpdateUserRequest = User
-
-export type UpdateUserResponse = any | null

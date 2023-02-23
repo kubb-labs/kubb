@@ -1,10 +1,11 @@
 import { OasBuilder } from '@kubb/swagger'
 
-import { ImportsGenerator, TypeGenerator } from '../generators'
+import { ImportsGenerator, Refs, TypeGenerator } from '../generators'
 import { print } from '../utils'
 
 import type { FileResolver } from '../generators'
 import type { OpenAPIV3 } from 'openapi-types'
+import ts from 'typescript'
 
 type Item = { schema: OpenAPIV3.SchemaObject; name: string; description?: string }
 
@@ -35,16 +36,29 @@ export class TypeBuilder extends OasBuilder<Config> {
       }
       return 0
     }
-    const generated = this.items.sort(typeSorter).map(({ schema, name, description }) => {
-      const generator = new TypeGenerator(this.oas, { withJSDocs: this.config.withJSDocs, nameResolver: this.config.nameResolver })
-      const type = generator.build(schema, this.config.nameResolver?.(name) || name, description)
-
-      return {
-        refs: generator.refs,
-        name,
-        type,
+    const refsSorter = (a: { refs: Refs; type: ts.TypeAliasDeclaration; name: string }, b: { refs: Refs; type: ts.TypeAliasDeclaration; name: string }) => {
+      if (Object.keys(a.refs)?.length < Object.keys(b.refs)?.length) {
+        return -1
       }
-    })
+      if (Object.keys(a.refs)?.length > Object.keys(b.refs)?.length) {
+        return 1
+      }
+      return 0
+    }
+
+    const generated = this.items
+      .sort(typeSorter)
+      .map(({ schema, name, description }) => {
+        const generator = new TypeGenerator(this.oas, { withJSDocs: this.config.withJSDocs, nameResolver: this.config.nameResolver })
+        const type = generator.build(schema, this.config.nameResolver?.(name) || name, description)
+
+        return {
+          refs: generator.refs,
+          name,
+          type,
+        }
+      })
+      .sort(refsSorter)
 
     const code = generated.reduce((acc, currentValue) => {
       const formatedType = print(currentValue.type)

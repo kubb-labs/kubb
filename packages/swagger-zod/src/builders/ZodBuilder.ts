@@ -3,7 +3,7 @@ import { OasBuilder } from '@kubb/swagger'
 import { ImportsGenerator, ZodGenerator } from '../generators'
 import { print } from '../utils'
 
-import type { FileResolver } from '../generators'
+import type { FileResolver, Refs } from '../generators'
 import type { OpenAPIV3 } from 'openapi-types'
 
 type Item = { schema: OpenAPIV3.SchemaObject; name: string; description?: string }
@@ -26,7 +26,7 @@ export class ZodBuilder extends OasBuilder<Config> {
   }
 
   async print() {
-    const typeSorter = (a: Item, b: Item) => {
+    const nameSorter = (a: Item, b: Item) => {
       if (a.name < b.name) {
         return -1
       }
@@ -35,15 +35,28 @@ export class ZodBuilder extends OasBuilder<Config> {
       }
       return 0
     }
-    const generated = this.items.sort(typeSorter).map(({ schema, name, description }) => {
-      const generator = new ZodGenerator(this.oas, { withJSDocs: this.config.withJSDocs, nameResolver: this.config.nameResolver })
-      const type = generator.build(schema, this.config.nameResolver?.(name) || name, description)
-      return {
-        refs: generator.refs,
-        name,
-        type,
+
+    const refsSorter = (a: { refs: Refs; type: string; name: string }, b: { refs: Refs; type: string; name: string }) => {
+      if (Object.keys(a.refs)?.length < Object.keys(b.refs)?.length) {
+        return -1
       }
-    })
+      if (Object.keys(a.refs)?.length > Object.keys(b.refs)?.length) {
+        return 1
+      }
+      return 0
+    }
+    const generated = this.items
+      .sort(nameSorter)
+      .map(({ schema, name, description }) => {
+        const generator = new ZodGenerator(this.oas, { withJSDocs: this.config.withJSDocs, nameResolver: this.config.nameResolver })
+        const type = generator.build(schema, this.config.nameResolver?.(name) || name, description)
+        return {
+          refs: generator.refs,
+          name,
+          type,
+        }
+      })
+      .sort(refsSorter)
 
     const code = generated.reduce((acc, currentValue) => {
       const formatedType = currentValue.type

@@ -121,23 +121,21 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (mode === 'file') {
+        // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
+        const builder = new ZodBuilder(oas).configure({
+          nameResolver,
+          withJSDocs: true,
+        })
         const mapFileSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
-          const builder = new ZodBuilder(oas)
-          return builder
-            .add({
-              schema,
-              name,
-            })
-            .configure({
-              nameResolver,
-              withJSDocs: true,
-            })
-            .print()
+          return builder.add({
+            schema,
+            name,
+          })
         }
 
         const promises = Object.entries(schemas).map(mapFileSchema)
-        const source = await Promise.all(promises)
+        await Promise.all(promises)
         const path = await this.resolveId({ fileName: '', directory, pluginName })
         if (!path) {
           return
@@ -146,7 +144,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         await this.addFile({
           path,
           fileName: `${nameResolver(output)}.ts`,
-          source: source.join('\n'),
+          source: await builder.print(),
           imports: [
             {
               name: 'zod',
