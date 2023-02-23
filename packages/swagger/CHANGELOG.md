@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.50.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.49.1...@kubb/swagger-v0.50.0) (2023-02-23)
+
+
+### Features
+
+* use of swagger-ts name instead of swagger-typescript ([e9c27a4](https://github.com/stijnvanhulle/kubb/commit/e9c27a4d1485b4d38e58fb0d67380796f1eb1aad))
+
+
+### Bug Fixes
+
+* cleanup imports and move duplicate stuff to swagger package ([73e7c66](https://github.com/stijnvanhulle/kubb/commit/73e7c660dc3856afad64cf53f294f5003fa63f27))
+
 ## [0.49.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.49.0...@kubb/swagger-v0.49.1) (2023-02-23)
 
 

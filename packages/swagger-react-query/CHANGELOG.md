@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.50.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.49.1...@kubb/swagger-react-query-v0.50.0) (2023-02-23)
+
+
+### Features
+
+* ts-codegen package ([b25db7e](https://github.com/stijnvanhulle/kubb/commit/b25db7e9b874dd953f25b1814c4c7db3fbc9ff0b))
+* use of swagger-ts name instead of swagger-typescript ([e9c27a4](https://github.com/stijnvanhulle/kubb/commit/e9c27a4d1485b4d38e58fb0d67380796f1eb1aad))
+
+
+### Bug Fixes
+
+* cleanup imports and move duplicate stuff to swagger package ([73e7c66](https://github.com/stijnvanhulle/kubb/commit/73e7c660dc3856afad64cf53f294f5003fa63f27))
+
 ## [0.49.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.49.0...@kubb/swagger-react-query-v0.49.1) (2023-02-23)
 
 
