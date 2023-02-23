@@ -25,7 +25,6 @@ const program = new Command(moduleName)
   .description('Kubb')
   .action(async (options: CLIOptions) => {
     try {
-      spinner.succeed(pc.blue('Kubb generation started'))
       // CONFIG
 
       spinner.start('💾 Loading config')

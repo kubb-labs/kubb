@@ -45,7 +45,7 @@ export async function run({ config, options, spinner }: RunProps) {
 
     await Promise.all(promises)
 
-    spinner.succeed('🪂 Running hooks completed')
+    spinner.succeed('🪂 Hooks runned')
   }
 
   try {
@@ -64,7 +64,7 @@ export async function run({ config, options, spinner }: RunProps) {
       logger,
     })
 
-    spinner.succeed(pc.blue('🌈 Kubb generation done'))
+    spinner.succeed(pc.blue('🌈 Generation complete'))
 
     await onDone(config)
   } catch (err) {
