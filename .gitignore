@@ -38,3 +38,4 @@ cache
 *.crt
 .cache/**/*
 .dccache
+examples/**/test.json

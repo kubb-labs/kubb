@@ -13,9 +13,11 @@ import type { OpenAPIV3 } from 'openapi-types'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
-export type FileResolver = (name: string) => Promise<string | null | undefined>
-type Name = string
-export type Refs = Record<string, Name>
+/**
+ * Name is the ref name + resolved with the nameResolver
+ * Key is the original name used
+ */
+export type Refs = Record<string, { name: string; key: string }>
 
 type Options = {
   withJSDocs?: boolean
@@ -70,7 +72,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
       // custom type
       if (fn === 'ref') {
-        return `${args}`
+        return `${args.name}`
       }
 
       return `.${fn}(${args})`
@@ -188,7 +190,10 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       const name = this.getUniqueAlias(pascalCase(schema.title || $ref.replace(/.+\//, '')))
 
       // eslint-disable-next-line no-multi-assign
-      ref = this.refs[$ref] = this.options.nameResolver?.(name) || name
+      ref = this.refs[$ref] = {
+        name: this.options.nameResolver?.(name) || name,
+        key: name,
+      }
     }
 
     return [['ref', ref || keywordZodNodes.any]]

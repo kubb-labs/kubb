@@ -1,14 +1,14 @@
 import { OasBuilder } from '@kubb/swagger'
+import type { FileResolver } from '@kubb/swagger'
+import { nameSorter } from '@kubb/core'
 
-import { ImportsGenerator, Refs, TypeGenerator } from '../generators'
+import { ImportsGenerator, TypeGenerator } from '../generators'
 import { print } from '../utils'
 
-import type { FileResolver } from '../generators'
-import type { OpenAPIV3 } from 'openapi-types'
-import ts from 'typescript'
+import type ts from 'typescript'
+import type { Refs } from '../generators'
 
-type Item = { schema: OpenAPIV3.SchemaObject; name: string; description?: string }
-
+type Generated = { refs: Refs; name: string; type: ts.TypeAliasDeclaration }
 type Config = {
   fileResolver?: FileResolver
   nameResolver?: (name: string) => string
@@ -26,17 +26,11 @@ export class TypeBuilder extends OasBuilder<Config> {
     return this
   }
 
-  async print() {
-    const typeSorter = (a: Item, b: Item) => {
-      if (a.name < b.name) {
-        return -1
-      }
-      if (a.name > b.name) {
-        return 1
-      }
-      return 0
-    }
-    const refsSorter = (a: { refs: Refs; type: ts.TypeAliasDeclaration; name: string }, b: { refs: Refs; type: ts.TypeAliasDeclaration; name: string }) => {
+  async print(name?: string) {
+    const codes: string[] = []
+
+    // TODO create another function that sort based on the refs(first the ones without refs)
+    const refsSorter = (a: Generated, b: Generated) => {
       if (Object.keys(a.refs)?.length < Object.keys(b.refs)?.length) {
         return -1
       }
@@ -47,7 +41,8 @@ export class TypeBuilder extends OasBuilder<Config> {
     }
 
     const generated = this.items
-      .sort(typeSorter)
+      .filter((gen) => (name ? gen.name === name : true))
+      .sort(nameSorter)
       .map(({ schema, name, description }) => {
         const generator = new TypeGenerator(this.oas, { withJSDocs: this.config.withJSDocs, nameResolver: this.config.nameResolver })
         const type = generator.build(schema, this.config.nameResolver?.(name) || name, description)
@@ -60,21 +55,19 @@ export class TypeBuilder extends OasBuilder<Config> {
       })
       .sort(refsSorter)
 
-    const code = generated.reduce((acc, currentValue) => {
-      const formatedType = print(currentValue.type)
-      return `${acc}\n${formatedType}`
-    }, '')
+    generated.forEach((item) => {
+      codes.push(print(item.type))
+    })
 
     if (this.config.withImports) {
       const importsGenerator = new ImportsGenerator({ fileResolver: this.config.fileResolver })
       const codeImports = await importsGenerator.build(generated)
 
       if (codeImports) {
-        const formatedImports = print(codeImports)
-        return [formatedImports, code].join('\n')
+        codes.unshift(print(codeImports))
       }
     }
 
-    return code
+    return codes.join('\n')
   }
 }

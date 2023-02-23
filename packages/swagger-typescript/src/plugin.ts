@@ -75,37 +75,40 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const nameResolver = (name: string) => pascalCase(name, { delimiter: '' })
 
       if (mode === 'directory') {
-        const mapFolderSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
+        const builder = await new TypeBuilder(oas).configure({
+          nameResolver,
+          fileResolver: async (name) => {
+            const resolvedTypeId = await this.resolveId({
+              fileName: `${name}.ts`,
+              directory,
+              pluginName,
+            })
+
+            const root = await this.resolveId({ fileName: ``, directory, pluginName })
+
+            return getRelativePath(root, resolvedTypeId)
+          },
+          withJSDocs: true,
+        })
+        Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
+          // generate and pass through new code back to the core so it can be write to that file
+          return builder.add({
+            schema,
+            name,
+          })
+        })
+
+        const mapFolderSchema = async ([name]: [string, OpenAPIV3.SchemaObject]) => {
           const path = await this.resolveId({ fileName: `${nameResolver(name)}.ts`, directory, pluginName })
 
           if (!path) {
             return null
           }
-          // generate and pass through new code back to the core so it can be write to that file
-          const typescriptCode = await new TypeBuilder(oas)
-            .add({
-              schema,
-              name,
-            })
-            .configure({
-              nameResolver,
-              fileResolver: async (name) => {
-                const resolvedTypeId = await this.resolveId({
-                  fileName: `${name}.ts`,
-                  directory,
-                  pluginName,
-                })
-
-                return getRelativePath(path, resolvedTypeId)
-              },
-              withJSDocs: true,
-            })
-            .print()
 
           return this.addFile({
             path,
             fileName: `${nameResolver(name)}.ts`,
-            source: typescriptCode,
+            source: await builder.print(name),
           })
         }
 
@@ -120,17 +123,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           nameResolver,
           withJSDocs: true,
         })
-        const mapFileSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
+        Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
-
           return builder.add({
             schema,
             name,
           })
-        }
+        })
 
-        const promises = Object.entries(schemas).map(mapFileSchema)
-        await Promise.all(promises)
         const path = await this.resolveId({ fileName: '', directory, pluginName })
         if (!path) {
           return

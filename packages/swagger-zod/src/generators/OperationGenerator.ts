@@ -1,10 +1,10 @@
 import type { File, FileManager, PathMode } from '@kubb/core'
 import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
+import type { FileResolver } from '@kubb/swagger'
 
 import { ZodBuilder } from '../builders'
 
-import type { FileResolver } from './ZodGenerator'
 import type Oas from 'oas'
 import type { Api } from '../types'
 

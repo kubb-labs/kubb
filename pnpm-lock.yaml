@@ -320,10 +320,11 @@ importers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
       '@types/camelcase': ^5.2.0
+      '@types/lodash.findlastindex': ^4.4.0
       '@types/lodash.get': ^4.4.7
       '@types/lodash.uniq': ^4.5.7
-      '@types/lodash.upperfirst': ^4.3.7
       change-case: ^4.1.2
+      lodash.findlastindex: ^4.4.2
       lodash.get: ^4.4.2
       lodash.uniq: ^4.5.0
       oas: ^20.4.0
@@ -334,14 +335,15 @@ importers:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
       change-case: 4.1.2
+      lodash.findlastindex: 4.6.0
       lodash.get: 4.4.2
       lodash.uniq: 4.5.0
       oas: 20.4.0
     devDependencies:
       '@types/camelcase': 5.2.0
+      '@types/lodash.findlastindex': 4.6.7
       '@types/lodash.get': 4.4.7
       '@types/lodash.uniq': 4.5.7
-      '@types/lodash.upperfirst': 4.3.7
       openapi-types: 12.1.0
       tsup: 6.6.3_typescript@4.9.5
       typescript: 4.9.5
@@ -351,10 +353,11 @@ importers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
       '@types/camelcase': ^5.2.0
+      '@types/lodash.findlastindex': ^4.4.0
       '@types/lodash.get': ^4.4.7
       '@types/lodash.uniq': ^4.5.7
-      '@types/lodash.upperfirst': ^4.3.7
       change-case: ^4.1.2
+      lodash.findlastindex: ^4.4.2
       lodash.get: ^4.4.2
       lodash.uniq: ^4.5.0
       oas: ^20.4.0
@@ -365,14 +368,15 @@ importers:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
       change-case: 4.1.2
+      lodash.findlastindex: 4.6.0
       lodash.get: 4.4.2
       lodash.uniq: 4.5.0
       oas: 20.4.0
     devDependencies:
       '@types/camelcase': 5.2.0
+      '@types/lodash.findlastindex': 4.6.7
       '@types/lodash.get': 4.4.7
       '@types/lodash.uniq': 4.5.7
-      '@types/lodash.upperfirst': 4.3.7
       openapi-types: 12.1.0
       tsup: 6.6.3_typescript@4.9.5
       typescript: 4.9.5
@@ -2423,6 +2427,12 @@ packages:
     resolution: {integrity: sha512-DUlIj2nk0YnJdlWgsFuVKcX27MLW0KbKmGVoUHmFr+74FYYNUDAaj9ZqTADvsbE8rfxuVmSFc7KczYn5Y09ozg==}
     dev: false
 
+  /@types/lodash.findlastindex/4.6.7:
+    resolution: {integrity: sha512-B1f1tlVFXAN4xTv9yytcY7G/eNHZjQ5xjHZdl+GhBLY+groZ/RRqHGBITTbaxxw3hZOpzVlbM/Ox5FI+LlHNmg==}
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: true
+
   /@types/lodash.get/4.4.7:
     resolution: {integrity: sha512-af34Mj+KdDeuzsJBxc/XeTtOx0SZHZNLd+hdrn+PcKGQs0EG2TJTzQAOTCZTgDJCArahlCzLWSy8c2w59JRz7Q==}
     dependencies:
@@ -2431,12 +2441,6 @@ packages:
 
   /@types/lodash.uniq/4.5.7:
     resolution: {integrity: sha512-qg7DeAbdZMi6DGvCxThlJycykLLhETrJrQZ6F2KaZ+o0sNK1qRHz46lgNA+nHHjwrmA2a91DyiZTp3ey3m1rEw==}
-    dependencies:
-      '@types/lodash': 4.14.191
-    dev: true
-
-  /@types/lodash.upperfirst/4.3.7:
-    resolution: {integrity: sha512-CrBjoB4lO6h7tXNMBUl1eh/w0KdMosiEOXOoD5DMECsA/kDWo/WQfOt1KyGKVvgwK3I6cKAY6z8LymKiMazLFg==}
     dependencies:
       '@types/lodash': 4.14.191
     dev: true
@@ -7173,6 +7177,10 @@ packages:
 
   /lodash.camelcase/4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
+
+  /lodash.findlastindex/4.6.0:
+    resolution: {integrity: sha512-wghZXum6rpsr8XsE0U3PZNaLtj1Q8m8Vn/hAgHtlDlzh49ZXNpcZmVbyTFRRjkKhzPAZ4CSFyxctNIk1BLmRBg==}
+    dev: false
 
   /lodash.get/4.4.2:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}

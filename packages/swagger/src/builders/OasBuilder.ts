@@ -1,6 +1,8 @@
 import type Oas from 'oas'
 import type { OpenAPIV3 } from 'openapi-types'
 
+export type FileResolver = (name: string) => Promise<string | null | undefined>
+
 type Item = { schema: OpenAPIV3.SchemaObject; name: string; description?: string }
 
 /**
@@ -29,5 +31,5 @@ export abstract class OasBuilder<TConfig extends object = object> {
 
   abstract configure(config: TConfig): this
 
-  abstract print(): Promise<string>
+  abstract print(name?: string): Promise<string>
 }

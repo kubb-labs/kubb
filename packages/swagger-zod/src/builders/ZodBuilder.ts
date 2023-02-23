@@ -1,12 +1,13 @@
 import { OasBuilder } from '@kubb/swagger'
+import type { FileResolver } from '@kubb/swagger'
+import { nameSorter } from '@kubb/core'
 
 import { ImportsGenerator, ZodGenerator } from '../generators'
 import { print } from '../utils'
 
-import type { FileResolver, Refs } from '../generators'
-import type { OpenAPIV3 } from 'openapi-types'
+import type { Refs } from '../generators'
 
-type Item = { schema: OpenAPIV3.SchemaObject; name: string; description?: string }
+type Generated = { refs: Refs; name: string; type: string }
 
 type Config = {
   fileResolver?: FileResolver
@@ -25,18 +26,11 @@ export class ZodBuilder extends OasBuilder<Config> {
     return this
   }
 
-  async print() {
-    const nameSorter = (a: Item, b: Item) => {
-      if (a.name < b.name) {
-        return -1
-      }
-      if (a.name > b.name) {
-        return 1
-      }
-      return 0
-    }
+  async print(name?: string) {
+    const codes: string[] = []
 
-    const refsSorter = (a: { refs: Refs; type: string; name: string }, b: { refs: Refs; type: string; name: string }) => {
+    // TODO create another function that sort based on the refs(first the ones without refs)
+    const refsSorter = (a: Generated, b: Generated) => {
       if (Object.keys(a.refs)?.length < Object.keys(b.refs)?.length) {
         return -1
       }
@@ -45,7 +39,9 @@ export class ZodBuilder extends OasBuilder<Config> {
       }
       return 0
     }
+
     const generated = this.items
+      .filter((gen) => (name ? gen.name === name : true))
       .sort(nameSorter)
       .map(({ schema, name, description }) => {
         const generator = new ZodGenerator(this.oas, { withJSDocs: this.config.withJSDocs, nameResolver: this.config.nameResolver })
@@ -58,21 +54,19 @@ export class ZodBuilder extends OasBuilder<Config> {
       })
       .sort(refsSorter)
 
-    const code = generated.reduce((acc, currentValue) => {
-      const formatedType = currentValue.type
-      return `${acc}\n${formatedType}`
-    }, '')
+    generated.forEach((item) => {
+      codes.push(item.type)
+    })
 
     if (this.config.withImports) {
       const importsGenerator = new ImportsGenerator({ fileResolver: this.config.fileResolver })
       const codeImports = await importsGenerator.build(generated)
 
       if (codeImports) {
-        const formatedImports = print(codeImports)
-        return [formatedImports, code].join('\n')
+        codes.unshift(print(codeImports))
       }
     }
 
-    return code
+    return codes.join('\n')
   }
 }

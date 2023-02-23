@@ -1,10 +1,11 @@
 import uniq from 'lodash.uniq'
 
 import { Generator } from '@kubb/core'
+import type { FileResolver } from '@kubb/swagger'
 
 import { createImportDeclaration } from '../utils/codegen'
 
-import type { FileResolver, Refs } from './TypeGenerator'
+import type { Refs } from './TypeGenerator'
 import type ts from 'typescript'
 
 type Options = {
@@ -27,11 +28,11 @@ export class ImportsGenerator extends Generator<Options> {
     const importPromises = uniq(Object.keys(refs))
       .filter(($ref: string) => {
         // when using a $ref inside a type we should not repeat that import
-        const name = refs[$ref]
+        const { name } = refs[$ref]
         return !items.find((item) => item.type.name.escapedText === name)
       })
       .map(async ($ref: string) => {
-        const name = refs[$ref]
+        const { name } = refs[$ref]
 
         const path = (await this.options.fileResolver?.(name)) || `./${name}`
 
