@@ -182,6 +182,9 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.enum) {
       // TODO enum
+      /**
+       * Add ref and push generated enum type(as const) to this.extraNodes that then will be added when this.build is called
+       */
     }
 
     if ('items' in schema) {

@@ -17,7 +17,7 @@ const moduleName = 'kubb'
 
 const spinner = ora({
   color: 'blue',
-  text: pc.blue('Kubb generation started'),
+  text: pc.blue('🏎️ Kubb generation started'),
   spinner: 'clock',
 }).start()
 
@@ -28,9 +28,9 @@ const program = new Command(moduleName)
       spinner.succeed(pc.blue('Kubb generation started'))
       // CONFIG
 
-      spinner.start('Loading config')
+      spinner.start('💾 Loading config')
       const result = await getCosmiConfig(moduleName, options.config)
-      spinner.succeed('Config loaded')
+      spinner.succeed('💾 Config loaded')
 
       // END CONFIG
 

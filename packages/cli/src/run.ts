@@ -29,7 +29,7 @@ export async function run({ config, options, spinner }: RunProps) {
     if (!config.hooks?.done) {
       return
     }
-    spinner.start('Running hooks')
+    spinner.start('🪂 Running hooks')
 
     let commands: string[] = []
     if (typeof config.hooks?.done === 'string') {
@@ -45,11 +45,11 @@ export async function run({ config, options, spinner }: RunProps) {
 
     await Promise.all(promises)
 
-    spinner.succeed('Running hooks completed')
+    spinner.succeed('🪂 Running hooks completed')
   }
 
   try {
-    spinner.start('Building')
+    spinner.start('🚀 Building')
 
     await build({
       config: {
@@ -64,7 +64,7 @@ export async function run({ config, options, spinner }: RunProps) {
       logger,
     })
 
-    spinner.succeed(pc.blue('Kubb generation done'))
+    spinner.succeed(pc.blue('🌈 Kubb generation done'))
 
     await onDone(config)
   } catch (err) {

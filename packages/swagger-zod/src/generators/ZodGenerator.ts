@@ -114,6 +114,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         const schema = props[name]
         const isRequired = required && required.includes(name)
 
+        // TODO this should be moved to getBaseTypeFromSchema
         if (!schema.enum) {
           // when we have an enum we will convert that to z.enum() instead z.string().enum()
           validationFunctions.push(...this.getTypeFromSchema(schema as OpenAPIV3.SchemaObject, name))
