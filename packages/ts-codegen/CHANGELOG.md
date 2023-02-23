@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.50.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/ts-codegen-v0.50.0...@kubb/ts-codegen-v0.50.1) (2023-02-23)
+
+
+### Bug Fixes
+
+* factory issue with commonjs(nextjs) ([6a6f987](https://github.com/stijnvanhulle/kubb/commit/6a6f987363e3f3567400032bb4bbb4cf6daf9f1d))
+
 ## [0.50.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/ts-codegen-v0.49.1...@kubb/ts-codegen-v0.50.0) (2023-02-23)
 
 
