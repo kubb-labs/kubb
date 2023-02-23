@@ -1,4 +1,6 @@
-import ts, { factory } from 'typescript'
+import ts from 'typescript'
+
+const { factory } = ts
 
 export const modifier = {
   async: factory.createModifier(ts.SyntaxKind.AsyncKeyword),
