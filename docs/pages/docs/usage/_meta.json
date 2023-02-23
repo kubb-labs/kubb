@@ -3,7 +3,7 @@
   "cli": "@kubb/cli",
   "ts-codegen": "@kubb/ts-codegen",
   "swagger": "@kubb/swagger",
-  "swagger-typescript": "@kubb/swagger-typescript",
+  "swagger-ts": "@kubb/swagger-ts",
   "swagger-react-query": "@kubb/swagger-react-query",
   "swagger-zod": "@kubb/swagger-zod"
 }

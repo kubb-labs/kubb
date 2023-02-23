@@ -21,7 +21,7 @@ export default defineConfig(async () => {
     // logLevel: 'info',
     plugins: [
       ['@kubb/swagger', { output: false }],
-      ['@kubb/swagger-typescript', { output: 'models/ts' }],
+      ['@kubb/swagger-ts', { output: 'models/ts' }],
       ['@kubb/swagger-react-query', { output: './reactQuery' }],
       ['@kubb/swagger-zod', { output: './zod' }],
       // createSwagger({ output: false }),

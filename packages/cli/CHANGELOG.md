@@ -387,7 +387,7 @@
 
 ### Features
 
-* use nextJs to convert JSON to types with swagger-typescript ([3483562](https://github.com/stijnvanhulle/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
+* use nextJs to convert JSON to types with swagger-ts ([3483562](https://github.com/stijnvanhulle/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
 
 ## [0.35.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.34.0...@kubb/cli-v0.35.0) (2023-01-07)
 
@@ -718,8 +718,8 @@
 * generator cli + definedConfig and plugin types ([ce88da9](https://github.com/stijnvanhulle/kubb/commit/ce88da997b7d4fec2a0d0255a088c0bf968b5d17))
 * plugin system (based on Rolltup and Unplugin) ([09a9f3a](https://github.com/stijnvanhulle/kubb/commit/09a9f3ad5dba14cc57e3627f3c7c4955da4c340f))
 * queue system ([7d56acd](https://github.com/stijnvanhulle/kubb/commit/7d56acdfaca448d32df88613f8665f31c317ddd1))
-* swagger-typescript ([54fb329](https://github.com/stijnvanhulle/kubb/commit/54fb32936f4d06beb03eedc576820452497db25b))
-* **swagger-typescript:** ✨ useQuery with react-query(tryout) ([84eb7e2](https://github.com/stijnvanhulle/kubb/commit/84eb7e2a7b7158b8eb7a950ef99b9c356cc8fd8a))
+* swagger-ts ([54fb329](https://github.com/stijnvanhulle/kubb/commit/54fb32936f4d06beb03eedc576820452497db25b))
+* **swagger-ts:** ✨ useQuery with react-query(tryout) ([84eb7e2](https://github.com/stijnvanhulle/kubb/commit/84eb7e2a7b7158b8eb7a950ef99b9c356cc8fd8a))
 * use of api object(same like Rollup does it) ([b78a189](https://github.com/stijnvanhulle/kubb/commit/b78a189a9d92aa206873884fbee4a11691d56884))
 * use of ast package in the core ([d6261b6](https://github.com/stijnvanhulle/kubb/commit/d6261b65a14073f79e7351ee73fb4d3de4d1ea94))
 * use of promise to return correct status for buildEnd + logs for the different parallel tasks ([562699d](https://github.com/stijnvanhulle/kubb/commit/562699dec96c8b6b9670835dd10006439b90eb68))

@@ -21,7 +21,7 @@
     "paths": {
       "@kubb/core":["../core/src/index.ts"],
       "@kubb/swagger":["../swagger/src/index.ts"],
-      "@kubb/swagger-typescript":["../swagger-typescript/src/index.ts"],
+      "@kubb/swagger-ts":["../swagger-ts/src/index.ts"],
       "@kubb/swagger-react-query":["../swagger-react-query/src/index.ts"]
     }
   },

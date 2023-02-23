@@ -38,8 +38,8 @@
       "draft": false,
       "prerelease": true
     },
-    "packages/swagger-typescript": {
-      "component": "@kubb/swagger-typescript",
+    "packages/swagger-ts": {
+      "component": "@kubb/swagger-ts",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
@@ -75,7 +75,7 @@
         "@kubb/cli",
         "@kubb/ts-codegen",
         "@kubb/swagger",
-        "@kubb/swagger-typescript",
+        "@kubb/swagger-ts",
         "@kubb/swagger-react-query",
         "@kubb/swagger-zod"
       ]

@@ -16,7 +16,7 @@ import { OperationGenerator } from './generators/OperationGenerator'
 
 import type { Api, PluginOptions } from './types'
 
-export const pluginName = 'swagger-typescript' as const
+export const pluginName = 'swagger-ts' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'models' } = options

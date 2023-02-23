@@ -124,7 +124,7 @@
 
 ### Features
 
-* move typescript logic to swagger-typescript package ([d4b6d2b](https://github.com/stijnvanhulle/kubb/commit/d4b6d2b8035de648bb583662d5c022a37dff8f74))
+* move typescript logic to swagger-ts package ([d4b6d2b](https://github.com/stijnvanhulle/kubb/commit/d4b6d2b8035de648bb583662d5c022a37dff8f74))
 
 
 ### Bug Fixes
@@ -176,7 +176,7 @@
 
 ### Features
 
-* swagger-typescript api ([559d8a4](https://github.com/stijnvanhulle/kubb/commit/559d8a4b386d58da530b0f4b36fd8752056b23aa))
+* swagger-ts api ([559d8a4](https://github.com/stijnvanhulle/kubb/commit/559d8a4b386d58da530b0f4b36fd8752056b23aa))
 
 ## [0.37.30](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.37.29...@kubb/swagger-react-query-v0.37.30) (2023-02-04)
 
@@ -387,14 +387,14 @@
 
 ### Miscellaneous Chores
 
-* **@kubb/swagger-typescript:** Synchronize undefined versions
+* **@kubb/swagger-ts:** Synchronize undefined versions
 
 ## [0.37.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.36.1...@kubb/swagger-react-query-v0.37.0) (2023-01-08)
 
 
 ### Miscellaneous Chores
 
-* **@kubb/swagger-typescript:** Synchronize undefined versions
+* **@kubb/swagger-ts:** Synchronize undefined versions
 
 ## [0.36.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.36.0...@kubb/swagger-react-query-v0.36.1) (2023-01-08)
 
@@ -408,7 +408,7 @@
 
 ### Features
 
-* use nextJs to convert JSON to types with swagger-typescript ([3483562](https://github.com/stijnvanhulle/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
+* use nextJs to convert JSON to types with swagger-ts ([3483562](https://github.com/stijnvanhulle/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
 
 ## [0.35.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.34.0...@kubb/swagger-react-query-v0.35.0) (2023-01-07)
 
@@ -542,7 +542,7 @@
 
 ### Features
 
-* **swagger-typescript:** jsdocs codegen for typescript types with appendJSDocToNode and createJSDoc ([827850c](https://github.com/stijnvanhulle/kubb/commit/827850c4d0de657acc1eaf5d81d835d575452b68))
+* **swagger-ts:** jsdocs codegen for typescript types with appendJSDocToNode and createJSDoc ([827850c](https://github.com/stijnvanhulle/kubb/commit/827850c4d0de657acc1eaf5d81d835d575452b68))
 
 
 ### Bug Fixes
@@ -702,7 +702,7 @@
 
 ### Features
 
-* output option for swagger-typescript ([ab7694f](https://github.com/stijnvanhulle/kubb/commit/ab7694f1b2334799ad18f290042e96375751bc46))
+* output option for swagger-ts ([ab7694f](https://github.com/stijnvanhulle/kubb/commit/ab7694f1b2334799ad18f290042e96375751bc46))
 
 ## [0.12.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.11.2...@kubb/swagger-react-query-v0.12.0) (2022-12-26)
 

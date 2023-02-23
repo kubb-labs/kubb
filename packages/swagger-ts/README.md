@@ -1,7 +1,7 @@
 <div align="center">
 
   <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-  <h1>@kubb/swagger-typescript</h1>
+  <h1>@kubb/swagger-ts</h1>
   
   <p>
    With Kubb you can create and use plugins that will generate code based on a specific input.
@@ -9,14 +9,14 @@
 
 <!-- Badges -->
 <p>
-  <a href="https://www.npmjs.com/package/@kubb/swagger-typescript">
-    <img alt="Npm verssion" src="https://img.shields.io/npm/v/@kubb/swagger-typescript?style=for-the-badge"/>
+  <a href="https://www.npmjs.com/package/@kubb/swagger-ts">
+    <img alt="Npm verssion" src="https://img.shields.io/npm/v/@kubb/swagger-ts?style=for-the-badge"/>
   </a>
-  <a href="https://www.npmjs.com/package/@kubb/swagger-typescript">
-    <img alt="Npm downloads" src="https://img.shields.io/bundlephobia/min/@kubb/swagger-typescript?style=for-the-badge"/>
+  <a href="https://www.npmjs.com/package/@kubb/swagger-ts">
+    <img alt="Npm downloads" src="https://img.shields.io/bundlephobia/min/@kubb/swagger-ts?style=for-the-badge"/>
   </a>
-  <a href="https://www.npmjs.com/package/@kubb/swagger-typescript">
-    <img alt="Npm downloads" src="https://img.shields.io/npm/dm/@kubb/swagger-typescript?style=for-the-badge"/>
+  <a href="https://www.npmjs.com/package/@kubb/swagger-ts">
+    <img alt="Npm downloads" src="https://img.shields.io/npm/dm/@kubb/swagger-ts?style=for-the-badge"/>
   </a>
 </p>
    

@@ -1,6 +1,6 @@
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTypescript from '@kubb/swagger-typescript'
+import createSwaggerTypescript from '@kubb/swagger-ts'
 import createSwaggerReactQuery from '@kubb/swagger-react-query'
 
 export default defineConfig({

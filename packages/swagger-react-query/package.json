@@ -45,9 +45,9 @@
     "prepack": "pnpm build",
     "pre-commit": "echo 'pre-commit not configured'",
     "pre-push": "pnpm typecheck",
-    "test": "jest --config ../../jest.config.js --passWithNoTests --runInBand --testPathPattern=packages/swagger-typescript/src",
-    "test:local": "jest --config ../../jest.config.js --testPathPattern=packages/swagger-typescript/src --maxWorkers=50%",
-    "test:watch": "jest --config ../../jest.config.js --testPathPattern=packages/swagger-typescript/src --maxWorkers=25% --watch",
+    "test": "jest --config ../../jest.config.js --passWithNoTests --runInBand --testPathPattern=packages/swagger-ts/src",
+    "test:local": "jest --config ../../jest.config.js --testPathPattern=packages/swagger-ts/src --maxWorkers=50%",
+    "test:watch": "jest --config ../../jest.config.js --testPathPattern=packages/swagger-ts/src --maxWorkers=25% --watch",
     "upgrade": "ncu -u",
     "upgrade:local": "ncu --interactive --doctor",
     "typecheck": "tsc -p ./tsconfig.json --noEmit"
@@ -55,7 +55,7 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",
-    "@kubb/swagger-typescript": "workspace:*",
+    "@kubb/swagger-ts": "workspace:*",
     "change-case": "^4.1.2"
   },
   "devDependencies": {

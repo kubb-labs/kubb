@@ -390,7 +390,7 @@
 ### Features
 
 * playground with Nextjs ([131d6a7](https://github.com/stijnvanhulle/kubb/commit/131d6a785f8a9f80a8262a6a5c37c0a104f36a3d))
-* use nextJs to convert JSON to types with swagger-typescript ([3483562](https://github.com/stijnvanhulle/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
+* use nextJs to convert JSON to types with swagger-ts ([3483562](https://github.com/stijnvanhulle/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
 
 
 ### Bug Fixes
@@ -528,7 +528,7 @@
 
 ### Features
 
-* **swagger-typescript:** jsdocs codegen for typescript types with appendJSDocToNode and createJSDoc ([827850c](https://github.com/stijnvanhulle/kubb/commit/827850c4d0de657acc1eaf5d81d835d575452b68))
+* **swagger-ts:** jsdocs codegen for typescript types with appendJSDocToNode and createJSDoc ([827850c](https://github.com/stijnvanhulle/kubb/commit/827850c4d0de657acc1eaf5d81d835d575452b68))
 
 
 ### Bug Fixes
@@ -669,7 +669,7 @@
 
 ### Features
 
-* output option for swagger-typescript ([ab7694f](https://github.com/stijnvanhulle/kubb/commit/ab7694f1b2334799ad18f290042e96375751bc46))
+* output option for swagger-ts ([ab7694f](https://github.com/stijnvanhulle/kubb/commit/ab7694f1b2334799ad18f290042e96375751bc46))
 
 ## [0.12.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.11.2...@kubb/swagger-v0.12.0) (2022-12-26)
 
@@ -691,7 +691,7 @@
 ### Bug Fixes
 
 * definePlugin and export names of plugin and cleanup ([a17eb80](https://github.com/stijnvanhulle/kubb/commit/a17eb80a90debb7f9cbf646dd9e9905489d42031))
-* use of buildstart instead of load for swagger-typescript ([a289af5](https://github.com/stijnvanhulle/kubb/commit/a289af5a02be650167dc73eb325fca8100b74c85))
+* use of buildstart instead of load for swagger-ts ([a289af5](https://github.com/stijnvanhulle/kubb/commit/a289af5a02be650167dc73eb325fca8100b74c85))
 
 ## [0.11.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.10.0...@kubb/swagger-v0.11.0) (2022-12-12)
 
@@ -723,8 +723,8 @@
 * define schemas for config and schema ([#1](https://github.com/stijnvanhulle/kubb/issues/1)) ([2940bed](https://github.com/stijnvanhulle/kubb/commit/2940bed15195db4cff8eeaad51aa1b9bfe423963))
 * plugin system (based on Rolltup and Unplugin) ([09a9f3a](https://github.com/stijnvanhulle/kubb/commit/09a9f3ad5dba14cc57e3627f3c7c4955da4c340f))
 * queue system ([7d56acd](https://github.com/stijnvanhulle/kubb/commit/7d56acdfaca448d32df88613f8665f31c317ddd1))
-* swagger-typescript ([54fb329](https://github.com/stijnvanhulle/kubb/commit/54fb32936f4d06beb03eedc576820452497db25b))
-* **swagger-typescript:** ✨ useQuery with react-query(tryout) ([84eb7e2](https://github.com/stijnvanhulle/kubb/commit/84eb7e2a7b7158b8eb7a950ef99b9c356cc8fd8a))
+* swagger-ts ([54fb329](https://github.com/stijnvanhulle/kubb/commit/54fb32936f4d06beb03eedc576820452497db25b))
+* **swagger-ts:** ✨ useQuery with react-query(tryout) ([84eb7e2](https://github.com/stijnvanhulle/kubb/commit/84eb7e2a7b7158b8eb7a950ef99b9c356cc8fd8a))
 * use of api object(same like Rollup does it) ([b78a189](https://github.com/stijnvanhulle/kubb/commit/b78a189a9d92aa206873884fbee4a11691d56884))
 * use of custom transform(hookReduceArg0) to reduce the result for transform ([4fb3889](https://github.com/stijnvanhulle/kubb/commit/4fb388959326f4caa93dd70ff11ea3afd39d24c9))
 * use of declare module for better type support ([2a868ad](https://github.com/stijnvanhulle/kubb/commit/2a868add3eb63010e97492b3e7dd829d8e0a7ca7))

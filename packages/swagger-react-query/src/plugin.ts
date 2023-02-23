@@ -1,10 +1,10 @@
 import pathParser from 'path'
 
 import { createPlugin, validatePlugins, getPathMode } from '@kubb/core'
-import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-typescript'
+import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi } from '@kubb/swagger'
-import type { Api as SwaggerTypescriptApi } from '@kubb/swagger-typescript'
+import type { Api as SwaggerTypescriptApi } from '@kubb/swagger-ts'
 
 import { OperationGenerator } from './generators'
 

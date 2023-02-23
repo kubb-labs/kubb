@@ -1,5 +1,5 @@
 {
-  "packages": ["packages/cli", "packages/core", "packages/swagger", "packages/swagger-react-query", "packages/swagger-typescript"],
+  "packages": ["packages/cli", "packages/core", "packages/swagger", "packages/swagger-react-query", "packages/swagger-ts"],
   "sandboxes": ["new", "vanilla"],
   "node": "16"
 }

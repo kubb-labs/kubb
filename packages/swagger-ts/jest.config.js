@@ -4,7 +4,7 @@ const tsconfig = require('./tsconfig.json')
 
 const baseConfig = require('../../jest.config.js')
 
-const packageName = 'swagger-typescript'
+const packageName = 'swagger-ts'
 
 module.exports = {
   ...baseConfig,

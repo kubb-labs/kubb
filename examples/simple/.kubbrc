@@ -1,6 +1,6 @@
 const { defineConfig } = require('@kubb/core')
 const createSwagger = require('@kubb/swagger').default
-const createSwaggerTypescript = require('@kubb/swagger-typescript').default
+const createSwaggerTypescript = require('@kubb/swagger-ts').default
 const createSwaggerReactQuery = require('@kubb/swagger-react-query').default
 
 module.exports = defineConfig(() => {

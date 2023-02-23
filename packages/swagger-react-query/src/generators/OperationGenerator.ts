@@ -2,7 +2,7 @@ import { camelCase, capitalCase } from 'change-case'
 
 import type { PluginContext, File, FileManager } from '@kubb/core'
 import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
-import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-typescript'
+import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import type { Oas } from '@kubb/swagger'
 

@@ -22,7 +22,7 @@
       "@kubb/core":["../core/src/index.ts"],
       "@kubb/core/browser":["../core/dist/browser/index.js"],
       "@kubb/swagger":["../swagger/src/index.ts"],
-      "@kubb/swagger-typescript":["../swagger-typescript/src/index.ts"]
+      "@kubb/swagger-ts":["../swagger-ts/src/index.ts"]
     }
   },
   "include": ["./src/**/*"],

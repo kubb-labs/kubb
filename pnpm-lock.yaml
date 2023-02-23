@@ -125,7 +125,7 @@ importers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
       '@kubb/swagger-react-query': workspace:*
-      '@kubb/swagger-typescript': workspace:*
+      '@kubb/swagger-ts': workspace:*
       '@kubb/swagger-zod': workspace:*
       '@tanstack/react-query': ^4.24.9
       axios: ^1.3.3
@@ -137,7 +137,7 @@ importers:
       '@kubb/core': link:../../packages/core
       '@kubb/swagger': link:../../packages/swagger
       '@kubb/swagger-react-query': link:../../packages/swagger-react-query
-      '@kubb/swagger-typescript': link:../../packages/swagger-typescript
+      '@kubb/swagger-ts': link:../../packages/swagger-ts
       '@kubb/swagger-zod': link:../../packages/swagger-zod
       '@tanstack/react-query': 4.24.9_react@18.2.0
       axios: 1.3.3
@@ -151,7 +151,7 @@ importers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
       '@kubb/swagger-react-query': workspace:*
-      '@kubb/swagger-typescript': workspace:*
+      '@kubb/swagger-ts': workspace:*
       '@tanstack/react-query': ^4.24.6
       axios: ^1.3.3
       react: ^18.2.0
@@ -161,7 +161,7 @@ importers:
       '@kubb/core': link:../../packages/core
       '@kubb/swagger': link:../../packages/swagger
       '@kubb/swagger-react-query': link:../../packages/swagger-react-query
-      '@kubb/swagger-typescript': link:../../packages/swagger-typescript
+      '@kubb/swagger-ts': link:../../packages/swagger-ts
       '@tanstack/react-query': 4.24.6_react@18.2.0
       axios: 1.3.3
       react: 18.2.0
@@ -173,7 +173,7 @@ importers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
       '@kubb/swagger-react-query': workspace:*
-      '@kubb/swagger-typescript': workspace:*
+      '@kubb/swagger-ts': workspace:*
       '@tanstack/react-query': ^4.24.6
       axios: ^1.3.3
       react: ^18.2.0
@@ -183,7 +183,7 @@ importers:
       '@kubb/core': link:../../packages/core
       '@kubb/swagger': link:../../packages/swagger
       '@kubb/swagger-react-query': link:../../packages/swagger-react-query
-      '@kubb/swagger-typescript': link:../../packages/swagger-typescript
+      '@kubb/swagger-ts': link:../../packages/swagger-ts
       '@tanstack/react-query': 4.24.6_react@18.2.0
       axios: 1.3.3
       react: 18.2.0
@@ -194,7 +194,7 @@ importers:
       '@kubb/cli': workspace:*
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
-      '@kubb/swagger-typescript': workspace:*
+      '@kubb/swagger-ts': workspace:*
       '@kubb/swagger-zod': workspace:*
       react: ^18.2.0
       tsup: ^6.6.3
@@ -203,7 +203,7 @@ importers:
       '@kubb/cli': link:../../packages/cli
       '@kubb/core': link:../../packages/core
       '@kubb/swagger': link:../../packages/swagger
-      '@kubb/swagger-typescript': link:../../packages/swagger-typescript
+      '@kubb/swagger-ts': link:../../packages/swagger-ts
       '@kubb/swagger-zod': link:../../packages/swagger-zod
       react: 18.2.0
       tsup: 6.6.3
@@ -300,20 +300,20 @@ importers:
     specifiers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
-      '@kubb/swagger-typescript': workspace:*
+      '@kubb/swagger-ts': workspace:*
       change-case: ^4.1.2
       tsup: ^6.6.3
       typescript: ^4.9.5
     dependencies:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
-      '@kubb/swagger-typescript': link:../swagger-typescript
+      '@kubb/swagger-ts': link:../swagger-ts
       change-case: 4.1.2
     devDependencies:
       tsup: 6.6.3_typescript@4.9.5
       typescript: 4.9.5
 
-  packages/swagger-typescript:
+  packages/swagger-ts:
     specifiers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
