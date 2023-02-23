@@ -1,4 +1,11 @@
 # Changelog
+## [0.49.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.49.0...@kubb/core-v0.49.1) (2023-02-23)
+
+
+### Bug Fixes
+
+* refactor zodBuilder and typeBuilder ([6e0ada6](https://github.com/stijnvanhulle/kubb/commit/6e0ada6af9fa71658c0812cc72db507aa15cea66))
+
 ## [0.49.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.48.0...@kubb/core-v0.49.0) (2023-02-23)
 
 
