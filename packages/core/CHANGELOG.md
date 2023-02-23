@@ -1,4 +1,11 @@
 # Changelog
+## [0.49.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.48.0...@kubb/core-v0.49.0) (2023-02-23)
+
+
+### Miscellaneous Chores
+
+* **@kubb/core:** Synchronize undefined versions
+
 ## [0.48.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.47.1...@kubb/core-v0.48.0) (2023-02-23)
 
 
