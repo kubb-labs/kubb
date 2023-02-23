@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.49.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.48.0...@kubb/swagger-typescript-v0.49.0) (2023-02-23)
+
+
+### Features
+
+* sort for types and zodSchemas based on refs(first ones based on a ref and then the ones using the ref) ([0f9c424](https://github.com/stijnvanhulle/kubb/commit/0f9c4249f912867aea49d025e3983db72f09a5e5))
+
 ## [0.48.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-typescript-v0.47.1...@kubb/swagger-typescript-v0.48.0) (2023-02-23)
 
 
