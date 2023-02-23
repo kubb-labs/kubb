@@ -264,12 +264,12 @@ importers:
       js-beautify: 1.14.7
       lodash.uniq: 4.5.0
       rimraf: 3.0.2
-      typescript: 4.9.5
       uuid: 9.0.0
     devDependencies:
       '@types/js-beautify': 1.13.3
       '@types/lodash.uniq': 4.5.7
       tsup: 6.6.3_typescript@4.9.5
+      typescript: 4.9.5
 
   packages/swagger:
     specifiers:
@@ -317,6 +317,7 @@ importers:
     specifiers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
+      '@kubb/ts-codegen': workspace:*
       '@types/lodash.uniq': ^4.5.7
       change-case: ^4.1.2
       lodash.uniq: ^4.5.0
@@ -325,6 +326,7 @@ importers:
     dependencies:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
+      '@kubb/ts-codegen': link:../ts-codegen
       change-case: 4.1.2
       lodash.uniq: 4.5.0
     devDependencies:
@@ -336,6 +338,7 @@ importers:
     specifiers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
+      '@kubb/ts-codegen': workspace:*
       '@types/lodash.uniq': ^4.5.7
       change-case: ^4.1.2
       lodash.uniq: ^4.5.0
@@ -344,12 +347,24 @@ importers:
     dependencies:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
+      '@kubb/ts-codegen': link:../ts-codegen
       change-case: 4.1.2
       lodash.uniq: 4.5.0
     devDependencies:
       '@types/lodash.uniq': 4.5.7
       tsup: 6.6.3_typescript@4.9.5
       typescript: 4.9.5
+
+  packages/ts-codegen:
+    specifiers:
+      '@kubb/core': workspace:*
+      tsup: ^6.6.3
+      typescript: ^4.9.5
+    dependencies:
+      '@kubb/core': link:../core
+      typescript: 4.9.5
+    devDependencies:
+      tsup: 6.6.3_typescript@4.9.5
 
 packages:
 

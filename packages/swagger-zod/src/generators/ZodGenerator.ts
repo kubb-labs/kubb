@@ -5,7 +5,7 @@ import { SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
 import { isReference, getReference } from '@kubb/swagger'
 
-import { keywordZodNodes } from '../utils/codegen'
+import { keywordZodNodes } from '../utils/keywordZodNodes'
 
 import type ts from 'typescript'
 

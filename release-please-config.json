@@ -11,6 +11,24 @@
       "draft": false,
       "prerelease": true
     },
+    "packages/cli": {
+      "component": "@kubb/cli",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": true
+    },
+    "packages/ts-codegen": {
+      "component": "@kubb/ts-codegen",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": true
+    },
     "packages/swagger": {
       "component": "@kubb/swagger",
       "changelog-path": "CHANGELOG.md",
@@ -29,15 +47,6 @@
       "draft": false,
       "prerelease": true
     },
-    "packages/swagger-zod": {
-      "component": "@kubb/swagger-zod",
-      "changelog-path": "CHANGELOG.md",
-      "release-type": "node",
-      "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false,
-      "draft": false,
-      "prerelease": true
-    },
     "packages/swagger-react-query": {
       "component": "@kubb/swagger-react-query",
       "changelog-path": "CHANGELOG.md",
@@ -47,8 +56,8 @@
       "draft": false,
       "prerelease": true
     },
-    "packages/cli": {
-      "component": "@kubb/cli",
+    "packages/swagger-zod": {
+      "component": "@kubb/swagger-zod",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
@@ -63,11 +72,12 @@
       "group-name": "@kubb",
       "components": [
         "@kubb/core",
+        "@kubb/cli",
+        "@kubb/ts-codegen",
         "@kubb/swagger",
         "@kubb/swagger-typescript",
-        "@kubb/swagger-zod",
         "@kubb/swagger-react-query",
-        "@kubb/cli"
+        "@kubb/swagger-zod"
       ]
     }
   ]

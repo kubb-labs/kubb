@@ -1,11 +1,11 @@
 {
-  "name": "@kubb/swagger-typescript",
+  "name": "@kubb/ts-codegen",
   "version": "0.49.1",
-  "description": "Generator swagger-typescript",
+  "description": "Generator ts-codegen",
   "repository": {
     "type": "git",
     "url": "git://github.com/stijnvanhulle/kubb.git",
-    "directory": "packages/swagger-typescript"
+    "directory": "packages/ts-codegen"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
@@ -13,13 +13,13 @@
     "typescript",
     "plugins",
     "kubb",
-    "codegen",
-    "swagger",
-    "openapi"
+    "codegen"
   ],
   "sideEffects": false,
   "main": "dist/index.js",
+  "unpkg": "dist/index.global.js",
   "module": "dist/index.mjs",
+  "browser": "build/index.global.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -30,8 +30,12 @@
     },
     "./package.json": "./package.json"
   },
+  "typesVersions": {
+    "*": {}
+  },
   "files": [
     "dist",
+    "schemas",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
@@ -42,24 +46,19 @@
     "prepack": "pnpm build",
     "pre-commit": "echo 'pre-commit not configured'",
     "pre-push": "pnpm typecheck",
-    "test": "jest --config ../../jest.config.js --passWithNoTests --runInBand --testPathPattern=packages/swagger-typescript/src",
-    "test:local": "jest --config ../../jest.config.js --testPathPattern=packages/swagger-typescript/src --maxWorkers=50%",
-    "test:watch": "jest --config ../../jest.config.js --testPathPattern=packages/swagger-typescript/src --maxWorkers=25% --watch",
+    "test": "jest --config ../../jest.config.js --passWithNoTests --runInBand --testPathPattern=packages/ts-codegen/src",
+    "test:local": "jest --config ../../jest.config.js --testPathPattern=packages/ts-codegen/src --maxWorkers=50%",
+    "test:watch": "jest --config ../../jest.config.js --testPathPattern=packages/ts-codegen/src --maxWorkers=25% --watch",
     "upgrade": "ncu -u",
     "upgrade:local": "ncu --interactive --doctor",
     "typecheck": "tsc -p ./tsconfig.json --noEmit"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/swagger": "workspace:*",
-    "@kubb/ts-codegen": "workspace:*",
-    "change-case": "^4.1.2",
-    "lodash.uniq": "^4.5.0"
+    "typescript": "^4.9.5"
   },
   "devDependencies": {
-    "@types/lodash.uniq": "^4.5.7",
-    "tsup": "^6.6.3",
-    "typescript": "^4.9.5"
+    "tsup": "^6.6.3"
   },
   "publishConfig": {
     "access": "public",

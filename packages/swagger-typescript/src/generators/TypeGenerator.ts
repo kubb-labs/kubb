@@ -5,8 +5,8 @@ import { pascalCase } from 'change-case'
 import { SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
 import { isReference, getReference } from '@kubb/swagger'
-
-import { appendJSDocToNode, createIndexSignature, createPropertySignature, createTypeAliasDeclaration, keywordTypeNodes, modifier } from '../utils/codegen'
+import { keywordTypeNodes } from '../utils'
+import { appendJSDocToNode, createIndexSignature, createPropertySignature, createTypeAliasDeclaration, modifier } from '@kubb/ts-codegen'
 
 import type ts from 'typescript'
 

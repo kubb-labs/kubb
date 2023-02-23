@@ -9,8 +9,8 @@ import { camelCase } from 'change-case'
 import { getRelativePath, createPlugin, getPathMode, validatePlugins } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
+import { writeIndexes } from '@kubb/ts-codegen'
 
-import { writeIndexes } from './utils/write'
 import { ZodBuilder } from './builders'
 import { OperationGenerator } from './generators/OperationGenerator'
 

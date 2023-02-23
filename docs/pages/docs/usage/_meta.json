@@ -1,8 +1,9 @@
 {
   "core": "@kubb/core",
   "cli": "@kubb/cli",
+  "ts-codegen": "@kubb/ts-codegen",
   "swagger": "@kubb/swagger",
   "swagger-typescript": "@kubb/swagger-typescript",
-  "swagger-zod": "@kubb/swagger-zod",
-  "swagger-react-query": "@kubb/swagger-react-query"
+  "swagger-react-query": "@kubb/swagger-react-query",
+  "swagger-zod": "@kubb/swagger-zod"
 }

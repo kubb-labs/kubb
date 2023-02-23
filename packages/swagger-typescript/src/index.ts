@@ -3,7 +3,6 @@ import { definePlugin } from './plugin'
 export * from './plugin'
 export * from './generators'
 export * from './builders'
-export * as codeGen from './utils/codegen'
-export * from './utils'
 export * from './types'
+export * from './utils'
 export default definePlugin

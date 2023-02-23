@@ -1,9 +1,9 @@
 import { OasBuilder } from '@kubb/swagger'
 import type { FileResolver } from '@kubb/swagger'
 import { nameSorter } from '@kubb/core'
+import { print } from '@kubb/ts-codegen'
 
 import { ImportsGenerator, ZodGenerator } from '../generators'
-import { print } from '../utils'
 
 import type { Refs } from '../generators'
 

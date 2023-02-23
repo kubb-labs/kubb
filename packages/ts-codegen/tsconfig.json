@@ -19,9 +19,7 @@
       "../../node_modules/@types"
     ],
     "paths": {
-      "@kubb/core":["../core/src/index.ts"],
-      "@kubb/ts-codegen": ["../ts-codegen/src/index.ts"],
-      "@kubb/swagger": ["../swagger/src/index.ts"]
+      
     }
   },
   "include": ["./src/**/*"],

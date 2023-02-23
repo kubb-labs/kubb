@@ -2,8 +2,7 @@ import uniq from 'lodash.uniq'
 
 import { Generator } from '@kubb/core'
 import type { FileResolver } from '@kubb/swagger'
-
-import { createImportDeclaration } from '../utils/codegen'
+import { createImportDeclaration } from '@kubb/ts-codegen'
 
 import type { Refs } from './ZodGenerator'
 import type ts from 'typescript'
