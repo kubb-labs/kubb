@@ -1,8 +1,9 @@
+import { OasBuilder } from '@kubb/swagger'
+
 import { ImportsGenerator, ZodGenerator } from '../generators'
 import { print } from '../utils'
 
 import type { FileResolver } from '../generators'
-import type Oas from 'oas'
 import type { OpenAPIV3 } from 'openapi-types'
 
 type Item = { schema: OpenAPIV3.SchemaObject; name: string; description?: string }
@@ -13,27 +14,7 @@ type Config = {
   withJSDocs?: boolean
   withImports?: boolean
 }
-export class ZodBuilder {
-  private oas: Oas
-
-  private items: Item[] = []
-
-  private config: Config = {}
-
-  constructor(oas: Oas) {
-    this.oas = oas
-
-    return this
-  }
-
-  add(item: Item | undefined) {
-    if (item) {
-      this.items.push(item)
-    }
-
-    return this
-  }
-
+export class ZodBuilder extends OasBuilder<Config> {
   configure(config: Config) {
     this.config = config
 
