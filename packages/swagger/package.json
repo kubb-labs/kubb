@@ -54,9 +54,11 @@
     "@kubb/core": "workspace:*",
     "oas": "^20.4.0",
     "swagger2openapi": "^7.0.8",
-    "change-case": "^4.1.2"
+    "change-case": "^4.1.2",
+    "lodash.get": "^4.4.2"
   },
   "devDependencies": {
+    "@types/lodash.get": "^4.4.7",
     "openapi-types": "^12.1.0",
     "tsup": "^6.6.3",
     "typescript": "^4.9.5"

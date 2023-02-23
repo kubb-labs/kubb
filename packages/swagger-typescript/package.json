@@ -53,17 +53,10 @@
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "change-case": "^4.1.2",
-    "lodash.uniq": "^4.5.0",
-    "lodash.get": "^4.4.2",
-    "lodash.findlastindex": "^4.4.2",
-    "oas": "^20.4.0"
+    "lodash.uniq": "^4.5.0"
   },
   "devDependencies": {
-    "openapi-types": "^12.1.0",
     "@types/lodash.uniq": "^4.5.7",
-    "@types/camelcase": "^5.2.0",
-    "@types/lodash.get": "^4.4.7",
-    "@types/lodash.findlastindex": "^4.4.0",
     "tsup": "^6.6.3",
     "typescript": "^4.9.5"
   },

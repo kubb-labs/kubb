@@ -2,14 +2,12 @@
 import { pascalCase } from 'change-case'
 
 import { SchemaGenerator } from '@kubb/core'
+import type { Oas, OpenAPIV3 } from '@kubb/swagger'
+import { isReference, getReference } from '@kubb/swagger'
 
 import { keywordZodNodes } from '../utils/codegen'
-import { isReference } from '../utils/isReference'
-import { getReference } from '../utils/getReference'
 
 import type ts from 'typescript'
-import type Oas from 'oas'
-import type { OpenAPIV3 } from 'openapi-types'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 

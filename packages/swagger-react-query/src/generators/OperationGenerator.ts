@@ -5,9 +5,8 @@ import { getRelativePath, objectToParameters } from '@kubb/core'
 import { createJSDocBlockText, pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-typescript'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 
+import type { Oas } from '@kubb/swagger'
 import { pluginName } from '../plugin'
-
-import type Oas from 'oas'
 
 type Options = {
   oas: Oas

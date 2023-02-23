@@ -2,12 +2,11 @@ import pathParser from 'path'
 
 import { oasPathParser } from '@kubb/swagger'
 import { format } from '@kubb/core'
+import type { OpenAPIV3 } from '@kubb/core'
 
 import { TypeGenerator } from './TypeGenerator'
 
 import { print } from '../utils/print'
-
-import type { OpenAPIV3 } from 'openapi-types'
 
 describe('TypeGenerator simple', () => {
   const path = pathParser.resolve(__dirname, '../../mocks/petStore.yaml')

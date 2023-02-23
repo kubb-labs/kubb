@@ -253,7 +253,6 @@ importers:
       eventemitter3: ^5.0.0
       js-beautify: ^1.14.7
       lodash.uniq: ^4.5.0
-      openapi-types: ^12.1.0
       rimraf: ^3.0.2
       tsup: ^6.6.3
       typescript: ^4.9.5
@@ -270,14 +269,15 @@ importers:
     devDependencies:
       '@types/js-beautify': 1.13.3
       '@types/lodash.uniq': 4.5.7
-      openapi-types: 12.1.0
       tsup: 6.6.3_typescript@4.9.5
 
   packages/swagger:
     specifiers:
       '@apidevtools/swagger-parser': ^10.1.0
       '@kubb/core': workspace:*
+      '@types/lodash.get': ^4.4.7
       change-case: ^4.1.2
+      lodash.get: ^4.4.2
       oas: ^20.4.0
       openapi-types: ^12.1.0
       swagger2openapi: ^7.0.8
@@ -287,9 +287,11 @@ importers:
       '@apidevtools/swagger-parser': 10.1.0_openapi-types@12.1.0
       '@kubb/core': link:../core
       change-case: 4.1.2
+      lodash.get: 4.4.2
       oas: 20.4.0
       swagger2openapi: 7.0.8
     devDependencies:
+      '@types/lodash.get': 4.4.7
       openapi-types: 12.1.0
       tsup: 6.6.3_typescript@4.9.5
       typescript: 4.9.5
@@ -300,8 +302,6 @@ importers:
       '@kubb/swagger': workspace:*
       '@kubb/swagger-typescript': workspace:*
       change-case: ^4.1.2
-      oas: ^20.4.0
-      openapi-types: ^12.1.0
       tsup: ^6.6.3
       typescript: ^4.9.5
     dependencies:
@@ -309,9 +309,7 @@ importers:
       '@kubb/swagger': link:../swagger
       '@kubb/swagger-typescript': link:../swagger-typescript
       change-case: 4.1.2
-      oas: 20.4.0
     devDependencies:
-      openapi-types: 12.1.0
       tsup: 6.6.3_typescript@4.9.5
       typescript: 4.9.5
 
@@ -319,32 +317,18 @@ importers:
     specifiers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
-      '@types/camelcase': ^5.2.0
-      '@types/lodash.findlastindex': ^4.4.0
-      '@types/lodash.get': ^4.4.7
       '@types/lodash.uniq': ^4.5.7
       change-case: ^4.1.2
-      lodash.findlastindex: ^4.4.2
-      lodash.get: ^4.4.2
       lodash.uniq: ^4.5.0
-      oas: ^20.4.0
-      openapi-types: ^12.1.0
       tsup: ^6.6.3
       typescript: ^4.9.5
     dependencies:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
       change-case: 4.1.2
-      lodash.findlastindex: 4.6.0
-      lodash.get: 4.4.2
       lodash.uniq: 4.5.0
-      oas: 20.4.0
     devDependencies:
-      '@types/camelcase': 5.2.0
-      '@types/lodash.findlastindex': 4.6.7
-      '@types/lodash.get': 4.4.7
       '@types/lodash.uniq': 4.5.7
-      openapi-types: 12.1.0
       tsup: 6.6.3_typescript@4.9.5
       typescript: 4.9.5
 
@@ -352,32 +336,18 @@ importers:
     specifiers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
-      '@types/camelcase': ^5.2.0
-      '@types/lodash.findlastindex': ^4.4.0
-      '@types/lodash.get': ^4.4.7
       '@types/lodash.uniq': ^4.5.7
       change-case: ^4.1.2
-      lodash.findlastindex: ^4.4.2
-      lodash.get: ^4.4.2
       lodash.uniq: ^4.5.0
-      oas: ^20.4.0
-      openapi-types: ^12.1.0
       tsup: ^6.6.3
       typescript: ^4.9.5
     dependencies:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
       change-case: 4.1.2
-      lodash.findlastindex: 4.6.0
-      lodash.get: 4.4.2
       lodash.uniq: 4.5.0
-      oas: 20.4.0
     devDependencies:
-      '@types/camelcase': 5.2.0
-      '@types/lodash.findlastindex': 4.6.7
-      '@types/lodash.get': 4.4.7
       '@types/lodash.uniq': 4.5.7
-      openapi-types: 12.1.0
       tsup: 6.6.3_typescript@4.9.5
       typescript: 4.9.5
 
@@ -2328,13 +2298,6 @@ packages:
       '@babel/types': 7.20.7
     dev: true
 
-  /@types/camelcase/5.2.0:
-    resolution: {integrity: sha512-zhHaryYYUUsJ1h6Rq4hisPkljY7c2bkC5PFYQbom5fyKloGJEDK+wdsw2L4hnBwXr4plGjW6D/UVJBbNbOzVpQ==}
-    deprecated: This is a stub types definition. camelcase provides its own type definitions, so you do not need this installed.
-    dependencies:
-      camelcase: 7.0.1
-    dev: true
-
   /@types/debug/4.1.7:
     resolution: {integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==}
     dependencies:
@@ -2426,12 +2389,6 @@ packages:
   /@types/katex/0.11.1:
     resolution: {integrity: sha512-DUlIj2nk0YnJdlWgsFuVKcX27MLW0KbKmGVoUHmFr+74FYYNUDAaj9ZqTADvsbE8rfxuVmSFc7KczYn5Y09ozg==}
     dev: false
-
-  /@types/lodash.findlastindex/4.6.7:
-    resolution: {integrity: sha512-B1f1tlVFXAN4xTv9yytcY7G/eNHZjQ5xjHZdl+GhBLY+groZ/RRqHGBITTbaxxw3hZOpzVlbM/Ox5FI+LlHNmg==}
-    dependencies:
-      '@types/lodash': 4.14.191
-    dev: true
 
   /@types/lodash.get/4.4.7:
     resolution: {integrity: sha512-af34Mj+KdDeuzsJBxc/XeTtOx0SZHZNLd+hdrn+PcKGQs0EG2TJTzQAOTCZTgDJCArahlCzLWSy8c2w59JRz7Q==}
@@ -7177,10 +7134,6 @@ packages:
 
   /lodash.camelcase/4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
-
-  /lodash.findlastindex/4.6.0:
-    resolution: {integrity: sha512-wghZXum6rpsr8XsE0U3PZNaLtj1Q8m8Vn/hAgHtlDlzh49ZXNpcZmVbyTFRRjkKhzPAZ4CSFyxctNIk1BLmRBg==}
-    dev: false
 
   /lodash.get/4.4.2:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}

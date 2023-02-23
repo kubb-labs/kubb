@@ -64,7 +64,6 @@
     "js-beautify": "^1.14.7"
   },
   "devDependencies": {
-    "openapi-types": "^12.1.0",
     "@types/lodash.uniq": "^4.5.7",
     "tsup": "^6.6.3",
     "@types/js-beautify": "^1.13.3"
