@@ -7,7 +7,7 @@ import { ImportsGenerator, ZodGenerator } from '../generators'
 
 import type { Refs } from '../generators'
 
-type Generated = { refs: Refs; name: string; type: string }
+type Generated = { refs: Refs; name: string; sources: string[] }
 
 type Config = {
   fileResolver?: FileResolver
@@ -45,17 +45,17 @@ export class ZodBuilder extends OasBuilder<Config> {
       .sort(nameSorter)
       .map(({ schema, name, description }) => {
         const generator = new ZodGenerator(this.oas, { withJSDocs: this.config.withJSDocs, nameResolver: this.config.nameResolver })
-        const type = generator.build(schema, this.config.nameResolver?.(name) || name, description)
+        const sources = generator.build(schema, this.config.nameResolver?.(name) || name, description)
         return {
           refs: generator.refs,
           name,
-          type,
+          sources,
         }
       })
       .sort(refsSorter)
 
     generated.forEach((item) => {
-      codes.push(item.type)
+      codes.push(...item.sources)
     })
 
     if (this.config.withImports) {

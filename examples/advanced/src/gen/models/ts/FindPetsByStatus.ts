@@ -2,11 +2,17 @@ import type { Pet } from './Pet'
 
 export type FindPetsByStatusPathParams = {}
 
+export const findPetsByStatusQueryParamsStatus = {
+  available: 'available',
+  pending: 'pending',
+  sold: 'sold',
+} as const
+export type FindPetsByStatusQueryParamsStatus = (typeof findPetsByStatusQueryParamsStatus)[keyof typeof findPetsByStatusQueryParamsStatus]
 export type FindPetsByStatusQueryParams = {
   /**
    * @type string | undefined
    */
-  status?: string | undefined
+  status?: FindPetsByStatusQueryParamsStatus | undefined
 }
 
 /**

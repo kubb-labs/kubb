@@ -60,7 +60,7 @@
     "lodash.uniq": "^4.5.0",
     "rimraf": "^3.0.2",
     "uuid": "^9.0.0",
-    "js-beautify": "^1.14.7"
+    "prettier": "^2.8.4"
   },
   "devDependencies": {
     "@types/lodash.uniq": "^4.5.7",

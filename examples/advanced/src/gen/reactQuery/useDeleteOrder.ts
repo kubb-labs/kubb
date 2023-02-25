@@ -18,7 +18,7 @@ export const useDeleteOrder = <TData = DeleteOrderResponse, TVariables = DeleteO
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({
-    mutationFn: (data) => {
+    mutationFn: () => {
       return axios.delete(`/store/order/${orderId}`).then((res) => res.data)
     },
     ...mutationOptions,

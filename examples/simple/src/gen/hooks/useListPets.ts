@@ -23,21 +23,15 @@ export const listPetsQueryOptions = <TData = ListPetsResponse>(params?: ListPets
  */
 export const useListPets = <TData = ListPetsResponse>(
   params?: ListPetsQueryParams,
-  options?: {
-    query?: UseQueryOptions<TData>
-  }
-): UseQueryResult<TData> & {
-  queryKey: QueryKey
-} => {
+  options?: { query?: UseQueryOptions<TData> }
+): UseQueryResult<TData> & { queryKey: QueryKey } => {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? listPetsQueryKey(params)
 
   const query = useQuery<TData>({
     ...listPetsQueryOptions<TData>(params),
     ...queryOptions,
-  }) as UseQueryResult<TData> & {
-    queryKey: QueryKey
-  }
+  }) as UseQueryResult<TData> & { queryKey: QueryKey }
 
   query.queryKey = queryKey
 

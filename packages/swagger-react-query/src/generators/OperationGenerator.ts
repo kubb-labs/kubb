@@ -1,8 +1,8 @@
-import { camelCase, capitalCase } from 'change-case'
+import { camelCase, capitalCase, pascalCase } from 'change-case'
 
 import type { PluginContext, File, FileManager } from '@kubb/core'
 import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
-import { pluginName as SwaggerTSPluginName } from '@kubb/swagger-ts'
+import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import type { Oas } from '@kubb/swagger'
 
@@ -24,7 +24,7 @@ export class OperationGenerator extends Generator<Options> {
     if (!operation.schema.operationId) return null
 
     // hook setup
-    const hookName = `${camelCase(`use ${operation.getOperationId()}`)}`
+    const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolveId({
       fileName: hookId,
@@ -41,8 +41,8 @@ export class OperationGenerator extends Generator<Options> {
 
     const schemas = this.getSchemas(operation)
 
-    const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: SwaggerTSPluginName })
+    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
+    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // hook creation
 
@@ -260,7 +260,7 @@ export class OperationGenerator extends Generator<Options> {
     if (!operation.schema.operationId) return null
 
     // hook setup
-    const hookName = `${camelCase(`use ${operation.getOperationId()}`)}`
+    const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName })
     if (!hookFilePath) {
@@ -272,8 +272,8 @@ export class OperationGenerator extends Generator<Options> {
 
     const schemas = this.getSchemas(operation)
 
-    const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: SwaggerTSPluginName })
+    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
+    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // hook creation
 
@@ -345,7 +345,7 @@ export class OperationGenerator extends Generator<Options> {
     if (!operation.schema.operationId) return null
 
     // hook setup
-    const hookName = `${camelCase(`use ${operation.getOperationId()}`)}`
+    const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName })
     if (!hookFilePath) {
@@ -357,8 +357,8 @@ export class OperationGenerator extends Generator<Options> {
 
     const schemas = this.getSchemas(operation)
 
-    const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: SwaggerTSPluginName })
+    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
+    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // hook creation
 
@@ -430,7 +430,7 @@ export class OperationGenerator extends Generator<Options> {
     if (!operation.schema.operationId) return null
 
     // hook setup
-    const hookName = `${camelCase(`use ${operation.getOperationId()}`)}`
+    const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName })
     if (!hookFilePath) {
@@ -442,8 +442,8 @@ export class OperationGenerator extends Generator<Options> {
 
     const schemas = this.getSchemas(operation)
 
-    const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: SwaggerTSPluginName })
+    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
+    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // hook creation
 
@@ -473,7 +473,7 @@ export class OperationGenerator extends Generator<Options> {
           const { mutation: mutationOptions } = options ?? {};
 
           return useMutation<TData, unknown, TVariables>({
-            mutationFn: (data) => {
+            mutationFn: () => {
               return axios
               .delete(\`${url}\`)
               .then((res) => res.data)

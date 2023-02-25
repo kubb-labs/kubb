@@ -1,11 +1,11 @@
 /* eslint-disable no-param-reassign */
 import { factory } from 'typescript'
-import { pascalCase } from 'change-case'
+import { pascalCase, camelCase } from 'change-case'
 
 import { SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
 import { isReference, getReference } from '@kubb/swagger'
-import { appendJSDocToNode, createIndexSignature, createPropertySignature, createTypeAliasDeclaration, modifier } from '@kubb/ts-codegen'
+import { appendJSDocToNode, createEnumDeclaration, createIndexSignature, createPropertySignature, createTypeAliasDeclaration, modifier } from '@kubb/ts-codegen'
 
 import { keywordTypeNodes } from '../utils'
 
@@ -23,9 +23,11 @@ type Options = {
   withJSDocs?: boolean
   nameResolver?: (name: string) => string
 }
-export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.TypeAliasDeclaration> {
+export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.Node[]> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
+
+  extraNodes: ts.Node[] = []
 
   aliases: ts.TypeAliasDeclaration[] = []
 
@@ -39,6 +41,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   }
 
   build(schema: OpenAPIV3.SchemaObject, name: string, description?: string) {
+    const nodes: ts.Node[] = []
     const type = this.getTypeFromSchema(schema, name)
 
     const node = createTypeAliasDeclaration({
@@ -48,13 +51,22 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     })
 
     if (description) {
-      return appendJSDocToNode({
-        node,
-        comments: [`@description ${description}`],
-      })
+      nodes.push(
+        appendJSDocToNode({
+          node,
+          comments: [`@description ${description}`],
+        })
+      )
+    } else {
+      nodes.push(node)
     }
 
-    return node
+    // filter out if the export name is the same as one that we already defined in extraNodes(see enum)
+    const filterdNodes = nodes.filter(
+      (node: ts.TypeAliasDeclaration) => !this.extraNodes.some((extraNode: ts.TypeAliasDeclaration) => extraNode?.name?.escapedText === node?.name?.escapedText)
+    )
+
+    return [...this.extraNodes, ...filterdNodes]
   }
 
   /**
@@ -74,18 +86,22 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   /**
    * Recursively creates a type literal with the given props.
    */
-  private getTypeFromProperties(
-    props: {
-      [prop: string]: OpenAPIV3.SchemaObject
-    },
-    required?: string[],
-    additionalProperties?: boolean | OpenAPIV3.SchemaObject
-  ) {
+  private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string) {
+    const props = baseSchema?.properties || {}
+    const required = baseSchema?.required
+    const additionalProperties = baseSchema?.additionalProperties
+
     const members: ts.TypeElement[] = Object.keys(props).map((name) => {
-      const schema = props[name]
+      const schema = props[name] as OpenAPIV3.SchemaObject
 
       const isRequired = required && required.includes(name)
-      let type = this.getTypeFromSchema(schema, name)
+      let type: ts.TypeNode
+      if (schema.enum) {
+        type = this.getTypeFromSchema(schema, pascalCase(`${baseName} ${name}`, { delimiter: '' }))
+      } else {
+        type = this.getTypeFromSchema(schema, name)
+      }
+
       if (!isRequired) {
         type = factory.createUnionTypeNode([type, keywordTypeNodes.undefined])
       }
@@ -108,7 +124,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return propertySignature
     })
     if (additionalProperties) {
-      const type = additionalProperties === true ? keywordTypeNodes.any : this.getTypeFromSchema(additionalProperties)
+      const type = additionalProperties === true ? keywordTypeNodes.any : this.getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
 
       members.push(createIndexSignature(type))
     }
@@ -143,7 +159,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (!ref) {
       const schema = this.resolve<OpenAPIV3.SchemaObject>(obj)
-      const name = this.getUniqueAlias(pascalCase(schema.title || $ref.replace(/.+\//, '')))
+      const name = this.getUniqueAlias(pascalCase(schema.title || $ref.replace(/.+\//, ''), { delimiter: '' }))
 
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
@@ -179,11 +195,15 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       // TODO allOf -> intersection
     }
 
-    if (schema.enum) {
-      // TODO enum
-      /**
-       * Add ref and push generated enum type(as const) to this.extraNodes that then will be added when this.build is called
-       */
+    if (schema.enum && name) {
+      this.extraNodes.push(
+        ...createEnumDeclaration({
+          name: camelCase(name, { delimiter: '' }),
+          typeName: pascalCase(name, { delimiter: '' }),
+          enums: schema.enum,
+        })
+      )
+      return factory.createTypeReferenceNode(pascalCase(name, { delimiter: '' }), undefined)
     }
 
     if ('items' in schema) {
@@ -193,7 +213,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      return this.getTypeFromProperties(schema.properties || ({} as any), schema.required, schema.additionalProperties as any)
+      return this.getTypeFromProperties(schema, name)
     }
 
     if (schema.type) {

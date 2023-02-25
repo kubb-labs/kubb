@@ -1,16 +1,18 @@
-import beautify from 'js-beautify'
+import { format as prettierFormat } from 'prettier'
+// import parserTypescript from 'prettier/parser-typescript'
 
-import type { JSBeautifyOptions } from 'js-beautify'
+import type { Options } from 'prettier'
 
-const formatOptions: JSBeautifyOptions = {
-  indent_size: 1,
-  indent_char: '\t',
-  max_preserve_newlines: 5,
-  preserve_newlines: true,
-  brace_style: 'collapse',
-  space_before_conditional: true,
-  wrap_line_length: 160,
+const formatOptions: Options = {
+  tabWidth: 2,
+  printWidth: 160,
+  parser: 'typescript',
+  singleQuote: true,
+  semi: false,
+  bracketSameLine: false,
+  endOfLine: 'auto',
+  // plugins: [parserTypescript],
 }
 export const format = (source: string) => {
-  return beautify(source, formatOptions)
+  return prettierFormat(source, formatOptions)
 }
