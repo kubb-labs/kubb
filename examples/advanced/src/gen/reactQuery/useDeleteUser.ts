@@ -18,7 +18,7 @@ export const useDeleteUser = <TData = DeleteUserResponse, TVariables = DeleteUse
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({
-    mutationFn: (data) => {
+    mutationFn: () => {
       return axios.delete(`/user/${username}`).then((res) => res.data)
     },
     ...mutationOptions,

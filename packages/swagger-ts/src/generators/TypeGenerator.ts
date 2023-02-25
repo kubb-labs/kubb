@@ -61,7 +61,12 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       nodes.push(node)
     }
 
-    return [...this.extraNodes, ...nodes]
+    // filter out if the export name is the same as one that we already defined in extraNodes(see enum)
+    const filterdNodes = nodes.filter(
+      (node: ts.TypeAliasDeclaration) => !this.extraNodes.some((extraNode: ts.TypeAliasDeclaration) => extraNode?.name?.escapedText === node?.name?.escapedText)
+    )
+
+    return [...this.extraNodes, ...filterdNodes]
   }
 
   /**
@@ -92,7 +97,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const isRequired = required && required.includes(name)
       let type: ts.TypeNode
       if (schema.enum) {
-        type = this.getTypeFromSchema(schema, camelCase(`${baseName} ${name}`))
+        type = this.getTypeFromSchema(schema, pascalCase(`${baseName} ${name}`, { delimiter: '' }))
       } else {
         type = this.getTypeFromSchema(schema, name)
       }
@@ -154,7 +159,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (!ref) {
       const schema = this.resolve<OpenAPIV3.SchemaObject>(obj)
-      const name = this.getUniqueAlias(pascalCase(schema.title || $ref.replace(/.+\//, '')))
+      const name = this.getUniqueAlias(pascalCase(schema.title || $ref.replace(/.+\//, ''), { delimiter: '' }))
 
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
@@ -193,12 +198,12 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     if (schema.enum && name) {
       this.extraNodes.push(
         ...createEnumDeclaration({
-          name,
-          typeName: pascalCase(name),
+          name: camelCase(name, { delimiter: '' }),
+          typeName: pascalCase(name, { delimiter: '' }),
           enums: schema.enum,
         })
       )
-      return factory.createTypeReferenceNode(pascalCase(name), undefined)
+      return factory.createTypeReferenceNode(pascalCase(name, { delimiter: '' }), undefined)
     }
 
     if ('items' in schema) {

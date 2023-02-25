@@ -18,7 +18,7 @@ export const useDeletePet = <TData = DeletePetResponse, TVariables = DeletePetRe
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({
-    mutationFn: (data) => {
+    mutationFn: () => {
       return axios.delete(`/pet/${petId}`).then((res) => res.data)
     },
     ...mutationOptions,
