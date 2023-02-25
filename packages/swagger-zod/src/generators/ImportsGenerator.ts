@@ -11,7 +11,7 @@ type Options = {
   fileResolver?: FileResolver
 }
 export class ImportsGenerator extends Generator<Options> {
-  async build(items: Array<{ refs: Refs; type: string; name: string }>): Promise<Array<ts.ImportDeclaration> | undefined> {
+  async build(items: Array<{ refs: Refs; sources: string[]; name: string }>): Promise<Array<ts.ImportDeclaration> | undefined> {
     const refs = items.reduce((acc, currentValue) => {
       return {
         ...acc,

@@ -1,5 +1,5 @@
-import { format as prettierFormat } from 'prettier/standalone'
-import parserTypescript from 'prettier/parser-typescript'
+import { format as prettierFormat } from 'prettier'
+// import parserTypescript from 'prettier/parser-typescript'
 
 import type { Options } from 'prettier'
 
@@ -11,7 +11,7 @@ const formatOptions: Options = {
   semi: false,
   bracketSameLine: false,
   endOfLine: 'auto',
-  plugins: [parserTypescript],
+  // plugins: [parserTypescript],
 }
 export const format = (source: string) => {
   return prettierFormat(source, formatOptions)
