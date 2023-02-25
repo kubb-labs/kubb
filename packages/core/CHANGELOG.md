@@ -1,4 +1,12 @@
 # Changelog
+## [0.51.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.50.1...@kubb/core-v0.51.0) (2023-02-25)
+
+
+### Features
+
+* extraTexts for zodBuilder and enum for zod ([9f61235](https://github.com/stijnvanhulle/kubb/commit/9f61235a71a3b0633387b3ea47a913943da3f623))
+* use of prettier format ([3e3451b](https://github.com/stijnvanhulle/kubb/commit/3e3451b057e227df160af6410dad37ffddb0d41c))
+
 ## [0.50.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.50.0...@kubb/core-v0.50.1) (2023-02-23)
 
 

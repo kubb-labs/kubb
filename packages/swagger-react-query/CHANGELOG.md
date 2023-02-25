@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.51.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.50.1...@kubb/swagger-react-query-v0.51.0) (2023-02-25)
+
+
+### Bug Fixes
+
+* correct use of camel and pascalcase ([f4f7a63](https://github.com/stijnvanhulle/kubb/commit/f4f7a63731e0edc8bb059f16095f484405e547b6))
+
 ## [0.50.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.50.0...@kubb/swagger-react-query-v0.50.1) (2023-02-23)
 
 

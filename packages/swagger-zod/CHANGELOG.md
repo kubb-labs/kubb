@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.51.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-zod-v0.50.1...@kubb/swagger-zod-v0.51.0) (2023-02-25)
+
+
+### Features
+
+* extraTexts for zodBuilder and enum for zod ([9f61235](https://github.com/stijnvanhulle/kubb/commit/9f61235a71a3b0633387b3ea47a913943da3f623))
+
 ## [0.50.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-zod-v0.50.0...@kubb/swagger-zod-v0.50.1) (2023-02-23)
 
 
