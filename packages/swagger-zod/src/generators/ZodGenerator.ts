@@ -103,18 +103,16 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   /**
    * Recursively creates a type literal with the given props.
    */
-  private getTypeFromProperties(
-    props: {
-      [prop: string]: OpenAPIV3.SchemaObject
-    },
-    required?: string[],
-    additionalProperties?: boolean | OpenAPIV3.SchemaObject
-  ): [string, any][] {
+  private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string): [string, any][] {
+    const props = baseSchema?.properties || {}
+    const required = baseSchema?.required
+    // const additionalProperties = baseSchema?.additionalProperties
+
     const members = Object.keys(props)
       .map((name) => {
         const validationFunctions: [string, any][] = []
 
-        const schema = props[name]
+        const schema = props[name] as OpenAPIV3.SchemaObject
         const isRequired = required && required.includes(name)
 
         validationFunctions.push(...this.getTypeFromSchema(schema as OpenAPIV3.SchemaObject, name))
@@ -220,7 +218,6 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     }
 
     if (schema.enum) {
-      // TODO enum
       return [['enum', [`[${schema.enum.map((value) => `'${value}'`).join(', ')}]`]]]
     }
 
@@ -231,7 +228,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      return this.getTypeFromProperties(schema.properties || ({} as any), schema.required, schema.additionalProperties as any)
+      return this.getTypeFromProperties(schema, name)
     }
 
     if (schema.type) {

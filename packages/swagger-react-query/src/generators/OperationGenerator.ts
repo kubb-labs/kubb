@@ -1,4 +1,4 @@
-import { camelCase, capitalCase } from 'change-case'
+import { pascalCase, camelCase } from 'change-case'
 
 import type { PluginContext, File, FileManager } from '@kubb/core'
 import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
@@ -41,7 +41,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const schemas = this.getSchemas(operation)
 
-    const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
+    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
     const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: SwaggerTSPluginName })
 
     // hook creation
@@ -272,7 +272,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const schemas = this.getSchemas(operation)
 
-    const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
+    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
     const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: SwaggerTSPluginName })
 
     // hook creation
@@ -357,7 +357,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const schemas = this.getSchemas(operation)
 
-    const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
+    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
     const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: SwaggerTSPluginName })
 
     // hook creation
@@ -442,7 +442,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const schemas = this.getSchemas(operation)
 
-    const typeName = `${capitalCase(operation.getOperationId(), { delimiter: '' })}.ts`
+    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
     const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: SwaggerTSPluginName })
 
     // hook creation

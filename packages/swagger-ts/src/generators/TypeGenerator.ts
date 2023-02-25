@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { factory } from 'typescript'
-import { pascalCase, capitalCase } from 'change-case'
+import { pascalCase, camelCase } from 'change-case'
 
 import { SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
@@ -81,18 +81,22 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   /**
    * Recursively creates a type literal with the given props.
    */
-  private getTypeFromProperties(
-    props: {
-      [prop: string]: OpenAPIV3.SchemaObject
-    },
-    required?: string[],
-    additionalProperties?: boolean | OpenAPIV3.SchemaObject
-  ) {
+  private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string) {
+    const props = baseSchema?.properties || {}
+    const required = baseSchema?.required
+    const additionalProperties = baseSchema?.additionalProperties
+
     const members: ts.TypeElement[] = Object.keys(props).map((name) => {
-      const schema = props[name]
+      const schema = props[name] as OpenAPIV3.SchemaObject
 
       const isRequired = required && required.includes(name)
-      let type = this.getTypeFromSchema(schema, name)
+      let type: ts.TypeNode
+      if (schema.enum) {
+        type = this.getTypeFromSchema(schema, camelCase(`${baseName} ${name}`))
+      } else {
+        type = this.getTypeFromSchema(schema, name)
+      }
+
       if (!isRequired) {
         type = factory.createUnionTypeNode([type, keywordTypeNodes.undefined])
       }
@@ -115,7 +119,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return propertySignature
     })
     if (additionalProperties) {
-      const type = additionalProperties === true ? keywordTypeNodes.any : this.getTypeFromSchema(additionalProperties)
+      const type = additionalProperties === true ? keywordTypeNodes.any : this.getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
 
       members.push(createIndexSignature(type))
     }
@@ -187,19 +191,14 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     }
 
     if (schema.enum && name) {
-      // TODO enum
-      /**
-       * Add ref and push generated enum type(as const) to this.extraNodes that then will be added when this.build is called
-       */
-
       this.extraNodes.push(
         ...createEnumDeclaration({
           name,
-          typeName: capitalCase(name),
+          typeName: pascalCase(name),
           enums: schema.enum,
         })
       )
-      return factory.createTypeReferenceNode(capitalCase(name), undefined)
+      return factory.createTypeReferenceNode(pascalCase(name), undefined)
     }
 
     if ('items' in schema) {
@@ -209,7 +208,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      return this.getTypeFromProperties(schema.properties || ({} as any), schema.required, schema.additionalProperties as any)
+      return this.getTypeFromProperties(schema, name)
     }
 
     if (schema.type) {

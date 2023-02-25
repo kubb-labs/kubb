@@ -1,9 +1,9 @@
-export const status = {
+export const orderStatus = {
   placed: 'placed',
   approved: 'approved',
   delivered: 'delivered',
 } as const
-export type Status = (typeof status)[keyof typeof status]
+export type OrderStatus = (typeof orderStatus)[keyof typeof orderStatus]
 export type Order = {
   /**
    * @type integer | undefined int64
@@ -29,7 +29,7 @@ export type Order = {
    * @type string | undefined
    * @example approved
    */
-  status?: Status | undefined
+  status?: OrderStatus | undefined
   /**
    * @type boolean | undefined
    */

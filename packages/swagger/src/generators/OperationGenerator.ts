@@ -1,4 +1,4 @@
-import { capitalCase } from 'change-case'
+import { pascalCase } from 'change-case'
 
 import type { FileManager, File } from '@kubb/core'
 import { Generator } from '@kubb/core'
@@ -42,23 +42,23 @@ export abstract class OperationGenerator<TOptions extends object = object> exten
     return {
       pathParams: operation.hasParameters()
         ? {
-            name: capitalCase(`${operation.getOperationId()} "PathParams"`, { delimiter: '' }),
+            name: pascalCase(`${operation.getOperationId()} "PathParams"`, { delimiter: '' }),
             schema: this.getParametersSchema(operation, 'path'),
           }
         : undefined,
       queryParams: operation.hasParameters()
         ? {
-            name: capitalCase(`${operation.getOperationId()} "QueryParams"`, { delimiter: '' }),
+            name: pascalCase(`${operation.getOperationId()} "QueryParams"`, { delimiter: '' }),
             schema: this.getParametersSchema(operation, 'query'),
           }
         : undefined,
       request: {
-        name: capitalCase(`${operation.getOperationId()} "Request"`, { delimiter: '' }),
+        name: pascalCase(`${operation.getOperationId()} "Request"`, { delimiter: '' }),
         description: (operation.schema.requestBody as RequestBodyObject)?.description,
         schema: (operation.getRequestBody('application/json') as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject,
       },
       response: {
-        name: capitalCase(`${operation.getOperationId()} "Response"`, { delimiter: '' }),
+        name: pascalCase(`${operation.getOperationId()} "Response"`, { delimiter: '' }),
         description: operation.getResponseAsJSONSchema('200')?.at(0)?.description,
         schema: operation.getResponseAsJSONSchema('200')?.at(0)?.schema as OpenAPIV3.SchemaObject,
       },
