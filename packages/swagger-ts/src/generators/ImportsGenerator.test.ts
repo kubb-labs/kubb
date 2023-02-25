@@ -23,11 +23,11 @@ describe('ImportsGenerator', () => {
       {
         refs: typeGenerator.refs,
         name: 'Pets',
-        type: node,
+        sources: node,
       },
     ])
 
-    const output = importsNode && print([...importsNode, node], undefined)
+    const output = importsNode && print([...importsNode, ...node], undefined)
 
     expect(output).toBeDefined()
     expect(format(output!)).toEqual(
