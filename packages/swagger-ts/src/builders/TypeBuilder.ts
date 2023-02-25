@@ -8,7 +8,7 @@ import { ImportsGenerator, TypeGenerator } from '../generators'
 import type ts from 'typescript'
 import type { Refs } from '../generators'
 
-type Generated = { refs: Refs; name: string; type: ts.TypeAliasDeclaration }
+type Generated = { refs: Refs; name: string; sources: ts.Node[] }
 type Config = {
   fileResolver?: FileResolver
   nameResolver?: (name: string) => string
@@ -45,18 +45,18 @@ export class TypeBuilder extends OasBuilder<Config> {
       .sort(nameSorter)
       .map(({ schema, name, description }) => {
         const generator = new TypeGenerator(this.oas, { withJSDocs: this.config.withJSDocs, nameResolver: this.config.nameResolver })
-        const type = generator.build(schema, this.config.nameResolver?.(name) || name, description)
+        const nodes = generator.build(schema, this.config.nameResolver?.(name) || name, description)
 
         return {
           refs: generator.refs,
           name,
-          type,
+          sources: nodes,
         }
       })
       .sort(refsSorter)
 
     generated.forEach((item) => {
-      codes.push(print(item.type))
+      codes.push(print(item.sources))
     })
 
     if (this.config.withImports) {

@@ -146,3 +146,39 @@ export function createImportDeclaration({ name, path, isTypeOnly }: { name: stri
 export function createExportDeclaration({ path }: { path: string }) {
   return factory.createExportDeclaration(undefined, false, undefined, factory.createStringLiteral(path), undefined)
 }
+
+export function createEnumDeclaration({ name, typeName, enums }: { name: string; typeName: string; enums: string[] }) {
+  return [
+    factory.createVariableStatement(
+      [factory.createToken(ts.SyntaxKind.ExportKeyword)],
+      factory.createVariableDeclarationList(
+        [
+          factory.createVariableDeclaration(
+            factory.createIdentifier(name),
+            undefined,
+            undefined,
+            factory.createAsExpression(
+              factory.createObjectLiteralExpression(
+                enums.map((text) => {
+                  return factory.createPropertyAssignment(factory.createStringLiteral(text.toString()), factory.createStringLiteral(text))
+                }),
+                true
+              ),
+              factory.createTypeReferenceNode(factory.createIdentifier('const'), undefined)
+            )
+          ),
+        ],
+        ts.NodeFlags.Const
+      )
+    ),
+    factory.createTypeAliasDeclaration(
+      [factory.createToken(ts.SyntaxKind.ExportKeyword)],
+      factory.createIdentifier(typeName),
+      undefined,
+      factory.createIndexedAccessTypeNode(
+        factory.createParenthesizedType(factory.createTypeQueryNode(factory.createIdentifier(name), undefined)),
+        factory.createTypeOperatorNode(ts.SyntaxKind.KeyOfKeyword, factory.createTypeQueryNode(factory.createIdentifier(name), undefined))
+      )
+    ),
+  ]
+}

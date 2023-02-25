@@ -1,11 +1,11 @@
 /* eslint-disable no-param-reassign */
 import { factory } from 'typescript'
-import { pascalCase } from 'change-case'
+import { pascalCase, capitalCase } from 'change-case'
 
 import { SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
 import { isReference, getReference } from '@kubb/swagger'
-import { appendJSDocToNode, createIndexSignature, createPropertySignature, createTypeAliasDeclaration, modifier } from '@kubb/ts-codegen'
+import { appendJSDocToNode, createEnumDeclaration, createIndexSignature, createPropertySignature, createTypeAliasDeclaration, modifier } from '@kubb/ts-codegen'
 
 import { keywordTypeNodes } from '../utils'
 
@@ -23,9 +23,11 @@ type Options = {
   withJSDocs?: boolean
   nameResolver?: (name: string) => string
 }
-export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.TypeAliasDeclaration> {
+export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.Node[]> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
+
+  extraNodes: ts.Node[] = []
 
   aliases: ts.TypeAliasDeclaration[] = []
 
@@ -39,6 +41,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   }
 
   build(schema: OpenAPIV3.SchemaObject, name: string, description?: string) {
+    const nodes: ts.Node[] = []
     const type = this.getTypeFromSchema(schema, name)
 
     const node = createTypeAliasDeclaration({
@@ -48,13 +51,17 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     })
 
     if (description) {
-      return appendJSDocToNode({
-        node,
-        comments: [`@description ${description}`],
-      })
+      nodes.push(
+        appendJSDocToNode({
+          node,
+          comments: [`@description ${description}`],
+        })
+      )
+    } else {
+      nodes.push(node)
     }
 
-    return node
+    return [...this.extraNodes, ...nodes]
   }
 
   /**
@@ -179,11 +186,20 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       // TODO allOf -> intersection
     }
 
-    if (schema.enum) {
+    if (schema.enum && name) {
       // TODO enum
       /**
        * Add ref and push generated enum type(as const) to this.extraNodes that then will be added when this.build is called
        */
+
+      this.extraNodes.push(
+        ...createEnumDeclaration({
+          name,
+          typeName: capitalCase(name),
+          enums: schema.enum,
+        })
+      )
+      return factory.createTypeReferenceNode(capitalCase(name), undefined)
     }
 
     if ('items' in schema) {

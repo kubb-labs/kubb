@@ -11,7 +11,7 @@ type Options = {
   fileResolver?: FileResolver
 }
 export class ImportsGenerator extends Generator<Options> {
-  async build(items: Array<{ refs: Refs; type: ts.TypeAliasDeclaration; name: string }>): Promise<Array<ts.ImportDeclaration> | undefined> {
+  async build(items: Array<{ refs: Refs; sources: ts.Node[]; name: string }>): Promise<Array<ts.ImportDeclaration> | undefined> {
     const refs = items.reduce((acc, currentValue) => {
       return {
         ...acc,
@@ -28,7 +28,7 @@ export class ImportsGenerator extends Generator<Options> {
       .filter(($ref: string) => {
         // when using a $ref inside a type we should not repeat that import
         const { name } = refs[$ref]
-        return !items.find((item) => item.type.name.escapedText === name)
+        return !items.find((item) => item.sources.find((node: ts.TypeAliasDeclaration) => node.name?.escapedText === name))
       })
       .map(async ($ref: string) => {
         const { name } = refs[$ref]
