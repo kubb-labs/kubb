@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.54.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.53.0...@kubb/swagger-react-query-v0.54.0) (2023-02-26)
+
+
+### Features
+
+* add client option for react-query package to override default axios instance(if needed) ([c011a12](https://github.com/stijnvanhulle/kubb/commit/c011a1271aadc31b5379e9a489728ae8ed2c730a))
+
 ## [0.53.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.52.1...@kubb/swagger-react-query-v0.53.0) (2023-02-26)
 
 
