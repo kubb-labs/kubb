@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.52.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-ts-v0.52.0...@kubb/swagger-ts-v0.52.1) (2023-02-26)
+
+
+### Bug Fixes
+
+* uniq enums for zod and ts ([cc05916](https://github.com/stijnvanhulle/kubb/commit/cc059162d2698844a72a2d8d07a92c62529bbbd9))
+
 ## [0.52.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-ts-v0.51.0...@kubb/swagger-ts-v0.52.0) (2023-02-26)
 
 

@@ -1,4 +1,11 @@
 # Changelog
+## [0.52.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.52.0...@kubb/core-v0.52.1) (2023-02-26)
+
+
+### Miscellaneous Chores
+
+* **@kubb/core:** Synchronize undefined versions
+
 ## [0.52.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.51.0...@kubb/core-v0.52.0) (2023-02-26)
 
 
