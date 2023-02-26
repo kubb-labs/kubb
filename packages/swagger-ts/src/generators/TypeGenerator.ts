@@ -193,6 +193,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     }
 
     if (schema.oneOf) {
+      // union
       const schemaWithoutOneOf = { ...schema, oneOf: undefined }
 
       return createIntersectionDeclaration({
@@ -213,7 +214,21 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       // TODO anyOf -> union
     }
     if (schema.allOf) {
-      // TODO allOf -> intersection
+      // intersection/add
+      const schemaWithoutAllOf = { ...schema, allOf: undefined }
+
+      return createIntersectionDeclaration({
+        nodes: [
+          this.getBaseTypeFromSchema(schemaWithoutAllOf, name),
+          factory.createParenthesizedType(
+            factory.createIntersectionTypeNode(
+              schema.allOf.map((item: OpenAPIV3.ReferenceObject) => {
+                return this.getRefAlias(item)
+              })
+            )
+          ),
+        ],
+      })
     }
 
     if (schema.enum && name) {
