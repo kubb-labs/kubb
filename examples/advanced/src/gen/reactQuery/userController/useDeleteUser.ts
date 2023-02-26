@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { DeleteUserRequest, DeleteUserResponse, DeleteUserPathParams } from '../../models/ts/DeleteUser'
@@ -19,7 +20,10 @@ export const useDeleteUser = <TData = DeleteUserResponse, TVariables = DeleteUse
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: () => {
-      return axios.delete(`/user/${username}`).then((res) => res.data)
+      return client<TData, TVariables>({
+        method: 'delete',
+        url: `/user/${username}`,
+      })
     },
     ...mutationOptions,
   })

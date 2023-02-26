@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '@kubb/swagger-react-query/client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
 import type { ListPetsResponse, ListPetsQueryParams } from '../models/ListPets'
@@ -12,7 +13,11 @@ export const listPetsQueryOptions = <TData = ListPetsResponse>(params?: ListPets
   return {
     queryKey,
     queryFn: () => {
-      return axios.get(`/pets`).then((res) => res.data)
+      return client<TData>({
+        method: 'get',
+        url: `/pets`,
+        params,
+      })
     },
   }
 }

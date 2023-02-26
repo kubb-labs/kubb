@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { UpdatePetWithFormRequest, UpdatePetWithFormResponse, UpdatePetWithFormPathParams } from '../../models/ts/UpdatePetWithForm'
@@ -18,7 +19,11 @@ export const useUpdatePetWithForm = <TData = UpdatePetWithFormResponse, TVariabl
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.post(`/pet/${petId}`, data).then((res) => res.data)
+      return client<TData, TVariables>({
+        method: 'post',
+        url: `/pet/${petId}`,
+        data,
+      })
     },
     ...mutationOptions,
   })

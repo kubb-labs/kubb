@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { PlaceOrderRequest, PlaceOrderResponse } from '../../models/ts/PlaceOrder'
@@ -16,7 +17,11 @@ export const usePlaceOrder = <TData = PlaceOrderResponse, TVariables = PlaceOrde
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.post(`/store/order`, data).then((res) => res.data)
+      return client<TData, TVariables>({
+        method: 'post',
+        url: `/store/order`,
+        data,
+      })
     },
     ...mutationOptions,
   })

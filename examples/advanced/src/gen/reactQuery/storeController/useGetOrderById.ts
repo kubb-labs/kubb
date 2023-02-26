@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
 import type { GetOrderByIdResponse, GetOrderByIdPathParams, GetOrderByIdQueryParams } from '../../models/ts/GetOrderById'
@@ -16,7 +17,11 @@ export const getOrderByIdQueryOptions = <TData = GetOrderByIdResponse>(
   return {
     queryKey,
     queryFn: () => {
-      return axios.get(`/store/order/${orderId}`).then((res) => res.data)
+      return client<TData>({
+        method: 'get',
+        url: `/store/order/${orderId}`,
+        params,
+      })
     },
   }
 }

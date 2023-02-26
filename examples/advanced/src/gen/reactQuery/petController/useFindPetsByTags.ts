@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
 import type { FindPetsByTagsResponse, FindPetsByTagsQueryParams } from '../../models/ts/FindPetsByTags'
@@ -12,7 +13,11 @@ export const findPetsByTagsQueryOptions = <TData = FindPetsByTagsResponse>(param
   return {
     queryKey,
     queryFn: () => {
-      return axios.get(`/pet/findByTags`).then((res) => res.data)
+      return client<TData>({
+        method: 'get',
+        url: `/pet/findByTags`,
+        params,
+      })
     },
   }
 }

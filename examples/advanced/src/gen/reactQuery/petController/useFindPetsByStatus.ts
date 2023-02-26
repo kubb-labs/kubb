@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
 import type { FindPetsByStatusResponse, FindPetsByStatusQueryParams } from '../../models/ts/FindPetsByStatus'
@@ -12,7 +13,11 @@ export const findPetsByStatusQueryOptions = <TData = FindPetsByStatusResponse>(p
   return {
     queryKey,
     queryFn: () => {
-      return axios.get(`/pet/findByStatus`).then((res) => res.data)
+      return client<TData>({
+        method: 'get',
+        url: `/pet/findByStatus`,
+        params,
+      })
     },
   }
 }

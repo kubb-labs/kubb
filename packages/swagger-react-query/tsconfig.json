@@ -24,7 +24,7 @@
       "@kubb/swagger-ts": ["../swagger-ts/src/index.ts"]
     }
   },
-  "include": ["./src/**/*"],
+  "include": ["./src/**/*", "src/client.ts"],
   "exclude": [
     "**/node_modules",
     "**/types/**",

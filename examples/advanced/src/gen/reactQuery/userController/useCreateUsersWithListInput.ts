@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { CreateUsersWithListInputRequest, CreateUsersWithListInputResponse } from '../../models/ts/CreateUsersWithListInput'
@@ -16,7 +17,11 @@ export const useCreateUsersWithListInput = <TData = CreateUsersWithListInputResp
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.post(`/user/createWithList`, data).then((res) => res.data)
+      return client<TData, TVariables>({
+        method: 'post',
+        url: `/user/createWithList`,
+        data,
+      })
     },
     ...mutationOptions,
   })

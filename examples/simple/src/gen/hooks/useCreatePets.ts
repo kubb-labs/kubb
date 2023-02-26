@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '@kubb/swagger-react-query/client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { CreatePetsRequest, CreatePetsResponse } from '../models/CreatePets'
@@ -15,7 +16,11 @@ export const useCreatePets = <TData = CreatePetsResponse, TVariables = CreatePet
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.post(`/pets`, data).then((res) => res.data)
+      return client<TData, TVariables>({
+        method: 'post',
+        url: `/pets`,
+        data,
+      })
     },
     ...mutationOptions,
   })

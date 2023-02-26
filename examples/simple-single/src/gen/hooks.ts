@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '@kubb/swagger-react-query/client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type {
@@ -20,7 +21,11 @@ export const listPetsQueryOptions = <TData = ListPetsResponse>(params?: ListPets
   return {
     queryKey,
     queryFn: () => {
-      return axios.get(`/pets`).then((res) => res.data)
+      return client<TData>({
+        method: 'get',
+        url: `/pets`,
+        params,
+      })
     },
   }
 }
@@ -57,7 +62,11 @@ export const useCreatePets = <TData = CreatePetsResponse, TVariables = CreatePet
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.post(`/pets`, data).then((res) => res.data)
+      return client<TData, TVariables>({
+        method: 'post',
+        url: `/pets`,
+        data,
+      })
     },
     ...mutationOptions,
   })
@@ -76,7 +85,11 @@ export const showPetByIdQueryOptions = <TData = ShowPetByIdResponse>(
   return {
     queryKey,
     queryFn: () => {
-      return axios.get(`/pets/${petId}`).then((res) => res.data)
+      return client<TData>({
+        method: 'get',
+        url: `/pets/${petId}`,
+        params,
+      })
     },
   }
 }
