@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams } from '../../models/ts/UploadFile'
@@ -18,7 +19,11 @@ export const useUploadFile = <TData = UploadFileResponse, TVariables = UploadFil
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.post(`/pet/${petId}/uploadImage`, data).then((res) => res.data)
+      return client<TData, TVariables>({
+        method: 'post',
+        url: `/pet/${petId}/uploadImage`,
+        data,
+      })
     },
     ...mutationOptions,
   })

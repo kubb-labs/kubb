@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
 import type { LoginUserResponse, LoginUserQueryParams } from '../../models/ts/LoginUser'
@@ -12,7 +13,11 @@ export const loginUserQueryOptions = <TData = LoginUserResponse>(params?: LoginU
   return {
     queryKey,
     queryFn: () => {
-      return axios.get(`/user/login`).then((res) => res.data)
+      return client<TData>({
+        method: 'get',
+        url: `/user/login`,
+        params,
+      })
     },
   }
 }

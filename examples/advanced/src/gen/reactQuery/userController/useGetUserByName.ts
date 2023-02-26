@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
 import type { GetUserByNameResponse, GetUserByNamePathParams, GetUserByNameQueryParams } from '../../models/ts/GetUserByName'
@@ -16,7 +17,11 @@ export const getUserByNameQueryOptions = <TData = GetUserByNameResponse>(
   return {
     queryKey,
     queryFn: () => {
-      return axios.get(`/user/${username}`).then((res) => res.data)
+      return client<TData>({
+        method: 'get',
+        url: `/user/${username}`,
+        params,
+      })
     },
   }
 }

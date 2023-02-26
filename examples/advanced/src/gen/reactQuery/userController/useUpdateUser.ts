@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { UpdateUserRequest, UpdateUserResponse, UpdateUserPathParams } from '../../models/ts/UpdateUser'
@@ -19,7 +20,11 @@ export const useUpdateUser = <TData = UpdateUserResponse, TVariables = UpdateUse
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.put(`/user/${username}`, data).then((res) => res.data)
+      return client<TData, TVariables>({
+        method: 'put',
+        url: `/user/${username}`,
+        data,
+      })
     },
     ...mutationOptions,
   })

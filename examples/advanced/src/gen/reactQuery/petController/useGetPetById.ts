@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
 import type { GetPetByIdResponse, GetPetByIdPathParams, GetPetByIdQueryParams } from '../../models/ts/GetPetById'
@@ -16,7 +17,11 @@ export const getPetByIdQueryOptions = <TData = GetPetByIdResponse>(
   return {
     queryKey,
     queryFn: () => {
-      return axios.get(`/pet/${petId}`).then((res) => res.data)
+      return client<TData>({
+        method: 'get',
+        url: `/pet/${petId}`,
+        params,
+      })
     },
   }
 }

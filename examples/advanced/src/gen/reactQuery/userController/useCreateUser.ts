@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { CreateUserRequest, CreateUserResponse } from '../../models/ts/CreateUser'
@@ -16,7 +17,11 @@ export const useCreateUser = <TData = CreateUserResponse, TVariables = CreateUse
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: (data) => {
-      return axios.post(`/user`, data).then((res) => res.data)
+      return client<TData, TVariables>({
+        method: 'post',
+        url: `/user`,
+        data,
+      })
     },
     ...mutationOptions,
   })

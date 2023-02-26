@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { DeleteOrderRequest, DeleteOrderResponse, DeleteOrderPathParams } from '../../models/ts/DeleteOrder'
@@ -19,7 +20,10 @@ export const useDeleteOrder = <TData = DeleteOrderResponse, TVariables = DeleteO
 
   return useMutation<TData, unknown, TVariables>({
     mutationFn: () => {
-      return axios.delete(`/store/order/${orderId}`).then((res) => res.data)
+      return client<TData, TVariables>({
+        method: 'delete',
+        url: `/store/order/${orderId}`,
+      })
     },
     ...mutationOptions,
   })

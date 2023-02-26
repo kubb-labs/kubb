@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+
+import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
 import type { GetInventoryResponse } from '../../models/ts/GetInventory'
@@ -12,7 +13,10 @@ export const getInventoryQueryOptions = <TData = GetInventoryResponse>(): QueryO
   return {
     queryKey,
     queryFn: () => {
-      return axios.get(`/store/inventory`).then((res) => res.data)
+      return client<TData>({
+        method: 'get',
+        url: `/store/inventory`,
+      })
     },
   }
 }
