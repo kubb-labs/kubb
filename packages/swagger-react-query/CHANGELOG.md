@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.53.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.52.1...@kubb/swagger-react-query-v0.53.0) (2023-02-26)
+
+
+### Features
+
+* groupby for react-query with as first option: tag ([8933734](https://github.com/stijnvanhulle/kubb/commit/8933734a0358aefe377e675a58a5a7ba5b138e78))
+
 ## [0.52.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-react-query-v0.52.0...@kubb/swagger-react-query-v0.52.1) (2023-02-26)
 
 
