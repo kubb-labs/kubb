@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { pascalCase } from 'change-case'
+import uniq from 'lodash.uniq'
 
 import { SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
@@ -249,7 +250,16 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     }
 
     if (schema.enum) {
-      return [[keywordZodNodes.enum, [`[${schema.enum.map((value) => `\`${value}\``).join(', ')}]`]]]
+      return [
+        [
+          keywordZodNodes.enum,
+          [
+            `[${uniq(schema.enum)
+              .map((value) => `\`${value}\``)
+              .join(', ')}]`,
+          ],
+        ],
+      ]
     }
 
     if ('items' in schema) {

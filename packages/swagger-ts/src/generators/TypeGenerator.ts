@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { factory } from 'typescript'
 import { pascalCase, camelCase } from 'change-case'
+import uniq from 'lodash.uniq'
 
 import { SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
@@ -236,7 +237,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         ...createEnumDeclaration({
           name: camelCase(name, { delimiter: '' }),
           typeName: pascalCase(name, { delimiter: '' }),
-          enums: schema.enum,
+          enums: uniq(schema.enum),
         })
       )
       return factory.createTypeReferenceNode(pascalCase(name, { delimiter: '' }), undefined)

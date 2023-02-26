@@ -55,11 +55,9 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "lodash.uniq": "^4.5.0",
     "typescript": "^4.9.5"
   },
   "devDependencies": {
-    "@types/lodash.uniq": "^4.5.7",
     "tsup": "^6.6.3"
   },
   "publishConfig": {

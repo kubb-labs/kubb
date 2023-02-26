@@ -1,5 +1,4 @@
 import ts from 'typescript'
-import uniq from 'lodash.uniq'
 
 const { factory } = ts
 
