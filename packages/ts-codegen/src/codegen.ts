@@ -159,7 +159,7 @@ export function createEnumDeclaration({ name, typeName, enums }: { name: string;
             undefined,
             factory.createAsExpression(
               factory.createObjectLiteralExpression(
-                uniq(enums).map((text) => {
+                enums.map((text) => {
                   return factory.createPropertyAssignment(factory.createStringLiteral(text.toString()), factory.createStringLiteral(text))
                 }),
                 true
