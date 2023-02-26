@@ -22,7 +22,7 @@ export default defineConfig(async () => {
     plugins: [
       ['@kubb/swagger', { output: false }],
       ['@kubb/swagger-ts', { output: 'models/ts' }],
-      ['@kubb/swagger-react-query', { output: './reactQuery' }],
+      ['@kubb/swagger-react-query', { output: './reactQuery', groupBy: 'tag' }],
       ['@kubb/swagger-zod', { output: './zod' }],
       // createSwagger({ output: false }),
       // createSwaggerTS({ output: 'models/ts' }),

@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { DeletePetRequest, DeletePetResponse, DeletePetPathParams } from '../models/ts/DeletePet'
+import type { DeletePetRequest, DeletePetResponse, DeletePetPathParams } from '../../models/ts/DeletePet'
 
 /**
  * @description delete a pet

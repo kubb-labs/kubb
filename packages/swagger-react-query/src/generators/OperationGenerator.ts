@@ -1,4 +1,4 @@
-import { camelCase, capitalCase, pascalCase } from 'change-case'
+import { camelCase, pascalCase } from 'change-case'
 
 import type { PluginContext, File, FileManager } from '@kubb/core'
 import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
@@ -8,11 +8,13 @@ import type { Oas } from '@kubb/swagger'
 
 import { pluginName } from '../plugin'
 
+import type { ResolveIdOptions } from '../types'
+
 type Options = {
   oas: Oas
   directory: string
   fileManager: FileManager
-  resolveId: PluginContext['resolveId']
+  resolveId: PluginContext<ResolveIdOptions>['resolveId']
 }
 
 export class OperationGenerator extends Generator<Options> {
@@ -30,6 +32,7 @@ export class OperationGenerator extends Generator<Options> {
       fileName: hookId,
       directory,
       pluginName,
+      options: { tag: operation.getTags()[0].name },
     })
 
     if (!hookFilePath) {
@@ -262,7 +265,7 @@ export class OperationGenerator extends Generator<Options> {
     // hook setup
     const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName })
+    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0].name } })
     if (!hookFilePath) {
       return null
     }
@@ -347,7 +350,7 @@ export class OperationGenerator extends Generator<Options> {
     // hook setup
     const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName })
+    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0].name } })
     if (!hookFilePath) {
       return null
     }
@@ -432,7 +435,7 @@ export class OperationGenerator extends Generator<Options> {
     // hook setup
     const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName })
+    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0].name } })
     if (!hookFilePath) {
       return null
     }

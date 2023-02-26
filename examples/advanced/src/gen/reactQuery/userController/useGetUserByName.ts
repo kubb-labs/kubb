@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetUserByNameResponse, GetUserByNamePathParams, GetUserByNameQueryParams } from '../models/ts/GetUserByName'
+import type { GetUserByNameResponse, GetUserByNamePathParams, GetUserByNameQueryParams } from '../../models/ts/GetUserByName'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username'], params?: GetUserByNameQueryParams) =>
   [`/user/${username}`, ...(params ? [params] : [])] as const

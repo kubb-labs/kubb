@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetInventoryResponse } from '../models/ts/GetInventory'
+import type { GetInventoryResponse } from '../../models/ts/GetInventory'
 
 export const getInventoryQueryKey = () => [`/store/inventory`] as const
 

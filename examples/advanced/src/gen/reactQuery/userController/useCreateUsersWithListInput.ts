@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { CreateUsersWithListInputRequest, CreateUsersWithListInputResponse } from '../models/ts/CreateUsersWithListInput'
+import type { CreateUsersWithListInputRequest, CreateUsersWithListInputResponse } from '../../models/ts/CreateUsersWithListInput'
 
 /**
  * @description Creates list of users with given input array

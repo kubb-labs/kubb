@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetPetByIdResponse, GetPetByIdPathParams, GetPetByIdQueryParams } from '../models/ts/GetPetById'
+import type { GetPetByIdResponse, GetPetByIdPathParams, GetPetByIdQueryParams } from '../../models/ts/GetPetById'
 
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId'], params?: GetPetByIdQueryParams) =>
   [`/pet/${petId}`, ...(params ? [params] : [])] as const

@@ -1,5 +1,7 @@
 import pathParser from 'path'
 
+import { camelCase } from 'change-case'
+
 import { createPlugin, validatePlugins, getPathMode } from '@kubb/core'
 import { pluginName as SwaggerTSPluginName } from '@kubb/swagger-ts'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
@@ -13,7 +15,7 @@ import type { PluginOptions } from './types'
 export const pluginName = 'swagger-react-query' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks' } = options
+  const { output = 'hooks', groupBy } = options
   let swaggerApi: SwaggerApi
   let SwaggerTSApi: SwaggerTSApi
 
@@ -30,7 +32,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return valid
     },
-    resolveId(fileName, directory, options: { type: 'model' }) {
+    resolveId(fileName, directory, options) {
       if (!directory) {
         return null
       }
@@ -43,6 +45,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
         return pathParser.resolve(directory, output)
+      }
+
+      if (options?.tag && groupBy === 'tag') {
+        return pathParser.resolve(directory, output, camelCase(`${options.tag}Controller`), fileName)
       }
 
       return pathParser.resolve(directory, output, fileName)

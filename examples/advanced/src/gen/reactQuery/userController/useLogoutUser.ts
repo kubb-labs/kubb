@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { LogoutUserResponse } from '../models/ts/LogoutUser'
+import type { LogoutUserResponse } from '../../models/ts/LogoutUser'
 
 export const logoutUserQueryKey = () => [`/user/logout`] as const
 

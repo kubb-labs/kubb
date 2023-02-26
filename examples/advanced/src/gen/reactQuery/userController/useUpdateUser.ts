@@ -2,15 +2,15 @@ import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { DeleteUserRequest, DeleteUserResponse, DeleteUserPathParams } from '../models/ts/DeleteUser'
+import type { UpdateUserRequest, UpdateUserResponse, UpdateUserPathParams } from '../../models/ts/UpdateUser'
 
 /**
  * @description This can only be done by the logged in user.
- * @summary Delete user
+ * @summary Update user
  * @link /user/{username}
  */
-export const useDeleteUser = <TData = DeleteUserResponse, TVariables = DeleteUserRequest>(
-  username: DeleteUserPathParams['username'],
+export const useUpdateUser = <TData = UpdateUserResponse, TVariables = UpdateUserRequest>(
+  username: UpdateUserPathParams['username'],
   options?: {
     mutation?: UseMutationOptions<TData, unknown, TVariables>
   }
@@ -18,8 +18,8 @@ export const useDeleteUser = <TData = DeleteUserResponse, TVariables = DeleteUse
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({
-    mutationFn: () => {
-      return axios.delete(`/user/${username}`).then((res) => res.data)
+    mutationFn: (data) => {
+      return axios.put(`/user/${username}`, data).then((res) => res.data)
     },
     ...mutationOptions,
   })

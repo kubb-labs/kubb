@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { AddPetRequest, AddPetResponse } from '../models/ts/AddPet'
+import type { AddPetRequest, AddPetResponse } from '../../models/ts/AddPet'
 
 /**
  * @description Add a new pet to the store

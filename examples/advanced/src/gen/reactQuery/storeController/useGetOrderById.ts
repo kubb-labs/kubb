@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetOrderByIdResponse, GetOrderByIdPathParams, GetOrderByIdQueryParams } from '../models/ts/GetOrderById'
+import type { GetOrderByIdResponse, GetOrderByIdPathParams, GetOrderByIdQueryParams } from '../../models/ts/GetOrderById'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId'], params?: GetOrderByIdQueryParams) =>
   [`/store/order/${orderId}`, ...(params ? [params] : [])] as const

@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { PlaceOrderRequest, PlaceOrderResponse } from '../models/ts/PlaceOrder'
+import type { PlaceOrderRequest, PlaceOrderResponse } from '../../models/ts/PlaceOrder'
 
 /**
  * @description Place a new order in the store

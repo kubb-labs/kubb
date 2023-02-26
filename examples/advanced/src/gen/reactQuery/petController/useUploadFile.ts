@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams } from '../models/ts/UploadFile'
+import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams } from '../../models/ts/UploadFile'
 
 /**
  * @summary uploads an image

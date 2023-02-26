@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { LoginUserResponse, LoginUserQueryParams } from '../models/ts/LoginUser'
+import type { LoginUserResponse, LoginUserQueryParams } from '../../models/ts/LoginUser'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [`/user/login`, ...(params ? [params] : [])] as const
 

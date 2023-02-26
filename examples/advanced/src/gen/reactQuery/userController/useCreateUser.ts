@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { CreateUserRequest, CreateUserResponse } from '../models/ts/CreateUser'
+import type { CreateUserRequest, CreateUserResponse } from '../../models/ts/CreateUser'
 
 /**
  * @description This can only be done by the logged in user.
