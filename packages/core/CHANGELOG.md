@@ -1,4 +1,11 @@
 # Changelog
+## [0.53.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.52.1...@kubb/core-v0.53.0) (2023-02-26)
+
+
+### Features
+
+* ResolveIdOptions with generic for KubbPlugin type ([ea8a0cc](https://github.com/stijnvanhulle/kubb/commit/ea8a0cc9c308c1059024a5aa558fbb62a95511a2))
+
 ## [0.52.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.52.0...@kubb/core-v0.52.1) (2023-02-26)
 
 

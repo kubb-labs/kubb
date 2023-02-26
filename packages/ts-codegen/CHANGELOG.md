@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.53.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/ts-codegen-v0.52.1...@kubb/ts-codegen-v0.53.0) (2023-02-26)
+
+
+### Bug Fixes
+
+* typeError ([4b2a60f](https://github.com/stijnvanhulle/kubb/commit/4b2a60fd6dfd7830b6c779c18ac6a910afdabcd2))
+
 ## [0.52.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/ts-codegen-v0.52.0...@kubb/ts-codegen-v0.52.1) (2023-02-26)
 
 
