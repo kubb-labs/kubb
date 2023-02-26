@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import { defineConfig } from 'tsup'
 
 export default defineConfig([

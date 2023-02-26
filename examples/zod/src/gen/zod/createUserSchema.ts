@@ -1,6 +1,10 @@
-import zod from 'zod'
+import z from 'zod'
 
 import { userSchema } from './userSchema'
 
-export const createUserResponseSchema = zod.any()
+export const createUserResponseSchema = z.any()
+
+/**
+ * @description Created user object
+ */
 export const createUserRequestSchema = userSchema

@@ -42,17 +42,18 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     const texts: string[] = []
     const input = this.getTypeFromSchema(schema, name)
     if (description) {
-      // return appendJSDocToNode({
-      //   node,
-      //   comments: [`@description ${description}`],
-      // })
+      texts.push(`
+      /**
+       * @description ${description}
+       */`)
     }
 
     const parseProperty = (item: [string, any]): string => {
       // eslint-disable-next-line prefer-const
       let [fn, args = ''] = item || []
 
-      if (fn === keywordZodNodes.array) return `zod.array(${Array.isArray(args) ? `${args.map(parseProperty).join('')}` : parseProperty(args)})`
+      if (fn === keywordZodNodes.array) return `z.array(${Array.isArray(args) ? `${args.map(parseProperty).join('')}` : parseProperty(args)})`
+      if (fn === keywordZodNodes.and) return `.and(${Array.isArray(args) ? `z.union(${args.map(parseProperty).join(',')})` : parseProperty(args)})`
       if (fn === keywordZodNodes.object) {
         if (!args) {
           args = '{}'
@@ -68,12 +69,12 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       }
 
       if (keywordZodNodes[fn]) {
-        return `zod.${fn}(${args})`
+        return `z.${fn}(${args})`
       }
 
       // custom type
       if (fn === 'ref') {
-        return `${args.name}`
+        return args.name
       }
 
       return `.${fn}(${args})`
@@ -207,7 +208,17 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     }
 
     if (schema.oneOf) {
-      // TODO oneOf -> union
+      const schemaWithoutOneOf = { ...schema, oneOf: undefined }
+
+      return [
+        ...this.getBaseTypeFromSchema(schemaWithoutOneOf, name),
+        [
+          'and',
+          schema.oneOf.map((item: OpenAPIV3.ReferenceObject) => {
+            return this.getRefAlias(item)[0]
+          }),
+        ],
+      ]
     }
 
     if (schema.anyOf) {
@@ -218,7 +229,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     }
 
     if (schema.enum) {
-      return [['enum', [`[${schema.enum.map((value) => `'${value}'`).join(', ')}]`]]]
+      return [['enum', [`[${schema.enum.map((value) => `\`${value}\``).join(', ')}]`]]]
     }
 
     if ('items' in schema) {

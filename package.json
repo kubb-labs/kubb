@@ -45,13 +45,16 @@
     "assert": "^2.0.0",
     "cross-env": "^7.0.3",
     "crypto-browserify": "^3.12.0",
-    "eslint": "^8.34.0",
+    "eslint": "^8.35.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-formatjs": "^4.7.2",
+    "eslint-plugin-formatjs": "^4.8.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jest": "^27.2.1",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-unused-imports": "^2.0.0",
     "http-browserify": "^1.7.0",
     "https-browserify": "^1.0.0",
@@ -72,10 +75,7 @@
     "turbo": "^1.8.2",
     "typescript": "^4.9.5",
     "url": "^0.11.0",
-    "util": "^0.12.5",
-    "eslint-plugin-jsx-a11y": "^6.7.1",
-    "eslint-plugin-react": "^7.32.2",
-    "eslint-plugin-react-hooks": "^4.6.0"
+    "util": "^0.12.5"
   },
   "engines": {
     "node": ">=14.18"

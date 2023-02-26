@@ -1,10 +1,10 @@
-import zod from 'zod'
+import z from 'zod'
 
-export const orderSchema = zod.object({
-  id: zod.number().optional(),
-  petId: zod.number().optional(),
-  quantity: zod.number().optional(),
-  shipDate: zod.string().optional(),
-  status: zod.enum(['placed', 'approved', 'delivered']).describe('Order Status').optional(),
-  complete: zod.boolean().optional(),
+export const orderSchema = z.object({
+  id: z.number().optional(),
+  petId: z.number().optional(),
+  quantity: z.number().optional(),
+  shipDate: z.string().optional(),
+  status: z.enum([`placed`, `approved`, `delivered`]).describe('Order Status').optional(),
+  complete: z.boolean().optional(),
 })

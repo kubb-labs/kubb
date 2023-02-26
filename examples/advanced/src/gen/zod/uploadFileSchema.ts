@@ -1,8 +1,12 @@
-import zod from 'zod'
+import z from 'zod'
 
 import { apiResponseSchema } from './apiResponseSchema'
 
-export const uploadFilePathParamsSchema = zod.object({ petId: zod.number() })
-export const uploadFileQueryParamsSchema = zod.object({ additionalMetadata: zod.string().optional() })
-export const uploadFileRequestSchema = zod.any()
+export const uploadFilePathParamsSchema = z.object({ petId: z.number() })
+export const uploadFileQueryParamsSchema = z.object({ additionalMetadata: z.string().optional() })
+export const uploadFileRequestSchema = z.any()
+
+/**
+ * @description successful operation
+ */
 export const uploadFileResponseSchema = apiResponseSchema

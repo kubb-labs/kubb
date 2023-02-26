@@ -1,5 +1,9 @@
-import zod from 'zod'
+import z from 'zod'
 
-export const loginUserPathParamsSchema = zod.object({})
-export const loginUserQueryParamsSchema = zod.object({ username: zod.string().optional(), password: zod.string().optional() })
-export const loginUserResponseSchema = zod.string()
+export const loginUserPathParamsSchema = z.object({})
+export const loginUserQueryParamsSchema = z.object({ username: z.string().optional(), password: z.string().optional() })
+
+/**
+ * @description successful operation
+ */
+export const loginUserResponseSchema = z.string()

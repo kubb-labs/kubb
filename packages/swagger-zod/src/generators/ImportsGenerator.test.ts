@@ -23,7 +23,7 @@ describe('ImportsGenerator', () => {
       {
         refs: typeGenerator.refs,
         name: 'Pets',
-        type: node,
+        sources: node,
       },
     ])
 
@@ -33,7 +33,7 @@ describe('ImportsGenerator', () => {
     expect(format(output!)).toEqual(
       format(`
       import { Pet } from "#models/Pet";
-      export const Pets = zod.array(Pet);
+      export const Pets = z.array(Pet);
     `)
     )
   })
