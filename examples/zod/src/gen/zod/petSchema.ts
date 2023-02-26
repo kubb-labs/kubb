@@ -1,13 +1,13 @@
-import zod from 'zod'
+import z from 'zod'
 
 import { categorySchema } from './categorySchema'
 import { tagSchema } from './tagSchema'
 
-export const petSchema = zod.object({
-  id: zod.number().optional(),
-  name: zod.string(),
+export const petSchema = z.object({
+  id: z.number().optional(),
+  name: z.string(),
   category: categorySchema.optional(),
-  photoUrls: zod.array(zod.string()),
-  tags: zod.array(tagSchema).optional(),
-  status: zod.enum(['available', 'pending', 'sold']).describe('pet status in the store').optional(),
+  photoUrls: z.array(z.string()),
+  tags: z.array(tagSchema).optional(),
+  status: z.enum([`available`, `pending`, `sold`]).describe('pet status in the store').optional(),
 })

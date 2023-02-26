@@ -1,3 +1,3 @@
-import zod from 'zod'
+import z from 'zod'
 
-export const logoutUserResponseSchema = zod.any()
+export const logoutUserResponseSchema = z.any()

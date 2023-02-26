@@ -1,3 +1,3 @@
-import zod from 'zod'
+import z from 'zod'
 
-export const tagSchema = zod.object({ id: zod.number().optional(), name: zod.string().optional() })
+export const tagSchema = z.object({ id: z.number().optional(), name: z.string().optional() })

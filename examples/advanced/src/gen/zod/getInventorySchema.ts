@@ -1,3 +1,6 @@
-import zod from 'zod'
+import z from 'zod'
 
-export const getInventoryResponseSchema = zod.object({})
+/**
+ * @description successful operation
+ */
+export const getInventoryResponseSchema = z.object({})

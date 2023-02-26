@@ -1,5 +1,5 @@
-import zod from 'zod'
+import z from 'zod'
 
-export const deleteUserPathParamsSchema = zod.object({ username: zod.string() })
-export const deleteUserRequestSchema = zod.any()
-export const deleteUserResponseSchema = zod.any()
+export const deleteUserPathParamsSchema = z.object({ username: z.string() })
+export const deleteUserRequestSchema = z.any()
+export const deleteUserResponseSchema = z.any()

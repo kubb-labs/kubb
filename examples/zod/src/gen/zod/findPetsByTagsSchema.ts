@@ -1,7 +1,11 @@
-import zod from 'zod'
+import z from 'zod'
 
 import { petSchema } from './petSchema'
 
-export const findPetsByTagsPathParamsSchema = zod.object({})
-export const findPetsByTagsQueryParamsSchema = zod.object({ tags: zod.array(zod.string()).optional() })
-export const findPetsByTagsResponseSchema = zod.array(petSchema)
+export const findPetsByTagsPathParamsSchema = z.object({})
+export const findPetsByTagsQueryParamsSchema = z.object({ tags: z.array(z.string()).optional() })
+
+/**
+ * @description successful operation
+ */
+export const findPetsByTagsResponseSchema = z.array(petSchema)

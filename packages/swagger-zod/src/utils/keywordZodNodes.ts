@@ -9,4 +9,5 @@ export const keywordZodNodes = {
   null: 'null',
   array: 'array',
   enum: 'enum',
+  and: 'and',
 } as const

@@ -1,7 +1,11 @@
-import zod from 'zod'
+import z from 'zod'
 
 import { petSchema } from './petSchema'
 
-export const getPetByIdPathParamsSchema = zod.object({ petId: zod.number() })
-export const getPetByIdQueryParamsSchema = zod.object({})
+export const getPetByIdPathParamsSchema = z.object({ petId: z.number() })
+export const getPetByIdQueryParamsSchema = z.object({})
+
+/**
+ * @description successful operation
+ */
 export const getPetByIdResponseSchema = petSchema

@@ -5,7 +5,15 @@ import { pascalCase, camelCase } from 'change-case'
 import { SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
 import { isReference, getReference } from '@kubb/swagger'
-import { appendJSDocToNode, createEnumDeclaration, createIndexSignature, createPropertySignature, createTypeAliasDeclaration, modifier } from '@kubb/ts-codegen'
+import {
+  appendJSDocToNode,
+  createEnumDeclaration,
+  createIndexSignature,
+  createIntersectionDeclaration,
+  createPropertySignature,
+  createTypeAliasDeclaration,
+  modifier,
+} from '@kubb/ts-codegen'
 
 import { keywordTypeNodes } from '../utils'
 
@@ -185,7 +193,20 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     }
 
     if (schema.oneOf) {
-      // TODO oneOf -> union
+      const schemaWithoutOneOf = { ...schema, oneOf: undefined }
+
+      return createIntersectionDeclaration({
+        nodes: [
+          this.getBaseTypeFromSchema(schemaWithoutOneOf, name),
+          factory.createParenthesizedType(
+            factory.createUnionTypeNode(
+              schema.oneOf.map((item: OpenAPIV3.ReferenceObject) => {
+                return this.getRefAlias(item)
+              })
+            )
+          ),
+        ],
+      })
     }
 
     if (schema.anyOf) {

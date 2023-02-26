@@ -1,4 +1,5 @@
 import ts from 'typescript'
+import uniq from 'lodash.uniq'
 
 const { factory } = ts
 
@@ -159,7 +160,7 @@ export function createEnumDeclaration({ name, typeName, enums }: { name: string;
             undefined,
             factory.createAsExpression(
               factory.createObjectLiteralExpression(
-                enums.map((text) => {
+                uniq(enums).map((text) => {
                   return factory.createPropertyAssignment(factory.createStringLiteral(text.toString()), factory.createStringLiteral(text))
                 }),
                 true
@@ -181,4 +182,8 @@ export function createEnumDeclaration({ name, typeName, enums }: { name: string;
       )
     ),
   ]
+}
+
+export function createIntersectionDeclaration({ nodes }: { nodes: ts.TypeNode[] }) {
+  return factory.createIntersectionTypeNode(nodes)
 }

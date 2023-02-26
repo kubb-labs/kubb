@@ -12,6 +12,6 @@ export type CreatePetsRequest = {
 }
 
 /**
- * @description Expected response to a valid post
+ * @description Created Pet
  */
 export type CreatePetsResponse = Pet

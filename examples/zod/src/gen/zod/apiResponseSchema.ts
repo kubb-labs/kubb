@@ -1,3 +1,3 @@
-import zod from 'zod'
+import z from 'zod'
 
-export const apiResponseSchema = zod.object({ code: zod.number().optional(), type: zod.string().optional(), message: zod.string().optional() })
+export const apiResponseSchema = z.object({ code: z.number().optional(), type: z.string().optional(), message: z.string().optional() })

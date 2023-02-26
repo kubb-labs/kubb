@@ -1,5 +1,5 @@
-import zod from 'zod'
+import z from 'zod'
 
-export const deletePetPathParamsSchema = zod.object({ petId: zod.number() })
-export const deletePetRequestSchema = zod.any()
-export const deletePetResponseSchema = zod.any()
+export const deletePetPathParamsSchema = z.object({ petId: z.number() })
+export const deletePetRequestSchema = z.any()
+export const deletePetResponseSchema = z.any()

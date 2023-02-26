@@ -111,7 +111,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             source: await builder.print(name),
             imports: [
               {
-                name: 'zod',
+                name: 'z',
                 path: 'zod',
               },
             ],
@@ -149,7 +149,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           source: await builder.print(),
           imports: [
             {
-              name: 'zod',
+              name: 'z',
               path: 'zod',
             },
           ],

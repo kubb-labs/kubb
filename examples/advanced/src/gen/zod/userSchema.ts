@@ -1,12 +1,12 @@
-import zod from 'zod'
+import z from 'zod'
 
-export const userSchema = zod.object({
-  id: zod.number().optional(),
-  username: zod.string().optional(),
-  firstName: zod.string().optional(),
-  lastName: zod.string().optional(),
-  email: zod.string().optional(),
-  password: zod.string().optional(),
-  phone: zod.string().optional(),
-  userStatus: zod.number().describe('User Status').optional(),
+export const userSchema = z.object({
+  id: z.number().optional(),
+  username: z.string().optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  email: z.string().optional(),
+  password: z.string().optional(),
+  phone: z.string().optional(),
+  userStatus: z.number().describe('User Status').optional(),
 })

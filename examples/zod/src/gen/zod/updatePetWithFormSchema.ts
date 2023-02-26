@@ -1,6 +1,6 @@
-import zod from 'zod'
+import z from 'zod'
 
-export const updatePetWithFormPathParamsSchema = zod.object({ petId: zod.number() })
-export const updatePetWithFormQueryParamsSchema = zod.object({ name: zod.string().optional(), status: zod.string().optional() })
-export const updatePetWithFormRequestSchema = zod.any()
-export const updatePetWithFormResponseSchema = zod.any()
+export const updatePetWithFormPathParamsSchema = z.object({ petId: z.number() })
+export const updatePetWithFormQueryParamsSchema = z.object({ name: z.string().optional(), status: z.string().optional() })
+export const updatePetWithFormRequestSchema = z.any()
+export const updatePetWithFormResponseSchema = z.any()

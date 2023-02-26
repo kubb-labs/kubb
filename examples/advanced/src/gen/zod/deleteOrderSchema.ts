@@ -1,5 +1,5 @@
-import zod from 'zod'
+import z from 'zod'
 
-export const deleteOrderPathParamsSchema = zod.object({ orderId: zod.number() })
-export const deleteOrderRequestSchema = zod.any()
-export const deleteOrderResponseSchema = zod.any()
+export const deleteOrderPathParamsSchema = z.object({ orderId: z.number() })
+export const deleteOrderRequestSchema = z.any()
+export const deleteOrderResponseSchema = z.any()
