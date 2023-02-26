@@ -1,9 +1,9 @@
 {
-  "packages/core": "0.51.0",
-  "packages/cli": "0.51.0",
-  "packages/ts-codegen": "0.51.0",
-  "packages/swagger": "0.51.0",
-  "packages/swagger-ts": "0.51.0",
-  "packages/swagger-react-query": "0.51.0",
-  "packages/swagger-zod": "0.51.0"
+  "packages/core": "0.52.0",
+  "packages/cli": "0.52.0",
+  "packages/ts-codegen": "0.52.0",
+  "packages/swagger": "0.52.0",
+  "packages/swagger-ts": "0.52.0",
+  "packages/swagger-react-query": "0.52.0",
+  "packages/swagger-zod": "0.52.0"
 }
