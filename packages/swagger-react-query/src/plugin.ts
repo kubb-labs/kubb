@@ -2,14 +2,14 @@ import pathParser from 'path'
 
 import { camelCase } from 'change-case'
 
-import { createPlugin, validatePlugins, getPathMode } from '@kubb/core'
-import { pluginName as SwaggerTSPluginName } from '@kubb/swagger-ts'
+import { createPlugin, validatePlugins, getPathMode, read } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi } from '@kubb/swagger'
 
 import { OperationGenerator } from './generators'
 
 import type { PluginOptions } from './types'
+import { OptionalPath } from '@kubb/core'
 
 export const pluginName = 'swagger-react-query' as const
 
@@ -22,7 +22,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     options,
     kind: 'controller',
     validate(plugins) {
-      const valid = validatePlugins(plugins, [swaggerPluginName, SwaggerTSPluginName])
+      const valid = validatePlugins(plugins, [swaggerPluginName])
       if (valid) {
         swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api
       }
@@ -53,8 +53,26 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     async buildStart() {
       const oas = await swaggerApi.getOas(this.config)
       const directory = pathParser.resolve(this.config.root, this.config.output.path)
+      const client = options.client && (await read(pathParser.resolve(this.config.root, options.client)))
+      let clientPath: OptionalPath
+
+      if (client) {
+        clientPath = await this.resolveId({
+          fileName: `client.ts`,
+          directory: pathParser.resolve(this.config.root, this.config.output.path),
+        })
+
+        if (clientPath) {
+          await this.addFile({
+            path: clientPath,
+            fileName: `client.ts`,
+            source: client.replace('./src/types', '@kubb/swagger-react-query'),
+          })
+        }
+      }
 
       const operationGenerator = new OperationGenerator({
+        clientPath,
         oas,
         directory,
         fileManager: this.fileManager,

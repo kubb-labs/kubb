@@ -1,6 +1,6 @@
 import { camelCase, pascalCase } from 'change-case'
 
-import type { PluginContext, File, FileManager } from '@kubb/core'
+import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
 import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator } from '@kubb/swagger'
@@ -11,6 +11,7 @@ import { pluginName } from '../plugin'
 import type { ResolveIdOptions } from '../types'
 
 type Options = {
+  clientPath?: OptionalPath
   oas: Oas
   directory: string
   fileManager: FileManager
@@ -19,7 +20,7 @@ type Options = {
 
 export class OperationGenerator extends Generator<Options> {
   async getGet(path: string): Promise<File | null> {
-    const { oas, directory, resolveId } = this.options
+    const { oas, directory, resolveId, clientPath } = this.options
 
     const operation = oas.operation(path, 'get')
 
@@ -82,9 +83,11 @@ export class OperationGenerator extends Generator<Options> {
           return {
             queryKey,
             queryFn: () => {
-              return axios
-                .get(\`${url}\`)
-                .then((res) => res.data);
+              return client<TData>({
+                method: "get",
+                url: \`${url}\`,
+                params
+              });
             },
           };
         };
@@ -124,9 +127,10 @@ export class OperationGenerator extends Generator<Options> {
           return {
             queryKey,
             queryFn: () => {
-              return axios
-                .get(\`${url}\`)
-                .then((res) => res.data);
+              return client<TData>({
+                method: "get",
+                url: \`${url}\`
+              });
             },
           };
         };
@@ -165,9 +169,11 @@ export class OperationGenerator extends Generator<Options> {
           return {
             queryKey,
             queryFn: () => {
-              return axios
-                .get(\`${url}\`)
-                .then((res) => res.data);
+              return client<TData>({
+                method: "get",
+                url: \`${url}\`,
+                params
+              });
             },
           };
         };
@@ -205,9 +211,10 @@ export class OperationGenerator extends Generator<Options> {
         return {
           queryKey,
           queryFn: () => {
-            return axios
-              .get(\`${url}\`)
-              .then((res) => res.data);
+            return client<TData>({
+              method: "get",
+              url: \`${url}\`
+            });
           },
         };
       };
@@ -243,8 +250,8 @@ export class OperationGenerator extends Generator<Options> {
           path: '@tanstack/react-query',
         },
         {
-          name: 'axios',
-          path: 'axios',
+          name: 'client',
+          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-react-query/client',
         },
         {
           name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
@@ -256,7 +263,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async getPost(path: string): Promise<File | null> {
-    const { oas, directory, resolveId } = this.options
+    const { oas, directory, resolveId, clientPath } = this.options
 
     const operation = oas.operation(path, 'post')
 
@@ -307,9 +314,11 @@ export class OperationGenerator extends Generator<Options> {
 
           return useMutation<TData, unknown, TVariables>({
             mutationFn: (data) => {
-              return axios
-              .post(\`${url}\`, data)
-              .then((res) => res.data)
+              return client<TData, TVariables>({
+                method: "post",
+                url: \`${url}\`,
+                data,
+              });
             },
             ...mutationOptions
           });
@@ -326,8 +335,8 @@ export class OperationGenerator extends Generator<Options> {
           path: '@tanstack/react-query',
         },
         {
-          name: 'axios',
-          path: 'axios',
+          name: 'client',
+          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-react-query/client',
         },
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
@@ -341,7 +350,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async getPut(path: string): Promise<File | null> {
-    const { oas, directory, resolveId } = this.options
+    const { oas, directory, resolveId, clientPath } = this.options
 
     const operation = oas.operation(path, 'put')
 
@@ -392,9 +401,11 @@ export class OperationGenerator extends Generator<Options> {
 
           return useMutation<TData, unknown, TVariables>({
             mutationFn: (data) => {
-              return axios
-              .put(\`${url}\`, data)
-              .then((res) => res.data)
+              return client<TData, TVariables>({
+                method: "put",
+                url: \`${url}\`,
+                data
+              });
             },
             ...mutationOptions
           });
@@ -411,8 +422,8 @@ export class OperationGenerator extends Generator<Options> {
           path: '@tanstack/react-query',
         },
         {
-          name: 'axios',
-          path: 'axios',
+          name: 'client',
+          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-react-query/client',
         },
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
@@ -426,7 +437,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async getDelete(path: string): Promise<File | null> {
-    const { oas, directory, resolveId } = this.options
+    const { oas, directory, resolveId, clientPath } = this.options
 
     const operation = oas.operation(path, 'delete')
 
@@ -477,9 +488,10 @@ export class OperationGenerator extends Generator<Options> {
 
           return useMutation<TData, unknown, TVariables>({
             mutationFn: () => {
-              return axios
-              .delete(\`${url}\`)
-              .then((res) => res.data)
+              return client<TData, TVariables>({
+                method: "delete",
+                url: \`${url}\`
+              });
             },
             ...mutationOptions
           });
@@ -496,8 +508,8 @@ export class OperationGenerator extends Generator<Options> {
           path: '@tanstack/react-query',
         },
         {
-          name: 'axios',
-          path: 'axios',
+          name: 'client',
+          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-react-query/client',
         },
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
