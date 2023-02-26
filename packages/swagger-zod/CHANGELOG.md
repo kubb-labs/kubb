@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.52.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-zod-v0.51.0...@kubb/swagger-zod-v0.52.0) (2023-02-26)
+
+
+### Features
+
+* intersection for allOf ([7418a7c](https://github.com/stijnvanhulle/kubb/commit/7418a7cd344885c3f5c93ebcf96c86b4f23eae67))
+* oneof for zod and typescript + added description for zod ([ebef9d2](https://github.com/stijnvanhulle/kubb/commit/ebef9d2597f38989c6d43a87053d5eba23948bca))
+
 ## [0.51.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-zod-v0.50.1...@kubb/swagger-zod-v0.51.0) (2023-02-25)
 
 
