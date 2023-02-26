@@ -6,7 +6,6 @@ import { createPlugin, validatePlugins, getPathMode } from '@kubb/core'
 import { pluginName as SwaggerTSPluginName } from '@kubb/swagger-ts'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi } from '@kubb/swagger'
-import type { Api as SwaggerTSApi } from '@kubb/swagger-ts'
 
 import { OperationGenerator } from './generators'
 
@@ -17,7 +16,6 @@ export const pluginName = 'swagger-react-query' as const
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'hooks', groupBy } = options
   let swaggerApi: SwaggerApi
-  let SwaggerTSApi: SwaggerTSApi
 
   return {
     name: pluginName,
@@ -27,7 +25,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const valid = validatePlugins(plugins, [swaggerPluginName, SwaggerTSPluginName])
       if (valid) {
         swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api
-        SwaggerTSApi = plugins.find((plugin) => plugin.name === SwaggerTSPluginName)?.api
       }
 
       return valid
