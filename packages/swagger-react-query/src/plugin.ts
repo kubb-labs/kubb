@@ -53,23 +53,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     async buildStart() {
       const oas = await swaggerApi.getOas(this.config)
       const directory = pathParser.resolve(this.config.root, this.config.output.path)
-      const client = options.client && (await read(pathParser.resolve(this.config.root, options.client)))
-      let clientPath: OptionalPath
-
-      if (client) {
-        clientPath = await this.resolveId({
-          fileName: `client.ts`,
-          directory: pathParser.resolve(this.config.root, this.config.output.path),
-        })
-
-        if (clientPath) {
-          await this.addFile({
-            path: clientPath,
-            fileName: `client.ts`,
-            source: client.replace('./src/types', '@kubb/swagger-react-query'),
-          })
-        }
-      }
+      const clientPath: OptionalPath = options.client ? pathParser.resolve(this.config.root, options.client) : undefined
 
       const operationGenerator = new OperationGenerator({
         clientPath,
