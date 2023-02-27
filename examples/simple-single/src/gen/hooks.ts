@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 
-import client from '@kubb/swagger-react-query/client'
+import client from '@kubb/swagger-client/client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type {

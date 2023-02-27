@@ -28,6 +28,7 @@
     "@kubb/swagger-react-query": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
+    "@kubb/swagger-client": "workspace:*",
     "@tanstack/react-query": "^4.24.10",
     "axios": "^1.3.4",
     "tsup": "^6.6.3",

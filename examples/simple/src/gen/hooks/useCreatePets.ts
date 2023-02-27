@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 
-import client from '@kubb/swagger-react-query/client'
+import client from '@kubb/swagger-client/client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type { CreatePetsRequest, CreatePetsResponse } from '../models/CreatePets'
