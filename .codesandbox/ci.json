@@ -1,5 +1,5 @@
 {
   "packages": ["packages/cli", "packages/core", "packages/swagger", "packages/swagger-react-query", "packages/swagger-ts"],
-  "sandboxes": ["new", "vanilla"],
+  "sandboxes": ["/examples/simple", "/examples/advanced", "/examples/simple-single", "/examples/zod"],
   "node": "16"
 }
