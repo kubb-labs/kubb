@@ -1,26 +1,26 @@
 import { Callout, Tabs, Tab } from 'nextra-theme-docs'
 import Link from 'next/link'
 
-# @kubb/swagger-react-query
+# @kubb/swagger-client
 
-With the Swagger React-Query plugin you can create queryHooks for the definitions inside a Swagger file.
+With the Swagger client plugin you can do API calls.
 
 ## Installation
 
 <Tabs items={['pnpm', 'npm', 'yarn']}>
   <Tab>
     ```bash copy
-    pnpm i -D @kubb/swagger-react-query
+    pnpm i -D @kubb/swagger-client
     ```
   </Tab>
     <Tab>
     ```bash copy
-    npm i -D @kubb/swagger-react-query
+    npm i -D @kubb/swagger-client
     ```
   </Tab>
     <Tab>
     ```bash copy
-    yarn add -D @kubb/swagger-react-query
+    yarn add -D @kubb/swagger-client
     ```
   </Tab>
 </Tabs>
@@ -29,13 +29,13 @@ With the Swagger React-Query plugin you can create queryHooks for the definition
 
 
 ### output
-Output to save the ReactQuery hooks.
+Output to save the Clients.
 
 Type: `string` <br/>
 Default: `"hooks"`
 
 ### groupBy
-Group the react-query hooks based on the provided name.
+Group the clients based on the provided name.
 Tag will group based on the operation tag inside the Swagger file
 
 Type: `'tag'` <br/>
@@ -45,7 +45,7 @@ Path to the client that will be used to do the API calls.
 Relative to the root
 
 Type: `string` <br/>
-Default: `"@kubb/swagger-react-query/client.ts"`
+Default: `"@kubb/swagger-client/client.ts"`
 
 ## Depended
 

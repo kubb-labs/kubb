@@ -251,7 +251,7 @@ export class OperationGenerator extends Generator<Options> {
         },
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-react-query/client',
+          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
@@ -336,7 +336,7 @@ export class OperationGenerator extends Generator<Options> {
         },
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-react-query/client',
+          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
@@ -423,7 +423,7 @@ export class OperationGenerator extends Generator<Options> {
         },
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-react-query/client',
+          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
@@ -509,7 +509,7 @@ export class OperationGenerator extends Generator<Options> {
         },
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-react-query/client',
+          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],

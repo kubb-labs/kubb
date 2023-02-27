@@ -3,5 +3,8 @@
   "usage": "Usage",
   "configuration": "Configuration",
   "guides": "Guides",
-  "customize": "Customize"
+  "customize": "Customize",
+  "about": {
+    "display": "hidden"
+  }
 }

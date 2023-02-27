@@ -47,6 +47,15 @@
       "draft": false,
       "prerelease": true
     },
+    "packages/swagger-client": {
+      "component": "@kubb/swagger-client",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": true
+    },
     "packages/swagger-react-query": {
       "component": "@kubb/swagger-react-query",
       "changelog-path": "CHANGELOG.md",
@@ -76,6 +85,7 @@
         "@kubb/ts-codegen",
         "@kubb/swagger",
         "@kubb/swagger-ts",
+        "@kubb/swagger-client",
         "@kubb/swagger-react-query",
         "@kubb/swagger-zod"
       ]

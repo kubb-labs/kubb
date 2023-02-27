@@ -28,6 +28,7 @@
   },
   "about": {
     "display": "hidden",
+    "type": "page",
     "theme": {
       "layout": "full",
       "footer": true,

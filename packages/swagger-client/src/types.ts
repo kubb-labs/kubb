@@ -15,12 +15,12 @@ export interface RequestConfig<TVariables = unknown> {
 
 export type Options = {
   /**
-   * Output to save the ReactQuery hooks.
-   * @default hooks/query
+   * Output to save the Clients.
+   * @default client/query
    */
   output?: string
   /**
-   * Group the react-query hooks based on the provided name.
+   * Group the clients based on the provided name.
    * Tag will group based on the operation tag inside the Swagger file
    */
   groupBy?: 'tag'
