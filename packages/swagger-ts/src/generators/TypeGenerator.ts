@@ -168,6 +168,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (!ref) {
       const schema = this.resolve<OpenAPIV3.SchemaObject>(obj)
+
       const name = this.getUniqueAlias(pascalCase(schema.title || $ref.replace(/.+\//, ''), { delimiter: '' }))
 
       // eslint-disable-next-line no-multi-assign
@@ -202,8 +203,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
           this.getBaseTypeFromSchema(schemaWithoutOneOf, name),
           factory.createParenthesizedType(
             factory.createUnionTypeNode(
-              schema.oneOf.map((item: OpenAPIV3.ReferenceObject) => {
-                return this.getRefAlias(item)
+              schema.oneOf.map((item: OpenAPIV3.SchemaObject) => {
+                return this.getBaseTypeFromSchema(item)
               })
             )
           ),
@@ -223,8 +224,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
           this.getBaseTypeFromSchema(schemaWithoutAllOf, name),
           factory.createParenthesizedType(
             factory.createIntersectionTypeNode(
-              schema.allOf.map((item: OpenAPIV3.ReferenceObject) => {
-                return this.getRefAlias(item)
+              schema.allOf.map((item: OpenAPIV3.SchemaObject) => {
+                return this.getBaseTypeFromSchema(item)
               })
             )
           ),

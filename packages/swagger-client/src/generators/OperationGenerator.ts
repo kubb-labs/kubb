@@ -33,7 +33,7 @@ export class OperationGenerator extends Generator<Options> {
       fileName: controllerId,
       directory,
       pluginName,
-      options: { tag: operation.getTags()[0].name },
+      options: { tag: operation.getTags()[0]?.name },
     })
 
     if (!controllerFilePath) {
@@ -145,7 +145,7 @@ export class OperationGenerator extends Generator<Options> {
     // controller setup
     const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0].name } })
+    const controllerFilePath = await resolveId({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
     if (!controllerFilePath) {
       return null
     }
@@ -219,7 +219,7 @@ export class OperationGenerator extends Generator<Options> {
     // controller setup
     const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0].name } })
+    const controllerFilePath = await resolveId({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
     if (!controllerFilePath) {
       return null
     }
@@ -293,7 +293,7 @@ export class OperationGenerator extends Generator<Options> {
     // controller setup
     const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0].name } })
+    const controllerFilePath = await resolveId({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
     if (!controllerFilePath) {
       return null
     }

@@ -33,7 +33,7 @@ export class OperationGenerator extends Generator<Options> {
       fileName: hookId,
       directory,
       pluginName,
-      options: { tag: operation.getTags()[0].name },
+      options: { tag: operation.getTags()[0]?.name },
     })
 
     if (!hookFilePath) {
@@ -272,7 +272,7 @@ export class OperationGenerator extends Generator<Options> {
     // hook setup
     const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0].name } })
+    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
     if (!hookFilePath) {
       return null
     }
@@ -359,7 +359,7 @@ export class OperationGenerator extends Generator<Options> {
     // hook setup
     const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0].name } })
+    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
     if (!hookFilePath) {
       return null
     }
@@ -446,7 +446,7 @@ export class OperationGenerator extends Generator<Options> {
     // hook setup
     const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0].name } })
+    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
     if (!hookFilePath) {
       return null
     }

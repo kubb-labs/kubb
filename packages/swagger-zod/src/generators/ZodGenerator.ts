@@ -224,8 +224,8 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         ...this.getBaseTypeFromSchema(schemaWithoutOneOf, name),
         [
           keywordZodNodes.union,
-          schema.oneOf.map((item: OpenAPIV3.ReferenceObject) => {
-            return this.getRefAlias(item)[0]
+          schema.oneOf.map((item: OpenAPIV3.SchemaObject) => {
+            return this.getBaseTypeFromSchema(item)[0]
           }),
         ],
       ]
@@ -242,8 +242,8 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         ...this.getBaseTypeFromSchema(schemaWithoutAllOf, name),
         [
           keywordZodNodes.and,
-          schema.allOf.map((item: OpenAPIV3.ReferenceObject) => {
-            return this.getRefAlias(item)[0]
+          schema.allOf.map((item: OpenAPIV3.SchemaObject) => {
+            return this.getBaseTypeFromSchema(item)[0]
           }),
         ],
       ]
