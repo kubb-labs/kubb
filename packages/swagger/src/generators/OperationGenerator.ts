@@ -70,7 +70,8 @@ export abstract class OperationGenerator<TOptions extends object = object> exten
       operation.getDescription() && `@description ${operation.getDescription()}`,
       operation.getSummary() && `@summary ${operation.getSummary()}`,
       operation.path && `@link ${operation.path}`,
-    ].filter(Boolean)
+      'isDeprecated' in operation && `@deprecated`,
+    ].filter(Boolean) as string[]
   }
 
   async buildOperations(options: { oas: Oas; fileManager: FileManager }) {
