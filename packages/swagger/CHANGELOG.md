@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.56.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.55.0...@kubb/swagger-v0.56.0) (2023-02-28)
+
+
+### Features
+
+* [@deprecated](https://github.com/deprecated) comments for all operations ([b09bb8d](https://github.com/stijnvanhulle/kubb/commit/b09bb8da6e2810ee13b983f228b992a269659239))
+
 ## [0.55.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.54.0...@kubb/swagger-v0.55.0) (2023-02-27)
 
 
