@@ -26,6 +26,7 @@ export const findPetsByStatusQueryOptions = <TData = FindPetsByStatusResponse>(p
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
  * @link /pet/findByStatus
+ * @deprecated
  */
 export const useFindPetsByStatus = <TData = FindPetsByStatusResponse>(
   params?: FindPetsByStatusQueryParams,

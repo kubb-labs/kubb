@@ -6,6 +6,7 @@ import type { CreateUserRequest, CreateUserResponse } from '../../models/ts/Crea
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user
+ * @deprecated
  */
 export const createUser = <TData = CreateUserResponse, TVariables = CreateUserRequest>(data: TVariables) => {
   return client<TData, TVariables>({

@@ -29,6 +29,7 @@ export const getUserByNameQueryOptions = <TData = GetUserByNameResponse>(
 /**
  * @summary Get user by user name
  * @link /user/{username}
+ * @deprecated
  */
 export const useGetUserByName = <TData = GetUserByNameResponse>(
   username: GetUserByNamePathParams['username'],

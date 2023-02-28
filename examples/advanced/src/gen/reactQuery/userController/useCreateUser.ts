@@ -9,6 +9,7 @@ import type { CreateUserRequest, CreateUserResponse } from '../../models/ts/Crea
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user
+ * @deprecated
  */
 export const useCreateUser = <TData = CreateUserResponse, TVariables = CreateUserRequest>(options?: {
   mutation?: UseMutationOptions<TData, unknown, TVariables>

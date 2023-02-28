@@ -25,6 +25,7 @@ export const loginUserQueryOptions = <TData = LoginUserResponse>(params?: LoginU
 /**
  * @summary Logs user into the system
  * @link /user/login
+ * @deprecated
  */
 export const useLoginUser = <TData = LoginUserResponse>(
   params?: LoginUserQueryParams,

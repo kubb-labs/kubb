@@ -30,6 +30,7 @@ export const getPetByIdQueryOptions = <TData = GetPetByIdResponse>(
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/{petId}
+ * @deprecated
  */
 export const useGetPetById = <TData = GetPetByIdResponse>(
   petId: GetPetByIdPathParams['petId'],

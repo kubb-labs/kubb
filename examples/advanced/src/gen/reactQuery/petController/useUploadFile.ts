@@ -8,6 +8,7 @@ import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams } from
 /**
  * @summary uploads an image
  * @link /pet/{petId}/uploadImage
+ * @deprecated
  */
 export const useUploadFile = <TData = UploadFileResponse, TVariables = UploadFileRequest>(
   petId: UploadFilePathParams['petId'],

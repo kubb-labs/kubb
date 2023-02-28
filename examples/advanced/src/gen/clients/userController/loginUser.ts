@@ -5,6 +5,7 @@ import type { LoginUserResponse, LoginUserQueryParams } from '../../models/ts/Lo
 /**
  * @summary Logs user into the system
  * @link /user/login
+ * @deprecated
  */
 export const loginUser = <TData = LoginUserResponse>(params?: LoginUserQueryParams) => {
   return client<TData>({

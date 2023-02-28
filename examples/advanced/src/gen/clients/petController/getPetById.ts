@@ -6,6 +6,7 @@ import type { GetPetByIdResponse, GetPetByIdPathParams, GetPetByIdQueryParams } 
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/{petId}
+ * @deprecated
  */
 export const getPetById = <TData = GetPetByIdResponse>(petId: GetPetByIdPathParams['petId'], params?: GetPetByIdQueryParams) => {
   return client<TData>({

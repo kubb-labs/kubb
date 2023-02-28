@@ -9,6 +9,7 @@ import type { CreateUsersWithListInputRequest, CreateUsersWithListInputResponse 
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList
+ * @deprecated
  */
 export const useCreateUsersWithListInput = <TData = CreateUsersWithListInputResponse, TVariables = CreateUsersWithListInputRequest>(options?: {
   mutation?: UseMutationOptions<TData, unknown, TVariables>

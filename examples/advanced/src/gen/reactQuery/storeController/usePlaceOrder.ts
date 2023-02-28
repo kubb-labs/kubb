@@ -9,6 +9,7 @@ import type { PlaceOrderRequest, PlaceOrderResponse } from '../../models/ts/Plac
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order
+ * @deprecated
  */
 export const usePlaceOrder = <TData = PlaceOrderResponse, TVariables = PlaceOrderRequest>(options?: {
   mutation?: UseMutationOptions<TData, unknown, TVariables>

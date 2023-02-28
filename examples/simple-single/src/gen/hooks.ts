@@ -33,6 +33,7 @@ export const listPetsQueryOptions = <TData = ListPetsResponse>(params?: ListPets
 /**
  * @summary List all pets
  * @link /pets
+ * @deprecated
  */
 export const useListPets = <TData = ListPetsResponse>(
   params?: ListPetsQueryParams,
@@ -54,6 +55,7 @@ export const useListPets = <TData = ListPetsResponse>(
 /**
  * @summary Create a pet
  * @link /pets
+ * @deprecated
  */
 export const useCreatePets = <TData = CreatePetsResponse, TVariables = CreatePetsRequest>(options?: {
   mutation?: UseMutationOptions<TData, unknown, TVariables>
@@ -97,6 +99,7 @@ export const showPetByIdQueryOptions = <TData = ShowPetByIdResponse>(
 /**
  * @summary Info for a specific pet
  * @link /pets/{petId}
+ * @deprecated
  */
 export const useShowPetById = <TData = ShowPetByIdResponse>(
   petId: ShowPetByIdPathParams['petId'],

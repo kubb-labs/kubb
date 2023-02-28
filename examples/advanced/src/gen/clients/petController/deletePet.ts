@@ -6,6 +6,7 @@ import type { DeletePetRequest, DeletePetResponse, DeletePetPathParams } from '.
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/{petId}
+ * @deprecated
  */
 export const deletePet = <TData = DeletePetResponse, TVariables = DeletePetRequest>(petId: DeletePetPathParams['petId']) => {
   return client<TData, TVariables>({

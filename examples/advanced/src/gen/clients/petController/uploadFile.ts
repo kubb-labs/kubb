@@ -5,6 +5,7 @@ import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams } from
 /**
  * @summary uploads an image
  * @link /pet/{petId}/uploadImage
+ * @deprecated
  */
 export const uploadFile = <TData = UploadFileResponse, TVariables = UploadFileRequest>(petId: UploadFilePathParams['petId'], data: TVariables) => {
   return client<TData, TVariables>({
