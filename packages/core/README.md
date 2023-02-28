@@ -4,13 +4,13 @@
   <h1>@kubb/core</h1>
   
   <p>
-   With Kubb you can create and use plugins that will generate code based on a specific input.
+   Core utils for other packages.
   </p>
 
 <!-- Badges -->
 <p>
   <a href="https://www.npmjs.com/package/@kubb/core">
-    <img alt="Npm verssion" src="https://img.shields.io/npm/v/@kubb/core?style=for-the-badge"/>
+    <img alt="Npm version" src="https://img.shields.io/npm/v/@kubb/core?style=for-the-badge"/>
   </a>
   <a href="https://www.npmjs.com/package/@kubb/core">
     <img alt="Npm downloads" src="https://img.shields.io/bundlephobia/min/@kubb/core?style=for-the-badge"/>

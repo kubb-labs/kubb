@@ -4,13 +4,13 @@
   <h1>@kubb/cli</h1>
   
   <p>
-   With Kubb you can create and use plugins that will generate code based on a specific input.
+   CLI package to generate the different clients when using the terminal.
   </p>
 
 <!-- Badges -->
 <p>
   <a href="https://www.npmjs.com/package/@kubb/cli">
-    <img alt="Npm verssion" src="https://img.shields.io/npm/v/@kubb/cli?style=for-the-badge"/>
+    <img alt="Npm version" src="https://img.shields.io/npm/v/@kubb/cli?style=for-the-badge"/>
   </a>
   <a href="https://www.npmjs.com/package/@kubb/cli">
     <img alt="Npm downloads" src="https://img.shields.io/bundlephobia/min/@kubb/cli?style=for-the-badge"/>

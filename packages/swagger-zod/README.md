@@ -4,13 +4,13 @@
   <h1>@kubb/swagger-zod</h1>
   
   <p>
-   With Kubb you can create and use plugins that will generate code based on a specific input.
+   Swagger integration for Zod to generate all the different schemas based on an OpenAPI specification.
   </p>
 
 <!-- Badges -->
 <p>
   <a href="https://www.npmjs.com/package/@kubb/swagger-zod">
-    <img alt="Npm verssion" src="https://img.shields.io/npm/v/@kubb/swagger-zod?style=for-the-badge"/>
+    <img alt="Npm version" src="https://img.shields.io/npm/v/@kubb/swagger-zod?style=for-the-badge"/>
   </a>
   <a href="https://www.npmjs.com/package/@kubb/swagger-zod">
     <img alt="Npm downloads" src="https://img.shields.io/bundlephobia/min/@kubb/swagger-zod?style=for-the-badge"/>

@@ -4,8 +4,9 @@
   <h1>Kubb</h1>
   
   <p>
-   With Kubb you can create and use plugins that will generate code based on a specific input.
+   OpenAPI to TypeScript, React-Query, Zod and Axios. 
   </p>
+
 
 <!-- Badges -->
 <p>
@@ -34,6 +35,14 @@
 </div>
 
 <br />
+
+## Features
+
+* Generates Axios calls for every endpoint, with typed payload.
+* Generates strong TypeScript types for every operation and property based on a specific OpenAPI specification.
+* Generates Zod schemas for every operation and property based on a specific OpenAPI specification.
+* Generates React-Query hook for every endpoint, with a typed payload based on the generated TypesScript types.
+* Plugin system to create your own implementation of an existing package or create a new integration(Angular Clients, Solid-Query, ...). 
 
 <!-- About the Project 
 ## :star2: About the Project

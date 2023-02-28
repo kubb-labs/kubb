@@ -18,7 +18,6 @@ export default {
     <>
       <span
         style={{
-          fontFamily: 'Satoshi-Light',
           fontSize: '2rem',
           marginRight: '1rem',
         }}
@@ -26,7 +25,7 @@ export default {
       >
         Kubb
       </span>
-      <span className="text-gray-600 font-normal md:inline">Codegen plugins</span>
+      <span className="text-gray-400 font-normal md:inline">OpenAPI generated clients</span>
     </>
   ),
   head: () => (
@@ -35,13 +34,13 @@ export default {
       <meta name="theme-color" content="#ffffff" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta httpEquiv="Content-Language" content="en" />
-      <meta name="description" content="Kubb: codegen plugins" />
-      <meta name="og:description" content="Kubb: codegen plugins" />
+      <meta name="description" content="Kubb: OpenAPI generated clients" />
+      <meta name="og:description" content="Kubb: OpenAPI generated clients" />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:image" content="https://kubb.dev/og.png" />
       <meta name="twitter:site:domain" content="kubb.dev" />
       <meta name="twitter:url" content="https://kubb.dev" />
-      <meta name="og:title" content="Kubb: codegen plugins" />
+      <meta name="og:title" content="Kubb: OpenAPI generated clients" />
       <meta name="og:image" content="https://kub.dev/og.png" />
       <meta name="apple-mobile-web-app-title" content="Kubb" />
       <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -50,14 +49,10 @@ export default {
       <link rel="icon" href="/favicon-dark.png" type="image/png" media="(prefers-color-scheme: dark)" />
     </>
   ),
-  // banner: {
-  //   key: '2.0-release',
-  //   text: (
-  //     <a href="https://nextra.vercel.app" target="_blank">
-  //       🎉 Nextra 2.0 is released. Read more →
-  //     </a>
-  //   ),
-  // },
+  banner: {
+    key: '2.0-release',
+    text: <>Kubb is still in beta</>,
+  },
   navigation: {
     prev: true,
     next: true,

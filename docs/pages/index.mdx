@@ -1,23 +1,39 @@
 import { Bleed } from 'nextra-theme-docs'
 import { Callout } from 'nextra-theme-docs'
 import Link from 'next/link'
+import Features from 'components/features'
+
 
 <h1 className="text-center font-extrabold md:text-5xl mt-8">Kubb</h1>
-<h2 className="text-center font-extrabold md:text-2xl mt-8">Codegen plugins</h2>
+<h2 className="text-center text-slate-500 font-bold md:text-2xl mt-8">OpenAPI to TypeScript, React-Query, Zod and Axios.</h2>
+
+<Bleed><Features/></Bleed>
+
+<br/>
+
+
+<div className="flex items-end justify-center gap-4 text-white uppercase text-md font-bold"  style={{height: '50vh'}}>
+  <Link className="transition duration-300 ease-in-out no-underline mb-20 rounded-md shadow-sm bg-orange-700 hover:bg-orange-500 py-3 px-4" href="/docs/getting-started/installation/">Get Started</Link>
+  <Link className="transition duration-300 ease-in-out no-underline mb-20 rounded-md shadow-sm bg-gray-800 hover:bg-gray-600 py-3 px-4" href="/playground">Playground</Link>
+</div>
+
+
+
+## Features
 
 <Callout>
- With Kubb you can create and use plugins that will generate code based on a specific input. 
+ Generate different kind of clients in your frontend applications all with your OpenAPI specification.
 </Callout>
 
-
-Instead of using multiple libraries to create your code generated files you can use Kubb with all of it's plugins to generate your code.
-All of Kubb's logic is based on a core library(reading files, writing files, the plugin system, ...), which means you can use Kubb to create your own code generated logic.
-
-[Go to the docs](/docs/getting-started/installation/)
+* Generates Axios calls for every endpoint, with typed payload.
+* Generates strong TypeScript types for every operation and property based on a specific OpenAPI specification.
+* Generates Zod schemas for every operation and property based on a specific OpenAPI specification.
+* Generates React-Query hook for every endpoint, with a typed payload based on the generated TypesScript types.
+* Plugin system to create your own implementation of an existing package or create a new integration(Angular Clients, Solid-Query, ...). 
 
 
 ## Community
-
+<br/>
 <div className="flex h-6">
     <a href="https://www.npmjs.com/package/@kubb/core">
       <img alt="Npm version" src="https://img.shields.io/npm/v/@kubb/core?style=for-the-badge"/>

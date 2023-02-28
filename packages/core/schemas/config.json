@@ -40,6 +40,11 @@
         "clean": {
           "type": "boolean",
           "description": "Clean previous generated files"
+        },
+        "write": {
+          "type": "boolean",
+          "description": " Write output to the fileSystem",
+          "default": "true"
         }
       }
     },
