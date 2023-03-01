@@ -16,17 +16,18 @@
     "codegen"
   ],
   "sideEffects": false,
+  "type": "module",
   "main": "dist/index.js",
   "unpkg": "dist/index.global.js",
-  "module": "dist/index.mjs",
+  "module": "dist/index.js",
   "browser": "build/index.global.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "module": "./dist/index.mjs",
-      "default": "./dist/index.js"
+      "import": "./dist/index.js",
+      "module": "./dist/index.js",
+      "default": "./dist/index.cjs"
     },
     "./package.json": "./package.json"
   },
@@ -46,9 +47,9 @@
     "prepack": "pnpm build",
     "pre-commit": "echo 'pre-commit not configured'",
     "pre-push": "pnpm typecheck",
-    "test": "jest --config ../../jest.config.js --passWithNoTests --runInBand --testPathPattern=packages/core/src",
-    "test:local": "jest --config ../../jest.config.js --testPathPattern=packages/core/src --maxWorkers=50%",
-    "test:watch": "jest --config ../../jest.config.js --testPathPattern=packages/core/src --maxWorkers=25% --watch",
+    "test": "jest --config ../../jest.config.ts --passWithNoTests --runInBand --testPathPattern=packages/core/src",
+    "test:local": "jest --config ../../jest.config.ts --testPathPattern=packages/core/src --maxWorkers=50%",
+    "test:watch": "jest --config ../../jest.config.ts --testPathPattern=packages/core/src --maxWorkers=25% --watch",
     "upgrade": "ncu -u",
     "upgrade:local": "ncu --interactive --doctor",
     "typecheck": "tsc -p ./tsconfig.json --noEmit"
@@ -71,5 +72,8 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "engines": {
+		"node": "^12.17.0 || ^14.13 || >=16.0.0"
+	}
 }

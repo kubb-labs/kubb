@@ -16,7 +16,7 @@ export default defineConfig(async () => {
       clean: true,
     },
     hooks: {
-      done: 'eslint --fix ./src/gen',
+      done: 'npx eslint --fix ./src/gen',
     },
     // logLevel: 'info',
     plugins: [

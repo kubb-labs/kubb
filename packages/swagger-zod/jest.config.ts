@@ -1,12 +1,14 @@
-const { pathsToModuleNameMapper } = require('ts-jest')
+import type { Config } from 'jest'
+
+import { pathsToModuleNameMapper } from 'ts-jest'
+
+import baseConfig from '../../jest.config'
 
 const tsconfig = require('./tsconfig.json')
 
-const baseConfig = require('../../jest.config.js')
+const packageName = 'swagger-zod'
 
-const packageName = 'ts-codegen'
-
-module.exports = {
+export default {
   ...baseConfig,
   rootDir: '../..',
   roots: [`<rootDir>/packages/${packageName}`],
@@ -15,4 +17,4 @@ module.exports = {
   moduleNameMapper: {
     ...pathsToModuleNameMapper(tsconfig.compilerOptions.paths, { prefix: `<rootDir>/packages/${packageName}` }),
   },
-}
+} as Config

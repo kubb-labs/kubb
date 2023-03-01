@@ -16,5 +16,5 @@ export default defineConfig({
   },
   platform: 'node',
   shims: true,
-  format: ['cjs', 'esm'],
+  format: ['esm'],
 })

@@ -17,6 +17,10 @@
     "cli"
   ],
   "sideEffects": false,
+  "type": "module",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "bin": {
     "kubb": "dist/index.mjs"
   },
@@ -33,9 +37,9 @@
     "prepack": "pnpm build",
     "pre-commit": "echo 'pre-commit not configured'",
     "pre-push": "pnpm typecheck",
-    "test": "jest --config ../../jest.config.js --passWithNoTests --runInBand --testPathPattern=packages/core/src",
-    "test:local": "jest --config ../../jest.config.js --testPathPattern=packages/core/src --maxWorkers=50%",
-    "test:watch": "jest --config ../../jest.config.js --testPathPattern=packages/core/src --maxWorkers=25% --watch",
+    "test": "jest --config ../../jest.config.ts --passWithNoTests --runInBand --testPathPattern=packages/cli/src",
+    "test:local": "jest --config ../../jest.config.ts --testPathPattern=packages/cli/src --maxWorkers=50%",
+    "test:watch": "jest --config ../../jest.config.ts --testPathPattern=packages/cli/src --maxWorkers=25% --watch",
     "upgrade": "ncu -u",
     "upgrade:local": "ncu --interactive --doctor",
     "typecheck": "tsc -p ./tsconfig.json --noEmit"
@@ -45,7 +49,7 @@
     "@kubb/core": "workspace:*",
     "chokidar": "^3.5.3",
     "commander": "^10.0.0",
-    "cosmiconfig": "^8.0.0",
+    "cosmiconfig": "^8.1.0",
     "cosmiconfig-typescript-loader": "^4.3.0",
     "execa": "^7.0.0",
     "ora": "^6.1.2",
@@ -54,13 +58,15 @@
     "ts-node": "^10.9.1"
   },
   "devDependencies": {
-    "@kubb/swagger": "workspace:*",
-    "@types/node": "^18.14.1",
+    "@types/node": "^18.14.2",
     "tsup": "^6.6.3",
     "typescript": "^4.9.5"
   },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "engines": {
+		"node": "^12.17.0 || ^14.13 || >=16.0.0"
+	}
 }
