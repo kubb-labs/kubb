@@ -1,6 +1,6 @@
 {
   "name": "@kubb/ts-codegen",
-  "version": "0.56.0",
+  "version": "0.56.1",
   "description": "Generator ts-codegen",
   "repository": {
     "type": "git",
@@ -66,6 +66,6 @@
     "registry": "https://registry.npmjs.org/"
   },
   "engines": {
-		"node": "^12.17.0 || ^14.13 || >=16.0.0"
-	}
+    "node": "^12.17.0 || ^14.13 || >=16.0.0"
+  }
 }

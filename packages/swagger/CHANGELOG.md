@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.56.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.56.0...@kubb/swagger-v0.56.1) (2023-03-01)
+
+
+### Bug Fixes
+
+* support for ESM modules ([cec3b57](https://github.com/stijnvanhulle/kubb/commit/cec3b57ba9b97a030bb276a3957c826ace72b7d3))
+
 ## [0.56.0](https://github.com/stijnvanhulle/kubb/compare/@kubb/swagger-v0.55.0...@kubb/swagger-v0.56.0) (2023-02-28)
 
 
