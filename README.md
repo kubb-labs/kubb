@@ -1,11 +1,12 @@
 <div align="center">
 
-  <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-  <h1>Kubb</h1>
-  
+  <img src="assets/logo.png" alt="logo"  height="auto" />
+
+  <!-- <h1>Kubb</h1>
+
   <p>
    OpenAPI to TypeScript, React-Query, Zod and Axios. 
-  </p>
+  </p> -->
 
 
 <!-- Badges -->
