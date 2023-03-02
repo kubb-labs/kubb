@@ -18,6 +18,7 @@
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "license": "MIT",
   "dependencies": {
+    "@vercel/analytics": "^0.1.11",
     "next": "^13.2.1",
     "next-sitemap": "^3.1.54",
     "nextra": "^2.2.16",

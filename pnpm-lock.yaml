@@ -92,6 +92,7 @@ importers:
     specifiers:
       '@next/env': ^13.2.1
       '@types/node': ^18.14.2
+      '@vercel/analytics': ^0.1.11
       autoprefixer: ^10.4.13
       next: ^13.2.1
       next-sitemap: ^3.1.54
@@ -103,6 +104,7 @@ importers:
       tailwindcss: 3.2.7
       typescript: 4.9.5
     dependencies:
+      '@vercel/analytics': 0.1.11_react@18.2.0
       next: 13.2.1_biqbaboplfbrettd7655fr4n2y
       next-sitemap: 3.1.54_w72blvo532ghymzwxfaavzsw7a
       nextra: 2.2.16_qgtcjgzkkjtbiyvnx7d32fl5vu
@@ -2593,6 +2595,14 @@ packages:
       '@typescript-eslint/types': 5.54.0
       eslint-visitor-keys: 3.3.0
     dev: true
+
+  /@vercel/analytics/0.1.11_react@18.2.0:
+    resolution: {integrity: sha512-mj5CPR02y0BRs1tN3oZcBNAX9a8NxsIUl9vElDPcqxnMfP0RbRc9fI9Ud7+QDg/1Izvt5uMumsr+6YsmVHcyuw==}
+    peerDependencies:
+      react: ^16.8||^17||^18
+    dependencies:
+      react: 18.2.0
+    dev: false
 
   /@yarnpkg/lockfile/1.1.0:
     resolution: {integrity: sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==}
