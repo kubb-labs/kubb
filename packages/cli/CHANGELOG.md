@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.56.4](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.56.3...@kubb/cli-v0.56.4) (2023-03-02)
+
+
+### Bug Fixes
+
+* cli with correct dist ([1ea3d04](https://github.com/stijnvanhulle/kubb/commit/1ea3d04d63d137eadf227b57e51bdb8e41f471c3))
+
 ## [0.56.3](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.56.2...@kubb/cli-v0.56.3) (2023-03-02)
 
 
