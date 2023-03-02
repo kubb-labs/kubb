@@ -1,10 +1,10 @@
 {
-  "packages/core": "0.56.2",
-  "packages/cli": "0.56.2",
-  "packages/ts-codegen": "0.56.2",
-  "packages/swagger": "0.56.2",
-  "packages/swagger-ts": "0.56.2",
-  "packages/swagger-client": "0.56.2",
-  "packages/swagger-react-query": "0.56.2",
-  "packages/swagger-zod": "0.56.2"
+  "packages/core": "0.56.3",
+  "packages/cli": "0.56.3",
+  "packages/ts-codegen": "0.56.3",
+  "packages/swagger": "0.56.3",
+  "packages/swagger-ts": "0.56.3",
+  "packages/swagger-client": "0.56.3",
+  "packages/swagger-react-query": "0.56.3",
+  "packages/swagger-zod": "0.56.3"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/ts-codegen",
-  "version": "0.56.2",
+  "version": "0.56.3",
   "description": "Generator ts-codegen",
   "repository": {
     "type": "git",

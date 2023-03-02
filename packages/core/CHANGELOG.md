@@ -1,4 +1,11 @@
 # Changelog
+## [0.56.3](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.56.2...@kubb/core-v0.56.3) (2023-03-02)
+
+
+### Bug Fixes
+
+* windows support for imports ([b938be9](https://github.com/stijnvanhulle/kubb/commit/b938be9f12c080b38a0814bda1861687ebc3f232))
+
 ## [0.56.2](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.56.1...@kubb/core-v0.56.2) (2023-03-02)
 
 
