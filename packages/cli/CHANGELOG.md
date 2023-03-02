@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.56.2](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.56.1...@kubb/cli-v0.56.2) (2023-03-02)
+
+
+### Bug Fixes
+
+* @swc/core as dep of @kubb/cli ([b07ed69](https://github.com/stijnvanhulle/kubb/commit/b07ed698f70087f585d3cd71b98411463432695f))
+
 ## [0.56.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/cli-v0.56.0...@kubb/cli-v0.56.1) (2023-03-01)
 
 
