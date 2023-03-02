@@ -1,26 +1,44 @@
 import pathParser from 'path'
 import { promises as fs } from 'fs'
 
-// TODO check for a better way or resolving the relative path
-export const getRelativePath = (root?: string | null, file?: string | null) => {
-  if (!root || !file) {
+function slash(path: string) {
+  const isExtendedLengthPath = /^\\\\\?\\/.test(path)
+
+  if (isExtendedLengthPath) {
+    return path
+  }
+
+  return path.replace(/\\/g, '/')
+}
+
+export function getRelativePath(rootDir?: string | null, filePath?: string | null) {
+  if (!rootDir || !filePath) {
     throw new Error('Root and file should be filled in when retrieving the relativePath')
   }
-  const newPath = pathParser.relative(root, file).replace('../', '').replace('.ts', '').trimEnd()
 
-  return `./${newPath}`
+  const relativePath = pathParser.relative(rootDir, filePath)
+
+  // On Windows, paths are separated with a "\"
+  // However, web browsers use "/" no matter the platform
+  const path = slash(relativePath).replace('../', '').trimEnd()
+
+  if (path.startsWith('../')) {
+    return path.replace(pathParser.basename(path), pathParser.basename(path, pathParser.extname(filePath)))
+  }
+
+  return `./${path.replace(pathParser.basename(path), pathParser.basename(path, pathParser.extname(filePath)))}`
 }
 
 export type PathMode = 'file' | 'directory'
 
-export const getPathMode = (path: string | undefined | null): PathMode => {
+export function getPathMode(path: string | undefined | null): PathMode {
   if (!path) {
     return 'directory'
   }
   return pathParser.extname(path) ? 'file' : 'directory'
 }
 
-export const read = async (path: string) => {
+export async function read(path: string) {
   try {
     return fs.readFile(path, { encoding: 'utf8' })
   } catch (err) {
