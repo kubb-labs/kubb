@@ -1,10 +1,10 @@
 import pathParser from 'path'
-import { URL } from 'url'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
 import swagger2openapi from 'swagger2openapi'
 
-import { isURL, KubbConfig } from '@kubb/core'
+import type { KubbConfig } from '@kubb/core'
+import { isURL } from '@kubb/core'
 
 import { isOpenApiV3Document } from '../utils'
 
@@ -18,7 +18,7 @@ type Options = {
   validate?: boolean
 }
 
-const convertSwagger2ToOpenApi = (document: OASDocument): Promise<OASDocument> => {
+function convertSwagger2ToOpenApi(document: OASDocument): Promise<OASDocument> {
   const options = { anchors: true }
   return new Promise((resolve, reject) => {
     swagger2openapi.convertObj(document, options, (err, value) => {
@@ -31,7 +31,7 @@ const convertSwagger2ToOpenApi = (document: OASDocument): Promise<OASDocument> =
   })
 }
 
-export const oasPathParser = async (pathOrApi: string, { validate }: Options = {}) => {
+export async function oasPathParser(pathOrApi: string, { validate }: Options = {}) {
   if (validate) {
     await SwaggerParser.validate(pathOrApi)
   }
@@ -45,7 +45,7 @@ export const oasPathParser = async (pathOrApi: string, { validate }: Options = {
   return new Oas(document)
 }
 
-export const oasParser = async (config: KubbConfig, options: Options = {}) => {
+export async function oasParser(config: KubbConfig, options: Options = {}) {
   let pathOrApi = ''
   if (isURL(config.input.path)) {
     pathOrApi = config.input.path

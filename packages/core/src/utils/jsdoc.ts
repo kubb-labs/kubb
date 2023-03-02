@@ -1,4 +1,4 @@
-export const createJSDocBlockText = ({ comments }: { comments: Array<string | undefined> }) => {
+export function createJSDocBlockText({ comments }: { comments: Array<string | undefined> }) {
   const filteredComments = comments.filter(Boolean)
 
   if (!filteredComments.length) {

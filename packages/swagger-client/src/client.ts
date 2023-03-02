@@ -2,7 +2,7 @@ import axios from 'axios'
 
 import type { RequestConfig } from './types'
 
-export const axiosClient = async <TData, TVariables = unknown>(config: RequestConfig<TVariables>) => {
+export async function axiosClient<TData, TVariables = unknown>(config: RequestConfig<TVariables>) {
   const promise = axios.request<TData>({ ...config }).then(({ data }) => data)
 
   return promise

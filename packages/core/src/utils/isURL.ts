@@ -1,4 +1,4 @@
-export const isURL = (data: string) => {
+export function isURL(data: string) {
   try {
     const url = new URL(data)
     if (url?.href) {

@@ -5,7 +5,7 @@ import { getPlugins } from './getPlugins'
 
 import type { CosmiconfigResult } from '../types'
 
-export const getConfig = async (result: CosmiconfigResult, options: CLIOptions) => {
+export async function getConfig(result: CosmiconfigResult, options: CLIOptions) {
   const config = result?.config
   let kubbUserConfig: Promise<KubbUserConfig> = Promise.resolve(config) as Promise<KubbUserConfig>
 

@@ -8,7 +8,7 @@ import { print } from './print'
 
 import type ts from 'typescript'
 
-export const writeIndexes = (root: string, output: string, options: Parameters<typeof TreeNode.build>[1]) => {
+export function writeIndexes(root: string, output: string, options: Parameters<typeof TreeNode.build>[1]) {
   const tree = TreeNode.build(output, { extensions: /\.ts/, ...options })
 
   if (!tree) {

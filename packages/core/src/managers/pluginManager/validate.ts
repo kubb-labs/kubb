@@ -2,7 +2,7 @@ import type { KubbPlugin } from '../../types'
 
 export class ValidationPluginError extends Error {}
 
-export const validatePlugins = (plugins: KubbPlugin[], dependedPluginNames: string | string[]): true => {
+export function validatePlugins(plugins: KubbPlugin[], dependedPluginNames: string | string[]): true {
   let pluginNames: string[] = []
   if (typeof dependedPluginNames === 'string') {
     pluginNames = [dependedPluginNames]

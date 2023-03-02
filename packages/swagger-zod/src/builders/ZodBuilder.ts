@@ -15,6 +15,18 @@ type Config = {
   withJSDocs?: boolean
   withImports?: boolean
 }
+
+// TODO create another function that sort based on the refs(first the ones without refs)
+function refsSorter(a: Generated, b: Generated) {
+  if (Object.keys(a.refs)?.length < Object.keys(b.refs)?.length) {
+    return -1
+  }
+  if (Object.keys(a.refs)?.length > Object.keys(b.refs)?.length) {
+    return 1
+  }
+  return 0
+}
+
 export class ZodBuilder extends OasBuilder<Config> {
   configure(config: Config) {
     this.config = config
@@ -28,17 +40,6 @@ export class ZodBuilder extends OasBuilder<Config> {
 
   async print(name?: string) {
     const codes: string[] = []
-
-    // TODO create another function that sort based on the refs(first the ones without refs)
-    const refsSorter = (a: Generated, b: Generated) => {
-      if (Object.keys(a.refs)?.length < Object.keys(b.refs)?.length) {
-        return -1
-      }
-      if (Object.keys(a.refs)?.length > Object.keys(b.refs)?.length) {
-        return 1
-      }
-      return 0
-    }
 
     const generated = this.items
       .filter((gen) => (name ? gen.name === name : true))

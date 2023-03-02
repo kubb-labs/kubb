@@ -1,4 +1,4 @@
-export const nameSorter = <T extends { name: string }>(a: T, b: T) => {
+export function nameSorter<T extends { name: string }>(a: T, b: T) {
   if (a.name < b.name) {
     return -1
   }

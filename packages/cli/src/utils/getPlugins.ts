@@ -3,13 +3,13 @@ import { ModuleImporter } from '@humanwhocodes/module-importer'
 
 import type { KubbUserConfig, KubbJSONPlugin } from '@kubb/core'
 
-const isJSONPlugins = (plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): plugins is KubbJSONPlugin[] => {
+function isJSONPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): plugins is KubbJSONPlugin[] {
   return !!plugins?.some((plugin) => {
     return typeof plugin?.[0] === 'string'
   })
 }
 
-const importPlugin = async (name: string, options: Record<string, any>) => {
+async function importPlugin(name: string, options: Record<string, any>) {
   const importer = new ModuleImporter(process.cwd())
 
   const importedPlugin: any = process.env.NODE_ENV === 'test' ? await import(name) : await importer.import(name)
@@ -17,7 +17,7 @@ const importPlugin = async (name: string, options: Record<string, any>) => {
   return importedPlugin?.default?.default ? importedPlugin.default.default(options) : importedPlugin.default(options)
 }
 
-export const getPlugins = (plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): Promise<KubbUserConfig['plugins']> => {
+export function getPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): Promise<KubbUserConfig['plugins']> {
   if (isJSONPlugins(plugins)) {
     const promises = plugins.map(async (plugin) => {
       const [name, options = {}] = plugin

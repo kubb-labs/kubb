@@ -11,7 +11,7 @@ const keys = {
 
 type VoidFunction = () => void
 
-export const getFileManagerEvents = (emitter: EventEmitter) => {
+export function getFileManagerEvents(emitter: EventEmitter) {
   return {
     /**
      * Emiter

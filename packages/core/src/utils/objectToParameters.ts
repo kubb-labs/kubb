@@ -4,7 +4,7 @@ type Options = {
   typed?: boolean
 }
 
-export const objectToParameters = (data: Data, options: Options = {}) => {
+export function objectToParameters(data: Data, options: Options = {}) {
   return data
     .reduce((acc, [key, value]) => {
       if (options.typed) {

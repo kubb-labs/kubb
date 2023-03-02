@@ -4,7 +4,7 @@ import { TypeScriptLoader } from 'cosmiconfig-typescript-loader'
 
 import type { CosmiconfigResult } from '../types'
 
-export const getCosmiConfig = async (moduleName: string, config?: string) => {
+export async function getCosmiConfig(moduleName: string, config?: string) {
   const explorer = cosmiconfig(moduleName, {
     cache: false,
     searchPlaces: [
