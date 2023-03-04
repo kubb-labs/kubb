@@ -11,6 +11,10 @@
     "title": "Docs",
     "type": "page"
   },
+  "plugins": {
+    "title": "Plugins",
+    "type": "page"
+  },
   "examples": {
     "title": "Examples",
     "type": "page"

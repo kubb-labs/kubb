@@ -3,21 +3,21 @@ import { Callout } from 'nextra-theme-docs'
 import Link from 'next/link'
 import Features from 'components/features'
 
+<div style={{height: `calc(100vh - 160px)`}}>
+  <h1 className="text-center font-extrabold md:text-5xl mt-8">Kubb</h1>
+  <h2 className="text-center text-slate-500 font-bold md:text-2xl mt-8">OpenAPI to TypeScript, React-Query, Zod and Axios.</h2>
 
-<h1 className="text-center font-extrabold md:text-5xl mt-8">Kubb</h1>
-<h2 className="text-center text-slate-500 font-bold md:text-2xl mt-8">OpenAPI to TypeScript, React-Query, Zod and Axios.</h2>
+  <Bleed><Features/></Bleed>
 
-<Bleed><Features/></Bleed>
+  <br/>
 
-<br/>
-
-
-<div className="flex items-end justify-center gap-4 text-white uppercase text-md font-bold"  style={{height: '50vh'}}>
-  <Link className="transition duration-300 ease-in-out no-underline mb-20 rounded-md shadow-sm bg-orange-700 hover:bg-orange-500 py-3 px-4" href="/docs/getting-started/installation/">Get Started</Link>
-  <Link className="transition duration-300 ease-in-out no-underline mb-20 rounded-md shadow-sm bg-gray-800 hover:bg-gray-600 py-3 px-4" href="/playground">Playground</Link>
+  <div className="sticky top-[100vh]">
+     <div className="flex items-end justify-center gap-4 text-white uppercase text-md font-bold">
+      <Link className="transition duration-300 ease-in-out no-underline mb-20 rounded-md shadow-sm bg-orange-700 hover:bg-orange-500 py-3 px-4" href="/docs/getting-started/installation/">Get Started</Link>
+      <Link className="transition duration-300 ease-in-out no-underline mb-20 rounded-md shadow-sm bg-gray-800 hover:bg-gray-600 py-3 px-4" href="/playground">Playground</Link>
+    </div>
+  </div>
 </div>
-
-
 
 ## Features
 

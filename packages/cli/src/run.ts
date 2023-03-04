@@ -60,7 +60,6 @@ export async function run({ config, options, spinner }: RunProps) {
           ...config.output,
         },
       },
-      mode: options.mode || 'development',
       logger,
     })
 

@@ -12,9 +12,7 @@
   "sideEffects": false,
   "scripts": {
     "generate": "pnpm generate:ts",
-    "generate:ts": "kubb --config kubb.config.ts --debug",
-    "generate:json": "kubb --config kubb.json",
-    "generate:js": "kubb --config .kubbrc",
+    "generate:ts": "kubb --debug",
     "build": "tsup",
     "start": "tsup --watch",
     "test": "jest",

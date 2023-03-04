@@ -45,7 +45,7 @@ export type KubbConfig = {
      */
     clean?: boolean
     /**
-     * Write output to the fileSystem
+     * Enabled or disable the writing to the filesystem. This is being used for the playground.
      * @default true
      */
     write?: boolean
@@ -62,6 +62,7 @@ export type KubbConfig = {
   hooks?: {
     /**
      * Hook that will be triggerend at the end of all executions.
+     * Useful for running Prettier or Eslint to use your own linting structure.
      */
     done?: string | string[]
   }
@@ -73,7 +74,6 @@ export type KubbConfig = {
 
 export type CLIOptions = {
   config?: string
-  mode?: 'development' | 'production'
   debug?: boolean
   watch?: string
 }
@@ -92,7 +92,7 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   name: string
   /**
    * Kind/type for the plugin
-   * Type 'schema' can be used for JSON schema's, Typescript types, ...
+   * Type 'schema' can be used for JSON schema's, TypeScript types, ...
    * Type 'controller' can be used to create generate API calls, React-Query hooks, Axios controllers, ...
    * @default undefined
    */

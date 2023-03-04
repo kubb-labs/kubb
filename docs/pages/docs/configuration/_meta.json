@@ -1,4 +1,4 @@
 {
-  "config-typescript": "kubb.config.ts",
+  "config-kubb": "kubb.config.ts",
   "options": "Options"
 }

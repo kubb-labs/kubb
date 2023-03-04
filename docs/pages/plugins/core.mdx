@@ -30,15 +30,15 @@ import Link from 'next/link'
 
 ```typescript
 import { build } from "@kubb/core"
+import type { File } from "@kubb/core"
 
-build({ config, mode: "development" })
+const files: File[] = await build({ config })
 ```
 
 ### Advanced example
 
 ```typescript
 import { build } from "@kubb/core"
-
 import type { BuildOptions, File } from '@kubb/core'
 
 const spinner = ora({
@@ -47,14 +47,14 @@ const spinner = ora({
 }).start()
 
 const logger: BuildOptions['logger'] = {
-    log(message, logLevel) {
-      if (logLevel === 'error') {
-        spinner.fail(message)
-      }
-      spinner[logLevel](message)
-    },
-    spinner,
-  }
+  log(message, logLevel) {
+    if (logLevel === 'error') {
+      spinner.fail(message)
+    }
+    spinner[logLevel](message)
+  },
+  spinner,
+}
 
 const files: File[] = await build({
   config: {

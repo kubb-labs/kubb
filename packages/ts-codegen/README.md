@@ -4,7 +4,7 @@
   <h1>@kubb/ts-codegen</h1>
   
   <p>
-   Typescript codegen utils
+   TypeScript codegen utils
   </p>
 
 <!-- Badges -->

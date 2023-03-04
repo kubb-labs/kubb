@@ -6,5 +6,6 @@
   "swagger-ts": "@kubb/swagger-ts",
   "swagger-client": "@kubb/swagger-client",
   "swagger-react-query": "@kubb/swagger-react-query",
-  "swagger-zod": "@kubb/swagger-zod"
+  "swagger-zod": "@kubb/swagger-zod",
+  "customize": "Customize"
 }

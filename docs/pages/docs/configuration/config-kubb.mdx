@@ -1,0 +1,134 @@
+import { Callout } from 'nextra-theme-docs'
+
+## Configuring Kubb
+Kubb is configured with an configuation file (prefered with `kubb.config.ts`).
+
+## TypeScript/Javascript
+
+### DefineConfig
+
+When using TypeScript/Javascript you need to use `defineConfig` to create your config.
+
+```typescript filename="Type of defineConfig" copy
+export const defineConfig = (
+  options:
+    | MaybePromise<KubbUserConfig>
+    | ((
+        /** The options derived from the CLI flags */
+        cliOptions: CLIOptions
+      ) => MaybePromise<KubbUserConfig>)
+) => options
+```
+
+#### Basic config
+
+```typescript copy
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig({
+  root: '.',
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+    clean: true,
+  },
+})
+```
+
+#### Conditional config
+
+If the config needs to be conditionally determined based on CLI options flags, it can export as a function instead.
+Here you can choose between returning the config options synchronously or asynchronously.
+
+``` typescript filename="CLI options flags"
+export type CLIOptions = {
+  config?: string
+  debug?: boolean
+  watch?: string
+}
+```
+
+```typescript copy
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig(async ({ config, debug, watch }) => {
+  await setTimeout(() => {
+    // wait for 1s, async behaviour
+    return Promise.resolve(true)
+  }, 1000)
+
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+      clean: true,
+    },
+  }
+})
+```
+
+### Example with a plugin
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig(async () => {
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+    logLevel: 'info',
+    plugins: [createSwagger({ "output": "schemas", "validate": true })],
+  }
+})
+```
+
+## JSON
+
+You can use a [JSON schema](https://github.com/stijnvanhulle/kubb/blob/main/packages/core/schemas/config.json) to have some auto complete.
+
+### Example with a plugin
+
+```json filename=".kubbrc.json" copy
+  {
+    "$schema": "@kubb/core/schemas/config.json",
+    "root": ".",
+    "input": {
+      "path": "./petStore.yaml"
+    },
+    "output": {
+      "path": "./src/gen"
+    },
+    "logLevel": "info",
+    "plugins": ["@kubb/swagger", { "output": "schemas", "validate": true }]
+  } 
+```
+
+## YAML
+
+### Example with a plugin
+
+```yaml filename=".kubbrc" copy
+  root: .
+  input:
+    path: ./petStore.yaml
+  output:
+    path: ./src/gen
+  logLevel: info
+  plugins:
+    - '@kubb/swagger'
+    - output: schemas
+      validate: true
+```
+
+Read more about [configuring the options](/docs/configuration/options).

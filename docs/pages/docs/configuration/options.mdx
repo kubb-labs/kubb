@@ -2,10 +2,8 @@ import { Callout } from 'nextra-theme-docs'
 
 # Options
 
-This page is a reference to the different ways of configuring your Kubb projects.
-By setting the following options you can override the default behaviour of Kubb and even extend with your own plugins.
-
-Configuration options for the following are described on this page:
+This page is a reference to the different options of configuring your Kubb generation.
+By setting the following options you can override the default behaviour of Kubb and even extend it with your own plugins.
 
 ## root
 Project root directory. Can be an absolute path, or a path relative from the location of the config file itself.
@@ -16,21 +14,18 @@ Default: `process.cwd()`
 ```typescript filename="kubb.config.ts" copy
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig(async ({mode}) => {
-  return {
-    root: '.',
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
-      path: './src/gen',
-    }
+export default defineConfig({
+  root: '.',
+  input: {
+    path: './petStore.yaml',
   },
+  output: {
+    path: './src/gen',
+  }
 })
 ```
 
 ## input
-
 ### input.path
 Path to be used as the input. Can be an absolute path, or a path relative from the defined root option.
 
@@ -40,15 +35,13 @@ Required: `true`
 ```typescript filename="kubb.config.ts" copy
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig(async ({mode}) => {
-  return {
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
-      path: './src/gen',
-    }
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
   },
+  output: {
+    path: './src/gen',
+  }
 })
 ```
 
@@ -62,15 +55,13 @@ Required: `true`
 ```typescript filename="kubb.config.ts" copy
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig(async ({mode}) => {
-  return {
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
-      path: './src/gen',
-    }
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
   },
+  output: {
+    path: './src/gen',
+  }
 })
 ```
 
@@ -81,49 +72,46 @@ Type: `boolean` <br/>
 ```typescript filename="kubb.config.ts" copy
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig(async ({mode}) => {
-  return {
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
-      path: './src/gen',
-      clean: true
-    },
-    logLevel: "info"
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
   },
+  output: {
+    path: './src/gen',
+    clean: true
+  },
+  logLevel: "info"
 })
 ```
 ### write
-Write output to the fileSystem.
+Enabled or disable the writing to the filesystem. This is being used for the playground.
+
 Type: `boolean` <br/>
 Default: `true`
 
 ```typescript filename="kubb.config.ts" copy
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig(async ({mode}) => {
-  return {
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
-      path: './src/gen',
-      clean: true,
-      write: true
-    },
-    logLevel: "info"
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
   },
+  output: {
+    path: './src/gen',
+    clean: true,
+    write: true
+  },
+  logLevel: "info"
 })
 ```
 
 ## plugins
-Array of Kubb plugins to use. The plugin/package can forsee some options that you need to pass through.
-Sometimes a plugin is depended on another plugin, if that's the case you will get an error back from the plugin you installed.
+Array of Kubb plugins to use. The plugin/package can have some extra options defined by the plugin.
+Sometimes a plugin is depended on another plugin, if that's the case you will get an error back from the plugin you installed.([see validate](/docs/usage/core/lifecycle#1-validate))
 
-### plugins[0]
+### plugins[index]
 
-#### Typescript
+#### TypeScript
 
 Type: `Plugin` <br/>
 
@@ -131,16 +119,14 @@ Type: `Plugin` <br/>
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 
-export default defineConfig(async ({mode}) => {
-  return {
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
-      path: './src/gen',
-    },
-     plugins: [createSwagger({ })],
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
   },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [createSwagger({ })],
 })
 ```
 
@@ -184,16 +170,14 @@ Type: `'error' | 'warn' | 'info' | 'silent'` <br/>
 ```typescript filename="kubb.config.ts" copy
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig(async ({mode}) => {
-  return {
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
-      path: './src/gen',
-    },
-    logLevel: "info"
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
   },
+  output: {
+    path: './src/gen',
+  },
+  logLevel: "info"
 })
 ```
 
@@ -202,23 +186,23 @@ Hooks that will be called when a specific action is triggered in Kubb.
 
 ### done
 Hook that will be triggerend at the end of all executions.
+Useful for running Prettier or Eslint to use your own linting structure.
+
 Type: `string | string[]` <br/>
 
 ```typescript filename="kubb.config.ts" copy
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig(async ({mode}) => {
-  return {
-    hooks: {
-      end: ["prettier"]
-    },
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
-      path: './src/gen',
-    },
-    logLevel: "info"
+export default defineConfig({
+  hooks: {
+    end: ["npx prettier"]
   },
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  logLevel: "info"
 })
 ```

@@ -56,8 +56,7 @@ const program = new Command(moduleName)
       spinner.fail(pc.red(e.message))
     }
   })
-  .addOption(new Option('-m, --mode <mode>', 'Mode of Kubb, development or production').default('development'))
-  .addOption(new Option('-c, --config <path>', 'Path to @kubb config'))
+  .addOption(new Option('-c, --config <path>', 'Path to the Kubb config'))
   .addOption(new Option('-d, --debug', 'Debug mode').default(false))
   .addOption(new Option('-w, --watch', 'Watch mode based on the input file'))
 

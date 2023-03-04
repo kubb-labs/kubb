@@ -29,7 +29,6 @@ export type Logger = {
 }
 type BuildOptions = {
   config: PluginContext['config']
-  mode: 'development' | 'production'
   logger?: Logger
 }
 
