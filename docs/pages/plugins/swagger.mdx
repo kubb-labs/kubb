@@ -5,8 +5,19 @@ import Link from 'next/link'
 
 With the Swagger plugin you can create JSON schema's out of a Swagger file. 
 Inside this package you can also use some utils to create your own Swagger plugin. 
-We already provide a [react-query plugin](/docs/usage/swagger-react-query) but if you want to create a plugin for SWR you can use this package to get the core utils.(check if a schema is v2 or v3, generate a OAS object, ...).
+We already provide a [react-query plugin](/docs/usage/swagger-react-query) but if you want to create a plugin for SWR you can use this package to get the core utils.(check if a schema is v2 or v3, validate the schema, generate a OAS object, ...).
 
+<hr/>
+
+We are using [Oas](https://github.com/readmeio/oas) to convert a YAML/JSON to an Oas class(see `oasParser`) that will contain a lot of extra logic(read the $ref, get all the operations, get all models, ...).
+
+The Swagger plugin also contains some classes and functions that can be used in your own plugin that needs Swagger:
+- For example we have [`getReference`](https://github.com/stijnvanhulle/kubb/blob/main/packages/swagger/src/utils/getReference.ts
+) that will return the ref based on the spec. 
+
+- Next to that we also have the class [`OperationGenerator`](https://github.com/stijnvanhulle/kubb/blob/main/packages/swagger/src/generators/OperationGenerator.ts
+). This class contains the building blocks of getting the request, response, params, .... 
+<br/>Just call `this.getSchemas` and you will retreive an object contains all the info you need to setup a TypeScript type, React-Query hook, ....
 
 ## Installation
 
