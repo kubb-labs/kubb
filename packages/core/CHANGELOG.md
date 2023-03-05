@@ -1,4 +1,11 @@
 # Changelog
+## [1.0.0-alpha.1](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.56.4...@kubb/core-v1.0.0-alpha.1) (2023-03-05)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.1 ([608fd59](https://github.com/stijnvanhulle/kubb/commit/608fd5926079f9dd77046d6788a5550fb964c0b2))
+
 ## [0.56.4](https://github.com/stijnvanhulle/kubb/compare/@kubb/core-v0.56.3...@kubb/core-v0.56.4) (2023-03-02)
 
 
