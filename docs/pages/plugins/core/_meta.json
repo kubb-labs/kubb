@@ -1,3 +1,4 @@
 {
-  "lifecycle": "Lifecycle"
+  "pluginManager": "Plugin Manager/lifecycle",
+  "fileManager": "File Manager"
 }
