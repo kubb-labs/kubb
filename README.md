@@ -1,6 +1,7 @@
 <div align="center">
 
-  <img src="assets/logo.png" alt="logo"  height="auto" />
+  <img src="assets/banner.png" alt="logo"  height="auto" />
+  <img src="assets/mascot.png" alt="logo"  height="auto" />
 
   <!-- <h1>Kubb</h1>
 

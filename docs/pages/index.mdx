@@ -2,11 +2,19 @@ import { Bleed } from 'nextra-theme-docs'
 import { Callout } from 'nextra-theme-docs'
 import Link from 'next/link'
 import Features from 'components/features'
+import Image from 'next/image'
+
+import logo from "../public/mascot.png"
 
 <div style={{height: `calc(100vh - 160px)`}}>
-  <h1 className="text-center font-extrabold md:text-5xl mt-8">Kubb</h1>
+  <h1 className="text-center font-extrabold md:text-5xl mt-8">Kubb <Image
+      src={logo}
+      style={{display: "inline"}}
+      alt="Mascot of Kubb"
+      width={100}
+      height={100}
+    /></h1>
   <h2 className="text-center text-slate-500 font-bold md:text-2xl mt-8">OpenAPI to TypeScript, React-Query, Zod and Axios.</h2>
-
   <Bleed><Features/></Bleed>
 
   <br/>

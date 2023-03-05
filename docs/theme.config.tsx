@@ -41,12 +41,14 @@ export default {
       <meta name="twitter:site:domain" content="kubb.dev" />
       <meta name="twitter:url" content="https://kubb.dev" />
       <meta name="og:title" content="Kubb: OpenAPI generated clients" />
-      <meta name="og:image" content="https://kub.dev/og.png" />
-      <meta name="apple-mobile-web-app-title" content="Kubb" />
-      <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-      <link rel="icon" href="/favicon.png" type="image/png" />
-      <link rel="icon" href="/favicon-dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)" />
-      <link rel="icon" href="/favicon-dark.png" type="image/png" media="(prefers-color-scheme: dark)" />
+      <meta name="og:image" content="https://kubb.dev/og.png" />
+      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+      <link rel="manifest" href="/site.webmanifest" />
+      <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#c2410c" />
+      <meta name="msapplication-TileColor" content="#da532c" />
+      <meta name="theme-color" content="#000000" />
     </>
   ),
   banner: {
