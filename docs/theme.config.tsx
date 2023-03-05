@@ -1,4 +1,6 @@
 import React from 'react'
+import mascot from './public/mascot.png'
+import Image from 'next/image'
 
 import type { DocsThemeConfig } from 'nextra-theme-docs'
 
@@ -53,7 +55,12 @@ export default {
   ),
   banner: {
     key: '2.0-release',
-    text: <>Kubb is still in beta</>,
+    text: (
+      <>
+        <Image src={mascot} style={{ display: 'inline' }} alt="Mascot of Kubb" width={30} /> Kubb will release soon it's first alpha version{' '}
+        <Image src={mascot} style={{ display: 'inline' }} alt="Mascot of Kubb" width={30} />
+      </>
+    ),
   },
   navigation: {
     prev: true,
