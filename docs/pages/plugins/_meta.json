@@ -1,11 +1,11 @@
 {
-  "core": "@kubb/core",
   "cli": "@kubb/cli",
-  "ts-codegen": "@kubb/ts-codegen",
+  "core": "@kubb/core",
   "swagger": "@kubb/swagger",
   "swagger-ts": "@kubb/swagger-ts",
   "swagger-client": "@kubb/swagger-client",
   "swagger-react-query": "@kubb/swagger-react-query",
   "swagger-zod": "@kubb/swagger-zod",
+  "ts-codegen": "@kubb/ts-codegen",
   "customize": "Customize"
 }
