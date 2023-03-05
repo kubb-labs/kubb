@@ -1,7 +1,6 @@
 <div align="center">
 
   <img src="assets/banner.png" alt="logo"  height="auto" />
-<!--   <img src="assets/mascot.png" alt="logo"  height="auto" /> -->
 
   <!-- <h1>Kubb</h1>
 
@@ -39,6 +38,8 @@
 <br />
 
 ## Features
+
+<img src="assets/kubb-generate.gif" alt="generate gif"  height="auto" />
 
 * Generates Axios calls for every endpoint, with typed payload.
 * Generates strong TypeScript types for every operation and property based on a specific OpenAPI specification.

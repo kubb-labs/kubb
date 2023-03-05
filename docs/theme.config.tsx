@@ -1,6 +1,6 @@
 import React from 'react'
-import mascot from './public/mascot.png'
 import Image from 'next/image'
+import mascot from 'public/mascot.png'
 
 import type { DocsThemeConfig } from 'nextra-theme-docs'
 
@@ -57,8 +57,7 @@ export default {
     key: '2.0-release',
     text: (
       <>
-        <Image src={mascot} style={{ display: 'inline' }} alt="Mascot of Kubb" width={30} /> Kubb will release soon it's first alpha version{' '}
-        <Image src={mascot} style={{ display: 'inline' }} alt="Mascot of Kubb" width={30} />
+        🎉 Kubb has released it's first alpha version <Image src={mascot} style={{ display: 'inline' }} alt="Mascot of Kubb" width={30} />
       </>
     ),
   },

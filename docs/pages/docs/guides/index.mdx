@@ -1,7 +1,99 @@
-import { Callout } from 'nextra-theme-docs'
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import Image from 'next/image'
+import kubbGenerate from "public/kubb-generate.gif"
 
-# Guides
+# Basic guide
+This guide will describe how you can setup Kubb + use the TypeScript plugin to generate types based on the `petStore.yaml` file.
 
-<Callout type="warning">
- Under construction
-</Callout>
+```typescript filename="The setup will contain from the beginning the following folder structure"
+.
+├── src
+├── petStore.yaml
+├── kubb.config.ts
+└── package.json
+```
+
+## Step one
+Setup your `kubb.config.ts` file based on the [Quick-start](/docs/getting-started/quick-start).
+
+We will add here the [Swagger](/plugins/swagger) and [SwaggerTypescript](/plugins/swagger-ts)(which is depended on the [Swagger](/plugins/swagger) plugin) plugin, those 2 plugins together will generate the TypeScript types.
+<hr/>
+- Next to that we will also set `output` to false for the [Swagger](/plugins/swagger) plugin because we don't need the plugin to generate the JSON schemas for us.
+- For the [SwaggerTypescript](/plugins/swagger-ts) plugin we will set the `output` to the models folder.
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+ 
+export default defineConfig(async () => {
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src',
+    },
+    logLevel: 'info',
+    plugins: [createSwagger({ output: false, validate: true }), createSwaggerTS({ output: 'models' })],
+  }
+})
+```
+
+```typescript filename="This will result in the following folder structure when Kubb has been executed"
+.
+├── src/
+│   └── models/
+│       ├── typeA.ts
+│       └── typeB.ts
+├── petStore.yaml
+├── kubb.config.ts
+└── package.json
+```
+
+## Step two
+Update your `package.json` and install `Kubb`, see [installation](/docs/getting-started/installation).
+
+Your `package.json` will look like this:
+
+```json
+{
+  "name": "your project",
+  "scripts": {
+    "generate": "kubb --config kubb.config.ts"
+  },
+  "dependencies": {
+    "@kubb/cli": "latest",
+    "@kubb/core": "latest",
+    "@kubb/swagger": "latest",
+    "@kubb/swagger-ts": "latest"
+  }
+}
+```
+
+## Step three
+Run the Kubb script with the following command.
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab>
+    ```bash filename="cli" copy
+    pnpm run generate
+    ```
+  </Tab>
+    <Tab>
+    ```bash filename="cli" copy
+    npm run generate
+    ```
+  </Tab>
+    <Tab>
+    ```bash filename="cli" copy
+    yarn run generate
+    ```
+  </Tab>
+</Tabs>
+
+## Step four
+Drink a 🍺 and watch Kubb generate your files.
+
+<Image src={kubbGenerate} style={{ display: 'inline' }} alt="Kubb generation" />
