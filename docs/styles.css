@@ -54,3 +54,10 @@ hr {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
 }
+blockquote {
+  border-color: hsl(var(--nextra-primary-hue)100% 100%/.1);
+  border-left-style: solid;
+  border-left-width: 2px;
+  padding-left: 1rem;
+  margin: 1rem;
+}
