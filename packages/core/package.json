@@ -18,9 +18,7 @@
   "sideEffects": false,
   "type": "module",
   "main": "dist/index.js",
-  "unpkg": "dist/index.global.js",
   "module": "dist/index.js",
-  "browser": "build/index.global.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -57,11 +55,9 @@
   "dependencies": {
     "change-case": "^4.1.2",
     "directory-tree": "^3.5.1",
-    "eventemitter3": "^5.0.0",
     "lodash.uniq": "^4.5.0",
     "rimraf": "^3.0.2",
-    "uuid": "^9.0.0",
-    "prettier": "^2.8.4"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/lodash.uniq": "^4.5.7",

@@ -1,10 +1,11 @@
-import EventEmitter from 'eventemitter3'
+import EventEmitter from 'events'
+
 import uniq from 'lodash.uniq'
 import { v4 as uuidv4 } from 'uuid'
 
 import { getFileManagerEvents } from './events'
 
-import { write, read, format } from '../../utils'
+import { write, read } from '../../utils'
 
 import type { CacheStore, UUID, Status, File } from './types'
 
@@ -50,7 +51,7 @@ export class FileManager {
     return count
   }
 
-  public getSource(file: File, options: { format?: boolean } = { format: true }) {
+  public getSource(file: File) {
     // TODO make generic check
     if (!file.fileName.endsWith('.ts')) {
       return file.source
@@ -78,14 +79,7 @@ export class FileManager {
     }, '')
 
     if (importSource) {
-      if (options.format) {
-        return format(`${importSource}\n${file.source}`)
-      }
       return `${importSource}\n${file.source}`
-    }
-
-    if (options.format) {
-      return format(file.source)
     }
 
     return file.source
