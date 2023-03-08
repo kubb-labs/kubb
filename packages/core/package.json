@@ -62,7 +62,6 @@
   "devDependencies": {
     "@types/lodash.uniq": "^4.5.7",
     "tsup": "^6.6.3",
-    "@types/js-beautify": "^1.13.3",
     "typescript": "^4.9.5"
   },
   "publishConfig": {

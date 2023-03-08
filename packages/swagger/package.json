@@ -53,7 +53,7 @@
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "@kubb/core": "workspace:*",
-    "oas": "^20.5.1",
+    "oas": "^20.5.3",
     "swagger2openapi": "^7.0.8",
     "change-case": "^4.1.2",
     "lodash.get": "^4.4.2"
