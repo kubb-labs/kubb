@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1-alpha.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-alpha.1...@kubb/swagger-v1.0.1-alpha.1) (2023-03-09)
+
+
+### Bug Fixes
+
+* openAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
+
 ## [1.0.0-alpha.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v0.56.4...@kubb/swagger-v1.0.0-alpha.1) (2023-03-05)
 
 
