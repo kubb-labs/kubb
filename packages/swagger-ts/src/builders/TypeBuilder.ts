@@ -44,13 +44,13 @@ export class TypeBuilder extends OasBuilder<Config> {
     const generated = this.items
       .filter((gen) => (name ? gen.name === name : true))
       .sort(nameSorter)
-      .map(({ schema, name, description }) => {
+      .map((gen) => {
         const generator = new TypeGenerator(this.oas, { withJSDocs: this.config.withJSDocs, nameResolver: this.config.nameResolver })
-        const nodes = generator.build(schema, this.config.nameResolver?.(name) || name, description)
+        const nodes = generator.build(gen.schema, this.config.nameResolver?.(gen.name) || gen.name, gen.description)
 
         return {
           refs: generator.refs,
-          name,
+          name: gen.name,
           sources: nodes,
         }
       })

@@ -18,7 +18,7 @@ import {
 
 import { keywordTypeNodes } from '../utils'
 
-import type ts from 'typescript'
+import ts from 'typescript'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
@@ -182,9 +182,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     let ref = this.refs[$ref]
 
     if (!ref) {
-      const schema = this.resolve<OpenAPIV3.SchemaObject>(obj)
-
-      const name = this.getUniqueAlias(pascalCase(schema.title || $ref.replace(/.+\//, ''), { delimiter: '' }))
+      const name = this.getUniqueAlias(pascalCase($ref.replace(/.+\//, ''), { delimiter: '' }))
 
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
@@ -281,6 +279,23 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         if (!schema.additionalProperties && !schema.properties && schema.type === 'object') {
           return null
         }
+      }
+      if (Array.isArray(schema.type)) {
+        // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
+        const [type, nullable] = schema.type
+
+        return factory.createUnionTypeNode(
+          [
+            this.getBaseTypeFromSchema(
+              {
+                ...schema,
+                type,
+              },
+              name
+            )!,
+            nullable ? factory.createLiteralTypeNode(factory.createNull()) : undefined,
+          ].filter(Boolean) as ts.TypeNode[]
+        )
       }
       // string, boolean, null, number
       if (schema.type in keywordTypeNodes) {

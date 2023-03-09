@@ -7,6 +7,7 @@ import type { Operation } from 'oas'
 import type { MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
 import type Oas from 'oas'
+import { isReference } from '../utils/isReference'
 
 type OperationSchema = {
   name: string
@@ -20,9 +21,23 @@ export type OperationSchemas = {
   response: OperationSchema
 }
 
-export abstract class OperationGenerator<TOptions extends object = object> extends Generator<TOptions> {
+export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: Oas }> extends Generator<TOptions> {
   private getParametersSchema(operation: Operation, inKey: 'path' | 'query') {
     const params = operation.getParameters().filter((v) => v.in === inKey)
+    const refParams =  operation.getParameters().filter((v) => isReference(v)) 
+    const parameterSchemas = this.options.oas.getDefinition().components?.parameters || {}
+
+    Object.keys(parameterSchemas).forEach((name) => {
+     
+      const exists = refParams.find(
+        (param) => (param as unknown as OpenAPIV3.ReferenceObject).$ref && (param as unknown as OpenAPIV3.ReferenceObject).$ref.replace(/.+\//, '') === name
+      )
+
+      if (exists) {
+        params.push(parameterSchemas[name] as OpenAPIV3.ParameterObject)
+      }
+    })
+
     return params.reduce(
       (schema, pathParameters) => {
         return {

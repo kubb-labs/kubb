@@ -12,6 +12,14 @@ import type ts from 'typescript'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
+function zodKeywordMapper(a: [string, any], b: [string, any]) {
+  if (b[0] === keywordZodNodes.null) {
+    return -1
+  }
+
+  return 0
+}
+
 /**
  * Name is the ref name + resolved with the nameResolver
  * Key is the original name used
@@ -68,10 +76,10 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           args = '{}'
         }
         const argsObject = Object.entries(args)
-          .filter(([_key, schema]: [string, any]) => {
+          .filter(([_key, schema]: [string, [[string, any][]]]) => {
             return schema && typeof schema.map === 'function'
           })
-          .map(([key, schema]: [string, any]) => `"${key}": ${schema.map(parseProperty).join('')}`)
+          .map(([key, schema]: [string, [[string, any][]]]) => `"${key}": ${schema.sort(zodKeywordMapper).map(parseProperty).join('')}`)
           .join(',')
 
         args = `{${argsObject}}`
@@ -83,7 +91,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       }
 
       if (keywordZodNodes[fn]) {
-        return `z.${fn}(${args})`
+        return `${fn}(${args})`
       }
 
       return `${fn}(${args})`
@@ -128,7 +136,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         validationFunctions.push(...this.getTypeFromSchema(schema as OpenAPIV3.SchemaObject, name))
 
         if (this.options.withJSDocs && schema.description) {
-          validationFunctions.push([keywordZodNodes.describe, `"${schema.description}"`])
+          validationFunctions.push([keywordZodNodes.describe, `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\``])
         }
         const min = schema.minimum ?? schema.exclusiveMinimum ?? schema.minLength ?? undefined
         const max = schema.maximum ?? schema.exclusiveMaximum ?? schema.maxLength ?? undefined
@@ -141,7 +149,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           validationFunctions.push([keywordZodNodes.max, max])
         }
         if (matches) {
-          validationFunctions.push([keywordZodNodes.matches, matches])
+          validationFunctions.push([keywordZodNodes.matches, `/${matches}/`])
         }
 
         if (!isRequired) {
@@ -190,8 +198,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     let ref = this.refs[$ref]
 
     if (!ref) {
-      const schema = this.resolve<OpenAPIV3.SchemaObject>(obj)
-      const name = this.getUniqueAlias(pascalCase(schema.title || $ref.replace(/.+\//, '')))
+      const name = this.getUniqueAlias(pascalCase($ref.replace(/.+\//, ''), { delimiter: '' }))
 
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
@@ -273,6 +280,22 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     }
 
     if (schema.type) {
+      if (Array.isArray(schema.type)) {
+        // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
+        const [type, nullable] = schema.type
+
+        return [
+          ...this.getBaseTypeFromSchema(
+            {
+              ...schema,
+              type,
+            },
+            name
+          ),
+          [keywordZodNodes.null, undefined],
+        ]
+      }
+
       // string, boolean, null, number
       if (schema.type in keywordZodNodes) {
         return keywordZodNodes[schema.type] ? [[keywordZodNodes[schema.type], undefined]] : [[schema.type, undefined]]

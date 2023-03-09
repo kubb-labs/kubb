@@ -1,12 +1,12 @@
 export const keywordZodNodes = {
-  any: 'any',
+  any: 'z.any',
   number: 'z.number',
   integer: 'z.number',
   object: 'z.object',
   string: 'z.string',
   boolean: 'z.boolean',
   undefined: 'z.undefined',
-  null: 'z.null',
+  null: '.nullable',
   array: 'z.array',
   enum: 'z.enum',
   union: 'z.union',
@@ -19,5 +19,5 @@ export const keywordZodNodes = {
 
   // custom ones
   ref: 'ref',
-  matches: 'matches',
+  matches: '.regex',
 } as const
