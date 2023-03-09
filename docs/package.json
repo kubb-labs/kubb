@@ -6,7 +6,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/stijnvanhulle/kubb.git",
+    "url": "https://github.com/kubb-project/kubb.git",
     "directory": "docs"
   },
   "scripts": {

@@ -5,7 +5,7 @@
   "description": "Kubb monorepo",
   "repository": {
     "type": "git",
-    "url": "https://github.com/stijnvanhulle/kubb.git"
+    "url": "https://github.com/kubb-project/kubb.git"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",

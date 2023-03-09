@@ -6,9 +6,9 @@ import type { DocsThemeConfig } from 'nextra-theme-docs'
 
 export default {
   project: {
-    link: 'https://github.com/stijnvanhulle/kubb.git',
+    link: 'https://github.com/kubb-project/kubb.git',
   },
-  docsRepositoryBase: 'https://github.com/stijnvanhulle/kubb/blob/main/docs',
+  docsRepositoryBase: 'https://github.com/kubb-project/kubb/blob/main/docs',
   titleSuffix: ' – Kubb',
   useNextSeoProps() {
     return {

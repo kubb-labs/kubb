@@ -25,13 +25,13 @@
 </p>
    
 <h4>
-    <a href="https://codesandbox.io/s/github/stijnvanhulle/kubb/tree/main/examples/simple">View Demo</a>
+    <a href="https://codesandbox.io/s/github/kubb-project/kubb/tree/main/examples/simple">View Demo</a>
   <span> · </span>
     <a href="https://kubb.dev/" target="_blank">Documentation</a>
   <span> · </span>
-    <a href="https://github.com/stijnvanhulle/kubb/issues/">Report Bug</a>
+    <a href="https://github.com/kubb-project/kubb/issues/">Report Bug</a>
   <span> · </span>
-    <a href="https://github.com/stijnvanhulle/kubb/issues/">Request Feature</a>
+    <a href="https://github.com/kubb-project/kubb/issues/">Request Feature</a>
   </h4>
 </div>
 

@@ -4,7 +4,7 @@
   "description": "Generator swagger-zod",
   "repository": {
     "type": "git",
-    "url": "git://github.com/stijnvanhulle/kubb.git",
+    "url": "git://github.com/kubb-project/kubb.git",
     "directory": "packages/swagger-zod"
   },
   "license": "MIT",
