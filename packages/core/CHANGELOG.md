@@ -1,4 +1,11 @@
 # Changelog
+## [1.0.0-alpha.2](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-alpha.1...@kubb/core-v1.0.0-alpha.2) (2023-03-09)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.2 ([3d645ac](https://github.com/kubb-project/kubb/commit/3d645accedb121856e61bab166fafe74db6ca3f3))
+
 ## [1.0.0-alpha.1](https://github.com/kubb-project/kubb/compare/@kubb/core-v0.56.4...@kubb/core-v1.0.0-alpha.1) (2023-03-05)
 
 
