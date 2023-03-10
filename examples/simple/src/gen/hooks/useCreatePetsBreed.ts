@@ -10,12 +10,12 @@ import type { CreatePetsBreedRequest, CreatePetsBreedResponse, CreatePetsBreedPa
  * @link /pets/${breed}
  * @deprecated
  */
-export const useCreatePetsBreed = <TData = CreatePetsBreedResponse, TVariables = CreatePetsBreedRequest>(
+export function useCreatePetsBreed<TData = CreatePetsBreedResponse, TVariables = CreatePetsBreedRequest>(
   breed: CreatePetsBreedPathParams['breed'],
   options?: {
     mutation?: UseMutationOptions<TData, unknown, TVariables>
   }
-) => {
+) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({

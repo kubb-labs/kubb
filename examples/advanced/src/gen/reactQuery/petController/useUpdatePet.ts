@@ -11,9 +11,9 @@ import type { UpdatePetRequest, UpdatePetResponse } from '../../models/ts/Update
  * @link /pet
  * @deprecated
  */
-export const useUpdatePet = <TData = UpdatePetResponse, TVariables = UpdatePetRequest>(options?: {
+export function useUpdatePet<TData = UpdatePetResponse, TVariables = UpdatePetRequest>(options?: {
   mutation?: UseMutationOptions<TData, unknown, TVariables>
-}) => {
+}) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({

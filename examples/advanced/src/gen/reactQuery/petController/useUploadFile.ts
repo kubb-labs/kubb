@@ -10,12 +10,12 @@ import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams } from
  * @link /pet/{petId}/uploadImage
  * @deprecated
  */
-export const useUploadFile = <TData = UploadFileResponse, TVariables = UploadFileRequest>(
+export function useUploadFile<TData = UploadFileResponse, TVariables = UploadFileRequest>(
   petId: UploadFilePathParams['petId'],
   options?: {
     mutation?: UseMutationOptions<TData, unknown, TVariables>
   }
-) => {
+) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({

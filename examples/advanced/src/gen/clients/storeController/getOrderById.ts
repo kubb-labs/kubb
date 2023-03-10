@@ -8,7 +8,7 @@ import type { GetOrderByIdResponse, GetOrderByIdPathParams, GetOrderByIdQueryPar
  * @link /store/order/{orderId}
  * @deprecated
  */
-export const getOrderById = <TData = GetOrderByIdResponse>(orderId: GetOrderByIdPathParams['orderId'], params?: GetOrderByIdQueryParams) => {
+export function getOrderById<TData = GetOrderByIdResponse>(orderId: GetOrderByIdPathParams['orderId'], params?: GetOrderByIdQueryParams) {
   return client<TData>({
     method: 'get',
     url: `/store/order/${orderId}`,

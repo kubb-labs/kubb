@@ -7,10 +7,10 @@ import type { UpdatePetWithFormRequest, UpdatePetWithFormResponse, UpdatePetWith
  * @link /pet/{petId}
  * @deprecated
  */
-export const updatePetWithForm = <TData = UpdatePetWithFormResponse, TVariables = UpdatePetWithFormRequest>(
+export function updatePetWithForm<TData = UpdatePetWithFormResponse, TVariables = UpdatePetWithFormRequest>(
   petId: UpdatePetWithFormPathParams['petId'],
   data: TVariables
-) => {
+) {
   return client<TData, TVariables>({
     method: 'post',
     url: `/pet/${petId}`,

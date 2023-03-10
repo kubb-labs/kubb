@@ -8,7 +8,7 @@ import type { CreateUserRequest, CreateUserResponse } from '../../models/ts/Crea
  * @link /user
  * @deprecated
  */
-export const createUser = <TData = CreateUserResponse, TVariables = CreateUserRequest>(data: TVariables) => {
+export function createUser<TData = CreateUserResponse, TVariables = CreateUserRequest>(data: TVariables) {
   return client<TData, TVariables>({
     method: 'post',
     url: `/user`,

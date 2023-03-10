@@ -69,7 +69,7 @@ export class OperationGenerator extends Generator<Options> {
     if (schemas.queryParams && !schemas.pathParams) {
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export const ${controllerName} = <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}) => {
+        export function ${controllerName} <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}) {
           return client<TData>({
             method: "get",
             url: \`${url}\`,
@@ -82,8 +82,8 @@ export class OperationGenerator extends Generator<Options> {
     if (!schemas.queryParams && schemas.pathParams) {
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export const ${controllerName} = <TData = ${schemas.response.name}>(${pathParamsTyped}
-      }) => {
+        export function ${controllerName} <TData = ${schemas.response.name}>(${pathParamsTyped}
+      }) {
           return client<TData>({
             method: "get",
             url: \`${url}\`
@@ -95,7 +95,7 @@ export class OperationGenerator extends Generator<Options> {
     if (schemas.queryParams && schemas.pathParams) {
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export const ${controllerName} = <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${schemas.queryParams.name}) => {
+        export function ${controllerName} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${schemas.queryParams.name}) {
           return client<TData>({
             method: "get",
             url: \`${url}\`,
@@ -108,7 +108,7 @@ export class OperationGenerator extends Generator<Options> {
     if (!schemas.queryParams && !schemas.pathParams) {
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export const ${controllerName} = <TData = ${schemas.response.name}>() => {
+        export function ${controllerName} <TData = ${schemas.response.name}>() {
           return client<TData>({
             method: "get",
             url: \`${url}\`
@@ -180,7 +180,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export const ${controllerName} = <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables) => {
+        export function ${controllerName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables) {
           return client<TData, TVariables>({
             method: "post",
             url: \`${url}\`,
@@ -254,7 +254,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export const ${controllerName} = <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables) => {
+        export function ${controllerName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables) {
           return client<TData, TVariables>({
             method: "put",
             url: \`${url}\`,
@@ -328,7 +328,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export const ${controllerName} = <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped}) => {
+        export function ${controllerName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped}) {
           return client<TData, TVariables>({
             method: "delete",
             url: \`${url}\`

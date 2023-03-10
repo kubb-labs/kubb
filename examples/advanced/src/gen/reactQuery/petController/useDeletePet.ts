@@ -11,12 +11,12 @@ import type { DeletePetRequest, DeletePetResponse, DeletePetPathParams } from '.
  * @link /pet/{petId}
  * @deprecated
  */
-export const useDeletePet = <TData = DeletePetResponse, TVariables = DeletePetRequest>(
+export function useDeletePet<TData = DeletePetResponse, TVariables = DeletePetRequest>(
   petId: DeletePetPathParams['petId'],
   options?: {
     mutation?: UseMutationOptions<TData, unknown, TVariables>
   }
-) => {
+) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({

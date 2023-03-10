@@ -8,7 +8,7 @@ import type { PlaceOrderRequest, PlaceOrderResponse } from '../../models/ts/Plac
  * @link /store/order
  * @deprecated
  */
-export const placeOrder = <TData = PlaceOrderResponse, TVariables = PlaceOrderRequest>(data: TVariables) => {
+export function placeOrder<TData = PlaceOrderResponse, TVariables = PlaceOrderRequest>(data: TVariables) {
   return client<TData, TVariables>({
     method: 'post',
     url: `/store/order`,

@@ -7,7 +7,7 @@ import type { FindPetsByStatusResponse, FindPetsByStatusQueryParams } from '../.
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [`/pet/findByStatus`, ...(params ? [params] : [])] as const
 
-export const findPetsByStatusQueryOptions = <TData = FindPetsByStatusResponse>(params?: FindPetsByStatusQueryParams): QueryOptions<TData> => {
+export function findPetsByStatusQueryOptions<TData = FindPetsByStatusResponse>(params?: FindPetsByStatusQueryParams): QueryOptions<TData> {
   const queryKey = findPetsByStatusQueryKey(params)
 
   return {
@@ -28,10 +28,10 @@ export const findPetsByStatusQueryOptions = <TData = FindPetsByStatusResponse>(p
  * @link /pet/findByStatus
  * @deprecated
  */
-export const useFindPetsByStatus = <TData = FindPetsByStatusResponse>(
+export function useFindPetsByStatus<TData = FindPetsByStatusResponse>(
   params?: FindPetsByStatusQueryParams,
   options?: { query?: UseQueryOptions<TData> }
-): UseQueryResult<TData> & { queryKey: QueryKey } => {
+): UseQueryResult<TData> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
 

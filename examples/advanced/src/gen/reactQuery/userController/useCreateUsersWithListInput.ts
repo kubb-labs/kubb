@@ -11,9 +11,9 @@ import type { CreateUsersWithListInputRequest, CreateUsersWithListInputResponse 
  * @link /user/createWithList
  * @deprecated
  */
-export const useCreateUsersWithListInput = <TData = CreateUsersWithListInputResponse, TVariables = CreateUsersWithListInputRequest>(options?: {
+export function useCreateUsersWithListInput<TData = CreateUsersWithListInputResponse, TVariables = CreateUsersWithListInputRequest>(options?: {
   mutation?: UseMutationOptions<TData, unknown, TVariables>
-}) => {
+}) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({

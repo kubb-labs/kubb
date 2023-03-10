@@ -8,7 +8,7 @@ import type { GetInventoryResponse } from '../../models/ts/GetInventory'
  * @link /store/inventory
  * @deprecated
  */
-export const getInventory = <TData = GetInventoryResponse>() => {
+export function getInventory<TData = GetInventoryResponse>() {
   return client<TData>({
     method: 'get',
     url: `/store/inventory`,

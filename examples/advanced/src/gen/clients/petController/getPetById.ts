@@ -8,7 +8,7 @@ import type { GetPetByIdResponse, GetPetByIdPathParams, GetPetByIdQueryParams } 
  * @link /pet/{petId}
  * @deprecated
  */
-export const getPetById = <TData = GetPetByIdResponse>(petId: GetPetByIdPathParams['petId'], params?: GetPetByIdQueryParams) => {
+export function getPetById<TData = GetPetByIdResponse>(petId: GetPetByIdPathParams['petId'], params?: GetPetByIdQueryParams) {
   return client<TData>({
     method: 'get',
     url: `/pet/${petId}`,

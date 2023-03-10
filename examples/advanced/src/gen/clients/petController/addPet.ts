@@ -8,7 +8,7 @@ import type { AddPetRequest, AddPetResponse } from '../../models/ts/AddPet'
  * @link /pet
  * @deprecated
  */
-export const addPet = <TData = AddPetResponse, TVariables = AddPetRequest>(data: TVariables) => {
+export function addPet<TData = AddPetResponse, TVariables = AddPetRequest>(data: TVariables) {
   return client<TData, TVariables>({
     method: 'post',
     url: `/pet`,

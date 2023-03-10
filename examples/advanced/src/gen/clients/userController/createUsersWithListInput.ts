@@ -8,7 +8,7 @@ import type { CreateUsersWithListInputRequest, CreateUsersWithListInputResponse 
  * @link /user/createWithList
  * @deprecated
  */
-export const createUsersWithListInput = <TData = CreateUsersWithListInputResponse, TVariables = CreateUsersWithListInputRequest>(data: TVariables) => {
+export function createUsersWithListInput<TData = CreateUsersWithListInputResponse, TVariables = CreateUsersWithListInputRequest>(data: TVariables) {
   return client<TData, TVariables>({
     method: 'post',
     url: `/user/createWithList`,

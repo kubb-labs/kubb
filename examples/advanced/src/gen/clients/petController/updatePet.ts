@@ -8,7 +8,7 @@ import type { UpdatePetRequest, UpdatePetResponse } from '../../models/ts/Update
  * @link /pet
  * @deprecated
  */
-export const updatePet = <TData = UpdatePetResponse, TVariables = UpdatePetRequest>(data: TVariables) => {
+export function updatePet<TData = UpdatePetResponse, TVariables = UpdatePetRequest>(data: TVariables) {
   return client<TData, TVariables>({
     method: 'put',
     url: `/pet`,

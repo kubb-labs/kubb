@@ -8,7 +8,7 @@ import type { UpdateUserRequest, UpdateUserResponse, UpdateUserPathParams } from
  * @link /user/{username}
  * @deprecated
  */
-export const updateUser = <TData = UpdateUserResponse, TVariables = UpdateUserRequest>(username: UpdateUserPathParams['username'], data: TVariables) => {
+export function updateUser<TData = UpdateUserResponse, TVariables = UpdateUserRequest>(username: UpdateUserPathParams['username'], data: TVariables) {
   return client<TData, TVariables>({
     method: 'put',
     url: `/user/${username}`,

@@ -8,7 +8,7 @@ import type { DeleteOrderRequest, DeleteOrderResponse, DeleteOrderPathParams } f
  * @link /store/order/{orderId}
  * @deprecated
  */
-export const deleteOrder = <TData = DeleteOrderResponse, TVariables = DeleteOrderRequest>(orderId: DeleteOrderPathParams['orderId']) => {
+export function deleteOrder<TData = DeleteOrderResponse, TVariables = DeleteOrderRequest>(orderId: DeleteOrderPathParams['orderId']) {
   return client<TData, TVariables>({
     method: 'delete',
     url: `/store/order/${orderId}`,

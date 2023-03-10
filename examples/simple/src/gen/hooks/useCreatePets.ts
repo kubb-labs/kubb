@@ -10,9 +10,9 @@ import type { CreatePetsRequest, CreatePetsResponse } from '../models/CreatePets
  * @link /pets
  * @deprecated
  */
-export const useCreatePets = <TData = CreatePetsResponse, TVariables = CreatePetsRequest>(options?: {
+export function useCreatePets<TData = CreatePetsResponse, TVariables = CreatePetsRequest>(options?: {
   mutation?: UseMutationOptions<TData, unknown, TVariables>
-}) => {
+}) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({

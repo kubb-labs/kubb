@@ -7,7 +7,7 @@ import type { FindPetsByTagsResponse, FindPetsByTagsQueryParams } from '../../mo
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [`/pet/findByTags`, ...(params ? [params] : [])] as const
 
-export const findPetsByTagsQueryOptions = <TData = FindPetsByTagsResponse>(params?: FindPetsByTagsQueryParams): QueryOptions<TData> => {
+export function findPetsByTagsQueryOptions<TData = FindPetsByTagsResponse>(params?: FindPetsByTagsQueryParams): QueryOptions<TData> {
   const queryKey = findPetsByTagsQueryKey(params)
 
   return {
@@ -28,10 +28,10 @@ export const findPetsByTagsQueryOptions = <TData = FindPetsByTagsResponse>(param
  * @link /pet/findByTags
  * @deprecated
  */
-export const useFindPetsByTags = <TData = FindPetsByTagsResponse>(
+export function useFindPetsByTags<TData = FindPetsByTagsResponse>(
   params?: FindPetsByTagsQueryParams,
   options?: { query?: UseQueryOptions<TData> }
-): UseQueryResult<TData> & { queryKey: QueryKey } => {
+): UseQueryResult<TData> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
 

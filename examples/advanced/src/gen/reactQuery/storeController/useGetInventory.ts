@@ -7,7 +7,7 @@ import type { GetInventoryResponse } from '../../models/ts/GetInventory'
 
 export const getInventoryQueryKey = () => [`/store/inventory`] as const
 
-export const getInventoryQueryOptions = <TData = GetInventoryResponse>(): QueryOptions<TData> => {
+export function getInventoryQueryOptions<TData = GetInventoryResponse>(): QueryOptions<TData> {
   const queryKey = getInventoryQueryKey()
 
   return {
@@ -27,7 +27,7 @@ export const getInventoryQueryOptions = <TData = GetInventoryResponse>(): QueryO
  * @link /store/inventory
  * @deprecated
  */
-export const useGetInventory = <TData = GetInventoryResponse>(options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } => {
+export function useGetInventory<TData = GetInventoryResponse>(options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
 

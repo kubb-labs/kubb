@@ -11,9 +11,9 @@ import type { PlaceOrderRequest, PlaceOrderResponse } from '../../models/ts/Plac
  * @link /store/order
  * @deprecated
  */
-export const usePlaceOrder = <TData = PlaceOrderResponse, TVariables = PlaceOrderRequest>(options?: {
+export function usePlaceOrder<TData = PlaceOrderResponse, TVariables = PlaceOrderRequest>(options?: {
   mutation?: UseMutationOptions<TData, unknown, TVariables>
-}) => {
+}) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({

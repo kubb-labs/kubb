@@ -11,12 +11,12 @@ import type { DeleteOrderRequest, DeleteOrderResponse, DeleteOrderPathParams } f
  * @link /store/order/{orderId}
  * @deprecated
  */
-export const useDeleteOrder = <TData = DeleteOrderResponse, TVariables = DeleteOrderRequest>(
+export function useDeleteOrder<TData = DeleteOrderResponse, TVariables = DeleteOrderRequest>(
   orderId: DeleteOrderPathParams['orderId'],
   options?: {
     mutation?: UseMutationOptions<TData, unknown, TVariables>
   }
-) => {
+) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({

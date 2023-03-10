@@ -10,12 +10,12 @@ import type { UpdatePetWithFormRequest, UpdatePetWithFormResponse, UpdatePetWith
  * @link /pet/{petId}
  * @deprecated
  */
-export const useUpdatePetWithForm = <TData = UpdatePetWithFormResponse, TVariables = UpdatePetWithFormRequest>(
+export function useUpdatePetWithForm<TData = UpdatePetWithFormResponse, TVariables = UpdatePetWithFormRequest>(
   petId: UpdatePetWithFormPathParams['petId'],
   options?: {
     mutation?: UseMutationOptions<TData, unknown, TVariables>
   }
-) => {
+) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({

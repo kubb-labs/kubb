@@ -7,7 +7,7 @@ import type { LogoutUserResponse } from '../../models/ts/LogoutUser'
  * @link /user/logout
  * @deprecated
  */
-export const logoutUser = <TData = LogoutUserResponse>() => {
+export function logoutUser<TData = LogoutUserResponse>() {
   return client<TData>({
     method: 'get',
     url: `/user/logout`,

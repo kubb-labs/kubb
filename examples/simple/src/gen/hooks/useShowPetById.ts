@@ -8,11 +8,11 @@ import type { ShowPetByIdResponse, ShowPetByIdPathParams, ShowPetByIdQueryParams
 export const showPetByIdQueryKey = (petId: ShowPetByIdPathParams['petId'], testId: ShowPetByIdPathParams['testId'], params?: ShowPetByIdQueryParams) =>
   [`/pets/${petId}`, ...(params ? [params] : [])] as const
 
-export const showPetByIdQueryOptions = <TData = ShowPetByIdResponse>(
+export function showPetByIdQueryOptions<TData = ShowPetByIdResponse>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
   params?: ShowPetByIdQueryParams
-): QueryOptions<TData> => {
+): QueryOptions<TData> {
   const queryKey = showPetByIdQueryKey(petId, testId, params)
 
   return {
@@ -32,12 +32,12 @@ export const showPetByIdQueryOptions = <TData = ShowPetByIdResponse>(
  * @link /pets/{petId}
  * @deprecated
  */
-export const useShowPetById = <TData = ShowPetByIdResponse>(
+export function useShowPetById<TData = ShowPetByIdResponse>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
   params?: ShowPetByIdQueryParams,
   options?: { query?: UseQueryOptions<TData> }
-): UseQueryResult<TData> & { queryKey: QueryKey } => {
+): UseQueryResult<TData> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? showPetByIdQueryKey(petId, testId, params)
 

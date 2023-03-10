@@ -11,9 +11,9 @@ import type { CreateUserRequest, CreateUserResponse } from '../../models/ts/Crea
  * @link /user
  * @deprecated
  */
-export const useCreateUser = <TData = CreateUserResponse, TVariables = CreateUserRequest>(options?: {
+export function useCreateUser<TData = CreateUserResponse, TVariables = CreateUserRequest>(options?: {
   mutation?: UseMutationOptions<TData, unknown, TVariables>
-}) => {
+}) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({

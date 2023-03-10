@@ -11,12 +11,12 @@ import type { DeleteUserRequest, DeleteUserResponse, DeleteUserPathParams } from
  * @link /user/{username}
  * @deprecated
  */
-export const useDeleteUser = <TData = DeleteUserResponse, TVariables = DeleteUserRequest>(
+export function useDeleteUser<TData = DeleteUserResponse, TVariables = DeleteUserRequest>(
   username: DeleteUserPathParams['username'],
   options?: {
     mutation?: UseMutationOptions<TData, unknown, TVariables>
   }
-) => {
+) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({

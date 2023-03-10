@@ -11,12 +11,12 @@ import type { UpdateUserRequest, UpdateUserResponse, UpdateUserPathParams } from
  * @link /user/{username}
  * @deprecated
  */
-export const useUpdateUser = <TData = UpdateUserResponse, TVariables = UpdateUserRequest>(
+export function useUpdateUser<TData = UpdateUserResponse, TVariables = UpdateUserRequest>(
   username: UpdateUserPathParams['username'],
   options?: {
     mutation?: UseMutationOptions<TData, unknown, TVariables>
   }
-) => {
+) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, unknown, TVariables>({

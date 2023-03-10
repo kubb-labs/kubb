@@ -8,10 +8,10 @@ import type { GetUserByNameResponse, GetUserByNamePathParams, GetUserByNameQuery
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username'], params?: GetUserByNameQueryParams) =>
   [`/user/${username}`, ...(params ? [params] : [])] as const
 
-export const getUserByNameQueryOptions = <TData = GetUserByNameResponse>(
+export function getUserByNameQueryOptions<TData = GetUserByNameResponse>(
   username: GetUserByNamePathParams['username'],
   params?: GetUserByNameQueryParams
-): QueryOptions<TData> => {
+): QueryOptions<TData> {
   const queryKey = getUserByNameQueryKey(username, params)
 
   return {
@@ -31,11 +31,11 @@ export const getUserByNameQueryOptions = <TData = GetUserByNameResponse>(
  * @link /user/{username}
  * @deprecated
  */
-export const useGetUserByName = <TData = GetUserByNameResponse>(
+export function useGetUserByName<TData = GetUserByNameResponse>(
   username: GetUserByNamePathParams['username'],
   params?: GetUserByNameQueryParams,
   options?: { query?: UseQueryOptions<TData> }
-): UseQueryResult<TData> & { queryKey: QueryKey } => {
+): UseQueryResult<TData> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username, params)
 

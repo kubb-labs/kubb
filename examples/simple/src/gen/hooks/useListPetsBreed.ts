@@ -8,10 +8,10 @@ import type { ListPetsBreedResponse, ListPetsBreedPathParams, ListPetsBreedQuery
 export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], params?: ListPetsBreedQueryParams) =>
   [`/pets/$${breed}`, ...(params ? [params] : [])] as const
 
-export const listPetsBreedQueryOptions = <TData = ListPetsBreedResponse>(
+export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams
-): QueryOptions<TData> => {
+): QueryOptions<TData> {
   const queryKey = listPetsBreedQueryKey(breed, params)
 
   return {
@@ -31,11 +31,11 @@ export const listPetsBreedQueryOptions = <TData = ListPetsBreedResponse>(
  * @link /pets/${breed}
  * @deprecated
  */
-export const useListPetsBreed = <TData = ListPetsBreedResponse>(
+export function useListPetsBreed<TData = ListPetsBreedResponse>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
   options?: { query?: UseQueryOptions<TData> }
-): UseQueryResult<TData> & { queryKey: QueryKey } => {
+): UseQueryResult<TData> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? listPetsBreedQueryKey(breed, params)
 

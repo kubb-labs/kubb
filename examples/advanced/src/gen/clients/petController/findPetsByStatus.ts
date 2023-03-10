@@ -8,7 +8,7 @@ import type { FindPetsByStatusResponse, FindPetsByStatusQueryParams } from '../.
  * @link /pet/findByStatus
  * @deprecated
  */
-export const findPetsByStatus = <TData = FindPetsByStatusResponse>(params?: FindPetsByStatusQueryParams) => {
+export function findPetsByStatus<TData = FindPetsByStatusResponse>(params?: FindPetsByStatusQueryParams) {
   return client<TData>({
     method: 'get',
     url: `/pet/findByStatus`,
