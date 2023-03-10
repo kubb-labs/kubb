@@ -95,7 +95,9 @@ export class FileManager {
   }
 
   async add(file: File, timeoutMs = 0) {
-    await timeout(timeoutMs)
+    if (timeoutMs) {
+      await timeout(timeoutMs)
+    }
 
     const cacheItem = { id: uuidv4(), file, status: 'new' as Status }
 
