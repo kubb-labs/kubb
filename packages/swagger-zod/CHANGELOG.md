@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-alpha.3...@kubb/swagger-zod-v1.0.0-alpha.4) (2023-03-10)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.4 ([8d808c3](https://github.com/kubb-project/kubb/commit/8d808c3d0b255b76dc79ad92324f0f2ee8afd619))
+
 ## [1.0.0-alpha.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-alpha.2...@kubb/swagger-zod-v1.0.0-alpha.3) (2023-03-10)
 
 
