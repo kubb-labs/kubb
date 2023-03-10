@@ -1,4 +1,16 @@
 # Changelog
+## [1.0.0-alpha.3](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-alpha.2...@kubb/core-v1.0.0-alpha.3) (2023-03-10)
+
+
+### Features
+
+* getUniqueName used for aliases + also for enums ([60580c4](https://github.com/kubb-project/kubb/commit/60580c4e79b4e1154855bafffeb63c2f4e9fc202))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.3 ([4fb3d6a](https://github.com/kubb-project/kubb/commit/4fb3d6a6ff5b6b0950d94a12f04c4fd3db89c595))
+
 ## [1.0.0-alpha.2](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-alpha.1...@kubb/core-v1.0.0-alpha.2) (2023-03-09)
 
 
