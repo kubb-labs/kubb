@@ -1,9 +1,10 @@
 import type { PluginFactoryOptions, KubbConfig } from '@kubb/core'
 
 import type Oas from 'oas'
+import type { OasOptions } from './parsers/oasParser'
 
 export type Api = {
-  getOas: (config: KubbConfig) => Promise<Oas>
+  getOas: (config: KubbConfig, options?: OasOptions) => Promise<Oas>
 }
 
 export type Options = {

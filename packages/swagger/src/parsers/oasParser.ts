@@ -2,6 +2,7 @@ import pathParser from 'path'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
 import swagger2openapi from 'swagger2openapi'
+import OASNormalize from 'oas-normalize'
 
 import type { KubbConfig } from '@kubb/core'
 import { isURL } from '@kubb/core'
@@ -14,7 +15,7 @@ import type { OASDocument } from 'oas/dist/rmoas.types'
 // TODO should be import Oas from "oas";
 const Oas: typeof OasType = require('oas').default
 
-type Options = {
+export type OasOptions = {
   validate?: boolean
 }
 
@@ -31,9 +32,15 @@ function convertSwagger2ToOpenApi(document: OASDocument): Promise<OASDocument> {
   })
 }
 
-export async function oasPathParser(pathOrApi: string, { validate }: Options = {}) {
+export async function oasPathParser(pathOrApi: string, { validate }: OasOptions = {}) {
   if (validate) {
-    await SwaggerParser.validate(pathOrApi)
+    const oas = new OASNormalize(pathOrApi, { enablePaths: true, colorizeErrors: true })
+
+    try {
+      await oas.validate()
+    } catch (e) {
+      console.log('\n', e.message)
+    }
   }
 
   const document = (await SwaggerParser.parse(pathOrApi)) as OASDocument
@@ -45,7 +52,7 @@ export async function oasPathParser(pathOrApi: string, { validate }: Options = {
   return new Oas(document)
 }
 
-export async function oasParser(config: KubbConfig, options: Options = {}) {
+export async function oasParser(config: KubbConfig, options: OasOptions = {}) {
   let pathOrApi = ''
   if (isURL(config.input.path)) {
     pathOrApi = config.input.path

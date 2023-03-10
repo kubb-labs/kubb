@@ -13,7 +13,7 @@ export const pluginName = 'swagger' as const
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'schemas', validate = true } = options
   const api: Api = {
-    getOas: (config) => oasParser(config, { validate }),
+    getOas: (config, oasOptions = { validate: false }) => oasParser(config, oasOptions),
   }
 
   return {
@@ -39,7 +39,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return undefined
       }
 
-      const oas = await api.getOas(this.config)
+      const oas = await api.getOas(this.config, { validate })
       const schemas = oas.getDefinition().components?.schemas || {}
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {

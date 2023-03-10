@@ -267,6 +267,7 @@ importers:
       change-case: ^4.1.2
       lodash.get: ^4.4.2
       oas: ^20.5.3
+      oas-normalize: ^8.3.3
       openapi-types: ^12.1.0
       swagger2openapi: ^7.0.8
       tsup: ^6.6.3
@@ -277,6 +278,7 @@ importers:
       change-case: 4.1.2
       lodash.get: 4.4.2
       oas: 20.5.3
+      oas-normalize: 8.3.3
       swagger2openapi: 7.0.8
     devDependencies:
       '@types/lodash.get': 4.4.7
@@ -1970,6 +1972,17 @@ packages:
       ajv-draft-04: 1.0.0_ajv@8.12.0
       call-me-maybe: 1.0.2
       openapi-types: 12.1.0
+    dev: false
+
+  /@readme/postman-to-openapi/4.0.0:
+    resolution: {integrity: sha512-LOwlzby87Njj6k6OofCmWSsl+EcnZjKp/wBQe/Loqxi+2m4TGnpALRP62zFjHw23ZUTVZvst8PIF6LMsK8xUHw==}
+    engines: {node: '>=14'}
+    dependencies:
+      js-yaml: 4.1.0
+      jsonc-parser: 3.2.0
+      lodash.camelcase: 4.3.0
+      marked: 4.2.12
+      mustache: 4.2.0
     dev: false
 
   /@sinclair/typebox/0.25.24:
@@ -6665,8 +6678,8 @@ packages:
     resolution: {integrity: sha512-Z1NL3Tb1M9wH4XESsCDEksWoKTdlUafKc4pt0GRwjUyXaCFZ+dc3g2erqB6zm3szA2IUSi7VnPI+o/9jnxh9hw==}
     dev: false
 
-  /marked/4.2.5:
-    resolution: {integrity: sha512-jPueVhumq7idETHkb203WDD4fMA3yV9emQ5vLwop58lu8bTclMghBWcYAavlDqIEMaisADinV1TooIFCfqOsYQ==}
+  /marked/4.2.12:
+    resolution: {integrity: sha512-yr8hSKa3Fv4D3jdZmtMMPghgVt6TWbk86WQaWhDloQjRSQhMMYCAro7jP7VDJrjjdV8pxVxMssXS8B8Y5DZ5aw==}
     engines: {node: '>= 12'}
     hasBin: true
     dev: false
@@ -7707,15 +7720,15 @@ packages:
       yaml: 1.10.2
     dev: false
 
-  /oas-normalize/8.3.2:
-    resolution: {integrity: sha512-xjPRdN9l27BxaR4+LYnJo/0SMw9nMBtCQ/NPejXT5dxw+is0j05PTgVnGxm6G+QTk2Y35hND4F9lNuPKk9Zw2A==}
+  /oas-normalize/8.3.3:
+    resolution: {integrity: sha512-lzNXbIH01EpIDvdW5aH8LfaPdWSjcqW2CvIQiyFPWqY7OBze2qJHdYQoyfa0CAW5yRIO58+eNVrdhV2smXZhyw==}
     engines: {node: '>=14'}
     dependencies:
       '@readme/openapi-parser': 2.4.0_openapi-types@12.1.0
+      '@readme/postman-to-openapi': 4.0.0
       js-yaml: 4.1.0
       node-fetch: 2.6.7
       openapi-types: 12.1.0
-      postman-to-openapi: 3.0.1
       swagger2openapi: 7.0.8
     transitivePeerDependencies:
       - encoding
@@ -7759,7 +7772,7 @@ packages:
       jsonpath-plus: 7.2.0
       jsonpointer: 5.0.1
       memoizee: 0.4.15
-      oas-normalize: 8.3.2
+      oas-normalize: 8.3.3
       openapi-types: 12.1.0
       path-to-regexp: 6.2.1
     transitivePeerDependencies:
@@ -8213,19 +8226,6 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
     dev: true
-
-  /postman-to-openapi/3.0.1:
-    resolution: {integrity: sha512-OUenC7fi5moe41nhO0yUj8jqVj6tchLCjPxG2d28Ai//Oujt3lL7tiFCL2P6pKUV1a7p5X/BJh7op65jjbrs3Q==}
-    engines: {node: '>=14 <20'}
-    hasBin: true
-    dependencies:
-      commander: 8.3.0
-      js-yaml: 4.1.0
-      jsonc-parser: 3.2.0
-      lodash.camelcase: 4.3.0
-      marked: 4.2.5
-      mustache: 4.2.0
-    dev: false
 
   /prelude-ls/1.1.2:
     resolution: {integrity: sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==}
