@@ -74,10 +74,10 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
       if (config.output.write || config.output.write === undefined) {
         await pluginManager.hookParallel('writeFile', [transformedCode, path])
       }
-
-      fileManager.setStatus(id, 'success')
-      fileManager.remove(id)
     }
+    // always remove out of the fileManager our we will have infinite loop
+    fileManager.setStatus(id, 'success')
+    fileManager.remove(id)
   })
 
   await pluginManager.hookParallel('buildStart', [config])

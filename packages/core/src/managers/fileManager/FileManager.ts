@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { getFileManagerEvents } from './events'
 
-import { write, read } from '../../utils'
+import { write, read, timeout } from '../../utils'
 
 import type { CacheStore, UUID, Status, File } from './types'
 
@@ -94,7 +94,9 @@ export class FileManager {
     return files
   }
 
-  add(file: File) {
+  async add(file: File, timeoutMs = 0) {
+    await timeout(timeoutMs)
+
     const cacheItem = { id: uuidv4(), file, status: 'new' as Status }
 
     this.cache.set(cacheItem.id, cacheItem)
