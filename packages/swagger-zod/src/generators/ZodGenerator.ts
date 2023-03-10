@@ -2,7 +2,7 @@
 import { pascalCase } from 'change-case'
 import uniq from 'lodash.uniq'
 
-import { SchemaGenerator } from '@kubb/core'
+import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
 import { isReference, getReference } from '@kubb/swagger'
 
@@ -39,7 +39,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   aliases: ts.TypeAliasDeclaration[] = []
 
   // Keep track of already used type aliases
-  typeAliases: Record<string, number> = {}
+  usedAliasNames: Record<string, number> = {}
 
   constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, nameResolver: (name) => name }) {
     super(options)
@@ -180,16 +180,6 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     return getReference(this.oas.api, ref) as T
   }
 
-  private getUniqueAlias(name: string) {
-    let used = this.typeAliases[name] || 0
-    if (used) {
-      this.typeAliases[name] = ++used
-      name += used
-    }
-    this.typeAliases[name] = 1
-    return name
-  }
-
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
@@ -198,7 +188,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     let ref = this.refs[$ref]
 
     if (!ref) {
-      const name = this.getUniqueAlias(pascalCase($ref.replace(/.+\//, ''), { delimiter: '' }))
+      const name = getUniqueName(pascalCase($ref.replace(/.+\//, ''), { delimiter: '' }), this.usedAliasNames)
 
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {

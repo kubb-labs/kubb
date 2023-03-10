@@ -3,7 +3,7 @@ import { factory } from 'typescript'
 import { pascalCase, camelCase } from 'change-case'
 import uniq from 'lodash.uniq'
 
-import { SchemaGenerator } from '@kubb/core'
+import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
 import { isReference, getReference } from '@kubb/swagger'
 import {
@@ -18,7 +18,7 @@ import {
 
 import { keywordTypeNodes } from '../utils'
 
-import ts from 'typescript'
+import type ts from 'typescript'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
@@ -34,6 +34,8 @@ type Options = {
 }
 export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.Node[]> {
   // Collect the types of all referenced schemas so we can export them later
+  public static usedEnumNames: Record<string, number> = {}
+
   refs: Refs = {}
 
   extraNodes: ts.Node[] = []
@@ -41,7 +43,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   aliases: ts.TypeAliasDeclaration[] = []
 
   // Keep track of already used type aliases
-  typeAliases: Record<string, number> = {}
+  usedAliasNames: Record<string, number> = {}
 
   constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, nameResolver: (name) => name }) {
     super(options)
@@ -117,7 +119,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       if (schema.enum) {
         type = this.getTypeFromSchema(schema, pascalCase(`${baseName} ${name}`, { delimiter: '' }))
       } else {
-        type = this.getTypeFromSchema(schema, name)
+        type = this.getTypeFromSchema(schema, pascalCase(`${baseName} ${name}`, { delimiter: '' }))
       }
 
       if (!type) {
@@ -164,16 +166,6 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     return getReference(this.oas.api, ref) as T
   }
 
-  private getUniqueAlias(name: string) {
-    let used = this.typeAliases[name] || 0
-    if (used) {
-      this.typeAliases[name] = ++used
-      name += used
-    }
-    this.typeAliases[name] = 1
-    return name
-  }
-
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
@@ -182,7 +174,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     let ref = this.refs[$ref]
 
     if (!ref) {
-      const name = this.getUniqueAlias(pascalCase($ref.replace(/.+\//, ''), { delimiter: '' }))
+      const name = getUniqueName(pascalCase($ref.replace(/.+\//, ''), { delimiter: '' }), this.usedAliasNames)
 
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
@@ -251,14 +243,15 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     }
 
     if (schema.enum && name) {
+      const enumName = getUniqueName(name, TypeGenerator.usedEnumNames)
       this.extraNodes.push(
         ...createEnumDeclaration({
-          name: camelCase(name, { delimiter: '' }),
-          typeName: pascalCase(name, { delimiter: '' }),
+          name: camelCase(enumName, { delimiter: '' }),
+          typeName: pascalCase(enumName, { delimiter: '' }),
           enums: uniq(schema.enum),
         })
       )
-      return factory.createTypeReferenceNode(pascalCase(name, { delimiter: '' }), undefined)
+      return factory.createTypeReferenceNode(pascalCase(enumName, { delimiter: '' }), undefined)
     }
 
     if ('items' in schema) {
