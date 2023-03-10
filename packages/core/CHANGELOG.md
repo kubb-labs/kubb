@@ -1,4 +1,16 @@
 # Changelog
+## [1.0.0-alpha.4](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-alpha.3...@kubb/core-v1.0.0-alpha.4) (2023-03-10)
+
+
+### Bug Fixes
+
+* setStatus to success and remove file out of FileManager even if the code is not set(infinite loop) ([09d3384](https://github.com/kubb-project/kubb/commit/09d338499af66f79fa209a8a5899fe43a4255e51))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.4 ([8d808c3](https://github.com/kubb-project/kubb/commit/8d808c3d0b255b76dc79ad92324f0f2ee8afd619))
+
 ## [1.0.0-alpha.3](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-alpha.2...@kubb/core-v1.0.0-alpha.3) (2023-03-10)
 
 
