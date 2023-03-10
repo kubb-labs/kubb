@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0-alpha.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-react-query-v1.0.0-alpha.2...@kubb/swagger-react-query-v1.1.0-alpha.2) (2023-03-10)
+
+
+### Bug Fixes
+
+* use of export function instead of export const ([a054099](https://github.com/kubb-project/kubb/commit/a0540996de5f4340101e5065ab94df31d4cc3fae))
+
 ## [1.0.0-alpha.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-react-query-v1.0.0-alpha.1...@kubb/swagger-react-query-v1.0.0-alpha.2) (2023-03-09)
 
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0-alpha.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-alpha.2...@kubb/swagger-ts-v1.1.0-alpha.2) (2023-03-10)
+
+
+### Features
+
+* getUniqueName used for aliases + also for enums ([60580c4](https://github.com/kubb-project/kubb/commit/60580c4e79b4e1154855bafffeb63c2f4e9fc202))
+
+
+### Bug Fixes
+
+* use of export function instead of export const ([a054099](https://github.com/kubb-project/kubb/commit/a0540996de5f4340101e5065ab94df31d4cc3fae))
+
 ## [1.0.0-alpha.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-alpha.1...@kubb/swagger-ts-v1.0.0-alpha.2) (2023-03-09)
 
 
