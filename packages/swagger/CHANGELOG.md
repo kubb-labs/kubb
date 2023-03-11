@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1-alpha.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-alpha.4...@kubb/swagger-v1.0.1-alpha.4) (2023-03-11)
+
+
+### Bug Fixes
+
+* validation error ([51ede39](https://github.com/kubb-project/kubb/commit/51ede39458ac6493430815897cc208e73ad25889))
+
 ## [1.0.0-alpha.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-alpha.3...@kubb/swagger-v1.0.0-alpha.4) (2023-03-10)
 
 

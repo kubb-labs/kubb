@@ -1,4 +1,11 @@
 # Changelog
+## [1.0.1-alpha.4](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-alpha.4...@kubb/core-v1.0.1-alpha.4) (2023-03-11)
+
+
+### Bug Fixes
+
+* use of queue instead of the eventsEmitters + remove addFile out of all lifeCycle methods except *buildStart* ([62973b7](https://github.com/kubb-project/kubb/commit/62973b75a95f861d6f1b431e1efc9af21c76ba81))
+
 ## [1.0.0-alpha.4](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-alpha.3...@kubb/core-v1.0.0-alpha.4) (2023-03-10)
 
 
