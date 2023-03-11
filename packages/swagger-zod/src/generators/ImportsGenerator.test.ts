@@ -34,7 +34,7 @@ describe('ImportsGenerator', () => {
     expect(format(output!)).toEqual(
       format(`
       import { Pet } from "#models/Pet";
-      export const Pets = z.array(Pet);
+      export const Pets = z.array(z.lazy(() => Pet));
     `)
     )
   })
