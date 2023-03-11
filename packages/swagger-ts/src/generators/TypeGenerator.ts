@@ -174,7 +174,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     let ref = this.refs[$ref]
 
     if (!ref) {
-      const name = getUniqueName(pascalCase($ref.replace(/.+\//, ''), { delimiter: '' }), this.usedAliasNames)
+      const name = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
 
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {

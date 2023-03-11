@@ -27,8 +27,9 @@ export class ImportsGenerator extends Generator<Options> {
     const importPromises = uniq(Object.keys(refs))
       .filter(($ref: string) => {
         // when using a $ref inside a type we should not repeat that import
-        const { name } = refs[$ref]
-        return !items.find((item) => item.name === name)
+        const { key } = refs[$ref]
+
+        return !items.find((item) => item.name.toLowerCase() === key.toLowerCase())
       })
       .map(async ($ref: string) => {
         const { name } = refs[$ref]

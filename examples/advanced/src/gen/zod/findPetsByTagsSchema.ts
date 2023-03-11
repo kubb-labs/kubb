@@ -8,4 +8,4 @@ export const findPetsByTagsQueryParamsSchema = z.object({ tags: z.array(z.string
 /**
  * @description successful operation
  */
-export const findPetsByTagsResponseSchema = z.array(petSchema)
+export const findPetsByTagsResponseSchema = z.array(z.lazy(() => petSchema))

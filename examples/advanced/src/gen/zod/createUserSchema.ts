@@ -7,4 +7,4 @@ export const createUserResponseSchema = z.any()
 /**
  * @description Created user object
  */
-export const createUserRequestSchema = userSchema
+export const createUserRequestSchema = z.lazy(() => userSchema)

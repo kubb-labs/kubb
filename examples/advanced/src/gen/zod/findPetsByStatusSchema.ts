@@ -8,4 +8,4 @@ export const findPetsByStatusQueryParamsSchema = z.object({ status: z.enum([`ava
 /**
  * @description successful operation
  */
-export const findPetsByStatusResponseSchema = z.array(petSchema)
+export const findPetsByStatusResponseSchema = z.array(z.lazy(() => petSchema))

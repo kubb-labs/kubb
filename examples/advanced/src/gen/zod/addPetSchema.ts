@@ -1,11 +1,13 @@
+import z from 'zod'
+
 import { petSchema } from './petSchema'
 
 /**
  * @description Create a new pet in the store
  */
-export const addPetRequestSchema = petSchema
+export const addPetRequestSchema = z.lazy(() => petSchema)
 
 /**
  * @description Successful operation
  */
-export const addPetResponseSchema = petSchema
+export const addPetResponseSchema = z.lazy(() => petSchema)

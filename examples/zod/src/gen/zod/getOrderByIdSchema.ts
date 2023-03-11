@@ -8,4 +8,4 @@ export const getOrderByIdQueryParamsSchema = z.object({})
 /**
  * @description successful operation
  */
-export const getOrderByIdResponseSchema = orderSchema
+export const getOrderByIdResponseSchema = z.lazy(() => orderSchema)

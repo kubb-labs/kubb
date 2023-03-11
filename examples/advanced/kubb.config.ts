@@ -20,7 +20,7 @@ export default defineConfig(async () => {
     },
     // logLevel: 'info',
     plugins: [
-      ['@kubb/swagger', { output: false }],
+      ['@kubb/swagger', { output: false, validate: true }],
       ['@kubb/swagger-ts', { output: 'models/ts' }],
       ['@kubb/swagger-react-query', { output: './reactQuery', groupBy: 'tag', client: './src/client.ts' }],
       ['@kubb/swagger-client', { output: './clients', groupBy: 'tag', client: './src/client.ts' }],

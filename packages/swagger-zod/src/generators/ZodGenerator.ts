@@ -87,7 +87,8 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
       // custom type
       if (fn === keywordZodNodes.ref) {
-        return args.name
+        // use of z.lazy because we need to import from files x or we use the type as a self referene
+        return `z.lazy(() => ${args.name})`
       }
 
       if (keywordZodNodes[fn]) {
@@ -188,7 +189,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     let ref = this.refs[$ref]
 
     if (!ref) {
-      const name = getUniqueName(pascalCase($ref.replace(/.+\//, ''), { delimiter: '' }), this.usedAliasNames)
+      const name = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
 
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {

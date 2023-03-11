@@ -8,4 +8,4 @@ export const getPetByIdQueryParamsSchema = z.object({})
 /**
  * @description successful operation
  */
-export const getPetByIdResponseSchema = petSchema
+export const getPetByIdResponseSchema = z.lazy(() => petSchema)

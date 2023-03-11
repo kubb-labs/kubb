@@ -9,4 +9,4 @@ export const updateUserResponseSchema = z.any()
 /**
  * @description Update an existent user in the store
  */
-export const updateUserRequestSchema = userSchema
+export const updateUserRequestSchema = z.lazy(() => userSchema)

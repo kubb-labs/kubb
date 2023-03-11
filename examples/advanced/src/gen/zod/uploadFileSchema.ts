@@ -9,4 +9,4 @@ export const uploadFileRequestSchema = z.any()
 /**
  * @description successful operation
  */
-export const uploadFileResponseSchema = apiResponseSchema
+export const uploadFileResponseSchema = z.lazy(() => apiResponseSchema)

@@ -8,4 +8,4 @@ export const getUserByNameQueryParamsSchema = z.object({})
 /**
  * @description successful operation
  */
-export const getUserByNameResponseSchema = userSchema
+export const getUserByNameResponseSchema = z.lazy(() => userSchema)
