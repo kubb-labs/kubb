@@ -24,11 +24,10 @@ export type OperationSchemas = {
 export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: Oas }> extends Generator<TOptions> {
   private getParametersSchema(operation: Operation, inKey: 'path' | 'query') {
     const params = operation.getParameters().filter((v) => v.in === inKey)
-    const refParams =  operation.getParameters().filter((v) => isReference(v)) 
+    const refParams = operation.getParameters().filter((v) => isReference(v))
     const parameterSchemas = this.options.oas.getDefinition().components?.parameters || {}
 
     Object.keys(parameterSchemas).forEach((name) => {
-     
       const exists = refParams.find(
         (param) => (param as unknown as OpenAPIV3.ReferenceObject).$ref && (param as unknown as OpenAPIV3.ReferenceObject).$ref.replace(/.+\//, '') === name
       )
@@ -85,7 +84,7 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
       operation.getDescription() && `@description ${operation.getDescription()}`,
       operation.getSummary() && `@summary ${operation.getSummary()}`,
       operation.path && `@link ${operation.path}`,
-      'isDeprecated' in operation && `@deprecated`,
+      operation.isDeprecated() && `@deprecated`,
     ].filter(Boolean) as string[]
   }
 
