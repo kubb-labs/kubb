@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.0.0-alpha.6](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.0.0-alpha.6...@kubb/ts-codegen-v1.0.0-alpha.6) (2023-03-11)
+
+
+### Features
+
+* oneof for zod and typescript + added description for zod ([ebef9d2](https://github.com/kubb-project/kubb/commit/ebef9d2597f38989c6d43a87053d5eba23948bca))
+* ts-codegen package ([b25db7e](https://github.com/kubb-project/kubb/commit/b25db7e9b874dd953f25b1814c4c7db3fbc9ff0b))
+* typeBuilder with extraNodes for enum nodes ([951df6b](https://github.com/kubb-project/kubb/commit/951df6b459e9236b34ac82f0e61ba5676d107604))
+
+
+### Bug Fixes
+
+* factory issue with commonjs(nextjs) ([6a6f987](https://github.com/kubb-project/kubb/commit/6a6f987363e3f3567400032bb4bbb4cf6daf9f1d))
+* support for ESM modules ([cec3b57](https://github.com/kubb-project/kubb/commit/cec3b57ba9b97a030bb276a3957c826ace72b7d3))
+* typeError ([4b2a60f](https://github.com/kubb-project/kubb/commit/4b2a60fd6dfd7830b6c779c18ac6a910afdabcd2))
+* uniq enums for zod and ts ([cc05916](https://github.com/kubb-project/kubb/commit/cc059162d2698844a72a2d8d07a92c62529bbbd9))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.1 ([608fd59](https://github.com/kubb-project/kubb/commit/608fd5926079f9dd77046d6788a5550fb964c0b2))
+* release 1.0.0-alpha.2 ([3d645ac](https://github.com/kubb-project/kubb/commit/3d645accedb121856e61bab166fafe74db6ca3f3))
+* release 1.0.0-alpha.3 ([4fb3d6a](https://github.com/kubb-project/kubb/commit/4fb3d6a6ff5b6b0950d94a12f04c4fd3db89c595))
+* release 1.0.0-alpha.4 ([8d808c3](https://github.com/kubb-project/kubb/commit/8d808c3d0b255b76dc79ad92324f0f2ee8afd619))
+* release 1.0.0-alpha.5 ([8bb9ed2](https://github.com/kubb-project/kubb/commit/8bb9ed2d0ce9ee47db2d24daba993b81cd56d2c0))
+* release 1.0.0-alpha.6 ([550035a](https://github.com/kubb-project/kubb/commit/550035a122a2e5a5294a49a0d2c927fc238315e6))
+
 ## [1.0.0-alpha.6](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.0.0-alpha.5...@kubb/ts-codegen-v1.0.0-alpha.6) (2023-03-11)
 
 
