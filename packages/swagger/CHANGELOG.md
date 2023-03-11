@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-alpha.6](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-alpha.5...@kubb/swagger-v1.0.0-alpha.6) (2023-03-11)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.6 ([550035a](https://github.com/kubb-project/kubb/commit/550035a122a2e5a5294a49a0d2c927fc238315e6))
+
 ## [1.0.0-alpha.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-alpha.4...@kubb/swagger-v1.0.0-alpha.5) (2023-03-11)
 
 
