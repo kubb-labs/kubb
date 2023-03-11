@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1-alpha.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-alpha.5...@kubb/swagger-zod-v1.0.1-alpha.5) (2023-03-11)
+
+
+### Bug Fixes
+
+* use of z.lazy for zod imorted schemas + importsGenerator based on key(and lowecased) ([250ec5a](https://github.com/kubb-project/kubb/commit/250ec5a03e13a8e4df653788ddf075f7d6f0fd82))
+
 ## [1.0.0-alpha.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-alpha.4...@kubb/swagger-zod-v1.0.0-alpha.5) (2023-03-11)
 
 
