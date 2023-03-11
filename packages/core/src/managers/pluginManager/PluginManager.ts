@@ -3,7 +3,9 @@
 
 import { definePlugin } from '../../plugin'
 import { FileManager } from '../fileManager'
+import { Queue } from '../../utils/queue'
 
+import type { QueueTask } from '../../utils/queue'
 import type { Argument0, Strategy } from './types'
 import type { KubbConfig, KubbPlugin, PluginLifecycleHooks, PluginLifecycle, MaybePromise, ResolveIdParams } from '../../types'
 import type { Logger } from '../../build'
@@ -36,11 +38,14 @@ export class PluginManager {
 
   public readonly core: KubbPlugin<CorePluginOptions>
 
-  constructor(config: KubbConfig, options: { logger?: Logger }) {
+  public queue: Queue
+
+  constructor(config: KubbConfig, options: { logger?: Logger; task: QueueTask<unknown> }) {
     this.logger = options.logger
     this.config = config
+    this.queue = new Queue(10)
 
-    this.fileManager = new FileManager()
+    this.fileManager = new FileManager({ task: options.task, queue: this.queue })
     this.core = definePlugin({
       config,
       fileManager: this.fileManager,

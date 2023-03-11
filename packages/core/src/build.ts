@@ -5,7 +5,8 @@ import { isURL } from './utils/isURL'
 import { PluginManager } from './managers/pluginManager'
 import { clean, read } from './utils'
 
-import type { FileManager } from './managers/fileManager'
+import type { QueueTask } from './utils'
+import type { FileManager, File } from './managers/fileManager'
 import type { PluginContext, TransformResult, LogLevel, KubbPlugin } from './types'
 
 type BuildOutput = {
@@ -46,19 +47,7 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
     await clean(config.output.path)
   }
 
-  const pluginManager = new PluginManager(config, { logger })
-  const { plugins, fileManager } = pluginManager
-
-  await pluginManager.hookParallel<'validate', true>('validate', [plugins])
-
-  fileManager.events.onSuccess(async () => {
-    await pluginManager.hookParallel('buildEnd')
-    setTimeout(() => {
-      done({ files: fileManager.files.map((file) => ({ ...file, source: fileManager.getSource(file) })) })
-    }, 500)
-  })
-
-  fileManager.events.onAdd(async (id, file) => {
+  const queueTask: QueueTask<void> = async (id: string, file: File) => {
     const { path } = file
 
     let code = fileManager.getSource(file)
@@ -75,12 +64,19 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
         await pluginManager.hookParallel('writeFile', [transformedCode, path])
       }
     }
-    // always remove out of the fileManager our we will have infinite loop
-    fileManager.setStatus(id, 'success')
-    fileManager.remove(id)
-  })
+  }
+
+  const pluginManager = new PluginManager(config, { logger, task: queueTask })
+  const { plugins, fileManager } = pluginManager
+
+  await pluginManager.hookParallel<'validate', true>('validate', [plugins])
 
   await pluginManager.hookParallel('buildStart', [config])
+
+  await pluginManager.hookParallel('buildEnd')
+  setTimeout(() => {
+    done({ files: fileManager.files.map((file) => ({ ...file, source: fileManager.getSource(file) })) })
+  }, 500)
 
   pluginManager.fileManager.add({
     path: isURL(config.input.path) ? config.input.path : pathParser.resolve(config.root, config.input.path),
