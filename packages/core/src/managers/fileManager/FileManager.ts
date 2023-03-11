@@ -1,28 +1,23 @@
-import EventEmitter from 'events'
-
 import uniq from 'lodash.uniq'
 import { v4 as uuidv4 } from 'uuid'
 
-import { getFileManagerEvents } from './events'
+import { write, read } from '../../utils'
 
-import { write, read, timeout } from '../../utils'
-
+import type { QueueTask, Queue } from '../../utils'
 import type { CacheStore, UUID, Status, File } from './types'
 
 export class FileManager {
   private cache: Map<CacheStore['id'], CacheStore> = new Map()
 
-  emitter = new EventEmitter()
+  private task?: QueueTask<unknown>
 
-  events = getFileManagerEvents(this.emitter)
+  private queue?: Queue
 
-  constructor() {
-    this.events.onStatusChange(() => {
-      if (this.getCountByStatus('removed') === this.cache.size) {
-        // all files are been resolved and written to the file system
-        this.events.emitSuccess()
-      }
-    })
+  constructor(options?: { queue: Queue; task: QueueTask<unknown> }) {
+    if (options) {
+      this.task = options.task
+      this.queue = options.queue
+    }
   }
 
   private getCache(id: UUID) {
@@ -38,17 +33,6 @@ export class FileManager {
       }
     })
     return cache as CacheStore
-  }
-
-  private getCountByStatus(status: Status) {
-    let count = 0
-
-    this.cache.forEach((item) => {
-      if (item.status === status) {
-        count++
-      }
-    })
-    return count
   }
 
   public getSource(file: File) {
@@ -94,22 +78,18 @@ export class FileManager {
     return files
   }
 
-  async add(file: File, timeoutMs = 0) {
-    if (timeoutMs) {
-      await timeout(timeoutMs)
-    }
-
+  async add(file: File) {
     const cacheItem = { id: uuidv4(), file, status: 'new' as Status }
 
     this.cache.set(cacheItem.id, cacheItem)
-    this.events.emitFile(cacheItem.id, file)
 
-    return new Promise<File>((resolve) => {
-      const unsubscribe = this.events.onRemove(cacheItem.id, (file) => {
-        resolve(file)
-        unsubscribe()
+    if (this.queue) {
+      await this.queue.run(async () => {
+        await this.task?.(cacheItem.id, file)
       })
-    })
+    }
+
+    return file
   }
 
   addOrAppend(file: File) {
@@ -153,8 +133,6 @@ export class FileManager {
 
     cacheItem.status = status
     this.cache.set(id, cacheItem)
-    this.events.emitStatusChange(cacheItem.file)
-    this.events.emitStatusChangeById(id, status)
   }
 
   get(id: UUID) {
@@ -169,7 +147,6 @@ export class FileManager {
     }
 
     this.setStatus(id, 'removed')
-    this.events.emitRemove(id, cacheItem.file)
   }
 
   async write(...params: Parameters<typeof write>) {

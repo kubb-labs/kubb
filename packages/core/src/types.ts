@@ -120,7 +120,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Valdiate all plugins to see if their depended plugins are installed and configured.
    * @type hookParallel
    */
-  validate: (this: PluginContext, plugins: KubbPlugin[]) => MaybePromise<true>
+  validate: (this: Omit<PluginContext, 'addFile'>, plugins: KubbPlugin[]) => MaybePromise<true>
   /**
    * Start of the lifecycle of a plugin.
    * @type hookParallel
@@ -131,27 +131,27 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @type hookFirst
    * @example ('./Pet.ts', './src/gen/')
    */
-  resolveId: (this: PluginContext, fileName: string, directory?: string, options?: TOptions['resolveIdOptions']) => OptionalPath
+  resolveId: (this: Omit<PluginContext, 'addFile'>, fileName: string, directory?: string, options?: TOptions['resolveIdOptions']) => OptionalPath
   /**
    * Makes it possible to run async logic to override the path defined previously by `resolveId`.
    * @type hookFirst
    */
-  load: (this: PluginContext, path: Path) => MaybePromise<TransformResult | null>
+  load: (this: Omit<PluginContext, 'addFile'>, path: Path) => MaybePromise<TransformResult | null>
   /**
    * Transform the source-code.
    * @type hookReduceArg0
    */
-  transform: (this: PluginContext, source: string, path: Path) => MaybePromise<TransformResult>
+  transform: (this: Omit<PluginContext, 'addFile'>, source: string, path: Path) => MaybePromise<TransformResult>
   /**
    * Write the result to the file-system based on the id(defined by `resolveId` or changed by `load`).
    * @type hookParallel
    */
-  writeFile: (this: PluginContext, source: string | undefined, path: Path) => MaybePromise<void>
+  writeFile: (this: Omit<PluginContext, 'addFile'>, source: string | undefined, path: Path) => MaybePromise<void>
   /**
    * End of the plugin lifecycle.
    * @type hookParallel
    */
-  buildEnd: (this: PluginContext) => MaybePromise<void>
+  buildEnd: (this: Omit<PluginContext, 'addFile'>) => MaybePromise<void>
 }
 
 export type PluginLifecycleHooks = keyof PluginLifecycle

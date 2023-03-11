@@ -20,6 +20,7 @@ import { Callout } from 'nextra-theme-docs'
 ## 2. buildStart
 
 `hookParallel`: Start of the lifecycle of a plugin.
+BuildStart is used to implement your transformation logic and also the only place where you can run *this.addFile*.
 
 ```typescript
   buildStart: (this: PluginContext, kubbConfig: KubbConfig) => WithPromise<void>
