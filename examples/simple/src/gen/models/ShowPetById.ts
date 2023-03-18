@@ -11,8 +11,6 @@ export type ShowPetByIdPathParams = {
   testId: string
 }
 
-export type ShowPetByIdQueryParams = {}
-
 /**
  * @description Expected response to a valid request
  */

@@ -7,8 +7,6 @@ export type GetPetByIdPathParams = {
   petId: number
 }
 
-export type GetPetByIdQueryParams = {}
-
 /**
  * @description successful operation
  */

@@ -7,8 +7,6 @@ export type GetUserByNamePathParams = {
   username: string
 }
 
-export type GetUserByNameQueryParams = {}
-
 /**
  * @description successful operation
  */

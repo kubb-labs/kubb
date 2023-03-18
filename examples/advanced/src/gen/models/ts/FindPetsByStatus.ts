@@ -1,7 +1,5 @@
 import type { Pet } from './Pet'
 
-export type FindPetsByStatusPathParams = {}
-
 export const findPetsByStatusQueryParamsStatus = {
   available: 'available',
   pending: 'pending',

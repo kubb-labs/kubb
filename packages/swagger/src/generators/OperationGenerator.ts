@@ -38,6 +38,10 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
       }
     })
 
+    if (!params.length) {
+      return null
+    }
+
     return params.reduce(
       (schema, pathParameters) => {
         return {
@@ -54,25 +58,20 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
   }
 
   getSchemas(operation: Operation): OperationSchemas {
-    const parameters = operation.getParameters()
-
-    const queryParams = parameters.filter((param) => param.in === 'query')
-    const hasQueryParams = queryParams.length
-
-    const pathParams = parameters.filter((param) => param.in === 'path')
-    const hasPathParams = pathParams.length
+    const pathParams = this.getParametersSchema(operation, 'path')
+    const queryParams = this.getParametersSchema(operation, 'query')
 
     return {
-      pathParams: hasPathParams
+      pathParams: pathParams
         ? {
             name: pascalCase(`${operation.getOperationId()} "PathParams"`, { delimiter: '' }),
-            schema: this.getParametersSchema(operation, 'path'),
+            schema: pathParams,
           }
         : undefined,
-      queryParams: hasQueryParams
+      queryParams: queryParams
         ? {
             name: pascalCase(`${operation.getOperationId()} "QueryParams"`, { delimiter: '' }),
-            schema: this.getParametersSchema(operation, 'query'),
+            schema: queryParams,
           }
         : undefined,
       request: {

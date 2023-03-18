@@ -49,8 +49,6 @@ export type Pet = {
 
 export type Pets = Pet[]
 
-export type ListPetsPathParams = {}
-
 export type ListPetsQueryParams = {
   /**
    * @type string | undefined
@@ -89,8 +87,6 @@ export type ShowPetByIdPathParams = {
    */
   testId: string
 }
-
-export type ShowPetByIdQueryParams = {}
 
 /**
  * @description Expected response to a valid request

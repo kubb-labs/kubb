@@ -82,8 +82,7 @@ export class OperationGenerator extends Generator<Options> {
     if (!schemas.queryParams && schemas.pathParams) {
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${controllerName} <TData = ${schemas.response.name}>(${pathParamsTyped}
-      }) {
+        export function ${controllerName} <TData = ${schemas.response.name}>(${pathParamsTyped}) {
           return client<TData>({
             method: "get",
             url: \`${url}\`

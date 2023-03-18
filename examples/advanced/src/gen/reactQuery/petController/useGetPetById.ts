@@ -3,13 +3,12 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetPetByIdResponse, GetPetByIdPathParams, GetPetByIdQueryParams } from '../../models/ts/GetPetById'
+import type { GetPetByIdResponse, GetPetByIdPathParams } from '../../models/ts/GetPetById'
 
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId'], params?: GetPetByIdQueryParams) =>
-  [`/pet/${petId}`, ...(params ? [params] : [])] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [`/pet/${petId}`] as const
 
-export function getPetByIdQueryOptions<TData = GetPetByIdResponse>(petId: GetPetByIdPathParams['petId'], params?: GetPetByIdQueryParams): QueryOptions<TData> {
-  const queryKey = getPetByIdQueryKey(petId, params)
+export function getPetByIdQueryOptions<TData = GetPetByIdResponse>(petId: GetPetByIdPathParams['petId']): QueryOptions<TData> {
+  const queryKey = getPetByIdQueryKey(petId)
 
   return {
     queryKey,
@@ -17,7 +16,6 @@ export function getPetByIdQueryOptions<TData = GetPetByIdResponse>(petId: GetPet
       return client<TData>({
         method: 'get',
         url: `/pet/${petId}`,
-        params,
       })
     },
   }
@@ -30,14 +28,13 @@ export function getPetByIdQueryOptions<TData = GetPetByIdResponse>(petId: GetPet
  */
 export function useGetPetById<TData = GetPetByIdResponse>(
   petId: GetPetByIdPathParams['petId'],
-  params?: GetPetByIdQueryParams,
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId, params)
+  const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
 
   const query = useQuery<TData>({
-    ...getPetByIdQueryOptions<TData>(petId, params),
+    ...getPetByIdQueryOptions<TData>(petId),
     ...queryOptions,
   }) as UseQueryResult<TData> & { queryKey: QueryKey }
 
