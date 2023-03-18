@@ -1,5 +1,64 @@
 # Changelog
 
+## [1.0.0-alpha.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-react-query-v1.0.0-alpha.6...@kubb/swagger-react-query-v1.0.0-alpha.7) (2023-03-18)
+
+
+### Features
+
+* @kubb/swagger-client package ([2a058da](https://github.com/kubb-project/kubb/commit/2a058dafdeac95e15a0817c5c5b88fd26f6816b4))
+* add client option for react-query package to override default axios instance(if needed) ([c011a12](https://github.com/kubb-project/kubb/commit/c011a1271aadc31b5379e9a489728ae8ed2c730a))
+* add put and delete operations + params for URL type ([21ab4cf](https://github.com/kubb-project/kubb/commit/21ab4cff7ceab496718119e6abc145e96125b364))
+* groupby for react-query with as first option: tag ([8933734](https://github.com/kubb-project/kubb/commit/8933734a0358aefe377e675a58a5a7ba5b138e78))
+* imports for fileManager ([1e021e7](https://github.com/kubb-project/kubb/commit/1e021e7210ad6b76d94ecf6c038bccc568188979))
+* move typescript logic to swagger-typescript package ([d4b6d2b](https://github.com/kubb-project/kubb/commit/d4b6d2b8035de648bb583662d5c022a37dff8f74))
+* querOptions for react-query(for non React hooks) ([a2a3a15](https://github.com/kubb-project/kubb/commit/a2a3a154a86f998af1a9e6a5212764fadc73a9ae))
+* queryKey + TData for hooks created by @kubb/swagger-react-query ([0675e59](https://github.com/kubb-project/kubb/commit/0675e5939a672864d7a282e4e35167321d6e42a3))
+* react-query plugin output in one file(with correct imports) ([2bd3af4](https://github.com/kubb-project/kubb/commit/2bd3af4fdf188b5ac7c1335a97229479e471af85))
+* swagger-typescript api ([559d8a4](https://github.com/kubb-project/kubb/commit/559d8a4b386d58da530b0f4b36fd8752056b23aa))
+* ts-codegen package ([b25db7e](https://github.com/kubb-project/kubb/commit/b25db7e9b874dd953f25b1814c4c7db3fbc9ff0b))
+* use of PathParams and QueryParams ([f60dd4f](https://github.com/kubb-project/kubb/commit/f60dd4f6a389bfb4712671ed9c17ef838637c8a5))
+* use of pathParams to create function arguments for ReactQuery GET hooks ([e6994fc](https://github.com/kubb-project/kubb/commit/e6994fc9576122d1aaf2edabab65d871f43a6e8a))
+* use of swagger-ts name instead of swagger-typescript ([e9c27a4](https://github.com/kubb-project/kubb/commit/e9c27a4d1485b4d38e58fb0d67380796f1eb1aad))
+
+
+### Bug Fixes
+
+* add fake  __filename ([8d102de](https://github.com/kubb-project/kubb/commit/8d102de60c979d3fffa21207489da3294bbdc89b))
+* add options to every plugin + removal of EmittedFile type ([a31b427](https://github.com/kubb-project/kubb/commit/a31b4275ca0904deb97fbc1b4c4827f6fbfd020d))
+* anyof and allof can also have non ref object(string, number, object, ...) ([8a54be3](https://github.com/kubb-project/kubb/commit/8a54be3a50c74717637255598ed4c758c7e9a53b))
+* better use of fileManager and single file(mode file) ([af010b9](https://github.com/kubb-project/kubb/commit/af010b9ae07b48cedc9d7328d121fb562aba1af0))
+* bring back changelog ([30573e4](https://github.com/kubb-project/kubb/commit/30573e41027f01d79182b17f1f78152447d9401a))
+* browser subpackage ([b8b3c19](https://github.com/kubb-project/kubb/commit/b8b3c191d10465b0ddeabf3ecdf77d564b597f35))
+* cleanup devdeps ([92c5a00](https://github.com/kubb-project/kubb/commit/92c5a0003739047326baade146938f5ca013654d))
+* cleanup imports and move duplicate stuff to swagger package ([73e7c66](https://github.com/kubb-project/kubb/commit/73e7c660dc3856afad64cf53f294f5003fa63f27))
+* correct browser tag ([3d8477a](https://github.com/kubb-project/kubb/commit/3d8477a4ec148ecbfc9ca796f173d4d3c06790cb))
+* correct use of camel and pascalcase ([f4f7a63](https://github.com/kubb-project/kubb/commit/f4f7a63731e0edc8bb059f16095f484405e547b6))
+* fileManager.getSource public + cleanup ([9fc7df7](https://github.com/kubb-project/kubb/commit/9fc7df76d7a7b4a9af0c1b34a629370ea7d21f9b))
+* filename ([14cca73](https://github.com/kubb-project/kubb/commit/14cca735e344e6ac2e055779ccf5101ae6004bfa))
+* refactor of operationgenerator + baseOperationGenerator for swagger package ([2f4739b](https://github.com/kubb-project/kubb/commit/2f4739b25e3a456f44647ee46272cd341975152b))
+* remove browser exports ([35e21ea](https://github.com/kubb-project/kubb/commit/35e21ea5575d65414111820fa4a44c17fd68740d))
+* revert umd creation for packages that uses ts compiler ([26e4130](https://github.com/kubb-project/kubb/commit/26e4130374f440864d937a6890d99f1c545cb639))
+* support for ESM modules ([cec3b57](https://github.com/kubb-project/kubb/commit/cec3b57ba9b97a030bb276a3957c826ace72b7d3))
+* tsup node ([50bbf4f](https://github.com/kubb-project/kubb/commit/50bbf4fc401bfb148c8ba0c080fab40169df96eb))
+* umd module for all packages ([2b99a4b](https://github.com/kubb-project/kubb/commit/2b99a4b61cec48f65f3be97713455c54cfb12e1f))
+* upgrade packages ([dcc2f7e](https://github.com/kubb-project/kubb/commit/dcc2f7e1f97ca494785abbb581025d46ae6ceacd))
+* upgrade packages + cleanup ([66ca9cf](https://github.com/kubb-project/kubb/commit/66ca9cf7835f0da347f263e9ac1c14eecfa7d036))
+* upgrade typescript ([5f01312](https://github.com/kubb-project/kubb/commit/5f01312d290f666299eeffb6b685e5a4980e1e47))
+* use of export function instead of export const ([a054099](https://github.com/kubb-project/kubb/commit/a0540996de5f4340101e5065ab94df31d4cc3fae))
+* useDelete without body ([47bf697](https://github.com/kubb-project/kubb/commit/47bf69781c4312eea6b272788ec76551f9f9e9b2))
+* when post/get does not exist, do not generate type/hook/schema ([16b5648](https://github.com/kubb-project/kubb/commit/16b5648b613a66811d1b24be0d6065bb84b3143a))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.1 ([608fd59](https://github.com/kubb-project/kubb/commit/608fd5926079f9dd77046d6788a5550fb964c0b2))
+* release 1.0.0-alpha.2 ([3d645ac](https://github.com/kubb-project/kubb/commit/3d645accedb121856e61bab166fafe74db6ca3f3))
+* release 1.0.0-alpha.3 ([4fb3d6a](https://github.com/kubb-project/kubb/commit/4fb3d6a6ff5b6b0950d94a12f04c4fd3db89c595))
+* release 1.0.0-alpha.4 ([8d808c3](https://github.com/kubb-project/kubb/commit/8d808c3d0b255b76dc79ad92324f0f2ee8afd619))
+* release 1.0.0-alpha.5 ([8bb9ed2](https://github.com/kubb-project/kubb/commit/8bb9ed2d0ce9ee47db2d24daba993b81cd56d2c0))
+* release 1.0.0-alpha.6 ([550035a](https://github.com/kubb-project/kubb/commit/550035a122a2e5a5294a49a0d2c927fc238315e6))
+* release 1.0.0-alpha.7 ([29bd33a](https://github.com/kubb-project/kubb/commit/29bd33aefb990c298d6615f10add0ca7fce69861))
+
 ## [1.0.0-alpha.6](https://github.com/kubb-project/kubb/compare/@kubb/swagger-react-query-v1.0.0-alpha.5...@kubb/swagger-react-query-v1.0.0-alpha.6) (2023-03-11)
 
 
