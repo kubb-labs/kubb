@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.0.0-alpha.6](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.0.0-alpha.6...@kubb/cli-v1.0.0-alpha.6) (2023-03-18)
+
+
+### Features
+
+* use of @humanwhocodes/module-importer(like eslint) to get plugins when they are used in a JSON format ([b4715ef](https://github.com/kubb-project/kubb/commit/b4715efb6d835f72b5f135245c1dde13d228fb77))
+* use of swagger-ts name instead of swagger-typescript ([e9c27a4](https://github.com/kubb-project/kubb/commit/e9c27a4d1485b4d38e58fb0d67380796f1eb1aad))
+
+
+### Bug Fixes
+
+* @swc/core as dep of @kubb/cli ([b07ed69](https://github.com/kubb-project/kubb/commit/b07ed698f70087f585d3cd71b98411463432695f))
+* anyof and allof can also have non ref object(string, number, object, ...) ([8a54be3](https://github.com/kubb-project/kubb/commit/8a54be3a50c74717637255598ed4c758c7e9a53b))
+* bring back changelog ([30573e4](https://github.com/kubb-project/kubb/commit/30573e41027f01d79182b17f1f78152447d9401a))
+* browser subpackage ([b8b3c19](https://github.com/kubb-project/kubb/commit/b8b3c191d10465b0ddeabf3ecdf77d564b597f35))
+* cli with correct dist ([1ea3d04](https://github.com/kubb-project/kubb/commit/1ea3d04d63d137eadf227b57e51bdb8e41f471c3))
+* correct use of catcher ([6865076](https://github.com/kubb-project/kubb/commit/6865076b5901e1851f529f9fb480f30cc2dd3e77))
+* if URL then do not write to fileSystem + write option for output ([8945dbe](https://github.com/kubb-project/kubb/commit/8945dbe51de9a7354135f2404b2d086acd8ba744))
+* input.path is now required and can also be an URL ([5559c47](https://github.com/kubb-project/kubb/commit/5559c4702fc0142853ff316233921c19702469f9))
+* support for ESM modules ([cec3b57](https://github.com/kubb-project/kubb/commit/cec3b57ba9b97a030bb276a3957c826ace72b7d3))
+* tsup node ([50bbf4f](https://github.com/kubb-project/kubb/commit/50bbf4fc401bfb148c8ba0c080fab40169df96eb))
+* upgrade packages ([dcc2f7e](https://github.com/kubb-project/kubb/commit/dcc2f7e1f97ca494785abbb581025d46ae6ceacd))
+* upgrade packages + cleanup ([66ca9cf](https://github.com/kubb-project/kubb/commit/66ca9cf7835f0da347f263e9ac1c14eecfa7d036))
+* upgrade typescript ([5f01312](https://github.com/kubb-project/kubb/commit/5f01312d290f666299eeffb6b685e5a4980e1e47))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.1 ([608fd59](https://github.com/kubb-project/kubb/commit/608fd5926079f9dd77046d6788a5550fb964c0b2))
+* release 1.0.0-alpha.2 ([3d645ac](https://github.com/kubb-project/kubb/commit/3d645accedb121856e61bab166fafe74db6ca3f3))
+* release 1.0.0-alpha.3 ([4fb3d6a](https://github.com/kubb-project/kubb/commit/4fb3d6a6ff5b6b0950d94a12f04c4fd3db89c595))
+* release 1.0.0-alpha.4 ([8d808c3](https://github.com/kubb-project/kubb/commit/8d808c3d0b255b76dc79ad92324f0f2ee8afd619))
+* release 1.0.0-alpha.5 ([8bb9ed2](https://github.com/kubb-project/kubb/commit/8bb9ed2d0ce9ee47db2d24daba993b81cd56d2c0))
+* release 1.0.0-alpha.6 ([550035a](https://github.com/kubb-project/kubb/commit/550035a122a2e5a5294a49a0d2c927fc238315e6))
+
 ## [1.0.0-alpha.6](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.0.0-alpha.5...@kubb/cli-v1.0.0-alpha.6) (2023-03-11)
 
 
