@@ -8,7 +8,6 @@ import type { CreatePetsRequest, CreatePetsResponse } from '../models/CreatePets
 /**
  * @summary Create a pet
  * @link /pets
- * @deprecated
  */
 export function useCreatePets<TData = CreatePetsResponse, TVariables = CreatePetsRequest>(options?: {
   mutation?: UseMutationOptions<TData, unknown, TVariables>

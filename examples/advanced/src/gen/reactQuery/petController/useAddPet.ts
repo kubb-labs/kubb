@@ -9,7 +9,6 @@ import type { AddPetRequest, AddPetResponse } from '../../models/ts/AddPet'
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet
- * @deprecated
  */
 export function useAddPet<TData = AddPetResponse, TVariables = AddPetRequest>(options?: { mutation?: UseMutationOptions<TData, unknown, TVariables> }) {
   const { mutation: mutationOptions } = options ?? {}

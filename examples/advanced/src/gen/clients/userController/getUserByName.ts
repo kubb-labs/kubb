@@ -5,7 +5,6 @@ import type { GetUserByNameResponse, GetUserByNamePathParams, GetUserByNameQuery
 /**
  * @summary Get user by user name
  * @link /user/{username}
- * @deprecated
  */
 export function getUserByName<TData = GetUserByNameResponse>(username: GetUserByNamePathParams['username'], params?: GetUserByNameQueryParams) {
   return client<TData>({

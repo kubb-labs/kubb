@@ -8,7 +8,6 @@ import type { UpdatePetWithFormRequest, UpdatePetWithFormResponse, UpdatePetWith
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/{petId}
- * @deprecated
  */
 export function useUpdatePetWithForm<TData = UpdatePetWithFormResponse, TVariables = UpdatePetWithFormRequest>(
   petId: UpdatePetWithFormPathParams['petId'],

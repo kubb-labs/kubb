@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-alpha.7",
   "description": "Generator swagger",
   "repository": {
     "type": "git",
@@ -63,7 +63,7 @@
     "@types/lodash.get": "^4.4.7",
     "openapi-types": "^12.1.0",
     "tsup": "^6.6.3",
-    "typescript": "^4.9.5"
+    "typescript": "^5.0.2"
   },
   "publishConfig": {
     "access": "public",

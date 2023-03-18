@@ -1,4 +1,6 @@
-import ts, { factory } from 'typescript'
+import ts from 'typescript'
+
+const { factory } = ts
 
 export const keywordTypeNodes = {
   any: factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),

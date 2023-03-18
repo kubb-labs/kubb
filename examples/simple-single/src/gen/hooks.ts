@@ -33,7 +33,6 @@ export function listPetsQueryOptions<TData = ListPetsResponse>(params?: ListPets
 /**
  * @summary List all pets
  * @link /pets
- * @deprecated
  */
 export function useListPets<TData = ListPetsResponse>(
   params?: ListPetsQueryParams,
@@ -55,7 +54,6 @@ export function useListPets<TData = ListPetsResponse>(
 /**
  * @summary Create a pet
  * @link /pets
- * @deprecated
  */
 export function useCreatePets<TData = CreatePetsResponse, TVariables = CreatePetsRequest>(options?: {
   mutation?: UseMutationOptions<TData, unknown, TVariables>
@@ -99,7 +97,6 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdResponse>(
 /**
  * @summary Info for a specific pet
  * @link /pets/{petId}
- * @deprecated
  */
 export function useShowPetById<TData = ShowPetByIdResponse>(
   petId: ShowPetByIdPathParams['petId'],

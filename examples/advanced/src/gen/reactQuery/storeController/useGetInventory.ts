@@ -25,7 +25,6 @@ export function getInventoryQueryOptions<TData = GetInventoryResponse>(): QueryO
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
  * @link /store/inventory
- * @deprecated
  */
 export function useGetInventory<TData = GetInventoryResponse>(options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}

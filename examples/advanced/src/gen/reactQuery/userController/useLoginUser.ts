@@ -25,7 +25,6 @@ export function loginUserQueryOptions<TData = LoginUserResponse>(params?: LoginU
 /**
  * @summary Logs user into the system
  * @link /user/login
- * @deprecated
  */
 export function useLoginUser<TData = LoginUserResponse>(
   params?: LoginUserQueryParams,

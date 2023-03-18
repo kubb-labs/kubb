@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.0.0-alpha.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-alpha.6...@kubb/swagger-ts-v1.0.0-alpha.7) (2023-03-18)
+
+
+### Features
+
+* getUniqueName used for aliases + also for enums ([60580c4](https://github.com/kubb-project/kubb/commit/60580c4e79b4e1154855bafffeb63c2f4e9fc202))
+* intersection for allOf ([7418a7c](https://github.com/kubb-project/kubb/commit/7418a7cd344885c3f5c93ebcf96c86b4f23eae67))
+* oneof for zod and typescript + added description for zod ([ebef9d2](https://github.com/kubb-project/kubb/commit/ebef9d2597f38989c6d43a87053d5eba23948bca))
+* typeBuilder with extraNodes for enum nodes ([951df6b](https://github.com/kubb-project/kubb/commit/951df6b459e9236b34ac82f0e61ba5676d107604))
+* use of swagger-ts name instead of swagger-typescript ([e9c27a4](https://github.com/kubb-project/kubb/commit/e9c27a4d1485b4d38e58fb0d67380796f1eb1aad))
+
+
+### Bug Fixes
+
+* anyof and allof can also have non ref object(string, number, object, ...) ([8a54be3](https://github.com/kubb-project/kubb/commit/8a54be3a50c74717637255598ed4c758c7e9a53b))
+* correct use of camel and pascalcase ([f4f7a63](https://github.com/kubb-project/kubb/commit/f4f7a63731e0edc8bb059f16095f484405e547b6))
+* factory issue with commonjs(nextjs) ([6a6f987](https://github.com/kubb-project/kubb/commit/6a6f987363e3f3567400032bb4bbb4cf6daf9f1d))
+* openAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
+* support for ESM modules ([cec3b57](https://github.com/kubb-project/kubb/commit/cec3b57ba9b97a030bb276a3957c826ace72b7d3))
+* uniq enums for zod and ts ([cc05916](https://github.com/kubb-project/kubb/commit/cc059162d2698844a72a2d8d07a92c62529bbbd9))
+* upgrade typescript ([5f01312](https://github.com/kubb-project/kubb/commit/5f01312d290f666299eeffb6b685e5a4980e1e47))
+* use of export function instead of export const ([a054099](https://github.com/kubb-project/kubb/commit/a0540996de5f4340101e5065ab94df31d4cc3fae))
+* use of z.lazy for zod imorted schemas + importsGenerator based on key(and lowecased) ([250ec5a](https://github.com/kubb-project/kubb/commit/250ec5a03e13a8e4df653788ddf075f7d6f0fd82))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.1 ([608fd59](https://github.com/kubb-project/kubb/commit/608fd5926079f9dd77046d6788a5550fb964c0b2))
+* release 1.0.0-alpha.2 ([3d645ac](https://github.com/kubb-project/kubb/commit/3d645accedb121856e61bab166fafe74db6ca3f3))
+* release 1.0.0-alpha.3 ([4fb3d6a](https://github.com/kubb-project/kubb/commit/4fb3d6a6ff5b6b0950d94a12f04c4fd3db89c595))
+* release 1.0.0-alpha.4 ([8d808c3](https://github.com/kubb-project/kubb/commit/8d808c3d0b255b76dc79ad92324f0f2ee8afd619))
+* release 1.0.0-alpha.5 ([8bb9ed2](https://github.com/kubb-project/kubb/commit/8bb9ed2d0ce9ee47db2d24daba993b81cd56d2c0))
+* release 1.0.0-alpha.6 ([550035a](https://github.com/kubb-project/kubb/commit/550035a122a2e5a5294a49a0d2c927fc238315e6))
+* release 1.0.0-alpha.7 ([29bd33a](https://github.com/kubb-project/kubb/commit/29bd33aefb990c298d6615f10add0ca7fce69861))
+
 ## [1.0.0-alpha.6](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-alpha.5...@kubb/swagger-ts-v1.0.0-alpha.6) (2023-03-11)
 
 

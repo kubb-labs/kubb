@@ -29,7 +29,6 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
 /**
  * @summary List all pets with breed
  * @link /pets/${breed}
- * @deprecated
  */
 export function useListPetsBreed<TData = ListPetsBreedResponse>(
   breed: ListPetsBreedPathParams['breed'],

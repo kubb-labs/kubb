@@ -9,7 +9,6 @@ import type { DeleteUserRequest, DeleteUserResponse, DeleteUserPathParams } from
  * @description This can only be done by the logged in user.
  * @summary Delete user
  * @link /user/{username}
- * @deprecated
  */
 export function useDeleteUser<TData = DeleteUserResponse, TVariables = DeleteUserRequest>(
   username: DeleteUserPathParams['username'],
