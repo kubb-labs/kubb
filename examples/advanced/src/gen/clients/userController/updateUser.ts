@@ -6,7 +6,6 @@ import type { UpdateUserRequest, UpdateUserResponse, UpdateUserPathParams } from
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/{username}
- * @deprecated
  */
 export function updateUser<TData = UpdateUserResponse, TVariables = UpdateUserRequest>(username: UpdateUserPathParams['username'], data: TVariables) {
   return client<TData, TVariables>({

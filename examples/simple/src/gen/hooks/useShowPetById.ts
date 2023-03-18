@@ -30,7 +30,6 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdResponse>(
 /**
  * @summary Info for a specific pet
  * @link /pets/{petId}
- * @deprecated
  */
 export function useShowPetById<TData = ShowPetByIdResponse>(
   petId: ShowPetByIdPathParams['petId'],

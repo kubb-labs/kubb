@@ -25,7 +25,6 @@ export function listPetsQueryOptions<TData = ListPetsResponse>(params?: ListPets
 /**
  * @summary List all pets
  * @link /pets
- * @deprecated
  */
 export function useListPets<TData = ListPetsResponse>(
   params?: ListPetsQueryParams,

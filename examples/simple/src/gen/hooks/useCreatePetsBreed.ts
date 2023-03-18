@@ -8,7 +8,6 @@ import type { CreatePetsBreedRequest, CreatePetsBreedResponse, CreatePetsBreedPa
 /**
  * @summary Create a pet breed
  * @link /pets/${breed}
- * @deprecated
  */
 export function useCreatePetsBreed<TData = CreatePetsBreedResponse, TVariables = CreatePetsBreedRequest>(
   breed: CreatePetsBreedPathParams['breed'],

@@ -24,7 +24,6 @@ export function logoutUserQueryOptions<TData = LogoutUserResponse>(): QueryOptio
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout
- * @deprecated
  */
 export function useLogoutUser<TData = LogoutUserResponse>(options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}

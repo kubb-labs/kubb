@@ -6,7 +6,6 @@ import type { UpdatePetRequest, UpdatePetResponse } from '../../models/ts/Update
  * @description Update an existing pet by Id
  * @summary Update an existing pet
  * @link /pet
- * @deprecated
  */
 export function updatePet<TData = UpdatePetResponse, TVariables = UpdatePetRequest>(data: TVariables) {
   return client<TData, TVariables>({

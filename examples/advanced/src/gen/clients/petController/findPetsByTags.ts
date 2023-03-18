@@ -6,7 +6,6 @@ import type { FindPetsByTagsResponse, FindPetsByTagsQueryParams } from '../../mo
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags
- * @deprecated
  */
 export function findPetsByTags<TData = FindPetsByTagsResponse>(params?: FindPetsByTagsQueryParams) {
   return client<TData>({

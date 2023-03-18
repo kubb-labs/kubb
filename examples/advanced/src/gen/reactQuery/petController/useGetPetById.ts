@@ -27,7 +27,6 @@ export function getPetByIdQueryOptions<TData = GetPetByIdResponse>(petId: GetPet
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/{petId}
- * @deprecated
  */
 export function useGetPetById<TData = GetPetByIdResponse>(
   petId: GetPetByIdPathParams['petId'],

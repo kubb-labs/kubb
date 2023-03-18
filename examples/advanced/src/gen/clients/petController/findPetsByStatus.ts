@@ -6,7 +6,6 @@ import type { FindPetsByStatusResponse, FindPetsByStatusQueryParams } from '../.
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
  * @link /pet/findByStatus
- * @deprecated
  */
 export function findPetsByStatus<TData = FindPetsByStatusResponse>(params?: FindPetsByStatusQueryParams) {
   return client<TData>({
