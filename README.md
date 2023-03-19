@@ -1,7 +1,5 @@
 <div align="center">
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
+
 
   <img src="assets/banner.png" alt="logo"  height="auto" />
 
@@ -25,6 +23,9 @@
 <a href="https://www.npmjs.com/package/@kubb/core">
   <img alt="Npm downloads" src="https://img.shields.io/npm/dm/@kubb/core?style=for-the-badge"/>
 </a>
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
    
 <h4>
@@ -66,7 +67,8 @@
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="http://www.stijnvanhulle.be"><img src="https://avatars.githubusercontent.com/u/5904681?v=4?s=100" width="100px;" alt="Stijn Van Hulle"/><br /><sub><b>Stijn Van Hulle</b></sub></a><br /><a href="https://github.com/kubb-project/kubb/commits?author=stijnvanhulle" title="Code">💻</a></td>
+    <td align="center" valign="top" width="14.28%"><a href="http://www.stijnvanhulle.be"><img src="https://avatars.githubusercontent.com/u/5904681?v=4?s=100" width="100px;" alt="Stijn Van Hulle"/><br /><sub><b>Stijn Van Hulle</b></sub></a><br /><a href="https://github.com/kubb-project/kubb/commits?author=stijnvanhulle" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://fosstodon.org/@xphentom"><img src="https://avatars.githubusercontent.com/u/5096867?v=4?s=100" width="100px;" alt="Wouter Roozeleer"/><br /><sub><b>Wouter Roozeleer</b></sub></a><br /><a href="https://github.com/kubb-project/kubb/commits?author=xPhentom" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
