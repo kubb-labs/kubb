@@ -13,7 +13,7 @@ export abstract class OasBuilder<TConfig extends object = object> {
 
   public items: Item[] = []
 
-  public config: TConfig = {} as any
+  public config: TConfig = {} as TConfig
 
   constructor(oas: Oas) {
     this.oas = oas

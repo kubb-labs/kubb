@@ -1,7 +1,7 @@
 import get from 'lodash.get'
 
 // See https://swagger.io/docs/specification/using-ref/
-export function getReference(spec: any, ref: string) {
+export function getReference(spec: unknown, ref: string) {
   const path = ref
     .slice(2)
     .split('/')

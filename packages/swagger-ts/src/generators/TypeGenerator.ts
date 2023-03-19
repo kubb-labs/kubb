@@ -5,7 +5,7 @@ import uniq from 'lodash.uniq'
 
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
-import { isReference, getReference } from '@kubb/swagger'
+import { isReference } from '@kubb/swagger'
 import {
   appendJSDocToNode,
   createEnumDeclaration,
@@ -78,7 +78,10 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     // filter out if the export name is the same as one that we already defined in extraNodes(see enum)
     const filterdNodes = nodes.filter(
-      (node: ts.TypeAliasDeclaration) => !this.extraNodes.some((extraNode: ts.TypeAliasDeclaration) => extraNode?.name?.escapedText === node?.name?.escapedText)
+      (node: ts.Node) =>
+        !this.extraNodes.some(
+          (extraNode: ts.Node) => (extraNode as ts.TypeAliasDeclaration)?.name?.escapedText === (node as ts.TypeAliasDeclaration)?.name?.escapedText
+        )
     )
 
     return [...this.extraNodes, ...filterdNodes]
@@ -157,15 +160,6 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     return factory.createTypeLiteralNode(members.filter(Boolean) as ts.TypeElement[])
   }
 
-  private resolve<T>(obj: T | OpenAPIV3.ReferenceObject) {
-    if (!isReference(obj)) return obj
-    const ref = obj.$ref
-    if (!ref.startsWith('#/')) {
-      throw new Error(`External refs are not supported (${ref}). Make sure to call SwaggerParser.bundle() first.`)
-    }
-    return getReference(this.oas.api, ref) as T
-  }
-
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
@@ -190,7 +184,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | undefined, name?: string): ts.TypeNode | null {
+  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, name?: string): ts.TypeNode | null {
     if (!schema) {
       return keywordTypeNodes.any
     }
@@ -209,7 +203,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
           factory.createParenthesizedType(
             factory.createUnionTypeNode(
               schema.oneOf
-                .map((item: OpenAPIV3.SchemaObject) => {
+                .map((item) => {
                   return this.getBaseTypeFromSchema(item)
                 })
                 .filter(Boolean) as ts.TypeNode[]
@@ -232,7 +226,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
           factory.createParenthesizedType(
             factory.createIntersectionTypeNode(
               schema.allOf
-                .map((item: OpenAPIV3.SchemaObject) => {
+                .map((item) => {
                   return this.getBaseTypeFromSchema(item)
                 })
                 .filter(Boolean) as ts.TypeNode[]
@@ -292,7 +286,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       }
       // string, boolean, null, number
       if (schema.type in keywordTypeNodes) {
-        return keywordTypeNodes[schema.type]
+        return keywordTypeNodes[schema.type as keyof typeof keywordTypeNodes]
       }
     }
 

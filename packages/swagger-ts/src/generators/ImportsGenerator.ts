@@ -29,7 +29,7 @@ export class ImportsGenerator extends Generator<Options> {
         // when using a $ref inside a type we should not repeat that import
         const { key } = refs[$ref]
         return !items.find((item) =>
-          item.sources.find((node: ts.TypeAliasDeclaration) => node.name?.escapedText.toString().toLowerCase() === key.toLowerCase())
+          item.sources.find((node: ts.Node) => (node as ts.TypeAliasDeclaration).name?.escapedText.toString().toLowerCase() === key.toLowerCase())
         )
       })
       .map(async ($ref: string) => {
