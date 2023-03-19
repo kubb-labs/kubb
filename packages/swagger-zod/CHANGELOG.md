@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1-alpha.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-alpha.7...@kubb/swagger-zod-v1.0.1-alpha.7) (2023-03-19)
+
+
+### Bug Fixes
+
+* add declarationMap for easy access in editor ([40ff030](https://github.com/kubb-project/kubb/commit/40ff0305fb975bd02561682c5d7a9266259e185f))
+* typescript strict mode for core, cli and ts-codegen ([c0dd917](https://github.com/kubb-project/kubb/commit/c0dd917cca5df924d706c271dfe9f0eae9f87897))
+
 ## [1.0.0-alpha.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-alpha.6...@kubb/swagger-zod-v1.0.0-alpha.7) (2023-03-18)
 
 
