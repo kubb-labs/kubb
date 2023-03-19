@@ -3,15 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type {
-  ListPetsResponse,
-  ListPetsQueryParams,
-  CreatePetsRequest,
-  CreatePetsResponse,
-  ShowPetByIdResponse,
-  ShowPetByIdPathParams,
-  ShowPetByIdQueryParams,
-} from './models'
+import type { ListPetsResponse, ListPetsQueryParams, CreatePetsRequest, CreatePetsResponse, ShowPetByIdResponse, ShowPetByIdPathParams } from './models'
 
 export const listPetsQueryKey = (params?: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
 
@@ -72,15 +64,13 @@ export function useCreatePets<TData = CreatePetsResponse, TVariables = CreatePet
   })
 }
 
-export const showPetByIdQueryKey = (petId: ShowPetByIdPathParams['petId'], testId: ShowPetByIdPathParams['testId'], params?: ShowPetByIdQueryParams) =>
-  [`/pets/${petId}`, ...(params ? [params] : [])] as const
+export const showPetByIdQueryKey = (petId: ShowPetByIdPathParams['petId'], testId: ShowPetByIdPathParams['testId']) => [`/pets/${petId}`] as const
 
 export function showPetByIdQueryOptions<TData = ShowPetByIdResponse>(
   petId: ShowPetByIdPathParams['petId'],
-  testId: ShowPetByIdPathParams['testId'],
-  params?: ShowPetByIdQueryParams
+  testId: ShowPetByIdPathParams['testId']
 ): QueryOptions<TData> {
-  const queryKey = showPetByIdQueryKey(petId, testId, params)
+  const queryKey = showPetByIdQueryKey(petId, testId)
 
   return {
     queryKey,
@@ -88,7 +78,6 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdResponse>(
       return client<TData>({
         method: 'get',
         url: `/pets/${petId}`,
-        params,
       })
     },
   }
@@ -101,14 +90,13 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdResponse>(
 export function useShowPetById<TData = ShowPetByIdResponse>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
-  params?: ShowPetByIdQueryParams,
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? showPetByIdQueryKey(petId, testId, params)
+  const queryKey = queryOptions?.queryKey ?? showPetByIdQueryKey(petId, testId)
 
   const query = useQuery<TData>({
-    ...showPetByIdQueryOptions<TData>(petId, testId, params),
+    ...showPetByIdQueryOptions<TData>(petId, testId),
     ...queryOptions,
   }) as UseQueryResult<TData> & { queryKey: QueryKey }
 

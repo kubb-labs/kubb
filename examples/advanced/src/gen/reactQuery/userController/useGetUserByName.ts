@@ -3,16 +3,12 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetUserByNameResponse, GetUserByNamePathParams, GetUserByNameQueryParams } from '../../models/ts/GetUserByName'
+import type { GetUserByNameResponse, GetUserByNamePathParams } from '../../models/ts/GetUserByName'
 
-export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username'], params?: GetUserByNameQueryParams) =>
-  [`/user/${username}`, ...(params ? [params] : [])] as const
+export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [`/user/${username}`] as const
 
-export function getUserByNameQueryOptions<TData = GetUserByNameResponse>(
-  username: GetUserByNamePathParams['username'],
-  params?: GetUserByNameQueryParams
-): QueryOptions<TData> {
-  const queryKey = getUserByNameQueryKey(username, params)
+export function getUserByNameQueryOptions<TData = GetUserByNameResponse>(username: GetUserByNamePathParams['username']): QueryOptions<TData> {
+  const queryKey = getUserByNameQueryKey(username)
 
   return {
     queryKey,
@@ -20,7 +16,6 @@ export function getUserByNameQueryOptions<TData = GetUserByNameResponse>(
       return client<TData>({
         method: 'get',
         url: `/user/${username}`,
-        params,
       })
     },
   }
@@ -32,14 +27,13 @@ export function getUserByNameQueryOptions<TData = GetUserByNameResponse>(
  */
 export function useGetUserByName<TData = GetUserByNameResponse>(
   username: GetUserByNamePathParams['username'],
-  params?: GetUserByNameQueryParams,
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username, params)
+  const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
 
   const query = useQuery<TData>({
-    ...getUserByNameQueryOptions<TData>(username, params),
+    ...getUserByNameQueryOptions<TData>(username),
     ...queryOptions,
   }) as UseQueryResult<TData> & { queryKey: QueryKey }
 

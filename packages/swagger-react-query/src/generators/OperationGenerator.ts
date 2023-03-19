@@ -75,7 +75,7 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(params: ${
+        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(params?: ${
         schemas.queryParams.name
       }): QueryOptions<TData> {
           const queryKey = ${queryKey}(params);
@@ -102,7 +102,7 @@ export class OperationGenerator extends Generator<Options> {
           const queryKey = queryOptions?.queryKey ?? ${queryKey}(params);
           
           const query = useQuery<TData>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}(params),
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(params),
             ...queryOptions
           }) as UseQueryResult<TData> & { queryKey: QueryKey };
 
@@ -136,8 +136,9 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}>(${pathParamsTyped}
-      }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } {
+        export function ${hookName} <TData = ${
+        schemas.response.name
+      }>(${pathParamsTyped} options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey ?? ${queryKey}(${pathParams});
           

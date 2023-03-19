@@ -7,8 +7,6 @@ export type GetOrderByIdPathParams = {
   orderId: number
 }
 
-export type GetOrderByIdQueryParams = {}
-
 /**
  * @description successful operation
  */

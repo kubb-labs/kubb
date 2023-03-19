@@ -3,11 +3,12 @@ import { pascalCase } from 'change-case'
 import type { FileManager, File } from '@kubb/core'
 import { Generator } from '@kubb/core'
 
+import { isReference } from '../utils/isReference'
+
 import type { Operation } from 'oas'
 import type { MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
 import type Oas from 'oas'
-import { isReference } from '../utils/isReference'
 
 type OperationSchema = {
   name: string
@@ -37,6 +38,10 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
       }
     })
 
+    if (!params.length) {
+      return null
+    }
+
     return params.reduce(
       (schema, pathParameters) => {
         return {
@@ -53,17 +58,20 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
   }
 
   getSchemas(operation: Operation): OperationSchemas {
+    const pathParams = this.getParametersSchema(operation, 'path')
+    const queryParams = this.getParametersSchema(operation, 'query')
+
     return {
-      pathParams: operation.hasParameters()
+      pathParams: pathParams
         ? {
             name: pascalCase(`${operation.getOperationId()} "PathParams"`, { delimiter: '' }),
-            schema: this.getParametersSchema(operation, 'path'),
+            schema: pathParams,
           }
         : undefined,
-      queryParams: operation.hasParameters()
+      queryParams: queryParams
         ? {
             name: pascalCase(`${operation.getOperationId()} "QueryParams"`, { delimiter: '' }),
-            schema: this.getParametersSchema(operation, 'query'),
+            schema: queryParams,
           }
         : undefined,
       request: {

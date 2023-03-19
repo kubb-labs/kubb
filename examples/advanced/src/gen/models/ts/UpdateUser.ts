@@ -7,8 +7,6 @@ export type UpdateUserPathParams = {
   username: string
 }
 
-export type UpdateUserQueryParams = {}
-
 export type UpdateUserResponse = any | null
 
 /**
