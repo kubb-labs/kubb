@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.1-alpha.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.0.0-alpha.7...@kubb/swagger-client-v1.0.1-alpha.7) (2023-03-19)
+
+
+### Bug Fixes
+
+* add declarationMap for easy access in editor ([40ff030](https://github.com/kubb-project/kubb/commit/40ff0305fb975bd02561682c5d7a9266259e185f))
+* pathParams and queryParams filter + update to reactQuery and client plugin to adapt those changes ([7005e50](https://github.com/kubb-project/kubb/commit/7005e505d147a1c03d90135faa3b62112cb69ca0))
+* strictmode on swagger packages + remove anys ([0583ae8](https://github.com/kubb-project/kubb/commit/0583ae809f8cf7822a4d39edfda7ff43f2a539cb))
+* typescript strict mode for core, cli and ts-codegen ([c0dd917](https://github.com/kubb-project/kubb/commit/c0dd917cca5df924d706c271dfe9f0eae9f87897))
+
 ## [1.0.0-alpha.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.0.0-alpha.6...@kubb/swagger-client-v1.0.0-alpha.7) (2023-03-18)
 
 
