@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1-alpha.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-alpha.7...@kubb/swagger-ts-v1.0.1-alpha.7) (2023-03-19)
+
+
+### Bug Fixes
+
+* import ts ([22617ba](https://github.com/kubb-project/kubb/commit/22617baeaf4c29034644245964d2a5ba8706e310))
+
 ## [1.0.0-alpha.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-alpha.6...@kubb/swagger-ts-v1.0.0-alpha.7) (2023-03-18)
 
 
