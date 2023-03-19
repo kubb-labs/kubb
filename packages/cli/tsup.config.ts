@@ -1,13 +1,12 @@
-import { defineConfig } from 'tsup'
+/* eslint-disable no-param-reassign */
+import { defineConfig, type Options } from 'tsup'
 
-export default defineConfig({
+const baseOptions = {
   entry: ['src/index.ts'],
   treeshake: true,
-  sourcemap: false,
+  sourcemap: true,
   minify: false,
-  splitting: false,
   clean: true,
-  dts: false,
   /**
    * @link https://stackoverflow.com/questions/31931614/require-is-not-defined-node-js
    */
@@ -16,5 +15,24 @@ export default defineConfig({
   },
   platform: 'node',
   shims: true,
-  format: ['esm'],
-})
+} satisfies Options
+
+export default defineConfig([
+  {
+    ...baseOptions,
+    format: 'esm',
+    dts: true,
+    splitting: false,
+  },
+  {
+    ...baseOptions,
+    format: 'cjs',
+    dts: {
+      compilerOptions: {
+        target: 'ES5',
+        module: 'commonjs',
+        moduleResolution: 'node',
+      },
+    },
+  },
+])

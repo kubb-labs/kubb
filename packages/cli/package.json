@@ -27,6 +27,7 @@
   "preferGlobal": true,
   "files": [
     "dist",
+    "src",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],

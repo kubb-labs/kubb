@@ -1,41 +1,59 @@
-import { defineConfig } from 'tsup'
+/* eslint-disable no-param-reassign */
+import { defineConfig, type Options } from 'tsup'
+
+const baseOptions = {
+  entry: ['src/index.ts'],
+  treeshake: true,
+  sourcemap: true,
+  minify: false,
+  clean: true,
+  /**
+   * @link https://stackoverflow.com/questions/31931614/require-is-not-defined-node-js
+   */
+  banner: {
+    js: "import { createRequire } from 'module';const require = createRequire(import.meta.url);",
+  },
+  platform: 'node',
+  shims: true,
+} satisfies Options
 
 export default defineConfig([
   {
-    entry: ['src/index.ts'],
-    treeshake: true,
-    sourcemap: true,
-    minify: false,
-    splitting: false,
-    clean: true,
+    ...baseOptions,
+    format: 'esm',
     dts: true,
-    /**
-     * @link https://stackoverflow.com/questions/31931614/require-is-not-defined-node-js
-     */
-    banner: {
-      js: "import { createRequire } from 'module';const require = createRequire(import.meta.url);",
-    },
-    platform: 'node',
-    shims: true,
-    format: ['cjs', 'esm'],
+    splitting: false,
   },
   {
+    ...baseOptions,
+    format: 'cjs',
+    dts: {
+      compilerOptions: {
+        target: 'ES5',
+        module: 'commonjs',
+        moduleResolution: 'node',
+      },
+    },
+  },
+  {
+    ...baseOptions,
     entry: ['src/client.ts'],
     name: 'client',
-    treeshake: true,
-    sourcemap: true,
-    minify: false,
-    splitting: false,
-    clean: true,
+    format: 'esm',
     dts: true,
-    /**
-     * @link https://stackoverflow.com/questions/31931614/require-is-not-defined-node-js
-     */
-    banner: {
-      js: "import { createRequire } from 'module';const require = createRequire(import.meta.url);",
+    splitting: false,
+  },
+  {
+    ...baseOptions,
+    entry: ['src/index.ts'],
+    name: 'client',
+    format: 'cjs',
+    dts: {
+      compilerOptions: {
+        target: 'ES5',
+        module: 'commonjs',
+        moduleResolution: 'node',
+      },
     },
-    platform: 'node',
-    shims: true,
-    format: ['cjs', 'esm'],
   },
 ])
