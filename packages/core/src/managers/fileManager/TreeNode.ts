@@ -2,12 +2,14 @@ import dirTree from 'directory-tree'
 
 import type { DirectoryTree, DirectoryTreeOptions } from 'directory-tree'
 
+export type TreeNodeOptions = DirectoryTreeOptions
+
 export class TreeNode<T = unknown> {
   public data: T
 
   public parent?: TreeNode<T>
 
-  public children: Array<TreeNode<T>>
+  public children: Array<TreeNode<T>> = []
 
   constructor(data: T, parent?: TreeNode<T>) {
     this.data = data
@@ -15,7 +17,7 @@ export class TreeNode<T = unknown> {
     return this
   }
 
-  addChild(data: T) {
+  addChild(data: T): TreeNode<T> {
     const child = new TreeNode(data, this)
     if (!this.children) {
       this.children = []
@@ -30,7 +32,7 @@ export class TreeNode<T = unknown> {
     }
 
     if (this.children) {
-      for (let i = 0, { length } = this.children, target: any = null; i < length; i++) {
+      for (let i = 0, { length } = this.children, target: unknown = null; i < length; i++) {
         target = this.children[i].find(data)
         if (target) {
           return target
@@ -41,14 +43,14 @@ export class TreeNode<T = unknown> {
     return null
   }
 
-  leaves() {
+  leaves(): TreeNode<T>[] {
     if (!this.children || this.children.length === 0) {
       // this is a leaf
       return [this]
     }
 
     // if not a leaf, return all children's leaves recursively
-    const leaves = []
+    const leaves: TreeNode<T>[] = []
     if (this.children) {
       for (let i = 0, { length } = this.children; i < length; i++) {
         // eslint-disable-next-line prefer-spread
@@ -58,14 +60,14 @@ export class TreeNode<T = unknown> {
     return leaves
   }
 
-  root() {
+  root(): TreeNode<T> {
     if (!this.parent) {
       return this
     }
     return this.parent.root()
   }
 
-  forEach(callback: (treeNode: TreeNode<T>) => void) {
+  forEach(callback: (treeNode: TreeNode<T>) => void): this {
     if (typeof callback !== 'function') {
       throw new TypeError('forEach() callback must be a function')
     }
@@ -83,11 +85,11 @@ export class TreeNode<T = unknown> {
     return this
   }
 
-  public static build(path: string, options: DirectoryTreeOptions = {}) {
+  public static build<T = unknown>(path: string, options: TreeNodeOptions = {}): TreeNode<T> | null {
     const filteredTree = dirTree(path, { extensions: options?.extensions, exclude: options.exclude })
 
     if (!filteredTree) {
-      return
+      return null
     }
 
     const treeNode = new TreeNode({ name: filteredTree.name, path: filteredTree.path, type: filteredTree.type })
@@ -104,6 +106,6 @@ export class TreeNode<T = unknown> {
 
     filteredTree.children?.forEach((child) => recurse(treeNode, child))
 
-    return treeNode
+    return treeNode as TreeNode<T>
   }
 }

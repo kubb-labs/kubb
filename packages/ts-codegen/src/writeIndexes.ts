@@ -1,6 +1,6 @@
 import pathParser from 'path'
 
-import type { File } from '@kubb/core'
+import type { File, Path, PathMode, TreeNodeOptions } from '@kubb/core'
 import { TreeNode, write } from '@kubb/core'
 
 import { createExportDeclaration } from './codegen'
@@ -8,8 +8,8 @@ import { print } from './print'
 
 import type ts from 'typescript'
 
-export function writeIndexes(root: string, output: string, options: Parameters<typeof TreeNode.build>[1]) {
-  const tree = TreeNode.build(output, { extensions: /\.ts/, ...options })
+export function writeIndexes(root: string, output: string, options: TreeNodeOptions) {
+  const tree = TreeNode.build<{ type: PathMode; path: Path; name: string }>(output, { extensions: /\.ts/, ...options })
 
   if (!tree) {
     return undefined

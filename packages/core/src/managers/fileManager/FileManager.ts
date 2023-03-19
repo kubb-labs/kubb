@@ -32,7 +32,7 @@ export class FileManager {
         cache = item
       }
     })
-    return cache as CacheStore
+    return cache as unknown as CacheStore
   }
 
   public getSource(file: File) {
@@ -107,7 +107,10 @@ export class FileManager {
   }
 
   combine(files: Array<File | null>) {
-    return files.filter(Boolean).reduce((acc, curr: File) => {
+    return files.filter(Boolean).reduce((acc, curr: File | null) => {
+      if (!curr) {
+        return acc
+      }
       const prevIndex = acc.findIndex((item) => item.path === curr.path)
 
       if (prevIndex !== -1) {

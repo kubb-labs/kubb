@@ -1,12 +1,12 @@
 /* eslint-disable no-cond-assign */
 
-export interface QueueTask<T> {
-  (...args: any): Promise<T>
+export type QueueTask<T = unknown> = {
+  (...args: unknown[]): Promise<T>
 }
 
 interface QueueItem {
-  reject: (reason?: unknown) => void
-  resolve: (value: any) => void
+  reject: <T>(reason?: T) => void
+  resolve: <T>(value: T | PromiseLike<T>) => void
   task: QueueTask<unknown>
 }
 
@@ -22,8 +22,9 @@ export class Queue {
   }
 
   run<T>(task: QueueTask<T>): Promise<T> {
-    return new Promise((resolve, reject) => {
-      this.queue.push({ reject, resolve, task })
+    return new Promise<T>((resolve, reject) => {
+      const item: QueueItem = { reject, resolve, task } as QueueItem
+      this.queue.push(item)
       this.work()
     })
   }

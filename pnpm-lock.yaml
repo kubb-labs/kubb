@@ -115,7 +115,7 @@ importers:
       '@tanstack/react-query': ^4.27.0
       axios: ^1.3.4
       react: ^18.2.0
-      tsup: ^6.6.3
+      tsup: ^6.7.0
       zod: ^3.21.4
     dependencies:
       '@kubb/cli': link:../../packages/cli
@@ -128,7 +128,7 @@ importers:
       '@tanstack/react-query': 4.27.0_react@18.2.0
       axios: 1.3.4
       react: 18.2.0
-      tsup: 6.6.3
+      tsup: 6.7.0
       zod: 3.21.4
 
   examples/simple:
@@ -143,7 +143,7 @@ importers:
       '@tanstack/react-query': ^4.27.0
       axios: ^1.3.4
       react: ^18.2.0
-      tsup: ^6.6.3
+      tsup: ^6.7.0
     dependencies:
       '@kubb/cli': link:../../packages/cli
       '@kubb/core': link:../../packages/core
@@ -155,7 +155,7 @@ importers:
       '@tanstack/react-query': 4.27.0_react@18.2.0
       axios: 1.3.4
       react: 18.2.0
-      tsup: 6.6.3
+      tsup: 6.7.0
 
   examples/simple-single:
     specifiers:
@@ -168,7 +168,7 @@ importers:
       '@tanstack/react-query': ^4.27.0
       axios: ^1.3.4
       react: ^18.2.0
-      tsup: ^6.6.3
+      tsup: ^6.7.0
     dependencies:
       '@kubb/cli': link:../../packages/cli
       '@kubb/core': link:../../packages/core
@@ -179,7 +179,7 @@ importers:
       '@tanstack/react-query': 4.27.0_react@18.2.0
       axios: 1.3.4
       react: 18.2.0
-      tsup: 6.6.3
+      tsup: 6.7.0
 
   examples/zod:
     specifiers:
@@ -190,7 +190,7 @@ importers:
       '@kubb/swagger-ts': workspace:*
       '@kubb/swagger-zod': workspace:*
       react: ^18.2.0
-      tsup: ^6.6.3
+      tsup: ^6.7.0
       zod: ^3.21.4
     dependencies:
       '@kubb/cli': link:../../packages/cli
@@ -200,7 +200,7 @@ importers:
       '@kubb/swagger-ts': link:../../packages/swagger-ts
       '@kubb/swagger-zod': link:../../packages/swagger-zod
       react: 18.2.0
-      tsup: 6.6.3
+      tsup: 6.7.0
       zod: 3.21.4
 
   packages/cli:
@@ -218,7 +218,7 @@ importers:
       picocolors: ^1.0.0
       string-argv: ^0.3.1
       ts-node: ^10.9.1
-      tsup: ^6.6.3
+      tsup: ^6.7.0
       typescript: ^5.0.2
     dependencies:
       '@humanwhocodes/module-importer': 1.0.1
@@ -235,17 +235,19 @@ importers:
       ts-node: 10.9.1_oriygjitvvo5y4fgb3regjekma
     devDependencies:
       '@types/node': 18.15.3
-      tsup: 6.6.3_7clvipkeksz733k7q4aqgp4x4u
+      tsup: 6.7.0_7clvipkeksz733k7q4aqgp4x4u
       typescript: 5.0.2
 
   packages/core:
     specifiers:
       '@types/lodash.uniq': ^4.5.7
+      '@types/rimraf': ^3.0.2
+      '@types/uuid': ^9.0.1
       change-case: ^4.1.2
       directory-tree: ^3.5.1
       lodash.uniq: ^4.5.0
       rimraf: ^3.0.2
-      tsup: ^6.6.3
+      tsup: ^6.7.0
       typescript: ^5.0.2
       uuid: ^9.0.0
     dependencies:
@@ -256,7 +258,9 @@ importers:
       uuid: 9.0.0
     devDependencies:
       '@types/lodash.uniq': 4.5.7
-      tsup: 6.6.3_typescript@5.0.2
+      '@types/rimraf': 3.0.2
+      '@types/uuid': 9.0.1
+      tsup: 6.7.0_typescript@5.0.2
       typescript: 5.0.2
 
   packages/swagger:
@@ -264,13 +268,14 @@ importers:
       '@apidevtools/swagger-parser': ^10.1.0
       '@kubb/core': workspace:*
       '@types/lodash.get': ^4.4.7
+      '@types/swagger2openapi': ^7.0.0
       change-case: ^4.1.2
       lodash.get: ^4.4.2
       oas: ^20.5.3
       oas-normalize: ^8.3.3
       openapi-types: ^12.1.0
       swagger2openapi: ^7.0.8
-      tsup: ^6.6.3
+      tsup: ^6.7.0
       typescript: ^5.0.2
     dependencies:
       '@apidevtools/swagger-parser': 10.1.0_openapi-types@12.1.0
@@ -282,8 +287,9 @@ importers:
       swagger2openapi: 7.0.8
     devDependencies:
       '@types/lodash.get': 4.4.7
+      '@types/swagger2openapi': 7.0.0
       openapi-types: 12.1.0
-      tsup: 6.6.3_typescript@5.0.2
+      tsup: 6.7.0_typescript@5.0.2
       typescript: 5.0.2
 
   packages/swagger-client:
@@ -293,7 +299,7 @@ importers:
       '@kubb/swagger-ts': workspace:*
       axios: ^1.3.4
       change-case: ^4.1.2
-      tsup: ^6.6.3
+      tsup: ^6.7.0
       typescript: ^5.0.2
     dependencies:
       '@kubb/core': link:../core
@@ -302,7 +308,7 @@ importers:
       axios: 1.3.4
       change-case: 4.1.2
     devDependencies:
-      tsup: 6.6.3_typescript@5.0.2
+      tsup: 6.7.0_typescript@5.0.2
       typescript: 5.0.2
 
   packages/swagger-react-query:
@@ -312,7 +318,7 @@ importers:
       '@kubb/swagger-client': workspace:*
       '@kubb/swagger-ts': workspace:*
       change-case: ^4.1.2
-      tsup: ^6.6.3
+      tsup: ^6.7.0
       typescript: ^5.0.2
     dependencies:
       '@kubb/core': link:../core
@@ -321,7 +327,7 @@ importers:
       '@kubb/swagger-ts': link:../swagger-ts
       change-case: 4.1.2
     devDependencies:
-      tsup: 6.6.3_typescript@5.0.2
+      tsup: 6.7.0_typescript@5.0.2
       typescript: 5.0.2
 
   packages/swagger-ts:
@@ -332,7 +338,7 @@ importers:
       '@types/lodash.uniq': ^4.5.7
       change-case: ^4.1.2
       lodash.uniq: ^4.5.0
-      tsup: ^6.6.3
+      tsup: ^6.7.0
       typescript: ^5.0.2
     dependencies:
       '@kubb/core': link:../core
@@ -343,7 +349,7 @@ importers:
       typescript: 5.0.2
     devDependencies:
       '@types/lodash.uniq': 4.5.7
-      tsup: 6.6.3_typescript@5.0.2
+      tsup: 6.7.0_typescript@5.0.2
 
   packages/swagger-zod:
     specifiers:
@@ -353,7 +359,7 @@ importers:
       '@types/lodash.uniq': ^4.5.7
       change-case: ^4.1.2
       lodash.uniq: ^4.5.0
-      tsup: ^6.6.3
+      tsup: ^6.7.0
       typescript: ^5.0.2
     dependencies:
       '@kubb/core': link:../core
@@ -363,19 +369,19 @@ importers:
       lodash.uniq: 4.5.0
     devDependencies:
       '@types/lodash.uniq': 4.5.7
-      tsup: 6.6.3_typescript@5.0.2
+      tsup: 6.7.0_typescript@5.0.2
       typescript: 5.0.2
 
   packages/ts-codegen:
     specifiers:
       '@kubb/core': workspace:*
-      tsup: ^6.6.3
+      tsup: ^6.7.0
       typescript: ^5.0.2
     dependencies:
       '@kubb/core': link:../core
       typescript: 5.0.2
     devDependencies:
-      tsup: 6.6.3_typescript@5.0.2
+      tsup: 6.7.0_typescript@5.0.2
 
 packages:
 
@@ -2217,6 +2223,13 @@ packages:
   /@types/estree/1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
 
+  /@types/glob/8.1.0:
+    resolution: {integrity: sha512-IO+MJPVhoqz+28h1qLAcBEH2+xHMK6MTyHJc7MTnnYb6wsoLR29POVGJ7LycmVXIqyy/4/2ShP5sUwTXuOwb/w==}
+    dependencies:
+      '@types/minimatch': 5.1.2
+      '@types/node': 18.15.3
+    dev: true
+
   /@types/graceful-fs/4.1.6:
     resolution: {integrity: sha512-Sig0SNORX9fdW+bQuTEovKj3uHcUL6LQKbCrrqb1X7J6/ReAbhCXRAhc+SMejhLELFj2QcyuxmUooZ4bt5ReSw==}
     dependencies:
@@ -2305,6 +2318,10 @@ packages:
     resolution: {integrity: sha512-IgHxcT3RC8LzFLhKwP3gbMPeaK7BM9eBH46OdapPA7yvuIUJ8H6zHZV53J8hGZcTSnt95jANt+rTBNUUc22ACQ==}
     dev: false
 
+  /@types/minimatch/5.1.2:
+    resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
+    dev: true
+
   /@types/minimist/1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
     dev: true
@@ -2348,6 +2365,13 @@ packages:
       csstype: 3.1.1
     dev: false
 
+  /@types/rimraf/3.0.2:
+    resolution: {integrity: sha512-F3OznnSLAUxFrCEu/L5PY8+ny8DtcFRjx7fZZ9bycvXRi3KPTRS9HOitGZwvPg0juRhXFWIeKX58cnX5YqLohQ==}
+    dependencies:
+      '@types/glob': 8.1.0
+      '@types/node': 18.15.3
+    dev: true
+
   /@types/scheduler/0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
     dev: false
@@ -2360,6 +2384,13 @@ packages:
     resolution: {integrity: sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==}
     dev: true
 
+  /@types/swagger2openapi/7.0.0:
+    resolution: {integrity: sha512-jbjunFpBQqbYt9JZYPDe1G9TkTVzQ8MqT1z7qMq/f7EZzdoA/G8WCZt8dr5gLkATkaE2n8FX7HlrBUTNyYRAJA==}
+    dependencies:
+      '@types/node': 18.15.3
+      openapi-types: 12.1.0
+    dev: true
+
   /@types/tough-cookie/4.0.2:
     resolution: {integrity: sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==}
     dev: true
@@ -2367,6 +2398,10 @@ packages:
   /@types/unist/2.0.6:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
     dev: false
+
+  /@types/uuid/9.0.1:
+    resolution: {integrity: sha512-rFT3ak0/2trgvp4yYZo5iKFEPsET7vKydKF+VRCxlQ9bpheehyAJH89dAkaLEq/j/RZXJIqcgsmPJKUP1Z28HA==}
+    dev: true
 
   /@types/yargs-parser/21.0.0:
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
@@ -9453,14 +9488,14 @@ packages:
   /tslib/2.5.0:
     resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
 
-  /tsup/6.6.3:
-    resolution: {integrity: sha512-OLx/jFllYlVeZQ7sCHBuRVEQBBa1tFbouoc/gbYakyipjVQdWy/iQOvmExUA/ewap9iQ7tbJf9pW0PgcEFfJcQ==}
+  /tsup/6.7.0:
+    resolution: {integrity: sha512-L3o8hGkaHnu5TdJns+mCqFsDBo83bJ44rlK7e6VdanIvpea4ArPcU3swWGsLVbXak1PqQx/V+SSmFPujBK+zEQ==}
     engines: {node: '>=14.18'}
     hasBin: true
     peerDependencies:
       '@swc/core': ^1
       postcss: ^8.4.12
-      typescript: ^4.1.0
+      typescript: '>=4.1.0'
     peerDependenciesMeta:
       '@swc/core':
         optional: true
@@ -9488,14 +9523,14 @@ packages:
       - ts-node
     dev: false
 
-  /tsup/6.6.3_7clvipkeksz733k7q4aqgp4x4u:
-    resolution: {integrity: sha512-OLx/jFllYlVeZQ7sCHBuRVEQBBa1tFbouoc/gbYakyipjVQdWy/iQOvmExUA/ewap9iQ7tbJf9pW0PgcEFfJcQ==}
+  /tsup/6.7.0_7clvipkeksz733k7q4aqgp4x4u:
+    resolution: {integrity: sha512-L3o8hGkaHnu5TdJns+mCqFsDBo83bJ44rlK7e6VdanIvpea4ArPcU3swWGsLVbXak1PqQx/V+SSmFPujBK+zEQ==}
     engines: {node: '>=14.18'}
     hasBin: true
     peerDependencies:
       '@swc/core': ^1
       postcss: ^8.4.12
-      typescript: ^4.1.0
+      typescript: '>=4.1.0'
     peerDependenciesMeta:
       '@swc/core':
         optional: true
@@ -9525,14 +9560,14 @@ packages:
       - ts-node
     dev: true
 
-  /tsup/6.6.3_typescript@5.0.2:
-    resolution: {integrity: sha512-OLx/jFllYlVeZQ7sCHBuRVEQBBa1tFbouoc/gbYakyipjVQdWy/iQOvmExUA/ewap9iQ7tbJf9pW0PgcEFfJcQ==}
+  /tsup/6.7.0_typescript@5.0.2:
+    resolution: {integrity: sha512-L3o8hGkaHnu5TdJns+mCqFsDBo83bJ44rlK7e6VdanIvpea4ArPcU3swWGsLVbXak1PqQx/V+SSmFPujBK+zEQ==}
     engines: {node: '>=14.18'}
     hasBin: true
     peerDependencies:
       '@swc/core': ^1
       postcss: ^8.4.12
-      typescript: ^4.1.0
+      typescript: '>=4.1.0'
     peerDependenciesMeta:
       '@swc/core':
         optional: true

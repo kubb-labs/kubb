@@ -40,7 +40,7 @@ export class PluginManager {
 
   public queue: Queue
 
-  constructor(config: KubbConfig, options: { logger?: Logger; task: QueueTask<unknown> }) {
+  constructor(config: KubbConfig, options: { logger?: Logger; task: QueueTask }) {
     this.logger = options.logger
     this.config = config
     this.queue = new Queue(10)
@@ -80,7 +80,7 @@ export class PluginManager {
       if (skipped && skipped.has(plugin)) continue
       promise = promise.then((result) => {
         if (result != null) return result
-        return this.run('hookFirst', hookName, parameters, plugin) as any
+        return this.run('hookFirst', hookName, parameters, plugin) as typeof result
       })
     }
     return promise
@@ -97,7 +97,7 @@ export class PluginManager {
       if (skipped && skipped.has(plugin)) continue
       promise = promise.then((result) => {
         if (result != null) return result
-        return this.run('hookFirst', hookName, parameters, plugin) as any
+        return this.run('hookFirst', hookName, parameters, plugin) as typeof result
       })
     }
     return promise
@@ -127,13 +127,13 @@ export class PluginManager {
     [argument0, ...rest]: Parameters<PluginLifecycle[H]>,
     reduce: (reduction: Argument0<H>, result: ReturnType<PluginLifecycle[H]>, plugin: KubbPlugin) => MaybePromise<Argument0<H> | null>
   ): Promise<Argument0<H>> {
-    let promise = Promise.resolve(argument0)
+    let promise: Promise<Argument0<H>> = Promise.resolve(argument0)
     for (const plugin of this.getSortedPlugins(hookName)) {
       promise = promise.then((argument0) =>
         this.run('hookReduceArg0', hookName, [argument0, ...rest] as Parameters<PluginLifecycle[H]>, plugin).then((result) =>
-          reduce.call(this.core.api, argument0, result, plugin)
+          reduce.call(this.core.api, argument0, result as ReturnType<PluginLifecycle[H]>, plugin)
         )
-      )
+      ) as Promise<Argument0<H>>
     }
     return promise
   }
@@ -191,9 +191,9 @@ export class PluginManager {
           this.logger.spinner.text = `[${strategy}] ${hookName}: Excecuting task for plugin ${plugin.name} \n`
         }
 
-        const hookResult = (hook as any).apply(this.core.api, parameters)
+        const hookResult = (hook as Function).apply(this.core.api, parameters)
 
-        if (!hookResult?.then) {
+        if (!(hookResult as Promise<unknown>)?.then) {
           // short circuit for non-thenables and non-Promises
           if (this.config.logLevel === 'info' && this.logger?.spinner) {
             this.logger.spinner.succeed(`[${strategy}] ${hookName}: Excecuting task for plugin ${plugin.name} \n`)
@@ -211,7 +211,7 @@ export class PluginManager {
       })
       .catch((e: Error) => {
         this.catcher<H>(e, plugin, hookName)
-      })
+      }) as Promise<TResult>
   }
 
   /**
@@ -221,7 +221,11 @@ export class PluginManager {
    * @param plugin The acutal plugin
    * @param replaceContext When passed, the plugin context can be overridden.
    */
-  private runSync<H extends PluginLifecycleHooks>(hookName: H, parameters: Parameters<PluginLifecycle[H]>, plugin: KubbPlugin): ReturnType<PluginLifecycle[H]> {
+  private runSync<H extends PluginLifecycleHooks>(
+    hookName: H,
+    parameters: Parameters<PluginLifecycle[H]>,
+    plugin: KubbPlugin
+  ): ReturnType<PluginLifecycle[H]> | Error {
     const hook = plugin[hookName]!
 
     // const context = this.pluginContexts.get(plugin)!;
@@ -229,8 +233,8 @@ export class PluginManager {
     try {
       // eslint-disable-next-line @typescript-eslint/ban-types
       return (hook as Function).apply(this.core.api, parameters)
-    } catch (error: any) {
-      return error
+    } catch (error) {
+      return error as Error
     }
   }
 

@@ -60,7 +60,7 @@
     "typescript": "^5.0.2"
   },
   "devDependencies": {
-    "tsup": "^6.6.3"
+    "tsup": "^6.7.0"
   },
   "publishConfig": {
     "access": "public",

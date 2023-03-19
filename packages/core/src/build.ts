@@ -33,7 +33,12 @@ type BuildOptions = {
   logger?: Logger
 }
 
-async function transformReducer(this: PluginContext, _previousCode: string, result: TransformResult, _plugin: KubbPlugin) {
+async function transformReducer(
+  this: PluginContext,
+  _previousCode: string,
+  result: TransformResult | Promise<TransformResult>,
+  _plugin: KubbPlugin
+): Promise<string | null> {
   if (result === null) {
     return null
   }
@@ -47,7 +52,7 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
     await clean(config.output.path)
   }
 
-  const queueTask: QueueTask<void> = async (id: string, file: File) => {
+  const queueTask = async (id: string, file: File) => {
     const { path } = file
 
     let code = fileManager.getSource(file)
@@ -66,7 +71,7 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
     }
   }
 
-  const pluginManager = new PluginManager(config, { logger, task: queueTask })
+  const pluginManager = new PluginManager(config, { logger, task: queueTask as QueueTask })
   const { plugins, fileManager } = pluginManager
 
   await pluginManager.hookParallel<'validate', true>('validate', [plugins])

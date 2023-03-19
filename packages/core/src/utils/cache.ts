@@ -1,32 +1,32 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable consistent-return */
 
-export interface Cache<TCache = any> {
-  delete(id: string): boolean
-  get<T = TCache>(id: string): T
-  has(id: string): boolean
-  set<T = TCache>(id: string, value: T): void
+export interface Cache<T extends object = object> {
+  delete(id: keyof T): boolean
+  get(id: keyof T): T[keyof T] | null
+  has(id: keyof T): boolean
+  set(id: keyof T, value: unknown): void
 }
 
-export function createPluginCache(cache: any): Cache {
+export function createPluginCache<T extends Record<string, [number, unknown]>>(cache: T): Cache<T> {
   return {
-    delete(id: string) {
+    delete(id: keyof T) {
       return delete cache[id]
     },
-    get(id: string) {
+    get(id) {
       const item = cache[id]
-      if (!item) return
+      if (!item) return null
       item[0] = 0
-      return item[1]
+      return item[1] as T[keyof T]
     },
-    has(id: string) {
+    has(id) {
       const item = cache[id]
       if (!item) return false
       item[0] = 0
       return true
     },
-    set(id: string, value: any) {
-      cache[id] = [0, value]
+    set(id, value) {
+      cache[id] = [0, value] as T[keyof T]
     },
   }
 }

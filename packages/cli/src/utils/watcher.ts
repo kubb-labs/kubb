@@ -6,7 +6,7 @@ type Options = {
   path: string[]
   spinner: Ora
 }
-export async function startWatcher(cb: (path: string[]) => Promise<any>, options: Options) {
+export async function startWatcher(cb: (path: string[]) => Promise<void>, options: Options) {
   const { spinner, path } = options
   const { watch } = await import('chokidar')
 
@@ -24,7 +24,7 @@ export async function startWatcher(cb: (path: string[]) => Promise<any>, options
     try {
       await cb(options.path)
     } catch (e) {
-      spinner.warn(pc.red(e))
+      spinner.warn(pc.red('Watcher failed'))
     }
   })
 }

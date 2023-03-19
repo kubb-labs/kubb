@@ -20,7 +20,16 @@ export async function run({ config, options, spinner }: RunProps) {
       if (logLevel === 'error') {
         spinner.fail(message)
       }
-      spinner[logLevel](message)
+
+      switch (logLevel) {
+        case 'error':
+          spinner.fail(message)
+          break
+
+        default:
+          spinner.info(message)
+          break
+      }
     },
     spinner,
   }
@@ -69,9 +78,9 @@ export async function run({ config, options, spinner }: RunProps) {
   } catch (err) {
     if (options.debug) {
       spinner.fail(`Something went wrong\n`)
-      console.log(err?.cause || err)
+      console.log((err as Error)?.cause || err)
     } else {
-      spinner.fail(`Something went wrong\n${err?.message}`)
+      spinner.fail(`Something went wrong\n${(err as Error)?.message}`)
     }
   }
 

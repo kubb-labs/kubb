@@ -8,6 +8,7 @@ import type { KubbConfig } from '@kubb/core'
 import { isURL } from '@kubb/core'
 
 import { isOpenApiV3Document } from '../utils'
+import type { OpenAPIV2 } from 'openapi-types'
 
 import type OasType from 'oas'
 import type { OASDocument } from 'oas/dist/rmoas.types'
@@ -22,11 +23,11 @@ export type OasOptions = {
 function convertSwagger2ToOpenApi(document: OASDocument): Promise<OASDocument> {
   const options = { anchors: true }
   return new Promise((resolve, reject) => {
-    swagger2openapi.convertObj(document, options, (err, value) => {
+    swagger2openapi.convertObj(document as unknown as OpenAPIV2.Document, options, (err, value) => {
       if (err) {
         reject(err)
       } else {
-        resolve(value.openapi)
+        resolve(value.openapi as OASDocument)
       }
     })
   })
@@ -39,7 +40,7 @@ export async function oasPathParser(pathOrApi: string, { validate }: OasOptions 
     try {
       await oas.validate()
     } catch (e) {
-      console.log('\n', e.message)
+      console.log('\n', (e as Error).message)
     }
   }
 

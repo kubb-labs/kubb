@@ -4,7 +4,7 @@ import pathParser from 'path'
 
 import rimraf from 'rimraf'
 
-async function safeWriteFileToPath(path: string, data: any) {
+async function safeWriteFileToPath(path: string, data: string) {
   // resolve the full path and get just the directory, ignoring the file and extension
   const passedPath = pathParser.dirname(pathParser.resolve(path))
   // make the directory, recursively. Theoretically, if every directory in the path exists, this won't do anything.

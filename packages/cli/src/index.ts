@@ -53,7 +53,7 @@ const program = new Command(moduleName)
         await run({ config, spinner, options })
       }
     } catch (e) {
-      spinner.fail(pc.red(e.message))
+      spinner.fail(pc.red((e as Error).message))
     }
   })
   .addOption(new Option('-c, --config <path>', 'Path to the Kubb config'))
