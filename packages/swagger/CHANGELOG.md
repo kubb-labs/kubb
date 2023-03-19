@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1-alpha.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-alpha.7...@kubb/swagger-v1.0.1-alpha.7) (2023-03-19)
+
+
+### Bug Fixes
+
+* differentiate between query and path params in getSchemas ([9ccec33](https://github.com/kubb-project/kubb/commit/9ccec33b93a31531417ebfc7512f974ff5c8bf08))
+* pathParams and queryParams filter + update to reactQuery and client plugin to adapt those changes ([7005e50](https://github.com/kubb-project/kubb/commit/7005e505d147a1c03d90135faa3b62112cb69ca0))
+
 ## [1.0.0-alpha.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-alpha.6...@kubb/swagger-v1.0.0-alpha.7) (2023-03-18)
 
 

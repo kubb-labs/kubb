@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1-alpha.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-react-query-v1.0.0-alpha.7...@kubb/swagger-react-query-v1.0.1-alpha.7) (2023-03-19)
+
+
+### Bug Fixes
+
+* pathParams and queryParams filter + update to reactQuery and client plugin to adapt those changes ([7005e50](https://github.com/kubb-project/kubb/commit/7005e505d147a1c03d90135faa3b62112cb69ca0))
+
 ## [1.0.0-alpha.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-react-query-v1.0.0-alpha.6...@kubb/swagger-react-query-v1.0.0-alpha.7) (2023-03-18)
 
 
