@@ -6,6 +6,15 @@
   "commit": false,
   "commitConvention": "angular",
   "contributors": [
+   {
+      "login": "stijnvanhulle",
+      "name": "Stijn Van Hulle",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5904681?v=4",
+      "profile": "http://www.stijnvanhulle.be",
+       "contributions": [
+        "code"
+      ]
+    },
     {
       "login": "xPhentom",
       "name": "Wouter Roozeleer",
@@ -14,7 +23,7 @@
       "contributions": [
         "code"
       ]
-    }
+    },
   ],
   "contributorsPerLine": 7,
   "skipCi": true,
