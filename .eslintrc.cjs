@@ -6,10 +6,9 @@ module.exports = {
     browser: true,
     es6: true,
     node: true,
-    'jest/globals': true,
   },
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'airbnb/base', 'plugin:prettier/recommended'],
-  plugins: ['@typescript-eslint', 'prettier', 'jest', 'formatjs', 'unused-imports'],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'airbnb/base', 'plugin:prettier/recommended', 'plugin:vitest/recommended'],
+  plugins: ['@typescript-eslint', 'prettier', 'vitest', 'formatjs', 'unused-imports'],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,

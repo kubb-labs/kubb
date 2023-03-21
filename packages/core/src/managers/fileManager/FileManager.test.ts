@@ -1,5 +1,7 @@
 import pathParser from 'path'
 
+import { describe, expect, test } from 'vitest'
+
 import { FileManager } from './FileManager'
 
 describe('FileManager', () => {

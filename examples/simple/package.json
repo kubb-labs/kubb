@@ -15,8 +15,7 @@
     "generate:ts": "kubb --debug",
     "build": "tsup",
     "start": "tsup --watch",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit"
   },
   "dependencies": {

@@ -1,5 +1,7 @@
 import pathParser from 'path'
 
+import { describe, expect, test } from 'vitest'
+
 import { oasPathParser } from './oasParser'
 
 describe('oasParser', () => {
