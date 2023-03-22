@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import { factory } from 'typescript'
+import ts from 'typescript'
 import { pascalCase, camelCase } from 'change-case'
 import uniq from 'lodash.uniq'
 
@@ -18,7 +18,7 @@ import {
 
 import { keywordTypeNodes } from '../utils'
 
-import type ts from 'typescript'
+const { factory } = ts
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
