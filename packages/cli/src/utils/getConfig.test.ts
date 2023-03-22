@@ -1,5 +1,3 @@
-import { expect, describe, test } from 'vitest'
-
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 

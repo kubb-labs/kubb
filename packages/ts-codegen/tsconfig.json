@@ -20,6 +20,7 @@
       "node_modules/@types",
       "../../node_modules/@types"
     ],
+    "types": ["vitest/globals"],
     "paths": {
       
     }
@@ -28,6 +29,6 @@
   "exclude": [
     "**/node_modules",
     "**/types/**",
-    "**/*.test.ts"
+   
   ]
 }

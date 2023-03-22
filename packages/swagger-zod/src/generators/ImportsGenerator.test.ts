@@ -1,7 +1,5 @@
 import pathParser from 'path'
 
-import { describe, test, expect } from 'vitest'
-
 import { oasPathParser } from '@kubb/swagger'
 import type { OpenAPIV3 } from '@kubb/swagger'
 import { print } from '@kubb/ts-codegen'
