@@ -1,5 +1,7 @@
 import pathParser from 'path'
 
+import { describe, test, expect } from 'vitest'
+
 import { oasPathParser } from '@kubb/swagger'
 import type { OpenAPIV3 } from '@kubb/swagger'
 import { print } from '@kubb/ts-codegen'
@@ -31,11 +33,10 @@ describe('ImportsGenerator', () => {
     const output = importsNode && print([...importsNode, ...node], undefined)
 
     expect(output).toBeDefined()
-    expect(format(output!)).toEqual(
-      format(`
-      import type { Pet } from "#models/Pet";
-      export type Pets = Pet[];
+    expect(format(output!)).toMatchInlineSnapshot(`
+      "import type { Pet } from '#models/Pet'
+      export type Pets = Pet[]
+      "
     `)
-    )
   })
 })

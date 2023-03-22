@@ -38,9 +38,7 @@
     "prepack": "pnpm build",
     "pre-commit": "echo 'pre-commit not configured'",
     "pre-push": "pnpm typecheck",
-    "test": "jest --config ../../jest.config.ts --passWithNoTests --runInBand --testPathPattern=packages/cli/src",
-    "test:local": "jest --config ../../jest.config.ts --testPathPattern=packages/cli/src --maxWorkers=50%",
-    "test:watch": "jest --config ../../jest.config.ts --testPathPattern=packages/cli/src --maxWorkers=25% --watch",
+    "test": "vitest --passWithNoTests",
     "upgrade": "ncu -u",
     "upgrade:local": "ncu --interactive --doctor",
     "typecheck": "tsc -p ./tsconfig.json --noEmit"
@@ -48,6 +46,7 @@
   "dependencies": {
     "@humanwhocodes/module-importer": "^1.0.1",
     "@kubb/core": "workspace:*",
+    "@kubb/swagger": "workspace:*",
     "chokidar": "^3.5.3",
     "commander": "^10.0.0",
     "cosmiconfig": "^8.1.2",
