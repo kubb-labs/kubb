@@ -10,6 +10,7 @@ importers:
       '@types/node': ^18.15.3
       '@typescript-eslint/eslint-plugin': ^5.55.0
       '@typescript-eslint/parser': ^5.55.0
+      '@vitest/ui': ^0.29.7
       assert: ^2.0.0
       cross-env: ^7.0.3
       crypto-browserify: ^3.12.0
@@ -24,6 +25,7 @@ importers:
       eslint-plugin-react-hooks: ^4.6.0
       eslint-plugin-unused-imports: ^2.0.0
       eslint-plugin-vitest: ^0.0.54
+      eslint-plugin-vitest-globals: ^1.3.1
       husky: ^8.0.3
       nx: ^15.8.7
       prettier: ^2.8.4
@@ -39,6 +41,7 @@ importers:
       '@types/node': 18.15.3
       '@typescript-eslint/eslint-plugin': 5.55.0_qsnvknysi52qtaxqdyqyohkcku
       '@typescript-eslint/parser': 5.55.0_j4766f7ecgqbon3u7zlxn5zszu
+      '@vitest/ui': 0.29.7
       assert: 2.0.0
       cross-env: 7.0.3
       crypto-browserify: 3.12.0
@@ -53,6 +56,7 @@ importers:
       eslint-plugin-react-hooks: 4.6.0_eslint@8.36.0
       eslint-plugin-unused-imports: 2.0.0_dchlkxfdm6cbfc25bfo3oeha6e
       eslint-plugin-vitest: 0.0.54_j4766f7ecgqbon3u7zlxn5zszu
+      eslint-plugin-vitest-globals: 1.3.1
       husky: 8.0.3
       nx: 15.8.7_@swc+core@1.3.41
       prettier: 2.8.4
@@ -60,7 +64,7 @@ importers:
       ts-node: 10.9.1_oriygjitvvo5y4fgb3regjekma
       turbo: 1.8.3
       typescript: 5.0.2
-      vitest: 0.29.7
+      vitest: 0.29.7_@vitest+ui@0.29.7
 
   docs:
     specifiers:
@@ -1337,6 +1341,10 @@ packages:
       node-gyp-build: 4.6.0
     dev: true
 
+  /@polka/url/1.0.0-next.21:
+    resolution: {integrity: sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==}
+    dev: true
+
   /@popperjs/core/2.11.6:
     resolution: {integrity: sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw==}
     dev: false
@@ -1939,6 +1947,16 @@ packages:
     resolution: {integrity: sha512-IalL0iO6A6Xz8hthR8sctk6ZS//zVBX48EiNwQguYACdgdei9ZhwMaBFV70mpmeYAFCRAm+DpoFHM5470Im78A==}
     dependencies:
       tinyspy: 1.1.1
+    dev: true
+
+  /@vitest/ui/0.29.7:
+    resolution: {integrity: sha512-KeOztcAldlFU5i8DKCQcmGrih1dVowurZy/9iPz5JyQdPJzej+nW1nI4nYvc4ZmUtA8+IAe9uViqnU7IXc1RNw==}
+    dependencies:
+      fast-glob: 3.2.12
+      flatted: 3.2.7
+      pathe: 1.1.0
+      picocolors: 1.0.0
+      sirv: 2.0.2
     dev: true
 
   /@vitest/utils/0.29.7:
@@ -3593,6 +3611,10 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.55.0_qsnvknysi52qtaxqdyqyohkcku
       eslint: 8.36.0
       eslint-rule-composer: 0.3.0
+    dev: true
+
+  /eslint-plugin-vitest-globals/1.3.1:
+    resolution: {integrity: sha512-ELBqLfu/ZAwVHE1uEvj+Z06o4WnaD+5IcwW/OHQ5qVPA7i7mZexnUBj+04BF60rY7pb3ljRgJRsK+rCTmSS/5g==}
     dev: true
 
   /eslint-plugin-vitest/0.0.54_j4766f7ecgqbon3u7zlxn5zszu:
@@ -5745,6 +5767,11 @@ packages:
     engines: {node: '>=4'}
     dev: false
 
+  /mrmime/1.0.1:
+    resolution: {integrity: sha512-hzzEagAgDyoU1Q6yg5uI+AorQgdvMCur3FcKf7NhMKWsaYg+RnbTyHRa/9IlLF9rf455MOCtcqqrQQ83pPP7Uw==}
+    engines: {node: '>=10'}
+    dev: true
+
   /ms/2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
 
@@ -7200,6 +7227,15 @@ packages:
   /signal-exit/3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
 
+  /sirv/2.0.2:
+    resolution: {integrity: sha512-4Qog6aE29nIjAOKe/wowFTxOdmbEZKb+3tsLljaBRzJwtqto0BChD2zzH0LhgCSXiI+V7X+Y45v14wBZQ1TK3w==}
+    engines: {node: '>= 10'}
+    dependencies:
+      '@polka/url': 1.0.0-next.21
+      mrmime: 1.0.1
+      totalist: 3.0.0
+    dev: true
+
   /slash/3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
@@ -7646,6 +7682,11 @@ packages:
     engines: {node: '>=8.0'}
     dependencies:
       is-number: 7.0.0
+
+  /totalist/3.0.0:
+    resolution: {integrity: sha512-eM+pCBxXO/njtF7vdFsHuqb+ElbxqtI4r5EAvk6grfAFyJ6IvWlSkfZ5T9ozC6xWw3Fj1fGoSmrl0gUs46JVIw==}
+    engines: {node: '>=6'}
+    dev: true
 
   /tr46/0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
@@ -8341,7 +8382,7 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitest/0.29.7:
+  /vitest/0.29.7_@vitest+ui@0.29.7:
     resolution: {integrity: sha512-aWinOSOu4jwTuZHkb+cCyrqQ116Q9TXaJrNKTHudKBknIpR0VplzeaOUuDF9jeZcrbtQKZQt6yrtd+eakbaxHg==}
     engines: {node: '>=v14.16.0'}
     hasBin: true
@@ -8375,6 +8416,7 @@ packages:
       '@vitest/expect': 0.29.7
       '@vitest/runner': 0.29.7
       '@vitest/spy': 0.29.7
+      '@vitest/ui': 0.29.7
       '@vitest/utils': 0.29.7
       acorn: 8.8.2
       acorn-walk: 8.2.0

@@ -6,6 +6,7 @@ module.exports = {
     browser: true,
     es6: true,
     node: true,
+    'vitest-globals/env': true,
   },
   extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'airbnb/base', 'plugin:prettier/recommended', 'plugin:vitest/recommended'],
   plugins: ['@typescript-eslint', 'prettier', 'vitest', 'formatjs', 'unused-imports'],

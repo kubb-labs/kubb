@@ -20,6 +20,7 @@
       "node_modules/@types",
       "../../node_modules/@types"
     ],
+    "types": ["vitest/globals"],
     "paths": {
       "@kubb/core":["../core/src/index.ts"],
       "@kubb/ts-codegen": ["../ts-codegen/src/index.ts"],
@@ -30,6 +31,6 @@
   "exclude": [
     "**/node_modules",
     "**/types/**",
-    "**/*.test.ts"
+   
   ]
 }
