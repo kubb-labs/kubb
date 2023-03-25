@@ -55,7 +55,7 @@
     "change-case": "^4.1.2",
     "lodash.get": "^4.4.2",
     "oas": "^20.5.3",
-    "oas-normalize": "^8.3.3",
+    "oas-normalize": "^8.3.4",
     "swagger2openapi": "^7.0.8"
   },
   "devDependencies": {

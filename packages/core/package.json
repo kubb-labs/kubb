@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@types/lodash.uniq": "^4.5.7",
-    "@types/rimraf": "^3.0.2",
+    "@types/rimraf": "^4.0.5",
     "@types/uuid": "^9.0.1",
     "tsup": "^6.7.0",
     "typescript": "^5.0.2"

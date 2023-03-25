@@ -48,18 +48,18 @@
     "@kubb/core": "workspace:*",
     "chokidar": "^3.5.3",
     "commander": "^10.0.0",
-    "cosmiconfig": "^8.1.2",
+    "cosmiconfig": "^8.1.3",
     "cosmiconfig-typescript-loader": "^4.3.0",
     "execa": "^7.1.1",
-    "ora": "^6.1.2",
+    "ora": "^6.3.0",
     "picocolors": "^1.0.0",
     "string-argv": "^0.3.1",
     "ts-node": "^10.9.1",
-    "@swc/core": "^1.3.41"
+    "@swc/core": "^1.3.42"
   },
   "devDependencies": {
     "@kubb/swagger": "workspace:*",
-    "@types/node": "^18.15.3",
+    "@types/node": "^18.15.9",
     "tsup": "^6.7.0",
     "typescript": "^5.0.2"
   },
