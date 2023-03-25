@@ -1,4 +1,11 @@
 # Changelog
+## [1.0.1-alpha.8](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-alpha.8...@kubb/core-v1.0.1-alpha.8) (2023-03-25)
+
+
+### Bug Fixes
+
+* correct rimraf [@types](https://github.com/types) version ([f56b88f](https://github.com/kubb-project/kubb/commit/f56b88f75487720360780a8f5b0d60a8de200ccf))
+
 ## [1.0.0-alpha.8](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-alpha.7...@kubb/core-v1.0.0-alpha.8) (2023-03-19)
 
 
