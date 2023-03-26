@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-beta.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.0.0-alpha.8...@kubb/swagger-client-v1.0.0-beta.1) (2023-03-26)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.1 ([151d4c3](https://github.com/kubb-project/kubb/commit/151d4c393d4d6d0b2b85267dd2ef00c6f20636aa))
+
 ## [1.0.0-alpha.8](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.0.0-alpha.7...@kubb/swagger-client-v1.0.0-alpha.8) (2023-03-19)
 
 
