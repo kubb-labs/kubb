@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0-beta.1](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.0.0-beta.1...@kubb/cli-v1.1.0-beta.1) (2023-03-26)
+
+
+### Features
+
+* vue-query ([712f2f2](https://github.com/kubb-project/kubb/commit/712f2f2af4b03091df2e1cea46afade8868e842b))
+
 ## [1.0.0-beta.1](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.0.0-alpha.8...@kubb/cli-v1.0.0-beta.1) (2023-03-26)
 
 
