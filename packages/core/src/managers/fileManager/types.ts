@@ -1,5 +1,5 @@
 type Import = {
-  name: string | string[]
+  name: string | string[] | readonly string[]
   path: string
   isTypeOnly?: boolean
 }

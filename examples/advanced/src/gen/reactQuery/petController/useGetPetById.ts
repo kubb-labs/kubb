@@ -29,14 +29,14 @@ export function getPetByIdQueryOptions<TData = GetPetByIdResponse>(petId: GetPet
 export function useGetPetById<TData = GetPetByIdResponse>(
   petId: GetPetByIdPathParams['petId'],
   options?: { query?: UseQueryOptions<TData> }
-): UseQueryResult<TData> & { queryKey: QueryKey } {
+): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
+  const queryKey = (queryOptions?.queryKey as QueryKey) ?? getPetByIdQueryKey(petId)
 
   const query = useQuery<TData>({
     ...getPetByIdQueryOptions<TData>(petId),
     ...queryOptions,
-  }) as UseQueryResult<TData> & { queryKey: QueryKey }
+  }) as UseQueryResult<TData, unknown> & { queryKey: QueryKey }
 
   query.queryKey = queryKey
 

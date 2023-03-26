@@ -26,14 +26,16 @@ export function getInventoryQueryOptions<TData = GetInventoryResponse>(): QueryO
  * @summary Returns pet inventories by status
  * @link /store/inventory
  */
-export function useGetInventory<TData = GetInventoryResponse>(options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } {
+export function useGetInventory<TData = GetInventoryResponse>(options?: {
+  query?: UseQueryOptions<TData>
+}): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
+  const queryKey = (queryOptions?.queryKey as QueryKey) ?? getInventoryQueryKey()
 
   const query = useQuery<TData>({
     ...getInventoryQueryOptions<TData>(),
     ...queryOptions,
-  }) as UseQueryResult<TData> & { queryKey: QueryKey }
+  }) as UseQueryResult<TData, unknown> & { queryKey: QueryKey }
 
   query.queryKey = queryKey
 

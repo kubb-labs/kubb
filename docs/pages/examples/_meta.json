@@ -15,6 +15,22 @@
       "toc": false
     }
   },
+  "react-query": {
+    "title": "React-Query PetStore",
+    "theme": {
+      "layout": "full",
+      "footer": true,
+      "toc": false
+    }
+  },
+  "vue-query": {
+    "title": "Vue-Query PetStore",
+    "theme": {
+      "layout": "full",
+      "footer": true,
+      "toc": false
+    }
+  },
   "zod": {
     "title": "Zod PetStore",
     "theme": {

@@ -30,14 +30,14 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsResponse>(param
 export function useFindPetsByTags<TData = FindPetsByTagsResponse>(
   params?: FindPetsByTagsQueryParams,
   options?: { query?: UseQueryOptions<TData> }
-): UseQueryResult<TData> & { queryKey: QueryKey } {
+): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
+  const queryKey = (queryOptions?.queryKey as QueryKey) ?? findPetsByTagsQueryKey(params)
 
   const query = useQuery<TData>({
     ...findPetsByTagsQueryOptions<TData>(params),
     ...queryOptions,
-  }) as UseQueryResult<TData> & { queryKey: QueryKey }
+  }) as UseQueryResult<TData, unknown> & { queryKey: QueryKey }
 
   query.queryKey = queryKey
 
