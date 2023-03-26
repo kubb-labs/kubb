@@ -16,5 +16,5 @@ export default defineConfig({
     done: 'eslint --fix ./src/gen',
   },
   logLevel: 'warn',
-  plugins: [createSwagger({}), createSwaggerTS({ output: 'models.ts' }), createSwaggerTanstackQuery({ output: './hooks.ts' })],
+  plugins: [createSwagger({ output: false }), createSwaggerTS({ output: 'models' }), createSwaggerTanstackQuery({ output: './hooks', framework: 'vue' })],
 })

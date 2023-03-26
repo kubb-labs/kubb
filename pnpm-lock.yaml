@@ -137,6 +137,32 @@ importers:
       vue: 3.2.47
       zod: 3.21.4
 
+  examples/react-query:
+    specifiers:
+      '@kubb/cli': workspace:*
+      '@kubb/core': workspace:*
+      '@kubb/swagger': workspace:*
+      '@kubb/swagger-client': workspace:*
+      '@kubb/swagger-tanstack-query': workspace:*
+      '@kubb/swagger-ts': workspace:*
+      '@kubb/swagger-zod': workspace:*
+      '@tanstack/react-query': ^4.28.0
+      axios: ^1.3.4
+      react: ^18.2.0
+      tsup: ^6.7.0
+    dependencies:
+      '@kubb/cli': link:../../packages/cli
+      '@kubb/core': link:../../packages/core
+      '@kubb/swagger': link:../../packages/swagger
+      '@kubb/swagger-client': link:../../packages/swagger-client
+      '@kubb/swagger-tanstack-query': link:../../packages/swagger-tanstack-query
+      '@kubb/swagger-ts': link:../../packages/swagger-ts
+      '@kubb/swagger-zod': link:../../packages/swagger-zod
+      '@tanstack/react-query': 4.28.0_react@18.2.0
+      axios: 1.3.4
+      react: 18.2.0
+      tsup: 6.7.0
+
   examples/simple:
     specifiers:
       '@kubb/cli': workspace:*
@@ -186,6 +212,32 @@ importers:
       axios: 1.3.4
       react: 18.2.0
       tsup: 6.7.0
+
+  examples/vue-query:
+    specifiers:
+      '@kubb/cli': workspace:*
+      '@kubb/core': workspace:*
+      '@kubb/swagger': workspace:*
+      '@kubb/swagger-client': workspace:*
+      '@kubb/swagger-tanstack-query': workspace:*
+      '@kubb/swagger-ts': workspace:*
+      '@kubb/swagger-zod': workspace:*
+      '@tanstack/vue-query': ^4.27.0
+      axios: ^1.3.4
+      tsup: ^6.7.0
+      vue: ^3.2.47
+    dependencies:
+      '@kubb/cli': link:../../packages/cli
+      '@kubb/core': link:../../packages/core
+      '@kubb/swagger': link:../../packages/swagger
+      '@kubb/swagger-client': link:../../packages/swagger-client
+      '@kubb/swagger-tanstack-query': link:../../packages/swagger-tanstack-query
+      '@kubb/swagger-ts': link:../../packages/swagger-ts
+      '@kubb/swagger-zod': link:../../packages/swagger-zod
+      '@tanstack/vue-query': 4.27.0_vue@3.2.47
+      axios: 1.3.4
+      tsup: 6.7.0
+      vue: 3.2.47
 
   examples/zod:
     specifiers:
