@@ -45,7 +45,10 @@ export class FileManager {
     file.imports?.forEach((curr) => {
       const exists = imports.find((imp) => imp.path === curr.path)
       if (!exists) {
-        imports.push(curr)
+        imports.push({
+          ...curr,
+          name: Array.isArray(curr.name) ? uniq(curr.name) : curr.name,
+        })
         return
       }
 

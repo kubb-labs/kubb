@@ -4,7 +4,7 @@ import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
 import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator } from '@kubb/swagger'
-import type { Oas } from '@kubb/swagger'
+import type { Oas, Operation } from '@kubb/swagger'
 
 import { pluginName } from '../plugin'
 
@@ -21,6 +21,7 @@ type Options = {
 
 export class OperationGenerator extends Generator<Options> {
   getFrameworkSpecificImports(framework: Options['framework']): {
+    getName: (operation: Operation) => string
     query: {
       useQuery: string
       QueryKey: string
@@ -35,12 +36,13 @@ export class OperationGenerator extends Generator<Options> {
   } {
     if (framework === 'svelte') {
       return {
+        getName: (operation) => `${camelCase(`${operation.getOperationId()} query`, { delimiter: '' })}`,
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
           UseQueryResult: 'CreateQueryResult',
           UseQueryOptions: 'CreateQueryOptions',
-          QueryOptions: 'CreateBaseQueryResult',
+          QueryOptions: 'CreateQueryOptions',
         },
         mutate: {
           useMutation: 'createMutation',
@@ -51,6 +53,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'vue') {
       return {
+        getName: (operation) => `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`,
         query: {
           useQuery: 'useQuery',
           QueryKey: 'QueryKey',
@@ -66,6 +69,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     return {
+      getName: (operation) => `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`,
       query: {
         useQuery: 'useQuery',
         QueryKey: 'QueryKey',
@@ -123,7 +127,7 @@ export class OperationGenerator extends Generator<Options> {
 
     // hook setup
     const imports = this.getFrameworkSpecificImports(framework)
-    const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
+    const hookName = imports.getName(operation)
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolveId({
       fileName: hookId,
@@ -171,9 +175,9 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(params?: ${
-        schemas.queryParams.name
-      }): QueryOptions<TData> {
+        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}): ${
+        imports.query.QueryOptions
+      }<TData> {
           const queryKey = ${queryKey}(params);
 
           return {
@@ -191,13 +195,13 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}, options?: { query?: UseQueryOptions<TData> }): ${
-        imports.query.UseQueryResult
-      }<TData, unknown> & { queryKey: QueryKey } {
+        export function ${hookName} <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}, options?: { query?: ${
+        imports.query.UseQueryOptions
+      }<TData> }): ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey as QueryKey ?? ${queryKey}(params);
           
-          const query = useQuery<TData>({
+          const query = ${imports.query.useQuery}<TData>({
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(params),
             ...queryOptions
           }) as ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey };
@@ -215,7 +219,9 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(${pathParamsTyped}): QueryOptions<TData> {
+        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(${pathParamsTyped}): ${
+        imports.query.QueryOptions
+      }<TData> {
           const queryKey = ${queryKey}(${pathParams});
 
           return {
@@ -232,13 +238,13 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}>(${pathParamsTyped} options?: { query?: UseQueryOptions<TData> }): ${
+        export function ${hookName} <TData = ${schemas.response.name}>(${pathParamsTyped} options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${
         imports.query.UseQueryResult
       }<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey as QueryKey ?? ${queryKey}(${pathParams});
           
-          const query = useQuery<TData>({
+          const query = ${imports.query.useQuery}<TData>({
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams}),
             ...queryOptions
           }) as ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey };
@@ -258,7 +264,7 @@ export class OperationGenerator extends Generator<Options> {
       sources.push(`
         export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${
         schemas.queryParams.name
-      }): QueryOptions<TData> {
+      }): ${imports.query.QueryOptions}<TData> {
           const queryKey = ${queryKey}(${pathParams} params);
 
           return {
@@ -276,13 +282,13 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${
-        schemas.queryParams.name
-      }, options?: { query?: UseQueryOptions<TData> }): ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey } {
+        export function ${hookName} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${schemas.queryParams.name}, options?: { query?: ${
+        imports.query.UseQueryOptions
+      }<TData> }): ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey as QueryKey ?? ${queryKey}(${pathParams} params);
           
-          const query = useQuery<TData>({
+          const query = ${imports.query.useQuery}<TData>({
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams} params),
             ...queryOptions
           }) as ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey };
@@ -300,7 +306,7 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
-      export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(): QueryOptions<TData> {
+      export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(): ${imports.query.QueryOptions}<TData> {
         const queryKey = ${queryKey}();
 
         return {
@@ -317,13 +323,13 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}>(options?: { query?: UseQueryOptions<TData> }): ${
+        export function ${hookName} <TData = ${schemas.response.name}>(options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${
         imports.query.UseQueryResult
       }<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey as QueryKey ?? ${queryKey}();
 
-          const query = useQuery<TData>({
+          const query = ${imports.query.useQuery}<TData>({
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(),
             ...queryOptions
           }) as ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey };
@@ -363,7 +369,7 @@ export class OperationGenerator extends Generator<Options> {
 
     // hook setup
     const imports = this.getFrameworkSpecificImports(framework)
-    const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
+    const hookName = imports.getName(operation)
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
     if (!hookFilePath) {
@@ -405,7 +411,7 @@ export class OperationGenerator extends Generator<Options> {
         }) {
           const { mutation: mutationOptions } = options ?? {};
 
-          return useMutation<TData, unknown, TVariables>({
+          return ${imports.mutate.useMutation}<TData, unknown, TVariables>({
             mutationFn: (data) => {
               return client<TData, TVariables>({
                 method: "post",
@@ -448,7 +454,7 @@ export class OperationGenerator extends Generator<Options> {
 
     // hook setup
     const imports = this.getFrameworkSpecificImports(framework)
-    const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
+    const hookName = imports.getName(operation)
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
     if (!hookFilePath) {
@@ -490,7 +496,7 @@ export class OperationGenerator extends Generator<Options> {
         }) {
           const { mutation: mutationOptions } = options ?? {};
 
-          return useMutation<TData, unknown, TVariables>({
+          return ${imports.mutate.useMutation}<TData, unknown, TVariables>({
             mutationFn: (data) => {
               return client<TData, TVariables>({
                 method: "put",
@@ -533,7 +539,7 @@ export class OperationGenerator extends Generator<Options> {
 
     // hook setup
     const imports = this.getFrameworkSpecificImports(framework)
-    const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
+    const hookName = imports.getName(operation)
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
     if (!hookFilePath) {
@@ -575,7 +581,7 @@ export class OperationGenerator extends Generator<Options> {
         }) {
           const { mutation: mutationOptions } = options ?? {};
 
-          return useMutation<TData, unknown, TVariables>({
+          return ${imports.mutate.useMutation}<TData, unknown, TVariables>({
             mutationFn: () => {
               return client<TData, TVariables>({
                 method: "delete",

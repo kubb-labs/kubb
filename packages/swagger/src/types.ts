@@ -25,4 +25,6 @@ export type PluginOptions = PluginFactoryOptions<Options, false, Api>
 
 export type { default as Oas } from 'oas'
 
+export type { Operation } from 'oas'
+
 export type { OpenAPIV3 } from 'openapi-types'
