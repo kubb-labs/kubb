@@ -213,6 +213,32 @@ importers:
       react: 18.2.0
       tsup: 6.7.0
 
+  examples/svelte-query:
+    specifiers:
+      '@kubb/cli': workspace:*
+      '@kubb/core': workspace:*
+      '@kubb/swagger': workspace:*
+      '@kubb/swagger-client': workspace:*
+      '@kubb/swagger-tanstack-query': workspace:*
+      '@kubb/swagger-ts': workspace:*
+      '@kubb/swagger-zod': workspace:*
+      '@tanstack/svelte-query': ^4.27.0
+      axios: ^1.3.4
+      svelte: ^3.54.0
+      tsup: ^6.7.0
+    dependencies:
+      '@kubb/cli': link:../../packages/cli
+      '@kubb/core': link:../../packages/core
+      '@kubb/swagger': link:../../packages/swagger
+      '@kubb/swagger-client': link:../../packages/swagger-client
+      '@kubb/swagger-tanstack-query': link:../../packages/swagger-tanstack-query
+      '@kubb/swagger-ts': link:../../packages/swagger-ts
+      '@kubb/swagger-zod': link:../../packages/swagger-zod
+      '@tanstack/svelte-query': 4.27.0_svelte@3.57.0
+      axios: 1.3.4
+      svelte: 3.57.0
+      tsup: 6.7.0
+
   examples/vue-query:
     specifiers:
       '@kubb/cli': workspace:*

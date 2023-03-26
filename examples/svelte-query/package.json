@@ -1,0 +1,34 @@
+{
+  "name": "svelte-query-pet-store",
+  "version": "0.0.1",
+  "description": "SvelteQuery PetStore example",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kubb-project/kubb.git",
+    "directory": "packages/examples/svelte-query"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "sideEffects": false,
+  "scripts": {
+    "generate": "pnpm generate:ts",
+    "generate:ts": "kubb --debug",
+    "build": "tsup",
+    "start": "tsup --watch",
+    "test": "vitest",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@kubb/cli": "workspace:*",
+    "@kubb/core": "workspace:*",
+    "@kubb/swagger": "workspace:*",
+    "@kubb/swagger-tanstack-query": "workspace:*",
+    "@kubb/swagger-zod": "workspace:*",
+    "@kubb/swagger-ts": "workspace:*",
+    "@kubb/swagger-client": "workspace:*",
+    "@tanstack/svelte-query": "^4.27.0",
+    "axios": "^1.3.4",
+    "tsup": "^6.7.0",
+    "svelte": "^3.54.0"
+  }
+}
