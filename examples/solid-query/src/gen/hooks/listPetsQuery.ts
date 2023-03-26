@@ -1,14 +1,14 @@
-import { createQuery } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/solid-query'
 
 import client from '@kubb/swagger-client/client'
 
-import type { QueryKey, CreateQueryResult, CreateQueryOptions } from '@tanstack/svelte-query'
+import type { QueryKey, CreateQueryResult, CreateQueryOptions } from '@tanstack/solid-query'
 import type { ListPetsResponse, ListPetsQueryParams } from '../models/ListPets'
 
 export const listPetsQueryKey = (params?: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
 
 export function listPetsQueryOptions<TData = ListPetsResponse>(params?: ListPetsQueryParams): CreateQueryOptions<TData> {
-  const queryKey = listPetsQueryKey(params)
+  const queryKey = () => listPetsQueryKey(params)
 
   return {
     queryKey,
@@ -31,7 +31,7 @@ export function listPetsQuery<TData = ListPetsResponse>(
   options?: { query?: CreateQueryOptions<TData> }
 ): CreateQueryResult<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? listPetsQueryKey(params)
+  const queryKey = queryOptions?.queryKey?.() ?? listPetsQueryKey(params)
 
   const query = createQuery<TData>({
     ...listPetsQueryOptions<TData>(params),

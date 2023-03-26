@@ -51,6 +51,23 @@ export class OperationGenerator extends Generator<Options> {
       }
     }
 
+    if (framework === 'solid') {
+      return {
+        getName: (operation) => `${camelCase(`${operation.getOperationId()} query`, { delimiter: '' })}`,
+        query: {
+          useQuery: 'createQuery',
+          QueryKey: 'QueryKey',
+          UseQueryResult: 'CreateQueryResult',
+          UseQueryOptions: 'CreateQueryOptions',
+          QueryOptions: 'CreateQueryOptions',
+        },
+        mutate: {
+          useMutation: 'createMutation',
+          UseMutationOptions: 'CreateMutationOptions',
+        },
+      }
+    }
+
     if (framework === 'vue') {
       return {
         getName: (operation) => `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`,
@@ -92,6 +109,15 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: Object.values(this.getFrameworkSpecificImports('svelte')[type]),
           path: '@tanstack/svelte-query',
+        },
+      ]
+    }
+
+    if (framework === 'solid') {
+      return [
+        {
+          name: Object.values(this.getFrameworkSpecificImports('solid')[type]),
+          path: '@tanstack/solid-query',
         },
       ]
     }
@@ -178,7 +204,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}): ${
         imports.query.QueryOptions
       }<TData> {
-          const queryKey = ${queryKey}(params);
+          const queryKey =${framework === 'solid' ? `() => ${queryKey}(params)` : `${queryKey}(params)`};
 
           return {
             queryKey,
@@ -199,14 +225,14 @@ export class OperationGenerator extends Generator<Options> {
         imports.query.UseQueryOptions
       }<TData> }): ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey as QueryKey ?? ${queryKey}(params);
+          const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(params);
           
           const query = ${imports.query.useQuery}<TData>({
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(params),
             ...queryOptions
           }) as ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey };
 
-          query.queryKey = queryKey;
+          query.queryKey = queryKey as QueryKey;
 
           return query;
         };
@@ -222,7 +248,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(${pathParamsTyped}): ${
         imports.query.QueryOptions
       }<TData> {
-          const queryKey = ${queryKey}(${pathParams});
+          const queryKey =${framework === 'solid' ? `() => ${queryKey}(${pathParams})` : `${queryKey}(${pathParams})`};
 
           return {
             queryKey,
@@ -242,14 +268,14 @@ export class OperationGenerator extends Generator<Options> {
         imports.query.UseQueryResult
       }<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey as QueryKey ?? ${queryKey}(${pathParams});
+          const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(${pathParams});
           
           const query = ${imports.query.useQuery}<TData>({
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams}),
             ...queryOptions
           }) as ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey };
 
-          query.queryKey = queryKey;
+          query.queryKey = queryKey as QueryKey;
 
           return query;
         };
@@ -265,7 +291,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${
         schemas.queryParams.name
       }): ${imports.query.QueryOptions}<TData> {
-          const queryKey = ${queryKey}(${pathParams} params);
+          const queryKey =${framework === 'solid' ? `() => ${queryKey}(${pathParams} params)` : `${queryKey}(${pathParams} params)`};
 
           return {
             queryKey,
@@ -286,14 +312,14 @@ export class OperationGenerator extends Generator<Options> {
         imports.query.UseQueryOptions
       }<TData> }): ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey as QueryKey ?? ${queryKey}(${pathParams} params);
+          const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(${pathParams} params);
           
           const query = ${imports.query.useQuery}<TData>({
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams} params),
             ...queryOptions
           }) as ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey };
 
-          query.queryKey = queryKey;
+          query.queryKey = queryKey as QueryKey;
 
           return query;
         };
@@ -307,7 +333,7 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
       export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(): ${imports.query.QueryOptions}<TData> {
-        const queryKey = ${queryKey}();
+        const queryKey =${framework === 'solid' ? `() => ${queryKey}()` : `${queryKey}()`};
 
         return {
           queryKey,
@@ -327,14 +353,14 @@ export class OperationGenerator extends Generator<Options> {
         imports.query.UseQueryResult
       }<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey as QueryKey ?? ${queryKey}();
+          const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}();
 
           const query = ${imports.query.useQuery}<TData>({
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(),
             ...queryOptions
           }) as ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey };
 
-          query.queryKey = queryKey;
+          query.queryKey = queryKey as QueryKey;
 
           return query;
         };

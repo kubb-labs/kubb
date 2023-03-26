@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
+import { createQuery } from '@tanstack/solid-query'
 
 import client from '@kubb/swagger-client/client'
 
-import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
+import type { QueryKey, CreateQueryResult, CreateQueryOptions } from '@tanstack/solid-query'
 import type { ListPetsBreedResponse, ListPetsBreedPathParams, ListPetsBreedQueryParams } from '../models/ListPetsBreed'
 
 export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], params?: ListPetsBreedQueryParams) =>
@@ -11,8 +11,8 @@ export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], p
 export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams
-): QueryOptions<TData> {
-  const queryKey = listPetsBreedQueryKey(breed, params)
+): CreateQueryOptions<TData> {
+  const queryKey = () => listPetsBreedQueryKey(breed, params)
 
   return {
     queryKey,
@@ -30,18 +30,18 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
  * @summary List all pets with breed
  * @link /pets/${breed}
  */
-export function useListPetsBreed<TData = ListPetsBreedResponse>(
+export function listPetsBreedQuery<TData = ListPetsBreedResponse>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
-  options?: { query?: UseQueryOptions<TData> }
-): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
+  options?: { query?: CreateQueryOptions<TData> }
+): CreateQueryResult<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? listPetsBreedQueryKey(breed, params)
+  const queryKey = queryOptions?.queryKey?.() ?? listPetsBreedQueryKey(breed, params)
 
-  const query = useQuery<TData>({
+  const query = createQuery<TData>({
     ...listPetsBreedQueryOptions<TData>(breed, params),
     ...queryOptions,
-  }) as UseQueryResult<TData, unknown> & { queryKey: QueryKey }
+  }) as CreateQueryResult<TData, unknown> & { queryKey: QueryKey }
 
   query.queryKey = queryKey as QueryKey
 

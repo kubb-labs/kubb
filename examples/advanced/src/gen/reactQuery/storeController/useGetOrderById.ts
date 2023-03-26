@@ -31,14 +31,14 @@ export function useGetOrderById<TData = GetOrderByIdResponse>(
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = (queryOptions?.queryKey as QueryKey) ?? getOrderByIdQueryKey(orderId)
+  const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
 
   const query = useQuery<TData>({
     ...getOrderByIdQueryOptions<TData>(orderId),
     ...queryOptions,
   }) as UseQueryResult<TData, unknown> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey as QueryKey
 
   return query
 }

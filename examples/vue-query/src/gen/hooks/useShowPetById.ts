@@ -34,14 +34,14 @@ export function useShowPetById<TData = ShowPetByIdResponse>(
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryReturnType<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = (queryOptions?.queryKey as QueryKey) ?? showPetByIdQueryKey(petId, testId)
+  const queryKey = queryOptions?.queryKey ?? showPetByIdQueryKey(petId, testId)
 
   const query = useQuery<TData>({
     ...showPetByIdQueryOptions<TData>(petId, testId),
     ...queryOptions,
   }) as UseQueryReturnType<TData, unknown> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey as QueryKey
 
   return query
 }

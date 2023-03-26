@@ -31,14 +31,14 @@ export function useListPets<TData = ListPetsResponse>(
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = (queryOptions?.queryKey as QueryKey) ?? listPetsQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? listPetsQueryKey(params)
 
   const query = useQuery<TData>({
     ...listPetsQueryOptions<TData>(params),
     ...queryOptions,
   }) as UseQueryResult<TData, unknown> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey as QueryKey
 
   return query
 }
@@ -93,14 +93,14 @@ export function useShowPetById<TData = ShowPetByIdResponse>(
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = (queryOptions?.queryKey as QueryKey) ?? showPetByIdQueryKey(petId, testId)
+  const queryKey = queryOptions?.queryKey ?? showPetByIdQueryKey(petId, testId)
 
   const query = useQuery<TData>({
     ...showPetByIdQueryOptions<TData>(petId, testId),
     ...queryOptions,
   }) as UseQueryResult<TData, unknown> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey as QueryKey
 
   return query
 }

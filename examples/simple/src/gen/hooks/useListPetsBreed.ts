@@ -36,14 +36,14 @@ export function useListPetsBreed<TData = ListPetsBreedResponse>(
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = (queryOptions?.queryKey as QueryKey) ?? listPetsBreedQueryKey(breed, params)
+  const queryKey = queryOptions?.queryKey ?? listPetsBreedQueryKey(breed, params)
 
   const query = useQuery<TData>({
     ...listPetsBreedQueryOptions<TData>(breed, params),
     ...queryOptions,
   }) as UseQueryResult<TData, unknown> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey as QueryKey
 
   return query
 }

@@ -39,6 +39,14 @@
       "toc": false
     }
   },
+  "solid-query": {
+    "title": "Solid-Query PetStore",
+    "theme": {
+      "layout": "full",
+      "footer": true,
+      "toc": false
+    }
+  },
   "zod": {
     "title": "Zod PetStore",
     "theme": {
