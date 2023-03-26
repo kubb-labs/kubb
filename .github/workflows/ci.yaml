@@ -37,12 +37,12 @@ jobs:
  
         - name: Install dependencies
           run: pnpm install
+          
+        - name: Test
+          run: pnpm test
  
         - name: Build
           run: pnpm build
- 
-        - name: Test
-          run: pnpm test
 
         - name: Release
           if: ${{ success() && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
