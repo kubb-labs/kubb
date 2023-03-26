@@ -595,7 +595,7 @@
 
 ### Features
 
-* use of operationGenerator for swagger-react-query + sort for the typebuilder ([fb4622c](https://github.com/kubb-project/kubb/commit/fb4622c0837f3990172354dfc2cbf5fabefd033d))
+* use of operationGenerator for swagger-tanstack-query + sort for the typebuilder ([fb4622c](https://github.com/kubb-project/kubb/commit/fb4622c0837f3990172354dfc2cbf5fabefd033d))
 
 ## [0.33.0](https://github.com/kubb-project/kubb/compare/@kubb/cli-v0.32.0...@kubb/cli-v0.33.0) (2023-01-07)
 

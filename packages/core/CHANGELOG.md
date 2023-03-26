@@ -676,7 +676,7 @@
 
 ### Features
 
-* use of operationGenerator for swagger-react-query + sort for the typebuilder ([fb4622c](https://github.com/kubb-project/kubb/commit/fb4622c0837f3990172354dfc2cbf5fabefd033d))
+* use of operationGenerator for swagger-tanstack-query + sort for the typebuilder ([fb4622c](https://github.com/kubb-project/kubb/commit/fb4622c0837f3990172354dfc2cbf5fabefd033d))
 
 ## [0.33.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v0.32.0...@kubb/core-v0.33.0) (2023-01-07)
 
@@ -1002,7 +1002,7 @@
 
 ### Features
 
-* ✨ swagger-react-query ([d2e5866](https://github.com/kubb-project/kubb/commit/d2e58668dd85b24ae99944754e64a153155b03b4))
+* ✨ swagger-tanstack-query ([d2e5866](https://github.com/kubb-project/kubb/commit/d2e58668dd85b24ae99944754e64a153155b03b4))
 
 ## [0.10.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v0.9.1...@kubb/core-v0.10.0) (2022-12-11)
 

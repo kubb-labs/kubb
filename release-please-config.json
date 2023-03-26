@@ -56,8 +56,8 @@
       "draft": false,
       "prerelease": true
     },
-    "packages/swagger-react-query": {
-      "component": "@kubb/swagger-react-query",
+    "packages/swagger-tanstack-query": {
+      "component": "@kubb/swagger-tanstack-query",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
@@ -86,7 +86,7 @@
         "@kubb/swagger",
         "@kubb/swagger-ts",
         "@kubb/swagger-client",
-        "@kubb/swagger-react-query",
+        "@kubb/swagger-tanstack-query",
         "@kubb/swagger-zod"
       ]
     }

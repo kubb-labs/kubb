@@ -1,18 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
 
-export interface RequestConfig<TVariables = unknown> {
-  method: 'get' | 'put' | 'patch' | 'post' | 'delete'
-
-  url: string
-
-  params?: unknown
-
-  data?: TVariables
-
-  responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
-  signal?: AbortSignal
-}
-
 export type Options = {
   /**
    * Output to save the ReactQuery hooks.
@@ -30,6 +17,11 @@ export type Options = {
    * @default '@kubb/swagger-client/client.ts'
    */
   client?: string
+  /**
+   * Framework to be generated for
+   * @default 'react'
+   */
+  framework?: 'react' | 'solid' | 'svelte' | 'vue'
 }
 
 export type ResolveIdOptions = { tag?: string }

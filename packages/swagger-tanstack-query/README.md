@@ -1,7 +1,7 @@
 <div align="center">
 
   <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-  <h1>@kubb/swagger-react-query</h1>
+  <h1>@kubb/swagger-tanstack-query</h1>
   
   <p>
    Swagger integration for React-Query to generate all the different hooks based on an OpenAPI specification.
@@ -9,14 +9,14 @@
 
 <!-- Badges -->
 <p>
-  <a href="https://www.npmjs.com/package/@kubb/swagger-react-query">
-    <img alt="Npm version" src="https://img.shields.io/npm/v/@kubb/swagger-react-query?style=for-the-badge"/>
+  <a href="https://www.npmjs.com/package/@kubb/swagger-tanstack-query">
+    <img alt="Npm version" src="https://img.shields.io/npm/v/@kubb/swagger-tanstack-query?style=for-the-badge"/>
   </a>
-  <a href="https://www.npmjs.com/package/@kubb/swagger-react-query">
-    <img alt="Npm downloads" src="https://img.shields.io/bundlephobia/min/@kubb/swagger-react-query?style=for-the-badge"/>
+  <a href="https://www.npmjs.com/package/@kubb/swagger-tanstack-query">
+    <img alt="Npm downloads" src="https://img.shields.io/bundlephobia/min/@kubb/swagger-tanstack-query?style=for-the-badge"/>
   </a>
-  <a href="https://www.npmjs.com/package/@kubb/swagger-react-query">
-    <img alt="Npm downloads" src="https://img.shields.io/npm/dm/@kubb/swagger-react-query?style=for-the-badge"/>
+  <a href="https://www.npmjs.com/package/@kubb/swagger-tanstack-query">
+    <img alt="Npm downloads" src="https://img.shields.io/npm/dm/@kubb/swagger-tanstack-query?style=for-the-badge"/>
   </a>
 </p>
    

@@ -636,7 +636,7 @@
 
 ### Features
 
-* use of operationGenerator for swagger-react-query + sort for the typebuilder ([fb4622c](https://github.com/kubb-project/kubb/commit/fb4622c0837f3990172354dfc2cbf5fabefd033d))
+* use of operationGenerator for swagger-tanstack-query + sort for the typebuilder ([fb4622c](https://github.com/kubb-project/kubb/commit/fb4622c0837f3990172354dfc2cbf5fabefd033d))
 
 ## [0.33.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v0.32.0...@kubb/swagger-ts-v0.33.0) (2023-01-07)
 
@@ -747,7 +747,7 @@
 
 ### Features
 
-* **swagger-react-query:** add jsdoc documentation for types and react-query hooks ([d5faa04](https://github.com/kubb-project/kubb/commit/d5faa04d2dc511c7e50ef6af262f1396d5991264))
+* **swagger-tanstack-query:** add jsdoc documentation for types and react-query hooks ([d5faa04](https://github.com/kubb-project/kubb/commit/d5faa04d2dc511c7e50ef6af262f1396d5991264))
 
 ## [0.25.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v0.25.0...@kubb/swagger-ts-v0.25.1) (2023-01-02)
 
@@ -945,7 +945,7 @@
 
 ### Features
 
-* ✨ swagger-react-query ([d2e5866](https://github.com/kubb-project/kubb/commit/d2e58668dd85b24ae99944754e64a153155b03b4))
+* ✨ swagger-tanstack-query ([d2e5866](https://github.com/kubb-project/kubb/commit/d2e58668dd85b24ae99944754e64a153155b03b4))
 
 ## [0.10.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v0.9.1...@kubb/swagger-ts-v0.10.0) (2022-12-11)
 

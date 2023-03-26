@@ -1,11 +1,11 @@
 {
-  "name": "@kubb/swagger-react-query",
+  "name": "@kubb/swagger-tanstack-query",
   "version": "1.0.0-beta.1",
-  "description": "Generator swagger-react-query",
+  "description": "Generator swagger-tanstack-query",
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-project/kubb.git",
-    "directory": "packages/swagger-react-query"
+    "directory": "packages/swagger-tanstack-query"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
@@ -16,6 +16,7 @@
     "codegen",
     "swagger",
     "openapi",
+    "tanstack",
     "react-query",
     "@tanstack",
     "axios"

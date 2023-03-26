@@ -42,7 +42,7 @@ kubb --config kubb.config.ts
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
-import createSwaggerReactQuery from '@kubb/swagger-react-query'
+import createSwaggerReactQuery from '@kubb/swagger-tanstack-query'
 
 export default defineConfig(async () => {
   return {
@@ -80,7 +80,7 @@ export default defineConfig(() => {
     plugins: [
       ['@kubb/swagger', { output: false }],
       ['@kubb/swagger-ts', { output: 'models/ts' }],
-      ['@kubb/swagger-react-query', { output: './reactQuery' } }],
+      ['@kubb/swagger-tanstack-query', { output: './reactQuery' } }],
     ],
   }
 })

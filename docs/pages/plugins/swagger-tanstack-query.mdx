@@ -1,7 +1,7 @@
 import { Callout, Tabs, Tab } from 'nextra-theme-docs'
 import Link from 'next/link'
 
-# @kubb/swagger-react-query
+# @kubb/swagger-tanstack-query
 
 With the Swagger React-Query plugin you can create [react-query](https://tanstack.com/query/latest) hooks based on an operation set in the Swagger file.
 
@@ -10,17 +10,17 @@ With the Swagger React-Query plugin you can create [react-query](https://tanstac
 <Tabs items={['pnpm', 'npm', 'yarn']}>
   <Tab>
     ```bash copy
-    pnpm i -D @kubb/swagger-react-query
+    pnpm i -D @kubb/swagger-tanstack-query
     ```
   </Tab>
     <Tab>
     ```bash copy
-    npm i -D @kubb/swagger-react-query
+    npm i -D @kubb/swagger-tanstack-query
     ```
   </Tab>
     <Tab>
     ```bash copy
-    yarn add -D @kubb/swagger-react-query
+    yarn add -D @kubb/swagger-tanstack-query
     ```
   </Tab>
 </Tabs>
@@ -45,7 +45,13 @@ Path to the client that will be used to do the API calls.
 Relative to the root
 
 Type: `string` <br/>
-Default: `"@kubb/swagger-react-query/client.ts"`
+Default: `"@kubb/swagger-tanstack-query/client.ts"`
+
+### framework
+Framework to be generated for.
+
+Type: `'react' | 'solid' | 'svelte' | 'vue'` <br/>
+Default: `"react"`
 
 ## Depended
 

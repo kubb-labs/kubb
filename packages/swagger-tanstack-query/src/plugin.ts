@@ -11,7 +11,7 @@ import { OperationGenerator } from './generators'
 
 import type { PluginOptions } from './types'
 
-export const pluginName = 'swagger-react-query' as const
+export const pluginName = 'swagger-tanstack-query' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'hooks', groupBy } = options

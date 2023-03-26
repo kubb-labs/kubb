@@ -4,7 +4,7 @@
   "swagger": "@kubb/swagger",
   "swagger-ts": "@kubb/swagger-ts",
   "swagger-client": "@kubb/swagger-client",
-  "swagger-react-query": "@kubb/swagger-react-query",
+  "swagger-tanstack-query": "@kubb/swagger-tanstack-query",
   "swagger-zod": "@kubb/swagger-zod",
   "ts-codegen": "@kubb/ts-codegen",
   "customize": "Customize"

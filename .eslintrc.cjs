@@ -9,7 +9,7 @@ module.exports = {
     'vitest-globals/env': true,
   },
   extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'airbnb/base', 'plugin:prettier/recommended', 'plugin:vitest/recommended'],
-  plugins: ['@typescript-eslint', 'prettier', 'vitest', 'formatjs', 'unused-imports'],
+  plugins: ['@typescript-eslint', 'prettier', 'vitest', 'vitest-globals', 'formatjs', 'unused-imports'],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
