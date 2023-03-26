@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.0.0-beta.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.1...@kubb/swagger-tanstack-query-v1.0.0-beta.2) (2023-03-26)
+
+
+### Features
+
+* solid-query ([ac0598a](https://github.com/kubb-project/kubb/commit/ac0598ae64759c4e81665cd30992b8edc3fc3d99))
+* svelte-query ([be06ace](https://github.com/kubb-project/kubb/commit/be06ace70add445a9fda3caf168223fbd278a147))
+* vue-query ([712f2f2](https://github.com/kubb-project/kubb/commit/712f2f2af4b03091df2e1cea46afade8868e842b))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.1 ([608fd59](https://github.com/kubb-project/kubb/commit/608fd5926079f9dd77046d6788a5550fb964c0b2))
+* release 1.0.0-alpha.2 ([3d645ac](https://github.com/kubb-project/kubb/commit/3d645accedb121856e61bab166fafe74db6ca3f3))
+* release 1.0.0-alpha.3 ([4fb3d6a](https://github.com/kubb-project/kubb/commit/4fb3d6a6ff5b6b0950d94a12f04c4fd3db89c595))
+* release 1.0.0-alpha.4 ([8d808c3](https://github.com/kubb-project/kubb/commit/8d808c3d0b255b76dc79ad92324f0f2ee8afd619))
+* release 1.0.0-alpha.5 ([8bb9ed2](https://github.com/kubb-project/kubb/commit/8bb9ed2d0ce9ee47db2d24daba993b81cd56d2c0))
+* release 1.0.0-alpha.6 ([550035a](https://github.com/kubb-project/kubb/commit/550035a122a2e5a5294a49a0d2c927fc238315e6))
+* release 1.0.0-alpha.7 ([29bd33a](https://github.com/kubb-project/kubb/commit/29bd33aefb990c298d6615f10add0ca7fce69861))
+* release 1.0.0-alpha.8 ([c5a3d68](https://github.com/kubb-project/kubb/commit/c5a3d6879abdb09c5ed9776e2e715800a2bf51d9))
+* release 1.0.0-beta.1 ([151d4c3](https://github.com/kubb-project/kubb/commit/151d4c393d4d6d0b2b85267dd2ef00c6f20636aa))
+* release 1.0.0-beta.2 ([390b3d0](https://github.com/kubb-project/kubb/commit/390b3d0eb3aa7edbf2dd8d7d2765312c76710397))
+* release 1.0.0-beta.2 ([826bfef](https://github.com/kubb-project/kubb/commit/826bfef6b81c46ea92531ce36ac6617c52a7bba8))
+
 ## [1.0.0-beta.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-alpha.8...@kubb/swagger-tanstack-query-v1.0.0-beta.1) (2023-03-26)
 
 
