@@ -14,7 +14,7 @@ import type { PluginOptions } from './types'
 export const pluginName = 'swagger-tanstack-query' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy } = options
+  const { output = 'hooks', groupBy, framework = 'react' } = options
   let swaggerApi: SwaggerApi
 
   return {
@@ -56,6 +56,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const clientPath: OptionalPath = options.client ? pathParser.resolve(this.config.root, options.client) : undefined
 
       const operationGenerator = new OperationGenerator({
+        framework,
         clientPath,
         oas,
         directory,

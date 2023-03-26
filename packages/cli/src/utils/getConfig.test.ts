@@ -103,7 +103,7 @@ describe('getConfig', () => {
         output: {
           path: './dist',
         },
-        plugins: [['@kubb/swagger']],
+        plugins: [['@kubb/swagger']] as any,
       }
     })
     const kubbUserConfig = await getConfig(

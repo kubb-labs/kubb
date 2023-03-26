@@ -11,6 +11,7 @@ import { pluginName } from '../plugin'
 import type { ResolveIdOptions } from '../types'
 
 type Options = {
+  framework: 'react' | 'solid' | 'svelte' | 'vue'
   clientPath?: OptionalPath
   oas: Oas
   directory: string
@@ -19,14 +20,109 @@ type Options = {
 }
 
 export class OperationGenerator extends Generator<Options> {
+  getFrameworkSpecificImports(framework: Options['framework']): {
+    query: {
+      useQuery: string
+      QueryKey: string
+      UseQueryResult: string
+      UseQueryOptions: string
+      QueryOptions: string
+    }
+    mutate: {
+      useMutation: string
+      UseMutationOptions: string
+    }
+  } {
+    if (framework === 'svelte') {
+      return {
+        query: {
+          useQuery: 'createQuery',
+          QueryKey: 'QueryKey',
+          UseQueryResult: 'CreateQueryResult',
+          UseQueryOptions: 'CreateQueryOptions',
+          QueryOptions: 'CreateBaseQueryResult',
+        },
+        mutate: {
+          useMutation: 'createMutation',
+          UseMutationOptions: 'CreateMutationOptions',
+        },
+      }
+    }
+
+    if (framework === 'vue') {
+      return {
+        query: {
+          useQuery: 'useQuery',
+          QueryKey: 'QueryKey',
+          UseQueryResult: 'UseQueryReturnType',
+          UseQueryOptions: 'UseQueryOptions',
+          QueryOptions: 'QueryOptions',
+        },
+        mutate: {
+          useMutation: 'useMutation',
+          UseMutationOptions: 'VueMutationObserverOptions',
+        },
+      }
+    }
+
+    return {
+      query: {
+        useQuery: 'useQuery',
+        QueryKey: 'QueryKey',
+        UseQueryResult: 'UseQueryResult',
+        UseQueryOptions: 'UseQueryOptions',
+        QueryOptions: 'QueryOptions',
+      },
+      mutate: {
+        useMutation: 'useMutation',
+        UseMutationOptions: 'UseMutationOptions',
+      },
+    }
+  }
+
+  getQueryImports(type: 'query' | 'mutate'): Required<File>['imports'] {
+    const { framework } = this.options
+
+    if (framework === 'svelte') {
+      return [
+        {
+          name: Object.values(this.getFrameworkSpecificImports('svelte')[type]),
+          path: '@tanstack/svelte-query',
+        },
+      ]
+    }
+
+    if (framework === 'vue') {
+      return [
+        {
+          name: ['VueMutationObserverOptions'],
+          path: '@tanstack/vue-query/build/lib/useMutation',
+          isTypeOnly: true,
+        },
+        {
+          name: Object.values(this.getFrameworkSpecificImports('vue')[type]).filter((item) => item !== 'VueMutationObserverOptions'),
+          path: '@tanstack/vue-query',
+        },
+      ]
+    }
+
+    return [
+      {
+        name: Object.values(this.getFrameworkSpecificImports('react')[type]),
+        path: '@tanstack/react-query',
+      },
+    ]
+  }
+
   async getGet(path: string): Promise<File | null> {
-    const { oas, directory, resolveId, clientPath } = this.options
+    const { oas, directory, resolveId, clientPath, framework } = this.options
 
     const operation = oas.operation(path, 'get')
 
     if (!operation.schema.operationId) return null
 
     // hook setup
+    const imports = this.getFrameworkSpecificImports(framework)
     const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolveId({
@@ -95,16 +191,16 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}>(params?: ${
-        schemas.queryParams.name
-      }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } {
+        export function ${hookName} <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}, options?: { query?: UseQueryOptions<TData> }): ${
+        imports.query.UseQueryResult
+      }<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey ?? ${queryKey}(params);
+          const queryKey = queryOptions?.queryKey as QueryKey ?? ${queryKey}(params);
           
           const query = useQuery<TData>({
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(params),
             ...queryOptions
-          }) as UseQueryResult<TData> & { queryKey: QueryKey };
+          }) as ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey };
 
           query.queryKey = queryKey;
 
@@ -136,16 +232,16 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${
-        schemas.response.name
-      }>(${pathParamsTyped} options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } {
+        export function ${hookName} <TData = ${schemas.response.name}>(${pathParamsTyped} options?: { query?: UseQueryOptions<TData> }): ${
+        imports.query.UseQueryResult
+      }<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey ?? ${queryKey}(${pathParams});
+          const queryKey = queryOptions?.queryKey as QueryKey ?? ${queryKey}(${pathParams});
           
           const query = useQuery<TData>({
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams}),
             ...queryOptions
-          }) as UseQueryResult<TData> & { queryKey: QueryKey };
+          }) as ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey };
 
           query.queryKey = queryKey;
 
@@ -182,14 +278,14 @@ export class OperationGenerator extends Generator<Options> {
         ${createJSDocBlockText({ comments })}
         export function ${hookName} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${
         schemas.queryParams.name
-      }, options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } {
+      }, options?: { query?: UseQueryOptions<TData> }): ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey ?? ${queryKey}(${pathParams} params);
+          const queryKey = queryOptions?.queryKey as QueryKey ?? ${queryKey}(${pathParams} params);
           
           const query = useQuery<TData>({
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams} params),
             ...queryOptions
-          }) as UseQueryResult<TData> & { queryKey: QueryKey };
+          }) as ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey };
 
           query.queryKey = queryKey;
 
@@ -221,16 +317,16 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${
-        schemas.response.name
-      }>(options?: { query?: UseQueryOptions<TData> }): UseQueryResult<TData> & { queryKey: QueryKey } {
+        export function ${hookName} <TData = ${schemas.response.name}>(options?: { query?: UseQueryOptions<TData> }): ${
+        imports.query.UseQueryResult
+      }<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey ?? ${queryKey}();
+          const queryKey = queryOptions?.queryKey as QueryKey ?? ${queryKey}();
 
           const query = useQuery<TData>({
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(),
             ...queryOptions
-          }) as UseQueryResult<TData> & { queryKey: QueryKey };
+          }) as ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey };
 
           query.queryKey = queryKey;
 
@@ -244,10 +340,7 @@ export class OperationGenerator extends Generator<Options> {
       fileName: hookId,
       source: sources.join('\n'),
       imports: [
-        {
-          name: ['useQuery', 'QueryKey', 'UseQueryResult', 'UseQueryOptions', 'QueryOptions'],
-          path: '@tanstack/react-query',
-        },
+        ...this.getQueryImports('query'),
         {
           name: 'client',
           path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-client/client',
@@ -262,13 +355,14 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async getPost(path: string): Promise<File | null> {
-    const { oas, directory, resolveId, clientPath } = this.options
+    const { oas, directory, resolveId, clientPath, framework } = this.options
 
     const operation = oas.operation(path, 'post')
 
     if (!operation.schema.operationId) return null
 
     // hook setup
+    const imports = this.getFrameworkSpecificImports(framework)
     const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
@@ -307,7 +401,7 @@ export class OperationGenerator extends Generator<Options> {
     const source = `
         ${createJSDocBlockText({ comments })}
         export function ${hookName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
-          mutation?: UseMutationOptions<TData, unknown, TVariables>
+          mutation?: ${imports.mutate.UseMutationOptions}<TData, unknown, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
 
@@ -329,10 +423,7 @@ export class OperationGenerator extends Generator<Options> {
       fileName: hookId,
       source,
       imports: [
-        {
-          name: ['useMutation', 'UseMutationOptions'],
-          path: '@tanstack/react-query',
-        },
+        ...this.getQueryImports('mutate'),
         {
           name: 'client',
           path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-client/client',
@@ -349,13 +440,14 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async getPut(path: string): Promise<File | null> {
-    const { oas, directory, resolveId, clientPath } = this.options
+    const { oas, directory, resolveId, clientPath, framework } = this.options
 
     const operation = oas.operation(path, 'put')
 
     if (!operation.schema.operationId) return null
 
     // hook setup
+    const imports = this.getFrameworkSpecificImports(framework)
     const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
@@ -394,7 +486,7 @@ export class OperationGenerator extends Generator<Options> {
     const source = `
         ${createJSDocBlockText({ comments })}
         export function ${hookName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
-          mutation?: UseMutationOptions<TData, unknown, TVariables>
+          mutation?:  ${imports.mutate.UseMutationOptions}<TData, unknown, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
 
@@ -416,10 +508,7 @@ export class OperationGenerator extends Generator<Options> {
       fileName: hookId,
       source,
       imports: [
-        {
-          name: ['useMutation', 'UseMutationOptions'],
-          path: '@tanstack/react-query',
-        },
+        ...this.getQueryImports('mutate'),
         {
           name: 'client',
           path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-client/client',
@@ -436,13 +525,14 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async getDelete(path: string): Promise<File | null> {
-    const { oas, directory, resolveId, clientPath } = this.options
+    const { oas, directory, resolveId, clientPath, framework } = this.options
 
     const operation = oas.operation(path, 'delete')
 
     if (!operation.schema.operationId) return null
 
     // hook setup
+    const imports = this.getFrameworkSpecificImports(framework)
     const hookName = `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
@@ -481,7 +571,7 @@ export class OperationGenerator extends Generator<Options> {
     const source = `
         ${createJSDocBlockText({ comments })}
         export function ${hookName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
-          mutation?: UseMutationOptions<TData, unknown, TVariables>
+          mutation?:  ${imports.mutate.UseMutationOptions}<TData, unknown, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
 
@@ -502,10 +592,7 @@ export class OperationGenerator extends Generator<Options> {
       fileName: hookId,
       source,
       imports: [
-        {
-          name: ['useMutation', 'UseMutationOptions'],
-          path: '@tanstack/react-query',
-        },
+        ...this.getQueryImports('mutate'),
         {
           name: 'client',
           path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-client/client',
