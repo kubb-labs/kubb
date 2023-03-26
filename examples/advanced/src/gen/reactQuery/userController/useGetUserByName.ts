@@ -30,14 +30,14 @@ export function useGetUserByName<TData = GetUserByNameResponse>(
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = (queryOptions?.queryKey as QueryKey) ?? getUserByNameQueryKey(username)
+  const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
 
   const query = useQuery<TData>({
     ...getUserByNameQueryOptions<TData>(username),
     ...queryOptions,
   }) as UseQueryResult<TData, unknown> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey as QueryKey
 
   return query
 }

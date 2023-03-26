@@ -30,14 +30,14 @@ export function useGetInventory<TData = GetInventoryResponse>(options?: {
   query?: UseQueryOptions<TData>
 }): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = (queryOptions?.queryKey as QueryKey) ?? getInventoryQueryKey()
+  const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
 
   const query = useQuery<TData>({
     ...getInventoryQueryOptions<TData>(),
     ...queryOptions,
   }) as UseQueryResult<TData, unknown> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey as QueryKey
 
   return query
 }

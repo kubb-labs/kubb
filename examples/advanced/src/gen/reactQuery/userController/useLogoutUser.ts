@@ -29,14 +29,14 @@ export function useLogoutUser<TData = LogoutUserResponse>(options?: {
   query?: UseQueryOptions<TData>
 }): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
-  const queryKey = (queryOptions?.queryKey as QueryKey) ?? logoutUserQueryKey()
+  const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
 
   const query = useQuery<TData>({
     ...logoutUserQueryOptions<TData>(),
     ...queryOptions,
   }) as UseQueryResult<TData, unknown> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey as QueryKey
 
   return query
 }
