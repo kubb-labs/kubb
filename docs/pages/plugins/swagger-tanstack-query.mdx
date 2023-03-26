@@ -3,7 +3,11 @@ import Link from 'next/link'
 
 # @kubb/swagger-tanstack-query
 
-With the Swagger React-Query plugin you can create [react-query](https://tanstack.com/query/latest) hooks based on an operation set in the Swagger file.
+With the Swagger Tanstack Query plugin you can create: 
+- [react-query](https://tanstack.com/query/latest/docs/react) hooks based on an operation set in the Swagger file.
+- [solid-query](https://tanstack.com/query/latest/docs/solid) primitives based on an operation set in the Swagger file.
+- [svelte-query](https://tanstack.com/query/latest/docs/svelte) primitives based on an operation set in the Swagger file.
+- [vue-query](https://tanstack.com/query/latest/docs/vue) hooks based on an operation set in the Swagger file.
 
 ## Installation
 
@@ -45,7 +49,7 @@ Path to the client that will be used to do the API calls.
 Relative to the root
 
 Type: `string` <br/>
-Default: `"@kubb/swagger-tanstack-query/client.ts"`
+Default: `"@kubb/swagger-client/client.ts"`
 
 ### framework
 Framework to be generated for.
