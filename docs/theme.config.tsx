@@ -2,6 +2,8 @@ import React from 'react'
 import Image from 'next/image'
 import mascot from 'public/mascot.png'
 
+import packageJson from '@kubb/core/package.json'
+
 import type { DocsThemeConfig } from 'nextra-theme-docs'
 
 export default {
@@ -57,7 +59,7 @@ export default {
     key: '2.0-release',
     text: (
       <>
-        🎉 Kubb has released it's first alpha version <Image src={mascot} style={{ display: 'inline' }} alt="Mascot of Kubb" width={30} />
+        🎉 Kubb version <b>{packageJson.version}</b> has been released <Image src={mascot} style={{ display: 'inline' }} alt="Mascot of Kubb" width={30} />
       </>
     ),
   },

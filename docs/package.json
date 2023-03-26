@@ -27,6 +27,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@kubb/core": "workspace:*",
     "@next/env": "^13.2.4",
     "@types/node": "^18.15.9",
     "autoprefixer": "^10.4.14",

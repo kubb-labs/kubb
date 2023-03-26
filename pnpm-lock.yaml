@@ -68,6 +68,7 @@ importers:
 
   docs:
     specifiers:
+      '@kubb/core': workspace:*
       '@next/env': ^13.2.4
       '@types/node': ^18.15.9
       '@vercel/analytics': ^0.1.11
@@ -90,6 +91,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
+      '@kubb/core': link:../packages/core
       '@next/env': 13.2.4
       '@types/node': 18.15.9
       autoprefixer: 10.4.14_postcss@8.4.21

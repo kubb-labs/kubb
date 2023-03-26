@@ -17,7 +17,10 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "paths": {
+      "@kubb/core":["../packages/core/src/index.ts"],
+    }
   },
   "include": [
     "next-env.d.ts",
