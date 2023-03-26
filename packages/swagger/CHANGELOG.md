@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0-beta.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.1...@kubb/swagger-v1.1.0-beta.1) (2023-03-26)
+
+
+### Features
+
+* svelte-query ([be06ace](https://github.com/kubb-project/kubb/commit/be06ace70add445a9fda3caf168223fbd278a147))
+
 ## [1.0.0-beta.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-alpha.8...@kubb/swagger-v1.0.0-beta.1) (2023-03-26)
 
 
