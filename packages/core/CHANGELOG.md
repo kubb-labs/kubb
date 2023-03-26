@@ -1,4 +1,18 @@
 # Changelog
+## [1.0.0-beta.2](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.1...@kubb/core-v1.0.0-beta.2) (2023-03-26)
+
+
+### Features
+
+* svelte-query ([be06ace](https://github.com/kubb-project/kubb/commit/be06ace70add445a9fda3caf168223fbd278a147))
+* vue-query ([712f2f2](https://github.com/kubb-project/kubb/commit/712f2f2af4b03091df2e1cea46afade8868e842b))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.2 ([390b3d0](https://github.com/kubb-project/kubb/commit/390b3d0eb3aa7edbf2dd8d7d2765312c76710397))
+* release 1.0.0-beta.2 ([826bfef](https://github.com/kubb-project/kubb/commit/826bfef6b81c46ea92531ce36ac6617c52a7bba8))
+
 ## [1.0.0-beta.1](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-alpha.8...@kubb/core-v1.0.0-beta.1) (2023-03-26)
 
 
