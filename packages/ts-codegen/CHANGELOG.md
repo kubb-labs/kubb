@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-beta.3](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.0.0-beta.2...@kubb/ts-codegen-v1.0.0-beta.3) (2023-03-27)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.3 ([c134fb6](https://github.com/kubb-project/kubb/commit/c134fb61d0634abfea0740467087ff1b2d7ba3fa))
+
 ## [1.0.0-beta.2](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.0.0-beta.1...@kubb/ts-codegen-v1.0.0-beta.2) (2023-03-26)
 
 
