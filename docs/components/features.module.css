@@ -1,19 +1,32 @@
 .features {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1rem 2rem;
   margin: 2.5rem 0 2rem;
 }
+
+.feature-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.description {
+  font-size: 0.5rem;
+}
+
 .feature {
   align-items: center;
   display: inline-flex;
 }
+
 .feature h4 {
   margin: 0 0 0 0.5rem;
   font-weight: 700;
   font-size: 1.1rem;
   white-space: nowrap;
 }
+
 @media (max-width: 860px) {
   .features {
     gap: 1rem 0.5rem;
@@ -29,11 +42,13 @@
     font-size: 0.9rem;
   }
 }
+
 @media (max-width: 660px) {
   .features {
     grid-template-columns: 1fr 1fr;
   }
 }
+
 @media (max-width: 370px) {
   .feature h4 {
     font-size: 0.8rem;

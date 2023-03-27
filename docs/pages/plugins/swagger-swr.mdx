@@ -1,26 +1,26 @@
 import { Callout, Tabs, Tab } from 'nextra-theme-docs'
 import Link from 'next/link'
 
-# @kubb/swagger-client
+# @kubb/swagger-swr
 
-With the Swagger client plugin you can create [Axios](https://axios-http.com/docs/intro) API calls.
+With the Swagger SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on an operation in the Swagger file.
 
 ## Installation
 
 <Tabs items={['pnpm', 'npm', 'yarn']}>
   <Tab>
     ```bash copy
-    pnpm i -D @kubb/swagger-client
+    pnpm i -D @kubb/swagger-swr
     ```
   </Tab>
     <Tab>
     ```bash copy
-    npm i -D @kubb/swagger-client
+    npm i -D @kubb/swagger-swr
     ```
   </Tab>
     <Tab>
     ```bash copy
-    yarn add -D @kubb/swagger-client
+    yarn add -D @kubb/swagger-swr
     ```
   </Tab>
 </Tabs>
@@ -29,13 +29,13 @@ With the Swagger client plugin you can create [Axios](https://axios-http.com/doc
 
 
 ### output
-Output to save the Clients.
+Output to save the ReactQuery hooks.
 
 Type: `string` <br/>
 Default: `"hooks"`
 
 ### groupBy
-Group the clients based on the provided name.
+Group the react-query hooks based on the provided name.
 Tag will group based on the operation tag inside the Swagger file
 
 Type: `'tag'` <br/>
@@ -54,4 +54,4 @@ Default: `"@kubb/swagger-client/client.ts"`
 
 ## Links
 
-- [Axios](https://axios-http.com/docs/intro)
+- [SWR](https://swr.vercel.app/)
