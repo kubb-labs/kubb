@@ -1,4 +1,11 @@
 # Changelog
+## [1.1.0-beta.2](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.2...@kubb/core-v1.1.0-beta.2) (2023-03-27)
+
+
+### Features
+
+* swr plugin ([fb091d9](https://github.com/kubb-project/kubb/commit/fb091d98b97cf91df8ccdeb84db6b963cc7e3712))
+
 ## [1.0.0-beta.2](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.1...@kubb/core-v1.0.0-beta.2) (2023-03-26)
 
 
