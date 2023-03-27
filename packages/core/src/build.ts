@@ -6,7 +6,7 @@ import { PluginManager } from './managers/pluginManager'
 import { clean, read } from './utils'
 
 import type { QueueTask } from './utils'
-import type { FileManager, File } from './managers/fileManager'
+import { FileManager, File, getFileSource } from './managers/fileManager'
 import type { PluginContext, TransformResult, LogLevel, KubbPlugin } from './types'
 
 type BuildOutput = {
@@ -55,7 +55,7 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
   const queueTask = async (id: string, file: File) => {
     const { path } = file
 
-    let code = fileManager.getSource(file)
+    let code = getFileSource(file)
 
     const loadedResult = await pluginManager.hookFirst('load', [path])
     if (loadedResult) {
@@ -80,7 +80,7 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
 
   await pluginManager.hookParallel('buildEnd')
   setTimeout(() => {
-    done({ files: fileManager.files.map((file) => ({ ...file, source: fileManager.getSource(file) })) })
+    done({ files: fileManager.files.map((file) => ({ ...file, source: getFileSource(file) })) })
   }, 500)
 
   pluginManager.fileManager.add({

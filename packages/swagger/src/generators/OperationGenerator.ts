@@ -1,6 +1,6 @@
 import { pascalCase } from 'change-case'
 
-import type { FileManager, File } from '@kubb/core'
+import { FileManager, File, combineFiles } from '@kubb/core'
 import { Generator } from '@kubb/core'
 
 import { isReference } from '../utils/isReference'
@@ -144,7 +144,7 @@ export abstract class OperationGenerator<
 
     const files = await Promise.all(promises)
 
-    const filePromises = fileManager.combine(files).reduce((acc, file) => {
+    const filePromises = combineFiles(files).reduce((acc, file) => {
       acc.push(fileManager.addOrAppend(file))
       return acc
     }, [] as Promise<File>[])

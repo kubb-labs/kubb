@@ -1,6 +1,7 @@
 import pathParser from 'path'
 
 import { FileManager } from './FileManager'
+import { combineFiles } from './utils'
 
 describe('FileManager', () => {
   test('fileManager.add also adds the files to the cache', async () => {
@@ -49,7 +50,7 @@ describe('FileManager', () => {
 
   test('if combine is removing previouscode', async () => {
     const fileManager = new FileManager()
-    const combined = fileManager.combine([
+    const combined = combineFiles([
       {
         path: pathParser.resolve('./src/models/file1.js'),
         fileName: 'file1.js',
