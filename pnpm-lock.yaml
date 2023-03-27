@@ -269,6 +269,32 @@ importers:
       svelte: 3.57.0
       tsup: 6.7.0
 
+  examples/swr:
+    specifiers:
+      '@kubb/cli': workspace:*
+      '@kubb/core': workspace:*
+      '@kubb/swagger': workspace:*
+      '@kubb/swagger-client': workspace:*
+      '@kubb/swagger-swr': workspace:*
+      '@kubb/swagger-ts': workspace:*
+      '@kubb/swagger-zod': workspace:*
+      axios: ^1.3.4
+      react: ^18.2.0
+      swr: ^2.1.1
+      tsup: ^6.7.0
+    dependencies:
+      '@kubb/cli': link:../../packages/cli
+      '@kubb/core': link:../../packages/core
+      '@kubb/swagger': link:../../packages/swagger
+      '@kubb/swagger-client': link:../../packages/swagger-client
+      '@kubb/swagger-swr': link:../../packages/swagger-swr
+      '@kubb/swagger-ts': link:../../packages/swagger-ts
+      '@kubb/swagger-zod': link:../../packages/swagger-zod
+      axios: 1.3.4
+      react: 18.2.0
+      swr: 2.1.1_react@18.2.0
+      tsup: 6.7.0
+
   examples/vue-query:
     specifiers:
       '@kubb/cli': workspace:*
@@ -422,6 +448,25 @@ importers:
       '@kubb/swagger': link:../swagger
       '@kubb/swagger-ts': link:../swagger-ts
       axios: 1.3.4
+      change-case: 4.1.2
+    devDependencies:
+      tsup: 6.7.0_typescript@5.0.2
+      typescript: 5.0.2
+
+  packages/swagger-swr:
+    specifiers:
+      '@kubb/core': workspace:*
+      '@kubb/swagger': workspace:*
+      '@kubb/swagger-client': workspace:*
+      '@kubb/swagger-ts': workspace:*
+      change-case: ^4.1.2
+      tsup: ^6.7.0
+      typescript: ^5.0.2
+    dependencies:
+      '@kubb/core': link:../core
+      '@kubb/swagger': link:../swagger
+      '@kubb/swagger-client': link:../swagger-client
+      '@kubb/swagger-ts': link:../swagger-ts
       change-case: 4.1.2
     devDependencies:
       tsup: 6.7.0_typescript@5.0.2
@@ -8021,6 +8066,16 @@ packages:
       yargs: 17.6.2
     transitivePeerDependencies:
       - encoding
+    dev: false
+
+  /swr/2.1.1_react@18.2.0:
+    resolution: {integrity: sha512-OgwqZmpjOgxNbaez6qzTVqiRWn+Ti5Uzmktk2c01Afqwc50q6z15DeNC8m9G1aY+w2BwEAsKvk59iq6aHlhgyw==}
+    engines: {pnpm: '7'}
+    peerDependencies:
+      react: ^16.11.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+      use-sync-external-store: 1.2.0_react@18.2.0
     dev: false
 
   /table-layout/1.0.2:

@@ -49,11 +49,16 @@ export class FileManager {
           ...curr,
           name: Array.isArray(curr.name) ? uniq(curr.name) : curr.name,
         })
-        return
       }
 
-      if (exists && Array.isArray(curr.name)) {
-        exists.name = uniq([...exists.name, ...curr.name])
+      if (exists && !Array.isArray(exists.name) && exists.name !== curr.name) {
+        imports.push(curr)
+      }
+
+      if (exists && Array.isArray(exists.name)) {
+        if (Array.isArray(curr.name)) {
+          exists.name = uniq([...exists.name, ...curr.name])
+        }
       }
     })
 
