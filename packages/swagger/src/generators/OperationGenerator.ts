@@ -93,7 +93,7 @@ export abstract class OperationGenerator<
     }
   }
 
-  getOperation(path: string, method: HttpMethods): Operation | null {
+  private getOperation(path: string, method: HttpMethods): Operation | null {
     const { oas } = this.options
 
     const operation = oas.operation(path, method)
@@ -105,34 +105,25 @@ export abstract class OperationGenerator<
     return operation
   }
 
-  private get methods(): Record<HttpMethods, Get | undefined> {
+  private get methods(): Record<HttpMethods, Get> {
     return {
       get: this.get,
       post: this.post,
       put: this.put,
       delete: this.delete,
-      head: undefined,
-      options: undefined,
-      patch: undefined,
-      trace: undefined,
+      head: () => {
+        throw new Error('not implemented')
+      },
+      options: () => {
+        throw new Error('not implemented')
+      },
+      patch: () => {
+        throw new Error('not implemented')
+      },
+      trace: () => {
+        throw new Error('not implemented')
+      },
     }
-  }
-
-  getOperations(path: string) {
-    const methods = Object.keys(this.methods).filter(Boolean) as HttpMethods[]
-
-    return methods.reduce((acc, method) => {
-      const operation = this.getOperation(path, method)
-
-      if (this.methods[method] && operation) {
-        acc[method] = {
-          operation,
-          fn: this.methods[method]!,
-        }
-      }
-
-      return acc
-    }, {} as Record<HttpMethods, { operation: Operation; fn: Get }>)
   }
 
   async build() {
@@ -141,12 +132,10 @@ export abstract class OperationGenerator<
     const methods = Object.keys(this.methods).filter(Boolean) as HttpMethods[]
 
     const promises = Object.keys(paths).reduce((acc, path) => {
-      const operations = this.getOperations(path)
-
       methods.forEach((method) => {
-        const operation = operations[method]?.operation
-        if (operation) {
-          acc.push(operations[method].fn.call(this, operation, this.getSchemas(operation)))
+        const operation = this.getOperation(path, method)
+        if (operation && this.methods[method]) {
+          acc.push(this.methods[method].call(this, operation, this.getSchemas(operation)))
         }
       })
 
