@@ -4,7 +4,7 @@
   <h1>@kubb/swagger-swr</h1>
   
   <p>
-   Swagger integration for SWR to generate all the different hooks based on an OpenAPI specification.
+   Swagger integration for SWR to generate all the different SWR hooks based on an OpenAPI specification.
   </p>
 
 <!-- Badges -->
