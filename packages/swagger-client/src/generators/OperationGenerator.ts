@@ -3,8 +3,8 @@ import { camelCase, pascalCase } from 'change-case'
 import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
 import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
-import { OperationGenerator as Generator } from '@kubb/swagger'
-import type { Oas } from '@kubb/swagger'
+import { OperationGenerator as Generator, getComments } from '@kubb/swagger'
+import type { Oas, Operation, OperationSchemas } from '@kubb/swagger'
 
 import { pluginName } from '../plugin'
 
@@ -19,12 +19,8 @@ type Options = {
 }
 
 export class OperationGenerator extends Generator<Options> {
-  async getGet(path: string): Promise<File | null> {
-    const { oas, directory, resolveId, clientPath } = this.options
-
-    const operation = oas.operation(path, 'get')
-
-    if (!operation.schema.operationId) return null
+  async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+    const { directory, resolveId, clientPath } = this.options
 
     // controller setup
     const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
@@ -43,14 +39,12 @@ export class OperationGenerator extends Generator<Options> {
 
     // type creation
 
-    const schemas = this.getSchemas(operation)
-
     const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
     const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // controller creation
 
-    const comments = this.getComments(operation)
+    const comments = getComments(operation)
     const sources: string[] = []
     let url = operation.path
     let pathParamsTyped = ''
@@ -134,12 +128,8 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async getPost(path: string): Promise<File | null> {
-    const { oas, directory, resolveId, clientPath } = this.options
-
-    const operation = oas.operation(path, 'post')
-
-    if (!operation.schema.operationId) return null
+  async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+    const { directory, resolveId, clientPath } = this.options
 
     // controller setup
     const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
@@ -152,14 +142,12 @@ export class OperationGenerator extends Generator<Options> {
 
     // type creation
 
-    const schemas = this.getSchemas(operation)
-
     const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
     const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // controller creation
 
-    const comments = this.getComments(operation)
+    const comments = getComments(operation)
 
     let url = operation.path
     let pathParamsTyped = ''
@@ -208,12 +196,8 @@ export class OperationGenerator extends Generator<Options> {
     // end controller creation
   }
 
-  async getPut(path: string): Promise<File | null> {
-    const { oas, directory, resolveId, clientPath } = this.options
-
-    const operation = oas.operation(path, 'put')
-
-    if (!operation.schema.operationId) return null
+  async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+    const { directory, resolveId, clientPath } = this.options
 
     // controller setup
     const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
@@ -226,14 +210,12 @@ export class OperationGenerator extends Generator<Options> {
 
     // type creation
 
-    const schemas = this.getSchemas(operation)
-
     const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
     const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // controller creation
 
-    const comments = this.getComments(operation)
+    const comments = getComments(operation)
 
     let url = operation.path
     let pathParamsTyped = ''
@@ -282,12 +264,8 @@ export class OperationGenerator extends Generator<Options> {
     // end controller creation
   }
 
-  async getDelete(path: string): Promise<File | null> {
-    const { oas, directory, resolveId, clientPath } = this.options
-
-    const operation = oas.operation(path, 'delete')
-
-    if (!operation.schema.operationId) return null
+  async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+    const { directory, resolveId, clientPath } = this.options
 
     // controller setup
     const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
@@ -300,14 +278,12 @@ export class OperationGenerator extends Generator<Options> {
 
     // type creation
 
-    const schemas = this.getSchemas(operation)
-
     const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
     const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // controller creation
 
-    const comments = this.getComments(operation)
+    const comments = getComments(operation)
 
     let url = operation.path
     let pathParamsTyped = ''
@@ -353,12 +329,5 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     // end controller creation
-  }
-
-  async build() {
-    return this.buildOperations({
-      fileManager: this.options.fileManager,
-      oas: this.options.oas,
-    })
   }
 }

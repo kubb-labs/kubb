@@ -6,7 +6,7 @@ import { Generator } from '@kubb/core'
 import { isReference } from '../utils/isReference'
 
 import type { Operation } from 'oas'
-import type { MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types'
+import type { HttpMethods, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
 import type Oas from 'oas'
 
@@ -22,11 +22,17 @@ export type OperationSchemas = {
   response: OperationSchema
 }
 
-export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: Oas }> extends Generator<TOptions> {
+type Get = (operation: Operation, schemas: OperationSchemas) => Promise<File | null>
+
+export abstract class OperationGenerator<
+  TOptions extends { oas: Oas; fileManager: FileManager } = { oas: Oas; fileManager: FileManager }
+> extends Generator<TOptions> {
   private getParametersSchema(operation: Operation, inKey: 'path' | 'query') {
+    const { oas } = this.options
+
     const params = operation.getParameters().filter((v) => v.in === inKey)
     const refParams = operation.getParameters().filter((v) => isReference(v))
-    const parameterSchemas = this.options.oas.getDefinition().components?.parameters || {}
+    const parameterSchemas = oas.getDefinition().components?.parameters || {}
 
     Object.keys(parameterSchemas).forEach((name) => {
       const exists = refParams.find(
@@ -57,7 +63,7 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
     )
   }
 
-  getSchemas(operation: Operation): OperationSchemas {
+  private getSchemas(operation: Operation): OperationSchemas {
     const pathParams = this.getParametersSchema(operation, 'path')
     const queryParams = this.getParametersSchema(operation, 'query')
 
@@ -87,24 +93,62 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
     }
   }
 
-  getComments(operation: Operation) {
-    return [
-      operation.getDescription() && `@description ${operation.getDescription()}`,
-      operation.getSummary() && `@summary ${operation.getSummary()}`,
-      operation.path && `@link ${operation.path}`,
-      operation.isDeprecated() && `@deprecated`,
-    ].filter(Boolean) as string[]
+  getOperation(path: string, method: HttpMethods): Operation | null {
+    const { oas } = this.options
+
+    const operation = oas.operation(path, method)
+
+    if (!operation.schema.operationId) {
+      return null
+    }
+
+    return operation
   }
 
-  async buildOperations(options: { oas: Oas; fileManager: FileManager }) {
-    const { oas, fileManager } = options
+  private get methods(): Record<HttpMethods, Get | undefined> {
+    return {
+      get: this.get,
+      post: this.post,
+      put: this.put,
+      delete: this.delete,
+      head: undefined,
+      options: undefined,
+      patch: undefined,
+      trace: undefined,
+    }
+  }
+
+  getOperations(path: string) {
+    const methods = Object.keys(this.methods).filter(Boolean) as HttpMethods[]
+
+    return methods.reduce((acc, method) => {
+      const operation = this.getOperation(path, method)
+
+      if (this.methods[method] && operation) {
+        acc[method] = {
+          operation,
+          fn: this.methods[method]!,
+        }
+      }
+
+      return acc
+    }, {} as Record<HttpMethods, { operation: Operation; fn: Get }>)
+  }
+
+  async build() {
+    const { oas, fileManager } = this.options
     const paths = oas.getPaths()
+    const methods = Object.keys(this.methods).filter(Boolean) as HttpMethods[]
 
     const promises = Object.keys(paths).reduce((acc, path) => {
-      acc.push(this.getGet(path))
-      acc.push(this.getPost(path))
-      acc.push(this.getPut(path))
-      acc.push(this.getDelete(path))
+      const operations = this.getOperations(path)
+
+      methods.forEach((method) => {
+        const operation = operations[method]?.operation
+        if (operation) {
+          acc.push(operations[method].fn.call(this, operation, this.getSchemas(operation)))
+        }
+      })
 
       return acc
     }, [] as Promise<File | null>[])
@@ -119,11 +163,11 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
     return Promise.all(filePromises)
   }
 
-  abstract getGet(path: string): Promise<File | null>
+  abstract get(operation: Operation, schemas: OperationSchemas): Promise<File | null>
 
-  abstract getPost(path: string): Promise<File | null>
+  abstract post(operation: Operation, schemas: OperationSchemas): Promise<File | null>
 
-  abstract getPut(path: string): Promise<File | null>
+  abstract put(operation: Operation, schemas: OperationSchemas): Promise<File | null>
 
-  abstract getDelete(path: string): Promise<File | null>
+  abstract delete(operation: Operation, schemas: OperationSchemas): Promise<File | null>
 }
