@@ -1,7 +1,7 @@
 import type { File, FileManager, PathMode } from '@kubb/core'
 import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
-import type { FileResolver, Oas } from '@kubb/swagger'
+import type { FileResolver, Oas, Operation, OperationSchemas } from '@kubb/swagger'
 
 import { ZodBuilder } from '../builders'
 
@@ -17,13 +17,9 @@ type Options = {
 }
 
 export class OperationGenerator extends Generator<Options> {
-  async getGet(path: string): Promise<File | null> {
+  async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolveId, directory, mode, nameResolver, oas } = this.options
 
-    const operation = oas.operation(path, 'get')
-    if (!operation.schema.operationId) return null
-
-    const schemas = this.getSchemas(operation)
     const typeName = `${nameResolver(operation.getOperationId())}.ts`
     const typeFilePath = await resolveId(typeName, directory)
 
@@ -60,14 +56,9 @@ export class OperationGenerator extends Generator<Options> {
     return null
   }
 
-  async getPost(path: string): Promise<File | null> {
+  async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolveId, directory, mode, nameResolver, oas } = this.options
 
-    const operation = oas.operation(path, 'post')
-
-    if (!operation.schema.operationId) return null
-
-    const schemas = this.getSchemas(operation)
     const typeName = `${nameResolver(operation.getOperationId())}.ts`
     const typeFilePath = await resolveId(typeName, directory)
 
@@ -105,14 +96,9 @@ export class OperationGenerator extends Generator<Options> {
     return null
   }
 
-  async getPut(path: string): Promise<File | null> {
+  async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolveId, directory, mode, nameResolver, oas } = this.options
 
-    const operation = oas.operation(path, 'put')
-
-    if (!operation.schema.operationId) return null
-
-    const schemas = this.getSchemas(operation)
     const typeName = `${nameResolver(operation.getOperationId())}.ts`
     const typeFilePath = await resolveId(typeName, directory)
 
@@ -150,14 +136,9 @@ export class OperationGenerator extends Generator<Options> {
     return null
   }
 
-  async getDelete(path: string): Promise<File | null> {
+  async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolveId, directory, mode, nameResolver, oas } = this.options
 
-    const operation = oas.operation(path, 'delete')
-
-    if (!operation.schema.operationId) return null
-
-    const schemas = this.getSchemas(operation)
     const typeName = `${nameResolver(operation.getOperationId())}.ts`
     const typeFilePath = await resolveId(typeName, directory)
 
@@ -192,12 +173,5 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     return null
-  }
-
-  async build() {
-    return this.buildOperations({
-      fileManager: this.options.fileManager,
-      oas: this.options.oas,
-    })
   }
 }

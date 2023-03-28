@@ -8,8 +8,8 @@ import type { KubbConfig } from '@kubb/core'
 import { isURL } from '@kubb/core'
 
 import { isOpenApiV3Document } from '../utils'
-import type { OpenAPIV2 } from 'openapi-types'
 
+import type { OpenAPIV2 } from 'openapi-types'
 import type OasType from 'oas'
 import type { OASDocument } from 'oas/dist/rmoas.types'
 
