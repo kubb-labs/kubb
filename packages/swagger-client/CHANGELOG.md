@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.0.0-beta.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.0.0-beta.3...@kubb/swagger-client-v1.0.0-beta.4) (2023-03-31)
+
+
+### Features
+
+* operation object with all paths and methods grouped by operationId ([5cd51db](https://github.com/kubb-project/kubb/commit/5cd51dbdc4e2ed366313b17d9f9a273e8e9a5db1))
+
+
+### Bug Fixes
+
+* cleanup operationGenerator ([15be8e1](https://github.com/kubb-project/kubb/commit/15be8e152512fe1c84bdbec9a117e3728e254fef))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.4 ([4127252](https://github.com/kubb-project/kubb/commit/4127252b59422a5692e17e3673a26ae346d9cdba))
+
 ## [1.0.0-beta.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.0.0-beta.2...@kubb/swagger-client-v1.0.0-beta.3) (2023-03-27)
 
 

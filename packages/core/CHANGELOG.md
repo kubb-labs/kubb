@@ -1,4 +1,16 @@
 # Changelog
+## [1.0.0-beta.4](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.3...@kubb/core-v1.0.0-beta.4) (2023-03-31)
+
+
+### Bug Fixes
+
+* getFileSource and combineFiles to utils file ([4e8aa6a](https://github.com/kubb-project/kubb/commit/4e8aa6ab6b30bb10358903f1b95d66ff3e3c526f))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.4 ([4127252](https://github.com/kubb-project/kubb/commit/4127252b59422a5692e17e3673a26ae346d9cdba))
+
 ## [1.0.0-beta.3](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.2...@kubb/core-v1.0.0-beta.3) (2023-03-27)
 
 
