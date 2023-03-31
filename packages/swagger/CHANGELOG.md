@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0-beta.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.3...@kubb/swagger-v1.1.0-beta.3) (2023-03-31)
+
+
+### Features
+
+* operation object with all paths and methods grouped by operationId ([5cd51db](https://github.com/kubb-project/kubb/commit/5cd51dbdc4e2ed366313b17d9f9a273e8e9a5db1))
+
+
+### Bug Fixes
+
+* cleanup operationGenerator ([15be8e1](https://github.com/kubb-project/kubb/commit/15be8e152512fe1c84bdbec9a117e3728e254fef))
+* getFileSource and combineFiles to utils file ([4e8aa6a](https://github.com/kubb-project/kubb/commit/4e8aa6ab6b30bb10358903f1b95d66ff3e3c526f))
+
 ## [1.0.0-beta.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.2...@kubb/swagger-v1.0.0-beta.3) (2023-03-27)
 
 
