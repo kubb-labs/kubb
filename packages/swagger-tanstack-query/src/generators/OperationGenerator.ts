@@ -144,6 +144,10 @@ export class OperationGenerator extends Generator<Options> {
     ]
   }
 
+  async all(): Promise<File | null> {
+    return null
+  }
+
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { directory, resolveId, clientPath, framework } = this.options
 

@@ -28,3 +28,4 @@ export type { default as Oas } from 'oas'
 export type { Operation } from 'oas'
 
 export type { OpenAPIV3 } from 'openapi-types'
+export type { HttpMethods as HttpMethod } from 'oas/dist/rmoas.types'

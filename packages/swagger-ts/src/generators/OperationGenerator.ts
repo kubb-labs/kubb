@@ -1,7 +1,7 @@
 import type { File, FileManager, PathMode } from '@kubb/core'
 import { getRelativePath } from '@kubb/core'
-import { OperationGenerator as Generator, OperationSchemas } from '@kubb/swagger'
-import type { FileResolver, Oas, Operation } from '@kubb/swagger'
+import { OperationGenerator as Generator } from '@kubb/swagger'
+import type { FileResolver, Oas, Operation, OperationSchemas } from '@kubb/swagger'
 
 import { TypeBuilder } from '../builders'
 
@@ -17,6 +17,10 @@ type Options = {
 }
 
 export class OperationGenerator extends Generator<Options> {
+  async all(): Promise<File | null> {
+    return null
+  }
+
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolveId, directory, mode, nameResolver, oas } = this.options
 

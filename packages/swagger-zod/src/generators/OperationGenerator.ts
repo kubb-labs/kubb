@@ -17,6 +17,10 @@ type Options = {
 }
 
 export class OperationGenerator extends Generator<Options> {
+  async all(): Promise<File | null> {
+    return null
+  }
+
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolveId, directory, mode, nameResolver, oas } = this.options
 

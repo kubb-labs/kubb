@@ -4,7 +4,7 @@ import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
 import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator, getComments } from '@kubb/swagger'
-import type { Oas, Operation, OperationSchemas } from '@kubb/swagger'
+import type { Oas, Operation, OperationSchemas, HttpMethod } from '@kubb/swagger'
 
 import { pluginName } from '../plugin'
 
@@ -19,6 +19,49 @@ type Options = {
 }
 
 export class OperationGenerator extends Generator<Options> {
+  async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File | null> {
+    const { directory, resolveId } = this.options
+
+    // controller setup
+    const controllerName = `${camelCase('operations', { delimiter: '' })}`
+    const controllerId = `${controllerName}.ts`
+    const controllerFilePath = await resolveId({
+      fileName: controllerId,
+      directory,
+      pluginName,
+    })
+
+    if (!controllerFilePath) {
+      return null
+    }
+    // end controller setup
+
+    const sources: string[] = []
+
+    const groupedByOperationId: Record<string, { path: string; method: HttpMethod }> = {}
+
+    Object.keys(paths).forEach((path) => {
+      Object.keys(paths[path]).forEach((method) => {
+        const operation = this.getOperation(path, method as HttpMethod)
+        if (operation) {
+          groupedByOperationId[operation.getOperationId()] = {
+            path: path.replaceAll('{', ':').replaceAll('}', ''),
+            method: method as HttpMethod,
+          }
+        }
+      })
+    })
+
+    sources.push(`export const operations = ${JSON.stringify(groupedByOperationId)} as const;`)
+
+    return {
+      path: controllerFilePath,
+      fileName: controllerId,
+      source: sources.join('\n'),
+      imports: [],
+    }
+  }
+
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { directory, resolveId, clientPath } = this.options
 

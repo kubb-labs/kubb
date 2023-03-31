@@ -6,7 +6,7 @@ import { combineFiles, Generator } from '@kubb/core'
 import { isReference } from '../utils/isReference'
 
 import type { Operation } from 'oas'
-import type { HttpMethods, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types'
+import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
 import type Oas from 'oas'
 
@@ -63,7 +63,7 @@ export abstract class OperationGenerator<
     )
   }
 
-  private getSchemas(operation: Operation): OperationSchemas {
+  public getSchemas(operation: Operation): OperationSchemas {
     const pathParams = this.getParametersSchema(operation, 'path')
     const queryParams = this.getParametersSchema(operation, 'query')
 
@@ -93,7 +93,7 @@ export abstract class OperationGenerator<
     }
   }
 
-  private getOperation(path: string, method: HttpMethods): Operation | null {
+  public getOperation(path: string, method: HttpMethod): Operation | null {
     const { oas } = this.options
 
     const operation = oas.operation(path, method)
@@ -105,7 +105,7 @@ export abstract class OperationGenerator<
     return operation
   }
 
-  private get methods(): Record<HttpMethods, Get> {
+  private get methods(): Record<HttpMethod, Get> {
     return {
       get: this.get,
       post: this.post,
@@ -129,7 +129,7 @@ export abstract class OperationGenerator<
   async build() {
     const { oas, fileManager } = this.options
     const paths = oas.getPaths()
-    const methods = Object.keys(this.methods).filter(Boolean) as HttpMethods[]
+    const methods = Object.keys(this.methods).filter(Boolean) as HttpMethod[]
 
     const promises = Object.keys(paths).reduce((acc, path) => {
       methods.forEach((method) => {
@@ -141,6 +141,8 @@ export abstract class OperationGenerator<
 
       return acc
     }, [] as Promise<File | null>[])
+
+    promises.push(this.all(paths))
 
     const files = await Promise.all(promises)
 
@@ -159,4 +161,6 @@ export abstract class OperationGenerator<
   abstract put(operation: Operation, schemas: OperationSchemas): Promise<File | null>
 
   abstract delete(operation: Operation, schemas: OperationSchemas): Promise<File | null>
+
+  abstract all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File | null>
 }
