@@ -1,7 +1,7 @@
 import { pascalCase } from 'change-case'
 
-import { FileManager, File, combineFiles } from '@kubb/core'
-import { Generator } from '@kubb/core'
+import type { FileManager, File } from '@kubb/core'
+import { combineFiles, Generator } from '@kubb/core'
 
 import { isReference } from '../utils/isReference'
 
