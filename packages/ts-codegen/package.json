@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "typescript": "^5.0.2"
+    "typescript": "^5.0.3"
   },
   "devDependencies": {
     "tsup": "^6.7.0"
