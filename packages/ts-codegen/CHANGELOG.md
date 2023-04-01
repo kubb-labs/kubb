@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-beta.4](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.0.0-beta.4...@kubb/ts-codegen-v1.0.0-beta.4) (2023-04-01)
+
+
+### Miscellaneous Chores
+
+* **@kubb/ts-codegen:** Synchronize undefined versions
+
 ## [1.0.0-beta.4](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.0.0-beta.3...@kubb/ts-codegen-v1.0.0-beta.4) (2023-03-31)
 
 
