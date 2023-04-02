@@ -4,7 +4,6 @@ import { OperationGenerator as Generator } from '@kubb/swagger'
 import type { FileResolver, Oas, Operation, OperationSchemas } from '@kubb/swagger'
 
 import { ZodBuilder } from '../builders'
-import { pluginName } from '../plugin'
 
 import type { Api } from '../types'
 
@@ -25,7 +24,7 @@ export class OperationGenerator extends Generator<Options> {
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolvePath, directory, mode, resolveName, oas } = this.options
 
-    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName })}.ts`
+    const typeName = `${resolveName({ name: operation.getOperationId() })}.ts`
     const typeFilePath = await resolvePath(typeName, directory)
 
     const fileResolver: FileResolver = async (name) => {
@@ -64,7 +63,7 @@ export class OperationGenerator extends Generator<Options> {
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolvePath, directory, mode, resolveName, oas } = this.options
 
-    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName })}.ts`
+    const typeName = `${resolveName({ name: operation.getOperationId() })}.ts`
     const typeFilePath = await resolvePath(typeName, directory)
 
     const fileResolver: FileResolver = async (name) => {
@@ -104,7 +103,7 @@ export class OperationGenerator extends Generator<Options> {
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolvePath, directory, mode, resolveName, oas } = this.options
 
-    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName })}.ts`
+    const typeName = `${resolveName({ name: operation.getOperationId() })}.ts`
     const typeFilePath = await resolvePath(typeName, directory)
 
     const fileResolver: FileResolver = async (name) => {
@@ -144,7 +143,7 @@ export class OperationGenerator extends Generator<Options> {
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolvePath, directory, mode, resolveName, oas } = this.options
 
-    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName })}.ts`
+    const typeName = `${resolveName({ name: operation.getOperationId() })}.ts`
     const typeFilePath = await resolvePath(typeName, directory)
 
     const fileResolver: FileResolver = async (name) => {

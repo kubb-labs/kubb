@@ -63,8 +63,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         oas,
         directory,
         fileManager: this.fileManager,
-        resolvePath: this.resolvePath,
-        resolveName: this.resolveName,
+        resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
+        resolveName: (params) => this.resolveName({ pluginName, ...params }),
       })
 
       await operationGenerator.build()

@@ -6,8 +6,6 @@ import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator, Path, getComments } from '@kubb/swagger'
 import type { Oas, Operation, OperationSchemas } from '@kubb/swagger'
 
-import { pluginName } from '../plugin'
-
 import type { resolvePathOptions } from '../types'
 
 type Options = {
@@ -28,12 +26,11 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName, clientPath } = this.options
 
     // hook setup
-    const hookName = resolveName({ name: `use ${operation.getOperationId()}`, pluginName })
+    const hookName = resolveName({ name: `use ${operation.getOperationId()}` })
     const hookId = `${hookName}.ts`
     const hookFilePath = await resolvePath({
       fileName: hookId,
       directory,
-      pluginName,
       options: { tag: operation.getTags()[0]?.name },
     })
 
@@ -227,9 +224,9 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName, clientPath } = this.options
 
     // hook setup
-    const hookName = resolveName({ name: `use ${operation.getOperationId()}`, pluginName })
+    const hookName = resolveName({ name: `use ${operation.getOperationId()}` })
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolvePath({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const hookFilePath = await resolvePath({ fileName: hookId, directory, options: { tag: operation.getTags()[0]?.name } })
     if (!hookFilePath) {
       return null
     }
@@ -310,9 +307,9 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName, clientPath } = this.options
 
     // hook setup
-    const hookName = resolveName({ name: `use ${operation.getOperationId()}`, pluginName })
+    const hookName = resolveName({ name: `use ${operation.getOperationId()}` })
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolvePath({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const hookFilePath = await resolvePath({ fileName: hookId, directory, options: { tag: operation.getTags()[0]?.name } })
     if (!hookFilePath) {
       return null
     }
@@ -393,9 +390,9 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName, clientPath } = this.options
 
     // hook setup
-    const hookName = resolveName({ name: `use ${operation.getOperationId()}`, pluginName })
+    const hookName = resolveName({ name: `use ${operation.getOperationId()}` })
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolvePath({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const hookFilePath = await resolvePath({ fileName: hookId, directory, options: { tag: operation.getTags()[0]?.name } })
     if (!hookFilePath) {
       return null
     }

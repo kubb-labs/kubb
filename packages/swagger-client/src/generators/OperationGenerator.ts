@@ -4,8 +4,6 @@ import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator, getComments, Path } from '@kubb/swagger'
 import type { Oas, Operation, OperationSchemas, HttpMethod } from '@kubb/swagger'
 
-import { pluginName } from '../plugin'
-
 import type { ResolvePathOptions } from '../types'
 
 type Options = {
@@ -22,12 +20,11 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName } = this.options
 
     // controller setup
-    const controllerName = resolveName({ name: 'operations', pluginName })
+    const controllerName = resolveName({ name: 'operations' })
     const controllerId = `${controllerName}.ts`
     const controllerFilePath = await resolvePath({
       fileName: controllerId,
       directory,
-      pluginName,
     })
 
     if (!controllerFilePath) {
@@ -65,12 +62,11 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName, clientPath } = this.options
 
     // controller setup
-    const controllerName = resolveName({ name: operation.getOperationId(), pluginName })
+    const controllerName = resolveName({ name: operation.getOperationId() })
     const controllerId = `${controllerName}.ts`
     const controllerFilePath = await resolvePath({
       fileName: controllerId,
       directory,
-      pluginName,
       options: { tag: operation.getTags()[0]?.name },
     })
 
@@ -170,9 +166,9 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName, clientPath } = this.options
 
     // controller setup
-    const controllerName = resolveName({ name: operation.getOperationId(), pluginName })
+    const controllerName = resolveName({ name: operation.getOperationId() })
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolvePath({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const controllerFilePath = await resolvePath({ fileName: controllerId, directory, options: { tag: operation.getTags()[0]?.name } })
     if (!controllerFilePath) {
       return null
     }
@@ -234,9 +230,9 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName, clientPath } = this.options
 
     // controller setup
-    const controllerName = resolveName({ name: operation.getOperationId(), pluginName })
+    const controllerName = resolveName({ name: operation.getOperationId() })
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolvePath({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const controllerFilePath = await resolvePath({ fileName: controllerId, directory, options: { tag: operation.getTags()[0]?.name } })
     if (!controllerFilePath) {
       return null
     }
@@ -298,9 +294,9 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName, clientPath } = this.options
 
     // controller setup
-    const controllerName = resolveName({ name: operation.getOperationId(), pluginName })
+    const controllerName = resolveName({ name: operation.getOperationId() })
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolvePath({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const controllerFilePath = await resolvePath({ fileName: controllerId, directory, options: { tag: operation.getTags()[0]?.name } })
     if (!controllerFilePath) {
       return null
     }

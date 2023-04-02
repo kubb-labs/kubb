@@ -76,7 +76,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (mode === 'directory') {
         const builder = await new ZodBuilder(oas).configure({
-          resolveName: this.resolveName,
+          resolveName: (params) => this.resolveName({ pluginName, ...params }),
           fileResolver: async (name) => {
             const resolvedTypeId = await this.resolvePath({
               fileName: `${name}.ts`,
@@ -127,7 +127,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (mode === 'file') {
         // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
         const builder = new ZodBuilder(oas).configure({
-          resolveName: this.resolveName,
+          resolveName: (params) => this.resolveName({ pluginName, ...params }),
           withJSDocs: true,
         })
         const mapFileSchema = ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
@@ -162,7 +162,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         mode,
         directory,
         fileManager: this.fileManager,
-        resolveName: this.resolveName,
+        resolveName: (params) => this.resolveName({ pluginName, ...params }),
         resolvePath: api.resolvePath,
       })
 

@@ -77,7 +77,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (mode === 'directory') {
         const builder = await new TypeBuilder(oas).configure({
-          resolveName: this.resolveName,
+          resolveName: (params) => this.resolveName({ pluginName, ...params }),
           fileResolver: async (name) => {
             const resolvedTypeId = await this.resolvePath({
               fileName: `${name}.ts`,
@@ -121,7 +121,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (mode === 'file') {
         // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
         const builder = new TypeBuilder(oas).configure({
-          resolveName: this.resolveName,
+          resolveName: (params) => this.resolveName({ pluginName, ...params }),
           withJSDocs: true,
         })
         Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
@@ -150,7 +150,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         directory,
         fileManager: this.fileManager,
         resolvePath: api.resolvePath,
-        resolveName: this.resolveName,
+        resolveName: (params) => this.resolveName({ pluginName, ...params }),
       })
 
       await operationGenerator.build()

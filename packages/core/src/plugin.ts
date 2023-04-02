@@ -67,5 +67,8 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
       }
       return pathParser.resolve(directory, fileName)
     },
+    resolveName(name) {
+      return name
+    },
   }
 })
