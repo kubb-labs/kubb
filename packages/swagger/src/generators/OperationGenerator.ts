@@ -162,5 +162,5 @@ export abstract class OperationGenerator<
 
   abstract delete(operation: Operation, schemas: OperationSchemas): Promise<File | null>
 
-  abstract all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File | null>
+  abstract all(paths: Record<string, Record<HttpMethod, Operation | undefined>>): Promise<File | null>
 }

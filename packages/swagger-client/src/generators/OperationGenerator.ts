@@ -19,7 +19,7 @@ type Options = {
 }
 
 export class OperationGenerator extends Generator<Options> {
-  async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File | null> {
+  async all(paths: Record<string, Record<HttpMethod, Operation | undefined>>): Promise<File | null> {
     const { directory, resolveId } = this.options
 
     // controller setup
@@ -45,6 +45,7 @@ export class OperationGenerator extends Generator<Options> {
         const operation = this.getOperation(path, method as HttpMethod)
         if (operation) {
           groupedByOperationId[operation.getOperationId()] = {
+            // TODO add util
             path: path.replaceAll('{', ':').replaceAll('}', ''),
             method: method as HttpMethod,
           }
