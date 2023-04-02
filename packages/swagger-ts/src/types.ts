@@ -1,7 +1,7 @@
 import type { PluginFactoryOptions } from '@kubb/core'
 
 export type Api = {
-  resolveId: (fileName: string, directory: string | undefined) => string | null
+  resolvePath: (fileName: string, directory: string | undefined) => string | null
 }
 
 export type Options = {

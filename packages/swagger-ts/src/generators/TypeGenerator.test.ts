@@ -13,7 +13,7 @@ describe('TypeGenerator simple', () => {
 
   test('generate type for Pet', async () => {
     const oas = await oasPathParser(path)
-    const generator = new TypeGenerator(oas, { withJSDocs: false })
+    const generator = new TypeGenerator(oas, { withJSDocs: false, resolveName: ({ name }) => name })
 
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.build(schemas?.Pet as OpenAPIV3.SchemaObject, 'Pet')
@@ -34,7 +34,7 @@ describe('TypeGenerator simple', () => {
 
   test('generate type for Pets', async () => {
     const oas = await oasPathParser(path)
-    const generator = new TypeGenerator(oas, { withJSDocs: false })
+    const generator = new TypeGenerator(oas, { withJSDocs: false, resolveName: ({ name }) => name })
 
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.build(schemas?.Pets as OpenAPIV3.SchemaObject, 'Pets')
@@ -59,7 +59,7 @@ describe('TypeGenerator with refs', () => {
 
   test('generate type for Pets', async () => {
     const oas = await oasPathParser(path)
-    const generator = new TypeGenerator(oas, { withJSDocs: false })
+    const generator = new TypeGenerator(oas, { withJSDocs: false, resolveName: ({ name }) => name })
 
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.build(schemas?.Pets as OpenAPIV3.SchemaObject, 'Pets')

@@ -74,7 +74,7 @@
 * move typescript logic to swagger-typescript package ([d4b6d2b](https://github.com/kubb-project/kubb/commit/d4b6d2b8035de648bb583662d5c022a37dff8f74))
 * oneof for zod and typescript + added description for zod ([ebef9d2](https://github.com/kubb-project/kubb/commit/ebef9d2597f38989c6d43a87053d5eba23948bca))
 * react-query plugin output in one file(with correct imports) ([2bd3af4](https://github.com/kubb-project/kubb/commit/2bd3af4fdf188b5ac7c1335a97229479e471af85))
-* ResolveIdOptions with generic for KubbPlugin type ([ea8a0cc](https://github.com/kubb-project/kubb/commit/ea8a0cc9c308c1059024a5aa558fbb62a95511a2))
+* resolvePathOptions with generic for KubbPlugin type ([ea8a0cc](https://github.com/kubb-project/kubb/commit/ea8a0cc9c308c1059024a5aa558fbb62a95511a2))
 * ts-codegen package ([b25db7e](https://github.com/kubb-project/kubb/commit/b25db7e9b874dd953f25b1814c4c7db3fbc9ff0b))
 * use of @humanwhocodes/module-importer(like eslint) to get plugins when they are used in a JSON format ([b4715ef](https://github.com/kubb-project/kubb/commit/b4715efb6d835f72b5f135245c1dde13d228fb77))
 * use of pathParams to create function arguments for ReactQuery GET hooks ([e6994fc](https://github.com/kubb-project/kubb/commit/e6994fc9576122d1aaf2edabab65d871f43a6e8a))
@@ -249,7 +249,7 @@
 
 ### Features
 
-* ResolveIdOptions with generic for KubbPlugin type ([ea8a0cc](https://github.com/kubb-project/kubb/commit/ea8a0cc9c308c1059024a5aa558fbb62a95511a2))
+* resolvePathOptions with generic for KubbPlugin type ([ea8a0cc](https://github.com/kubb-project/kubb/commit/ea8a0cc9c308c1059024a5aa558fbb62a95511a2))
 
 ## [0.52.1](https://github.com/kubb-project/kubb/compare/@kubb/core-v0.52.0...@kubb/core-v0.52.1) (2023-02-26)
 
@@ -874,14 +874,14 @@
 
 ### Features
 
-* emitFile can use EmittedFile or File + rewrite swagger plugin to use emitFile resolveId of selected plugin ([c43bc26](https://github.com/kubb-project/kubb/commit/c43bc2621eddaacd27eed39f6d70586434326747))
+* emitFile can use EmittedFile or File + rewrite swagger plugin to use emitFile resolvePath of selected plugin ([c43bc26](https://github.com/kubb-project/kubb/commit/c43bc2621eddaacd27eed39f6d70586434326747))
 * fileManager as part of the buildContext ([015772d](https://github.com/kubb-project/kubb/commit/015772d844a4b2c6a224f8c0b9571157b5de5737))
 
 
 ### Bug Fixes
 
 * mark EmittedFile as deprecated ([5115aae](https://github.com/kubb-project/kubb/commit/5115aae5b5b7c4f71a222114abf6a4c318ed63b1))
-* resolveIdByPluginName fallback on core plugin ([6ab22b7](https://github.com/kubb-project/kubb/commit/6ab22b713e2bdd2b2e6448afbab85ec0db962801))
+* resolvePathByPluginName fallback on core plugin ([6ab22b7](https://github.com/kubb-project/kubb/commit/6ab22b713e2bdd2b2e6448afbab85ec0db962801))
 
 ## [0.22.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v0.21.1...@kubb/core-v0.22.0) (2023-01-01)
 
@@ -895,7 +895,7 @@
 
 ### Bug Fixes
 
-* use of this.resolveId with objectParams with possibility to call resolveIdForPlugin when passing pluginName ([c31ac69](https://github.com/kubb-project/kubb/commit/c31ac6928906dcb758171966dc3a9e580546f345))
+* use of this.resolvePath with objectParams with possibility to call resolvePathForPlugin when passing pluginName ([c31ac69](https://github.com/kubb-project/kubb/commit/c31ac6928906dcb758171966dc3a9e580546f345))
 
 ## [0.21.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v0.20.0...@kubb/core-v0.21.0) (2023-01-01)
 
@@ -903,7 +903,7 @@
 ### Features
 
 * FileManager with event emits(node) ([b419f35](https://github.com/kubb-project/kubb/commit/b419f357ce7f62fecca8fe5ab413e111e3b8df20))
-* resolveId for a specific plugin only(resolveIdForPlugin) ([5ebb878](https://github.com/kubb-project/kubb/commit/5ebb8784ab48349412fe9627d361d502bafcc2cc))
+* resolvePath for a specific plugin only(resolvePathForPlugin) ([5ebb878](https://github.com/kubb-project/kubb/commit/5ebb8784ab48349412fe9627d361d502bafcc2cc))
 
 
 ### Bug Fixes
@@ -996,7 +996,7 @@
 
 ### Features
 
-* better use of resolveId(importee and importer) ([f650c70](https://github.com/kubb-project/kubb/commit/f650c7064c89006053e22d898ca2762d6cc99103))
+* better use of resolvePath(importee and importer) ([f650c70](https://github.com/kubb-project/kubb/commit/f650c7064c89006053e22d898ca2762d6cc99103))
 * clear functionality ([a4347c5](https://github.com/kubb-project/kubb/commit/a4347c58c62d77e7f8385902d6cf4c9cbf8f255f))
 * simpler index generation for types and reactQuery + combine subfolders ([832827b](https://github.com/kubb-project/kubb/commit/832827b79b7a4f945cb21900d57f360a4673c03e))
 * use of #ref for types ([4414054](https://github.com/kubb-project/kubb/commit/4414054efe2a5790a6b5a1e7ff04eddacf2aaf2b))
@@ -1070,7 +1070,7 @@
 * define schemas for config and schema ([#1](https://github.com/kubb-project/kubb/issues/1)) ([2940bed](https://github.com/kubb-project/kubb/commit/2940bed15195db4cff8eeaad51aa1b9bfe423963))
 * emitter with topics ([fdf9144](https://github.com/kubb-project/kubb/commit/fdf9144a3adb1f1c07574bc5d392237a062588f6))
 * generator cli + definedConfig and plugin types ([ce88da9](https://github.com/kubb-project/kubb/commit/ce88da997b7d4fec2a0d0255a088c0bf968b5d17))
-* meta for this.resolve and resolveId based on the fileEmitterType ([4fcf9bc](https://github.com/kubb-project/kubb/commit/4fcf9bc4adb3e1437c35473f2ffc48670a7c001a))
+* meta for this.resolve and resolvePath based on the fileEmitterType ([4fcf9bc](https://github.com/kubb-project/kubb/commit/4fcf9bc4adb3e1437c35473f2ffc48670a7c001a))
 * plugin system (based on Rolltup and Unplugin) ([09a9f3a](https://github.com/kubb-project/kubb/commit/09a9f3ad5dba14cc57e3627f3c7c4955da4c340f))
 * queue ([4687478](https://github.com/kubb-project/kubb/commit/4687478b67ad3452cbb7b00ba0c51138892fb4ca))
 * queue system ([7d56acd](https://github.com/kubb-project/kubb/commit/7d56acdfaca448d32df88613f8665f31c317ddd1))

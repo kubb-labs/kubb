@@ -32,6 +32,6 @@ export type Options = {
   client?: string
 }
 
-export type ResolveIdOptions = { tag?: string }
+export type ResolvePathOptions = { tag?: string }
 
-export type PluginOptions = PluginFactoryOptions<Options, false, undefined, ResolveIdOptions>
+export type PluginOptions = PluginFactoryOptions<Options, false, undefined, ResolvePathOptions>

@@ -4,9 +4,10 @@ import pathParser from 'path'
 import { isURL } from './utils/isURL'
 import { PluginManager } from './managers/pluginManager'
 import { clean, read } from './utils'
+import { getFileSource } from './managers/fileManager'
 
+import type { FileManager, File } from './managers/fileManager'
 import type { QueueTask } from './utils'
-import { FileManager, File, getFileSource } from './managers/fileManager'
 import type { PluginContext, TransformResult, LogLevel, KubbPlugin } from './types'
 
 type BuildOutput = {
@@ -57,16 +58,26 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
 
     let code = getFileSource(file)
 
-    const loadedResult = await pluginManager.hookFirst('load', [path])
+    const loadedResult = await pluginManager.hookFirst({
+      hookName: 'load',
+      parameters: [path],
+    })
     if (loadedResult) {
       code = loadedResult
     }
 
     if (code) {
-      const transformedCode = await pluginManager.hookReduceArg0('transform', [code, path], transformReducer)
+      const transformedCode = await pluginManager.hookReduceArg0({
+        hookName: 'transform',
+        parameters: [code, path],
+        reduce: transformReducer,
+      })
 
       if (config.output.write || config.output.write === undefined) {
-        await pluginManager.hookParallel('writeFile', [transformedCode, path])
+        await pluginManager.hookParallel({
+          hookName: 'writeFile',
+          parameters: [transformedCode, path],
+        })
       }
     }
   }
@@ -74,11 +85,17 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
   const pluginManager = new PluginManager(config, { logger, task: queueTask as QueueTask })
   const { plugins, fileManager } = pluginManager
 
-  await pluginManager.hookParallel<'validate', true>('validate', [plugins])
+  await pluginManager.hookParallel<'validate', true>({
+    hookName: 'validate',
+    parameters: [plugins],
+  })
 
-  await pluginManager.hookParallel('buildStart', [config])
+  await pluginManager.hookParallel({
+    hookName: 'buildStart',
+    parameters: [config],
+  })
 
-  await pluginManager.hookParallel('buildEnd')
+  await pluginManager.hookParallel({ hookName: 'buildEnd' })
   setTimeout(() => {
     done({ files: fileManager.files.map((file) => ({ ...file, source: getFileSource(file) })) })
   }, 500)

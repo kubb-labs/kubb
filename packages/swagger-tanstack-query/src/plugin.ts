@@ -29,7 +29,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return valid
     },
-    resolveId(fileName, directory, options) {
+    resolvePath(fileName, directory, options) {
       if (!directory) {
         return null
       }
@@ -50,6 +50,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return pathParser.resolve(directory, output, fileName)
     },
+    resolveName(name) {
+      return camelCase(name, { delimiter: '' })
+    },
     async buildStart() {
       const oas = await swaggerApi.getOas(this.config)
       const directory = pathParser.resolve(this.config.root, this.config.output.path)
@@ -61,7 +64,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         oas,
         directory,
         fileManager: this.fileManager,
-        resolveId: this.resolveId,
+        resolvePath: this.resolvePath,
+        resolveName: this.resolveName,
       })
 
       await operationGenerator.build()

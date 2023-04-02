@@ -108,9 +108,9 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 } & Partial<PluginLifecycle<TOptions>>
 
 // use of type objects
-export type PluginFactoryOptions<Options = unknown, Nested extends boolean = false, Api = any, ResolveIdOptions = Record<string, any>> = {
+export type PluginFactoryOptions<Options = unknown, Nested extends boolean = false, Api = any, resolvePathOptions = Record<string, any>> = {
   options: Options
-  resolveIdOptions: ResolveIdOptions
+  resolvePathOptions: resolvePathOptions
   nested: Nested
   api: Api
 }
@@ -127,13 +127,21 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    */
   buildStart: (this: PluginContext, kubbConfig: KubbConfig) => MaybePromise<void>
   /**
-   * Resolve to an id based on importee(example: `./Pet.ts`) and directory(example: `./models`).
+   * Resolve to a Path based on a fileName(example: `./Pet.ts`) and directory(example: `./models`).
+   * Options can als be included.
    * @type hookFirst
-   * @example ('./Pet.ts', './src/gen/')
+   * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
    */
-  resolveId: (this: Omit<PluginContext, 'addFile'>, fileName: string, directory?: string, options?: TOptions['resolveIdOptions']) => OptionalPath
+  resolvePath: (this: Omit<PluginContext, 'addFile'>, fileName: string, directory?: string, options?: TOptions['resolvePathOptions']) => OptionalPath
   /**
-   * Makes it possible to run async logic to override the path defined previously by `resolveId`.
+   * Resolve to a name based on a string.
+   * Useful when converting to PascalCase or camelCase.
+   * @type hookFirst
+   * @example ('pet') => 'Pet'
+   */
+  resolveName: (this: Omit<PluginContext, 'addFile'>, name: string) => string | null
+  /**
+   * Makes it possible to run async logic to override the path defined previously by `resolvePath`.
    * @type hookFirst
    */
   load: (this: Omit<PluginContext, 'addFile'>, path: Path) => MaybePromise<TransformResult | null>
@@ -143,7 +151,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    */
   transform: (this: Omit<PluginContext, 'addFile'>, source: string, path: Path) => MaybePromise<TransformResult>
   /**
-   * Write the result to the file-system based on the id(defined by `resolveId` or changed by `load`).
+   * Write the result to the file-system based on the id(defined by `resolvePath` or changed by `load`).
    * @type hookParallel
    */
   writeFile: (this: Omit<PluginContext, 'addFile'>, source: string | undefined, path: Path) => MaybePromise<void>
@@ -156,18 +164,27 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
 
 export type PluginLifecycleHooks = keyof PluginLifecycle
 
-export type ResolveIdParams<TOptions = Record<string, any>> = {
+export type ResolvePathParams<TOptions = Record<string, any>> = {
+  /**
+   * When set, resolvePath will only call resolvePath of the name of the plugin set here.
+   * If not defined it will fall back on the resolvePath of the core plugin.
+   */
+  pluginName?: string
   fileName: string
   directory?: string | undefined
   /**
-   * When set, resolveId will only call resolveId of the name of the plugin set here.
-   * If not defined it will fall back on the resolveId of the core plugin.
-   */
-  pluginName?: string
-  /**
-   * Options to be passed to 'resolveId' 3th parameter
+   * Options to be passed to 'resolvePath' 3th parameter
    */
   options?: TOptions
+}
+
+export type ResolveNameParams = {
+  /**
+   * When set, resolvePath will only call resolvePath of the name of the plugin set here.
+   * If not defined it will fall back on the resolvePath of the core plugin.
+   */
+  pluginName?: string
+  name: string
 }
 
 export type PluginContext<TOptions = Record<string, any>> = {
@@ -175,7 +192,8 @@ export type PluginContext<TOptions = Record<string, any>> = {
   cache: Cache
   fileManager: FileManager
   addFile: (file: File) => Promise<File>
-  resolveId: (params: ResolveIdParams<TOptions>) => MaybePromise<OptionalPath>
+  resolvePath: (params: ResolvePathParams<TOptions>) => OptionalPath
+  resolveName: (params: ResolveNameParams) => string | null
   load: (id: string) => MaybePromise<TransformResult | void>
 }
 

@@ -14,7 +14,7 @@ describe('ImportsGenerator', () => {
 
   test('generate type for Pets with custom fileResolver', async () => {
     const oas = await oasPathParser(path)
-    const typeGenerator = new TypeGenerator(oas, { withJSDocs: false })
+    const typeGenerator = new TypeGenerator(oas, { withJSDocs: false, resolveName: ({ name }) => name })
     const importsGenerator = new ImportsGenerator({ fileResolver: (name) => Promise.resolve(`#models/${name}`) })
 
     const schemas = oas.getDefinition().components?.schemas
