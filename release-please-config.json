@@ -74,6 +74,15 @@
       "draft": false,
       "prerelease": true
     },
+    "packages/swagger-zodio": {
+      "component": "@kubb/swagger-zodios",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": true
+    },
     "packages/swagger-swr": {
       "component": "@kubb/swagger-swr",
       "changelog-path": "CHANGELOG.md",
