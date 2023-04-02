@@ -3,7 +3,7 @@ import { camelCase, pascalCase } from 'change-case'
 import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
 import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
-import { OperationGenerator as Generator, getComments } from '@kubb/swagger'
+import { OperationGenerator as Generator, Path, getComments } from '@kubb/swagger'
 import type { Oas, Operation, OperationSchemas } from '@kubb/swagger'
 
 import { pluginName } from '../plugin'
@@ -177,14 +177,10 @@ export class OperationGenerator extends Generator<Options> {
     const comments = getComments(operation)
     const sources: string[] = []
     const queryKey = `${camelCase(`${operation.getOperationId()}QueryKey`)}`
-    let url = operation.path
     let pathParamsTyped = ''
     let pathParams = ''
 
     if (schemas.pathParams) {
-      // TODO move to it's own function(utils)
-      url = url.replaceAll('{', '${')
-
       const data = Object.entries(schemas.pathParams.schema.properties!).map((item) => {
         return [item[0], schemas.pathParams!.name]
       })
@@ -195,7 +191,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (schemas.queryParams && !schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = (params?: ${schemas.queryParams.name}) => [\`${url}\`, ...(params ? [params] : [])] as const;
+        export const ${queryKey} = (params?: ${schemas.queryParams.name}) => [${new Path(operation.path).template}, ...(params ? [params] : [])] as const;
       `)
 
       sources.push(`
@@ -209,7 +205,7 @@ export class OperationGenerator extends Generator<Options> {
             queryFn: () => {
               return client<TData>({
                 method: "get",
-                url: \`${url}\`,
+                url: ${new Path(operation.path).template},
                 params
               });
             },
@@ -239,7 +235,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (!schemas.queryParams && schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = (${pathParamsTyped}) => [\`${url}\`] as const;
+        export const ${queryKey} = (${pathParamsTyped}) => [${new Path(operation.path).template}] as const;
       `)
 
       sources.push(`
@@ -253,7 +249,7 @@ export class OperationGenerator extends Generator<Options> {
             queryFn: () => {
               return client<TData>({
                 method: "get",
-                url: \`${url}\`
+                url: ${new Path(operation.path).template}
               });
             },
           };
@@ -282,7 +278,9 @@ export class OperationGenerator extends Generator<Options> {
 
     if (schemas.queryParams && schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = (${pathParamsTyped} params?: ${schemas.queryParams.name}) => [\`${url}\`, ...(params ? [params] : [])] as const;
+        export const ${queryKey} = (${pathParamsTyped} params?: ${schemas.queryParams.name}) => [${
+        new Path(operation.path).template
+      }, ...(params ? [params] : [])] as const;
       `)
 
       sources.push(`
@@ -296,7 +294,7 @@ export class OperationGenerator extends Generator<Options> {
             queryFn: () => {
               return client<TData>({
                 method: "get",
-                url: \`${url}\`,
+                url: ${new Path(operation.path).template},
                 params
               });
             },
@@ -326,7 +324,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (!schemas.queryParams && !schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = () => [\`${url}\`] as const;
+        export const ${queryKey} = () => [${new Path(operation.path).template}] as const;
       `)
 
       sources.push(`
@@ -338,7 +336,7 @@ export class OperationGenerator extends Generator<Options> {
           queryFn: () => {
             return client<TData>({
               method: "get",
-              url: \`${url}\`
+              url: ${new Path(operation.path).template}
             });
           },
         };
@@ -406,13 +404,9 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
 
-    let url = operation.path
     let pathParamsTyped = ''
 
     if (schemas.pathParams) {
-      // TODO move to it's own function(utils)
-      url = url.replaceAll('{', '${')
-
       pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
         .reduce((acc, [key, value], index, arr) => {
           acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
@@ -433,7 +427,7 @@ export class OperationGenerator extends Generator<Options> {
             mutationFn: (data) => {
               return client<TData, TVariables>({
                 method: "post",
-                url: \`${url}\`,
+                url: ${new Path(operation.path).template},
                 data,
               });
             },
@@ -485,13 +479,9 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
 
-    let url = operation.path
     let pathParamsTyped = ''
 
     if (schemas.pathParams) {
-      // TODO move to it's own function(utils)
-      url = url.replaceAll('{', '${')
-
       pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
         .reduce((acc, [key, value], index, arr) => {
           acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
@@ -512,7 +502,7 @@ export class OperationGenerator extends Generator<Options> {
             mutationFn: (data) => {
               return client<TData, TVariables>({
                 method: "put",
-                url: \`${url}\`,
+                url: ${new Path(operation.path).template},
                 data
               });
             },
@@ -564,13 +554,9 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
 
-    let url = operation.path
     let pathParamsTyped = ''
 
     if (schemas.pathParams) {
-      // TODO move to it's own function(utils)
-      url = url.replaceAll('{', '${')
-
       pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
         .reduce((acc, [key, value], index, arr) => {
           acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
@@ -591,7 +577,7 @@ export class OperationGenerator extends Generator<Options> {
             mutationFn: () => {
               return client<TData, TVariables>({
                 method: "delete",
-                url: \`${url}\`
+                url: ${new Path(operation.path).template}
               });
             },
             ...mutationOptions

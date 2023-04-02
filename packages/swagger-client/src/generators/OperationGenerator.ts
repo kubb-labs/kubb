@@ -3,7 +3,7 @@ import { camelCase, pascalCase } from 'change-case'
 import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
 import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
-import { OperationGenerator as Generator, getComments } from '@kubb/swagger'
+import { OperationGenerator as Generator, getComments, Path } from '@kubb/swagger'
 import type { Oas, Operation, OperationSchemas, HttpMethod } from '@kubb/swagger'
 
 import { pluginName } from '../plugin'
@@ -45,7 +45,7 @@ export class OperationGenerator extends Generator<Options> {
         const operation = this.getOperation(path, method as HttpMethod)
         if (operation) {
           groupedByOperationId[operation.getOperationId()] = {
-            path: path.replaceAll('{', ':').replaceAll('}', ''),
+            path: new Path(path).URL,
             method: method as HttpMethod,
           }
         }
@@ -89,13 +89,9 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
     const sources: string[] = []
-    let url = operation.path
     let pathParamsTyped = ''
 
     if (schemas.pathParams) {
-      // TODO move to it's own function(utils)
-      url = url.replaceAll('{', '${')
-
       const data = Object.entries(schemas.pathParams.schema.properties!).map((item) => {
         return [item[0], schemas.pathParams!.name]
       })
@@ -109,7 +105,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${controllerName} <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}) {
           return client<TData>({
             method: "get",
-            url: \`${url}\`,
+            url: ${new Path(operation.path).template},
             params
           });
         };
@@ -122,7 +118,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${controllerName} <TData = ${schemas.response.name}>(${pathParamsTyped}) {
           return client<TData>({
             method: "get",
-            url: \`${url}\`
+            url: ${new Path(operation.path).template}
           });
         };
       `)
@@ -134,7 +130,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${controllerName} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${schemas.queryParams.name}) {
           return client<TData>({
             method: "get",
-            url: \`${url}\`,
+            url: ${new Path(operation.path).template},
             params
           });
         };
@@ -147,7 +143,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${controllerName} <TData = ${schemas.response.name}>() {
           return client<TData>({
             method: "get",
-            url: \`${url}\`
+            url: ${new Path(operation.path).template}
           });
         };
       `)
@@ -192,13 +188,9 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
 
-    let url = operation.path
     let pathParamsTyped = ''
 
     if (schemas.pathParams) {
-      // TODO move to it's own function(utils)
-      url = url.replaceAll('{', '${')
-
       pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
         .reduce((acc, [key, value], index, arr) => {
           acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
@@ -213,7 +205,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${controllerName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables) {
           return client<TData, TVariables>({
             method: "post",
-            url: \`${url}\`,
+            url: ${new Path(operation.path).template},
             data,
           });
         };
@@ -260,13 +252,9 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
 
-    let url = operation.path
     let pathParamsTyped = ''
 
     if (schemas.pathParams) {
-      // TODO move to it's own function(utils)
-      url = url.replaceAll('{', '${')
-
       pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
         .reduce((acc, [key, value], index, arr) => {
           acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
@@ -281,7 +269,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${controllerName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables) {
           return client<TData, TVariables>({
             method: "put",
-            url: \`${url}\`,
+            url: ${new Path(operation.path).template},
             data
           });
         };
@@ -328,13 +316,9 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
 
-    let url = operation.path
     let pathParamsTyped = ''
 
     if (schemas.pathParams) {
-      // TODO move to it's own function(utils)
-      url = url.replaceAll('{', '${')
-
       pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
         .reduce((acc, [key, value], index, arr) => {
           acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
@@ -349,7 +333,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${controllerName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped}) {
           return client<TData, TVariables>({
             method: "delete",
-            url: \`${url}\`
+            url: ${new Path(operation.path).template}
           });
         };
     `
