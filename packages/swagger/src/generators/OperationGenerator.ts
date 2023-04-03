@@ -99,16 +99,16 @@ export abstract class OperationGenerator<
       put: this.put,
       delete: this.delete,
       head: () => {
-        throw new Error('not implemented')
+        return null
       },
       options: () => {
-        throw new Error('not implemented')
+        return null
       },
       patch: () => {
-        throw new Error('not implemented')
+        return null
       },
       trace: () => {
-        throw new Error('not implemented')
+        return null
       },
     } as const
   }
@@ -122,7 +122,10 @@ export abstract class OperationGenerator<
       methods.forEach((method) => {
         const operation = this.getOperation(path, method)
         if (operation && this.methods[method]) {
-          acc.push(this.methods[method].call(this, operation, this.getSchemas(operation)))
+          const promise = this.methods[method].call(this, operation, this.getSchemas(operation))
+          if (promise) {
+            acc.push(promise)
+          }
         }
       })
 
