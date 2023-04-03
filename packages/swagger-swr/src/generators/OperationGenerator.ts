@@ -3,7 +3,7 @@ import { camelCase } from 'change-case'
 import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
 import { getRelativePath, createJSDocBlockText } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
-import { OperationGenerator as Generator, Path, getComments } from '@kubb/swagger'
+import { OperationGenerator as Generator, Path, getComments, getParams } from '@kubb/swagger'
 import type { Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 
 import { pluginName } from '../plugin'
@@ -72,8 +72,8 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
     const sources: string[] = []
-    const pathParams = this.getParams(schemas.pathParams)
-    const pathParamsTyped = this.getParams(schemas.pathParams, { typed: true })
+    const pathParams = getParams(schemas.pathParams)
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
     if (schemas.queryParams && !schemas.pathParams) {
       sources.push(`
@@ -242,7 +242,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
     const sources: string[] = []
-    const pathParamsTyped = this.getParams(schemas.pathParams, { typed: true })
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
     sources.push(`
         ${createJSDocBlockText({ comments })}
@@ -300,7 +300,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
     const sources: string[] = []
-    const pathParamsTyped = this.getParams(schemas.pathParams, { typed: true })
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
     sources.push(`
         ${createJSDocBlockText({ comments })}
@@ -358,7 +358,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
     const sources: string[] = []
-    const pathParamsTyped = this.getParams(schemas.pathParams, { typed: true })
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
     sources.push(`
         ${createJSDocBlockText({ comments })}

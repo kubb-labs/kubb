@@ -6,7 +6,7 @@ import type { LoginUserResponse, LoginUserQueryParams } from '../../models/ts/Lo
  * @summary Logs user into the system
  * @link /user/login
  */
-export function loginUser<TData = LoginUserResponse>(params?: LoginUserQueryParams) {
+export function loginUser<TData = LoginUserResponse, TParams = LoginUserQueryParams>(params?: TParams) {
   return client<TData>({
     method: 'get',
     url: `/user/login`,

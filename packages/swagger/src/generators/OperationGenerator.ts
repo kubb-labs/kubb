@@ -1,7 +1,7 @@
 import { pascalCase } from 'change-case'
 
 import type { FileManager, File } from '@kubb/core'
-import { objectToParameters, combineFiles, Generator } from '@kubb/core'
+import { combineFiles, Generator } from '@kubb/core'
 
 import { isReference } from '../utils/isReference'
 
@@ -9,7 +9,7 @@ import type { Operation } from 'oas'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
 import type Oas from 'oas'
-import type { OperationSchema, OperationSchemas, Resolver } from '../types'
+import type { OperationSchemas, Resolver } from '../types'
 
 export abstract class OperationGenerator<
   TOptions extends { oas: Oas; fileManager: FileManager } = { oas: Oas; fileManager: FileManager }
@@ -78,17 +78,6 @@ export abstract class OperationGenerator<
         schema: operation.getResponseAsJSONSchema('200')?.at(0)?.schema as OpenAPIV3.SchemaObject,
       },
     }
-  }
-
-  public getParams(operationSchema: OperationSchema | undefined, { typed }: { typed: boolean } = { typed: false }): string {
-    if (!operationSchema || !operationSchema.schema.properties || !operationSchema.name) {
-      return ''
-    }
-    const data = Object.entries(operationSchema.schema.properties).map((item) => {
-      return [item[0], operationSchema.name]
-    })
-
-    return objectToParameters(data, { typed })
   }
 
   public getOperation(path: string, method: HttpMethod): Operation | null {

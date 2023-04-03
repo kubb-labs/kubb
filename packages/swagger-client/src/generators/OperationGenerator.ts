@@ -1,7 +1,7 @@
 import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
 import { getRelativePath, createJSDocBlockText } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
-import { OperationGenerator as Generator, getComments, Path } from '@kubb/swagger'
+import { OperationGenerator as Generator, getComments, getParams, Path } from '@kubb/swagger'
 import type { Oas, Operation, OperationSchemas, HttpMethod, Resolver } from '@kubb/swagger'
 
 import { pluginName } from '../plugin'
@@ -107,57 +107,20 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
     const sources: string[] = []
-    const pathParamsTyped = this.getParams(schemas.pathParams, { typed: true })
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
-    if (schemas.queryParams && !schemas.pathParams) {
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${controller.name} <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}) {
-          return client<TData>({
-            method: "get",
-            url: ${new Path(operation.path).template},
-            params
-          });
-        };
-      `)
-    }
-
-    if (!schemas.queryParams && schemas.pathParams) {
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${controller.name} <TData = ${schemas.response.name}>(${pathParamsTyped}) {
-          return client<TData>({
-            method: "get",
-            url: ${new Path(operation.path).template}
-          });
-        };
-      `)
-    }
-
-    if (schemas.queryParams && schemas.pathParams) {
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${controller.name} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${schemas.queryParams.name}) {
-          return client<TData>({
-            method: "get",
-            url: ${new Path(operation.path).template},
-            params
-          });
-        };
-      `)
-    }
-
-    if (!schemas.queryParams && !schemas.pathParams) {
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${controller.name} <TData = ${schemas.response.name}>() {
-          return client<TData>({
-            method: "get",
-            url: ${new Path(operation.path).template}
-          });
-        };
-      `)
-    }
+    sources.push(`
+      ${createJSDocBlockText({ comments })}
+      export function ${controller.name} <TData = ${schemas.response.name}${
+      schemas.queryParams?.name ? `, TParams = ${schemas.queryParams?.name}` : ''
+    }>(${pathParamsTyped} ${schemas.queryParams?.name ? 'params?: TParams' : ''}) {
+        return client<TData>({
+          method: "get",
+          url: ${new Path(operation.path).template},
+          ${schemas.queryParams?.name ? 'params,' : ''}
+        });
+      };
+    `)
 
     return {
       path: controller.filePath,
@@ -185,7 +148,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
     const sources: string[] = []
-    const pathParamsTyped = this.getParams(schemas.pathParams, { typed: true })
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
     sources.push(`
         ${createJSDocBlockText({ comments })}
@@ -224,7 +187,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
     const sources: string[] = []
-    const pathParamsTyped = this.getParams(schemas.pathParams, { typed: true })
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
     sources.push(`
         ${createJSDocBlockText({ comments })}
@@ -263,7 +226,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const comments = getComments(operation)
     const sources: string[] = []
-    const pathParamsTyped = this.getParams(schemas.pathParams, { typed: true })
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
     sources.push(`
         ${createJSDocBlockText({ comments })}
