@@ -1,5 +1,72 @@
 # Changelog
 
+## [1.0.0-beta.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.4...@kubb/swagger-v1.0.0-beta.4) (2023-04-03)
+
+
+### Features
+
+* [@deprecated](https://github.com/deprecated) comments for all operations ([b09bb8d](https://github.com/kubb-project/kubb/commit/b09bb8da6e2810ee13b983f228b992a269659239))
+* oasBuilder ([2001bb9](https://github.com/kubb-project/kubb/commit/2001bb9f6b4b65a4d67e1e3b4f75517c109c2a44))
+* operation object with all paths and methods grouped by operationId ([5cd51db](https://github.com/kubb-project/kubb/commit/5cd51dbdc4e2ed366313b17d9f9a273e8e9a5db1))
+* svelte-query ([be06ace](https://github.com/kubb-project/kubb/commit/be06ace70add445a9fda3caf168223fbd278a147))
+* swaggerOperationGenerator with getParams and abstract resolve ([876173a](https://github.com/kubb-project/kubb/commit/876173a0c8a3ea2f18f81b8c7e26a83d3eab8214))
+* use of resolveName of pluginContext ([3903e73](https://github.com/kubb-project/kubb/commit/3903e73c547c1137b48d3d4630fb34dbf1434857))
+* use of swagger-ts name instead of swagger-typescript ([e9c27a4](https://github.com/kubb-project/kubb/commit/e9c27a4d1485b4d38e58fb0d67380796f1eb1aad))
+
+
+### Bug Fixes
+
+* add declarationMap for easy access in editor ([40ff030](https://github.com/kubb-project/kubb/commit/40ff0305fb975bd02561682c5d7a9266259e185f))
+* add options to every plugin + removal of EmittedFile type ([a31b427](https://github.com/kubb-project/kubb/commit/a31b4275ca0904deb97fbc1b4c4827f6fbfd020d))
+* always throw error ([e0528b4](https://github.com/kubb-project/kubb/commit/e0528b4859497c6feb03c61126b4bbdfa578d060))
+* bring back changelog ([30573e4](https://github.com/kubb-project/kubb/commit/30573e41027f01d79182b17f1f78152447d9401a))
+* browser subpackage ([b8b3c19](https://github.com/kubb-project/kubb/commit/b8b3c191d10465b0ddeabf3ecdf77d564b597f35))
+* cleanup devdeps ([92c5a00](https://github.com/kubb-project/kubb/commit/92c5a0003739047326baade146938f5ca013654d))
+* cleanup imports and move duplicate stuff to swagger package ([73e7c66](https://github.com/kubb-project/kubb/commit/73e7c660dc3856afad64cf53f294f5003fa63f27))
+* cleanup operationGenerator ([15be8e1](https://github.com/kubb-project/kubb/commit/15be8e152512fe1c84bdbec9a117e3728e254fef))
+* convert Swagger 2.0 to 3.0 with swagger2openapi ([8a166d5](https://github.com/kubb-project/kubb/commit/8a166d527f09026222401185e5fa2bdaed383883))
+* correct browser tag ([3d8477a](https://github.com/kubb-project/kubb/commit/3d8477a4ec148ecbfc9ca796f173d4d3c06790cb))
+* correct show of [@deprecated](https://github.com/deprecated) ([13d6b3a](https://github.com/kubb-project/kubb/commit/13d6b3a0cbdc3c71113122f90e7ce0b3d69c7487))
+* differentiate between query and path params in getSchemas ([9ccec33](https://github.com/kubb-project/kubb/commit/9ccec33b93a31531417ebfc7512f974ff5c8bf08))
+* getFileSource and combineFiles to utils file ([4e8aa6a](https://github.com/kubb-project/kubb/commit/4e8aa6ab6b30bb10358903f1b95d66ff3e3c526f))
+* input.path can be an URL ([d221364](https://github.com/kubb-project/kubb/commit/d221364fc54982ff61988d7bfa05bbe78bdc7cb5))
+* input.path is now required and can also be an URL ([5559c47](https://github.com/kubb-project/kubb/commit/5559c4702fc0142853ff316233921c19702469f9))
+* openAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
+* pathParams and queryParams filter + update to reactQuery and client plugin to adapt those changes ([7005e50](https://github.com/kubb-project/kubb/commit/7005e505d147a1c03d90135faa3b62112cb69ca0))
+* refactor of operationgenerator + baseOperationGenerator for swagger package ([2f4739b](https://github.com/kubb-project/kubb/commit/2f4739b25e3a456f44647ee46272cd341975152b))
+* refactor zodBuilder and typeBuilder ([6e0ada6](https://github.com/kubb-project/kubb/commit/6e0ada6af9fa71658c0812cc72db507aa15cea66))
+* remove browser exports ([35e21ea](https://github.com/kubb-project/kubb/commit/35e21ea5575d65414111820fa4a44c17fd68740d))
+* remove version for swagger-plugin(auto checked by the oasParser) ([3f9a298](https://github.com/kubb-project/kubb/commit/3f9a2985598ba9dfc77e4f5c14d5e514ae9e3dd8))
+* revert umd creation for packages that uses ts compiler ([26e4130](https://github.com/kubb-project/kubb/commit/26e4130374f440864d937a6890d99f1c545cb639))
+* set anchors to true for swagger2openapi converter ([a487232](https://github.com/kubb-project/kubb/commit/a487232ae978d007e6e30d4de82520430020b1ff))
+* strictmode on swagger packages + remove anys ([0583ae8](https://github.com/kubb-project/kubb/commit/0583ae809f8cf7822a4d39edfda7ff43f2a539cb))
+* support for ESM modules ([cec3b57](https://github.com/kubb-project/kubb/commit/cec3b57ba9b97a030bb276a3957c826ace72b7d3))
+* tsup node ([50bbf4f](https://github.com/kubb-project/kubb/commit/50bbf4fc401bfb148c8ba0c080fab40169df96eb))
+* typescript strict mode for core, cli and ts-codegen ([c0dd917](https://github.com/kubb-project/kubb/commit/c0dd917cca5df924d706c271dfe9f0eae9f87897))
+* umd module for all packages ([2b99a4b](https://github.com/kubb-project/kubb/commit/2b99a4b61cec48f65f3be97713455c54cfb12e1f))
+* upgrade packages ([dcc2f7e](https://github.com/kubb-project/kubb/commit/dcc2f7e1f97ca494785abbb581025d46ae6ceacd))
+* upgrade packages + cleanup ([66ca9cf](https://github.com/kubb-project/kubb/commit/66ca9cf7835f0da347f263e9ac1c14eecfa7d036))
+* upgrade typescript ([5f01312](https://github.com/kubb-project/kubb/commit/5f01312d290f666299eeffb6b685e5a4980e1e47))
+* use of toURLPath and toTemplateString ([6eb4bd8](https://github.com/kubb-project/kubb/commit/6eb4bd8ee63acee6a522da9e70b604e99a1c7740))
+* validation error ([51ede39](https://github.com/kubb-project/kubb/commit/51ede39458ac6493430815897cc208e73ad25889))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.1 ([608fd59](https://github.com/kubb-project/kubb/commit/608fd5926079f9dd77046d6788a5550fb964c0b2))
+* release 1.0.0-alpha.2 ([3d645ac](https://github.com/kubb-project/kubb/commit/3d645accedb121856e61bab166fafe74db6ca3f3))
+* release 1.0.0-alpha.3 ([4fb3d6a](https://github.com/kubb-project/kubb/commit/4fb3d6a6ff5b6b0950d94a12f04c4fd3db89c595))
+* release 1.0.0-alpha.4 ([8d808c3](https://github.com/kubb-project/kubb/commit/8d808c3d0b255b76dc79ad92324f0f2ee8afd619))
+* release 1.0.0-alpha.5 ([8bb9ed2](https://github.com/kubb-project/kubb/commit/8bb9ed2d0ce9ee47db2d24daba993b81cd56d2c0))
+* release 1.0.0-alpha.6 ([550035a](https://github.com/kubb-project/kubb/commit/550035a122a2e5a5294a49a0d2c927fc238315e6))
+* release 1.0.0-alpha.7 ([29bd33a](https://github.com/kubb-project/kubb/commit/29bd33aefb990c298d6615f10add0ca7fce69861))
+* release 1.0.0-alpha.8 ([c5a3d68](https://github.com/kubb-project/kubb/commit/c5a3d6879abdb09c5ed9776e2e715800a2bf51d9))
+* release 1.0.0-beta.1 ([151d4c3](https://github.com/kubb-project/kubb/commit/151d4c393d4d6d0b2b85267dd2ef00c6f20636aa))
+* release 1.0.0-beta.2 ([390b3d0](https://github.com/kubb-project/kubb/commit/390b3d0eb3aa7edbf2dd8d7d2765312c76710397))
+* release 1.0.0-beta.2 ([826bfef](https://github.com/kubb-project/kubb/commit/826bfef6b81c46ea92531ce36ac6617c52a7bba8))
+* release 1.0.0-beta.3 ([c134fb6](https://github.com/kubb-project/kubb/commit/c134fb61d0634abfea0740467087ff1b2d7ba3fa))
+* release 1.0.0-beta.4 ([4127252](https://github.com/kubb-project/kubb/commit/4127252b59422a5692e17e3673a26ae346d9cdba))
+
 ## [1.0.0-beta.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.3...@kubb/swagger-v1.0.0-beta.4) (2023-03-31)
 
 
