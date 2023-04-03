@@ -1,10 +1,10 @@
 import { camelCase } from 'change-case'
 
 import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
-import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
+import { getRelativePath, createJSDocBlockText } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator, Path, getComments } from '@kubb/swagger'
-import type { Oas, Operation, OperationSchemas } from '@kubb/swagger'
+import type { Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 
 import type { resolvePathOptions } from '../types'
 
@@ -19,6 +19,48 @@ type Options = {
 }
 
 export class OperationGenerator extends Generator<Options> {
+  async resolve(operation: Operation): Promise<Resolver> {
+    const { directory, resolvePath, framework } = this.options
+
+    const imports = this.getFrameworkSpecificImports(framework)
+
+    const name = imports.getName(operation)
+    const fileName = `${name}.ts`
+    const filePath = await resolvePath({
+      fileName,
+      directory,
+      options: { tag: operation.getTags()[0]?.name },
+    })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
+  async resolveType(operation: Operation): Promise<Resolver> {
+    const { directory, resolvePath, resolveName } = this.options
+
+    const name = resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })
+    const fileName = `${name}.ts`
+    const filePath = await resolvePath({ fileName, directory, pluginName: swaggerTypescriptPluginName })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
   getFrameworkSpecificImports(framework: Options['framework']): {
     getName: (operation: Operation) => string
     query: {
@@ -150,44 +192,17 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolvePath, resolveName, clientPath, framework } = this.options
+    const { clientPath, framework } = this.options
 
-    // hook setup
+    const hook = await this.resolve(operation)
+    const type = await this.resolveType(operation)
     const imports = this.getFrameworkSpecificImports(framework)
-    const hookName = imports.getName(operation)
-    const hookId = `${hookName}.ts`
-    const hookFilePath = await resolvePath({
-      fileName: hookId,
-      directory,
-      options: { tag: operation.getTags()[0]?.name },
-    })
-
-    if (!hookFilePath) {
-      return null
-    }
-    // end hook setup
-
-    // type creation
-
-    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })}.ts`
-    const typeFilePath = await resolvePath({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
-
-    // hook creation
 
     const comments = getComments(operation)
     const sources: string[] = []
+    const pathParams = this.getParams(schemas.pathParams)
+    const pathParamsTyped = this.getParams(schemas.pathParams, { typed: true })
     const queryKey = `${camelCase(`${operation.getOperationId()}QueryKey`)}`
-    let pathParamsTyped = ''
-    let pathParams = ''
-
-    if (schemas.pathParams) {
-      const data = Object.entries(schemas.pathParams.schema.properties!).map((item) => {
-        return [item[0], schemas.pathParams!.name]
-      })
-
-      pathParamsTyped = objectToParameters(data, { typed: true })
-      pathParams = objectToParameters(data)
-    }
 
     if (schemas.queryParams && !schemas.pathParams) {
       sources.push(`
@@ -215,7 +230,7 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}, options?: { query?: ${
+        export function ${hook.name} <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}, options?: { query?: ${
         imports.query.UseQueryOptions
       }<TData> }): ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
@@ -258,7 +273,7 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}>(${pathParamsTyped} options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${
+        export function ${hook.name} <TData = ${schemas.response.name}>(${pathParamsTyped} options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${
         imports.query.UseQueryResult
       }<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
@@ -304,7 +319,7 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${schemas.queryParams.name}, options?: { query?: ${
+        export function ${hook.name} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${schemas.queryParams.name}, options?: { query?: ${
         imports.query.UseQueryOptions
       }<TData> }): ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
@@ -345,7 +360,7 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}>(options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${
+        export function ${hook.name} <TData = ${schemas.response.name}>(options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${
         imports.query.UseQueryResult
       }<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
@@ -364,18 +379,18 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     return {
-      path: hookFilePath,
-      fileName: hookId,
+      path: hook.filePath,
+      fileName: hook.fileName,
       source: sources.join('\n'),
       imports: [
         ...this.getQueryImports('query'),
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
-          path: getRelativePath(hookFilePath, typeFilePath),
+          path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },
       ],
@@ -383,42 +398,18 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolvePath, resolveName, clientPath, framework } = this.options
+    const { clientPath, framework } = this.options
 
-    // hook setup
+    const hook = await this.resolve(operation)
+    const type = await this.resolveType(operation)
     const imports = this.getFrameworkSpecificImports(framework)
-    const hookName = imports.getName(operation)
-    const hookId = `${hookName}.ts`
-    const hookFilePath = await resolvePath({ fileName: hookId, directory, options: { tag: operation.getTags()[0]?.name } })
-    if (!hookFilePath) {
-      return null
-    }
-    // end hook setup
-
-    // type creation
-
-    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })}.ts`
-    const typeFilePath = await resolvePath({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
-
-    // hook creation
 
     const comments = getComments(operation)
-
-    let pathParamsTyped = ''
-
-    if (schemas.pathParams) {
-      pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
-        .reduce((acc, [key, value], index, arr) => {
-          acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
-
-          return acc
-        }, [] as string[])
-        .join('')
-    }
+    const pathParamsTyped = this.getParams(schemas.pathParams, { typed: true })
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
+        export function ${hook.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
           mutation?: ${imports.mutate.UseMutationOptions}<TData, unknown, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
@@ -437,63 +428,37 @@ export class OperationGenerator extends Generator<Options> {
     `
 
     return {
-      path: hookFilePath,
-      fileName: hookId,
+      path: hook.filePath,
+      fileName: hook.fileName,
       source,
       imports: [
         ...this.getQueryImports('mutate'),
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
-          path: getRelativePath(hookFilePath, typeFilePath),
+          path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },
       ],
     }
-
-    // end hook creation
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolvePath, resolveName, clientPath, framework } = this.options
+    const { clientPath, framework } = this.options
 
-    // hook setup
+    const hook = await this.resolve(operation)
+    const type = await this.resolveType(operation)
     const imports = this.getFrameworkSpecificImports(framework)
-    const hookName = imports.getName(operation)
-    const hookId = `${hookName}.ts`
-    const hookFilePath = await resolvePath({ fileName: hookId, directory, options: { tag: operation.getTags()[0]?.name } })
-    if (!hookFilePath) {
-      return null
-    }
-    // end hook setup
-
-    // type creation
-
-    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })}.ts`
-    const typeFilePath = await resolvePath({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
-
-    // hook creation
 
     const comments = getComments(operation)
-
-    let pathParamsTyped = ''
-
-    if (schemas.pathParams) {
-      pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
-        .reduce((acc, [key, value], index, arr) => {
-          acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
-
-          return acc
-        }, [] as string[])
-        .join('')
-    }
+    const pathParamsTyped = this.getParams(schemas.pathParams, { typed: true })
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
+        export function ${hook.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
           mutation?:  ${imports.mutate.UseMutationOptions}<TData, unknown, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
@@ -512,18 +477,18 @@ export class OperationGenerator extends Generator<Options> {
     `
 
     return {
-      path: hookFilePath,
-      fileName: hookId,
+      path: hook.filePath,
+      fileName: hook.fileName,
       source,
       imports: [
         ...this.getQueryImports('mutate'),
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
-          path: getRelativePath(hookFilePath, typeFilePath),
+          path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },
       ],
@@ -533,42 +498,18 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolvePath, resolveName, clientPath, framework } = this.options
+    const { clientPath, framework } = this.options
 
-    // hook setup
+    const hook = await this.resolve(operation)
+    const type = await this.resolveType(operation)
     const imports = this.getFrameworkSpecificImports(framework)
-    const hookName = imports.getName(operation)
-    const hookId = `${hookName}.ts`
-    const hookFilePath = await resolvePath({ fileName: hookId, directory, options: { tag: operation.getTags()[0]?.name } })
-    if (!hookFilePath) {
-      return null
-    }
-    // end hook setup
-
-    // type creation
-
-    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })}.ts`
-    const typeFilePath = await resolvePath({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
-
-    // hook creation
 
     const comments = getComments(operation)
-
-    let pathParamsTyped = ''
-
-    if (schemas.pathParams) {
-      pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
-        .reduce((acc, [key, value], index, arr) => {
-          acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
-
-          return acc
-        }, [] as string[])
-        .join('')
-    }
+    const pathParamsTyped = this.getParams(schemas.pathParams, { typed: true })
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export function ${hookName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
+        export function ${hook.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
           mutation?:  ${imports.mutate.UseMutationOptions}<TData, unknown, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
@@ -586,23 +527,21 @@ export class OperationGenerator extends Generator<Options> {
     `
 
     return {
-      path: hookFilePath,
-      fileName: hookId,
+      path: hook.filePath,
+      fileName: hook.fileName,
       source,
       imports: [
         ...this.getQueryImports('mutate'),
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hookFilePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
-          path: getRelativePath(hookFilePath, typeFilePath),
+          path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },
       ],
     }
-
-    // end hook creation
   }
 }

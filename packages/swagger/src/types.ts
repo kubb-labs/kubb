@@ -1,5 +1,6 @@
-import type { PluginFactoryOptions, KubbConfig } from '@kubb/core'
+import type { PluginFactoryOptions, KubbConfig, Path } from '@kubb/core'
 
+import type { OpenAPIV3 } from 'openapi-types'
 import type Oas from 'oas'
 import type { OasOptions } from './parsers/oasParser'
 
@@ -29,3 +30,21 @@ export type { Operation } from 'oas'
 
 export type { OpenAPIV3 } from 'openapi-types'
 export type { HttpMethods as HttpMethod } from 'oas/dist/rmoas.types'
+
+export type Resolver = {
+  name: string
+  fileName: string
+  filePath: Path
+}
+
+export type OperationSchema = {
+  name: string
+  description?: string
+  schema: OpenAPIV3.SchemaObject
+}
+export type OperationSchemas = {
+  pathParams?: OperationSchema
+  queryParams?: OperationSchema
+  request: OperationSchema
+  response: OperationSchema
+}

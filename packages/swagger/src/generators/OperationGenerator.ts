@@ -1,7 +1,7 @@
 import { pascalCase } from 'change-case'
 
 import type { FileManager, File } from '@kubb/core'
-import { combineFiles, Generator } from '@kubb/core'
+import { objectToParameters, combineFiles, Generator } from '@kubb/core'
 
 import { isReference } from '../utils/isReference'
 
@@ -9,20 +9,7 @@ import type { Operation } from 'oas'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
 import type Oas from 'oas'
-
-type OperationSchema = {
-  name: string
-  description?: string
-  schema: OpenAPIV3.SchemaObject
-}
-export type OperationSchemas = {
-  pathParams?: OperationSchema
-  queryParams?: OperationSchema
-  request: OperationSchema
-  response: OperationSchema
-}
-
-type Get = (operation: Operation, schemas: OperationSchemas) => Promise<File | null>
+import type { OperationSchema, OperationSchemas, Resolver } from '../types'
 
 export abstract class OperationGenerator<
   TOptions extends { oas: Oas; fileManager: FileManager } = { oas: Oas; fileManager: FileManager }
@@ -93,6 +80,17 @@ export abstract class OperationGenerator<
     }
   }
 
+  public getParams(operationSchema: OperationSchema | undefined, { typed }: { typed: boolean } = { typed: false }): string {
+    if (!operationSchema || !operationSchema.schema.properties || !operationSchema.name) {
+      return ''
+    }
+    const data = Object.entries(operationSchema.schema.properties).map((item) => {
+      return [item[0], operationSchema.name]
+    })
+
+    return objectToParameters(data, { typed })
+  }
+
   public getOperation(path: string, method: HttpMethod): Operation | null {
     const { oas } = this.options
 
@@ -105,7 +103,7 @@ export abstract class OperationGenerator<
     return operation
   }
 
-  private get methods(): Record<HttpMethod, Get> {
+  private get methods() {
     return {
       get: this.get,
       post: this.post,
@@ -123,7 +121,7 @@ export abstract class OperationGenerator<
       trace: () => {
         throw new Error('not implemented')
       },
-    }
+    } as const
   }
 
   async build() {
@@ -154,13 +152,33 @@ export abstract class OperationGenerator<
     return Promise.all(filePromises)
   }
 
+  /**
+   * GET
+   */
   abstract get(operation: Operation, schemas: OperationSchemas): Promise<File | null>
 
+  /**
+   * POST
+   */
   abstract post(operation: Operation, schemas: OperationSchemas): Promise<File | null>
 
+  /**
+   * PUT
+   */
   abstract put(operation: Operation, schemas: OperationSchemas): Promise<File | null>
 
+  /**
+   * DELETE
+   */
   abstract delete(operation: Operation, schemas: OperationSchemas): Promise<File | null>
 
+  /**
+   * Combination of GET, POST, PUT, DELETE
+   */
   abstract all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File | null>
+
+  /**
+   * Call resolveType and get back the name, filePath and fileName
+   */
+  abstract resolve(operation: Operation): Promise<Resolver>
 }
