@@ -1,9 +1,11 @@
 import { OasBuilder } from '@kubb/swagger'
 import type { FileResolver } from '@kubb/swagger'
+import type { PluginContext } from '@kubb/core'
 import { nameSorter } from '@kubb/core'
 import { print } from '@kubb/ts-codegen'
 
 import { ImportsGenerator, ZodGenerator } from '../generators'
+import { pluginName } from '../plugin'
 
 import type { Refs } from '../generators'
 
@@ -11,7 +13,7 @@ type Generated = { refs: Refs; name: string; sources: string[] }
 
 type Config = {
   fileResolver?: FileResolver
-  nameResolver?: (name: string) => string
+  resolveName: PluginContext['resolveName']
   withJSDocs?: boolean
   withImports?: boolean
 }
@@ -45,8 +47,8 @@ export class ZodBuilder extends OasBuilder<Config> {
       .filter((gen) => (name ? gen.name === name : true))
       .sort(nameSorter)
       .map((gen) => {
-        const generator = new ZodGenerator(this.oas, { withJSDocs: this.config.withJSDocs, nameResolver: this.config.nameResolver })
-        const sources = generator.build(gen.schema, this.config.nameResolver?.(gen.name) || gen.name, gen.description)
+        const generator = new ZodGenerator(this.oas, { withJSDocs: this.config.withJSDocs, resolveName: this.config.resolveName })
+        const sources = generator.build(gen.schema, this.config.resolveName({ name: gen.name, pluginName }) || gen.name, gen.description)
         return {
           refs: generator.refs,
           name: gen.name,

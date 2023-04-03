@@ -1,34 +1,30 @@
-import { camelCase, pascalCase } from 'change-case'
-
 import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
 import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator, getComments, Path } from '@kubb/swagger'
 import type { Oas, Operation, OperationSchemas, HttpMethod } from '@kubb/swagger'
 
-import { pluginName } from '../plugin'
-
-import type { ResolveIdOptions } from '../types'
+import type { ResolvePathOptions } from '../types'
 
 type Options = {
   clientPath?: OptionalPath
   oas: Oas
   directory: string
   fileManager: FileManager
-  resolveId: PluginContext<ResolveIdOptions>['resolveId']
+  resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
+  resolveName: PluginContext['resolveName']
 }
 
 export class OperationGenerator extends Generator<Options> {
   async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File | null> {
-    const { directory, resolveId } = this.options
+    const { directory, resolvePath, resolveName } = this.options
 
     // controller setup
-    const controllerName = `${camelCase('operations', { delimiter: '' })}`
+    const controllerName = resolveName({ name: 'operations' })
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({
+    const controllerFilePath = await resolvePath({
       fileName: controllerId,
       directory,
-      pluginName,
     })
 
     if (!controllerFilePath) {
@@ -63,15 +59,14 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolveId, clientPath } = this.options
+    const { directory, resolvePath, resolveName, clientPath } = this.options
 
     // controller setup
-    const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
+    const controllerName = resolveName({ name: operation.getOperationId() })
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({
+    const controllerFilePath = await resolvePath({
       fileName: controllerId,
       directory,
-      pluginName,
       options: { tag: operation.getTags()[0]?.name },
     })
 
@@ -82,8 +77,8 @@ export class OperationGenerator extends Generator<Options> {
 
     // type creation
 
-    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
+    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })}.ts`
+    const typeFilePath = await resolvePath({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // controller creation
 
@@ -168,12 +163,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolveId, clientPath } = this.options
+    const { directory, resolvePath, resolveName, clientPath } = this.options
 
     // controller setup
-    const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
+    const controllerName = resolveName({ name: operation.getOperationId() })
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const controllerFilePath = await resolvePath({ fileName: controllerId, directory, options: { tag: operation.getTags()[0]?.name } })
     if (!controllerFilePath) {
       return null
     }
@@ -181,8 +176,8 @@ export class OperationGenerator extends Generator<Options> {
 
     // type creation
 
-    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
+    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })}.ts`
+    const typeFilePath = await resolvePath({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // controller creation
 
@@ -232,12 +227,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolveId, clientPath } = this.options
+    const { directory, resolvePath, resolveName, clientPath } = this.options
 
     // controller setup
-    const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
+    const controllerName = resolveName({ name: operation.getOperationId() })
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const controllerFilePath = await resolvePath({ fileName: controllerId, directory, options: { tag: operation.getTags()[0]?.name } })
     if (!controllerFilePath) {
       return null
     }
@@ -245,8 +240,8 @@ export class OperationGenerator extends Generator<Options> {
 
     // type creation
 
-    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
+    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })}.ts`
+    const typeFilePath = await resolvePath({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // controller creation
 
@@ -296,12 +291,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolveId, clientPath } = this.options
+    const { directory, resolvePath, resolveName, clientPath } = this.options
 
     // controller setup
-    const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
+    const controllerName = resolveName({ name: operation.getOperationId() })
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const controllerFilePath = await resolvePath({ fileName: controllerId, directory, options: { tag: operation.getTags()[0]?.name } })
     if (!controllerFilePath) {
       return null
     }
@@ -309,8 +304,8 @@ export class OperationGenerator extends Generator<Options> {
 
     // type creation
 
-    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
+    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })}.ts`
+    const typeFilePath = await resolvePath({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // controller creation
 

@@ -24,6 +24,6 @@ export type Options = {
   framework?: 'react' | 'solid' | 'svelte' | 'vue'
 }
 
-export type ResolveIdOptions = { tag?: string }
+export type resolvePathOptions = { tag?: string }
 
-export type PluginOptions = PluginFactoryOptions<Options, false, undefined, ResolveIdOptions>
+export type PluginOptions = PluginFactoryOptions<Options, false, undefined, resolvePathOptions>

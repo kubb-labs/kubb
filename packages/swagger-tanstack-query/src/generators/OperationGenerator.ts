@@ -1,4 +1,4 @@
-import { camelCase, pascalCase } from 'change-case'
+import { camelCase } from 'change-case'
 
 import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
 import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
@@ -6,9 +6,7 @@ import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator, Path, getComments } from '@kubb/swagger'
 import type { Oas, Operation, OperationSchemas } from '@kubb/swagger'
 
-import { pluginName } from '../plugin'
-
-import type { ResolveIdOptions } from '../types'
+import type { resolvePathOptions } from '../types'
 
 type Options = {
   framework: 'react' | 'solid' | 'svelte' | 'vue'
@@ -16,7 +14,8 @@ type Options = {
   oas: Oas
   directory: string
   fileManager: FileManager
-  resolveId: PluginContext<ResolveIdOptions>['resolveId']
+  resolvePath: PluginContext<resolvePathOptions>['resolvePath']
+  resolveName: PluginContext['resolveName']
 }
 
 export class OperationGenerator extends Generator<Options> {
@@ -34,9 +33,11 @@ export class OperationGenerator extends Generator<Options> {
       UseMutationOptions: string
     }
   } {
+    const { resolveName } = this.options
+
     if (framework === 'svelte') {
       return {
-        getName: (operation) => `${camelCase(`${operation.getOperationId()} query`, { delimiter: '' })}`,
+        getName: (operation) => resolveName({ name: `${operation.getOperationId()} query` })!,
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
@@ -53,7 +54,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'solid') {
       return {
-        getName: (operation) => `${camelCase(`${operation.getOperationId()} query`, { delimiter: '' })}`,
+        getName: (operation) => resolveName({ name: `${operation.getOperationId()} query` })!,
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
@@ -70,7 +71,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'vue') {
       return {
-        getName: (operation) => `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`,
+        getName: (operation) => resolveName({ name: `use ${operation.getOperationId()}` })!,
         query: {
           useQuery: 'useQuery',
           QueryKey: 'QueryKey',
@@ -86,7 +87,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     return {
-      getName: (operation) => `${camelCase(`use ${operation.getOperationId()}`, { delimiter: '' })}`,
+      getName: (operation) => resolveName({ name: `use ${operation.getOperationId()}` })!,
       query: {
         useQuery: 'useQuery',
         QueryKey: 'QueryKey',
@@ -149,16 +150,15 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolveId, clientPath, framework } = this.options
+    const { directory, resolvePath, resolveName, clientPath, framework } = this.options
 
     // hook setup
     const imports = this.getFrameworkSpecificImports(framework)
     const hookName = imports.getName(operation)
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolveId({
+    const hookFilePath = await resolvePath({
       fileName: hookId,
       directory,
-      pluginName,
       options: { tag: operation.getTags()[0]?.name },
     })
 
@@ -169,8 +169,8 @@ export class OperationGenerator extends Generator<Options> {
 
     // type creation
 
-    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
+    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })}.ts`
+    const typeFilePath = await resolvePath({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // hook creation
 
@@ -383,13 +383,13 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolveId, clientPath, framework } = this.options
+    const { directory, resolvePath, resolveName, clientPath, framework } = this.options
 
     // hook setup
     const imports = this.getFrameworkSpecificImports(framework)
     const hookName = imports.getName(operation)
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const hookFilePath = await resolvePath({ fileName: hookId, directory, options: { tag: operation.getTags()[0]?.name } })
     if (!hookFilePath) {
       return null
     }
@@ -397,8 +397,8 @@ export class OperationGenerator extends Generator<Options> {
 
     // type creation
 
-    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
+    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })}.ts`
+    const typeFilePath = await resolvePath({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // hook creation
 
@@ -458,13 +458,13 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolveId, clientPath, framework } = this.options
+    const { directory, resolvePath, resolveName, clientPath, framework } = this.options
 
     // hook setup
     const imports = this.getFrameworkSpecificImports(framework)
     const hookName = imports.getName(operation)
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const hookFilePath = await resolvePath({ fileName: hookId, directory, options: { tag: operation.getTags()[0]?.name } })
     if (!hookFilePath) {
       return null
     }
@@ -472,8 +472,8 @@ export class OperationGenerator extends Generator<Options> {
 
     // type creation
 
-    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
+    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })}.ts`
+    const typeFilePath = await resolvePath({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // hook creation
 
@@ -533,13 +533,13 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolveId, clientPath, framework } = this.options
+    const { directory, resolvePath, resolveName, clientPath, framework } = this.options
 
     // hook setup
     const imports = this.getFrameworkSpecificImports(framework)
     const hookName = imports.getName(operation)
     const hookId = `${hookName}.ts`
-    const hookFilePath = await resolveId({ fileName: hookId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const hookFilePath = await resolvePath({ fileName: hookId, directory, options: { tag: operation.getTags()[0]?.name } })
     if (!hookFilePath) {
       return null
     }
@@ -547,8 +547,8 @@ export class OperationGenerator extends Generator<Options> {
 
     // type creation
 
-    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
+    const typeName = `${resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })}.ts`
+    const typeFilePath = await resolvePath({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
 
     // hook creation
 

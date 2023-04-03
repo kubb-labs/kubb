@@ -848,7 +848,7 @@
 
 ### Features
 
-* emitFile can use EmittedFile or File + rewrite swagger plugin to use emitFile resolveId of selected plugin ([c43bc26](https://github.com/kubb-project/kubb/commit/c43bc2621eddaacd27eed39f6d70586434326747))
+* emitFile can use EmittedFile or File + rewrite swagger plugin to use emitFile resolvePath of selected plugin ([c43bc26](https://github.com/kubb-project/kubb/commit/c43bc2621eddaacd27eed39f6d70586434326747))
 
 ## [0.22.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v0.21.1...@kubb/swagger-tanstack-query-v0.22.0) (2023-01-01)
 
@@ -862,7 +862,7 @@
 
 ### Bug Fixes
 
-* use of this.resolveId with objectParams with possibility to call resolveIdForPlugin when passing pluginName ([c31ac69](https://github.com/kubb-project/kubb/commit/c31ac6928906dcb758171966dc3a9e580546f345))
+* use of this.resolvePath with objectParams with possibility to call resolvePathForPlugin when passing pluginName ([c31ac69](https://github.com/kubb-project/kubb/commit/c31ac6928906dcb758171966dc3a9e580546f345))
 
 ## [0.21.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v0.20.0...@kubb/swagger-tanstack-query-v0.21.0) (2023-01-01)
 
@@ -870,7 +870,7 @@
 ### Features
 
 * FileManager with event emits(node) ([b419f35](https://github.com/kubb-project/kubb/commit/b419f357ce7f62fecca8fe5ab413e111e3b8df20))
-* resolveId for a specific plugin only(resolveIdForPlugin) ([5ebb878](https://github.com/kubb-project/kubb/commit/5ebb8784ab48349412fe9627d361d502bafcc2cc))
+* resolvePath for a specific plugin only(resolvePathForPlugin) ([5ebb878](https://github.com/kubb-project/kubb/commit/5ebb8784ab48349412fe9627d361d502bafcc2cc))
 
 ## [0.20.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v0.19.1...@kubb/swagger-tanstack-query-v0.20.0) (2022-12-31)
 
@@ -958,7 +958,7 @@
 
 ### Features
 
-* better use of resolveId(importee and importer) ([f650c70](https://github.com/kubb-project/kubb/commit/f650c7064c89006053e22d898ca2762d6cc99103))
+* better use of resolvePath(importee and importer) ([f650c70](https://github.com/kubb-project/kubb/commit/f650c7064c89006053e22d898ca2762d6cc99103))
 * clear functionality ([a4347c5](https://github.com/kubb-project/kubb/commit/a4347c58c62d77e7f8385902d6cf4c9cbf8f255f))
 * simpler index generation for types and reactQuery + combine subfolders ([832827b](https://github.com/kubb-project/kubb/commit/832827b79b7a4f945cb21900d57f360a4673c03e))
 * use of #ref for types ([4414054](https://github.com/kubb-project/kubb/commit/4414054efe2a5790a6b5a1e7ff04eddacf2aaf2b))

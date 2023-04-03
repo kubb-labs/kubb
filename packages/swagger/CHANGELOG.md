@@ -819,7 +819,7 @@
 
 ### Features
 
-* emitFile can use EmittedFile or File + rewrite swagger plugin to use emitFile resolveId of selected plugin ([c43bc26](https://github.com/kubb-project/kubb/commit/c43bc2621eddaacd27eed39f6d70586434326747))
+* emitFile can use EmittedFile or File + rewrite swagger plugin to use emitFile resolvePath of selected plugin ([c43bc26](https://github.com/kubb-project/kubb/commit/c43bc2621eddaacd27eed39f6d70586434326747))
 * fileManager as part of the buildContext ([015772d](https://github.com/kubb-project/kubb/commit/015772d844a4b2c6a224f8c0b9571157b5de5737))
 
 ## [0.22.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v0.21.1...@kubb/swagger-v0.22.0) (2023-01-01)
@@ -918,7 +918,7 @@
 
 ### Features
 
-* better use of resolveId(importee and importer) ([f650c70](https://github.com/kubb-project/kubb/commit/f650c7064c89006053e22d898ca2762d6cc99103))
+* better use of resolvePath(importee and importer) ([f650c70](https://github.com/kubb-project/kubb/commit/f650c7064c89006053e22d898ca2762d6cc99103))
 * simpler index generation for types and reactQuery + combine subfolders ([832827b](https://github.com/kubb-project/kubb/commit/832827b79b7a4f945cb21900d57f360a4673c03e))
 * use of #ref for types ([4414054](https://github.com/kubb-project/kubb/commit/4414054efe2a5790a6b5a1e7ff04eddacf2aaf2b))
 

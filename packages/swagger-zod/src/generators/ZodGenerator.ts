@@ -2,11 +2,13 @@
 import { pascalCase } from 'change-case'
 import uniq from 'lodash.uniq'
 
+import type { PluginContext } from '@kubb/core'
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
 import { isReference } from '@kubb/swagger'
 
 import { keywordZodNodes } from '../utils/keywordZodNodes'
+import { pluginName } from '../plugin'
 
 import type ts from 'typescript'
 
@@ -28,7 +30,7 @@ export type Refs = Record<string, { name: string; key: string }>
 
 type Options = {
   withJSDocs?: boolean
-  nameResolver?: (name: string) => string
+  resolveName: PluginContext['resolveName']
 }
 export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, string[]> {
   // Collect the types of all referenced schemas so we can export them later
@@ -41,7 +43,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   // Keep track of already used type aliases
   usedAliasNames: Record<string, number> = {}
 
-  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, nameResolver: (name) => name }) {
+  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, resolveName: ({ name }) => name }) {
     super(options)
 
     return this
@@ -189,7 +191,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
-        name: this.options.nameResolver?.(name) || name,
+        name: this.options.resolveName({ name, pluginName }) || name,
         key: name,
       }
     }
