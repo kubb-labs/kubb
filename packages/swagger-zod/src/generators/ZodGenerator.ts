@@ -246,6 +246,19 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     }
 
     if (schema.enum) {
+      if ('x-enumNames' in schema) {
+        return [
+          [
+            keywordZodNodes.enum,
+            [
+              `[${uniq(schema['x-enumNames'] as string[])
+                .map((value) => `\`${value}\``)
+                .join(', ')}]`,
+            ],
+          ],
+        ]
+      }
+
       return [
         [
           keywordZodNodes.enum,

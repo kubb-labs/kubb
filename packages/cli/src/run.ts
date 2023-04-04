@@ -78,7 +78,13 @@ export async function run({ config, options, spinner }: RunProps) {
   } catch (err) {
     if (options.debug) {
       spinner.fail(`Something went wrong\n`)
-      console.log((err as Error)?.cause || err)
+      const causedError = (err as Error)?.cause
+      console.log(causedError || err)
+      console.log('\n')
+
+      if (causedError) {
+        console.log(err)
+      }
     } else {
       spinner.fail(`Something went wrong\n${(err as Error)?.message}`)
     }
