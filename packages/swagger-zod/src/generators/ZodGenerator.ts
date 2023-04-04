@@ -63,9 +63,17 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       // eslint-disable-next-line prefer-const
       let [fn, args = ''] = item || []
 
-      if (fn === keywordZodNodes.array) return `${fn}(${Array.isArray(args) ? `${args.map(parseProperty).join('')}` : parseProperty(args)})`
-      if (fn === keywordZodNodes.union)
+      if (fn === keywordZodNodes.array) {
+        return `${fn}(${Array.isArray(args) ? `${args.map(parseProperty).join('')}` : parseProperty(args)})`
+      }
+      if (fn === keywordZodNodes.union) {
         return `${keywordZodNodes.and}(${Array.isArray(args) ? `${fn}([${args.map(parseProperty).join(',')}])` : parseProperty(args)})`
+      }
+
+      if (fn === keywordZodNodes.catchall) {
+        return `${fn}(${Array.isArray(args) ? `${args.map(parseProperty).join('')}` : parseProperty(args)})`
+      }
+
       if (fn === keywordZodNodes.and)
         return Array.isArray(args)
           ? `${args
@@ -132,9 +140,9 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string): [string, unknown][] {
     const props = baseSchema?.properties || {}
     const required = baseSchema?.required
-    // const additionalProperties = baseSchema?.additionalProperties
+    const additionalProperties = baseSchema?.additionalProperties
 
-    const members = Object.keys(props)
+    const objectMembers = Object.keys(props)
       .map((name) => {
         const validationFunctions: [string, unknown][] = []
 
@@ -170,13 +178,18 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       })
       .reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
-    // if (additionalProperties) {
-    //   const type = additionalProperties === true ? keywordZodNodes.any : this.getTypeFromSchema(additionalProperties)
+    const members: [string, unknown][] = []
 
-    //   members.push(createIndexSignature(type))
-    // }
+    members.push([keywordZodNodes.object, objectMembers])
 
-    return [[keywordZodNodes.object, members]]
+    if (additionalProperties) {
+      const addionalValidationFunctions =
+        additionalProperties === true ? [keywordZodNodes.any, undefined] : this.getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
+
+      members.push([keywordZodNodes.catchall, addionalValidationFunctions])
+    }
+
+    return members
   }
 
   /**
