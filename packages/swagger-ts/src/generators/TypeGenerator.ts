@@ -240,11 +240,20 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.enum && name) {
       const enumName = getUniqueName(name, TypeGenerator.usedEnumNames)
+
+      let enums: [key: string, value: string | number][] = uniq(schema.enum)!.map((key) => [key, key])
+
+      if ('x-enumNames' in schema) {
+        enums = uniq(schema['x-enumNames'] as string[]).map((key: string, index) => {
+          return [key, schema.enum![index]]
+        })
+      }
+
       this.extraNodes.push(
         ...createEnumDeclaration({
           name: camelCase(enumName, { delimiter: '' }),
           typeName: pascalCase(enumName, { delimiter: '' }),
-          enums: uniq(schema.enum),
+          enums,
         })
       )
       return factory.createTypeReferenceNode(pascalCase(enumName, { delimiter: '' }), undefined)
