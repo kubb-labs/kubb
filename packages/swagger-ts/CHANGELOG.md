@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-beta.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.6...@kubb/swagger-ts-v1.0.0-beta.7) (2023-04-04)
+
+
+### Bug Fixes
+
+* support for x-enumNames in swagger-ts and swagger-zod + createEnumDeclaration can now also accept number as value ([73ae41e](https://github.com/kubb-project/kubb/commit/73ae41e71edd8dcd296fc2f067bc0055842fa72d))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.7 ([7973833](https://github.com/kubb-project/kubb/commit/7973833327cc54286c872b609da34786fa71e447))
+
 ## [1.0.0-beta.6](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.5...@kubb/swagger-ts-v1.0.0-beta.6) (2023-04-04)
 
 
