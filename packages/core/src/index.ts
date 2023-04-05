@@ -8,4 +8,5 @@ export * from './utils'
 export * from './types'
 export * from './managers'
 export * from './generators'
+
 export default build

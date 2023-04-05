@@ -10,6 +10,13 @@ import type { OpenAPIV3 } from 'openapi-types'
 
 export const pluginName = 'swagger' as const
 
+// Register your plugin for maximum type safety
+declare module '@kubb/core' {
+  interface Register {
+    ['@kubb/swagger']: PluginOptions['options']
+  }
+}
+
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'schemas', validate = true } = options
   const api: Api = {

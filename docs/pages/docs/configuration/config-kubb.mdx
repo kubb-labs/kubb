@@ -114,6 +114,28 @@ You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packa
   } 
 ```
 
+
+## Object
+
+### Example with a plugin
+
+```json filename=".kubbrc.json" copy
+  {
+    "$schema": "@kubb/core/schemas/config.json",
+    "root": ".",
+    "input": {
+      "path": "./petStore.yaml"
+    },
+    "output": {
+      "path": "./src/gen"
+    },
+    "logLevel": "info",
+    "plugins": {
+      "@kubb/swagger": { "output": "schemas", "validate": true }
+    }
+  } 
+```
+
 ## YAML
 
 ### Example with a plugin

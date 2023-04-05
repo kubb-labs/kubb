@@ -18,6 +18,13 @@ import type { Api, PluginOptions } from './types'
 
 export const pluginName = 'swagger-zod' as const
 
+// Register your plugin for maximum type safety
+declare module '@kubb/core' {
+  interface Register {
+    ['@kubb/swagger-zod']: PluginOptions['options']
+  }
+}
+
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'zod' } = options
   let swaggerApi: SwaggerApi

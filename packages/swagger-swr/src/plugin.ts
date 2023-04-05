@@ -13,6 +13,13 @@ import type { PluginOptions } from './types'
 
 export const pluginName = 'swagger-swr' as const
 
+// Register your plugin for maximum type safety
+declare module '@kubb/core' {
+  interface Register {
+    ['@kubb/swagger-swr']: PluginOptions['options']
+  }
+}
+
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'hooks', groupBy } = options
   let swaggerApi: SwaggerApi

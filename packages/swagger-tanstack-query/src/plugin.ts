@@ -13,6 +13,13 @@ import type { PluginOptions } from './types'
 
 export const pluginName = 'swagger-tanstack-query' as const
 
+// Register your plugin for maximum type safety
+declare module '@kubb/core' {
+  interface Register {
+    ['@kubb/swagger-tanstack-query']: PluginOptions['options']
+  }
+}
+
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'hooks', groupBy, framework = 'react' } = options
   let swaggerApi: SwaggerApi
