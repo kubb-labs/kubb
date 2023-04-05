@@ -1,6 +1,6 @@
 import z from 'zod'
 
-import { petSchema } from './petSchema'
+import { petSchema } from '../petSchema'
 
 export const findPetsByStatusQueryParamsSchema = z.object({ status: z.enum([`available`, `pending`, `sold`]).optional() })
 

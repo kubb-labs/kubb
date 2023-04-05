@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetPetByIdResponse, GetPetByIdPathParams } from '../../models/ts/GetPetById'
+import type { GetPetByIdResponse, GetPetByIdPathParams } from '../../models/ts/petController/GetPetById'
 
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [`/pet/${petId}`] as const
 

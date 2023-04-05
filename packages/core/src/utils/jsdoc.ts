@@ -1,8 +1,8 @@
-export function createJSDocBlockText({ comments }: { comments: Array<string | undefined> }) {
+export function createJSDocBlockText({ comments }: { comments: Array<string> }): string {
   const filteredComments = comments.filter(Boolean)
 
   if (!filteredComments.length) {
-    return undefined
+    return ''
   }
 
   const text = filteredComments.reduce((acc, comment) => {

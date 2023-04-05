@@ -1,4 +1,4 @@
-import type { Pet } from './Pet'
+import type { Pet } from '../Pet'
 
 /**
  * @description Update an existent pet in the store

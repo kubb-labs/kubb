@@ -1,19 +1,49 @@
 import { makeApi, Zodios } from '@zodios/core'
 
+import { addPetResponseSchema } from './zod/addPetSchema'
+import { updatePetResponseSchema } from './zod/updatePetSchema'
 import { findPetsByStatusResponseSchema, findPetsByStatusQueryParamsSchema } from './zod/findPetsByStatusSchema'
 import { findPetsByTagsResponseSchema, findPetsByTagsQueryParamsSchema } from './zod/findPetsByTagsSchema'
 import { getPetByIdResponseSchema, getPetByIdPathParamsSchema } from './zod/getPetByIdSchema'
+import { updatePetWithFormResponseSchema, updatePetWithFormPathParamsSchema, updatePetWithFormQueryParamsSchema } from './zod/updatePetWithFormSchema'
+import { deletePetResponseSchema, deletePetPathParamsSchema } from './zod/deletePetSchema'
+import { uploadFileResponseSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from './zod/uploadFileSchema'
 import { getInventoryResponseSchema } from './zod/getInventorySchema'
+import { placeOrderResponseSchema } from './zod/placeOrderSchema'
 import { getOrderByIdResponseSchema, getOrderByIdPathParamsSchema } from './zod/getOrderByIdSchema'
+import { deleteOrderResponseSchema, deleteOrderPathParamsSchema } from './zod/deleteOrderSchema'
+import { createUserResponseSchema } from './zod/createUserSchema'
+import { createUsersWithListInputResponseSchema } from './zod/createUsersWithListInputSchema'
 import { loginUserResponseSchema, loginUserQueryParamsSchema } from './zod/loginUserSchema'
 import { logoutUserResponseSchema } from './zod/logoutUserSchema'
 import { getUserByNameResponseSchema, getUserByNamePathParamsSchema } from './zod/getUserByNameSchema'
+import { updateUserResponseSchema, updateUserPathParamsSchema } from './zod/updateUserSchema'
+import { deleteUserResponseSchema, deleteUserPathParamsSchema } from './zod/deleteUserSchema'
 
 const endpoints = makeApi([
   {
-    method: `get`,
-    // TODO add utils
-    path: `/pet/findByStatus`,
+    method: 'post',
+    path: '/pet',
+    description: `Add a new pet to the store`,
+    requestFormat: 'json',
+    parameters: [],
+    response: addPetResponseSchema,
+    errors: [],
+  },
+
+  {
+    method: 'put',
+    path: '/pet',
+    description: `Update an existing pet by Id`,
+    requestFormat: 'json',
+    parameters: [],
+    response: updatePetResponseSchema,
+    errors: [],
+  },
+
+  {
+    method: 'get',
+    path: '/pet/findByStatus',
     description: `Multiple status values can be provided with comma separated strings`,
     requestFormat: 'json',
     parameters: [
@@ -29,9 +59,8 @@ const endpoints = makeApi([
   },
 
   {
-    method: `get`,
-    // TODO add utils
-    path: `/pet/findByTags`,
+    method: 'get',
+    path: '/pet/findByTags',
     description: `Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.`,
     requestFormat: 'json',
     parameters: [
@@ -47,9 +76,8 @@ const endpoints = makeApi([
   },
 
   {
-    method: `get`,
-    // TODO add utils
-    path: `/pet/:petId`,
+    method: 'get',
+    path: '/pet/:petId',
     description: `Returns a single pet`,
     requestFormat: 'json',
     parameters: [
@@ -65,9 +93,71 @@ const endpoints = makeApi([
   },
 
   {
-    method: `get`,
-    // TODO add utils
-    path: `/store/inventory`,
+    method: 'post',
+    path: '/pet/:petId',
+    description: ``,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'UpdatePetWithFormPathParams',
+        description: ``,
+        type: 'Path',
+        schema: updatePetWithFormPathParamsSchema,
+      },
+      {
+        name: 'UpdatePetWithFormQueryParams',
+        description: ``,
+        type: 'Query',
+        schema: updatePetWithFormQueryParamsSchema,
+      },
+    ],
+    response: updatePetWithFormResponseSchema,
+    errors: [],
+  },
+
+  {
+    method: 'delete',
+    path: '/pet/:petId',
+    description: `delete a pet`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'DeletePetPathParams',
+        description: ``,
+        type: 'Path',
+        schema: deletePetPathParamsSchema,
+      },
+    ],
+    response: deletePetResponseSchema,
+    errors: [],
+  },
+
+  {
+    method: 'post',
+    path: '/pet/:petId/uploadImage',
+    description: ``,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'UploadFilePathParams',
+        description: ``,
+        type: 'Path',
+        schema: uploadFilePathParamsSchema,
+      },
+      {
+        name: 'UploadFileQueryParams',
+        description: ``,
+        type: 'Query',
+        schema: uploadFileQueryParamsSchema,
+      },
+    ],
+    response: uploadFileResponseSchema,
+    errors: [],
+  },
+
+  {
+    method: 'get',
+    path: '/store/inventory',
     description: `Returns a map of status codes to quantities`,
     requestFormat: 'json',
     parameters: [],
@@ -76,9 +166,18 @@ const endpoints = makeApi([
   },
 
   {
-    method: `get`,
-    // TODO add utils
-    path: `/store/order/:orderId`,
+    method: 'post',
+    path: '/store/order',
+    description: `Place a new order in the store`,
+    requestFormat: 'json',
+    parameters: [],
+    response: placeOrderResponseSchema,
+    errors: [],
+  },
+
+  {
+    method: 'get',
+    path: '/store/order/:orderId',
     description: `For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.`,
     requestFormat: 'json',
     parameters: [
@@ -94,9 +193,45 @@ const endpoints = makeApi([
   },
 
   {
-    method: `get`,
-    // TODO add utils
-    path: `/user/login`,
+    method: 'delete',
+    path: '/store/order/:orderId',
+    description: `For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'DeleteOrderPathParams',
+        description: ``,
+        type: 'Path',
+        schema: deleteOrderPathParamsSchema,
+      },
+    ],
+    response: deleteOrderResponseSchema,
+    errors: [],
+  },
+
+  {
+    method: 'post',
+    path: '/user',
+    description: `This can only be done by the logged in user.`,
+    requestFormat: 'json',
+    parameters: [],
+    response: createUserResponseSchema,
+    errors: [],
+  },
+
+  {
+    method: 'post',
+    path: '/user/createWithList',
+    description: `Creates list of users with given input array`,
+    requestFormat: 'json',
+    parameters: [],
+    response: createUsersWithListInputResponseSchema,
+    errors: [],
+  },
+
+  {
+    method: 'get',
+    path: '/user/login',
     description: ``,
     requestFormat: 'json',
     parameters: [
@@ -112,9 +247,8 @@ const endpoints = makeApi([
   },
 
   {
-    method: `get`,
-    // TODO add utils
-    path: `/user/logout`,
+    method: 'get',
+    path: '/user/logout',
     description: ``,
     requestFormat: 'json',
     parameters: [],
@@ -123,9 +257,8 @@ const endpoints = makeApi([
   },
 
   {
-    method: `get`,
-    // TODO add utils
-    path: `/user/:username`,
+    method: 'get',
+    path: '/user/:username',
     description: ``,
     requestFormat: 'json',
     parameters: [
@@ -137,6 +270,40 @@ const endpoints = makeApi([
       },
     ],
     response: getUserByNameResponseSchema,
+    errors: [],
+  },
+
+  {
+    method: 'put',
+    path: '/user/:username',
+    description: `This can only be done by the logged in user.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'UpdateUserPathParams',
+        description: ``,
+        type: 'Path',
+        schema: updateUserPathParamsSchema,
+      },
+    ],
+    response: updateUserResponseSchema,
+    errors: [],
+  },
+
+  {
+    method: 'delete',
+    path: '/user/:username',
+    description: `This can only be done by the logged in user.`,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'DeleteUserPathParams',
+        description: ``,
+        type: 'Path',
+        schema: deleteUserPathParamsSchema,
+      },
+    ],
+    response: deleteUserResponseSchema,
     errors: [],
   },
 ])

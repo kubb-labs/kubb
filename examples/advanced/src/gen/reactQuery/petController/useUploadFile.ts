@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams } from '../../models/ts/UploadFile'
+import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams } from '../../models/ts/petController/UploadFile'
 
 /**
  * @summary uploads an image

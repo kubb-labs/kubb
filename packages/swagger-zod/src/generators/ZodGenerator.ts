@@ -2,11 +2,13 @@
 import { pascalCase } from 'change-case'
 import uniq from 'lodash.uniq'
 
+import type { PluginContext } from '@kubb/core'
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
 import { isReference } from '@kubb/swagger'
 
 import { keywordZodNodes } from '../utils/keywordZodNodes'
+import { pluginName } from '../plugin'
 
 import type ts from 'typescript'
 
@@ -28,7 +30,7 @@ export type Refs = Record<string, { name: string; key: string }>
 
 type Options = {
   withJSDocs?: boolean
-  nameResolver?: (name: string) => string
+  resolveName: PluginContext['resolveName']
 }
 export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, string[]> {
   // Collect the types of all referenced schemas so we can export them later
@@ -41,7 +43,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   // Keep track of already used type aliases
   usedAliasNames: Record<string, number> = {}
 
-  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, nameResolver: (name) => name }) {
+  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, resolveName: ({ name }) => name }) {
     super(options)
 
     return this
@@ -61,9 +63,17 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       // eslint-disable-next-line prefer-const
       let [fn, args = ''] = item || []
 
-      if (fn === keywordZodNodes.array) return `${fn}(${Array.isArray(args) ? `${args.map(parseProperty).join('')}` : parseProperty(args)})`
-      if (fn === keywordZodNodes.union)
+      if (fn === keywordZodNodes.array) {
+        return `${fn}(${Array.isArray(args) ? `${args.map(parseProperty).join('')}` : parseProperty(args)})`
+      }
+      if (fn === keywordZodNodes.union) {
         return `${keywordZodNodes.and}(${Array.isArray(args) ? `${fn}([${args.map(parseProperty).join(',')}])` : parseProperty(args)})`
+      }
+
+      if (fn === keywordZodNodes.catchall) {
+        return `${fn}(${Array.isArray(args) ? `${args.map(parseProperty).join('')}` : parseProperty(args)})`
+      }
+
       if (fn === keywordZodNodes.and)
         return Array.isArray(args)
           ? `${args
@@ -130,9 +140,9 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string): [string, unknown][] {
     const props = baseSchema?.properties || {}
     const required = baseSchema?.required
-    // const additionalProperties = baseSchema?.additionalProperties
+    const additionalProperties = baseSchema?.additionalProperties
 
-    const members = Object.keys(props)
+    const objectMembers = Object.keys(props)
       .map((name) => {
         const validationFunctions: [string, unknown][] = []
 
@@ -168,13 +178,18 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       })
       .reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
-    // if (additionalProperties) {
-    //   const type = additionalProperties === true ? keywordZodNodes.any : this.getTypeFromSchema(additionalProperties)
+    const members: [string, unknown][] = []
 
-    //   members.push(createIndexSignature(type))
-    // }
+    members.push([keywordZodNodes.object, objectMembers])
 
-    return [[keywordZodNodes.object, members]]
+    if (additionalProperties) {
+      const addionalValidationFunctions =
+        additionalProperties === true ? [keywordZodNodes.any, undefined] : this.getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
+
+      members.push([keywordZodNodes.catchall, addionalValidationFunctions])
+    }
+
+    return members
   }
 
   /**
@@ -189,7 +204,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
-        name: this.options.nameResolver?.(name) || name,
+        name: this.options.resolveName({ name, pluginName }) || name,
         key: name,
       }
     }
@@ -244,6 +259,19 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     }
 
     if (schema.enum) {
+      if ('x-enumNames' in schema) {
+        return [
+          [
+            keywordZodNodes.enum,
+            [
+              `[${uniq(schema['x-enumNames'] as string[])
+                .map((value) => `\`${value}\``)
+                .join(', ')}]`,
+            ],
+          ],
+        ]
+      }
+
       return [
         [
           keywordZodNodes.enum,

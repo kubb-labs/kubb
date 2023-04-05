@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { DeleteUserRequest, DeleteUserResponse, DeleteUserPathParams } from '../../models/ts/DeleteUser'
+import type { DeleteUserRequest, DeleteUserResponse, DeleteUserPathParams } from '../../models/ts/userController/DeleteUser'
 
 /**
  * @description This can only be done by the logged in user.

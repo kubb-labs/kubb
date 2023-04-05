@@ -8,8 +8,16 @@ import type { Api as SwaggerApi } from '@kubb/swagger'
 import { OperationGenerator } from './generators'
 
 import type { PluginOptions } from './types'
+import { camelCase } from 'change-case'
 
 export const pluginName = 'swagger-zodios' as const
+
+// Register your plugin for maximum type safety
+declare module '@kubb/core' {
+  interface Register {
+    ['@kubb/swagger-zodios']: PluginOptions['options']
+  }
+}
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'zodios.ts' } = options
@@ -27,12 +35,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return valid
     },
-    resolveId(fileName, directory) {
+    resolvePath(fileName, directory) {
       if (!directory) {
         return null
       }
 
       return pathParser.resolve(directory, fileName)
+    },
+    resolveName(name) {
+      return camelCase(name, { delimiter: '' })
     },
     async buildStart() {
       const oas = await swaggerApi.getOas(this.config)
@@ -41,9 +52,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const operationGenerator = new OperationGenerator({
         oas,
         directory,
-        fileName: output,
+        output,
         fileManager: this.fileManager,
-        resolveId: this.resolveId,
+        resolveName: this.resolveName,
+        resolvePath: this.resolvePath,
       })
 
       await operationGenerator.build()

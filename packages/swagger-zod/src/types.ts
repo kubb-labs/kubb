@@ -1,7 +1,7 @@
 import type { PluginFactoryOptions } from '@kubb/core'
 
 export type Api = {
-  resolveId: (fileName: string, directory: string | undefined) => string | null
+  resolvePath: (fileName: string, directory: string | undefined, options?: ResolvePathOptions) => string | null
 }
 
 export type Options = {
@@ -11,6 +11,13 @@ export type Options = {
    * @default 'models'
    */
   output?: string
+  /**
+   * Group the react-query hooks based on the provided name.
+   * Tag will group based on the operation tag inside the Swagger file
+   */
+  groupBy?: 'tag'
 }
 
-export type PluginOptions = PluginFactoryOptions<Options, false, Api>
+export type ResolvePathOptions = { tag?: string }
+
+export type PluginOptions = PluginFactoryOptions<Options, false, Api, ResolvePathOptions>

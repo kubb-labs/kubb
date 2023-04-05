@@ -10,6 +10,13 @@ import type { OpenAPIV3 } from 'openapi-types'
 
 export const pluginName = 'swagger' as const
 
+// Register your plugin for maximum type safety
+declare module '@kubb/core' {
+  interface Register {
+    ['@kubb/swagger']: PluginOptions['options']
+  }
+}
+
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'schemas', validate = true } = options
   const api: Api = {
@@ -21,11 +28,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     options,
     kind: 'schema',
     api,
-    resolveId(fileName, directory) {
+    resolvePath(fileName, directory) {
       if (!directory) {
         return null
       }
       return pathParser.resolve(directory, fileName)
+    },
+    resolveName(name) {
+      return name
     },
     async writeFile(source, path) {
       if (!path.endsWith('.json') || !source) {
@@ -43,7 +53,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const schemas = oas.getDefinition().components?.schemas || {}
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
-        const path = await this.resolveId({
+        const path = await this.resolvePath({
           fileName: `${name}.json`,
           directory: pathParser.resolve(this.config.root, this.config.output.path, output),
           pluginName,

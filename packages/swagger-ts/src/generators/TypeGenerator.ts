@@ -3,6 +3,7 @@ import ts from 'typescript'
 import { pascalCase, camelCase } from 'change-case'
 import uniq from 'lodash.uniq'
 
+import type { PluginContext } from '@kubb/core'
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3 } from '@kubb/swagger'
 import { isReference } from '@kubb/swagger'
@@ -17,6 +18,7 @@ import {
 } from '@kubb/ts-codegen'
 
 import { keywordTypeNodes } from '../utils'
+import { pluginName } from '../plugin'
 
 const { factory } = ts
 
@@ -30,7 +32,7 @@ export type Refs = Record<string, { name: string; key: string }>
 
 type Options = {
   withJSDocs?: boolean
-  nameResolver?: (name: string) => string
+  resolveName: PluginContext['resolveName']
 }
 export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.Node[]> {
   // Collect the types of all referenced schemas so we can export them later
@@ -45,7 +47,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   // Keep track of already used type aliases
   usedAliasNames: Record<string, number> = {}
 
-  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, nameResolver: (name) => name }) {
+  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, resolveName: ({ name }) => name }) {
     super(options)
 
     return this
@@ -172,7 +174,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
-        name: this.options.nameResolver?.(name) || name,
+        name: this.options.resolveName({ name, pluginName }) || name,
         key: name,
       }
     }
@@ -238,11 +240,20 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.enum && name) {
       const enumName = getUniqueName(name, TypeGenerator.usedEnumNames)
+
+      let enums: [key: string, value: string | number][] = uniq(schema.enum)!.map((key) => [key, key])
+
+      if ('x-enumNames' in schema) {
+        enums = uniq(schema['x-enumNames'] as string[]).map((key: string, index) => {
+          return [key, schema.enum![index]]
+        })
+      }
+
       this.extraNodes.push(
         ...createEnumDeclaration({
           name: camelCase(enumName, { delimiter: '' }),
           typeName: pascalCase(enumName, { delimiter: '' }),
-          enums: uniq(schema.enum),
+          enums,
         })
       )
       return factory.createTypeReferenceNode(pascalCase(enumName, { delimiter: '' }), undefined)

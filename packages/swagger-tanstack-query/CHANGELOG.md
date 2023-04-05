@@ -1,5 +1,69 @@
 # Changelog
 
+## [1.0.0-beta.8](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.7...@kubb/swagger-tanstack-query-v1.0.0-beta.8) (2023-04-05)
+
+
+### Bug Fixes
+
+* use of declare module to have autocomplete when using plugins in object format ([b64e728](https://github.com/kubb-project/kubb/commit/b64e728bcf61824c7c9609b363ffcdbea6c1530f))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.8 ([f331db4](https://github.com/kubb-project/kubb/commit/f331db4a15fee8de12e95b9583b111dc1cbe8cc4))
+
+## [1.0.0-beta.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.6...@kubb/swagger-tanstack-query-v1.0.0-beta.7) (2023-04-04)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.7 ([7973833](https://github.com/kubb-project/kubb/commit/7973833327cc54286c872b609da34786fa71e447))
+
+## [1.0.0-beta.6](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.5...@kubb/swagger-tanstack-query-v1.0.0-beta.6) (2023-04-04)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.6 ([b11e6fe](https://github.com/kubb-project/kubb/commit/b11e6fe2b65c4784c151bb2e08729cd166f09151))
+* release 1.0.0-beta.6 ([6f27206](https://github.com/kubb-project/kubb/commit/6f2720619c386771b9a8ea232c23948ff3781203))
+
+## [1.0.0-beta.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.4...@kubb/swagger-tanstack-query-v1.0.0-beta.5) (2023-04-03)
+
+
+### Features
+
+* operation object with all paths and methods grouped by operationId ([5cd51db](https://github.com/kubb-project/kubb/commit/5cd51dbdc4e2ed366313b17d9f9a273e8e9a5db1))
+* solid-query ([ac0598a](https://github.com/kubb-project/kubb/commit/ac0598ae64759c4e81665cd30992b8edc3fc3d99))
+* svelte-query ([be06ace](https://github.com/kubb-project/kubb/commit/be06ace70add445a9fda3caf168223fbd278a147))
+* swaggerOperationGenerator with getParams and abstract resolve ([876173a](https://github.com/kubb-project/kubb/commit/876173a0c8a3ea2f18f81b8c7e26a83d3eab8214))
+* use of resolveName of pluginContext ([3903e73](https://github.com/kubb-project/kubb/commit/3903e73c547c1137b48d3d4630fb34dbf1434857))
+* vue-query ([712f2f2](https://github.com/kubb-project/kubb/commit/712f2f2af4b03091df2e1cea46afade8868e842b))
+
+
+### Bug Fixes
+
+* cleanup operationGenerator ([15be8e1](https://github.com/kubb-project/kubb/commit/15be8e152512fe1c84bdbec9a117e3728e254fef))
+* move getParams out of operationGenerator ([12701df](https://github.com/kubb-project/kubb/commit/12701dfaf2cd724f1a86db0544ffd2d19f30386b))
+* use of toURLPath and toTemplateString ([6eb4bd8](https://github.com/kubb-project/kubb/commit/6eb4bd8ee63acee6a522da9e70b604e99a1c7740))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.1 ([608fd59](https://github.com/kubb-project/kubb/commit/608fd5926079f9dd77046d6788a5550fb964c0b2))
+* release 1.0.0-alpha.2 ([3d645ac](https://github.com/kubb-project/kubb/commit/3d645accedb121856e61bab166fafe74db6ca3f3))
+* release 1.0.0-alpha.3 ([4fb3d6a](https://github.com/kubb-project/kubb/commit/4fb3d6a6ff5b6b0950d94a12f04c4fd3db89c595))
+* release 1.0.0-alpha.4 ([8d808c3](https://github.com/kubb-project/kubb/commit/8d808c3d0b255b76dc79ad92324f0f2ee8afd619))
+* release 1.0.0-alpha.5 ([8bb9ed2](https://github.com/kubb-project/kubb/commit/8bb9ed2d0ce9ee47db2d24daba993b81cd56d2c0))
+* release 1.0.0-alpha.6 ([550035a](https://github.com/kubb-project/kubb/commit/550035a122a2e5a5294a49a0d2c927fc238315e6))
+* release 1.0.0-alpha.7 ([29bd33a](https://github.com/kubb-project/kubb/commit/29bd33aefb990c298d6615f10add0ca7fce69861))
+* release 1.0.0-alpha.8 ([c5a3d68](https://github.com/kubb-project/kubb/commit/c5a3d6879abdb09c5ed9776e2e715800a2bf51d9))
+* release 1.0.0-beta.1 ([151d4c3](https://github.com/kubb-project/kubb/commit/151d4c393d4d6d0b2b85267dd2ef00c6f20636aa))
+* release 1.0.0-beta.2 ([390b3d0](https://github.com/kubb-project/kubb/commit/390b3d0eb3aa7edbf2dd8d7d2765312c76710397))
+* release 1.0.0-beta.2 ([826bfef](https://github.com/kubb-project/kubb/commit/826bfef6b81c46ea92531ce36ac6617c52a7bba8))
+* release 1.0.0-beta.3 ([c134fb6](https://github.com/kubb-project/kubb/commit/c134fb61d0634abfea0740467087ff1b2d7ba3fa))
+* release 1.0.0-beta.4 ([4127252](https://github.com/kubb-project/kubb/commit/4127252b59422a5692e17e3673a26ae346d9cdba))
+* release 1.0.0-beta.5 ([87515db](https://github.com/kubb-project/kubb/commit/87515db8910aacd58dabe7be5efa43191d33992e))
+
 ## [1.0.0-beta.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.3...@kubb/swagger-tanstack-query-v1.0.0-beta.4) (2023-03-31)
 
 
@@ -848,7 +912,7 @@
 
 ### Features
 
-* emitFile can use EmittedFile or File + rewrite swagger plugin to use emitFile resolveId of selected plugin ([c43bc26](https://github.com/kubb-project/kubb/commit/c43bc2621eddaacd27eed39f6d70586434326747))
+* emitFile can use EmittedFile or File + rewrite swagger plugin to use emitFile resolvePath of selected plugin ([c43bc26](https://github.com/kubb-project/kubb/commit/c43bc2621eddaacd27eed39f6d70586434326747))
 
 ## [0.22.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v0.21.1...@kubb/swagger-tanstack-query-v0.22.0) (2023-01-01)
 
@@ -862,7 +926,7 @@
 
 ### Bug Fixes
 
-* use of this.resolveId with objectParams with possibility to call resolveIdForPlugin when passing pluginName ([c31ac69](https://github.com/kubb-project/kubb/commit/c31ac6928906dcb758171966dc3a9e580546f345))
+* use of this.resolvePath with objectParams with possibility to call resolvePathForPlugin when passing pluginName ([c31ac69](https://github.com/kubb-project/kubb/commit/c31ac6928906dcb758171966dc3a9e580546f345))
 
 ## [0.21.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v0.20.0...@kubb/swagger-tanstack-query-v0.21.0) (2023-01-01)
 
@@ -870,7 +934,7 @@
 ### Features
 
 * FileManager with event emits(node) ([b419f35](https://github.com/kubb-project/kubb/commit/b419f357ce7f62fecca8fe5ab413e111e3b8df20))
-* resolveId for a specific plugin only(resolveIdForPlugin) ([5ebb878](https://github.com/kubb-project/kubb/commit/5ebb8784ab48349412fe9627d361d502bafcc2cc))
+* resolvePath for a specific plugin only(resolvePathForPlugin) ([5ebb878](https://github.com/kubb-project/kubb/commit/5ebb8784ab48349412fe9627d361d502bafcc2cc))
 
 ## [0.20.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v0.19.1...@kubb/swagger-tanstack-query-v0.20.0) (2022-12-31)
 
@@ -958,7 +1022,7 @@
 
 ### Features
 
-* better use of resolveId(importee and importer) ([f650c70](https://github.com/kubb-project/kubb/commit/f650c7064c89006053e22d898ca2762d6cc99103))
+* better use of resolvePath(importee and importer) ([f650c70](https://github.com/kubb-project/kubb/commit/f650c7064c89006053e22d898ca2762d6cc99103))
 * clear functionality ([a4347c5](https://github.com/kubb-project/kubb/commit/a4347c58c62d77e7f8385902d6cf4c9cbf8f255f))
 * simpler index generation for types and reactQuery + combine subfolders ([832827b](https://github.com/kubb-project/kubb/commit/832827b79b7a4f945cb21900d57f360a4673c03e))
 * use of #ref for types ([4414054](https://github.com/kubb-project/kubb/commit/4414054efe2a5790a6b5a1e7ff04eddacf2aaf2b))

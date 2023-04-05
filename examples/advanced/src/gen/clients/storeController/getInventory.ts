@@ -1,6 +1,6 @@
 import client from '../../../client'
 
-import type { GetInventoryResponse } from '../../models/ts/GetInventory'
+import type { GetInventoryResponse } from '../../models/ts/storeController/GetInventory'
 
 /**
  * @description Returns a map of status codes to quantities

@@ -4,7 +4,7 @@
 
 import pathParser from 'path'
 
-import { pascalCase } from 'change-case'
+import { camelCase, pascalCase } from 'change-case'
 
 import { getRelativePath, createPlugin, getPathMode, validatePlugins } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
@@ -18,12 +18,19 @@ import type { Api, PluginOptions } from './types'
 
 export const pluginName = 'swagger-ts' as const
 
+// Register your plugin for maximum type safety
+declare module '@kubb/core' {
+  interface Register {
+    ['@kubb/swagger-ts']: PluginOptions['options']
+  }
+}
+
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'models' } = options
+  const { output = 'models', groupBy } = options
   let swaggerApi: SwaggerApi
 
   const api: Api = {
-    resolveId(fileName, directory) {
+    resolvePath(fileName, directory, options) {
       if (!directory) {
         return null
       }
@@ -36,6 +43,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
         return pathParser.resolve(directory, output)
+      }
+
+      if (options?.tag && groupBy === 'tag') {
+        return pathParser.resolve(directory, output, camelCase(`${options.tag}Controller`), fileName)
       }
 
       return pathParser.resolve(directory, output, fileName)
@@ -55,8 +66,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return valid
     },
-    resolveId(fileName, directory) {
-      return api.resolveId(fileName, directory)
+    resolvePath(fileName, directory, options) {
+      return api.resolvePath(fileName, directory, options)
+    },
+    resolveName(name) {
+      return pascalCase(name, { delimiter: '' })
     },
     async writeFile(source, path) {
       if (!path.endsWith('.ts') || !source) {
@@ -72,19 +86,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const directory = pathParser.resolve(this.config.root, this.config.output.path)
       const mode = getPathMode(pathParser.resolve(directory, output))
 
-      const nameResolver = (name: string) => pascalCase(name, { delimiter: '' })
-
       if (mode === 'directory') {
         const builder = await new TypeBuilder(oas).configure({
-          nameResolver,
+          resolveName: (params) => this.resolveName({ pluginName, ...params }),
           fileResolver: async (name) => {
-            const resolvedTypeId = await this.resolveId({
+            const resolvedTypeId = await this.resolvePath({
               fileName: `${name}.ts`,
               directory,
               pluginName,
             })
 
-            const root = await this.resolveId({ fileName: ``, directory, pluginName })
+            const root = await this.resolvePath({ fileName: ``, directory, pluginName })
 
             return getRelativePath(root, resolvedTypeId)
           },
@@ -99,7 +111,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
 
         const mapFolderSchema = async ([name]: [string, OpenAPIV3.SchemaObject]) => {
-          const path = await this.resolveId({ fileName: `${nameResolver(name)}.ts`, directory, pluginName })
+          const path = await this.resolvePath({ fileName: `${this.resolveName({ name, pluginName })}.ts`, directory, pluginName })
 
           if (!path) {
             return null
@@ -107,7 +119,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
           return this.addFile({
             path,
-            fileName: `${nameResolver(name)}.ts`,
+            fileName: `${this.resolveName({ name, pluginName })}.ts`,
             source: await builder.print(name),
           })
         }
@@ -120,7 +132,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (mode === 'file') {
         // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
         const builder = new TypeBuilder(oas).configure({
-          nameResolver,
+          resolveName: (params) => this.resolveName({ pluginName, ...params }),
           withJSDocs: true,
         })
         Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
@@ -131,14 +143,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           })
         })
 
-        const path = await this.resolveId({ fileName: '', directory, pluginName })
+        const path = await this.resolvePath({ fileName: '', directory, pluginName })
         if (!path) {
           return
         }
 
         await this.addFile({
           path,
-          fileName: `${nameResolver(output)}.ts`,
+          fileName: `${this.resolveName({ name: output, pluginName })}.ts`,
           source: await builder.print(),
         })
       }
@@ -148,8 +160,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         mode,
         directory,
         fileManager: this.fileManager,
-        nameResolver,
-        resolveId: api.resolveId,
+        resolvePath: api.resolvePath,
+        resolveName: (params) => this.resolveName({ pluginName, ...params }),
       })
 
       await operationGenerator.build()

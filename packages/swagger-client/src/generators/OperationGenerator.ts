@@ -1,34 +1,71 @@
-import { camelCase, pascalCase } from 'change-case'
-
 import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
-import { getRelativePath, objectToParameters, createJSDocBlockText } from '@kubb/core'
+import { getRelativePath, createJSDocBlockText } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
-import { OperationGenerator as Generator, getComments } from '@kubb/swagger'
-import type { Oas, Operation, OperationSchemas, HttpMethod } from '@kubb/swagger'
+import { OperationGenerator as Generator, getComments, getParams, Path } from '@kubb/swagger'
+import type { Oas, Operation, OperationSchemas, HttpMethod, Resolver } from '@kubb/swagger'
 
 import { pluginName } from '../plugin'
 
-import type { ResolveIdOptions } from '../types'
+import type { ResolvePathOptions } from '../types'
 
 type Options = {
   clientPath?: OptionalPath
   oas: Oas
   directory: string
   fileManager: FileManager
-  resolveId: PluginContext<ResolveIdOptions>['resolveId']
+  resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
+  resolveName: PluginContext['resolveName']
 }
 
 export class OperationGenerator extends Generator<Options> {
-  async all(paths: Record<string, Record<HttpMethod, Operation | undefined>>): Promise<File | null> {
-    const { directory, resolveId } = this.options
+  async resolve(operation: Operation): Promise<Resolver> {
+    const { directory, resolvePath, resolveName } = this.options
 
-    // controller setup
-    const controllerName = `${camelCase('operations', { delimiter: '' })}`
+    const name = resolveName({ name: operation.getOperationId(), pluginName })
+    const fileName = `${name}.ts`
+    const filePath = await resolvePath({
+      fileName,
+      directory,
+      options: { tag: operation.getTags()[0]?.name },
+    })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
+  async resolveType(operation: Operation): Promise<Resolver> {
+    const { directory, resolvePath, resolveName } = this.options
+
+    const name = resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })
+    const fileName = `${name}.ts`
+    const filePath = await resolvePath({ fileName, directory, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
+  async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File | null> {
+    const { directory, resolvePath, resolveName } = this.options
+
+    const controllerName = resolveName({ name: 'operations' })
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({
+    const controllerFilePath = await resolvePath({
       fileName: controllerId,
       directory,
-      pluginName,
     })
 
     if (!controllerFilePath) {
@@ -45,8 +82,7 @@ export class OperationGenerator extends Generator<Options> {
         const operation = this.getOperation(path, method as HttpMethod)
         if (operation) {
           groupedByOperationId[operation.getOperationId()] = {
-            // TODO add util
-            path: path.replaceAll('{', ':').replaceAll('}', ''),
+            path: new Path(path).URL,
             method: method as HttpMethod,
           }
         }
@@ -64,108 +100,40 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolveId, clientPath } = this.options
+    const { clientPath } = this.options
 
-    // controller setup
-    const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
-    const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({
-      fileName: controllerId,
-      directory,
-      pluginName,
-      options: { tag: operation.getTags()[0]?.name },
-    })
-
-    if (!controllerFilePath) {
-      return null
-    }
-    // end controller setup
-
-    // type creation
-
-    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
-
-    // controller creation
+    const controller = await this.resolve(operation)
+    const type = await this.resolveType(operation)
 
     const comments = getComments(operation)
     const sources: string[] = []
-    let url = operation.path
-    let pathParamsTyped = ''
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
-    if (schemas.pathParams) {
-      // TODO move to it's own function(utils)
-      url = url.replaceAll('{', '${')
-
-      const data = Object.entries(schemas.pathParams.schema.properties!).map((item) => {
-        return [item[0], schemas.pathParams!.name]
-      })
-
-      pathParamsTyped = objectToParameters(data, { typed: true })
-    }
-
-    if (schemas.queryParams && !schemas.pathParams) {
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${controllerName} <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}) {
-          return client<TData>({
-            method: "get",
-            url: \`${url}\`,
-            params
-          });
-        };
-      `)
-    }
-
-    if (!schemas.queryParams && schemas.pathParams) {
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${controllerName} <TData = ${schemas.response.name}>(${pathParamsTyped}) {
-          return client<TData>({
-            method: "get",
-            url: \`${url}\`
-          });
-        };
-      `)
-    }
-
-    if (schemas.queryParams && schemas.pathParams) {
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${controllerName} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${schemas.queryParams.name}) {
-          return client<TData>({
-            method: "get",
-            url: \`${url}\`,
-            params
-          });
-        };
-      `)
-    }
-
-    if (!schemas.queryParams && !schemas.pathParams) {
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${controllerName} <TData = ${schemas.response.name}>() {
-          return client<TData>({
-            method: "get",
-            url: \`${url}\`
-          });
-        };
-      `)
-    }
+    sources.push(`
+      ${createJSDocBlockText({ comments })}
+      export function ${controller.name} <TData = ${schemas.response.name}${
+      schemas.queryParams?.name ? `, TParams = ${schemas.queryParams?.name}` : ''
+    }>(${pathParamsTyped} ${schemas.queryParams?.name ? 'params?: TParams' : ''}) {
+        return client<TData>({
+          method: "get",
+          url: ${new Path(operation.path).template},
+          ${schemas.queryParams?.name ? 'params,' : ''}
+        });
+      };
+    `)
 
     return {
-      path: controllerFilePath,
-      fileName: controllerId,
+      path: controller.filePath,
+      fileName: controller.fileName,
       source: sources.join('\n'),
       imports: [
         {
           name: 'client',
-          path: clientPath ? getRelativePath(controllerFilePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
-          path: getRelativePath(controllerFilePath, typeFilePath),
+          path: getRelativePath(controller.filePath, type.filePath),
           isTypeOnly: true,
         },
       ],
@@ -173,205 +141,118 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolveId, clientPath } = this.options
+    const { clientPath } = this.options
 
-    // controller setup
-    const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
-    const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
-    if (!controllerFilePath) {
-      return null
-    }
-    // end controller setup
-
-    // type creation
-
-    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
-
-    // controller creation
+    const controller = await this.resolve(operation)
+    const type = await this.resolveType(operation)
 
     const comments = getComments(operation)
+    const sources: string[] = []
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
-    let url = operation.path
-    let pathParamsTyped = ''
-
-    if (schemas.pathParams) {
-      // TODO move to it's own function(utils)
-      url = url.replaceAll('{', '${')
-
-      pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
-        .reduce((acc, [key, value], index, arr) => {
-          acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
-
-          return acc
-        }, [] as string[])
-        .join('')
-    }
-
-    const source = `
+    sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${controllerName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables) {
+        export function ${controller.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables) {
           return client<TData, TVariables>({
             method: "post",
-            url: \`${url}\`,
+            url: ${new Path(operation.path).template},
             data,
           });
         };
-    `
+    `)
 
     return {
-      path: controllerFilePath,
-      fileName: controllerId,
-      source,
+      path: controller.filePath,
+      fileName: controller.fileName,
+      source: sources.join('\n'),
       imports: [
         {
           name: 'client',
-          path: clientPath ? getRelativePath(controllerFilePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
-          path: getRelativePath(controllerFilePath, typeFilePath),
+          path: getRelativePath(controller.filePath, type.filePath),
           isTypeOnly: true,
         },
       ],
     }
-
-    // end controller creation
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolveId, clientPath } = this.options
+    const { clientPath } = this.options
 
-    // controller setup
-    const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
-    const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
-    if (!controllerFilePath) {
-      return null
-    }
-    // end controller setup
-
-    // type creation
-
-    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
-
-    // controller creation
+    const controller = await this.resolve(operation)
+    const type = await this.resolveType(operation)
 
     const comments = getComments(operation)
+    const sources: string[] = []
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
-    let url = operation.path
-    let pathParamsTyped = ''
-
-    if (schemas.pathParams) {
-      // TODO move to it's own function(utils)
-      url = url.replaceAll('{', '${')
-
-      pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
-        .reduce((acc, [key, value], index, arr) => {
-          acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
-
-          return acc
-        }, [] as string[])
-        .join('')
-    }
-
-    const source = `
+    sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${controllerName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables) {
+        export function ${controller.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables) {
           return client<TData, TVariables>({
             method: "put",
-            url: \`${url}\`,
+            url: ${new Path(operation.path).template},
             data
           });
         };
-    `
+    `)
 
     return {
-      path: controllerFilePath,
-      fileName: controllerId,
-      source,
+      path: controller.filePath,
+      fileName: controller.fileName,
+      source: sources.join('\n'),
       imports: [
         {
           name: 'client',
-          path: clientPath ? getRelativePath(controllerFilePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
-          path: getRelativePath(controllerFilePath, typeFilePath),
+          path: getRelativePath(controller.filePath, type.filePath),
           isTypeOnly: true,
         },
       ],
     }
-
-    // end controller creation
   }
 
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { directory, resolveId, clientPath } = this.options
+    const { clientPath } = this.options
 
-    // controller setup
-    const controllerName = `${camelCase(operation.getOperationId(), { delimiter: '' })}`
-    const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolveId({ fileName: controllerId, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
-    if (!controllerFilePath) {
-      return null
-    }
-    // end controller setup
-
-    // type creation
-
-    const typeName = `${pascalCase(operation.getOperationId(), { delimiter: '' })}.ts`
-    const typeFilePath = await resolveId({ fileName: typeName, directory, pluginName: swaggerTypescriptPluginName })
-
-    // controller creation
+    const controller = await this.resolve(operation)
+    const type = await this.resolveType(operation)
 
     const comments = getComments(operation)
+    const sources: string[] = []
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
-    let url = operation.path
-    let pathParamsTyped = ''
-
-    if (schemas.pathParams) {
-      // TODO move to it's own function(utils)
-      url = url.replaceAll('{', '${')
-
-      pathParamsTyped = Object.entries(schemas.pathParams.schema.properties!)
-        .reduce((acc, [key, value], index, arr) => {
-          acc.push(`${key}: ${schemas.pathParams!.name}["${key}"], `)
-
-          return acc
-        }, [] as string[])
-        .join('')
-    }
-
-    const source = `
+    sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${controllerName} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped}) {
+        export function ${controller.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped}) {
           return client<TData, TVariables>({
             method: "delete",
-            url: \`${url}\`
+            url: ${new Path(operation.path).template}
           });
         };
-    `
+    `)
 
     return {
-      path: controllerFilePath,
-      fileName: controllerId,
-      source,
+      path: controller.filePath,
+      fileName: controller.fileName,
+      source: sources.join('\n'),
       imports: [
         {
           name: 'client',
-          path: clientPath ? getRelativePath(controllerFilePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
-          path: getRelativePath(controllerFilePath, typeFilePath),
+          path: getRelativePath(controller.filePath, type.filePath),
           isTypeOnly: true,
         },
       ],
     }
-
-    // end controller creation
   }
 }

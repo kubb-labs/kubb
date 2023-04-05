@@ -1,6 +1,6 @@
 import client from '../../../client'
 
-import type { GetUserByNameResponse, GetUserByNamePathParams } from '../../models/ts/GetUserByName'
+import type { GetUserByNameResponse, GetUserByNamePathParams } from '../../models/ts/userController/GetUserByName'
 
 /**
  * @summary Get user by user name

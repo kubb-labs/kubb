@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetInventoryResponse } from '../../models/ts/GetInventory'
+import type { GetInventoryResponse } from '../../models/ts/storeController/GetInventory'
 
 export const getInventoryQueryKey = () => [`/store/inventory`] as const
 

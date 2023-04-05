@@ -1,5 +1,6 @@
-import { OasBuilder } from '@kubb/swagger'
+import { OasBuilder, pluginName } from '@kubb/swagger'
 import type { FileResolver } from '@kubb/swagger'
+import type { PluginContext } from '@kubb/core'
 import { nameSorter } from '@kubb/core'
 import { print } from '@kubb/ts-codegen'
 
@@ -10,8 +11,8 @@ import type { Refs } from '../generators'
 
 type Generated = { refs: Refs; name: string; sources: ts.Node[] }
 type Config = {
+  resolveName: PluginContext['resolveName']
   fileResolver?: FileResolver
-  nameResolver?: (name: string) => string
   withJSDocs?: boolean
   withImports?: boolean
 }
@@ -45,8 +46,8 @@ export class TypeBuilder extends OasBuilder<Config> {
       .filter((gen) => (name ? gen.name === name : true))
       .sort(nameSorter)
       .map((gen) => {
-        const generator = new TypeGenerator(this.oas, { withJSDocs: this.config.withJSDocs, nameResolver: this.config.nameResolver })
-        const nodes = generator.build(gen.schema, this.config.nameResolver?.(gen.name) || gen.name, gen.description)
+        const generator = new TypeGenerator(this.oas, { withJSDocs: this.config.withJSDocs, resolveName: this.config.resolveName })
+        const nodes = generator.build(gen.schema, this.config.resolveName({ name: gen.name, pluginName }) || gen.name, gen.description)
 
         return {
           refs: generator.refs,

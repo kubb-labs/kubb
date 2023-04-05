@@ -1,6 +1,6 @@
 import z from 'zod'
 
-import { userSchema } from './userSchema'
+import { userSchema } from '../userSchema'
 
 export const createUserResponseSchema = z.any()
 

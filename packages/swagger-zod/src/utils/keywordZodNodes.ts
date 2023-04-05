@@ -16,6 +16,7 @@ export const keywordZodNodes = {
   min: '.min',
   max: '.max',
   optional: '.optional',
+  catchall: '.catchall',
 
   // custom ones
   ref: 'ref',

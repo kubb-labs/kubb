@@ -1,6 +1,6 @@
 import z from 'zod'
 
-import { petSchema } from './petSchema'
+import { petSchema } from '../petSchema'
 
 /**
  * @description Create a new pet in the store

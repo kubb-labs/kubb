@@ -1,4 +1,123 @@
 # Changelog
+## [1.0.0-beta.8](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.7...@kubb/core-v1.0.0-beta.8) (2023-04-05)
+
+
+### Bug Fixes
+
+* use of declare module to have autocomplete when using plugins in object format ([b64e728](https://github.com/kubb-project/kubb/commit/b64e728bcf61824c7c9609b363ffcdbea6c1530f))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.8 ([f331db4](https://github.com/kubb-project/kubb/commit/f331db4a15fee8de12e95b9583b111dc1cbe8cc4))
+
+## [1.0.0-beta.7](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.6...@kubb/core-v1.0.0-beta.7) (2023-04-04)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.7 ([7973833](https://github.com/kubb-project/kubb/commit/7973833327cc54286c872b609da34786fa71e447))
+
+## [1.0.0-beta.6](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.5...@kubb/core-v1.0.0-beta.6) (2023-04-04)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.6 ([b11e6fe](https://github.com/kubb-project/kubb/commit/b11e6fe2b65c4784c151bb2e08729cd166f09151))
+* release 1.0.0-beta.6 ([6f27206](https://github.com/kubb-project/kubb/commit/6f2720619c386771b9a8ea232c23948ff3781203))
+
+## [1.0.0-beta.5](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.4...@kubb/core-v1.0.0-beta.5) (2023-04-03)
+
+
+### Features
+
+* extraTexts for zodBuilder and enum for zod ([9f61235](https://github.com/kubb-project/kubb/commit/9f61235a71a3b0633387b3ea47a913943da3f623))
+* format with js-beautify instead of Prettier(works also in the browser) ([ecc0952](https://github.com/kubb-project/kubb/commit/ecc0952c929aa71bac8a3bb0cf400289c7dee142))
+* getUniqueName used for aliases + also for enums ([60580c4](https://github.com/kubb-project/kubb/commit/60580c4e79b4e1154855bafffeb63c2f4e9fc202))
+* imports for fileManager ([1e021e7](https://github.com/kubb-project/kubb/commit/1e021e7210ad6b76d94ecf6c038bccc568188979))
+* move typescript logic to swagger-typescript package ([d4b6d2b](https://github.com/kubb-project/kubb/commit/d4b6d2b8035de648bb583662d5c022a37dff8f74))
+* oneof for zod and typescript + added description for zod ([ebef9d2](https://github.com/kubb-project/kubb/commit/ebef9d2597f38989c6d43a87053d5eba23948bca))
+* react-query plugin output in one file(with correct imports) ([2bd3af4](https://github.com/kubb-project/kubb/commit/2bd3af4fdf188b5ac7c1335a97229479e471af85))
+* ResolveIdOptions with generic for KubbPlugin type ([ea8a0cc](https://github.com/kubb-project/kubb/commit/ea8a0cc9c308c1059024a5aa558fbb62a95511a2))
+* svelte-query ([be06ace](https://github.com/kubb-project/kubb/commit/be06ace70add445a9fda3caf168223fbd278a147))
+* swr plugin ([fb091d9](https://github.com/kubb-project/kubb/commit/fb091d98b97cf91df8ccdeb84db6b963cc7e3712))
+* ts-codegen package ([b25db7e](https://github.com/kubb-project/kubb/commit/b25db7e9b874dd953f25b1814c4c7db3fbc9ff0b))
+* use of @humanwhocodes/module-importer(like eslint) to get plugins when they are used in a JSON format ([b4715ef](https://github.com/kubb-project/kubb/commit/b4715efb6d835f72b5f135245c1dde13d228fb77))
+* use of pathParams to create function arguments for ReactQuery GET hooks ([e6994fc](https://github.com/kubb-project/kubb/commit/e6994fc9576122d1aaf2edabab65d871f43a6e8a))
+* use of prettier format ([3e3451b](https://github.com/kubb-project/kubb/commit/3e3451b057e227df160af6410dad37ffddb0d41c))
+* use of resolveName of pluginContext ([3903e73](https://github.com/kubb-project/kubb/commit/3903e73c547c1137b48d3d4630fb34dbf1434857))
+* use of swagger-ts name instead of swagger-typescript ([e9c27a4](https://github.com/kubb-project/kubb/commit/e9c27a4d1485b4d38e58fb0d67380796f1eb1aad))
+* vue-query ([712f2f2](https://github.com/kubb-project/kubb/commit/712f2f2af4b03091df2e1cea46afade8868e842b))
+
+
+### Bug Fixes
+
+* add banner for index.global.js ([91548c3](https://github.com/kubb-project/kubb/commit/91548c3f72c6e7074df8bfec02a66b2bd03a4c7a))
+* add declarationMap for easy access in editor ([40ff030](https://github.com/kubb-project/kubb/commit/40ff0305fb975bd02561682c5d7a9266259e185f))
+* add input file to fileManager(when no plugins are defined) + read with correct encoding + export name for corePlugin ([70edbcb](https://github.com/kubb-project/kubb/commit/70edbcb26891c570b560bf44e40bfb63d01daaa6))
+* add options to every plugin + removal of EmittedFile type ([a31b427](https://github.com/kubb-project/kubb/commit/a31b4275ca0904deb97fbc1b4c4827f6fbfd020d))
+* add process for browser ([1497bc5](https://github.com/kubb-project/kubb/commit/1497bc5ee4c3f6acf554dc81b0bcaeed889a7121))
+* also save esm and cjs for browser ([991b239](https://github.com/kubb-project/kubb/commit/991b239885b841a242887c97835086a8ec131397))
+* always throw error ([e0528b4](https://github.com/kubb-project/kubb/commit/e0528b4859497c6feb03c61126b4bbdfa578d060))
+* another try with browser ([43e6de0](https://github.com/kubb-project/kubb/commit/43e6de0fc692bee7fd6c23506cc5efd437ad01b9))
+* better use of fileManager and single file(mode file) ([af010b9](https://github.com/kubb-project/kubb/commit/af010b9ae07b48cedc9d7328d121fb562aba1af0))
+* better way of replacing(hard delete) ([71ff388](https://github.com/kubb-project/kubb/commit/71ff3887f3d3ebdb141339611a673242c38f1efa))
+* bring back changelog ([30573e4](https://github.com/kubb-project/kubb/commit/30573e41027f01d79182b17f1f78152447d9401a))
+* browser subpackage ([b8b3c19](https://github.com/kubb-project/kubb/commit/b8b3c191d10465b0ddeabf3ecdf77d564b597f35))
+* build core for browser API's ([1d68e15](https://github.com/kubb-project/kubb/commit/1d68e15a6b350f6ccde339c128a1d42049782da6))
+* build for browser ([8b09762](https://github.com/kubb-project/kubb/commit/8b09762e3da68d767fc05141294c5a5a16673ba6))
+* build with core ([3609c81](https://github.com/kubb-project/kubb/commit/3609c811447d49751bf38048f5b4f1a1ea272132))
+* cleanup devdeps ([92c5a00](https://github.com/kubb-project/kubb/commit/92c5a0003739047326baade146938f5ca013654d))
+* cleanup imports and move duplicate stuff to swagger package ([73e7c66](https://github.com/kubb-project/kubb/commit/73e7c660dc3856afad64cf53f294f5003fa63f27))
+* correct browser tag ([3d8477a](https://github.com/kubb-project/kubb/commit/3d8477a4ec148ecbfc9ca796f173d4d3c06790cb))
+* correct rimraf [@types](https://github.com/types) version ([f56b88f](https://github.com/kubb-project/kubb/commit/f56b88f75487720360780a8f5b0d60a8de200ccf))
+* correct use of catcher ([6865076](https://github.com/kubb-project/kubb/commit/6865076b5901e1851f529f9fb480f30cc2dd3e77))
+* fileManager.getSource public + cleanup ([9fc7df7](https://github.com/kubb-project/kubb/commit/9fc7df76d7a7b4a9af0c1b34a629370ea7d21f9b))
+* getFileSource and combineFiles to utils file ([4e8aa6a](https://github.com/kubb-project/kubb/commit/4e8aa6ab6b30bb10358903f1b95d66ff3e3c526f))
+* global as globalThis to support node and browser ([fba5f9c](https://github.com/kubb-project/kubb/commit/fba5f9c7d2e9903a787370f9c617a625f5a786b9))
+* globalName kubb ([040eb6e](https://github.com/kubb-project/kubb/commit/040eb6eabcdd747ac8d572152c4394a8bdca2a69))
+* graceful-fs alias for browser ([993114b](https://github.com/kubb-project/kubb/commit/993114b46419c2d7142d2f9196b4ec5810cb1a56))
+* if URL then do not write to fileSystem + write option for output ([8945dbe](https://github.com/kubb-project/kubb/commit/8945dbe51de9a7354135f2404b2d086acd8ba744))
+* input.path is now required and can also be an URL ([5559c47](https://github.com/kubb-project/kubb/commit/5559c4702fc0142853ff316233921c19702469f9))
+* move getParams out of operationGenerator ([12701df](https://github.com/kubb-project/kubb/commit/12701dfaf2cd724f1a86db0544ffd2d19f30386b))
+* process define ([f145111](https://github.com/kubb-project/kubb/commit/f1451110ec9c67ecfd9841e6d08a05b586151e66))
+* refactor of operationgenerator + baseOperationGenerator for swagger package ([2f4739b](https://github.com/kubb-project/kubb/commit/2f4739b25e3a456f44647ee46272cd341975152b))
+* refactor zodBuilder and typeBuilder ([6e0ada6](https://github.com/kubb-project/kubb/commit/6e0ada6af9fa71658c0812cc72db507aa15cea66))
+* remove browser exports ([35e21ea](https://github.com/kubb-project/kubb/commit/35e21ea5575d65414111820fa4a44c17fd68740d))
+* result of build(core) will be array of files ([057861c](https://github.com/kubb-project/kubb/commit/057861ccda4048c2fee546bda38939ce65d47fa1))
+* reverse files before returning all files(build core) ([eac087d](https://github.com/kubb-project/kubb/commit/eac087d1d09dce9b682064d5c731f6270f2727cd))
+* rimraf upgrade ([6a8ffd1](https://github.com/kubb-project/kubb/commit/6a8ffd111c24f14ae006312a254b7936441a3d1c))
+* setStatus to success and remove file out of FileManager even if the code is not set(infinite loop) ([09d3384](https://github.com/kubb-project/kubb/commit/09d338499af66f79fa209a8a5899fe43a4255e51))
+* support for ESM modules ([cec3b57](https://github.com/kubb-project/kubb/commit/cec3b57ba9b97a030bb276a3957c826ace72b7d3))
+* tsup node ([50bbf4f](https://github.com/kubb-project/kubb/commit/50bbf4fc401bfb148c8ba0c080fab40169df96eb))
+* typescript strict mode for core, cli and ts-codegen ([c0dd917](https://github.com/kubb-project/kubb/commit/c0dd917cca5df924d706c271dfe9f0eae9f87897))
+* umd module for all packages ([2b99a4b](https://github.com/kubb-project/kubb/commit/2b99a4b61cec48f65f3be97713455c54cfb12e1f))
+* upgrade packages ([dcc2f7e](https://github.com/kubb-project/kubb/commit/dcc2f7e1f97ca494785abbb581025d46ae6ceacd))
+* upgrade packages + cleanup ([66ca9cf](https://github.com/kubb-project/kubb/commit/66ca9cf7835f0da347f263e9ac1c14eecfa7d036))
+* upgrade typescript ([5f01312](https://github.com/kubb-project/kubb/commit/5f01312d290f666299eeffb6b685e5a4980e1e47))
+* use core without fs-extra, see safeWriteFileToPath + removal of prettier format ([822d733](https://github.com/kubb-project/kubb/commit/822d73312c84f989f6f55523f4bec23b6c8fdb78))
+* use of queue instead of the eventsEmitters + remove addFile out of all lifeCycle methods except *buildStart* ([62973b7](https://github.com/kubb-project/kubb/commit/62973b75a95f861d6f1b431e1efc9af21c76ba81))
+* use of stream-browserify and platform browser ([37e453a](https://github.com/kubb-project/kubb/commit/37e453a38cbe57e00f9318d19fb24ce3673adaaf))
+* windows support for imports ([b938be9](https://github.com/kubb-project/kubb/commit/b938be9f12c080b38a0814bda1861687ebc3f232))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-alpha.1 ([608fd59](https://github.com/kubb-project/kubb/commit/608fd5926079f9dd77046d6788a5550fb964c0b2))
+* release 1.0.0-alpha.2 ([3d645ac](https://github.com/kubb-project/kubb/commit/3d645accedb121856e61bab166fafe74db6ca3f3))
+* release 1.0.0-alpha.3 ([4fb3d6a](https://github.com/kubb-project/kubb/commit/4fb3d6a6ff5b6b0950d94a12f04c4fd3db89c595))
+* release 1.0.0-alpha.4 ([8d808c3](https://github.com/kubb-project/kubb/commit/8d808c3d0b255b76dc79ad92324f0f2ee8afd619))
+* release 1.0.0-alpha.5 ([8bb9ed2](https://github.com/kubb-project/kubb/commit/8bb9ed2d0ce9ee47db2d24daba993b81cd56d2c0))
+* release 1.0.0-alpha.6 ([550035a](https://github.com/kubb-project/kubb/commit/550035a122a2e5a5294a49a0d2c927fc238315e6))
+* release 1.0.0-alpha.7 ([29bd33a](https://github.com/kubb-project/kubb/commit/29bd33aefb990c298d6615f10add0ca7fce69861))
+* release 1.0.0-alpha.8 ([c5a3d68](https://github.com/kubb-project/kubb/commit/c5a3d6879abdb09c5ed9776e2e715800a2bf51d9))
+* release 1.0.0-beta.1 ([151d4c3](https://github.com/kubb-project/kubb/commit/151d4c393d4d6d0b2b85267dd2ef00c6f20636aa))
+* release 1.0.0-beta.2 ([390b3d0](https://github.com/kubb-project/kubb/commit/390b3d0eb3aa7edbf2dd8d7d2765312c76710397))
+* release 1.0.0-beta.2 ([826bfef](https://github.com/kubb-project/kubb/commit/826bfef6b81c46ea92531ce36ac6617c52a7bba8))
+* release 1.0.0-beta.3 ([c134fb6](https://github.com/kubb-project/kubb/commit/c134fb61d0634abfea0740467087ff1b2d7ba3fa))
+* release 1.0.0-beta.4 ([4127252](https://github.com/kubb-project/kubb/commit/4127252b59422a5692e17e3673a26ae346d9cdba))
+* release 1.0.0-beta.5 ([87515db](https://github.com/kubb-project/kubb/commit/87515db8910aacd58dabe7be5efa43191d33992e))
+
 ## [1.0.0-beta.4](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.3...@kubb/core-v1.0.0-beta.4) (2023-03-31)
 
 
@@ -74,7 +193,7 @@
 * move typescript logic to swagger-typescript package ([d4b6d2b](https://github.com/kubb-project/kubb/commit/d4b6d2b8035de648bb583662d5c022a37dff8f74))
 * oneof for zod and typescript + added description for zod ([ebef9d2](https://github.com/kubb-project/kubb/commit/ebef9d2597f38989c6d43a87053d5eba23948bca))
 * react-query plugin output in one file(with correct imports) ([2bd3af4](https://github.com/kubb-project/kubb/commit/2bd3af4fdf188b5ac7c1335a97229479e471af85))
-* ResolveIdOptions with generic for KubbPlugin type ([ea8a0cc](https://github.com/kubb-project/kubb/commit/ea8a0cc9c308c1059024a5aa558fbb62a95511a2))
+* resolvePathOptions with generic for KubbPlugin type ([ea8a0cc](https://github.com/kubb-project/kubb/commit/ea8a0cc9c308c1059024a5aa558fbb62a95511a2))
 * ts-codegen package ([b25db7e](https://github.com/kubb-project/kubb/commit/b25db7e9b874dd953f25b1814c4c7db3fbc9ff0b))
 * use of @humanwhocodes/module-importer(like eslint) to get plugins when they are used in a JSON format ([b4715ef](https://github.com/kubb-project/kubb/commit/b4715efb6d835f72b5f135245c1dde13d228fb77))
 * use of pathParams to create function arguments for ReactQuery GET hooks ([e6994fc](https://github.com/kubb-project/kubb/commit/e6994fc9576122d1aaf2edabab65d871f43a6e8a))
@@ -249,7 +368,7 @@
 
 ### Features
 
-* ResolveIdOptions with generic for KubbPlugin type ([ea8a0cc](https://github.com/kubb-project/kubb/commit/ea8a0cc9c308c1059024a5aa558fbb62a95511a2))
+* resolvePathOptions with generic for KubbPlugin type ([ea8a0cc](https://github.com/kubb-project/kubb/commit/ea8a0cc9c308c1059024a5aa558fbb62a95511a2))
 
 ## [0.52.1](https://github.com/kubb-project/kubb/compare/@kubb/core-v0.52.0...@kubb/core-v0.52.1) (2023-02-26)
 
@@ -874,14 +993,14 @@
 
 ### Features
 
-* emitFile can use EmittedFile or File + rewrite swagger plugin to use emitFile resolveId of selected plugin ([c43bc26](https://github.com/kubb-project/kubb/commit/c43bc2621eddaacd27eed39f6d70586434326747))
+* emitFile can use EmittedFile or File + rewrite swagger plugin to use emitFile resolvePath of selected plugin ([c43bc26](https://github.com/kubb-project/kubb/commit/c43bc2621eddaacd27eed39f6d70586434326747))
 * fileManager as part of the buildContext ([015772d](https://github.com/kubb-project/kubb/commit/015772d844a4b2c6a224f8c0b9571157b5de5737))
 
 
 ### Bug Fixes
 
 * mark EmittedFile as deprecated ([5115aae](https://github.com/kubb-project/kubb/commit/5115aae5b5b7c4f71a222114abf6a4c318ed63b1))
-* resolveIdByPluginName fallback on core plugin ([6ab22b7](https://github.com/kubb-project/kubb/commit/6ab22b713e2bdd2b2e6448afbab85ec0db962801))
+* resolvePathByPluginName fallback on core plugin ([6ab22b7](https://github.com/kubb-project/kubb/commit/6ab22b713e2bdd2b2e6448afbab85ec0db962801))
 
 ## [0.22.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v0.21.1...@kubb/core-v0.22.0) (2023-01-01)
 
@@ -895,7 +1014,7 @@
 
 ### Bug Fixes
 
-* use of this.resolveId with objectParams with possibility to call resolveIdForPlugin when passing pluginName ([c31ac69](https://github.com/kubb-project/kubb/commit/c31ac6928906dcb758171966dc3a9e580546f345))
+* use of this.resolvePath with objectParams with possibility to call resolvePathForPlugin when passing pluginName ([c31ac69](https://github.com/kubb-project/kubb/commit/c31ac6928906dcb758171966dc3a9e580546f345))
 
 ## [0.21.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v0.20.0...@kubb/core-v0.21.0) (2023-01-01)
 
@@ -903,7 +1022,7 @@
 ### Features
 
 * FileManager with event emits(node) ([b419f35](https://github.com/kubb-project/kubb/commit/b419f357ce7f62fecca8fe5ab413e111e3b8df20))
-* resolveId for a specific plugin only(resolveIdForPlugin) ([5ebb878](https://github.com/kubb-project/kubb/commit/5ebb8784ab48349412fe9627d361d502bafcc2cc))
+* resolvePath for a specific plugin only(resolvePathForPlugin) ([5ebb878](https://github.com/kubb-project/kubb/commit/5ebb8784ab48349412fe9627d361d502bafcc2cc))
 
 
 ### Bug Fixes
@@ -996,7 +1115,7 @@
 
 ### Features
 
-* better use of resolveId(importee and importer) ([f650c70](https://github.com/kubb-project/kubb/commit/f650c7064c89006053e22d898ca2762d6cc99103))
+* better use of resolvePath(importee and importer) ([f650c70](https://github.com/kubb-project/kubb/commit/f650c7064c89006053e22d898ca2762d6cc99103))
 * clear functionality ([a4347c5](https://github.com/kubb-project/kubb/commit/a4347c58c62d77e7f8385902d6cf4c9cbf8f255f))
 * simpler index generation for types and reactQuery + combine subfolders ([832827b](https://github.com/kubb-project/kubb/commit/832827b79b7a4f945cb21900d57f360a4673c03e))
 * use of #ref for types ([4414054](https://github.com/kubb-project/kubb/commit/4414054efe2a5790a6b5a1e7ff04eddacf2aaf2b))
@@ -1070,7 +1189,7 @@
 * define schemas for config and schema ([#1](https://github.com/kubb-project/kubb/issues/1)) ([2940bed](https://github.com/kubb-project/kubb/commit/2940bed15195db4cff8eeaad51aa1b9bfe423963))
 * emitter with topics ([fdf9144](https://github.com/kubb-project/kubb/commit/fdf9144a3adb1f1c07574bc5d392237a062588f6))
 * generator cli + definedConfig and plugin types ([ce88da9](https://github.com/kubb-project/kubb/commit/ce88da997b7d4fec2a0d0255a088c0bf968b5d17))
-* meta for this.resolve and resolveId based on the fileEmitterType ([4fcf9bc](https://github.com/kubb-project/kubb/commit/4fcf9bc4adb3e1437c35473f2ffc48670a7c001a))
+* meta for this.resolve and resolvePath based on the fileEmitterType ([4fcf9bc](https://github.com/kubb-project/kubb/commit/4fcf9bc4adb3e1437c35473f2ffc48670a7c001a))
 * plugin system (based on Rolltup and Unplugin) ([09a9f3a](https://github.com/kubb-project/kubb/commit/09a9f3ad5dba14cc57e3627f3c7c4955da4c340f))
 * queue ([4687478](https://github.com/kubb-project/kubb/commit/4687478b67ad3452cbb7b00ba0c51138892fb4ca))
 * queue system ([7d56acd](https://github.com/kubb-project/kubb/commit/7d56acdfaca448d32df88613f8665f31c317ddd1))

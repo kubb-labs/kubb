@@ -2,22 +2,110 @@ import { camelCase } from 'change-case'
 
 import type { File, FileManager, PluginContext } from '@kubb/core'
 import { getRelativePath } from '@kubb/core'
-import type { Oas, Operation, OperationSchemas, HttpMethod } from '@kubb/swagger'
-import { OperationGenerator as Generator } from '@kubb/swagger'
+import type { Oas, Operation, HttpMethod, Resolver } from '@kubb/swagger'
+import { Path, OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
+
+import { pluginName } from '../plugin'
 
 type Options = {
   oas: Oas
+  resolvePath: PluginContext['resolvePath']
+  resolveName: PluginContext['resolveName']
+  output: string
   directory: string
-  fileName: string
   fileManager: FileManager
-  resolveId: PluginContext['resolveId']
 }
 
 export class OperationGenerator extends Generator<Options> {
-  async all(paths: Record<string, Record<HttpMethod, Operation | undefined>>): Promise<File | null> {
-    const { fileName, directory, resolveId } = this.options
+  async resolve(): Promise<Resolver> {
+    const { directory, resolvePath, output, resolveName } = this.options
 
+    const name = await resolveName({ name: output.replace('.ts', ''), pluginName })
+    const fileName = `${name}.ts`
+    const filePath = await resolvePath({
+      fileName,
+      directory,
+    })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
+  async resolveResponse(operation: Operation): Promise<Resolver> {
+    const { directory, resolvePath, resolveName } = this.options
+
+    const name = await resolveName({ name: `${operation.getOperationId()}ResponseSchema`, pluginName })
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
+    const filePath = await resolvePath({
+      fileName,
+      directory,
+      pluginName: swaggerZodPluginName,
+    })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
+  async resolvePathParams(operation: Operation): Promise<Resolver> {
+    const { directory, resolvePath, resolveName } = this.options
+
+    const name = await resolveName({ name: `${operation.getOperationId()}PathParamsSchema`, pluginName })
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
+    const filePath = await resolvePath({
+      fileName,
+      directory,
+      pluginName: swaggerZodPluginName,
+    })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
+  async resolveQueryParams(operation: Operation): Promise<Resolver> {
+    const { directory, resolvePath, resolveName } = this.options
+
+    const name = await resolveName({ name: `${operation.getOperationId()}QueryParamsSchema`, pluginName })
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
+    const filePath = await resolvePath({
+      fileName,
+      directory,
+      pluginName: swaggerZodPluginName,
+    })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
+  async all(paths: Record<string, Record<HttpMethod, Operation | undefined>>): Promise<File | null> {
     const imports: File['imports'] = [
       {
         name: ['makeApi', 'Zodios', 'ZodiosOptions'],
@@ -25,81 +113,65 @@ export class OperationGenerator extends Generator<Options> {
       },
     ]
 
-    // controller setup
-    const controllerFilePath = await resolveId({
-      fileName,
-      directory,
-    })
-
-    if (!controllerFilePath) {
-      return null
-    }
-    // end controller setup
+    const zodios = await this.resolve()
 
     const mapOperationToZodios = async (operation: Operation) => {
       const schemas = this.getSchemas(operation)
       const parameters: string[] = []
 
-      const responseName = `${camelCase(`${operation.getOperationId()}ResponseSchema`, { delimiter: '' })}`
-      const responseFileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
-      const responseFilePath = await resolveId({ fileName: responseFileName, directory, pluginName: swaggerZodPluginName })
+      const response = await this.resolveResponse(operation)
 
       imports.push({
-        name: [responseName],
-        path: getRelativePath(controllerFilePath, responseFilePath),
+        name: [response.name],
+        path: getRelativePath(zodios.filePath, response.filePath),
       })
 
       if (schemas.pathParams) {
-        const pathParamsName = `${camelCase(`${operation.getOperationId()}PathParamsSchema`, { delimiter: '' })}`
-        const pathParamsFileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
-        const pathparamsFilePath = await resolveId({ fileName: pathParamsFileName, directory, pluginName: swaggerZodPluginName })
+        const pathParams = await this.resolvePathParams(operation)
 
         imports.push({
-          name: [pathParamsName],
-          path: getRelativePath(controllerFilePath, pathparamsFilePath),
+          name: [pathParams.name],
+          path: getRelativePath(zodios.filePath, pathParams.filePath),
         })
 
         parameters.push(`
           {
             name: "${schemas.pathParams.name}",
             description: \`${schemas.pathParams.description || ''}\`,
-            type: 'Path',
-            schema: ${pathParamsName}
+            type: "Path",
+            schema: ${pathParams.name}
           }
         `)
       }
 
       if (schemas.queryParams) {
-        const queryParamsName = `${camelCase(`${operation.getOperationId()}QueryParamsSchema`, { delimiter: '' })}`
-        const queryParamsFileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
-        const queryParamsFilePath = await resolveId({ fileName: queryParamsFileName, directory, pluginName: swaggerZodPluginName })
+        const queryParams = this.resolveQueryParams(operation)
 
         imports.push({
-          name: [queryParamsName],
-          path: getRelativePath(controllerFilePath, queryParamsFilePath),
+          name: [(await queryParams).name],
+          path: getRelativePath(zodios.filePath, (await queryParams).filePath),
         })
 
         parameters.push(`
           {
             name: "${schemas.queryParams.name}",
             description: \`${schemas.queryParams.description || ''}\`,
-            type: 'Query',
-            schema: ${queryParamsName}
+            type: "Query",
+            schema: ${(await queryParams).name}
           }
         `)
       }
 
       return `
         {
-          method: \`${operation.method}\`,
-          // TODO add utils
-          path: \`${operation.path.replaceAll('{', ':').replaceAll('}', '')}\`,
+          method: "${operation.method}",
+          path: "${new Path(operation.path).URL}",
           description: \`${operation.getDescription() || ''}\`,
           requestFormat: "json",
           parameters: [
               ${parameters.join(',')}
           ],
-          response: ${responseName},
+          response: ${response.name},
           errors: []
       }
       
@@ -112,11 +184,22 @@ export class OperationGenerator extends Generator<Options> {
         acc.push(mapOperationToZodios(operations.get))
       }
 
+      if (operations.post) {
+        acc.push(mapOperationToZodios(operations.post))
+      }
+
+      if (operations.put) {
+        acc.push(mapOperationToZodios(operations.put))
+      }
+
+      if (operations.delete) {
+        acc.push(mapOperationToZodios(operations.delete))
+      }
+
       return acc
     }, [] as Promise<string>[])
 
     const sources: string[] = []
-
     const definitions = await Promise.all(definitionsPromises)
 
     sources.push(`
@@ -128,26 +211,26 @@ export class OperationGenerator extends Generator<Options> {
     `)
 
     return {
-      path: controllerFilePath,
-      fileName,
+      path: zodios.filePath,
+      fileName: zodios.fileName,
       source: sources.join('\n'),
       imports,
     }
   }
 
-  async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async get(): Promise<File | null> {
     return null
   }
 
-  async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async post(): Promise<File | null> {
     return null
   }
 
-  async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async put(): Promise<File | null> {
     return null
   }
 
-  async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async delete(): Promise<File | null> {
     return null
   }
 }

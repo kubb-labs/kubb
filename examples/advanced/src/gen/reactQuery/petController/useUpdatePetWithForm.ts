@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { UpdatePetWithFormRequest, UpdatePetWithFormResponse, UpdatePetWithFormPathParams } from '../../models/ts/UpdatePetWithForm'
+import type { UpdatePetWithFormRequest, UpdatePetWithFormResponse, UpdatePetWithFormPathParams } from '../../models/ts/petController/UpdatePetWithForm'
 
 /**
  * @summary Updates a pet in the store with form data

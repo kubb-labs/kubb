@@ -30,7 +30,8 @@ export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptio
 type Options = {
   config: PluginContext['config']
   fileManager: FileManager
-  resolveId: PluginContext['resolveId']
+  resolvePath: PluginContext['resolvePath']
+  resolveName: PluginContext['resolveName']
   load: PluginContext['load']
 }
 
@@ -40,7 +41,7 @@ export type CorePluginOptions = PluginFactoryOptions<Options, false, PluginConte
 export const name = 'core' as const
 
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
-  const { fileManager, resolveId, load } = options
+  const { fileManager, resolvePath, resolveName, load } = options
 
   const api: PluginContext = {
     get config() {
@@ -50,7 +51,8 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
     async addFile(file) {
       return fileManager.addOrAppend(file)
     },
-    resolveId,
+    resolvePath,
+    resolveName,
     load,
     cache: createPluginCache(Object.create(null)),
   }
@@ -59,11 +61,14 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
     name,
     options,
     api,
-    resolveId(fileName, directory) {
+    resolvePath(fileName, directory) {
       if (!directory) {
         return null
       }
       return pathParser.resolve(directory, fileName)
+    },
+    resolveName(name) {
+      return name
     },
   }
 })

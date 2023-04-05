@@ -147,7 +147,7 @@ export function createExportDeclaration({ path }: { path: string }) {
   return factory.createExportDeclaration(undefined, false, undefined, factory.createStringLiteral(path), undefined)
 }
 
-export function createEnumDeclaration({ name, typeName, enums }: { name: string; typeName: string; enums: string[] }) {
+export function createEnumDeclaration({ name, typeName, enums }: { name: string; typeName: string; enums: [key: string, value: string | number][] }) {
   return [
     factory.createVariableStatement(
       [factory.createToken(ts.SyntaxKind.ExportKeyword)],
@@ -159,8 +159,11 @@ export function createEnumDeclaration({ name, typeName, enums }: { name: string;
             undefined,
             factory.createAsExpression(
               factory.createObjectLiteralExpression(
-                enums.map((text) => {
-                  return factory.createPropertyAssignment(factory.createStringLiteral(text.toString()), factory.createStringLiteral(text))
+                enums.map(([key, value]) => {
+                  return factory.createPropertyAssignment(
+                    factory.createStringLiteral(`${key}`),
+                    typeof value === 'number' ? factory.createNumericLiteral(value) : factory.createStringLiteral(`${value}`)
+                  )
                 }),
                 true
               ),

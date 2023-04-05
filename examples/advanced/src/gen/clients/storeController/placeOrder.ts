@@ -1,6 +1,6 @@
 import client from '../../../client'
 
-import type { PlaceOrderRequest, PlaceOrderResponse } from '../../models/ts/PlaceOrder'
+import type { PlaceOrderRequest, PlaceOrderResponse } from '../../models/ts/storeController/PlaceOrder'
 
 /**
  * @description Place a new order in the store

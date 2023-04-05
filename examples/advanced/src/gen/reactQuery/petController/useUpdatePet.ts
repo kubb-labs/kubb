@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { UpdatePetRequest, UpdatePetResponse } from '../../models/ts/UpdatePet'
+import type { UpdatePetRequest, UpdatePetResponse } from '../../models/ts/petController/UpdatePet'
 
 /**
  * @description Update an existing pet by Id

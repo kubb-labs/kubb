@@ -1,4 +1,4 @@
-import type { Pet } from './Pet'
+import type { Pet } from '../Pet'
 
 export const findPetsByStatusQueryParamsStatus = {
   available: 'available',
