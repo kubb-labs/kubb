@@ -343,6 +343,32 @@ importers:
       tsup: 6.7.0
       zod: 3.21.4
 
+  examples/zodios:
+    specifiers:
+      '@kubb/cli': workspace:*
+      '@kubb/core': workspace:*
+      '@kubb/swagger': workspace:*
+      '@kubb/swagger-client': workspace:*
+      '@kubb/swagger-zod': workspace:*
+      '@kubb/swagger-zodios': workspace:*
+      '@zodios/core': ^10.8.1
+      axios: ^1.3.4
+      react: ^18.2.0
+      tsup: ^6.7.0
+      zod: ^3.21.4
+    dependencies:
+      '@kubb/cli': link:../../packages/cli
+      '@kubb/core': link:../../packages/core
+      '@kubb/swagger': link:../../packages/swagger
+      '@kubb/swagger-client': link:../../packages/swagger-client
+      '@kubb/swagger-zod': link:../../packages/swagger-zod
+      '@kubb/swagger-zodios': link:../../packages/swagger-zodios
+      '@zodios/core': 10.8.1_axios@1.3.4+zod@3.21.4
+      axios: 1.3.4
+      react: 18.2.0
+      tsup: 6.7.0
+      zod: 3.21.4
+
   packages/cli:
     specifiers:
       '@humanwhocodes/module-importer': ^1.0.1
@@ -530,6 +556,27 @@ importers:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
       '@kubb/ts-codegen': link:../ts-codegen
+      change-case: 4.1.2
+      lodash.uniq: 4.5.0
+    devDependencies:
+      '@types/lodash.uniq': 4.5.7
+      tsup: 6.7.0_typescript@5.0.3
+      typescript: 5.0.3
+
+  packages/swagger-zodios:
+    specifiers:
+      '@kubb/core': workspace:*
+      '@kubb/swagger': workspace:*
+      '@kubb/swagger-zod': workspace:*
+      '@types/lodash.uniq': ^4.5.7
+      change-case: ^4.1.2
+      lodash.uniq: ^4.5.0
+      tsup: ^6.7.0
+      typescript: ^5.0.3
+    dependencies:
+      '@kubb/core': link:../core
+      '@kubb/swagger': link:../swagger
+      '@kubb/swagger-zod': link:../swagger-zod
       change-case: 4.1.2
       lodash.uniq: 4.5.0
     devDependencies:
@@ -2361,6 +2408,16 @@ packages:
     dependencies:
       argparse: 2.0.1
     dev: true
+
+  /@zodios/core/10.8.1_axios@1.3.4+zod@3.21.4:
+    resolution: {integrity: sha512-YpLX/+BKQ8LG0ji53nIgfEf9klhiPRcOedOpEDyI/HRv/5a24KaQcALcdDRyn8C3LjDXRYIIa0aRgoCJ8ZjQuQ==}
+    peerDependencies:
+      axios: ^0.x || ^1.0.0
+      zod: ^3.x
+    dependencies:
+      axios: 1.3.4
+      zod: 3.21.4
+    dev: false
 
   /JSONStream/1.3.5:
     resolution: {integrity: sha512-E+iruNOY8VV9s4JEbe1aNEm6MiszPRr/UfcHMz0TQh1BXSxHK+ASV1R6W4HpjBhSeS+54PIsAMCBmwD06LLsqQ==}

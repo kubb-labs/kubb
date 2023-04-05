@@ -1,0 +1,72 @@
+{
+  "name": "@kubb/swagger-zodios",
+  "version": "1.0.0-beta.8",
+  "description": "Generator swagger-zodios",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kubb-project/kubb.git",
+    "directory": "packages/swagger-zodios"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "keywords": [
+    "zod",
+    "zodios",
+    "plugins",
+    "kubb",
+    "codegen",
+    "swagger",
+    "openapi"
+  ],
+  "sideEffects": false,
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "module": "./dist/index.js",
+      "default": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "start": "tsup --watch",
+    "release": "pnpm publish --no-git-check",
+    "prepack": "pnpm build",
+    "pre-commit": "echo 'pre-commit not configured'",
+    "pre-push": "pnpm typecheck",
+    "test": "vitest --passWithNoTests",
+    "upgrade": "ncu -u",
+    "upgrade:local": "ncu --interactive --doctor",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@kubb/core": "workspace:*",
+    "@kubb/swagger": "workspace:*",
+    "@kubb/swagger-zod": "workspace:*",
+    "change-case": "^4.1.2",
+    "lodash.uniq": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/lodash.uniq": "^4.5.7",
+    "tsup": "^6.7.0",
+    "typescript": "^5.0.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": "^12.17.0 || ^14.13 || >=16.0.0"
+  }
+}
