@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-empty-interface */
 import type { FileManager, File } from './managers/fileManager'
 import type { Cache } from './utils/cache'
 
+export interface Register {}
+
 export type MaybePromise<T> = Promise<T> | T
 
-export type KubbUserConfig = Omit<KubbConfig, 'root'> & {
+export type KubbUserConfig = Omit<KubbConfig, 'root' | 'plugins'> & {
   /**
    * Project root directory. Can be an absolute path, or a path relative from
    * the location of the config file itself.
@@ -15,7 +18,7 @@ export type KubbUserConfig = Omit<KubbConfig, 'root'> & {
    * Example: ['@kubb/swagger', { output: false }]
    * Or: createSwagger({ output: false })
    */
-  plugins?: Array<unknown>
+  plugins?: KubbPlugin[] | KubbJSONPlugin[] | KubbObjectPlugin
 }
 
 /**
@@ -82,7 +85,11 @@ export type CLIOptions = {
 
 export type KubbPluginKind = 'schema' | 'controller'
 
-export type KubbJSONPlugin = [string, Record<string, any>]
+export type KubbJSONPlugin = [plugin: keyof Register | string, options: Register[keyof Register] | object]
+
+export type KubbObjectPlugin = {
+  [K in keyof Register]: Register[K] | object
+}
 
 export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**

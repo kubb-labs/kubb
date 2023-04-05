@@ -18,9 +18,13 @@ export default defineConfig(async () => {
       done: 'eslint --fix ./src/gen',
     },
     // logLevel: 'info',
-    plugins: [
-      ['@kubb/swagger', { output: false }],
-      ['@kubb/swagger-zod', { output: './zod' }],
-    ],
+    plugins: {
+      '@kubb/swagger': {
+        output: false,
+      },
+      '@kubb/swagger-zod': {
+        output: './zod',
+      },
+    },
   }
 })

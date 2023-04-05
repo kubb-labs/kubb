@@ -349,12 +349,14 @@ importers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
       '@swc/core': ^1.3.44
+      '@types/lodash.isobject': ^3.0.7
       '@types/node': ^18.15.11
       chokidar: ^3.5.3
       commander: ^10.0.0
       cosmiconfig: ^8.1.3
       cosmiconfig-typescript-loader: ^4.3.0
       execa: ^7.1.1
+      lodash.isobject: ^3.0.2
       ora: ^6.3.0
       picocolors: ^1.0.0
       string-argv: ^0.3.1
@@ -370,12 +372,14 @@ importers:
       cosmiconfig: 8.1.3
       cosmiconfig-typescript-loader: 4.3.0_yn4xpz4ei2cnz6chm4vbw2etyi
       execa: 7.1.1
+      lodash.isobject: 3.0.2
       ora: 6.3.0
       picocolors: 1.0.0
       string-argv: 0.3.1
       ts-node: 10.9.1_kuw4b5gch6oquiuk6uakwovhvq
     devDependencies:
       '@kubb/swagger': link:../swagger
+      '@types/lodash.isobject': 3.0.7
       '@types/node': 18.15.11
       tsup: 6.7.0_wcohntvs6ccusmdq5gghsxionm
       typescript: 5.0.3
@@ -1829,6 +1833,12 @@ packages:
 
   /@types/lodash.get/4.4.7:
     resolution: {integrity: sha512-af34Mj+KdDeuzsJBxc/XeTtOx0SZHZNLd+hdrn+PcKGQs0EG2TJTzQAOTCZTgDJCArahlCzLWSy8c2w59JRz7Q==}
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: true
+
+  /@types/lodash.isobject/3.0.7:
+    resolution: {integrity: sha512-nuC74gk3hEmpY4Jq5xIfQc9uoWg2ozVIqS7OwS9xPncFr+d6ULBDpBBOcSaJKm2euKANHBeRGNEaHMAddIzSfA==}
     dependencies:
       '@types/lodash': 4.14.191
     dev: true
@@ -5330,6 +5340,10 @@ packages:
   /lodash.isfunction/3.0.9:
     resolution: {integrity: sha512-AirXNj15uRIMMPihnkInB4i3NHeb4iBtNg9WRWuK2o31S+ePwwNmDPaTL3o7dTJ+VXNZim7rFs4rxN4YU1oUJw==}
     dev: true
+
+  /lodash.isobject/3.0.2:
+    resolution: {integrity: sha512-3/Qptq2vr7WeJbB4KHUSKlq8Pl7ASXi3UG6CMbBm8WRtXi8+GHm7mKaU3urfpSEzWe2wCIChs6/sdocUsTKJiA==}
+    dev: false
 
   /lodash.isplainobject/4.0.6:
     resolution: {integrity: sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==}
