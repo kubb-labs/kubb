@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1-beta.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-beta.7...@kubb/swagger-zod-v1.0.1-beta.7) (2023-04-05)
+
+
+### Bug Fixes
+
+* use of catchall to implement addionalProperties ([c05e235](https://github.com/kubb-project/kubb/commit/c05e2350e8030a5fd45fd3dee0d9c99aa03c62b2))
+* use of declare module to have autocomplete when using plugins in object format ([b64e728](https://github.com/kubb-project/kubb/commit/b64e728bcf61824c7c9609b363ffcdbea6c1530f))
+
 ## [1.0.0-beta.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-beta.6...@kubb/swagger-zod-v1.0.0-beta.7) (2023-04-04)
 
 

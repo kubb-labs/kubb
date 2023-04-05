@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-swr",
-  "version": "1.0.0-beta.7",
+  "version": "1.0.1-beta.7",
   "description": "Generator swagger-swr",
   "repository": {
     "type": "git",
