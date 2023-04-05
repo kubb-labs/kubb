@@ -6,7 +6,7 @@ import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator, Path, getComments, getParams } from '@kubb/swagger'
 import type { Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 
-import type { resolvePathOptions } from '../types'
+import type { ResolvePathOptions } from '../types'
 
 type Options = {
   framework: 'react' | 'solid' | 'svelte' | 'vue'
@@ -14,7 +14,7 @@ type Options = {
   oas: Oas
   directory: string
   fileManager: FileManager
-  resolvePath: PluginContext<resolvePathOptions>['resolvePath']
+  resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
   resolveName: PluginContext['resolveName']
 }
 
@@ -48,7 +48,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const name = resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })
     const fileName = `${name}.ts`
-    const filePath = await resolvePath({ fileName, directory, pluginName: swaggerTypescriptPluginName })
+    const filePath = await resolvePath({ fileName, directory, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
 
     if (!filePath || !name) {
       throw new Error('Filepath should be defined')

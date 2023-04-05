@@ -110,9 +110,9 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 // use of type objects
 export type PluginFactoryOptions<Options = unknown, Nested extends boolean = false, Api = any, resolvePathOptions = Record<string, any>> = {
   options: Options
-  resolvePathOptions: resolvePathOptions
   nested: Nested
   api: Api
+  resolvePathOptions: resolvePathOptions
 }
 
 export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
