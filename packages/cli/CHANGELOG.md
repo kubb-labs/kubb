@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.0.0-beta.8...@kubb/cli-v1.0.0-beta.9) (2023-04-05)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.9 ([3f57281](https://github.com/kubb-project/kubb/commit/3f5728174b5c004ab7fb0d860960caf409bda040))
+
 ## [1.0.0-beta.8](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.0.0-beta.7...@kubb/cli-v1.0.0-beta.8) (2023-04-05)
 
 
