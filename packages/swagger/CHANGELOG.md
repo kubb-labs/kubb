@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-beta.8](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.7...@kubb/swagger-v1.0.0-beta.8) (2023-04-05)
+
+
+### Bug Fixes
+
+* use of declare module to have autocomplete when using plugins in object format ([b64e728](https://github.com/kubb-project/kubb/commit/b64e728bcf61824c7c9609b363ffcdbea6c1530f))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.8 ([f331db4](https://github.com/kubb-project/kubb/commit/f331db4a15fee8de12e95b9583b111dc1cbe8cc4))
+
 ## [1.0.0-beta.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.6...@kubb/swagger-v1.0.0-beta.7) (2023-04-04)
 
 
