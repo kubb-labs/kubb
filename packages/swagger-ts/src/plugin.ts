@@ -4,7 +4,7 @@
 
 import pathParser from 'path'
 
-import { pascalCase } from 'change-case'
+import { camelCase, pascalCase } from 'change-case'
 
 import { getRelativePath, createPlugin, getPathMode, validatePlugins } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
@@ -19,11 +19,11 @@ import type { Api, PluginOptions } from './types'
 export const pluginName = 'swagger-ts' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'models' } = options
+  const { output = 'models', groupBy } = options
   let swaggerApi: SwaggerApi
 
   const api: Api = {
-    resolvePath(fileName, directory) {
+    resolvePath(fileName, directory, options) {
       if (!directory) {
         return null
       }
@@ -36,6 +36,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
         return pathParser.resolve(directory, output)
+      }
+
+      if (options?.tag && groupBy === 'tag') {
+        return pathParser.resolve(directory, output, camelCase(`${options.tag}Controller`), fileName)
       }
 
       return pathParser.resolve(directory, output, fileName)
@@ -55,8 +59,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return valid
     },
-    resolvePath(fileName, directory) {
-      return api.resolvePath(fileName, directory)
+    resolvePath(fileName, directory, options) {
+      return api.resolvePath(fileName, directory, options)
     },
     resolveName(name) {
       return pascalCase(name, { delimiter: '' })
