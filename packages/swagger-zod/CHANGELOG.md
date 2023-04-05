@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.0.0-beta.8](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-beta.7...@kubb/swagger-zod-v1.0.0-beta.8) (2023-04-05)
+
+
+### Features
+
+* groupby for swagger-zod operations ([49b8080](https://github.com/kubb-project/kubb/commit/49b808067fdcee063bdbe9bac62a48e32e801349))
+
+
+### Bug Fixes
+
+* use of catchall to implement addionalProperties ([c05e235](https://github.com/kubb-project/kubb/commit/c05e2350e8030a5fd45fd3dee0d9c99aa03c62b2))
+* use of declare module to have autocomplete when using plugins in object format ([b64e728](https://github.com/kubb-project/kubb/commit/b64e728bcf61824c7c9609b363ffcdbea6c1530f))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.8 ([f331db4](https://github.com/kubb-project/kubb/commit/f331db4a15fee8de12e95b9583b111dc1cbe8cc4))
+
 ## [1.0.0-beta.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-beta.6...@kubb/swagger-zod-v1.0.0-beta.7) (2023-04-04)
 
 
