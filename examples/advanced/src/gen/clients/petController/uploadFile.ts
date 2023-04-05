@@ -1,6 +1,6 @@
 import client from '../../../client'
 
-import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams } from '../../models/ts/UploadFile'
+import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams } from '../../models/ts/petController/UploadFile'
 
 /**
  * @summary uploads an image

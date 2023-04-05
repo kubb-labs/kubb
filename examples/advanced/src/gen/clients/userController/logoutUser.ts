@@ -1,6 +1,6 @@
 import client from '../../../client'
 
-import type { LogoutUserResponse } from '../../models/ts/LogoutUser'
+import type { LogoutUserResponse } from '../../models/ts/userController/LogoutUser'
 
 /**
  * @summary Logs out current logged in user session

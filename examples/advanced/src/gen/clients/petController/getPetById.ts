@@ -1,6 +1,6 @@
 import client from '../../../client'
 
-import type { GetPetByIdResponse, GetPetByIdPathParams } from '../../models/ts/GetPetById'
+import type { GetPetByIdResponse, GetPetByIdPathParams } from '../../models/ts/petController/GetPetById'
 
 /**
  * @description Returns a single pet

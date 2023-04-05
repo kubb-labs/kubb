@@ -1,6 +1,6 @@
 import client from '../../../client'
 
-import type { UpdatePetRequest, UpdatePetResponse } from '../../models/ts/UpdatePet'
+import type { UpdatePetRequest, UpdatePetResponse } from '../../models/ts/petController/UpdatePet'
 
 /**
  * @description Update an existing pet by Id

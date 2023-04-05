@@ -1,6 +1,6 @@
 import z from 'zod'
 
-import { petSchema } from './petSchema'
+import { petSchema } from '../petSchema'
 
 export const findPetsByTagsQueryParamsSchema = z.object({ tags: z.array(z.string()).optional() })
 

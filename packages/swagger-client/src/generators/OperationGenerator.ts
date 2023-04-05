@@ -45,7 +45,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const name = resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })
     const fileName = `${name}.ts`
-    const filePath = await resolvePath({ fileName, directory, pluginName: swaggerTypescriptPluginName })
+    const filePath = await resolvePath({ fileName, directory, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
 
     if (!filePath || !name) {
       throw new Error('Filepath should be defined')

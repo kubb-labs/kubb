@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetOrderByIdResponse, GetOrderByIdPathParams } from '../../models/ts/GetOrderById'
+import type { GetOrderByIdResponse, GetOrderByIdPathParams } from '../../models/ts/storeController/GetOrderById'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [`/store/order/${orderId}`] as const
 

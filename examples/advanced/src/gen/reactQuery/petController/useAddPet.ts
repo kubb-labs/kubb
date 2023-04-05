@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { AddPetRequest, AddPetResponse } from '../../models/ts/AddPet'
+import type { AddPetRequest, AddPetResponse } from '../../models/ts/petController/AddPet'
 
 /**
  * @description Add a new pet to the store

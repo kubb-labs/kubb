@@ -1,6 +1,6 @@
 import client from '../../../client'
 
-import type { CreateUserRequest, CreateUserResponse } from '../../models/ts/CreateUser'
+import type { CreateUserRequest, CreateUserResponse } from '../../models/ts/userController/CreateUser'
 
 /**
  * @description This can only be done by the logged in user.

@@ -1,6 +1,6 @@
 import client from '../../../client'
 
-import type { LoginUserResponse, LoginUserQueryParams } from '../../models/ts/LoginUser'
+import type { LoginUserResponse, LoginUserQueryParams } from '../../models/ts/userController/LoginUser'
 
 /**
  * @summary Logs user into the system

@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { PlaceOrderRequest, PlaceOrderResponse } from '../../models/ts/PlaceOrder'
+import type { PlaceOrderRequest, PlaceOrderResponse } from '../../models/ts/storeController/PlaceOrder'
 
 /**
  * @description Place a new order in the store

@@ -1,6 +1,6 @@
 import client from '../../../client'
 
-import type { DeletePetRequest, DeletePetResponse, DeletePetPathParams } from '../../models/ts/DeletePet'
+import type { DeletePetRequest, DeletePetResponse, DeletePetPathParams } from '../../models/ts/petController/DeletePet'
 
 /**
  * @description delete a pet

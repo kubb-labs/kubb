@@ -1,6 +1,6 @@
 import client from '../../../client'
 
-import type { GetOrderByIdResponse, GetOrderByIdPathParams } from '../../models/ts/GetOrderById'
+import type { GetOrderByIdResponse, GetOrderByIdPathParams } from '../../models/ts/storeController/GetOrderById'
 
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.

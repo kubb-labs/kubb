@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { LoginUserResponse, LoginUserQueryParams } from '../../models/ts/LoginUser'
+import type { LoginUserResponse, LoginUserQueryParams } from '../../models/ts/userController/LoginUser'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [`/user/login`, ...(params ? [params] : [])] as const
 
