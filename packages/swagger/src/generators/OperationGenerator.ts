@@ -22,12 +22,13 @@ export abstract class OperationGenerator<
     const parameterSchemas = oas.getDefinition().components?.parameters || {}
 
     Object.keys(parameterSchemas).forEach((name) => {
-      const exists = refParams.find(
+      const exists = refParams.some(
         (param) => (param as unknown as OpenAPIV3.ReferenceObject).$ref && (param as unknown as OpenAPIV3.ReferenceObject).$ref.replace(/.+\//, '') === name
       )
+      const schema = parameterSchemas[name] as OpenAPIV3.ParameterObject
 
-      if (exists) {
-        params.push(parameterSchemas[name] as OpenAPIV3.ParameterObject)
+      if (exists && schema.in === inKey) {
+        params.push(schema)
       }
     })
 

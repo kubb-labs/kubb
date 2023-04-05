@@ -63,7 +63,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     const node = createTypeAliasDeclaration({
       modifiers: [modifier.export],
-      name,
+      name: this.options.resolveName({ name, pluginName }) || name,
       type,
     })
 

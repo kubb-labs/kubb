@@ -1,11 +1,11 @@
-import type { KubbUserConfig, CLIOptions } from '@kubb/core'
+import type { KubbUserConfig, KubbConfig, CLIOptions } from '@kubb/core'
 import { isPromise } from '@kubb/core'
 
 import { getPlugins } from './getPlugins'
 
 import type { CosmiconfigResult } from '../types'
 
-export async function getConfig(result: CosmiconfigResult, options: CLIOptions) {
+export async function getConfig(result: CosmiconfigResult, options: CLIOptions): Promise<KubbConfig> {
   const config = result?.config
   let kubbUserConfig: Promise<KubbUserConfig> = Promise.resolve(config) as Promise<KubbUserConfig>
 
@@ -24,5 +24,5 @@ export async function getConfig(result: CosmiconfigResult, options: CLIOptions) 
     plugins: JSONConfig.plugins ? await getPlugins(JSONConfig.plugins) : undefined,
   }
 
-  return JSONConfig
+  return JSONConfig as KubbConfig
 }

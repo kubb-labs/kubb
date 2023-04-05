@@ -7,13 +7,6 @@ export type CreatePetsBreedPathParams = {
   breed: string
 }
 
-export type CreatePetsBreedQueryParams = {
-  /**
-   * @type string
-   */
-  breed: string
-}
-
 export type CreatePetsBreedRequest = {
   /**
    * @type string

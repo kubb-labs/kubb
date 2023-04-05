@@ -12,10 +12,6 @@ export type ListPetsBreedQueryParams = {
    * @type string | undefined
    */
   limit?: string | undefined
-  /**
-   * @type string
-   */
-  breed: string
 }
 
 /**

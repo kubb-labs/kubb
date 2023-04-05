@@ -25,6 +25,7 @@ export default defineConfig(async () => {
       ['@kubb/swagger-tanstack-query', { output: './reactQuery', groupBy: 'tag', client: './src/client.ts' }],
       ['@kubb/swagger-client', { output: './clients', groupBy: 'tag', client: './src/client.ts' }],
       ['@kubb/swagger-zod', { output: './zod', groupBy: 'tag' }],
+      ['@kubb/swagger-zodios', { output: 'zodios.ts' }],
       // createSwagger({ output: false }),
       // createSwaggerTS({ output: 'models/ts' }),
       // createSwaggerTanstackQuery({ output: './reactQuery' }),

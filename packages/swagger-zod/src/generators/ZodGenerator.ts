@@ -115,7 +115,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
     const zodOutput = !input.length ? '' : `${input.map(parseProperty).join('')}`
 
-    texts.push(`export const ${name} = ${zodOutput};`)
+    texts.push(`export const ${this.options.resolveName({ name, pluginName }) || name} = ${zodOutput};`)
 
     return [...this.extraTexts, ...texts]
   }

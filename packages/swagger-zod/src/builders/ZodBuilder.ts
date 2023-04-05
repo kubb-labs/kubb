@@ -48,7 +48,7 @@ export class ZodBuilder extends OasBuilder<Config> {
       .sort(nameSorter)
       .map((gen) => {
         const generator = new ZodGenerator(this.oas, { withJSDocs: this.config.withJSDocs, resolveName: this.config.resolveName })
-        const sources = generator.build(gen.schema, this.config.resolveName({ name: gen.name, pluginName }) || gen.name, gen.description)
+        const sources = generator.build(gen.schema, gen.name, gen.description)
         return {
           refs: generator.refs,
           name: gen.name,

@@ -1,9 +1,9 @@
 import { camelCase } from 'change-case'
 
 import type { File, FileManager, PluginContext } from '@kubb/core'
-import { getRelativePath } from '@kubb/core'
-import type { Oas, Operation, HttpMethod, Resolver } from '@kubb/swagger'
+import { getRelativePath, getText } from '@kubb/core'
 import { Path, OperationGenerator as Generator } from '@kubb/swagger'
+import type { Oas, Operation, HttpMethod, Resolver } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
 import { pluginName } from '../plugin'
@@ -47,6 +47,7 @@ export class OperationGenerator extends Generator<Options> {
     const filePath = await resolvePath({
       fileName,
       directory,
+      options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
 
@@ -69,6 +70,7 @@ export class OperationGenerator extends Generator<Options> {
     const filePath = await resolvePath({
       fileName,
       directory,
+      options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
 
@@ -91,6 +93,7 @@ export class OperationGenerator extends Generator<Options> {
     const filePath = await resolvePath({
       fileName,
       directory,
+      options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
 
@@ -108,7 +111,7 @@ export class OperationGenerator extends Generator<Options> {
   async all(paths: Record<string, Record<HttpMethod, Operation | undefined>>): Promise<File | null> {
     const imports: File['imports'] = [
       {
-        name: ['makeApi', 'Zodios', 'ZodiosOptions'],
+        name: ['makeApi', 'Zodios'],
         path: '@zodios/core',
       },
     ]
@@ -137,7 +140,7 @@ export class OperationGenerator extends Generator<Options> {
         parameters.push(`
           {
             name: "${schemas.pathParams.name}",
-            description: \`${schemas.pathParams.description || ''}\`,
+            description: \`${getText(schemas.pathParams.description)}\`,
             type: "Path",
             schema: ${pathParams.name}
           }
@@ -145,19 +148,19 @@ export class OperationGenerator extends Generator<Options> {
       }
 
       if (schemas.queryParams) {
-        const queryParams = this.resolveQueryParams(operation)
+        const queryParams = await this.resolveQueryParams(operation)
 
         imports.push({
-          name: [(await queryParams).name],
-          path: getRelativePath(zodios.filePath, (await queryParams).filePath),
+          name: [queryParams.name],
+          path: getRelativePath(zodios.filePath, queryParams.filePath),
         })
 
         parameters.push(`
           {
             name: "${schemas.queryParams.name}",
-            description: \`${schemas.queryParams.description || ''}\`,
+            description: \`${getText(schemas.queryParams.description)}\`,
             type: "Query",
-            schema: ${(await queryParams).name}
+            schema: ${queryParams.name}
           }
         `)
       }
@@ -166,7 +169,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           method: "${operation.method}",
           path: "${new Path(operation.path).URL}",
-          description: \`${operation.getDescription() || ''}\`,
+          description: \`${getText(operation.getDescription())}\`,
           requestFormat: "json",
           parameters: [
               ${parameters.join(',')}
