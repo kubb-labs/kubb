@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { LogoutUserResponse } from '../../models/ts/LogoutUser'
+import type { LogoutUserResponse } from '../../models/ts/userController/LogoutUser'
 
 export const logoutUserQueryKey = () => [`/user/logout`] as const
 

@@ -1,6 +1,6 @@
 import z from 'zod'
 
-import { orderSchema } from './orderSchema'
+import { orderSchema } from '../orderSchema'
 
 export const placeOrderRequestSchema = z.lazy(() => orderSchema)
 
