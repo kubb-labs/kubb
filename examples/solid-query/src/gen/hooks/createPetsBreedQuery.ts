@@ -9,15 +9,15 @@ import type { CreatePetsBreedRequest, CreatePetsBreedResponse, CreatePetsBreedPa
  * @summary Create a pet breed
  * @link /pets/${breed}
  */
-export function createPetsBreedQuery<TData = CreatePetsBreedResponse, TVariables = CreatePetsBreedRequest>(
+export function createPetsBreedQuery<TData = CreatePetsBreedResponse, TError = unknown, TVariables = CreatePetsBreedRequest>(
   breed: CreatePetsBreedPathParams['breed'],
   options?: {
-    mutation?: CreateMutationOptions<TData, unknown, TVariables>
+    mutation?: CreateMutationOptions<TData, TError, TVariables>
   }
 ) {
   const { mutation: mutationOptions } = options ?? {}
 
-  return createMutation<TData, unknown, TVariables>({
+  return createMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TVariables>({
         method: 'post',

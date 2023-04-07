@@ -10,15 +10,15 @@ import type { UpdateUserRequest, UpdateUserResponse, UpdateUserPathParams } from
  * @summary Update user
  * @link /user/{username}
  */
-export function useUpdateUser<TData = UpdateUserResponse, TVariables = UpdateUserRequest>(
+export function useUpdateUser<TData = UpdateUserResponse, TError = unknown, TVariables = UpdateUserRequest>(
   username: UpdateUserPathParams['username'],
   options?: {
-    mutation?: UseMutationOptions<TData, unknown, TVariables>
+    mutation?: UseMutationOptions<TData, TError, TVariables>
   }
 ) {
   const { mutation: mutationOptions } = options ?? {}
 
-  return useMutation<TData, unknown, TVariables>({
+  return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TVariables>({
         method: 'put',

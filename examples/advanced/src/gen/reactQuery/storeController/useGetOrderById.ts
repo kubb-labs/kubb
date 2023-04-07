@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetOrderByIdResponse, GetOrderByIdPathParams } from '../../models/ts/storeController/GetOrderById'
+import type { GetOrderByIdResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../../models/ts/storeController/GetOrderById'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [`/store/order/${orderId}`] as const
 
@@ -26,17 +26,17 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdResponse>(orderId: 
  * @summary Find purchase order by ID
  * @link /store/order/{orderId}
  */
-export function useGetOrderById<TData = GetOrderByIdResponse>(
+export function useGetOrderById<TData = GetOrderByIdResponse, TError = GetOrderById400 & GetOrderById404>(
   orderId: GetOrderByIdPathParams['orderId'],
   options?: { query?: UseQueryOptions<TData> }
-): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
 
-  const query = useQuery<TData>({
+  const query = useQuery<TData, TError>({
     ...getOrderByIdQueryOptions<TData>(orderId),
     ...queryOptions,
-  }) as UseQueryResult<TData, unknown> & { queryKey: QueryKey }
+  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey as QueryKey
 

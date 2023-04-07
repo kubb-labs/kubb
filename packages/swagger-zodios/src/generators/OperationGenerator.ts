@@ -42,7 +42,7 @@ export class OperationGenerator extends Generator<Options> {
   async resolveResponse(operation: Operation): Promise<Resolver> {
     const { directory, resolvePath, resolveName } = this.options
 
-    const name = await resolveName({ name: `${operation.getOperationId()}ResponseSchema`, pluginName })
+    const name = await resolveName({ name: `${operation.getOperationId()}Response`, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
     const filePath = await resolvePath({
       fileName,
@@ -65,30 +65,7 @@ export class OperationGenerator extends Generator<Options> {
   async resolvePathParams(operation: Operation): Promise<Resolver> {
     const { directory, resolvePath, resolveName } = this.options
 
-    const name = await resolveName({ name: `${operation.getOperationId()}PathParamsSchema`, pluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
-    const filePath = await resolvePath({
-      fileName,
-      directory,
-      options: { tag: operation.getTags()[0]?.name },
-      pluginName: swaggerZodPluginName,
-    })
-
-    if (!filePath || !name) {
-      throw new Error('Filepath should be defined')
-    }
-
-    return {
-      name,
-      fileName,
-      filePath,
-    }
-  }
-
-  async resolveError(operation: Operation, statusCode: number): Promise<Resolver> {
-    const { directory, resolvePath, resolveName } = this.options
-
-    const name = await resolveName({ name: `${operation.getOperationId()} ${statusCode} Schema`, pluginName })
+    const name = await resolveName({ name: `${operation.getOperationId()}PathParams`, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
     const filePath = await resolvePath({
       fileName,
@@ -111,7 +88,7 @@ export class OperationGenerator extends Generator<Options> {
   async resolveQueryParams(operation: Operation): Promise<Resolver> {
     const { directory, resolvePath, resolveName } = this.options
 
-    const name = await resolveName({ name: `${operation.getOperationId()}QueryParamsSchema`, pluginName })
+    const name = await resolveName({ name: `${operation.getOperationId()}QueryParams`, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
     const filePath = await resolvePath({
       fileName,
@@ -129,6 +106,33 @@ export class OperationGenerator extends Generator<Options> {
       fileName,
       filePath,
     }
+  }
+
+  async resolveError(operation: Operation, statusCode: number): Promise<Resolver> {
+    const { directory, resolvePath, resolveName } = this.options
+
+    const name = await resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerZodPluginName })
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
+    const filePath = await resolvePath({
+      fileName,
+      directory,
+      options: { tag: operation.getTags()[0]?.name },
+      pluginName: swaggerZodPluginName,
+    })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
+  async resolveErrors(items: Array<{ operation: Operation; statusCode: number }>): Promise<Resolver[]> {
+    return Promise.all(items.map((item) => this.resolveError(item.operation, item.statusCode)))
   }
 
   async all(paths: Record<string, Record<HttpMethod, Operation | undefined>>): Promise<File | null> {
@@ -200,12 +204,12 @@ export class OperationGenerator extends Generator<Options> {
             })
 
             errors.push(`
-            {
-              status: ${errorOperationSchema.statusCode},
-              description: \`${errorOperationSchema.description}\`,
-              schema: ${name}
-            }
-          `)
+              {
+                status: ${errorOperationSchema.statusCode},
+                description: \`${errorOperationSchema.description}\`,
+                schema: ${name}
+              }
+            `)
           })
 
         await Promise.all(errorPromise)

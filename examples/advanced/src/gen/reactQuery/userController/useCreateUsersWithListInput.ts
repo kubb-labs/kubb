@@ -10,12 +10,14 @@ import type { CreateUsersWithListInputRequest, CreateUsersWithListInputResponse 
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
-export function useCreateUsersWithListInput<TData = CreateUsersWithListInputResponse, TVariables = CreateUsersWithListInputRequest>(options?: {
-  mutation?: UseMutationOptions<TData, unknown, TVariables>
-}) {
+export function useCreateUsersWithListInput<
+  TData = CreateUsersWithListInputResponse,
+  TError = unknown,
+  TVariables = CreateUsersWithListInputRequest
+>(options?: { mutation?: UseMutationOptions<TData, TError, TVariables> }) {
   const { mutation: mutationOptions } = options ?? {}
 
-  return useMutation<TData, unknown, TVariables>({
+  return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TVariables>({
         method: 'post',

@@ -24,14 +24,14 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
  * @summary List all pets with breed
  * @link /pets/${breed}
  */
-export function useListPetsBreed<TData = ListPetsBreedResponse>(
+export function useListPetsBreed<TData = ListPetsBreedResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
-  options?: { query?: SWRConfiguration<TData> }
-): SWRResponse<TData> {
+  options?: { query?: SWRConfiguration<TData, TError> }
+): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
 
-  const query = useSWR<TData, unknown, string>(`/pets/$${breed}`, {
+  const query = useSWR<TData, TError, string>(`/pets/$${breed}`, {
     ...listPetsBreedQueryOptions<TData>(breed, params),
     ...queryOptions,
   })

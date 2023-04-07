@@ -23,14 +23,14 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdResponse>(
  * @summary Info for a specific pet
  * @link /pets/{petId}
  */
-export function useShowPetById<TData = ShowPetByIdResponse>(
+export function useShowPetById<TData = ShowPetByIdResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
-  options?: { query?: SWRConfiguration<TData> }
-): SWRResponse<TData> {
+  options?: { query?: SWRConfiguration<TData, TError> }
+): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
 
-  const query = useSWR<TData, unknown, string>(`/pets/${petId}`, {
+  const query = useSWR<TData, TError, string>(`/pets/${petId}`, {
     ...showPetByIdQueryOptions<TData>(petId, testId),
     ...queryOptions,
   })

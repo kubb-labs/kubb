@@ -60,6 +60,33 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
+  async resolveError(operation: Operation, statusCode: number): Promise<Resolver> {
+    const { directory, resolvePath, resolveName } = this.options
+
+    const name = await resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
+    const fileName = `${name}.ts`
+    const filePath = await resolvePath({
+      fileName,
+      directory,
+      options: { tag: operation.getTags()[0]?.name },
+      pluginName: swaggerTypescriptPluginName,
+    })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
+  async resolveErrors(items: Array<{ operation: Operation; statusCode: number }>): Promise<Resolver[]> {
+    return Promise.all(items.map((item) => this.resolveError(item.operation, item.statusCode)))
+  }
+
   async all(): Promise<File | null> {
     return null
   }
@@ -74,6 +101,11 @@ export class OperationGenerator extends Generator<Options> {
     const sources: string[] = []
     const pathParams = getParams(schemas.pathParams)
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
+    let errors: Resolver[] = []
+
+    if (schemas.errors) {
+      errors = await this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+    }
 
     if (schemas.queryParams && !schemas.pathParams) {
       sources.push(`
@@ -95,12 +127,12 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}>(params?: ${
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}>(params?: ${
         schemas.queryParams.name
-      }, options?: { query?: SWRConfiguration<TData> }): SWRResponse<TData> {
+      }, options?: { query?: SWRConfiguration<TData, TError> }): SWRResponse<TData, TError> {
           const { query: queryOptions } = options ?? {};
           
-          const query = useSWR<TData, unknown, string>(${new Path(operation.path).template}, {
+          const query = useSWR<TData, TError, string>(${new Path(operation.path).template}, {
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(params),
             ...queryOptions
           });
@@ -129,10 +161,12 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}>(${pathParamsTyped} options?: { query?: SWRConfiguration<TData> }): SWRResponse<TData> {
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
+        errors.map((error) => error.name).join(' &') || 'unknown'
+      }>(${pathParamsTyped} options?: { query?: SWRConfiguration<TData, TError> }): SWRResponse<TData, TError> {
           const { query: queryOptions } = options ?? {};
           
-          const query = useSWR<TData, unknown, string>(${new Path(operation.path).template}, {
+          const query = useSWR<TData, TError, string>(${new Path(operation.path).template}, {
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams}),
             ...queryOptions
           });
@@ -162,12 +196,12 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${
-        schemas.queryParams.name
-      }, options?: { query?: SWRConfiguration<TData> }): SWRResponse<TData> {
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
+        errors.map((error) => error.name).join(' &') || 'unknown'
+      }>(${pathParamsTyped} params?: ${schemas.queryParams.name}, options?: { query?: SWRConfiguration<TData, TError> }): SWRResponse<TData, TError> {
           const { query: queryOptions } = options ?? {};
           
-          const query = useSWR<TData, unknown, string>(${new Path(operation.path).template}, {
+          const query = useSWR<TData, TError, string>(${new Path(operation.path).template}, {
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams} params),
             ...queryOptions
           });
@@ -194,10 +228,12 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}>(options?: { query?: SWRConfiguration<TData> }): SWRResponse<TData> {
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
+        errors.map((error) => error.name).join(' &') || 'unknown'
+      }>(options?: { query?: SWRConfiguration<TData, TError> }): SWRResponse<TData, TError> {
           const { query: queryOptions } = options ?? {};
 
-          const query = useSWR<TData, unknown, string>(${new Path(operation.path).template}, {
+          const query = useSWR<TData, TError, string>(${new Path(operation.path).template}, {
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(),
             ...queryOptions
           });
@@ -226,7 +262,7 @@ export class OperationGenerator extends Generator<Options> {
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
-          name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
+          name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, ...errors.map((error) => error.name)].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },
@@ -243,15 +279,22 @@ export class OperationGenerator extends Generator<Options> {
     const comments = getComments(operation)
     const sources: string[] = []
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
+    let errors: Resolver[] = []
+
+    if (schemas.errors) {
+      errors = await this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+    }
 
     sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
-          mutation?: SWRMutationConfiguration<TData, unknown, TVariables>
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
+      schemas.request.name
+    }>(${pathParamsTyped} options?: {
+          mutation?: SWRMutationConfiguration<TData, TError, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
 
-          return useSWRMutation<TData, unknown, string, TVariables>(
+          return useSWRMutation<TData, TError, string, TVariables>(
           ${new Path(operation.path).template},
             (url, { arg: data }) => {
               return client<TData, TVariables>({
@@ -284,7 +327,9 @@ export class OperationGenerator extends Generator<Options> {
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
-          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
+          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, ...errors.map((error) => error.name)].filter(
+            Boolean
+          ) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },
@@ -301,15 +346,21 @@ export class OperationGenerator extends Generator<Options> {
     const comments = getComments(operation)
     const sources: string[] = []
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
+    let errors: Resolver[] = []
+    if (schemas.errors) {
+      errors = await this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+    }
 
     sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
-          mutation?: SWRMutationConfiguration<TData, unknown, TVariables>
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
+      schemas.request.name
+    }>(${pathParamsTyped} options?: {
+          mutation?: SWRMutationConfiguration<TData, TError, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
 
-          return useSWRMutation<TData, unknown, string, TVariables>(
+          return useSWRMutation<TData, TError, string, TVariables>(
             ${new Path(operation.path).template}, 
             (url, { arg: data }) => {
               return client<TData, TVariables>({
@@ -342,7 +393,9 @@ export class OperationGenerator extends Generator<Options> {
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
-          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
+          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, ...errors.map((error) => error.name)].filter(
+            Boolean
+          ) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },
@@ -359,15 +412,22 @@ export class OperationGenerator extends Generator<Options> {
     const comments = getComments(operation)
     const sources: string[] = []
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
+    let errors: Resolver[] = []
+
+    if (schemas.errors) {
+      errors = await this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+    }
 
     sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} options?: {
-          mutation?: SWRMutationConfiguration<TData, unknown, TVariables>
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
+      schemas.request.name
+    }>(${pathParamsTyped} options?: {
+          mutation?: SWRMutationConfiguration<TData, TError, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
 
-          return useSWRMutation<TData, unknown, string, TVariables>(
+          return useSWRMutation<TData, TError, string, TVariables>(
             ${new Path(operation.path).template},
             (url) => {
               return client<TData, TVariables>({
@@ -399,7 +459,7 @@ export class OperationGenerator extends Generator<Options> {
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
-          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name].filter(Boolean) as string[],
+          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, ...errors.map((error) => error.name)].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },

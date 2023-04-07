@@ -10,12 +10,12 @@ import type { CreateUserRequest, CreateUserResponse } from '../../models/ts/user
  * @summary Create user
  * @link /user
  */
-export function useCreateUser<TData = CreateUserResponse, TVariables = CreateUserRequest>(options?: {
-  mutation?: UseMutationOptions<TData, unknown, TVariables>
+export function useCreateUser<TData = CreateUserResponse, TError = unknown, TVariables = CreateUserRequest>(options?: {
+  mutation?: UseMutationOptions<TData, TError, TVariables>
 }) {
   const { mutation: mutationOptions } = options ?? {}
 
-  return useMutation<TData, unknown, TVariables>({
+  return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TVariables>({
         method: 'post',

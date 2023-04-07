@@ -21,10 +21,13 @@ export function listPetsQueryOptions<TData = ListPetsResponse>(params?: ListPets
  * @summary List all pets
  * @link /pets
  */
-export function useListPets<TData = ListPetsResponse>(params?: ListPetsQueryParams, options?: { query?: SWRConfiguration<TData> }): SWRResponse<TData> {
+export function useListPets<TData = ListPetsResponse, TError = unknown>(
+  params?: ListPetsQueryParams,
+  options?: { query?: SWRConfiguration<TData, TError> }
+): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
 
-  const query = useSWR<TData, unknown, string>(`/pets`, {
+  const query = useSWR<TData, TError, string>(`/pets`, {
     ...listPetsQueryOptions<TData>(params),
     ...queryOptions,
   })

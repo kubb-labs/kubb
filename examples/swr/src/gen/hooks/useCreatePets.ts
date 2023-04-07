@@ -9,12 +9,12 @@ import type { CreatePetsRequest, CreatePetsResponse } from '../models/CreatePets
  * @summary Create a pet
  * @link /pets
  */
-export function useCreatePets<TData = CreatePetsResponse, TVariables = CreatePetsRequest>(options?: {
-  mutation?: SWRMutationConfiguration<TData, unknown, TVariables>
+export function useCreatePets<TData = CreatePetsResponse, TError = unknown, TVariables = CreatePetsRequest>(options?: {
+  mutation?: SWRMutationConfiguration<TData, TError, TVariables>
 }) {
   const { mutation: mutationOptions } = options ?? {}
 
-  return useSWRMutation<TData, unknown, string, TVariables>(
+  return useSWRMutation<TData, TError, string, TVariables>(
     `/pets`,
     (url, { arg: data }) => {
       return client<TData, TVariables>({

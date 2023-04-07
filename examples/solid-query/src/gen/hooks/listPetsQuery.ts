@@ -26,17 +26,17 @@ export function listPetsQueryOptions<TData = ListPetsResponse>(params?: ListPets
  * @summary List all pets
  * @link /pets
  */
-export function listPetsQuery<TData = ListPetsResponse>(
+export function listPetsQuery<TData = ListPetsResponse, TError = unknown>(
   params?: ListPetsQueryParams,
   options?: { query?: CreateQueryOptions<TData> }
-): CreateQueryResult<TData, unknown> & { queryKey: QueryKey } {
+): CreateQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey?.() ?? listPetsQueryKey(params)
 
-  const query = createQuery<TData>({
+  const query = createQuery<TData, TError>({
     ...listPetsQueryOptions<TData>(params),
     ...queryOptions,
-  }) as CreateQueryResult<TData, unknown> & { queryKey: QueryKey }
+  }) as CreateQueryResult<TData, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey as QueryKey
 

@@ -9,15 +9,15 @@ import type { CreatePetsBreedRequest, CreatePetsBreedResponse, CreatePetsBreedPa
  * @summary Create a pet breed
  * @link /pets/${breed}
  */
-export function useCreatePetsBreed<TData = CreatePetsBreedResponse, TVariables = CreatePetsBreedRequest>(
+export function useCreatePetsBreed<TData = CreatePetsBreedResponse, TError = unknown, TVariables = CreatePetsBreedRequest>(
   breed: CreatePetsBreedPathParams['breed'],
   options?: {
-    mutation?: VueMutationObserverOptions<TData, unknown, TVariables>
+    mutation?: VueMutationObserverOptions<TData, TError, TVariables>
   }
 ) {
   const { mutation: mutationOptions } = options ?? {}
 
-  return useMutation<TData, unknown, TVariables>({
+  return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TVariables>({
         method: 'post',
