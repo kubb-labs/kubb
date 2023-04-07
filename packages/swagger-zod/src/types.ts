@@ -12,7 +12,7 @@ export type Options = {
    */
   output?: string
   /**
-   * Group the react-query hooks based on the provided name.
+   * Group the clients based on the provided name.
    * Tag will group based on the operation tag inside the Swagger file
    */
   groupBy?: 'tag'
