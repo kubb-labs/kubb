@@ -61,6 +61,11 @@ export type ListPetsQueryParams = {
  */
 export type ListPetsResponse = Pets
 
+/**
+ * @description unexpected error
+ */
+export type ListPetsError = Error
+
 export type CreatePetsRequest = {
   /**
    * @type string
@@ -73,9 +78,19 @@ export type CreatePetsRequest = {
 }
 
 /**
+ * @description Null response
+ */
+export type CreatePets201 = any | null
+
+/**
  * @description Expected response to a valid post
  */
 export type CreatePetsResponse = Pet
+
+/**
+ * @description unexpected error
+ */
+export type CreatePetsError = Error
 
 export type ShowPetByIdPathParams = {
   /**
@@ -92,3 +107,8 @@ export type ShowPetByIdPathParams = {
  * @description Expected response to a valid request
  */
 export type ShowPetByIdResponse = Pet
+
+/**
+ * @description unexpected error
+ */
+export type ShowPetByIdError = Error

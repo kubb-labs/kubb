@@ -8,3 +8,8 @@ export const createUserResponseSchema = z.any()
  * @description Created user object
  */
 export const createUserRequestSchema = z.lazy(() => userSchema)
+
+/**
+ * @description successful operation
+ */
+export const createUserErrorSchema = z.lazy(() => userSchema)

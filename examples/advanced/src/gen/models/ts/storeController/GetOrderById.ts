@@ -8,6 +8,16 @@ export type GetOrderByIdPathParams = {
 }
 
 /**
+ * @description Invalid ID supplied
+ */
+export type GetOrderById400 = any | null
+
+/**
+ * @description Order not found
+ */
+export type GetOrderById404 = any | null
+
+/**
  * @description successful operation
  */
 export type GetOrderByIdResponse = Order

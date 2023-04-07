@@ -13,3 +13,8 @@ export type LoginUserQueryParams = {
  * @description successful operation
  */
 export type LoginUserResponse = string
+
+/**
+ * @description Invalid username/password supplied
+ */
+export type LoginUser400 = any | null

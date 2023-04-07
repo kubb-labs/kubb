@@ -1,4 +1,4 @@
-import { pascalCase } from 'change-case'
+import { pascalCase, camelCaseTransformMerge } from 'change-case'
 
 import type { FileManager, File } from '@kubb/core'
 import { combineFiles, Generator } from '@kubb/core'
@@ -78,6 +78,23 @@ export abstract class OperationGenerator<
         description: operation.getResponseAsJSONSchema('200')?.at(0)?.description,
         schema: operation.getResponseAsJSONSchema('200')?.at(0)?.schema as OpenAPIV3.SchemaObject,
       },
+      errors: operation
+        .getResponseStatusCodes()
+        .filter((statusCode) => statusCode !== '200')
+        .map((statusCode) => {
+          let name = statusCode
+          if (name === 'default') {
+            name = 'error'
+          }
+
+          return {
+            name: pascalCase(`${operation.getOperationId()} ${name}`, { delimiter: '', transform: camelCaseTransformMerge }),
+            description:
+              operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description ||
+              (operation.getResponseByStatusCode(statusCode) as OpenAPIV3.ResponseObject)?.description,
+            schema: operation.getResponseAsJSONSchema(statusCode)?.at(0)?.schema as OpenAPIV3.SchemaObject,
+          }
+        }),
     }
   }
 

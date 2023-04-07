@@ -14,6 +14,11 @@ export type FindPetsByStatusQueryParams = {
 }
 
 /**
+ * @description Invalid status value
+ */
+export type FindPetsByStatus400 = any | null
+
+/**
  * @description successful operation
  */
 export type FindPetsByStatusResponse = Pet[]

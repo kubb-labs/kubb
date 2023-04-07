@@ -1,5 +1,10 @@
 import type { User } from '../User'
 
+/**
+ * @description successful operation
+ */
+export type CreateUsersWithListInputError = any | null
+
 export type CreateUsersWithListInputRequest = User[]
 
 /**

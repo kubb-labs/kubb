@@ -19,3 +19,8 @@ export type UpdatePetWithFormQueryParams = {
 export type UpdatePetWithFormRequest = any | null
 
 export type UpdatePetWithFormResponse = any | null
+
+/**
+ * @description Invalid input
+ */
+export type UpdatePetWithForm405 = any | null

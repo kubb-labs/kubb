@@ -21,10 +21,16 @@ export abstract class OasBuilder<TConfig extends object = object> {
     return this
   }
 
-  add(item: Item | undefined) {
-    if (item) {
-      this.items.push(item)
+  add(item: Item | Item[] | undefined) {
+    if (!item) {
+      return this
     }
+
+    if (Array.isArray(item)) {
+      item.forEach((it) => this.items.push(it))
+      return this
+    }
+    this.items.push(item)
 
     return this
   }

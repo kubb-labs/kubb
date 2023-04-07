@@ -10,6 +10,11 @@ export type UpdateUserPathParams = {
 export type UpdateUserResponse = any | null
 
 /**
+ * @description successful operation
+ */
+export type UpdateUserError = any | null
+
+/**
  * @description Update an existent user in the store
  */
 export type UpdateUserRequest = User

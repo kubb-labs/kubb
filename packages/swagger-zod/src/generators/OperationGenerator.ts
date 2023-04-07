@@ -58,6 +58,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.pathParams)
       .add(schemas.queryParams)
       .add(schemas.response)
+      .add(schemas.errors)
       .configure({ fileResolver, resolveName, withJSDocs: true })
       .print()
 
@@ -93,6 +94,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.queryParams)
       .add(schemas.request)
       .add(schemas.response)
+      .add(schemas.errors)
       .configure({ fileResolver, resolveName, withJSDocs: true })
       .print()
 
@@ -128,6 +130,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.queryParams)
       .add(schemas.request)
       .add(schemas.response)
+      .add(schemas.errors)
       .configure({ fileResolver, resolveName, withJSDocs: true })
       .print()
 
@@ -162,6 +165,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.pathParams)
       .add(schemas.request)
       .add(schemas.response)
+      .add(schemas.errors)
       .configure({ fileResolver, resolveName, withJSDocs: true })
       .print()
 

@@ -8,6 +8,11 @@ export type FindPetsByTagsQueryParams = {
 }
 
 /**
+ * @description Invalid tag value
+ */
+export type FindPetsByTags400 = any | null
+
+/**
  * @description successful operation
  */
 export type FindPetsByTagsResponse = Pet[]

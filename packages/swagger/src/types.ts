@@ -47,4 +47,5 @@ export type OperationSchemas = {
   queryParams?: OperationSchema
   request: OperationSchema
   response: OperationSchema
+  errors?: OperationSchema[]
 }

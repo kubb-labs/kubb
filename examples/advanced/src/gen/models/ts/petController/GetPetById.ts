@@ -8,6 +8,16 @@ export type GetPetByIdPathParams = {
 }
 
 /**
+ * @description Invalid ID supplied
+ */
+export type GetPetById400 = any | null
+
+/**
+ * @description Pet not found
+ */
+export type GetPetById404 = any | null
+
+/**
  * @description successful operation
  */
 export type GetPetByIdResponse = Pet
