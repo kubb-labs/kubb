@@ -537,7 +537,7 @@ export class OperationGenerator extends Generator<Options> {
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
-          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
+          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },
