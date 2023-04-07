@@ -1,24 +1,29 @@
 import { makeApi, Zodios } from '@zodios/core'
 
-import { addPetResponseSchema } from './zod/addPetSchema'
-import { updatePetResponseSchema } from './zod/updatePetSchema'
-import { findPetsByStatusResponseSchema, findPetsByStatusQueryParamsSchema } from './zod/findPetsByStatusSchema'
-import { findPetsByTagsResponseSchema, findPetsByTagsQueryParamsSchema } from './zod/findPetsByTagsSchema'
-import { getPetByIdResponseSchema, getPetByIdPathParamsSchema } from './zod/getPetByIdSchema'
-import { updatePetWithFormResponseSchema, updatePetWithFormPathParamsSchema, updatePetWithFormQueryParamsSchema } from './zod/updatePetWithFormSchema'
-import { deletePetResponseSchema, deletePetPathParamsSchema } from './zod/deletePetSchema'
+import { addPetResponseSchema, addPet405Schema } from './zod/addPetSchema'
+import { updatePetResponseSchema, updatePet400Schema, updatePet404Schema, updatePet405Schema } from './zod/updatePetSchema'
+import { findPetsByStatusResponseSchema, findPetsByStatusQueryParamsSchema, findPetsByStatus400Schema } from './zod/findPetsByStatusSchema'
+import { findPetsByTagsResponseSchema, findPetsByTagsQueryParamsSchema, findPetsByTags400Schema } from './zod/findPetsByTagsSchema'
+import { getPetByIdResponseSchema, getPetByIdPathParamsSchema, getPetById400Schema, getPetById404Schema } from './zod/getPetByIdSchema'
+import {
+  updatePetWithFormResponseSchema,
+  updatePetWithFormPathParamsSchema,
+  updatePetWithFormQueryParamsSchema,
+  updatePetWithForm405Schema,
+} from './zod/updatePetWithFormSchema'
+import { deletePetResponseSchema, deletePetPathParamsSchema, deletePet400Schema } from './zod/deletePetSchema'
 import { uploadFileResponseSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from './zod/uploadFileSchema'
 import { getInventoryResponseSchema } from './zod/getInventorySchema'
-import { placeOrderResponseSchema } from './zod/placeOrderSchema'
-import { getOrderByIdResponseSchema, getOrderByIdPathParamsSchema } from './zod/getOrderByIdSchema'
-import { deleteOrderResponseSchema, deleteOrderPathParamsSchema } from './zod/deleteOrderSchema'
+import { placeOrderResponseSchema, placeOrder405Schema } from './zod/placeOrderSchema'
+import { getOrderByIdResponseSchema, getOrderByIdPathParamsSchema, getOrderById400Schema, getOrderById404Schema } from './zod/getOrderByIdSchema'
+import { deleteOrderResponseSchema, deleteOrderPathParamsSchema, deleteOrder400Schema, deleteOrder404Schema } from './zod/deleteOrderSchema'
 import { createUserResponseSchema } from './zod/createUserSchema'
 import { createUsersWithListInputResponseSchema } from './zod/createUsersWithListInputSchema'
-import { loginUserResponseSchema, loginUserQueryParamsSchema } from './zod/loginUserSchema'
+import { loginUserResponseSchema, loginUserQueryParamsSchema, loginUser400Schema } from './zod/loginUserSchema'
 import { logoutUserResponseSchema } from './zod/logoutUserSchema'
-import { getUserByNameResponseSchema, getUserByNamePathParamsSchema } from './zod/getUserByNameSchema'
+import { getUserByNameResponseSchema, getUserByNamePathParamsSchema, getUserByName400Schema, getUserByName404Schema } from './zod/getUserByNameSchema'
 import { updateUserResponseSchema, updateUserPathParamsSchema } from './zod/updateUserSchema'
-import { deleteUserResponseSchema, deleteUserPathParamsSchema } from './zod/deleteUserSchema'
+import { deleteUserResponseSchema, deleteUserPathParamsSchema, deleteUser400Schema, deleteUser404Schema } from './zod/deleteUserSchema'
 
 const endpoints = makeApi([
   {
@@ -28,7 +33,13 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [],
     response: addPetResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 405,
+        description: `Invalid input`,
+        schema: addPet405Schema,
+      },
+    ],
   },
 
   {
@@ -38,7 +49,23 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [],
     response: updatePetResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 400,
+        description: `Invalid ID supplied`,
+        schema: updatePet400Schema,
+      },
+      {
+        status: 404,
+        description: `Pet not found`,
+        schema: updatePet404Schema,
+      },
+      {
+        status: 405,
+        description: `Validation exception`,
+        schema: updatePet405Schema,
+      },
+    ],
   },
 
   {
@@ -55,7 +82,13 @@ const endpoints = makeApi([
       },
     ],
     response: findPetsByStatusResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 400,
+        description: `Invalid status value`,
+        schema: findPetsByStatus400Schema,
+      },
+    ],
   },
 
   {
@@ -72,7 +105,13 @@ const endpoints = makeApi([
       },
     ],
     response: findPetsByTagsResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 400,
+        description: `Invalid tag value`,
+        schema: findPetsByTags400Schema,
+      },
+    ],
   },
 
   {
@@ -89,7 +128,18 @@ const endpoints = makeApi([
       },
     ],
     response: getPetByIdResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 400,
+        description: `Invalid ID supplied`,
+        schema: getPetById400Schema,
+      },
+      {
+        status: 404,
+        description: `Pet not found`,
+        schema: getPetById404Schema,
+      },
+    ],
   },
 
   {
@@ -112,7 +162,13 @@ const endpoints = makeApi([
       },
     ],
     response: updatePetWithFormResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 405,
+        description: `Invalid input`,
+        schema: updatePetWithForm405Schema,
+      },
+    ],
   },
 
   {
@@ -129,7 +185,13 @@ const endpoints = makeApi([
       },
     ],
     response: deletePetResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 400,
+        description: `Invalid pet value`,
+        schema: deletePet400Schema,
+      },
+    ],
   },
 
   {
@@ -172,7 +234,13 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [],
     response: placeOrderResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 405,
+        description: `Invalid input`,
+        schema: placeOrder405Schema,
+      },
+    ],
   },
 
   {
@@ -189,7 +257,18 @@ const endpoints = makeApi([
       },
     ],
     response: getOrderByIdResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 400,
+        description: `Invalid ID supplied`,
+        schema: getOrderById400Schema,
+      },
+      {
+        status: 404,
+        description: `Order not found`,
+        schema: getOrderById404Schema,
+      },
+    ],
   },
 
   {
@@ -206,7 +285,18 @@ const endpoints = makeApi([
       },
     ],
     response: deleteOrderResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 400,
+        description: `Invalid ID supplied`,
+        schema: deleteOrder400Schema,
+      },
+      {
+        status: 404,
+        description: `Order not found`,
+        schema: deleteOrder404Schema,
+      },
+    ],
   },
 
   {
@@ -243,7 +333,13 @@ const endpoints = makeApi([
       },
     ],
     response: loginUserResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 400,
+        description: `Invalid username/password supplied`,
+        schema: loginUser400Schema,
+      },
+    ],
   },
 
   {
@@ -270,7 +366,18 @@ const endpoints = makeApi([
       },
     ],
     response: getUserByNameResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 400,
+        description: `Invalid username supplied`,
+        schema: getUserByName400Schema,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: getUserByName404Schema,
+      },
+    ],
   },
 
   {
@@ -304,7 +411,18 @@ const endpoints = makeApi([
       },
     ],
     response: deleteUserResponseSchema,
-    errors: [],
+    errors: [
+      {
+        status: 400,
+        description: `Invalid username supplied`,
+        schema: deleteUser400Schema,
+      },
+      {
+        status: 404,
+        description: `User not found`,
+        schema: deleteUser404Schema,
+      },
+    ],
   },
 ])
 

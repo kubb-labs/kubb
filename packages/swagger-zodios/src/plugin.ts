@@ -1,5 +1,7 @@
 import pathParser from 'path'
 
+import { camelCase, camelCaseTransformMerge } from 'change-case'
+
 import { createPlugin, validatePlugins } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
@@ -8,7 +10,6 @@ import type { Api as SwaggerApi } from '@kubb/swagger'
 import { OperationGenerator } from './generators'
 
 import type { PluginOptions } from './types'
-import { camelCase } from 'change-case'
 
 export const pluginName = 'swagger-zodios' as const
 
@@ -43,7 +44,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(directory, fileName)
     },
     resolveName(name) {
-      return camelCase(name, { delimiter: '' })
+      return camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
     },
     async buildStart() {
       const oas = await swaggerApi.getOas(this.config)

@@ -85,6 +85,29 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
+  async resolveError(operation: Operation, statusCode: number): Promise<Resolver> {
+    const { directory, resolvePath, resolveName } = this.options
+
+    const name = await resolveName({ name: `${operation.getOperationId()} ${statusCode} Schema`, pluginName })
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
+    const filePath = await resolvePath({
+      fileName,
+      directory,
+      options: { tag: operation.getTags()[0]?.name },
+      pluginName: swaggerZodPluginName,
+    })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
   async resolveQueryParams(operation: Operation): Promise<Resolver> {
     const { directory, resolvePath, resolveName } = this.options
 
@@ -121,6 +144,7 @@ export class OperationGenerator extends Generator<Options> {
     const mapOperationToZodios = async (operation: Operation) => {
       const schemas = this.getSchemas(operation)
       const parameters: string[] = []
+      const errors: string[] = []
 
       const response = await this.resolveResponse(operation)
 
@@ -164,6 +188,28 @@ export class OperationGenerator extends Generator<Options> {
           }
         `)
       }
+      if (schemas.errors) {
+        const errorPromise = schemas.errors
+          .filter((errorOperationSchema) => errorOperationSchema.statusCode)
+          .map(async (errorOperationSchema) => {
+            const { filePath, name } = await this.resolveError(operation, errorOperationSchema.statusCode!)
+
+            imports.push({
+              name: [name],
+              path: getRelativePath(zodios.filePath, filePath),
+            })
+
+            errors.push(`
+            {
+              status: ${errorOperationSchema.statusCode},
+              description: \`${errorOperationSchema.description}\`,
+              schema: ${name}
+            }
+          `)
+          })
+
+        await Promise.all(errorPromise)
+      }
 
       return `
         {
@@ -175,7 +221,9 @@ export class OperationGenerator extends Generator<Options> {
               ${parameters.join(',')}
           ],
           response: ${response.name},
-          errors: []
+          errors: [
+              ${errors.join(',')}
+          ],
       }
       
       `
