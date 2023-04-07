@@ -4,7 +4,7 @@
 
 import pathParser from 'path'
 
-import { camelCase, pascalCase } from 'change-case'
+import { camelCase, pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import { getRelativePath, createPlugin, getPathMode, validatePlugins } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
@@ -70,7 +70,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return api.resolvePath(fileName, directory, options)
     },
     resolveName(name) {
-      return pascalCase(name, { delimiter: '' })
+      return pascalCase(name, { delimiter: '', transform: pascalCaseTransformMerge })
     },
     async writeFile(source, path) {
       if (!path.endsWith('.ts') || !source) {

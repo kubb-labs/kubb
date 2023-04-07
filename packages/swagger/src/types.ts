@@ -41,7 +41,9 @@ export type OperationSchema = {
   name: string
   description?: string
   schema: OpenAPIV3.SchemaObject
+  statusCode?: number
 }
+
 export type OperationSchemas = {
   pathParams?: OperationSchema
   queryParams?: OperationSchema

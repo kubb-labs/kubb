@@ -1,6 +1,6 @@
 import pathParser from 'path'
 
-import { camelCase } from 'change-case'
+import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import type { OptionalPath } from '@kubb/core'
 import { createPlugin, validatePlugins, getPathMode } from '@kubb/core'
@@ -58,7 +58,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(directory, output, fileName)
     },
     resolveName(name) {
-      return camelCase(name, { delimiter: '' })
+      return camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
     },
     async buildStart() {
       const oas = await swaggerApi.getOas(this.config)

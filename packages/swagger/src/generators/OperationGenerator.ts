@@ -77,6 +77,7 @@ export abstract class OperationGenerator<
         name: pascalCase(`${operation.getOperationId()} "Response"`, { delimiter: '' }),
         description: operation.getResponseAsJSONSchema('200')?.at(0)?.description,
         schema: operation.getResponseAsJSONSchema('200')?.at(0)?.schema as OpenAPIV3.SchemaObject,
+        statusCode: 200,
       },
       errors: operation
         .getResponseStatusCodes()
@@ -93,6 +94,7 @@ export abstract class OperationGenerator<
               operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description ||
               (operation.getResponseByStatusCode(statusCode) as OpenAPIV3.ResponseObject)?.description,
             schema: operation.getResponseAsJSONSchema(statusCode)?.at(0)?.schema as OpenAPIV3.SchemaObject,
+            statusCode: name === 'error' ? undefined : Number(statusCode),
           }
         }),
     }
