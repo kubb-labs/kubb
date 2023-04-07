@@ -15,6 +15,7 @@ type Options = {
   mode: PathMode
   fileManager: FileManager
   directory: string
+  enumType: 'enum' | 'asConst'
 }
 
 export class OperationGenerator extends Generator<Options> {
@@ -41,7 +42,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { resolvePath, directory, mode, resolveName, oas } = this.options
+    const { resolvePath, directory, mode, resolveName, oas, enumType } = this.options
 
     const type = await this.resolve(operation)
 
@@ -59,7 +60,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.queryParams)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver, withJSDocs: true, resolveName })
+      .configure({ fileResolver, withJSDocs: true, resolveName, enumType })
       .print()
 
     return {
@@ -70,7 +71,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { resolvePath, directory, mode, resolveName, oas } = this.options
+    const { resolvePath, directory, mode, resolveName, oas, enumType } = this.options
 
     const type = await this.resolve(operation)
 
@@ -89,7 +90,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.request)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver, withJSDocs: true, resolveName })
+      .configure({ fileResolver, withJSDocs: true, resolveName, enumType })
       .print()
 
     return {
@@ -100,7 +101,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { resolvePath, directory, mode, resolveName, oas } = this.options
+    const { resolvePath, directory, mode, resolveName, oas, enumType } = this.options
 
     const type = await this.resolve(operation)
 
@@ -119,7 +120,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.request)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver, withJSDocs: true, resolveName })
+      .configure({ fileResolver, withJSDocs: true, resolveName, enumType })
       .print()
 
     return {
@@ -130,7 +131,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { resolvePath, directory, mode, resolveName, oas } = this.options
+    const { resolvePath, directory, mode, resolveName, oas, enumType } = this.options
 
     const type = await this.resolve(operation)
 
@@ -148,7 +149,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.request)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver, withJSDocs: true, resolveName })
+      .configure({ fileResolver, withJSDocs: true, resolveName, enumType })
       .print()
 
     return {

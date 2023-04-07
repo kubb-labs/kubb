@@ -12,10 +12,15 @@ export type Options = {
    */
   output?: string
   /**
-   * Group the react-query hooks based on the provided name.
+   * Group the clients based on the provided name.
    * Tag will group based on the operation tag inside the Swagger file
    */
   groupBy?: 'tag'
+  /**
+   * Choose to use enum or as const for enum
+   * @default `asConst`
+   */
+  enumType?: 'enum' | 'asConst'
 }
 
 export type ResolvePathOptions = { tag?: string }

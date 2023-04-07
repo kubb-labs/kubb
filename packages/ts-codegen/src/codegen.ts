@@ -147,7 +147,32 @@ export function createExportDeclaration({ path }: { path: string }) {
   return factory.createExportDeclaration(undefined, false, undefined, factory.createStringLiteral(path), undefined)
 }
 
-export function createEnumDeclaration({ name, typeName, enums }: { name: string; typeName: string; enums: [key: string, value: string | number][] }) {
+export function createEnumDeclaration({
+  name,
+  typeName,
+  enums,
+  type,
+}: {
+  type: 'enum' | 'asConst'
+  name: string
+  typeName: string
+  enums: [key: string, value: string | number][]
+}) {
+  if (type === 'enum') {
+    return [
+      factory.createEnumDeclaration(
+        [factory.createToken(ts.SyntaxKind.ExportKeyword)],
+        factory.createIdentifier(typeName),
+        enums.map(([key, value]) => {
+          return factory.createEnumMember(
+            factory.createStringLiteral(`${key}`),
+            typeof value === 'number' ? factory.createNumericLiteral(value) : factory.createStringLiteral(`${value}`)
+          )
+        })
+      ),
+    ]
+  }
+
   return [
     factory.createVariableStatement(
       [factory.createToken(ts.SyntaxKind.ExportKeyword)],

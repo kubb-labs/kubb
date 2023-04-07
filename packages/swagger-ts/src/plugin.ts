@@ -26,7 +26,7 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'models', groupBy } = options
+  const { output = 'models', groupBy, enumType = 'asConst' } = options
   let swaggerApi: SwaggerApi
 
   const api: Api = {
@@ -101,6 +101,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             return getRelativePath(root, resolvedTypeId)
           },
           withJSDocs: true,
+          enumType,
         })
         Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
@@ -134,6 +135,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         const builder = new TypeBuilder(oas).configure({
           resolveName: (params) => this.resolveName({ pluginName, ...params }),
           withJSDocs: true,
+          enumType,
         })
         Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
@@ -162,6 +164,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         fileManager: this.fileManager,
         resolvePath: api.resolvePath,
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
+        enumType,
       })
 
       await operationGenerator.build()
