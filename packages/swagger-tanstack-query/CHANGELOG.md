@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.9...@kubb/swagger-tanstack-query-v1.0.1-beta.9) (2023-04-07)
+
+
+### Bug Fixes
+
+* exclude queryParams for method DELETE ([71b2478](https://github.com/kubb-project/kubb/commit/71b2478bd02bf77e6d0d2277e3dce6e9546c32d2))
+
 ## [1.0.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.8...@kubb/swagger-tanstack-query-v1.0.0-beta.9) (2023-04-05)
 
 
