@@ -1,16 +1,14 @@
 import type { Dog } from './Dog'
 import type { Cat } from './Cat'
 
-export const petCallingCode = {
-  '+33': '+33',
-  '+420': '+420',
-} as const
-export type PetCallingCode = (typeof petCallingCode)[keyof typeof petCallingCode]
-export const petCountry = {
-  "People's Republic of China": "People's Republic of China",
-  Uruguay: 'Uruguay',
-} as const
-export type PetCountry = (typeof petCountry)[keyof typeof petCountry]
+export enum PetCallingCode {
+  '+33' = '+33',
+  '+420' = '+420',
+}
+export enum PetCountry {
+  "People's Republic of China" = "People's Republic of China",
+  'Uruguay' = 'Uruguay',
+}
 export type Pet = {
   /**
    * @type string | undefined iri-reference

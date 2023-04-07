@@ -1,7 +1,6 @@
-export const catType = {
-  cat: 'cat',
-} as const
-export type CatType = (typeof catType)[keyof typeof catType]
+export enum CatType {
+  'cat' = 'cat',
+}
 export type Cat = {
   /**
    * @type integer | undefined

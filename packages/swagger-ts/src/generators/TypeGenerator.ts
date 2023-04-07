@@ -33,6 +33,7 @@ export type Refs = Record<string, { name: string; key: string }>
 type Options = {
   withJSDocs?: boolean
   resolveName: PluginContext['resolveName']
+  enumType: 'enum' | 'asConst'
 }
 export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.Node[]> {
   // Collect the types of all referenced schemas so we can export them later
@@ -47,7 +48,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   // Keep track of already used type aliases
   usedAliasNames: Record<string, number> = {}
 
-  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, resolveName: ({ name }) => name }) {
+  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, resolveName: ({ name }) => name, enumType: 'asConst' }) {
     super(options)
 
     return this
@@ -254,6 +255,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
           name: camelCase(enumName, { delimiter: '' }),
           typeName: pascalCase(enumName, { delimiter: '' }),
           enums,
+          type: this.options.enumType,
         })
       )
       return factory.createTypeReferenceNode(pascalCase(enumName, { delimiter: '' }), undefined)

@@ -1,4 +1,4 @@
-import { OasBuilder, pluginName } from '@kubb/swagger'
+import { OasBuilder } from '@kubb/swagger'
 import type { FileResolver } from '@kubb/swagger'
 import type { PluginContext } from '@kubb/core'
 import { nameSorter } from '@kubb/core'
@@ -15,6 +15,7 @@ type Config = {
   fileResolver?: FileResolver
   withJSDocs?: boolean
   withImports?: boolean
+  enumType: 'enum' | 'asConst'
 }
 
 // TODO create another function that sort based on the refs(first the ones without refs)
@@ -46,7 +47,11 @@ export class TypeBuilder extends OasBuilder<Config> {
       .filter((gen) => (name ? gen.name === name : true))
       .sort(nameSorter)
       .map((gen) => {
-        const generator = new TypeGenerator(this.oas, { withJSDocs: this.config.withJSDocs, resolveName: this.config.resolveName })
+        const generator = new TypeGenerator(this.oas, {
+          withJSDocs: this.config.withJSDocs,
+          resolveName: this.config.resolveName,
+          enumType: this.config.enumType,
+        })
         const nodes = generator.build(gen.schema, gen.name, gen.description)
 
         return {
