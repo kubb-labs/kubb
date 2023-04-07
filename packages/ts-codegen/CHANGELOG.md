@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.0.0-beta.9...@kubb/ts-codegen-v1.1.0-beta.9) (2023-04-07)
+
+
+### Features
+
+* enumType to use an `Enum` or use `* as const` ([29b396f](https://github.com/kubb-project/kubb/commit/29b396f6980f1119502a0f40e5bb4f7e43346480))
+
 ## [1.0.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.0.0-beta.8...@kubb/ts-codegen-v1.0.0-beta.9) (2023-04-05)
 
 

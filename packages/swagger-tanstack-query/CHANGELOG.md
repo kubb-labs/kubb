@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.9...@kubb/swagger-tanstack-query-v1.1.0-beta.9) (2023-04-07)
+
+
+### Features
+
+* error type for swr and tanstack-query ([7c71f72](https://github.com/kubb-project/kubb/commit/7c71f7216ef22f3a87fbac7fc10920aac69704ed))
+
+
+### Bug Fixes
+
+* exclude queryParams for method DELETE ([71b2478](https://github.com/kubb-project/kubb/commit/71b2478bd02bf77e6d0d2277e3dce6e9546c32d2))
+
 ## [1.0.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.8...@kubb/swagger-tanstack-query-v1.0.0-beta.9) (2023-04-05)
 
 
