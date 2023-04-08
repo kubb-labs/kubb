@@ -5,12 +5,15 @@ export type Api = {
 }
 
 export type Options = {
-  /**
-   * Relative path to save the TypeScript types.
-   * When output is a file it will save all models inside that file else it will create a file per schema item.
-   * @default 'models'
-   */
-  output?: string
+  output?: {
+    /**
+     * Relative path to save the TypeScript types.
+     * When output is a file it will save all models inside that file else it will create a file per schema item.
+     * @default 'models'
+     */
+    base: string
+    groupBy?: string
+  }
   /**
    * Group the clients based on the provided name.
    * Tag will group based on the operation tag inside the Swagger file

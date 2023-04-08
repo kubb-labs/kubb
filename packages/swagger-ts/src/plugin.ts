@@ -4,9 +4,9 @@
 
 import pathParser from 'path'
 
-import { camelCase, pascalCase, pascalCaseTransformMerge } from 'change-case'
+import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
-import { getRelativePath, createPlugin, getPathMode, validatePlugins } from '@kubb/core'
+import { getRelativePath, createPlugin, getPathMode, validatePlugins, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
 import { writeIndexes } from '@kubb/ts-codegen'
@@ -26,7 +26,7 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'models', groupBy, enumType = 'asConst' } = options
+  const { output = { base: 'models' }, groupBy, enumType = 'asConst' } = options
   let swaggerApi: SwaggerApi
 
   const api: Api = {
@@ -35,21 +35,21 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return null
       }
 
-      const mode = getPathMode(pathParser.resolve(directory, output))
+      const mode = getPathMode(pathParser.resolve(directory, output.base))
 
       if (mode === 'file') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
-        return pathParser.resolve(directory, output)
+        return pathParser.resolve(directory, output.base)
       }
 
       if (options?.tag && groupBy === 'tag') {
-        return pathParser.resolve(directory, output, camelCase(`${options.tag}Controller`), fileName)
+        return pathParser.resolve(directory, renderTemplate(output.groupBy || `${output.base}{{tag}}Controller`, { tag: options.tag }), fileName)
       }
 
-      return pathParser.resolve(directory, output, fileName)
+      return pathParser.resolve(directory, output.base, fileName)
     },
   }
 
@@ -84,7 +84,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const schemas = oas.getDefinition().components?.schemas || {}
       const directory = pathParser.resolve(this.config.root, this.config.output.path)
-      const mode = getPathMode(pathParser.resolve(directory, output))
+      const mode = getPathMode(pathParser.resolve(directory, output.base))
 
       if (mode === 'directory') {
         const builder = await new TypeBuilder(oas).configure({
@@ -152,7 +152,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         await this.addFile({
           path,
-          fileName: `${this.resolveName({ name: output, pluginName })}.ts`,
+          fileName: `${this.resolveName({ name: output.base, pluginName })}.ts`,
           source: await builder.print(),
         })
       }

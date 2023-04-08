@@ -143,7 +143,17 @@ export function createImportDeclaration({ name, path, isTypeOnly }: { name: stri
   )
 }
 
-export function createExportDeclaration({ path }: { path: string }) {
+export function createExportDeclaration({ path, asAlias, name }: { path: string; asAlias?: boolean; name?: string }) {
+  if (asAlias) {
+    return factory.createExportDeclaration(
+      undefined,
+      false,
+      factory.createNamespaceExport(factory.createIdentifier(name!)),
+      factory.createStringLiteral(path),
+      undefined
+    )
+  }
+
   return factory.createExportDeclaration(undefined, false, undefined, factory.createStringLiteral(path), undefined)
 }
 
