@@ -46,7 +46,7 @@ async function transformReducer(
   return result
 }
 
-async function buildImplementation(options: BuildOptions, done: (output: BuildOutput) => void) {
+async function buildImplementation(options: BuildOptions): Promise<BuildOutput> {
   const { config, logger } = options
 
   if (config.output.clean) {
@@ -95,16 +95,15 @@ async function buildImplementation(options: BuildOptions, done: (output: BuildOu
     parameters: [config],
   })
 
-  await pluginManager.hookParallel({ hookName: 'buildEnd' })
-  setTimeout(() => {
-    done({ files: fileManager.files.map((file) => ({ ...file, source: getFileSource(file) })) })
-  }, 500)
-
   pluginManager.fileManager.add({
     path: isURL(config.input.path) ? config.input.path : pathParser.resolve(config.root, config.input.path),
     fileName: isURL(config.input.path) ? 'input' : config.input.path,
     source: isURL(config.input.path) ? config.input.path : await read(pathParser.resolve(config.root, config.input.path)),
   })
+
+  await pluginManager.hookParallel({ hookName: 'buildEnd' })
+
+  return { files: fileManager.files.map((file) => ({ ...file, source: getFileSource(file) })) }
 }
 
 export type KubbBuild = (options: BuildOptions) => Promise<BuildOutput>
@@ -112,7 +111,11 @@ export type KubbBuild = (options: BuildOptions) => Promise<BuildOutput>
 export function build(options: BuildOptions): Promise<BuildOutput> {
   return new Promise(async (resolve, reject) => {
     try {
-      await buildImplementation(options, resolve)
+      const output = await buildImplementation(options)
+
+      setTimeout(() => {
+        resolve(output)
+      }, 500)
     } catch (e) {
       reject(e)
     }

@@ -181,7 +181,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     },
     async buildEnd() {
       if (this.config.output.write || this.config.output.write === undefined) {
-        await writeIndexes(this.config.root, this.config.output.path, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
+        const files = await writeIndexes(this.config.root, this.config.output.path, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
+        files?.forEach((file) => {
+          this.fileManager.add(file)
+        })
       }
     },
   }
