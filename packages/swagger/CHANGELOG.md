@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1-beta.11](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.11...@kubb/swagger-v1.0.1-beta.11) (2023-04-09)
+
+
+### Bug Fixes
+
+* use of camelCaseTransformMerge for every camelcase transform ([69f77ec](https://github.com/kubb-project/kubb/commit/69f77ecb45d62c14cb5ec7724cc64c9fe63a2365))
+* use of express style for jsdoc [@link](https://github.com/link) ([7c38ee0](https://github.com/kubb-project/kubb/commit/7c38ee020f5b54ff2cfec807315c1450119025d0))
+
 ## [1.0.0-beta.11](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.10...@kubb/swagger-v1.0.0-beta.11) (2023-04-09)
 
 

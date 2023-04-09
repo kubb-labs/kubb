@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1-beta.11](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.11...@kubb/swagger-ts-v1.0.1-beta.11) (2023-04-09)
+
+
+### Bug Fixes
+
+* use of camelCaseTransformMerge for every camelcase transform ([69f77ec](https://github.com/kubb-project/kubb/commit/69f77ecb45d62c14cb5ec7724cc64c9fe63a2365))
+
 ## [1.0.0-beta.11](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.10...@kubb/swagger-ts-v1.0.0-beta.11) (2023-04-09)
 
 
