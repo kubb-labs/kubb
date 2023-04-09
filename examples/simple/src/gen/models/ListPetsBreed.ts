@@ -1,5 +1,5 @@
-import type { Pets } from './Pets'
 import type { Error } from './Error'
+import type { Pets } from './Pets'
 
 export type ListPetsBreedPathParams = {
   /**
@@ -16,11 +16,11 @@ export type ListPetsBreedQueryParams = {
 }
 
 /**
- * @description A paged array of pets
- */
-export type ListPetsBreedResponse = Pets
-
-/**
  * @description unexpected error
  */
 export type ListPetsBreedError = Error
+
+/**
+ * @description A paged array of pets
+ */
+export type ListPetsBreedResponse = Pets

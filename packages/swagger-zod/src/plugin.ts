@@ -53,17 +53,21 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           pathParser.resolve(this.config.root, this.config.output.path),
           pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }))
         )
-        this.fileManager.addOrAppend({
-          fileName: 'index.ts',
-          path: `${pathParser.resolve(this.config.root, this.config.output.path)}/index.ts`,
-          source: print(
-            createExportDeclaration({
-              path,
-              asAlias: true,
-              name: renderTemplate(groupBy.exportAs || '{{tag}}Schemas', { tag: options.tag }),
-            })
-          ),
-        })
+        const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Schemas', { tag: options.tag }), pluginName })
+
+        if (name) {
+          this.fileManager.addOrAppend({
+            fileName: 'index.ts',
+            path: `${pathParser.resolve(this.config.root, this.config.output.path)}/index.ts`,
+            source: print(
+              createExportDeclaration({
+                path,
+                asAlias: true,
+                name,
+              })
+            ),
+          })
+        }
 
         return pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }), fileName)
       }

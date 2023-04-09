@@ -6,7 +6,7 @@ import type { OptionalPath } from '@kubb/core'
 import { getRelativePath, renderTemplate, createPlugin, validatePlugins, getPathMode } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi } from '@kubb/swagger'
-import { print, createExportDeclaration } from '@kubb/ts-codegen'
+import { print, createExportDeclaration, writeIndexes } from '@kubb/ts-codegen'
 
 import { OperationGenerator } from './generators'
 
@@ -59,17 +59,21 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           pathParser.resolve(this.config.root, this.config.output.path),
           pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }))
         )
-        this.fileManager.addOrAppend({
-          fileName: 'index.ts',
-          path: `${pathParser.resolve(this.config.root, this.config.output.path)}/index.ts`,
-          source: print(
-            createExportDeclaration({
-              path,
-              asAlias: true,
-              name: renderTemplate(groupBy.exportAs || '{{tag}}SWRHooks', { tag: options.tag }),
-            })
-          ),
-        })
+        const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}SWRHooks', { tag: options.tag }), pluginName })
+
+        if (name) {
+          this.fileManager.addOrAppend({
+            fileName: 'index.ts',
+            path: `${pathParser.resolve(this.config.root, this.config.output.path)}/index.ts`,
+            source: print(
+              createExportDeclaration({
+                path,
+                asAlias: true,
+                name,
+              })
+            ),
+          })
+        }
 
         return pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }), fileName)
       }
@@ -94,6 +98,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       })
 
       await operationGenerator.build()
+    },
+    async buildEnd() {
+      if (this.config.output.write || this.config.output.write === undefined) {
+        const files = await writeIndexes(this.config.root, this.config.output.path, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
+        files?.forEach((file) => {
+          this.fileManager.addOrAppend(file)
+        })
+      }
     },
   }
 })

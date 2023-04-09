@@ -1,3 +1,8 @@
+/**
+ * @description Invalid input
+ */
+export type UpdatePetWithForm405 = any | null
+
 export type UpdatePetWithFormPathParams = {
   /**
    * @type integer int64
@@ -19,8 +24,3 @@ export type UpdatePetWithFormQueryParams = {
 export type UpdatePetWithFormRequest = any | null
 
 export type UpdatePetWithFormResponse = any | null
-
-/**
- * @description Invalid input
- */
-export type UpdatePetWithForm405 = any | null

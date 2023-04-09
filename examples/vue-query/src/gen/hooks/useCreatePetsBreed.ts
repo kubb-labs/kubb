@@ -7,7 +7,7 @@ import type { CreatePetsBreedRequest, CreatePetsBreedResponse, CreatePetsBreedPa
 
 /**
  * @summary Create a pet breed
- * @link /pets/${breed}
+ * @link /pets/:breed
  */
 export function useCreatePetsBreed<TData = CreatePetsBreedResponse, TError = unknown, TVariables = CreatePetsBreedRequest>(
   breed: CreatePetsBreedPathParams['breed'],
@@ -21,7 +21,7 @@ export function useCreatePetsBreed<TData = CreatePetsBreedResponse, TError = unk
     mutationFn: (data) => {
       return client<TData, TVariables>({
         method: 'post',
-        url: `/pets/$${breed}`,
+        url: `/pets/${breed}`,
         data,
       })
     },

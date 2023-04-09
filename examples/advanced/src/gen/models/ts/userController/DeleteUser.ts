@@ -1,3 +1,13 @@
+/**
+ * @description Invalid username supplied
+ */
+export type DeleteUser400 = any | null
+
+/**
+ * @description User not found
+ */
+export type DeleteUser404 = any | null
+
 export type DeleteUserPathParams = {
   /**
    * @type string
@@ -8,13 +18,3 @@ export type DeleteUserPathParams = {
 export type DeleteUserRequest = any | null
 
 export type DeleteUserResponse = any | null
-
-/**
- * @description Invalid username supplied
- */
-export type DeleteUser400 = any | null
-
-/**
- * @description User not found
- */
-export type DeleteUser404 = any | null

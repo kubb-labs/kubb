@@ -1,5 +1,5 @@
-import type { Pet } from './Pet'
 import type { Error } from './Error'
+import type { Pet } from './Pet'
 
 export type CreatePetsBreedPathParams = {
   /**
@@ -20,11 +20,11 @@ export type CreatePetsBreedRequest = {
 }
 
 /**
- * @description Created Pet
- */
-export type CreatePetsBreedResponse = Pet
-
-/**
  * @description unexpected error
  */
 export type CreatePetsBreedError = Error
+
+/**
+ * @description Created Pet
+ */
+export type CreatePetsBreedResponse = Pet

@@ -5,7 +5,7 @@ import type { GetPetByIdResponse, GetPetByIdPathParams } from '../../models/ts/p
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/{petId}
+ * @link /pet/:petId
  */
 export function getPetById<TData = GetPetByIdResponse>(petId: GetPetByIdPathParams['petId']) {
   return client<TData>({

@@ -1,4 +1,4 @@
-import { camelCase } from 'change-case'
+import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import type { File, FileManager, PluginContext } from '@kubb/core'
 import { getRelativePath, getEncodedText } from '@kubb/core'
@@ -43,7 +43,7 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName } = this.options
 
     const name = await resolveName({ name: `${operation.getOperationId()}Response`, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = await resolvePath({
       fileName,
       directory,
@@ -66,7 +66,7 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName } = this.options
 
     const name = await resolveName({ name: `${operation.getOperationId()}PathParams`, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = await resolvePath({
       fileName,
       directory,
@@ -89,7 +89,7 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName } = this.options
 
     const name = await resolveName({ name: `${operation.getOperationId()}QueryParams`, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = await resolvePath({
       fileName,
       directory,
@@ -112,7 +112,7 @@ export class OperationGenerator extends Generator<Options> {
     const { directory, resolvePath, resolveName } = this.options
 
     const name = await resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '' })}.ts`
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = await resolvePath({
       fileName,
       directory,

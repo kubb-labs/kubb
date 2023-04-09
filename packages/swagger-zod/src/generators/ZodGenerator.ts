@@ -184,7 +184,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
     if (additionalProperties) {
       const addionalValidationFunctions =
-        additionalProperties === true ? [keywordZodNodes.any, undefined] : this.getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
+        additionalProperties === true ? [[keywordZodNodes.any, undefined]] : this.getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
 
       members.push([keywordZodNodes.catchall, addionalValidationFunctions])
     }

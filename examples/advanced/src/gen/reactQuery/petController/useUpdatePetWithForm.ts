@@ -13,7 +13,7 @@ import type {
 
 /**
  * @summary Updates a pet in the store with form data
- * @link /pet/{petId}
+ * @link /pet/:petId
  */
 export function useUpdatePetWithForm<TData = UpdatePetWithFormResponse, TError = UpdatePetWithForm405, TVariables = UpdatePetWithFormRequest>(
   petId: UpdatePetWithFormPathParams['petId'],

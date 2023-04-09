@@ -14,7 +14,7 @@ import type {
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
- * @link /store/order/{orderId}
+ * @link /store/order/:orderId
  */
 export function useDeleteOrder<TData = DeleteOrderResponse, TError = DeleteOrder400 & DeleteOrder404, TVariables = DeleteOrderRequest>(
   orderId: DeleteOrderPathParams['orderId'],

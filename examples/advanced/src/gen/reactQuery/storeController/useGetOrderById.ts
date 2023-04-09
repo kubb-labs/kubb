@@ -24,7 +24,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdResponse>(orderId: 
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/{orderId}
+ * @link /store/order/:orderId
  */
 export function useGetOrderById<TData = GetOrderByIdResponse, TError = GetOrderById400 & GetOrderById404>(
   orderId: GetOrderByIdPathParams['orderId'],

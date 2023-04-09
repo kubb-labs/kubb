@@ -13,7 +13,7 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
     fetcher: () => {
       return client<TData>({
         method: 'get',
-        url: `/pets/$${breed}`,
+        url: `/pets/${breed}`,
         params,
       })
     },
@@ -22,7 +22,7 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
 
 /**
  * @summary List all pets with breed
- * @link /pets/${breed}
+ * @link /pets/:breed
  */
 export function useListPetsBreed<TData = ListPetsBreedResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
@@ -31,7 +31,7 @@ export function useListPetsBreed<TData = ListPetsBreedResponse, TError = unknown
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
 
-  const query = useSWR<TData, TError, string>(`/pets/$${breed}`, {
+  const query = useSWR<TData, TError, string>(`/pets/${breed}`, {
     ...listPetsBreedQueryOptions<TData>(breed, params),
     ...queryOptions,
   })

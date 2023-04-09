@@ -1,4 +1,4 @@
-import { pascalCase, camelCaseTransformMerge } from 'change-case'
+import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import type { FileManager, File } from '@kubb/core'
 import { combineFiles, Generator } from '@kubb/core'
@@ -58,23 +58,23 @@ export abstract class OperationGenerator<
     return {
       pathParams: pathParams
         ? {
-            name: pascalCase(`${operation.getOperationId()} "PathParams"`, { delimiter: '' }),
+            name: pascalCase(`${operation.getOperationId()} "PathParams"`, { delimiter: '', transform: pascalCaseTransformMerge }),
             schema: pathParams,
           }
         : undefined,
       queryParams: queryParams
         ? {
-            name: pascalCase(`${operation.getOperationId()} "QueryParams"`, { delimiter: '' }),
+            name: pascalCase(`${operation.getOperationId()} "QueryParams"`, { delimiter: '', transform: pascalCaseTransformMerge }),
             schema: queryParams,
           }
         : undefined,
       request: {
-        name: pascalCase(`${operation.getOperationId()} "Request"`, { delimiter: '' }),
+        name: pascalCase(`${operation.getOperationId()} "Request"`, { delimiter: '', transform: pascalCaseTransformMerge }),
         description: (operation.schema.requestBody as RequestBodyObject)?.description,
         schema: (operation.getRequestBody('application/json') as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject,
       },
       response: {
-        name: pascalCase(`${operation.getOperationId()} "Response"`, { delimiter: '' }),
+        name: pascalCase(`${operation.getOperationId()} "Response"`, { delimiter: '', transform: pascalCaseTransformMerge }),
         description: operation.getResponseAsJSONSchema('200')?.at(0)?.description,
         schema: operation.getResponseAsJSONSchema('200')?.at(0)?.schema as OpenAPIV3.SchemaObject,
         statusCode: 200,
@@ -89,7 +89,7 @@ export abstract class OperationGenerator<
           }
 
           return {
-            name: pascalCase(`${operation.getOperationId()} ${name}`, { delimiter: '', transform: camelCaseTransformMerge }),
+            name: pascalCase(`${operation.getOperationId()} ${name}`, { delimiter: '', transform: pascalCaseTransformMerge }),
             description:
               operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description ||
               (operation.getResponseByStatusCode(statusCode) as OpenAPIV3.ResponseObject)?.description,

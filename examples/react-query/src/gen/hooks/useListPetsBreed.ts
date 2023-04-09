@@ -6,7 +6,7 @@ import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@t
 import type { ListPetsBreedResponse, ListPetsBreedPathParams, ListPetsBreedQueryParams } from '../models/ListPetsBreed'
 
 export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], params?: ListPetsBreedQueryParams) =>
-  [`/pets/$${breed}`, ...(params ? [params] : [])] as const
+  [`/pets/${breed}`, ...(params ? [params] : [])] as const
 
 export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
   breed: ListPetsBreedPathParams['breed'],
@@ -19,7 +19,7 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
     queryFn: () => {
       return client<TData>({
         method: 'get',
-        url: `/pets/$${breed}`,
+        url: `/pets/${breed}`,
         params,
       })
     },
@@ -28,7 +28,7 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
 
 /**
  * @summary List all pets with breed
- * @link /pets/${breed}
+ * @link /pets/:breed
  */
 export function useListPetsBreed<TData = ListPetsBreedResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],

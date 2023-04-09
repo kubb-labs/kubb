@@ -275,11 +275,6 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     }
 
     if (schema.type) {
-      if (schema.type === 'object') {
-        if (!schema.additionalProperties && !schema.properties && schema.type === 'object') {
-          return null
-        }
-      }
       if (Array.isArray(schema.type)) {
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
         const [type, nullable] = schema.type

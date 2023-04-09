@@ -24,7 +24,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdResponse>(petId: GetPet
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/{petId}
+ * @link /pet/:petId
  */
 export function useGetPetById<TData = GetPetByIdResponse, TError = GetPetById400 & GetPetById404>(
   petId: GetPetByIdPathParams['petId'],

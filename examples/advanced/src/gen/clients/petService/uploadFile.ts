@@ -4,7 +4,7 @@ import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams, Uploa
 
 /**
  * @summary uploads an image
- * @link /pet/{petId}/uploadImage
+ * @link /pet/:petId/uploadImage
  */
 export function uploadFile<TData = UploadFileResponse, TVariables = UploadFileRequest>(
   petId: UploadFilePathParams['petId'],

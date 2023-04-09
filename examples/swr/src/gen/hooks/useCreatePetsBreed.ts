@@ -7,7 +7,7 @@ import type { CreatePetsBreedRequest, CreatePetsBreedResponse, CreatePetsBreedPa
 
 /**
  * @summary Create a pet breed
- * @link /pets/${breed}
+ * @link /pets/:breed
  */
 export function useCreatePetsBreed<TData = CreatePetsBreedResponse, TError = unknown, TVariables = CreatePetsBreedRequest>(
   breed: CreatePetsBreedPathParams['breed'],
@@ -18,7 +18,7 @@ export function useCreatePetsBreed<TData = CreatePetsBreedResponse, TError = unk
   const { mutation: mutationOptions } = options ?? {}
 
   return useSWRMutation<TData, TError, string, TVariables>(
-    `/pets/$${breed}`,
+    `/pets/${breed}`,
     (url, { arg: data }) => {
       return client<TData, TVariables>({
         method: 'post',

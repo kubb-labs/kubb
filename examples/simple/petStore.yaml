@@ -109,7 +109,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /pets/${breed}:
+  /pets/{breed}:
     get:
       summary: List all pets with breed
       operationId: listPetsBreed

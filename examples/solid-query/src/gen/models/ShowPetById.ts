@@ -1,5 +1,5 @@
-import type { Pet } from './Pet'
 import type { Error } from './Error'
+import type { Pet } from './Pet'
 
 export type ShowPetByIdPathParams = {
   /**
@@ -13,11 +13,11 @@ export type ShowPetByIdPathParams = {
 }
 
 /**
- * @description Expected response to a valid request
- */
-export type ShowPetByIdResponse = Pet
-
-/**
  * @description unexpected error
  */
 export type ShowPetByIdError = Error
+
+/**
+ * @description Expected response to a valid request
+ */
+export type ShowPetByIdResponse = Pet

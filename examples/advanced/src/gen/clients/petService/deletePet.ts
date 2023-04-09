@@ -5,7 +5,7 @@ import type { DeletePetRequest, DeletePetResponse, DeletePetPathParams } from '.
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/{petId}
+ * @link /pet/:petId
  */
 export function deletePet<TData = DeletePetResponse, TVariables = DeletePetRequest>(petId: DeletePetPathParams['petId'], data: TVariables) {
   return client<TData, TVariables>({

@@ -1,5 +1,10 @@
 import type { Pet } from '../Pet'
 
+/**
+ * @description Invalid status value
+ */
+export type FindPetsByStatus400 = any | null
+
 export const findPetsByStatusQueryParamsStatus = {
   available: 'available',
   pending: 'pending',
@@ -12,11 +17,6 @@ export type FindPetsByStatusQueryParams = {
    */
   status?: FindPetsByStatusQueryParamsStatus | undefined
 }
-
-/**
- * @description Invalid status value
- */
-export type FindPetsByStatus400 = any | null
 
 /**
  * @description successful operation

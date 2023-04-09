@@ -57,14 +57,19 @@ export type ListPetsQueryParams = {
 }
 
 /**
+ * @description unexpected error
+ */
+export type ListPetsError = Error
+
+/**
  * @description A paged array of pets
  */
 export type ListPetsResponse = Pets
 
 /**
- * @description unexpected error
+ * @description Null response
  */
-export type ListPetsError = Error
+export type CreatePets201 = any | null
 
 export type CreatePetsRequest = {
   /**
@@ -78,19 +83,14 @@ export type CreatePetsRequest = {
 }
 
 /**
- * @description Null response
+ * @description unexpected error
  */
-export type CreatePets201 = any | null
+export type CreatePetsError = Error
 
 /**
  * @description Expected response to a valid post
  */
 export type CreatePetsResponse = Pet
-
-/**
- * @description unexpected error
- */
-export type CreatePetsError = Error
 
 export type ShowPetByIdPathParams = {
   /**
@@ -104,11 +104,11 @@ export type ShowPetByIdPathParams = {
 }
 
 /**
- * @description Expected response to a valid request
- */
-export type ShowPetByIdResponse = Pet
-
-/**
  * @description unexpected error
  */
 export type ShowPetByIdError = Error
+
+/**
+ * @description Expected response to a valid request
+ */
+export type ShowPetByIdResponse = Pet

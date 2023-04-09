@@ -1,3 +1,8 @@
+/**
+ * @description Invalid pet value
+ */
+export type DeletePet400 = any | null
+
 export type DeletePetPathParams = {
   /**
    * @type integer int64
@@ -8,8 +13,3 @@ export type DeletePetPathParams = {
 export type DeletePetRequest = any | null
 
 export type DeletePetResponse = any | null
-
-/**
- * @description Invalid pet value
- */
-export type DeletePet400 = any | null
