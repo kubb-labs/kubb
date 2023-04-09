@@ -1,4 +1,16 @@
 # Changelog
+## [1.0.0-beta.11](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.10...@kubb/core-v1.0.0-beta.11) (2023-04-09)
+
+
+### Features
+
+* `groupBy.exportAs` to make it possible go group all import with `export * as groupBy.exportAs from "./x"` ([214ff25](https://github.com/kubb-project/kubb/commit/214ff250e8ecf23d754a456c1b9289c6475099e0))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.11 ([826bf51](https://github.com/kubb-project/kubb/commit/826bf517f275ac5e75c89bde26d7f6d8abef76c8))
+
 ## [1.0.0-beta.10](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.9...@kubb/core-v1.0.0-beta.10) (2023-04-09)
 
 
