@@ -19,8 +19,8 @@
   "license": "MIT",
   "dependencies": {
     "@vercel/analytics": "^0.1.11",
-    "next": "^13.2.4",
-    "next-sitemap": "^4.0.6",
+    "next": "^13.3.0",
+    "next-sitemap": "^4.0.7",
     "nextra": "2.2.19",
     "nextra-theme-docs": "2.2.19",
     "react": "^18.2.0",
@@ -29,11 +29,11 @@
   },
   "devDependencies": {
     "@kubb/core": "workspace:*",
-    "@next/env": "^13.2.4",
+    "@next/env": "^13.3.0",
     "@types/node": "^18.15.11",
     "autoprefixer": "^10.4.14",
     "postcss": "8.4.21",
     "tailwindcss": "3.3.1",
-    "typescript": "5.0.3"
+    "typescript": "5.0.4"
   }
 }

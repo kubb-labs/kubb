@@ -63,7 +63,7 @@
     "@types/swagger2openapi": "^7.0.0",
     "openapi-types": "^12.1.0",
     "tsup": "^6.7.0",
-    "typescript": "^5.0.3"
+    "typescript": "^5.0.4"
   },
   "publishConfig": {
     "access": "public",
