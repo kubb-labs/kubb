@@ -7,9 +7,10 @@ import type { DeleteUserRequest, DeleteUserResponse, DeleteUserPathParams } from
  * @summary Delete user
  * @link /user/{username}
  */
-export function deleteUser<TData = DeleteUserResponse, TVariables = DeleteUserRequest>(username: DeleteUserPathParams['username']) {
+export function deleteUser<TData = DeleteUserResponse, TVariables = DeleteUserRequest>(username: DeleteUserPathParams['username'], data: TVariables) {
   return client<TData, TVariables>({
     method: 'delete',
     url: `/user/${username}`,
+    data,
   })
 }

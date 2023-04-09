@@ -147,6 +147,7 @@ export class OperationGenerator extends Generator<Options> {
     const source = await new TypeBuilder(oas)
       .add(schemas.pathParams)
       .add(schemas.request)
+      .add(schemas.queryParams)
       .add(schemas.response)
       .add(schemas.errors)
       .configure({ fileResolver, withJSDocs: true, resolveName, enumType })

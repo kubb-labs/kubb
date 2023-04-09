@@ -19,10 +19,11 @@ export function useDeleteUser<TData = DeleteUserResponse, TError = DeleteUser400
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({
-    mutationFn: () => {
+    mutationFn: (data) => {
       return client<TData, TVariables>({
         method: 'delete',
         url: `/user/${username}`,
+        data,
       })
     },
     ...mutationOptions,

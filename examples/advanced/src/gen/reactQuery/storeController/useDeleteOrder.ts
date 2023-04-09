@@ -25,10 +25,11 @@ export function useDeleteOrder<TData = DeleteOrderResponse, TError = DeleteOrder
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({
-    mutationFn: () => {
+    mutationFn: (data) => {
       return client<TData, TVariables>({
         method: 'delete',
         url: `/store/order/${orderId}`,
+        data,
       })
     },
     ...mutationOptions,

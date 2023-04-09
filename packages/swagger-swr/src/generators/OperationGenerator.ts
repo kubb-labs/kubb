@@ -289,7 +289,7 @@ export class OperationGenerator extends Generator<Options> {
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
       schemas.request.name
-    }>(${pathParamsTyped} options?: {
+    }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
           mutation?: SWRMutationConfiguration<TData, TError, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
@@ -301,6 +301,7 @@ export class OperationGenerator extends Generator<Options> {
                 method: "post",
                 url,
                 data,
+                ${schemas.queryParams?.name ? 'params,' : ''}
               })
             },
             mutationOptions
@@ -355,21 +356,22 @@ export class OperationGenerator extends Generator<Options> {
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
       schemas.request.name
-    }>(${pathParamsTyped} options?: {
+    }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
           mutation?: SWRMutationConfiguration<TData, TError, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
 
           return useSWRMutation<TData, TError, string, TVariables>(
-            ${new Path(operation.path).template}, 
+          ${new Path(operation.path).template},
             (url, { arg: data }) => {
               return client<TData, TVariables>({
                 method: "put",
                 url,
-                data
-              });
-             },
-             mutationOptions
+                data,
+                ${schemas.queryParams?.name ? 'params,' : ''}
+              })
+            },
+            mutationOptions
           );
         };
     `)
@@ -419,26 +421,28 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
+    ${createJSDocBlockText({ comments })}
+    export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
       schemas.request.name
-    }>(${pathParamsTyped} options?: {
-          mutation?: SWRMutationConfiguration<TData, TError, TVariables>
-        }) {
-          const { mutation: mutationOptions } = options ?? {};
+    }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
+      mutation?: SWRMutationConfiguration<TData, TError, TVariables>
+    }) {
+      const { mutation: mutationOptions } = options ?? {};
 
-          return useSWRMutation<TData, TError, string, TVariables>(
-            ${new Path(operation.path).template},
-            (url) => {
-              return client<TData, TVariables>({
-                method: "delete",
-                url,
-              })
-            },
-            mutationOptions
-          );
-        };
-    `)
+      return useSWRMutation<TData, TError, string, TVariables>(
+      ${new Path(operation.path).template},
+        (url, { arg: data }) => {
+          return client<TData, TVariables>({
+            method: "delete",
+            url,
+            data,
+            ${schemas.queryParams?.name ? 'params,' : ''}
+          })
+        },
+        mutationOptions
+      );
+    };
+`)
 
     return {
       path: hook.filePath,
@@ -459,7 +463,9 @@ export class OperationGenerator extends Generator<Options> {
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
-          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, ...errors.map((error) => error.name)].filter(Boolean) as string[],
+          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, ...errors.map((error) => error.name)].filter(
+            Boolean
+          ) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },

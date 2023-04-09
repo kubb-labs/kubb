@@ -450,9 +450,9 @@ export class OperationGenerator extends Generator<Options> {
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name},TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
       schemas.request.name
-    }>(${pathParamsTyped} options?: {
+    }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
           mutation?: ${imports.mutate.UseMutationOptions}<TData, TError, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
@@ -463,6 +463,7 @@ export class OperationGenerator extends Generator<Options> {
                 method: "post",
                 url: ${new Path(operation.path).template},
                 data,
+                ${schemas.queryParams?.name ? 'params,' : ''}
               });
             },
             ...mutationOptions
@@ -510,8 +511,8 @@ export class OperationGenerator extends Generator<Options> {
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
       schemas.request.name
-    }>(${pathParamsTyped} options?: {
-          mutation?:  ${imports.mutate.UseMutationOptions}<TData, TError, TVariables>
+    }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
+          mutation?: ${imports.mutate.UseMutationOptions}<TData, TError, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
 
@@ -520,7 +521,8 @@ export class OperationGenerator extends Generator<Options> {
               return client<TData, TVariables>({
                 method: "put",
                 url: ${new Path(operation.path).template},
-                data
+                data,
+                ${schemas.queryParams?.name ? 'params,' : ''}
               });
             },
             ...mutationOptions
@@ -570,16 +572,18 @@ export class OperationGenerator extends Generator<Options> {
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
       schemas.request.name
-    }>(${pathParamsTyped} options?: {
-          mutation?:  ${imports.mutate.UseMutationOptions}<TData, TError, TVariables>
+    }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
+          mutation?: ${imports.mutate.UseMutationOptions}<TData, TError, TVariables>
         }) {
           const { mutation: mutationOptions } = options ?? {};
 
           return ${imports.mutate.useMutation}<TData, TError, TVariables>({
-            mutationFn: () => {
+            mutationFn: (data) => {
               return client<TData, TVariables>({
                 method: "delete",
-                url: ${new Path(operation.path).template}
+                url: ${new Path(operation.path).template},
+                data,
+                ${schemas.queryParams?.name ? 'params,' : ''}
               });
             },
             ...mutationOptions
@@ -598,7 +602,9 @@ export class OperationGenerator extends Generator<Options> {
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
-          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, ...errors.map((error) => error.name)].filter(Boolean) as string[],
+          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, ...errors.map((error) => error.name)].filter(
+            Boolean
+          ) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },

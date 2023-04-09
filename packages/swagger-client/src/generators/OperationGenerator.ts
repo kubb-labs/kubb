@@ -111,9 +111,9 @@ export class OperationGenerator extends Generator<Options> {
 
     sources.push(`
       ${createJSDocBlockText({ comments })}
-      export function ${controller.name} <TData = ${schemas.response.name}${
-      schemas.queryParams?.name ? `, TParams = ${schemas.queryParams?.name}` : ''
-    }>(${pathParamsTyped} ${schemas.queryParams?.name ? 'params?: TParams' : ''}) {
+      export function ${controller.name} <TData = ${schemas.response.name}>(${pathParamsTyped} ${
+      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : ''
+    }) {
         return client<TData>({
           method: "get",
           url: ${new Path(operation.path).template},
@@ -151,14 +151,17 @@ export class OperationGenerator extends Generator<Options> {
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
     sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${controller.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables) {
-          return client<TData, TVariables>({
-            method: "post",
-            url: ${new Path(operation.path).template},
-            data,
-          });
-        };
+      ${createJSDocBlockText({ comments })}
+      export function ${controller.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables, ${
+      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : ''
+    }) {
+        return client<TData, TVariables>({
+          method: "post",
+          url: ${new Path(operation.path).template},
+          data,
+          ${schemas.queryParams?.name ? 'params,' : ''}
+        });
+      };
     `)
 
     return {
@@ -190,14 +193,17 @@ export class OperationGenerator extends Generator<Options> {
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
     sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${controller.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables) {
-          return client<TData, TVariables>({
-            method: "put",
-            url: ${new Path(operation.path).template},
-            data
-          });
-        };
+      ${createJSDocBlockText({ comments })}
+      export function ${controller.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables, ${
+      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : ''
+    }) {
+        return client<TData, TVariables>({
+          method: "put",
+          url: ${new Path(operation.path).template},
+          data,
+          ${schemas.queryParams?.name ? 'params,' : ''}
+        });
+      };
     `)
 
     return {
@@ -229,13 +235,17 @@ export class OperationGenerator extends Generator<Options> {
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
     sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${controller.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped}) {
-          return client<TData, TVariables>({
-            method: "delete",
-            url: ${new Path(operation.path).template}
-          });
-        };
+      ${createJSDocBlockText({ comments })}
+      export function ${controller.name} <TData = ${schemas.response.name}, TVariables = ${schemas.request.name}>(${pathParamsTyped} data: TVariables, ${
+      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : ''
+    }) {
+        return client<TData, TVariables>({
+          method: "delete",
+          url: ${new Path(operation.path).template},
+          data,
+          ${schemas.queryParams?.name ? 'params,' : ''}
+        });
+      };
     `)
 
     return {
@@ -248,7 +258,7 @@ export class OperationGenerator extends Generator<Options> {
           path: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
-          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name].filter(Boolean) as string[],
+          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
           path: getRelativePath(controller.filePath, type.filePath),
           isTypeOnly: true,
         },

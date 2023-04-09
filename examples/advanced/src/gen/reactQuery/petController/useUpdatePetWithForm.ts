@@ -7,6 +7,7 @@ import type {
   UpdatePetWithFormRequest,
   UpdatePetWithFormResponse,
   UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
   UpdatePetWithForm405,
 } from '../../models/ts/petController/UpdatePetWithForm'
 
@@ -16,6 +17,7 @@ import type {
  */
 export function useUpdatePetWithForm<TData = UpdatePetWithFormResponse, TError = UpdatePetWithForm405, TVariables = UpdatePetWithFormRequest>(
   petId: UpdatePetWithFormPathParams['petId'],
+  params?: UpdatePetWithFormQueryParams,
   options?: {
     mutation?: UseMutationOptions<TData, TError, TVariables>
   }
@@ -28,6 +30,7 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormResponse, TError =
         method: 'post',
         url: `/pet/${petId}`,
         data,
+        params,
       })
     },
     ...mutationOptions,

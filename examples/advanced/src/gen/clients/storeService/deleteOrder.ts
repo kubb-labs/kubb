@@ -7,9 +7,10 @@ import type { DeleteOrderRequest, DeleteOrderResponse, DeleteOrderPathParams } f
  * @summary Delete purchase order by ID
  * @link /store/order/{orderId}
  */
-export function deleteOrder<TData = DeleteOrderResponse, TVariables = DeleteOrderRequest>(orderId: DeleteOrderPathParams['orderId']) {
+export function deleteOrder<TData = DeleteOrderResponse, TVariables = DeleteOrderRequest>(orderId: DeleteOrderPathParams['orderId'], data: TVariables) {
   return client<TData, TVariables>({
     method: 'delete',
     url: `/store/order/${orderId}`,
+    data,
   })
 }

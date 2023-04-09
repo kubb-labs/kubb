@@ -19,10 +19,11 @@ export function useDeletePet<TData = DeletePetResponse, TError = DeletePet400, T
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({
-    mutationFn: () => {
+    mutationFn: (data) => {
       return client<TData, TVariables>({
         method: 'delete',
         url: `/pet/${petId}`,
+        data,
       })
     },
     ...mutationOptions,

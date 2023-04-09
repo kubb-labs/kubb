@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import client from '../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams } from '../../models/ts/petController/UploadFile'
+import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams, UploadFileQueryParams } from '../../models/ts/petController/UploadFile'
 
 /**
  * @summary uploads an image
@@ -11,6 +11,7 @@ import type { UploadFileRequest, UploadFileResponse, UploadFilePathParams } from
  */
 export function useUploadFile<TData = UploadFileResponse, TError = unknown, TVariables = UploadFileRequest>(
   petId: UploadFilePathParams['petId'],
+  params?: UploadFileQueryParams,
   options?: {
     mutation?: UseMutationOptions<TData, TError, TVariables>
   }
@@ -23,6 +24,7 @@ export function useUploadFile<TData = UploadFileResponse, TError = unknown, TVar
         method: 'post',
         url: `/pet/${petId}/uploadImage`,
         data,
+        params,
       })
     },
     ...mutationOptions,
