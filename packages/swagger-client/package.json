@@ -67,12 +67,13 @@
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
+    "@kubb/ts-codegen": "workspace:*",
     "change-case": "^4.1.2",
     "axios": "^1.3.5"
   },
   "devDependencies": {
     "tsup": "^6.7.0",
-    "typescript": "^5.0.3"
+    "typescript": "^5.0.4"
   },
   "publishConfig": {
     "access": "public",

@@ -63,7 +63,7 @@
     "@types/node": "^18.15.11",
     "@types/lodash.isobject": "^3.0.7",
     "tsup": "^6.7.0",
-    "typescript": "^5.0.3"
+    "typescript": "^5.0.4"
   },
   "publishConfig": {
     "access": "public",

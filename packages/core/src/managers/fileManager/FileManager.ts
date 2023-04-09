@@ -58,10 +58,21 @@ export class FileManager {
   }
 
   addOrAppend(file: File) {
+    if (!file.path.endsWith(file.fileName)) {
+      // console.warn(`Path ${file.path}(file.path) should end with the fileName ${file.fileName}(file.filename)`)
+    }
+
     const previousCache = this.getCacheByPath(file.path)
 
     if (previousCache) {
+      const sourceAlreadyExists = previousCache.file.source.includes(file.source)
+
+      if (sourceAlreadyExists) {
+        return Promise.resolve(file)
+      }
+
       this.cache.delete(previousCache.id)
+
       return this.add({
         ...file,
         source: `${previousCache.file.source}\n${file.source}`,

@@ -6,6 +6,7 @@ import pathParser from 'path'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
+import type { PluginContext } from '@kubb/core'
 import { getRelativePath, createPlugin, getPathMode, validatePlugins, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
@@ -30,7 +31,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   let swaggerApi: SwaggerApi
 
   const api: Api = {
-    resolvePath(fileName, directory, options) {
+    resolvePath(this: PluginContext, fileName, directory, options) {
       if (!directory) {
         return null
       }
@@ -47,6 +48,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (options?.tag && groupBy?.type === 'tag') {
         const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
+
         return pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }), fileName)
       }
 
@@ -68,7 +70,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return valid
     },
     resolvePath(fileName, directory, options) {
-      return api.resolvePath(fileName, directory, options)
+      return api.resolvePath.call(this, fileName, directory, options)
     },
     resolveName(name) {
       return pascalCase(name, { delimiter: '', transform: pascalCaseTransformMerge })
@@ -163,7 +165,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         mode,
         directory,
         fileManager: this.fileManager,
-        resolvePath: api.resolvePath,
+        resolvePath: api.resolvePath.bind(this),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
         enumType,
       })
@@ -174,7 +176,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (this.config.output.write || this.config.output.write === undefined) {
         const files = await writeIndexes(this.config.root, this.config.output.path, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
         files?.forEach((file) => {
-          this.fileManager.add(file)
+          this.fileManager.addOrAppend(file)
         })
       }
     },

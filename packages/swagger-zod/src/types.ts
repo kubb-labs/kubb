@@ -27,6 +27,11 @@ export type Options = {
      * @default `${output}/{{tag}}Controller`
      */
     output?: string
+    /**
+     * Name to be used for the `export * as {{exportAs}} from './`
+     * @default `"{{tag}}Schemas"`
+     */
+    exportAs?: string
   }
 }
 
