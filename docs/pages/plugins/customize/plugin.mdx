@@ -39,7 +39,7 @@ export default createPlugin<MyPluginOptions>(({ version }) => {
       return path.resolve(directory, fileName)
     },
      async resolveName(name) {
-      return name.toUperCase();
+      return name.toUpperCase();
     },
     async load(path) {
       console.log("Build is loading in file: ", path)
