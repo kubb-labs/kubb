@@ -21,14 +21,19 @@ export default defineConfig(async () => {
     // logLevel: 'info',
     plugins: [
       ['@kubb/swagger', { output: false, validate: true }],
-      ['@kubb/swagger-ts', { output: 'models/ts', groupBy: 'tag' }],
-      ['@kubb/swagger-tanstack-query', { output: './reactQuery', groupBy: 'tag', client: './src/client.ts' }],
-      ['@kubb/swagger-client', { output: './clients', groupBy: 'tag', client: './src/client.ts' }],
-      ['@kubb/swagger-zod', { output: './zod', groupBy: 'tag' }],
+      [
+        '@kubb/swagger-ts',
+        {
+          output: 'models/ts',
+          groupBy: {
+            type: 'tag',
+          },
+        },
+      ],
+      ['@kubb/swagger-tanstack-query', { output: './reactQuery', groupBy: { type: 'tag' }, client: './src/client.ts' }],
+      ['@kubb/swagger-client', { output: './clients', groupBy: { type: 'tag', output: './clients/{{tag}}Service' }, client: './src/client.ts' }],
+      ['@kubb/swagger-zod', { output: './zod', groupBy: { type: 'tag' } }],
       ['@kubb/swagger-zodios', { output: 'zodios.ts' }],
-      // createSwagger({ output: false }),
-      // createSwaggerTS({ output: 'models/ts' }),
-      // createSwaggerTanstackQuery({ output: './reactQuery' }),
     ],
   }
 })

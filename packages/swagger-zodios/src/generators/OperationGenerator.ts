@@ -1,7 +1,7 @@
 import { camelCase } from 'change-case'
 
 import type { File, FileManager, PluginContext } from '@kubb/core'
-import { getRelativePath, getText } from '@kubb/core'
+import { getRelativePath, getEncodedText } from '@kubb/core'
 import { Path, OperationGenerator as Generator } from '@kubb/swagger'
 import type { Oas, Operation, HttpMethod, Resolver } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
@@ -168,7 +168,7 @@ export class OperationGenerator extends Generator<Options> {
         parameters.push(`
           {
             name: "${schemas.pathParams.name}",
-            description: \`${getText(schemas.pathParams.description)}\`,
+            description: \`${getEncodedText(schemas.pathParams.description)}\`,
             type: "Path",
             schema: ${pathParams.name}
           }
@@ -186,7 +186,7 @@ export class OperationGenerator extends Generator<Options> {
         parameters.push(`
           {
             name: "${schemas.queryParams.name}",
-            description: \`${getText(schemas.queryParams.description)}\`,
+            description: \`${getEncodedText(schemas.queryParams.description)}\`,
             type: "Query",
             schema: ${queryParams.name}
           }
@@ -219,7 +219,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           method: "${operation.method}",
           path: "${new Path(operation.path).URL}",
-          description: \`${getText(operation.getDescription())}\`,
+          description: \`${getEncodedText(operation.getDescription())}\`,
           requestFormat: "json",
           parameters: [
               ${parameters.join(',')}

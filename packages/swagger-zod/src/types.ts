@@ -6,16 +6,28 @@ export type Api = {
 
 export type Options = {
   /**
-   * Relative path to save the TypeScript types.
+   * Relative path to save the Zod schemas.
    * When output is a file it will save all models inside that file else it will create a file per schema item.
-   * @default 'models'
+   * @default 'zod'
    */
   output?: string
   /**
-   * Group the clients based on the provided name.
-   * Tag will group based on the operation tag inside the Swagger file
+   * Group the Zod schemas based on the provided name.
    */
-  groupBy?: 'tag'
+  groupBy?: {
+    /**
+     * Tag will group based on the operation tag inside the Swagger file
+     */
+    type: 'tag'
+    /**
+     * Relative path to save the grouped Zod schemas.
+     *
+     * `{{tag}}` will be replaced by the current tagName.
+     * @example `${output}/{{tag}}Controller` => `zod/PetController`
+     * @default `${output}/{{tag}}Controller`
+     */
+    output?: string
+  }
 }
 
 export type ResolvePathOptions = { tag?: string }

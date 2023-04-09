@@ -12,12 +12,24 @@ export type Options = {
    */
   output?: string
   /**
-   * Group the clients based on the provided name.
-   * Tag will group based on the operation tag inside the Swagger file
+   * Group the TypeScript types based on the provided name.
    */
-  groupBy?: 'tag'
+  groupBy?: {
+    /**
+     * Tag will group based on the operation tag inside the Swagger file.
+     */
+    type: 'tag'
+    /**
+     * Relative path to save the grouped TypeScript Types.
+     *
+     * `{{tag}}` will be replaced by the current tagName.
+     * @example `${output}/{{tag}}Controller` => `models/PetController`
+     * @default `${output}/{{tag}}Controller`
+     */
+    output?: string
+  }
   /**
-   * Choose to use enum or as const for enum
+   * Choose to use `enum` or `as const` for enums
    * @default `asConst`
    */
   enumType?: 'enum' | 'asConst'

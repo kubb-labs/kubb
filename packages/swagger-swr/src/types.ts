@@ -2,15 +2,27 @@ import type { PluginFactoryOptions } from '@kubb/core'
 
 export type Options = {
   /**
-   * Output to save the ReactQuery hooks.
-   * @default hooks/query
+   * Output to save the SWR hooks.
+   * @default `"hooks"`
    */
   output?: string
   /**
-   * Group the schemas based on the provided name.
-   * Tag will group based on the operation tag inside the Swagger file
+   * Group the SWR hooks based on the provided name.
    */
-  groupBy?: 'tag'
+  groupBy?: {
+    /**
+     * Tag will group based on the operation tag inside the Swagger file
+     */
+    type: 'tag'
+    /**
+     * Relative path to save the grouped SWR hooks.
+     *
+     * `{{tag}}` will be replaced by the current tagName.
+     * @example `${output}/{{tag}}Controller` => `hooks/PetController`
+     * @default `${output}/{{tag}}Controller`
+     */
+    output?: string
+  }
   /**
    * Path to the client that will be used to do the API calls.
    * Relative to the root

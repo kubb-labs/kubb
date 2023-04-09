@@ -1,7 +1,7 @@
 import pathParser from 'path'
 
 import type { File, Path, PathMode, TreeNodeOptions } from '@kubb/core'
-import { TreeNode, write } from '@kubb/core'
+import { TreeNode } from '@kubb/core'
 
 import { createExportDeclaration } from './codegen'
 import { print } from './print'
@@ -73,5 +73,5 @@ export function writeIndexes(root: string, output: string, options: TreeNodeOpti
 
   const files = fileReducer([], tree)
 
-  return files.map((file) => write(file.source, file.path))
+  return files
 }
