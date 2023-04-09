@@ -26,7 +26,7 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { base: 'models' }, groupBy, enumType = 'asConst' } = options
+  const { output = 'models', groupBy, enumType = 'asConst' } = options
   let swaggerApi: SwaggerApi
 
   const api: Api = {
@@ -35,21 +35,22 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return null
       }
 
-      const mode = getPathMode(pathParser.resolve(directory, output.base))
+      const mode = getPathMode(pathParser.resolve(directory, output))
 
       if (mode === 'file') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
-        return pathParser.resolve(directory, output.base)
+        return pathParser.resolve(directory, output)
       }
 
-      if (options?.tag && groupBy === 'tag') {
-        return pathParser.resolve(directory, renderTemplate(output.groupBy || `${output.base}{{tag}}Controller`, { tag: options.tag }), fileName)
+      if (options?.tag && groupBy?.type === 'tag') {
+        const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
+        return pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }), fileName)
       }
 
-      return pathParser.resolve(directory, output.base, fileName)
+      return pathParser.resolve(directory, output, fileName)
     },
   }
 
@@ -84,7 +85,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const schemas = oas.getDefinition().components?.schemas || {}
       const directory = pathParser.resolve(this.config.root, this.config.output.path)
-      const mode = getPathMode(pathParser.resolve(directory, output.base))
+      const mode = getPathMode(pathParser.resolve(directory, output))
 
       if (mode === 'directory') {
         const builder = await new TypeBuilder(oas).configure({
@@ -152,7 +153,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         await this.addFile({
           path,
-          fileName: `${this.resolveName({ name: output.base, pluginName })}.ts`,
+          fileName: `${this.resolveName({ name: output, pluginName })}.ts`,
           source: await builder.print(),
         })
       }

@@ -37,19 +37,24 @@ Type: `string` <br/>
 Default: `"models"`
 
 ### groupBy
-Group the clients based on the provided name.
-Tag will group based on the operation tag inside the Swagger file
+Group the TypeScript types based on the provided name.
+
+#### type
+Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
+Required: `true`
 
-### groupBy
-Group the clients based on the provided name.
-Tag will group based on the operation tag inside the Swagger file
+#### output
+Relative path to save the grouped TypeScript Types.
+`{{tag}}` will be replaced by the current tagName.
 
-Type: `'tag'` <br/>
+Type: `string` <br/>
+Example: `models/{{tag}}Controller` => `models/PetController` <br/>
+Default: `${output}/{{tag}}Controller`
 
 ### enumType
-Choose to use enum or as const for enum
+Choose to use `enum` or `as const` for enums
 
 Type: `'enum' | 'asConst'` <br/>
 Default: `asConst`

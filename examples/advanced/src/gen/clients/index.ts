@@ -1,4 +1,4 @@
 export * from './operations'
-export * from './petController'
-export * from './storeController'
-export * from './userController'
+export * from './petService'
+export * from './storeService'
+export * from './userService'

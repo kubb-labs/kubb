@@ -29,16 +29,27 @@ With the Swagger client plugin you can create [Axios](https://axios-http.com/doc
 
 
 ### output
-Output to save the Clients.
+Output to save the clients.
 
 Type: `string` <br/>
-Default: `"hooks"`
+Default: `"clients"`
 
 ### groupBy
 Group the clients based on the provided name.
-Tag will group based on the operation tag inside the Swagger file
+
+#### type
+Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
+Required: `true`
+
+#### output
+Relative path to save the grouped clients.
+`{{tag}}` will be replaced by the current tagName.
+
+Type: `string` <br/>
+Example: `clients/{{tag}}Controller` => `clients/PetController` <br/>
+Default: `${output}/{{tag}}Controller`
 
 ### client
 Path to the client that will be used to do the API calls.

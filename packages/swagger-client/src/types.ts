@@ -15,15 +15,27 @@ export interface RequestConfig<TVariables = unknown> {
 
 export type Options = {
   /**
-   * Output to save the Clients.
-   * @default client/query
+   * Output to save the clients.
+   * @default `"clients"``
    */
   output?: string
   /**
    * Group the clients based on the provided name.
-   * Tag will group based on the operation tag inside the Swagger file
    */
-  groupBy?: 'tag'
+  groupBy?: {
+    /**
+     * Tag will group based on the operation tag inside the Swagger file
+     */
+    type: 'tag'
+    /**
+     * Relative path to save the grouped clients.
+     *
+     * `{{tag}}` will be replaced by the current tagName.
+     * @example `${output}/{{tag}}Controller` => `clients/PetController`
+     * @default `${output}/{{tag}}Controller`
+     */
+    output?: string
+  }
   /**
    * Path to the client that will be used to do the API calls.
    * Relative to the root

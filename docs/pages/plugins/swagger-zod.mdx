@@ -29,16 +29,28 @@ With the Swagger Zod plugin you can use [Zod](https://zod.dev/) to validate your
 
 
 ### output
-Output to save the Zod schemas.
+Relative path to save the Zod schemas.
+When output is a file it will save all models inside that file else it will create a file per schema item.
 
 Type: `string` <br/>
 Default: `"zod"`
 
 ### groupBy
-Group the clients based on the provided name.
-Tag will group based on the operation tag inside the Swagger file
+Group the Zod schemas based on the provided name.
+
+#### type
+Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
+Required: `true`
+
+#### output
+Relative path to save the grouped Zod schemas.
+`{{tag}}` will be replaced by the current tagName.
+
+Type: `string` <br/>
+Example: `zod/{{tag}}Controller` => `zod/PetController` <br/>
+Default: `${output}/{{tag}}Controller`
 
 ## Depended
 

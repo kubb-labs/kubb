@@ -29,16 +29,27 @@ With the Swagger SWR plugin you can create [SWR hooks](https://swr.vercel.app/) 
 
 
 ### output
-Output to save the ReactQuery hooks.
+Output to save the SWR hooks.
 
 Type: `string` <br/>
 Default: `"hooks"`
 
 ### groupBy
 Group the SWR hooks based on the provided name.
-Tag will group based on the operation tag inside the Swagger file
+
+#### type
+Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
+Required: `true`
+
+#### output
+Relative path to save the grouped SWR hooks.
+`{{tag}}` will be replaced by the current tagName.
+
+Type: `string` <br/>
+Example: `hooks/{{tag}}Controller` => `hooks/PetController` <br/>
+Default: `${output}/{{tag}}Controller`
 
 ### client
 Path to the client that will be used to do the API calls.

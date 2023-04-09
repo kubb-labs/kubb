@@ -6,7 +6,7 @@ import pathParser from 'path'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import { getRelativePath, createPlugin, getPathMode, validatePlugins } from '@kubb/core'
+import { getRelativePath, createPlugin, getPathMode, validatePlugins, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
 import { writeIndexes } from '@kubb/ts-codegen'
@@ -45,8 +45,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return pathParser.resolve(directory, output)
       }
 
-      if (options?.tag && groupBy === 'tag') {
-        return pathParser.resolve(directory, output, camelCase(`${options.tag}Controller`), fileName)
+      if (options?.tag && groupBy?.type === 'tag') {
+        const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
+        return pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }), fileName)
       }
 
       return pathParser.resolve(directory, output, fileName)

@@ -33,16 +33,27 @@ With the Swagger Tanstack Query plugin you can create:
 
 
 ### output
-Output to save the ReactQuery hooks.
+Output to save the @tanstack/query hooks.
 
 Type: `string` <br/>
 Default: `"hooks"`
 
 ### groupBy
-Group the react-query hooks based on the provided name.
-Tag will group based on the operation tag inside the Swagger file
+Group the @tanstack/query hooks based on the provided name.
+
+#### type
+Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
+Required: `true`
+
+#### output
+Relative path to save the grouped @tanstack/query hooks.
+`{{tag}}` will be replaced by the current tagName.
+
+Type: `string` <br/>
+Example: `hooks/{{tag}}Controller` => `hooks/PetController` <br/>
+Default: `${output}/{{tag}}Controller`
 
 ### client
 Path to the client that will be used to do the API calls.
