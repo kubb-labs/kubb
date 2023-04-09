@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.0.0-beta.10](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.0.0-beta.9...@kubb/swagger-swr-v1.0.0-beta.10) (2023-04-09)
+
+
+### Features
+
+* enumType to use an `Enum` or use `* as const` ([29b396f](https://github.com/kubb-project/kubb/commit/29b396f6980f1119502a0f40e5bb4f7e43346480))
+* error type for swr and tanstack-query ([7c71f72](https://github.com/kubb-project/kubb/commit/7c71f7216ef22f3a87fbac7fc10920aac69704ed))
+* groupby as object with `type` and `output` which can be customised with a handlebar like syntax ([c687864](https://github.com/kubb-project/kubb/commit/c687864b2ac82643757ef7b2f6158410144a73fe))
+
+
+### Bug Fixes
+
+* exclude queryParams for method DELETE ([71b2478](https://github.com/kubb-project/kubb/commit/71b2478bd02bf77e6d0d2277e3dce6e9546c32d2))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.10 ([bb4ab12](https://github.com/kubb-project/kubb/commit/bb4ab1290053274ae46b867f1876214506b0669a))
+
 ## [1.0.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.0.0-beta.8...@kubb/swagger-swr-v1.0.0-beta.9) (2023-04-05)
 
 

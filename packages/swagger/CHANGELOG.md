@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.0-beta.10](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.9...@kubb/swagger-v1.0.0-beta.10) (2023-04-09)
+
+
+### Bug Fixes
+
+* duplocated queryParams(coming from the pathParams) ([714281f](https://github.com/kubb-project/kubb/commit/714281f5d511c02c130a66b75e774f231ee06e9b))
+* include errors in Typescript and Zod ([5885041](https://github.com/kubb-project/kubb/commit/588504121b1aae9498218284a41ab43a8c78f861))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.10 ([bb4ab12](https://github.com/kubb-project/kubb/commit/bb4ab1290053274ae46b867f1876214506b0669a))
+
 ## [1.0.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.8...@kubb/swagger-v1.0.0-beta.9) (2023-04-05)
 
 
