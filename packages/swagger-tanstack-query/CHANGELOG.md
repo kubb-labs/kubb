@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1-beta.10](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.10...@kubb/swagger-tanstack-query-v1.0.1-beta.10) (2023-04-09)
+
+
+### Bug Fixes
+
+* correct use of params ([2352c51](https://github.com/kubb-project/kubb/commit/2352c511fc7fd76adfed1260773c3f6fdee3b23a))
+
 ## [1.0.0-beta.10](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.9...@kubb/swagger-tanstack-query-v1.0.0-beta.10) (2023-04-09)
 
 
