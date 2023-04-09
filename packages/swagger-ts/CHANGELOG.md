@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0-beta.10](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.10...@kubb/swagger-ts-v1.1.0-beta.10) (2023-04-09)
+
+
+### Features
+
+* `groupBy.exportAs` to make it possible go group all import with `export * as groupBy.exportAs from "./x"` ([214ff25](https://github.com/kubb-project/kubb/commit/214ff250e8ecf23d754a456c1b9289c6475099e0))
+
+
+### Bug Fixes
+
+* correct use of params ([2352c51](https://github.com/kubb-project/kubb/commit/2352c511fc7fd76adfed1260773c3f6fdee3b23a))
+
 ## [1.0.0-beta.10](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.9...@kubb/swagger-ts-v1.0.0-beta.10) (2023-04-09)
 
 
