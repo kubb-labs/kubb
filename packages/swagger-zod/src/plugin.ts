@@ -6,10 +6,11 @@ import pathParser from 'path'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
+import type { PluginContext } from '@kubb/core'
 import { getRelativePath, createPlugin, getPathMode, validatePlugins, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
-import { writeIndexes } from '@kubb/ts-codegen'
+import { writeIndexes, print, createExportDeclaration } from '@kubb/ts-codegen'
 
 import { ZodBuilder } from './builders'
 import { OperationGenerator } from './generators/OperationGenerator'
@@ -30,7 +31,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   let swaggerApi: SwaggerApi
 
   const api: Api = {
-    resolvePath(fileName, directory, options) {
+    resolvePath(this: PluginContext, fileName, directory, options) {
       if (!directory) {
         return null
       }
@@ -47,6 +48,23 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (options?.tag && groupBy?.type === 'tag') {
         const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
+
+        const path = getRelativePath(
+          pathParser.resolve(this.config.root, this.config.output.path),
+          pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }))
+        )
+        this.fileManager.addOrAppend({
+          fileName: 'index.ts',
+          path: `${pathParser.resolve(this.config.root, this.config.output.path)}/index.ts`,
+          source: print(
+            createExportDeclaration({
+              path,
+              asAlias: true,
+              name: renderTemplate(groupBy.exportAs || '{{tag}}Schemas', { tag: options.tag }),
+            })
+          ),
+        })
+
         return pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }), fileName)
       }
 
@@ -68,7 +86,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return valid
     },
     resolvePath(fileName, directory, options) {
-      return api.resolvePath(fileName, directory, options)
+      return api.resolvePath.call(this, fileName, directory, options)
     },
     resolveName(name) {
       return camelCase(`${name}Schema`, { delimiter: '', transform: camelCaseTransformMerge })
@@ -175,7 +193,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         directory,
         fileManager: this.fileManager,
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
-        resolvePath: api.resolvePath,
+        resolvePath: api.resolvePath.bind(this),
       })
 
       await operationGenerator.build()
@@ -184,7 +202,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (this.config.output.write || this.config.output.write === undefined) {
         const files = await writeIndexes(this.config.root, this.config.output.path, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
         files?.forEach((file) => {
-          this.fileManager.add(file)
+          this.fileManager.addOrAppend(file)
         })
       }
     },

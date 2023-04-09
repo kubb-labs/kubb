@@ -22,6 +22,11 @@ export type Options = {
      * @default `${output}/{{tag}}Controller`
      */
     output?: string
+    /**
+     * Name to be used for the `export * as {{exportAs}} from './`
+     * @default `"{{tag}}SWRHooks"`
+     */
+    exportAs?: string
   }
   /**
    * Path to the client that will be used to do the API calls.

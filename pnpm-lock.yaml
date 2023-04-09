@@ -473,6 +473,7 @@ importers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
       '@kubb/swagger-ts': workspace:*
+      '@kubb/ts-codegen': workspace:*
       axios: ^1.3.5
       change-case: ^4.1.2
       tsup: ^6.7.0
@@ -481,6 +482,7 @@ importers:
       '@kubb/core': link:../core
       '@kubb/swagger': link:../swagger
       '@kubb/swagger-ts': link:../swagger-ts
+      '@kubb/ts-codegen': link:../ts-codegen
       axios: 1.3.5
       change-case: 4.1.2
     devDependencies:
@@ -493,6 +495,7 @@ importers:
       '@kubb/swagger': workspace:*
       '@kubb/swagger-client': workspace:*
       '@kubb/swagger-ts': workspace:*
+      '@kubb/ts-codegen': workspace:*
       change-case: ^4.1.2
       tsup: ^6.7.0
       typescript: ^5.0.3
@@ -501,6 +504,7 @@ importers:
       '@kubb/swagger': link:../swagger
       '@kubb/swagger-client': link:../swagger-client
       '@kubb/swagger-ts': link:../swagger-ts
+      '@kubb/ts-codegen': link:../ts-codegen
       change-case: 4.1.2
     devDependencies:
       tsup: 6.7.0_typescript@5.0.3
@@ -512,6 +516,7 @@ importers:
       '@kubb/swagger': workspace:*
       '@kubb/swagger-client': workspace:*
       '@kubb/swagger-ts': workspace:*
+      '@kubb/ts-codegen': workspace:*
       change-case: ^4.1.2
       tsup: ^6.7.0
       typescript: ^5.0.3
@@ -520,6 +525,7 @@ importers:
       '@kubb/swagger': link:../swagger
       '@kubb/swagger-client': link:../swagger-client
       '@kubb/swagger-ts': link:../swagger-ts
+      '@kubb/ts-codegen': link:../ts-codegen
       change-case: 4.1.2
     devDependencies:
       tsup: 6.7.0_typescript@5.0.3

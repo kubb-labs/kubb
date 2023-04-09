@@ -3,9 +3,10 @@ import pathParser from 'path'
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import type { OptionalPath } from '@kubb/core'
-import { renderTemplate, createPlugin, validatePlugins, getPathMode } from '@kubb/core'
+import { getRelativePath, renderTemplate, createPlugin, validatePlugins, getPathMode } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi } from '@kubb/swagger'
+import { print, createExportDeclaration } from '@kubb/ts-codegen'
 
 import { OperationGenerator } from './generators'
 
@@ -53,6 +54,23 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (options?.tag && groupBy?.type === 'tag') {
         const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
+
+        const path = getRelativePath(
+          pathParser.resolve(this.config.root, this.config.output.path),
+          pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }))
+        )
+        this.fileManager.addOrAppend({
+          fileName: 'index.ts',
+          path: `${pathParser.resolve(this.config.root, this.config.output.path)}/index.ts`,
+          source: print(
+            createExportDeclaration({
+              path,
+              asAlias: true,
+              name: renderTemplate(groupBy.exportAs || '{{tag}}Service', { tag: options.tag }),
+            })
+          ),
+        })
+
         return pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }), fileName)
       }
 

@@ -139,14 +139,14 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @type hookFirst
    * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
    */
-  resolvePath: (this: Omit<PluginContext, 'addFile'>, fileName: string, directory?: string, options?: TOptions['resolvePathOptions']) => OptionalPath
+  resolvePath: (this: PluginContext, fileName: string, directory?: string, options?: TOptions['resolvePathOptions']) => OptionalPath
   /**
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.
    * @type hookFirst
    * @example ('pet') => 'Pet'
    */
-  resolveName: (this: Omit<PluginContext, 'addFile'>, name: string) => string | null
+  resolveName: (this: PluginContext, name: string) => string | null
   /**
    * Makes it possible to run async logic to override the path defined previously by `resolvePath`.
    * @type hookFirst

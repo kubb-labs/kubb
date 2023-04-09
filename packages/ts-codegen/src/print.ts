@@ -2,7 +2,7 @@ import ts from 'typescript'
 
 const { factory } = ts
 
-export function print(elements: ts.Node | Array<ts.Node | undefined>, fileName = 'print.ts') {
+export function print(elements: ts.Node | Array<ts.Node | undefined>, fileName = 'print.ts'): string {
   let nodes: Array<ts.Node | undefined> = []
   if (Array.isArray(elements)) {
     nodes = elements

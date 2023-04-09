@@ -52,6 +52,12 @@ Type: `string` <br/>
 Example: `zod/{{tag}}Controller` => `zod/PetController` <br/>
 Default: `${output}/{{tag}}Controller`
 
+#### exportAs
+Name to be used for the `export * as {{exportAs}} from './`
+
+Type: `string` <br/>
+Default: `"{{tag}}Schemas"`
+
 ## Depended
 
 - [`@kubb/swagger`](/docs/usage/swagger)

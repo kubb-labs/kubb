@@ -58,6 +58,7 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
+    "@kubb/ts-codegen": "workspace:*",
     "change-case": "^4.1.2"
   },
   "devDependencies": {

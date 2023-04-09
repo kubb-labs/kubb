@@ -55,6 +55,12 @@ Type: `string` <br/>
 Example: `hooks/{{tag}}Controller` => `hooks/PetController` <br/>
 Default: `${output}/{{tag}}Controller`
 
+#### exportAs
+Name to be used for the `export * as {{exportAs}} from './`
+
+Type: `string` <br/>
+Default: `"{{tag}}Hooks"`
+
 ### client
 Path to the client that will be used to do the API calls.
 Relative to the root
