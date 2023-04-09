@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.0.0-beta.9...@kubb/swagger-client-v1.1.0-beta.9) (2023-04-09)
+
+
+### Features
+
+* groupby as object with `type` and `output` which can be customised with a handlebar like syntax ([c687864](https://github.com/kubb-project/kubb/commit/c687864b2ac82643757ef7b2f6158410144a73fe))
+
+
+### Bug Fixes
+
+* duplocated queryParams(coming from the pathParams) ([714281f](https://github.com/kubb-project/kubb/commit/714281f5d511c02c130a66b75e774f231ee06e9b))
+* exclude queryParams for method DELETE ([71b2478](https://github.com/kubb-project/kubb/commit/71b2478bd02bf77e6d0d2277e3dce6e9546c32d2))
+
 ## [1.0.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.0.0-beta.8...@kubb/swagger-client-v1.0.0-beta.9) (2023-04-05)
 
 

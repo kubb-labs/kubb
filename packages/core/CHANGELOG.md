@@ -1,4 +1,12 @@
 # Changelog
+## [1.1.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.9...@kubb/core-v1.1.0-beta.9) (2023-04-09)
+
+
+### Bug Fixes
+
+* duplocated queryParams(coming from the pathParams) ([714281f](https://github.com/kubb-project/kubb/commit/714281f5d511c02c130a66b75e774f231ee06e9b))
+* writeIndexes without write, use of the filemanager instead ([5359521](https://github.com/kubb-project/kubb/commit/53595216451a21f25a8687e564c16f4d13d1f594))
+
 ## [1.0.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.8...@kubb/core-v1.0.0-beta.9) (2023-04-05)
 
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-beta.9...@kubb/swagger-zod-v1.1.0-beta.9) (2023-04-09)
+
+
+### Features
+
+* enumType to use an `Enum` or use `* as const` ([29b396f](https://github.com/kubb-project/kubb/commit/29b396f6980f1119502a0f40e5bb4f7e43346480))
+* groupby as object with `type` and `output` which can be customised with a handlebar like syntax ([c687864](https://github.com/kubb-project/kubb/commit/c687864b2ac82643757ef7b2f6158410144a73fe))
+
+
+### Bug Fixes
+
+* duplocated queryParams(coming from the pathParams) ([714281f](https://github.com/kubb-project/kubb/commit/714281f5d511c02c130a66b75e774f231ee06e9b))
+* include errors in Typescript and Zod ([5885041](https://github.com/kubb-project/kubb/commit/588504121b1aae9498218284a41ab43a8c78f861))
+* writeIndexes without write, use of the filemanager instead ([5359521](https://github.com/kubb-project/kubb/commit/53595216451a21f25a8687e564c16f4d13d1f594))
+
 ## [1.0.0-beta.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-beta.8...@kubb/swagger-zod-v1.0.0-beta.9) (2023-04-05)
 
 
