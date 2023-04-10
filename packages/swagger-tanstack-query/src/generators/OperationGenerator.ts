@@ -262,7 +262,7 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}>(params?: ${
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}>(params?: ${
         schemas.queryParams.name
       }, options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
@@ -306,7 +306,7 @@ export class OperationGenerator extends Generator<Options> {
       sources.push(`
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' &') || 'unknown'
+        errors.map((error) => error.name).join(' | ') || 'unknown'
       }>(${pathParamsTyped} options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${
         imports.query.UseQueryResult
       }<TData, TError> & { queryKey: QueryKey } {
@@ -354,7 +354,7 @@ export class OperationGenerator extends Generator<Options> {
       sources.push(`
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' &') || 'unknown'
+        errors.map((error) => error.name).join(' | ') || 'unknown'
       }>(${pathParamsTyped} params?: ${schemas.queryParams.name}, options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${
         imports.query.UseQueryResult
       }<TData, TError> & { queryKey: QueryKey } {
@@ -397,7 +397,7 @@ export class OperationGenerator extends Generator<Options> {
       sources.push(`
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' &') || 'unknown'
+        errors.map((error) => error.name).join(' | ') || 'unknown'
       }>(options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}();
@@ -450,7 +450,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}, TVariables = ${
       schemas.request.name
     }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
           mutation?: ${imports.mutate.UseMutationOptions}<TData, TError, TVariables>
@@ -509,7 +509,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}, TVariables = ${
       schemas.request.name
     }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
           mutation?: ${imports.mutate.UseMutationOptions}<TData, TError, TVariables>
@@ -570,7 +570,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}, TVariables = ${
       schemas.request.name
     }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
           mutation?: ${imports.mutate.UseMutationOptions}<TData, TError, TVariables>

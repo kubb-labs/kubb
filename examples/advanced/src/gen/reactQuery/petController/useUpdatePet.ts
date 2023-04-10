@@ -10,7 +10,7 @@ import type { UpdatePetRequest, UpdatePetResponse, UpdatePet400, UpdatePet404, U
  * @summary Update an existing pet
  * @link /pet
  */
-export function useUpdatePet<TData = UpdatePetResponse, TError = UpdatePet400 & UpdatePet404 & UpdatePet405, TVariables = UpdatePetRequest>(options?: {
+export function useUpdatePet<TData = UpdatePetResponse, TError = UpdatePet400 | UpdatePet404 | UpdatePet405, TVariables = UpdatePetRequest>(options?: {
   mutation?: UseMutationOptions<TData, TError, TVariables>
 }) {
   const { mutation: mutationOptions } = options ?? {}

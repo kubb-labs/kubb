@@ -25,7 +25,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameResponse>(usernam
  * @summary Get user by user name
  * @link /user/:username
  */
-export function useGetUserByName<TData = GetUserByNameResponse, TError = GetUserByName400 & GetUserByName404>(
+export function useGetUserByName<TData = GetUserByNameResponse, TError = GetUserByName400 | GetUserByName404>(
   username: GetUserByNamePathParams['username'],
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {

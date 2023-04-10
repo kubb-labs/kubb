@@ -26,7 +26,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdResponse>(orderId: 
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-export function useGetOrderById<TData = GetOrderByIdResponse, TError = GetOrderById400 & GetOrderById404>(
+export function useGetOrderById<TData = GetOrderByIdResponse, TError = GetOrderById400 | GetOrderById404>(
   orderId: GetOrderByIdPathParams['orderId'],
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {

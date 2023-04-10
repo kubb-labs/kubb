@@ -16,7 +16,7 @@ import type {
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-export function useDeleteOrder<TData = DeleteOrderResponse, TError = DeleteOrder400 & DeleteOrder404, TVariables = DeleteOrderRequest>(
+export function useDeleteOrder<TData = DeleteOrderResponse, TError = DeleteOrder400 | DeleteOrder404, TVariables = DeleteOrderRequest>(
   orderId: DeleteOrderPathParams['orderId'],
   options?: {
     mutation?: UseMutationOptions<TData, TError, TVariables>

@@ -26,7 +26,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdResponse>(petId: GetPet
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-export function useGetPetById<TData = GetPetByIdResponse, TError = GetPetById400 & GetPetById404>(
+export function useGetPetById<TData = GetPetByIdResponse, TError = GetPetById400 | GetPetById404>(
   petId: GetPetByIdPathParams['petId'],
   options?: { query?: UseQueryOptions<TData> }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {

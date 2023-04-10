@@ -127,7 +127,7 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}>(params?: ${
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}>(params?: ${
         schemas.queryParams.name
       }, options?: { query?: SWRConfiguration<TData, TError> }): SWRResponse<TData, TError> {
           const { query: queryOptions } = options ?? {};
@@ -162,7 +162,7 @@ export class OperationGenerator extends Generator<Options> {
       sources.push(`
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' &') || 'unknown'
+        errors.map((error) => error.name).join(' | ') || 'unknown'
       }>(${pathParamsTyped} options?: { query?: SWRConfiguration<TData, TError> }): SWRResponse<TData, TError> {
           const { query: queryOptions } = options ?? {};
           
@@ -197,7 +197,7 @@ export class OperationGenerator extends Generator<Options> {
       sources.push(`
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' &') || 'unknown'
+        errors.map((error) => error.name).join(' | ') || 'unknown'
       }>(${pathParamsTyped} params?: ${schemas.queryParams.name}, options?: { query?: SWRConfiguration<TData, TError> }): SWRResponse<TData, TError> {
           const { query: queryOptions } = options ?? {};
           
@@ -229,7 +229,7 @@ export class OperationGenerator extends Generator<Options> {
       sources.push(`
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' &') || 'unknown'
+        errors.map((error) => error.name).join(' | ') || 'unknown'
       }>(options?: { query?: SWRConfiguration<TData, TError> }): SWRResponse<TData, TError> {
           const { query: queryOptions } = options ?? {};
 
@@ -287,7 +287,7 @@ export class OperationGenerator extends Generator<Options> {
 
     sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}, TVariables = ${
       schemas.request.name
     }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
           mutation?: SWRMutationConfiguration<TData, TError, TVariables>
@@ -354,7 +354,7 @@ export class OperationGenerator extends Generator<Options> {
 
     sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
+        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}, TVariables = ${
       schemas.request.name
     }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
           mutation?: SWRMutationConfiguration<TData, TError, TVariables>
@@ -422,7 +422,7 @@ export class OperationGenerator extends Generator<Options> {
 
     sources.push(`
     ${createJSDocBlockText({ comments })}
-    export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' &') || 'unknown'}, TVariables = ${
+    export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}, TVariables = ${
       schemas.request.name
     }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
       mutation?: SWRMutationConfiguration<TData, TError, TVariables>

@@ -10,7 +10,7 @@ import type { DeleteUserRequest, DeleteUserResponse, DeleteUserPathParams, Delet
  * @summary Delete user
  * @link /user/:username
  */
-export function useDeleteUser<TData = DeleteUserResponse, TError = DeleteUser400 & DeleteUser404, TVariables = DeleteUserRequest>(
+export function useDeleteUser<TData = DeleteUserResponse, TError = DeleteUser400 | DeleteUser404, TVariables = DeleteUserRequest>(
   username: DeleteUserPathParams['username'],
   options?: {
     mutation?: UseMutationOptions<TData, TError, TVariables>
