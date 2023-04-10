@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.0.0-beta.12](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.11...@kubb/swagger-ts-v1.0.0-beta.12) (2023-04-10)
+
+
+### Bug Fixes
+
+* no fileManager needed for OperationGenerator + this.addFile change with multiParams ([cde8225](https://github.com/kubb-project/kubb/commit/cde8225a5207360bd17f4ede66ce2a07d5dfd53d))
+* remove propdrilling of directory ([99b8016](https://github.com/kubb-project/kubb/commit/99b801658a514a223e590d14f7d7729e85391ffc))
+* resolvePath and resolveName sync ([935ca2a](https://github.com/kubb-project/kubb/commit/935ca2a137006d9a59ef276e16f54770391b0a42))
+* use of camelCaseTransformMerge for every camelcase transform ([69f77ec](https://github.com/kubb-project/kubb/commit/69f77ecb45d62c14cb5ec7724cc64c9fe63a2365))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.12 ([17585e6](https://github.com/kubb-project/kubb/commit/17585e6793e7c15cb4eb3f9a6bd4f570e6670ff3))
+
 ## [1.0.0-beta.11](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.10...@kubb/swagger-ts-v1.0.0-beta.11) (2023-04-09)
 
 
