@@ -23,6 +23,7 @@ export class OperationGenerator extends Generator<Options> {
     const fileName = `${name}.ts`
     const filePath = resolvePath({
       fileName,
+      pluginName,
     })
 
     if (!filePath || !name) {

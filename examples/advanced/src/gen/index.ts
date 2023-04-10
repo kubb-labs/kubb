@@ -10,11 +10,11 @@ export * as storeService from './clients/storeService'
 
 export * as userService from './clients/userService'
 
-export * as petSchemasSchema from './zod/petController'
+export * as petSchemas from './zod/petController'
 
-export * as storeSchemasSchema from './zod/storeController'
+export * as storeSchemas from './zod/storeController'
 
-export * as userSchemasSchema from './zod/userController'
+export * as userSchemas from './zod/userController'
 
 export * from './clients'
 export * from './models'

@@ -57,7 +57,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
 
         const path = getRelativePath(root, pathParser.resolve(root, renderTemplate(template, { tag: options.tag })))
-        const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Schemas', { tag: options.tag }), pluginName })
+        const name = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Schemas', { tag: options.tag }), {
+          delimiter: '',
+          transform: camelCaseTransformMerge,
+        })
 
         if (name) {
           this.fileManager.addOrAppend({
