@@ -6,11 +6,9 @@ import type { FileResolver, Oas, Operation, OperationSchemas, Resolver } from '@
 import { ZodBuilder } from '../builders'
 import { pluginName } from '../plugin'
 
-import type { Api } from '../types'
-
 type Options = {
   oas: Oas
-  resolvePath: Api['resolvePath']
+  resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   mode: PathMode
   fileManager: FileManager
@@ -23,7 +21,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const name = resolveName({ name: operation.getOperationId(), pluginName })
     const fileName = `${name}.ts`
-    const filePath = await resolvePath(fileName, directory, { tag: operation.getTags()[0]?.name })
+    const filePath = await resolvePath({ fileName, directory, pluginName, options: { tag: operation.getTags()[0]?.name } })
 
     if (!filePath || !name) {
       throw new Error('Filepath should be defined')
@@ -47,9 +45,13 @@ export class OperationGenerator extends Generator<Options> {
 
     const fileResolver: FileResolver = async (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = await resolvePath(mode === 'file' ? '' : zod.name, directory, { tag: operation.getTags()[0]?.name })
+      const filePath = await resolvePath({ fileName: zod.name, pluginName, directory, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = await resolvePath(`${name}.ts`, directory)
+      const resolvedTypeId = await resolvePath({
+        fileName: `${name}.ts`,
+        directory,
+        pluginName,
+      })
 
       return getRelativePath(filePath, resolvedTypeId)
     }
@@ -59,7 +61,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.queryParams)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver, resolveName, withJSDocs: true })
+      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName })
       .print()
 
     return {
@@ -82,9 +84,13 @@ export class OperationGenerator extends Generator<Options> {
 
     const fileResolver: FileResolver = async (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = await resolvePath(mode === 'file' ? '' : zod.name, directory, { tag: operation.getTags()[0]?.name })
+      const filePath = await resolvePath({ fileName: zod.name, pluginName, directory, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = await resolvePath(`${name}.ts`, directory)
+      const resolvedTypeId = await resolvePath({
+        fileName: `${name}.ts`,
+        directory,
+        pluginName,
+      })
 
       return getRelativePath(filePath, resolvedTypeId)
     }
@@ -95,7 +101,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.request)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver, resolveName, withJSDocs: true })
+      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName })
       .print()
 
     return {
@@ -118,9 +124,13 @@ export class OperationGenerator extends Generator<Options> {
 
     const fileResolver: FileResolver = async (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = await resolvePath(mode === 'file' ? '' : zod.name, directory, { tag: operation.getTags()[0]?.name })
+      const filePath = await resolvePath({ fileName: zod.name, pluginName, directory, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = await resolvePath(`${name}.ts`, directory)
+      const resolvedTypeId = await resolvePath({
+        fileName: `${name}.ts`,
+        directory,
+        pluginName,
+      })
 
       return getRelativePath(filePath, resolvedTypeId)
     }
@@ -131,7 +141,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.request)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver, resolveName, withJSDocs: true })
+      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName })
       .print()
 
     return {
@@ -154,9 +164,13 @@ export class OperationGenerator extends Generator<Options> {
 
     const fileResolver: FileResolver = async (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = await resolvePath(mode === 'file' ? '' : zod.name, directory, { tag: operation.getTags()[0]?.name })
+      const filePath = await resolvePath({ fileName: zod.name, pluginName, directory, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = await resolvePath(`${name}.ts`, directory)
+      const resolvedTypeId = await resolvePath({
+        fileName: `${name}.ts`,
+        directory,
+        pluginName,
+      })
 
       return getRelativePath(filePath, resolvedTypeId)
     }
@@ -167,7 +181,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.queryParams)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver, resolveName, withJSDocs: true })
+      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName })
       .print()
 
     return {

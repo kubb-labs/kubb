@@ -125,7 +125,7 @@ export class PluginManager {
     pluginName: string
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
-  }): ReturnType<PluginLifecycle[H]> | null {
+  }): ReturnType<PluginLifecycle[H]> {
     const plugin = this.getPlugin(hookName, pluginName)
 
     return this.runSync({
@@ -148,8 +148,8 @@ export class PluginManager {
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
     skipped?: ReadonlySet<KubbPlugin> | null
-  }): Promise<ReturnType<PluginLifecycle[H]> | null> {
-    let promise: Promise<ReturnType<PluginLifecycle[H]> | null> = Promise.resolve(null)
+  }): Promise<ReturnType<PluginLifecycle[H]>> {
+    let promise: Promise<ReturnType<PluginLifecycle[H]>> = Promise.resolve(null as ReturnType<PluginLifecycle[H]>)
     for (const plugin of this.getSortedPlugins(hookName)) {
       if (skipped && skipped.has(plugin)) continue
       promise = promise.then((result) => {
@@ -177,13 +177,13 @@ export class PluginManager {
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
     skipped?: ReadonlySet<KubbPlugin> | null
-  }): ReturnType<PluginLifecycle[H]> | null {
+  }): ReturnType<PluginLifecycle[H]> {
     let result = null
 
     for (const plugin of this.getSortedPlugins(hookName)) {
       if (skipped && skipped.has(plugin)) continue
 
-      result = this.runSync({
+      result = this.runSync<H>({
         strategy: 'hookFirst',
         hookName,
         parameters,
@@ -194,7 +194,7 @@ export class PluginManager {
         break
       }
     }
-    return result
+    return result as ReturnType<PluginLifecycle[H]>
   }
 
   // parallel
@@ -204,7 +204,7 @@ export class PluginManager {
   }: {
     hookName: H
     parameters?: Parameters<PluginLifecycle[H]> | undefined
-  }) {
+  }): Promise<Awaited<TOuput>[]> {
     const parallelPromises: Promise<TOuput>[] = []
 
     for (const plugin of this.getSortedPlugins(hookName)) {

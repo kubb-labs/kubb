@@ -6,7 +6,6 @@ import pathParser from 'path'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
-import type { PluginContext } from '@kubb/core'
 import { getRelativePath, createPlugin, getPathMode, validatePlugins, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
@@ -15,7 +14,7 @@ import { writeIndexes } from '@kubb/ts-codegen'
 import { TypeBuilder } from './builders'
 import { OperationGenerator } from './generators/OperationGenerator'
 
-import type { Api, PluginOptions } from './types'
+import type { PluginOptions } from './types'
 
 export const pluginName = 'swagger-ts' as const
 
@@ -30,8 +29,19 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'models', groupBy, enumType = 'asConst' } = options
   let swaggerApi: SwaggerApi
 
-  const api: Api = {
-    resolvePath(this: PluginContext, fileName, directory, options) {
+  return {
+    name: pluginName,
+    options,
+    kind: 'schema',
+    validate(plugins) {
+      const valid = validatePlugins(plugins, [swaggerPluginName])
+      if (valid) {
+        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api
+      }
+
+      return valid
+    },
+    resolvePath(fileName, directory, options) {
       if (!directory) {
         return null
       }
@@ -53,24 +63,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       return pathParser.resolve(directory, output, fileName)
-    },
-  }
-
-  return {
-    name: pluginName,
-    options,
-    kind: 'schema',
-    api,
-    validate(plugins) {
-      const valid = validatePlugins(plugins, [swaggerPluginName])
-      if (valid) {
-        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api
-      }
-
-      return valid
-    },
-    resolvePath(fileName, directory, options) {
-      return api.resolvePath.call(this, fileName, directory, options)
     },
     resolveName(name) {
       return pascalCase(name, { delimiter: '', transform: pascalCaseTransformMerge })
@@ -165,7 +157,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         mode,
         directory,
         fileManager: this.fileManager,
-        resolvePath: api.resolvePath.bind(this),
+        resolvePath: this.resolvePath,
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
         enumType,
       })

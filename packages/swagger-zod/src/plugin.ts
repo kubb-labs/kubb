@@ -6,7 +6,6 @@ import pathParser from 'path'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import type { PluginContext } from '@kubb/core'
 import { getRelativePath, createPlugin, getPathMode, validatePlugins, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
@@ -15,7 +14,7 @@ import { writeIndexes, print, createExportDeclaration } from '@kubb/ts-codegen'
 import { ZodBuilder } from './builders'
 import { OperationGenerator } from './generators/OperationGenerator'
 
-import type { Api, PluginOptions } from './types'
+import type { PluginOptions } from './types'
 
 export const pluginName = 'swagger-zod' as const
 
@@ -30,8 +29,19 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'zod', groupBy } = options
   let swaggerApi: SwaggerApi
 
-  const api: Api = {
-    resolvePath(this: PluginContext, fileName, directory, options) {
+  return {
+    name: pluginName,
+    options,
+    kind: 'schema',
+    validate(plugins) {
+      const valid = validatePlugins(plugins, [swaggerPluginName])
+      if (valid) {
+        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api
+      }
+
+      return valid
+    },
+    resolvePath(fileName, directory, options) {
       if (!directory) {
         return null
       }
@@ -73,24 +83,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       return pathParser.resolve(directory, output, fileName)
-    },
-  }
-
-  return {
-    name: pluginName,
-    options,
-    kind: 'schema',
-    api,
-    validate(plugins) {
-      const valid = validatePlugins(plugins, [swaggerPluginName])
-      if (valid) {
-        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api
-      }
-
-      return valid
-    },
-    resolvePath(fileName, directory, options) {
-      return api.resolvePath.call(this, fileName, directory, options)
     },
     resolveName(name) {
       return camelCase(`${name}Schema`, { delimiter: '', transform: camelCaseTransformMerge })
@@ -197,7 +189,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         directory,
         fileManager: this.fileManager,
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
-        resolvePath: api.resolvePath.bind(this),
+        resolvePath: this.resolvePath,
       })
 
       await operationGenerator.build()
