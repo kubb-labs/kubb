@@ -1,4 +1,17 @@
 # Changelog
+## [1.0.0-beta.12](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.11...@kubb/core-v1.0.0-beta.12) (2023-04-10)
+
+
+### Bug Fixes
+
+* no fileManager needed for OperationGenerator + this.addFile change with multiParams ([cde8225](https://github.com/kubb-project/kubb/commit/cde8225a5207360bd17f4ede66ce2a07d5dfd53d))
+* remove propdrilling of directory ([99b8016](https://github.com/kubb-project/kubb/commit/99b801658a514a223e590d14f7d7729e85391ffc))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.12 ([17585e6](https://github.com/kubb-project/kubb/commit/17585e6793e7c15cb4eb3f9a6bd4f570e6670ff3))
+
 ## [1.0.0-beta.11](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.10...@kubb/core-v1.0.0-beta.11) (2023-04-09)
 
 
