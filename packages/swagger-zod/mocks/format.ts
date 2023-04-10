@@ -13,6 +13,9 @@ const formatOptions: Options = {
   endOfLine: 'auto',
   plugins: [parserTypescript],
 }
-export function format(source: string) {
+export function format(source?: string) {
+  if (!source) {
+    return null
+  }
   return prettierFormat(source, formatOptions)
 }

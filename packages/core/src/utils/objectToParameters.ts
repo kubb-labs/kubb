@@ -10,7 +10,7 @@ export function objectToParameters(data: Data, options: Options = {}) {
       if (options.typed) {
         acc.push(`${key}: ${value}["${key}"], `)
       } else {
-        acc.push(`${key},`)
+        acc.push(`${key}, `)
       }
 
       return acc

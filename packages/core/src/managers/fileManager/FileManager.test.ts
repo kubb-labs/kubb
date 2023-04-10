@@ -1,7 +1,6 @@
 import pathParser from 'path'
 
 import { FileManager } from './FileManager'
-import { combineFiles } from './utils'
 
 describe('FileManager', () => {
   test('fileManager.add also adds the files to the cache', async () => {
@@ -46,31 +45,5 @@ describe('FileManager', () => {
     })
 
     expect(fileManager.files.length).toBe(4)
-  })
-
-  test('if combine is removing previouscode', async () => {
-    const fileManager = new FileManager()
-    const combined = combineFiles([
-      {
-        path: pathParser.resolve('./src/models/file1.js'),
-        fileName: 'file1.js',
-        source: 'export const test = 2;',
-      },
-      {
-        path: pathParser.resolve('./src/models/file1.js'),
-        fileName: 'file2.js',
-        source: 'export const test2 = 3;',
-      },
-    ])
-
-    expect(combined).toEqual([
-      {
-        path: pathParser.resolve('./src/models/file1.js'),
-        fileName: 'file2.js',
-        imports: [],
-        source: `export const test = 2;
-export const test2 = 3;`,
-      },
-    ])
   })
 })

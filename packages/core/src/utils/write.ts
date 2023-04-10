@@ -2,8 +2,6 @@
 import { promises as fs } from 'fs'
 import pathParser from 'path'
 
-import rimraf from 'rimraf'
-
 async function safeWriteFileToPath(path: string, data: string) {
   // resolve the full path and get just the directory, ignoring the file and extension
   const passedPath = pathParser.dirname(pathParser.resolve(path))
@@ -25,16 +23,4 @@ export async function write(data: string, path: string) {
   }
 
   return safeWriteFileToPath(path, data)
-}
-
-export async function clean(path: string) {
-  return new Promise((resolve, reject) => {
-    rimraf(path, (err) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(true)
-      }
-    })
-  })
 }

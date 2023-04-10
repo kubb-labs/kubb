@@ -29,6 +29,7 @@
     "release": "turbo run release",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
@@ -39,6 +40,7 @@
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
     "@vitest/ui": "^0.30.0",
+    "@vitest/coverage-c8": "^0.30.0",
     "assert": "^2.0.0",
     "cross-env": "^7.0.3",
     "crypto-browserify": "^3.12.0",
