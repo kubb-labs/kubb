@@ -42,27 +42,21 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return valid
     },
     resolvePath(fileName, directory, options) {
-      if (!directory) {
-        return null
-      }
-
-      const mode = getPathMode(pathParser.resolve(directory, output))
+      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const mode = getPathMode(pathParser.resolve(root, output))
 
       if (mode === 'file') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
-        return pathParser.resolve(directory, output)
+        return pathParser.resolve(root, output)
       }
 
       if (options?.tag && groupBy?.type === 'tag') {
         const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
 
-        const path = getRelativePath(
-          pathParser.resolve(this.config.root, this.config.output.path),
-          pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }))
-        )
+        const path = getRelativePath(root, pathParser.resolve(root, renderTemplate(template, { tag: options.tag })))
         const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Schemas', { tag: options.tag }), pluginName })
 
         if (name) {
@@ -79,10 +73,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           })
         }
 
-        return pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }), fileName)
+        return pathParser.resolve(root, renderTemplate(template, { tag: options.tag }), fileName)
       }
 
-      return pathParser.resolve(directory, output, fileName)
+      return pathParser.resolve(root, output, fileName)
     },
     resolveName(name) {
       return camelCase(`${name}Schema`, { delimiter: '', transform: camelCaseTransformMerge })
@@ -97,8 +91,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     async buildStart() {
       const oas = await swaggerApi.getOas(this.config)
       const schemas = oas.getDefinition().components?.schemas || {}
-      const directory = pathParser.resolve(this.config.root, this.config.output.path)
-      const mode = getPathMode(pathParser.resolve(directory, output))
+      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const mode = getPathMode(pathParser.resolve(root, output))
 
       if (mode === 'directory') {
         const builder = await new ZodBuilder(oas).configure({
@@ -106,11 +100,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           fileResolver: async (name) => {
             const resolvedTypeId = await this.resolvePath({
               fileName: `${name}.ts`,
-              directory,
               pluginName,
             })
 
-            const root = await this.resolvePath({ fileName: ``, directory, pluginName })
+            const root = await this.resolvePath({ fileName: ``, pluginName })
 
             return getRelativePath(root, resolvedTypeId)
           },
@@ -126,7 +119,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
 
         const mapFolderSchema = async ([name]: [string, OpenAPIV3.SchemaObject]) => {
-          const path = await this.resolvePath({ fileName: `${this.resolveName({ name, pluginName })}.ts`, directory, pluginName })
+          const path = await this.resolvePath({ fileName: `${this.resolveName({ name, pluginName })}.ts`, pluginName })
 
           if (!path) {
             return null
@@ -165,7 +158,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         }
 
         Object.entries(schemas).map(mapFileSchema)
-        const path = await this.resolvePath({ fileName: '', directory, pluginName })
+        const path = await this.resolvePath({ fileName: '', pluginName })
         if (!path) {
           return
         }
@@ -186,7 +179,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const operationGenerator = new OperationGenerator({
         oas,
         mode,
-        directory,
         fileManager: this.fileManager,
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
         resolvePath: this.resolvePath,

@@ -157,6 +157,7 @@ export abstract class OperationGenerator<
     const files = await Promise.all(promises)
 
     const filePromises = combineFiles(files).reduce((acc, file) => {
+      // TODO remove
       acc.push(fileManager.addOrAppend(file))
       return acc
     }, [] as Promise<File>[])

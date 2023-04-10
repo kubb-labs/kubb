@@ -38,27 +38,21 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return valid
     },
     resolvePath(fileName, directory, options) {
-      if (!directory) {
-        return null
-      }
-
-      const mode = getPathMode(pathParser.resolve(directory, output))
+      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const mode = getPathMode(pathParser.resolve(root, output))
 
       if (mode === 'file') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
-        return pathParser.resolve(directory, output)
+        return pathParser.resolve(root, output)
       }
 
       if (options?.tag && groupBy?.type === 'tag') {
         const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
 
-        const path = getRelativePath(
-          pathParser.resolve(this.config.root, this.config.output.path),
-          pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }))
-        )
+        const path = getRelativePath(root, pathParser.resolve(root, renderTemplate(template, { tag: options.tag })))
         const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Hooks', { tag: options.tag }), pluginName })
 
         if (name) {
@@ -75,24 +69,22 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           })
         }
 
-        return pathParser.resolve(directory, renderTemplate(template, { tag: options.tag }), fileName)
+        return pathParser.resolve(root, renderTemplate(template, { tag: options.tag }), fileName)
       }
 
-      return pathParser.resolve(directory, output, fileName)
+      return pathParser.resolve(root, output, fileName)
     },
     resolveName(name) {
       return camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
     },
     async buildStart() {
       const oas = await swaggerApi.getOas(this.config)
-      const directory = pathParser.resolve(this.config.root, this.config.output.path)
       const clientPath: OptionalPath = options.client ? pathParser.resolve(this.config.root, options.client) : undefined
 
       const operationGenerator = new OperationGenerator({
         framework,
         clientPath,
         oas,
-        directory,
         fileManager: this.fileManager,
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),

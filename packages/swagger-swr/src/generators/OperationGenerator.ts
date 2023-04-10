@@ -13,7 +13,6 @@ import type { ResolvePathOptions } from '../types'
 type Options = {
   clientPath?: OptionalPath
   oas: Oas
-  directory: string
   fileManager: FileManager
   resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
   resolveName: PluginContext['resolveName']
@@ -21,13 +20,12 @@ type Options = {
 
 export class OperationGenerator extends Generator<Options> {
   async resolve(operation: Operation): Promise<Resolver> {
-    const { directory, resolvePath, resolveName } = this.options
+    const { resolvePath, resolveName } = this.options
 
     const name = resolveName({ name: `use ${operation.getOperationId()}`, pluginName })
     const fileName = `${name}.ts`
     const filePath = await resolvePath({
       fileName,
-      directory,
       options: { tag: operation.getTags()[0]?.name },
     })
 
@@ -43,11 +41,11 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async resolveType(operation: Operation): Promise<Resolver> {
-    const { directory, resolvePath, resolveName } = this.options
+    const { resolvePath, resolveName } = this.options
 
     const name = resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })
     const fileName = `${name}.ts`
-    const filePath = await resolvePath({ fileName, directory, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
+    const filePath = await resolvePath({ fileName, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
 
     if (!filePath || !name) {
       throw new Error('Filepath should be defined')
@@ -61,13 +59,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async resolveError(operation: Operation, statusCode: number): Promise<Resolver> {
-    const { directory, resolvePath, resolveName } = this.options
+    const { resolvePath, resolveName } = this.options
 
     const name = await resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
     const fileName = `${name}.ts`
     const filePath = await resolvePath({
       fileName,
-      directory,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerTypescriptPluginName,
     })

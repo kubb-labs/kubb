@@ -61,11 +61,10 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
     name,
     options,
     api,
-    resolvePath(fileName, directory) {
-      if (!directory) {
-        return null
-      }
-      return pathParser.resolve(directory, fileName)
+    resolvePath(fileName) {
+      const root = pathParser.resolve(this.config.root, this.config.output.path)
+
+      return pathParser.resolve(root, fileName)
     },
     resolveName(name) {
       return name

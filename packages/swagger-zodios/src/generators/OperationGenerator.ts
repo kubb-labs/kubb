@@ -13,19 +13,17 @@ type Options = {
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   output: string
-  directory: string
   fileManager: FileManager
 }
 
 export class OperationGenerator extends Generator<Options> {
   async resolve(): Promise<Resolver> {
-    const { directory, resolvePath, output, resolveName } = this.options
+    const { resolvePath, output, resolveName } = this.options
 
     const name = await resolveName({ name: output.replace('.ts', ''), pluginName })
     const fileName = `${name}.ts`
     const filePath = await resolvePath({
       fileName,
-      directory,
     })
 
     if (!filePath || !name) {
@@ -40,13 +38,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async resolveResponse(operation: Operation): Promise<Resolver> {
-    const { directory, resolvePath, resolveName } = this.options
+    const { resolvePath, resolveName } = this.options
 
     const name = await resolveName({ name: `${operation.getOperationId()}Response`, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = await resolvePath({
       fileName,
-      directory,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -63,13 +60,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async resolvePathParams(operation: Operation): Promise<Resolver> {
-    const { directory, resolvePath, resolveName } = this.options
+    const { resolvePath, resolveName } = this.options
 
     const name = await resolveName({ name: `${operation.getOperationId()}PathParams`, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = await resolvePath({
       fileName,
-      directory,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -86,13 +82,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async resolveQueryParams(operation: Operation): Promise<Resolver> {
-    const { directory, resolvePath, resolveName } = this.options
+    const { resolvePath, resolveName } = this.options
 
     const name = await resolveName({ name: `${operation.getOperationId()}QueryParams`, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = await resolvePath({
       fileName,
-      directory,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -109,13 +104,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async resolveError(operation: Operation, statusCode: number): Promise<Resolver> {
-    const { directory, resolvePath, resolveName } = this.options
+    const { resolvePath, resolveName } = this.options
 
     const name = await resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = await resolvePath({
       fileName,
-      directory,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
