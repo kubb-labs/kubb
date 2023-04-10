@@ -1,6 +1,6 @@
 import { camelCase } from 'change-case'
 
-import type { PluginContext, File, FileManager, OptionalPath } from '@kubb/core'
+import type { PluginContext, File, OptionalPath } from '@kubb/core'
 import { getRelativePath, createJSDocBlockText } from '@kubb/core'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator, Path, getComments, getParams } from '@kubb/swagger'
@@ -13,7 +13,6 @@ import type { ResolvePathOptions } from '../types'
 type Options = {
   clientPath?: OptionalPath
   oas: Oas
-  fileManager: FileManager
   resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
   resolveName: PluginContext['resolveName']
 }

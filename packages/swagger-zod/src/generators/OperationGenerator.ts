@@ -1,4 +1,4 @@
-import type { File, FileManager, PathMode, PluginContext } from '@kubb/core'
+import type { File, PathMode, PluginContext } from '@kubb/core'
 import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import type { FileResolver, Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
@@ -11,7 +11,6 @@ type Options = {
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   mode: PathMode
-  fileManager: FileManager
 }
 
 export class OperationGenerator extends Generator<Options> {

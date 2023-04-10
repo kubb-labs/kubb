@@ -11,9 +11,7 @@ import type { OpenAPIV3 } from 'openapi-types'
 import type Oas from 'oas'
 import type { OperationSchemas, Resolver } from '../types'
 
-export abstract class OperationGenerator<
-  TOptions extends { oas: Oas; fileManager: FileManager } = { oas: Oas; fileManager: FileManager }
-> extends Generator<TOptions> {
+export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: Oas }> extends Generator<TOptions> {
   private getParametersSchema(operation: Operation, inKey: 'path' | 'query') {
     const { oas } = this.options
 
@@ -133,8 +131,8 @@ export abstract class OperationGenerator<
     } as const
   }
 
-  async build() {
-    const { oas, fileManager } = this.options
+  async build(): Promise<File[]> {
+    const { oas } = this.options
     const paths = oas.getPaths()
     const methods = Object.keys(this.methods).filter(Boolean) as HttpMethod[]
 
@@ -156,13 +154,7 @@ export abstract class OperationGenerator<
 
     const files = await Promise.all(promises)
 
-    const filePromises = combineFiles(files).reduce((acc, file) => {
-      // TODO remove
-      acc.push(fileManager.addOrAppend(file))
-      return acc
-    }, [] as Promise<File>[])
-
-    return Promise.all(filePromises)
+    return combineFiles(files)
   }
 
   /**

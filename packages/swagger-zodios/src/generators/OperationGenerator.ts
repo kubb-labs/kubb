@@ -1,6 +1,6 @@
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import type { File, FileManager, PluginContext } from '@kubb/core'
+import type { File, PluginContext } from '@kubb/core'
 import { getRelativePath, getEncodedText } from '@kubb/core'
 import { Path, OperationGenerator as Generator } from '@kubb/swagger'
 import type { Oas, Operation, HttpMethod, Resolver } from '@kubb/swagger'
@@ -13,7 +13,6 @@ type Options = {
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   output: string
-  fileManager: FileManager
 }
 
 export class OperationGenerator extends Generator<Options> {

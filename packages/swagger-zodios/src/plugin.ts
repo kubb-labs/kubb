@@ -51,19 +51,20 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const operationGenerator = new OperationGenerator({
         oas,
         output,
-        fileManager: this.fileManager,
         resolveName: this.resolveName,
         resolvePath: this.resolvePath,
       })
 
-      await operationGenerator.build()
+      const files = await operationGenerator.build()
+      await this.addFile(...files)
     },
     async buildEnd() {
       if (this.config.output.write || this.config.output.write === undefined) {
         const files = await writeIndexes(this.config.root, this.config.output.path, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
-        files?.forEach((file) => {
-          this.fileManager.addOrAppend(file)
-        })
+
+        if (files) {
+          await this.addFile(...files)
+        }
       }
     },
   }

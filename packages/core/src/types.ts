@@ -166,7 +166,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * End of the plugin lifecycle.
    * @type hookParallel
    */
-  buildEnd: (this: Omit<PluginContext, 'addFile'>) => MaybePromise<void>
+  buildEnd: (this: PluginContext) => MaybePromise<void>
 }
 
 export type PluginLifecycleHooks = keyof PluginLifecycle
@@ -198,7 +198,7 @@ export type PluginContext<TOptions = Record<string, any>> = {
   config: KubbConfig
   cache: Cache
   fileManager: FileManager
-  addFile: (file: File) => Promise<File>
+  addFile: (...file: File[]) => Promise<File[]>
   resolvePath: (params: ResolvePathParams<TOptions>) => OptionalPath
   resolveName: (params: ResolveNameParams) => string
   load: (id: string) => MaybePromise<TransformResult | void>
