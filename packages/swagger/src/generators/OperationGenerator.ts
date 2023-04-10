@@ -1,6 +1,6 @@
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
-import type { FileManager, File } from '@kubb/core'
+import type { File } from '@kubb/core'
 import { combineFiles, Generator } from '@kubb/core'
 
 import { isReference } from '../utils/isReference'
@@ -185,5 +185,5 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
   /**
    * Call resolveType and get back the name, filePath and fileName
    */
-  abstract resolve(operation: Operation): Promise<Resolver>
+  abstract resolve(operation: Operation): Resolver
 }

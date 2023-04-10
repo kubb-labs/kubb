@@ -1,7 +1,7 @@
 import type Oas from 'oas'
 import type { OpenAPIV3 } from 'openapi-types'
 
-export type FileResolver = (name: string) => Promise<string | null | undefined>
+export type FileResolver = (name: string) => string | null | undefined
 
 type Item = { schema: OpenAPIV3.SchemaObject; name: string; description?: string }
 

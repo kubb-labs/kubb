@@ -16,12 +16,12 @@ type Options = {
 }
 
 export class OperationGenerator extends Generator<Options> {
-  async resolve(): Promise<Resolver> {
+  resolve(): Resolver {
     const { resolvePath, output, resolveName } = this.options
 
-    const name = await resolveName({ name: output.replace('.ts', ''), pluginName })
+    const name = resolveName({ name: output.replace('.ts', ''), pluginName })
     const fileName = `${name}.ts`
-    const filePath = await resolvePath({
+    const filePath = resolvePath({
       fileName,
     })
 
@@ -36,12 +36,12 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async resolveResponse(operation: Operation): Promise<Resolver> {
+  resolveResponse(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = await resolveName({ name: `${operation.getOperationId()}Response`, pluginName: swaggerZodPluginName })
+    const name = resolveName({ name: `${operation.getOperationId()}Response`, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
-    const filePath = await resolvePath({
+    const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
@@ -58,12 +58,12 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async resolvePathParams(operation: Operation): Promise<Resolver> {
+  resolvePathParams(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = await resolveName({ name: `${operation.getOperationId()}PathParams`, pluginName: swaggerZodPluginName })
+    const name = resolveName({ name: `${operation.getOperationId()}PathParams`, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
-    const filePath = await resolvePath({
+    const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
@@ -80,12 +80,12 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async resolveQueryParams(operation: Operation): Promise<Resolver> {
+  resolveQueryParams(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = await resolveName({ name: `${operation.getOperationId()}QueryParams`, pluginName: swaggerZodPluginName })
+    const name = resolveName({ name: `${operation.getOperationId()}QueryParams`, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
-    const filePath = await resolvePath({
+    const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
@@ -102,12 +102,12 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async resolveError(operation: Operation, statusCode: number): Promise<Resolver> {
+  resolveError(operation: Operation, statusCode: number): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = await resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerZodPluginName })
+    const name = resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
-    const filePath = await resolvePath({
+    const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
@@ -124,8 +124,8 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async resolveErrors(items: Array<{ operation: Operation; statusCode: number }>): Promise<Resolver[]> {
-    return Promise.all(items.map((item) => this.resolveError(item.operation, item.statusCode)))
+  resolveErrors(items: Array<{ operation: Operation; statusCode: number }>): Resolver[] {
+    return items.map((item) => this.resolveError(item.operation, item.statusCode))
   }
 
   async all(paths: Record<string, Record<HttpMethod, Operation | undefined>>): Promise<File | null> {
@@ -136,14 +136,14 @@ export class OperationGenerator extends Generator<Options> {
       },
     ]
 
-    const zodios = await this.resolve()
+    const zodios = this.resolve()
 
-    const mapOperationToZodios = async (operation: Operation) => {
+    const mapOperationToZodios = (operation: Operation): string => {
       const schemas = this.getSchemas(operation)
       const parameters: string[] = []
       const errors: string[] = []
 
-      const response = await this.resolveResponse(operation)
+      const response = this.resolveResponse(operation)
 
       imports.push({
         name: [response.name],
@@ -151,7 +151,7 @@ export class OperationGenerator extends Generator<Options> {
       })
 
       if (schemas.pathParams) {
-        const pathParams = await this.resolvePathParams(operation)
+        const pathParams = this.resolvePathParams(operation)
 
         imports.push({
           name: [pathParams.name],
@@ -169,7 +169,7 @@ export class OperationGenerator extends Generator<Options> {
       }
 
       if (schemas.queryParams) {
-        const queryParams = await this.resolveQueryParams(operation)
+        const queryParams = this.resolveQueryParams(operation)
 
         imports.push({
           name: [queryParams.name],
@@ -186,10 +186,10 @@ export class OperationGenerator extends Generator<Options> {
         `)
       }
       if (schemas.errors) {
-        const errorPromise = schemas.errors
+        schemas.errors
           .filter((errorOperationSchema) => errorOperationSchema.statusCode)
-          .map(async (errorOperationSchema) => {
-            const { filePath, name } = await this.resolveError(operation, errorOperationSchema.statusCode!)
+          .forEach((errorOperationSchema) => {
+            const { filePath, name } = this.resolveError(operation, errorOperationSchema.statusCode!)
 
             imports.push({
               name: [name],
@@ -204,8 +204,6 @@ export class OperationGenerator extends Generator<Options> {
               }
             `)
           })
-
-        await Promise.all(errorPromise)
       }
 
       return `
@@ -225,7 +223,7 @@ export class OperationGenerator extends Generator<Options> {
       
       `
     }
-    const definitionsPromises = Object.keys(paths).reduce((acc, path) => {
+    const definitions = Object.keys(paths).reduce((acc, path) => {
       const operations = paths[path]
 
       if (operations.get) {
@@ -245,10 +243,9 @@ export class OperationGenerator extends Generator<Options> {
       }
 
       return acc
-    }, [] as Promise<string>[])
+    }, [] as string[])
 
     const sources: string[] = []
-    const definitions = await Promise.all(definitionsPromises)
 
     sources.push(`
       const endpoints = makeApi([${definitions.join(',')}]);

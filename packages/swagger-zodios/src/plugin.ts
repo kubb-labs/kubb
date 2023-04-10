@@ -51,8 +51,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const operationGenerator = new OperationGenerator({
         oas,
         output,
-        resolveName: this.resolveName,
-        resolvePath: this.resolvePath,
+        resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
+        resolveName: (params) => this.resolveName({ pluginName, ...params }),
       })
 
       const files = await operationGenerator.build()

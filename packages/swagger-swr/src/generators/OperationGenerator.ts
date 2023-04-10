@@ -18,12 +18,12 @@ type Options = {
 }
 
 export class OperationGenerator extends Generator<Options> {
-  async resolve(operation: Operation): Promise<Resolver> {
+  resolve(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
     const name = resolveName({ name: `use ${operation.getOperationId()}`, pluginName })
     const fileName = `${name}.ts`
-    const filePath = await resolvePath({
+    const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
     })
@@ -39,12 +39,12 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async resolveType(operation: Operation): Promise<Resolver> {
+  resolveType(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
     const name = resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })
     const fileName = `${name}.ts`
-    const filePath = await resolvePath({ fileName, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
+    const filePath = resolvePath({ fileName, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
 
     if (!filePath || !name) {
       throw new Error('Filepath should be defined')
@@ -57,12 +57,12 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async resolveError(operation: Operation, statusCode: number): Promise<Resolver> {
+  resolveError(operation: Operation, statusCode: number): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = await resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
+    const name = resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
     const fileName = `${name}.ts`
-    const filePath = await resolvePath({
+    const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerTypescriptPluginName,
@@ -79,8 +79,8 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async resolveErrors(items: Array<{ operation: Operation; statusCode: number }>): Promise<Resolver[]> {
-    return Promise.all(items.map((item) => this.resolveError(item.operation, item.statusCode)))
+  resolveErrors(items: Array<{ operation: Operation; statusCode: number }>): Resolver[] {
+    return items.map((item) => this.resolveError(item.operation, item.statusCode))
   }
 
   async all(): Promise<File | null> {
@@ -90,8 +90,8 @@ export class OperationGenerator extends Generator<Options> {
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { clientPath } = this.options
 
-    const hook = await this.resolve(operation)
-    const type = await this.resolveType(operation)
+    const hook = this.resolve(operation)
+    const type = this.resolveType(operation)
 
     const comments = getComments(operation)
     const sources: string[] = []
@@ -100,7 +100,7 @@ export class OperationGenerator extends Generator<Options> {
     let errors: Resolver[] = []
 
     if (schemas.errors) {
-      errors = await this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+      errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
     }
 
     if (schemas.queryParams && !schemas.pathParams) {
@@ -269,8 +269,8 @@ export class OperationGenerator extends Generator<Options> {
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { clientPath } = this.options
 
-    const hook = await this.resolve(operation)
-    const type = await this.resolveType(operation)
+    const hook = this.resolve(operation)
+    const type = this.resolveType(operation)
 
     const comments = getComments(operation)
     const sources: string[] = []
@@ -278,7 +278,7 @@ export class OperationGenerator extends Generator<Options> {
     let errors: Resolver[] = []
 
     if (schemas.errors) {
-      errors = await this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+      errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
     }
 
     sources.push(`
@@ -337,15 +337,15 @@ export class OperationGenerator extends Generator<Options> {
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { clientPath } = this.options
 
-    const hook = await this.resolve(operation)
-    const type = await this.resolveType(operation)
+    const hook = this.resolve(operation)
+    const type = this.resolveType(operation)
 
     const comments = getComments(operation)
     const sources: string[] = []
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     let errors: Resolver[] = []
     if (schemas.errors) {
-      errors = await this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+      errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
     }
 
     sources.push(`
@@ -404,8 +404,8 @@ export class OperationGenerator extends Generator<Options> {
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { clientPath } = this.options
 
-    const hook = await this.resolve(operation)
-    const type = await this.resolveType(operation)
+    const hook = this.resolve(operation)
+    const type = this.resolveType(operation)
 
     const comments = getComments(operation)
     const sources: string[] = []
@@ -413,7 +413,7 @@ export class OperationGenerator extends Generator<Options> {
     let errors: Resolver[] = []
 
     if (schemas.errors) {
-      errors = await this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+      errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
     }
 
     sources.push(`

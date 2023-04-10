@@ -97,13 +97,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (mode === 'directory') {
         const builder = await new ZodBuilder(oas).configure({
           resolveName: (params) => this.resolveName({ pluginName, ...params }),
-          fileResolver: async (name) => {
-            const resolvedTypeId = await this.resolvePath({
+          fileResolver: (name) => {
+            const resolvedTypeId = this.resolvePath({
               fileName: `${name}.ts`,
               pluginName,
             })
 
-            const root = await this.resolvePath({ fileName: ``, pluginName })
+            const root = this.resolvePath({ fileName: ``, pluginName })
 
             return getRelativePath(root, resolvedTypeId)
           },
@@ -119,7 +119,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
 
         const mapFolderSchema = async ([name]: [string, OpenAPIV3.SchemaObject]) => {
-          const path = await this.resolvePath({ fileName: `${this.resolveName({ name, pluginName })}.ts`, pluginName })
+          const path = this.resolvePath({ fileName: `${this.resolveName({ name, pluginName })}.ts`, pluginName })
 
           if (!path) {
             return null
@@ -158,7 +158,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         }
 
         Object.entries(schemas).map(mapFileSchema)
-        const path = await this.resolvePath({ fileName: '', pluginName })
+        const path = this.resolvePath({ fileName: '', pluginName })
         if (!path) {
           return
         }
@@ -179,8 +179,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const operationGenerator = new OperationGenerator({
         oas,
         mode,
+        resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
-        resolvePath: this.resolvePath,
       })
 
       const files = await operationGenerator.build()

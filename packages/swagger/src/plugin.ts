@@ -29,7 +29,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     options,
     kind: 'schema',
     api,
-    resolvePath(fileName, directory) {
+    resolvePath(fileName) {
       if (output === false) {
         return undefined
       }
@@ -57,7 +57,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const schemas = oas.getDefinition().components?.schemas || {}
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
-        const path = await this.resolvePath({
+        const path = this.resolvePath({
           fileName: `${name}.json`,
           pluginName,
         })

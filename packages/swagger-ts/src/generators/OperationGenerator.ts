@@ -15,12 +15,12 @@ type Options = {
 }
 
 export class OperationGenerator extends Generator<Options> {
-  async resolve(operation: Operation): Promise<Resolver> {
+  resolve(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
     const name = resolveName({ name: operation.getOperationId(), pluginName })
     const fileName = `${name}.ts`
-    const filePath = await resolvePath({ fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
+    const filePath = resolvePath({ fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
 
     if (!filePath || !name) {
       throw new Error('Filepath should be defined')
@@ -40,13 +40,13 @@ export class OperationGenerator extends Generator<Options> {
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolvePath, mode, resolveName, oas, enumType } = this.options
 
-    const type = await this.resolve(operation)
+    const type = this.resolve(operation)
 
-    const fileResolver: FileResolver = async (name) => {
+    const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = await resolvePath({ fileName: type.fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const filePath = resolvePath({ fileName: type.fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = await resolvePath({
+      const resolvedTypeId = resolvePath({
         fileName: `${name}.ts`,
         pluginName,
       })
@@ -72,13 +72,13 @@ export class OperationGenerator extends Generator<Options> {
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolvePath, mode, resolveName, oas, enumType } = this.options
 
-    const type = await this.resolve(operation)
+    const type = this.resolve(operation)
 
-    const fileResolver: FileResolver = async (name) => {
+    const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = await resolvePath({ fileName: type.fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const filePath = resolvePath({ fileName: type.fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = await resolvePath({
+      const resolvedTypeId = resolvePath({
         fileName: `${name}.ts`,
         pluginName,
       })
@@ -105,13 +105,13 @@ export class OperationGenerator extends Generator<Options> {
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolvePath, mode, resolveName, oas, enumType } = this.options
 
-    const type = await this.resolve(operation)
+    const type = this.resolve(operation)
 
-    const fileResolver: FileResolver = async (name) => {
+    const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = await resolvePath({ fileName: type.fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const filePath = resolvePath({ fileName: type.fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = await resolvePath({
+      const resolvedTypeId = resolvePath({
         fileName: `${name}.ts`,
         pluginName,
       })
@@ -138,13 +138,13 @@ export class OperationGenerator extends Generator<Options> {
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { resolvePath, mode, resolveName, oas, enumType } = this.options
 
-    const type = await this.resolve(operation)
+    const type = this.resolve(operation)
 
-    const fileResolver: FileResolver = async (name) => {
+    const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = await resolvePath({ fileName: type.fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const filePath = resolvePath({ fileName: type.fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = await resolvePath({
+      const resolvedTypeId = resolvePath({
         fileName: `${name}.ts`,
         pluginName,
       })

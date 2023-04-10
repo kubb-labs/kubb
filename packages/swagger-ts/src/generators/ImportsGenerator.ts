@@ -35,7 +35,7 @@ export class ImportsGenerator extends Generator<Options> {
       .map(async ($ref: string) => {
         const { name } = refs[$ref]
 
-        const path = (await this.options.fileResolver?.(name)) || `./${name}`
+        const path = this.options.fileResolver?.(name) || `./${name}`
 
         // TODO weird hacky fix
         if (path === './' || path === '.') {

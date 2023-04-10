@@ -16,12 +16,12 @@ type Options = {
 }
 
 export class OperationGenerator extends Generator<Options> {
-  async resolve(operation: Operation): Promise<Resolver> {
+  resolve(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
     const name = resolveName({ name: operation.getOperationId(), pluginName })
     const fileName = `${name}.ts`
-    const filePath = await resolvePath({
+    const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
     })
@@ -37,12 +37,12 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async resolveType(operation: Operation): Promise<Resolver> {
+  resolveType(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
     const name = resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })
     const fileName = `${name}.ts`
-    const filePath = await resolvePath({ fileName, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
+    const filePath = resolvePath({ fileName, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
 
     if (!filePath || !name) {
       throw new Error('Filepath should be defined')
@@ -60,7 +60,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const controllerName = resolveName({ name: 'operations' })
     const controllerId = `${controllerName}.ts`
-    const controllerFilePath = await resolvePath({
+    const controllerFilePath = resolvePath({
       fileName: controllerId,
     })
 
@@ -98,8 +98,8 @@ export class OperationGenerator extends Generator<Options> {
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { clientPath } = this.options
 
-    const controller = await this.resolve(operation)
-    const type = await this.resolveType(operation)
+    const controller = this.resolve(operation)
+    const type = this.resolveType(operation)
 
     const comments = getComments(operation)
     const sources: string[] = []
@@ -139,8 +139,8 @@ export class OperationGenerator extends Generator<Options> {
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { clientPath } = this.options
 
-    const controller = await this.resolve(operation)
-    const type = await this.resolveType(operation)
+    const controller = this.resolve(operation)
+    const type = this.resolveType(operation)
 
     const comments = getComments(operation)
     const sources: string[] = []
@@ -181,8 +181,8 @@ export class OperationGenerator extends Generator<Options> {
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { clientPath } = this.options
 
-    const controller = await this.resolve(operation)
-    const type = await this.resolveType(operation)
+    const controller = this.resolve(operation)
+    const type = this.resolveType(operation)
 
     const comments = getComments(operation)
     const sources: string[] = []
@@ -223,8 +223,8 @@ export class OperationGenerator extends Generator<Options> {
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { clientPath } = this.options
 
-    const controller = await this.resolve(operation)
-    const type = await this.resolveType(operation)
+    const controller = this.resolve(operation)
+    const type = this.resolveType(operation)
 
     const comments = getComments(operation)
     const sources: string[] = []
