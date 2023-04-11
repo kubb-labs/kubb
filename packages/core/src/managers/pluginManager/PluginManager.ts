@@ -3,9 +3,9 @@
 
 import { definePlugin } from '../../plugin'
 import { FileManager } from '../fileManager'
-import { Queue } from '../../utils/Queue'
+import { Queue } from '../../utils2/Queue'
 
-import type { QueueTask } from '../../utils/Queue'
+import type { QueueTask } from '../../utils2/Queue'
 import type { Argument0, Strategy } from './types'
 import type { KubbConfig, KubbPlugin, PluginLifecycleHooks, PluginLifecycle, MaybePromise, ResolvePathParams, ResolveNameParams } from '../../types'
 import type { Logger } from '../../build'

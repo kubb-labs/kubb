@@ -1,6 +1,6 @@
 import pathParser from 'path'
 
-import { createPluginCache } from './utils'
+import { createPluginCache } from './utils2'
 
 import type { FileManager } from './managers/fileManager'
 import type { PluginContext, KubbPlugin, PluginFactoryOptions } from './types'

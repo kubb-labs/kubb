@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid'
 
-import { write, read } from '../../utils'
+import { write, read } from '../../utils2'
 
-import type { QueueTask, Queue } from '../../utils'
+import type { QueueTask, Queue } from '../../utils2'
 import type { CacheStore, UUID, Status, File } from './types'
 
 export class FileManager {
