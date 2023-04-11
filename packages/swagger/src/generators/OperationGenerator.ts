@@ -98,18 +98,6 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
     }
   }
 
-  public getOperation(path: string, method: HttpMethod): Operation | null {
-    const { oas } = this.options
-
-    const operation = oas.operation(path, method)
-
-    if (!operation.schema.operationId) {
-      return null
-    }
-
-    return operation
-  }
-
   private get methods() {
     return {
       get: this.get,
@@ -134,11 +122,12 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
   async build(): Promise<File[]> {
     const { oas } = this.options
     const paths = oas.getPaths()
-    const methods = Object.keys(this.methods).filter(Boolean) as HttpMethod[]
 
     const promises = Object.keys(paths).reduce((acc, path) => {
+      const methods = Object.keys(paths[path]) as HttpMethod[]
+
       methods.forEach((method) => {
-        const operation = this.getOperation(path, method)
+        const operation = oas.operation(path, method)
         if (operation && this.methods[method]) {
           const promise = this.methods[method].call(this, operation, this.getSchemas(operation))
           if (promise) {
