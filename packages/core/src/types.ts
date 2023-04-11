@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import type { FileManager, File } from './managers/fileManager'
-import type { Cache } from './utils2/cache'
+import type { Cache } from './utils/cache'
 
 export interface Register {}
 

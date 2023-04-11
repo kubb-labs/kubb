@@ -1,13 +1,13 @@
 /* eslint-disable no-async-promise-executor */
 import pathParser from 'path'
 
-import { isURL } from './utils2/isURL'
+import { isURL } from './utils/isURL'
 import { PluginManager } from './managers/pluginManager'
-import { clean, read } from './utils2'
+import { clean, read } from './utils'
 import { getFileSource } from './managers/fileManager'
 
 import type { FileManager, File } from './managers/fileManager'
-import type { QueueTask } from './utils2'
+import type { QueueTask } from './utils'
 import type { PluginContext, TransformResult, LogLevel, KubbPlugin } from './types'
 
 type BuildOutput = {
