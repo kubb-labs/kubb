@@ -95,12 +95,6 @@ async function buildImplementation(options: BuildOptions): Promise<BuildOutput> 
     parameters: [config],
   })
 
-  pluginManager.fileManager.add({
-    path: isURL(config.input.path) ? config.input.path : pathParser.resolve(config.root, config.input.path),
-    fileName: isURL(config.input.path) ? 'input' : config.input.path,
-    source: isURL(config.input.path) ? config.input.path : await read(pathParser.resolve(config.root, config.input.path)),
-  })
-
   await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
   return { files: fileManager.files.map((file) => ({ ...file, source: getFileSource(file) })) }
