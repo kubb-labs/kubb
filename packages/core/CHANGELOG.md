@@ -1,4 +1,11 @@
 # Changelog
+## [1.0.1-beta.13](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.13...@kubb/core-v1.0.1-beta.13) (2023-04-11)
+
+
+### Bug Fixes
+
+* do not include initialFile(input) in the FileManager ([0ff037d](https://github.com/kubb-project/kubb/commit/0ff037d2646a3b01fc3332048e1e70e2423bd896))
+
 ## [1.0.0-beta.13](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.12...@kubb/core-v1.0.0-beta.13) (2023-04-11)
 
 
