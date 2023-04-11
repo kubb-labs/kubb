@@ -56,7 +56,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File | null> {
-    const { resolvePath, resolveName } = this.options
+    const { resolvePath, resolveName, oas } = this.options
 
     const controllerName = resolveName({ name: 'operations' })
     const controllerId = `${controllerName}.ts`
@@ -75,7 +75,7 @@ export class OperationGenerator extends Generator<Options> {
 
     Object.keys(paths).forEach((path) => {
       Object.keys(paths[path]).forEach((method) => {
-        const operation = this.getOperation(path, method as HttpMethod)
+        const operation = oas.operation(path, method as HttpMethod)
         if (operation) {
           groupedByOperationId[operation.getOperationId()] = {
             path: new Path(path).URL,
