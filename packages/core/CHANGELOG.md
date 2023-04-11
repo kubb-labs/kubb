@@ -1,4 +1,11 @@
 # Changelog
+## [1.0.1-beta.12](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.12...@kubb/core-v1.0.1-beta.12) (2023-04-11)
+
+
+### Miscellaneous Chores
+
+* **@kubb/core:** Synchronize undefined versions
+
 ## [1.0.0-beta.12](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.11...@kubb/core-v1.0.0-beta.12) (2023-04-10)
 
 

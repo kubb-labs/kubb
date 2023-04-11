@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1-beta.12](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.0.0-beta.12...@kubb/swagger-client-v1.0.1-beta.12) (2023-04-11)
+
+
+### Bug Fixes
+
+* use methods of path instead of all methods + removal of `getOperation`(no check needed on `operationId`) ([2978ad7](https://github.com/kubb-project/kubb/commit/2978ad7e42b3ccb6c52088bec949afa32192a883))
+
 ## [1.0.0-beta.12](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.0.0-beta.11...@kubb/swagger-client-v1.0.0-beta.12) (2023-04-10)
 
 
