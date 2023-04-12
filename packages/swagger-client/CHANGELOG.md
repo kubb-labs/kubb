@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-beta.14](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.0.0-beta.13...@kubb/swagger-client-v1.0.0-beta.14) (2023-04-12)
+
+
+### Bug Fixes
+
+* correct use of `path.resolve` so windows can transform / to \ ([a4052e2](https://github.com/kubb-project/kubb/commit/a4052e24ec57e3920a6285d1b4bee9570f2e4e9f))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.14 ([16d4d76](https://github.com/kubb-project/kubb/commit/16d4d7636f0d13f86a24ffcb791ca308d9b9d6cb))
+
 ## [1.0.0-beta.13](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.0.0-beta.12...@kubb/swagger-client-v1.0.0-beta.13) (2023-04-11)
 
 
