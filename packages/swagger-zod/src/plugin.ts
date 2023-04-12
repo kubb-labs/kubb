@@ -65,7 +65,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         if (name) {
           this.fileManager.addOrAppend({
             fileName: 'index.ts',
-            path: `${pathParser.resolve(this.config.root, this.config.output.path)}/index.ts`,
+            path: pathParser.resolve(this.config.root, this.config.output.path, 'index.ts'),
             source: print(
               createExportDeclaration({
                 path,
