@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-beta.14](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.0.0-beta.13...@kubb/swagger-zodios-v1.0.0-beta.14) (2023-04-12)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.14 ([16d4d76](https://github.com/kubb-project/kubb/commit/16d4d7636f0d13f86a24ffcb791ca308d9b9d6cb))
+
 ## [1.0.0-beta.13](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.0.0-beta.12...@kubb/swagger-zodios-v1.0.0-beta.13) (2023-04-11)
 
 
