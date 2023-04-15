@@ -3,10 +3,9 @@ import pathParser from 'path'
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import type { OptionalPath } from '@kubb/core'
-import { getRelativePath, renderTemplate, createPlugin, validatePlugins, getPathMode } from '@kubb/core'
+import { getRelativePath, renderTemplate, writeIndexes, createPlugin, validatePlugins, getPathMode } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi } from '@kubb/swagger'
-import { print, createExportDeclaration, writeIndexes } from '@kubb/ts-codegen'
 
 import { OperationGenerator } from './generators'
 
@@ -52,20 +51,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (options?.tag && groupBy?.type === 'tag') {
         const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
 
-        const path = getRelativePath(root, pathParser.resolve(root, renderTemplate(template, { tag: options.tag })))
+        const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag: options.tag })))
         const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Hooks', { tag: options.tag }), pluginName })
 
         if (name) {
           this.fileManager.addOrAppend({
             fileName: 'index.ts',
-            path: pathParser.resolve(this.config.root, this.config.output.path, 'index.ts'),
-            source: print(
-              createExportDeclaration({
-                path,
-                asAlias: true,
-                name,
-              })
-            ),
+            path: pathParser.resolve(this.config.root, this.config.output.path, output, 'index.ts'),
+            source: '',
+            exports: [{ path, asAlias: true, name }],
           })
         }
 
@@ -93,12 +87,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       await this.addFile(...files)
     },
     async buildEnd() {
-      if (this.config.output.write || this.config.output.write === undefined) {
-        const files = await writeIndexes(this.config.root, this.config.output.path, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
+      if (this.config.output.write === false) {
+        return
+      }
 
-        if (files) {
-          await this.addFile(...files)
-        }
+      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const files = await writeIndexes(root, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
+
+      if (files) {
+        await this.addFile(...files)
       }
     },
   }

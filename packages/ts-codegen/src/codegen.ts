@@ -117,11 +117,11 @@ export function createTypeAliasDeclaration({
   return factory.createTypeAliasDeclaration(modifiers, name, typeParameters, type)
 }
 
-export function createImportDeclaration({ name, path, isTypeOnly }: { name: string | Array<ts.Identifier | string>; path: string; isTypeOnly?: boolean }) {
+export function createImportDeclaration({ name, path, asType }: { name: string | Array<ts.Identifier | string>; path: string; asType?: boolean }) {
   if (!Array.isArray(name)) {
     return factory.createImportDeclaration(
       undefined,
-      factory.createImportClause(isTypeOnly ?? false, factory.createIdentifier(name), undefined),
+      factory.createImportClause(asType ?? false, factory.createIdentifier(name), undefined),
       factory.createStringLiteral(path),
       undefined
     )
@@ -130,7 +130,7 @@ export function createImportDeclaration({ name, path, isTypeOnly }: { name: stri
   return factory.createImportDeclaration(
     undefined,
     factory.createImportClause(
-      isTypeOnly ?? true,
+      asType ?? true,
       undefined,
       factory.createNamedImports(
         name.map((propertyName) => {
@@ -143,18 +143,28 @@ export function createImportDeclaration({ name, path, isTypeOnly }: { name: stri
   )
 }
 
-export function createExportDeclaration({ path, asAlias, name }: { path: string; asAlias?: boolean; name?: string }) {
-  if (asAlias) {
+export function createExportDeclaration({ path, asAlias, name }: { path: string; asAlias?: boolean; name?: string | Array<ts.Identifier | string> }) {
+  if (!Array.isArray(name)) {
     return factory.createExportDeclaration(
       undefined,
       false,
-      factory.createNamespaceExport(factory.createIdentifier(name!)),
+      asAlias && name ? factory.createNamespaceExport(factory.createIdentifier(name)) : undefined,
       factory.createStringLiteral(path),
       undefined
     )
   }
 
-  return factory.createExportDeclaration(undefined, false, undefined, factory.createStringLiteral(path), undefined)
+  return factory.createExportDeclaration(
+    undefined,
+    false,
+    factory.createNamedExports(
+      name.map((propertyName) => {
+        return factory.createExportSpecifier(false, undefined, typeof propertyName === 'string' ? factory.createIdentifier(propertyName) : propertyName)
+      })
+    ),
+    factory.createStringLiteral(path),
+    undefined
+  )
 }
 
 export function createEnumDeclaration({

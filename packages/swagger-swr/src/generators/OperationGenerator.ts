@@ -251,7 +251,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: ['SWRConfiguration', 'SWRResponse'],
           path: 'swr',
-          isTypeOnly: true,
+          asType: true,
         },
         {
           name: 'client',
@@ -260,7 +260,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, ...errors.map((error) => error.name)].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
-          isTypeOnly: true,
+          asType: true,
         },
       ],
     }
@@ -317,7 +317,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: ['SWRMutationConfiguration'],
           path: 'swr/mutation',
-          isTypeOnly: true,
+          asType: true,
         },
         {
           name: 'client',
@@ -328,7 +328,7 @@ export class OperationGenerator extends Generator<Options> {
             Boolean
           ) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
-          isTypeOnly: true,
+          asType: true,
         },
       ],
     }
@@ -384,7 +384,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: ['SWRMutationConfiguration'],
           path: 'swr/mutation',
-          isTypeOnly: true,
+          asType: true,
         },
         {
           name: 'client',
@@ -395,7 +395,7 @@ export class OperationGenerator extends Generator<Options> {
             Boolean
           ) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
-          isTypeOnly: true,
+          asType: true,
         },
       ],
     }
@@ -452,7 +452,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: ['SWRMutationConfiguration'],
           path: 'swr/mutation',
-          isTypeOnly: true,
+          asType: true,
         },
         {
           name: 'client',
@@ -463,7 +463,7 @@ export class OperationGenerator extends Generator<Options> {
             Boolean
           ) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
-          isTypeOnly: true,
+          asType: true,
         },
       ],
     }

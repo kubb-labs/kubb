@@ -418,6 +418,7 @@ importers:
 
   packages/core:
     specifiers:
+      '@kubb/ts-codegen': workspace:*
       '@types/lodash.uniq': ^4.5.7
       '@types/rimraf': ^3.0.2
       '@types/uuid': ^9.0.1
@@ -429,6 +430,7 @@ importers:
       typescript: ^5.0.4
       uuid: ^9.0.0
     dependencies:
+      '@kubb/ts-codegen': link:../ts-codegen
       change-case: 4.1.2
       directory-tree: 3.5.1
       lodash.uniq: 4.5.0
@@ -600,11 +602,9 @@ importers:
 
   packages/ts-codegen:
     specifiers:
-      '@kubb/core': workspace:*
       tsup: ^6.7.0
       typescript: ^5.0.4
     dependencies:
-      '@kubb/core': link:../core
       typescript: 5.0.4
     devDependencies:
       tsup: 6.7.0_typescript@5.0.4

@@ -44,7 +44,7 @@ export class ImportsGenerator extends Generator<Options> {
         return createImportDeclaration({
           name: [name],
           path: path.replace('./../', '../'),
-          isTypeOnly: false,
+          asType: false,
         })
       })
 

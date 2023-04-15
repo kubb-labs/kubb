@@ -158,7 +158,7 @@
 * upgrade typescript ([5f01312](https://github.com/kubb-project/kubb/commit/5f01312d290f666299eeffb6b685e5a4980e1e47))
 * use of camelCase for zod schemas ([3406eeb](https://github.com/kubb-project/kubb/commit/3406eeb9bd380000a35eaabb942c19a137e3b2a8))
 * use of export function instead of export const ([a054099](https://github.com/kubb-project/kubb/commit/a0540996de5f4340101e5065ab94df31d4cc3fae))
-* use of isTypeOnly instead of type for FileManager ([d921543](https://github.com/kubb-project/kubb/commit/d921543daff94838da38629e6341d2dd1dba77ec))
+* use of asType instead of type for FileManager ([d921543](https://github.com/kubb-project/kubb/commit/d921543daff94838da38629e6341d2dd1dba77ec))
 * use of z.lazy for zod imorted schemas + importsGenerator based on key(and lowecased) ([250ec5a](https://github.com/kubb-project/kubb/commit/250ec5a03e13a8e4df653788ddf075f7d6f0fd82))
 * when post/get does not exist, do not generate type/hook/schema ([16b5648](https://github.com/kubb-project/kubb/commit/16b5648b613a66811d1b24be0d6065bb84b3143a))
 
@@ -268,7 +268,7 @@
 * upgrade typescript ([5f01312](https://github.com/kubb-project/kubb/commit/5f01312d290f666299eeffb6b685e5a4980e1e47))
 * use of camelCase for zod schemas ([3406eeb](https://github.com/kubb-project/kubb/commit/3406eeb9bd380000a35eaabb942c19a137e3b2a8))
 * use of export function instead of export const ([a054099](https://github.com/kubb-project/kubb/commit/a0540996de5f4340101e5065ab94df31d4cc3fae))
-* use of isTypeOnly instead of type for FileManager ([d921543](https://github.com/kubb-project/kubb/commit/d921543daff94838da38629e6341d2dd1dba77ec))
+* use of asType instead of type for FileManager ([d921543](https://github.com/kubb-project/kubb/commit/d921543daff94838da38629e6341d2dd1dba77ec))
 * use of z.lazy for zod imorted schemas + importsGenerator based on key(and lowecased) ([250ec5a](https://github.com/kubb-project/kubb/commit/250ec5a03e13a8e4df653788ddf075f7d6f0fd82))
 * when post/get does not exist, do not generate type/hook/schema ([16b5648](https://github.com/kubb-project/kubb/commit/16b5648b613a66811d1b24be0d6065bb84b3143a))
 
@@ -528,7 +528,7 @@
 
 * filter out if schema.map is not a function ([57250ed](https://github.com/kubb-project/kubb/commit/57250edded807b9641a61ffeefee2f96a1349f80))
 * use of camelCase for zod schemas ([3406eeb](https://github.com/kubb-project/kubb/commit/3406eeb9bd380000a35eaabb942c19a137e3b2a8))
-* use of isTypeOnly instead of type for FileManager ([d921543](https://github.com/kubb-project/kubb/commit/d921543daff94838da38629e6341d2dd1dba77ec))
+* use of asType instead of type for FileManager ([d921543](https://github.com/kubb-project/kubb/commit/d921543daff94838da38629e6341d2dd1dba77ec))
 * when post/get does not exist, do not generate type/hook/schema ([16b5648](https://github.com/kubb-project/kubb/commit/16b5648b613a66811d1b24be0d6065bb84b3143a))
 
 ## [0.43.3](https://github.com/kubb-project/kubb/compare/@kubb/cli-v0.43.2...@kubb/cli-v0.43.3) (2023-02-21)
@@ -566,5 +566,5 @@
 ### Bug Fixes
 
 * use of camelCase for zod schemas ([3406eeb](https://github.com/kubb-project/kubb/commit/3406eeb9bd380000a35eaabb942c19a137e3b2a8))
-* use of isTypeOnly instead of type for FileManager ([d921543](https://github.com/kubb-project/kubb/commit/d921543daff94838da38629e6341d2dd1dba77ec))
+* use of asType instead of type for FileManager ([d921543](https://github.com/kubb-project/kubb/commit/d921543daff94838da38629e6341d2dd1dba77ec))
 * when post/get does not exist, do not generate type/hook/schema ([16b5648](https://github.com/kubb-project/kubb/commit/16b5648b613a66811d1b24be0d6065bb84b3143a))

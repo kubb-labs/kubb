@@ -14,12 +14,13 @@ describe('FileManager utils', () => {
         {
           name: ['Pets'],
           path: './Pets',
-          isTypeOnly: true,
+          asType: true,
         },
       ],
     })
     expect(format(code)).toMatchInlineSnapshot(`
     "import type { Pets } from './Pets'
+
     export type Pet = Pets
     "
    `)
@@ -34,12 +35,13 @@ describe('FileManager utils', () => {
         {
           name: 'Pets',
           path: './Pets',
-          isTypeOnly: true,
+          asType: true,
         },
       ],
     })
     expect(format(code)).toMatchInlineSnapshot(`
     "import type Pets from './Pets'
+
     export type Pet = Pets
     "
    `)
@@ -63,9 +65,14 @@ describe('FileManager utils', () => {
         path: pathParser.resolve('./src/models/file1.js'),
         fileName: 'file2.js',
         imports: [],
+        exports: [],
         source: `export const test = 2;
 export const test2 = 3;`,
       },
     ])
   })
+
+  test.todo('if getFileSource is returning code with exports and exports as')
+
+  test.todo('if combineFiles is combining `exports`, `imports` and `source`')
 })

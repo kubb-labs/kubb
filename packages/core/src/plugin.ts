@@ -49,7 +49,7 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
     },
     fileManager,
     async addFile(...files) {
-      return Promise.all(files.map((file) => fileManager.addOrAppend(file)))
+      return Promise.all(files.map((file) => (file.override ? fileManager.add(file) : fileManager.addOrAppend(file))))
     },
     resolvePath,
     resolveName,

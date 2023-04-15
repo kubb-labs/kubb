@@ -130,7 +130,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
           path: getRelativePath(controller.filePath, type.filePath),
-          isTypeOnly: true,
+          asType: true,
         },
       ],
     }
@@ -172,7 +172,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
           path: getRelativePath(controller.filePath, type.filePath),
-          isTypeOnly: true,
+          asType: true,
         },
       ],
     }
@@ -214,7 +214,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
           path: getRelativePath(controller.filePath, type.filePath),
-          isTypeOnly: true,
+          asType: true,
         },
       ],
     }
@@ -256,7 +256,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean) as string[],
           path: getRelativePath(controller.filePath, type.filePath),
-          isTypeOnly: true,
+          asType: true,
         },
       ],
     }

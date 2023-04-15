@@ -6,10 +6,9 @@ import pathParser from 'path'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
-import { getRelativePath, createPlugin, getPathMode, validatePlugins, renderTemplate } from '@kubb/core'
+import { getRelativePath, createPlugin, getPathMode, validatePlugins, writeIndexes, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
-import { writeIndexes } from '@kubb/ts-codegen'
 
 import { TypeBuilder } from './builders'
 import { OperationGenerator } from './generators/OperationGenerator'
@@ -160,12 +159,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       await this.addFile(...files)
     },
     async buildEnd() {
-      if (this.config.output.write || this.config.output.write === undefined) {
-        const files = await writeIndexes(this.config.root, this.config.output.path, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
+      if (this.config.output.write === false) {
+        return
+      }
 
-        if (files) {
-          await this.addFile(...files)
-        }
+      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const files = await writeIndexes(root, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
+
+      if (files) {
+        await this.addFile(...files)
       }
     },
   }
