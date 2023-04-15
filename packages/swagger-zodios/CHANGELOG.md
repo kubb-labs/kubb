@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-beta.14](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.0.0-beta.14...@kubb/swagger-zodios-v1.0.0-beta.14) (2023-04-15)
+
+
+### Features
+
+* use of `exports` for the fileManager ([e0582ee](https://github.com/kubb-project/kubb/commit/e0582eef921d10d3fc35af8a802ef2d81f790639))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.14 ([55ecfa6](https://github.com/kubb-project/kubb/commit/55ecfa62c060f98afd0df14e9d112deba2251cea))
+
 ## [1.0.0-beta.14](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.0.0-beta.13...@kubb/swagger-zodios-v1.0.0-beta.14) (2023-04-12)
 
 
