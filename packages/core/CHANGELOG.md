@@ -1,4 +1,22 @@
 # Changelog
+## [1.0.0-beta.15](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.14...@kubb/core-v1.0.0-beta.15) (2023-04-15)
+
+
+### Features
+
+* use of `exports` for the fileManager ([e0582ee](https://github.com/kubb-project/kubb/commit/e0582eef921d10d3fc35af8a802ef2d81f790639))
+
+
+### Bug Fixes
+
+* use of codegen for imports and exports ([aeccdbd](https://github.com/kubb-project/kubb/commit/aeccdbdc0068ef6e99902243958f4982e8b27223))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.14 ([55ecfa6](https://github.com/kubb-project/kubb/commit/55ecfa62c060f98afd0df14e9d112deba2251cea))
+* release 1.0.0-beta.15 ([c32bc44](https://github.com/kubb-project/kubb/commit/c32bc443975f7f997f67df1392c80a5821b88e47))
+
 ## [1.0.0-beta.14](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.14...@kubb/core-v1.0.0-beta.14) (2023-04-15)
 
 
