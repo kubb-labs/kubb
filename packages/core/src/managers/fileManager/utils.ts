@@ -1,6 +1,75 @@
+import pathParser from 'path'
+
 import uniq from 'lodash.uniq'
 
+import { TreeNode } from '../../utils'
+
+import type { PathMode, TreeNodeOptions } from '../../utils'
+import type { Path } from '../../types'
 import type { File } from './types'
+
+export function writeIndexes(root: string, options: TreeNodeOptions) {
+  const tree = TreeNode.build<{ type: PathMode; path: Path; name: string }>(root, { extensions: /\.ts/, ...options })
+
+  if (!tree) {
+    return undefined
+  }
+
+  const fileReducer = (files: File[], item: typeof tree) => {
+    if (!item.children) {
+      return []
+    }
+
+    if (item.children?.length > 1) {
+      const path = pathParser.resolve(item.data.path, 'index.ts')
+      const exports = item.children
+        .map((file) => {
+          if (!file) {
+            return undefined
+          }
+
+          const importPath: string = file.data.type === 'directory' ? `./${file.data.name}` : `./${file.data.name.replace(/\.[^.]*$/, '')}`
+
+          // TODO weird hacky fix
+          if (importPath.includes('index') && path.includes('index')) {
+            return undefined
+          }
+
+          return { path: importPath }
+        })
+        .filter(Boolean) as File['exports']
+
+      files.push({
+        path,
+        fileName: 'index.ts',
+        source: '',
+        exports,
+      })
+    } else {
+      item.children?.forEach((child) => {
+        const path = pathParser.resolve(item.data.path, 'index.ts')
+        const importPath = child.data.type === 'directory' ? `./${child.data.name}` : `./${child.data.name.replace(/\.[^.]*$/, '')}`
+
+        files.push({
+          path,
+          fileName: 'index.ts',
+          source: '',
+          exports: [{ path: importPath }],
+        })
+      })
+    }
+
+    item.children.forEach((childItem) => {
+      fileReducer(files, childItem)
+    })
+
+    return files
+  }
+
+  const files = fileReducer([], tree)
+
+  return files
+}
 
 export function combineFiles(files: Array<File | null>) {
   return files.filter(Boolean).reduce((acc, curr: File | null) => {
@@ -15,6 +84,7 @@ export function combineFiles(files: Array<File | null>) {
         ...curr,
         source: `${prev.source}\n${curr.source}`,
         imports: [...(prev.imports || []), ...(curr.imports || [])],
+        exports: [...(prev.exports || []), ...(curr.exports || [])],
       }
     } else {
       acc.push(curr)
@@ -25,11 +95,14 @@ export function combineFiles(files: Array<File | null>) {
 }
 
 export function getFileSource(file: File) {
+  let { source } = file
+
   // TODO make generic check
   if (!file.fileName.endsWith('.ts')) {
     return file.source
   }
   const imports: File['imports'] = []
+  const exports: File['exports'] = []
 
   file.imports?.forEach((curr) => {
     const exists = imports.find((imp) => imp.path === curr.path)
@@ -51,17 +124,57 @@ export function getFileSource(file: File) {
     }
   })
 
-  const importSource = imports.reduce((prev, curr) => {
-    if (Array.isArray(curr.name)) {
-      return `${prev}\nimport ${curr.isTypeOnly ? 'type ' : ''}{ ${curr.name.join(', ')} } from "${curr.path}";`
+  file.exports?.forEach((curr) => {
+    const exists = exports.find((imp) => imp.path === curr.path)
+    if (!exists) {
+      exports.push({
+        ...curr,
+        name: Array.isArray(curr.name) ? uniq(curr.name) : curr.name,
+      })
     }
 
-    return `${prev}\nimport ${curr.isTypeOnly ? 'type ' : ''}${curr.name} from "${curr.path}";`
+    if (exists && !Array.isArray(exists.name) && exists.name !== curr.name && exists.asAlias === curr.asAlias) {
+      exports.push(curr)
+    }
+
+    if (exists && Array.isArray(exists.name)) {
+      if (Array.isArray(curr.name)) {
+        exists.name = uniq([...exists.name, ...curr.name])
+      }
+    }
+  })
+
+  const importSource = imports.reduce((prev, curr) => {
+    if (Array.isArray(curr.name)) {
+      return `${prev}\nimport ${curr.asType ? 'type ' : ''}{ ${curr.name.join(', ')} } from "${curr.path}";`
+    }
+
+    return `${prev}\nimport ${curr.asType ? 'type ' : ''}${curr.name} from "${curr.path}";`
+  }, '')
+
+  const exportSource = exports.reduce((prev, curr) => {
+    if (Array.isArray(curr.name)) {
+      return `${prev}\nexport ${curr.asType ? 'type ' : ''}{ ${curr.name.join(', ')} } from "${curr.path}";`
+    }
+
+    if (curr.asAlias) {
+      return `${prev}\nexport * as ${curr.name} from "${curr.path}";`
+    }
+
+    if (curr.name) {
+      return `${prev}\nexport ${curr.asType ? 'type ' : ''}${curr.name} from "${curr.path}";`
+    }
+
+    return `${prev}\nexport ${curr.asType ? 'type ' : ''}* from "${curr.path}";`
   }, '')
 
   if (importSource) {
-    return `${importSource}\n${file.source}`
+    source = `${importSource}\n${source}`
   }
 
-  return file.source
+  if (exportSource) {
+    source = `${exportSource}\n${source}`
+  }
+
+  return source
 }

@@ -52,6 +52,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@kubb/ts-codegen": "workspace:*",
     "change-case": "^4.1.2",
     "directory-tree": "^3.5.1",
     "lodash.uniq": "^4.5.0",

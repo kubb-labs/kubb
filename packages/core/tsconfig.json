@@ -22,7 +22,7 @@
     ],
     "types": ["vitest/globals"],
     "paths": {
-      
+      "@kubb/ts-codegen": ["../ts-codegen/src/index.ts"]
     }
   },
   "include": ["./src/**/*"],

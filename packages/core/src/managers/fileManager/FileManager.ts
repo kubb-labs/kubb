@@ -23,7 +23,7 @@ export class FileManager {
     return this.cache.get(id)
   }
 
-  private getCacheByPath(path: string | undefined): CacheStore | undefined {
+  getCacheByPath(path: string | undefined): CacheStore | undefined {
     let cache
 
     this.cache.forEach((item) => {
@@ -65,7 +65,8 @@ export class FileManager {
     const previousCache = this.getCacheByPath(file.path)
 
     if (previousCache) {
-      const sourceAlreadyExists = previousCache.file.source.includes(file.source)
+      // empty source will also return true when using includes
+      const sourceAlreadyExists = file.source && previousCache.file.source.includes(file.source)
 
       if (sourceAlreadyExists) {
         return Promise.resolve(file)
@@ -77,6 +78,7 @@ export class FileManager {
         ...file,
         source: `${previousCache.file.source}\n${file.source}`,
         imports: [...(previousCache.file.imports || []), ...(file.imports || [])],
+        exports: [...(previousCache.file.exports || []), ...(file.exports || [])],
       })
     }
     return this.add(file)

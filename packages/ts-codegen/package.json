@@ -54,7 +54,6 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@kubb/core": "workspace:*",
     "typescript": "^5.0.4"
   },
   "devDependencies": {

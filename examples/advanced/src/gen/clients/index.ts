@@ -1,4 +1,2 @@
-export * from './operations'
-export * from './petService'
-export * from './storeService'
-export * from './userService'
+export * from './axios'
+export * from './hooks'

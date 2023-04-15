@@ -1,7 +1,14 @@
 type Import = {
   name: string | string[] | readonly string[]
   path: string
-  isTypeOnly?: boolean
+  asType?: boolean
+}
+
+type Export = {
+  name?: string | string[] | readonly string[]
+  path: string
+  asType?: boolean
+  asAlias?: boolean
 }
 
 export type File = {
@@ -15,6 +22,12 @@ export type File = {
   path: string
   source: string
   imports?: Import[]
+  exports?: Export[]
+  /**
+   * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists
+   * @default `false`
+   */
+  override?: boolean
 }
 
 export type UUID = string

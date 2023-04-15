@@ -2,11 +2,10 @@ import pathParser from 'path'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import { createPlugin, validatePlugins } from '@kubb/core'
+import { createPlugin, validatePlugins, writeIndexes } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 import type { Api as SwaggerApi } from '@kubb/swagger'
-import { writeIndexes } from '@kubb/ts-codegen'
 
 import { OperationGenerator } from './generators'
 
@@ -57,15 +56,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const files = await operationGenerator.build()
       await this.addFile(...files)
-    },
-    async buildEnd() {
-      if (this.config.output.write || this.config.output.write === undefined) {
-        const files = await writeIndexes(this.config.root, this.config.output.path, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
-
-        if (files) {
-          await this.addFile(...files)
-        }
-      }
     },
   }
 })

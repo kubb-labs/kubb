@@ -513,7 +513,7 @@
 ### Bug Fixes
 
 * use of camelCase for zod schemas ([3406eeb](https://github.com/kubb-project/kubb/commit/3406eeb9bd380000a35eaabb942c19a137e3b2a8))
-* use of isTypeOnly instead of type for FileManager ([d921543](https://github.com/kubb-project/kubb/commit/d921543daff94838da38629e6341d2dd1dba77ec))
+* use of asType instead of type for FileManager ([d921543](https://github.com/kubb-project/kubb/commit/d921543daff94838da38629e6341d2dd1dba77ec))
 * when post/get does not exist, do not generate type/hook/schema ([16b5648](https://github.com/kubb-project/kubb/commit/16b5648b613a66811d1b24be0d6065bb84b3143a))
 
 ## [0.42.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v0.42.0...@kubb/swagger-ts-v0.42.1) (2023-02-20)
