@@ -143,18 +143,28 @@ export function createImportDeclaration({ name, path, asType }: { name: string |
   )
 }
 
-export function createExportDeclaration({ path, asAlias, name }: { path: string; asAlias?: boolean; name?: string }) {
-  if (asAlias) {
+export function createExportDeclaration({ path, asAlias, name }: { path: string; asAlias?: boolean; name?: string | Array<ts.Identifier | string> }) {
+  if (!Array.isArray(name)) {
     return factory.createExportDeclaration(
       undefined,
       false,
-      factory.createNamespaceExport(factory.createIdentifier(name!)),
+      asAlias && name ? factory.createNamespaceExport(factory.createIdentifier(name)) : undefined,
       factory.createStringLiteral(path),
       undefined
     )
   }
 
-  return factory.createExportDeclaration(undefined, false, undefined, factory.createStringLiteral(path), undefined)
+  return factory.createExportDeclaration(
+    undefined,
+    false,
+    factory.createNamedExports(
+      name.map((propertyName) => {
+        return factory.createExportSpecifier(false, undefined, typeof propertyName === 'string' ? factory.createIdentifier(propertyName) : propertyName)
+      })
+    ),
+    factory.createStringLiteral(path),
+    undefined
+  )
 }
 
 export function createEnumDeclaration({

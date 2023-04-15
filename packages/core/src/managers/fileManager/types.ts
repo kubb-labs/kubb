@@ -1,11 +1,11 @@
 type Import = {
-  name: string | string[] | readonly string[]
+  name: string | string[]
   path: string
   asType?: boolean
 }
 
 type Export = {
-  name?: string | string[] | readonly string[]
+  name?: string | string[]
   path: string
   asType?: boolean
   asAlias?: boolean

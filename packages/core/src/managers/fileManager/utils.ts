@@ -2,10 +2,13 @@ import pathParser from 'path'
 
 import uniq from 'lodash.uniq'
 
+import { createImportDeclaration, createExportDeclaration, print } from '@kubb/ts-codegen'
+
 import { TreeNode } from '../../utils'
 
 import type { PathMode, TreeNodeOptions } from '../../utils'
 import type { Path } from '../../types'
+import type ts from 'typescript'
 import type { File } from './types'
 
 export function writeIndexes(root: string, options: TreeNodeOptions) {
@@ -144,29 +147,15 @@ export function getFileSource(file: File) {
     }
   })
 
-  const importSource = imports.reduce((prev, curr) => {
-    if (Array.isArray(curr.name)) {
-      return `${prev}\nimport ${curr.asType ? 'type ' : ''}{ ${curr.name.join(', ')} } from "${curr.path}";`
-    }
+  const importNodes = imports.reduce((prev, curr) => {
+    return [...prev, createImportDeclaration({ name: curr.name, path: curr.path, asType: curr.asType })]
+  }, [] as ts.ImportDeclaration[])
+  const importSource = print(importNodes)
 
-    return `${prev}\nimport ${curr.asType ? 'type ' : ''}${curr.name} from "${curr.path}";`
-  }, '')
-
-  const exportSource = exports.reduce((prev, curr) => {
-    if (Array.isArray(curr.name)) {
-      return `${prev}\nexport ${curr.asType ? 'type ' : ''}{ ${curr.name.join(', ')} } from "${curr.path}";`
-    }
-
-    if (curr.asAlias) {
-      return `${prev}\nexport * as ${curr.name} from "${curr.path}";`
-    }
-
-    if (curr.name) {
-      return `${prev}\nexport ${curr.asType ? 'type ' : ''}${curr.name} from "${curr.path}";`
-    }
-
-    return `${prev}\nexport ${curr.asType ? 'type ' : ''}* from "${curr.path}";`
-  }, '')
+  const exportNodes = exports.reduce((prev, curr) => {
+    return [...prev, createExportDeclaration({ name: curr.name, path: curr.path, asAlias: curr.asAlias })]
+  }, [] as ts.ExportDeclaration[])
+  const exportSource = print(exportNodes)
 
   if (importSource) {
     source = `${importSource}\n${source}`
