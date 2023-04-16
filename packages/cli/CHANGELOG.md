@@ -1,5 +1,7 @@
 # Changelog
 
+## [1.0.0-beta.16](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.0.0-beta.15...@kubb/cli-v1.0.0-beta.16) (2023-04-16)
+
 ## [1.0.0-beta.15](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.0.0-beta.14...@kubb/cli-v1.0.0-beta.15) (2023-04-15)
 
 
