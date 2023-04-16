@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-beta.17](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.16...@kubb/swagger-tanstack-query-v1.0.0-beta.17) (2023-04-16)
+
+
+### Bug Fixes
+
+* add TError on more places ([7668d6a](https://github.com/kubb-project/kubb/commit/7668d6a7403d257580aae50bad7a85e288a37715))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.17 ([8c23230](https://github.com/kubb-project/kubb/commit/8c23230219d53cb34cffbab78524cabaa326d1fa))
+
 ## [1.0.0-beta.16](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.15...@kubb/swagger-tanstack-query-v1.0.0-beta.16) (2023-04-16)
 
 ## [1.0.0-beta.15](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.0.0-beta.14...@kubb/swagger-tanstack-query-v1.0.0-beta.15) (2023-04-15)
