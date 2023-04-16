@@ -7,7 +7,7 @@ import type { ListPetsResponse, ListPetsQueryParams } from '../models/ListPets'
 
 export const listPetsQueryKey = (params?: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
 
-export function listPetsQueryOptions<TData = ListPetsResponse>(params?: ListPetsQueryParams): CreateQueryOptions<TData> {
+export function listPetsQueryOptions<TData = ListPetsResponse, TError = unknown>(params?: ListPetsQueryParams): CreateQueryOptions<TData, TError> {
   const queryKey = listPetsQueryKey(params)
 
   return {
@@ -28,13 +28,13 @@ export function listPetsQueryOptions<TData = ListPetsResponse>(params?: ListPets
  */
 export function listPetsQuery<TData = ListPetsResponse, TError = unknown>(
   params?: ListPetsQueryParams,
-  options?: { query?: CreateQueryOptions<TData> }
+  options?: { query?: CreateQueryOptions<TData, TError> }
 ): CreateQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? listPetsQueryKey(params)
 
   const query = createQuery<TData, TError>({
-    ...listPetsQueryOptions<TData>(params),
+    ...listPetsQueryOptions<TData, TError>(params),
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & { queryKey: QueryKey }
 

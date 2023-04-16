@@ -7,7 +7,9 @@ import type { GetOrderByIdResponse, GetOrderByIdPathParams, GetOrderById400, Get
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [`/store/order/${orderId}`] as const
 
-export function getOrderByIdQueryOptions<TData = GetOrderByIdResponse>(orderId: GetOrderByIdPathParams['orderId']): QueryOptions<TData> {
+export function getOrderByIdQueryOptions<TData = GetOrderByIdResponse, TError = GetOrderById400 | GetOrderById404>(
+  orderId: GetOrderByIdPathParams['orderId']
+): QueryOptions<TData, TError> {
   const queryKey = getOrderByIdQueryKey(orderId)
 
   return {
@@ -28,13 +30,13 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdResponse>(orderId: 
  */
 export function useGetOrderById<TData = GetOrderByIdResponse, TError = GetOrderById400 | GetOrderById404>(
   orderId: GetOrderByIdPathParams['orderId'],
-  options?: { query?: UseQueryOptions<TData> }
+  options?: { query?: UseQueryOptions<TData, TError> }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
 
   const query = useQuery<TData, TError>({
-    ...getOrderByIdQueryOptions<TData>(orderId),
+    ...getOrderByIdQueryOptions<TData, TError>(orderId),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 

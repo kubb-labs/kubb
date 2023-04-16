@@ -7,7 +7,7 @@ import type { LoginUserResponse, LoginUserQueryParams, LoginUser400 } from '../.
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [`/user/login`, ...(params ? [params] : [])] as const
 
-export function loginUserQueryOptions<TData = LoginUserResponse>(params?: LoginUserQueryParams): QueryOptions<TData> {
+export function loginUserQueryOptions<TData = LoginUserResponse, TError = LoginUser400>(params?: LoginUserQueryParams): QueryOptions<TData, TError> {
   const queryKey = loginUserQueryKey(params)
 
   return {
@@ -28,13 +28,13 @@ export function loginUserQueryOptions<TData = LoginUserResponse>(params?: LoginU
  */
 export function useLoginUser<TData = LoginUserResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
-  options?: { query?: UseQueryOptions<TData> }
+  options?: { query?: UseQueryOptions<TData, TError> }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 
   const query = useQuery<TData, TError>({
-    ...loginUserQueryOptions<TData>(params),
+    ...loginUserQueryOptions<TData, TError>(params),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 

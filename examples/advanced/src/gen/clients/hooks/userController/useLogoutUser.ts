@@ -7,7 +7,7 @@ import type { LogoutUserResponse } from '../../../models/ts/userController/Logou
 
 export const logoutUserQueryKey = () => [`/user/logout`] as const
 
-export function logoutUserQueryOptions<TData = LogoutUserResponse>(): QueryOptions<TData> {
+export function logoutUserQueryOptions<TData = LogoutUserResponse, TError = unknown>(): QueryOptions<TData, TError> {
   const queryKey = logoutUserQueryKey()
 
   return {
@@ -26,13 +26,13 @@ export function logoutUserQueryOptions<TData = LogoutUserResponse>(): QueryOptio
  * @link /user/logout
  */
 export function useLogoutUser<TData = LogoutUserResponse, TError = unknown>(options?: {
-  query?: UseQueryOptions<TData>
-}): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
+  query?: UseQueryOptions<TData, TError>
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
 
   const query = useQuery<TData, TError>({
-    ...logoutUserQueryOptions<TData>(),
+    ...logoutUserQueryOptions<TData, TError>(),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 

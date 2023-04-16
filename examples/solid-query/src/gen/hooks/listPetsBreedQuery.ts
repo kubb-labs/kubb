@@ -8,10 +8,10 @@ import type { ListPetsBreedResponse, ListPetsBreedPathParams, ListPetsBreedQuery
 export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], params?: ListPetsBreedQueryParams) =>
   [`/pets/${breed}`, ...(params ? [params] : [])] as const
 
-export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
+export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams
-): CreateQueryOptions<TData> {
+): CreateQueryOptions<TData, TError> {
   const queryKey = () => listPetsBreedQueryKey(breed, params)
 
   return {
@@ -33,13 +33,13 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
 export function listPetsBreedQuery<TData = ListPetsBreedResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
-  options?: { query?: CreateQueryOptions<TData> }
+  options?: { query?: CreateQueryOptions<TData, TError> }
 ): CreateQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey?.() ?? listPetsBreedQueryKey(breed, params)
 
   const query = createQuery<TData, TError>({
-    ...listPetsBreedQueryOptions<TData>(breed, params),
+    ...listPetsBreedQueryOptions<TData, TError>(breed, params),
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & { queryKey: QueryKey }
 

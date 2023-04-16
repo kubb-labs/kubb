@@ -7,7 +7,7 @@ import type { GetInventoryResponse } from '../../../models/ts/storeController/Ge
 
 export const getInventoryQueryKey = () => [`/store/inventory`] as const
 
-export function getInventoryQueryOptions<TData = GetInventoryResponse>(): QueryOptions<TData> {
+export function getInventoryQueryOptions<TData = GetInventoryResponse, TError = unknown>(): QueryOptions<TData, TError> {
   const queryKey = getInventoryQueryKey()
 
   return {
@@ -27,13 +27,13 @@ export function getInventoryQueryOptions<TData = GetInventoryResponse>(): QueryO
  * @link /store/inventory
  */
 export function useGetInventory<TData = GetInventoryResponse, TError = unknown>(options?: {
-  query?: UseQueryOptions<TData>
-}): UseQueryResult<TData, unknown> & { queryKey: QueryKey } {
+  query?: UseQueryOptions<TData, TError>
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
 
   const query = useQuery<TData, TError>({
-    ...getInventoryQueryOptions<TData>(),
+    ...getInventoryQueryOptions<TData, TError>(),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
