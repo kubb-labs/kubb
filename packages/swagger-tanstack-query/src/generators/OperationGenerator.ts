@@ -238,9 +238,9 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(params?: ${schemas.queryParams.name}): ${
-        imports.query.QueryOptions
-      }<TData> {
+        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}, TError = ${
+        errors.map((error) => error.name).join(' | ') || 'unknown'
+      }>(params?: ${schemas.queryParams.name}): ${imports.query.QueryOptions}<TData, TError> {
           const queryKey =${framework === 'solid' ? `() => ${queryKey}(params)` : `${queryKey}(params)`};
 
           return {
@@ -260,12 +260,12 @@ export class OperationGenerator extends Generator<Options> {
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}>(params?: ${
         schemas.queryParams.name
-      }, options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey } {
+      }, options?: { query?: ${imports.query.UseQueryOptions}<TData, TError> }): ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(params);
           
           const query = ${imports.query.useQuery}<TData, TError>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(params),
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData, TError>(params),
             ...queryOptions
           }) as ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey };
 
@@ -282,9 +282,9 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(${pathParamsTyped}): ${
-        imports.query.QueryOptions
-      }<TData> {
+        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}, TError = ${
+        errors.map((error) => error.name).join(' | ') || 'unknown'
+      }>(${pathParamsTyped}): ${imports.query.QueryOptions}<TData, TError> {
           const queryKey =${framework === 'solid' ? `() => ${queryKey}(${pathParams})` : `${queryKey}(${pathParams})`};
 
           return {
@@ -303,14 +303,14 @@ export class OperationGenerator extends Generator<Options> {
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
         errors.map((error) => error.name).join(' | ') || 'unknown'
-      }>(${pathParamsTyped} options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${
+      }>(${pathParamsTyped} options?: { query?: ${imports.query.UseQueryOptions}<TData, TError> }): ${
         imports.query.UseQueryResult
       }<TData, TError> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(${pathParams});
           
           const query = ${imports.query.useQuery}<TData, TError>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams}),
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData, TError>(${pathParams}),
             ...queryOptions
           }) as ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey };
 
@@ -329,9 +329,9 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(${pathParamsTyped} params?: ${
-        schemas.queryParams.name
-      }): ${imports.query.QueryOptions}<TData> {
+        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}, TError = ${
+        errors.map((error) => error.name).join(' | ') || 'unknown'
+      }>(${pathParamsTyped} params?: ${schemas.queryParams.name}): ${imports.query.QueryOptions}<TData, TError> {
           const queryKey =${framework === 'solid' ? `() => ${queryKey}(${pathParams} params)` : `${queryKey}(${pathParams} params)`};
 
           return {
@@ -351,14 +351,14 @@ export class OperationGenerator extends Generator<Options> {
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
         errors.map((error) => error.name).join(' | ') || 'unknown'
-      }>(${pathParamsTyped} params?: ${schemas.queryParams.name}, options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${
+      }>(${pathParamsTyped} params?: ${schemas.queryParams.name}, options?: { query?: ${imports.query.UseQueryOptions}<TData, TError> }): ${
         imports.query.UseQueryResult
       }<TData, TError> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(${pathParams} params);
           
           const query = ${imports.query.useQuery}<TData, TError>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams} params),
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData, TError>(${pathParams} params),
             ...queryOptions
           }) as ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey };
 
@@ -375,7 +375,9 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
-      export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}>(): ${imports.query.QueryOptions}<TData> {
+      export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}, TError = ${
+        errors.map((error) => error.name).join(' | ') || 'unknown'
+      }>(): ${imports.query.QueryOptions}<TData, TError> {
         const queryKey =${framework === 'solid' ? `() => ${queryKey}()` : `${queryKey}()`};
 
         return {
@@ -394,12 +396,12 @@ export class OperationGenerator extends Generator<Options> {
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
         errors.map((error) => error.name).join(' | ') || 'unknown'
-      }>(options?: { query?: ${imports.query.UseQueryOptions}<TData> }): ${imports.query.UseQueryResult}<TData, unknown> & { queryKey: QueryKey } {
+      }>(options?: { query?: ${imports.query.UseQueryOptions}<TData, TError> }): ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}();
 
           const query = ${imports.query.useQuery}<TData, TError>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(),
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData, TError>(),
             ...queryOptions
           }) as ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey };
 
