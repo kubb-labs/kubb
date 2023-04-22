@@ -304,7 +304,7 @@ export class OperationGenerator extends Generator<Options> {
 
           return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
           ${new Path(operation.path).template},
-            (url, { arg: data }) => {
+            (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
               return client<${clientGenerics.join(', ')}>({
                 method: "post",
                 url,
@@ -364,7 +364,11 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
     }
 
-    const generics = [`TData = ${schemas.response.name}`, schemas.request?.name ? `TVariables = ${schemas.request?.name}` : ''].filter(Boolean)
+    const generics = [
+      `TData = ${schemas.response.name}`,
+      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
+      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : '',
+    ].filter(Boolean)
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
     const SWRMutationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
     const SWRMutationConfigurationGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : '', 'string'].filter(Boolean)
@@ -383,7 +387,7 @@ export class OperationGenerator extends Generator<Options> {
 
           return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
           ${new Path(operation.path).template},
-            (url, { arg: data }) => {
+          (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
               return client<${clientGenerics}>({
                 method: "put",
                 url,
@@ -467,7 +471,7 @@ export class OperationGenerator extends Generator<Options> {
 
         return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
         ${new Path(operation.path).template},
-          (url, { arg: data }) => {
+        (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
             return client<${clientGenerics.join(', ')}>({
               method: "delete",
               url,

@@ -109,6 +109,7 @@ importers:
       '@kubb/core': workspace:*
       '@kubb/swagger': workspace:*
       '@kubb/swagger-client': workspace:*
+      '@kubb/swagger-swr': workspace:*
       '@kubb/swagger-tanstack-query': workspace:*
       '@kubb/swagger-ts': workspace:*
       '@kubb/swagger-zod': workspace:*
@@ -122,6 +123,7 @@ importers:
       react: ^18.2.0
       solid-js: ^1.7.3
       svelte: ^3.58.0
+      swr: ^2.1.3
       tsup: ^6.7.0
       vue: ^3.2.47
       zod: ^3.21.4
@@ -130,6 +132,7 @@ importers:
       '@kubb/core': link:../../packages/core
       '@kubb/swagger': link:../../packages/swagger
       '@kubb/swagger-client': link:../../packages/swagger-client
+      '@kubb/swagger-swr': link:../../packages/swagger-swr
       '@kubb/swagger-tanstack-query': link:../../packages/swagger-tanstack-query
       '@kubb/swagger-ts': link:../../packages/swagger-ts
       '@kubb/swagger-zod': link:../../packages/swagger-zod
@@ -143,6 +146,7 @@ importers:
       react: 18.2.0
       solid-js: 1.7.3
       svelte: 3.58.0
+      swr: 2.1.3_react@18.2.0
       tsup: 6.7.0
       vue: 3.2.47
       zod: 3.21.4

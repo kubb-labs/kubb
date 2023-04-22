@@ -468,7 +468,7 @@ export class OperationGenerator extends Generator<Options> {
           const { mutation: mutationOptions } = options ?? {};
 
           return ${imports.mutate.useMutation}<${clientGenerics.join(', ')}>({
-            mutationFn: (data) => {
+            mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
               return client<${clientGenerics.join(', ')}>({
                 method: "post",
                 url: ${new Path(operation.path).template},
@@ -541,7 +541,7 @@ export class OperationGenerator extends Generator<Options> {
           const { mutation: mutationOptions } = options ?? {};
 
           return ${imports.mutate.useMutation}<${clientGenerics.join(', ')}>({
-            mutationFn: (data) => {
+            mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
               return client<${clientGenerics.join(', ')}>({
                 method: "put",
                 url: ${new Path(operation.path).template},
@@ -616,7 +616,7 @@ export class OperationGenerator extends Generator<Options> {
           const { mutation: mutationOptions } = options ?? {};
 
           return ${imports.mutate.useMutation}<${clientGenerics.join(', ')}>({
-            mutationFn: (data) => {
+            mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
               return client<${clientGenerics.join(', ')}>({
                 method: "delete",
                 url: ${new Path(operation.path).template},
