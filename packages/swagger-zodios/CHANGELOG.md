@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-beta.18](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.0.0-beta.17...@kubb/swagger-zodios-v1.0.0-beta.18) (2023-04-22)
+
+
+### Bug Fixes
+
+* use of transformReservedWord and better naming for req, res and params ([5574dd1](https://github.com/kubb-project/kubb/commit/5574dd1fa597c84d03d65547cab0b819049380a3))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.18 ([4f172c8](https://github.com/kubb-project/kubb/commit/4f172c860d60a22086553c6899527532763c4b07))
+
 ## [1.0.0-beta.17](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.0.0-beta.16...@kubb/swagger-zodios-v1.0.0-beta.17) (2023-04-16)
 
 
