@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.1-beta.17](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.17...@kubb/core-v1.0.1-beta.17) (2023-04-22)
+
+
+### Bug Fixes
+
+* better operationGeneration + schemas.request could be optional ([cf10b02](https://github.com/kubb-project/kubb/commit/cf10b0242761847133ebf01bae64d0bfed1334ab))
+* duplicate import names ([7a8e6fa](https://github.com/kubb-project/kubb/commit/7a8e6fa3f00e37c771b15fb0287adc1dd166acb7))
+* use of transformReservedWord and better naming for req, res and params ([5574dd1](https://github.com/kubb-project/kubb/commit/5574dd1fa597c84d03d65547cab0b819049380a3))
+
 ## [1.0.0-beta.17](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.16...@kubb/core-v1.0.0-beta.17) (2023-04-16)
 
 

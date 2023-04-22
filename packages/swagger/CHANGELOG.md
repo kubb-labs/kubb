@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1-beta.17](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.17...@kubb/swagger-v1.0.1-beta.17) (2023-04-22)
+
+
+### Bug Fixes
+
+* better operationGeneration + schemas.request could be optional ([cf10b02](https://github.com/kubb-project/kubb/commit/cf10b0242761847133ebf01bae64d0bfed1334ab))
+* use of transformReservedWord and better naming for req, res and params ([5574dd1](https://github.com/kubb-project/kubb/commit/5574dd1fa597c84d03d65547cab0b819049380a3))
+
 ## [1.0.0-beta.17](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.16...@kubb/swagger-v1.0.0-beta.17) (2023-04-16)
 
 
