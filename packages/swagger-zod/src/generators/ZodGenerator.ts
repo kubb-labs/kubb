@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { pascalCase } from 'change-case'
 import uniq from 'lodash.uniq'
+import uniqueId from 'lodash.uniqueId'
 
 import type { PluginContext } from '@kubb/core'
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
@@ -25,8 +26,9 @@ function zodKeywordMapper(a: [string, unknown], b: [string, unknown]) {
 /**
  * Name is the ref name + resolved with the nameResolver
  * Key is the original name used
+ * As is used to make the type more unique when multiple same names are used
  */
-export type Refs = Record<string, { name: string; key: string }>
+export type Refs = Record<string, { name: string; key: string; as?: string }>
 
 type Options = {
   withJSDocs?: boolean
@@ -103,7 +105,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       // custom type
       if (fn === keywordZodNodes.ref) {
         // use of z.lazy because we need to import from files x or we use the type as a self referene
-        return `z.lazy(() => ${args.name})`
+        return `z.lazy(() => ${args})`
       }
 
       if (keywordZodNodes[fn as keyof typeof keywordZodNodes]) {
@@ -195,21 +197,35 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
-  private getRefAlias(obj: OpenAPIV3.ReferenceObject): [string, unknown][] {
+  private getRefAlias(obj: OpenAPIV3.ReferenceObject, baseName?: string): [string, unknown][] {
     const { $ref } = obj
     let ref = this.refs[$ref]
 
-    if (!ref) {
-      const name = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
-
-      // eslint-disable-next-line no-multi-assign
-      ref = this.refs[$ref] = {
-        name: this.options.resolveName({ name, pluginName }) || name,
-        key: name,
-      }
+    if (ref) {
+      return [[keywordZodNodes.ref, ref.name]]
     }
 
-    return [[keywordZodNodes.ref, ref || keywordZodNodes.any]]
+    const key = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
+    const name = this.options.resolveName({ name: key, pluginName }) || key
+
+    if (key === baseName) {
+      // eslint-disable-next-line no-multi-assign
+      ref = this.refs[$ref] = {
+        name,
+        key,
+        as: uniqueId(name),
+      }
+
+      return [[keywordZodNodes.ref, ref.as]]
+    }
+
+    // eslint-disable-next-line no-multi-assign
+    ref = this.refs[$ref] = {
+      name,
+      key: key,
+    }
+
+    return [[keywordZodNodes.ref, ref.name]]
   }
 
   /**
@@ -222,7 +238,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     }
 
     if (isReference(schema)) {
-      return this.getRefAlias(schema)
+      return this.getRefAlias(schema, baseName)
     }
 
     if (schema.oneOf) {

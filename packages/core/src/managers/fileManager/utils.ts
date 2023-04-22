@@ -148,7 +148,7 @@ export function getFileSource(file: File) {
   })
 
   const importNodes = imports.reduce((prev, curr) => {
-    return [...prev, createImportDeclaration({ name: curr.name, path: curr.path, asType: curr.asType })]
+    return [...prev, createImportDeclaration({ name: curr.name, path: curr.path, isTypeOnly: curr.isTypeOnly })]
   }, [] as ts.ImportDeclaration[])
   const importSource = print(importNodes)
 

@@ -24,29 +24,28 @@ export class ImportsGenerator extends Generator<Options> {
     }
 
     // add imports based on $ref
-    const importPromises = uniq(Object.keys(refs))
-      .filter(($ref: string) => {
-        // when using a $ref inside a type we should not repeat that import
-        const { key } = refs[$ref]
+    const importPromises = uniq(Object.keys(refs)).map(async ($ref: string) => {
+      const { key, name, as } = refs[$ref]
 
-        return !items.find((item) => item.name.toLowerCase() === key.toLowerCase())
+      const exists = items.some((item) => item.name.toLowerCase() === key.toLowerCase())
+
+      if (exists && !as) {
+        return undefined
+      }
+
+      const path = this.options.fileResolver?.(name) || `./${name}`
+
+      // TODO weird hacky fix
+      if (path === './' || path === '.') {
+        return undefined
+      }
+
+      return createImportDeclaration({
+        name: [{ propertyName: name, name: as }],
+        path: path.replace('./../', '../'),
+        isTypeOnly: false,
       })
-      .map(async ($ref: string) => {
-        const { name } = refs[$ref]
-
-        const path = this.options.fileResolver?.(name) || `./${name}`
-
-        // TODO weird hacky fix
-        if (path === './' || path === '.') {
-          return undefined
-        }
-
-        return createImportDeclaration({
-          name: [name],
-          path: path.replace('./../', '../'),
-          asType: false,
-        })
-      })
+    })
 
     const nodes = await Promise.all(importPromises)
 

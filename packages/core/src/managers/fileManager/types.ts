@@ -1,13 +1,13 @@
 type Import = {
   name: string | string[]
   path: string
-  asType?: boolean
+  isTypeOnly?: boolean
 }
 
 type Export = {
   name?: string | string[]
   path: string
-  asType?: boolean
+  isTypeOnly?: boolean
   asAlias?: boolean
 }
 

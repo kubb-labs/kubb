@@ -14,7 +14,7 @@ describe('FileManager utils', () => {
         {
           name: ['Pets'],
           path: './Pets',
-          asType: true,
+          isTypeOnly: true,
         },
       ],
     })
@@ -35,7 +35,7 @@ describe('FileManager utils', () => {
         {
           name: 'Pets',
           path: './Pets',
-          asType: true,
+          isTypeOnly: true,
         },
       ],
     })

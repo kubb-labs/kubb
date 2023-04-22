@@ -24,30 +24,30 @@ export class ImportsGenerator extends Generator<Options> {
     }
 
     // add imports based on $ref
-    const importPromises = uniq(Object.keys(refs))
-      .filter(($ref: string) => {
-        // when using a $ref inside a type we should not repeat that import
-        const { key } = refs[$ref]
-        return !items.find((item) =>
-          item.sources.find((node: ts.Node) => (node as ts.TypeAliasDeclaration).name?.escapedText.toString().toLowerCase() === key.toLowerCase())
-        )
+    const importPromises = uniq(Object.keys(refs)).map(async ($ref: string) => {
+      const { key, name, as } = refs[$ref]
+
+      const exists = items.some((item) =>
+        item.sources.find((node: ts.Node) => (node as ts.TypeAliasDeclaration).name?.escapedText.toString().toLowerCase() === key.toLowerCase())
+      )
+
+      if (exists && !as) {
+        return undefined
+      }
+
+      const path = this.options.fileResolver?.(name) || `./${name}`
+
+      // TODO weird hacky fix
+      if (path === './' || path === '.') {
+        return undefined
+      }
+
+      return createImportDeclaration({
+        name: [{ propertyName: name, name: as }],
+        path: path.replace('./../', '../'),
+        isTypeOnly: true,
       })
-      .map(async ($ref: string) => {
-        const { name } = refs[$ref]
-
-        const path = this.options.fileResolver?.(name) || `./${name}`
-
-        // TODO weird hacky fix
-        if (path === './' || path === '.') {
-          return undefined
-        }
-
-        return createImportDeclaration({
-          name: [name],
-          path: path.replace('./../', '../'),
-          asType: true,
-        })
-      })
+    })
 
     const nodes = await Promise.all(importPromises)
 

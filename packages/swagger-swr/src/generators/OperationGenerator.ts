@@ -251,7 +251,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: ['SWRConfiguration', 'SWRResponse'],
           path: 'swr',
-          asType: true,
+          isTypeOnly: true,
         },
         {
           name: 'client',
@@ -260,7 +260,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, ...errors.map((error) => error.name)].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
-          asType: true,
+          isTypeOnly: true,
         },
       ],
     }
@@ -329,7 +329,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: ['SWRMutationConfiguration'],
           path: 'swr/mutation',
-          asType: true,
+          isTypeOnly: true,
         },
         {
           name: 'client',
@@ -344,7 +344,7 @@ export class OperationGenerator extends Generator<Options> {
             ...errors.map((error) => error.name),
           ].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
-          asType: true,
+          isTypeOnly: true,
         },
       ],
     }
@@ -412,7 +412,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: ['SWRMutationConfiguration'],
           path: 'swr/mutation',
-          asType: true,
+          isTypeOnly: true,
         },
         {
           name: 'client',
@@ -427,7 +427,7 @@ export class OperationGenerator extends Generator<Options> {
             ...errors.map((error) => error.name),
           ].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
-          asType: true,
+          isTypeOnly: true,
         },
       ],
     }
@@ -496,7 +496,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: ['SWRMutationConfiguration'],
           path: 'swr/mutation',
-          asType: true,
+          isTypeOnly: true,
         },
         {
           name: 'client',
@@ -511,7 +511,7 @@ export class OperationGenerator extends Generator<Options> {
             ...errors.map((error) => error.name),
           ].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
-          asType: true,
+          isTypeOnly: true,
         },
       ],
     }

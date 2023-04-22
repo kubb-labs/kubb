@@ -2,6 +2,7 @@
 import ts from 'typescript'
 import { pascalCase, camelCase } from 'change-case'
 import uniq from 'lodash.uniq'
+import uniqueId from 'lodash.uniqueId'
 
 import type { PluginContext } from '@kubb/core'
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
@@ -27,8 +28,9 @@ const { factory } = ts
 /**
  * Name is the ref name + resolved with the nameResolver
  * Key is the original name used
+ * As is used to make the type more unique when multiple same names are used
  */
-export type Refs = Record<string, { name: string; key: string }>
+export type Refs = Record<string, { name: string; key: string; as?: string }>
 
 type Options = {
   withJSDocs?: boolean
@@ -54,9 +56,9 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     return this
   }
 
-  build(schema: OpenAPIV3.SchemaObject, name: string, description?: string) {
+  build(schema: OpenAPIV3.SchemaObject, baseName: string, description?: string) {
     const nodes: ts.Node[] = []
-    const type = this.getTypeFromSchema(schema, name)
+    const type = this.getTypeFromSchema(schema, baseName)
 
     if (!type) {
       return this.extraNodes
@@ -64,7 +66,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     const node = createTypeAliasDeclaration({
       modifiers: [modifier.export],
-      name: this.options.resolveName({ name, pluginName }) || name,
+      name: this.options.resolveName({ name: baseName, pluginName }) || baseName,
       type,
     })
 
@@ -166,18 +168,32 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
-  private getRefAlias(obj: OpenAPIV3.ReferenceObject) {
+  private getRefAlias(obj: OpenAPIV3.ReferenceObject, baseName?: string) {
     const { $ref } = obj
     let ref = this.refs[$ref]
 
-    if (!ref) {
-      const name = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
+    if (ref) {
+      return factory.createTypeReferenceNode(ref.name, undefined)
+    }
 
+    const key = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
+    const name = this.options.resolveName({ name: key, pluginName }) || key
+
+    if (key === baseName) {
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
-        name: this.options.resolveName({ name, pluginName }) || name,
-        key: name,
+        name,
+        key,
+        as: uniqueId(name),
       }
+
+      return factory.createTypeReferenceNode(ref.as!, undefined)
+    }
+
+    // eslint-disable-next-line no-multi-assign
+    ref = this.refs[$ref] = {
+      name,
+      key,
     }
 
     return factory.createTypeReferenceNode(ref.name, undefined)
@@ -187,13 +203,13 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, name?: string): ts.TypeNode | null {
+  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): ts.TypeNode | null {
     if (!schema) {
       return keywordTypeNodes.any
     }
 
     if (isReference(schema)) {
-      return this.getRefAlias(schema)
+      return this.getRefAlias(schema, baseName)
     }
 
     if (schema.oneOf) {
@@ -202,7 +218,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       return createIntersectionDeclaration({
         nodes: [
-          this.getBaseTypeFromSchema(schemaWithoutOneOf, name),
+          this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName),
           factory.createParenthesizedType(
             factory.createUnionTypeNode(
               schema.oneOf
@@ -225,7 +241,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       return createIntersectionDeclaration({
         nodes: [
-          this.getBaseTypeFromSchema(schemaWithoutAllOf, name),
+          this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName),
           factory.createParenthesizedType(
             factory.createIntersectionTypeNode(
               schema.allOf
@@ -239,8 +255,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       })
     }
 
-    if (schema.enum && name) {
-      const enumName = getUniqueName(name, TypeGenerator.usedEnumNames)
+    if (schema.enum && baseName) {
+      const enumName = getUniqueName(baseName, TypeGenerator.usedEnumNames)
 
       let enums: [key: string, value: string | number][] = uniq(schema.enum)!.map((key) => [key, key])
 
@@ -263,7 +279,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if ('items' in schema) {
       // items -> array
-      const node = this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, name)
+      const node = this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName)
       if (node) {
         return factory.createArrayTypeNode(node)
       }
@@ -271,7 +287,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      return this.getTypeFromProperties(schema, name)
+      return this.getTypeFromProperties(schema, baseName)
     }
 
     if (schema.type) {
@@ -286,7 +302,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
                 ...schema,
                 type,
               },
-              name
+              baseName
             )!,
             nullable ? factory.createLiteralTypeNode(factory.createNull()) : undefined,
           ].filter(Boolean) as ts.TypeNode[]

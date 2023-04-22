@@ -193,7 +193,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: ['VueMutationObserverOptions'],
           path: '@tanstack/vue-query/build/lib/useMutation',
-          asType: true,
+          isTypeOnly: true,
         },
         {
           name: Object.values(this.getFrameworkSpecificImports('vue')[type]).filter((item) => item !== 'VueMutationObserverOptions'),
@@ -428,7 +428,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, ...errors.map((error) => error.name)].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
-          asType: true,
+          isTypeOnly: true,
         },
       ],
     }
@@ -500,7 +500,7 @@ export class OperationGenerator extends Generator<Options> {
             ...errors.map((error) => error.name),
           ].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
-          asType: true,
+          isTypeOnly: true,
         },
       ],
     }
@@ -573,7 +573,7 @@ export class OperationGenerator extends Generator<Options> {
             ...errors.map((error) => error.name),
           ].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
-          asType: true,
+          isTypeOnly: true,
         },
       ],
     }
@@ -648,7 +648,7 @@ export class OperationGenerator extends Generator<Options> {
             ...errors.map((error) => error.name),
           ].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
-          asType: true,
+          isTypeOnly: true,
         },
       ],
     }

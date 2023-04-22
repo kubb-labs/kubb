@@ -545,8 +545,10 @@ importers:
       '@kubb/swagger': workspace:*
       '@kubb/ts-codegen': workspace:*
       '@types/lodash.uniq': ^4.5.7
+      '@types/lodash.uniqueid': ^4.0.7
       change-case: ^4.1.2
       lodash.uniq: ^4.5.0
+      lodash.uniqueid: ^4.0.1
       tsup: ^6.7.0
       typescript: ^5.0.4
     dependencies:
@@ -555,9 +557,11 @@ importers:
       '@kubb/ts-codegen': link:../ts-codegen
       change-case: 4.1.2
       lodash.uniq: 4.5.0
+      lodash.uniqueid: 4.0.1
       typescript: 5.0.4
     devDependencies:
       '@types/lodash.uniq': 4.5.7
+      '@types/lodash.uniqueid': 4.0.7
       tsup: 6.7.0_typescript@5.0.4
 
   packages/swagger-zod:
@@ -566,8 +570,10 @@ importers:
       '@kubb/swagger': workspace:*
       '@kubb/ts-codegen': workspace:*
       '@types/lodash.uniq': ^4.5.7
+      '@types/lodash.uniqueid': ^4.0.7
       change-case: ^4.1.2
       lodash.uniq: ^4.5.0
+      lodash.uniqueid: ^4.0.1
       tsup: ^6.7.0
       typescript: ^5.0.4
     dependencies:
@@ -576,8 +582,10 @@ importers:
       '@kubb/ts-codegen': link:../ts-codegen
       change-case: 4.1.2
       lodash.uniq: 4.5.0
+      lodash.uniqueid: 4.0.1
     devDependencies:
       '@types/lodash.uniq': 4.5.7
+      '@types/lodash.uniqueid': 4.0.7
       tsup: 6.7.0_typescript@5.0.4
       typescript: 5.0.4
 
@@ -1895,6 +1903,12 @@ packages:
 
   /@types/lodash.uniq/4.5.7:
     resolution: {integrity: sha512-qg7DeAbdZMi6DGvCxThlJycykLLhETrJrQZ6F2KaZ+o0sNK1qRHz46lgNA+nHHjwrmA2a91DyiZTp3ey3m1rEw==}
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: true
+
+  /@types/lodash.uniqueid/4.0.7:
+    resolution: {integrity: sha512-ipMGW5nR+DTR6U5O08k1Ufr1F9iH+F3p7bhdwsnq6V6nCn/HgMq22UalDq4n91+03+pHFKyeXV1Y7vdJrm7S4g==}
     dependencies:
       '@types/lodash': 4.14.191
     dev: true
@@ -5558,6 +5572,10 @@ packages:
 
   /lodash.uniq/4.5.0:
     resolution: {integrity: sha512-xfBaXQd9ryd9dlSDvnvI0lvxfLJlYAZzXomUYzLKtUeOQvOP5piqAWuGtrhWeqaXK9hhoM/iyJc5AV+XfsX3HQ==}
+
+  /lodash.uniqueid/4.0.1:
+    resolution: {integrity: sha512-GQQWaIeGlL6DIIr06kj1j6sSmBxyNMwI8kaX9aKpHR/XsMTiaXDVPNPAkiboOTK9OJpTJF/dXT3xYoFQnj386Q==}
+    dev: false
 
   /lodash.upperfirst/4.3.1:
     resolution: {integrity: sha512-sReKOYJIJf74dhJONhU4e0/shzi1trVbSWDOhKYE5XV2O+H7Sb2Dihwuc7xWxVl+DgFPyTqIN3zMfT9cq5iWDg==}
