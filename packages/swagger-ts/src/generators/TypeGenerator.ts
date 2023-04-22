@@ -2,7 +2,7 @@
 import ts from 'typescript'
 import { pascalCase, camelCase } from 'change-case'
 import uniq from 'lodash.uniq'
-import uniqueId from 'lodash.uniqueId'
+import uniqueId from 'lodash.uniqueid'
 
 import type { PluginContext } from '@kubb/core'
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
