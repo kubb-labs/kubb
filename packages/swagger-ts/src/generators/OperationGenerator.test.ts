@@ -36,7 +36,7 @@ describe('OperationGenerator', () => {
     /**
     * @description A paged array of pets
     */
-    export type ListPetsResponse = Pets;
+    export type ListPetsQueryResponse = Pets;
     `)
     )
 
@@ -65,7 +65,7 @@ describe('OperationGenerator', () => {
     /**
     * @description Expected response to a valid request
     */
-    export type ShowPetByIdResponse = Pet;
+    export type ShowPetByIdQueryResponse = Pet;
     
     `)
     )
@@ -85,7 +85,7 @@ describe('OperationGenerator', () => {
        */
        export type CreatePets201 = any | null;
        
-       export type CreatePetsRequest = {
+       export type CreatePetsMutationRequest = {
            /**
            * @type string
            */
@@ -96,7 +96,7 @@ describe('OperationGenerator', () => {
            tag: string;
        };
        
-       export type CreatePetsResponse = any | null;
+       export type CreatePetsMutationResponse = any | null;
        
        /**
        * @description unexpected error

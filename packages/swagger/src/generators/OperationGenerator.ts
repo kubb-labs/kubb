@@ -50,33 +50,39 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
   }
 
   public getSchemas(operation: Operation): OperationSchemas {
-    const pathSchema = this.getParametersSchema(operation, 'path')
-    const querySchema = this.getParametersSchema(operation, 'query')
+    const pathParamsSchema = this.getParametersSchema(operation, 'path')
+    const queryParamsSchema = this.getParametersSchema(operation, 'query')
     const requestSchema = (operation.getRequestBody('application/json') as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject
     const responseSchema = operation.getResponseAsJSONSchema('200')?.at(0)?.schema as OpenAPIV3.SchemaObject
 
     return {
-      pathParams: pathSchema
+      pathParams: pathParamsSchema
         ? {
-            name: pascalCase(`${operation.getOperationId()} "PathParams"`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            schema: pathSchema,
+            name: pascalCase(`${operation.getOperationId()} PathParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            schema: pathParamsSchema,
           }
         : undefined,
-      queryParams: querySchema
+      queryParams: queryParamsSchema
         ? {
-            name: pascalCase(`${operation.getOperationId()} "QueryParams"`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            schema: querySchema,
+            name: pascalCase(`${operation.getOperationId()} QueryParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            schema: queryParamsSchema,
           }
         : undefined,
       request: requestSchema
         ? {
-            name: pascalCase(`${operation.getOperationId()} "Request"`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            name: pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`, {
+              delimiter: '',
+              transform: pascalCaseTransformMerge,
+            }),
             description: (operation.schema.requestBody as RequestBodyObject)?.description,
             schema: requestSchema,
           }
         : undefined,
       response: {
-        name: pascalCase(`${operation.getOperationId()} "Response"`, { delimiter: '', transform: pascalCaseTransformMerge }),
+        name: pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`, {
+          delimiter: '',
+          transform: pascalCaseTransformMerge,
+        }),
         description: operation.getResponseAsJSONSchema('200')?.at(0)?.description,
         schema: responseSchema,
         statusCode: 200,

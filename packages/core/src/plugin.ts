@@ -1,6 +1,6 @@
 import pathParser from 'path'
 
-import { createPluginCache } from './utils'
+import { createPluginCache, transformReservedWord } from './utils'
 
 import type { FileManager } from './managers/fileManager'
 import type { PluginContext, KubbPlugin, PluginFactoryOptions } from './types'
@@ -52,7 +52,11 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
       return Promise.all(files.map((file) => (file.override ? fileManager.add(file) : fileManager.addOrAppend(file))))
     },
     resolvePath,
-    resolveName,
+    resolveName: (params) => {
+      const name = resolveName(params)
+
+      return transformReservedWord(name)
+    },
     load,
     cache: createPluginCache(Object.create(null)),
   }
