@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-beta.18](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.0.0-beta.17...@kubb/ts-codegen-v1.0.0-beta.18) (2023-04-22)
+
+
+### Bug Fixes
+
+* duplicate import names ([7a8e6fa](https://github.com/kubb-project/kubb/commit/7a8e6fa3f00e37c771b15fb0287adc1dd166acb7))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.18 ([4f172c8](https://github.com/kubb-project/kubb/commit/4f172c860d60a22086553c6899527532763c4b07))
+
 ## [1.0.0-beta.17](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.0.0-beta.16...@kubb/ts-codegen-v1.0.0-beta.17) (2023-04-16)
 
 
