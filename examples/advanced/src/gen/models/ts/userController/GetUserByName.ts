@@ -20,4 +20,4 @@ export type GetUserByNamePathParams = {
 /**
  * @description successful operation
  */
-export type GetUserByNameResponse = User
+export type GetUserByNameQueryResponse = User

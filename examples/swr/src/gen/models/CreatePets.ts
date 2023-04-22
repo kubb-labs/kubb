@@ -1,7 +1,7 @@
 import type { Error } from './Error'
 import type { Pet } from './Pet'
 
-export type CreatePetsRequest = {
+export type CreatePetsMutationRequest = {
   /**
    * @type string
    */
@@ -20,4 +20,4 @@ export type CreatePetsError = Error
 /**
  * @description Created Pet
  */
-export type CreatePetsResponse = Pet
+export type CreatePetsMutationResponse = Pet

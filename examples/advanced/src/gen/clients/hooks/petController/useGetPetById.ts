@@ -3,11 +3,11 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetPetByIdResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
 
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [`/pet/${petId}`] as const
 
-export function getPetByIdQueryOptions<TData = GetPetByIdResponse, TError = GetPetById400 | GetPetById404>(
+export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
   petId: GetPetByIdPathParams['petId']
 ): QueryOptions<TData, TError> {
   const queryKey = getPetByIdQueryKey(petId)
@@ -28,7 +28,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdResponse, TError = GetP
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-export function useGetPetById<TData = GetPetByIdResponse, TError = GetPetById400 | GetPetById404>(
+export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
   petId: GetPetByIdPathParams['petId'],
   options?: { query?: UseQueryOptions<TData, TError> }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {

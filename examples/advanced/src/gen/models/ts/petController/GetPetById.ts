@@ -20,4 +20,4 @@ export type GetPetByIdPathParams = {
 /**
  * @description successful operation
  */
-export type GetPetByIdResponse = Pet
+export type GetPetByIdQueryResponse = Pet

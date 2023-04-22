@@ -20,4 +20,4 @@ export type ShowPetByIdError = Error
 /**
  * @description Expected response to a valid request
  */
-export type ShowPetByIdResponse = Pet
+export type ShowPetByIdQueryResponse = Pet

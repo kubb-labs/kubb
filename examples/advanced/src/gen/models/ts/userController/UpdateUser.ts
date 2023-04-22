@@ -5,6 +5,8 @@ import type { User } from '../User'
  */
 export type UpdateUserError = any | null
 
+export type UpdateUserMutationResponse = any | null
+
 export type UpdateUserPathParams = {
   /**
    * @type string
@@ -12,9 +14,7 @@ export type UpdateUserPathParams = {
   username: string
 }
 
-export type UpdateUserResponse = any | null
-
 /**
  * @description Update an existent user in the store
  */
-export type UpdateUserRequest = User
+export type UpdateUserMutationRequest = User

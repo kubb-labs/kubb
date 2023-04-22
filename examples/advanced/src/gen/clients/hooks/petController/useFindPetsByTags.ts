@@ -3,11 +3,11 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { FindPetsByTagsResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../../../models/ts/petController/FindPetsByTags'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../../../models/ts/petController/FindPetsByTags'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [`/pet/findByTags`, ...(params ? [params] : [])] as const
 
-export function findPetsByTagsQueryOptions<TData = FindPetsByTagsResponse, TError = FindPetsByTags400>(
+export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
   params?: FindPetsByTagsQueryParams
 ): QueryOptions<TData, TError> {
   const queryKey = findPetsByTagsQueryKey(params)
@@ -29,7 +29,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsResponse, TErro
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export function useFindPetsByTags<TData = FindPetsByTagsResponse, TError = FindPetsByTags400>(
+export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
   params?: FindPetsByTagsQueryParams,
   options?: { query?: UseQueryOptions<TData, TError> }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {

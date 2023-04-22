@@ -1,29 +1,29 @@
 import { makeApi, Zodios } from '@zodios/core'
 
-import { addPetResponseSchema, addPet405Schema } from './zod/addPetSchema'
-import { updatePetResponseSchema, updatePet400Schema, updatePet404Schema, updatePet405Schema } from './zod/updatePetSchema'
-import { findPetsByStatusResponseSchema, findPetsByStatusQueryParamsSchema, findPetsByStatus400Schema } from './zod/findPetsByStatusSchema'
-import { findPetsByTagsResponseSchema, findPetsByTagsQueryParamsSchema, findPetsByTags400Schema } from './zod/findPetsByTagsSchema'
-import { getPetByIdResponseSchema, getPetByIdPathParamsSchema, getPetById400Schema, getPetById404Schema } from './zod/getPetByIdSchema'
+import { addPetMutationResponseSchema, addPet405Schema } from './zod/addPetSchema'
+import { updatePetMutationResponseSchema, updatePet400Schema, updatePet404Schema, updatePet405Schema } from './zod/updatePetSchema'
+import { findPetsByStatusQueryResponseSchema, findPetsByStatusQueryParamsSchema, findPetsByStatus400Schema } from './zod/findPetsByStatusSchema'
+import { findPetsByTagsQueryResponseSchema, findPetsByTagsQueryParamsSchema, findPetsByTags400Schema } from './zod/findPetsByTagsSchema'
+import { getPetByIdQueryResponseSchema, getPetByIdPathParamsSchema, getPetById400Schema, getPetById404Schema } from './zod/getPetByIdSchema'
 import {
-  updatePetWithFormResponseSchema,
+  updatePetWithFormMutationResponseSchema,
   updatePetWithFormPathParamsSchema,
   updatePetWithFormQueryParamsSchema,
   updatePetWithForm405Schema,
 } from './zod/updatePetWithFormSchema'
-import { deletePetResponseSchema, deletePetPathParamsSchema, deletePet400Schema } from './zod/deletePetSchema'
-import { uploadFileResponseSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from './zod/uploadFileSchema'
-import { getInventoryResponseSchema } from './zod/getInventorySchema'
-import { placeOrderResponseSchema, placeOrder405Schema } from './zod/placeOrderSchema'
-import { getOrderByIdResponseSchema, getOrderByIdPathParamsSchema, getOrderById400Schema, getOrderById404Schema } from './zod/getOrderByIdSchema'
-import { deleteOrderResponseSchema, deleteOrderPathParamsSchema, deleteOrder400Schema, deleteOrder404Schema } from './zod/deleteOrderSchema'
-import { createUserResponseSchema } from './zod/createUserSchema'
-import { createUsersWithListInputResponseSchema } from './zod/createUsersWithListInputSchema'
-import { loginUserResponseSchema, loginUserQueryParamsSchema, loginUser400Schema } from './zod/loginUserSchema'
-import { logoutUserResponseSchema } from './zod/logoutUserSchema'
-import { getUserByNameResponseSchema, getUserByNamePathParamsSchema, getUserByName400Schema, getUserByName404Schema } from './zod/getUserByNameSchema'
-import { updateUserResponseSchema, updateUserPathParamsSchema } from './zod/updateUserSchema'
-import { deleteUserResponseSchema, deleteUserPathParamsSchema, deleteUser400Schema, deleteUser404Schema } from './zod/deleteUserSchema'
+import { deletePetMutationResponseSchema, deletePetPathParamsSchema, deletePet400Schema } from './zod/deletePetSchema'
+import { uploadFileMutationResponseSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from './zod/uploadFileSchema'
+import { getInventoryQueryResponseSchema } from './zod/getInventorySchema'
+import { placeOrderMutationResponseSchema, placeOrder405Schema } from './zod/placeOrderSchema'
+import { getOrderByIdQueryResponseSchema, getOrderByIdPathParamsSchema, getOrderById400Schema, getOrderById404Schema } from './zod/getOrderByIdSchema'
+import { deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema, deleteOrder400Schema, deleteOrder404Schema } from './zod/deleteOrderSchema'
+import { createUserMutationResponseSchema } from './zod/createUserSchema'
+import { createUsersWithListInputMutationResponseSchema } from './zod/createUsersWithListInputSchema'
+import { loginUserQueryResponseSchema, loginUserQueryParamsSchema, loginUser400Schema } from './zod/loginUserSchema'
+import { logoutUserQueryResponseSchema } from './zod/logoutUserSchema'
+import { getUserByNameQueryResponseSchema, getUserByNamePathParamsSchema, getUserByName400Schema, getUserByName404Schema } from './zod/getUserByNameSchema'
+import { updateUserMutationResponseSchema, updateUserPathParamsSchema } from './zod/updateUserSchema'
+import { deleteUserMutationResponseSchema, deleteUserPathParamsSchema, deleteUser400Schema, deleteUser404Schema } from './zod/deleteUserSchema'
 
 const endpoints = makeApi([
   {
@@ -32,7 +32,7 @@ const endpoints = makeApi([
     description: `Add a new pet to the store`,
     requestFormat: 'json',
     parameters: [],
-    response: addPetResponseSchema,
+    response: addPetMutationResponseSchema,
     errors: [
       {
         status: 405,
@@ -48,7 +48,7 @@ const endpoints = makeApi([
     description: `Update an existing pet by Id`,
     requestFormat: 'json',
     parameters: [],
-    response: updatePetResponseSchema,
+    response: updatePetMutationResponseSchema,
     errors: [
       {
         status: 400,
@@ -81,7 +81,7 @@ const endpoints = makeApi([
         schema: findPetsByStatusQueryParamsSchema,
       },
     ],
-    response: findPetsByStatusResponseSchema,
+    response: findPetsByStatusQueryResponseSchema,
     errors: [
       {
         status: 400,
@@ -104,7 +104,7 @@ const endpoints = makeApi([
         schema: findPetsByTagsQueryParamsSchema,
       },
     ],
-    response: findPetsByTagsResponseSchema,
+    response: findPetsByTagsQueryResponseSchema,
     errors: [
       {
         status: 400,
@@ -127,7 +127,7 @@ const endpoints = makeApi([
         schema: getPetByIdPathParamsSchema,
       },
     ],
-    response: getPetByIdResponseSchema,
+    response: getPetByIdQueryResponseSchema,
     errors: [
       {
         status: 400,
@@ -161,7 +161,7 @@ const endpoints = makeApi([
         schema: updatePetWithFormQueryParamsSchema,
       },
     ],
-    response: updatePetWithFormResponseSchema,
+    response: updatePetWithFormMutationResponseSchema,
     errors: [
       {
         status: 405,
@@ -184,7 +184,7 @@ const endpoints = makeApi([
         schema: deletePetPathParamsSchema,
       },
     ],
-    response: deletePetResponseSchema,
+    response: deletePetMutationResponseSchema,
     errors: [
       {
         status: 400,
@@ -213,7 +213,7 @@ const endpoints = makeApi([
         schema: uploadFileQueryParamsSchema,
       },
     ],
-    response: uploadFileResponseSchema,
+    response: uploadFileMutationResponseSchema,
     errors: [],
   },
 
@@ -223,7 +223,7 @@ const endpoints = makeApi([
     description: `Returns a map of status codes to quantities`,
     requestFormat: 'json',
     parameters: [],
-    response: getInventoryResponseSchema,
+    response: getInventoryQueryResponseSchema,
     errors: [],
   },
 
@@ -233,7 +233,7 @@ const endpoints = makeApi([
     description: `Place a new order in the store`,
     requestFormat: 'json',
     parameters: [],
-    response: placeOrderResponseSchema,
+    response: placeOrderMutationResponseSchema,
     errors: [
       {
         status: 405,
@@ -256,7 +256,7 @@ const endpoints = makeApi([
         schema: getOrderByIdPathParamsSchema,
       },
     ],
-    response: getOrderByIdResponseSchema,
+    response: getOrderByIdQueryResponseSchema,
     errors: [
       {
         status: 400,
@@ -284,7 +284,7 @@ const endpoints = makeApi([
         schema: deleteOrderPathParamsSchema,
       },
     ],
-    response: deleteOrderResponseSchema,
+    response: deleteOrderMutationResponseSchema,
     errors: [
       {
         status: 400,
@@ -305,7 +305,7 @@ const endpoints = makeApi([
     description: `This can only be done by the logged in user.`,
     requestFormat: 'json',
     parameters: [],
-    response: createUserResponseSchema,
+    response: createUserMutationResponseSchema,
     errors: [],
   },
 
@@ -315,7 +315,7 @@ const endpoints = makeApi([
     description: `Creates list of users with given input array`,
     requestFormat: 'json',
     parameters: [],
-    response: createUsersWithListInputResponseSchema,
+    response: createUsersWithListInputMutationResponseSchema,
     errors: [],
   },
 
@@ -332,7 +332,7 @@ const endpoints = makeApi([
         schema: loginUserQueryParamsSchema,
       },
     ],
-    response: loginUserResponseSchema,
+    response: loginUserQueryResponseSchema,
     errors: [
       {
         status: 400,
@@ -348,7 +348,7 @@ const endpoints = makeApi([
     description: ``,
     requestFormat: 'json',
     parameters: [],
-    response: logoutUserResponseSchema,
+    response: logoutUserQueryResponseSchema,
     errors: [],
   },
 
@@ -365,7 +365,7 @@ const endpoints = makeApi([
         schema: getUserByNamePathParamsSchema,
       },
     ],
-    response: getUserByNameResponseSchema,
+    response: getUserByNameQueryResponseSchema,
     errors: [
       {
         status: 400,
@@ -393,7 +393,7 @@ const endpoints = makeApi([
         schema: updateUserPathParamsSchema,
       },
     ],
-    response: updateUserResponseSchema,
+    response: updateUserMutationResponseSchema,
     errors: [],
   },
 
@@ -410,7 +410,7 @@ const endpoints = makeApi([
         schema: deleteUserPathParamsSchema,
       },
     ],
-    response: deleteUserResponseSchema,
+    response: deleteUserMutationResponseSchema,
     errors: [
       {
         status: 400,

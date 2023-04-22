@@ -20,9 +20,9 @@ export const updatePet405Schema = z.any()
 /**
  * @description Update an existent pet in the store
  */
-export const updatePetRequestSchema = z.lazy(() => petSchema)
+export const updatePetMutationRequestSchema = z.lazy(() => petSchema)
 
 /**
  * @description Successful operation
  */
-export const updatePetResponseSchema = z.lazy(() => petSchema)
+export const updatePetMutationResponseSchema = z.lazy(() => petSchema)

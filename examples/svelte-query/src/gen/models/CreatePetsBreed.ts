@@ -1,14 +1,7 @@
 import type { Error } from './Error'
 import type { Pet } from './Pet'
 
-export type CreatePetsBreedPathParams = {
-  /**
-   * @type string
-   */
-  breed: string
-}
-
-export type CreatePetsBreedRequest = {
+export type CreatePetsBreedMutationRequest = {
   /**
    * @type string
    */
@@ -19,6 +12,13 @@ export type CreatePetsBreedRequest = {
   tag: string
 }
 
+export type CreatePetsBreedPathParams = {
+  /**
+   * @type string
+   */
+  breed: string
+}
+
 /**
  * @description unexpected error
  */
@@ -27,4 +27,4 @@ export type CreatePetsBreedError = Error
 /**
  * @description Created Pet
  */
-export type CreatePetsBreedResponse = Pet
+export type CreatePetsBreedMutationResponse = Pet

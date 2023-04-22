@@ -15,4 +15,4 @@ export type FindPetsByTagsQueryParams = {
 /**
  * @description successful operation
  */
-export type FindPetsByTagsResponse = Pet[]
+export type FindPetsByTagsQueryResponse = Pet[]

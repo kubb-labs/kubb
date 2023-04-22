@@ -3,11 +3,11 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetInventoryResponse } from '../../../models/ts/storeController/GetInventory'
+import type { GetInventoryQueryResponse } from '../../../models/ts/storeController/GetInventory'
 
 export const getInventoryQueryKey = () => [`/store/inventory`] as const
 
-export function getInventoryQueryOptions<TData = GetInventoryResponse, TError = unknown>(): QueryOptions<TData, TError> {
+export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TError = unknown>(): QueryOptions<TData, TError> {
   const queryKey = getInventoryQueryKey()
 
   return {
@@ -26,7 +26,7 @@ export function getInventoryQueryOptions<TData = GetInventoryResponse, TError = 
  * @summary Returns pet inventories by status
  * @link /store/inventory
  */
-export function useGetInventory<TData = GetInventoryResponse, TError = unknown>(options?: {
+export function useGetInventory<TData = GetInventoryQueryResponse, TError = unknown>(options?: {
   query?: UseQueryOptions<TData, TError>
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}

@@ -3,7 +3,10 @@ import { useMutation } from '@tanstack/react-query'
 import client from '../../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { CreateUsersWithListInputRequest, CreateUsersWithListInputResponse } from '../../../models/ts/userController/CreateUsersWithListInput'
+import type {
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
+} from '../../../models/ts/userController/CreateUsersWithListInput'
 
 /**
  * @description Creates list of users with given input array
@@ -11,9 +14,9 @@ import type { CreateUsersWithListInputRequest, CreateUsersWithListInputResponse 
  * @link /user/createWithList
  */
 export function useCreateUsersWithListInput<
-  TData = CreateUsersWithListInputResponse,
+  TData = CreateUsersWithListInputMutationResponse,
   TError = unknown,
-  TVariables = CreateUsersWithListInputRequest
+  TVariables = CreateUsersWithListInputMutationRequest
 >(options?: { mutation?: UseMutationOptions<TData, TError, TVariables> }) {
   const { mutation: mutationOptions } = options ?? {}
 

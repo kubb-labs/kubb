@@ -16,7 +16,7 @@ export default defineConfig(async () => {
       clean: true,
     },
     hooks: {
-      done: 'npx eslint --fix ./src/gen',
+      done: ['npx eslint --fix ./src/gen', 'pnpm typecheck'],
     },
     // logLevel: 'info',
     plugins: [
@@ -31,6 +31,7 @@ export default defineConfig(async () => {
         },
       ],
       ['@kubb/swagger-tanstack-query', { output: './clients/hooks', groupBy: { type: 'tag' }, client: './src/client.ts' }],
+      ['@kubb/swagger-swr', { output: './clients/swr', groupBy: { type: 'tag' }, client: './src/client.ts' }],
       ['@kubb/swagger-client', { output: './clients/axios', groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' }, client: './src/client.ts' }],
       ['@kubb/swagger-zod', { output: './zod', groupBy: { type: 'tag' } }],
       ['@kubb/swagger-zodios', { output: 'zodios.ts' }],

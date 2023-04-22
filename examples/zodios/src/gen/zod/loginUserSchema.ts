@@ -9,4 +9,4 @@ export const loginUserQueryParamsSchema = z.object({ username: z.string().option
 /**
  * @description successful operation
  */
-export const loginUserResponseSchema = z.string()
+export const loginUserQueryResponseSchema = z.string()

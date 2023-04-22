@@ -3,14 +3,14 @@ import { useMutation } from '@tanstack/react-query'
 import client from '../../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { DeletePetResponse, DeletePetPathParams, DeletePet400 } from '../../../models/ts/petController/DeletePet'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePet400 } from '../../../models/ts/petController/DeletePet'
 
 /**
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-export function useDeletePet<TData = DeletePetResponse, TError = DeletePet400>(
+export function useDeletePet<TData = DeletePetMutationResponse, TError = DeletePet400>(
   petId: DeletePetPathParams['petId'],
   options?: {
     mutation?: UseMutationOptions<TData, TError>
@@ -19,7 +19,7 @@ export function useDeletePet<TData = DeletePetResponse, TError = DeletePet400>(
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError>({
-    mutationFn: (data) => {
+    mutationFn: () => {
       return client<TData, TError>({
         method: 'delete',
         url: `/pet/${petId}`,

@@ -10,9 +10,9 @@ export const addPet405Schema = z.any()
 /**
  * @description Create a new pet in the store
  */
-export const addPetRequestSchema = z.lazy(() => petSchema)
+export const addPetMutationRequestSchema = z.lazy(() => petSchema)
 
 /**
  * @description Successful operation
  */
-export const addPetResponseSchema = z.lazy(() => petSchema)
+export const addPetMutationResponseSchema = z.lazy(() => petSchema)

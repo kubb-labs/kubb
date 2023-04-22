@@ -3,6 +3,8 @@
  */
 export type UpdatePetWithForm405 = any | null
 
+export type UpdatePetWithFormMutationResponse = any | null
+
 export type UpdatePetWithFormPathParams = {
   /**
    * @type integer int64
@@ -20,5 +22,3 @@ export type UpdatePetWithFormQueryParams = {
    */
   status?: string | undefined
 }
-
-export type UpdatePetWithFormResponse = any | null

@@ -3,14 +3,14 @@ import { useMutation } from '@tanstack/react-query'
 import client from '../../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { DeleteOrderResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../../../models/ts/storeController/DeleteOrder'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../../../models/ts/storeController/DeleteOrder'
 
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-export function useDeleteOrder<TData = DeleteOrderResponse, TError = DeleteOrder400 | DeleteOrder404>(
+export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = DeleteOrder400 | DeleteOrder404>(
   orderId: DeleteOrderPathParams['orderId'],
   options?: {
     mutation?: UseMutationOptions<TData, TError>
@@ -19,7 +19,7 @@ export function useDeleteOrder<TData = DeleteOrderResponse, TError = DeleteOrder
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError>({
-    mutationFn: (data) => {
+    mutationFn: () => {
       return client<TData, TError>({
         method: 'delete',
         url: `/store/order/${orderId}`,

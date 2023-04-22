@@ -3,13 +3,13 @@ import { useMutation } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
-import type { CreatePetsBreedRequest, CreatePetsBreedResponse, CreatePetsBreedPathParams } from '../models/CreatePetsBreed'
+import type { CreatePetsBreedMutationRequest, CreatePetsBreedMutationResponse, CreatePetsBreedPathParams } from '../models/CreatePetsBreed'
 
 /**
  * @summary Create a pet breed
  * @link /pets/:breed
  */
-export function useCreatePetsBreed<TData = CreatePetsBreedResponse, TError = unknown, TVariables = CreatePetsBreedRequest>(
+export function useCreatePetsBreed<TData = CreatePetsBreedMutationResponse, TError = unknown, TVariables = CreatePetsBreedMutationRequest>(
   breed: CreatePetsBreedPathParams['breed'],
   options?: {
     mutation?: UseMutationOptions<TData, TError, TVariables>

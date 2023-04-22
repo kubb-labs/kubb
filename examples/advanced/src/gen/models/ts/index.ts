@@ -1,3 +1,4 @@
+export * from './AddPetRequest'
 export * from './Address'
 export * from './ApiResponse'
 export * from './Category'

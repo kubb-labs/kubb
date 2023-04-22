@@ -1,5 +1,6 @@
 import z from 'zod'
 
+import { addPetRequestSchema } from '../addPetRequestSchema'
 import { petSchema } from '../petSchema'
 
 /**
@@ -10,9 +11,9 @@ export const addPet405Schema = z.any()
 /**
  * @description Create a new pet in the store
  */
-export const addPetRequestSchema = z.lazy(() => petSchema)
+export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema)
 
 /**
  * @description Successful operation
  */
-export const addPetResponseSchema = z.lazy(() => petSchema)
+export const addPetMutationResponseSchema = z.lazy(() => petSchema)

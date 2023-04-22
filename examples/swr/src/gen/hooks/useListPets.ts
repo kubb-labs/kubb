@@ -3,9 +3,9 @@ import useSWR from 'swr'
 import client from '@kubb/swagger-client/client'
 
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { ListPetsResponse, ListPetsQueryParams } from '../models/ListPets'
+import type { ListPetsQueryResponse, ListPetsQueryParams } from '../models/ListPets'
 
-export function listPetsQueryOptions<TData = ListPetsResponse, TError = unknown>(params?: ListPetsQueryParams): SWRConfiguration<TData, TError> {
+export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unknown>(params?: ListPetsQueryParams): SWRConfiguration<TData, TError> {
   return {
     fetcher: () => {
       return client<TData, TError>({
@@ -21,14 +21,14 @@ export function listPetsQueryOptions<TData = ListPetsResponse, TError = unknown>
  * @summary List all pets
  * @link /pets
  */
-export function useListPets<TData = ListPetsResponse, TError = unknown>(
+export function useListPets<TData = ListPetsQueryResponse, TError = unknown>(
   params?: ListPetsQueryParams,
   options?: { query?: SWRConfiguration<TData, TError> }
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
 
   const query = useSWR<TData, TError, string>(`/pets`, {
-    ...listPetsQueryOptions<TData>(params),
+    ...listPetsQueryOptions<TData, TError>(params),
     ...queryOptions,
   })
 

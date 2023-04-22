@@ -3,4 +3,4 @@
  */
 export type LogoutUserError = any | null
 
-export type LogoutUserResponse = any | null
+export type LogoutUserQueryResponse = any | null

@@ -17,4 +17,4 @@ export type LoginUserQueryParams = {
 /**
  * @description successful operation
  */
-export type LoginUserResponse = string
+export type LoginUserQueryResponse = string

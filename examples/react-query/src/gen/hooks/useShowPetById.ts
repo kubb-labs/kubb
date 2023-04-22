@@ -3,11 +3,11 @@ import { useQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { ShowPetByIdResponse, ShowPetByIdPathParams } from '../models/ShowPetById'
+import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from '../models/ShowPetById'
 
 export const showPetByIdQueryKey = (petId: ShowPetByIdPathParams['petId'], testId: ShowPetByIdPathParams['testId']) => [`/pets/${petId}`] as const
 
-export function showPetByIdQueryOptions<TData = ShowPetByIdResponse, TError = unknown>(
+export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId']
 ): QueryOptions<TData, TError> {
@@ -28,7 +28,7 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdResponse, TError = un
  * @summary Info for a specific pet
  * @link /pets/:petId
  */
-export function useShowPetById<TData = ShowPetByIdResponse, TError = unknown>(
+export function useShowPetById<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
   options?: { query?: UseQueryOptions<TData, TError> }

@@ -5,9 +5,9 @@ import type { User } from '../User'
  */
 export type CreateUsersWithListInputError = any | null
 
-export type CreateUsersWithListInputRequest = User[]
+export type CreateUsersWithListInputMutationRequest = User[]
 
 /**
  * @description Successful operation
  */
-export type CreateUsersWithListInputResponse = User
+export type CreateUsersWithListInputMutationResponse = User

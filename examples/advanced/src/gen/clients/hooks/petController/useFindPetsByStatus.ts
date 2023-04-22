@@ -3,11 +3,11 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { FindPetsByStatusResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [`/pet/findByStatus`, ...(params ? [params] : [])] as const
 
-export function findPetsByStatusQueryOptions<TData = FindPetsByStatusResponse, TError = FindPetsByStatus400>(
+export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams
 ): QueryOptions<TData, TError> {
   const queryKey = findPetsByStatusQueryKey(params)
@@ -29,7 +29,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusResponse, T
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
-export function useFindPetsByStatus<TData = FindPetsByStatusResponse, TError = FindPetsByStatus400>(
+export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams,
   options?: { query?: UseQueryOptions<TData, TError> }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {

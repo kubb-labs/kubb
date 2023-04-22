@@ -3,13 +3,13 @@ import useSWRMutation from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
 
 import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { CreatePetsRequest, CreatePetsResponse } from '../models/CreatePets'
+import type { CreatePetsMutationRequest, CreatePetsMutationResponse } from '../models/CreatePets'
 
 /**
  * @summary Create a pet
  * @link /pets
  */
-export function useCreatePets<TData = CreatePetsResponse, TError = unknown, TVariables = CreatePetsRequest>(options?: {
+export function useCreatePets<TData = CreatePetsMutationResponse, TError = unknown, TVariables = CreatePetsMutationRequest>(options?: {
   mutation?: SWRMutationConfiguration<TData, TError, TVariables, string>
 }) {
   const { mutation: mutationOptions } = options ?? {}

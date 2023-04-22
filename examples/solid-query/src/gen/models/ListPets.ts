@@ -16,4 +16,4 @@ export type ListPetsError = Error
 /**
  * @description A paged array of pets
  */
-export type ListPetsResponse = Pets
+export type ListPetsQueryResponse = Pets

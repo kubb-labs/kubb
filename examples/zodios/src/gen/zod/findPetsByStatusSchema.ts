@@ -11,4 +11,4 @@ export const findPetsByStatusQueryParamsSchema = z.object({ status: z.enum([`ava
 /**
  * @description successful operation
  */
-export const findPetsByStatusResponseSchema = z.array(z.lazy(() => petSchema))
+export const findPetsByStatusQueryResponseSchema = z.array(z.lazy(() => petSchema))

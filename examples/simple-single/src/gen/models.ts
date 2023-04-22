@@ -64,14 +64,14 @@ export type ListPetsError = Error
 /**
  * @description A paged array of pets
  */
-export type ListPetsResponse = Pets
+export type ListPetsQueryResponse = Pets
 
 /**
  * @description Null response
  */
 export type CreatePets201 = any | null
 
-export type CreatePetsRequest = {
+export type CreatePetsMutationRequest = {
   /**
    * @type string
    */
@@ -90,7 +90,7 @@ export type CreatePetsError = Error
 /**
  * @description Expected response to a valid post
  */
-export type CreatePetsResponse = Pet
+export type CreatePetsMutationResponse = Pet
 
 export type ShowPetByIdPathParams = {
   /**
@@ -111,4 +111,4 @@ export type ShowPetByIdError = Error
 /**
  * @description Expected response to a valid request
  */
-export type ShowPetByIdResponse = Pet
+export type ShowPetByIdQueryResponse = Pet

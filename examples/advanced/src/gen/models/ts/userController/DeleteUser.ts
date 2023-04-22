@@ -8,11 +8,11 @@ export type DeleteUser400 = any | null
  */
 export type DeleteUser404 = any | null
 
+export type DeleteUserMutationResponse = any | null
+
 export type DeleteUserPathParams = {
   /**
    * @type string
    */
   username: string
 }
-
-export type DeleteUserResponse = any | null

@@ -3,11 +3,11 @@ import { createQuery } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
 
 import type { QueryKey, CreateQueryResult, CreateQueryOptions } from '@tanstack/solid-query'
-import type { ListPetsResponse, ListPetsQueryParams } from '../models/ListPets'
+import type { ListPetsQueryResponse, ListPetsQueryParams } from '../models/ListPets'
 
 export const listPetsQueryKey = (params?: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
 
-export function listPetsQueryOptions<TData = ListPetsResponse, TError = unknown>(params?: ListPetsQueryParams): CreateQueryOptions<TData, TError> {
+export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unknown>(params?: ListPetsQueryParams): CreateQueryOptions<TData, TError> {
   const queryKey = () => listPetsQueryKey(params)
 
   return {
@@ -26,7 +26,7 @@ export function listPetsQueryOptions<TData = ListPetsResponse, TError = unknown>
  * @summary List all pets
  * @link /pets
  */
-export function listPetsQuery<TData = ListPetsResponse, TError = unknown>(
+export function listPetsQuery<TData = ListPetsQueryResponse, TError = unknown>(
   params?: ListPetsQueryParams,
   options?: { query?: CreateQueryOptions<TData, TError> }
 ): CreateQueryResult<TData, TError> & { queryKey: QueryKey } {

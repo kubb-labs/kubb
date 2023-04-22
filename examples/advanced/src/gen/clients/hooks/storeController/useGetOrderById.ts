@@ -3,11 +3,11 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../../../../client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { GetOrderByIdResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../../../models/ts/storeController/GetOrderById'
+import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../../../models/ts/storeController/GetOrderById'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [`/store/order/${orderId}`] as const
 
-export function getOrderByIdQueryOptions<TData = GetOrderByIdResponse, TError = GetOrderById400 | GetOrderById404>(
+export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
   orderId: GetOrderByIdPathParams['orderId']
 ): QueryOptions<TData, TError> {
   const queryKey = getOrderByIdQueryKey(orderId)
@@ -28,7 +28,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdResponse, TError = 
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-export function useGetOrderById<TData = GetOrderByIdResponse, TError = GetOrderById400 | GetOrderById404>(
+export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
   orderId: GetOrderByIdPathParams['orderId'],
   options?: { query?: UseQueryOptions<TData, TError> }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {

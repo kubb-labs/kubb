@@ -1,12 +1,19 @@
 import client from '../../../../client'
 
-import type { UpdatePetWithFormResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams } from '../../../models/ts/petController/UpdatePetWithForm'
+import type {
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
+} from '../../../models/ts/petController/UpdatePetWithForm'
 
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function updatePetWithForm<TData = UpdatePetWithFormResponse>(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithFormQueryParams) {
+export function updatePetWithForm<TData = UpdatePetWithFormMutationResponse>(
+  petId: UpdatePetWithFormPathParams['petId'],
+  params?: UpdatePetWithFormQueryParams
+) {
   return client<TData>({
     method: 'post',
     url: `/pet/${petId}`,

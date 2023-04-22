@@ -1,3 +1,4 @@
+import type { AddPetRequest } from '../AddPetRequest'
 import type { Pet } from '../Pet'
 
 /**
@@ -8,9 +9,9 @@ export type AddPet405 = any | null
 /**
  * @description Create a new pet in the store
  */
-export type AddPetRequest = Pet
+export type AddPetMutationRequest = AddPetRequest
 
 /**
  * @description Successful operation
  */
-export type AddPetResponse = Pet
+export type AddPetMutationResponse = Pet

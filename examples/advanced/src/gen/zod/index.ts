@@ -1,6 +1,7 @@
 export * as petSchemas from './petController'
 export * as storeSchemas from './storeController'
 export * as userSchemas from './userController'
+export * from './addPetRequestSchema'
 export * from './addressSchema'
 export * from './apiResponseSchema'
 export * from './categorySchema'

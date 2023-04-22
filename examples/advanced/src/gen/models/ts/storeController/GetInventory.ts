@@ -1,6 +1,6 @@
 /**
  * @description successful operation
  */
-export type GetInventoryResponse = {
+export type GetInventoryQueryResponse = {
   [key: string]: number
 }

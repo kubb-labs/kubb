@@ -3,12 +3,12 @@ import { useQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import type { ListPetsBreedResponse, ListPetsBreedPathParams, ListPetsBreedQueryParams } from '../models/ListPetsBreed'
+import type { ListPetsBreedQueryResponse, ListPetsBreedPathParams, ListPetsBreedQueryParams } from '../models/ListPetsBreed'
 
 export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], params?: ListPetsBreedQueryParams) =>
   [`/pets/${breed}`, ...(params ? [params] : [])] as const
 
-export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse, TError = unknown>(
+export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams
 ): QueryOptions<TData, TError> {
@@ -30,7 +30,7 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse, TError 
  * @summary List all pets with breed
  * @link /pets/:breed
  */
-export function useListPetsBreed<TData = ListPetsBreedResponse, TError = unknown>(
+export function useListPetsBreed<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
   options?: { query?: UseQueryOptions<TData, TError> }

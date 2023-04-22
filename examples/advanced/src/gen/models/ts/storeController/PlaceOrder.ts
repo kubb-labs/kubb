@@ -5,9 +5,9 @@ import type { Order } from '../Order'
  */
 export type PlaceOrder405 = any | null
 
-export type PlaceOrderRequest = Order
+export type PlaceOrderMutationRequest = Order
 
 /**
  * @description successful operation
  */
-export type PlaceOrderResponse = Order
+export type PlaceOrderMutationResponse = Order
