@@ -5,13 +5,13 @@ import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { ListPetsBreedResponse, ListPetsBreedPathParams, ListPetsBreedQueryParams } from '../models/ListPetsBreed'
 
-export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse>(
+export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams
-): SWRConfiguration<TData> {
+): SWRConfiguration<TData, TError> {
   return {
     fetcher: () => {
-      return client<TData>({
+      return client<TData, TError>({
         method: 'get',
         url: `/pets/${breed}`,
         params,

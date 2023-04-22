@@ -5,15 +5,17 @@ type Options = {
 }
 
 export function objectToParameters(data: Data, options: Options = {}) {
+  const { typed } = options
+
   return data
     .reduce((acc, [key, value]) => {
-      if (options.typed) {
-        acc.push(`${key}: ${value}["${key}"], `)
+      if (typed) {
+        acc.push(`${key}: ${value}["${key}"]`)
       } else {
-        acc.push(`${key}, `)
+        acc.push(`${key}`)
       }
 
       return acc
     }, [] as string[])
-    .join('')
+    .join(', ')
 }

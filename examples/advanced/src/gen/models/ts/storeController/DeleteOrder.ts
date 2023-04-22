@@ -15,6 +15,4 @@ export type DeleteOrderPathParams = {
   orderId: number
 }
 
-export type DeleteOrderRequest = any | null
-
 export type DeleteOrderResponse = any | null

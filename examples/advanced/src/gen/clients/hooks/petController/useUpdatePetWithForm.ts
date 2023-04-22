@@ -4,7 +4,6 @@ import client from '../../../../client'
 
 import type { UseMutationOptions } from '@tanstack/react-query'
 import type {
-  UpdatePetWithFormRequest,
   UpdatePetWithFormResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
@@ -15,21 +14,21 @@ import type {
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function useUpdatePetWithForm<TData = UpdatePetWithFormResponse, TError = UpdatePetWithForm405, TVariables = UpdatePetWithFormRequest>(
+export function useUpdatePetWithForm<TData = UpdatePetWithFormResponse, TError = UpdatePetWithForm405>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options?: {
-    mutation?: UseMutationOptions<TData, TError, TVariables>
+    mutation?: UseMutationOptions<TData, TError>
   }
 ) {
   const { mutation: mutationOptions } = options ?? {}
 
-  return useMutation<TData, TError, TVariables>({
+  return useMutation<TData, TError>({
     mutationFn: (data) => {
-      return client<TData, TVariables>({
+      return client<TData, TError>({
         method: 'post',
         url: `/pet/${petId}`,
-        data,
+
         params,
       })
     },

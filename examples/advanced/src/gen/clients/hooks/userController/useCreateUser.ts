@@ -17,7 +17,7 @@ export function useCreateUser<TData = CreateUserResponse, TError = unknown, TVar
 
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
-      return client<TData, TVariables>({
+      return client<TData, TError, TVariables>({
         method: 'post',
         url: `/user`,
         data,

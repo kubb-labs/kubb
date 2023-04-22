@@ -13,7 +13,7 @@ export function listPetsQueryOptions<TData = ListPetsResponse, TError = unknown>
   return {
     queryKey,
     queryFn: () => {
-      return client<TData>({
+      return client<TData, TError>({
         method: 'get',
         url: `/pets`,
         params,

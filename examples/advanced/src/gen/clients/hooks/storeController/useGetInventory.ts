@@ -13,7 +13,7 @@ export function getInventoryQueryOptions<TData = GetInventoryResponse, TError = 
   return {
     queryKey,
     queryFn: () => {
-      return client<TData>({
+      return client<TData, TError>({
         method: 'get',
         url: `/store/inventory`,
       })

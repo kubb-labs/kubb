@@ -16,7 +16,7 @@ export function useCreatePets<TData = CreatePetsResponse, TError = CreatePets500
 
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
-      return client<TData, TVariables>({
+      return client<TData, TError, TVariables>({
         method: 'post',
         url: `/pets`,
         data,

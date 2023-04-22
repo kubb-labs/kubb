@@ -15,7 +15,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusResponse, T
   return {
     queryKey,
     queryFn: () => {
-      return client<TData>({
+      return client<TData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
         params,

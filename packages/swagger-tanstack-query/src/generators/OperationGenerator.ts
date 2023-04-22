@@ -232,21 +232,30 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
     }
 
+    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`].filter(Boolean)
+    const clientGenerics = ['TData', 'TError'].filter(Boolean)
+    const params = [
+      pathParamsTyped,
+      schemas.queryParams?.name ? `params?: ${schemas.queryParams.name}` : '',
+      `options?: { query?: ${imports.query.UseQueryOptions}<${clientGenerics.join(', ')}> }`,
+    ].filter(Boolean)
+    const paramsQueryOptions = [pathParamsTyped, schemas.queryParams?.name ? `params?: ${schemas.queryParams.name}` : ''].filter(Boolean)
+
     if (schemas.queryParams && !schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = (params?: ${schemas.queryParams.name}) => [${new Path(operation.path).template}, ...(params ? [params] : [])] as const;
+        export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new Path(operation.path).template}, ...(params ? [params] : [])] as const;
       `)
 
       sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' | ') || 'unknown'
-      }>(params?: ${schemas.queryParams.name}): ${imports.query.QueryOptions}<TData, TError> {
+        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(${paramsQueryOptions.join(', ')}): ${
+        imports.query.QueryOptions
+      }<${clientGenerics.join(', ')}> {
           const queryKey =${framework === 'solid' ? `() => ${queryKey}(params)` : `${queryKey}(params)`};
 
           return {
             queryKey,
             queryFn: () => {
-              return client<TData>({
+              return client<${clientGenerics.join(', ')}>({
                 method: "get",
                 url: ${new Path(operation.path).template},
                 params
@@ -258,16 +267,16 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}>(params?: ${
-        schemas.queryParams.name
-      }, options?: { query?: ${imports.query.UseQueryOptions}<TData, TError> }): ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey } {
+        export function ${hook.name} <${generics.join(',')}>(${params.join(', ')}): ${imports.query.UseQueryResult}<${clientGenerics.join(
+        ', '
+      )}> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(params);
           
-          const query = ${imports.query.useQuery}<TData, TError>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData, TError>(params),
+          const query = ${imports.query.useQuery}<${clientGenerics.join(', ')}>({
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(params),
             ...queryOptions
-          }) as ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey };
+          }) as ${imports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
 
           query.queryKey = queryKey as QueryKey;
 
@@ -278,19 +287,19 @@ export class OperationGenerator extends Generator<Options> {
 
     if (!schemas.queryParams && schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = (${pathParamsTyped}) => [${new Path(operation.path).template}] as const;
+        export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new Path(operation.path).template}] as const;
       `)
 
       sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' | ') || 'unknown'
-      }>(${pathParamsTyped}): ${imports.query.QueryOptions}<TData, TError> {
+        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(${paramsQueryOptions.join(', ')}): ${
+        imports.query.QueryOptions
+      }<${clientGenerics.join(', ')}> {
           const queryKey =${framework === 'solid' ? `() => ${queryKey}(${pathParams})` : `${queryKey}(${pathParams})`};
 
           return {
             queryKey,
             queryFn: () => {
-              return client<TData>({
+              return client<${clientGenerics.join(', ')}>({
                 method: "get",
                 url: ${new Path(operation.path).template}
               });
@@ -301,18 +310,16 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' | ') || 'unknown'
-      }>(${pathParamsTyped} options?: { query?: ${imports.query.UseQueryOptions}<TData, TError> }): ${
-        imports.query.UseQueryResult
-      }<TData, TError> & { queryKey: QueryKey } {
+        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): ${imports.query.UseQueryResult}<${clientGenerics.join(
+        ', '
+      )}> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(${pathParams});
           
-          const query = ${imports.query.useQuery}<TData, TError>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData, TError>(${pathParams}),
+          const query = ${imports.query.useQuery}<${clientGenerics.join(', ')}>({
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(${pathParams}),
             ...queryOptions
-          }) as ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey };
+          }) as ${imports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
 
           query.queryKey = queryKey as QueryKey;
 
@@ -323,21 +330,19 @@ export class OperationGenerator extends Generator<Options> {
 
     if (schemas.queryParams && schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = (${pathParamsTyped} params?: ${schemas.queryParams.name}) => [${
-        new Path(operation.path).template
-      }, ...(params ? [params] : [])] as const;
+        export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new Path(operation.path).template}, ...(params ? [params] : [])] as const;
       `)
 
       sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' | ') || 'unknown'
-      }>(${pathParamsTyped} params?: ${schemas.queryParams.name}): ${imports.query.QueryOptions}<TData, TError> {
-          const queryKey =${framework === 'solid' ? `() => ${queryKey}(${pathParams} params)` : `${queryKey}(${pathParams} params)`};
+        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(${paramsQueryOptions.join(', ')}): ${
+        imports.query.QueryOptions
+      }<${clientGenerics.join(', ')}> {
+          const queryKey =${framework === 'solid' ? `() => ${queryKey}(${pathParams}, params)` : `${queryKey}(${pathParams}, params)`};
 
           return {
             queryKey,
             queryFn: () => {
-              return client<TData>({
+              return client<${clientGenerics.join(', ')}>({
                 method: "get",
                 url: ${new Path(operation.path).template},
                 params
@@ -349,18 +354,16 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' | ') || 'unknown'
-      }>(${pathParamsTyped} params?: ${schemas.queryParams.name}, options?: { query?: ${imports.query.UseQueryOptions}<TData, TError> }): ${
-        imports.query.UseQueryResult
-      }<TData, TError> & { queryKey: QueryKey } {
+        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): ${imports.query.UseQueryResult}<${clientGenerics.join(
+        ', '
+      )}> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(${pathParams} params);
+          const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(${pathParams}, params);
           
-          const query = ${imports.query.useQuery}<TData, TError>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData, TError>(${pathParams} params),
+          const query = ${imports.query.useQuery}<${clientGenerics.join(', ')}>({
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(${pathParams}, params),
             ...queryOptions
-          }) as ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey };
+          }) as ${imports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
 
           query.queryKey = queryKey as QueryKey;
 
@@ -375,15 +378,15 @@ export class OperationGenerator extends Generator<Options> {
       `)
 
       sources.push(`
-      export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' | ') || 'unknown'
-      }>(): ${imports.query.QueryOptions}<TData, TError> {
+      export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(): ${imports.query.QueryOptions}<${clientGenerics.join(
+        ', '
+      )}> {
         const queryKey =${framework === 'solid' ? `() => ${queryKey}()` : `${queryKey}()`};
 
         return {
           queryKey,
           queryFn: () => {
-            return client<TData>({
+            return client<${clientGenerics.join(', ')}>({
               method: "get",
               url: ${new Path(operation.path).template}
             });
@@ -394,16 +397,16 @@ export class OperationGenerator extends Generator<Options> {
 
       sources.push(`
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${
-        errors.map((error) => error.name).join(' | ') || 'unknown'
-      }>(options?: { query?: ${imports.query.UseQueryOptions}<TData, TError> }): ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey } {
+        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): ${imports.query.UseQueryResult}<${clientGenerics.join(
+        ', '
+      )}> & { queryKey: QueryKey } {
           const { query: queryOptions } = options ?? {};
           const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}();
 
-          const query = ${imports.query.useQuery}<TData, TError>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData, TError>(),
+          const query = ${imports.query.useQuery}<${clientGenerics.join(', ')}>({
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(),
             ...queryOptions
-          }) as ${imports.query.UseQueryResult}<TData, TError> & { queryKey: QueryKey };
+          }) as ${imports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
 
           query.queryKey = queryKey as QueryKey;
 
@@ -445,22 +448,31 @@ export class OperationGenerator extends Generator<Options> {
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
     }
+    const generics = [
+      `TData = ${schemas.response.name}`,
+      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
+      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : '',
+    ].filter(Boolean)
+    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
+    const params = [
+      pathParamsTyped,
+      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
+      `options?: {
+        mutation?: ${imports.mutate.UseMutationOptions}<${clientGenerics.join(', ')}>
+    }`,
+    ].filter(Boolean)
 
     const source = `
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}, TVariables = ${
-      schemas.request.name
-    }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
-          mutation?: ${imports.mutate.UseMutationOptions}<TData, TError, TVariables>
-        }) {
+        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}) {
           const { mutation: mutationOptions } = options ?? {};
 
-          return ${imports.mutate.useMutation}<TData, TError, TVariables>({
+          return ${imports.mutate.useMutation}<${clientGenerics.join(', ')}>({
             mutationFn: (data) => {
-              return client<TData, TVariables>({
+              return client<${clientGenerics.join(', ')}>({
                 method: "post",
                 url: ${new Path(operation.path).template},
-                data,
+                ${schemas.request?.name ? 'data,' : ''}
                 ${schemas.queryParams?.name ? 'params,' : ''}
               });
             },
@@ -480,9 +492,13 @@ export class OperationGenerator extends Generator<Options> {
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
-          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, ...errors.map((error) => error.name)].filter(
-            Boolean
-          ) as string[],
+          name: [
+            schemas.request?.name,
+            schemas.response.name,
+            schemas.pathParams?.name,
+            schemas.queryParams?.name,
+            ...errors.map((error) => error.name),
+          ].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
           asType: true,
         },
@@ -505,21 +521,31 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
     }
 
+    const generics = [
+      `TData = ${schemas.response.name}`,
+      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
+      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : '',
+    ].filter(Boolean)
+    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
+    const params = [
+      pathParamsTyped,
+      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
+      `options?: {
+        mutation?: ${imports.mutate.UseMutationOptions}<${clientGenerics.join(', ')}>
+    }`,
+    ].filter(Boolean)
+
     const source = `
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}, TVariables = ${
-      schemas.request.name
-    }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
-          mutation?: ${imports.mutate.UseMutationOptions}<TData, TError, TVariables>
-        }) {
+        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}) {
           const { mutation: mutationOptions } = options ?? {};
 
-          return ${imports.mutate.useMutation}<TData, TError, TVariables>({
+          return ${imports.mutate.useMutation}<${clientGenerics.join(', ')}>({
             mutationFn: (data) => {
-              return client<TData, TVariables>({
+              return client<${clientGenerics.join(', ')}>({
                 method: "put",
                 url: ${new Path(operation.path).template},
-                data,
+                ${schemas.request?.name ? 'data,' : ''}
                 ${schemas.queryParams?.name ? 'params,' : ''}
               });
             },
@@ -539,9 +565,13 @@ export class OperationGenerator extends Generator<Options> {
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
-          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, ...errors.map((error) => error.name)].filter(
-            Boolean
-          ) as string[],
+          name: [
+            schemas.request?.name,
+            schemas.response.name,
+            schemas.pathParams?.name,
+            schemas.queryParams?.name,
+            ...errors.map((error) => error.name),
+          ].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
           asType: true,
         },
@@ -566,21 +596,31 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
     }
 
+    const generics = [
+      `TData = ${schemas.response.name}`,
+      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
+      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : '',
+    ].filter(Boolean)
+    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
+    const params = [
+      pathParamsTyped,
+      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
+      `options?: {
+        mutation?: ${imports.mutate.UseMutationOptions}<${clientGenerics.join(', ')}>
+    }`,
+    ].filter(Boolean)
+
     const source = `
         ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <TData = ${schemas.response.name}, TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}, TVariables = ${
-      schemas.request.name
-    }>(${pathParamsTyped} ${schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name},` : ''} options?: {
-          mutation?: ${imports.mutate.UseMutationOptions}<TData, TError, TVariables>
-        }) {
+        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}) {
           const { mutation: mutationOptions } = options ?? {};
 
-          return ${imports.mutate.useMutation}<TData, TError, TVariables>({
+          return ${imports.mutate.useMutation}<${clientGenerics.join(', ')}>({
             mutationFn: (data) => {
-              return client<TData, TVariables>({
+              return client<${clientGenerics.join(', ')}>({
                 method: "delete",
                 url: ${new Path(operation.path).template},
-                data,
+                ${schemas.request?.name ? 'data,' : ''}
                 ${schemas.queryParams?.name ? 'params,' : ''}
               });
             },
@@ -600,9 +640,13 @@ export class OperationGenerator extends Generator<Options> {
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
-          name: [schemas.request.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, ...errors.map((error) => error.name)].filter(
-            Boolean
-          ) as string[],
+          name: [
+            schemas.request?.name,
+            schemas.response.name,
+            schemas.pathParams?.name,
+            schemas.queryParams?.name,
+            ...errors.map((error) => error.name),
+          ].filter(Boolean) as string[],
           path: getRelativePath(hook.filePath, type.filePath),
           asType: true,
         },

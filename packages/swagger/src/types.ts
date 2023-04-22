@@ -47,7 +47,7 @@ export type OperationSchema = {
 export type OperationSchemas = {
   pathParams?: OperationSchema
   queryParams?: OperationSchema
-  request: OperationSchema
+  request?: OperationSchema
   response: OperationSchema
   errors?: OperationSchema[]
 }

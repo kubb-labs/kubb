@@ -15,6 +15,4 @@ export type DeleteUserPathParams = {
   username: string
 }
 
-export type DeleteUserRequest = any | null
-
 export type DeleteUserResponse = any | null

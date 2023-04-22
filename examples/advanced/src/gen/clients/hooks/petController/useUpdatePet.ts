@@ -17,7 +17,7 @@ export function useUpdatePet<TData = UpdatePetResponse, TError = UpdatePet400 | 
 
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
-      return client<TData, TVariables>({
+      return client<TData, TError, TVariables>({
         method: 'put',
         url: `/pet`,
         data,

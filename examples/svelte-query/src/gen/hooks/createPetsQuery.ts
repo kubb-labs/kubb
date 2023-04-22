@@ -16,7 +16,7 @@ export function createPetsQuery<TData = CreatePetsResponse, TError = unknown, TV
 
   return createMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
-      return client<TData, TVariables>({
+      return client<TData, TError, TVariables>({
         method: 'post',
         url: `/pets`,
         data,

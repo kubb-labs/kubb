@@ -50,31 +50,35 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
   }
 
   public getSchemas(operation: Operation): OperationSchemas {
-    const pathParams = this.getParametersSchema(operation, 'path')
-    const queryParams = this.getParametersSchema(operation, 'query')
+    const pathSchema = this.getParametersSchema(operation, 'path')
+    const querySchema = this.getParametersSchema(operation, 'query')
+    const requestSchema = (operation.getRequestBody('application/json') as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject
+    const responseSchema = operation.getResponseAsJSONSchema('200')?.at(0)?.schema as OpenAPIV3.SchemaObject
 
     return {
-      pathParams: pathParams
+      pathParams: pathSchema
         ? {
             name: pascalCase(`${operation.getOperationId()} "PathParams"`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            schema: pathParams,
+            schema: pathSchema,
           }
         : undefined,
-      queryParams: queryParams
+      queryParams: querySchema
         ? {
             name: pascalCase(`${operation.getOperationId()} "QueryParams"`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            schema: queryParams,
+            schema: querySchema,
           }
         : undefined,
-      request: {
-        name: pascalCase(`${operation.getOperationId()} "Request"`, { delimiter: '', transform: pascalCaseTransformMerge }),
-        description: (operation.schema.requestBody as RequestBodyObject)?.description,
-        schema: (operation.getRequestBody('application/json') as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject,
-      },
+      request: requestSchema
+        ? {
+            name: pascalCase(`${operation.getOperationId()} "Request"`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            description: (operation.schema.requestBody as RequestBodyObject)?.description,
+            schema: requestSchema,
+          }
+        : undefined,
       response: {
         name: pascalCase(`${operation.getOperationId()} "Response"`, { delimiter: '', transform: pascalCaseTransformMerge }),
         description: operation.getResponseAsJSONSchema('200')?.at(0)?.description,
-        schema: operation.getResponseAsJSONSchema('200')?.at(0)?.schema as OpenAPIV3.SchemaObject,
+        schema: responseSchema,
         statusCode: 200,
       },
       errors: operation

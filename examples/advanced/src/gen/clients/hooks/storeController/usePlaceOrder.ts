@@ -17,7 +17,7 @@ export function usePlaceOrder<TData = PlaceOrderResponse, TError = PlaceOrder405
 
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
-      return client<TData, TVariables>({
+      return client<TData, TError, TVariables>({
         method: 'post',
         url: `/store/order`,
         data,

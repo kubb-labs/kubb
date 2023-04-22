@@ -15,7 +15,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdResponse, TError = 
   return {
     queryKey,
     queryFn: () => {
-      return client<TData>({
+      return client<TData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
       })

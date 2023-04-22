@@ -16,7 +16,7 @@ describe('getParams', () => {
           },
         },
       })
-    ).toEqual('name, age, ')
+    ).toEqual('name, age')
   })
 
   test('if operation returns a string with typed parameters', async () => {
@@ -37,6 +37,6 @@ describe('getParams', () => {
         },
         { typed: true }
       )
-    ).toEqual('name: Pet["name"], age: Pet["age"], ')
+    ).toEqual('name: Pet["name"], age: Pet["age"]')
   })
 })

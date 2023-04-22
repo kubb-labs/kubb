@@ -17,7 +17,7 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedResponse, TError 
   return {
     queryKey,
     queryFn: () => {
-      return client<TData>({
+      return client<TData, TError>({
         method: 'get',
         url: `/pets/${breed}`,
         params,

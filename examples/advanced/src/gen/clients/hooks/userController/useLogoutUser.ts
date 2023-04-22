@@ -13,7 +13,7 @@ export function logoutUserQueryOptions<TData = LogoutUserResponse, TError = unkn
   return {
     queryKey,
     queryFn: () => {
-      return client<TData>({
+      return client<TData, TError>({
         method: 'get',
         url: `/user/logout`,
       })

@@ -20,7 +20,7 @@ export function useUpdateUser<TData = UpdateUserResponse, TError = unknown, TVar
 
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
-      return client<TData, TVariables>({
+      return client<TData, TError, TVariables>({
         method: 'put',
         url: `/user/${username}`,
         data,

@@ -1,9 +1,15 @@
 import axios from 'axios'
 
 import type { RequestConfig } from './types'
+import type { AxiosError } from 'axios'
 
-export async function axiosClient<TData, TVariables = unknown>(config: RequestConfig<TVariables>) {
-  const promise = axios.request<TData>({ ...config }).then(({ data }) => data)
+export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<TData> => {
+  const promise = axios
+    .request<TData>({ ...config })
+    .then(({ data }) => data)
+    .catch((e: AxiosError<TError>) => {
+      throw e
+    })
 
   return promise
 }

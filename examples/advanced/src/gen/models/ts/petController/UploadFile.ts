@@ -14,8 +14,6 @@ export type UploadFileQueryParams = {
   additionalMetadata?: string | undefined
 }
 
-export type UploadFileRequest = any | null
-
 /**
  * @description successful operation
  */

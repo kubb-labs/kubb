@@ -15,7 +15,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdResponse, TError = GetP
   return {
     queryKey,
     queryFn: () => {
-      return client<TData>({
+      return client<TData, TError>({
         method: 'get',
         url: `/pet/${petId}`,
       })

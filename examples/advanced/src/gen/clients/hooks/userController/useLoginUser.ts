@@ -13,7 +13,7 @@ export function loginUserQueryOptions<TData = LoginUserResponse, TError = LoginU
   return {
     queryKey,
     queryFn: () => {
-      return client<TData>({
+      return client<TData, TError>({
         method: 'get',
         url: `/user/login`,
         params,

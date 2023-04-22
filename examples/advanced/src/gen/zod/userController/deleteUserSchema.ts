@@ -10,5 +10,4 @@ export const deleteUser400Schema = z.any()
  */
 export const deleteUser404Schema = z.any()
 export const deleteUserPathParamsSchema = z.object({ username: z.string() })
-export const deleteUserRequestSchema = z.any()
 export const deleteUserResponseSchema = z.any()

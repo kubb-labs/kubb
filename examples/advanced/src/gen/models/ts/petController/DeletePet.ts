@@ -10,6 +10,4 @@ export type DeletePetPathParams = {
   petId: number
 }
 
-export type DeletePetRequest = any | null
-
 export type DeletePetResponse = any | null

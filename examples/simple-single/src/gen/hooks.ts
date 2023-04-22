@@ -21,7 +21,7 @@ export function listPetsQueryOptions<TData = ListPetsResponse, TError = unknown>
   return {
     queryKey,
     queryFn: () => {
-      return client<TData>({
+      return client<TData, TError>({
         method: 'get',
         url: `/pets`,
         params,
@@ -62,7 +62,7 @@ export function useCreatePets<TData = CreatePetsResponse, TError = CreatePets201
 
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
-      return client<TData, TVariables>({
+      return client<TData, TError, TVariables>({
         method: 'post',
         url: `/pets`,
         data,
@@ -83,7 +83,7 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdResponse, TError = un
   return {
     queryKey,
     queryFn: () => {
-      return client<TData>({
+      return client<TData, TError>({
         method: 'get',
         url: `/pets/${petId}`,
       })

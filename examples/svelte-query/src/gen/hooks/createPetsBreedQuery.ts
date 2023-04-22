@@ -19,7 +19,7 @@ export function createPetsBreedQuery<TData = CreatePetsBreedResponse, TError = u
 
   return createMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
-      return client<TData, TVariables>({
+      return client<TData, TError, TVariables>({
         method: 'post',
         url: `/pets/${breed}`,
         data,

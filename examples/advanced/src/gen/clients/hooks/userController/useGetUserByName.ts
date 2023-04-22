@@ -15,7 +15,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameResponse, TError 
   return {
     queryKey,
     queryFn: () => {
-      return client<TData>({
+      return client<TData, TError>({
         method: 'get',
         url: `/user/${username}`,
       })

@@ -19,7 +19,7 @@ export function useCreateUsersWithListInput<
 
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
-      return client<TData, TVariables>({
+      return client<TData, TError, TVariables>({
         method: 'post',
         url: `/user/createWithList`,
         data,
