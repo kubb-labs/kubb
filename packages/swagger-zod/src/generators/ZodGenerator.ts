@@ -49,9 +49,9 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     return this
   }
 
-  build(schema: OpenAPIV3.SchemaObject, name: string, description?: string) {
+  build(schema: OpenAPIV3.SchemaObject, baseName: string, description?: string) {
     const texts: string[] = []
-    const input = this.getTypeFromSchema(schema, name)
+    const input = this.getTypeFromSchema(schema, baseName)
     if (description) {
       texts.push(`
       /**
@@ -115,7 +115,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
     const zodOutput = !input.length ? '' : `${input.map(parseProperty).join('')}`
 
-    texts.push(`export const ${this.options.resolveName({ name, pluginName }) || name} = ${zodOutput};`)
+    texts.push(`export const ${this.options.resolveName({ name: baseName, pluginName }) || baseName} = ${zodOutput};`)
 
     return [...this.extraTexts, ...texts]
   }
@@ -125,8 +125,8 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, name?: string): [string, any][] {
-    const validationFunctions = this.getBaseTypeFromSchema(schema, name)
+  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, baseName?: string): [string, any][] {
+    const validationFunctions = this.getBaseTypeFromSchema(schema, baseName)
     if (validationFunctions) {
       return validationFunctions
     }
@@ -216,7 +216,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, name?: string): [string, unknown][] {
+  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): [string, unknown][] {
     if (!schema) {
       return [[keywordZodNodes.any, undefined]]
     }
@@ -230,7 +230,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       const schemaWithoutOneOf = { ...schema, oneOf: undefined }
 
       return [
-        ...this.getBaseTypeFromSchema(schemaWithoutOneOf, name),
+        ...this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName),
         [
           keywordZodNodes.union,
           schema.oneOf.map((item) => {
@@ -248,7 +248,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       const schemaWithoutAllOf = { ...schema, allOf: undefined }
 
       return [
-        ...this.getBaseTypeFromSchema(schemaWithoutAllOf, name),
+        ...this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName),
         [
           keywordZodNodes.and,
           schema.allOf.map((item) => {
@@ -286,12 +286,12 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
     if ('items' in schema) {
       // items -> array
-      return [[keywordZodNodes.array, this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, name)]]
+      return [[keywordZodNodes.array, this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName)]]
     }
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      return this.getTypeFromProperties(schema, name)
+      return this.getTypeFromProperties(schema, baseName)
     }
 
     if (schema.type) {
@@ -305,7 +305,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
               ...schema,
               type,
             },
-            name
+            baseName
           ),
           [keywordZodNodes.null, undefined],
         ]

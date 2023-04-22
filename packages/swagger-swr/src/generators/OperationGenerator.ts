@@ -135,7 +135,7 @@ export class OperationGenerator extends Generator<Options> {
           const { query: queryOptions } = options ?? {};
           
           const query = useSWR<${clientGenerics.join(', ')}, string>(${new Path(operation.path).template}, {
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(params),
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(params),
             ...queryOptions
           });
 
@@ -167,7 +167,7 @@ export class OperationGenerator extends Generator<Options> {
           const { query: queryOptions } = options ?? {};
           
           const query = useSWR<${clientGenerics.join(', ')}, string>(${new Path(operation.path).template}, {
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams}),
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(${pathParams}),
             ...queryOptions
           });
 
@@ -200,7 +200,7 @@ export class OperationGenerator extends Generator<Options> {
           const { query: queryOptions } = options ?? {};
           
           const query = useSWR<${clientGenerics.join(', ')}, string>(${new Path(operation.path).template}, {
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(${pathParams}, params),
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(${pathParams}, params),
             ...queryOptions
           });
 
@@ -230,7 +230,7 @@ export class OperationGenerator extends Generator<Options> {
           const { query: queryOptions } = options ?? {};
 
           const query = useSWR<${clientGenerics.join(', ')}, string>(${new Path(operation.path).template}, {
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<TData>(),
+            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(),
             ...queryOptions
           });
 
