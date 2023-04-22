@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1-beta.17](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.17...@kubb/core-v1.0.1-beta.17) (2023-04-22)
+
+
+### Bug Fixes
+
+* better operationGeneration + schemas.request could be optional ([cf10b02](https://github.com/kubb-project/kubb/commit/cf10b0242761847133ebf01bae64d0bfed1334ab))
+
 ## [1.0.0-beta.17](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.16...@kubb/core-v1.0.0-beta.17) (2023-04-16)
 
 
