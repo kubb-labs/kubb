@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-beta.19](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.18...@kubb/swagger-v1.0.0-beta.19) (2023-05-26)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.19 ([d1f5e3c](https://github.com/kubb-project/kubb/commit/d1f5e3cc38d8c3b3af4c9587cbbe44b0cdbac971))
+
 ## [1.0.0-beta.18](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.0-beta.17...@kubb/swagger-v1.0.0-beta.18) (2023-04-22)
 
 
