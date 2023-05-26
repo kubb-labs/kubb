@@ -28,6 +28,7 @@ export default defineConfig(async () => {
           groupBy: {
             type: 'tag',
           },
+          enumType: 'asPascalConst',
         },
       ],
       ['@kubb/swagger-tanstack-query', { output: './clients/hooks', groupBy: { type: 'tag' }, client: './src/client.ts' }],

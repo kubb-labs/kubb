@@ -54,9 +54,11 @@ Example: `models/{{tag}}Controller` => `models/PetController` <br/>
 Default: `${output}/{{tag}}Controller`
 
 ### enumType
-Choose to use `enum` or `as const` for enums
+Choose to use `enum` or `as const` for enums. 
+`asConst` will use camelCase for the naming.
+`asPascalConst` will use PascalCase for the naming.
 
-Type: `'enum' | 'asConst'` <br/>
+Type: `'enum' | 'asConst' | 'asPascalConst'` <br/>
 Default: `asConst`
 
 ## Depended

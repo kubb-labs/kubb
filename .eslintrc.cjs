@@ -34,6 +34,7 @@ module.exports = {
     'no-debugger': 'off',
     'no-unused-vars': 'off',
     'no-plusplus': 'off',
+    'no-redeclare': 'warn',
     'no-undef': 'error',
     'no-continue': 'off',
     'no-shadow': 'off',

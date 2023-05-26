@@ -35,7 +35,7 @@ export type Refs = Record<string, { name: string; key: string; as?: string }>
 type Options = {
   withJSDocs?: boolean
   resolveName: PluginContext['resolveName']
-  enumType: 'enum' | 'asConst'
+  enumType: 'enum' | 'asConst' | 'asPascalConst'
 }
 export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.Node[]> {
   // Collect the types of all referenced schemas so we can export them later

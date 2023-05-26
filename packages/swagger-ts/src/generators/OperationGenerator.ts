@@ -11,7 +11,7 @@ type Options = {
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   mode: PathMode
-  enumType: 'enum' | 'asConst'
+  enumType: 'enum' | 'asConst' | 'asPascalConst'
 }
 
 export class OperationGenerator extends Generator<Options> {

@@ -15,7 +15,7 @@ type Config = {
   fileResolver?: FileResolver
   withJSDocs?: boolean
   withImports?: boolean
-  enumType: 'enum' | 'asConst'
+  enumType: 'enum' | 'asConst' | 'asPascalConst'
 }
 
 // TODO create another function that sort based on the refs(first the ones without refs)

@@ -197,8 +197,14 @@ export function createEnumDeclaration({
   enums,
   type,
 }: {
-  type: 'enum' | 'asConst'
+  type: 'enum' | 'asConst' | 'asPascalConst'
+  /**
+   * Enum name in camelCase.
+   */
   name: string
+  /**
+   * Enum name in PascalCase.
+   */
   typeName: string
   enums: [key: string, value: string | number][]
 }) {
@@ -217,13 +223,16 @@ export function createEnumDeclaration({
     ]
   }
 
+  // used when using `as const` instead of an TypeScript enum.
+  const identifierName = type === 'asPascalConst' ? typeName : name
+
   return [
     factory.createVariableStatement(
       [factory.createToken(ts.SyntaxKind.ExportKeyword)],
       factory.createVariableDeclarationList(
         [
           factory.createVariableDeclaration(
-            factory.createIdentifier(name),
+            factory.createIdentifier(identifierName),
             undefined,
             undefined,
             factory.createAsExpression(
@@ -248,8 +257,8 @@ export function createEnumDeclaration({
       factory.createIdentifier(typeName),
       undefined,
       factory.createIndexedAccessTypeNode(
-        factory.createParenthesizedType(factory.createTypeQueryNode(factory.createIdentifier(name), undefined)),
-        factory.createTypeOperatorNode(ts.SyntaxKind.KeyOfKeyword, factory.createTypeQueryNode(factory.createIdentifier(name), undefined))
+        factory.createParenthesizedType(factory.createTypeQueryNode(factory.createIdentifier(identifierName), undefined)),
+        factory.createTypeOperatorNode(ts.SyntaxKind.KeyOfKeyword, factory.createTypeQueryNode(factory.createIdentifier(identifierName), undefined))
       )
     ),
   ]
