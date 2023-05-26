@@ -28,7 +28,7 @@ export type Options = {
    * Choose to use `enum` or `as const` for enums
    * @default `asConst`
    */
-  enumType?: 'enum' | 'asConst'
+  enumType?: 'enum' | 'asConst' | 'asPascalConst'
 }
 
 export type ResolvePathOptions = { tag?: string }
