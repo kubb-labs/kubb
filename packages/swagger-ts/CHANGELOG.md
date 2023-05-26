@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0-beta.19](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.18...@kubb/swagger-ts-v1.0.0-beta.19) (2023-05-26)
+
+
+### Features
+
+* **swagger-ts:** enumType `asPascalConst`to also include PascalCase naming. `asConst` will use camelcase ([f63a1b5](https://github.com/kubb-project/kubb/commit/f63a1b5765f4ad27986f5e5bc18de6e929a1a017))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0-beta.19 ([d1f5e3c](https://github.com/kubb-project/kubb/commit/d1f5e3cc38d8c3b3af4c9587cbbe44b0cdbac971))
+
 ## [1.0.0-beta.18](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.17...@kubb/swagger-ts-v1.0.0-beta.18) (2023-04-22)
 
 
