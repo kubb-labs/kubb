@@ -12,15 +12,15 @@
 
 <!-- Badges -->
 <p>
- <a href="https://www.npmjs.com/package/@kubb/core">
+ <a href="https://www.npmjs.com/package/@kubb/core" target="_blank">
   <img alt="Npm version" src="https://img.shields.io/npm/v/@kubb/core?style=for-the-badge"/>
 </a>
 
-<a href="https://www.npmjs.com/package/@kubb/core">
+<a href="https://www.npmjs.com/package/@kubb/core" target="_blank">
   <img alt="Npm downloads" src="https://img.shields.io/bundlephobia/min/@kubb/core?style=for-the-badge"/>
 </a>
 
-<a href="https://www.npmjs.com/package/@kubb/core">
+<a href="https://www.npmjs.com/package/@kubb/core" target="_blank">
   <img alt="Npm downloads" src="https://img.shields.io/npm/dm/@kubb/core?style=for-the-badge"/>
 </a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
@@ -28,13 +28,13 @@
 </p>
    
 <h4>
-    <a href="https://codesandbox.io/s/github/kubb-project/kubb/tree/main/examples/simple">View Demo</a>
+    <a href="https://codesandbox.io/s/github/kubb-project/kubb/tree/main/examples/simple" target="_blank">View Demo</a>
   <span> · </span>
     <a href="https://kubb.dev/" target="_blank">Documentation</a>
   <span> · </span>
-    <a href="https://github.com/kubb-project/kubb/issues/">Report Bug</a>
+    <a href="https://github.com/kubb-project/kubb/issues/" target="_blank">Report Bug</a>
   <span> · </span>
-    <a href="https://github.com/kubb-project/kubb/issues/">Request Feature</a>
+    <a href="https://github.com/kubb-project/kubb/issues/" target="_blank">Request Feature</a>
   </h4>
 </div>
 
