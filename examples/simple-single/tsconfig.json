@@ -14,10 +14,6 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "../../node_modules/@types"
-    ],
     "paths": {
       "@kubb/core":["../core/src/index.ts"],
       "@kubb/swagger":["../swagger/src/index.ts"],
