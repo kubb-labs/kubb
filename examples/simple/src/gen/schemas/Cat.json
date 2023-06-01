@@ -1,1 +1,1 @@
-{"type":"object","required":["type"],"properties":{"petsRequested":{"type":"integer"},"type":{"type":"string","enum":["cat"]}}}
+{"type":"object","required":["type"],"properties":{"petsRequested":{"type":"integer"},"type":{"type":"string","enum":["cat"]},"breed":{"type":"array","prefixItems":[{"type":"integer","description":"Description of the 1st item"},{"type":"string","description":"Description of the 2nd item"},{"enum":["NW","NE","SW","SE"]}]}}}

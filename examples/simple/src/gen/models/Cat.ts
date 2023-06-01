@@ -10,4 +10,8 @@ export type Cat = {
    * @type string
    */
   type: CatType
+  /**
+   * @type array | undefined
+   */
+  breed?: [number, string, 'NW' | 'NE' | 'SW' | 'SE'] | undefined
 }
