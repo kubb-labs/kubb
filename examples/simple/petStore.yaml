@@ -257,14 +257,15 @@ components:
           type: array
           prefixItems:
             - type: integer
-              description: Description of the 1st item
+              description: Number of items
             - type: string
-              description: Description of the 2nd item
+              description: Description
             - enum:
                 - "NW"
                 - "NE" 
                 - "SW"
                 - "SE"
+              description: Wind direction
     Pets:
       type: array
       items:

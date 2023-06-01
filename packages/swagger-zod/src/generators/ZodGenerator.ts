@@ -62,8 +62,13 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     }
 
     const parseProperty = (item: [string, any]): string => {
+      // TODO move to separate file + add better typing
       // eslint-disable-next-line prefer-const
       let [fn, args = ''] = item || []
+
+      if (fn === keywordZodNodes.tuple) {
+        return `${fn}(${Array.isArray(args) ? `[${args.map(parseProperty).join(',')}]` : parseProperty(args)})`
+      }
 
       if (fn === keywordZodNodes.array) {
         return `${fn}(${Array.isArray(args) ? `${args.map(parseProperty).join('')}` : parseProperty(args)})`
@@ -83,6 +88,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
               .map((item) => `${fn}(${item})`)
               .join('')}`
           : `${fn}(${parseProperty(args)})`
+
       if (fn === keywordZodNodes.object) {
         if (!args) {
           args = '{}'
@@ -303,6 +309,20 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     if ('items' in schema) {
       // items -> array
       return [[keywordZodNodes.array, this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName)]]
+    }
+
+    if ('prefixItems' in schema) {
+      const prefixItems = schema.prefixItems as OpenAPIV3.SchemaObject[]
+
+      return [
+        [
+          keywordZodNodes.tuple,
+          prefixItems.map((item) => {
+            // no baseType so we can fall back on an union when using enum
+            return this.getBaseTypeFromSchema(item, undefined)![0]
+          }),
+        ],
+      ]
     }
 
     if (schema.properties || schema.additionalProperties) {

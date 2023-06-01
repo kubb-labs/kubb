@@ -8,6 +8,7 @@ export const keywordZodNodes = {
   undefined: 'z.undefined',
   null: '.nullable',
   array: 'z.array',
+  tuple: 'z.tuple',
   enum: 'z.enum',
   union: 'z.union',
   /* intersection */
