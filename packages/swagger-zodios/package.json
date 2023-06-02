@@ -61,7 +61,7 @@
   "devDependencies": {
     "@types/lodash.uniq": "^4.5.7",
     "tsup": "^6.7.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.1.3"
   },
   "publishConfig": {
     "access": "public",

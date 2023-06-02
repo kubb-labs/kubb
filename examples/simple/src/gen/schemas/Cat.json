@@ -1,1 +1,1 @@
-{"type":"object","required":["type"],"properties":{"petsRequested":{"type":"integer"},"type":{"type":"string","enum":["cat"]}}}
+{"type":"object","required":["type"],"properties":{"petsRequested":{"type":"integer"},"type":{"type":"string","enum":["cat"]},"breed":{"type":"array","prefixItems":[{"type":"integer","description":"Number of items"},{"type":"string","description":"Description"},{"enum":["NW","NE","SW","SE"],"description":"Wind direction"}]}}}

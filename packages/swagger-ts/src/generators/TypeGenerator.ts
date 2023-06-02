@@ -6,7 +6,7 @@ import uniqueId from 'lodash.uniqueid'
 
 import type { PluginContext } from '@kubb/core'
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
-import type { Oas, OpenAPIV3 } from '@kubb/swagger'
+import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 import { isReference } from '@kubb/swagger'
 import {
   appendJSDocToNode,
@@ -14,7 +14,9 @@ import {
   createIndexSignature,
   createIntersectionDeclaration,
   createPropertySignature,
+  createTupleDeclaration,
   createTypeAliasDeclaration,
+  createUnionDeclaration,
   modifier,
 } from '@kubb/ts-codegen'
 
@@ -24,13 +26,6 @@ import { pluginName } from '../plugin'
 const { factory } = ts
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
-
-/**
- * Name is the ref name + resolved with the nameResolver
- * Key is the original name used
- * As is used to make the type more unique when multiple same names are used
- */
-export type Refs = Record<string, { name: string; key: string; as?: string }>
 
 type Options = {
   withJSDocs?: boolean
@@ -108,7 +103,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return type
     }
 
-    return factory.createUnionTypeNode([type, keywordTypeNodes.null])
+    return createUnionDeclaration({ nodes: [type, keywordTypeNodes.null] })
   }
 
   /**
@@ -123,19 +118,14 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const schema = props[name] as OpenAPIV3.SchemaObject
 
       const isRequired = required && required.includes(name)
-      let type: ts.TypeNode | null
-      if (schema.enum) {
-        type = this.getTypeFromSchema(schema, pascalCase(`${baseName} ${name}`, { delimiter: '' }))
-      } else {
-        type = this.getTypeFromSchema(schema, pascalCase(`${baseName} ${name}`, { delimiter: '' }))
-      }
+      let type = this.getTypeFromSchema(schema, pascalCase(`${baseName} ${name}`, { delimiter: '' }))
 
       if (!type) {
         return null
       }
 
       if (!isRequired) {
-        type = factory.createUnionTypeNode([type, keywordTypeNodes.undefined])
+        type = createUnionDeclaration({ nodes: [type, keywordTypeNodes.undefined] })
       }
       const propertySignature = createPropertySignature({
         questionToken: !isRequired,
@@ -173,30 +163,30 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     let ref = this.refs[$ref]
 
     if (ref) {
-      return factory.createTypeReferenceNode(ref.name, undefined)
+      return factory.createTypeReferenceNode(ref.propertyName, undefined)
     }
 
-    const key = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
-    const name = this.options.resolveName({ name: key, pluginName }) || key
+    const originalName = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
+    const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
 
-    if (key === baseName) {
+    if (originalName === baseName) {
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
-        name,
-        key,
-        as: uniqueId(name),
+        propertyName,
+        originalName,
+        name: uniqueId(propertyName),
       }
 
-      return factory.createTypeReferenceNode(ref.as!, undefined)
+      return factory.createTypeReferenceNode(ref.name!, undefined)
     }
 
     // eslint-disable-next-line no-multi-assign
     ref = this.refs[$ref] = {
-      name,
-      key,
+      propertyName,
+      originalName,
     }
 
-    return factory.createTypeReferenceNode(ref.name, undefined)
+    return factory.createTypeReferenceNode(ref.propertyName, undefined)
   }
 
   /**
@@ -220,13 +210,13 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         nodes: [
           this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName),
           factory.createParenthesizedType(
-            factory.createUnionTypeNode(
-              schema.oneOf
+            createUnionDeclaration({
+              nodes: schema.oneOf
                 .map((item) => {
                   return this.getBaseTypeFromSchema(item)
                 })
-                .filter(Boolean) as ts.TypeNode[]
-            )
+                .filter(Boolean) as ts.TypeNode[],
+            })
           ),
         ].filter(Boolean) as ts.TypeNode[],
       })
@@ -255,6 +245,9 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       })
     }
 
+    /**
+     * Enum will be defined outside the baseType(hints the baseName check)
+     */
     if (schema.enum && baseName) {
       const enumName = getUniqueName(baseName, TypeGenerator.usedEnumNames)
 
@@ -277,12 +270,34 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return factory.createTypeReferenceNode(pascalCase(enumName, { delimiter: '' }), undefined)
     }
 
+    if (schema.enum) {
+      return createUnionDeclaration({
+        nodes: schema.enum.map((name) => {
+          return factory.createLiteralTypeNode(typeof name === 'number' ? factory.createNumericLiteral(name) : factory.createStringLiteral(`${name}`))
+        }),
+      })
+    }
+
     if ('items' in schema) {
       // items -> array
       const node = this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName)
       if (node) {
         return factory.createArrayTypeNode(node)
       }
+    }
+    /**
+     * OpenAPI 3.1
+     * @link https://json-schema.org/understanding-json-schema/reference/array.html#tuple-validation
+     */
+    if ('prefixItems' in schema) {
+      const prefixItems = schema.prefixItems as OpenAPIV3.SchemaObject[]
+
+      return createTupleDeclaration({
+        nodes: prefixItems.map((item) => {
+          // no baseType so we can fall back on an union when using enum
+          return this.getBaseTypeFromSchema(item, undefined)!
+        }),
+      })
     }
 
     if (schema.properties || schema.additionalProperties) {
@@ -295,8 +310,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
         const [type, nullable] = schema.type
 
-        return factory.createUnionTypeNode(
-          [
+        return createUnionDeclaration({
+          nodes: [
             this.getBaseTypeFromSchema(
               {
                 ...schema,
@@ -305,8 +320,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
               baseName
             )!,
             nullable ? factory.createLiteralTypeNode(factory.createNull()) : undefined,
-          ].filter(Boolean) as ts.TypeNode[]
-        )
+          ].filter(Boolean) as ts.TypeNode[],
+        })
       }
       // string, boolean, null, number
       if (schema.type in keywordTypeNodes) {

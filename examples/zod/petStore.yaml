@@ -662,6 +662,19 @@ components:
         zip:
           type: string
           example: '94301'
+        identifier:
+          type: array
+          prefixItems:
+            - type: integer
+              description: Number of items
+            - type: string
+              description: Description
+            - enum:
+                - "NW"
+                - "NE" 
+                - "SW"
+                - "SE"
+              description: Wind direction
       xml:
         name: address
     Category:

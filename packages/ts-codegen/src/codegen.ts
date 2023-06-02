@@ -267,3 +267,11 @@ export function createEnumDeclaration({
 export function createIntersectionDeclaration({ nodes }: { nodes: ts.TypeNode[] }) {
   return factory.createIntersectionTypeNode(nodes)
 }
+
+export function createTupleDeclaration({ nodes }: { nodes: ts.TypeNode[] }) {
+  return factory.createTupleTypeNode(nodes)
+}
+
+export function createUnionDeclaration({ nodes }: { nodes: ts.TypeNode[] }) {
+  return factory.createUnionTypeNode(nodes)
+}

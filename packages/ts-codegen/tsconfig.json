@@ -16,19 +16,11 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "../../node_modules/@types"
-    ],
-    "types": ["vitest/globals"],
-    "paths": {
-      
-    }
+    "types": ["vitest/globals"]
   },
   "include": ["./src/**/*"],
   "exclude": [
     "**/node_modules",
     "**/types/**",
-   
   ]
 }

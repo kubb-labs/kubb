@@ -1,15 +1,14 @@
 import { OasBuilder } from '@kubb/swagger'
-import type { FileResolver } from '@kubb/swagger'
+import { FileResolver, ImportsGenerator, Refs } from '@kubb/swagger'
 import type { PluginContext } from '@kubb/core'
 import { nameSorter } from '@kubb/core'
-import { print } from '@kubb/ts-codegen'
+import { createImportDeclaration, print } from '@kubb/ts-codegen'
 
-import { ImportsGenerator, TypeGenerator } from '../generators'
+import { TypeGenerator } from '../generators'
 
 import type ts from 'typescript'
-import type { Refs } from '../generators'
 
-type Generated = { refs: Refs; name: string; sources: ts.Node[] }
+type Generated = { import: { refs: Refs; name: string }; sources: ts.Node[] }
 type Config = {
   resolveName: PluginContext['resolveName']
   fileResolver?: FileResolver
@@ -20,10 +19,10 @@ type Config = {
 
 // TODO create another function that sort based on the refs(first the ones without refs)
 function refsSorter(a: Generated, b: Generated) {
-  if (Object.keys(a.refs)?.length < Object.keys(b.refs)?.length) {
+  if (Object.keys(a.import.refs)?.length < Object.keys(b.import.refs)?.length) {
     return -1
   }
-  if (Object.keys(a.refs)?.length > Object.keys(b.refs)?.length) {
+  if (Object.keys(a.import.refs)?.length > Object.keys(b.import.refs)?.length) {
     return 1
   }
   return 0
@@ -55,8 +54,10 @@ export class TypeBuilder extends OasBuilder<Config> {
         const nodes = generator.build(gen.schema, gen.name, gen.description)
 
         return {
-          refs: generator.refs,
-          name: gen.name,
+          import: {
+            refs: generator.refs,
+            name: gen.name,
+          },
           sources: nodes,
         }
       })
@@ -68,10 +69,18 @@ export class TypeBuilder extends OasBuilder<Config> {
 
     if (this.config.withImports) {
       const importsGenerator = new ImportsGenerator({ fileResolver: this.config.fileResolver })
-      const codeImports = await importsGenerator.build(generated)
+      const importMeta = await importsGenerator.build(generated.map((item) => item.import))
 
-      if (codeImports) {
-        codes.unshift(print(codeImports))
+      if (importMeta) {
+        const nodes = importMeta.map((item) => {
+          return createImportDeclaration({
+            name: [{ propertyName: item.ref.propertyName, name: item.ref.name }],
+            path: item.path,
+            isTypeOnly: true,
+          })
+        })
+
+        codes.unshift(print(nodes))
       }
     }
 

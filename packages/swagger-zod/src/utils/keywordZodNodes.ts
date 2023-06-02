@@ -3,11 +3,13 @@ export const keywordZodNodes = {
   number: 'z.number',
   integer: 'z.number',
   object: 'z.object',
+  lazy: 'z.lazy',
   string: 'z.string',
   boolean: 'z.boolean',
   undefined: 'z.undefined',
   null: '.nullable',
   array: 'z.array',
+  tuple: 'z.tuple',
   enum: 'z.enum',
   union: 'z.union',
   /* intersection */
@@ -22,3 +24,6 @@ export const keywordZodNodes = {
   ref: 'ref',
   matches: '.regex',
 } as const
+
+export type KeywordZodNode = keyof typeof keywordZodNodes
+export type KeywordZodNodes = (typeof keywordZodNodes)[KeywordZodNode]
