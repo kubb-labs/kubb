@@ -1,4 +1,4 @@
-import { KeywordZodNode, KeywordZodNodes, keywordZodNodes } from '../utils/keywordZodNodes'
+import { KeywordZodNodes, keywordZodNodes } from '../utils/keywordZodNodes'
 
 type ZodMetaBase<T> = {
   keyword: KeywordZodNodes
@@ -32,7 +32,7 @@ type ZodMetaUnion = { keyword: typeof keywordZodNodes.union; args?: ZodMeta[] }
 
 type ZodMetaAnd = { keyword: typeof keywordZodNodes.and; args?: ZodMeta[] }
 
-type ZodMetaEnum = { keyword: typeof keywordZodNodes.enum; args?: string[] }
+type ZodMetaEnum = { keyword: typeof keywordZodNodes.enum; args?: Array<string | number> }
 
 type ZodMetaArray = { keyword: typeof keywordZodNodes.array; args?: ZodMeta[] }
 
