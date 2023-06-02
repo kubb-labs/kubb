@@ -1,7 +1,4 @@
 /* eslint-disable no-async-promise-executor */
-import pathParser from 'path'
-
-import { isURL } from './utils/isURL'
 import { PluginManager } from './managers/pluginManager'
 import { clean, read } from './utils'
 import { getFileSource } from './managers/fileManager'

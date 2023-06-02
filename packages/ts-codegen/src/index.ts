@@ -1,2 +1,2 @@
-export * from './codegen'
-export * from './print'
+export * from './codegen.js'
+export * from './print.js'

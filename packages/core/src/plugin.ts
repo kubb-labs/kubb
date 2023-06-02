@@ -1,4 +1,4 @@
-import pathParser from 'path'
+import pathParser from 'node:path'
 
 import { createPluginCache, transformReservedWord } from './utils'
 

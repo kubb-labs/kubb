@@ -1,4 +1,4 @@
-import pathParser from 'path'
+import pathParser from 'node:path'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
 import swagger2openapi from 'swagger2openapi'

@@ -24,15 +24,4 @@ export default defineConfig([
     dts: true,
     splitting: false,
   },
-  {
-    ...baseOptions,
-    format: 'cjs',
-    dts: {
-      compilerOptions: {
-        target: 'ES5',
-        module: 'commonjs',
-        moduleResolution: 'node',
-      },
-    },
-  },
 ])

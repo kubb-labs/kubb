@@ -1,4 +1,4 @@
-import pathParser from 'path'
+import pathParser from 'node:path'
 
 /* eslint-disable consistent-return */
 

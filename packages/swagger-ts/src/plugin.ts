@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 
-import pathParser from 'path'
+import pathParser from 'node:path'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 

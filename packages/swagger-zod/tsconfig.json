@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
+    "module": "node16", 
+    "moduleResolution": "node16",
     "strict": true,
-    "moduleResolution": "node",
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react",

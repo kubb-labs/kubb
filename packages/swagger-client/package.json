@@ -20,7 +20,6 @@
   ],
   "sideEffects": false,
   "type": "module",
-  "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -80,6 +79,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "engines": {
-    "node": "^12.17.0 || ^14.13 || >=16.0.0"
+    "node": ">=16",
+    "pnpm": ">=8"
   }
 }

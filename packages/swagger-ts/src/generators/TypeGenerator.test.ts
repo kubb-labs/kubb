@@ -1,4 +1,4 @@
-import pathParser from 'path'
+import pathParser from 'node:path'
 
 import { oasPathParser } from '@kubb/swagger'
 import type { OpenAPIV3 } from '@kubb/swagger'
