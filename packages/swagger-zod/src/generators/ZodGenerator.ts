@@ -5,7 +5,7 @@ import uniqueId from 'lodash.uniqueid'
 
 import type { PluginContext } from '@kubb/core'
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
-import type { Oas, OpenAPIV3 } from '@kubb/swagger'
+import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 import { isReference } from '@kubb/swagger'
 
 import { keywordZodNodes } from '../utils/keywordZodNodes'
@@ -22,13 +22,6 @@ function zodKeywordMapper(a: [string, unknown], b: [string, unknown]) {
 
   return 0
 }
-
-/**
- * Name is the ref name + resolved with the nameResolver
- * Key is the original name used
- * As is used to make the type more unique when multiple same names are used
- */
-export type Refs = Record<string, { name: string; key: string; as?: string }>
 
 type Options = {
   withJSDocs?: boolean
@@ -211,27 +204,27 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       return [[keywordZodNodes.ref, ref.name]]
     }
 
-    const key = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
-    const name = this.options.resolveName({ name: key, pluginName }) || key
+    const originalName = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
+    const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
 
-    if (key === baseName) {
+    if (originalName === baseName) {
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
-        name,
-        key,
-        as: uniqueId(name),
+        propertyName,
+        originalName,
+        name: uniqueId(propertyName),
       }
 
-      return [[keywordZodNodes.ref, ref.as]]
+      return [[keywordZodNodes.ref, ref.name]]
     }
 
     // eslint-disable-next-line no-multi-assign
     ref = this.refs[$ref] = {
-      name,
-      key: key,
+      propertyName,
+      originalName,
     }
 
-    return [[keywordZodNodes.ref, ref.name]]
+    return [[keywordZodNodes.ref, ref.propertyName]]
   }
 
   /**

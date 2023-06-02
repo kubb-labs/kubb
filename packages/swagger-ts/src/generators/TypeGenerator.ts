@@ -6,7 +6,7 @@ import uniqueId from 'lodash.uniqueid'
 
 import type { PluginContext } from '@kubb/core'
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
-import type { Oas, OpenAPIV3 } from '@kubb/swagger'
+import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 import { isReference } from '@kubb/swagger'
 import {
   appendJSDocToNode,
@@ -26,13 +26,6 @@ import { pluginName } from '../plugin'
 const { factory } = ts
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
-
-/**
- * Name is the ref name + resolved with the nameResolver
- * Key is the original name used
- * As is used to make the type more unique when multiple same names are used
- */
-export type Refs = Record<string, { name: string; key: string; as?: string }>
 
 type Options = {
   withJSDocs?: boolean
@@ -125,12 +118,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const schema = props[name] as OpenAPIV3.SchemaObject
 
       const isRequired = required && required.includes(name)
-      let type: ts.TypeNode | null
-      if (schema.enum) {
-        type = this.getTypeFromSchema(schema, pascalCase(`${baseName} ${name}`, { delimiter: '' }))
-      } else {
-        type = this.getTypeFromSchema(schema, pascalCase(`${baseName} ${name}`, { delimiter: '' }))
-      }
+      let type = this.getTypeFromSchema(schema, pascalCase(`${baseName} ${name}`, { delimiter: '' }))
 
       if (!type) {
         return null
@@ -175,30 +163,30 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     let ref = this.refs[$ref]
 
     if (ref) {
-      return factory.createTypeReferenceNode(ref.name, undefined)
+      return factory.createTypeReferenceNode(ref.propertyName, undefined)
     }
 
-    const key = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
-    const name = this.options.resolveName({ name: key, pluginName }) || key
+    const originalName = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
+    const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
 
-    if (key === baseName) {
+    if (originalName === baseName) {
       // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
-        name,
-        key,
-        as: uniqueId(name),
+        propertyName,
+        originalName,
+        name: uniqueId(propertyName),
       }
 
-      return factory.createTypeReferenceNode(ref.as!, undefined)
+      return factory.createTypeReferenceNode(ref.name!, undefined)
     }
 
     // eslint-disable-next-line no-multi-assign
     ref = this.refs[$ref] = {
-      name,
-      key,
+      propertyName,
+      originalName,
     }
 
-    return factory.createTypeReferenceNode(ref.name, undefined)
+    return factory.createTypeReferenceNode(ref.propertyName, undefined)
   }
 
   /**
