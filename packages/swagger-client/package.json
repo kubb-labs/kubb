@@ -27,12 +27,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "module": "./dist/index.js"
+      "module": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./client": {
       "types": "./dist/client.d.ts",
       "import": "./dist/client.js",
-      "module": "./dist/client.js"
+      "module": "./dist/client.js",
+      "default": "./dist/client.js"
     },
     "./package.json": "./package.json"
   },

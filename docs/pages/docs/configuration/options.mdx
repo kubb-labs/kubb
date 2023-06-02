@@ -11,7 +11,7 @@ Project root directory. Can be an absolute path, or a path relative from the loc
 Type: `string` <br/>
 Default: `process.cwd()`
 
-```typescript filename="kubb.config.ts" copy
+```typescript filename="kubb.config.js" copy
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -32,7 +32,7 @@ Path to be used as the input. Can be an absolute path, or a path relative from t
 Type: `string` <br/>
 Required: `true`
 
-```typescript filename="kubb.config.ts" copy
+```typescript filename="kubb.config.js" copy
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -52,7 +52,7 @@ Path to be used to export all generated files. Can be an absolute path, or a pat
 Type: `string` <br/>
 Required: `true`
 
-```typescript filename="kubb.config.ts" copy
+```typescript filename="kubb.config.js" copy
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -69,7 +69,7 @@ export default defineConfig({
 Remove previous generated files and folders.
 Type: `boolean` <br/>
 
-```typescript filename="kubb.config.ts" copy
+```typescript filename="kubb.config.js" copy
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -89,7 +89,7 @@ Enabled or disable the writing to the filesystem. This is being used for the pla
 Type: `boolean` <br/>
 Default: `true`
 
-```typescript filename="kubb.config.ts" copy
+```typescript filename="kubb.config.js" copy
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -115,7 +115,7 @@ Sometimes a plugin is depended on another plugin, if that's the case you will ge
 
 Type: `Plugin` <br/>
 
-```typescript filename="kubb.config.ts" copy
+```typescript filename="kubb.config.js" copy
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 
@@ -167,7 +167,7 @@ Log level to report when using the CLI
 </Callout>
 Type: `'error' | 'warn' | 'info' | 'silent'` <br/>
 
-```typescript filename="kubb.config.ts" copy
+```typescript filename="kubb.config.js" copy
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -190,7 +190,7 @@ Useful for running Prettier or Eslint to use your own linting structure.
 
 Type: `string | string[]` <br/>
 
-```typescript filename="kubb.config.ts" copy
+```typescript filename="kubb.config.js" copy
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({

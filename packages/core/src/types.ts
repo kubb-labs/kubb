@@ -109,7 +109,7 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    */
   api?: TOptions['api']
   /**
-   * Options set for a specific plugin(see kubb.config.ts)
+   * Options set for a specific plugin(see kubb.config.js)
    */
   options?: TOptions['options']
 } & Partial<PluginLifecycle<TOptions>>

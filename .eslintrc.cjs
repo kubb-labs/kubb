@@ -49,7 +49,7 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'import/no-dynamic-require': 'off',
     'import/extensions': [
-      'error',
+      'warn',
       'ignorePackages',
       {
         js: 'always',

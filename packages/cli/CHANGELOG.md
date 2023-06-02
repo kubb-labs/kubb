@@ -785,7 +785,7 @@
 
 ### Bug Fixes
 
-* no typecheck + use of swc for loading the kubb.config.ts file ([9a4a892](https://github.com/kubb-project/kubb/commit/9a4a8920e81db0e8d59b42bb43c90d9c4a2c06c8))
+* no typecheck + use of swc for loading the kubb.config.js file ([9a4a892](https://github.com/kubb-project/kubb/commit/9a4a8920e81db0e8d59b42bb43c90d9c4a2c06c8))
 
 ## [0.34.0](https://github.com/kubb-project/kubb/compare/@kubb/cli-v0.33.0...@kubb/cli-v0.34.0) (2023-01-07)
 

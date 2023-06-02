@@ -13,7 +13,9 @@ import { isOpenApiV3Document } from '../utils/index.ts'
 import type { OpenAPIV2 } from 'openapi-types'
 import type { OASDocument } from 'oas/dist/rmoas.types.ts'
 
-const Oas = oas as unknown as typeof oas.default
+type Oas = typeof oas.default
+
+const Oas = ((oas as any)?.init ? oas : oas.default) as unknown as Oas
 const OASNormalize = oasNormalize.default
 
 export type OasOptions = {
@@ -48,9 +50,9 @@ export async function oasPathParser(pathOrApi: string, { validate }: OasOptions 
 
   if (!isOpenApiV3Document(document)) {
     const convertedDocument = await convertSwagger2ToOpenApi(document)
-    return new Oas(convertedDocument)
+    return Oas.init(convertedDocument)
   }
-  return new Oas(document)
+  return Oas.init(document)
 }
 
 export async function oasParser(config: KubbConfig, options: OasOptions = {}) {

@@ -1,7 +1,7 @@
 import type { MaybePromise, KubbUserConfig, CLIOptions } from './types.ts'
 
 /**
- * Type helper to make it easier to use kubb.config.ts
+ * Type helper to make it easier to use kubb.config.js
  * accepts a direct {@link KubbConfig} object, or a function that returns it.
  * The function receives a {@link ConfigEnv} object that exposes two properties:
  */
