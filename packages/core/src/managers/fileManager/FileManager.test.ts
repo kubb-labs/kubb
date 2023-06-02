@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { FileManager } from './FileManager'
+import { FileManager } from './FileManager.js'
 
 describe('FileManager', () => {
   test('fileManager.add also adds the files to the cache', async () => {

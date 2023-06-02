@@ -1,2 +1,2 @@
-export * from './SchemaGenerator'
-export * from './Generator'
+export * from './SchemaGenerator.js'
+export * from './Generator.js'

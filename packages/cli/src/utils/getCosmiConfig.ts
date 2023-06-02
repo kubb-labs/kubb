@@ -2,7 +2,7 @@
 import { cosmiconfig, defaultLoaders } from 'cosmiconfig'
 import { TypeScriptLoader } from 'cosmiconfig-typescript-loader'
 
-import type { CosmiconfigResult } from '../types'
+import type { CosmiconfigResult } from '../types.js'
 
 export async function getCosmiConfig(moduleName: string, config?: string) {
   const explorer = cosmiconfig(moduleName, {

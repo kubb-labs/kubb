@@ -1,4 +1,4 @@
-import { renderTemplate } from './renderTemplate'
+import { renderTemplate } from './renderTemplate.js'
 
 describe('renderTemplate', () => {
   test('template rendering', async () => {

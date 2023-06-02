@@ -1,8 +1,4 @@
-import type { Api } from '@kubb/swagger'
-import createSwagger from '@kubb/swagger'
-import type { PluginContext } from '@kubb/core'
-
-import { parseZod } from './zodParser'
+import { parseZod } from './zodParser.js'
 
 const input = [
   {

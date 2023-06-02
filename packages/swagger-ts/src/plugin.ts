@@ -10,10 +10,10 @@ import { getRelativePath, createPlugin, getPathMode, validatePlugins, writeIndex
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
 
-import { TypeBuilder } from './builders'
-import { OperationGenerator } from './generators/OperationGenerator'
+import { TypeBuilder } from './builders/index.js'
+import { OperationGenerator } from './generators/index.js'
 
-import type { PluginOptions } from './types'
+import type { PluginOptions } from './types.js'
 
 export const pluginName = 'swagger-ts' as const
 

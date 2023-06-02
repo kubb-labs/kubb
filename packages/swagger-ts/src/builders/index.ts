@@ -1,1 +1,1 @@
-export * from './TypeBuilder'
+export * from './TypeBuilder.js'

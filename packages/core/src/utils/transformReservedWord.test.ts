@@ -1,4 +1,4 @@
-import { transformReservedWord } from './transformReservedWord'
+import { transformReservedWord } from './transformReservedWord.js'
 
 describe('transformReservedWord', () => {
   test('template rendering', async () => {

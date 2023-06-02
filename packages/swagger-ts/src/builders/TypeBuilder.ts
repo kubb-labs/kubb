@@ -1,10 +1,10 @@
-import { OasBuilder } from '@kubb/swagger'
-import { FileResolver, ImportsGenerator, Refs } from '@kubb/swagger'
+import type { FileResolver, Refs } from '@kubb/swagger'
+import { OasBuilder, ImportsGenerator } from '@kubb/swagger'
 import type { PluginContext } from '@kubb/core'
 import { nameSorter } from '@kubb/core'
 import { createImportDeclaration, print } from '@kubb/ts-codegen'
 
-import { TypeGenerator } from '../generators'
+import { TypeGenerator } from '../generators/TypeGenerator.js'
 
 import type ts from 'typescript'
 

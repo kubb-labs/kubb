@@ -1,11 +1,10 @@
-import { OasBuilder } from '@kubb/swagger'
-import { FileResolver, Refs, ImportsGenerator } from '@kubb/swagger'
+import type { FileResolver, Refs } from '@kubb/swagger'
+import { OasBuilder, ImportsGenerator } from '@kubb/swagger'
 import type { PluginContext } from '@kubb/core'
 import { nameSorter } from '@kubb/core'
 import { createImportDeclaration, print } from '@kubb/ts-codegen'
 
-import { ZodGenerator } from '../generators'
-import { pluginName } from '../plugin'
+import { ZodGenerator } from '../generators/index.js'
 
 type Generated = { import: { refs: Refs; name: string }; sources: string[] }
 

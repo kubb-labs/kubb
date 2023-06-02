@@ -7,9 +7,8 @@ import ora from 'ora'
 
 import type { CLIOptions } from '@kubb/core'
 
-import { run } from './run'
-import { startWatcher } from './utils/watcher'
-import { getConfig, getCosmiConfig } from './utils'
+import { run } from './run.js'
+import { startWatcher, getConfig, getCosmiConfig } from './utils/index.js'
 
 import { version } from '../package.json'
 

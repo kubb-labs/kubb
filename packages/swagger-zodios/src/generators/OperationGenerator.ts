@@ -6,7 +6,7 @@ import { Path, OperationGenerator as Generator } from '@kubb/swagger'
 import type { Oas, Operation, HttpMethod, Resolver } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
-import { pluginName } from '../plugin'
+import { pluginName } from '../plugin.js'
 
 type Options = {
   oas: Oas

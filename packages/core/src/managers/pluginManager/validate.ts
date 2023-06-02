@@ -1,4 +1,4 @@
-import type { KubbPlugin } from '../../types'
+import type { KubbPlugin } from '../../types.js'
 
 export class ValidationPluginError extends Error {}
 

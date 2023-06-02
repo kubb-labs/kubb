@@ -1,1 +1,1 @@
-export * from './oasParser'
+export * from './oasParser.js'

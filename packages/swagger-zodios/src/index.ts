@@ -1,6 +1,8 @@
-import { definePlugin } from './plugin'
+import { definePlugin } from './plugin.js'
 
-export * from './plugin'
-export * from './generators'
-export * from './types'
+export * from './plugin.js'
+export * from './types.js'
+
+export * from './generators/index.js'
+
 export default definePlugin

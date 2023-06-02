@@ -3,8 +3,8 @@ import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import type { FileResolver, Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 
-import { ZodBuilder } from '../builders'
-import { pluginName } from '../plugin'
+import { ZodBuilder } from '../builders/index.js'
+import { pluginName } from '../plugin.js'
 
 type Options = {
   oas: Oas

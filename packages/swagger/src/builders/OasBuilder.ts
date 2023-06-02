@@ -1,5 +1,5 @@
-import type Oas from 'oas'
 import type { OpenAPIV3 } from 'openapi-types'
+import type { Oas } from '../types.js'
 
 export type FileResolver = (name: string) => string | null | undefined
 

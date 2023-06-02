@@ -1,3 +1,3 @@
-export * from './FileManager'
-export * from './types'
-export * from './utils'
+export * from './FileManager.js'
+export * from './types.js'
+export * from './utils.js'

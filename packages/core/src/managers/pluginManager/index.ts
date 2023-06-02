@@ -1,3 +1,3 @@
-export * from './PluginManager'
-export * from './types'
-export * from './validate'
+export * from './PluginManager.js'
+export * from './types.js'
+export * from './validate.js'

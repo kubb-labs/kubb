@@ -1,11 +1,11 @@
 /* eslint-disable no-async-promise-executor */
-import { PluginManager } from './managers/pluginManager'
-import { clean, read } from './utils'
-import { getFileSource } from './managers/fileManager'
+import { PluginManager } from './managers/pluginManager/index.js'
+import { clean } from './utils/index.js'
+import { getFileSource } from './managers/fileManager/index.js'
 
-import type { FileManager, File } from './managers/fileManager'
-import type { QueueTask } from './utils'
-import type { PluginContext, TransformResult, LogLevel, KubbPlugin } from './types'
+import type { FileManager, File } from './managers/fileManager/index.js'
+import type { QueueTask } from './utils/index.js'
+import type { PluginContext, TransformResult, LogLevel, KubbPlugin } from './types.js'
 
 type BuildOutput = {
   files: FileManager['files']

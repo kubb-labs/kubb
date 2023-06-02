@@ -2,19 +2,19 @@ import pathParser from 'node:path'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
 import swagger2openapi from 'swagger2openapi'
-import OASNormalize from 'oas-normalize'
+import oasNormalize from 'oas-normalize'
+import oas from 'oas'
 
 import type { KubbConfig } from '@kubb/core'
 import { isURL } from '@kubb/core'
 
-import { isOpenApiV3Document } from '../utils'
+import { isOpenApiV3Document } from '../utils/index.js'
 
 import type { OpenAPIV2 } from 'openapi-types'
-import type OasType from 'oas'
-import type { OASDocument } from 'oas/dist/rmoas.types'
+import type { OASDocument } from 'oas/dist/rmoas.types.js'
 
-// TODO should be import Oas from "oas";
-const Oas: typeof OasType = require('oas').default
+const Oas = oas.default
+const OASNormalize = oasNormalize.default
 
 export type OasOptions = {
   validate?: boolean

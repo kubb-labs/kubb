@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { oasPathParser } from './oasParser'
+import { oasPathParser } from './oasParser.js'
 
 describe('oasParser', () => {
   const petStoreV3 = pathParser.resolve(__dirname, '../../mocks/petStore.yaml')

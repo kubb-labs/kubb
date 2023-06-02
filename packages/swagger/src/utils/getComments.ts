@@ -1,4 +1,4 @@
-import { Path } from '.'
+import { Path } from './Path.js'
 
 import type { Operation } from 'oas'
 

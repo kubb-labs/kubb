@@ -4,7 +4,7 @@ import { defineConfig, type Options } from 'tsup'
 const baseOptions = {
   entry: ['src/index.ts'],
   treeshake: true,
-  sourcemap: true,
+  sourcemap: false,
   minify: false,
   clean: true,
   /**

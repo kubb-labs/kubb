@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid'
 
-import { write, read } from '../../utils'
+import { write, read } from '../../utils/index.js'
 
-import type { QueueTask, Queue } from '../../utils'
-import type { CacheStore, UUID, Status, File } from './types'
+import type { QueueTask, Queue } from '../../utils/index.js'
+import type { CacheStore, UUID, Status, File } from './types.js'
 
 export class FileManager {
   private cache: Map<CacheStore['id'], CacheStore> = new Map()

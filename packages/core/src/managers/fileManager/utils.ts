@@ -4,12 +4,12 @@ import uniq from 'lodash.uniq'
 
 import { createImportDeclaration, createExportDeclaration, print } from '@kubb/ts-codegen'
 
-import { TreeNode } from '../../utils'
+import { TreeNode } from '../../utils/index.js'
 
-import type { PathMode, TreeNodeOptions } from '../../utils'
-import type { Path } from '../../types'
+import type { PathMode, TreeNodeOptions } from '../../utils/index.js'
+import type { Path } from '../../types.js'
 import type ts from 'typescript'
-import type { File } from './types'
+import type { File } from './types.js'
 
 export function writeIndexes(root: string, options: TreeNodeOptions) {
   const tree = TreeNode.build<{ type: PathMode; path: Path; name: string }>(root, { extensions: /\.ts/, ...options })

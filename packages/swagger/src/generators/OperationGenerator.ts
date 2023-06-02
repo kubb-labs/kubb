@@ -3,13 +3,12 @@ import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 import type { File } from '@kubb/core'
 import { combineFiles, Generator } from '@kubb/core'
 
-import { isReference } from '../utils/isReference'
+import { isReference } from '../utils/isReference.js'
 
 import type { Operation } from 'oas'
-import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types'
+import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types.js'
 import type { OpenAPIV3 } from 'openapi-types'
-import type Oas from 'oas'
-import type { OperationSchemas, Resolver } from '../types'
+import type { Oas, OperationSchemas, Resolver } from '../types.js'
 
 export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: Oas }> extends Generator<TOptions> {
   private getParametersSchema(operation: Operation, inKey: 'path' | 'query') {
