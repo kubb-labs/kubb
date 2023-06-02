@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-zodios",
-  "version": "1.0.0-beta.19",
+  "version": "1.0.0",
   "description": "Generator swagger-zodios",
   "repository": {
     "type": "git",

@@ -9,7 +9,7 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": true
+      "prerelease": false
     },
     "packages/cli": {
       "component": "@kubb/cli",
@@ -18,7 +18,7 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": true
+      "prerelease": false
     },
     "packages/ts-codegen": {
       "component": "@kubb/ts-codegen",
@@ -27,7 +27,7 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": true
+      "prerelease": false
     },
     "packages/swagger": {
       "component": "@kubb/swagger",
@@ -36,7 +36,7 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": true
+      "prerelease": false
     },
     "packages/swagger-ts": {
       "component": "@kubb/swagger-ts",
@@ -45,7 +45,7 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": true
+      "prerelease": false
     },
     "packages/swagger-client": {
       "component": "@kubb/swagger-client",
@@ -54,7 +54,7 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": true
+      "prerelease": false
     },
     "packages/swagger-tanstack-query": {
       "component": "@kubb/swagger-tanstack-query",
@@ -63,7 +63,7 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": true
+      "prerelease": false
     },
     "packages/swagger-zod": {
       "component": "@kubb/swagger-zod",
@@ -72,7 +72,7 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": true
+      "prerelease": false
     },
     "packages/swagger-zodios": {
       "component": "@kubb/swagger-zodios",
@@ -81,7 +81,7 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": true
+      "prerelease": false
     },
     "packages/swagger-swr": {
       "component": "@kubb/swagger-swr",
@@ -90,7 +90,7 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": true
+      "prerelease": false
     }
   },
   "plugins": [

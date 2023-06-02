@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.19...@kubb/swagger-ts-v1.0.0) (2023-06-02)
+
+
+### Features
+
+* **swagger-ts:** use of prefixItems to create a TypeScript union ([e5ec395](https://github.com/kubb-project/kubb/commit/e5ec39503c14f14baec1c666fd115b8c0b55fe1e))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([4009e28](https://github.com/kubb-project/kubb/commit/4009e283a93be87ff21562c6b59299ca3cfa73f8))
+
 ## [1.0.0-beta.19](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.18...@kubb/swagger-ts-v1.0.0-beta.19) (2023-05-26)
 
 
