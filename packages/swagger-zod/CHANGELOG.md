@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0-beta.19](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-beta.19...@kubb/swagger-zod-v1.1.0-beta.19) (2023-06-02)
+
+
+### Features
+
+* **swagger-zod:** use of prefixItems to create a Zod tuple ([5c5625c](https://github.com/kubb-project/kubb/commit/5c5625c75d020790d125e386d6222fcdddcf85e5))
+
 ## [1.0.0-beta.19](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-beta.18...@kubb/swagger-zod-v1.0.0-beta.19) (2023-05-26)
 
 

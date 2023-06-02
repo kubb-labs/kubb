@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0-beta.19](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.0.0-beta.19...@kubb/ts-codegen-v1.1.0-beta.19) (2023-06-02)
+
+
+### Features
+
+* **swagger-ts:** use of prefixItems to create a TypeScript union ([e5ec395](https://github.com/kubb-project/kubb/commit/e5ec39503c14f14baec1c666fd115b8c0b55fe1e))
+
 ## [1.0.0-beta.19](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.0.0-beta.18...@kubb/ts-codegen-v1.0.0-beta.19) (2023-05-26)
 
 
