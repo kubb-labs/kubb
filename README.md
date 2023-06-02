@@ -23,6 +23,16 @@
 <a href="https://www.npmjs.com/package/@kubb/core" target="_blank">
   <img alt="Npm downloads" src="https://img.shields.io/npm/dm/@kubb/core?style=for-the-badge"/>
 </a>
+  
+<a href="https://www.npmjs.com/package/@kubb/core" target="_blank">
+  <img alt="Coverage" src="https://img.shields.io/codecov/c/github/kubb-project/kubb?style=for-the-badge"/>
+</a>
+  
+<a href="https://www.npmjs.com/package/@kubb/core" target="_blank">
+  <img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/kubb-project/kubb/ci.yaml?style=for-the-badge"/>
+</a>
+  
+  
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
