@@ -7,9 +7,9 @@ import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 import type { Api as SwaggerApi } from '@kubb/swagger'
 
-import { OperationGenerator } from './generators/index.js'
+import { OperationGenerator } from './generators/index.ts'
 
-import type { PluginOptions } from './types.js'
+import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-zodios' as const
 

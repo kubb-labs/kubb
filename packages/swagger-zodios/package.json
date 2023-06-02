@@ -20,14 +20,14 @@
   ],
   "sideEffects": false,
   "type": "module",
+  "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "module": "./dist/index.js",
-      "default": "./dist/index.cjs"
+      "module": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -47,7 +47,7 @@
     "test": "vitest --passWithNoTests",
     "upgrade": "ncu -u",
     "upgrade:local": "ncu --interactive --doctor",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit"
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",

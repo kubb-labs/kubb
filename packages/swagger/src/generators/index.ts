@@ -1,2 +1,2 @@
-export * from './OperationGenerator.js'
-export * from './ImportsGenerator.js'
+export * from './OperationGenerator.ts'
+export * from './ImportsGenerator.ts'

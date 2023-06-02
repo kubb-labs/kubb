@@ -1,2 +1,2 @@
-export * from './ZodGenerator.js'
-export * from './OperationGenerator.js'
+export * from './ZodGenerator.ts'
+export * from './OperationGenerator.ts'

@@ -2,7 +2,7 @@ import uniq from 'lodash.uniq'
 
 import { Generator } from '@kubb/core'
 
-import type { FileResolver } from '../builders/OasBuilder.js'
+import type { FileResolver } from '../builders/OasBuilder.ts'
 
 /**
  * `propertyName` is the ref name + resolved with the nameResolver

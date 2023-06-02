@@ -7,9 +7,9 @@ import { getRelativePath, renderTemplate, writeIndexes, createPlugin, validatePl
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi } from '@kubb/swagger'
 
-import { OperationGenerator } from './generators/index.js'
+import { OperationGenerator } from './generators/index.ts'
 
-import type { PluginOptions } from './types.js'
+import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-swr' as const
 

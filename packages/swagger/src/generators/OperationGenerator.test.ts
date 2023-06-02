@@ -1,10 +1,10 @@
 import type { File } from '@kubb/core'
 
-import { OperationGenerator } from './OperationGenerator.js'
+import { OperationGenerator } from './OperationGenerator.ts'
 
-import { definePlugin } from '../plugin.js'
+import { definePlugin } from '../plugin.ts'
 
-import type { Oas, Resolver, Operation } from '../types.js'
+import type { Oas, Resolver, Operation } from '../types.ts'
 
 class DummyOperationGenerator extends OperationGenerator {
   resolve(operation: Operation): Resolver {

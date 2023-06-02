@@ -1,5 +1,5 @@
 import type { OpenAPIV3 } from 'openapi-types'
-import type { Oas } from '../types.js'
+import type { Oas } from '../types.ts'
 
 export type FileResolver = (name: string) => string | null | undefined
 

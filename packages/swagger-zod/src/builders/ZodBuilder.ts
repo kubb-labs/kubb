@@ -4,7 +4,7 @@ import type { PluginContext } from '@kubb/core'
 import { nameSorter } from '@kubb/core'
 import { createImportDeclaration, print } from '@kubb/ts-codegen'
 
-import { ZodGenerator } from '../generators/index.js'
+import { ZodGenerator } from '../generators/index.ts'
 
 type Generated = { import: { refs: Refs; name: string }; sources: string[] }
 

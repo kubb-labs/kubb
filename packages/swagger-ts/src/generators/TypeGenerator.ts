@@ -20,8 +20,8 @@ import {
   modifier,
 } from '@kubb/ts-codegen'
 
-import { keywordTypeNodes } from '../utils/index.js'
-import { pluginName } from '../plugin.js'
+import { keywordTypeNodes } from '../utils/index.ts'
+import { pluginName } from '../plugin.ts'
 
 const { factory } = ts
 

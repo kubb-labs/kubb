@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable consistent-return */
 import { cosmiconfig, defaultLoaders } from 'cosmiconfig'
+// @ts-nocheck
 import { TypeScriptLoader } from 'cosmiconfig-typescript-loader'
 
-import type { CosmiconfigResult } from '../types.js'
+import type { CosmiconfigResult } from '../types.ts'
 
 export async function getCosmiConfig(moduleName: string, config?: string) {
   const explorer = cosmiconfig(moduleName, {
@@ -25,7 +27,7 @@ export async function getCosmiConfig(moduleName: string, config?: string) {
         swc: true,
         typeCheck: false,
       }),
-      noExt: defaultLoaders['.js'],
+      noExt: (defaultLoaders as any)['.ts'],
     },
   })
 

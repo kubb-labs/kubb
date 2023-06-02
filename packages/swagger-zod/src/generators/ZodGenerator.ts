@@ -8,12 +8,12 @@ import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 import { isReference } from '@kubb/swagger'
 
-import { keywordZodNodes } from '../utils/keywordZodNodes.js'
-import { pluginName } from '../plugin.js'
-import { parseZod } from '../parsers/index.js'
+import { keywordZodNodes } from '../utils/keywordZodNodes.ts'
+import { pluginName } from '../plugin.ts'
+import { parseZod } from '../parsers/index.ts'
 
-import type { ZodMeta } from '../parsers/index.js'
-import type { KeywordZodNodes } from '../utils/keywordZodNodes.js'
+import type { ZodMeta } from '../parsers/index.ts'
+import type { KeywordZodNodes } from '../utils/keywordZodNodes.ts'
 import type ts from 'typescript'
 
 type Options = {

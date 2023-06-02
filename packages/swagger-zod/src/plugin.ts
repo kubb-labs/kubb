@@ -10,10 +10,10 @@ import { getRelativePath, createPlugin, getPathMode, validatePlugins, writeIndex
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
 
-import { ZodBuilder } from './builders/index.js'
-import { OperationGenerator } from './generators/index.js'
+import { ZodBuilder } from './builders/index.ts'
+import { OperationGenerator } from './generators/index.ts'
 
-import type { PluginOptions } from './types.js'
+import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-zod' as const
 

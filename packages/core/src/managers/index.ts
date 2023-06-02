@@ -1,2 +1,2 @@
-export * from './fileManager/index.js'
-export * from './pluginManager/index.js'
+export * from './fileManager/index.ts'
+export * from './pluginManager/index.ts'

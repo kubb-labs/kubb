@@ -4,9 +4,9 @@ import pathParser from 'node:path'
 
 import { createPlugin } from '@kubb/core'
 
-import { oasParser } from './parsers/oasParser.js'
+import { oasParser } from './parsers/oasParser.ts'
 
-import type { Api, PluginOptions } from './types.js'
+import type { Api, PluginOptions } from './types.ts'
 import type { OpenAPIV3 } from 'openapi-types'
 
 export const pluginName = 'swagger' as const

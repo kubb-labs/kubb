@@ -1,9 +1,9 @@
 import pathParser from 'node:path'
 
-import { createPluginCache, transformReservedWord } from './utils/index.js'
+import { createPluginCache, transformReservedWord } from './utils/index.ts'
 
-import type { FileManager } from './managers/fileManager/FileManager.js'
-import type { PluginContext, KubbPlugin, PluginFactoryOptions } from './types.js'
+import type { FileManager } from './managers/fileManager/FileManager.ts'
+import type { PluginContext, KubbPlugin, PluginFactoryOptions } from './types.ts'
 
 type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (
   options: T['options']

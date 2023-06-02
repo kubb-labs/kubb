@@ -1,4 +1,4 @@
-import { parseZod } from './zodParser.js'
+import { parseZod } from './zodParser.ts'
 
 const input = [
   {

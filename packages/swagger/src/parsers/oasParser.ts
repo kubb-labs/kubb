@@ -8,12 +8,12 @@ import oas from 'oas'
 import type { KubbConfig } from '@kubb/core'
 import { isURL } from '@kubb/core'
 
-import { isOpenApiV3Document } from '../utils/index.js'
+import { isOpenApiV3Document } from '../utils/index.ts'
 
 import type { OpenAPIV2 } from 'openapi-types'
-import type { OASDocument } from 'oas/dist/rmoas.types.js'
+import type { OASDocument } from 'oas/dist/rmoas.types.ts'
 
-const Oas = oas.default
+const Oas = oas as unknown as typeof oas.default
 const OASNormalize = oasNormalize.default
 
 export type OasOptions = {

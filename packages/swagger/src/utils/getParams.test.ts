@@ -1,4 +1,4 @@
-import { getParams } from './getParams.js'
+import { getParams } from './getParams.ts'
 
 describe('getParams', () => {
   test('if operation returns a string with parameters', async () => {

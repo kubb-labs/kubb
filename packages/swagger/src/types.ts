@@ -2,7 +2,7 @@ import type { PluginFactoryOptions, KubbConfig, Path } from '@kubb/core'
 
 import type oas from 'oas'
 import type { OpenAPIV3 } from 'openapi-types'
-import type { OasOptions } from './parsers/oasParser.js'
+import type { OasOptions } from './parsers/oasParser.ts'
 
 export type Oas = oas.default
 
@@ -31,7 +31,7 @@ export type { default as Oas } from 'oas'
 export type { Operation } from 'oas'
 
 export type { OpenAPIV3 } from 'openapi-types'
-export type { HttpMethods as HttpMethod } from 'oas/dist/rmoas.types.js'
+export type { HttpMethods as HttpMethod } from 'oas/dist/rmoas.types.ts'
 
 export type Resolver = {
   name: string

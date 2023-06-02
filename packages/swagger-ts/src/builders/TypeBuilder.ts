@@ -4,7 +4,7 @@ import type { PluginContext } from '@kubb/core'
 import { nameSorter } from '@kubb/core'
 import { createImportDeclaration, print } from '@kubb/ts-codegen'
 
-import { TypeGenerator } from '../generators/TypeGenerator.js'
+import { TypeGenerator } from '../generators/TypeGenerator.ts'
 
 import type ts from 'typescript'
 

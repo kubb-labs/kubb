@@ -1,1 +1,1 @@
-export * from './keywordZodNodes.js'
+export * from './keywordZodNodes.ts'

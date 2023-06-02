@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { build } from './build.js'
+import { build } from './build.ts'
 
-export * from './config.js'
-export * from './build.js'
-export * from './types.js'
-export { CorePluginOptions, createPlugin, name } from './plugin.js'
+export * from './config.ts'
+export * from './build.ts'
+export * from './types.ts'
+export { CorePluginOptions, createPlugin, name } from './plugin.ts'
 
-export * from './utils/index.js'
-export * from './managers/index.js'
-export * from './generators/index.js'
+export * from './utils/index.ts'
+export * from './managers/index.ts'
+export * from './generators/index.ts'
 
 export default build

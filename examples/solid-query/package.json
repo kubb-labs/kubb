@@ -16,7 +16,7 @@
     "build": "tsup",
     "start": "tsup --watch",
     "test": "vitest",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit"
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/cli": "workspace:*",

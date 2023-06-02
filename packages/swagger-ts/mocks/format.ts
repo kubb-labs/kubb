@@ -1,5 +1,5 @@
 import { format as prettierFormat } from 'prettier'
-import parserTypescript from 'prettier/parser-typescript'
+import parserTypescript from 'prettier/parser-typescript.js'
 
 import type { Options } from 'prettier'
 

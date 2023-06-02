@@ -1,9 +1,9 @@
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 
-import { getConfig } from './getConfig.js'
+import { getConfig } from './getConfig.ts'
 
-import type { CosmiconfigResult } from '../types.js'
+import type { CosmiconfigResult } from '../types.ts'
 
 describe('getConfig', () => {
   test('return object when config is set with defineConfig', async () => {

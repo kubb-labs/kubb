@@ -1,4 +1,4 @@
-import { Generator } from './Generator.js'
+import { Generator } from './Generator.ts'
 /**
  * Abstract class that contains the building blocks for plugins to create their own SchemaGenerator
  */

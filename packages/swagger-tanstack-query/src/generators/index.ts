@@ -1,1 +1,1 @@
-export * from './OperationGenerator.js'
+export * from './OperationGenerator.ts'

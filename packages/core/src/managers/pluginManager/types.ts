@@ -1,4 +1,4 @@
-import type { PluginLifecycle } from '../../types.js'
+import type { PluginLifecycle } from '../../types.ts'
 /**
  * Get the type of the first argument in a function.
  * @example Arg0<(a: string, b: number) => void> -> string

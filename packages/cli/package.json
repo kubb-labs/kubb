@@ -18,6 +18,7 @@
   ],
   "sideEffects": false,
   "type": "module",
+  "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
@@ -40,7 +41,7 @@
     "test": "vitest --passWithNoTests",
     "upgrade": "ncu -u",
     "upgrade:local": "ncu --interactive --doctor",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit"
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@humanwhocodes/module-importer": "^1.0.1",

@@ -2,9 +2,9 @@ import type { Api } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
 import type { PluginContext } from '@kubb/core'
 
-import { OperationGenerator } from './OperationGenerator.js'
+import { OperationGenerator } from './OperationGenerator.ts'
 
-import { format } from '../../mocks/format.js'
+import { format } from '../../mocks/format.ts'
 
 describe('OperationGenerator', () => {
   const swagger = createSwagger({})

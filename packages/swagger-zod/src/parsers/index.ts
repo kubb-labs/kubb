@@ -1,1 +1,1 @@
-export * from './zodParser.js'
+export * from './zodParser.ts'
