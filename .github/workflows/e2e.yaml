@@ -42,4 +42,5 @@ jobs:
           run: |
             pnpm install
             pnpm generate --input ./schemas/petStore.yaml
+            pnpm clean
 

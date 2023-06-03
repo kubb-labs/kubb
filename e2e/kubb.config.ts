@@ -11,7 +11,7 @@ export default defineConfig(() => {
       clean: true,
     },
     hooks: {
-      done: ['pnpm typecheck', 'rimraf ./gen'],
+      done: ['pnpm typecheck'],
     },
     plugins: [
       ['@kubb/swagger', { output: false, validate: true }],

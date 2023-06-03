@@ -12,6 +12,7 @@
   "sideEffects": false,
   "scripts": {
     "generate": "kubb",
+    "clean": "rimraf ./gen",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
