@@ -43,5 +43,9 @@ jobs:
 
         - name: E2e
           working-directory: ./e2e
-          run: pnpm generate --input ./schemas/f.yaml
+          run: |
+            pnpm generate --input ./schemas/petStore.yaml
+            pnpm generate --input ./schemas/twitter.json
+            pnpm generate --input ./schemas/twitter2.json
+            pnpm clean
 
