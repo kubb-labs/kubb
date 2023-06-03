@@ -4,7 +4,7 @@ export default defineConfig(() => {
   return {
     root: '.',
     input: {
-      path: './petStore.yaml',
+      path: './schemas/petStore.yaml',
     },
     output: {
       path: './gen',
