@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid'
+import crypto from 'node:crypto'
 
 import { write, read } from '../../utils/index.ts'
 
@@ -44,7 +44,7 @@ export class FileManager {
   }
 
   async add(file: File) {
-    const cacheItem = { id: uuidv4(), file, status: 'new' as Status }
+    const cacheItem = { id: crypto.randomUUID(), file, status: 'new' as Status }
 
     this.cache.set(cacheItem.id, cacheItem)
 

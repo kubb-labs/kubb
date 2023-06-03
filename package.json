@@ -17,9 +17,9 @@
     ]
   },
   "scripts": {
-    "build": "turbo run build",
+    "build": "turbo run build --filter='./packages/*'",
     "generate": "turbo run generate",
-    "start": "turbo run start",
+    "start": "turbo run start --filter='./packages/*'",
     "graph": "nx graph ",
     "lint": "eslint packages/**/*.ts",
     "lint-fix": "eslint packages/**/*.ts --quiet --fix",
