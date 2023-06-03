@@ -34,10 +34,6 @@ jobs:
         - name: Install dependencies
           working-directory: ./e2e
           run: pnpm install
-          
-        - name: Build
-          working-directory: ./e2e
-          run: pnpm build
 
         - name: E2e
           working-directory: ./e2e
