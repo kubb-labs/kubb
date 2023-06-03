@@ -49,16 +49,20 @@ Options:
 Path to the Kubb config.
 
 ```sh copy
-npx kubb -c config.ts
+npx kubb -c kubb.config.ts
+```
+
+### --input (-i)
+
+Path of the input file(overrides the on in `kubb.config.js`)
+
+```sh copy
+npx kubb -i petStore.yaml
 ```
 
 ### --debug (-d)
 
 Debug mode (default: false).
-
-```sh copy
-npx kubb -d
-```
 
 ```sh copy
 npx kubb -d

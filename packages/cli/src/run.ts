@@ -58,15 +58,19 @@ export async function run({ config, options, spinner }: RunProps) {
   }
 
   try {
-    spinner.start('🚀 Building')
-
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
     const { root, ...userConfig } = config
+
+    spinner.start(`🚀 Building(${options.input ?? userConfig.input.path})`)
 
     await build({
       config: {
         root: process.cwd(),
         ...userConfig,
+        input: {
+          ...userConfig.input,
+          path: options.input ?? userConfig.input.path,
+        },
         output: {
           write: true,
           ...userConfig.output,
