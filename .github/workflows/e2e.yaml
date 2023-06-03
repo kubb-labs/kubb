@@ -41,5 +41,5 @@ jobs:
           working-directory: ./e2e
           run: |
             pnpm install
-            kubb --input ./schemas/petStore.yaml
+            pnpm generate --input ./schemas/petStore.yaml
 
