@@ -4,7 +4,7 @@ import { defineConfig, type Options } from 'tsup'
 const baseOptions = {
   entry: ['src/index.ts'],
   treeshake: true,
-  sourcemap: false,
+  sourcemap: true,
   minify: false,
   clean: true,
   /**
@@ -26,10 +26,34 @@ export default defineConfig([
   },
   {
     ...baseOptions,
+    format: 'cjs',
+    dts: {
+      compilerOptions: {
+        target: 'ES5',
+        module: 'commonjs',
+        moduleResolution: 'node',
+      },
+    },
+  },
+  {
+    ...baseOptions,
     entry: ['src/client.ts'],
     name: 'client',
     format: 'esm',
     dts: true,
     splitting: false,
+  },
+  {
+    ...baseOptions,
+    entry: ['src/index.ts'],
+    name: 'client',
+    format: 'cjs',
+    dts: {
+      compilerOptions: {
+        target: 'ES5',
+        module: 'commonjs',
+        moduleResolution: 'node',
+      },
+    },
   },
 ])

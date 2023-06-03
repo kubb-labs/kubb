@@ -50,6 +50,7 @@ jobs:
              CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
         - name: Release
+          continue-on-error: true
           if: ${{ success() && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

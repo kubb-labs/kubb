@@ -1,5 +1,3 @@
-import uniq from 'lodash.uniq'
-
 import { Generator } from '@kubb/core'
 
 import type { FileResolver } from '../builders/OasBuilder.ts'
@@ -39,7 +37,7 @@ export class ImportsGenerator extends Generator<Options> {
     }
 
     // add imports based on $ref
-    const importPromises = uniq(Object.keys(refs)).map(async ($ref: string) => {
+    const importPromises = [...new Set(Object.keys(refs))].map(async ($ref: string) => {
       const { propertyName, originalName, name } = refs[$ref]
 
       const exists = imports.some((item) => item.name.toLowerCase() === originalName.toLowerCase())

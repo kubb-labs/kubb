@@ -1,37 +1,30 @@
-import url from 'node:url'
-
 import { cosmiconfig } from 'cosmiconfig'
 import yaml from 'yaml'
 import tsNode from 'ts-node'
 
+import { importModule } from './importModule.ts'
+
 import type { CosmiconfigResult } from '../types.ts'
 
 const jsLoader = async (configFile: string) => {
-  const module = await import(url.pathToFileURL(configFile).href)
-  return module.default
+  return importModule(configFile)
 }
-// TODO fix tsLoader
+// TODO fix tsLoader for node 20
 // https://github.com/TypeStrong/ts-node/issues/1997
 const tsLoader = async (configFile: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   let registerer = { enabled() {} }
 
   try {
     // Register TypeScript compiler instance
     registerer = tsNode.register({
-      compilerOptions: {
-        target: 'esnext',
-        esModuleInterop: true,
-        module: 'esnext', // "module": "CommonJS" should work too
-        moduleResolution: 'Node',
-      },
-      esm: true,
-      experimentalSpecifierResolution: 'explicit',
+      compilerOptions: { module: 'commonjs' },
       swc: true,
       typeCheck: false,
     })
 
     const module = require(configFile)
-    return module
+    return module.default
   } catch (err: any) {
     if (err.code === 'MODULE_NOT_FOUND') {
       throw new Error(`'ts-node' is required for the TypeScript configuration files. Make sure it is installed\nError: ${err.message}`)
@@ -54,12 +47,12 @@ export async function getCosmiConfig(moduleName: string, config?: string) {
       `.${moduleName}rc.yaml`,
       `.${moduleName}rc.yml`,
       // TODO fix tsLoader
-      // `.${moduleName}rc.ts`,
+      `.${moduleName}rc.ts`,
       `.${moduleName}rc.js`,
       `.${moduleName}rc.cjs`,
       `.${moduleName}rc.mjs`,
       // TODO fix tsLoader
-      // `${moduleName}.config.ts`,
+      `${moduleName}.config.ts`,
       `${moduleName}.config.js`,
       `${moduleName}.config.cjs`,
       `${moduleName}.config.mjs`,
@@ -70,8 +63,7 @@ export async function getCosmiConfig(moduleName: string, config?: string) {
       '.js': jsLoader,
       '.cjs': jsLoader,
       '.mjs': jsLoader,
-      // TODO fix tsLoader
-      // '.ts': tsLoader,
+      '.ts': tsLoader,
       noExt: jsLoader,
     },
   })

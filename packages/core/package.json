@@ -25,7 +25,7 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "module": "./dist/index.js",
-      "default": "./dist/index.js"
+      "default": "./dist/index.cjs"
     },
     "./package.json": "./package.json"
   },
@@ -55,13 +55,10 @@
     "@kubb/ts-codegen": "workspace:*",
     "change-case": "^4.1.2",
     "directory-tree": "^3.5.1",
-    "lodash.uniq": "^4.5.0",
-    "rimraf": "^3.0.2",
+    "rimraf": "^5.0.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/lodash.uniq": "^4.5.7",
-    "@types/rimraf": "^3.0.2",
     "@types/uuid": "^9.0.1",
     "tsup": "^6.7.0",
     "typescript": "^5.1.3"

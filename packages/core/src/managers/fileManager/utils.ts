@@ -1,7 +1,5 @@
 import pathParser from 'node:path'
 
-import uniq from 'lodash.uniq'
-
 import { createImportDeclaration, createExportDeclaration, print } from '@kubb/ts-codegen'
 
 import { TreeNode } from '../../utils/index.ts'
@@ -112,7 +110,7 @@ export function getFileSource(file: File) {
     if (!exists) {
       imports.push({
         ...curr,
-        name: Array.isArray(curr.name) ? uniq(curr.name) : curr.name,
+        name: Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name,
       })
     }
 
@@ -122,7 +120,7 @@ export function getFileSource(file: File) {
 
     if (exists && Array.isArray(exists.name)) {
       if (Array.isArray(curr.name)) {
-        exists.name = uniq([...exists.name, ...curr.name])
+        exists.name = [...new Set([...exists.name, ...curr.name])]
       }
     }
   })
@@ -132,7 +130,7 @@ export function getFileSource(file: File) {
     if (!exists) {
       exports.push({
         ...curr,
-        name: Array.isArray(curr.name) ? uniq(curr.name) : curr.name,
+        name: Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name,
       })
     }
 
@@ -142,7 +140,7 @@ export function getFileSource(file: File) {
 
     if (exists && Array.isArray(exists.name)) {
       if (Array.isArray(curr.name)) {
-        exists.name = uniq([...exists.name, ...curr.name])
+        exists.name = [...new Set([...exists.name, ...curr.name])]
       }
     }
   })

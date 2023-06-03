@@ -44,7 +44,6 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@humanwhocodes/module-importer": "^1.0.1",
     "@kubb/core": "workspace:*",
     "chokidar": "^3.5.3",
     "commander": "^10.0.1",
@@ -52,7 +51,6 @@
     "execa": "^7.1.1",
     "ora": "^6.3.1",
     "picocolors": "^1.0.0",
-    "lodash.isobject": "^3.0.2",
     "string-argv": "^0.3.2",
     "ts-node": "^10.9.1",
     "yaml": "^2.3.1",
@@ -61,7 +59,6 @@
   "devDependencies": {
     "@kubb/swagger": "workspace:*",
     "@types/node": "^20.2.5",
-    "@types/lodash.isobject": "^3.0.7",
     "tsup": "^6.7.0",
     "typescript": "^5.1.3"
   },

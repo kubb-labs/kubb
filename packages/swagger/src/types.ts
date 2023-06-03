@@ -1,13 +1,11 @@
 import type { PluginFactoryOptions, KubbConfig, Path } from '@kubb/core'
 
-import type oas from 'oas'
+import type Oas from 'oas'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { OasOptions } from './parsers/oasParser.ts'
 
-export type Oas = oas.default
-
 export type Api = {
-  getOas: (config: KubbConfig, options?: OasOptions) => Promise<oas.default>
+  getOas: (config: KubbConfig, options?: OasOptions) => Promise<Oas>
 }
 
 export type Options = {

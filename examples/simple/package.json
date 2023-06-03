@@ -10,7 +10,6 @@
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
-  "type": "module",
   "scripts": {
     "generate": "pnpm generate:ts",
     "generate:ts": "kubb --debug",

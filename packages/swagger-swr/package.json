@@ -32,7 +32,7 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "module": "./dist/index.js",
-      "default": "./dist/index.js"
+      "default": "./dist/index.cjs"
     },
     "./package.json": "./package.json"
   },

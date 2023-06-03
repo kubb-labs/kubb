@@ -10,10 +10,9 @@
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
-  "type": "module",
   "scripts": {
     "generate": "pnpm generate:ts",
-    "generate:ts": "kubb --config kubb.config.js",
+    "generate:ts": "kubb --config kubb.config.ts",
     "generate:json": "kubb --config kubb.json",
     "generate:js": "kubb --config .kubbrc",
     "build": "tsup",

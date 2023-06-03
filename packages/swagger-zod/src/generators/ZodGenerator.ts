@@ -1,6 +1,5 @@
 /* eslint-disable no-param-reassign */
 import { pascalCase } from 'change-case'
-import uniq from 'lodash.uniq'
 import uniqueId from 'lodash.uniqueid'
 
 import type { PluginContext } from '@kubb/core'
@@ -211,11 +210,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         return [
           {
             keyword: keywordZodNodes.enum,
-            args: [
-              `[${uniq(schema['x-enumNames'] as string[])
-                .map((value) => `\`${value}\``)
-                .join(', ')}]`,
-            ],
+            args: [`[${[...new Set(schema['x-enumNames'] as string[])].map((value) => `\`${value}\``).join(', ')}]`],
           },
         ]
       }
@@ -223,11 +218,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       return [
         {
           keyword: keywordZodNodes.enum,
-          args: [
-            `[${uniq(schema.enum)
-              .map((value) => `\`${value}\``)
-              .join(', ')}]`,
-          ],
+          args: [`[${[...new Set(schema.enum)].map((value) => `\`${value}\``).join(', ')}]`],
         },
       ]
     }
