@@ -37,12 +37,11 @@ jobs:
         - name: Build
           run: pnpm build
 
+        - name: Install e2e dependencies
+          run: pnpm install
+          working-directory: ./e2e
+
         - name: E2e
           working-directory: ./e2e
-          run: |
-            pnpm install
-            pnpm generate --input ./schemas/petStore.yaml
-            pnpm generate --input ./schemas/twitter.json
-            pnpm generate --input ./schemas/twitter2.json
-            pnpm clean
+          run: pnpm generate --input ./schemas/petStore.yaml
 
