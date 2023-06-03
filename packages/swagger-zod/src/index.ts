@@ -1,10 +1,12 @@
-import { definePlugin } from './plugin'
+import { definePlugin } from './plugin.ts'
 
-export * from './plugin'
-export * from './generators'
-export * from './parsers'
-export * from './builders'
-export * as codeGen from './utils/keywordZodNodes'
-export * from './utils'
-export * from './types'
+export * from './plugin.ts'
+export * from './types.ts'
+
+export * from './generators/index.ts'
+export * from './parsers/index.ts'
+export * from './builders/index.ts'
+
+export * from './utils/index.ts'
+
 export default definePlugin

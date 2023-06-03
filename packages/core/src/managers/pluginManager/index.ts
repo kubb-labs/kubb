@@ -1,3 +1,3 @@
-export * from './PluginManager'
-export * from './types'
-export * from './validate'
+export * from './PluginManager.ts'
+export * from './types.ts'
+export * from './validate.ts'

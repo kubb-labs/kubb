@@ -1,15 +1,15 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 
-import { definePlugin } from '../../plugin'
-import { FileManager } from '../fileManager'
-import { Queue } from '../../utils/Queue'
+import { definePlugin } from '../../plugin.ts'
+import { FileManager } from '../fileManager/FileManager.ts'
+import { Queue } from '../../utils/Queue.ts'
 
-import type { QueueTask } from '../../utils/Queue'
-import type { Argument0, Strategy } from './types'
-import type { KubbConfig, KubbPlugin, PluginLifecycleHooks, PluginLifecycle, MaybePromise, ResolvePathParams, ResolveNameParams } from '../../types'
-import type { Logger } from '../../build'
-import type { CorePluginOptions } from '../../plugin'
+import type { QueueTask } from '../../utils/Queue.ts'
+import type { Argument0, Strategy } from './types.ts'
+import type { KubbConfig, KubbPlugin, PluginLifecycleHooks, PluginLifecycle, MaybePromise, ResolvePathParams, ResolveNameParams } from '../../types.ts'
+import type { Logger } from '../../build.ts'
+import type { CorePluginOptions } from '../../plugin.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 

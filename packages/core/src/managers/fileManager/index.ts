@@ -1,3 +1,3 @@
-export * from './FileManager'
-export * from './types'
-export * from './utils'
+export * from './FileManager.ts'
+export * from './types.ts'
+export * from './utils.ts'

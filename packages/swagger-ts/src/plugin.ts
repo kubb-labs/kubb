@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 
-import pathParser from 'path'
+import pathParser from 'node:path'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
@@ -10,10 +10,10 @@ import { getRelativePath, createPlugin, getPathMode, validatePlugins, writeIndex
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
 
-import { TypeBuilder } from './builders'
-import { OperationGenerator } from './generators/OperationGenerator'
+import { TypeBuilder } from './builders/index.ts'
+import { OperationGenerator } from './generators/index.ts'
 
-import type { PluginOptions } from './types'
+import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-ts' as const
 

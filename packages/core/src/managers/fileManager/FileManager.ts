@@ -1,9 +1,9 @@
-import { v4 as uuidv4 } from 'uuid'
+import crypto from 'node:crypto'
 
-import { write, read } from '../../utils'
+import { write, read } from '../../utils/index.ts'
 
-import type { QueueTask, Queue } from '../../utils'
-import type { CacheStore, UUID, Status, File } from './types'
+import type { QueueTask, Queue } from '../../utils/index.ts'
+import type { CacheStore, UUID, Status, File } from './types.ts'
 
 export class FileManager {
   private cache: Map<CacheStore['id'], CacheStore> = new Map()
@@ -44,7 +44,7 @@ export class FileManager {
   }
 
   async add(file: File) {
-    const cacheItem = { id: uuidv4(), file, status: 'new' as Status }
+    const cacheItem = { id: crypto.randomUUID(), file, status: 'new' as Status }
 
     this.cache.set(cacheItem.id, cacheItem)
 

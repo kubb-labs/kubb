@@ -1,5 +1,5 @@
-import pathParser from 'path'
-import { promises as fs } from 'fs'
+import pathParser from 'node:path'
+import { promises as fs } from 'node:fs'
 
 function slash(path: string) {
   const isExtendedLengthPath = /^\\\\\?\\/.test(path)

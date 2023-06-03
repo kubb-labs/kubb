@@ -1,12 +1,12 @@
-import pathParser from 'path'
+import pathParser from 'node:path'
 
 /* eslint-disable consistent-return */
 
 import { createPlugin } from '@kubb/core'
 
-import { oasParser } from './parsers'
+import { oasParser } from './parsers/oasParser.ts'
 
-import type { Api, PluginOptions } from './types'
+import type { Api, PluginOptions } from './types.ts'
 import type { OpenAPIV3 } from 'openapi-types'
 
 export const pluginName = 'swagger' as const

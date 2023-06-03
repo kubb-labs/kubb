@@ -1,8 +1,41 @@
-/* eslint-disable consistent-return */
-import { cosmiconfig, defaultLoaders } from 'cosmiconfig'
-import { TypeScriptLoader } from 'cosmiconfig-typescript-loader'
+import { cosmiconfig } from 'cosmiconfig'
+import yaml from 'yaml'
+import tsNode from 'ts-node'
 
-import type { CosmiconfigResult } from '../types'
+import { importModule } from './importModule.ts'
+
+import type { CosmiconfigResult } from '../types.ts'
+
+const jsLoader = async (configFile: string) => {
+  return importModule(configFile)
+}
+// TODO fix tsLoader for node 20
+// https://github.com/TypeStrong/ts-node/issues/1997
+const tsLoader = async (configFile: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  let registerer = { enabled() {} }
+
+  try {
+    // Register TypeScript compiler instance
+    registerer = tsNode.register({
+      compilerOptions: { module: 'commonjs' },
+      swc: true,
+      typeCheck: false,
+    })
+
+    const module = require(configFile)
+    return module.default
+  } catch (err: any) {
+    if (err.code === 'MODULE_NOT_FOUND') {
+      throw new Error(`'ts-node' is required for the TypeScript configuration files. Make sure it is installed\nError: ${err.message}`)
+    }
+    console.log(err)
+
+    throw err
+  } finally {
+    registerer.enabled()
+  }
+}
 
 export async function getCosmiConfig(moduleName: string, config?: string) {
   const explorer = cosmiconfig(moduleName, {
@@ -11,21 +44,27 @@ export async function getCosmiConfig(moduleName: string, config?: string) {
       'package.json',
       `.${moduleName}rc`,
       `.${moduleName}rc.json`,
-      // commonjs
+      `.${moduleName}rc.yaml`,
+      `.${moduleName}rc.yml`,
+      // TODO fix tsLoader
+      `.${moduleName}rc.ts`,
       `.${moduleName}rc.js`,
       `.${moduleName}rc.cjs`,
+      `.${moduleName}rc.mjs`,
+      // TODO fix tsLoader
+      `${moduleName}.config.ts`,
       `${moduleName}.config.js`,
       `${moduleName}.config.cjs`,
-      // esm and typescript
-      `.${moduleName}rc.ts`,
-      `${moduleName}.config.ts`,
+      `${moduleName}.config.mjs`,
     ],
     loaders: {
-      '.ts': TypeScriptLoader({
-        swc: true,
-        typeCheck: false,
-      }),
-      noExt: defaultLoaders['.js'],
+      '.yaml': (filepath, content) => yaml.parse(content),
+      '.yml': (filepath, content) => yaml.parse(content),
+      '.js': jsLoader,
+      '.cjs': jsLoader,
+      '.mjs': jsLoader,
+      '.ts': tsLoader,
+      noExt: jsLoader,
     },
   })
 

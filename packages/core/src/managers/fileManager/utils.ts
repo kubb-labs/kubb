@@ -1,15 +1,13 @@
-import pathParser from 'path'
-
-import uniq from 'lodash.uniq'
+import pathParser from 'node:path'
 
 import { createImportDeclaration, createExportDeclaration, print } from '@kubb/ts-codegen'
 
-import { TreeNode } from '../../utils'
+import { TreeNode } from '../../utils/index.ts'
 
-import type { PathMode, TreeNodeOptions } from '../../utils'
-import type { Path } from '../../types'
+import type { PathMode, TreeNodeOptions } from '../../utils/index.ts'
+import type { Path } from '../../types.ts'
 import type ts from 'typescript'
-import type { File } from './types'
+import type { File } from './types.ts'
 
 export function writeIndexes(root: string, options: TreeNodeOptions) {
   const tree = TreeNode.build<{ type: PathMode; path: Path; name: string }>(root, { extensions: /\.ts/, ...options })
@@ -112,7 +110,7 @@ export function getFileSource(file: File) {
     if (!exists) {
       imports.push({
         ...curr,
-        name: Array.isArray(curr.name) ? uniq(curr.name) : curr.name,
+        name: Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name,
       })
     }
 
@@ -122,7 +120,7 @@ export function getFileSource(file: File) {
 
     if (exists && Array.isArray(exists.name)) {
       if (Array.isArray(curr.name)) {
-        exists.name = uniq([...exists.name, ...curr.name])
+        exists.name = [...new Set([...exists.name, ...curr.name])]
       }
     }
   })
@@ -132,7 +130,7 @@ export function getFileSource(file: File) {
     if (!exists) {
       exports.push({
         ...curr,
-        name: Array.isArray(curr.name) ? uniq(curr.name) : curr.name,
+        name: Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name,
       })
     }
 
@@ -142,7 +140,7 @@ export function getFileSource(file: File) {
 
     if (exists && Array.isArray(exists.name)) {
       if (Array.isArray(curr.name)) {
-        exists.name = uniq([...exists.name, ...curr.name])
+        exists.name = [...new Set([...exists.name, ...curr.name])]
       }
     }
   })

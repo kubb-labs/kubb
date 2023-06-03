@@ -1,1 +1,1 @@
-export * from './OasBuilder'
+export * from './OasBuilder.ts'

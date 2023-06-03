@@ -1,1 +1,1 @@
-export * from './OperationGenerator'
+export * from './OperationGenerator.ts'

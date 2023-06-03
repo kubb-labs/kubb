@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 import ts from 'typescript'
 import { pascalCase, camelCase } from 'change-case'
-import uniq from 'lodash.uniq'
 import uniqueId from 'lodash.uniqueid'
 
 import type { PluginContext } from '@kubb/core'
@@ -20,8 +19,8 @@ import {
   modifier,
 } from '@kubb/ts-codegen'
 
-import { keywordTypeNodes } from '../utils'
-import { pluginName } from '../plugin'
+import { keywordTypeNodes } from '../utils/index.ts'
+import { pluginName } from '../plugin.ts'
 
 const { factory } = ts
 
@@ -251,10 +250,10 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     if (schema.enum && baseName) {
       const enumName = getUniqueName(baseName, TypeGenerator.usedEnumNames)
 
-      let enums: [key: string, value: string | number][] = uniq(schema.enum)!.map((key) => [key, key])
+      let enums: [key: string, value: string | number][] = [...new Set(schema.enum)]!.map((key) => [key, key])
 
       if ('x-enumNames' in schema) {
-        enums = uniq(schema['x-enumNames'] as string[]).map((key: string, index) => {
+        enums = [...new Set(schema['x-enumNames'] as string[])].map((key: string, index) => {
           return [key, schema.enum![index]]
         })
       }

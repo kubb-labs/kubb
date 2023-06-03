@@ -1,14 +1,11 @@
 /* eslint-disable no-async-promise-executor */
-import pathParser from 'path'
+import { PluginManager } from './managers/pluginManager/index.ts'
+import { clean } from './utils/index.ts'
+import { getFileSource } from './managers/fileManager/index.ts'
 
-import { isURL } from './utils/isURL'
-import { PluginManager } from './managers/pluginManager'
-import { clean, read } from './utils'
-import { getFileSource } from './managers/fileManager'
-
-import type { FileManager, File } from './managers/fileManager'
-import type { QueueTask } from './utils'
-import type { PluginContext, TransformResult, LogLevel, KubbPlugin } from './types'
+import type { FileManager, File } from './managers/fileManager/index.ts'
+import type { QueueTask } from './utils/index.ts'
+import type { PluginContext, TransformResult, LogLevel, KubbPlugin } from './types.ts'
 
 type BuildOutput = {
   files: FileManager['files']

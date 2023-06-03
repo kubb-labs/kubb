@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */
-import { promises as fs } from 'fs'
-import pathParser from 'path'
+import { promises as fs } from 'node:fs'
+import pathParser from 'node:path'
 
 async function safeWriteFileToPath(path: string, data: string) {
   // resolve the full path and get just the directory, ignoring the file and extension

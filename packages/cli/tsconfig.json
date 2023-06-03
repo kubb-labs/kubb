@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
-    "strict": true,
+    "module": "esnext", 
     "moduleResolution": "node",
+    "strict": true,
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react",
     "declaration": true,
     "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "allowImportingTsExtensions": true,
     "outDir": "es",
     "experimentalDecorators": true,
     "skipLibCheck": true,
@@ -28,6 +30,6 @@
   "exclude": [
     "**/node_modules",
     "**/types/**",
-   
+    "**/mocks/**"
   ]
 }

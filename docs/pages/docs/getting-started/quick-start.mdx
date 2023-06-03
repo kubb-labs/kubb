@@ -11,10 +11,10 @@ kubb
 
 ## Simple example
  ```bash filename="cli" copy
-kubb --config kubb.config.ts
+kubb --config kubb.config.js
 ```
 
-```typescript filename="kubb.config.ts" copy
+```typescript filename="kubb.config.js" copy
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig(async () => {
@@ -35,10 +35,10 @@ export default defineConfig(async () => {
 
 ## Examples with plugins
  ```bash filename="cli" copy
-kubb --config kubb.config.ts
+kubb --config kubb.config.js
 ```
 
-```typescript filename="kubb.config.ts" copy
+```typescript filename="kubb.config.js" copy
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
@@ -61,10 +61,10 @@ export default defineConfig(async () => {
 
 ## Example with plugins in JSON format
  ```bash filename="cli" copy
-kubb --config kubb.config.ts
+kubb --config kubb.config.js
 ```
 
-```typescript filename="kubb.config.ts" copy
+```typescript filename="kubb.config.js" copy
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig(() => {

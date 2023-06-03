@@ -49,13 +49,13 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'import/no-dynamic-require': 'off',
     'import/extensions': [
-      'error',
+      'warn',
       'ignorePackages',
       {
-        js: 'ignorePackages',
-        jsx: 'ignorePackages',
-        ts: 'ignorePackages',
-        tsx: 'ignorePackages',
+        js: 'always',
+        jsx: 'always',
+        ts: 'always',
+        tsx: 'always',
       },
     ],
     'import/no-extraneous-dependencies': 'off',

@@ -1,12 +1,12 @@
-import pathParser from 'path'
+import pathParser from 'node:path'
 
 import { oasPathParser } from '@kubb/swagger'
 import type { OpenAPIV3 } from '@kubb/swagger'
 import { print } from '@kubb/ts-codegen'
 
-import { TypeGenerator } from './TypeGenerator'
+import { TypeGenerator } from './TypeGenerator.ts'
 
-import { format } from '../../mocks/format'
+import { format } from '../../mocks/format.ts'
 
 describe('TypeGenerator simple', () => {
   const path = pathParser.resolve(__dirname, '../../mocks/petStore.yaml')

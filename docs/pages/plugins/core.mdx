@@ -11,7 +11,7 @@ The core contains the building blocks for all plugins.
 - Types needed to create a plugin and the types needed for the lifecycle/pluginManager.
 - Basic utilities as [`isPromise`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/utils/isPromise.ts), [`isURL`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/utils/isURL.ts), [`createJSDocBlockText`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/utils/createJSDocBlockText.ts), `cache`, ...
 - [`createPlugin`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/plugin.ts) functionality to setup a plugin.
-- [`defineConfig`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/config.ts) functionality to setup the `kubb.config.ts` file.
+- [`defineConfig`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/config.ts) functionality to setup the `kubb.config.js` file.
 - Abstract classes for plugins
   - [`Generator`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/generators/Generator.ts) which contains the base with getter for `options` and a `build` function.
   - [`SchemaGenerator`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/generators/SchemaGenerator.ts) which is a layer on top of `Generator`.

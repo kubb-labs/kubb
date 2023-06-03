@@ -10,15 +10,16 @@
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
+  "type": "module",
   "scripts": {
     "generate": "pnpm generate:ts",
-    "generate:ts": "kubb --config kubb.config.ts",
+    "generate:ts": "kubb --config kubb.config.js",
     "generate:json": "kubb --config kubb.json",
     "generate:js": "kubb --config .kubbrc",
     "build": "tsup",
     "start": "tsup --watch",
     "test": "vitest",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit"
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/cli": "workspace:*",

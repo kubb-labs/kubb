@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import type { RequestConfig } from './types'
+import type { RequestConfig } from './types.ts'
 import type { AxiosError } from 'axios'
 
 export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<TData> => {

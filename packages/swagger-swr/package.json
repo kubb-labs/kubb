@@ -52,7 +52,7 @@
     "test": "vitest --passWithNoTests",
     "upgrade": "ncu -u",
     "upgrade:local": "ncu --interactive --doctor",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit"
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
@@ -71,6 +71,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "engines": {
-    "node": "^12.17.0 || ^14.13 || >=16.0.0"
+    "node": ">=16",
+    "pnpm": ">=8"
   }
 }

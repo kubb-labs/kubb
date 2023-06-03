@@ -1,6 +1,6 @@
-import { validatePlugins } from './validate'
+import { validatePlugins } from './validate.ts'
 
-import type { KubbPlugin } from '../../types'
+import type { KubbPlugin } from '../../types.ts'
 
 describe('PluginManager validate', () => {
   test('if validatePlugins works with 2 plugins', () => {

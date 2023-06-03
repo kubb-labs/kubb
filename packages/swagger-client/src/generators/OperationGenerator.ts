@@ -4,9 +4,9 @@ import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { OperationGenerator as Generator, getComments, getParams, Path } from '@kubb/swagger'
 import type { Oas, Operation, OperationSchemas, HttpMethod, Resolver } from '@kubb/swagger'
 
-import { pluginName } from '../plugin'
+import { pluginName } from '../plugin.ts'
 
-import type { ResolvePathOptions } from '../types'
+import type { ResolvePathOptions } from '../types.ts'
 
 type Options = {
   clientPath?: OptionalPath

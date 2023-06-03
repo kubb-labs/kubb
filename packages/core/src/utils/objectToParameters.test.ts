@@ -1,4 +1,4 @@
-import { objectToParameters } from './objectToParameters'
+import { objectToParameters } from './objectToParameters.ts'
 
 describe('objectToParameters', () => {
   test('if object is resolved to a string with parameters', async () => {

@@ -1,8 +1,9 @@
-import { ModuleImporter } from '@humanwhocodes/module-importer'
-import isObject from 'lodash.isobject'
-// see https://github.com/eslint/eslint/blob/740b20826fadc5322ea5547c1ba41793944e571d/lib/cli.js
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 
 import type { KubbUserConfig, KubbJSONPlugin, KubbObjectPlugin } from '@kubb/core'
+
+import { importModule } from './importModule.ts'
 
 function isJSONPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): plugins is KubbJSONPlugin[] {
   return !!(plugins as KubbJSONPlugin[])?.some((plugin) => {
@@ -11,15 +12,13 @@ function isJSONPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): p
 }
 
 function isObjectPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): plugins is KubbObjectPlugin {
-  return isObject(plugins) && !Array.isArray(plugins)
+  return plugins instanceof Object && !Array.isArray(plugins)
 }
 
 async function importPlugin(name: string, options: object) {
-  const importer = new ModuleImporter(process.cwd())
+  const importedPlugin = process.env.NODE_ENV === 'test' ? await import(name) : await importModule(name, process.cwd())
 
-  const importedPlugin = process.env.NODE_ENV === 'test' ? await import(name) : await importer.import(name)
-
-  return importedPlugin?.default?.default ? importedPlugin.default.default(options) : importedPlugin.default(options)
+  return importedPlugin?.default ? importedPlugin.default(options) : importedPlugin(options)
 }
 
 export function getPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): Promise<KubbUserConfig['plugins']> {

@@ -1,20 +1,24 @@
-import pathParser from 'path'
+import pathParser from 'node:path'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
 import swagger2openapi from 'swagger2openapi'
-import OASNormalize from 'oas-normalize'
 
 import type { KubbConfig } from '@kubb/core'
 import { isURL } from '@kubb/core'
 
-import { isOpenApiV3Document } from '../utils'
+import { isOpenApiV3Document } from '../utils/index.ts'
 
+import type oasNormalize from 'oas-normalize'
+import type oas from 'oas'
 import type { OpenAPIV2 } from 'openapi-types'
-import type OasType from 'oas'
-import type { OASDocument } from 'oas/dist/rmoas.types'
+import type { OASDocument } from 'oas/dist/rmoas.types.ts'
+
+type Oas = typeof oas
 
 // TODO should be import Oas from "oas";
-const Oas: typeof OasType = require('oas').default
+// TODO add issue for oas to also include `exports` for ESM
+const Oas = require('oas').default as Oas
+const OASNormalize = require('oas-normalize').default as typeof oasNormalize
 
 export type OasOptions = {
   validate?: boolean
@@ -48,9 +52,9 @@ export async function oasPathParser(pathOrApi: string, { validate }: OasOptions 
 
   if (!isOpenApiV3Document(document)) {
     const convertedDocument = await convertSwagger2ToOpenApi(document)
-    return new Oas(convertedDocument)
+    return Oas.init(convertedDocument)
   }
-  return new Oas(document)
+  return Oas.init(document)
 }
 
 export async function oasParser(config: KubbConfig, options: OasOptions = {}) {

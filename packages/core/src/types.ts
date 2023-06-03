@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import type { FileManager, File } from './managers/fileManager'
-import type { Cache } from './utils/cache'
+import type { FileManager, File } from './managers/fileManager/index.ts'
+import type { Cache } from './utils/cache.ts'
 
 export interface Register {}
 
@@ -109,7 +109,7 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    */
   api?: TOptions['api']
   /**
-   * Options set for a specific plugin(see kubb.config.ts)
+   * Options set for a specific plugin(see kubb.config.js)
    */
   options?: TOptions['options']
 } & Partial<PluginLifecycle<TOptions>>

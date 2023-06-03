@@ -1,4 +1,4 @@
-import pathParser from 'path'
+import pathParser from 'node:path'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
@@ -7,9 +7,9 @@ import { getRelativePath, renderTemplate, writeIndexes, createPlugin, validatePl
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import type { Api as SwaggerApi } from '@kubb/swagger'
 
-import { OperationGenerator } from './generators'
+import { OperationGenerator } from './generators/index.ts'
 
-import type { PluginOptions } from './types'
+import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-swr' as const
 

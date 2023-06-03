@@ -1,6 +1,6 @@
 import { objectToParameters } from '@kubb/core'
 
-import type { OperationSchema } from '../types'
+import type { OperationSchema } from '../types.ts'
 
 export function getParams(operationSchema: OperationSchema | undefined, { typed }: { typed: boolean } = { typed: false }): string {
   if (!operationSchema || !operationSchema.schema.properties || !operationSchema.name) {

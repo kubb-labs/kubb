@@ -1,2 +1,2 @@
-export * from './TypeGenerator'
-export * from './OperationGenerator'
+export * from './TypeGenerator.ts'
+export * from './OperationGenerator.ts'

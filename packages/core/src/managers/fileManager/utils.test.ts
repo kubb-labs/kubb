@@ -1,8 +1,8 @@
-import pathParser from 'path'
+import pathParser from 'node:path'
 
-import { combineFiles, getFileSource } from './utils'
+import { combineFiles, getFileSource } from './utils.ts'
 
-import { format } from '../../../mocks/format'
+import { format } from '../../../mocks/format.ts'
 
 describe('FileManager utils', () => {
   test('if getFileSource is returning code with imports', () => {
@@ -49,21 +49,21 @@ describe('FileManager utils', () => {
   test('if combineFiles is removing previouscode', async () => {
     const combined = combineFiles([
       {
-        path: pathParser.resolve('./src/models/file1.js'),
-        fileName: 'file1.js',
+        path: pathParser.resolve('./src/models/file1.ts'),
+        fileName: 'file1.ts',
         source: 'export const test = 2;',
       },
       {
-        path: pathParser.resolve('./src/models/file1.js'),
-        fileName: 'file2.js',
+        path: pathParser.resolve('./src/models/file1.ts'),
+        fileName: 'file2.ts',
         source: 'export const test2 = 3;',
       },
     ])
 
     expect(combined).toEqual([
       {
-        path: pathParser.resolve('./src/models/file1.js'),
-        fileName: 'file2.js',
+        path: pathParser.resolve('./src/models/file1.ts'),
+        fileName: 'file2.ts',
         imports: [],
         exports: [],
         source: `export const test = 2;

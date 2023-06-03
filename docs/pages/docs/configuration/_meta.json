@@ -1,4 +1,4 @@
 {
-  "config-kubb": "kubb.config.ts",
+  "config-kubb": "kubb.config.js",
   "options": "Options"
 }

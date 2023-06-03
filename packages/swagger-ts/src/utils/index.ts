@@ -1,1 +1,1 @@
-export * from './keywordTypeNodes'
+export * from './keywordTypeNodes.ts'

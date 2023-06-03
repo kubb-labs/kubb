@@ -1,4 +1,4 @@
-import { Queue } from './Queue'
+import { Queue } from './Queue.ts'
 
 describe('queue', () => {
   const queue = new Queue(1)

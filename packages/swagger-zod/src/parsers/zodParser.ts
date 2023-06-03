@@ -1,4 +1,6 @@
-import { KeywordZodNodes, keywordZodNodes } from '../utils/keywordZodNodes'
+import { keywordZodNodes } from '../utils/keywordZodNodes.ts'
+
+import type { KeywordZodNodes } from '../utils/keywordZodNodes.ts'
 
 type ZodMetaBase<T> = {
   keyword: KeywordZodNodes
