@@ -38,7 +38,7 @@ jobs:
           run: pnpm build
 
         - name: E2e
-          working-directory: ./e2e
           run: |
+            cd ./e2e
             pnpm generate -- --input ./schemas/petStore.yaml
 
