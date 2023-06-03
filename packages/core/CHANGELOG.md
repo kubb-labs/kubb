@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0...@kubb/core-v1.1.0) (2023-06-03)
+
+
+### Features
+
+* **swagger-cli:** option input to override input.path of `kubb.config.js` ([76443b9](https://github.com/kubb-project/kubb/commit/76443b9956d1579c88b21699505de77e3a737f19))
+
+
+### Bug Fixes
+
+* exit code 1 with correct error handling + use of pretty-error(debug mode) ([9cbe630](https://github.com/kubb-project/kubb/commit/9cbe6303377f31cca06df6ce29a74a68cc153194))
+
 ## [1.0.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0-beta.19...@kubb/core-v1.0.0) (2023-06-02)
 
 
