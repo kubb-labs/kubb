@@ -42,5 +42,7 @@ jobs:
           run: |
             pnpm install
             pnpm generate --input ./schemas/petStore.yaml
+            pnpm generate --input ./schemas/twitter.yaml
+            pnpm generate --input ./schemas/twitter2.yaml
             pnpm clean
 
