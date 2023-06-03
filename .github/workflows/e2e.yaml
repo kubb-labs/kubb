@@ -1,4 +1,4 @@
-name: ci
+name: e2e
 
 on:
   pull_request:
@@ -39,5 +39,5 @@ jobs:
 
         - name: E2e
           run: |
-            pnpm generate --input ./schemas/petStore.yaml
+            pnpm generate -- --input ./schemas/petStore.yaml
 
