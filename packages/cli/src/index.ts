@@ -52,7 +52,6 @@ const program = new Command(moduleName)
         await run({ config, spinner, options })
       }
     } catch (e) {
-      spinner.fail(pc.red((e as Error).message))
       process.exit(1)
     }
   })
