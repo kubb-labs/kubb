@@ -1,0 +1,43 @@
+{
+  "name": "e2e",
+  "version": "0.0.1",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kubb-project/kubb.git",
+    "directory": "e2e"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "sideEffects": false,
+  "scripts": {
+    "generate": "kubb",
+    "clean": "rimraf ./gen",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/cli": "workspace:*",
+    "@kubb/core": "workspace:*",
+    "@kubb/swagger": "workspace:*",
+    "@kubb/swagger-tanstack-query": "workspace:*",
+    "@kubb/swagger-ts": "workspace:*",
+    "@kubb/swagger-client": "workspace:*",
+    "@kubb/swagger-zod": "workspace:*",
+    "@kubb/swagger-zodios": "workspace:*",
+    "@kubb/swagger-swr":  "workspace:*",
+    "@tanstack/react-query": "^4.29.12",
+    "@tanstack/svelte-query": "^4.29.11",
+    "@tanstack/solid-query": "^4.29.11",
+    "@tanstack/vue-query": "^4.29.11",
+    "@zodios/core": "^10.9.0",
+    "axios": "^1.4.0",
+    "tsup": "^6.7.0",
+    "solid-js": "^1.7.6",
+    "rimraf": "^5.0.1",
+    "svelte": "^3.59.1",
+    "vue": "^3.3.4",
+    "react": "^18.2.0",
+    "swr": "^2.1.5",
+    "zod": "^3.21.4"
+  }
+}

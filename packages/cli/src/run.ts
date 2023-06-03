@@ -2,6 +2,7 @@
 import pc from 'picocolors'
 import { execa } from 'execa'
 import { parseArgsStringToArgv } from 'string-argv'
+import PrettyError from 'pretty-error'
 
 import { build } from '@kubb/core'
 import type { Logger, CLIOptions, KubbConfig } from '@kubb/core'
@@ -58,15 +59,19 @@ export async function run({ config, options, spinner }: RunProps) {
   }
 
   try {
-    spinner.start('🚀 Building')
-
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
     const { root, ...userConfig } = config
+
+    spinner.start(`🚀 Building(${options.input ?? userConfig.input.path})`)
 
     await build({
       config: {
         root: process.cwd(),
         ...userConfig,
+        input: {
+          ...userConfig.input,
+          path: options.input ?? userConfig.input.path,
+        },
         output: {
           write: true,
           ...userConfig.output,
@@ -78,19 +83,21 @@ export async function run({ config, options, spinner }: RunProps) {
     spinner.succeed(pc.blue('🌈 Generation complete'))
 
     await onDone(config.hooks)
-  } catch (err) {
+  } catch (err: any) {
+    const pe = new PrettyError()
     if (options.debug) {
-      spinner.fail(`Something went wrong\n`)
-      const causedError = (err as Error)?.cause
-      console.log(causedError || err)
-      console.log('\n')
+      spinner.fail(pc.red(`Something went wrong\n\n`))
+      const causedError = (err as Error)?.cause as Error
+
+      console.log(pe.render(err))
 
       if (causedError) {
-        console.log(err)
+        console.log(pe.render(causedError))
       }
     } else {
-      spinner.fail(`Something went wrong\n${(err as Error)?.message}`)
+      spinner.fail(pc.red(`Something went wrong\n\n${(err as Error)?.message}`))
     }
+    throw err
   }
 
   return true

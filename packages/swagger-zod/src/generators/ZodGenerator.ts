@@ -133,7 +133,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     let ref = this.refs[$ref]
 
     if (ref) {
-      return [{ keyword: keywordZodNodes.ref, args: ref.name }]
+      return [{ keyword: keywordZodNodes.ref, args: ref.name ?? ref.propertyName }]
     }
 
     const originalName = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })

@@ -1,6 +1,6 @@
 /* eslint-disable no-async-promise-executor */
 import { PluginManager } from './managers/pluginManager/index.ts'
-import { clean } from './utils/index.ts'
+import { clean, read } from './utils/index.ts'
 import { getFileSource } from './managers/fileManager/index.ts'
 
 import type { FileManager, File } from './managers/fileManager/index.ts'
@@ -45,6 +45,12 @@ async function transformReducer(
 
 async function buildImplementation(options: BuildOptions): Promise<BuildOutput> {
   const { config, logger } = options
+
+  try {
+    await read(config.input.path)
+  } catch (e: any) {
+    throw new Error('Cannot read file defined in `input.path` or set with --input in the CLI of your Kubb config', { cause: e })
+  }
 
   if (config.output.clean) {
     await clean(config.output.path)

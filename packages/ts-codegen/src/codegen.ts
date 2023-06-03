@@ -10,7 +10,8 @@ export const modifier = {
 export function isValidIdentifier(str: string) {
   if (!str.length || str.trim() !== str) return false
   const node = ts.parseIsolatedEntityName(str, ts.ScriptTarget.Latest)
-  return !!node && node.kind === ts.SyntaxKind.Identifier && node.originalKeywordKind === undefined
+
+  return !!node && node.kind === ts.SyntaxKind.Identifier && ts.identifierToKeywordKind(node.kind as unknown as ts.Identifier) === undefined
 }
 
 function propertyName(name: string | ts.PropertyName): ts.PropertyName {

@@ -76,9 +76,22 @@ export type KubbConfig = {
 }
 
 export type CLIOptions = {
+  /**
+   * Path to `kubb.config.js`
+   */
   config?: string
+  /**
+   * Enable debug mode
+   */
   debug?: boolean
+  /**
+   * Watch changes on input
+   */
   watch?: string
+  /**
+   * Override input defined in `kubb.config.js`
+   */
+  input?: string
 }
 
 // plugin
