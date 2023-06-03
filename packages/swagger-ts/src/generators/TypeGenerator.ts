@@ -162,7 +162,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     let ref = this.refs[$ref]
 
     if (ref) {
-      return factory.createTypeReferenceNode(ref.propertyName, undefined)
+      return factory.createTypeReferenceNode(ref.name ?? ref.propertyName, undefined)
     }
 
     const originalName = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
