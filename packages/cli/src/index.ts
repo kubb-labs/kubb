@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
+import pathParser from 'node:path'
 
 import { Command, Option } from 'commander'
 import pc from 'picocolors'
@@ -27,7 +28,7 @@ const program = new Command(moduleName)
       // CONFIG
       spinner.start('💾 Loading config')
       const result = await getCosmiConfig(moduleName, options.config)
-      spinner.succeed('💾 Config loaded')
+      spinner.succeed(`💾 Config loaded(${pc.dim(pathParser.relative(process.cwd(), result.filepath))})`)
 
       // END CONFIG
 

@@ -54,9 +54,9 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
 
     const promises = commands.map(async (command) => {
       const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
-      spinner.start(`🪂 Executing hooks(${pc.yellow('done')}) \`${pc.dim(command)}\``)
+      spinner.start(`🪂 Executing hooks(${pc.yellow('done')}) ${pc.dim(command)}`)
       await execa(cmd, _args)
-      spinner.succeed(`🪂 Executed hooks(${pc.yellow('done')}) \`${pc.dim(command)}\``)
+      spinner.succeed(`🪂 Executed hooks(${pc.yellow('done')}) ${pc.dim(command)}`)
     })
 
     await Promise.all(promises)
@@ -96,7 +96,7 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
     const { root, ...userConfig } = config
 
-    spinner.start(`🚀 Building(${options.input ?? userConfig.input.path})`)
+    spinner.start(`🚀 Building(${pc.dim(options.input ?? userConfig.input.path)})`)
 
     const output = await build({
       config: {
@@ -114,7 +114,7 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
       logger,
     })
 
-    spinner.succeed(`🚀 Build completed(${options.input ?? userConfig.input.path})`)
+    spinner.succeed(`🚀 Build completed(${pc.dim(options.input ?? userConfig.input.path)})`)
 
     await onDone(config.hooks)
 
