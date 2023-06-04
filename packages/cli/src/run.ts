@@ -1,11 +1,15 @@
 /* eslint-disable no-console */
+import pathParser from 'node:path'
+
 import pc from 'picocolors'
 import { execa } from 'execa'
 import { parseArgsStringToArgv } from 'string-argv'
 import PrettyError from 'pretty-error'
 
-import { build } from '@kubb/core'
-import type { Logger, CLIOptions, KubbConfig } from '@kubb/core'
+import { PluginError, build } from '@kubb/core'
+import type { Logger, CLIOptions, KubbConfig, BuildOutput } from '@kubb/core'
+
+import { parseHrtimeToSeconds } from './utils/parseHrtimeToSeconds.ts'
 
 import type { Ora } from 'ora'
 
@@ -15,7 +19,8 @@ type RunProps = {
   options: CLIOptions
 }
 
-export async function run({ config, options, spinner }: RunProps) {
+export async function run({ config, options, spinner }: RunProps): Promise<void> {
+  const hrstart = process.hrtime()
   const logger: Logger = {
     log(message, logLevel) {
       if (logLevel === 'error') {
@@ -39,7 +44,6 @@ export async function run({ config, options, spinner }: RunProps) {
     if (!hooks?.done) {
       return
     }
-    spinner.start('🪂 Running hooks')
 
     let commands: string[] = []
     if (typeof hooks?.done === 'string') {
@@ -50,21 +54,51 @@ export async function run({ config, options, spinner }: RunProps) {
 
     const promises = commands.map(async (command) => {
       const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
-      return execa(cmd, _args)
+      spinner.start(`🪂 Executing hooks(${pc.yellow('done')}) ${pc.dim(command)}`)
+      await execa(cmd, _args)
+      spinner.succeed(`🪂 Executed hooks(${pc.yellow('done')}) ${pc.dim(command)}`)
     })
 
     await Promise.all(promises)
+  }
 
-    spinner.succeed('🪂 Hooks runned')
+  const printSummary = (output: BuildOutput, status: 'success' | 'failed') => {
+    const { files, pluginManager } = output
+    const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrstart))
+
+    const buildStartPlugins = [
+      ...new Set(pluginManager.executed.filter((item) => item.hookName === 'buildStart' && item.plugin.name !== 'core').map((item) => item.plugin.name)),
+    ]
+
+    const meta = {
+      plugins:
+        status === 'success'
+          ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${config.plugins?.length || 0} total`
+          : `${pc.red(`${buildStartPlugins.length} failed`)}, ${config.plugins?.length || 0} total`,
+      filesCreated: files.length,
+      time: pc.yellow(`${elapsedSeconds}s`),
+      output: pathParser.resolve(config.root, config.output.path),
+    } as const
+
+    console.log(`
+  ${pc.bold('Plugins:')}      ${meta.plugins}
+${pc.bold('Generated:')}      ${meta.filesCreated} files
+     ${pc.bold('Time:')}      ${meta.time}
+   ${pc.bold('Output:')}      ${meta.output}
+     `)
+
+    if (options.debug) {
+      // TODO create list of files per plugin
+    }
   }
 
   try {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
     const { root, ...userConfig } = config
 
-    spinner.start(`🚀 Building(${options.input ?? userConfig.input.path})`)
+    spinner.start(`🚀 Building(${pc.dim(options.input ?? userConfig.input.path)})`)
 
-    await build({
+    const output = await build({
       config: {
         root: process.cwd(),
         ...userConfig,
@@ -80,25 +114,36 @@ export async function run({ config, options, spinner }: RunProps) {
       logger,
     })
 
-    spinner.succeed(pc.blue('🌈 Generation complete'))
+    spinner.succeed(`🚀 Build completed(${pc.dim(options.input ?? userConfig.input.path)})`)
 
     await onDone(config.hooks)
-  } catch (err: any) {
+
+    printSummary(output, 'success')
+  } catch (error: any) {
     const pe = new PrettyError()
     if (options.debug) {
       spinner.fail(pc.red(`Something went wrong\n\n`))
-      const causedError = (err as Error)?.cause as Error
+      const causedError = (error as Error)?.cause as Error
 
-      console.log(pe.render(err))
+      console.log(pe.render(error))
 
       if (causedError) {
         console.log(pe.render(causedError))
       }
     } else {
-      spinner.fail(pc.red(`Something went wrong\n\n${(err as Error)?.message}`))
+      spinner.fail(pc.red(`Something went wrong\n\n${(error as Error)?.message}`))
     }
-    throw err
-  }
 
-  return true
+    if (error instanceof PluginError) {
+      printSummary(
+        {
+          files: [],
+          pluginManager: error.pluginManager,
+        },
+        'failed'
+      )
+    }
+
+    throw error
+  }
 }

@@ -1,8 +1,8 @@
-import { parseZod } from './zodParser.ts'
+import { zodParser } from './zodParser.ts'
 
 const input = [
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.string',
       },
@@ -10,7 +10,7 @@ const input = [
     expected: 'z.string()',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.number',
       },
@@ -18,7 +18,7 @@ const input = [
     expected: 'z.number()',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.boolean',
       },
@@ -26,7 +26,7 @@ const input = [
     expected: 'z.boolean()',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.any',
       },
@@ -34,7 +34,7 @@ const input = [
     expected: 'z.any()',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: '.nullable',
       },
@@ -42,7 +42,7 @@ const input = [
     expected: '.nullable()',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.undefined',
       },
@@ -50,7 +50,7 @@ const input = [
     expected: 'z.undefined()',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: '.min',
         args: 2,
@@ -59,7 +59,7 @@ const input = [
     expected: '.min(2)',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: '.max',
         args: 2,
@@ -68,7 +68,7 @@ const input = [
     expected: '.max(2)',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: '.regex',
         args: '*',
@@ -77,7 +77,7 @@ const input = [
     expected: '.regex(*)',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'ref',
         args: 'Pet',
@@ -86,7 +86,7 @@ const input = [
     expected: 'z.lazy(() => Pet)',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.enum',
         args: ['"A"', '"B"', '"C"', 2],
@@ -96,7 +96,7 @@ const input = [
   },
 
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.tuple',
         args: [],
@@ -105,7 +105,7 @@ const input = [
     expected: 'z.tuple([])',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.tuple',
         args: [{ keyword: 'z.string' }, { keyword: 'z.number' }],
@@ -115,7 +115,7 @@ const input = [
   },
 
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.array',
         args: [],
@@ -124,7 +124,7 @@ const input = [
     expected: 'z.array()',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.array',
         args: [{ keyword: 'ref', args: 'Pet' }],
@@ -134,7 +134,7 @@ const input = [
   },
 
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.union',
         args: [],
@@ -143,7 +143,7 @@ const input = [
     expected: '.and(z.union([]))',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.union',
         args: [{ keyword: 'z.string' }, { keyword: 'z.number' }],
@@ -153,7 +153,7 @@ const input = [
   },
 
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: '.catchall',
         args: [],
@@ -162,7 +162,7 @@ const input = [
     expected: '.catchall()',
   },
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: '.catchall',
         args: [{ keyword: 'ref', args: 'Pet' }],
@@ -172,7 +172,7 @@ const input = [
   },
 
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: '.and',
         args: [{ keyword: 'z.string' }, { keyword: 'z.number' }],
@@ -182,7 +182,7 @@ const input = [
   },
 
   {
-    input: parseZod([
+    input: zodParser([
       {
         keyword: 'z.object',
         args: {

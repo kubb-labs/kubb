@@ -2,8 +2,9 @@ import pathParser from 'node:path'
 
 import { createPluginCache, transformReservedWord } from './utils/index.ts'
 
+import type { Executer } from './managers/index.ts'
 import type { FileManager } from './managers/fileManager/FileManager.ts'
-import type { PluginContext, KubbPlugin, PluginFactoryOptions } from './types.ts'
+import type { PluginContext, KubbPlugin, PluginFactoryOptions, PluginLifecycleHooks } from './types.ts'
 
 type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (
   options: T['options']
@@ -33,6 +34,7 @@ type Options = {
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   load: PluginContext['load']
+  getExecuter: () => Executer<PluginLifecycleHooks> | undefined
 }
 
 // not publicly exported
@@ -41,7 +43,7 @@ export type CorePluginOptions = PluginFactoryOptions<Options, false, PluginConte
 export const name = 'core' as const
 
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
-  const { fileManager, resolvePath, resolveName, load } = options
+  const { fileManager, resolvePath, resolveName, load, getExecuter } = options
 
   const api: PluginContext = {
     get config() {
@@ -49,7 +51,18 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
     },
     fileManager,
     async addFile(...files) {
-      return Promise.all(files.map((file) => (file.override ? fileManager.add(file) : fileManager.addOrAppend(file))))
+      return Promise.all(
+        files.map((file) => {
+          const executer = getExecuter()
+          // console.log('executer ', executer?.plugin?.name, file.meta)
+
+          if (file.override) {
+            return fileManager.add(file)
+          }
+
+          return fileManager.addOrAppend(file)
+        })
+      )
     },
     resolvePath,
     resolveName: (params) => {
