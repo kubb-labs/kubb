@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
+import type { PluginManager } from './managers/index.ts'
 import type { FileManager, File } from './managers/fileManager/index.ts'
 import type { Cache } from './utils/cache.ts'
 
@@ -6,6 +7,14 @@ export interface Register {}
 
 export type MaybePromise<T> = Promise<T> | T
 
+/**
+ * Config used in `kubb.config.js`
+ *
+ * @example import { defineConfig } from '@kubb/core'
+ * export default defineConfig({
+ * ...
+ * })
+ */
 export type KubbUserConfig = Omit<KubbConfig, 'root' | 'plugins'> & {
   /**
    * Project root directory. Can be an absolute path, or a path relative from
@@ -92,6 +101,11 @@ export type CLIOptions = {
    * Override input defined in `kubb.config.js`
    */
   input?: string
+}
+
+export type BuildOutput = {
+  files: FileManager['files']
+  pluginManager: PluginManager
 }
 
 // plugin

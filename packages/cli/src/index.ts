@@ -25,7 +25,6 @@ const program = new Command(moduleName)
   .action(async (options: CLIOptions) => {
     try {
       // CONFIG
-
       spinner.start('💾 Loading config')
       const result = await getCosmiConfig(moduleName, options.config)
       spinner.succeed('💾 Config loaded')

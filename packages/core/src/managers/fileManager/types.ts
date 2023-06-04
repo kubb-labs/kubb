@@ -28,6 +28,9 @@ export type File = {
    * @default `false`
    */
   override?: boolean
+  meta?: {
+    pluginName?: string
+  }
 }
 
 export type UUID = string

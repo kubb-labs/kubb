@@ -3,28 +3,15 @@ import { PluginManager } from './managers/pluginManager/index.ts'
 import { clean, read } from './utils/index.ts'
 import { getFileSource } from './managers/fileManager/index.ts'
 
-import type { FileManager, File } from './managers/fileManager/index.ts'
+import type { OnExecute } from './managers/pluginManager/index.ts'
+import type { File } from './managers/fileManager/index.ts'
 import type { QueueTask } from './utils/index.ts'
-import type { PluginContext, TransformResult, LogLevel, KubbPlugin } from './types.ts'
-
-type BuildOutput = {
-  files: FileManager['files']
-}
-
-// Same type as ora
-type Spinner = {
-  start: (text?: string) => Spinner
-  succeed: (text: string) => Spinner
-  fail: (text?: string) => Spinner
-  stopAndPersist: (options: { text: string }) => Spinner
-  render: () => Spinner
-  text: string
-  info: (text: string) => Spinner
-}
+import type { PluginContext, TransformResult, LogLevel, KubbPlugin, BuildOutput } from './types.ts'
+import type { Ora } from 'ora'
 
 export type Logger = {
   log: (message: string, logLevel: LogLevel) => void
-  spinner?: Spinner
+  spinner?: Ora
 }
 type BuildOptions = {
   config: PluginContext['config']
@@ -43,7 +30,7 @@ async function transformReducer(
   return result
 }
 
-async function buildImplementation(options: BuildOptions): Promise<BuildOutput> {
+export async function build(options: BuildOptions): Promise<BuildOutput> {
   const { config, logger } = options
 
   try {
@@ -85,7 +72,19 @@ async function buildImplementation(options: BuildOptions): Promise<BuildOutput> 
     }
   }
 
-  const pluginManager = new PluginManager(config, { logger, task: queueTask as QueueTask })
+  const onExecute: OnExecute = (executer) => {
+    if (!executer) {
+      return
+    }
+
+    const { strategy, hookName, plugin } = executer
+
+    if (config.logLevel === 'info' && logger?.spinner) {
+      logger.spinner.text = `[${strategy}] ${hookName}: Excecuting task for plugin ${plugin.name} \n`
+    }
+  }
+
+  const pluginManager = new PluginManager(config, { task: queueTask as QueueTask, onExecute })
   const { plugins, fileManager } = pluginManager
 
   await pluginManager.hookParallel<'validate', true>({
@@ -100,21 +99,5 @@ async function buildImplementation(options: BuildOptions): Promise<BuildOutput> 
 
   await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
-  return { files: fileManager.files.map((file) => ({ ...file, source: getFileSource(file) })) }
-}
-
-export type KubbBuild = (options: BuildOptions) => Promise<BuildOutput>
-
-export function build(options: BuildOptions): Promise<BuildOutput> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const output = await buildImplementation(options)
-
-      setTimeout(() => {
-        resolve(output)
-      }, 500)
-    } catch (e) {
-      reject(e)
-    }
-  })
+  return { files: fileManager.files.map((file) => ({ ...file, source: getFileSource(file) })), pluginManager }
 }
