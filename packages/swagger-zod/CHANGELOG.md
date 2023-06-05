@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0...@kubb/swagger-zod-v1.1.0) (2023-06-05)
+
+
+### Bug Fixes
+
+* ref.name ?? ref.propertyName so unique names can be used ([4df0984](https://github.com/kubb-project/kubb/commit/4df0984f3131b85146edda0c10ab7d4e1fec87d1))
+
 ## [1.0.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.0-beta.19...@kubb/swagger-zod-v1.0.0) (2023-06-02)
 
 
