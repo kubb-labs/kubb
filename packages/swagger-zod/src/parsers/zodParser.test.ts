@@ -108,14 +108,14 @@ const input = [
       keyword: 'union',
       args: [],
     }),
-    expected: '.and(z.union([]))',
+    expected: 'z.union([])',
   },
   {
     input: parseZodMeta({
       keyword: 'union',
       args: [{ keyword: 'string' }, { keyword: 'number' }],
     }),
-    expected: '.and(z.union([z.string(),z.number()]))',
+    expected: 'z.union([z.string(),z.number()])',
   },
 
   {

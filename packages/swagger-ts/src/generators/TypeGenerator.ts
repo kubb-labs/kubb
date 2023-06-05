@@ -205,19 +205,24 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       // union
       const schemaWithoutOneOf = { ...schema, oneOf: undefined }
 
-      return createIntersectionDeclaration({
-        nodes: [
-          this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName),
-          factory.createParenthesizedType(
-            createUnionDeclaration({
-              nodes: schema.oneOf
-                .map((item) => {
-                  return this.getBaseTypeFromSchema(item)
-                })
-                .filter(Boolean) as ts.TypeNode[],
+      const union = factory.createParenthesizedType(
+        createUnionDeclaration({
+          nodes: schema.oneOf
+            .map((item) => {
+              return this.getBaseTypeFromSchema(item)
             })
-          ),
-        ].filter(Boolean) as ts.TypeNode[],
+            .filter(Boolean) as ts.TypeNode[],
+        })
+      )
+
+      if (schemaWithoutOneOf.properties) {
+        return createIntersectionDeclaration({
+          nodes: [this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName), union].filter(Boolean) as ts.TypeNode[],
+        })
+      }
+
+      return createIntersectionDeclaration({
+        nodes: [union],
       })
     }
 
@@ -228,19 +233,24 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       // intersection/add
       const schemaWithoutAllOf = { ...schema, allOf: undefined }
 
+      const and = factory.createParenthesizedType(
+        factory.createIntersectionTypeNode(
+          schema.allOf
+            .map((item) => {
+              return this.getBaseTypeFromSchema(item)
+            })
+            .filter(Boolean) as ts.TypeNode[]
+        )
+      )
+
+      if (schemaWithoutAllOf.properties) {
+        return createIntersectionDeclaration({
+          nodes: [this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName), and].filter(Boolean) as ts.TypeNode[],
+        })
+      }
+
       return createIntersectionDeclaration({
-        nodes: [
-          this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName),
-          factory.createParenthesizedType(
-            factory.createIntersectionTypeNode(
-              schema.allOf
-                .map((item) => {
-                  return this.getBaseTypeFromSchema(item)
-                })
-                .filter(Boolean) as ts.TypeNode[]
-            )
-          ),
-        ].filter(Boolean) as ts.TypeNode[],
+        nodes: [and],
       })
     }
 

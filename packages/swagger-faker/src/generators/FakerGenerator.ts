@@ -80,12 +80,6 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
         validationFunctions.push(...this.getTypeFromSchema(schema as OpenAPIV3.SchemaObject, name))
 
-        const matches = schema.pattern ?? undefined
-
-        if (matches) {
-          validationFunctions.push({ keyword: 'matches', args: `/${matches}/` })
-        }
-
         return {
           [name]: validationFunctions,
         }
@@ -157,15 +151,17 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       // union
       const schemaWithoutOneOf = { ...schema, oneOf: undefined }
 
-      return [
-        ...this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName),
-        {
-          keyword: 'union',
-          args: schema.oneOf.map((item) => {
-            return this.getBaseTypeFromSchema(item)[0]
-          }),
-        },
-      ]
+      const union: FakerMeta = {
+        keyword: 'union',
+        args: schema.oneOf.map((item) => {
+          return this.getBaseTypeFromSchema(item)[0]
+        }),
+      }
+      if (schemaWithoutOneOf.properties && union.args) {
+        return [{ ...union, args: [...this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName), ...union.args] }]
+      }
+
+      return [union]
     }
 
     if (schema.anyOf) {
@@ -175,15 +171,18 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       // intersection/add
       const schemaWithoutAllOf = { ...schema, allOf: undefined }
 
-      return [
-        ...this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName),
-        {
-          keyword: 'and',
-          args: schema.allOf.map((item) => {
-            return this.getBaseTypeFromSchema(item)[0]
-          }),
-        },
-      ]
+      const and: FakerMeta = {
+        keyword: 'and',
+        args: schema.allOf.map((item) => {
+          return this.getBaseTypeFromSchema(item)[0]
+        }),
+      }
+
+      if (schemaWithoutAllOf.properties && and.args) {
+        return [{ ...and, args: [...this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName), ...and.args] }]
+      }
+
+      return [and]
     }
 
     if (schema.enum) {
@@ -250,6 +249,10 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
         const max = schema.maximum ?? schema.maxLength ?? undefined
 
         return [{ keyword: 'number', args: { min, max } }]
+      }
+
+      if (schema.pattern) {
+        return [{ keyword: 'matches', args: `/${schema.pattern}/` }]
       }
 
       // string, boolean, null, number

@@ -174,15 +174,17 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       // union
       const schemaWithoutOneOf = { ...schema, oneOf: undefined }
 
-      return [
-        ...this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName),
-        {
-          keyword: 'union',
-          args: schema.oneOf.map((item) => {
-            return this.getBaseTypeFromSchema(item)[0]
-          }),
-        },
-      ]
+      const union: ZodMeta = {
+        keyword: 'union',
+        args: schema.oneOf.map((item) => {
+          return this.getBaseTypeFromSchema(item)[0]
+        }),
+      }
+      if (schemaWithoutOneOf.properties) {
+        return [...this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName), union]
+      }
+
+      return [union]
     }
 
     if (schema.anyOf) {
@@ -192,15 +194,18 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       // intersection/add
       const schemaWithoutAllOf = { ...schema, allOf: undefined }
 
-      return [
-        ...this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName),
-        {
-          keyword: 'and',
-          args: schema.allOf.map((item) => {
-            return this.getBaseTypeFromSchema(item)[0]
-          }),
-        },
-      ]
+      const and: ZodMeta = {
+        keyword: 'and',
+        args: schema.allOf.map((item) => {
+          return this.getBaseTypeFromSchema(item)[0]
+        }),
+      }
+
+      if (schemaWithoutAllOf.properties) {
+        return [...this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName), and]
+      }
+
+      return [{ keyword: 'object', args: {} }, and]
     }
 
     if (schema.enum) {

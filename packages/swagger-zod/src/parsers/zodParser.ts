@@ -116,20 +116,23 @@ export function parseZodMeta(item: ZodMeta): string {
     return `${value}(${Array.isArray(args) ? `${args.map(parseZodMeta).join('')}` : parseZodMeta(args)})`
   }
   if (keyword === 'union') {
-    return `${zodKeywords.and}(${Array.isArray(args) ? `${value}([${args.map(parseZodMeta).join(',')}])` : parseZodMeta(args)})`
+    return `${Array.isArray(args) ? `${value}([${args.map(parseZodMeta).join(',')}])` : parseZodMeta(args)}`
   }
 
   if (keyword === 'catchall') {
     return `${value}(${Array.isArray(args) ? `${args.map(parseZodMeta).join('')}` : parseZodMeta(args)})`
   }
 
-  if (keyword === 'and')
-    return Array.isArray(args)
-      ? `${args
-          .map(parseZodMeta)
-          .map((item) => `${value}(${item})`)
-          .join('')}`
-      : `${value}(${parseZodMeta(args)})`
+  if (keyword === 'and') {
+    if (Array.isArray(args)) {
+      return `${args
+        .map(parseZodMeta)
+        .map((item) => `${value}(${item})`)
+        .join('')}`
+    }
+
+    return `${value}(${parseZodMeta(args)})`
+  }
 
   if (keyword === 'object') {
     if (!args) {
