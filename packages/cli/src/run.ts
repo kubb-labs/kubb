@@ -62,8 +62,7 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
     await Promise.all(promises)
   }
 
-  const printSummary = (output: BuildOutput, status: 'success' | 'failed') => {
-    const { files, pluginManager } = output
+  const printSummary = (pluginManager: BuildOutput['pluginManager'], status: 'success' | 'failed') => {
     const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrstart))
 
     const buildStartPlugins = [
@@ -76,7 +75,7 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
         status === 'success'
           ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
           : `${pc.red(`${pluginsCount - buildStartPlugins.length} failed`)}, ${pluginsCount} total`,
-      filesCreated: files.length,
+      filesCreated: pluginManager.fileManager.files.length,
       time: pc.yellow(`${elapsedSeconds}s`),
       output: pathParser.resolve(config.root, config.output.path),
     } as const
@@ -142,18 +141,12 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
 
     await onDone(config.hooks)
 
-    printSummary(output, 'success')
+    printSummary(output.pluginManager, 'success')
   } catch (error: any) {
     printErrors(error)
 
     if (error instanceof PluginError || error instanceof ParallelPluginError) {
-      printSummary(
-        {
-          files: [],
-          pluginManager: error.pluginManager,
-        },
-        'failed'
-      )
+      printSummary(error.pluginManager, 'failed')
     }
 
     throw error

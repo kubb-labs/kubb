@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 
@@ -117,7 +118,7 @@ export class PluginManager {
     pluginName: string
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
-  }): Promise<ReturnType<PluginLifecycle[H]> | null> {
+  }): Promise<ReturnType<PluginLifecycle[H]> | null> | null {
     const plugin = this.getPlugin(hookName, pluginName)
 
     return this.execute({
@@ -136,7 +137,7 @@ export class PluginManager {
     pluginName: string
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
-  }): ReturnType<PluginLifecycle[H]> {
+  }): ReturnType<PluginLifecycle[H]> | null {
     const plugin = this.getPlugin(hookName, pluginName)
 
     return this.executeSync({
@@ -229,9 +230,11 @@ export class PluginManager {
           plugin,
         })
       } else {
-        const promise: Promise<TOuput> = this.execute({ strategy: 'hookParallel', hookName, parameters, plugin })
+        const promise: Promise<TOuput> | null = this.execute({ strategy: 'hookParallel', hookName, parameters, plugin })
 
-        parallelPromises.push(promise)
+        if (promise) {
+          parallelPromises.push(promise)
+        }
       }
     }
     const results = await Promise.allSettled(parallelPromises)
@@ -258,14 +261,17 @@ export class PluginManager {
 
     let promise: Promise<Argument0<H>> = Promise.resolve(argument0)
     for (const plugin of this.getSortedPlugins(hookName)) {
-      promise = promise.then((argument0) =>
-        this.execute({
-          strategy: 'hookReduceArg0',
-          hookName,
-          parameters: [argument0, ...rest] as Parameters<PluginLifecycle[H]>,
-          plugin,
-        }).then((result) => reduce.call(this.core.api, argument0, result as ReturnType<PluginLifecycle[H]>, plugin))
-      ) as Promise<Argument0<H>>
+      promise = promise
+        .then((argument0) => {
+          const value = this.execute({
+            strategy: 'hookReduceArg0',
+            hookName,
+            parameters: [argument0, ...rest] as Parameters<PluginLifecycle[H]>,
+            plugin,
+          })
+          return value
+        })
+        .then((result) => reduce.call(this.core.api, argument0, result as ReturnType<PluginLifecycle[H]>, plugin)) as Promise<Argument0<H>>
     }
     return promise
   }
@@ -273,7 +279,7 @@ export class PluginManager {
   // chains
 
   hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: Parameters<PluginLifecycle[H]> }) {
-    let promise: Promise<void> = Promise.resolve()
+    let promise: Promise<void | null> = Promise.resolve()
     for (const plugin of this.getSortedPlugins(hookName)) {
       promise = promise.then(() =>
         this.execute({
@@ -330,8 +336,12 @@ export class PluginManager {
     hookName: H
     parameters: unknown[] | undefined
     plugin: KubbPlugin
-  }): Promise<TResult> {
-    const hook = plugin[hookName]!
+  }): Promise<TResult> | null {
+    const hook = plugin[hookName]
+
+    if (!hook) {
+      return null
+    }
 
     return Promise.resolve()
       .then(() => {
@@ -342,28 +352,22 @@ export class PluginManager {
           plugin,
         }
 
-        if (typeof hook !== 'function') {
-          this.addExecuter({
-            strategy,
-            hookName,
-            plugin,
-          })
+        if (typeof hook === 'function') {
+          const hookResult = (hook as Function).apply(this.core.api, parameters)
 
-          return hook
-        }
+          if (isPromise(hookResult)) {
+            return Promise.resolve(hookResult).then((result) => {
+              this.addExecuter({
+                strategy,
+                hookName,
+                plugin,
+              })
 
-        const hookResult = (hook as Function).apply(this.core.api, parameters)
-
-        if (isPromise(hookResult)) {
-          return Promise.resolve(hookResult).then((result) => {
-            this.addExecuter({
-              strategy,
-              hookName,
-              plugin,
+              return result
             })
+          }
 
-            return result
-          })
+          return hookResult
         }
 
         this.addExecuter({
@@ -372,7 +376,7 @@ export class PluginManager {
           plugin,
         })
 
-        return hookResult
+        return hook
       })
       .catch((e: Error) => {
         this.catcher<H>(e, plugin, hookName)
@@ -396,8 +400,12 @@ export class PluginManager {
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
     plugin: KubbPlugin
-  }): ReturnType<PluginLifecycle[H]> {
-    const hook = plugin[hookName]!
+  }): ReturnType<PluginLifecycle[H]> | null {
+    const hook = plugin[hookName]
+
+    if (!hook) {
+      return null
+    }
 
     try {
       // add current execution to the variable `this.executer` so we can track which plugin is getting called
@@ -408,17 +416,17 @@ export class PluginManager {
       }
 
       // eslint-disable-next-line @typescript-eslint/ban-types
-      if (typeof hook !== 'function') {
+      if (typeof hook === 'function') {
+        const fn = (hook as Function).apply(this.core.api, parameters)
+
         this.addExecuter({
           strategy,
           hookName,
           plugin,
         })
 
-        return hook
+        return fn
       }
-
-      const fn = (hook as Function).apply(this.core.api, parameters)
 
       this.addExecuter({
         strategy,
@@ -426,9 +434,10 @@ export class PluginManager {
         plugin,
       })
 
-      return fn
+      return hook
     } catch (e) {
       this.catcher<H>(e as Error, plugin, hookName)
+
       return null as ReturnType<PluginLifecycle[H]>
     }
   }

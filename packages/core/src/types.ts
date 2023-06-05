@@ -227,7 +227,7 @@ export type PluginContext<TOptions = Record<string, any>> = {
   fileManager: FileManager
   addFile: (...file: File[]) => Promise<File[]>
   resolvePath: (params: ResolvePathParams<TOptions>) => OptionalPath
-  resolveName: (params: ResolveNameParams) => string
+  resolveName: (params: ResolveNameParams) => string | null | undefined
   load: (id: string) => MaybePromise<TransformResult | void>
 }
 
