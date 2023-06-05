@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.0.1](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.0.0...@kubb/cli-v1.0.1) (2023-06-05)
+
+
+### Features
+
+* **swagger-cli:** option input to override input.path of `kubb.config.js` ([76443b9](https://github.com/kubb-project/kubb/commit/76443b9956d1579c88b21699505de77e3a737f19))
+
+
+### Bug Fixes
+
+* exit code 1 with correct error handling + use of pretty-error(debug mode) ([9cbe630](https://github.com/kubb-project/kubb/commit/9cbe6303377f31cca06df6ce29a74a68cc153194))
+* ParallelPluginError with promise.allSettled ([b1c0585](https://github.com/kubb-project/kubb/commit/b1c0585d8e650d9b5fbe105ead0040677b2546e4))
+
+
+### Miscellaneous Chores
+
+* release 1.0.1 ([8d62c91](https://github.com/kubb-project/kubb/commit/8d62c9117643b5cce9a75978a698adc6d76e1cf8))
+
 ## [1.0.0](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.0.0-beta.19...@kubb/cli-v1.0.0) (2023-06-02)
 
 

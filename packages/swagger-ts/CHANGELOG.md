@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0...@kubb/swagger-ts-v1.0.1) (2023-06-05)
+
+
+### Bug Fixes
+
+* ref.name ?? ref.propertyName so unique names can be used ([4df0984](https://github.com/kubb-project/kubb/commit/4df0984f3131b85146edda0c10ab7d4e1fec87d1))
+
+
+### Miscellaneous Chores
+
+* release 1.0.1 ([8d62c91](https://github.com/kubb-project/kubb/commit/8d62c9117643b5cce9a75978a698adc6d76e1cf8))
+
 ## [1.0.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.0-beta.19...@kubb/swagger-ts-v1.0.0) (2023-06-02)
 
 
