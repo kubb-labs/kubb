@@ -8,16 +8,16 @@ import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 import { isReference } from '@kubb/swagger'
 
 import { pluginName } from '../plugin.ts'
-import { zodParser, zodKeywords } from '../parsers/index.ts'
+import { fakerParser, fakerKeywords } from '../parsers/index.ts'
 
-import type { ZodMeta, ZodKeyword } from '../parsers/index.ts'
+import type { FakerMeta, FakerKeyword } from '../parsers/index.ts'
 import type ts from 'typescript'
 
 type Options = {
   withJSDocs?: boolean
   resolveName: PluginContext['resolveName']
 }
-export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, string[]> {
+export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, string[]> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
 
@@ -36,7 +36,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
   build(schema: OpenAPIV3.SchemaObject, baseName: string, description?: string) {
     const texts: string[] = []
-    const zodInput = this.getTypeFromSchema(schema, baseName)
+    const fakerInput = this.getTypeFromSchema(schema, baseName)
     if (description) {
       texts.push(`
       /**
@@ -44,9 +44,9 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
        */`)
     }
 
-    const zodOutput = zodParser(zodInput, this.options.resolveName({ name: baseName, pluginName }) || baseName)
+    const fakerOutput = fakerParser(fakerInput, this.options.resolveName({ name: baseName, pluginName }) || baseName)
 
-    texts.push(zodOutput)
+    texts.push(fakerOutput)
 
     return [...this.extraTexts, ...texts]
   }
@@ -56,7 +56,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, baseName?: string): ZodMeta[] {
+  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, baseName?: string): FakerMeta[] {
     const validationFunctions = this.getBaseTypeFromSchema(schema, baseName)
     if (validationFunctions) {
       return validationFunctions
@@ -68,39 +68,22 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   /**
    * Recursively creates a type literal with the given props.
    */
-  private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string): ZodMeta[] {
+  private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string): FakerMeta[] {
     const props = baseSchema?.properties || {}
-    const required = baseSchema?.required
     const additionalProperties = baseSchema?.additionalProperties
 
     const objectMembers = Object.keys(props)
       .map((name) => {
-        const validationFunctions: ZodMeta[] = []
+        const validationFunctions: FakerMeta[] = []
 
         const schema = props[name] as OpenAPIV3.SchemaObject
-        const isRequired = required && required.includes(name)
 
         validationFunctions.push(...this.getTypeFromSchema(schema as OpenAPIV3.SchemaObject, name))
 
-        if (this.options.withJSDocs && schema.description) {
-          validationFunctions.push({ keyword: 'describe', args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
-        }
-        const min = schema.minimum ?? schema.minLength ?? undefined
-        const max = schema.maximum ?? schema.maxLength ?? undefined
         const matches = schema.pattern ?? undefined
 
-        if (min !== undefined) {
-          validationFunctions.push({ keyword: 'min', args: min })
-        }
-        if (max !== undefined) {
-          validationFunctions.push({ keyword: 'max', args: max })
-        }
         if (matches) {
           validationFunctions.push({ keyword: 'matches', args: `/${matches}/` })
-        }
-
-        if (!isRequired) {
-          validationFunctions.push({ keyword: 'optional' })
         }
 
         return {
@@ -109,24 +92,24 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       })
       .reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
-    const members: ZodMeta[] = []
+    const members: FakerMeta[] = []
 
-    members.push({ keyword: 'object', args: objectMembers })
+    members.push()
 
     if (additionalProperties) {
-      const addionalValidationFunctions: ZodMeta[] =
+      const addionalValidationFunctions: FakerMeta[] =
         additionalProperties === true ? [{ keyword: 'any' }] : this.getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
 
       members.push({ keyword: 'catchall', args: addionalValidationFunctions })
     }
 
-    return members
+    return [{ keyword: fakerKeywords.object, args: objectMembers }]
   }
 
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
-  private getRefAlias(obj: OpenAPIV3.ReferenceObject, baseName?: string): ZodMeta[] {
+  private getRefAlias(obj: OpenAPIV3.ReferenceObject, baseName?: string): FakerMeta[] {
     const { $ref } = obj
     let ref = this.refs[$ref]
 
@@ -161,7 +144,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): ZodMeta[] {
+  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): FakerMeta[] {
     if (!schema) {
       return [{ keyword: 'any' }]
     }
@@ -262,9 +245,16 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         ]
       }
 
+      if (schema.type === 'number' || schema.type === 'integer') {
+        const min = schema.minimum ?? schema.minLength ?? undefined
+        const max = schema.maximum ?? schema.maxLength ?? undefined
+
+        return [{ keyword: 'number', args: { min, max } }]
+      }
+
       // string, boolean, null, number
-      if (schema.type in zodKeywords) {
-        return [{ keyword: schema.type as ZodKeyword }]
+      if (schema.type in fakerKeywords) {
+        return [{ keyword: schema.type as FakerKeyword }]
       }
     }
 

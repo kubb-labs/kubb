@@ -1,0 +1,35 @@
+{
+  "name": "faker-pet-store",
+  "version": "0.0.1",
+  "description": "Faker PetStore example",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kubb-project/kubb.git",
+    "directory": "packages/examples/faker"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "generate": "pnpm generate:ts",
+    "generate:ts": "kubb --config kubb.config.js",
+    "generate:json": "kubb --config kubb.json",
+    "generate:js": "kubb --config .kubbrc",
+    "build": "tsup",
+    "start": "tsup --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/cli": "workspace:*",
+    "@kubb/core": "workspace:*",
+    "@kubb/swagger": "workspace:*",
+    "@kubb/swagger-faker": "workspace:*",
+    "@kubb/swagger-ts": "workspace:*",
+    "@kubb/swagger-client": "workspace:*",
+    "@faker-js/faker": "^8.0.2",
+    "tsup": "^6.7.0",
+    "react": "^18.2.0"
+  }
+}

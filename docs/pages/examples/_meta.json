@@ -63,6 +63,14 @@
       "toc": false
     }
   },
+  "faker": {
+    "title": "Faker PetStore",
+    "theme": {
+      "layout": "full",
+      "footer": true,
+      "toc": false
+    }
+  },
   "advanced": {
     "title": "Advanced PetStore",
     "theme": {
