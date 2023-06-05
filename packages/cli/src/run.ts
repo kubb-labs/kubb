@@ -25,16 +25,8 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
     log(message, logLevel) {
       if (logLevel === 'error') {
         spinner.fail(message)
-      }
-
-      switch (logLevel) {
-        case 'error':
-          spinner.fail(message)
-          break
-
-        default:
-          spinner.info(message)
-          break
+      } else {
+        spinner.info(message)
       }
     },
     spinner,
@@ -55,8 +47,12 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
     const promises = commands.map(async (command) => {
       const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
       spinner.start(`🪂 Executing hooks(${pc.yellow('done')}) ${pc.dim(command)}`)
-      await execa(cmd, _args)
+      const { stdout } = await execa(cmd, _args)
       spinner.succeed(`🪂 Executed hooks(${pc.yellow('done')}) ${pc.dim(command)}`)
+
+      if (config.logLevel === 'info') {
+        console.log(stdout)
+      }
     })
 
     await Promise.all(promises)
@@ -133,6 +129,7 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
     const output = await build({
       config: {
         root: process.cwd(),
+        logLevel: 'silent',
         ...userConfig,
         input: {
           ...userConfig.input,

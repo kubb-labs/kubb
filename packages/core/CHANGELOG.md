@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.2...@kubb/core-v1.0.3) (2023-06-05)
+
+
+### Bug Fixes
+
+* log stdout of hooks when logLevel is `info` ([ca885e0](https://github.com/kubb-project/kubb/commit/ca885e0393bdd1cb93bd68b8067eabf758d413d2))
+
 ## [1.0.2](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.1...@kubb/core-v1.0.2) (2023-06-05)
 
 
