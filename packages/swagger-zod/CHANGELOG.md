@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.3...@kubb/swagger-zod-v1.0.4) (2023-06-05)
+
+
+### Bug Fixes
+
+* oneOf and allOf should check if properties exists(else we have a z.any/any) ([1914b6a](https://github.com/kubb-project/kubb/commit/1914b6a25e8266eb635459c4e9354b33df4fc4ad))
+
 ## [1.0.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.0.2...@kubb/swagger-zod-v1.0.3) (2023-06-05)
 
 

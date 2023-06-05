@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.3...@kubb/core-v1.0.4) (2023-06-05)
+
+
+### Bug Fixes
+
+* Path and objectToParameters with paramterName in camelCase ([a446b18](https://github.com/kubb-project/kubb/commit/a446b188e5001b3597125bcfed61e454e9ed06c0))
+
 ## [1.0.3](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.2...@kubb/core-v1.0.3) (2023-06-05)
 
 

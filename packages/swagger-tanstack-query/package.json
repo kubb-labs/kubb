@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-tanstack-query",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Generator swagger-tanstack-query",
   "repository": {
     "type": "git",

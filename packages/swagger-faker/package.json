@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-faker",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Generator swagger-faker",
   "repository": {
     "type": "git",
