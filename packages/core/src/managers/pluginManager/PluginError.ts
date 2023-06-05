@@ -3,9 +3,9 @@ import type { PluginManager } from './PluginManager'
 export class PluginError extends Error {
   public pluginManager: PluginManager
 
-  constructor(message: string, options: { cause: Error }, pluginManager: PluginManager) {
-    super(message, options)
+  constructor(message: string, options: { cause?: Error; pluginManager: PluginManager }) {
+    super(message, { cause: options.cause })
 
-    this.pluginManager = pluginManager
+    this.pluginManager = options.pluginManager
   }
 }

@@ -2,6 +2,7 @@
 /* eslint-disable no-restricted-syntax */
 
 import { PluginError } from './PluginError.ts'
+import { ParallelPluginError } from './ParallelPluginError.ts'
 
 import { definePlugin } from '../../plugin.ts'
 import { FileManager } from '../fileManager/FileManager.ts'
@@ -233,7 +234,14 @@ export class PluginManager {
         parallelPromises.push(promise)
       }
     }
-    return Promise.all(parallelPromises)
+    const results = await Promise.allSettled(parallelPromises)
+    const errors = results.filter((result) => result.status === 'rejected').map((result) => (result as PromiseRejectedResult).reason) as PluginError[]
+
+    if (errors.length) {
+      throw new ParallelPluginError('Error', { errors, pluginManager: this })
+    }
+
+    return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
   }
 
   // chains, reduces returned value, handling the reduced value as the first hook argument
@@ -298,7 +306,7 @@ export class PluginManager {
   }
 
   private addExecuter(executer: Executer | undefined) {
-    this.onExecute?.(executer, this)
+    this.onExecute?.call(this, executer)
 
     if (executer) {
       this.executed.push(executer)
@@ -428,7 +436,7 @@ export class PluginManager {
   private catcher<H extends PluginLifecycleHooks>(e: Error, plugin: KubbPlugin, hookName: H) {
     const text = `${e.message} (plugin: ${plugin.name}, hook: ${hookName})\n`
 
-    throw new PluginError(text, { cause: e }, this)
+    throw new PluginError(text, { cause: e, pluginManager: this })
   }
 }
 
