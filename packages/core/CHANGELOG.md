@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.1...@kubb/core-v1.0.2) (2023-06-05)
+
+
+### Bug Fixes
+
+* **core:** only read in file when input is not a URL ([6ad51e0](https://github.com/kubb-project/kubb/commit/6ad51e0f5107cb7d05c07d7870a730a7258cc788))
+
 ## [1.0.1](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.0.0...@kubb/core-v1.0.1) (2023-06-05)
 
 
