@@ -91,5 +91,4 @@ module.exports = {
       version: 'detect',
     },
   },
-  ignorePatterns: ['*.scss.d.ts', '*rc.js', '*.config.js', '**/types/**', '**/es/**', '**/lib/**', '**/umd/**'],
 }

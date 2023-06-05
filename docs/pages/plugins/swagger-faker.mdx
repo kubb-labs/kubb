@@ -1,0 +1,67 @@
+import { Callout, Tabs, Tab } from 'nextra-theme-docs'
+import Link from 'next/link'
+
+# @kubb/swagger-faker
+
+With the Swagger Faker plugin you can use [Faker](https://fakerjs.dev/) to create mocks based on a Swagger file.
+
+## Installation
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tab>
+    ```bash copy
+    pnpm i -D @kubb/swagger-faker
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    npm i -D @kubb/swagger-faker
+    ```
+  </Tab>
+    <Tab>
+    ```bash copy
+    yarn add -D @kubb/swagger-faker
+    ```
+  </Tab>
+</Tabs>
+
+## Options
+
+
+### output
+Relative path to save the Faker mocks.
+When output is a file it will save all models inside that file else it will create a file per schema item.
+
+Type: `string` <br/>
+Default: `"mocks"`
+
+### groupBy
+Group the Faker mocks based on the provided name.
+
+#### type
+Tag will group based on the operation tag inside the Swagger file.
+
+Type: `'tag'` <br/>
+Required: `true`
+
+#### output
+Relative path to save the grouped Faker mocks.
+`{{tag}}` will be replaced by the current tagName.
+
+Type: `string` <br/>
+Example: `mocks/{{tag}}Controller` => `mocks/PetController` <br/>
+Default: `${output}/{{tag}}Controller`
+
+#### exportAs
+Name to be used for the `export * as {{exportAs}} from './`
+
+Type: `string` <br/>
+Default: `"{{tag}}Mocks"`
+
+## Depended
+
+- [`@kubb/swagger`](/docs/usage/swagger)
+
+## Links
+
+- [Faker](https://fakerjs.dev/)

@@ -65,6 +65,15 @@
       "draft": false,
       "prerelease": false
     },
+    "packages/swagger-faker": {
+      "component": "@kubb/swagger-faker",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
+    },
     "packages/swagger-zod": {
       "component": "@kubb/swagger-zod",
       "changelog-path": "CHANGELOG.md",
@@ -106,7 +115,8 @@
         "@kubb/swagger-client",
         "@kubb/swagger-tanstack-query",
         "@kubb/swagger-swr",
-        "@kubb/swagger-zod"
+        "@kubb/swagger-zod",
+        "@kubb/swagger-faker"
       ]
     }
   ]

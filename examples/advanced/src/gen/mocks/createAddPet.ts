@@ -1,0 +1,26 @@
+import { createAddPetRequest } from './createAddPetRequest'
+import { createPet } from './createPet'
+
+/**
+ * @description Invalid input
+ */
+
+export function createAddPet405() {
+  return undefined
+}
+
+/**
+ * @description Create a new pet in the store
+ */
+
+export function createAddPetMutationRequest() {
+  return createAddPetRequest()
+}
+
+/**
+ * @description Successful operation
+ */
+
+export function createAddPetMutationResponse() {
+  return createPet()
+}

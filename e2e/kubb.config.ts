@@ -1,4 +1,7 @@
 import { defineConfig } from '@kubb/core'
+/**
+ * @link https://apis.guru/
+ */
 
 export default defineConfig(() => {
   return {
@@ -30,6 +33,7 @@ export default defineConfig(() => {
       ['@kubb/swagger-client', { output: './clients/axios', groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' } }],
       ['@kubb/swagger-zod', { output: './zod', groupBy: { type: 'tag' } }],
       ['@kubb/swagger-zodios', { output: 'zodios.ts' }],
+      ['@kubb/swagger-faker', { output: 'mocks' }],
     ],
   }
 })
