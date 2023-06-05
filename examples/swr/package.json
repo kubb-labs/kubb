@@ -13,7 +13,7 @@
   "type": "module",
   "scripts": {
     "generate": "pnpm generate:ts",
-    "generate:ts": "kubb --debug",
+    "generate:ts": "kubb",
     "build": "tsup",
     "start": "tsup --watch",
     "test": "vitest",
