@@ -1,6 +1,6 @@
 /* eslint-disable no-async-promise-executor */
 import { PluginManager } from './managers/pluginManager/index.ts'
-import { clean, read } from './utils/index.ts'
+import { clean, isURL, read } from './utils/index.ts'
 import { getFileSource } from './managers/fileManager/index.ts'
 
 import type { OnExecute } from './managers/pluginManager/index.ts'
@@ -34,7 +34,9 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   const { config, logger } = options
 
   try {
-    await read(config.input.path)
+    if (!isURL(config.input.path)) {
+      await read(config.input.path)
+    }
   } catch (e: any) {
     throw new Error('Cannot read file defined in `input.path` or set with --input in the CLI of your Kubb config', { cause: e })
   }
