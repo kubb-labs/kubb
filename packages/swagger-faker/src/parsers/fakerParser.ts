@@ -17,8 +17,7 @@ export const fakerKeywords = {
   object: 'object',
   ref: 'ref',
   catchall: 'catchall',
-  // TODO
-  matches: '.regex',
+  matches: 'faker.helpers.fromRegExp',
 } as const
 
 export type FakerKeyword = keyof typeof fakerKeywords
@@ -35,7 +34,7 @@ type FakerMetaUndefined = { keyword: 'undefined' }
 type FakerMetaNumber = { keyword: 'number'; args?: { min?: number; max?: number } }
 type FakerMetaInteger = { keyword: 'integer'; args?: { min?: number; max?: number } }
 
-type FakerMetaString = { keyword: 'string' }
+type FakerMetaString = { keyword: 'string'; args?: { min?: number; max?: number } }
 
 type FakerMetaBoolean = { keyword: 'boolean' }
 
@@ -88,7 +87,7 @@ function fakerKeywordSorter(a: FakerMeta, b: FakerMeta) {
   return 0
 }
 
-function parseFakerMeta(item: FakerMeta): string {
+export function parseFakerMeta(item: FakerMeta): string {
   // eslint-disable-next-line prefer-const
   let { keyword, args = {} } = (item || {}) as FakerMetaBase<any>
   const value = fakerKeywords[keyword]

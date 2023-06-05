@@ -1,196 +1,154 @@
-import { zodParser } from './zodParser.ts'
+import { parseZodMeta } from './zodParser.ts'
 
 const input = [
   {
-    input: zodParser([
-      {
-        keyword: 'z.string',
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'string',
+    }),
     expected: 'z.string()',
   },
   {
-    input: zodParser([
-      {
-        keyword: 'z.number',
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'number',
+    }),
     expected: 'z.number()',
   },
   {
-    input: zodParser([
-      {
-        keyword: 'z.boolean',
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'boolean',
+    }),
     expected: 'z.boolean()',
   },
   {
-    input: zodParser([
-      {
-        keyword: 'z.any',
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'any',
+    }),
     expected: 'z.any()',
   },
   {
-    input: zodParser([
-      {
-        keyword: '.nullable',
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'null',
+    }),
     expected: '.nullable()',
   },
   {
-    input: zodParser([
-      {
-        keyword: 'z.undefined',
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'undefined',
+    }),
     expected: 'z.undefined()',
   },
   {
-    input: zodParser([
-      {
-        keyword: '.min',
-        args: 2,
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'min',
+      args: 2,
+    }),
     expected: '.min(2)',
   },
   {
-    input: zodParser([
-      {
-        keyword: '.max',
-        args: 2,
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'max',
+      args: 2,
+    }),
     expected: '.max(2)',
   },
   {
-    input: zodParser([
-      {
-        keyword: '.regex',
-        args: '*',
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'matches',
+      args: '*',
+    }),
     expected: '.regex(*)',
   },
   {
-    input: zodParser([
-      {
-        keyword: 'ref',
-        args: 'Pet',
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'ref',
+      args: 'Pet',
+    }),
     expected: 'z.lazy(() => Pet)',
   },
   {
-    input: zodParser([
-      {
-        keyword: 'z.enum',
-        args: ['"A"', '"B"', '"C"', 2],
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'enum',
+      args: ['"A"', '"B"', '"C"', 2],
+    }),
     expected: 'z.enum("A","B","C",2)',
   },
 
   {
-    input: zodParser([
-      {
-        keyword: 'z.tuple',
-        args: [],
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'tuple',
+      args: [],
+    }),
     expected: 'z.tuple([])',
   },
   {
-    input: zodParser([
-      {
-        keyword: 'z.tuple',
-        args: [{ keyword: 'z.string' }, { keyword: 'z.number' }],
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'tuple',
+      args: [{ keyword: 'string' }, { keyword: 'number' }],
+    }),
     expected: 'z.tuple([z.string(),z.number()])',
   },
 
   {
-    input: zodParser([
-      {
-        keyword: 'z.array',
-        args: [],
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'array',
+      args: [],
+    }),
     expected: 'z.array()',
   },
   {
-    input: zodParser([
-      {
-        keyword: 'z.array',
-        args: [{ keyword: 'ref', args: 'Pet' }],
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'array',
+      args: [{ keyword: 'ref', args: 'Pet' }],
+    }),
     expected: 'z.array(z.lazy(() => Pet))',
   },
 
   {
-    input: zodParser([
-      {
-        keyword: 'z.union',
-        args: [],
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'union',
+      args: [],
+    }),
     expected: '.and(z.union([]))',
   },
   {
-    input: zodParser([
-      {
-        keyword: 'z.union',
-        args: [{ keyword: 'z.string' }, { keyword: 'z.number' }],
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'union',
+      args: [{ keyword: 'string' }, { keyword: 'number' }],
+    }),
     expected: '.and(z.union([z.string(),z.number()]))',
   },
 
   {
-    input: zodParser([
-      {
-        keyword: '.catchall',
-        args: [],
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'catchall',
+      args: [],
+    }),
     expected: '.catchall()',
   },
   {
-    input: zodParser([
-      {
-        keyword: '.catchall',
-        args: [{ keyword: 'ref', args: 'Pet' }],
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'catchall',
+      args: [{ keyword: 'ref', args: 'Pet' }],
+    }),
     expected: '.catchall(z.lazy(() => Pet))',
   },
 
   {
-    input: zodParser([
-      {
-        keyword: '.and',
-        args: [{ keyword: 'z.string' }, { keyword: 'z.number' }],
-      },
-    ]),
+    input: parseZodMeta({
+      keyword: 'and',
+      args: [{ keyword: 'string' }, { keyword: 'number' }],
+    }),
     expected: '.and(z.string()).and(z.number())',
   },
 
   {
-    input: zodParser([
-      {
-        keyword: 'z.object',
-        args: {
-          firstName: [{ keyword: 'z.string' }, { keyword: '.min', args: 2 }],
-          address: [{ keyword: 'z.string' }, { keyword: '.nullable' }, { keyword: '.describe', args: '"Your address"' }],
-        },
+    input: parseZodMeta({
+      keyword: 'object',
+      args: {
+        firstName: [{ keyword: 'string' }, { keyword: 'min', args: 2 }],
+        address: [{ keyword: 'string' }, { keyword: 'null' }, { keyword: 'describe', args: '"Your address"' }],
       },
-    ]),
+    }),
     expected: 'z.object({"firstName": z.string().min(2),"address": z.string().describe("Your address").nullable()})',
   },
 ]

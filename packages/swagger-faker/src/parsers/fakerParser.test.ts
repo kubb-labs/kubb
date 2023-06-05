@@ -1,197 +1,142 @@
-import { fakerParser } from './fakerParser.ts'
+import { parseFakerMeta } from './fakerParser.ts'
 
 const input = [
   {
-    input: fakerParser([
-      {
-        keyword: 'z.string',
-      },
-    ]),
-    expected: 'z.string()',
+    input: parseFakerMeta({
+      keyword: 'string',
+    }),
+    expected: 'faker.string.alpha({})',
   },
   {
-    input: fakerParser([
-      {
-        keyword: 'z.number',
-      },
-    ]),
-    expected: 'z.number()',
+    input: parseFakerMeta({
+      keyword: 'number',
+    }),
+    expected: 'faker.number.float({})',
   },
   {
-    input: fakerParser([
-      {
-        keyword: 'z.boolean',
-      },
-    ]),
-    expected: 'z.boolean()',
+    input: parseFakerMeta({
+      keyword: 'boolean',
+    }),
+    expected: 'faker.datatype.boolean({})',
   },
   {
-    input: fakerParser([
-      {
-        keyword: 'z.any',
-      },
-    ]),
-    expected: 'z.any()',
+    input: parseFakerMeta({
+      keyword: 'any',
+    }),
+    expected: 'undefined',
   },
   {
-    input: fakerParser([
-      {
-        keyword: '.nullable',
-      },
-    ]),
-    expected: '.nullable()',
+    input: parseFakerMeta({
+      keyword: 'null',
+    }),
+    expected: 'null',
   },
   {
-    input: fakerParser([
-      {
-        keyword: 'z.undefined',
-      },
-    ]),
-    expected: 'z.undefined()',
-  },
-  {
-    input: fakerParser([
-      {
-        keyword: '.min',
-        args: 2,
-      },
-    ]),
-    expected: '.min(2)',
-  },
-  {
-    input: fakerParser([
-      {
-        keyword: '.max',
-        args: 2,
-      },
-    ]),
-    expected: '.max(2)',
-  },
-  {
-    input: fakerParser([
-      {
-        keyword: '.regex',
-        args: '*',
-      },
-    ]),
-    expected: '.regex(*)',
-  },
-  {
-    input: fakerParser([
-      {
-        keyword: 'ref',
-        args: 'Pet',
-      },
-    ]),
-    expected: 'z.lazy(() => Pet)',
-  },
-  {
-    input: fakerParser([
-      {
-        keyword: 'z.enum',
-        args: ['"A"', '"B"', '"C"', 2],
-      },
-    ]),
-    expected: 'z.enum("A","B","C",2)',
+    input: parseFakerMeta({
+      keyword: 'undefined',
+    }),
+    expected: 'undefined',
   },
 
   {
-    input: fakerParser([
-      {
-        keyword: 'z.tuple',
-        args: [],
-      },
-    ]),
-    expected: 'z.tuple([])',
+    input: parseFakerMeta({
+      keyword: 'matches',
+      args: '*',
+    }),
+    expected: 'faker.helpers.fromRegExp("*")',
   },
   {
-    input: fakerParser([
-      {
-        keyword: 'z.tuple',
-        args: [{ keyword: 'z.string' }, { keyword: 'z.number' }],
-      },
-    ]),
-    expected: 'z.tuple([z.string(),z.number()])',
-  },
-
-  {
-    input: fakerParser([
-      {
-        keyword: 'z.array',
-        args: [],
-      },
-    ]),
-    expected: 'z.array()',
+    input: parseFakerMeta({
+      keyword: 'ref',
+      args: 'createPet',
+    }),
+    expected: 'createPet()',
   },
   {
-    input: fakerParser([
-      {
-        keyword: 'z.array',
-        args: [{ keyword: 'ref', args: 'Pet' }],
-      },
-    ]),
-    expected: 'z.array(z.lazy(() => Pet))',
+    input: parseFakerMeta({
+      keyword: 'enum',
+      args: ['"A"', '"B"', '"C"', 2],
+    }),
+    expected: 'faker.helpers.arrayElement(["A","B","C",2])',
   },
 
   {
-    input: fakerParser([
-      {
-        keyword: 'z.union',
-        args: [],
-      },
-    ]),
-    expected: '.and(z.union([]))',
+    input: parseFakerMeta({
+      keyword: 'tuple',
+      args: [],
+    }),
+    expected: 'faker.helpers.arrayElement([])',
   },
   {
-    input: fakerParser([
-      {
-        keyword: 'z.union',
-        args: [{ keyword: 'z.string' }, { keyword: 'z.number' }],
-      },
-    ]),
-    expected: '.and(z.union([z.string(),z.number()]))',
+    input: parseFakerMeta({
+      keyword: 'tuple',
+      args: [{ keyword: 'string' }, { keyword: 'number' }],
+    }),
+    expected: 'faker.helpers.arrayElement([faker.string.alpha({}),faker.number.float({})])',
   },
 
   {
-    input: fakerParser([
-      {
-        keyword: '.catchall',
-        args: [],
-      },
-    ]),
-    expected: '.catchall()',
+    input: parseFakerMeta({
+      keyword: 'array',
+      args: [],
+    }),
+    expected: 'faker.helpers.arrayElement([])',
   },
   {
-    input: fakerParser([
-      {
-        keyword: '.catchall',
-        args: [{ keyword: 'ref', args: 'Pet' }],
-      },
-    ]),
-    expected: '.catchall(z.lazy(() => Pet))',
+    input: parseFakerMeta({
+      keyword: 'array',
+      args: [{ keyword: 'ref', args: 'createPet' }],
+    }),
+    expected: 'faker.helpers.arrayElement([createPet()])',
   },
 
   {
-    input: fakerParser([
-      {
-        keyword: '.and',
-        args: [{ keyword: 'z.string' }, { keyword: 'z.number' }],
-      },
-    ]),
-    expected: '.and(z.string()).and(z.number())',
+    input: parseFakerMeta({
+      keyword: 'union',
+      args: [],
+    }),
+    expected: 'faker.helpers.arrayElement([])',
+  },
+  {
+    input: parseFakerMeta({
+      keyword: 'union',
+      args: [{ keyword: 'string' }, { keyword: 'number' }],
+    }),
+    expected: 'faker.helpers.arrayElement([faker.string.alpha({}),faker.number.float({})])',
+  },
+
+  // {
+  //   input: parseFakerMeta({
+  //     keyword: 'catchall',
+  //     args: [],
+  //   }),
+  //   expected: '.catchall()',
+  // },
+  // {
+  //   input: parseFakerMeta({
+  //     keyword: 'catchall',
+  //     args: [{ keyword: 'ref' }],
+  //   }),
+  //   expected: '.catchall(z.lazy(() => Pet))',
+  // },
+
+  {
+    input: parseFakerMeta({
+      keyword: 'and',
+      args: [{ keyword: 'string' }, { keyword: 'number' }],
+    }),
+    expected: 'faker.helpers.arrayElement([faker.string.alpha({}),faker.number.float({})])',
   },
 
   {
-    input: fakerParser([
-      {
-        keyword: 'z.object',
-        args: {
-          firstName: [{ keyword: 'z.string' }, { keyword: '.min', args: 2 }],
-          address: [{ keyword: 'z.string' }, { keyword: '.nullable' }, { keyword: '.describe', args: '"Your address"' }],
-        },
+    input: parseFakerMeta({
+      keyword: 'object',
+      args: {
+        firstName: [{ keyword: 'string', args: { min: 2 } }],
+        address: [{ keyword: 'string' }, { keyword: 'null' }],
       },
-    ]),
-    expected: 'z.object({"firstName": z.string().min(2),"address": z.string().describe("Your address").nullable()})',
+    }),
+    expected: '{"firstName": faker.string.alpha({"min":2}),"address": faker.string.alpha({})null}',
   },
 ]
 

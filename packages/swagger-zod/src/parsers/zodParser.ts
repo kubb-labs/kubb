@@ -103,7 +103,7 @@ function zodKeywordSorter(a: ZodMeta, b: ZodMeta) {
   return 0
 }
 
-function parseZodMeta(item: ZodMeta): string {
+export function parseZodMeta(item: ZodMeta): string {
   // eslint-disable-next-line prefer-const
   let { keyword, args = '' } = (item || {}) as ZodMetaBase<any>
   const value = zodKeywords[keyword]
