@@ -80,7 +80,7 @@ export type KubbConfig = {
   }
   /**
    * Log level to report when using the CLI
-   * For now only `info` is being used.
+   * Under construction, only info is implemented.
    * @default `silent`
    */
   logLevel?: LogLevel
