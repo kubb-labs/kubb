@@ -1,4 +1,4 @@
-import { createUser } from './createUser'
+import { createUser } from '../createUser'
 
 export function createCreateUserMutationResponse() {
   return undefined

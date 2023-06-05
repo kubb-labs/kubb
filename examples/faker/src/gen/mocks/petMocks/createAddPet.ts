@@ -1,4 +1,4 @@
-import { createPet } from './createPet'
+import { createPet } from '../createPet'
 
 /**
  * @description Invalid input

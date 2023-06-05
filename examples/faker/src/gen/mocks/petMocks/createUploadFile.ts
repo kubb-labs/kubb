@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 
-import { createApiResponse } from './createApiResponse'
+import { createApiResponse } from '../createApiResponse'
 
 export function createUploadFilePathParams() {
   return { petId: faker.number.float({}) }

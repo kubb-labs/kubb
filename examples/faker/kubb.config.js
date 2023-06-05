@@ -24,6 +24,7 @@ export default defineConfig(async () => {
       },
       '@kubb/swagger-faker': {
         output: './mocks',
+        groupBy: { type: 'tag', output: './mocks/{{tag}}Mocks' },
       },
     },
   }
