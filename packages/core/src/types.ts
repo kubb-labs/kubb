@@ -80,6 +80,8 @@ export type KubbConfig = {
   }
   /**
    * Log level to report when using the CLI
+   * Under construction, only info is implemented.
+   * @default `silent`
    */
   logLevel?: LogLevel
 }
@@ -241,5 +243,5 @@ export type Path = string
 export type OptionalPath = Path | null | undefined
 export type FileName = string | null | undefined
 
-export type LogType = 'error' | 'warn' | 'info'
+export type LogType = 'error' | 'info'
 export type LogLevel = LogType | 'silent'
