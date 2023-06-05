@@ -69,13 +69,21 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
       ...new Set(pluginManager.executed.filter((item) => item.hookName === 'buildStart' && item.plugin.name !== 'core').map((item) => item.plugin.name)),
     ]
     const pluginsCount = config.plugins?.length || 0
+    const files = pluginManager.fileManager.files.sort((a, b) => {
+      if (!a.meta?.pluginName || !b.meta?.pluginName) {
+        return 0
+      }
+      if (a.meta?.pluginName.length < b.meta?.pluginName.length) return 1
+      if (a.meta?.pluginName.length > b.meta?.pluginName.length) return -1
+      return 0
+    })
 
     const meta = {
       plugins:
         status === 'success'
           ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
           : `${pc.red(`${pluginsCount - buildStartPlugins.length} failed`)}, ${pluginsCount} total`,
-      filesCreated: pluginManager.fileManager.files.length,
+      filesCreated: files.length,
       time: pc.yellow(`${elapsedSeconds}s`),
       output: pathParser.resolve(config.root, config.output.path),
     } as const
@@ -88,7 +96,8 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
      `)
 
     if (options.debug) {
-      // TODO create list of files per plugin
+      console.log(`${pc.bold('Generated files:')}`)
+      console.log(`${files.map((file) => `${pc.blue(file.meta?.pluginName)} ${file.path}`).join('\n')}`)
     }
   }
 

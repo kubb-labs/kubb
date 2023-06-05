@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { createPluginCache, transformReservedWord } from './utils/index.ts'
+import { createPluginCache, getStackTrace, transformReservedWord } from './utils/index.ts'
 
 import type { Executer } from './managers/index.ts'
 import type { FileManager } from './managers/fileManager/FileManager.ts'
@@ -43,7 +43,7 @@ export type CorePluginOptions = PluginFactoryOptions<Options, false, PluginConte
 export const name = 'core' as const
 
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
-  const { fileManager, resolvePath, resolveName, load, getExecuter } = options
+  const { fileManager, resolvePath, resolveName, load } = options
 
   const api: PluginContext = {
     get config() {
@@ -51,16 +51,32 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
     },
     fileManager,
     async addFile(...files) {
+      // TODO unstable, based on stack trace and name of the file(can be different)
+      const trace = getStackTrace()
+      const plugins = options.config.plugins
+        ?.filter((plugin) => trace[1].getFileName()?.includes(plugin.name))
+        .sort((a, b) => {
+          if (a.name.length < b.name.length) return 1
+          if (a.name.length > b.name.length) return -1
+          return 0
+        })
+      const pluginName = plugins?.[0].name
+
       return Promise.all(
         files.map((file) => {
-          const executer = getExecuter()
-          // console.log('executer ', executer?.plugin?.name, file.meta)
-
-          if (file.override) {
-            return fileManager.add(file)
+          const fileWithMeta = {
+            ...file,
+            meta: {
+              ...(file.meta || {}),
+              pluginName,
+            },
           }
 
-          return fileManager.addOrAppend(file)
+          if (file.override) {
+            return fileManager.add(fileWithMeta)
+          }
+
+          return fileManager.addOrAppend(fileWithMeta)
         })
       )
     },
