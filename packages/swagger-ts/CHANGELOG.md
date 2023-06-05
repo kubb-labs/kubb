@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.3...@kubb/swagger-ts-v1.1.0) (2023-06-05)
+
+
+### Bug Fixes
+
+* oneOf and allOf should check if properties exists(else we have a z.any/any) ([1914b6a](https://github.com/kubb-project/kubb/commit/1914b6a25e8266eb635459c4e9354b33df4fc4ad))
+
+
+### Miscellaneous Chores
+
+* release 1.1.0 ([93ebdf1](https://github.com/kubb-project/kubb/commit/93ebdf116d63f022cacb8276de30d778df225ce5))
+
 ## [1.0.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.0.2...@kubb/swagger-ts-v1.0.3) (2023-06-05)
 
 

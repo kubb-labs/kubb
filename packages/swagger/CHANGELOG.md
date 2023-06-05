@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.3...@kubb/swagger-v1.1.0) (2023-06-05)
+
+
+### Bug Fixes
+
+* Path and objectToParameters with paramterName in camelCase ([a446b18](https://github.com/kubb-project/kubb/commit/a446b188e5001b3597125bcfed61e454e9ed06c0))
+
+
+### Miscellaneous Chores
+
+* release 1.1.0 ([93ebdf1](https://github.com/kubb-project/kubb/commit/93ebdf116d63f022cacb8276de30d778df225ce5))
+
 ## [1.0.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.2...@kubb/swagger-v1.0.3) (2023-06-05)
 
 
