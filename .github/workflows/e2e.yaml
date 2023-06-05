@@ -47,5 +47,6 @@ jobs:
             pnpm generate --input ./schemas/petStore.yaml
             pnpm generate --input ./schemas/twitter.json
             pnpm generate --input ./schemas/twitter2.json
+            pnpm generate --input ./schemas/bunq.com.json
             pnpm clean
 

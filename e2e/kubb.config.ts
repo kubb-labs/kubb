@@ -1,4 +1,7 @@
 import { defineConfig } from '@kubb/core'
+/**
+ * @link https://apis.guru/
+ */
 
 export default defineConfig(() => {
   return {

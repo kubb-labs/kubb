@@ -28,6 +28,5 @@
     "**/node_modules",
     "**/types/**",
     "**/mocks/**"
-   
   ]
 }
