@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.1.0...@kubb/swagger-v1.1.1) (2023-06-06)
+
+
+### Bug Fixes
+
+* default for Zod and TypeScript ([6602116](https://github.com/kubb-project/kubb/commit/660211670f9f4ea9e76ec482629844801050dc92))
+
 ## [1.1.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.0.3...@kubb/swagger-v1.1.0) (2023-06-05)
 
 
