@@ -28,7 +28,7 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "pre-commit": "turbo run pre-commit && pnpm run lint-fix",
     "pre-push": "turbo run pre-push",
-    "release": "turbo run release",
+    "release": "turbo run release --continue",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
