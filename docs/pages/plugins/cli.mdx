@@ -34,15 +34,14 @@ npx kubb --config kubb.config.js
 ```mdx
 Usage: kubb [options]
 
-Generate
-
 Options:
-  -c, --config <path>  Path to the Kubb config
-  -i, --input <path>   Path of the input file(overrides the on in `kubb.config.js`)
-  -d, --debug          Debug mode (default: false)
-  -w, --watch          Watch mode based on the input file
-  -v                   output the version number
-  -h, --help           display help for command
+  -c, --config <path>     Path to the Kubb config
+  -i, --input <path>     Path of the input file(overrides the one in `kubb.config.js`)
+  -l, --logLevel <type>  Type of the logging(overrides the one in `kubb.config.js`) (choices: "error", "info", "silent")
+  -d, --debug            Debug mode (default: false)
+  -w, --watch            Watch mode based on the input file
+  -v                     Output the version number
+  -h, --help             Display help for command
 ```
 
 ### --config (-c)
@@ -55,7 +54,7 @@ npx kubb -c kubb.config.ts
 
 ### --input (-i)
 
-Path of the input file(overrides the on in `kubb.config.js`)
+Path of the input file(overrides the one in `kubb.config.js`)
 
 ```sh copy
 npx kubb -i petStore.yaml
@@ -64,6 +63,14 @@ npx kubb -i petStore.yaml
 ### --debug (-d)
 
 Debug mode (default: false).
+
+```sh copy
+npx kubb -d
+```
+
+### --logLevel (-l)
+
+Type of the logging(overrides the one in `kubb.config.js`)
 
 ```sh copy
 npx kubb -d
@@ -79,7 +86,7 @@ npx kubb -w
 
 ### --version (-v)
 
-Return version used by Kubb.
+Output the version number
 
 ```sh copy
 npx kubb -v
@@ -87,7 +94,7 @@ npx kubb -v
 
 ### --help (-h)
 
-Return a help with all commands that are possible.
+Display help for command
 
 ```sh copy
 npx kubb -h

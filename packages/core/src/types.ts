@@ -100,9 +100,15 @@ export type CLIOptions = {
    */
   watch?: string
   /**
-   * Override input defined in `kubb.config.js`
+   * Override `input` defined in `kubb.config.js`
    */
   input?: string
+
+  /**
+   * Override `logLevel` defined in `kubb.config.js`
+   * @default `'silent'`
+   */
+  logLevel?: LogLevel
 }
 
 export type BuildOutput = {
@@ -243,5 +249,4 @@ export type Path = string
 export type OptionalPath = Path | null | undefined
 export type FileName = string | null | undefined
 
-export type LogType = 'error' | 'info'
-export type LogLevel = LogType | 'silent'
+export type LogLevel = 'error' | 'info' | 'silent'
