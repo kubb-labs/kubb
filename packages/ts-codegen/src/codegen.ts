@@ -117,7 +117,11 @@ export function createTypeAliasDeclaration({
 }) {
   return factory.createTypeAliasDeclaration(modifiers, name, typeParameters, type)
 }
-
+/**
+ * In { propertyName: string; name?: string } is `name` being used to make the type more unique when multiple same names are used.
+ * @example `import { Pet as Cat } from './Pet'`
+ *
+ */
 export function createImportDeclaration({
   name,
   path,

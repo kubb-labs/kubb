@@ -41,16 +41,17 @@ export class OperationGenerator extends Generator<Options> {
 
     const faker = this.resolve(operation)
 
-    const fileResolver: FileResolver = (name) => {
+    const fileResolver: FileResolver = (name, ref) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = resolvePath({ fileName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = resolvePath({ fileName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = resolvePath({
         fileName: `${name}.ts`,
-        pluginName,
+        pluginName: ref.pluginName || pluginName,
+        options: ref.pluginName ? { tag: operation.getTags()[0]?.name } : undefined,
       })
 
-      return getRelativePath(filePath, resolvedTypeId)
+      return getRelativePath(root, resolvedTypeId)
     }
 
     const source = await new FakerBuilder(oas)
@@ -79,16 +80,17 @@ export class OperationGenerator extends Generator<Options> {
 
     const faker = this.resolve(operation)
 
-    const fileResolver: FileResolver = (name) => {
+    const fileResolver: FileResolver = (name, ref) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = resolvePath({ fileName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = resolvePath({ fileName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = resolvePath({
         fileName: `${name}.ts`,
-        pluginName,
+        pluginName: ref.pluginName || pluginName,
+        options: ref.pluginName ? { tag: operation.getTags()[0]?.name } : undefined,
       })
 
-      return getRelativePath(filePath, resolvedTypeId)
+      return getRelativePath(root, resolvedTypeId)
     }
 
     const source = await new FakerBuilder(oas)
@@ -118,16 +120,17 @@ export class OperationGenerator extends Generator<Options> {
 
     const faker = this.resolve(operation)
 
-    const fileResolver: FileResolver = (name) => {
+    const fileResolver: FileResolver = (name, ref) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = resolvePath({ fileName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = resolvePath({ fileName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = resolvePath({
         fileName: `${name}.ts`,
-        pluginName,
+        pluginName: ref.pluginName || pluginName,
+        options: ref.pluginName ? { tag: operation.getTags()[0]?.name } : undefined,
       })
 
-      return getRelativePath(filePath, resolvedTypeId)
+      return getRelativePath(root, resolvedTypeId)
     }
 
     const source = await new FakerBuilder(oas)
@@ -157,16 +160,17 @@ export class OperationGenerator extends Generator<Options> {
 
     const faker = this.resolve(operation)
 
-    const fileResolver: FileResolver = (name) => {
+    const fileResolver: FileResolver = (name, ref) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const filePath = resolvePath({ fileName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = resolvePath({ fileName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = resolvePath({
         fileName: `${name}.ts`,
-        pluginName,
+        pluginName: ref.pluginName || pluginName,
+        options: ref.pluginName ? { tag: operation.getTags()[0]?.name } : undefined,
       })
 
-      return getRelativePath(filePath, resolvedTypeId)
+      return getRelativePath(root, resolvedTypeId)
     }
 
     const source = await new FakerBuilder(oas)

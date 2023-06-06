@@ -1,6 +1,7 @@
 import type { PluginFactoryOptions, KubbConfig, Path } from '@kubb/core'
 
 import type Oas from 'oas'
+import type { Operation } from 'oas'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { OasOptions } from './parsers/oasParser.ts'
 
@@ -38,7 +39,14 @@ export type Resolver = {
 }
 
 export type OperationSchema = {
+  /**
+   * Converted name, contains already `PathParams`, `QueryParams`, ...
+   */
   name: string
+  /**
+   * OperationName in PascalCase, only being used in OperationGenerator
+   */
+  operationName?: string
   description?: string
   schema: OpenAPIV3.SchemaObject
   statusCode?: number

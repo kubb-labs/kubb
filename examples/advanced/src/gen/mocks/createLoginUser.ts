@@ -1,21 +1,23 @@
 import { faker } from '@faker-js/faker'
 
+import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/ts/userController/LoginUser'
+
 /**
  * @description Invalid username/password supplied
  */
 
-export function createLoginUser400() {
+export function createLoginUser400(): LoginUser400 {
   return undefined
 }
 
-export function createLoginUserQueryParams() {
-  return { username: faker.string.alpha({}), password: faker.string.alpha({}) }
+export function createLoginUserQueryParams(): LoginUserQueryParams {
+  return { username: faker.string.alpha(), password: faker.internet.password() }
 }
 
 /**
  * @description successful operation
  */
 
-export function createLoginUserQueryResponse() {
-  return faker.string.alpha({})
+export function createLoginUserQueryResponse(): LoginUserQueryResponse {
+  return faker.string.alpha()
 }

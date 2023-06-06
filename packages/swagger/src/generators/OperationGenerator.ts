@@ -58,12 +58,14 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
       pathParams: pathParamsSchema
         ? {
             name: pascalCase(`${operation.getOperationId()} PathParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
             schema: pathParamsSchema,
           }
         : undefined,
       queryParams: queryParamsSchema
         ? {
             name: pascalCase(`${operation.getOperationId()} QueryParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
             schema: queryParamsSchema,
           }
         : undefined,
@@ -74,6 +76,7 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
               transform: pascalCaseTransformMerge,
             }),
             description: (operation.schema.requestBody as RequestBodyObject)?.description,
+            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
             schema: requestSchema,
           }
         : undefined,
@@ -83,6 +86,7 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
           transform: pascalCaseTransformMerge,
         }),
         description: operation.getResponseAsJSONSchema('200')?.at(0)?.description,
+        operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
         schema: responseSchema,
         statusCode: 200,
       },
@@ -101,6 +105,7 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
               operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description ||
               (operation.getResponseByStatusCode(statusCode) as OpenAPIV3.ResponseObject)?.description,
             schema: operation.getResponseAsJSONSchema(statusCode)?.at(0)?.schema as OpenAPIV3.SchemaObject,
+            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
             statusCode: name === 'error' ? undefined : Number(statusCode),
           }
         }),

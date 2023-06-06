@@ -4,8 +4,9 @@ import uniqueId from 'lodash.uniqueid'
 
 import type { PluginContext } from '@kubb/core'
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
-import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
+import type { Oas, OpenAPIV3, Refs, ImportMeta, FileResolver } from '@kubb/swagger'
 import { isReference } from '@kubb/swagger'
+import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
 import { pluginName } from '../plugin.ts'
 import { fakerParser, fakerKeywords } from '../parsers/index.ts'
@@ -14,12 +15,15 @@ import type { FakerMeta, FakerKeyword } from '../parsers/index.ts'
 import type ts from 'typescript'
 
 type Options = {
+  fileResolver?: FileResolver
   withJSDocs?: boolean
   resolveName: PluginContext['resolveName']
 }
 export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, string[]> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
+
+  imports: ImportMeta[] = []
 
   extraTexts: string[] = []
 
@@ -34,7 +38,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
     return this
   }
 
-  build(schema: OpenAPIV3.SchemaObject, baseName: string, description?: string) {
+  build({ schema, baseName, description, operationName }: { schema: OpenAPIV3.SchemaObject; baseName: string; description?: string; operationName?: string }) {
     const texts: string[] = []
     const fakerInput = this.getTypeFromSchema(schema, baseName)
     if (description) {
@@ -44,7 +48,25 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
        */`)
     }
 
-    const fakerOutput = fakerParser(fakerInput, this.options.resolveName({ name: baseName, pluginName }) || baseName)
+    const name = this.options.resolveName({ name: baseName, pluginName }) || baseName
+    const typeName = this.options.resolveName({ name: baseName, pluginName: swaggerTypeScriptPluginName })
+
+    const fakerOutput = fakerParser(fakerInput, {
+      name,
+      typeName,
+    })
+    // hack to create import with recreating the ImportGenerator
+    if (typeName) {
+      const ref = {
+        propertyName: typeName,
+        originalName: baseName,
+        pluginName: swaggerTypeScriptPluginName,
+      }
+      this.imports.push({
+        ref,
+        path: this.options.fileResolver?.(operationName || typeName, ref) || '',
+      })
+    }
 
     texts.push(fakerOutput)
 
@@ -244,7 +266,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
         ]
       }
 
-      if (schema.type === 'number' || schema.type === 'integer') {
+      if (schema.type === fakerKeywords.number || schema.type === fakerKeywords.integer) {
         const min = schema.minimum ?? schema.minLength ?? undefined
         const max = schema.maximum ?? schema.maxLength ?? undefined
 
@@ -253,6 +275,26 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
       if (schema.pattern) {
         return [{ keyword: fakerKeywords.matches, args: `/${schema.pattern}/` }]
+      }
+
+      if (schema.format === 'email' || baseName === 'email') {
+        return [{ keyword: fakerKeywords.email }]
+      }
+
+      if (baseName === 'firstName') {
+        return [{ keyword: fakerKeywords.firstName }]
+      }
+
+      if (baseName === 'lastName') {
+        return [{ keyword: fakerKeywords.lastName }]
+      }
+
+      if (baseName === 'password') {
+        return [{ keyword: fakerKeywords.password }]
+      }
+
+      if (baseName === 'phone') {
+        return [{ keyword: fakerKeywords.phone }]
       }
 
       // string, boolean, null, number

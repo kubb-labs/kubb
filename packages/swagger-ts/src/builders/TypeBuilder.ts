@@ -43,22 +43,22 @@ export class TypeBuilder extends OasBuilder<Config> {
     const codes: string[] = []
 
     const generated = this.items
-      .filter((gen) => (name ? gen.name === name : true))
+      .filter((operationSchema) => (name ? operationSchema.name === name : true))
       .sort(nameSorter)
-      .map((gen) => {
+      .map((operationSchema) => {
         const generator = new TypeGenerator(this.oas, {
           withJSDocs: this.config.withJSDocs,
           resolveName: this.config.resolveName,
           enumType: this.config.enumType,
         })
-        const nodes = generator.build(gen.schema, gen.name, gen.description)
+        const sources = generator.build({ schema: operationSchema.schema, baseName: operationSchema.name, description: operationSchema.description })
 
         return {
           import: {
             refs: generator.refs,
-            name: gen.name,
+            name: operationSchema.name,
           },
-          sources: nodes,
+          sources,
         }
       })
       .sort(refsSorter)

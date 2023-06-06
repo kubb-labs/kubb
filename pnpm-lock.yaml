@@ -802,6 +802,9 @@ importers:
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
+      '@kubb/swagger-ts':
+        specifier: workspace:*
+        version: link:../swagger-ts
       '@kubb/ts-codegen':
         specifier: workspace:*
         version: link:../ts-codegen
