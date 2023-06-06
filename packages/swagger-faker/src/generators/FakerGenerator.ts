@@ -92,9 +92,9 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
     if (additionalProperties) {
       const addionalValidationFunctions: FakerMeta[] =
-        additionalProperties === true ? [{ keyword: 'any' }] : this.getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
+        additionalProperties === true ? [{ keyword: fakerKeywords.any }] : this.getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
 
-      members.push({ keyword: 'catchall', args: addionalValidationFunctions })
+      members.push({ keyword: fakerKeywords.catchall, args: addionalValidationFunctions })
     }
 
     return [{ keyword: fakerKeywords.object, args: objectMembers }]
@@ -108,7 +108,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
     let ref = this.refs[$ref]
 
     if (ref) {
-      return [{ keyword: 'ref', args: ref.name ?? ref.propertyName }]
+      return [{ keyword: fakerKeywords.ref, args: ref.name ?? ref.propertyName }]
     }
 
     const originalName = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
@@ -122,7 +122,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
         name: uniqueId(propertyName),
       }
 
-      return [{ keyword: 'ref', args: ref.name }]
+      return [{ keyword: fakerKeywords.ref, args: ref.name }]
     }
 
     // eslint-disable-next-line no-multi-assign
@@ -131,7 +131,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       originalName,
     }
 
-    return [{ keyword: 'ref', args: ref.propertyName }]
+    return [{ keyword: fakerKeywords.ref, args: ref.propertyName }]
   }
 
   /**
@@ -140,7 +140,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
    */
   private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): FakerMeta[] {
     if (!schema) {
-      return [{ keyword: 'any' }]
+      return [{ keyword: fakerKeywords.any }]
     }
 
     if (isReference(schema)) {
@@ -152,7 +152,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       const schemaWithoutOneOf = { ...schema, oneOf: undefined }
 
       const union: FakerMeta = {
-        keyword: 'union',
+        keyword: fakerKeywords.union,
         args: schema.oneOf.map((item) => {
           return this.getBaseTypeFromSchema(item)[0]
         }),
@@ -172,7 +172,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       const schemaWithoutAllOf = { ...schema, allOf: undefined }
 
       const and: FakerMeta = {
-        keyword: 'and',
+        keyword: fakerKeywords.and,
         args: schema.allOf.map((item) => {
           return this.getBaseTypeFromSchema(item)[0]
         }),
@@ -189,7 +189,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       if ('x-enumNames' in schema) {
         return [
           {
-            keyword: 'enum',
+            keyword: fakerKeywords.enum,
             args: [`[${[...new Set(schema['x-enumNames'] as string[])].map((value) => `\`${value}\``).join(', ')}]`],
           },
         ]
@@ -197,7 +197,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
       return [
         {
-          keyword: 'enum',
+          keyword: fakerKeywords.enum,
           args: [`[${[...new Set(schema.enum)].map((value) => `\`${value}\``).join(', ')}]`],
         },
       ]
@@ -205,7 +205,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
     if ('items' in schema) {
       // items -> array
-      return [{ keyword: 'array', args: this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName) }]
+      return [{ keyword: fakerKeywords.array, args: this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName) }]
     }
 
     if ('prefixItems' in schema) {
@@ -213,7 +213,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
       return [
         {
-          keyword: 'tuple',
+          keyword: fakerKeywords.tuple,
           args: prefixItems.map((item) => {
             // no baseType so we can fall back on an union when using enum
             return this.getBaseTypeFromSchema(item, undefined)![0]
@@ -240,7 +240,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
             },
             baseName
           ),
-          { keyword: 'null' },
+          { keyword: fakerKeywords.null },
         ]
       }
 
@@ -248,11 +248,11 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
         const min = schema.minimum ?? schema.minLength ?? undefined
         const max = schema.maximum ?? schema.maxLength ?? undefined
 
-        return [{ keyword: 'number', args: { min, max } }]
+        return [{ keyword: fakerKeywords.number, args: { min, max } }]
       }
 
       if (schema.pattern) {
-        return [{ keyword: 'matches', args: `/${schema.pattern}/` }]
+        return [{ keyword: fakerKeywords.matches, args: `/${schema.pattern}/` }]
       }
 
       // string, boolean, null, number
@@ -265,6 +265,6 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       // TODO binary
     }
 
-    return [{ keyword: 'any' }]
+    return [{ keyword: fakerKeywords.any }]
   }
 }

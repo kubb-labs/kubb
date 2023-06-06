@@ -138,6 +138,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
             schema.description && `@description ${schema.description}`,
             schema.type && `@type ${schema.type}${isRequired ? '' : ' | undefined'} ${schema.format || ''}`,
             schema.example && `@example ${schema.example}`,
+            schema.default !== undefined && typeof schema.default === 'string' && `@default '${schema.default}'`,
+            schema.default !== undefined && typeof schema.default !== 'string' && `@default ${schema.default}`,
           ],
         })
       }

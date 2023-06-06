@@ -34,12 +34,15 @@ export class Path {
   toTemplateString() {
     const regex = /{(\w|-)*}/g
     const found = this.path.match(regex)
+    let newPath = this.path.replaceAll('{', '${')
 
-    const newPath = found?.reduce((prev, curr) => {
-      const replacement = `\${${camelCase(curr, { delimiter: '', transform: camelCaseTransformMerge })}}`
+    if (found) {
+      newPath = found.reduce((prev, curr) => {
+        const replacement = `\${${camelCase(curr, { delimiter: '', transform: camelCaseTransformMerge })}}`
 
-      return prev.replace(curr, replacement)
-    }, this.path)
+        return prev.replace(curr, replacement)
+      }, this.path)
+    }
 
     return `\`${newPath}\``
   }

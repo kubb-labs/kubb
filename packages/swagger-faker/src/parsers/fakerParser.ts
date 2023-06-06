@@ -1,4 +1,28 @@
 export const fakerKeywords = {
+  any: 'any',
+  number: 'number',
+  integer: 'integer',
+  string: 'string',
+  boolean: 'boolean',
+  undefined: 'undefined',
+  null: 'null',
+  array: 'array',
+  tuple: 'tuple',
+  enum: 'enum',
+  union: 'union',
+  /* intersection */
+  and: 'and',
+
+  // custom ones
+  object: 'object',
+  ref: 'ref',
+  catchall: 'catchall',
+  matches: 'matches',
+} as const
+
+export type FakerKeyword = keyof typeof fakerKeywords
+
+export const fakerKeywordMapper: Record<FakerKeyword, string> = {
   any: 'undefined',
   number: 'faker.number.float',
   integer: 'faker.number.int',
@@ -20,41 +44,39 @@ export const fakerKeywords = {
   matches: 'faker.helpers.fromRegExp',
 } as const
 
-export type FakerKeyword = keyof typeof fakerKeywords
-
 type FakerMetaBase<T> = {
   keyword: FakerKeyword
   args: T
 }
 
-type FakerMetaAny = { keyword: 'any' }
-type FakerMetaNull = { keyword: 'null' }
-type FakerMetaUndefined = { keyword: 'undefined' }
+type FakerMetaAny = { keyword: typeof fakerKeywords.any }
+type FakerMetaNull = { keyword: typeof fakerKeywords.null }
+type FakerMetaUndefined = { keyword: typeof fakerKeywords.undefined }
 
-type FakerMetaNumber = { keyword: 'number'; args?: { min?: number; max?: number } }
-type FakerMetaInteger = { keyword: 'integer'; args?: { min?: number; max?: number } }
+type FakerMetaNumber = { keyword: typeof fakerKeywords.number; args?: { min?: number; max?: number } }
+type FakerMetaInteger = { keyword: typeof fakerKeywords.integer; args?: { min?: number; max?: number } }
 
-type FakerMetaString = { keyword: 'string'; args?: { min?: number; max?: number } }
+type FakerMetaString = { keyword: typeof fakerKeywords.string; args?: { min?: number; max?: number } }
 
-type FakerMetaBoolean = { keyword: 'boolean' }
+type FakerMetaBoolean = { keyword: typeof fakerKeywords.boolean }
 
-type FakerMetaMatches = { keyword: 'matches'; args?: string }
+type FakerMetaMatches = { keyword: typeof fakerKeywords.matches; args?: string }
 
-type FakerMetaObject = { keyword: 'object'; args?: { [x: string]: FakerMeta[] } }
+type FakerMetaObject = { keyword: typeof fakerKeywords.object; args?: { [x: string]: FakerMeta[] } }
 
-type FakerMetaCatchall = { keyword: 'catchall'; args?: FakerMeta[] }
+type FakerMetaCatchall = { keyword: typeof fakerKeywords.catchall; args?: FakerMeta[] }
 
-type FakerMetaRef = { keyword: 'ref'; args?: string }
+type FakerMetaRef = { keyword: typeof fakerKeywords.ref; args?: string }
 
-type FakerMetaUnion = { keyword: 'union'; args?: FakerMeta[] }
+type FakerMetaUnion = { keyword: typeof fakerKeywords.union; args?: FakerMeta[] }
 
-type FakerMetaAnd = { keyword: 'and'; args?: FakerMeta[] }
+type FakerMetaAnd = { keyword: typeof fakerKeywords.and; args?: FakerMeta[] }
 
-type FakerMetaEnum = { keyword: 'enum'; args?: Array<string | number> }
+type FakerMetaEnum = { keyword: typeof fakerKeywords.enum; args?: Array<string | number> }
 
-type FakerMetaArray = { keyword: 'array'; args?: FakerMeta[] }
+type FakerMetaArray = { keyword: typeof fakerKeywords.array; args?: FakerMeta[] }
 
-type FakerMetaTuple = { keyword: 'tuple'; args?: FakerMeta[] }
+type FakerMetaTuple = { keyword: typeof fakerKeywords.tuple; args?: FakerMeta[] }
 
 export type FakerMeta =
   | FakerMetaAny
@@ -90,21 +112,21 @@ function fakerKeywordSorter(a: FakerMeta, b: FakerMeta) {
 export function parseFakerMeta(item: FakerMeta): string {
   // eslint-disable-next-line prefer-const
   let { keyword, args = {} } = (item || {}) as FakerMetaBase<any>
-  const value = fakerKeywords[keyword]
+  const value = fakerKeywordMapper[keyword]
 
-  if (keyword === 'tuple' || keyword === 'array' || keyword === 'union' || keyword === 'and') {
+  if (keyword === fakerKeywords.tuple || keyword === fakerKeywords.array || keyword === fakerKeywords.union || keyword === fakerKeywords.and) {
     return `${value}(${Array.isArray(args) ? `[${args.map(parseFakerMeta).join(',')}]` : parseFakerMeta(args)})`
   }
 
-  if (keyword === 'enum') {
+  if (keyword === fakerKeywords.enum) {
     return `${value}(${Array.isArray(args) ? `[${args.join(',')}]` : parseFakerMeta(args)})`
   }
 
-  if (keyword === 'catchall') {
+  if (keyword === fakerKeywords.catchall) {
     throw new Error('catchall is not implemented')
   }
 
-  if (keyword === 'object') {
+  if (keyword === fakerKeywords.object) {
     if (!args) {
       args = '{}'
     }
@@ -124,11 +146,11 @@ export function parseFakerMeta(item: FakerMeta): string {
   }
 
   // custom type
-  if (keyword === 'ref') {
+  if (keyword === fakerKeywords.ref) {
     return `${args}()`
   }
 
-  if (keyword === 'null' || keyword === 'undefined' || keyword === 'any') {
+  if (keyword === fakerKeywords.null || keyword === fakerKeywords.undefined || keyword === fakerKeywords.any) {
     return value
   }
 

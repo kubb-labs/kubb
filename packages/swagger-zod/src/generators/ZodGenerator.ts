@@ -83,24 +83,28 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         validationFunctions.push(...this.getTypeFromSchema(schema as OpenAPIV3.SchemaObject, name))
 
         if (this.options.withJSDocs && schema.description) {
-          validationFunctions.push({ keyword: 'describe', args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
+          validationFunctions.push({ keyword: zodKeywords.describe, args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
         }
         const min = schema.minimum ?? schema.minLength ?? undefined
         const max = schema.maximum ?? schema.maxLength ?? undefined
         const matches = schema.pattern ?? undefined
 
         if (min !== undefined) {
-          validationFunctions.push({ keyword: 'min', args: min })
+          validationFunctions.push({ keyword: zodKeywords.min, args: min })
         }
         if (max !== undefined) {
-          validationFunctions.push({ keyword: 'max', args: max })
+          validationFunctions.push({ keyword: zodKeywords.max, args: max })
         }
         if (matches) {
-          validationFunctions.push({ keyword: 'matches', args: `/${matches}/` })
+          validationFunctions.push({ keyword: zodKeywords.matches, args: `/${matches}/` })
+        }
+
+        if (schema.default !== undefined) {
+          validationFunctions.push({ keyword: zodKeywords.default, args: typeof schema.default === 'string' ? `"${schema.default}"` : schema.default })
         }
 
         if (!isRequired) {
-          validationFunctions.push({ keyword: 'optional' })
+          validationFunctions.push({ keyword: zodKeywords.optional })
         }
 
         return {
@@ -111,13 +115,13 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
     const members: ZodMeta[] = []
 
-    members.push({ keyword: 'object', args: objectMembers })
+    members.push({ keyword: zodKeywords.object, args: objectMembers })
 
     if (additionalProperties) {
       const addionalValidationFunctions: ZodMeta[] =
-        additionalProperties === true ? [{ keyword: 'any' }] : this.getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
+        additionalProperties === true ? [{ keyword: zodKeywords.any }] : this.getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
 
-      members.push({ keyword: 'catchall', args: addionalValidationFunctions })
+      members.push({ keyword: zodKeywords.catchall, args: addionalValidationFunctions })
     }
 
     return members
@@ -131,7 +135,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     let ref = this.refs[$ref]
 
     if (ref) {
-      return [{ keyword: 'ref', args: ref.name ?? ref.propertyName }]
+      return [{ keyword: zodKeywords.ref, args: ref.name ?? ref.propertyName }]
     }
 
     const originalName = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
@@ -145,7 +149,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         name: uniqueId(propertyName),
       }
 
-      return [{ keyword: 'ref', args: ref.name }]
+      return [{ keyword: zodKeywords.ref, args: ref.name }]
     }
 
     // eslint-disable-next-line no-multi-assign
@@ -154,7 +158,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       originalName,
     }
 
-    return [{ keyword: 'ref', args: ref.propertyName }]
+    return [{ keyword: zodKeywords.ref, args: ref.propertyName }]
   }
 
   /**
@@ -163,7 +167,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
    */
   private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): ZodMeta[] {
     if (!schema) {
-      return [{ keyword: 'any' }]
+      return [{ keyword: zodKeywords.any }]
     }
 
     if (isReference(schema)) {
@@ -175,7 +179,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       const schemaWithoutOneOf = { ...schema, oneOf: undefined }
 
       const union: ZodMeta = {
-        keyword: 'union',
+        keyword: zodKeywords.union,
         args: schema.oneOf.map((item) => {
           return this.getBaseTypeFromSchema(item)[0]
         }),
@@ -195,7 +199,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       const schemaWithoutAllOf = { ...schema, allOf: undefined }
 
       const and: ZodMeta = {
-        keyword: 'and',
+        keyword: zodKeywords.and,
         args: schema.allOf.map((item) => {
           return this.getBaseTypeFromSchema(item)[0]
         }),
@@ -205,14 +209,14 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         return [...this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName), and]
       }
 
-      return [{ keyword: 'object', args: {} }, and]
+      return [{ keyword: zodKeywords.object, args: {} }, and]
     }
 
     if (schema.enum) {
       if ('x-enumNames' in schema) {
         return [
           {
-            keyword: 'enum',
+            keyword: zodKeywords.enum,
             args: [`[${[...new Set(schema['x-enumNames'] as string[])].map((value) => `\`${value}\``).join(', ')}]`],
           },
         ]
@@ -220,7 +224,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
       return [
         {
-          keyword: 'enum',
+          keyword: zodKeywords.enum,
           args: [`[${[...new Set(schema.enum)].map((value) => `\`${value}\``).join(', ')}]`],
         },
       ]
@@ -228,7 +232,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
     if ('items' in schema) {
       // items -> array
-      return [{ keyword: 'array', args: this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName) }]
+      return [{ keyword: zodKeywords.array, args: this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName) }]
     }
 
     if ('prefixItems' in schema) {
@@ -236,7 +240,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
       return [
         {
-          keyword: 'tuple',
+          keyword: zodKeywords.tuple,
           args: prefixItems.map((item) => {
             // no baseType so we can fall back on an union when using enum
             return this.getBaseTypeFromSchema(item, undefined)![0]
@@ -263,7 +267,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
             },
             baseName
           ),
-          { keyword: 'null' },
+          { keyword: zodKeywords.null },
         ]
       }
 
@@ -277,6 +281,6 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       // TODO binary
     }
 
-    return [{ keyword: 'any' }]
+    return [{ keyword: zodKeywords.any }]
   }
 }

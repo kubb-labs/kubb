@@ -1,4 +1,34 @@
 export const zodKeywords = {
+  any: 'any',
+  number: 'number',
+  integer: 'integer',
+  object: 'object',
+  lazy: 'lazy',
+  string: 'string',
+  boolean: 'boolean',
+  undefined: 'undefined',
+  null: 'null',
+  array: 'array',
+  tuple: 'tuple',
+  enum: 'enum',
+  union: 'union',
+  /* intersection */
+  default: 'default',
+  and: 'and',
+  describe: 'describe',
+  min: 'min',
+  max: 'max',
+  optional: 'optional',
+  catchall: 'catchall',
+
+  // custom ones
+  ref: 'ref',
+  matches: 'matches',
+} as const
+
+export type ZodKeyword = keyof typeof zodKeywords
+
+export const zodKeywordMapper: Record<ZodKeyword, string> = {
   any: 'z.any',
   number: 'z.number',
   integer: 'z.number',
@@ -13,6 +43,7 @@ export const zodKeywords = {
   enum: 'z.enum',
   union: 'z.union',
   /* intersection */
+  default: '.default',
   and: '.and',
   describe: '.describe',
   min: '.min',
@@ -25,47 +56,46 @@ export const zodKeywords = {
   matches: '.regex',
 } as const
 
-export type ZodKeyword = keyof typeof zodKeywords
-
 type ZodMetaBase<T> = {
   keyword: ZodKeyword
   args: T
 }
 
-type ZodMetaAny = { keyword: 'any' }
-type ZodMetaNull = { keyword: 'null' }
-type ZodMetaUndefined = { keyword: 'undefined' }
+type ZodMetaAny = { keyword: typeof zodKeywords.any }
+type ZodMetaNull = { keyword: typeof zodKeywords.null }
+type ZodMetaUndefined = { keyword: typeof zodKeywords.undefined }
 
-type ZodMetaNumber = { keyword: 'number' }
-type ZodMetaInteger = { keyword: 'integer' }
+type ZodMetaNumber = { keyword: typeof zodKeywords.number }
+type ZodMetaInteger = { keyword: typeof zodKeywords.integer }
 
-type ZodMetaString = { keyword: 'string' }
+type ZodMetaString = { keyword: typeof zodKeywords.string }
 
-type ZodMetaBoolean = { keyword: 'boolean' }
+type ZodMetaBoolean = { keyword: typeof zodKeywords.boolean }
 
-type ZodMetaDescribe = { keyword: 'describe'; args?: string }
-type ZodMetaMin = { keyword: 'min'; args?: number }
+type ZodMetaDescribe = { keyword: typeof zodKeywords.describe; args?: string }
+type ZodMetaMin = { keyword: typeof zodKeywords.min; args?: number }
 
-type ZodMetaMax = { keyword: 'max'; args?: number }
-type ZodMetaMatches = { keyword: 'matches'; args?: string }
-type ZodMetaOptional = { keyword: 'optional' }
+type ZodMetaMax = { keyword: typeof zodKeywords.max; args?: number }
+type ZodMetaMatches = { keyword: typeof zodKeywords.matches; args?: string }
+type ZodMetaOptional = { keyword: typeof zodKeywords.optional }
 
-type ZodMetaObject = { keyword: 'object'; args?: { [x: string]: ZodMeta[] } }
+type ZodMetaObject = { keyword: typeof zodKeywords.object; args?: { [x: string]: ZodMeta[] } }
 
-type ZodMetaCatchall = { keyword: 'catchall'; args?: ZodMeta[] }
+type ZodMetaCatchall = { keyword: typeof zodKeywords.catchall; args?: ZodMeta[] }
 
-type ZodMetaRef = { keyword: 'ref'; args?: string }
+type ZodMetaRef = { keyword: typeof zodKeywords.ref; args?: string }
 
-type ZodMetaUnion = { keyword: 'union'; args?: ZodMeta[] }
+type ZodMetaUnion = { keyword: typeof zodKeywords.union; args?: ZodMeta[] }
 
-type ZodMetaAnd = { keyword: 'and'; args?: ZodMeta[] }
+type ZodMetaAnd = { keyword: typeof zodKeywords.and; args?: ZodMeta[] }
 
-type ZodMetaEnum = { keyword: 'enum'; args?: Array<string | number> }
+type ZodMetaEnum = { keyword: typeof zodKeywords.enum; args?: Array<string | number> }
 
-type ZodMetaArray = { keyword: 'array'; args?: ZodMeta[] }
+type ZodMetaArray = { keyword: typeof zodKeywords.array; args?: ZodMeta[] }
 
-type ZodMetaTuple = { keyword: 'tuple'; args?: ZodMeta[] }
-type ZodMetaLazy = { keyword: 'lazy' }
+type ZodMetaTuple = { keyword: typeof zodKeywords.tuple; args?: ZodMeta[] }
+type ZodMetaLazy = { keyword: typeof zodKeywords.lazy }
+type ZodMetaDefault = { keyword: typeof zodKeywords.default; args?: string }
 
 export type ZodMeta =
   | ZodMetaAny
@@ -89,6 +119,7 @@ export type ZodMeta =
   | ZodMetaEnum
   | ZodMetaArray
   | ZodMetaTuple
+  | ZodMetaDefault
 
 /**
  *
@@ -96,7 +127,7 @@ export type ZodMeta =
  */
 
 function zodKeywordSorter(a: ZodMeta, b: ZodMeta) {
-  if (b.keyword === 'null') {
+  if (b.keyword === zodKeywords.null) {
     return -1
   }
 
@@ -106,24 +137,24 @@ function zodKeywordSorter(a: ZodMeta, b: ZodMeta) {
 export function parseZodMeta(item: ZodMeta): string {
   // eslint-disable-next-line prefer-const
   let { keyword, args = '' } = (item || {}) as ZodMetaBase<any>
-  const value = zodKeywords[keyword]
+  const value = zodKeywordMapper[keyword]
 
-  if (keyword === 'tuple') {
+  if (keyword === zodKeywords.tuple) {
     return `${value}(${Array.isArray(args) ? `[${args.map(parseZodMeta).join(',')}]` : parseZodMeta(args)})`
   }
 
-  if (keyword === 'array') {
+  if (keyword === zodKeywords.array) {
     return `${value}(${Array.isArray(args) ? `${args.map(parseZodMeta).join('')}` : parseZodMeta(args)})`
   }
-  if (keyword === 'union') {
+  if (keyword === zodKeywords.union) {
     return `${Array.isArray(args) ? `${value}([${args.map(parseZodMeta).join(',')}])` : parseZodMeta(args)}`
   }
 
-  if (keyword === 'catchall') {
+  if (keyword === zodKeywords.catchall) {
     return `${value}(${Array.isArray(args) ? `${args.map(parseZodMeta).join('')}` : parseZodMeta(args)})`
   }
 
-  if (keyword === 'and') {
+  if (keyword === zodKeywords.and) {
     if (Array.isArray(args)) {
       return `${args
         .map(parseZodMeta)
@@ -134,7 +165,7 @@ export function parseZodMeta(item: ZodMeta): string {
     return `${value}(${parseZodMeta(args)})`
   }
 
-  if (keyword === 'object') {
+  if (keyword === zodKeywords.object) {
     if (!args) {
       args = '{}'
     }
@@ -156,7 +187,11 @@ export function parseZodMeta(item: ZodMeta): string {
   // custom type
   if (keyword === zodKeywords.ref) {
     // use of z.lazy because we need to import from files x or we use the type as a self reference
-    return `${zodKeywords.lazy}(() => ${args})`
+    return `${zodKeywordMapper.lazy}(() => ${args})`
+  }
+
+  if (keyword === zodKeywords.default && !args) {
+    return ''
   }
 
   if (keyword in zodKeywords) {
