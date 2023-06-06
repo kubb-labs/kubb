@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.1.0...@kubb/swagger-swr-v1.1.1) (2023-06-06)
+
+
+### Miscellaneous Chores
+
+* **@kubb/swagger-swr:** Synchronize undefined versions
+
 ## [1.1.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.0.3...@kubb/swagger-swr-v1.1.0) (2023-06-05)
 
 
