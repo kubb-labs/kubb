@@ -5,12 +5,21 @@ on:
     branches:    
       - main
       - 'releases/**'
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
       name: Build and Test
       timeout-minutes: 15
       runs-on: ubuntu-latest
+      strategy:
+        matrix:
+          node-version:
+            - 16
+            - 18
+            - 19
+            - 20
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
       #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -26,10 +35,10 @@ jobs:
           with:
             version: 8
  
-        - name: Setup Node.js environment
+        - name: Setup Node.js(${{ matrix.node-version }}) environment
           uses: actions/setup-node@v3
           with:
-            node-version: 16
+            node-version: ${{ matrix.node-version }}
             cache: 'pnpm'
             registry-url: 'https://registry.npmjs.org'
  
@@ -49,12 +58,3 @@ jobs:
           uses: codecov/codecov-action@v3
           env:
              CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-        - name: Release
-          continue-on-error: true
-          if: ${{ success() && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          run: pnpm release
