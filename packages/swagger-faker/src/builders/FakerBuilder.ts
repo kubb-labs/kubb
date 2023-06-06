@@ -1,4 +1,4 @@
-import type { FileResolver, Refs } from '@kubb/swagger'
+import type { FileResolver, Refs, ImportMeta } from '@kubb/swagger'
 import { OasBuilder, ImportsGenerator } from '@kubb/swagger'
 import type { PluginContext } from '@kubb/core'
 import { nameSorter } from '@kubb/core'
@@ -6,7 +6,7 @@ import { createImportDeclaration, print } from '@kubb/ts-codegen'
 
 import { FakerGenerator } from '../generators/index.ts'
 
-type Generated = { import: { refs: Refs; name: string }; sources: string[] }
+type Generated = { import: { refs: Refs; name: string }; sources: string[]; imports?: ImportMeta[] }
 
 type Config = {
   fileResolver?: FileResolver
@@ -41,16 +41,27 @@ export class FakerBuilder extends OasBuilder<Config> {
     const codes: string[] = []
 
     const generated = this.items
-      .filter((gen) => (name ? gen.name === name : true))
+      .filter((operationSchema) => (name ? operationSchema.name === name : true))
       .sort(nameSorter)
-      .map((gen) => {
-        const generator = new FakerGenerator(this.oas, { withJSDocs: this.config.withJSDocs, resolveName: this.config.resolveName })
-        const sources = generator.build(gen.schema, gen.name, gen.description)
+      .map((operationSchema) => {
+        const generator = new FakerGenerator(this.oas, {
+          withJSDocs: this.config.withJSDocs,
+          resolveName: this.config.resolveName,
+          fileResolver: this.config.fileResolver,
+        })
+        const sources = generator.build({
+          schema: operationSchema.schema,
+          baseName: operationSchema.name,
+          description: operationSchema.description,
+          operationName: operationSchema.operationName,
+        })
+
         return {
           import: {
             refs: generator.refs,
-            name: gen.name,
+            name: operationSchema.name,
           },
+          imports: generator.imports,
           sources,
         }
       })
@@ -62,6 +73,8 @@ export class FakerBuilder extends OasBuilder<Config> {
 
     if (this.config.withImports) {
       const importsGenerator = new ImportsGenerator({ fileResolver: this.config.fileResolver })
+
+      importsGenerator.add(generated.flatMap((item) => item.imports))
       const importMeta = await importsGenerator.build(generated.map((item) => item.import))
 
       if (importMeta) {

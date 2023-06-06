@@ -1,5 +1,7 @@
 import { faker } from '@faker-js/faker'
 
-export function createCategory() {
-  return { id: faker.number.float({}), name: faker.string.alpha({}) }
+import type { Category } from '../models/Category'
+
+export function createCategory(): Category {
+  return { id: faker.number.float({}), name: faker.string.alpha() }
 }

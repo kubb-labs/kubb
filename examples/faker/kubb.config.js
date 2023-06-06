@@ -22,6 +22,9 @@ export default defineConfig(async () => {
       '@kubb/swagger': {
         output: false,
       },
+      '@kubb/swagger-ts': {
+        output: 'models',
+      },
       '@kubb/swagger-faker': {
         output: './mocks',
         groupBy: { type: 'tag', output: './mocks/{{tag}}Mocks' },

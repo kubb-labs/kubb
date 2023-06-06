@@ -125,6 +125,7 @@ paths:
           description: Status values that need to be considered for filter
           required: false
           explode: true
+          deprecated: true
           schema:
             type: string
             default: available

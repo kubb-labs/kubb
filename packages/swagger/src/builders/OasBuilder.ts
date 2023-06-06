@@ -1,9 +1,7 @@
-import type { OpenAPIV3 } from 'openapi-types'
-import type { Oas } from '../types.ts'
+import type { Oas, OperationSchema } from '../types.ts'
+import type { Ref } from '../generators/ImportsGenerator.ts'
 
-export type FileResolver = (name: string) => string | null | undefined
-
-type Item = { schema: OpenAPIV3.SchemaObject; name: string; description?: string }
+export type FileResolver = (name: string, ref: Ref) => string | null | undefined
 
 /**
  * Abstract class that contains the building blocks for creating an type/zod builder
@@ -11,7 +9,7 @@ type Item = { schema: OpenAPIV3.SchemaObject; name: string; description?: string
 export abstract class OasBuilder<TConfig extends object = object> {
   public oas: Oas
 
-  public items: Item[] = []
+  public items: OperationSchema[] = []
 
   public config: TConfig = {} as TConfig
 
@@ -21,7 +19,7 @@ export abstract class OasBuilder<TConfig extends object = object> {
     return this
   }
 
-  add(item: Item | Item[] | undefined) {
+  add(item: OperationSchema | OperationSchema[] | undefined) {
     if (!item) {
       return this
     }

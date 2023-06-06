@@ -5,19 +5,19 @@ const input = [
     input: parseFakerMeta({
       keyword: 'string',
     }),
-    expected: 'faker.string.alpha({})',
+    expected: 'faker.string.alpha()',
   },
   {
     input: parseFakerMeta({
       keyword: 'number',
     }),
-    expected: 'faker.number.float({})',
+    expected: 'faker.number.float()',
   },
   {
     input: parseFakerMeta({
       keyword: 'boolean',
     }),
-    expected: 'faker.datatype.boolean({})',
+    expected: 'faker.datatype.boolean()',
   },
   {
     input: parseFakerMeta({
@@ -57,7 +57,7 @@ const input = [
       keyword: 'enum',
       args: ['"A"', '"B"', '"C"', 2],
     }),
-    expected: 'faker.helpers.arrayElement(["A","B","C",2])',
+    expected: 'faker.helpers.arrayElement<any>("A","B","C",2)',
   },
 
   {
@@ -65,14 +65,14 @@ const input = [
       keyword: 'tuple',
       args: [],
     }),
-    expected: 'faker.helpers.arrayElement([])',
+    expected: 'faker.helpers.arrayElements([])',
   },
   {
     input: parseFakerMeta({
       keyword: 'tuple',
       args: [{ keyword: 'string' }, { keyword: 'number' }],
     }),
-    expected: 'faker.helpers.arrayElement([faker.string.alpha({}),faker.number.float({})])',
+    expected: 'faker.helpers.arrayElements([faker.string.alpha(),faker.number.float()])',
   },
 
   {
@@ -80,14 +80,14 @@ const input = [
       keyword: 'array',
       args: [],
     }),
-    expected: 'faker.helpers.arrayElement([])',
+    expected: 'faker.helpers.arrayElements([])',
   },
   {
     input: parseFakerMeta({
       keyword: 'array',
       args: [{ keyword: 'ref', args: 'createPet' }],
     }),
-    expected: 'faker.helpers.arrayElement([createPet()])',
+    expected: 'faker.helpers.arrayElements([createPet()])',
   },
 
   {
@@ -95,14 +95,14 @@ const input = [
       keyword: 'union',
       args: [],
     }),
-    expected: 'faker.helpers.arrayElement([])',
+    expected: 'faker.helpers.arrayElement<any>([])',
   },
   {
     input: parseFakerMeta({
       keyword: 'union',
       args: [{ keyword: 'string' }, { keyword: 'number' }],
     }),
-    expected: 'faker.helpers.arrayElement([faker.string.alpha({}),faker.number.float({})])',
+    expected: 'faker.helpers.arrayElement<any>([faker.string.alpha(),faker.number.float()])',
   },
 
   // {
@@ -125,7 +125,7 @@ const input = [
       keyword: 'and',
       args: [{ keyword: 'string' }, { keyword: 'number' }],
     }),
-    expected: 'faker.helpers.arrayElement([faker.string.alpha({}),faker.number.float({})])',
+    expected: 'Object.assign({},faker.string.alpha(),faker.number.float())',
   },
 
   {
@@ -136,7 +136,7 @@ const input = [
         address: [{ keyword: 'string' }, { keyword: 'null' }],
       },
     }),
-    expected: '{"firstName": faker.string.alpha({"min":2}),"address": faker.string.alpha({})null}',
+    expected: '{"firstName": faker.string.alpha({"min":2}),"address": faker.string.alpha()null}',
   },
 ]
 

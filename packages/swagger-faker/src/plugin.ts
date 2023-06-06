@@ -8,6 +8,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { getRelativePath, createPlugin, getPathMode, validatePlugins, writeIndexes, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
+import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 import type { API as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
 
 import { FakerBuilder } from './builders/index.ts'
@@ -33,7 +34,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     options,
     kind: 'schema',
     validate(plugins) {
-      const valid = validatePlugins(plugins, [swaggerPluginName])
+      const valid = validatePlugins(plugins, [swaggerPluginName, swaggerTypeScriptPluginName])
       if (valid) {
         swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api
       }
@@ -94,13 +95,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (mode === 'directory') {
         const builder = await new FakerBuilder(oas).configure({
           resolveName: (params) => this.resolveName({ pluginName, ...params }),
-          fileResolver: (name) => {
+          fileResolver: (name, ref) => {
             const resolvedTypeId = this.resolvePath({
               fileName: `${name}.ts`,
-              pluginName,
+              pluginName: ref.pluginName || pluginName,
             })
 
-            const root = this.resolvePath({ fileName: ``, pluginName })
+            const root = this.resolvePath({ fileName: ref.pluginName ? `${name}.ts` : ``, pluginName })
 
             return getRelativePath(root, resolvedTypeId)
           },

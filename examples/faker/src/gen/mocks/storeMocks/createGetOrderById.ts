@@ -2,11 +2,13 @@ import { faker } from '@faker-js/faker'
 
 import { createOrder } from '../createOrder'
 
+import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models/GetOrderById'
+
 /**
  * @description Invalid ID supplied
  */
 
-export function createGetOrderById400() {
+export function createGetOrderById400(): GetOrderById400 {
   return undefined
 }
 
@@ -14,11 +16,11 @@ export function createGetOrderById400() {
  * @description Order not found
  */
 
-export function createGetOrderById404() {
+export function createGetOrderById404(): GetOrderById404 {
   return undefined
 }
 
-export function createGetOrderByIdPathParams() {
+export function createGetOrderByIdPathParams(): GetOrderByIdPathParams {
   return { orderId: faker.number.float({}) }
 }
 
@@ -26,6 +28,6 @@ export function createGetOrderByIdPathParams() {
  * @description successful operation
  */
 
-export function createGetOrderByIdQueryResponse() {
+export function createGetOrderByIdQueryResponse(): GetOrderByIdQueryResponse {
   return createOrder()
 }

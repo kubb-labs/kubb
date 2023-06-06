@@ -4,13 +4,18 @@ import type { FileResolver } from '../builders/OasBuilder.ts'
 
 /**
  * `propertyName` is the ref name + resolved with the nameResolver
+ *  @example `import { Pet } from './Pet'`
  *
- * `originalName` is the original name used(in PascalCase)
+ * `originalName` is the original name used(in PascalCase), only used to remove duplicates
  *
  * `name` is used to make the type more unique when multiple same names are used(see `createImportDeclaration` in `@kubb/ts-codegen`)
+ * @example `import { Pet as Cat } from './Pet'`
+ *
+ * `pluginName` can be used to override the current plugin being used, handy when you want to import a type/schema out of another plugin
+ * @example import a type(swagger-ts) for a mock file(swagger-faker)
  */
 
-export type Ref = { propertyName: string; originalName: string; name?: string }
+export type Ref = { propertyName: string; originalName: string; name?: string; pluginName?: string }
 export type Refs = Record<string, Ref>
 
 export type Import = { refs: Refs; name: string }
@@ -24,7 +29,23 @@ type Options = {
   fileResolver?: FileResolver
 }
 export class ImportsGenerator extends Generator<Options> {
-  async build(imports: Import[]): Promise<Array<ImportMeta> | undefined> {
+  public items: ImportMeta[] = []
+
+  add(item: ImportMeta | ImportMeta[] | undefined) {
+    if (!item) {
+      return this
+    }
+
+    if (Array.isArray(item)) {
+      item.forEach((it) => this.items.push(it))
+      return this
+    }
+    this.items.push(item)
+
+    return this
+  }
+
+  async build(imports: Import[]): Promise<Array<ImportMeta>> {
     const refs = imports.reduce((acc, currentValue) => {
       return {
         ...acc,
@@ -33,7 +54,7 @@ export class ImportsGenerator extends Generator<Options> {
     }, {} as Refs)
 
     if (Object.keys(refs).length === 0) {
-      return undefined
+      return this.items
     }
 
     // add imports based on $ref
@@ -46,7 +67,7 @@ export class ImportsGenerator extends Generator<Options> {
         return undefined
       }
 
-      const path = this.options.fileResolver?.(propertyName) || `./${propertyName}`
+      const path = this.options.fileResolver?.(propertyName, refs[$ref]) || `./${propertyName}`
 
       // TODO weird hacky fix
       if (path === './' || path === '.') {
@@ -61,6 +82,6 @@ export class ImportsGenerator extends Generator<Options> {
 
     const importMeta = await Promise.all(importPromises)
 
-    return importMeta.filter(Boolean) as ImportMeta[]
+    return [...importMeta.filter(Boolean), ...this.items] as ImportMeta[]
   }
 }

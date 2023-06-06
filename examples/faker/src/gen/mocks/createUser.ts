@@ -1,14 +1,16 @@
 import { faker } from '@faker-js/faker'
 
-export function createUser() {
+import type { User } from '../models/User'
+
+export function createUser(): User {
   return {
     id: faker.number.float({}),
-    username: faker.string.alpha({}),
-    firstName: faker.string.alpha({}),
-    lastName: faker.string.alpha({}),
-    email: faker.string.alpha({}),
-    password: faker.string.alpha({}),
-    phone: faker.string.alpha({}),
+    username: faker.string.alpha(),
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    phone: faker.phone.number(),
     userStatus: faker.number.float({}),
   }
 }

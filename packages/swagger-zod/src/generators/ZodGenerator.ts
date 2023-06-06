@@ -34,7 +34,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     return this
   }
 
-  build(schema: OpenAPIV3.SchemaObject, baseName: string, description?: string) {
+  build({ schema, baseName, description }: { schema: OpenAPIV3.SchemaObject; baseName: string; description?: string }) {
     const texts: string[] = []
     const zodInput = this.getTypeFromSchema(schema, baseName)
     if (description) {
@@ -44,7 +44,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
        */`)
     }
 
-    const zodOutput = zodParser(zodInput, this.options.resolveName({ name: baseName, pluginName }) || baseName)
+    const zodOutput = zodParser(zodInput, { name: this.options.resolveName({ name: baseName, pluginName }) || baseName })
 
     texts.push(zodOutput)
 
@@ -99,8 +99,12 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           validationFunctions.push({ keyword: zodKeywords.matches, args: `/${matches}/` })
         }
 
-        if (schema.default !== undefined) {
-          validationFunctions.push({ keyword: zodKeywords.default, args: typeof schema.default === 'string' ? `"${schema.default}"` : schema.default })
+        if (schema.default !== undefined && !Array.isArray(schema.default)) {
+          if (typeof schema.default === 'string') {
+            validationFunctions.push({ keyword: zodKeywords.default, args: `'${schema.default}'` })
+          } else {
+            validationFunctions.push({ keyword: zodKeywords.default, args: schema.default })
+          }
         }
 
         if (!isRequired) {

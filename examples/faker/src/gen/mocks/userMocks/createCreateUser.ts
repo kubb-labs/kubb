@@ -1,6 +1,8 @@
 import { createUser } from '../createUser'
 
-export function createCreateUserMutationResponse() {
+import type { CreateUserMutationResponse, CreateUserError, CreateUserMutationRequest } from '../../models/CreateUser'
+
+export function createCreateUserMutationResponse(): CreateUserMutationResponse {
   return undefined
 }
 
@@ -8,7 +10,7 @@ export function createCreateUserMutationResponse() {
  * @description successful operation
  */
 
-export function createCreateUserError() {
+export function createCreateUserError(): CreateUserError {
   return createUser()
 }
 
@@ -16,6 +18,6 @@ export function createCreateUserError() {
  * @description Created user object
  */
 
-export function createCreateUserMutationRequest() {
+export function createCreateUserMutationRequest(): CreateUserMutationRequest {
   return createUser()
 }

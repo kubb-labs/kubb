@@ -1,10 +1,12 @@
 import { faker } from '@faker-js/faker'
 
+import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/DeleteUser'
+
 /**
  * @description Invalid username supplied
  */
 
-export function createDeleteUser400() {
+export function createDeleteUser400(): DeleteUser400 {
   return undefined
 }
 
@@ -12,14 +14,14 @@ export function createDeleteUser400() {
  * @description User not found
  */
 
-export function createDeleteUser404() {
+export function createDeleteUser404(): DeleteUser404 {
   return undefined
 }
 
-export function createDeleteUserMutationResponse() {
+export function createDeleteUserMutationResponse(): DeleteUserMutationResponse {
   return undefined
 }
 
-export function createDeleteUserPathParams() {
-  return { username: faker.string.alpha({}) }
+export function createDeleteUserPathParams(): DeleteUserPathParams {
+  return { username: faker.string.alpha() }
 }

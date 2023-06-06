@@ -18,6 +18,11 @@ export const fakerKeywords = {
   ref: 'ref',
   catchall: 'catchall',
   matches: 'matches',
+  email: 'email',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  password: 'password',
+  phone: 'phone',
 } as const
 
 export type FakerKeyword = keyof typeof fakerKeywords
@@ -30,18 +35,23 @@ export const fakerKeywordMapper: Record<FakerKeyword, string> = {
   boolean: 'faker.datatype.boolean',
   undefined: 'undefined',
   null: 'null',
-  array: 'faker.helpers.arrayElement',
-  tuple: 'faker.helpers.arrayElement',
-  enum: 'faker.helpers.arrayElement',
-  union: 'faker.helpers.arrayElement',
+  array: 'faker.helpers.arrayElements',
+  tuple: 'faker.helpers.arrayElements',
+  enum: 'faker.helpers.arrayElement<any>',
+  union: 'faker.helpers.arrayElement<any>',
   /* intersection */
-  and: 'faker.helpers.arrayElement',
+  and: 'Object.assign',
 
   // custom ones
   object: 'object',
   ref: 'ref',
   catchall: 'catchall',
   matches: 'faker.helpers.fromRegExp',
+  email: 'faker.internet.email',
+  firstName: 'faker.person.firstName',
+  lastName: 'faker.person.lastName',
+  password: 'faker.internet.password',
+  phone: 'faker.phone.number',
 } as const
 
 type FakerMetaBase<T> = {
@@ -77,6 +87,14 @@ type FakerMetaEnum = { keyword: typeof fakerKeywords.enum; args?: Array<string |
 type FakerMetaArray = { keyword: typeof fakerKeywords.array; args?: FakerMeta[] }
 
 type FakerMetaTuple = { keyword: typeof fakerKeywords.tuple; args?: FakerMeta[] }
+type FakerMetaEmail = { keyword: typeof fakerKeywords.email }
+
+type FakerMetaFirstName = { keyword: typeof fakerKeywords.firstName }
+
+type FakerMetaLastName = { keyword: typeof fakerKeywords.lastName }
+type FakerMetaPassword = { keyword: typeof fakerKeywords.password }
+
+type FakerMetaPhone = { keyword: typeof fakerKeywords.phone }
 
 export type FakerMeta =
   | FakerMetaAny
@@ -95,7 +113,12 @@ export type FakerMeta =
   | FakerMetaEnum
   | FakerMetaArray
   | FakerMetaTuple
-
+  | FakerMetaEmail
+  | FakerMetaFirstName
+  | FakerMetaLastName
+  | FakerMetaPassword
+  | FakerMetaPhone
+// use example
 /**
  *
  * @link based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
@@ -111,15 +134,19 @@ function fakerKeywordSorter(a: FakerMeta, b: FakerMeta) {
 
 export function parseFakerMeta(item: FakerMeta): string {
   // eslint-disable-next-line prefer-const
-  let { keyword, args = {} } = (item || {}) as FakerMetaBase<any>
+  let { keyword, args } = (item || {}) as FakerMetaBase<any>
   const value = fakerKeywordMapper[keyword]
 
-  if (keyword === fakerKeywords.tuple || keyword === fakerKeywords.array || keyword === fakerKeywords.union || keyword === fakerKeywords.and) {
+  if (keyword === fakerKeywords.tuple || keyword === fakerKeywords.array || keyword === fakerKeywords.union) {
     return `${value}(${Array.isArray(args) ? `[${args.map(parseFakerMeta).join(',')}]` : parseFakerMeta(args)})`
   }
 
+  if (keyword === fakerKeywords.and) {
+    return `${value}({},${Array.isArray(args) ? `${args.map(parseFakerMeta).join(',')}` : parseFakerMeta(args)})`
+  }
+
   if (keyword === fakerKeywords.enum) {
-    return `${value}(${Array.isArray(args) ? `[${args.join(',')}]` : parseFakerMeta(args)})`
+    return `${value}(${Array.isArray(args) ? `${args.join(',')}` : parseFakerMeta(args)})`
   }
 
   if (keyword === fakerKeywords.catchall) {
@@ -155,23 +182,24 @@ export function parseFakerMeta(item: FakerMeta): string {
   }
 
   if (keyword in fakerKeywords) {
-    return `${value}(${JSON.stringify(args)})`
+    const options = JSON.stringify(args)
+    return `${value}(${options ?? ''})`
   }
 
   return '""'
 }
 
-export function fakerParser(items: FakerMeta[], name: string): string {
+export function fakerParser(items: FakerMeta[], options: { name: string; typeName?: string | null }): string {
   if (!items.length) {
     return `
-      export function ${name}() {
-        return '';
+      export function ${options.name}()${options.typeName ? `: ${options.typeName}` : ''} {
+        return undefined;
       }
     `
   }
 
   return `
-    export function ${name}() {
+    export function ${options.name}()${options.typeName ? `: ${options.typeName}` : ''} {
       return ${items.map(parseFakerMeta).join('')};
     }
   `

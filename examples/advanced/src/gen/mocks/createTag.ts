@@ -1,5 +1,7 @@
 import { faker } from '@faker-js/faker'
 
-export function createTag() {
-  return { id: faker.number.float({}), name: faker.string.alpha({}) }
+import type { Tag } from '../models/ts/Tag'
+
+export function createTag(): Tag {
+  return { id: faker.number.float({}), name: faker.string.alpha() }
 }
