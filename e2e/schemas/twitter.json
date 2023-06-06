@@ -10397,7 +10397,7 @@
       },
       "Point": {
         "type": "object",
-        "description": "A [GeoJson Point](https://tools.ietf.org/html/rfc7946#section-3.1.2) geometry object.",
+        "description": "A [GeoJSON Point](https://tools.ietf.org/html/rfc7946#section-3.1.2) geometry object.",
         "required": [
           "type",
           "coordinates"
@@ -10489,7 +10489,7 @@
       },
       "Position": {
         "type": "array",
-        "description": "A [GeoJson Position](https://tools.ietf.org/html/rfc7946#section-3.1.1) in the format `[longitude,latitude]`.",
+        "description": "A [GeoJSON Position](https://tools.ietf.org/html/rfc7946#section-3.1.1) in the format `[longitude,latitude]`.",
         "minItems": 2,
         "maxItems": 2,
         "items": {
@@ -11453,7 +11453,7 @@
         "properties": {
           "card_uri": {
             "type": "string",
-            "description": "Card Uri Parameter. This is mutually exclusive from Quote Tweet Id, Poll, Media, and Direct Message Deep Link."
+            "description": "Card URI Parameter. This is mutually exclusive from Quote Tweet Id, Poll, Media, and Direct Message Deep Link."
           },
           "direct_message_deep_link": {
             "type": "string",
@@ -12005,7 +12005,7 @@
         "description": "URL to which the user will upload their Tweet or user IDs.",
         "format": "uri"
       },
-      "Url": {
+      "URL": {
         "type": "string",
         "description": "A validly formatted URL.",
         "format": "uri",
@@ -12040,7 +12040,7 @@
             "example": "twittercommunity.com/t/introducing-…"
           },
           "expanded_url": {
-            "$ref": "#/components/schemas/Url"
+            "$ref": "#/components/schemas/URL"
           },
           "images": {
             "type": "array",
@@ -12067,7 +12067,7 @@
             "example": "https://twittercommunity.com/t/introducing-the-v2-follow-lookup-endpoints/147118"
           },
           "url": {
-            "$ref": "#/components/schemas/Url"
+            "$ref": "#/components/schemas/URL"
           }
         }
       },
@@ -12079,7 +12079,7 @@
             "$ref": "#/components/schemas/MediaHeight"
           },
           "url": {
-            "$ref": "#/components/schemas/Url"
+            "$ref": "#/components/schemas/URL"
           },
           "width": {
             "$ref": "#/components/schemas/MediaWidth"

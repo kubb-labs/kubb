@@ -987,15 +987,15 @@
 
 ### Bug Fixes
 
-* createRequire for imports that are still using require, node14 with ESM mode does not support require out of the box(we had a crash on Nextjs) ([0fdec3f](https://github.com/kubb-project/kubb/commit/0fdec3f3f4fdd8fbec11559b55c716bdb70100bc))
+* createRequire for imports that are still using require, node14 with ESM mode does not support require out of the box(we had a crash on Next.js) ([0fdec3f](https://github.com/kubb-project/kubb/commit/0fdec3f3f4fdd8fbec11559b55c716bdb70100bc))
 
 ## [0.36.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v0.35.0...@kubb/core-v0.36.0) (2023-01-08)
 
 
 ### Features
 
-* playground with Nextjs ([131d6a7](https://github.com/kubb-project/kubb/commit/131d6a785f8a9f80a8262a6a5c37c0a104f36a3d))
-* use nextJs to convert JSON to types with swagger-ts ([3483562](https://github.com/kubb-project/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
+* playground with Next.js ([131d6a7](https://github.com/kubb-project/kubb/commit/131d6a785f8a9f80a8262a6a5c37c0a104f36a3d))
+* use Next.js to convert JSON to types with swagger-ts ([3483562](https://github.com/kubb-project/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
 
 
 ### Bug Fixes

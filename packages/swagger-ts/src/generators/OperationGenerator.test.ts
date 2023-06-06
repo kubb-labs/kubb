@@ -1,4 +1,4 @@
-import type { Api } from '@kubb/swagger'
+import type { API } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
 import type { PluginContext } from '@kubb/core'
 
@@ -8,7 +8,7 @@ import { format } from '../../mocks/format.ts'
 
 describe('OperationGenerator', () => {
   const swagger = createSwagger({})
-  const swaggerApi = swagger.api as Api
+  const swaggerApi = swagger.api as API
   const resolvePath = () => './pets.ts'
   const resolveName: PluginContext['resolveName'] = ({ name }) => name
 

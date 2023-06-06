@@ -7,7 +7,7 @@ info:
   contact:
     name: Jokes One
     url: https://jokes.one/api/joke/
-  description: ' Jokes One API offers a complete feature rich REST API access to its jokes platform.  This is the documentation for the world famous [jokes API](https://jokes.one/api/joke/).  If you are a subscriber and you are trying this from a console add ''X-JokesOne-Api-Secret'' header and add your api key as the header value. You can test and play with the API right here on this web page. For using the private end points and subscribing to the API please visit https://jokes.one/api/joke/.'
+  description: ' Jokes One API offers a complete feature rich REST API access to its jokes platform.  This is the documentation for the world famous [jokes API](https://jokes.one/api/joke/).  If you are a subscriber and you are trying this from a console add ''X-JokesOne-API-Secret'' header and add your api key as the header value. You can test and play with the API right here on this web page. For using the private end points and subscribing to the API please visit https://jokes.one/api/joke/.'
   termsOfService: https://jokes.one/terms
   title: Jokes One API
   version: '1.1'
@@ -33,9 +33,9 @@ produces:
   - application/xml
   - application/js
 securityDefinitions:
-  X-JokesOne-Api-Secret:
+  X-JokesOne-API-Secret:
     in: header
-    name: X-JokesOne-Api-Secret
+    name: X-JokesOne-API-Secret
     type: apiKey
 tags:
   - description: >-
@@ -124,7 +124,7 @@ paths:
           schema:
             $ref: '#/definitions/JokeOfTheDayResponse'
       security:
-        - X-JokesOne-Api-Secret: []
+        - X-JokesOne-API-Secret: []
       tags:
         - jod
   /jod/categories:
@@ -168,7 +168,7 @@ paths:
                   }
               }
       security:
-        - X-JokesOne-Api-Secret: []
+        - X-JokesOne-API-Secret: []
       tags:
         - jod
   /joke:
@@ -212,7 +212,7 @@ paths:
                   }
               }                      
       security:
-        - X-JokesOne-Api-Secret: []
+        - X-JokesOne-API-Secret: []
       tags:
         - joke
     get:
@@ -289,7 +289,7 @@ paths:
                   }
               }
       security:
-        - X-JokesOne-Api-Secret: []
+        - X-JokesOne-API-Secret: []
       tags:
         - joke
     patch:
@@ -447,7 +447,7 @@ paths:
                   }
               }    
       security:
-        - X-JokesOne-Api-Secret: []
+        - X-JokesOne-API-Secret: []
       tags:
         - joke
   /joke/list:
@@ -709,7 +709,7 @@ paths:
                   }
               }
       security:
-        - X-JokesOne-Api-Secret: []
+        - X-JokesOne-API-Secret: []
       tags:
         - joke
   /joke/tags/add:

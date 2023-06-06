@@ -74,7 +74,7 @@ export type KubbConfig = {
   hooks?: {
     /**
      * Hook that will be triggerend at the end of all executions.
-     * Useful for running Prettier or Eslint to use your own linting structure.
+     * Useful for running Prettier or ESLint to use your own linting structure.
      */
     done?: string | string[]
   }
@@ -144,10 +144,10 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 } & Partial<PluginLifecycle<TOptions>>
 
 // use of type objects
-export type PluginFactoryOptions<Options = unknown, Nested extends boolean = false, Api = any, resolvePathOptions = Record<string, any>> = {
+export type PluginFactoryOptions<Options = unknown, Nested extends boolean = false, API = any, resolvePathOptions = Record<string, any>> = {
   options: Options
   nested: Nested
-  api: Api
+  api: API
   resolvePathOptions: resolvePathOptions
 }
 

@@ -824,7 +824,7 @@ components:
       properties:
         body:
           description: >-
-            Body content of the page, formatted in ReadMe or Github flavored
+            Body content of the page, formatted in ReadMe or GitHub flavored
             Markdown. Accepts long page content, for example, greater than 100k
             characters
           type: string

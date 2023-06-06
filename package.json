@@ -24,6 +24,7 @@
     "graph": "nx graph ",
     "lint": "eslint packages/**/*.ts",
     "lint-fix": "eslint packages/**/*.ts --quiet --fix",
+    "lint:case": "npx case-police --fix",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "pre-commit": "turbo run pre-commit && pnpm run lint-fix",
     "pre-push": "turbo run pre-push",

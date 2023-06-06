@@ -132,7 +132,7 @@
 ### Bug Fixes
 
 * duplocated queryParams(coming from the pathParams) ([714281f](https://github.com/kubb-project/kubb/commit/714281f5d511c02c130a66b75e774f231ee06e9b))
-* include errors in Typescript and Zod ([5885041](https://github.com/kubb-project/kubb/commit/588504121b1aae9498218284a41ab43a8c78f861))
+* include errors in TypeScript and Zod ([5885041](https://github.com/kubb-project/kubb/commit/588504121b1aae9498218284a41ab43a8c78f861))
 
 
 ### Miscellaneous Chores
@@ -210,7 +210,7 @@
 * input.path can be an URL ([d221364](https://github.com/kubb-project/kubb/commit/d221364fc54982ff61988d7bfa05bbe78bdc7cb5))
 * input.path is now required and can also be an URL ([5559c47](https://github.com/kubb-project/kubb/commit/5559c4702fc0142853ff316233921c19702469f9))
 * move getParams out of operationGenerator ([12701df](https://github.com/kubb-project/kubb/commit/12701dfaf2cd724f1a86db0544ffd2d19f30386b))
-* openAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
+* OpenAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
 * pathParams and queryParams filter + update to reactQuery and client plugin to adapt those changes ([7005e50](https://github.com/kubb-project/kubb/commit/7005e505d147a1c03d90135faa3b62112cb69ca0))
 * refactor of operationgenerator + baseOperationGenerator for swagger package ([2f4739b](https://github.com/kubb-project/kubb/commit/2f4739b25e3a456f44647ee46272cd341975152b))
 * refactor zodBuilder and typeBuilder ([6e0ada6](https://github.com/kubb-project/kubb/commit/6e0ada6af9fa71658c0812cc72db507aa15cea66))
@@ -331,7 +331,7 @@
 * correct show of [@deprecated](https://github.com/deprecated) ([13d6b3a](https://github.com/kubb-project/kubb/commit/13d6b3a0cbdc3c71113122f90e7ce0b3d69c7487))
 * input.path can be an URL ([d221364](https://github.com/kubb-project/kubb/commit/d221364fc54982ff61988d7bfa05bbe78bdc7cb5))
 * input.path is now required and can also be an URL ([5559c47](https://github.com/kubb-project/kubb/commit/5559c4702fc0142853ff316233921c19702469f9))
-* openAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
+* OpenAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
 * refactor of operationgenerator + baseOperationGenerator for swagger package ([2f4739b](https://github.com/kubb-project/kubb/commit/2f4739b25e3a456f44647ee46272cd341975152b))
 * refactor zodBuilder and typeBuilder ([6e0ada6](https://github.com/kubb-project/kubb/commit/6e0ada6af9fa71658c0812cc72db507aa15cea66))
 * remove browser exports ([35e21ea](https://github.com/kubb-project/kubb/commit/35e21ea5575d65414111820fa4a44c17fd68740d))
@@ -395,7 +395,7 @@
 
 ### Bug Fixes
 
-* openAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
+* OpenAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
 
 
 ### Miscellaneous Chores
@@ -887,15 +887,15 @@
 
 ### Bug Fixes
 
-* createRequire for imports that are still using require, node14 with ESM mode does not support require out of the box(we had a crash on Nextjs) ([0fdec3f](https://github.com/kubb-project/kubb/commit/0fdec3f3f4fdd8fbec11559b55c716bdb70100bc))
+* createRequire for imports that are still using require, node14 with ESM mode does not support require out of the box(we had a crash on Next.js) ([0fdec3f](https://github.com/kubb-project/kubb/commit/0fdec3f3f4fdd8fbec11559b55c716bdb70100bc))
 
 ## [0.36.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v0.35.0...@kubb/swagger-v0.36.0) (2023-01-08)
 
 
 ### Features
 
-* playground with Nextjs ([131d6a7](https://github.com/kubb-project/kubb/commit/131d6a785f8a9f80a8262a6a5c37c0a104f36a3d))
-* use nextJs to convert JSON to types with swagger-ts ([3483562](https://github.com/kubb-project/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
+* playground with Next.js ([131d6a7](https://github.com/kubb-project/kubb/commit/131d6a785f8a9f80a8262a6a5c37c0a104f36a3d))
+* use Next.js to convert JSON to types with swagger-ts ([3483562](https://github.com/kubb-project/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
 
 
 ### Bug Fixes

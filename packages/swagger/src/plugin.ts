@@ -6,7 +6,7 @@ import { createPlugin } from '@kubb/core'
 
 import { oasParser } from './parsers/oasParser.ts'
 
-import type { Api, PluginOptions } from './types.ts'
+import type { API, PluginOptions } from './types.ts'
 import type { OpenAPIV3 } from 'openapi-types'
 
 export const pluginName = 'swagger' as const
@@ -20,7 +20,7 @@ declare module '@kubb/core' {
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'schemas', validate = true } = options
-  const api: Api = {
+  const api: API = {
     getOas: (config, oasOptions = { validate: false }) => oasParser(config, oasOptions),
   }
 

@@ -5,7 +5,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import type { OptionalPath } from '@kubb/core'
 import { getRelativePath, renderTemplate, writeIndexes, createPlugin, validatePlugins, getPathMode } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
-import type { Api as SwaggerApi } from '@kubb/swagger'
+import type { API as SwaggerApi } from '@kubb/swagger'
 
 import { OperationGenerator } from './generators/OperationGenerator.ts'
 

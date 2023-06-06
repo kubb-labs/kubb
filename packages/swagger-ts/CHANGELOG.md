@@ -167,7 +167,7 @@
 ### Bug Fixes
 
 * duplocated queryParams(coming from the pathParams) ([714281f](https://github.com/kubb-project/kubb/commit/714281f5d511c02c130a66b75e774f231ee06e9b))
-* include errors in Typescript and Zod ([5885041](https://github.com/kubb-project/kubb/commit/588504121b1aae9498218284a41ab43a8c78f861))
+* include errors in TypeScript and Zod ([5885041](https://github.com/kubb-project/kubb/commit/588504121b1aae9498218284a41ab43a8c78f861))
 * writeIndexes without write, use of the filemanager instead ([5359521](https://github.com/kubb-project/kubb/commit/53595216451a21f25a8687e564c16f4d13d1f594))
 
 
@@ -242,7 +242,7 @@
 * correct use of camel and pascalcase ([f4f7a63](https://github.com/kubb-project/kubb/commit/f4f7a63731e0edc8bb059f16095f484405e547b6))
 * factory issue with commonjs(nextjs) ([6a6f987](https://github.com/kubb-project/kubb/commit/6a6f987363e3f3567400032bb4bbb4cf6daf9f1d))
 * import ts ([22617ba](https://github.com/kubb-project/kubb/commit/22617baeaf4c29034644245964d2a5ba8706e310))
-* openAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
+* OpenAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
 * strictmode on swagger packages + remove anys ([0583ae8](https://github.com/kubb-project/kubb/commit/0583ae809f8cf7822a4d39edfda7ff43f2a539cb))
 * support for ESM modules ([cec3b57](https://github.com/kubb-project/kubb/commit/cec3b57ba9b97a030bb276a3957c826ace72b7d3))
 * typescript strict mode for core, cli and ts-codegen ([c0dd917](https://github.com/kubb-project/kubb/commit/c0dd917cca5df924d706c271dfe9f0eae9f87897))
@@ -340,7 +340,7 @@
 * anyof and allof can also have non ref object(string, number, object, ...) ([8a54be3](https://github.com/kubb-project/kubb/commit/8a54be3a50c74717637255598ed4c758c7e9a53b))
 * correct use of camel and pascalcase ([f4f7a63](https://github.com/kubb-project/kubb/commit/f4f7a63731e0edc8bb059f16095f484405e547b6))
 * factory issue with commonjs(nextjs) ([6a6f987](https://github.com/kubb-project/kubb/commit/6a6f987363e3f3567400032bb4bbb4cf6daf9f1d))
-* openAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
+* OpenAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
 * support for ESM modules ([cec3b57](https://github.com/kubb-project/kubb/commit/cec3b57ba9b97a030bb276a3957c826ace72b7d3))
 * uniq enums for zod and ts ([cc05916](https://github.com/kubb-project/kubb/commit/cc059162d2698844a72a2d8d07a92c62529bbbd9))
 * upgrade typescript ([5f01312](https://github.com/kubb-project/kubb/commit/5f01312d290f666299eeffb6b685e5a4980e1e47))
@@ -406,7 +406,7 @@
 
 ### Bug Fixes
 
-* openAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
+* OpenAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
 
 
 ### Miscellaneous Chores
@@ -916,14 +916,14 @@
 
 ### Bug Fixes
 
-* createRequire for imports that are still using require, node14 with ESM mode does not support require out of the box(we had a crash on Nextjs) ([0fdec3f](https://github.com/kubb-project/kubb/commit/0fdec3f3f4fdd8fbec11559b55c716bdb70100bc))
+* createRequire for imports that are still using require, node14 with ESM mode does not support require out of the box(we had a crash on Next.js) ([0fdec3f](https://github.com/kubb-project/kubb/commit/0fdec3f3f4fdd8fbec11559b55c716bdb70100bc))
 
 ## [0.36.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v0.35.0...@kubb/swagger-ts-v0.36.0) (2023-01-08)
 
 
 ### Features
 
-* use nextJs to convert JSON to types with swagger-ts ([3483562](https://github.com/kubb-project/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
+* use Next.js to convert JSON to types with swagger-ts ([3483562](https://github.com/kubb-project/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
 
 ## [0.35.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v0.34.0...@kubb/swagger-ts-v0.35.0) (2023-01-07)
 

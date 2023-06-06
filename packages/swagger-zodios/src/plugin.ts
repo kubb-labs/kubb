@@ -5,7 +5,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { createPlugin, validatePlugins } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
-import type { Api as SwaggerApi } from '@kubb/swagger'
+import type { API as SwaggerApi } from '@kubb/swagger'
 
 import { OperationGenerator } from './generators/index.ts'
 

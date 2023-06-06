@@ -50329,7 +50329,7 @@
       "OauthClient": {
         "properties": {
           "status": {
-            "description": "The status of the Oauth Client, can be ACTIVE or CANCELLED.",
+            "description": "The status of the OAuth Client, can be ACTIVE or CANCELLED.",
             "readOnly": false,
             "type": "string",
             "writeOnly": false
@@ -50352,7 +50352,7 @@
       "OauthClientListing": {
         "properties": {
           "callback_url": {
-            "description": "The callback URLs which are bound to this Oauth Client",
+            "description": "The callback URLs which are bound to this OAuth Client",
             "items": {
               "$ref": "#/components/schemas/OauthCallbackUrl"
             },
@@ -50361,13 +50361,13 @@
             "writeOnly": false
           },
           "client_id": {
-            "description": "The Client ID associated with this Oauth Client",
+            "description": "The Client ID associated with this OAuth Client",
             "readOnly": true,
             "type": "string",
             "writeOnly": false
           },
           "display_name": {
-            "description": "The display name of this Oauth Client",
+            "description": "The display name of this OAuth Client",
             "readOnly": true,
             "type": "string",
             "writeOnly": false
@@ -50379,7 +50379,7 @@
             "writeOnly": false
           },
           "secret": {
-            "description": "Secret associated with this Oauth Client",
+            "description": "Secret associated with this OAuth Client",
             "readOnly": true,
             "type": "string",
             "writeOnly": false
@@ -50396,7 +50396,7 @@
       "OauthClientRead": {
         "properties": {
           "callback_url": {
-            "description": "The callback URLs which are bound to this Oauth Client",
+            "description": "The callback URLs which are bound to this OAuth Client",
             "items": {
               "$ref": "#/components/schemas/OauthCallbackUrl"
             },
@@ -50405,13 +50405,13 @@
             "writeOnly": false
           },
           "client_id": {
-            "description": "The Client ID associated with this Oauth Client",
+            "description": "The Client ID associated with this OAuth Client",
             "readOnly": true,
             "type": "string",
             "writeOnly": false
           },
           "display_name": {
-            "description": "The display name of this Oauth Client",
+            "description": "The display name of this OAuth Client",
             "readOnly": true,
             "type": "string",
             "writeOnly": false
@@ -50423,7 +50423,7 @@
             "writeOnly": false
           },
           "secret": {
-            "description": "Secret associated with this Oauth Client",
+            "description": "Secret associated with this OAuth Client",
             "readOnly": true,
             "type": "string",
             "writeOnly": false

@@ -10,13 +10,13 @@
 <!-- Badges -->
 <p>
   <a href="https://www.npmjs.com/package/@kubb/swagger-client">
-    <img alt="Npm version" src="https://img.shields.io/npm/v/@kubb/swagger-client?style=for-the-badge"/>
+    <img alt="npm version" src="https://img.shields.io/npm/v/@kubb/swagger-client?style=for-the-badge"/>
   </a>
   <a href="https://www.npmjs.com/package/@kubb/swagger-client">
-    <img alt="Npm downloads" src="https://img.shields.io/bundlephobia/min/@kubb/swagger-client?style=for-the-badge"/>
+    <img alt="npm downloads" src="https://img.shields.io/bundlephobia/min/@kubb/swagger-client?style=for-the-badge"/>
   </a>
   <a href="https://www.npmjs.com/package/@kubb/swagger-client">
-    <img alt="Npm downloads" src="https://img.shields.io/npm/dm/@kubb/swagger-client?style=for-the-badge"/>
+    <img alt="npm downloads" src="https://img.shields.io/npm/dm/@kubb/swagger-client?style=for-the-badge"/>
   </a>
 </p>
    

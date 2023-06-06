@@ -166,7 +166,7 @@
 ### Bug Fixes
 
 * duplocated queryParams(coming from the pathParams) ([714281f](https://github.com/kubb-project/kubb/commit/714281f5d511c02c130a66b75e774f231ee06e9b))
-* include errors in Typescript and Zod ([5885041](https://github.com/kubb-project/kubb/commit/588504121b1aae9498218284a41ab43a8c78f861))
+* include errors in TypeScript and Zod ([5885041](https://github.com/kubb-project/kubb/commit/588504121b1aae9498218284a41ab43a8c78f861))
 * writeIndexes without write, use of the filemanager instead ([5359521](https://github.com/kubb-project/kubb/commit/53595216451a21f25a8687e564c16f4d13d1f594))
 
 
@@ -251,7 +251,7 @@
 * cleanup operationGenerator ([15be8e1](https://github.com/kubb-project/kubb/commit/15be8e152512fe1c84bdbec9a117e3728e254fef))
 * do not write indexes when output.write is false ([0c96139](https://github.com/kubb-project/kubb/commit/0c961392dcb56fa6b7d0334317fc36181e45e561))
 * filter out if schema.map is not a function ([57250ed](https://github.com/kubb-project/kubb/commit/57250edded807b9641a61ffeefee2f96a1349f80))
-* openAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
+* OpenAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
 * refactor of operationgenerator + baseOperationGenerator for swagger package ([2f4739b](https://github.com/kubb-project/kubb/commit/2f4739b25e3a456f44647ee46272cd341975152b))
 * refactor zodBuilder and typeBuilder ([6e0ada6](https://github.com/kubb-project/kubb/commit/6e0ada6af9fa71658c0812cc72db507aa15cea66))
 * strictmode on swagger packages + remove anys ([0583ae8](https://github.com/kubb-project/kubb/commit/0583ae809f8cf7822a4d39edfda7ff43f2a539cb))
@@ -363,7 +363,7 @@
 * cleanup imports and move duplicate stuff to swagger package ([73e7c66](https://github.com/kubb-project/kubb/commit/73e7c660dc3856afad64cf53f294f5003fa63f27))
 * do not write indexes when output.write is false ([0c96139](https://github.com/kubb-project/kubb/commit/0c961392dcb56fa6b7d0334317fc36181e45e561))
 * filter out if schema.map is not a function ([57250ed](https://github.com/kubb-project/kubb/commit/57250edded807b9641a61ffeefee2f96a1349f80))
-* openAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
+* OpenAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
 * refactor of operationgenerator + baseOperationGenerator for swagger package ([2f4739b](https://github.com/kubb-project/kubb/commit/2f4739b25e3a456f44647ee46272cd341975152b))
 * refactor zodBuilder and typeBuilder ([6e0ada6](https://github.com/kubb-project/kubb/commit/6e0ada6af9fa71658c0812cc72db507aa15cea66))
 * support for ESM modules ([cec3b57](https://github.com/kubb-project/kubb/commit/cec3b57ba9b97a030bb276a3957c826ace72b7d3))
@@ -434,7 +434,7 @@
 
 ### Bug Fixes
 
-* openAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
+* OpenAPI v3.1.0 support for schema.type array ([ced713d](https://github.com/kubb-project/kubb/commit/ced713d69a3989c7a4d47bb16577f78a13dfc82f))
 
 
 ### Miscellaneous Chores

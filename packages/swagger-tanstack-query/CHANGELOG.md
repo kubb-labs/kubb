@@ -909,14 +909,14 @@
 
 ### Bug Fixes
 
-* createRequire for imports that are still using require, node14 with ESM mode does not support require out of the box(we had a crash on Nextjs) ([0fdec3f](https://github.com/kubb-project/kubb/commit/0fdec3f3f4fdd8fbec11559b55c716bdb70100bc))
+* createRequire for imports that are still using require, node14 with ESM mode does not support require out of the box(we had a crash on Next.js) ([0fdec3f](https://github.com/kubb-project/kubb/commit/0fdec3f3f4fdd8fbec11559b55c716bdb70100bc))
 
 ## [0.36.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v0.35.0...@kubb/swagger-tanstack-query-v0.36.0) (2023-01-08)
 
 
 ### Features
 
-* use nextJs to convert JSON to types with swagger-ts ([3483562](https://github.com/kubb-project/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
+* use Next.js to convert JSON to types with swagger-ts ([3483562](https://github.com/kubb-project/kubb/commit/34835621c2ea916f0366949e41ec7e242ec0bf34))
 
 ## [0.35.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v0.34.0...@kubb/swagger-tanstack-query-v0.35.0) (2023-01-07)
 

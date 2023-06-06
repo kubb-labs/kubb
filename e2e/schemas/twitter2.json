@@ -1192,7 +1192,7 @@
       },
       "Point": {
         "type": "object",
-        "description": "A [GeoJson Point](https://tools.ietf.org/html/rfc7946#section-3.1.2) geometry object.",
+        "description": "A [GeoJSON Point](https://tools.ietf.org/html/rfc7946#section-3.1.2) geometry object.",
         "required": [
           "type",
           "coordinates"
@@ -1211,7 +1211,7 @@
       },
       "Position": {
         "type": "array",
-        "description": "A [GeoJson Position](https://tools.ietf.org/html/rfc7946#section-3.1.1) in the format `[longitude,latitude]`.",
+        "description": "A [GeoJSON Position](https://tools.ietf.org/html/rfc7946#section-3.1.1) in the format `[longitude,latitude]`.",
         "items": {
           "type": "number"
         },

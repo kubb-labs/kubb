@@ -13,11 +13,11 @@
 <!-- Badges -->
 <p>
  <a href="https://www.npmjs.com/package/@kubb/core" target="_blank">
-  <img alt="Npm version" src="https://img.shields.io/npm/v/@kubb/core?style=for-the-badge"/>
+  <img alt="npm version" src="https://img.shields.io/npm/v/@kubb/core?style=for-the-badge"/>
 </a>
 
 <a href="https://www.npmjs.com/package/@kubb/core" target="_blank">
-  <img alt="Npm downloads" src="https://img.shields.io/npm/dm/@kubb/core?style=for-the-badge"/>
+  <img alt="npm downloads" src="https://img.shields.io/npm/dm/@kubb/core?style=for-the-badge"/>
 </a>
 </p>
   
