@@ -1,4 +1,4 @@
-import { createUser } from './createUser'
+import { createUser } from '../createUser'
 
 import type { CreateUserMutationResponse, CreateUserError, CreateUserMutationRequest } from '../../models/CreateUser'
 

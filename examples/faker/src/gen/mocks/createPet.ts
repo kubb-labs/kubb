@@ -12,6 +12,6 @@ export function createPet(): Pet {
     category: createCategory(),
     photoUrls: faker.helpers.arrayElements([faker.string.alpha()]),
     tags: faker.helpers.arrayElements([createTag()]),
-    status: faker.helpers.arrayElement([`available`, `pending`, `sold`]),
+    status: faker.helpers.arrayElement<any>([`available`, `pending`, `sold`]),
   }
 }

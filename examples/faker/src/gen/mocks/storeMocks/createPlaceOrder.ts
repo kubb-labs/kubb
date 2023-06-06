@@ -1,4 +1,4 @@
-import { createOrder } from './createOrder'
+import { createOrder } from '../createOrder'
 
 import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../../models/PlaceOrder'
 

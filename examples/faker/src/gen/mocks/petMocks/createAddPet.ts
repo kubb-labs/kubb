@@ -1,4 +1,4 @@
-import { createPet } from './createPet'
+import { createPet } from '../createPet'
 
 import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/AddPet'
 

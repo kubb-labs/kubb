@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 
-import { createOrder } from './createOrder'
+import { createOrder } from '../createOrder'
 
 import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../../models/GetOrderById'
 

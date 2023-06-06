@@ -13,7 +13,7 @@ export function createFindPetsByStatus400(): FindPetsByStatus400 {
 }
 
 export function createFindPetsByStatusQueryParams(): FindPetsByStatusQueryParams {
-  return { status: faker.helpers.arrayElement([`available`, `pending`, `sold`]) }
+  return { status: faker.helpers.arrayElement<any>([`available`, `pending`, `sold`]) }
 }
 
 /**

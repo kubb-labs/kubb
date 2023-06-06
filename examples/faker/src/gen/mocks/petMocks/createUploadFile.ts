@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 
-import { createApiResponse } from './createApiResponse'
+import { createApiResponse } from '../createApiResponse'
 
 import type { UploadFilePathParams, UploadFileQueryParams, UploadFileMutationResponse } from '../../models/UploadFile'
 

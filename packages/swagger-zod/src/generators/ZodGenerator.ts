@@ -99,8 +99,12 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           validationFunctions.push({ keyword: zodKeywords.matches, args: `/${matches}/` })
         }
 
-        if (schema.default !== undefined) {
-          validationFunctions.push({ keyword: zodKeywords.default, args: typeof schema.default === 'string' ? `"${schema.default}"` : schema.default })
+        if (schema.default !== undefined && !Array.isArray(schema.default)) {
+          if (typeof schema.default === 'string') {
+            validationFunctions.push({ keyword: zodKeywords.default, args: `'${schema.default}'` })
+          } else {
+            validationFunctions.push({ keyword: zodKeywords.default, args: schema.default })
+          }
         }
 
         if (!isRequired) {

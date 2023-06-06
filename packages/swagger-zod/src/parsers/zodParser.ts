@@ -95,7 +95,7 @@ type ZodMetaArray = { keyword: typeof zodKeywords.array; args?: ZodMeta[] }
 
 type ZodMetaTuple = { keyword: typeof zodKeywords.tuple; args?: ZodMeta[] }
 type ZodMetaLazy = { keyword: typeof zodKeywords.lazy }
-type ZodMetaDefault = { keyword: typeof zodKeywords.default; args?: string }
+type ZodMetaDefault = { keyword: typeof zodKeywords.default; args?: string | number | boolean }
 
 export type ZodMeta =
   | ZodMetaAny

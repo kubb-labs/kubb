@@ -37,10 +37,10 @@ export const fakerKeywordMapper: Record<FakerKeyword, string> = {
   null: 'null',
   array: 'faker.helpers.arrayElements',
   tuple: 'faker.helpers.arrayElements',
-  enum: 'faker.helpers.arrayElement',
-  union: 'faker.helpers.arrayElement',
+  enum: 'faker.helpers.arrayElement<any>',
+  union: 'faker.helpers.arrayElement<any>',
   /* intersection */
-  and: 'faker.helpers.arrayElements',
+  and: 'Object.assign',
 
   // custom ones
   object: 'object',
@@ -137,8 +137,12 @@ export function parseFakerMeta(item: FakerMeta): string {
   let { keyword, args } = (item || {}) as FakerMetaBase<any>
   const value = fakerKeywordMapper[keyword]
 
-  if (keyword === fakerKeywords.tuple || keyword === fakerKeywords.array || keyword === fakerKeywords.union || keyword === fakerKeywords.and) {
+  if (keyword === fakerKeywords.tuple || keyword === fakerKeywords.array || keyword === fakerKeywords.union) {
     return `${value}(${Array.isArray(args) ? `[${args.map(parseFakerMeta).join(',')}]` : parseFakerMeta(args)})`
+  }
+
+  if (keyword === fakerKeywords.and) {
+    return `${value}({},${Array.isArray(args) ? `${args.map(parseFakerMeta).join(',')}` : parseFakerMeta(args)})`
   }
 
   if (keyword === fakerKeywords.enum) {

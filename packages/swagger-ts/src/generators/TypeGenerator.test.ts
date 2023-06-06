@@ -16,7 +16,7 @@ describe('TypeGenerator simple', () => {
     const generator = new TypeGenerator(oas, { withJSDocs: false, resolveName: ({ name }) => name, enumType: 'asConst' })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build(schemas?.Pet as OpenAPIV3.SchemaObject, 'Pet')
+    const node = generator.build({ schema: schemas?.Pet as OpenAPIV3.SchemaObject, baseName: 'Pet' })
 
     const output = print(node, undefined)
 
@@ -37,7 +37,7 @@ describe('TypeGenerator simple', () => {
     const generator = new TypeGenerator(oas, { withJSDocs: false, resolveName: ({ name }) => name, enumType: 'asConst' })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build(schemas?.Pets as OpenAPIV3.SchemaObject, 'Pets')
+    const node = generator.build({ schema: schemas?.Pets as OpenAPIV3.SchemaObject, baseName: 'Pets' })
 
     const output = print(node, undefined)
 
@@ -62,7 +62,7 @@ describe('TypeGenerator with refs', () => {
     const generator = new TypeGenerator(oas, { withJSDocs: false, resolveName: ({ name }) => name, enumType: 'asConst' })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build(schemas?.Pets as OpenAPIV3.SchemaObject, 'Pets')
+    const node = generator.build({ schema: schemas?.Pets as OpenAPIV3.SchemaObject, baseName: 'Pets' })
 
     const output = print(node, undefined)
 
