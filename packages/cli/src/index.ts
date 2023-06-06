@@ -56,7 +56,8 @@ const program = new Command(moduleName)
     }
   })
   .addOption(new Option('-c, --config <path>', 'Path to the Kubb config'))
-  .addOption(new Option('-i, --input <path>', 'Path of the input file(overrides the on in `kubb.config.js`)'))
+  .addOption(new Option('-i, --input <path>', 'Path of the input file(overrides the one in `kubb.config.js`)'))
+  .addOption(new Option('-l, --logLevel <type>', 'Type of the logging(overrides the one in `kubb.config.js`)').choices(['error', 'info', 'silent']))
   .addOption(new Option('-d, --debug', 'Debug mode').default(false))
   .addOption(new Option('-w, --watch', 'Watch mode based on the input file'))
 

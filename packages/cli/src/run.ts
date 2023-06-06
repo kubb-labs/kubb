@@ -7,8 +7,9 @@ import { parseArgsStringToArgv } from 'string-argv'
 import PrettyError from 'pretty-error'
 
 import { ParallelPluginError, PluginError, build } from '@kubb/core'
-import type { Logger, CLIOptions, KubbConfig, BuildOutput } from '@kubb/core'
+import type { Logger, CLIOptions, KubbConfig, BuildOutput, LogLevel } from '@kubb/core'
 
+import { parseText } from './utils/parseText.ts'
 import { parseHrtimeToSeconds } from './utils/parseHrtimeToSeconds.ts'
 
 import type { Ora } from 'ora'
@@ -32,7 +33,7 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
     spinner,
   }
 
-  const onDone = async (hooks: KubbConfig['hooks']) => {
+  const onDone = async (hooks: KubbConfig['hooks'], logLevel: LogLevel) => {
     if (!hooks?.done) {
       return
     }
@@ -46,11 +47,11 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
 
     const promises = commands.map(async (command) => {
       const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
-      spinner.start(`🪂 Executing hooks(${pc.yellow('done')}) ${pc.dim(command)}`)
+      spinner.start(parseText(`🪂 Executing hooks(${pc.yellow('done')})`, { info: ` ${pc.dim(command)}` }, logLevel))
       const { stdout } = await execa(cmd, _args)
-      spinner.succeed(`🪂 Executed hooks(${pc.yellow('done')}) ${pc.dim(command)}`)
+      spinner.succeed(parseText(`🪂 Executing hooks(${pc.yellow('done')})`, { info: ` ${pc.dim(command)}` }, logLevel))
 
-      if (config.logLevel === 'info') {
+      if (logLevel === 'info') {
         console.log(stdout)
       }
     })
@@ -123,17 +124,19 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
   try {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
     const { root, ...userConfig } = config
+    const logLevel = options.logLevel ?? userConfig.logLevel ?? 'silent'
+    const inputPath = options.input ?? userConfig.input.path
 
-    spinner.start(`🚀 Building(${pc.dim(options.input ?? userConfig.input.path)})`)
+    spinner.start(parseText(`🚀 Building`, { info: `(${pc.dim(inputPath)})` }, logLevel))
 
     const output = await build({
       config: {
         root: process.cwd(),
-        logLevel: 'silent',
         ...userConfig,
+        logLevel,
         input: {
           ...userConfig.input,
-          path: options.input ?? userConfig.input.path,
+          path: inputPath,
         },
         output: {
           write: true,
@@ -143,9 +146,9 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
       logger,
     })
 
-    spinner.succeed(`🚀 Build completed(${pc.dim(options.input ?? userConfig.input.path)})`)
+    spinner.succeed(parseText(`🚀 Build completed`, { info: `(${pc.dim(inputPath)})` }, logLevel))
 
-    await onDone(config.hooks)
+    await onDone(config.hooks, logLevel)
 
     printSummary(output.pluginManager, 'success')
   } catch (error: any) {
