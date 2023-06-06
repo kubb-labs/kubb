@@ -8,6 +8,6 @@
   "packages/swagger-tanstack-query": "1.1.2",
   "packages/swagger-swr": "1.1.2",
   "packages/swagger-zod": "1.1.2",
-  "packages/swagger-zodios": "1.1.0",
+  "packages/swagger-zodios": "1.1.2",
   "packages/swagger-faker": "1.1.2"
 }

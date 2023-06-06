@@ -116,6 +116,7 @@
         "@kubb/swagger-tanstack-query",
         "@kubb/swagger-swr",
         "@kubb/swagger-zod",
+        "@kubb/swagger-zodios",
         "@kubb/swagger-faker"
       ]
     }
