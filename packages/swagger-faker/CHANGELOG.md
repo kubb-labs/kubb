@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-faker-v1.1.1...@kubb/swagger-faker-v1.1.2) (2023-06-06)
+
+
+### Bug Fixes
+
+* add types to mocks based on `@kubb/swagger-ts` ([5b51fe0](https://github.com/kubb-project/kubb/commit/5b51fe01b237f99b801bb76d9bb71578dba70113))
+
 ## [1.1.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-faker-v1.1.0...@kubb/swagger-faker-v1.1.1) (2023-06-06)
 
 
