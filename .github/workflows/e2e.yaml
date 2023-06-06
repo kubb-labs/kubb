@@ -9,6 +9,13 @@ jobs:
       name: Build and Test
       timeout-minutes: 15
       runs-on: ubuntu-latest
+      strategy:
+        matrix:
+          node-version:
+            - 16
+            - 18
+            - 19
+            - 20
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
       #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -24,10 +31,10 @@ jobs:
           with:
             version: 8
  
-        - name: Setup Node.js environment
+        - name: Setup Node.js(${{ matrix.node-version }}) environment
           uses: actions/setup-node@v3
           with:
-            node-version: 16
+            node-version: ${{ matrix.node-version }}
             cache: 'pnpm'
             registry-url: 'https://registry.npmjs.org'
  

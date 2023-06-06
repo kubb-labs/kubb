@@ -13,10 +13,14 @@
       "dependsOn": [
         "^start"
       ],
-      "outputs": []
+      "outputs": [
+        "dist/**"
+      ]
     },
     "test": {
-      "dependsOn": [],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": [
         "coverage/**"
       ]
@@ -34,14 +38,18 @@
       "outputs": []
     },
     "release": {
-      "dependsOn": [],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": []
     },
     "generate": {
       "dependsOn": [
         "^build"
       ],
-      "outputs": []
+      "outputs": [
+        "gen/**"
+      ]
     }
   }
 }
