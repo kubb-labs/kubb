@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.1.2...@kubb/core-v1.1.3) (2023-06-06)
+
+
+### Bug Fixes
+
+* hide meta data when `logLevel` is silent and possibility to override `logLevel` with the CLI ([d5ba5f3](https://github.com/kubb-project/kubb/commit/d5ba5f3433dc41db03f93154110e55369273be0f))
+
 ## [1.1.2](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.1.1...@kubb/core-v1.1.2) (2023-06-06)
 
 
