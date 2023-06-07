@@ -29,6 +29,7 @@
     "pre-commit": "turbo run pre-commit && pnpm run lint-fix",
     "pre-push": "turbo run pre-push",
     "release": "turbo run release --continue",
+    "upgrade": "turbo run upgrade",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
@@ -63,7 +64,7 @@
     "prettier": "^2.8.8",
     "prettier-eslint": "^15.0.1",
     "ts-node": "^10.9.1",
-    "turbo": "^1.10.1",
+    "turbo": "^1.10.2",
     "typescript": "~5.0.4",
     "vitest": "^0.31.4"
   },

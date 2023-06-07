@@ -48,8 +48,7 @@
     "pre-commit": "echo 'pre-commit not configured'",
     "pre-push": "pnpm typecheck",
     "test": "vitest --passWithNoTests",
-    "upgrade": "ncu -u",
-    "upgrade:local": "ncu --interactive --doctor",
+    "upgrade": "pnpm update",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
