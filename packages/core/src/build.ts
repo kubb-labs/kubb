@@ -2,6 +2,7 @@
 import { PluginManager } from './managers/pluginManager/index.ts'
 import { clean, isURL, read } from './utils/index.ts'
 import { getFileSource } from './managers/fileManager/index.ts'
+import { isPromise } from './utils/isPromise.ts'
 
 import type { OnExecute } from './managers/pluginManager/index.ts'
 import type { File } from './managers/fileManager/index.ts'
@@ -48,13 +49,16 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   const queueTask = async (id: string, file: File) => {
     const { path } = file
 
-    let code = getFileSource(file)
+    let code: string | null = getFileSource(file)
 
-    const loadedResult = await pluginManager.hookFirst({
+    const { result: loadedResult } = await pluginManager.hookFirst({
       hookName: 'load',
       parameters: [path],
     })
-    if (loadedResult) {
+    if (loadedResult && isPromise(loadedResult)) {
+      code = await loadedResult
+    }
+    if (loadedResult && !isPromise(loadedResult)) {
       code = loadedResult
     }
 

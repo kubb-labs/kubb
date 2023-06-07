@@ -11,7 +11,7 @@ import { Queue } from '../../utils/Queue.ts'
 import { isPromise } from '../../utils/isPromise.ts'
 
 import type { QueueTask } from '../../utils/Queue.ts'
-import type { Argument0, Strategy, Executer, OnExecute } from './types.ts'
+import type { Argument0, Strategy, Executer, OnExecute, ParseResult, SafeParseResult } from './types.ts'
 import type { KubbConfig, KubbPlugin, PluginLifecycleHooks, PluginLifecycle, MaybePromise, ResolvePathParams, ResolveNameParams } from '../../types.ts'
 import type { CorePluginOptions } from '../../plugin.ts'
 
@@ -41,7 +41,7 @@ export class PluginManager {
 
   private readonly onExecute?: OnExecute
 
-  public readonly core: KubbPlugin<CorePluginOptions>
+  private readonly core: KubbPlugin<CorePluginOptions>
 
   public queue: Queue
 
@@ -82,7 +82,7 @@ export class PluginManager {
     return this.hookFirstSync({
       hookName: 'resolvePath',
       parameters: [params.fileName, params.directory, params.options],
-    })
+    }).result
   }
 
   resolveName = (params: ResolveNameParams) => {
@@ -96,7 +96,7 @@ export class PluginManager {
     return this.hookFirstSync({
       hookName: 'resolveName',
       parameters: [params.name],
-    })
+    }).result
   }
 
   load = async (id: string) => {
@@ -118,7 +118,7 @@ export class PluginManager {
     pluginName: string
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
-  }): Promise<ReturnType<PluginLifecycle[H]> | null> | null {
+  }): Promise<ReturnType<ParseResult<H>> | null> | null {
     const plugin = this.getPlugin(hookName, pluginName)
 
     return this.execute({
@@ -137,7 +137,7 @@ export class PluginManager {
     pluginName: string
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
-  }): ReturnType<PluginLifecycle[H]> | null {
+  }): ReturnType<ParseResult<H>> | null {
     const plugin = this.getPlugin(hookName, pluginName)
 
     return this.executeSync({
@@ -160,20 +160,29 @@ export class PluginManager {
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
     skipped?: ReadonlySet<KubbPlugin> | null
-  }): Promise<ReturnType<PluginLifecycle[H]>> {
-    let promise: Promise<ReturnType<PluginLifecycle[H]>> = Promise.resolve(null as ReturnType<PluginLifecycle[H]>)
+  }): Promise<SafeParseResult<H>> {
+    let promise: Promise<SafeParseResult<H>> = Promise.resolve(null as any)
+
     for (const plugin of this.getSortedPlugins(hookName)) {
       if (skipped && skipped.has(plugin)) continue
-      promise = promise.then((result) => {
-        if (result != null) return result
-        return this.execute({
+      promise = promise.then(async (result) => {
+        if (result != null) {
+          return result
+        }
+        const value = await this.execute<H>({
           strategy: 'hookFirst',
           hookName,
           parameters,
           plugin,
-        }) as typeof result
+        })
+
+        return Promise.resolve({
+          plugin,
+          result: value,
+        } as typeof result)
       })
     }
+
     return promise
   }
 
@@ -189,24 +198,26 @@ export class PluginManager {
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
     skipped?: ReadonlySet<KubbPlugin> | null
-  }): ReturnType<PluginLifecycle[H]> {
-    let result = null
+  }): SafeParseResult<H> {
+    let result: SafeParseResult<H> = null as unknown as SafeParseResult<H>
 
     for (const plugin of this.getSortedPlugins(hookName)) {
       if (skipped && skipped.has(plugin)) continue
 
-      result = this.executeSync<H>({
-        strategy: 'hookFirst',
-        hookName,
-        parameters,
-        plugin,
-      })
+      result = {
+        result: this.executeSync<H>({
+          strategy: 'hookFirst',
+          hookName,
+          parameters,
+          plugin,
+        }),
+      } as SafeParseResult<H>
 
       if (result != null) {
         break
       }
     }
-    return result as ReturnType<PluginLifecycle[H]>
+    return result as SafeParseResult<H>
   }
 
   // parallel
@@ -255,7 +266,7 @@ export class PluginManager {
   }: {
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
-    reduce: (reduction: Argument0<H>, result: ReturnType<PluginLifecycle[H]>, plugin: KubbPlugin) => MaybePromise<Argument0<H> | null>
+    reduce: (reduction: Argument0<H>, result: ReturnType<ParseResult<H>>, plugin: KubbPlugin) => MaybePromise<Argument0<H> | null>
   }): Promise<Argument0<H>> {
     const [argument0, ...rest] = parameters
 
@@ -271,7 +282,7 @@ export class PluginManager {
           })
           return value
         })
-        .then((result) => reduce.call(this.core.api, argument0, result as ReturnType<PluginLifecycle[H]>, plugin)) as Promise<Argument0<H>>
+        .then((result) => reduce.call(this.core.api, argument0, result as ReturnType<ParseResult<H>>, plugin)) as Promise<Argument0<H>>
     }
     return promise
   }
@@ -294,7 +305,7 @@ export class PluginManager {
   }
 
   private getSortedPlugins(_hookName: keyof PluginLifecycle): KubbPlugin[] {
-    const plugins = [...this.plugins]
+    const plugins = [...this.plugins].filter((plugin) => plugin.name !== 'core')
 
     return plugins
   }
@@ -400,7 +411,7 @@ export class PluginManager {
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
     plugin: KubbPlugin
-  }): ReturnType<PluginLifecycle[H]> | null {
+  }): ReturnType<ParseResult<H>> | null {
     const hook = plugin[hookName]
 
     if (!hook) {
@@ -438,7 +449,7 @@ export class PluginManager {
     } catch (e) {
       this.catcher<H>(e as Error, plugin, hookName)
 
-      return null as ReturnType<PluginLifecycle[H]>
+      return null as ReturnType<ParseResult<H>>
     }
   }
 
