@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.5](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.1.4...@kubb/cli-v1.1.5) (2023-06-07)
+
+
+### Bug Fixes
+
+* npm init when calling kubb --init ([7f6f9d9](https://github.com/kubb-project/kubb/commit/7f6f9d9796f114e02ee9fc916d2aa79d3b2805c8))
+
 ## [1.1.4](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.1.3...@kubb/cli-v1.1.4) (2023-06-07)
 
 
