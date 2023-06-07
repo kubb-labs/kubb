@@ -165,9 +165,9 @@ export class PluginManager {
 
     for (const plugin of this.getSortedPlugins(hookName)) {
       if (skipped && skipped.has(plugin)) continue
-      promise = promise.then(async (result) => {
-        if (result != null) {
-          return result
+      promise = promise.then(async (parseResult) => {
+        if (parseResult?.result != null) {
+          return parseResult
         }
         const value = await this.execute<H>({
           strategy: 'hookFirst',
@@ -179,7 +179,7 @@ export class PluginManager {
         return Promise.resolve({
           plugin,
           result: value,
-        } as typeof result)
+        } as typeof parseResult)
       })
     }
 
@@ -199,28 +199,32 @@ export class PluginManager {
     parameters: Parameters<PluginLifecycle[H]>
     skipped?: ReadonlySet<KubbPlugin> | null
   }): SafeParseResult<H> {
-    let result: SafeParseResult<H> = null as unknown as SafeParseResult<H>
+    let parseResult: SafeParseResult<H> = null as unknown as SafeParseResult<H>
 
     for (const plugin of this.getSortedPlugins(hookName)) {
       if (skipped && skipped.has(plugin)) continue
 
-      result = {
+      parseResult = {
         result: this.executeSync<H>({
           strategy: 'hookFirst',
           hookName,
           parameters,
           plugin,
         }),
+        plugin,
       } as SafeParseResult<H>
 
-      if (result != null) {
+      if (parseResult?.result != null) {
         break
       }
     }
-    return result as SafeParseResult<H>
+    return parseResult as SafeParseResult<H>
   }
 
-  // parallel
+  /**
+   *
+   * Parallel, runs all plugins
+   */
   async hookParallel<H extends PluginLifecycleHooks, TOuput = void>({
     hookName,
     parameters,
@@ -258,7 +262,10 @@ export class PluginManager {
     return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
   }
 
-  // chains, reduces returned value, handling the reduced value as the first hook argument
+  /**
+   *
+   * Chains, reduces returned value, handling the reduced value as the first hook argument
+   */
   hookReduceArg0<H extends PluginLifecycleHooks>({
     hookName,
     parameters,
@@ -273,11 +280,11 @@ export class PluginManager {
     let promise: Promise<Argument0<H>> = Promise.resolve(argument0)
     for (const plugin of this.getSortedPlugins(hookName)) {
       promise = promise
-        .then((argument0) => {
+        .then((arg0) => {
           const value = this.execute({
             strategy: 'hookReduceArg0',
             hookName,
-            parameters: [argument0, ...rest] as Parameters<PluginLifecycle[H]>,
+            parameters: [arg0, ...rest] as Parameters<PluginLifecycle[H]>,
             plugin,
           })
           return value
@@ -287,8 +294,9 @@ export class PluginManager {
     return promise
   }
 
-  // chains
-
+  /**
+   * Chains plugins
+   */
   hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: Parameters<PluginLifecycle[H]> }) {
     let promise: Promise<void | null> = Promise.resolve()
     for (const plugin of this.getSortedPlugins(hookName)) {

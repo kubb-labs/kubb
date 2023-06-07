@@ -25,9 +25,6 @@ async function transformReducer(
   result: TransformResult | Promise<TransformResult>,
   _plugin: KubbPlugin
 ): Promise<string | null> {
-  if (result === null) {
-    return null
-  }
   return result
 }
 

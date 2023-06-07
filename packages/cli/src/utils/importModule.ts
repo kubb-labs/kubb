@@ -13,7 +13,7 @@ const SLASHES = new Set(['/', '\\'])
  * @param {string} directory The directory to check.
  * @returns {string} The normalized directory.
  */
-function normalizeDirectory(directory: string) {
+export function normalizeDirectory(directory: string) {
   if (!SLASHES.has(directory[directory.length - 1])) {
     return `${directory}/`
   }
@@ -31,5 +31,5 @@ export async function importModule(path: string, cwd?: string) {
 
   const module = await import(pathToFileURL(location).href)
 
-  return module.default
+  return module?.default ?? module
 }
