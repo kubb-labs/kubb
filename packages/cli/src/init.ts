@@ -71,15 +71,16 @@ export async function init({ spinner, preset = 'simple', logLevel = 'silent', pa
     await write(presetMeta['kubb.config'], path)
     spinner.succeed(`📀 Wrote \`kubb.config.js\` ${pc.dim(path)}`)
 
-    const data = await Promise.all(
-      presetMeta.packages.map(async (pack) => {
+    const data = await Promise.all([
+      $`npm init es6 -y`,
+      ...presetMeta.packages.map(async (pack) => {
         spinner.start(`📀 Installing ${pc.dim(pack)}`)
         const { stdout } = await $({ preferLocal: false })`${packageManager} ${installCommand} ${pack}`
         spinner.succeed(`📀 Installed ${pc.dim(pack)}`)
 
         return stdout
-      })
-    )
+      }),
+    ])
 
     if (logLevel === 'info') {
       data.forEach((text) => console.log(text))
