@@ -22,7 +22,7 @@
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "kubb": "dist/index.cjs"
+    "kubb": "dist/index.js"
   },
   "preferGlobal": true,
   "files": [

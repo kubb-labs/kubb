@@ -13,3 +13,4 @@ jobs:
         with:
           command: manifest
           monorepo-tags: true
+          changelog-types: '[{"type":"feat","section":"✨ Features","hidden":false},{"type":"fix","section":"🐞 Bug Fixes","hidden":false},{"type":"chore","section":"📦 Miscellaneous","hidden":false}]'

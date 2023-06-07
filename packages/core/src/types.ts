@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import type { PluginManager } from './managers/index.ts'
+import type { PluginManager, SafeParseResult } from './managers/index.ts'
 import type { FileManager, File } from './managers/fileManager/index.ts'
 import type { Cache } from './utils/cache.ts'
 
@@ -237,7 +237,7 @@ export type PluginContext<TOptions = Record<string, any>> = {
   addFile: (...file: File[]) => Promise<File[]>
   resolvePath: (params: ResolvePathParams<TOptions>) => OptionalPath
   resolveName: (params: ResolveNameParams) => string | null | undefined
-  load: (id: string) => MaybePromise<TransformResult | void>
+  load: (id: string) => Promise<SafeParseResult<'load'>>
 }
 
 // null will mean clear the watcher for this key

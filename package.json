@@ -30,7 +30,7 @@
     "pre-push": "turbo run pre-push",
     "release": "turbo run release --continue",
     "upgrade": "turbo run upgrade",
-    "test": "vitest",
+    "test": "vitest --coverage",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "typecheck": "turbo run typecheck --filter='./packages/*'"
