@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.4...@kubb/swagger-zod-v1.1.5) (2023-06-07)
+
+
+### Miscellaneous Chores
+
+* **@kubb/swagger-zod:** Synchronize undefined versions
+
 ## [1.1.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.3...@kubb/swagger-zod-v1.1.4) (2023-06-07)
 
 
