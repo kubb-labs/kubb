@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.3...@kubb/swagger-zod-v1.1.4) (2023-06-07)
+
+
+### Bug Fixes
+
+* init cli ([2f79cb0](https://github.com/kubb-project/kubb/commit/2f79cb08141f924b3c3834183fbe97b197acef20))
+
 ## [1.1.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.2...@kubb/swagger-zod-v1.1.3) (2023-06-06)
 
 
