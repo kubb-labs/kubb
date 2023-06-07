@@ -35,9 +35,10 @@ npx kubb --config kubb.config.js
 Usage: kubb [options]
 
 Options:
-  -c, --config <path>     Path to the Kubb config
+  -c, --config <path>    Path to the Kubb config
   -i, --input <path>     Path of the input file(overrides the one in `kubb.config.js`)
   -l, --logLevel <type>  Type of the logging(overrides the one in `kubb.config.js`) (choices: "error", "info", "silent")
+  --init                 Init Kubb
   -d, --debug            Debug mode (default: false)
   -w, --watch            Watch mode based on the input file
   -v                     Output the version number
@@ -55,6 +56,14 @@ npx kubb -c kubb.config.ts
 ### --input (-i)
 
 Path of the input file(overrides the one in `kubb.config.js`)
+
+```sh copy
+npx kubb -i petStore.yaml
+```
+
+### --init
+
+Init Kubb(`kubb.config.js` and install packages)
 
 ```sh copy
 npx kubb -i petStore.yaml

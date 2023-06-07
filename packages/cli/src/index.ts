@@ -10,14 +10,13 @@ import type { CLIOptions } from '@kubb/core'
 
 import { run } from './run.ts'
 import { startWatcher, getConfig, getCosmiConfig } from './utils/index.ts'
+import { init } from './init.ts'
 
 import { version } from '../package.json'
 
 const moduleName = 'kubb'
 
 const spinner = ora({
-  color: 'blue',
-  text: pc.blue('🏎️ Kubb generation started'),
   spinner: 'clock',
 }).start()
 
@@ -25,6 +24,13 @@ const program = new Command(moduleName)
   .description('Kubb')
   .action(async (options: CLIOptions) => {
     try {
+      if (options.init) {
+        spinner.start('📦 Initializing Kubb')
+        await init({ spinner, logLevel: options.logLevel })
+        spinner.succeed(`📦 initialized Kubb`)
+        return
+      }
+
       // CONFIG
       spinner.start('💾 Loading config')
       const result = await getCosmiConfig(moduleName, options.config)
@@ -58,6 +64,7 @@ const program = new Command(moduleName)
   .addOption(new Option('-c, --config <path>', 'Path to the Kubb config'))
   .addOption(new Option('-i, --input <path>', 'Path of the input file(overrides the one in `kubb.config.js`)'))
   .addOption(new Option('-l, --logLevel <type>', 'Type of the logging(overrides the one in `kubb.config.js`)').choices(['error', 'info', 'silent']))
+  .addOption(new Option('--init', 'Init Kubb'))
   .addOption(new Option('-d, --debug', 'Debug mode').default(false))
   .addOption(new Option('-w, --watch', 'Watch mode based on the input file'))
 

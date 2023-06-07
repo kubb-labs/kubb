@@ -15,6 +15,6 @@ export default defineConfig({
   hooks: {
     done: 'eslint --fix ./src/gen',
   },
-  logLevel: 'warn',
+  logLevel: 'info',
   plugins: [createSwagger({}), createSwaggerTS({ output: 'models', enumType: 'enum' }), createSwaggerTanstackQuery({ output: './hooks' })],
 })

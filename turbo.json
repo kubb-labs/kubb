@@ -50,6 +50,10 @@
       "outputs": [
         "gen/**"
       ]
+    },
+    "upgrade": {
+      "dependsOn": [],
+      "outputs": []
     }
   }
 }
