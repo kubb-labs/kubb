@@ -45,9 +45,6 @@ jobs:
         - name: Build
           run: pnpm build
 
-        - name: Examples
-          run: pnpm generate
-
         - name: Install e2e dependencies
           run: pnpm install
           working-directory: ./e2e
