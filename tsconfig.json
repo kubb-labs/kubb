@@ -1,0 +1,15 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/cli" },
+    { "path": "packages/core" },
+    { "path": "packages/swagger" },
+    { "path": "packages/swagger-client" },
+    { "path": "packages/swagger-faker" },
+    { "path": "packages/swagger-tanstack-query" },
+    { "path": "packages/swagger-ts" },
+    { "path": "packages/swagger-zod" },
+    { "path": "packages/swagger-zodios" },
+    { "path": "packages/ts-codegen" }
+  ]
+}
