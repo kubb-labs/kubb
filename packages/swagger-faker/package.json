@@ -45,8 +45,6 @@
     "start": "tsup --watch",
     "release": "pnpm publish --no-git-check",
     "prepack": "pnpm build",
-    "pre-commit": "echo 'pre-commit not configured'",
-    "pre-push": "pnpm typecheck",
     "lint": "eslint \"**/*.{ts,tsx}\"",
     "lint-fix": "eslint \"**/*.{ts,tsx}\" --quiet --fix",
     "test": "vitest --passWithNoTests",
@@ -63,6 +61,8 @@
   },
   "devDependencies": {
     "@kubb/tsup-config": "workspace:*",
+    "@kubb/eslint-config": "workspace:*",
+    "eslint": "^8.42.0",
     "tsup": "^6.7.0",
     "@types/lodash.uniqueid": "^4.0.7",
     "typescript": "^5.1.3"

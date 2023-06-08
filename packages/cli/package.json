@@ -36,8 +36,6 @@
     "start": "tsup --watch",
     "release": "pnpm publish --no-git-check",
     "prepack": "pnpm build",
-    "pre-commit": "echo 'pre-commit not configured'",
-    "pre-push": "pnpm typecheck",
     "lint": "eslint \"**/*.{ts,tsx}\"",
     "lint-fix": "eslint \"**/*.{ts,tsx}\" --quiet --fix",
     "test": "vitest --passWithNoTests",

@@ -35,14 +35,6 @@
       "dependsOn": [],
       "outputs": []
     },
-    "pre-commit": {
-      "dependsOn": [],
-      "outputs": []
-    },
-    "pre-push": {
-      "dependsOn": [],
-      "outputs": []
-    },
     "clean": {
       "cache": false
     },
