@@ -9,6 +9,18 @@ const config = {
     project: ['./examples/*/tsconfig.json', './docs/tsconfig.json', './packages/*/tsconfig.json'],
   },
   settings: {
+    'import/parsers': {
+      '@typescript-eslint/parser': ['.ts', '.tsx'],
+    },
+    'import/resolver': {
+      node: true,
+      typescript: {
+        project: 'packages/*/tsconfig.json',
+      },
+    },
+    react: {
+      version: 'detect',
+    },
     next: {
       rootDir: ['docs/*/'],
     },

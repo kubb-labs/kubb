@@ -49,7 +49,7 @@ jobs:
           run: pnpm typecheck
 
         - name: Linting
-          run: pnpm lint -- --concurrency=1
+          run: pnpm lint --concurrency=1
 
         - name: Test
           run: pnpm test:coverage
