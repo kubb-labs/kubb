@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.6](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.1.5...@kubb/ts-codegen-v1.1.6) (2023-06-08)
+
+
+### Bug Fixes
+
+* drop of node 16 in favour of node 18 as minimum version ([f4112ef](https://github.com/kubb-project/kubb/commit/f4112efc4abc3a95e50b58a3fa925c7425d911dd))
+
 ## [1.1.5](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.1.4...@kubb/ts-codegen-v1.1.5) (2023-06-07)
 
 
