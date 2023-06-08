@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from 'zod'
 
 import { categorySchema } from './categorySchema'
 import { tagSchema } from './tagSchema'
