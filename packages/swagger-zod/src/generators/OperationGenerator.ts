@@ -68,7 +68,7 @@ export class OperationGenerator extends Generator<Options> {
       source,
       imports: [
         {
-          name: 'z',
+          name: ['z'],
           path: 'zod',
         },
       ],
@@ -107,7 +107,7 @@ export class OperationGenerator extends Generator<Options> {
       source,
       imports: [
         {
-          name: 'z',
+          name: ['z'],
           path: 'zod',
         },
       ],
@@ -146,7 +146,7 @@ export class OperationGenerator extends Generator<Options> {
       source,
       imports: [
         {
-          name: 'z',
+          name: ['z'],
           path: 'zod',
         },
       ],
@@ -185,7 +185,7 @@ export class OperationGenerator extends Generator<Options> {
       source,
       imports: [
         {
-          name: 'z',
+          name: ['z'],
           path: 'zod',
         },
       ],
