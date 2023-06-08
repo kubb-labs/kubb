@@ -49,7 +49,7 @@ jobs:
           run: pnpm typecheck
 
         - name: Linting
-          run: pnpm lint --debug
+          run: pnpm lint -- --debug
 
         - name: Test
           run: pnpm test:coverage
