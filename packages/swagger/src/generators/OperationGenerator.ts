@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { combineFiles, Generator } from '@kubb/core'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'

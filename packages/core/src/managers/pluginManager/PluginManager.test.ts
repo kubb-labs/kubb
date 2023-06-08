@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { createPlugin } from '../../plugin.ts'
 import { hooks, PluginManager } from './PluginManager.ts'
 

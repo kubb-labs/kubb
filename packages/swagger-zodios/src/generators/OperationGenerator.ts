@@ -66,8 +66,11 @@ export class OperationGenerator extends Generator<Options> {
     const { resolvePath, resolveName } = this.options
 
     const schemas = this.getSchemas(operation)
+    if (!schemas.pathParams?.name) {
+      throw new Error('schemas.pathParams should be defined')
+    }
 
-    const name = resolveName({ name: schemas.pathParams?.name!, pluginName: swaggerZodPluginName })
+    const name = resolveName({ name: schemas.pathParams.name, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = resolvePath({
       fileName,
@@ -91,7 +94,11 @@ export class OperationGenerator extends Generator<Options> {
 
     const schemas = this.getSchemas(operation)
 
-    const name = resolveName({ name: schemas.queryParams?.name!, pluginName: swaggerZodPluginName })
+    if (!schemas.queryParams?.name) {
+      throw new Error('schemas.queryParams should be defined')
+    }
+
+    const name = resolveName({ name: schemas.queryParams.name, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = resolvePath({
       fileName,

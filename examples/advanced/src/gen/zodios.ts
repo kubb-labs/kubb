@@ -1,5 +1,4 @@
 import { makeApi, Zodios } from '@zodios/core'
-
 import { addPetMutationResponseSchema, addPet405Schema } from './zod/petController/addPetSchema'
 import { updatePetMutationResponseSchema, updatePet400Schema, updatePet404Schema, updatePet405Schema } from './zod/petController/updatePetSchema'
 import { findPetsByStatusQueryResponseSchema, findPetsByStatusQueryParamsSchema, findPetsByStatus400Schema } from './zod/petController/findPetsByStatusSchema'

@@ -20,7 +20,7 @@
     "allowJs": true,
     "types": ["vitest/globals"]
   },
-  "include": ["./src/**/*"],
+  "include": ["./src/**/*", "tsup.config.ts", "vitest.config.ts"],
   "exclude": [
     "**/node_modules",
     "**/types/**",

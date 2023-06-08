@@ -5,10 +5,10 @@ esnext
 es
 dist
 lib
+**/mocks/**
 *.config.*
-tsconfig.json
 **/types/**
 *rc.js
 **/e2e/gen/**
-gen/**
+gen
 node_modules

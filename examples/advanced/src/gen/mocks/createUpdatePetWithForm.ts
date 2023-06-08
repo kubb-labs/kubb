@@ -1,11 +1,9 @@
 import { faker } from '@faker-js/faker'
 
-import type {
-  UpdatePetWithForm405,
-  UpdatePetWithFormMutationResponse,
-  UpdatePetWithFormPathParams,
-  UpdatePetWithFormQueryParams,
-} from '../models/ts/petController/UpdatePetWithForm'
+import { UpdatePetWithForm405 } from '../models/ts/petController/UpdatePetWithForm'
+import { UpdatePetWithFormMutationResponse } from '../models/ts/petController/UpdatePetWithForm'
+import { UpdatePetWithFormPathParams } from '../models/ts/petController/UpdatePetWithForm'
+import { UpdatePetWithFormQueryParams } from '../models/ts/petController/UpdatePetWithForm'
 
 /**
  * @description Invalid input

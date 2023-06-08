@@ -25,6 +25,12 @@
         "coverage/**"
       ]
     },
+    "lint": {
+      "outputs": []
+    },
+    "lint-fix": {
+      "outputs": []
+    },
     "typecheck": {
       "dependsOn": [],
       "outputs": []

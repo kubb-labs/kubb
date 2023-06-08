@@ -1,8 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
-
-import client from '@kubb/swagger-client/client'
-
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import client from '@kubb/swagger-client/client'
 import type { ListPetsBreedQueryResponse, ListPetsBreedPathParams, ListPetsBreedQueryParams } from '../models/ListPetsBreed'
 
 export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], params?: ListPetsBreedQueryParams) =>
@@ -43,7 +41,7 @@ export function useListPetsBreed<TData = ListPetsBreedQueryResponse, TError = un
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

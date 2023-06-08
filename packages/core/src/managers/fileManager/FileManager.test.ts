@@ -84,7 +84,7 @@ describe('FileManager', () => {
       source: '',
     })
 
-    const id = fileManager.getCacheByPath(file.path)!.id!
+    const id = fileManager.getCacheByPath(file.path)!.id
     const fileWithGet = fileManager.get(id)
 
     expect(id).toBeDefined()

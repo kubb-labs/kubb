@@ -13,38 +13,38 @@ class DummyOperationGenerator extends OperationGenerator {
     }
   }
 
-  async all(): Promise<File | null> {
-    return null
+  all(): Promise<File | null> {
+    return Promise.resolve(null)
   }
 
   get(operation: Operation): Promise<File | null> {
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve) => {
       resolve(null)
     })
   }
 
   post(operation: Operation): Promise<File | null> {
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve) => {
       resolve(null)
     })
   }
 
   put(operation: Operation): Promise<File | null> {
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve) => {
       resolve(null)
     })
   }
 
   delete(operation: Operation): Promise<File | null> {
-    return new Promise((resolve, _reject) => {
+    return new Promise((resolve) => {
       resolve(null)
     })
   }
 
-  build() {
-    return new Promise((resolve, _reject) => {
-      resolve([])
-    }) as Promise<File[]>
+  build(): Promise<File[]> {
+    return new Promise((resolve) => {
+      resolve([] as File[])
+    })
   }
 }
 

@@ -1,8 +1,6 @@
 import useSWR from 'swr'
-
-import client from '@kubb/swagger-client/client'
-
 import type { SWRConfiguration, SWRResponse } from 'swr'
+import client from '@kubb/swagger-client/client'
 import type { ListPetsBreedQueryResponse, ListPetsBreedPathParams, ListPetsBreedQueryParams } from '../models/ListPetsBreed'
 
 export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TError = unknown>(

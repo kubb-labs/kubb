@@ -1,8 +1,6 @@
 import useSWRMutation from 'swr/mutation'
-
-import client from '../../../../client'
-
 import type { SWRMutationConfiguration } from 'swr/mutation'
+import client from '../../../../client'
 import type { UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../../../models/ts/petController/UploadFile'
 
 /**

@@ -1,8 +1,6 @@
 import useSWRMutation from 'swr/mutation'
-
-import client from '../../../../client'
-
 import type { SWRMutationConfiguration } from 'swr/mutation'
+import client from '../../../../client'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../../../models/ts/storeController/DeleteOrder'
 
 /**

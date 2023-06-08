@@ -26,11 +26,10 @@
       "@kubb/swagger-ts": ["../swagger-ts/src/index.ts"]
     }
   },
-  "include": ["./src/**/*", "src/client.ts"],
+  "include": ["./src/**/*", "tsup.config.ts", "vitest.config.ts"],
   "exclude": [
     "**/node_modules",
     "**/types/**",
     "**/mocks/**"
-   
   ]
 }

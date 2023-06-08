@@ -9,7 +9,7 @@ export function getStackTrace(belowFn?: Function): NodeJS.CallSite[] {
   Error.prepareStackTrace = function prepareStackTrace(dummyObject, v8StackTrace) {
     return v8StackTrace
   }
-  Error.captureStackTrace(dummyObject, belowFn || getStackTrace)
+  Error.captureStackTrace(dummyObject as object, belowFn || getStackTrace)
 
   const v8StackTrace = dummyObject.stack
   Error.prepareStackTrace = v8Handler

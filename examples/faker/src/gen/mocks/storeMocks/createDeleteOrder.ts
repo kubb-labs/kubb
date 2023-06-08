@@ -1,6 +1,9 @@
 import { faker } from '@faker-js/faker'
 
-import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../models/DeleteOrder'
+import { DeleteOrder400 } from '../../models/DeleteOrder'
+import { DeleteOrder404 } from '../../models/DeleteOrder'
+import { DeleteOrderMutationResponse } from '../../models/DeleteOrder'
+import { DeleteOrderPathParams } from '../../models/DeleteOrder'
 
 /**
  * @description Invalid ID supplied

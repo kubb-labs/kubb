@@ -22,8 +22,8 @@
     "generate": "turbo run generate",
     "start": "turbo run start --filter='./packages/*'",
     "graph": "nx graph ",
-    "lint": "eslint packages/**/*.ts",
-    "lint-fix": "eslint packages/**/*.ts --quiet --fix",
+    "lint": "turbo run lint",
+    "lint-fix": "turbo run lint-fix",
     "lint:case": "npx case-police --fix",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "pre-commit": "turbo run pre-commit && pnpm run lint-fix",
@@ -33,7 +33,7 @@
     "test": "vitest --coverage",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "typecheck": "turbo run typecheck --filter='./packages/*'"
+    "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.5",

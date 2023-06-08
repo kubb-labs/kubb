@@ -58,7 +58,7 @@ export class ImportsGenerator extends Generator<Options> {
     }
 
     // add imports based on $ref
-    const importPromises = [...new Set(Object.keys(refs))].map(async ($ref: string) => {
+    const importPromises = [...new Set(Object.keys(refs))].map(($ref: string) => {
       const { propertyName, originalName, name } = refs[$ref]
 
       const exists = imports.some((item) => item.name.toLowerCase() === originalName.toLowerCase())

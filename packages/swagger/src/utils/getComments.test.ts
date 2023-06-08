@@ -3,7 +3,7 @@ import { getComments } from './getComments.ts'
 import type { Operation } from 'oas'
 
 describe('getComments', () => {
-  test('if comments get added to the result', async () => {
+  test('if comments get added to the result', () => {
     expect(
       getComments({
         getDescription() {

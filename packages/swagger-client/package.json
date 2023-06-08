@@ -58,6 +58,8 @@
     "prepack": "pnpm build",
     "pre-commit": "echo 'pre-commit not configured'",
     "pre-push": "pnpm typecheck",
+    "lint": "eslint \"**/*.{ts,tsx}\"",
+    "lint-fix": "eslint \"**/*.{ts,tsx}\" --quiet --fix",
     "test": "vitest --passWithNoTests",
     "upgrade": "pnpm update",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

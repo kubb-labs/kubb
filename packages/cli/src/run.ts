@@ -109,7 +109,7 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
 
     if (options.debug) {
       spinner.fail(pc.red(`Something went wrong\n\n`))
-      const causedError = (error as Error)?.cause as Error
+      const causedError = error?.cause as Error
 
       console.log(pe.render(error))
 
@@ -117,12 +117,11 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
         console.log(pe.render(causedError))
       }
     } else {
-      spinner.fail(pc.red(`Something went wrong\n\n${(error as Error)?.message}`))
+      spinner.fail(pc.red(`Something went wrong\n\n${error?.message}`))
     }
   }
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
     const { root, ...userConfig } = config
     const logLevel = options.logLevel ?? userConfig.logLevel ?? 'silent'
     const inputPath = options.input ?? userConfig.input.path
@@ -152,7 +151,7 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
 
     printSummary(output.pluginManager, 'success')
   } catch (error: any) {
-    printErrors(error)
+    printErrors(error as Error)
 
     if (error instanceof PluginError || error instanceof ParallelPluginError) {
       printSummary(error.pluginManager, 'failed')

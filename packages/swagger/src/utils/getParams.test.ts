@@ -1,7 +1,7 @@
 import { getParams } from './getParams.ts'
 
 describe('getParams', () => {
-  test("if getParams returns '' when no properties are defined", async () => {
+  test("if getParams returns '' when no properties are defined", () => {
     expect(
       getParams({
         name: 'Pet',
@@ -11,7 +11,7 @@ describe('getParams', () => {
       })
     ).toBe('')
   })
-  test('if operation returns a string with parameters', async () => {
+  test('if operation returns a string with parameters', () => {
     expect(
       getParams({
         name: 'Pet',
@@ -29,7 +29,7 @@ describe('getParams', () => {
     ).toBe('name, age')
   })
 
-  test('if operation returns a string with typed parameters', async () => {
+  test('if operation returns a string with typed parameters', () => {
     expect(
       getParams(
         {

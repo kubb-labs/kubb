@@ -1,6 +1,9 @@
-import { createPet } from '../createPet'
+import { faker } from '@faker-js/faker'
 
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/AddPet'
+import { createPet } from '../createPet'
+import { AddPet405 } from '../../models/AddPet'
+import { AddPetMutationRequest } from '../../models/AddPet'
+import { AddPetMutationResponse } from '../../models/AddPet'
 
 /**
  * @description Invalid input

@@ -1,8 +1,6 @@
 import useSWR from 'swr'
-
-import client from '@kubb/swagger-client/client'
-
 import type { SWRConfiguration, SWRResponse } from 'swr'
+import client from '@kubb/swagger-client/client'
 import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from '../models/ShowPetById'
 
 export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError = unknown>(

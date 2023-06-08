@@ -1,8 +1,9 @@
 import { faker } from '@faker-js/faker'
 
 import { createPet } from './createPet'
-
-import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/ts/petController/FindPetsByStatus'
+import { FindPetsByStatus400 } from '../models/ts/petController/FindPetsByStatus'
+import { FindPetsByStatusQueryParams } from '../models/ts/petController/FindPetsByStatus'
+import { FindPetsByStatusQueryResponse } from '../models/ts/petController/FindPetsByStatus'
 
 /**
  * @description Invalid status value
@@ -21,5 +22,5 @@ export function createFindPetsByStatusQueryParams(): FindPetsByStatusQueryParams
  */
 
 export function createFindPetsByStatusQueryResponse(): FindPetsByStatusQueryResponse {
-  return faker.helpers.arrayElements([createPet()])
+  return faker.helpers.arrayElements([createPet()]) as any
 }

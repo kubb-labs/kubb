@@ -16,7 +16,7 @@ export default defineConfig(async () => {
       clean: true,
     },
     hooks: {
-      done: ['npx eslint --fix ./src/gen', 'pnpm typecheck'],
+      done: ['npx eslint --fix ./src/gen', 'prettier --write "**/*.{ts,tsx}"', 'pnpm typecheck'],
     },
     logLevel: 'info',
     plugins: [

@@ -1,8 +1,10 @@
 import { faker } from '@faker-js/faker'
 
 import { createUser } from '../createUser'
-
-import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/GetUserByName'
+import { GetUserByName400 } from '../../models/GetUserByName'
+import { GetUserByName404 } from '../../models/GetUserByName'
+import { GetUserByNamePathParams } from '../../models/GetUserByName'
+import { GetUserByNameQueryResponse } from '../../models/GetUserByName'
 
 /**
  * @description Invalid username supplied

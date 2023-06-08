@@ -1,5 +1,4 @@
 import client from '../../../../client'
-
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../../../models/ts/storeController/PlaceOrder'
 
 /**

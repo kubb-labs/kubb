@@ -80,7 +80,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         const schema = props[name] as OpenAPIV3.SchemaObject
         const isRequired = required && required.includes(name)
 
-        validationFunctions.push(...this.getTypeFromSchema(schema as OpenAPIV3.SchemaObject, name))
+        validationFunctions.push(...this.getTypeFromSchema(schema, name))
 
         if (this.options.withJSDocs && schema.description) {
           validationFunctions.push({ keyword: zodKeywords.describe, args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })

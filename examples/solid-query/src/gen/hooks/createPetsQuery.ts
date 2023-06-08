@@ -1,8 +1,6 @@
-import { createMutation } from '@tanstack/solid-query'
-
-import client from '@kubb/swagger-client/client'
-
 import type { CreateMutationOptions } from '@tanstack/solid-query'
+import { createMutation } from '@tanstack/solid-query'
+import client from '@kubb/swagger-client/client'
 import type { CreatePetsMutationRequest, CreatePetsMutationResponse } from '../models/CreatePets'
 
 /**

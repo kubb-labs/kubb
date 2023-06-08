@@ -100,7 +100,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
         const schema = props[name] as OpenAPIV3.SchemaObject
 
-        validationFunctions.push(...this.getTypeFromSchema(schema as OpenAPIV3.SchemaObject, name))
+        validationFunctions.push(...this.getTypeFromSchema(schema, name))
 
         return {
           [name]: validationFunctions,

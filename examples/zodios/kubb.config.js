@@ -15,7 +15,7 @@ export default defineConfig(async () => {
       clean: true,
     },
     hooks: {
-      done: 'eslint --fix ./src/gen',
+      done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
     },
     // logLevel: 'info',
     plugins: [

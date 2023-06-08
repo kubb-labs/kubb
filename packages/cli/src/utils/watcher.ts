@@ -16,13 +16,13 @@ export async function startWatcher(cb: (path: string[]) => Promise<void>, option
     ignorePermissionErrors: true,
     ignored,
   })
-  watcher.on('all', async (type, file) => {
+  watcher.on('all', (type, file) => {
     spinner.succeed(pc.yellow(pc.bold(`Change detected: ${type} ${file}`)))
     // revert back
     spinner.spinner = 'clock'
 
     try {
-      await cb(options.path)
+      cb(options.path)
     } catch (e) {
       spinner.warn(pc.red('Watcher failed'))
     }

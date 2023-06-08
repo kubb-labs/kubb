@@ -1,5 +1,4 @@
 import client from '../../../../client'
-
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../../models/ts/storeController/DeleteOrder'
 
 /**

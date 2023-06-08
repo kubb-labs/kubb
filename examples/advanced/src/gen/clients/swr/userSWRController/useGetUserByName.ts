@@ -1,8 +1,6 @@
 import useSWR from 'swr'
-
-import client from '../../../../client'
-
 import type { SWRConfiguration, SWRResponse } from 'swr'
+import client from '../../../../client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 
 export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(

@@ -217,7 +217,7 @@ export class PluginManager {
         break
       }
     }
-    return parseResult as SafeParseResult<H>
+    return parseResult
   }
 
   /**

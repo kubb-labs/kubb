@@ -61,11 +61,11 @@ export function appendJSDocToNode<TNode extends ts.Node>({ node, comments }: { n
     return node
   }
 
-  const text = filteredComments.reduce((acc, comment) => {
+  const text = filteredComments.reduce((acc = '', comment = '') => {
     return `${acc}\n* ${comment}`
   }, '*')
 
-  return ts.addSyntheticLeadingComment(node, ts.SyntaxKind.MultiLineCommentTrivia, `${text}\n`, true)
+  return ts.addSyntheticLeadingComment(node, ts.SyntaxKind.MultiLineCommentTrivia, `${text || '*'}\n`, true)
 }
 
 export function createParameter(

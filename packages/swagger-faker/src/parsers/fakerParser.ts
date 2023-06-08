@@ -38,7 +38,7 @@ export const fakerKeywordMapper: Record<FakerKeyword, string> = {
   array: 'faker.helpers.arrayElements',
   tuple: 'faker.helpers.arrayElements',
   enum: 'faker.helpers.arrayElement<any>',
-  union: 'faker.helpers.arrayElement<any>',
+  union: 'faker.helpers.arrayElement',
   /* intersection */
   and: 'Object.assign',
 
@@ -138,15 +138,15 @@ export function parseFakerMeta(item: FakerMeta): string {
   const value = fakerKeywordMapper[keyword]
 
   if (keyword === fakerKeywords.tuple || keyword === fakerKeywords.array || keyword === fakerKeywords.union) {
-    return `${value}(${Array.isArray(args) ? `[${args.map(parseFakerMeta).join(',')}]` : parseFakerMeta(args)})`
+    return `${value}(${Array.isArray(args) ? `[${args.map(parseFakerMeta).join(',')}]` : parseFakerMeta(args as FakerMeta)}) as any`
   }
 
   if (keyword === fakerKeywords.and) {
-    return `${value}({},${Array.isArray(args) ? `${args.map(parseFakerMeta).join(',')}` : parseFakerMeta(args)})`
+    return `${value}({},${Array.isArray(args) ? `${args.map(parseFakerMeta).join(',')}` : parseFakerMeta(args as FakerMeta)})`
   }
 
   if (keyword === fakerKeywords.enum) {
-    return `${value}(${Array.isArray(args) ? `${args.join(',')}` : parseFakerMeta(args)})`
+    return `${value}(${Array.isArray(args) ? `${args.join(',')}` : parseFakerMeta(args as FakerMeta)})`
   }
 
   if (keyword === fakerKeywords.catchall) {
@@ -157,13 +157,13 @@ export function parseFakerMeta(item: FakerMeta): string {
     if (!args) {
       args = '{}'
     }
-    const argsObject = Object.entries(args)
+    const argsObject = Object.entries(args as FakerMeta)
       .filter((item) => {
         const schema = item[1] as FakerMeta[]
         return schema && typeof schema.map === 'function'
       })
       .map((item) => {
-        const key = item[0] as string
+        const key = item[0]
         const schema = item[1] as FakerMeta[]
         return `"${key}": ${schema.sort(fakerKeywordSorter).map(parseFakerMeta).join('')}`
       })
