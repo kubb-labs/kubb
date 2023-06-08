@@ -3,7 +3,6 @@ const config = {
   parser: "@typescript-eslint/parser",
   env: {
     commonjs: true,
-    browser: true,
     es6: true,
     node: true,
     'vitest-globals/env': true,
@@ -22,7 +21,15 @@ const config = {
     '@typescript-eslint/no-namespace': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/consistent-type-imports': 'warn',
+     // type imports should be imported as types
+     "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        prefer: "type-imports",
+        fixStyle: "separate-type-imports",
+        disallowTypeAnnotations: false,
+      },
+    ],
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-floating-promises": "off",
     "@typescript-eslint/await-thenable": "off",
@@ -56,25 +63,26 @@ const config = {
     'react/display-name':"off",
     'import/no-extraneous-dependencies': 'off',
     'import/no-unresolved': 'off',
-    "turbo/no-undeclared-env-vars": "off"
+    "turbo/no-undeclared-env-vars": "off",
+    "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
  },
- overrides: [
-  {
-    files: ["packages/**"],
-    rules: {
-      'import/extensions': [
-        'warn',
-        'ignorePackages',
-        {
-          js: 'always',
-          jsx: 'always',
-          ts: 'always',
-          tsx: 'always',
-        },
-      ],
+  overrides: [
+    {
+      files: ["examples/**"],
+      rules: {
+        'import/extensions': [
+          'warn',
+          'ignorePackages',
+          {
+            js: 'always',
+            jsx: 'always',
+            ts: 'always',
+            tsx: 'always',
+          },
+        ],
+      },
     },
-  },
-],
+  ],
   ignorePatterns: [
     "**/dist/**",
     "**/mocks/**"
@@ -83,9 +91,8 @@ const config = {
     ecmaFeatures: {
       jsx: true,
     },
-    ecmaVersion: 2020,
-    sourceType: 'module',
-  }
+  },
+  reportUnusedDisableDirectives: true,
 };
 
 module.exports = config;
