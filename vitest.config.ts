@@ -6,6 +6,7 @@ export default defineConfig({
     exclude: ['**/node_modules/**', '**/dist/**'],
     coverage: {
       exclude: [
+        '**/plugin.ts', // exclude because we have e2e
         '**/dist/**',
         '**/mocks/**',
         '**/coverage/**',

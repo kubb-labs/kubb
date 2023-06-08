@@ -12,7 +12,6 @@ jobs:
       strategy:
         matrix:
           node-version:
-            - 16
             - 18
             - 19
             - 20
@@ -45,6 +44,9 @@ jobs:
 
         - name: Build
           run: pnpm build
+
+        - name: Examples
+          run: pnpm generate
 
         - name: Install e2e dependencies
           run: pnpm install

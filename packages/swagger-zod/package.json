@@ -65,7 +65,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "engines": {
-    "node": ">=16",
+    "node": ">=18",
     "pnpm": ">=8"
   }
 }
