@@ -1,36 +1,20 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext", 
-    "moduleResolution": "node",
-    "strict": true,
-    "sourceMap": true,
-    "strictNullChecks": true,
-    "jsx": "react",
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "allowImportingTsExtensions": true,
-    "outDir": "es",
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
-    "baseUrl": ".",
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "allowJs": true,
-    "types": ["vitest/globals"],
-    "paths": {
-      "@kubb/core":["../core/src/index.ts"],
-      "@kubb/swagger": ["../swagger/src/index.ts"],
-      "@kubb/ts-codegen": ["../ts-codegen/src/index.ts"],
-      "@kubb/swagger-ts": ["../swagger-ts/src/index.ts"]
-    }
+    // "composite": true,
+    // "rootDir": "./",
+    // "outDir": "./dist",
+    // "tsBuildInfoFile": "./build/.tsbuildinfo"
   },
-  "include": ["./src/**/*", "src/client.ts"],
+  "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"],
   "exclude": [
     "**/node_modules",
-    "**/types/**",
-    "**/mocks/**"
-   
-  ]
+    "**/types/**"
+  ],
+  // "references": [
+  //   { "path": "../core" },
+  //   { "path": "../swagger" },
+  //   { "path": "../ts-codegen" },
+  //   { "path": "../swagger-ts"}
+  // ]
 }

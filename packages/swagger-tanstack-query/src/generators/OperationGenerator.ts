@@ -1,11 +1,11 @@
+import { createJSDocBlockText, getRelativePath } from '@kubb/core'
+import { OperationGenerator as Generator, getComments, getParams, Path } from '@kubb/swagger'
+import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
+
 import { camelCase } from 'change-case'
 
-import type { PluginContext, File, OptionalPath } from '@kubb/core'
-import { getRelativePath, createJSDocBlockText } from '@kubb/core'
-import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
-import { OperationGenerator as Generator, Path, getComments, getParams } from '@kubb/swagger'
+import type { File, OptionalPath, PluginContext } from '@kubb/core'
 import type { Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
-
 import type { ResolvePathOptions } from '../types.ts'
 
 type Options = {

@@ -5,9 +5,11 @@ esnext
 es
 dist
 lib
-*.config.js
+**/mocks/**
+*.config.*
 **/types/**
 *rc.js
 **/e2e/gen/**
-gen/**
+gen
 node_modules
+.eslintrc.cjs

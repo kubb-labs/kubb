@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 
-import type { User } from '../models/ts/User'
+import { User } from '../models/ts/User'
 
 export function createUser(): User {
   return {

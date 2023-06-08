@@ -1,8 +1,6 @@
 import useSWRMutation from 'swr/mutation'
-
-import client from '@kubb/swagger-client/client'
-
 import type { SWRMutationConfiguration } from 'swr/mutation'
+import client from '@kubb/swagger-client/client'
 import type { CreatePetsBreedMutationRequest, CreatePetsBreedMutationResponse, CreatePetsBreedPathParams } from '../models/CreatePetsBreed'
 
 /**

@@ -1,9 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
-import type { KubbUserConfig, KubbJSONPlugin, KubbObjectPlugin } from '@kubb/core'
-
 import { importModule } from './importModule.ts'
+
+import type { KubbJSONPlugin, KubbObjectPlugin, KubbUserConfig } from '@kubb/core'
 
 function isJSONPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): plugins is KubbJSONPlugin[] {
   return !!(plugins as KubbJSONPlugin[])?.some((plugin) => {

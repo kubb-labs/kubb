@@ -1,8 +1,6 @@
 import useSWRMutation from 'swr/mutation'
-
-import client from '../../../../client'
-
 import type { SWRMutationConfiguration } from 'swr/mutation'
+import client from '../../../../client'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet'
 
 /**

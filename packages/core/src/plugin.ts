@@ -2,9 +2,9 @@ import pathParser from 'node:path'
 
 import { createPluginCache, getStackTrace, transformReservedWord } from './utils/index.ts'
 
-import type { Executer } from './managers/index.ts'
 import type { FileManager } from './managers/fileManager/FileManager.ts'
-import type { PluginContext, KubbPlugin, PluginFactoryOptions, PluginLifecycleHooks } from './types.ts'
+import type { Executer } from './managers/index.ts'
+import type { KubbPlugin, PluginContext, PluginFactoryOptions, PluginLifecycleHooks } from './types.ts'
 
 type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (
   options: T['options']

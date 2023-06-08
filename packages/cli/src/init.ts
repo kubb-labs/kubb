@@ -1,11 +1,11 @@
 import pathParser from 'node:path'
 
-import pc from 'picocolors'
-import { $ } from 'execa'
-
-import type { LogLevel } from '@kubb/core'
 import { write } from '@kubb/core'
 
+import { $ } from 'execa'
+import pc from 'picocolors'
+
+import type { LogLevel } from '@kubb/core'
 import type { Ora } from 'ora'
 
 export type Preset = 'simple'

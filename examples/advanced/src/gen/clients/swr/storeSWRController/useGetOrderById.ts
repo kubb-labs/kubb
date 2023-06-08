@@ -1,8 +1,6 @@
 import useSWR from 'swr'
-
-import client from '../../../../client'
-
 import type { SWRConfiguration, SWRResponse } from 'swr'
+import client from '../../../../client'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../../../models/ts/storeController/GetOrderById'
 
 export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(

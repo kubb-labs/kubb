@@ -1,5 +1,4 @@
 import client from '../../../../client'
-
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams } from '../../../models/ts/petController/FindPetsByTags'
 
 /**

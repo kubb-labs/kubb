@@ -1,4 +1,4 @@
-import type { MaybePromise, KubbUserConfig, CLIOptions } from './types.ts'
+import type { CLIOptions, KubbUserConfig, MaybePromise } from './types.ts'
 
 /**
  * Type helper to make it easier to use kubb.config.js

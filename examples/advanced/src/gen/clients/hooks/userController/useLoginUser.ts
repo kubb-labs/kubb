@@ -1,8 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
-
-import client from '../../../../client'
-
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import client from '../../../../client'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [`/user/login`, ...(params ? [params] : [])] as const
@@ -38,7 +36,7 @@ export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser4
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

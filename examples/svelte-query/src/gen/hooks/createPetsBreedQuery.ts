@@ -1,8 +1,6 @@
-import { createMutation } from '@tanstack/svelte-query'
-
-import client from '@kubb/swagger-client/client'
-
 import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import { createMutation } from '@tanstack/svelte-query'
+import client from '@kubb/swagger-client/client'
 import type { CreatePetsBreedMutationRequest, CreatePetsBreedMutationResponse, CreatePetsBreedPathParams } from '../models/CreatePetsBreed'
 
 /**

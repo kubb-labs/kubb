@@ -1,17 +1,17 @@
 /* eslint-disable no-param-reassign */
+import { getUniqueName, SchemaGenerator } from '@kubb/core'
+import { isReference } from '@kubb/swagger'
+
 import { pascalCase } from 'change-case'
 import uniqueId from 'lodash.uniqueid'
 
-import type { PluginContext } from '@kubb/core'
-import { getUniqueName, SchemaGenerator } from '@kubb/core'
-import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
-import { isReference } from '@kubb/swagger'
-
+import { zodKeywords, zodParser } from '../parsers/index.ts'
 import { pluginName } from '../plugin.ts'
-import { zodParser, zodKeywords } from '../parsers/index.ts'
 
-import type { ZodMeta, ZodKeyword } from '../parsers/index.ts'
+import type { PluginContext } from '@kubb/core'
+import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
+import type { ZodKeyword, ZodMeta } from '../parsers/index.ts'
 
 type Options = {
   withJSDocs?: boolean
@@ -80,7 +80,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         const schema = props[name] as OpenAPIV3.SchemaObject
         const isRequired = required && required.includes(name)
 
-        validationFunctions.push(...this.getTypeFromSchema(schema as OpenAPIV3.SchemaObject, name))
+        validationFunctions.push(...this.getTypeFromSchema(schema, name))
 
         if (this.options.withJSDocs && schema.description) {
           validationFunctions.push({ keyword: zodKeywords.describe, args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
@@ -102,8 +102,9 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         if (schema.default !== undefined && !Array.isArray(schema.default)) {
           if (typeof schema.default === 'string') {
             validationFunctions.push({ keyword: zodKeywords.default, args: `'${schema.default}'` })
-          } else {
-            validationFunctions.push({ keyword: zodKeywords.default, args: schema.default })
+          }
+          if (typeof schema.default === 'boolean') {
+            validationFunctions.push({ keyword: zodKeywords.default, args: schema.default ?? false })
           }
         }
 

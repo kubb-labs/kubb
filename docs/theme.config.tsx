@@ -1,8 +1,9 @@
 import React from 'react'
-import Image from 'next/image'
-import mascot from 'public/mascot.png'
 
 import packageJson from '@kubb/core/package.json'
+
+import Image from 'next/image'
+import mascot from 'public/mascot.png'
 
 import type { DocsThemeConfig } from 'nextra-theme-docs'
 
@@ -78,6 +79,5 @@ export default {
   },
   sidebar: {
     defaultMenuCollapsed: true,
-    subtitle: ({ title }) => <>{title}</>,
   },
 } as DocsThemeConfig

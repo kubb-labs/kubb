@@ -1,10 +1,10 @@
-import type { API } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import type { PluginContext } from '@kubb/core'
-
-import { OperationGenerator } from './OperationGenerator.ts'
 
 import { format } from '../../mocks/format.ts'
+import { OperationGenerator } from './OperationGenerator.ts'
+
+import type { PluginContext } from '@kubb/core'
+import type { API } from '@kubb/swagger'
 
 describe('OperationGenerator', () => {
   const swagger = createSwagger({})

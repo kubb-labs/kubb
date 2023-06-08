@@ -1,5 +1,4 @@
 import client from '../../../../client'
-
 import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser'
 
 /**

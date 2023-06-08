@@ -13,8 +13,8 @@ export default defineConfig({
     clean: true,
   },
   hooks: {
-    done: 'eslint --fix ./src/gen',
+    done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
   },
-  logLevel: 'warn',
+  logLevel: 'info',
   plugins: [createSwagger({ output: false }), createSwaggerTS({ output: 'models' }), createSwaggerTanstackQuery({ output: './hooks', framework: 'react' })],
 })

@@ -1,8 +1,10 @@
 import { faker } from '@faker-js/faker'
 
 import { createUser } from '../createUser'
-
-import type { UpdateUserError, UpdateUserMutationResponse, UpdateUserPathParams, UpdateUserMutationRequest } from '../../models/UpdateUser'
+import { UpdateUserError } from '../../models/UpdateUser'
+import { UpdateUserMutationResponse } from '../../models/UpdateUser'
+import { UpdateUserPathParams } from '../../models/UpdateUser'
+import { UpdateUserMutationRequest } from '../../models/UpdateUser'
 
 /**
  * @description successful operation

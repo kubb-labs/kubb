@@ -1,5 +1,5 @@
-import type { Oas, OperationSchema } from '../types.ts'
 import type { Ref } from '../generators/ImportsGenerator.ts'
+import type { Oas, OperationSchema } from '../types.ts'
 
 export type FileResolver = (name: string, ref: Ref) => string | null | undefined
 

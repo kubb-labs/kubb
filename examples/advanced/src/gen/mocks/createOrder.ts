@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 
-import type { Order } from '../models/ts/Order'
+import { Order } from '../models/ts/Order'
 
 export function createOrder(): Order {
   return {

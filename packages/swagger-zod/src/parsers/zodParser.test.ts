@@ -170,7 +170,7 @@ const input = [
     input: parseZodMeta({
       keyword: 'default',
     }),
-    expected: ".default('')",
+    expected: '.default()',
   },
 ]
 

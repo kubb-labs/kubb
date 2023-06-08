@@ -1,5 +1,6 @@
-import { pathToFileURL } from 'node:url'
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import mod from 'node:module'
+import { pathToFileURL } from 'node:url'
 
 const SLASHES = new Set(['/', '\\'])
 
@@ -21,7 +22,7 @@ export function normalizeDirectory(directory: string) {
   return directory
 }
 
-export async function importModule(path: string, cwd?: string) {
+export async function importModule(path: string, cwd?: string): Promise<any> {
   let location = path
 
   if (cwd) {

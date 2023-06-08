@@ -1,8 +1,6 @@
-import { createQuery } from '@tanstack/svelte-query'
-
-import client from '@kubb/swagger-client/client'
-
 import type { QueryKey, CreateQueryResult, CreateQueryOptions } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/svelte-query'
+import client from '@kubb/swagger-client/client'
 import type { ListPetsBreedQueryResponse, ListPetsBreedPathParams, ListPetsBreedQueryParams } from '../models/ListPetsBreed'
 
 export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], params?: ListPetsBreedQueryParams) =>
@@ -43,7 +41,7 @@ export function listPetsBreedQuery<TData = ListPetsBreedQueryResponse, TError = 
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

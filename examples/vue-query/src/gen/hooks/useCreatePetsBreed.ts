@@ -1,8 +1,6 @@
-import { useMutation } from '@tanstack/vue-query'
-
-import client from '@kubb/swagger-client/client'
-
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
+import { useMutation } from '@tanstack/vue-query'
+import client from '@kubb/swagger-client/client'
 import type { CreatePetsBreedMutationRequest, CreatePetsBreedMutationResponse, CreatePetsBreedPathParams } from '../models/CreatePetsBreed'
 
 /**

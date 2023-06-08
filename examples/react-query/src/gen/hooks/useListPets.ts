@@ -1,8 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
-
-import client from '@kubb/swagger-client/client'
-
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import client from '@kubb/swagger-client/client'
 import type { ListPetsQueryResponse, ListPetsQueryParams } from '../models/ListPets'
 
 export const listPetsQueryKey = (params?: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
@@ -38,7 +36,7 @@ export function useListPets<TData = ListPetsQueryResponse, TError = unknown>(
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

@@ -1,5 +1,5 @@
-import { PluginManager } from './PluginManager.ts'
 import { PluginError } from './PluginError.ts'
+import { PluginManager } from './PluginManager.ts'
 
 import type { KubbConfig } from '../../types.ts'
 

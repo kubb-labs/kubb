@@ -1,8 +1,6 @@
-import { createQuery } from '@tanstack/svelte-query'
-
-import client from '@kubb/swagger-client/client'
-
 import type { QueryKey, CreateQueryResult, CreateQueryOptions } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/svelte-query'
+import client from '@kubb/swagger-client/client'
 import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from '../models/ShowPetById'
 
 export const showPetByIdQueryKey = (petId: ShowPetByIdPathParams['petId'], testId: ShowPetByIdPathParams['testId']) => [`/pets/${petId}`] as const
@@ -41,7 +39,7 @@ export function showPetByIdQuery<TData = ShowPetByIdQueryResponse, TError = unkn
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

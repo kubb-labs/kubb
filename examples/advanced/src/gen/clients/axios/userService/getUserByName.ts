@@ -1,5 +1,4 @@
 import client from '../../../../client'
-
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../../models/ts/userController/GetUserByName'
 
 /**

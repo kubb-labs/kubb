@@ -1,8 +1,9 @@
 import { faker } from '@faker-js/faker'
 
 import { createPet } from './createPet'
-
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/ts/petController/FindPetsByTags'
+import { FindPetsByTags400 } from '../models/ts/petController/FindPetsByTags'
+import { FindPetsByTagsQueryParams } from '../models/ts/petController/FindPetsByTags'
+import { FindPetsByTagsQueryResponse } from '../models/ts/petController/FindPetsByTags'
 
 /**
  * @description Invalid tag value
@@ -13,7 +14,7 @@ export function createFindPetsByTags400(): FindPetsByTags400 {
 }
 
 export function createFindPetsByTagsQueryParams(): FindPetsByTagsQueryParams {
-  return { tags: faker.helpers.arrayElements([faker.string.alpha()]) }
+  return { tags: faker.helpers.arrayElements([faker.string.alpha()]) as any }
 }
 
 /**
@@ -21,5 +22,5 @@ export function createFindPetsByTagsQueryParams(): FindPetsByTagsQueryParams {
  */
 
 export function createFindPetsByTagsQueryResponse(): FindPetsByTagsQueryResponse {
-  return faker.helpers.arrayElements([createPet()])
+  return faker.helpers.arrayElements([createPet()]) as any
 }

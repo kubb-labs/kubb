@@ -1,5 +1,6 @@
-import type { PluginManager } from './PluginManager.ts'
 import type { KubbPlugin, PluginLifecycle, PluginLifecycleHooks } from '../../types.ts'
+import type { PluginManager } from './PluginManager.ts'
+
 /**
  * Get the type of the first argument in a function.
  * @example Arg0<(a: string, b: number) => void> -> string

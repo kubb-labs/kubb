@@ -3,16 +3,15 @@
 import pathParser from 'node:path'
 
 import { Command, Option } from 'commander'
-import pc from 'picocolors'
 import ora from 'ora'
-
-import type { CLIOptions } from '@kubb/core'
-
-import { run } from './run.ts'
-import { startWatcher, getConfig, getCosmiConfig } from './utils/index.ts'
-import { init } from './init.ts'
+import pc from 'picocolors'
 
 import { version } from '../package.json'
+import { init } from './init.ts'
+import { run } from './run.ts'
+import { getConfig, getCosmiConfig, startWatcher } from './utils/index.ts'
+
+import type { CLIOptions } from '@kubb/core'
 
 const moduleName = 'kubb'
 

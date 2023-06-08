@@ -140,18 +140,18 @@ export function parseZodMeta(item: ZodMeta): string {
   const value = zodKeywordMapper[keyword]
 
   if (keyword === zodKeywords.tuple) {
-    return `${value}(${Array.isArray(args) ? `[${args.map(parseZodMeta).join(',')}]` : parseZodMeta(args)})`
+    return `${value}(${Array.isArray(args) ? `[${args.map(parseZodMeta).join(',')}]` : parseZodMeta(args as ZodMeta)})`
   }
 
   if (keyword === zodKeywords.array) {
-    return `${value}(${Array.isArray(args) ? `${args.map(parseZodMeta).join('')}` : parseZodMeta(args)})`
+    return `${value}(${Array.isArray(args) ? `${args.map(parseZodMeta).join('')}` : parseZodMeta(args as ZodMeta)})`
   }
   if (keyword === zodKeywords.union) {
-    return `${Array.isArray(args) ? `${value}([${args.map(parseZodMeta).join(',')}])` : parseZodMeta(args)}`
+    return `${Array.isArray(args) ? `${value}([${args.map(parseZodMeta).join(',')}])` : parseZodMeta(args as ZodMeta)}`
   }
 
   if (keyword === zodKeywords.catchall) {
-    return `${value}(${Array.isArray(args) ? `${args.map(parseZodMeta).join('')}` : parseZodMeta(args)})`
+    return `${value}(${Array.isArray(args) ? `${args.map(parseZodMeta).join('')}` : parseZodMeta(args as ZodMeta)})`
   }
 
   if (keyword === zodKeywords.and && Array.isArray(args)) {
@@ -165,13 +165,13 @@ export function parseZodMeta(item: ZodMeta): string {
     if (!args) {
       args = '{}'
     }
-    const argsObject = Object.entries(args)
+    const argsObject = Object.entries(args as ZodMeta)
       .filter((item) => {
         const schema = item[1] as ZodMeta[]
         return schema && typeof schema.map === 'function'
       })
       .map((item) => {
-        const key = item[0] as string
+        const key = item[0]
         const schema = item[1] as ZodMeta[]
         return `"${key}": ${schema.sort(zodKeywordSorter).map(parseZodMeta).join('')}`
       })
@@ -186,8 +186,8 @@ export function parseZodMeta(item: ZodMeta): string {
     return `${zodKeywordMapper.lazy}(() => ${args})`
   }
 
-  if (keyword === zodKeywords.default && !args) {
-    return `${value}('')`
+  if (keyword === zodKeywords.default && args === undefined) {
+    return ''
   }
 
   if (keyword in zodKeywords) {

@@ -1,6 +1,9 @@
-import { createUser } from './createUser'
+import { faker } from '@faker-js/faker'
 
-import type { CreateUserMutationResponse, CreateUserError, CreateUserMutationRequest } from '../models/ts/userController/CreateUser'
+import { createUser } from './createUser'
+import { CreateUserMutationResponse } from '../models/ts/userController/CreateUser'
+import { CreateUserError } from '../models/ts/userController/CreateUser'
+import { CreateUserMutationRequest } from '../models/ts/userController/CreateUser'
 
 export function createCreateUserMutationResponse(): CreateUserMutationResponse {
   return undefined

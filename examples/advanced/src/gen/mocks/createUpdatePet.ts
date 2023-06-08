@@ -1,6 +1,11 @@
-import { createPet } from './createPet'
+import { faker } from '@faker-js/faker'
 
-import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../models/ts/petController/UpdatePet'
+import { createPet } from './createPet'
+import { UpdatePet400 } from '../models/ts/petController/UpdatePet'
+import { UpdatePet404 } from '../models/ts/petController/UpdatePet'
+import { UpdatePet405 } from '../models/ts/petController/UpdatePet'
+import { UpdatePetMutationRequest } from '../models/ts/petController/UpdatePet'
+import { UpdatePetMutationResponse } from '../models/ts/petController/UpdatePet'
 
 /**
  * @description Invalid ID supplied

@@ -1,8 +1,6 @@
 import useSWR from 'swr'
-
-import client from '../../../../client'
-
 import type { SWRConfiguration, SWRResponse } from 'swr'
+import client from '../../../../client'
 import type { GetInventoryQueryResponse } from '../../../models/ts/storeController/GetInventory'
 
 export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TError = unknown>(): SWRConfiguration<TData, TError> {

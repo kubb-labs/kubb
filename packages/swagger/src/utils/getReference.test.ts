@@ -1,7 +1,7 @@
 import { getReference } from './getReference.ts'
 
 describe('getReference', () => {
-  test('if reference if returned', async () => {
+  test('if reference if returned', () => {
     try {
       getReference({}, '#/components/schemas/Category')
     } catch (e) {

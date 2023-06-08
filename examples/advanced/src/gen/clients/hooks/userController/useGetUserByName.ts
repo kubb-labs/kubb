@@ -1,8 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
-
-import client from '../../../../client'
-
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import client from '../../../../client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [`/user/${username}`] as const
@@ -39,7 +37,7 @@ export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = Ge
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

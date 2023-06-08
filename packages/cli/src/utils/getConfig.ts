@@ -1,8 +1,8 @@
-import type { KubbUserConfig, KubbConfig, CLIOptions } from '@kubb/core'
 import { isPromise } from '@kubb/core'
 
 import { getPlugins } from './getPlugins.ts'
 
+import type { CLIOptions, KubbConfig, KubbUserConfig } from '@kubb/core'
 import type { CosmiconfigResult } from '../types.ts'
 
 export async function getConfig(result: CosmiconfigResult, options: CLIOptions): Promise<KubbConfig> {

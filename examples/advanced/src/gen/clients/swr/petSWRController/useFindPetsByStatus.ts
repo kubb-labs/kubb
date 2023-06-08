@@ -1,8 +1,6 @@
 import useSWR from 'swr'
-
-import client from '../../../../client'
-
 import type { SWRConfiguration, SWRResponse } from 'swr'
+import client from '../../../../client'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
 
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(

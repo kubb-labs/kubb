@@ -1,18 +1,18 @@
 /* eslint-disable no-param-reassign */
-import { pascalCase } from 'change-case'
-import uniqueId from 'lodash.uniqueid'
-
-import type { PluginContext } from '@kubb/core'
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
-import type { Oas, OpenAPIV3, Refs, ImportMeta, FileResolver } from '@kubb/swagger'
 import { isReference } from '@kubb/swagger'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
-import { pluginName } from '../plugin.ts'
-import { fakerParser, fakerKeywords } from '../parsers/index.ts'
+import { pascalCase } from 'change-case'
+import uniqueId from 'lodash.uniqueid'
 
-import type { FakerMeta, FakerKeyword } from '../parsers/index.ts'
+import { fakerKeywords, fakerParser } from '../parsers/index.ts'
+import { pluginName } from '../plugin.ts'
+
+import type { PluginContext } from '@kubb/core'
+import type { FileResolver, ImportMeta, Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
+import type { FakerKeyword, FakerMeta } from '../parsers/index.ts'
 
 type Options = {
   fileResolver?: FileResolver
@@ -100,7 +100,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
         const schema = props[name] as OpenAPIV3.SchemaObject
 
-        validationFunctions.push(...this.getTypeFromSchema(schema as OpenAPIV3.SchemaObject, name))
+        validationFunctions.push(...this.getTypeFromSchema(schema, name))
 
         return {
           [name]: validationFunctions,

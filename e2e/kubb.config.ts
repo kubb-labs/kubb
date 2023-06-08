@@ -1,4 +1,5 @@
 import { defineConfig } from '@kubb/core'
+
 /**
  * @link https://apis.guru/
  */

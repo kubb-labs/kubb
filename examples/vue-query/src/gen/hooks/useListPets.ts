@@ -1,8 +1,7 @@
-import { useQuery } from '@tanstack/vue-query'
-
-import client from '@kubb/swagger-client/client'
-
+import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 import type { QueryKey, UseQueryReturnType, UseQueryOptions, QueryOptions } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
+import client from '@kubb/swagger-client/client'
 import type { ListPetsQueryResponse, ListPetsQueryParams } from '../models/ListPets'
 
 export const listPetsQueryKey = (params?: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const

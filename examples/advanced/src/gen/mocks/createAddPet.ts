@@ -1,7 +1,10 @@
+import { faker } from '@faker-js/faker'
+
 import { createAddPetRequest } from './createAddPetRequest'
 import { createPet } from './createPet'
-
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/ts/petController/AddPet'
+import { AddPet405 } from '../models/ts/petController/AddPet'
+import { AddPetMutationRequest } from '../models/ts/petController/AddPet'
+import { AddPetMutationResponse } from '../models/ts/petController/AddPet'
 
 /**
  * @description Invalid input

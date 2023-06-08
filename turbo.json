@@ -25,17 +25,18 @@
         "coverage/**"
       ]
     },
+    "lint": {
+      "outputs": []
+    },
+    "lint-fix": {
+      "outputs": []
+    },
     "typecheck": {
       "dependsOn": [],
       "outputs": []
     },
-    "pre-commit": {
-      "dependsOn": [],
-      "outputs": []
-    },
-    "pre-push": {
-      "dependsOn": [],
-      "outputs": []
+    "clean": {
+      "cache": false
     },
     "release": {
       "dependsOn": [

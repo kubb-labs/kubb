@@ -1,6 +1,9 @@
-import { createOrder } from './createOrder'
+import { faker } from '@faker-js/faker'
 
-import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../models/ts/storeController/PlaceOrder'
+import { createOrder } from './createOrder'
+import { PlaceOrder405 } from '../models/ts/storeController/PlaceOrder'
+import { PlaceOrderMutationRequest } from '../models/ts/storeController/PlaceOrder'
+import { PlaceOrderMutationResponse } from '../models/ts/storeController/PlaceOrder'
 
 /**
  * @description Invalid input

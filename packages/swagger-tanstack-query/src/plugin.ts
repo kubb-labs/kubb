@@ -1,14 +1,14 @@
 import pathParser from 'node:path'
 
-import { camelCase, camelCaseTransformMerge } from 'change-case'
-
-import type { OptionalPath } from '@kubb/core'
-import { getRelativePath, renderTemplate, writeIndexes, createPlugin, validatePlugins, getPathMode } from '@kubb/core'
+import { createPlugin, getPathMode, getRelativePath, renderTemplate, validatePlugins, writeIndexes } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
-import type { API as SwaggerApi } from '@kubb/swagger'
+
+import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/index.ts'
 
+import type { OptionalPath } from '@kubb/core'
+import type { API as SwaggerApi } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-tanstack-query' as const

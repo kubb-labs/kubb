@@ -45,8 +45,11 @@ jobs:
         - name: Build
           run: pnpm build
 
-        - name: Typecheck
+        - name: Typecheck and linting
           run: pnpm typecheck
+        # OUT OF MEMORY BUG WITH ESLINT
+        # - name: Linting
+        #   run: pnpm lint --concurrency=1
 
         - name: Test
           run: pnpm test:coverage

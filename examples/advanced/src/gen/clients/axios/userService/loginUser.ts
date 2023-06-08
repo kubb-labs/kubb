@@ -1,5 +1,4 @@
 import client from '../../../../client'
-
 import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../models/ts/userController/LoginUser'
 
 /**

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
+import type { File, FileManager } from './managers/fileManager/index.ts'
 import type { PluginManager, SafeParseResult } from './managers/index.ts'
-import type { FileManager, File } from './managers/fileManager/index.ts'
 import type { Cache } from './utils/cache.ts'
 
 export interface Register {}

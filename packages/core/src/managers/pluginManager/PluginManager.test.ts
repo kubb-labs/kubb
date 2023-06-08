@@ -1,6 +1,6 @@
-import { PluginManager, hooks } from './PluginManager.ts'
-
+/* eslint-disable @typescript-eslint/unbound-method */
 import { createPlugin } from '../../plugin.ts'
+import { hooks, PluginManager } from './PluginManager.ts'
 
 import type { KubbConfig, KubbPlugin, TransformResult } from '../../types.ts'
 

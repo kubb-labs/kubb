@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { cosmiconfig } from 'cosmiconfig'
-import yaml from 'yaml'
 import tsNode from 'ts-node'
+import yaml from 'yaml'
 
 import { importModule } from './importModule.ts'
 
@@ -11,7 +12,7 @@ const jsLoader = async (configFile: string) => {
 }
 // TODO fix tsLoader for node 20
 // https://github.com/TypeStrong/ts-node/issues/1997
-const tsLoader = async (configFile: string) => {
+const tsLoader = (configFile: string) => {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   let registerer = { enabled() {} }
 
@@ -24,6 +25,7 @@ const tsLoader = async (configFile: string) => {
     })
 
     const module = require(configFile)
+
     return module.default
   } catch (err: any) {
     if (err.code === 'MODULE_NOT_FOUND') {

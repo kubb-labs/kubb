@@ -1,10 +1,11 @@
-import type { File, PathMode, PluginContext } from '@kubb/core'
 import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
-import type { FileResolver, Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 
 import { ZodBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
+
+import type { File, PathMode, PluginContext } from '@kubb/core'
+import type { FileResolver, Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 
 type Options = {
   oas: Oas

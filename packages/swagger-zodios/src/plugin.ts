@@ -1,14 +1,14 @@
 import pathParser from 'node:path'
 
-import { camelCase, camelCaseTransformMerge } from 'change-case'
-
 import { createPlugin, validatePlugins } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
-import type { API as SwaggerApi } from '@kubb/swagger'
+
+import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/index.ts'
 
+import type { API as SwaggerApi } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-zodios' as const
