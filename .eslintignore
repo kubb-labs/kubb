@@ -12,3 +12,4 @@ lib
 **/e2e/gen/**
 gen
 node_modules
+.eslintrc.cjs

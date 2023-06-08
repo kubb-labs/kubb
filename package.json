@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build": "turbo run build --filter='./packages/*'",
-    "generate": "turbo run generate",
+    "generate": "turbo run generate && pnpm format",
     "start": "turbo run start --filter='./packages/*'",
     "graph": "nx graph ",
     "lint": "turbo run lint",

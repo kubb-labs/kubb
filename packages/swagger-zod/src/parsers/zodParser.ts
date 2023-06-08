@@ -187,7 +187,7 @@ export function parseZodMeta(item: ZodMeta): string {
   }
 
   if (keyword === zodKeywords.default && !args) {
-    return `${value}('')`
+    return `${value}()`
   }
 
   if (keyword in zodKeywords) {
