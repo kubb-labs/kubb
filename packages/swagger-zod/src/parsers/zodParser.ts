@@ -186,8 +186,8 @@ export function parseZodMeta(item: ZodMeta): string {
     return `${zodKeywordMapper.lazy}(() => ${args})`
   }
 
-  if (keyword === zodKeywords.default && !args) {
-    return `${value}()`
+  if (keyword === zodKeywords.default && args === undefined) {
+    return ''
   }
 
   if (keyword in zodKeywords) {
