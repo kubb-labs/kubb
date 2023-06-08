@@ -12,7 +12,7 @@ export class FileManager {
 
   private queue?: Queue
 
-  constructor(options?: { queue: Queue; task: QueueTask<unknown> }) {
+  constructor(options?: { queue: Queue; task?: QueueTask<unknown> }) {
     if (options) {
       this.task = options.task
       this.queue = options.queue
@@ -38,6 +38,15 @@ export class FileManager {
     const files: File[] = []
     this.cache.forEach((item) => {
       files.push(item.file)
+    })
+
+    return files
+  }
+
+  get cachedFiles() {
+    const files: CacheStore[] = []
+    this.cache.forEach((item) => {
+      files.push(item)
     })
 
     return files

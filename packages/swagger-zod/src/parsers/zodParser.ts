@@ -154,15 +154,11 @@ export function parseZodMeta(item: ZodMeta): string {
     return `${value}(${Array.isArray(args) ? `${args.map(parseZodMeta).join('')}` : parseZodMeta(args)})`
   }
 
-  if (keyword === zodKeywords.and) {
-    if (Array.isArray(args)) {
-      return `${args
-        .map(parseZodMeta)
-        .map((item) => `${value}(${item})`)
-        .join('')}`
-    }
-
-    return `${value}(${parseZodMeta(args)})`
+  if (keyword === zodKeywords.and && Array.isArray(args)) {
+    return `${args
+      .map(parseZodMeta)
+      .map((item) => `${value}(${item})`)
+      .join('')}`
   }
 
   if (keyword === zodKeywords.object) {
@@ -191,7 +187,7 @@ export function parseZodMeta(item: ZodMeta): string {
   }
 
   if (keyword === zodKeywords.default && !args) {
-    return ''
+    return `${value}('')`
   }
 
   if (keyword in zodKeywords) {

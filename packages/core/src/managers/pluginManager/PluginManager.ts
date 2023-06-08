@@ -235,21 +235,21 @@ export class PluginManager {
     const parallelPromises: Promise<TOuput>[] = []
 
     for (const plugin of this.getSortedPlugins(hookName)) {
-      if ((plugin[hookName] as { sequential?: boolean })?.sequential) {
-        await Promise.all(parallelPromises)
-        parallelPromises.length = 0
-        await this.execute({
-          strategy: 'hookParallel',
-          hookName,
-          parameters,
-          plugin,
-        })
-      } else {
-        const promise: Promise<TOuput> | null = this.execute({ strategy: 'hookParallel', hookName, parameters, plugin })
+      // TODO implement sequential with `buildStart` as an object({ sequential: boolean; handler: PluginContext["buildStart"] })
+      // if ((plugin[hookName] as { sequential?: boolean })?.sequential) {
+      //   await Promise.all(parallelPromises)
+      //   parallelPromises.length = 0
+      //   await this.execute({
+      //     strategy: 'hookParallel',
+      //     hookName,
+      //     parameters,
+      //     plugin,
+      //   })
+      // }
+      const promise: Promise<TOuput> | null = this.execute({ strategy: 'hookParallel', hookName, parameters, plugin })
 
-        if (promise) {
-          parallelPromises.push(promise)
-        }
+      if (promise) {
+        parallelPromises.push(promise)
       }
     }
     const results = await Promise.allSettled(parallelPromises)
@@ -318,7 +318,7 @@ export class PluginManager {
     return plugins
   }
 
-  private getPlugin(hookName: keyof PluginLifecycle, pluginName: string): KubbPlugin {
+  public getPlugin(hookName: keyof PluginLifecycle, pluginName: string): KubbPlugin {
     const plugins = [...this.plugins]
 
     const pluginByPluginName = plugins.find((item) => item.name === pluginName && item[hookName])

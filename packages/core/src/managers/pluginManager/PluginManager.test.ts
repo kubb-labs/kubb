@@ -1,4 +1,4 @@
-import { PluginManager } from './PluginManager.ts'
+import { PluginManager, hooks } from './PluginManager.ts'
 
 import { createPlugin } from '../../plugin.ts'
 
@@ -82,6 +82,8 @@ describe('PluginManager', () => {
     expect(pluginManager.queue).toBeDefined()
     expect(pluginManager.fileManager).toBeDefined()
     expect(pluginManager.plugins.length).toBe(config.plugins!.length + 1)
+    expect(hooks).toStrictEqual(['validate', 'buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'])
+    expect(pluginManager.getPlugin('buildStart', 'pluginB')?.name).toBe('pluginB')
   })
 
   test('hookFirst', async () => {
@@ -225,5 +227,17 @@ describe('PluginManager', () => {
 
     expect(name).toBe('id')
     expect(hooksFirstMock).toBeCalledWith({ hookName: 'load', parameters: ['id'] })
+  })
+
+  test('hookForPlugin', async () => {
+    await pluginManager.hookForPlugin({
+      pluginName: 'pluginB',
+      hookName: 'resolvePath',
+      parameters: ['path'],
+    })
+
+    expect(pluginAMocks.transform).toBeCalled()
+    expect(pluginBMocks.transform).toBeCalled()
+    expect(pluginManager.getExecuter()?.plugin.name).toBe('pluginB')
   })
 })

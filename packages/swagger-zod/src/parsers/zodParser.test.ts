@@ -1,4 +1,4 @@
-import { parseZodMeta } from './zodParser.ts'
+import { parseZodMeta, zodParser } from './zodParser.ts'
 
 const input = [
   {
@@ -151,10 +151,35 @@ const input = [
     }),
     expected: 'z.object({"firstName": z.string().min(2),"address": z.string().describe("Your address").nullable()})',
   },
+  {
+    input: parseZodMeta({
+      keyword: 'object',
+      args: undefined,
+    }),
+    expected: 'z.object({})',
+  },
+
+  {
+    input: parseZodMeta({
+      keyword: 'default',
+      args: "'default'",
+    }),
+    expected: ".default('default')",
+  },
+  {
+    input: parseZodMeta({
+      keyword: 'default',
+    }),
+    expected: ".default('')",
+  },
 ]
 
 describe('parseZod', () => {
   test.each(input)('.add($a, $b)', ({ input, expected }) => {
     expect(input).toBe(expected)
+  })
+
+  test('empty items should return an export with an empty string as result', () => {
+    expect(zodParser([], { name: 'name' })).toBe("export const name = '';")
   })
 })

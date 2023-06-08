@@ -7,9 +7,9 @@ export function getReference(spec: unknown, ref: string) {
     .split('/')
     .map((s) => unescape(s.replace(/~1/g, '/').replace(/~0/g, '~')))
 
-  const ret = get(spec, path)
-  if (typeof ret === 'undefined') {
+  const result = get(spec, path)
+  if (!result) {
     throw new Error(`Can't find ${path}`)
   }
-  return ret
+  return result
 }
