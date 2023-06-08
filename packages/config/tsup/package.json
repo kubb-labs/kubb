@@ -1,0 +1,16 @@
+{
+  "name": "@kubb/tsup-config",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "types": "index.d.ts",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/node": "^20.2.5",
+    "tsup": "^6.7.0"
+  },
+  "peerDependencies": {
+    "tsup": "^6.7.0"
+  }
+}

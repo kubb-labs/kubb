@@ -58,10 +58,11 @@
     "swagger2openapi": "^7.0.8"
   },
   "devDependencies": {
+    "@kubb/tsup-config": "workspace:*",
+    "tsup": "^6.7.0",
     "@types/lodash.get": "^4.4.7",
     "@types/swagger2openapi": "^7.0.0",
     "openapi-types": "^12.1.3",
-    "tsup": "^6.7.0",
     "typescript": "^5.1.3"
   },
   "publishConfig": {
