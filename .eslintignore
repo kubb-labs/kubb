@@ -6,6 +6,7 @@ es
 dist
 lib
 *.config.*
+tsconfig.json
 **/types/**
 *rc.js
 **/e2e/gen/**

@@ -79,6 +79,5 @@ export default {
   },
   sidebar: {
     defaultMenuCollapsed: true,
-    subtitle: ({ title }) => <>{title}</>,
   },
 } as DocsThemeConfig

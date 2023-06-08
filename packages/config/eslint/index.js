@@ -45,6 +45,7 @@ const config = {
     'no-constructor-return': 'off',
     'import/prefer-default-export': 'off',
     'import/no-dynamic-require': 'off',
+    'react/display-name':"off",
     'import/extensions': [
       'warn',
       'ignorePackages',
