@@ -4,15 +4,15 @@
 
 import pathParser from 'node:path'
 
-import { camelCase, camelCaseTransformMerge } from 'change-case'
-
-import { getRelativePath, createPlugin, getPathMode, validatePlugins, writeIndexes, renderTemplate } from '@kubb/core'
+import { createPlugin, getPathMode, getRelativePath, renderTemplate, validatePlugins, writeIndexes } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
-import type { API as SwaggerApi, OpenAPIV3 } from '@kubb/swagger'
+
+import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { ZodBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
 
+import type { OpenAPIV3, API as SwaggerApi } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-zod' as const

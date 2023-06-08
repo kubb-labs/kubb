@@ -2,18 +2,17 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 
-import { PluginError } from './PluginError.ts'
-import { ParallelPluginError } from './ParallelPluginError.ts'
-
 import { definePlugin } from '../../plugin.ts'
-import { FileManager } from '../fileManager/FileManager.ts'
-import { Queue } from '../../utils/Queue.ts'
 import { isPromise } from '../../utils/isPromise.ts'
+import { Queue } from '../../utils/Queue.ts'
+import { FileManager } from '../fileManager/FileManager.ts'
+import { ParallelPluginError } from './ParallelPluginError.ts'
+import { PluginError } from './PluginError.ts'
 
-import type { QueueTask } from '../../utils/Queue.ts'
-import type { Argument0, Strategy, Executer, OnExecute, ParseResult, SafeParseResult } from './types.ts'
-import type { KubbConfig, KubbPlugin, PluginLifecycleHooks, PluginLifecycle, MaybePromise, ResolvePathParams, ResolveNameParams } from '../../types.ts'
 import type { CorePluginOptions } from '../../plugin.ts'
+import type { KubbConfig, KubbPlugin, MaybePromise, PluginLifecycle, PluginLifecycleHooks, ResolveNameParams, ResolvePathParams } from '../../types.ts'
+import type { QueueTask } from '../../utils/Queue.ts'
+import type { Argument0, Executer, OnExecute, ParseResult, SafeParseResult, Strategy } from './types.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 

@@ -1,10 +1,10 @@
-import { pascalCase, pascalCaseTransformMerge } from 'change-case'
-
-import type { File } from '@kubb/core'
 import { combineFiles, Generator } from '@kubb/core'
+
+import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import { isReference } from '../utils/isReference.ts'
 
+import type { File } from '@kubb/core'
 import type { Operation } from 'oas'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types.ts'
 import type { OpenAPIV3 } from 'openapi-types'

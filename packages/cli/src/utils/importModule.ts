@@ -1,5 +1,5 @@
-import { pathToFileURL } from 'node:url'
 import mod from 'node:module'
+import { pathToFileURL } from 'node:url'
 
 const SLASHES = new Set(['/', '\\'])
 

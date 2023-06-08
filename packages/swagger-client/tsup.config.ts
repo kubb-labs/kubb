@@ -1,5 +1,8 @@
+import { defineConfig } from 'tsup'
+
+import type { Options } from 'tsup'
+
 /* eslint-disable no-param-reassign */
-import { defineConfig, type Options } from 'tsup'
 
 const baseOptions = {
   entry: ['src/index.ts'],

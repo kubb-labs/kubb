@@ -1,17 +1,17 @@
 import pathParser from 'node:path'
 
+import { isURL } from '@kubb/core'
+
 import SwaggerParser from '@apidevtools/swagger-parser'
 import swagger2openapi from 'swagger2openapi'
 
-import type { KubbConfig } from '@kubb/core'
-import { isURL } from '@kubb/core'
-
 import { isOpenApiV3Document } from '../utils/index.ts'
 
-import type oasNormalize from 'oas-normalize'
+import type { KubbConfig } from '@kubb/core'
 import type oas from 'oas'
-import type { OpenAPIV2 } from 'openapi-types'
+import type oasNormalize from 'oas-normalize'
 import type { OASDocument } from 'oas/dist/rmoas.types.ts'
+import type { OpenAPIV2 } from 'openapi-types'
 
 type Oas = typeof oas
 

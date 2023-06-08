@@ -1,6 +1,6 @@
 import { cosmiconfig } from 'cosmiconfig'
-import yaml from 'yaml'
 import tsNode from 'ts-node'
+import yaml from 'yaml'
 
 import { importModule } from './importModule.ts'
 

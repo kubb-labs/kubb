@@ -1,8 +1,7 @@
 import pathParser from 'node:path'
 
-import { FileManager } from './FileManager.ts'
-
 import { Queue } from '../../utils/Queue.ts'
+import { FileManager } from './FileManager.ts'
 
 describe('FileManager', () => {
   test('fileManager.add also adds the files to the cache', async () => {

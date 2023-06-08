@@ -1,11 +1,5 @@
 /* eslint-disable no-param-reassign */
-import ts from 'typescript'
-import { pascalCase, camelCase } from 'change-case'
-import uniqueId from 'lodash.uniqueid'
-
-import type { PluginContext } from '@kubb/core'
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
-import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 import { isReference } from '@kubb/swagger'
 import {
   appendJSDocToNode,
@@ -19,8 +13,15 @@ import {
   modifier,
 } from '@kubb/ts-codegen'
 
-import { keywordTypeNodes } from '../utils/index.ts'
+import { camelCase, pascalCase } from 'change-case'
+import uniqueId from 'lodash.uniqueid'
+import ts from 'typescript'
+
 import { pluginName } from '../plugin.ts'
+import { keywordTypeNodes } from '../utils/index.ts'
+
+import type { PluginContext } from '@kubb/core'
+import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 
 const { factory } = ts
 

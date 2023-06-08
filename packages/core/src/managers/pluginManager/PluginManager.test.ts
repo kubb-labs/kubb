@@ -1,6 +1,5 @@
-import { PluginManager, hooks } from './PluginManager.ts'
-
 import { createPlugin } from '../../plugin.ts'
+import { hooks, PluginManager } from './PluginManager.ts'
 
 import type { KubbConfig, KubbPlugin, TransformResult } from '../../types.ts'
 

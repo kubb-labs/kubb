@@ -1,17 +1,17 @@
 /* eslint-disable no-console */
 import pathParser from 'node:path'
 
-import pc from 'picocolors'
+import { build, ParallelPluginError, PluginError } from '@kubb/core'
+
 import { execa } from 'execa'
-import { parseArgsStringToArgv } from 'string-argv'
+import pc from 'picocolors'
 import PrettyError from 'pretty-error'
+import { parseArgsStringToArgv } from 'string-argv'
 
-import { ParallelPluginError, PluginError, build } from '@kubb/core'
-import type { Logger, CLIOptions, KubbConfig, BuildOutput, LogLevel } from '@kubb/core'
-
-import { parseText } from './utils/parseText.ts'
 import { parseHrtimeToSeconds } from './utils/parseHrtimeToSeconds.ts'
+import { parseText } from './utils/parseText.ts'
 
+import type { BuildOutput, CLIOptions, KubbConfig, Logger, LogLevel } from '@kubb/core'
 import type { Ora } from 'ora'
 
 type RunProps = {

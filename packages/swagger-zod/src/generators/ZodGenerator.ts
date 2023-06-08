@@ -1,17 +1,17 @@
 /* eslint-disable no-param-reassign */
+import { getUniqueName, SchemaGenerator } from '@kubb/core'
+import { isReference } from '@kubb/swagger'
+
 import { pascalCase } from 'change-case'
 import uniqueId from 'lodash.uniqueid'
 
-import type { PluginContext } from '@kubb/core'
-import { getUniqueName, SchemaGenerator } from '@kubb/core'
-import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
-import { isReference } from '@kubb/swagger'
-
+import { zodKeywords, zodParser } from '../parsers/index.ts'
 import { pluginName } from '../plugin.ts'
-import { zodParser, zodKeywords } from '../parsers/index.ts'
 
-import type { ZodMeta, ZodKeyword } from '../parsers/index.ts'
+import type { PluginContext } from '@kubb/core'
+import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
+import type { ZodKeyword, ZodMeta } from '../parsers/index.ts'
 
 type Options = {
   withJSDocs?: boolean

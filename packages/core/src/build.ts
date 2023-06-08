@@ -1,14 +1,14 @@
 /* eslint-disable no-async-promise-executor */
+import { getFileSource } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
 import { clean, isURL, read } from './utils/index.ts'
-import { getFileSource } from './managers/fileManager/index.ts'
 import { isPromise } from './utils/isPromise.ts'
 
-import type { OnExecute } from './managers/pluginManager/index.ts'
-import type { File } from './managers/fileManager/index.ts'
-import type { QueueTask } from './utils/index.ts'
-import type { PluginContext, TransformResult, LogLevel, KubbPlugin, BuildOutput } from './types.ts'
 import type { Ora } from 'ora'
+import type { File } from './managers/fileManager/index.ts'
+import type { OnExecute } from './managers/pluginManager/index.ts'
+import type { BuildOutput, KubbPlugin, LogLevel, PluginContext, TransformResult } from './types.ts'
+import type { QueueTask } from './utils/index.ts'
 
 export type Logger = {
   log: (message: string, logLevel: LogLevel) => void

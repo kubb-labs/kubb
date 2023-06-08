@@ -5,7 +5,7 @@ esnext
 es
 dist
 lib
-*.config.js
+*.config.*
 **/types/**
 *rc.js
 **/e2e/gen/**

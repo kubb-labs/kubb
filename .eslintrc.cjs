@@ -1,94 +1,20 @@
-const aliases = []
-module.exports = {
-  parser: '@typescript-eslint/parser',
-  env: {
-    commonjs: true,
-    browser: true,
-    es6: true,
-    node: true,
-    'vitest-globals/env': true,
-  },
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'airbnb/base', 'plugin:prettier/recommended', 'plugin:vitest/recommended'],
-  plugins: ['@typescript-eslint', 'prettier', 'vitest', 'vitest-globals', 'formatjs', 'unused-imports'],
+/** @type {import("eslint").Linter.Config} */
+const config = {
+  root: true,
+  extends: ["@kubb"], // uses the config in `packages/config/eslint`
+  parser: "@typescript-eslint/parser",
   parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-    ecmaVersion: 2020,
-    sourceType: 'module',
-  },
-  rules: {
-    '@typescript-eslint/no-unused-vars': 'warn',
-    '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/no-namespace': 'off',
-    '@typescript-eslint/no-var-requires': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/consistent-type-imports': 'warn',
-    'arrow-body-style': 'off',
-    'no-empty': 'off',
-    'unused-imports/no-unused-vars': 'warn',
-    '@typescript-eslint/ban-types': 'warn',
-    camelcase: 'off',
-    'global-require': 'off',
-    'no-empty-pattern': 'warn',
-    'no-debugger': 'off',
-    'no-unused-vars': 'off',
-    'no-plusplus': 'off',
-    'no-redeclare': 'warn',
-    'no-undef': 'error',
-    'no-continue': 'off',
-    'no-shadow': 'off',
-    'no-underscore-dangle': 'off',
-    'no-use-before-define': 'off',
-    'no-unused-expressions': 'off',
-    'class-methods-use-this': 'off',
-    'default-param-last': 'off',
-    'no-restricted-exports': 'off',
-    'no-constructor-return': 'off',
-    'unused-imports/no-unused-imports': 'error',
-    'import/prefer-default-export': 'off',
-    'import/no-dynamic-require': 'off',
-    'import/extensions': [
-      'warn',
-      'ignorePackages',
-      {
-        js: 'always',
-        jsx: 'always',
-        ts: 'always',
-        tsx: 'always',
-      },
-    ],
-    'import/no-extraneous-dependencies': 'off',
-    'import/no-unresolved': 'off',
-    'import/order': [
-      'error',
-      {
-        'newlines-between': 'always',
-        groups: ['builtin', 'external', 'internal', 'index', 'sibling', 'parent', 'object', 'type'],
-        pathGroups: [
-          {
-            pattern: '@kubb/**',
-            group: 'external',
-            position: 'after',
-          },
-          {
-            pattern: aliases.length ? `+(${aliases.join('|')})/**` : '',
-            group: 'internal',
-            position: 'before',
-          },
-        ],
-        pathGroupsExcludedImportTypes: ['builtin'],
-      },
+    ecmaVersion: "latest",
+    tsconfigRootDir: __dirname,
+    project: [
+      "./examples/*/tsconfig.json",
+      "./docs/tsconfig.json",
+      "./packages/*/tsconfig.json",
     ],
   },
   settings: {
-    'import/resolver': {
-      node: {
-        extensions: ['.ts', '.tsx', '.js', '.jsx'],
-      },
-    },
-    react: {
-      version: 'detect',
-    },
+   
   },
-}
+};
+
+module.exports = config;

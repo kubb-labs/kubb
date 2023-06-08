@@ -1,8 +1,7 @@
 import pathParser from 'node:path'
 
-import { combineFiles, getFileSource } from './utils.ts'
-
 import { format } from '../../../mocks/format.ts'
+import { combineFiles, getFileSource } from './utils.ts'
 
 describe('FileManager utils', () => {
   test('if getFileSource is returning code with imports', () => {
