@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.1.6...@kubb/swagger-zodios-v1.1.7) (2023-06-08)
+
+
+### Miscellaneous Chores
+
+* **@kubb/swagger-zodios:** Synchronize undefined versions
+
 ## [1.1.6](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.1.5...@kubb/swagger-zodios-v1.1.6) (2023-06-08)
 
 
