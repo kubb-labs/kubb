@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.6...@kubb/swagger-zod-v1.1.7) (2023-06-08)
+
+
+### Bug Fixes
+
+* zod import without 'default export' ([c703153](https://github.com/kubb-project/kubb/commit/c7031534279ebe99ab5b9926eb2d57b2458ad4ab))
+
 ## [1.1.6](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.5...@kubb/swagger-zod-v1.1.6) (2023-06-08)
 
 
