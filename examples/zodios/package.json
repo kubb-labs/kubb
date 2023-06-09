@@ -33,5 +33,10 @@
     "axios": "^1.4.0",
     "tsup": "^6.7.0",
     "react": "^18.2.0"
-  }
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8.3.0"
+  },
+  "packageManager": "pnpm@8.3.0"
 }
