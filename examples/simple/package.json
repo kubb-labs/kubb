@@ -11,9 +11,9 @@
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
   "scripts": {
+    "build": "tsup",
     "generate": "pnpm generate:ts",
     "generate:ts": "kubb",
-    "build": "tsup",
     "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
@@ -31,9 +31,9 @@
     "react": "^18.2.0",
     "tsup": "^6.7.0"
   },
+  "packageManager": "pnpm@8.3.0",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.3.0"
-  },
-  "packageManager": "pnpm@8.3.0"
+  }
 }

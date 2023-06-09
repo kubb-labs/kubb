@@ -2,13 +2,6 @@
   "name": "@kubb/swagger",
   "version": "1.1.7",
   "description": "Generator swagger",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
-    "directory": "packages/swagger"
-  },
-  "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "keywords": [
     "typescript",
     "plugins",
@@ -17,11 +10,15 @@
     "swagger",
     "openapi"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kubb-project/kubb.git",
+    "directory": "packages/swagger"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -31,6 +28,9 @@
     },
     "./package.json": "./package.json"
   },
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "src",
@@ -39,14 +39,14 @@
   ],
   "scripts": {
     "build": "tsup",
-    "start": "tsup --watch",
-    "release": "pnpm publish --no-git-check",
-    "prepack": "pnpm build",
     "lint": "eslint \"**/*.{ts,tsx}\"",
     "lint-fix": "eslint \"**/*.{ts,tsx}\" --quiet --fix",
+    "prepack": "pnpm build",
+    "release": "pnpm publish --no-git-check",
+    "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
-    "upgrade": "pnpm update",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false",
+    "upgrade": "pnpm update"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
@@ -58,22 +58,22 @@
     "swagger2openapi": "^7.0.8"
   },
   "devDependencies": {
-    "@kubb/tsup-config": "workspace:*",
     "@kubb/eslint-config": "workspace:*",
-    "eslint": "^8.42.0",
-    "tsup": "^6.7.0",
+    "@kubb/tsup-config": "workspace:*",
     "@types/lodash.get": "^4.4.7",
     "@types/swagger2openapi": "^7.0.0",
+    "eslint": "^8.42.0",
     "openapi-types": "^12.1.3",
+    "tsup": "^6.7.0",
     "typescript": "^5.1.3"
   },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
+  "packageManager": "pnpm@8.3.0",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.3.0"
   },
-  "packageManager": "pnpm@8.3.0"
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }

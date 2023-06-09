@@ -12,11 +12,11 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "generate": "pnpm generate:ts",
-    "generate:ts": "kubb --config kubb.config.js",
-    "generate:json": "kubb --config kubb.json",
-    "generate:js": "kubb --config .kubbrc",
     "build": "tsup",
+    "generate": "pnpm generate:ts",
+    "generate:js": "kubb --config .kubbrc",
+    "generate:json": "kubb --config kubb.json",
+    "generate:ts": "kubb --config kubb.config.js",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
@@ -25,18 +25,18 @@
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",
+    "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "@kubb/swagger-zodios": "workspace:*",
-    "@kubb/swagger-client": "workspace:*",
-    "zod": "^3.21.4",
     "@zodios/core": "^10.9.0",
     "axios": "^1.4.0",
+    "react": "^18.2.0",
     "tsup": "^6.7.0",
-    "react": "^18.2.0"
+    "zod": "^3.21.4"
   },
+  "packageManager": "pnpm@8.3.0",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.3.0"
-  },
-  "packageManager": "pnpm@8.3.0"
+  }
 }

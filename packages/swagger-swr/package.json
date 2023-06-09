@@ -2,13 +2,6 @@
   "name": "@kubb/swagger-swr",
   "version": "1.1.7",
   "description": "Generator swagger-swr",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/kubb-project/kubb.git",
-    "directory": "packages/swagger-swr"
-  },
-  "license": "MIT",
-  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "keywords": [
     "typescript",
     "plugins",
@@ -22,11 +15,15 @@
     "next",
     "axios"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kubb-project/kubb.git",
+    "directory": "packages/swagger-swr"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -36,6 +33,9 @@
     },
     "./package.json": "./package.json"
   },
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "src",
@@ -44,37 +44,37 @@
   ],
   "scripts": {
     "build": "tsup",
-    "start": "tsup --watch",
-    "release": "pnpm publish --no-git-check",
-    "prepack": "pnpm build",
     "lint": "eslint \"**/*.{ts,tsx}\"",
     "lint-fix": "eslint \"**/*.{ts,tsx}\" --quiet --fix",
+    "prepack": "pnpm build",
+    "release": "pnpm publish --no-git-check",
+    "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
-    "upgrade": "pnpm update",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false",
+    "upgrade": "pnpm update"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
+    "@kubb/swagger-ts": "workspace:*",
     "@kubb/ts-codegen": "workspace:*",
     "change-case": "^4.1.2"
   },
   "devDependencies": {
-    "@kubb/tsup-config": "workspace:*",
     "@kubb/eslint-config": "workspace:*",
+    "@kubb/tsup-config": "workspace:*",
     "eslint": "^8.42.0",
     "tsup": "^6.7.0",
     "typescript": "^5.1.3"
   },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
+  "packageManager": "pnpm@8.3.0",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.3.0"
   },
-  "packageManager": "pnpm@8.3.0"
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }

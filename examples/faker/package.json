@@ -12,24 +12,24 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "generate": "pnpm generate:ts",
-    "generate:ts": "kubb --config kubb.config.js",
-    "generate:json": "kubb --config kubb.json",
-    "generate:js": "kubb --config .kubbrc",
     "build": "tsup",
+    "generate": "pnpm generate:ts",
+    "generate:js": "kubb --config .kubbrc",
+    "generate:json": "kubb --config kubb.json",
+    "generate:ts": "kubb --config kubb.config.js",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.0.2",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",
+    "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-faker": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "@kubb/swagger-client": "workspace:*",
-    "@faker-js/faker": "^8.0.2",
-    "tsup": "^6.7.0",
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "tsup": "^6.7.0"
   }
 }

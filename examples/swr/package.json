@@ -12,9 +12,9 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
+    "build": "tsup",
     "generate": "pnpm generate:ts",
     "generate:ts": "kubb",
-    "build": "tsup",
     "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
@@ -23,13 +23,13 @@
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",
-    "@kubb/swagger-swr": "workspace:*",
-    "@kubb/swagger-zod": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
+    "@kubb/swagger-swr": "workspace:*",
+    "@kubb/swagger-ts": "workspace:*",
+    "@kubb/swagger-zod": "workspace:*",
     "axios": "^1.4.0",
-    "tsup": "^6.7.0",
     "react": "^18.2.0",
-    "swr": "^2.1.5"
+    "swr": "^2.1.5",
+    "tsup": "^6.7.0"
   }
 }
