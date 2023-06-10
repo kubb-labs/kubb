@@ -9,21 +9,23 @@ import type { Path } from '../../types.ts'
 import type { PathMode, TreeNodeOptions } from '../../utils/index.ts'
 import type { File } from './types.ts'
 
+type TreeNodeData = { type: PathMode; path: Path; name: string }
+
 export function writeIndexes(root: string, options: TreeNodeOptions) {
-  const tree = TreeNode.build<{ type: PathMode; path: Path; name: string }>(root, { extensions: /\.ts/, ...options })
+  const tree = TreeNode.build<TreeNodeData>(root, { extensions: /\.ts/, ...options })
 
   if (!tree) {
     return undefined
   }
 
-  const fileReducer = (files: File[], item: typeof tree) => {
-    if (!item.children) {
+  const fileReducer = (files: File[], currentTree: typeof tree) => {
+    if (!currentTree.children) {
       return []
     }
 
-    if (item.children?.length > 1) {
-      const path = pathParser.resolve(item.data.path, 'index.ts')
-      const exports = item.children
+    if (currentTree.children?.length > 1) {
+      const path = pathParser.resolve(currentTree.data.path, 'index.ts')
+      const exports = currentTree.children
         .map((file) => {
           if (!file) {
             return undefined
@@ -47,8 +49,8 @@ export function writeIndexes(root: string, options: TreeNodeOptions) {
         exports,
       })
     } else {
-      item.children?.forEach((child) => {
-        const path = pathParser.resolve(item.data.path, 'index.ts')
+      currentTree.children?.forEach((child) => {
+        const path = pathParser.resolve(currentTree.data.path, 'index.ts')
         const importPath = child.data.type === 'directory' ? `./${child.data.name}` : `./${child.data.name.replace(/\.[^.]*$/, '')}`
 
         files.push({
@@ -60,7 +62,7 @@ export function writeIndexes(root: string, options: TreeNodeOptions) {
       })
     }
 
-    item.children.forEach((childItem) => {
+    currentTree.children.forEach((childItem) => {
       fileReducer(files, childItem)
     })
 

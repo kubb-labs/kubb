@@ -1,5 +1,7 @@
 import dirTree from 'directory-tree'
 
+import { getPathMode } from '../utils/read.ts'
+
 import type { DirectoryTree, DirectoryTreeOptions } from 'directory-tree'
 
 export type TreeNodeOptions = DirectoryTreeOptions
@@ -26,13 +28,17 @@ export class TreeNode<T = unknown> {
     return child
   }
 
-  find(data: T) {
+  find(data?: T): TreeNode<T> | null {
+    if (!data) {
+      return null
+    }
+
     if (data === this.data) {
       return this
     }
 
-    if (this.children) {
-      for (let i = 0, { length } = this.children, target: unknown = null; i < length; i++) {
+    if (this.children?.length) {
+      for (let i = 0, { length } = this.children, target: TreeNode<T> | null = null; i < length; i++) {
         target = this.children[i].find(data)
         if (target) {
           return target
@@ -43,7 +49,7 @@ export class TreeNode<T = unknown> {
     return null
   }
 
-  leaves(): TreeNode<T>[] {
+  get leaves(): TreeNode<T>[] {
     if (!this.children || this.children.length === 0) {
       // this is a leaf
       return [this]
@@ -54,17 +60,17 @@ export class TreeNode<T = unknown> {
     if (this.children) {
       for (let i = 0, { length } = this.children; i < length; i++) {
         // eslint-disable-next-line prefer-spread
-        leaves.push.apply(leaves, this.children[i].leaves())
+        leaves.push.apply(leaves, this.children[i].leaves)
       }
     }
     return leaves
   }
 
-  root(): TreeNode<T> {
+  get root(): TreeNode<T> {
     if (!this.parent) {
       return this
     }
-    return this.parent.root()
+    return this.parent.root
   }
 
   forEach(callback: (treeNode: TreeNode<T>) => void): this {
@@ -86,26 +92,31 @@ export class TreeNode<T = unknown> {
   }
 
   public static build<T = unknown>(path: string, options: TreeNodeOptions = {}): TreeNode<T> | null {
-    const filteredTree = dirTree(path, { extensions: options?.extensions, exclude: options.exclude })
+    try {
+      const exclude = Array.isArray(options.exclude) ? options.exclude : ([options.exclude].filter(Boolean) as RegExp[])
+      const filteredTree = dirTree(path, { extensions: options?.extensions, exclude: [/node_modules/, ...exclude] })
 
-    if (!filteredTree) {
-      return null
-    }
-
-    const treeNode = new TreeNode({ name: filteredTree.name, path: filteredTree.path, type: filteredTree.type })
-
-    const recurse = (node: typeof treeNode, item: DirectoryTree) => {
-      const subNode = node.addChild({ name: item.name, path: item.path, type: item.type })
-
-      if (item.children?.length) {
-        item.children?.forEach((child) => {
-          recurse(subNode, child)
-        })
+      if (!filteredTree) {
+        return null
       }
+
+      const treeNode = new TreeNode({ name: filteredTree.name, path: filteredTree.path, type: filteredTree.type || getPathMode(filteredTree.path) })
+
+      const recurse = (node: typeof treeNode, item: DirectoryTree) => {
+        const subNode = node.addChild({ name: item.name, path: item.path, type: item.type || getPathMode(item.path) })
+
+        if (item.children?.length) {
+          item.children?.forEach((child) => {
+            recurse(subNode, child)
+          })
+        }
+      }
+
+      filteredTree.children?.forEach((child) => recurse(treeNode, child))
+
+      return treeNode as TreeNode<T>
+    } catch (e) {
+      throw new Error('Something went wrong with creating index files with the TreehNode class', { cause: e })
     }
-
-    filteredTree.children?.forEach((child) => recurse(treeNode, child))
-
-    return treeNode as TreeNode<T>
   }
 }
