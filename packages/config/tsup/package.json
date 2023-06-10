@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "devDependencies": {
-    "@kubb/typescript-config": "workspace:^",
+    "@kubb/typescript-config": "workspace:*",
     "@types/node": "^20.2.5",
     "tsup": "^6.7.0"
   },

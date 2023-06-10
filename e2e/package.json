@@ -43,6 +43,6 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@kubb/typescript-config": "workspace:^"
+    "@kubb/typescript-config": "workspace:*"
   }
 }

@@ -1,5 +1,8 @@
 {
   "name": "@kubb/typescript-config",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "typescript": "^5.1.3"
+  }
 }
