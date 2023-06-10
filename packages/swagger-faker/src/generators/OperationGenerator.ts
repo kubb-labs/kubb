@@ -55,7 +55,7 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(root, resolvedTypeId)
     }
 
-    const source = await new FakerBuilder(oas)
+    const source = new FakerBuilder(oas)
       .add(schemas.pathParams)
       .add(schemas.queryParams)
       .add(schemas.response)
@@ -94,7 +94,7 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(root, resolvedTypeId)
     }
 
-    const source = await new FakerBuilder(oas)
+    const source = new FakerBuilder(oas)
       .add(schemas.pathParams)
       .add(schemas.queryParams)
       .add(schemas.request)
@@ -134,7 +134,7 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(root, resolvedTypeId)
     }
 
-    const source = await new FakerBuilder(oas)
+    const source = new FakerBuilder(oas)
       .add(schemas.pathParams)
       .add(schemas.queryParams)
       .add(schemas.request)
@@ -174,7 +174,7 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(root, resolvedTypeId)
     }
 
-    const source = await new FakerBuilder(oas)
+    const source = new FakerBuilder(oas)
       .add(schemas.pathParams)
       .add(schemas.request)
       .add(schemas.queryParams)

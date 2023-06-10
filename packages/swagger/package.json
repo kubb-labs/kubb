@@ -53,7 +53,6 @@
     "@apidevtools/swagger-parser": "^10.1.0",
     "@kubb/core": "workspace:*",
     "change-case": "^4.1.2",
-    "lodash.get": "^4.4.2",
     "oas": "^20.8.4",
     "oas-normalize": "^8.4.1",
     "swagger2openapi": "^7.0.8"
@@ -62,7 +61,6 @@
     "@kubb/eslint-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@kubb/typescript-config": "workspace:*",
-    "@types/lodash.get": "^4.4.7",
     "@types/swagger2openapi": "^7.0.0",
     "eslint": "^8.42.0",
     "openapi-types": "^12.1.3",

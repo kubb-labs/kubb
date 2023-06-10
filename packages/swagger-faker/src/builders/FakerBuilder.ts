@@ -38,7 +38,7 @@ export class FakerBuilder extends OasBuilder<Config> {
     return this
   }
 
-  async print(name?: string) {
+  print(name?: string): string {
     const codes: string[] = []
 
     const generated = this.items
@@ -76,7 +76,7 @@ export class FakerBuilder extends OasBuilder<Config> {
       const importsGenerator = new ImportsGenerator({ fileResolver: this.config.fileResolver })
 
       importsGenerator.add(generated.flatMap((item) => item.imports))
-      const importMeta = await importsGenerator.build(generated.map((item) => item.import))
+      const importMeta = importsGenerator.build(generated.map((item) => item.import))
 
       if (importMeta) {
         const nodes = importMeta.map((item) => {

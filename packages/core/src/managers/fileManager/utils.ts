@@ -9,21 +9,23 @@ import type { Path } from '../../types.ts'
 import type { PathMode, TreeNodeOptions } from '../../utils/index.ts'
 import type { File } from './types.ts'
 
-export function writeIndexes(root: string, options: TreeNodeOptions) {
-  const tree = TreeNode.build<{ type: PathMode; path: Path; name: string }>(root, { extensions: /\.ts/, ...options })
+type TreeNodeData = { type: PathMode; path: Path; name: string }
+
+export function writeIndexes(root: string, options: TreeNodeOptions = {}): File[] | null {
+  const tree = TreeNode.build<TreeNodeData>(root, { extensions: /\.ts/, ...options })
 
   if (!tree) {
-    return undefined
+    return null
   }
 
-  const fileReducer = (files: File[], item: typeof tree) => {
-    if (!item.children) {
+  const fileReducer = (files: File[], currentTree: typeof tree) => {
+    if (!currentTree.children) {
       return []
     }
 
-    if (item.children?.length > 1) {
-      const path = pathParser.resolve(item.data.path, 'index.ts')
-      const exports = item.children
+    if (currentTree.children?.length > 1) {
+      const path = pathParser.resolve(currentTree.data.path, 'index.ts')
+      const exports = currentTree.children
         .map((file) => {
           if (!file) {
             return undefined
@@ -47,8 +49,8 @@ export function writeIndexes(root: string, options: TreeNodeOptions) {
         exports,
       })
     } else {
-      item.children?.forEach((child) => {
-        const path = pathParser.resolve(item.data.path, 'index.ts')
+      currentTree.children?.forEach((child) => {
+        const path = pathParser.resolve(currentTree.data.path, 'index.ts')
         const importPath = child.data.type === 'directory' ? `./${child.data.name}` : `./${child.data.name.replace(/\.[^.]*$/, '')}`
 
         files.push({
@@ -60,7 +62,7 @@ export function writeIndexes(root: string, options: TreeNodeOptions) {
       })
     }
 
-    item.children.forEach((childItem) => {
+    currentTree.children.forEach((childItem) => {
       fileReducer(files, childItem)
     })
 
@@ -72,11 +74,8 @@ export function writeIndexes(root: string, options: TreeNodeOptions) {
   return files
 }
 
-export function combineFiles(files: Array<File | null>) {
-  return files.filter(Boolean).reduce((acc, curr: File | null) => {
-    if (!curr) {
-      return acc
-    }
+export function combineFiles(files: Array<File | null>): File[] {
+  return (files.filter(Boolean) as File[]).reduce((acc, curr: File) => {
     const prevIndex = acc.findIndex((item) => item.path === curr.path)
 
     if (prevIndex !== -1) {
@@ -95,7 +94,7 @@ export function combineFiles(files: Array<File | null>) {
   }, [] as File[])
 }
 
-export function getFileSource(file: File) {
+export function getFileSource(file: File): string {
   let { source } = file
 
   // TODO make generic check
@@ -106,21 +105,22 @@ export function getFileSource(file: File) {
   const exports: File['exports'] = []
 
   file.imports?.forEach((curr) => {
-    const exists = imports.find((imp) => imp.path === curr.path)
-    if (!exists) {
+    const existingImport = imports.find((imp) => imp.path === curr.path)
+
+    if (!existingImport) {
       imports.push({
         ...curr,
         name: Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name,
       })
     }
 
-    if (exists && !Array.isArray(exists.name) && exists.name !== curr.name) {
+    if (existingImport && !Array.isArray(existingImport.name) && existingImport.name !== curr.name) {
       imports.push(curr)
     }
 
-    if (exists && Array.isArray(exists.name)) {
+    if (existingImport && Array.isArray(existingImport.name)) {
       if (Array.isArray(curr.name)) {
-        exists.name = [...new Set([...exists.name, ...curr.name])]
+        existingImport.name = [...new Set([...existingImport.name, ...curr.name])]
       }
     }
   })
@@ -151,7 +151,7 @@ export function getFileSource(file: File) {
   const importSource = print(importNodes)
 
   const exportNodes = exports.reduce((prev, curr) => {
-    return [...prev, createExportDeclaration({ name: curr.name, path: curr.path, asAlias: curr.asAlias })]
+    return [...prev, createExportDeclaration({ name: curr.name, path: curr.path, isTypeOnly: curr.isTypeOnly, asAlias: curr.asAlias })]
   }, [] as ts.ExportDeclaration[])
   const exportSource = print(exportNodes)
 

@@ -1,9 +1,8 @@
 /* eslint-disable no-param-reassign */
-import { getUniqueName, SchemaGenerator } from '@kubb/core'
+import { getUniqueName, SchemaGenerator, uniqueId } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 import {
   appendJSDocToNode,
-  ArrayTwoOrMore,
   createEnumDeclaration,
   createIndexSignature,
   createIntersectionDeclaration,
@@ -15,7 +14,6 @@ import {
 } from '@kubb/ts-codegen'
 
 import { camelCase, pascalCase } from 'change-case'
-import uniqueId from 'lodash.uniqueid'
 import ts from 'typescript'
 
 import { pluginName } from '../plugin.ts'
@@ -23,6 +21,7 @@ import { keywordTypeNodes } from '../utils/index.ts'
 
 import type { PluginContext } from '@kubb/core'
 import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
+import type { ArrayTwoOrMore } from '@kubb/ts-codegen'
 
 const { factory } = ts
 
@@ -214,7 +213,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         createUnionDeclaration({
           nodes: schema.oneOf
             .map((item: any) => {
-              return this.getBaseTypeFromSchema(item)
+              return this.getBaseTypeFromSchema(item as OpenAPIV3.SchemaObject)
             })
             .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
         })
@@ -240,7 +239,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         factory.createIntersectionTypeNode(
           schema.allOf
             .map((item: any) => {
-              return this.getBaseTypeFromSchema(item)
+              return this.getBaseTypeFromSchema(item as OpenAPIV3.SchemaObject)
             })
             .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>
         )
