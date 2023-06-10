@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     globals: true,
-    exclude: ['**/node_modules/**', '**/dist/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/mocks/**'],
     alias: {
       '@kubb/cli': 'packages/cli/src/index.ts',
       '@kubb/eslint-config': 'packages/config/eslint/src/index.ts',
