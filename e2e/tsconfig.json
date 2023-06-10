@@ -1,4 +1,5 @@
 {
+  // "extends": "@kubb/typescript-config/base.json",
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",

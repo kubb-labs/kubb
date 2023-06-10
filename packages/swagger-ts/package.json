@@ -39,9 +39,10 @@
   ],
   "scripts": {
     "build": "tsup",
+    "clean": "rimraf ./dist",
     "lint": "eslint \"**/*.{ts,tsx}\"",
     "lint-fix": "eslint \"**/*.{ts,tsx}\" --quiet --fix",
-    "prepack": "pnpm build",
+    "prepack": "bun run build",
     "release": "pnpm publish --no-git-check",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
@@ -59,6 +60,7 @@
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
+    "@kubb/typescript-config": "workspace:*",
     "@types/lodash.uniqueid": "^4.0.7",
     "eslint": "^8.42.0",
     "tsup": "^6.7.0"

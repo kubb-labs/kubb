@@ -39,10 +39,10 @@ jobs:
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
           
         - name: Build
-          run: pnpm build
+          run: pnpm build --concurrency=1
 
         - name: Typecheck
-          run: pnpm typecheck
+          run: pnpm typecheck --concurrency=1
 
         - name: Test
           run: pnpm test:coverage

@@ -32,9 +32,10 @@
   ],
   "scripts": {
     "build": "tsup",
+    "clean": "rimraf ./dist",
     "lint": "eslint \"**/*.{ts,tsx}\"",
     "lint-fix": "eslint \"**/*.{ts,tsx}\" --quiet --fix",
-    "prepack": "pnpm build",
+    "prepack": "bun run build",
     "release": "pnpm publish --no-git-check",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
@@ -58,7 +59,8 @@
   "devDependencies": {
     "@kubb/swagger": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/node": "^20.2.5",
+    "@kubb/typescript-config": "workspace:*",
+    "@types/node": "^20.2.6",
     "tsup": "^6.7.0",
     "typescript": "^5.1.3"
   },

@@ -11,7 +11,7 @@
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
   "scripts": {
-    "clean": "rimraf ./gen",
+    "clean": "rimraf ./dist",
     "generate": "kubb",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -41,5 +41,8 @@
     "tsup": "^6.7.0",
     "vue": "^3.3.4",
     "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@kubb/typescript-config": "workspace:*"
   }
 }

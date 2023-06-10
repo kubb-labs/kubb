@@ -12,8 +12,8 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
-    "generate": "pnpm generate:ts",
-    "generate:ts": "kubb",
+    "clean": "rimraf ./dist",
+    "generate": "kubb",
     "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

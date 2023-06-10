@@ -13,10 +13,9 @@
   "type": "module",
   "scripts": {
     "build": "tsup",
-    "generate": "pnpm generate:ts",
+    "generate": "kubb --config kubb.config.js",
     "generate:js": "kubb --config .kubbrc",
     "generate:json": "kubb --config kubb.json",
-    "generate:ts": "kubb --config kubb.config.js",
     "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

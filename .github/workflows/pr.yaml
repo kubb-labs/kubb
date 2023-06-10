@@ -36,6 +36,9 @@ jobs:
             node-version: ${{ matrix.node-version }}
             cache: 'pnpm'
             registry-url: 'https://registry.npmjs.org'
+
+        - name: Install bun
+          uses: oven-sh/setup-bun@v1
  
         - name: Install dependencies
           run: pnpm install
@@ -43,16 +46,16 @@ jobs:
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
           
         - name: Build
-          run: pnpm build
+          run: bun run build --concurrency=1
 
         - name: Typecheck and linting
-          run: pnpm typecheck
+          run: bun run typecheck --concurrency=1
         # OUT OF MEMORY BUG WITH ESLINT
         # - name: Linting
-        #   run: pnpm lint --concurrency=1
+        #   run: bun run lint --concurrency=1
 
         - name: Test
-          run: pnpm test:coverage
+          run: bun run test:coverage
 
         - name: Upload coverage reports to Codecov
           uses: codecov/codecov-action@v3

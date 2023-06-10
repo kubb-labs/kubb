@@ -6,8 +6,17 @@
         "^build"
       ],
       "outputs": [
-        "dist/**"
+        "dist/**",
+        ".next/**"
       ]
+    },
+    "clean": {
+      "dependsOn": [
+        "^clean"
+      ],
+      "outputs": [],
+      "cache": false,
+      "outputMode": "new-only"
     },
     "start": {
       "dependsOn": [
@@ -15,7 +24,9 @@
       ],
       "outputs": [
         "dist/**"
-      ]
+      ],
+      "cache": false,
+      "persistent": true
     },
     "test": {
       "dependsOn": [
@@ -23,38 +34,45 @@
       ],
       "outputs": [
         "coverage/**"
-      ]
+      ],
+      "cache": false
     },
     "lint": {
-      "outputs": []
+      "outputs": [],
+      "cache": false
     },
     "lint-fix": {
-      "outputs": []
+      "outputs": [],
+      "cache": false,
+      "outputMode": "new-only"
     },
     "typecheck": {
       "dependsOn": [],
-      "outputs": []
-    },
-    "clean": {
+      "outputs": [],
       "cache": false
     },
     "release": {
       "dependsOn": [
         "^build"
       ],
-      "outputs": []
+      "outputs": [],
+      "cache": false
     },
     "generate": {
       "dependsOn": [
         "^build"
       ],
       "outputs": [
-        "gen/**"
-      ]
+        "gen/**",
+        "src/gen/**"
+      ],
+      "outputMode": "new-only"
     },
     "upgrade": {
       "dependsOn": [],
-      "outputs": []
+      "outputs": [],
+      "cache": false,
+      "outputMode": "new-only"
     }
   }
 }
