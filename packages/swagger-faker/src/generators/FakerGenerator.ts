@@ -1,10 +1,9 @@
 /* eslint-disable no-param-reassign */
-import { getUniqueName, SchemaGenerator } from '@kubb/core'
+import { getUniqueName, SchemaGenerator, uniqueId } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
 import { pascalCase } from 'change-case'
-import uniqueId from 'lodash.uniqueid'
 
 import { fakerKeywords, fakerParser } from '../parsers/index.ts'
 import { pluginName } from '../plugin.ts'
@@ -109,8 +108,6 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       .reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
     const members: FakerMeta[] = []
-
-    members.push()
 
     if (additionalProperties) {
       const addionalValidationFunctions: FakerMeta[] =

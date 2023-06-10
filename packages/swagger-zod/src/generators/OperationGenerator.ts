@@ -54,7 +54,7 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(root, resolvedTypeId)
     }
 
-    const source = await new ZodBuilder(oas)
+    const source = new ZodBuilder(oas)
       .add(schemas.pathParams)
       .add(schemas.queryParams)
       .add(schemas.response)
@@ -92,7 +92,7 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(root, resolvedTypeId)
     }
 
-    const source = await new ZodBuilder(oas)
+    const source = new ZodBuilder(oas)
       .add(schemas.pathParams)
       .add(schemas.queryParams)
       .add(schemas.request)
@@ -131,7 +131,7 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(root, resolvedTypeId)
     }
 
-    const source = await new ZodBuilder(oas)
+    const source = new ZodBuilder(oas)
       .add(schemas.pathParams)
       .add(schemas.queryParams)
       .add(schemas.request)
@@ -170,7 +170,7 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(root, resolvedTypeId)
     }
 
-    const source = await new ZodBuilder(oas)
+    const source = new ZodBuilder(oas)
       .add(schemas.pathParams)
       .add(schemas.request)
       .add(schemas.queryParams)

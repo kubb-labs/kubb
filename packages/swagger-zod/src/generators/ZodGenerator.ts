@@ -1,9 +1,8 @@
 /* eslint-disable no-param-reassign */
-import { getUniqueName, SchemaGenerator } from '@kubb/core'
+import { getUniqueName, SchemaGenerator, uniqueId } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 
 import { pascalCase } from 'change-case'
-import uniqueId from 'lodash.uniqueid'
 
 import { zodKeywords, zodParser } from '../parsers/index.ts'
 import { pluginName } from '../plugin.ts'

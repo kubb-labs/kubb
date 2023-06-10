@@ -45,7 +45,7 @@ export class ImportsGenerator extends Generator<Options> {
     return this
   }
 
-  async build(imports: Import[]): Promise<Array<ImportMeta>> {
+  build(imports: Import[]): ImportMeta[] {
     const refs = imports.reduce((acc, currentValue) => {
       return {
         ...acc,
@@ -58,30 +58,30 @@ export class ImportsGenerator extends Generator<Options> {
     }
 
     // add imports based on $ref
-    const importPromises = [...new Set(Object.keys(refs))].map(($ref: string) => {
-      const { propertyName, originalName, name } = refs[$ref]
+    const importMeta = [...new Set(Object.keys(refs))]
+      .map(($ref: string) => {
+        const { propertyName, originalName, name } = refs[$ref]
 
-      const exists = imports.some((item) => item.name.toLowerCase() === originalName.toLowerCase())
+        const exists = imports.some((item) => item.name.toLowerCase() === originalName.toLowerCase())
 
-      if (exists && !name) {
-        return undefined
-      }
+        if (exists && !name) {
+          return undefined
+        }
 
-      const path = this.options.fileResolver?.(propertyName, refs[$ref]) || `./${propertyName}`
+        const path = this.options.fileResolver?.(propertyName, refs[$ref]) || `./${propertyName}`
 
-      // TODO weird hacky fix
-      if (path === './' || path === '.') {
-        return undefined
-      }
+        // TODO weird hacky fix
+        if (path === './' || path === '.') {
+          return undefined
+        }
 
-      return {
-        ref: refs[$ref],
-        path: path.replace('./../', '../'),
-      }
-    })
+        return {
+          ref: refs[$ref],
+          path: path.replace('./../', '../'),
+        }
+      })
+      .filter(Boolean) as ImportMeta[]
 
-    const importMeta = await Promise.all(importPromises)
-
-    return [...importMeta.filter(Boolean), ...this.items] as ImportMeta[]
+    return [...importMeta, ...this.items]
   }
 }

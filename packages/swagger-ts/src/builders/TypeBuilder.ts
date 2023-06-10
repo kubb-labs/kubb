@@ -39,7 +39,7 @@ export class TypeBuilder extends OasBuilder<Config> {
     return this
   }
 
-  async print(name?: string) {
+  print(name?: string): string {
     const codes: string[] = []
 
     const generated = this.items
@@ -69,7 +69,7 @@ export class TypeBuilder extends OasBuilder<Config> {
 
     if (this.config.withImports) {
       const importsGenerator = new ImportsGenerator({ fileResolver: this.config.fileResolver })
-      const importMeta = await importsGenerator.build(generated.map((item) => item.import))
+      const importMeta = importsGenerator.build(generated.map((item) => item.import))
 
       if (importMeta) {
         const nodes = importMeta.map((item) => {

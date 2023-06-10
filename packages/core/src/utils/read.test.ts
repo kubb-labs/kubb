@@ -36,7 +36,7 @@ describe('read', () => {
     expect(file).toBe(text)
   })
 
-  test('getRelativePath returns correct path for Linux and MacOS', async () => {
+  test('getRelativePath returns correct path for Linux and macOS', async () => {
     const testFile = path.resolve(folderPath, 'test.js')
     await write('test', testFile)
 
