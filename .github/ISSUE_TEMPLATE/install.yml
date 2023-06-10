@@ -1,0 +1,31 @@
+# Based on Bun's template
+
+name: 📥 Install Problem
+description: Report an issue during install or upgrade
+labels: [bug, install]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for submitting a bug report. It helps make `Kubb` better.
+
+  - type: input
+    attributes:
+      label: What platform is your computer?
+      description: MacOS, Windows, Linux.
+  - type: textarea
+    attributes:
+      label: How did you attempt to install or upgrade?
+      description: Please provide the commands you ran to install or upgrade.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What do you see instead?
+      description: If possible, please provide text instead of a screenshot.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: Is there anything else you think we should know?
