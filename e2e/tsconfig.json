@@ -1,19 +1,33 @@
 {
-  "extends": "@kubb/typescript-config/base.json",
+  // "extends": "@kubb/typescript-config/base.json",
   "compilerOptions": {
-    // "composite": true,
-    // "rootDir": ".",
-    // "outDir": "./dist",
-    // "tsBuildInfoFile": "./build/.tsbuildinfo"
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "strictNullChecks": true,
+    "jsx": "react",
+    "declaration": true,
+    "outDir": "es",
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "paths": {
+      "@kubb/core":["../packages/core/src/index.ts"],
+      "@kubb/swagger":["../packages/swagger/src/index.ts"],
+      "@kubb/swagger-ts":["../packages/swagger-ts/src/index.ts"],
+      "@kubb/swagger-client":["../packages/swagger-client/src/index.ts"],
+      "@kubb/swagger-tanstack-query":["../packages/swagger-tanstack-query/src/index.ts"],
+      "@kubb/swagger-zod":["../packages/swagger-zod/src/index.ts"]
+    }
   },
   "include": ["./gen/**/*"],
   "exclude": [
     "**/node_modules",
-    "**/types/**"
-  ],
-  // "references": [
-  //   { "path": "../swagger" },
-  //   { "path": "../core" },
-  //   { "path": "../ts-codegen" }
-  // ]
+    "**/types/**",
+    "**/mocks/**"
+  ]
 }
