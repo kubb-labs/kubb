@@ -213,7 +213,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         createUnionDeclaration({
           nodes: schema.oneOf
             .map((item: any) => {
-              return this.getBaseTypeFromSchema(item)
+              return this.getBaseTypeFromSchema(item as OpenAPIV3.SchemaObject)
             })
             .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
         })
@@ -239,7 +239,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         factory.createIntersectionTypeNode(
           schema.allOf
             .map((item: any) => {
-              return this.getBaseTypeFromSchema(item)
+              return this.getBaseTypeFromSchema(item as OpenAPIV3.SchemaObject)
             })
             .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>
         )
