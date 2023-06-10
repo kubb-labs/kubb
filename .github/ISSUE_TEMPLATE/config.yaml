@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Feature Requests & Questions
+    url: https://github.com/kubb-project/kubb
+    about: Please ask and answer questions here.
+  - name: Twitter
+    url: https://twitter.com/stijnvanhulle
+    about: Ask questions around Kubb on Twitter
