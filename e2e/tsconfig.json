@@ -6,7 +6,7 @@
     // "outDir": "./dist",
     // "tsBuildInfoFile": "./build/.tsbuildinfo"
   },
-  "include": ["src/**/*"],
+  "include": ["./gen/**/*"],
   "exclude": [
     "**/node_modules",
     "**/types/**"
