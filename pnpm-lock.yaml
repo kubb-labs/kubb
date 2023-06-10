@@ -185,6 +185,10 @@ importers:
       zod:
         specifier: ^3.21.4
         version: 3.21.4
+    devDependencies:
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../packages/config/tsconfig
 
   examples/advanced:
     dependencies:
@@ -651,6 +655,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../config/tsconfig
       '@types/node':
         specifier: ^20.2.6
         version: 20.2.6
@@ -694,6 +701,9 @@ importers:
         specifier: ^1.3.1
         version: 1.3.1
     devDependencies:
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../tsconfig
       eslint:
         specifier: ^8.42.0
         version: 8.42.0
@@ -701,8 +711,17 @@ importers:
         specifier: ~5.0.4
         version: 5.0.4
 
+  packages/config/tsconfig:
+    devDependencies:
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: 'link:'
+
   packages/config/tsup:
     devDependencies:
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../tsconfig
       '@types/node':
         specifier: ^20.2.5
         version: 20.2.5
@@ -731,6 +750,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup
+      '@kubb/typescript-config':
+        specifier: workspace:*
+        version: link:../config/tsconfig
       eslint:
         specifier: ^8.42.0
         version: 8.42.0
@@ -774,6 +796,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../config/tsconfig
       '@types/lodash.get':
         specifier: ^4.4.7
         version: 4.4.7
@@ -817,6 +842,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../config/tsconfig
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -857,6 +885,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../config/tsconfig
       '@types/lodash.uniqueid':
         specifier: ^4.0.7
         version: 4.0.7
@@ -897,6 +928,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../config/tsconfig
       eslint:
         specifier: ^8.42.0
         version: 8.42.0
@@ -934,6 +968,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../config/tsconfig
       eslint:
         specifier: ^8.42.0
         version: 8.42.0
@@ -971,6 +1008,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../config/tsconfig
       '@types/lodash.uniqueid':
         specifier: ^4.0.7
         version: 4.0.7
@@ -1005,6 +1045,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../config/tsconfig
       '@types/lodash.uniqueid':
         specifier: ^4.0.7
         version: 4.0.7
@@ -1042,6 +1085,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../config/tsconfig
       eslint:
         specifier: ^8.42.0
         version: 8.42.0
@@ -1064,6 +1110,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup
+      '@kubb/typescript-config':
+        specifier: workspace:^
+        version: link:../config/tsconfig
       eslint:
         specifier: ^8.42.0
         version: 8.42.0

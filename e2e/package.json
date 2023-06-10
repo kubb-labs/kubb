@@ -41,5 +41,8 @@
     "tsup": "^6.7.0",
     "vue": "^3.3.4",
     "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@kubb/typescript-config": "workspace:^"
   }
 }

@@ -14,6 +14,7 @@
       "packages/*",
       "packages/config/eslint/*",
       "packages/config/tsup/*",
+      "packages/config/tsconfig/*",
       "docs/*",
       "examples/*",
       "e2e/*"

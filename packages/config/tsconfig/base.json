@@ -1,4 +1,6 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Default",
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext", 
@@ -32,5 +34,9 @@
       "@kubb/swagger-zodios": ["packages/swagger-zodios/src/index.ts"],
       "@kubb/ts-codegen": ["packages/ts-codegen/src/index.ts"]
     }
-  }
+  },
+  "exclude": [
+    "**/node_modules",
+    "**/types/**"
+  ],
 }
