@@ -13,8 +13,7 @@
   "scripts": {
     "build": "tsup",
     "clean": "rimraf ./dist",
-    "generate": "pnpm generate:ts",
-    "generate:ts": "kubb",
+    "generate": "kubb",
     "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

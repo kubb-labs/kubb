@@ -46,16 +46,16 @@ jobs:
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
           
         - name: Build
-          run: pnpm build --concurrency=1
+          run: bun run build --concurrency=1
 
         - name: Typecheck and linting
-          run: pnpm typecheck --concurrency=1
+          run: bun run typecheck --concurrency=1
         # OUT OF MEMORY BUG WITH ESLINT
         # - name: Linting
-        #   run: pnpm lint --concurrency=1
+        #   run: bun run lint --concurrency=1
 
         - name: Test
-          run: pnpm test:coverage
+          run: bun run test:coverage
 
         - name: Upload coverage reports to Codecov
           uses: codecov/codecov-action@v3

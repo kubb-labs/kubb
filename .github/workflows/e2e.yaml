@@ -46,7 +46,7 @@ jobs:
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
 
         - name: Build
-          run: pnpm build
+          run: bun run build
 
         - name: Install e2e dependencies
           run: pnpm install
@@ -55,13 +55,13 @@ jobs:
         - name: E2e
           working-directory: ./e2e
           run: |
-            pnpm generate --input ./schemas/petStore.yaml
-            pnpm generate --input ./schemas/twitter.json
-            pnpm generate --input ./schemas/twitter2.json
-            pnpm generate --input ./schemas/bunq.com.json
-            pnpm generate --input ./schemas/jokesOne.yaml
-            pnpm generate --input ./schemas/readme.io.yaml
-            pnpm generate --input ./schemas/worldtime.yaml
-            pnpm generate --input ./schemas/zalando.yaml
-            pnpm clean
+            bun run generate --input ./schemas/petStore.yaml
+            bun run generate --input ./schemas/twitter.json
+            bun run generate --input ./schemas/twitter2.json
+            bun run generate --input ./schemas/bunq.com.json
+            bun run generate --input ./schemas/jokesOne.yaml
+            bun run generate --input ./schemas/readme.io.yaml
+            bun run generate --input ./schemas/worldtime.yaml
+            bun run generate --input ./schemas/zalando.yaml
+            bun run clean
 
