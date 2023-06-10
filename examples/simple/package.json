@@ -12,6 +12,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
+    "clean": "rimraf ./dist",
     "generate": "pnpm generate:ts",
     "generate:ts": "kubb",
     "start": "tsup --watch",

@@ -13,6 +13,7 @@
   "main": "index.js",
   "scripts": {
     "build": "next build",
+    "clean": "rimraf ./.next",
     "postbuild": "next-sitemap",
     "dev": "next",
     "start": "next start"
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "@kubb/core": "workspace:*",
+    "rimraf": "^5.0.1",
     "@next/env": "^13.4.4",
     "@types/node": "^20.2.5",
     "@types/react": "^18.2.9",

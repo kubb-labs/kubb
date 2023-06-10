@@ -53,6 +53,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "clean": "rimraf ./dist",
     "lint": "eslint \"**/*.{ts,tsx}\"",
     "lint-fix": "eslint \"**/*.{ts,tsx}\" --quiet --fix",
     "prepack": "pnpm build",

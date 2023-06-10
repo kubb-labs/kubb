@@ -13,6 +13,7 @@
   "type": "module",
   "scripts": {
     "build": "tsup",
+    "clean": "rimraf ./dist",
     "generate": "pnpm generate:ts",
     "generate:js": "kubb --config .kubbrc",
     "generate:json": "kubb --config kubb.json",

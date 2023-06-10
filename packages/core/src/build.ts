@@ -36,7 +36,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
       await read(config.input.path)
     }
   } catch (e: any) {
-    throw new Error('Cannot read file defined in `input.path` or set with --input in the CLI of your Kubb config', { cause: e })
+    throw new Error('Cannot read file/URL defined in `input.path` or set with --input in the CLI of your Kubb config', { cause: e })
   }
 
   if (config.output.clean) {
