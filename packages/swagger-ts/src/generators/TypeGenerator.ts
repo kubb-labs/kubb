@@ -3,6 +3,7 @@ import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 import {
   appendJSDocToNode,
+  ArrayTwoOrMore,
   createEnumDeclaration,
   createIndexSignature,
   createIntersectionDeclaration,
@@ -10,7 +11,7 @@ import {
   createTupleDeclaration,
   createTypeAliasDeclaration,
   createUnionDeclaration,
-  modifier,
+  modifiers,
 } from '@kubb/ts-codegen'
 
 import { camelCase, pascalCase } from 'change-case'
@@ -60,7 +61,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     }
 
     const node = createTypeAliasDeclaration({
-      modifiers: [modifier.export],
+      modifiers: [modifiers.export],
       name: this.options.resolveName({ name: baseName, pluginName }) || baseName,
       type,
     })
@@ -212,22 +213,20 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const union = factory.createParenthesizedType(
         createUnionDeclaration({
           nodes: schema.oneOf
-            .map((item) => {
+            .map((item: any) => {
               return this.getBaseTypeFromSchema(item)
             })
-            .filter(Boolean) as ts.TypeNode[],
+            .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
         })
       )
 
       if (schemaWithoutOneOf.properties) {
         return createIntersectionDeclaration({
-          nodes: [this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName), union].filter(Boolean) as ts.TypeNode[],
+          nodes: [this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName), union].filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
         })
       }
 
-      return createIntersectionDeclaration({
-        nodes: [union],
-      })
+      return union
     }
 
     if (schema.anyOf) {
@@ -240,22 +239,20 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const and = factory.createParenthesizedType(
         factory.createIntersectionTypeNode(
           schema.allOf
-            .map((item) => {
+            .map((item: any) => {
               return this.getBaseTypeFromSchema(item)
             })
-            .filter(Boolean) as ts.TypeNode[]
+            .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>
         )
       )
 
       if (schemaWithoutAllOf.properties) {
         return createIntersectionDeclaration({
-          nodes: [this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName), and].filter(Boolean) as ts.TypeNode[],
+          nodes: [this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName), and].filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
         })
       }
 
-      return createIntersectionDeclaration({
-        nodes: [and],
-      })
+      return and
     }
 
     /**
@@ -285,9 +282,9 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.enum) {
       return createUnionDeclaration({
-        nodes: schema.enum.map((name) => {
+        nodes: schema.enum.map((name: any) => {
           return factory.createLiteralTypeNode(typeof name === 'number' ? factory.createNumericLiteral(name) : factory.createStringLiteral(`${name}`))
-        }),
+        }) as unknown as ArrayTwoOrMore<ts.TypeNode>,
       })
     }
 
@@ -309,7 +306,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         nodes: prefixItems.map((item) => {
           // no baseType so we can fall back on an union when using enum
           return this.getBaseTypeFromSchema(item, undefined)!
-        }),
+        }) as ArrayTwoOrMore<ts.TypeNode>,
       })
     }
 
@@ -333,7 +330,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
               baseName
             )!,
             nullable ? factory.createLiteralTypeNode(factory.createNull()) : undefined,
-          ].filter(Boolean) as ts.TypeNode[],
+          ].filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
         })
       }
       // string, boolean, null, number
