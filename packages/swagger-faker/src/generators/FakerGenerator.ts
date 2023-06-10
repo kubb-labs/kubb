@@ -4,7 +4,7 @@ import { isReference } from '@kubb/swagger'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
 import { pascalCase } from 'change-case'
-import uniqueId from 'lodash.uniqueid'
+import { uniqueId } from 'typedash'
 
 import { fakerKeywords, fakerParser } from '../parsers/index.ts'
 import { pluginName } from '../plugin.ts'

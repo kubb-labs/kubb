@@ -3,7 +3,7 @@ import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 
 import { pascalCase } from 'change-case'
-import uniqueId from 'lodash.uniqueid'
+import { uniqueId } from 'typedash'
 
 import { zodKeywords, zodParser } from '../parsers/index.ts'
 import { pluginName } from '../plugin.ts'

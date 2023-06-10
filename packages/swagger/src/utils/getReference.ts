@@ -1,4 +1,4 @@
-import get from 'lodash.get'
+import { get } from 'typedash'
 
 // See https://swagger.io/docs/specification/using-ref/
 export function getReference(spec: unknown, ref: string) {

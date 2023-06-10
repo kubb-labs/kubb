@@ -1,12 +1,61 @@
 {
   "extends": "@kubb/typescript-config/base.json",
   "compilerOptions": {
+    "baseUrl": ".",
     // "composite": true,
     // "rootDir": "./",
     // "outDir": "./dist",
     // "tsBuildInfoFile": "./build/.tsbuildinfo"
+    // add paths also here because when set with `base.json` it will use the `./dist` folder instead of `./src`.
+    "paths": {
+      "@kubb/cli": [
+        "../cli/src/index.ts"
+      ],
+      "@kubb/eslint-config": [
+        "../config/eslint/src/index.ts"
+      ],
+      "@kubb/tsup-config": [
+        "../config/tsup/src/index.ts"
+      ],
+      "@kubb/core": [
+        "../core/src/index.ts"
+      ],
+      "@kubb/swagger": [
+        "../swagger/src/index.ts"
+      ],
+      "@kubb/swagger-client": [
+        "../swagger-client/src/index.ts"
+      ],
+      "@kubb/swagger-client/client": [
+        "../swagger-client/src/client.ts"
+      ],
+      "@kubb/swagger-faker": [
+        "../swagger-faker/src/index.ts"
+      ],
+      "@kubb/swagger-tanstack-query": [
+        "../swagger-tanstack-query/src/index.ts"
+      ],
+      "@kubb/swagger-ts": [
+        "../swagger-ts/src/index.ts"
+      ],
+      "@kubb/swagger-zod": [
+        "../swagger-zod/src/index.ts"
+      ],
+      "@kubb/swagger-zodios": [
+        "../swagger-zodios/src/index.ts"
+      ],
+      "@kubb/ts-codegen": [
+        "../ts-codegen/src/index.ts"
+      ]
+    }
   },
-  "include": ["src/**/*", "./mocks/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"],
+  "include": [
+    "src/**/*",
+    "./mocks/*",
+    "./package.json",
+    "./tsup.config.ts",
+    "./vitest.config.ts"
+  ],
   "exclude": [
     "**/node_modules",
     "**/types/**",

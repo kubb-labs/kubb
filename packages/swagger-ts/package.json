@@ -54,14 +54,13 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/ts-codegen": "workspace:*",
     "change-case": "^4.1.2",
-    "lodash.uniqueid": "^4.0.1",
+    "typedash": "^3.0.4",
     "typescript": "^5.1.3"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@kubb/typescript-config": "workspace:*",
-    "@types/lodash.uniqueid": "^4.0.7",
     "eslint": "^8.42.0",
     "tsup": "^6.7.0"
   },
