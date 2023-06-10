@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.8](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.1.7...@kubb/ts-codegen-v1.1.8) (2023-06-10)
+
+
+### Miscellaneous Chores
+
+* **@kubb/ts-codegen:** Synchronize undefined versions
+
 ## [1.1.7](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.1.6...@kubb/ts-codegen-v1.1.7) (2023-06-08)
 
 

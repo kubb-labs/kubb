@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.8](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.1.7...@kubb/core-v1.1.8) (2023-06-10)
+
+
+### Bug Fixes
+
+* remove `lodash` dependency ([8729ef8](https://github.com/kubb-project/kubb/commit/8729ef8f3f3d487b7c239f015e8321aabe17bd3b))
+
 ## [1.1.7](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.1.6...@kubb/core-v1.1.7) (2023-06-08)
 
 

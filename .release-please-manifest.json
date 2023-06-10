@@ -1,13 +1,13 @@
 {
-  "packages/core": "1.1.7",
-  "packages/cli": "1.1.7",
-  "packages/ts-codegen": "1.1.7",
-  "packages/swagger": "1.1.7",
-  "packages/swagger-ts": "1.1.7",
-  "packages/swagger-client": "1.1.7",
-  "packages/swagger-tanstack-query": "1.1.7",
-  "packages/swagger-swr": "1.1.7",
-  "packages/swagger-zod": "1.1.7",
-  "packages/swagger-zodios": "1.1.7",
-  "packages/swagger-faker": "1.1.7"
+  "packages/core": "1.1.8",
+  "packages/cli": "1.1.8",
+  "packages/ts-codegen": "1.1.8",
+  "packages/swagger": "1.1.8",
+  "packages/swagger-ts": "1.1.8",
+  "packages/swagger-client": "1.1.8",
+  "packages/swagger-tanstack-query": "1.1.8",
+  "packages/swagger-swr": "1.1.8",
+  "packages/swagger-zod": "1.1.8",
+  "packages/swagger-zodios": "1.1.8",
+  "packages/swagger-faker": "1.1.8"
 }
