@@ -14,20 +14,56 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
     "paths": {
-      "@kubb/core":["../core/src/index.ts"],
-      "@kubb/swagger":["../swagger/src/index.ts"],
-      "@kubb/swagger-ts":["../swagger-ts/src/index.ts"],
-      "@kubb/swagger-client":["../swagger-client/src/index.ts"],
-      "@kubb/swagger-tanstack-query":["../swagger-tanstack-query/src/index.ts"],
-      "@kubb/swagger-zod":["../swagger-zod/src/index.ts"]
+      "@kubb/cli": [
+        "../../packages/cli/src/index.ts"
+      ],
+      "@kubb/eslint-config": [
+        "../../packages/config/eslint/src/index.ts"
+      ],
+      "@kubb/tsup-config": [
+        "../../packages/config/tsup/src/index.ts"
+      ],
+      "@kubb/core": [
+        "../../packages/core/src/index.ts"
+      ],
+      "@kubb/swagger": [
+        "../../packages/swagger/src/index.ts"
+      ],
+      "@kubb/swagger-client": [
+        "../../packages/swagger-client/src/index.ts"
+      ],
+      "@kubb/swagger-client/client": [
+        "../../packages/swagger-client/src/client.ts"
+      ],
+      "@kubb/swagger-faker": [
+        "../../packages/swagger-faker/src/index.ts"
+      ],
+      "@kubb/swagger-tanstack-query": [
+        "../../packages/swagger-tanstack-query/src/index.ts"
+      ],
+      "@kubb/swagger-ts": [
+        "../../packages/swagger-ts/src/index.ts"
+      ],
+      "@kubb/swagger-zod": [
+        "../../packages/swagger-zod/src/index.ts"
+      ],
+      "@kubb/swagger-zodios": [
+        "../../packages/swagger-zodios/src/index.ts"
+      ],
+      "@kubb/ts-codegen": [
+        "../../packages/ts-codegen/src/index.ts"
+      ]
     }
   },
-  "include": ["./src/**/*"],
+  "include": [
+    "./src/**/*"
+  ],
   "exclude": [
     "**/node_modules",
     "**/types/**",
     "**/mocks/**"
-   
   ]
 }
