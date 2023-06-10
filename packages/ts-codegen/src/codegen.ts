@@ -1,13 +1,19 @@
 import ts from 'typescript'
 
+import type { ArrayTwoOrMore } from './types'
+
 const { factory } = ts
 
-export const modifier = {
+// https://ts-ast-viewer.com/
+
+export const modifiers = {
   async: factory.createModifier(ts.SyntaxKind.AsyncKeyword),
   export: factory.createModifier(ts.SyntaxKind.ExportKeyword),
+  const: factory.createModifier(ts.SyntaxKind.ConstKeyword),
+  static: factory.createModifier(ts.SyntaxKind.StaticKeyword),
 } as const
 
-export function isValidIdentifier(str: string) {
+function isValidIdentifier(str: string) {
   if (!str.length || str.trim() !== str) return false
   const node = ts.parseIsolatedEntityName(str, ts.ScriptTarget.Latest)
 
@@ -21,12 +27,33 @@ function propertyName(name: string | ts.PropertyName): ts.PropertyName {
   return name
 }
 
-export const questionToken = factory.createToken(ts.SyntaxKind.QuestionToken)
+const questionToken = factory.createToken(ts.SyntaxKind.QuestionToken)
 
 export function createQuestionToken(token?: boolean | ts.QuestionToken) {
   if (!token) return undefined
   if (token === true) return questionToken
   return token
+}
+
+export function createIntersectionDeclaration({ nodes }: { nodes: ArrayTwoOrMore<ts.TypeNode> }) {
+  return factory.createIntersectionTypeNode(nodes)
+}
+
+/**
+ *
+ * Minimum nodes lenght of 2
+ * @example `string & number`
+ */
+export function createTupleDeclaration({ nodes }: { nodes: ArrayTwoOrMore<ts.TypeNode> }) {
+  return factory.createTupleTypeNode(nodes)
+}
+/**
+ *
+ * Minimum nodes lenght of 2
+ * @example `string | number`
+ */
+export function createUnionDeclaration({ nodes }: { nodes: ArrayTwoOrMore<ts.TypeNode> }) {
+  return factory.createUnionTypeNode(nodes)
 }
 
 export function createPropertySignature({
@@ -43,32 +70,7 @@ export function createPropertySignature({
   return factory.createPropertySignature(modifiers, propertyName(name), createQuestionToken(questionToken), type)
 }
 
-export function createJSDoc({ comments }: { comments: string[] }) {
-  return factory.createJSDocComment(
-    factory.createNodeArray(
-      comments?.map((comment, i) => (i === comments.length - 1 ? factory.createJSDocText(comment) : factory.createJSDocText(`${comment}\n`)))
-    )
-  )
-}
-
-/**
- * @link https://github.com/microsoft/TypeScript/issues/44151
- */
-export function appendJSDocToNode<TNode extends ts.Node>({ node, comments }: { node: TNode; comments: Array<string | undefined> }) {
-  const filteredComments = comments.filter(Boolean)
-
-  if (!filteredComments.length) {
-    return node
-  }
-
-  const text = filteredComments.reduce((acc = '', comment = '') => {
-    return `${acc}\n* ${comment}`
-  }, '*')
-
-  return ts.addSyntheticLeadingComment(node, ts.SyntaxKind.MultiLineCommentTrivia, `${text || '*'}\n`, true)
-}
-
-export function createParameter(
+export function createParameterSignature(
   name: string | ts.BindingName,
   {
     modifiers,
@@ -88,6 +90,38 @@ export function createParameter(
   return factory.createParameterDeclaration(modifiers, dotDotDotToken, name, createQuestionToken(questionToken), type, initializer)
 }
 
+export function createJSDoc({ comments }: { comments: string[] }) {
+  return factory.createJSDocComment(
+    factory.createNodeArray(
+      comments?.map((comment, i) => {
+        if (i === comments.length - 1) {
+          return factory.createJSDocText(comment)
+        }
+
+        return factory.createJSDocText(`${comment}\n`)
+      })
+    )
+  )
+}
+
+/**
+ * @link https://github.com/microsoft/TypeScript/issues/44151
+ */
+export function appendJSDocToNode<TNode extends ts.Node>({ node, comments }: { node: TNode; comments: Array<string | undefined> }) {
+  const filteredComments = comments.filter(Boolean)
+
+  if (!filteredComments.length) {
+    return node
+  }
+
+  const text = filteredComments.reduce((acc = '', comment = '') => {
+    return `${acc}\n* ${comment}`
+  }, '*')
+
+  // node: {...node}, with that ts.addSyntheticLeadingComment is appending
+  return ts.addSyntheticLeadingComment({ ...node }, ts.SyntaxKind.MultiLineCommentTrivia, `${text || '*'}\n`, true)
+}
+
 export function createIndexSignature(
   type: ts.TypeNode,
   {
@@ -101,7 +135,7 @@ export function createIndexSignature(
     modifiers?: Array<ts.Modifier>
   } = {}
 ) {
-  return factory.createIndexSignature(modifiers, [createParameter(indexName, { type: indexType })], type)
+  return factory.createIndexSignature(modifiers, [createParameterSignature(indexName, { type: indexType })], type)
 }
 
 export function createTypeAliasDeclaration({
@@ -150,17 +184,9 @@ export function createImportDeclaration({
           if (typeof propertyName === 'object') {
             const obj = propertyName as { propertyName: string; name?: string }
             if (obj.name) {
-              return factory.createImportSpecifier(
-                false,
-                typeof obj.propertyName === 'string' ? factory.createIdentifier(obj.propertyName) : obj.propertyName,
-                factory.createIdentifier(obj.name)
-              )
+              return factory.createImportSpecifier(false, factory.createIdentifier(obj.propertyName), factory.createIdentifier(obj.name))
             }
-            return factory.createImportSpecifier(
-              false,
-              undefined,
-              typeof obj.propertyName === 'string' ? factory.createIdentifier(obj.propertyName) : obj.propertyName
-            )
+            return factory.createImportSpecifier(false, undefined, factory.createIdentifier(obj.propertyName))
           }
 
           return factory.createImportSpecifier(false, undefined, typeof propertyName === 'string' ? factory.createIdentifier(propertyName) : propertyName)
@@ -173,6 +199,10 @@ export function createImportDeclaration({
 }
 
 export function createExportDeclaration({ path, asAlias, name }: { path: string; asAlias?: boolean; name?: string | Array<ts.Identifier | string> }) {
+  if (name && !Array.isArray(name) && !asAlias) {
+    throw new Error('When using `name` as string, `asAlias` should be true')
+  }
+
   if (!Array.isArray(name)) {
     return factory.createExportDeclaration(
       undefined,
@@ -197,12 +227,15 @@ export function createExportDeclaration({ path, asAlias, name }: { path: string;
 }
 
 export function createEnumDeclaration({
+  type = 'enum',
   name,
   typeName,
   enums,
-  type,
 }: {
-  type: 'enum' | 'asConst' | 'asPascalConst'
+  /**
+   * @default `'enum'`
+   */
+  type?: 'enum' | 'asConst' | 'asPascalConst'
   /**
    * Enum name in camelCase.
    */
@@ -211,7 +244,7 @@ export function createEnumDeclaration({
    * Enum name in PascalCase.
    */
   typeName: string
-  enums: [key: string, value: string | number][]
+  enums: [key: string, value: string | number | boolean][]
 }) {
   if (type === 'enum') {
     return [
@@ -219,10 +252,16 @@ export function createEnumDeclaration({
         [factory.createToken(ts.SyntaxKind.ExportKeyword)],
         factory.createIdentifier(typeName),
         enums.map(([key, value]) => {
-          return factory.createEnumMember(
-            factory.createStringLiteral(`${key}`),
-            typeof value === 'number' ? factory.createNumericLiteral(value) : factory.createStringLiteral(`${value}`)
-          )
+          let initializer: ts.Expression = factory.createStringLiteral(`${value}`)
+
+          if (typeof value === 'number') {
+            initializer = factory.createNumericLiteral(value)
+          }
+          if (typeof value === 'boolean') {
+            initializer = value ? factory.createTrue() : factory.createFalse()
+          }
+
+          return factory.createEnumMember(factory.createStringLiteral(`${key}`), initializer)
         })
       ),
     ]
@@ -243,10 +282,16 @@ export function createEnumDeclaration({
             factory.createAsExpression(
               factory.createObjectLiteralExpression(
                 enums.map(([key, value]) => {
-                  return factory.createPropertyAssignment(
-                    factory.createStringLiteral(`${key}`),
-                    typeof value === 'number' ? factory.createNumericLiteral(value) : factory.createStringLiteral(`${value}`)
-                  )
+                  let initializer: ts.Expression = factory.createStringLiteral(`${value}`)
+
+                  if (typeof value === 'number') {
+                    initializer = factory.createNumericLiteral(value)
+                  }
+                  if (typeof value === 'boolean') {
+                    initializer = value ? factory.createTrue() : factory.createFalse()
+                  }
+
+                  return factory.createPropertyAssignment(factory.createStringLiteral(`${key}`), initializer)
                 }),
                 true
               ),
@@ -267,16 +312,4 @@ export function createEnumDeclaration({
       )
     ),
   ]
-}
-
-export function createIntersectionDeclaration({ nodes }: { nodes: ts.TypeNode[] }) {
-  return factory.createIntersectionTypeNode(nodes)
-}
-
-export function createTupleDeclaration({ nodes }: { nodes: ts.TypeNode[] }) {
-  return factory.createTupleTypeNode(nodes)
-}
-
-export function createUnionDeclaration({ nodes }: { nodes: ts.TypeNode[] }) {
-  return factory.createUnionTypeNode(nodes)
 }
