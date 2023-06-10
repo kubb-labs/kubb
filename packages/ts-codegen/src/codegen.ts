@@ -198,7 +198,17 @@ export function createImportDeclaration({
   )
 }
 
-export function createExportDeclaration({ path, asAlias, name }: { path: string; asAlias?: boolean; name?: string | Array<ts.Identifier | string> }) {
+export function createExportDeclaration({
+  path,
+  asAlias,
+  isTypeOnly = false,
+  name,
+}: {
+  path: string
+  asAlias?: boolean
+  isTypeOnly?: boolean
+  name?: string | Array<ts.Identifier | string>
+}) {
   if (name && !Array.isArray(name) && !asAlias) {
     throw new Error('When using `name` as string, `asAlias` should be true')
   }
@@ -206,7 +216,7 @@ export function createExportDeclaration({ path, asAlias, name }: { path: string;
   if (!Array.isArray(name)) {
     return factory.createExportDeclaration(
       undefined,
-      false,
+      isTypeOnly,
       asAlias && name ? factory.createNamespaceExport(factory.createIdentifier(name)) : undefined,
       factory.createStringLiteral(path),
       undefined
@@ -215,7 +225,7 @@ export function createExportDeclaration({ path, asAlias, name }: { path: string;
 
   return factory.createExportDeclaration(
     undefined,
-    false,
+    isTypeOnly,
     factory.createNamedExports(
       name.map((propertyName) => {
         return factory.createExportSpecifier(false, undefined, typeof propertyName === 'string' ? factory.createIdentifier(propertyName) : propertyName)
