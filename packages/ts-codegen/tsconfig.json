@@ -6,12 +6,16 @@
     // "outDir": "./dist",
     // "tsBuildInfoFile": "./build/.tsbuildinfo"
   },
-  "include": ["src/**/*", "./package.json", "./tsup.config.ts", "./vitest.config.ts"],
+  "include": [
+    "src/**/*",
+    "./package.json",
+    "./tsup.config.ts",
+    "./vitest.config.ts"
+  ],
   "exclude": [
     "**/node_modules",
     "**/types/**",
     "**/mocks/**"
   ],
-  "references": [
-  ]
+  "references": []
 }
