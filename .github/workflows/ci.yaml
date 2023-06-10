@@ -32,6 +32,9 @@ jobs:
             node-version: 18
             cache: 'pnpm'
             registry-url: 'https://registry.npmjs.org'
+
+        - name: Install bun
+          uses: oven-sh/setup-bun@v1
  
         - name: Install dependencies
           run: pnpm install
