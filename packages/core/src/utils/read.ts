@@ -6,11 +6,11 @@ function slash(path: string, platform: 'windows' | 'mac' | 'linux' = 'linux') {
 
   if (['linux', 'mac'].includes(platform) && !isWindowsPath) {
     // linux and mac
-    return path.replace('../', '').trimEnd()
+    return path.replaceAll(/\\/g, '/').replace('../', '').trimEnd()
   }
 
   // windows
-  return path.replace(/\\/g, '/').replace('../', '').trimEnd()
+  return path.replaceAll(/\\/g, '/').replace('../', '').trimEnd()
 }
 
 export function getRelativePath(rootDir?: string | null, filePath?: string | null, platform: 'windows' | 'mac' | 'linux' = 'linux') {
