@@ -136,7 +136,7 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
   /**
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */
-  options: TOptions['options']
+  options?: TOptions['options']
   /**
    * Kind/type for the plugin
    * Type 'schema' can be used for JSON schema's, TypeScript types, ...
