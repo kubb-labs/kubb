@@ -33,7 +33,11 @@
       "module": "./dist/client.js",
       "default": "./dist/client.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*": "./*",
+    "./globals": {
+      "types": "./globals.d.ts"
+    }
   },
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -48,6 +52,8 @@
   "files": [
     "dist",
     "src",
+    "*.d.ts",
+    "*.d.cts",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
@@ -55,7 +61,7 @@
     "build": "tsup",
     "clean": "rimraf ./dist",
     "lint": "eslint \"**/*.{ts,tsx}\"",
-    "lint-fix": "eslint \"**/*.{ts,tsx}\" --quiet --fix",
+    "lint-fix": "bun run lint --quiet --fix",
     "prepack": "bun run build",
     "release": "pnpm publish --no-git-check",
     "start": "tsup --watch",

@@ -7,6 +7,12 @@
     // "outDir": "./dist",
     // "tsBuildInfoFile": "./build/.tsbuildinfo"
     // add paths also here because when set with `base.json` it will use the `./dist` folder instead of `./src`.
+    "types": [
+      "vitest/globals",
+      "bun-types",
+      "@kubb/core/globals",
+      "./globals"
+    ],
     "paths": {
       "@kubb/cli": [
         "../cli/src/index.ts"

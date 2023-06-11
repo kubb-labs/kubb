@@ -31,7 +31,8 @@
       "module": "./dist/index.js",
       "default": "./dist/index.cjs"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*": "./*"
   },
   "main": "dist/index.js",
   "module": "dist/index.js",

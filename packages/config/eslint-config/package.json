@@ -17,7 +17,8 @@
       "module": "./dist/flat.js",
       "default": "./dist/flat.cjs"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./*": "./*"
   },
   "main": "dist/index.js",
   "module": "dist/index.js",

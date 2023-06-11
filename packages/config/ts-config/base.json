@@ -19,7 +19,10 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,
-    "types": ["vitest/globals", "bun-types"],
+    "types": [
+      "vitest/globals",
+      "bun-types"
+    ],
     "paths": {
       "@kubb/cli":["packages/cli"],
       "@kubb/eslint-config":["packages/config/eslint"],

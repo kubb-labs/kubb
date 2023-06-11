@@ -27,7 +27,7 @@ export type KubbUserConfig = Omit<KubbConfig, 'root' | 'plugins'> & {
    * Example: ['@kubb/swagger', { output: false }]
    * Or: createSwagger({ output: false })
    */
-  plugins?: KubbPlugin[] | KubbJSONPlugin[] | KubbObjectPlugin
+  plugins?: KubbPlugin[] | KubbJSONPlugins[] | KubbObjectPlugins
 }
 
 /**
@@ -121,9 +121,9 @@ export type BuildOutput = {
 
 export type KubbPluginKind = 'schema' | 'controller'
 
-export type KubbJSONPlugin = [plugin: keyof Register | string, options: Register[keyof Register] | object]
+export type KubbJSONPlugins = [plugin: keyof Register | string, options: Register[keyof Register] | object]
 
-export type KubbObjectPlugin = {
+export type KubbObjectPlugins = {
   [K in keyof Register]: Register[K] | object
 }
 
@@ -133,6 +133,10 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * @example @kubb/typescript
    */
   name: string
+  /**
+   * Options set for a specific plugin(see kubb.config.js), passthrough of options.
+   */
+  options: TOptions['options']
   /**
    * Kind/type for the plugin
    * Type 'schema' can be used for JSON schema's, TypeScript types, ...
@@ -144,10 +148,6 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * Defined an api that can be used by other plugins
    */
   api?: TOptions['api']
-  /**
-   * Options set for a specific plugin(see kubb.config.js)
-   */
-  options?: TOptions['options']
 } & Partial<PluginLifecycle<TOptions>>
 
 // use of type objects
