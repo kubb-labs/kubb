@@ -8,13 +8,14 @@ jobs:
   build:
       name: Build and Test
       timeout-minutes: 15
-      runs-on: ubuntu-latest
       strategy:
         matrix:
+          platform: [ubuntu-latest]
           node-version:
             - 18
             - 19
             - 20
+      runs-on: ${{ matrix.platform }}
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
       #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
