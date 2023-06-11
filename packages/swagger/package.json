@@ -59,8 +59,8 @@
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
+    "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@kubb/typescript-config": "workspace:*",
     "@types/swagger2openapi": "^7.0.0",
     "eslint": "^8.42.0",
     "openapi-types": "^12.1.3",

@@ -1,4 +1,4 @@
-import { options, optionsCJS, optionsESM } from '@kubb/tsup-config'
+import { optionsCJS, optionsESM } from '@kubb/tsup-config'
 
 import { defineConfig } from 'tsup'
 
@@ -6,24 +6,13 @@ export default defineConfig([
   optionsCJS,
   optionsESM,
   {
-    ...options,
+    ...optionsCJS,
     entry: ['src/client.ts'],
     name: 'client',
-    format: 'esm',
-    dts: true,
-    splitting: false,
   },
   {
-    ...options,
-    entry: ['src/index.ts'],
+    ...optionsESM,
+    entry: ['src/client.ts'],
     name: 'client',
-    format: 'cjs',
-    dts: {
-      compilerOptions: {
-        target: 'ES5',
-        module: 'commonjs',
-        moduleResolution: 'node',
-      },
-    },
   },
 ])

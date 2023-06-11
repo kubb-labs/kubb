@@ -1,0 +1,48 @@
+{
+  "name": "@kubb/tsup-config",
+  "version": "1.1.8",
+  "private": true,
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "module": "./dist/index.js",
+      "default": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "schemas",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf ./dist",
+    "start": "tsup --watch"
+  },
+  "devDependencies": {
+    "@kubb/ts-config": "workspace:*",
+    "@types/node": "^20.2.6",
+    "tsup": "^6.7.0"
+  },
+  "peerDependencies": {
+    "tsup": "^6.7.0"
+  },
+  "packageManager": "pnpm@8.3.0",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8.3.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

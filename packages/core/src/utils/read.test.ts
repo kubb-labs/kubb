@@ -1,12 +1,8 @@
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { clean } from './clean.ts'
 import { getPathMode, getRelativePath, read } from './read.ts'
 import { write } from './write.ts'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 describe('read', () => {
   const mocksPath = path.resolve(__dirname, '../../mocks')

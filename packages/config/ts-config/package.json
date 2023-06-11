@@ -1,5 +1,5 @@
 {
-  "name": "@kubb/typescript-config",
+  "name": "@kubb/ts-config",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {

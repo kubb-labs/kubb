@@ -1,6 +1,6 @@
 umd
 build
-config
+config/**
 esnext
 es
 dist

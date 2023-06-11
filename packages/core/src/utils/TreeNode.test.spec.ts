@@ -1,13 +1,9 @@
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { TreeNode } from './TreeNode.js'
 
 import type { Path } from '../types.js'
 import type { PathMode } from './read.js'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 type TreeNodeData = { type: PathMode; path: Path; name: string }
 

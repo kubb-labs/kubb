@@ -1,0 +1,26 @@
+{
+  "extends": "@kubb/ts-config/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    // "composite": true,
+    // "rootDir": ".",
+    // "outDir": "./dist",
+    // "tsBuildInfoFile": "./build/.tsbuildinfo"
+    // add paths also here because when set with `base.json` it will use the `./dist` folder instead of `./src`.
+    "paths": {}
+  },
+  "include": [
+    "src/**/*",
+    "./package.json",
+    "./tsup.config.ts"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/types/**"
+  ],
+  // "references": [
+  //   { "path": "../swagger" },
+  //   { "path": "../core" },
+  //   { "path": "../ts-codegen" }
+  // ]
+}
