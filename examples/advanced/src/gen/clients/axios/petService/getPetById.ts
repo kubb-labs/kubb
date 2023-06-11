@@ -1,4 +1,4 @@
-import client from '../../../../client'
+import client from '../client'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../models/ts/petController/GetPetById'
 
 /**

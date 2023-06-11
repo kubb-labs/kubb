@@ -2,19 +2,6 @@ import { CreateAxiosDefaults } from 'axios'
 
 import type { PluginFactoryOptions } from '@kubb/core'
 
-export type RequestConfig<TVariables = unknown> = {
-  method: 'get' | 'put' | 'patch' | 'post' | 'delete'
-
-  url: string
-
-  params?: unknown
-
-  data?: TVariables
-
-  responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
-  signal?: AbortSignal
-}
-
 /**
  * We override `process.env` so no need to import this
  * @example tsconfig.json
@@ -67,7 +54,7 @@ export type Options = {
   /**
    * Path to the client that will be used to do the API calls.
    * Relative to the root
-   * @default '@kubb/swagger-client/client.ts'
+   * @default '@kubb/swagger-client/ts-client'
    */
   client?: string
 }

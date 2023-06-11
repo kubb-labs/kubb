@@ -1,4 +1,4 @@
-import client from '../../../../client'
+import client from '../client'
 import type { GetInventoryQueryResponse } from '../../../models/ts/storeController/GetInventory'
 
 /**

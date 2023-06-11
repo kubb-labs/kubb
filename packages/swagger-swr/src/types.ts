@@ -31,7 +31,7 @@ export type Options = {
   /**
    * Path to the client that will be used to do the API calls.
    * Relative to the root
-   * @default '@kubb/swagger-client/client.ts'
+   * @default '@kubb/swagger-client/ts-client'
    */
   client?: string
 }

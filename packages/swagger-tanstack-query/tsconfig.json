@@ -33,7 +33,10 @@
         "../swagger-client/src/index.ts"
       ],
       "@kubb/swagger-client/client": [
-        "../swagger-client/src/client.ts"
+        "../swagger-client/client.ts"
+      ],
+      "@kubb/swagger-client/ts-client": [
+        "../swagger-client/client.ts"
       ],
       "@kubb/swagger-faker": [
         "../swagger-faker/src/index.ts"

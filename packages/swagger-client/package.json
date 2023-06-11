@@ -31,7 +31,13 @@
       "types": "./dist/client.d.ts",
       "import": "./dist/client.js",
       "module": "./dist/client.js",
-      "default": "./dist/client.js"
+      "default": "./dist/client.cjs"
+    },
+    "./ts-client": {
+      "types": "./dist/client.d.ts",
+      "import": "./client.ts",
+      "module": "./client.ts",
+      "default": "./client.ts"
     },
     "./package.json": "./package.json",
     "./*": "./*",
@@ -46,12 +52,16 @@
     "*": {
       "client": [
         "./dist/client.d.ts"
+      ],
+      "ts-client": [
+        "./dist/client.d.ts"
       ]
     }
   },
   "files": [
     "dist",
     "src",
+    "client.ts",
     "*.d.ts",
     "*.d.cts",
     "!/**/**.test.**",
