@@ -1,3 +1,4 @@
+import { oasParser } from '../parsers/oasParser.ts'
 import { definePlugin } from '../plugin.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
@@ -52,7 +53,7 @@ const swaggerApi = definePlugin({}).api
 
 describe('abstract class OperationGenerator', () => {
   test('if pathParams return undefined when there are no params in path', async () => {
-    const oas = (await swaggerApi?.getOas({
+    const oas = (await oasParser({
       root: './',
       output: { path: 'test', clean: true },
       input: { path: 'packages/swagger/mocks/petStore.yaml' },

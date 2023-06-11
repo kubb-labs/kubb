@@ -11,6 +11,7 @@ import type { CorePluginOptions } from '../../plugin.ts'
 import type {
   KubbConfig,
   KubbPlugin,
+  KubbUserPlugin,
   MaybePromise,
   PluginContext,
   PluginLifecycle,
@@ -37,6 +38,19 @@ const hookNames: {
   buildEnd: 1,
 }
 export const hooks = Object.keys(hookNames) as [PluginLifecycleHooks]
+// TODO move to utils file
+const convertKubbUserPluginToKubbPlugin = (plugin: KubbUserPlugin, context: CorePluginOptions['api'] | undefined): KubbPlugin | null => {
+  if (plugin.api && typeof plugin.api === 'function') {
+    const api = (plugin.api as Function).call(context)
+
+    return {
+      ...plugin,
+      api,
+    }
+  }
+
+  return null
+}
 
 type Options = { task: QueueTask; onExecute?: OnExecute<PluginLifecycleHooks> }
 
@@ -70,24 +84,21 @@ export class PluginManager {
     }) as KubbPlugin<CorePluginOptions> & {
       api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api']
     }
-    this.core = core
-    this.plugins = [core, ...(config.plugins || [])].reduce((prev, plugin) => {
+
+    const convertedCore = convertKubbUserPluginToKubbPlugin(core, core.api.call(null as any))
+
+    this.core = convertedCore as KubbPlugin<CorePluginOptions>
+
+    this.plugins = [this.core, ...(config.plugins || [])].reduce((prev, plugin) => {
       // TODO HACK to be sure that this is equal to the `core.api` logic.
-      const coreApi = prev.find((item) => item.name === 'core')
 
-      if (plugin.api && typeof plugin.api === 'function') {
-        const api = (plugin.api as Function).call(coreApi?.api)
+      const convertedApi = convertKubbUserPluginToKubbPlugin(plugin!, convertedCore?.api)
 
-        return [
-          ...prev,
-          {
-            ...plugin,
-            api,
-          },
-        ]
+      if (convertedApi) {
+        return [...prev, convertedApi]
       }
 
-      return prev
+      return [...prev, plugin]
     }, [] as KubbPlugin[])
   }
 
