@@ -40,11 +40,13 @@ jobs:
  
         - name: Install dependencies
           run: pnpm install
+          
         # ENABLE when Bun has support for Windows
         # - name: Install bun
         #   uses: oven-sh/setup-bun@v1
 
-        - uses: dtinth/setup-github-actions-caching-for-turbo@v1
+        # ENABLE when Turbo caching has support for Windows
+        # - uses: dtinth/setup-github-actions-caching-for-turbo@v1
 
         - name: Build
           run: pnpm run build
