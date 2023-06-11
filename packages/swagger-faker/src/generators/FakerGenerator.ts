@@ -1,4 +1,3 @@
- 
 import { getUniqueName, SchemaGenerator, uniqueId } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
@@ -134,7 +133,6 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
     const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
 
     if (originalName === baseName) {
-       
       ref = this.refs[$ref] = {
         propertyName,
         originalName,
@@ -144,7 +142,6 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       return [{ keyword: fakerKeywords.ref, args: ref.name }]
     }
 
-     
     ref = this.refs[$ref] = {
       propertyName,
       originalName,

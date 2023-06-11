@@ -1,7 +1,3 @@
- 
- 
- 
-
 import pathParser from 'node:path'
 
 import { createPlugin, getPathMode, getRelativePath, renderTemplate, validatePlugins, writeIndexes } from '@kubb/core'

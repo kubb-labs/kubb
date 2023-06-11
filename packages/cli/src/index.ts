@@ -1,5 +1,4 @@
 #!/usr/bin/env node
- 
 import pathParser from 'node:path'
 
 import { Command, Option } from 'commander'

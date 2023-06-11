@@ -1,4 +1,3 @@
- 
 import { Path } from './Path.ts'
 
 describe('Path', () => {

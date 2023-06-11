@@ -1,7 +1,5 @@
 import pathParser from 'node:path'
 
- 
-
 import { createPlugin } from '@kubb/core'
 
 import { oasParser } from './parsers/oasParser.ts'
