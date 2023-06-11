@@ -112,7 +112,7 @@ export const config: Linter.FlatConfig = {
 }
 
 const configExamples: Linter.FlatConfig = {
-  files: ['**/examples/**'],
+  files: ['examples/**', 'e2e/**'],
   rules: {
     'import/extensions': [
       'warn',
