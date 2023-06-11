@@ -22,10 +22,11 @@
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "kubb": "dist/index.cjs"
+    "kubb": "bin/kubb.js"
   },
   "files": [
     "dist",
+    "bin",
     "src",
     "!/**/**.test.**",
     "!/**/__tests__/**"
