@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises'
 import pathParser from 'node:path'
 
 import { createPlugin, getLocation, getPathMode, getRelativePath, importModule, read, renderTemplate, validatePlugins, writeIndexes } from '@kubb/core'
@@ -9,7 +8,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { OperationGenerator } from './generators/OperationGenerator.ts'
 
 import type { OptionalPath } from '@kubb/core'
-import type { API as SwaggerApi, Options as SwaggerOptions } from '@kubb/swagger'
+import type { API as SwaggerApi } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-client' as const
@@ -24,7 +23,6 @@ declare module '@kubb/core' {
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'clients', groupBy } = options
   let swaggerApi: SwaggerApi
-  let swaggerOptions: SwaggerOptions
 
   return {
     name: pluginName,
@@ -33,7 +31,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     validate(plugins) {
       const valid = validatePlugins(plugins, [swaggerPluginName])
       if (valid) {
-        swaggerOptions = plugins.find((plugin) => plugin.name === swaggerPluginName)?.options as SwaggerOptions
         swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api
       }
 
@@ -101,8 +98,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       // copy `client.ts`
-
-      const oas = await swaggerApi.getOas(this.config)
       const clientPath = this.resolvePath({ pluginName, fileName: 'client.ts' })
 
       if (clientPath) {
@@ -115,7 +110,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             `Cannot find the 'client.ts' file, or 'client' is not set in the options or '@kubb/swagger-client' is not included in your dependencies`
           )
         }
-        const baseURL = oas.api.servers?.at(swaggerOptions.server || 0)?.url
+
+        const baseURL = swaggerApi.getBaseURL()
 
         await this.addFile({
           fileName: 'client.ts',

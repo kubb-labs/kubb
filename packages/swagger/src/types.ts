@@ -4,7 +4,9 @@ import type { OpenAPIV3 } from 'openapi-types'
 import type { OasOptions } from './parsers/oasParser.ts'
 
 export type API = {
+  oas: Promise<Oas>
   getOas: (config: KubbConfig, options?: OasOptions) => Promise<Oas>
+  getBaseURL: () => Promise<string | undefined>
 }
 
 export type Options = {

@@ -4,11 +4,11 @@ import { createPluginCache, getStackTrace, transformReservedWord } from './utils
 
 import type { FileManager } from './managers/fileManager/FileManager.ts'
 import type { Executer } from './managers/index.ts'
-import type { KubbPlugin, PluginContext, PluginFactoryOptions, PluginLifecycleHooks } from './types.ts'
+import type { KubbUserPlugin, PluginContext, PluginFactoryOptions, PluginLifecycleHooks } from './types.ts'
 
 type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (
   options: T['options']
-) => T['nested'] extends true ? Array<KubbPlugin<T>> : KubbPlugin<T>
+) => T['nested'] extends true ? Array<KubbUserPlugin<T>> : KubbUserPlugin<T>
 
 export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptions>(factory: KubbPluginFactory<T>) {
   return (options: T['options']) => {
@@ -45,55 +45,56 @@ export const name = 'core' as const
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
   const { fileManager, resolvePath, resolveName, load } = options
 
-  const api: PluginContext = {
-    get config() {
-      return options.config
-    },
-    fileManager,
-    async addFile(...files) {
-      // TODO unstable, based on stack trace and name of the file(can be different)
-      const trace = getStackTrace()
-      const plugins = options.config.plugins
-        ?.filter((plugin) => trace[1].getFileName()?.includes(plugin.name))
-        .sort((a, b) => {
-          if (a.name.length < b.name.length) return 1
-          if (a.name.length > b.name.length) return -1
-          return 0
-        })
-      const pluginName = plugins?.[0].name
-
-      return Promise.all(
-        files.map((file) => {
-          const fileWithMeta = {
-            ...file,
-            meta: {
-              ...(file.meta || {}),
-              pluginName,
-            },
-          }
-
-          if (file.override) {
-            return fileManager.add(fileWithMeta)
-          }
-
-          return fileManager.addOrAppend(fileWithMeta)
-        })
-      )
-    },
-    resolvePath,
-    resolveName: (params) => {
-      const name = resolveName(params)
-
-      return transformReservedWord(name)
-    },
-    load,
-    cache: createPluginCache(Object.create(null)),
-  }
-
   return {
     name,
     options,
-    api,
+    api() {
+      // TODO watch out, typing is incorrect, `this` will be `null` with that core is normally the `this`
+      return {
+        get config() {
+          return options.config
+        },
+        fileManager,
+        async addFile(...files) {
+          // TODO unstable, based on stack trace and name of the file(can be different)
+          const trace = getStackTrace()
+          const plugins = options.config.plugins
+            ?.filter((plugin) => trace[1].getFileName()?.includes(plugin.name))
+            .sort((a, b) => {
+              if (a.name.length < b.name.length) return 1
+              if (a.name.length > b.name.length) return -1
+              return 0
+            })
+          const pluginName = plugins?.[0].name
+
+          return Promise.all(
+            files.map((file) => {
+              const fileWithMeta = {
+                ...file,
+                meta: {
+                  ...(file.meta || {}),
+                  pluginName,
+                },
+              }
+
+              if (file.override) {
+                return fileManager.add(fileWithMeta)
+              }
+
+              return fileManager.addOrAppend(fileWithMeta)
+            })
+          )
+        },
+        resolvePath,
+        resolveName: (params) => {
+          const name = resolveName(params)
+
+          return transformReservedWord(name)
+        },
+        load,
+        cache: createPluginCache(Object.create(null)),
+      }
+    },
     resolvePath(fileName) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 

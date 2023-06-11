@@ -8,7 +8,16 @@ import { ParallelPluginError } from './ParallelPluginError.ts'
 import { PluginError } from './PluginError.ts'
 
 import type { CorePluginOptions } from '../../plugin.ts'
-import type { KubbConfig, KubbPlugin, MaybePromise, PluginLifecycle, PluginLifecycleHooks, ResolveNameParams, ResolvePathParams } from '../../types.ts'
+import type {
+  KubbConfig,
+  KubbPlugin,
+  MaybePromise,
+  PluginContext,
+  PluginLifecycle,
+  PluginLifecycleHooks,
+  ResolveNameParams,
+  ResolvePathParams,
+} from '../../types.ts'
 import type { QueueTask } from '../../utils/Queue.ts'
 import type { Argument0, Executer, OnExecute, ParseResult, SafeParseResult, Strategy } from './types.ts'
 
@@ -51,7 +60,7 @@ export class PluginManager {
     this.queue = new Queue(10)
 
     this.fileManager = new FileManager({ task: options.task, queue: this.queue })
-    this.core = definePlugin({
+    const core = definePlugin({
       config,
       fileManager: this.fileManager,
       load: this.load,
@@ -59,9 +68,27 @@ export class PluginManager {
       resolveName: this.resolveName,
       getExecuter: this.getExecuter.bind(this),
     }) as KubbPlugin<CorePluginOptions> & {
-      api: CorePluginOptions['api']
+      api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api']
     }
-    this.plugins = [this.core, ...(config.plugins || [])]
+    this.core = core
+    this.plugins = [core, ...(config.plugins || [])].reduce((prev, plugin) => {
+      // TODO HACK to be sure that this is equal to the `core.api` logic.
+      const coreApi = prev.find((item) => item.name === 'core')
+
+      if (plugin.api && typeof plugin.api === 'function') {
+        const api = (plugin.api as Function).call(coreApi?.api)
+
+        return [
+          ...prev,
+          {
+            ...plugin,
+            api,
+          },
+        ]
+      }
+
+      return prev
+    }, [] as KubbPlugin[])
   }
 
   getExecuter() {

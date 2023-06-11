@@ -17,16 +17,27 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'schemas', validate = true } = options
-  const api: API = {
-    getOas: (config, oasOptions = { validate: false }) => oasParser(config, oasOptions),
-  }
+  const { output = 'schemas', validate = true, server = 0 } = options
 
   return {
     name: pluginName,
     options,
     kind: 'schema',
-    api,
+    api() {
+      const config = this.config
+
+      return {
+        get oas() {
+          return oasParser(config, { validate })
+        },
+        async getBaseURL() {
+          const oasInstance = await oasParser(config, { validate })
+          const baseURL = oasInstance.api.servers?.at(server)?.url
+          return baseURL
+        },
+        getOas: (config, oasOptions = { validate: false }) => oasParser(config, oasOptions),
+      }
+    },
     resolvePath(fileName) {
       if (output === false) {
         return undefined
@@ -51,7 +62,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return undefined
       }
 
-      const oas = await api.getOas(this.config, { validate })
+      const oas = await oasParser(this.config, { validate })
       const schemas = oas.getDefinition().components?.schemas || {}
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {

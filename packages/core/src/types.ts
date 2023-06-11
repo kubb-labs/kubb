@@ -127,6 +127,29 @@ export type KubbObjectPlugins = {
   [K in keyof Register]: Register[K] | object
 }
 
+export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+  /**
+   * Unique name used for the plugin
+   * @example @kubb/typescript
+   */
+  name: string
+  /**
+   * Options set for a specific plugin(see kubb.config.js), passthrough of options.
+   */
+  options: TOptions['options']
+  /**
+   * Kind/type for the plugin
+   * Type 'schema' can be used for JSON schema's, TypeScript types, ...
+   * Type 'controller' can be used to create generate API calls, React-Query hooks, Axios controllers, ...
+   * @default undefined
+   */
+  kind?: KubbPluginKind
+  /**
+   * Define an api that can be used by other plugins, see `PluginManager' where we convert from `KubbUserPlugin` to `KubbPlugin`(used when calling `createPlugin`).
+   */
+  api?: (this: Omit<PluginContext, 'addFile'>) => TOptions['api']
+} & Partial<PluginLifecycle<TOptions>>
+
 export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Unique name used for the plugin
@@ -145,7 +168,7 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    */
   kind?: KubbPluginKind
   /**
-   * Defined an api that can be used by other plugins
+   * Define an api that can be used by other plugins, see `PluginManager' where we convert from `KubbUserPlugin` to `KubbPlugin`(used when calling `createPlugin`).
    */
   api?: TOptions['api']
 } & Partial<PluginLifecycle<TOptions>>
