@@ -1,7 +1,7 @@
 import { objectToParameters } from './objectToParameters.ts'
 
 describe('objectToParameters', () => {
-  test('if object is resolved to a string with parameters', async () => {
+  test('if object is resolved to a string with parameters', () => {
     expect(objectToParameters([['firstName', 'FirstName']], { typed: false })).toEqual('firstName')
     expect(
       objectToParameters(
@@ -14,7 +14,7 @@ describe('objectToParameters', () => {
     ).toEqual('firstName, lastName')
   })
 
-  test('if object is resolved to a string with typed parameters', async () => {
+  test('if object is resolved to a string with typed parameters', () => {
     expect(objectToParameters([['firstName', 'User']], { typed: true })).toEqual('firstName: User["firstName"]')
     expect(
       objectToParameters(

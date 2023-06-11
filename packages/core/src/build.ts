@@ -1,4 +1,3 @@
-/* eslint-disable no-async-promise-executor */
 import { getFileSource } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
 import { clean, isURL, read } from './utils/index.ts'
@@ -23,6 +22,7 @@ async function transformReducer(
   this: PluginContext,
   _previousCode: string,
   result: TransformResult | Promise<TransformResult>,
+   
   _plugin: KubbPlugin
 ): Promise<string | null> {
   return result

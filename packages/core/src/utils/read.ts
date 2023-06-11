@@ -15,7 +15,7 @@ function slash(path: string, platform: 'windows' | 'mac' | 'linux' = 'linux') {
 
 export function getRelativePath(rootDir?: string | null, filePath?: string | null, platform: 'windows' | 'mac' | 'linux' = 'linux') {
   if (!rootDir || !filePath) {
-    throw new Error(`Root and file should be filled in when retrieving the relativePath, ${rootDir} ${filePath}`)
+    throw new Error(`Root and file should be filled in when retrieving the relativePath, ${rootDir || ''} ${filePath || ''}`)
   }
 
   const relativePath = pathParser.relative(rootDir, filePath)

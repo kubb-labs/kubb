@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
+ 
+ 
+ 
 
 import pathParser from 'node:path'
 

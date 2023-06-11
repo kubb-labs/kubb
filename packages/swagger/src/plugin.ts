@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-/* eslint-disable consistent-return */
+ 
 
 import { createPlugin } from '@kubb/core'
 

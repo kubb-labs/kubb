@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 import { promises as fs } from 'node:fs'
 import pathParser from 'node:path'
 

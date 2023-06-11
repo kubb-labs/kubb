@@ -14,7 +14,7 @@ describe('read', () => {
     await clean(folderPath)
   })
 
-  test('if getPathMode returns correct PathMode(file or directory)', async () => {
+  test('if getPathMode returns correct PathMode(file or directory)', () => {
     expect(getPathMode(filePath)).toBe('file')
     expect(getPathMode(folderPath)).toBe('directory')
     expect(getPathMode(undefined)).toBe('directory')
