@@ -189,6 +189,9 @@ importers:
       '@kubb/ts-config':
         specifier: workspace:*
         version: link:../packages/config/ts-config
+      '@kubb/tsup-config':
+        specifier: workspace:*
+        version: link:../packages/config/tsup-config
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
