@@ -114,14 +114,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           )
         }
 
-        const baseURL = swaggerApi.getBaseURL()
+        const baseURL = await swaggerApi.getBaseURL()
 
         await this.addFile({
           fileName: 'client.ts',
           path: clientPath,
           source: await read(originalClientPath),
           env: {
-            AXIOS_BASE: baseURL ? `'${baseURL}'` : undefined,
+            AXIOS_BASE: baseURL,
+            AXIOS_HEADERS: JSON.stringify({}),
           },
         })
       }

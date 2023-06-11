@@ -182,7 +182,7 @@ function getEnvSource(source: string, env: NodeJS.ProcessEnv | undefined): strin
   }
 
   return keys.reduce((prev, curr: keyof NodeJS.ProcessEnv) => {
-    const value = env[curr]
+    const value = `'${env[curr]}'`
 
     if (typeof value === 'string') {
       return prev
