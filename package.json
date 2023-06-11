@@ -27,7 +27,7 @@
     "clean": "turbo run clean",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "format:pack": "npx sort-package-json \"package.json\" \"packages/**/**/package.json\" \"examples/*/package.json\" \"docs/package.json\" \"e2e/package.json\"",
-    "generate": "turbo run generate && pnpm format",
+    "generate": "turbo run generate && bun format",
     "graph": "nx graph ",
     "lint": "turbo run lint",
     "lint-fix": "turbo run lint-fix",

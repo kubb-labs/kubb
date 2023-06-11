@@ -7,12 +7,12 @@ export default defineConfig([
   optionsESM,
   {
     ...optionsCJS,
-    entry: ['src/client.ts'],
+    entry: ['./client.ts'],
     name: 'client',
   },
   {
     ...optionsESM,
-    entry: ['src/client.ts'],
+    entry: ['./client.ts'],
     name: 'client',
   },
 ])

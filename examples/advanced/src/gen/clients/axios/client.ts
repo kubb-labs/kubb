@@ -1,7 +1,8 @@
 import axios from 'axios'
 
+import type { RequestConfig } from '@kubb/swagger-client'
+
 import type { AxiosError } from 'axios'
-import type { RequestConfig } from './types.ts'
 
 export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<TData> => {
   const promise = axios

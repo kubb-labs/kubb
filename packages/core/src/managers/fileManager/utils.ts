@@ -85,6 +85,7 @@ export function combineFiles(files: Array<File | null>): File[] {
         source: `${prev.source}\n${curr.source}`,
         imports: [...(prev.imports || []), ...(curr.imports || [])],
         exports: [...(prev.exports || []), ...(curr.exports || [])],
+        env: { ...(prev.env || {}), ...(curr.env || {}) },
       }
     } else {
       acc.push(curr)
@@ -94,11 +95,14 @@ export function combineFiles(files: Array<File | null>): File[] {
   }, [] as File[])
 }
 
+export type Extension = '.ts' | '.js'
+export const extensions: Array<Extension> = ['.js', '.ts']
+
 export function getFileSource(file: File): string {
   let { source } = file
 
   // TODO make generic check
-  if (!file.fileName.endsWith('.ts')) {
+  if (!extensions.some((extension) => file.fileName.endsWith(extension))) {
     return file.source
   }
   const imports: File['imports'] = []
@@ -154,6 +158,7 @@ export function getFileSource(file: File): string {
     return [...prev, createExportDeclaration({ name: curr.name, path: curr.path, isTypeOnly: curr.isTypeOnly, asAlias: curr.asAlias })]
   }, [] as ts.ExportDeclaration[])
   const exportSource = print(exportNodes)
+  source = getEnvSource(source, file.env)
 
   if (importSource) {
     source = `${importSource}\n${source}`
@@ -164,4 +169,29 @@ export function getFileSource(file: File): string {
   }
 
   return source
+}
+function getEnvSource(source: string, env: NodeJS.ProcessEnv | undefined): string {
+  if (!env) {
+    return source
+  }
+
+  const keys = Object.keys(env)
+
+  if (!keys.length) {
+    return source
+  }
+
+  return keys.reduce((prev, curr: keyof NodeJS.ProcessEnv) => {
+    const value = env[curr]
+
+    if (typeof value === 'string') {
+      return prev
+        .replaceAll(`process.env.${curr}`, value)
+        .replaceAll(`process.env["${curr}"]`, value)
+        .replaceAll(`process.env['${curr}']`, value)
+        .replaceAll(`process.env[\`${curr}\`]`, value)
+    }
+
+    return prev
+  }, source)
 }

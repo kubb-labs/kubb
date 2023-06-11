@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
+import { importModule } from '@kubb/core'
+
 import { cosmiconfig } from 'cosmiconfig'
 import tsNode from 'ts-node'
 import yaml from 'yaml'
-
-import { importModule } from './importModule.ts'
 
 import type { CosmiconfigResult } from '../types.ts'
 

@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
-import { importModule } from './importModule.ts'
+import { importModule } from '@kubb/core'
 
 import type { KubbJSONPlugin, KubbObjectPlugin, KubbUserConfig } from '@kubb/core'
 
@@ -21,7 +21,7 @@ async function importPlugin(name: string, options: object) {
   return importedPlugin?.default ? importedPlugin.default(options) : importedPlugin(options)
 }
 
-export function getPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]): Promise<KubbUserConfig['plugins']> {
+export function getPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[] | KubbObjectPlugin[]): Promise<KubbUserConfig['plugins']> {
   if (isObjectPlugins(plugins)) {
     const promises = Object.keys(plugins).map(async (name) => {
       return importPlugin(name, plugins[name as keyof typeof plugins])
@@ -36,5 +36,6 @@ export function getPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugin[]
     })
     return Promise.all(promises)
   }
+
   return Promise.resolve(plugins)
 }

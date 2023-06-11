@@ -31,6 +31,10 @@ export type File = {
   meta?: {
     pluginName?: string
   }
+  /**
+   * This will override `process.env[key]` inside the `source`, see `getFileSource`.
+   */
+  env?: NodeJS.ProcessEnv
 }
 
 export type UUID = string

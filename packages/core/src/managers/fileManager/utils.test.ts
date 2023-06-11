@@ -61,7 +61,7 @@ describe('FileManager utils', () => {
       },
     ])
 
-    expect(combined).toEqual([
+    expect(combined).toMatchObject([
       {
         path: path.resolve('./src/models/file1.ts'),
         fileName: 'file2.ts',
@@ -126,6 +126,43 @@ export const test2 = 3;`,
     expect(getFileSource(fileExport)).toEqual('export type { Pets, Lily } from "./Pets";\nexport type * as Dog from "./Dog";\n\n')
   })
 
+  test('if getFileSource is setting `process.env` based on `env` object', () => {
+    const fileImport: File = {
+      path: path.resolve('./src/models/file1.ts'),
+      fileName: 'file1.ts',
+      source: 'export const hello = process.env.hello;',
+      imports: [
+        {
+          name: ['Pets'],
+          path: './Pets',
+          isTypeOnly: true,
+        },
+      ],
+      env: {
+        hello: `"world"`,
+      },
+    }
+
+    const fileImportAdvanced: File = {
+      path: path.resolve('./src/models/file1.ts'),
+      fileName: 'file1.ts',
+      source: 'export const hello = process.env["hello"];',
+      imports: [
+        {
+          name: ['Pets'],
+          path: './Pets',
+          isTypeOnly: true,
+        },
+      ],
+      env: {
+        hello: `"world"`,
+      },
+    }
+
+    expect(getFileSource(fileImport)).toMatchObject('import type { Pets } from "./Pets";\n\nexport const hello = "world";')
+    expect(getFileSource(fileImportAdvanced)).toMatchObject('import type { Pets } from "./Pets";\n\nexport const hello = "world";')
+  })
+
   test('if combineFiles is combining `exports`, `imports` and `source` for the same file', () => {
     const importFiles: Array<File | null> = [
       null,
@@ -140,6 +177,9 @@ export const test2 = 3;`,
             isTypeOnly: true,
           },
         ],
+        env: {
+          test: 'test',
+        },
       },
       {
         path: path.resolve('./src/models/file1.ts'),
@@ -201,10 +241,13 @@ export const test2 = 3;`,
           },
         ],
         exports: [],
+        env: {
+          test: 'test',
+        },
       },
     ])
 
-    expect(combineFiles(exportFiles)).toEqual([
+    expect(combineFiles(exportFiles)).toMatchObject([
       {
         path: path.resolve('./src/models/file1.ts'),
         fileName: 'file2.ts',

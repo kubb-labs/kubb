@@ -1,4 +1,4 @@
-import client from '../../../../client'
+import client from '../client'
 import type { UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../../../models/ts/petController/UploadFile'
 
 /**

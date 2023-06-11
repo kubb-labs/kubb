@@ -1,4 +1,4 @@
-import client from '../../../../client'
+import client from '../client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 
 /**

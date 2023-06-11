@@ -1,6 +1,7 @@
 import crypto from 'node:crypto'
 
 import { read, write } from '../../utils/index.ts'
+import { extensions } from './utils.ts'
 
 import type { Queue, QueueTask } from '../../utils/index.ts'
 import type { CacheStore, File, Status, UUID } from './types.ts'
@@ -21,6 +22,9 @@ export class FileManager {
 
   private getCache(id: UUID) {
     return this.cache.get(id)
+  }
+  get extensions() {
+    return extensions
   }
 
   getCacheByPath(path: string | undefined): CacheStore | undefined {

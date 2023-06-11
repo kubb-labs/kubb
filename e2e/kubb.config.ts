@@ -8,7 +8,7 @@ export default defineConfig(() => {
   return {
     root: '.',
     input: {
-      path: './schemas/petStore.yaml',
+      path: 'https://petstore3.swagger.io/api/v3/openapi.json',
     },
     output: {
       path: './gen',
