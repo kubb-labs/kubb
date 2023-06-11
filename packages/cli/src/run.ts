@@ -69,8 +69,12 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
       if (!a.meta?.pluginName || !b.meta?.pluginName) {
         return 0
       }
-      if (a.meta?.pluginName.length < b.meta?.pluginName.length) return 1
-      if (a.meta?.pluginName.length > b.meta?.pluginName.length) return -1
+      if (a.meta?.pluginName.length < b.meta?.pluginName.length) {
+        return 1
+      }
+      if (a.meta?.pluginName.length > b.meta?.pluginName.length) {
+        return -1
+      }
       return 0
     })
 
@@ -99,12 +103,6 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
 
   const printErrors = (error: Error) => {
     const pe = new PrettyError()
-
-    if (error instanceof ParallelPluginError) {
-      error.errors.map((e) => printErrors(e))
-
-      return
-    }
 
     if (options.debug) {
       spinner.fail(pc.red(`Something went wrong\n\n`))
@@ -150,7 +148,11 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
 
     printSummary(output.pluginManager, 'success')
   } catch (error: any) {
-    printErrors(error as Error)
+    if (error instanceof ParallelPluginError) {
+      error.errors.map((e) => printErrors(e))
+    } else {
+      printErrors(error as Error)
+    }
 
     if (error instanceof PluginError || error instanceof ParallelPluginError) {
       printSummary(error.pluginManager, 'failed')

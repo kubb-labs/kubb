@@ -22,8 +22,8 @@
     ]
   },
   "scripts": {
-    "build": "turbo run build --filter='./packages/*' ",
-    "build:examples": "turbo run build --filter='./examples/*'",
+    "build": "turbo run build --filter=./packages/*",
+    "build:examples": "turbo run build --filter=./examples/*",
     "clean": "turbo run clean",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "format:pack": "npx sort-package-json \"package.json\" \"packages/**/**/package.json\" \"examples/*/package.json\" \"docs/package.json\" \"e2e/package.json\"",
@@ -33,11 +33,11 @@
     "lint-fix": "turbo run lint-fix",
     "lint:case": "npx case-police --fix",
     "release": "turbo run release --continue",
-    "start": "turbo run start --filter='./packages/*'",
+    "start": "turbo run start --filter=./packages/*",
     "test": "vitest --coverage",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "typecheck": "turbo run typecheck --filter='./packages/*' --filter='./examples/*'",
+    "typecheck": "turbo run typecheck --filter=./packages/* --filter=./examples/*",
     "upgrade": "turbo run upgrade"
   },
   "devDependencies": {
@@ -52,6 +52,7 @@
     "nx": "^16.3.2",
     "prettier": "^2.8.8",
     "prettier-eslint": "^15.0.1",
+    "prettier-plugin-curly": "^0.0.2",
     "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",
     "turbo": "^1.10.3",

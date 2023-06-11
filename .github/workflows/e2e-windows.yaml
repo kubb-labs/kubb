@@ -1,4 +1,4 @@
-name: e2e
+name: e2e Windows
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ jobs:
       timeout-minutes: 15
       strategy:
         matrix:
-          platform: [ubuntu-latest]
+          platform: [windows-latest]
           node-version:
             - 18
             - 19
@@ -41,13 +41,15 @@ jobs:
         - name: Install dependencies
           run: pnpm install
           
-        - name: Install bun
-          uses: oven-sh/setup-bun@v1
+        # ENABLE when Bun has support for Windows
+        # - name: Install bun
+        #   uses: oven-sh/setup-bun@v1
 
-        - uses: dtinth/setup-github-actions-caching-for-turbo@v1
+        # ENABLE when Turbo caching has support for Windows
+        # - uses: dtinth/setup-github-actions-caching-for-turbo@v1
 
         - name: Build
-          run: bun run build
+          run: pnpm run build
 
         - name: Install e2e dependencies
           run: pnpm install
@@ -56,13 +58,13 @@ jobs:
         - name: E2e
           working-directory: ./e2e
           run: |
-            bun run generate --input ./schemas/petStore.yaml
-            bun run generate --input ./schemas/twitter.json
-            bun run generate --input ./schemas/twitter2.json
-            bun run generate --input ./schemas/bunq.com.json
-            bun run generate --input ./schemas/jokesOne.yaml
-            bun run generate --input ./schemas/readme.io.yaml
-            bun run generate --input ./schemas/worldtime.yaml
-            bun run generate --input ./schemas/zalando.yaml
-            bun run clean
+            pnpm run generate --input ./schemas/petStore.yaml
+            pnpm run generate --input ./schemas/twitter.json
+            pnpm run generate --input ./schemas/twitter2.json
+            pnpm run generate --input ./schemas/bunq.com.json
+            pnpm run generate --input ./schemas/jokesOne.yaml
+            pnpm run generate --input ./schemas/readme.io.yaml
+            pnpm run generate --input ./schemas/worldtime.yaml
+            pnpm run generate --input ./schemas/zalando.yaml
+            pnpm run clean
 

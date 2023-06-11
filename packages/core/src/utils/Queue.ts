@@ -28,7 +28,9 @@ export class Queue {
   }
 
   private work(): void {
-    if (this.workerCount >= this.maxParallel) return
+    if (this.workerCount >= this.maxParallel) {
+      return
+    }
     this.workerCount++
 
     let entry: QueueItem | undefined

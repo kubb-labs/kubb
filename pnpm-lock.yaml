@@ -37,6 +37,9 @@ importers:
       prettier-eslint:
         specifier: ^15.0.1
         version: 15.0.1
+      prettier-plugin-curly:
+        specifier: ^0.0.2
+        version: 0.0.2(prettier@2.8.8)
       rimraf:
         specifier: ^5.0.1
         version: 5.0.1
@@ -824,6 +827,12 @@ importers:
       directory-tree:
         specifier: ^3.5.1
         version: 3.5.1
+      fs-extra:
+        specifier: ^11.1.1
+        version: 11.1.1
+      graceful-fs:
+        specifier: ^4.2.11
+        version: 4.2.11
       rimraf:
         specifier: ^5.0.1
         version: 5.0.1
@@ -837,6 +846,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup-config
+      '@types/fs-extra':
+        specifier: ^11.0.1
+        version: 11.0.1
       eslint:
         specifier: ^8.42.0
         version: 8.42.0
@@ -2419,6 +2431,13 @@ packages:
   /@types/estree@1.0.1:
     resolution: {integrity: sha512-LG4opVs2ANWZ1TJoKc937iMmNstM/d0ae1vNbnBvBhqCSezgVUOzcLCqbI5elV8Vy6WKwKjaqR+zO9VKirBBCA==}
 
+  /@types/fs-extra@11.0.1:
+    resolution: {integrity: sha512-MxObHvNl4A69ofaTRU8DFqvgzzv8s9yRtaPPm5gud9HDNvpB3GPQFvNuTWAI59B9huVGV5jXYJwbCsmBsOGYWA==}
+    dependencies:
+      '@types/jsonfile': 6.1.1
+      '@types/node': 20.2.6
+    dev: true
+
   /@types/hast@2.3.4:
     resolution: {integrity: sha512-wLEm0QvaoawEDoTRwzTXp4b4jpwiJDvR5KMnFnVodm3scufTlBOWRD6N1OBf9TZMhjlNsSfcO5V+7AF4+Vy+9g==}
     dependencies:
@@ -2439,6 +2458,12 @@ packages:
   /@types/json5@0.0.29:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
     dev: false
+
+  /@types/jsonfile@6.1.1:
+    resolution: {integrity: sha512-GSgiRCVeapDN+3pqA35IkQwasaCh/0YFH5dEF6S88iDvEn901DjOeH3/QPY+XYP1DFzDZPvIvfeEgk+7br5png==}
+    dependencies:
+      '@types/node': 20.2.6
+    dev: true
 
   /@types/katex@0.14.0:
     resolution: {integrity: sha512-+2FW2CcT0K3P+JMR8YG846bmDwplKUTsWgT2ENwdQ1UdVfRk3GQrh6Mi4sTopy30gI8Uau5CEqHTDZ6YvWIUPA==}
@@ -4998,7 +5023,6 @@ packages:
       graceful-fs: 4.2.11
       jsonfile: 6.1.0
       universalify: 2.0.0
-    dev: true
 
   /fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
@@ -5842,7 +5866,6 @@ packages:
       universalify: 2.0.0
     optionalDependencies:
       graceful-fs: 4.2.11
-    dev: true
 
   /jsonpath-plus@7.2.0:
     resolution: {integrity: sha512-zBfiUPM5nD0YZSBT/o/fbCUlCcepMIdP0CJZxM1+KgA4f2T206f6VAg9e7mX35+KlMaIc5qXW34f3BnwJ3w+RA==}
@@ -7638,6 +7661,20 @@ packages:
       - supports-color
     dev: true
 
+  /prettier-plugin-curly@0.0.2(prettier@2.8.8):
+    resolution: {integrity: sha512-ZZZRnD2qzChrDXZWRAErYB2SDABt2lY1laJqF539EeRPnpQBKpSZOF4J7quZoi5l7BigdKbVseGreyrA7JQnKQ==}
+    engines: {node: '>=18'}
+    hasBin: true
+    peerDependencies:
+      prettier: ^2
+    dependencies:
+      '@babel/parser': 7.22.5
+      '@babel/traverse': 7.22.5
+      prettier: 2.8.8
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /prettier@2.8.8:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
@@ -9049,7 +9086,6 @@ packages:
   /universalify@2.0.0:
     resolution: {integrity: sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==}
     engines: {node: '>= 10.0.0'}
-    dev: true
 
   /update-browserslist-db@1.0.11(browserslist@4.21.7):
     resolution: {integrity: sha512-dCwEFf0/oT85M1fHBg4F0jtLwJrutGoHSQXCh7u4o2t1drG+c0a9Flnqww6XUKSfQMPpJBRjU8d4RXB09qtvaA==}
