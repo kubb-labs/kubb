@@ -1,4 +1,4 @@
-name: e2e windows
+name: e2e Windows
 
 on:
   pull_request:
