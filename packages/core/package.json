@@ -55,12 +55,15 @@
     "@kubb/ts-codegen": "workspace:*",
     "change-case": "^4.1.2",
     "directory-tree": "^3.5.1",
+    "graceful-fs": "^4.2.11",
+    "fs-extra": "^11.1.1",
     "rimraf": "^5.0.1"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
+    "@types/fs-extra": "^11.0.1",
     "eslint": "^8.42.0",
     "ora": "^6.3.1",
     "tsup": "^6.7.0",

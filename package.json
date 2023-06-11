@@ -52,6 +52,7 @@
     "nx": "^16.3.2",
     "prettier": "^2.8.8",
     "prettier-eslint": "^15.0.1",
+    "prettier-plugin-curly": "^0.0.2",
     "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",
     "turbo": "^1.10.3",

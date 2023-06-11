@@ -1,5 +1,5 @@
-import { promises as fs } from 'node:fs'
 import pathParser from 'node:path'
+import fs from 'fs-extra'
 
 function slash(path: string, platform: 'windows' | 'mac' | 'linux' = 'linux') {
   const isWindowsPath = /^\\\\\?\\/.test(path)

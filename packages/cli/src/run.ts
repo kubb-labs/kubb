@@ -69,8 +69,12 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
       if (!a.meta?.pluginName || !b.meta?.pluginName) {
         return 0
       }
-      if (a.meta?.pluginName.length < b.meta?.pluginName.length) return 1
-      if (a.meta?.pluginName.length > b.meta?.pluginName.length) return -1
+      if (a.meta?.pluginName.length < b.meta?.pluginName.length) {
+        return 1
+      }
+      if (a.meta?.pluginName.length > b.meta?.pluginName.length) {
+        return -1
+      }
       return 0
     })
 

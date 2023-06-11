@@ -56,8 +56,12 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
       const plugins = options.config.plugins
         ?.filter((plugin) => trace[1].getFileName()?.includes(plugin.name))
         .sort((a, b) => {
-          if (a.name.length < b.name.length) return 1
-          if (a.name.length > b.name.length) return -1
+          if (a.name.length < b.name.length) {
+            return 1
+          }
+          if (a.name.length > b.name.length) {
+            return -1
+          }
           return 0
         })
       const pluginName = plugins?.[0].name

@@ -14,7 +14,9 @@ export const modifiers = {
 } as const
 
 function isValidIdentifier(str: string) {
-  if (!str.length || str.trim() !== str) return false
+  if (!str.length || str.trim() !== str) {
+    return false
+  }
   const node = ts.parseIsolatedEntityName(str, ts.ScriptTarget.Latest)
 
   return !!node && node.kind === ts.SyntaxKind.Identifier && ts.identifierToKeywordKind(node.kind as unknown as ts.Identifier) === undefined
@@ -30,8 +32,12 @@ function propertyName(name: string | ts.PropertyName): ts.PropertyName {
 const questionToken = factory.createToken(ts.SyntaxKind.QuestionToken)
 
 export function createQuestionToken(token?: boolean | ts.QuestionToken) {
-  if (!token) return undefined
-  if (token === true) return questionToken
+  if (!token) {
+    return undefined
+  }
+  if (token === true) {
+    return questionToken
+  }
   return token
 }
 

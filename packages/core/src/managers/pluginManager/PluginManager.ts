@@ -161,7 +161,9 @@ export class PluginManager {
     let promise: Promise<SafeParseResult<H>> = Promise.resolve(null as unknown as SafeParseResult<H>)
 
     for (const plugin of this.getSortedPlugins(hookName)) {
-      if (skipped && skipped.has(plugin)) continue
+      if (skipped && skipped.has(plugin)) {
+        continue
+      }
       promise = promise.then(async (parseResult) => {
         if (parseResult?.result != null) {
           return parseResult
@@ -199,7 +201,9 @@ export class PluginManager {
     let parseResult: SafeParseResult<H> = null as unknown as SafeParseResult<H>
 
     for (const plugin of this.getSortedPlugins(hookName)) {
-      if (skipped && skipped.has(plugin)) continue
+      if (skipped && skipped.has(plugin)) {
+        continue
+      }
 
       parseResult = {
         result: this.executeSync<H>({
