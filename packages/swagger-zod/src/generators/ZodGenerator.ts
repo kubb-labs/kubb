@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import { getUniqueName, SchemaGenerator, uniqueId } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 
@@ -146,7 +145,6 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
 
     if (originalName === baseName) {
-      // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
         propertyName,
         originalName,
@@ -156,7 +154,6 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       return [{ keyword: zodKeywords.ref, args: ref.name }]
     }
 
-    // eslint-disable-next-line no-multi-assign
     ref = this.refs[$ref] = {
       propertyName,
       originalName,

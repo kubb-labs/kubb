@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
 import pathParser from 'node:path'
 
 import { Command, Option } from 'commander'

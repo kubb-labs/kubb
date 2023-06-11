@@ -43,8 +43,10 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@kubb/typescript-config": "workspace:*",
-    "typescript": "^5.1.3"
+    "@kubb/ts-config": "workspace:*",
+    "@kubb/tsup-config": "workspace:*",
+    "typescript": "^5.1.3",
+    "tsup": "^6.7.0"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

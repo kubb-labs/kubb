@@ -1,4 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/ban-types, no-undef
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function getStackTrace(belowFn?: Function): NodeJS.CallSite[] {
   const oldLimit = Error.stackTraceLimit
   Error.stackTraceLimit = Infinity
@@ -15,5 +16,5 @@ export function getStackTrace(belowFn?: Function): NodeJS.CallSite[] {
   Error.prepareStackTrace = v8Handler
   Error.stackTraceLimit = oldLimit
 
-  return v8StackTrace
+  return v8StackTrace as NodeJS.CallSite[]
 }

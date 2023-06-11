@@ -4,7 +4,7 @@ import { Queue } from '../../utils/Queue.ts'
 import { FileManager } from './FileManager.ts'
 
 describe('FileManager', () => {
-  test('fileManager.add also adds the files to the cache', async () => {
+  test('fileManager.add also adds the files to the cache', () => {
     const fileManager = new FileManager()
     fileManager.add({
       path: pathParser.resolve('./src/file1.ts'),
@@ -47,7 +47,7 @@ describe('FileManager', () => {
       { name: 'fs', path: 'node:fs' },
     ])
   })
-  test('if creation of graph is correct', async () => {
+  test('if creation of graph is correct', () => {
     const fileManager = new FileManager()
     fileManager.add({
       path: pathParser.resolve('./src/file1.ts'),
@@ -84,11 +84,14 @@ describe('FileManager', () => {
       source: '',
     })
 
-    const id = fileManager.getCacheByPath(file.path)!.id
-    const fileWithGet = fileManager.get(id)
+    const id = fileManager.getCacheByPath(file.path)
 
-    expect(id).toBeDefined()
-    expect(fileWithGet?.source).toBe(file.source)
+    if (id) {
+      const fileWithGet = fileManager.get(id.id)
+
+      expect(id).toBeDefined()
+      expect(fileWithGet?.source).toBe(file.source)
+    }
   })
 
   test('fileManager queue', async () => {

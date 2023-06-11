@@ -1,5 +1,3 @@
-/* eslint-disable no-cond-assign */
-
 export type QueueTask<T = unknown> = {
   (...args: unknown[]): Promise<T>
 }
@@ -29,7 +27,7 @@ export class Queue {
     })
   }
 
-  private async work(): Promise<void> {
+  private work(): void {
     if (this.workerCount >= this.maxParallel) return
     this.workerCount++
 

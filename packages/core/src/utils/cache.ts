@@ -1,6 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable consistent-return */
-
 export interface Cache<T extends object = object> {
   delete(id: keyof T): boolean
   get(id: keyof T): T[keyof T] | null

@@ -23,7 +23,7 @@ describe('ParallelPluginError', () => {
     task: queueTaskMock,
   })
 
-  test('can create custom Error ParallelPluginError', async () => {
+  test('can create custom Error ParallelPluginError', () => {
     const error = new ParallelPluginError('message', { pluginManager, errors: [{ message: 'error1', name: 'name1', pluginManager }] })
 
     expect(error).toBeDefined()

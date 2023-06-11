@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import { getUniqueName, SchemaGenerator, uniqueId } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 import {
@@ -173,7 +172,6 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
 
     if (originalName === baseName) {
-      // eslint-disable-next-line no-multi-assign
       ref = this.refs[$ref] = {
         propertyName,
         originalName,
@@ -183,7 +181,6 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return factory.createTypeReferenceNode(ref.name!, undefined)
     }
 
-    // eslint-disable-next-line no-multi-assign
     ref = this.refs[$ref] = {
       propertyName,
       originalName,

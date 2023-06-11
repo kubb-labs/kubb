@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
-
 import pathParser from 'node:path'
 
 import { createPlugin, getPathMode, getRelativePath, renderTemplate, validatePlugins, writeIndexes } from '@kubb/core'

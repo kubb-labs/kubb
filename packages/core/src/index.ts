@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-interface */
 import { build } from './build.ts'
 
 export * from './config.ts'

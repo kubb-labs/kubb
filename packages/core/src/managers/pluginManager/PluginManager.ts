@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable no-await-in-loop */
-/* eslint-disable no-restricted-syntax */
 
 import { definePlugin } from '../../plugin.ts'
 import { isPromise } from '../../utils/isPromise.ts'
@@ -160,7 +158,7 @@ export class PluginManager {
     parameters: Parameters<PluginLifecycle[H]>
     skipped?: ReadonlySet<KubbPlugin> | null
   }): Promise<SafeParseResult<H>> {
-    let promise: Promise<SafeParseResult<H>> = Promise.resolve(null as any)
+    let promise: Promise<SafeParseResult<H>> = Promise.resolve(null as unknown as SafeParseResult<H>)
 
     for (const plugin of this.getSortedPlugins(hookName)) {
       if (skipped && skipped.has(plugin)) continue
@@ -371,10 +369,10 @@ export class PluginManager {
         }
 
         if (typeof hook === 'function') {
-          const hookResult = (hook as Function).apply(this.core.api, parameters)
+          const hookResult = (hook as Function).apply(this.core.api, parameters) as TResult
 
           if (isPromise(hookResult)) {
-            return Promise.resolve(hookResult).then((result) => {
+            return Promise.resolve(hookResult).then((result: TResult) => {
               this.addExecuter({
                 strategy,
                 hookName,
@@ -433,9 +431,8 @@ export class PluginManager {
         plugin,
       }
 
-      // eslint-disable-next-line @typescript-eslint/ban-types
       if (typeof hook === 'function') {
-        const fn = (hook as Function).apply(this.core.api, parameters)
+        const fn = (hook as Function).apply(this.core.api, parameters) as ReturnType<ParseResult<H>>
 
         this.addExecuter({
           strategy,

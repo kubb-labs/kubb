@@ -1,12 +1,9 @@
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 
 import { format } from '../../../mocks/format.ts'
 import { combineFiles, getFileSource, writeIndexes } from './utils.ts'
 
 import type { File } from './types.ts'
-
-const __filename = fileURLToPath(import.meta.url)
 
 describe('FileManager utils', () => {
   test('if getFileSource is returning code with imports', () => {
@@ -50,7 +47,7 @@ describe('FileManager utils', () => {
     "
    `)
   })
-  test('if combineFiles is removing previouscode', async () => {
+  test('if combineFiles is removing previouscode', () => {
     const combined = combineFiles([
       {
         path: path.resolve('./src/models/file1.ts'),

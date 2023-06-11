@@ -2,7 +2,7 @@
 import { createPlugin } from '../../plugin.ts'
 import { hooks, PluginManager } from './PluginManager.ts'
 
-import type { KubbConfig, KubbPlugin, TransformResult } from '../../types.ts'
+import type { KubbConfig, TransformResult } from '../../types.ts'
 
 describe('PluginManager', () => {
   const pluginAMocks = {
@@ -59,7 +59,7 @@ describe('PluginManager', () => {
     }
   })
 
-  const config: KubbConfig = {
+  const config = {
     root: '.',
     input: {
       path: './petStore.yaml',
@@ -70,7 +70,7 @@ describe('PluginManager', () => {
     },
     logLevel: 'info',
     plugins: [pluginA({}), pluginB({})],
-  }
+  } satisfies KubbConfig
   const onExecuteMock = vi.fn()
   const queueTaskMock = vi.fn()
   const pluginManager = new PluginManager(config, {
@@ -81,7 +81,7 @@ describe('PluginManager', () => {
   test('if pluginManager can be created', () => {
     expect(pluginManager.queue).toBeDefined()
     expect(pluginManager.fileManager).toBeDefined()
-    expect(pluginManager.plugins.length).toBe(config.plugins!.length + 1)
+    expect(pluginManager.plugins.length).toBe(config.plugins.length + 1)
     expect(hooks).toStrictEqual(['validate', 'buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'])
     expect(pluginManager.getPlugin('buildStart', 'pluginB')?.name).toBe('pluginB')
   })
@@ -126,7 +126,7 @@ describe('PluginManager', () => {
   })
 
   test('hookReduceArg0', async () => {
-    const transformReducerMocks = vi.fn((_previousCode: string, result: TransformResult | Promise<TransformResult>, _plugin: KubbPlugin) => {
+    const transformReducerMocks = vi.fn((_previousCode: string, result: TransformResult | Promise<TransformResult>) => {
       return result
     })
 
@@ -156,7 +156,7 @@ describe('PluginManager', () => {
     expect(pluginManager.getExecuter()?.plugin.name).toBe('pluginB')
   })
 
-  test('resolvePath without `pluginName`', async () => {
+  test('resolvePath without `pluginName`', () => {
     const hooksFirstSyncMock = vi.fn(pluginManager.hookFirstSync)
     const hookForPluginSyncMock = vi.fn(pluginManager.hookForPluginSync)
 
@@ -171,7 +171,7 @@ describe('PluginManager', () => {
     expect(hookForPluginSyncMock).not.toBeCalled()
     expect(hooksFirstSyncMock).toBeCalledWith({ hookName: 'resolvePath', parameters: ['fileName', undefined, undefined] })
   })
-  test('resolvePath with `pluginName`', async () => {
+  test('resolvePath with `pluginName`', () => {
     const hooksFirstSyncMock = vi.fn(pluginManager.hookFirstSync)
     const hookForPluginSyncMock = vi.fn(pluginManager.hookForPluginSync)
 
@@ -187,7 +187,7 @@ describe('PluginManager', () => {
     expect(hookForPluginSyncMock).toBeCalled()
   })
 
-  test('resolveName without `pluginName`', async () => {
+  test('resolveName without `pluginName`', () => {
     const hooksFirstSyncMock = vi.fn(pluginManager.hookFirstSync)
     const hookForPluginSyncMock = vi.fn(pluginManager.hookForPluginSync)
 
@@ -203,7 +203,7 @@ describe('PluginManager', () => {
     expect(hookForPluginSyncMock).not.toBeCalled()
     expect(hooksFirstSyncMock).toBeCalledWith({ hookName: 'resolveName', parameters: ['name'] })
   })
-  test('resolveName with `pluginName`', async () => {
+  test('resolveName with `pluginName`', () => {
     const hooksFirstSyncMock = vi.fn(pluginManager.hookFirstSync)
     const hookForPluginSyncMock = vi.fn(pluginManager.hookForPluginSync)
 

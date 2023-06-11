@@ -1,6 +1,5 @@
 import type { KubbConfig, Path, PluginFactoryOptions } from '@kubb/core'
 import type Oas from 'oas'
-import type { Operation } from 'oas'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { OasOptions } from './parsers/oasParser.ts'
 

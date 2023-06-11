@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import pathParser from 'node:path'
 
 import { build, ParallelPluginError, PluginError } from '@kubb/core'

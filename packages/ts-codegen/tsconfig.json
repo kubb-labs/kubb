@@ -1,5 +1,5 @@
 {
-  "extends": "@kubb/typescript-config/base.json",
+  "extends": "@kubb/ts-config/base.json",
   "compilerOptions": {
     // "composite": true,
     // "rootDir": "./",
