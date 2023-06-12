@@ -9,8 +9,8 @@ import type { OnExecute } from './managers/pluginManager/index.ts'
 import type { BuildOutput, KubbPlugin, LogLevel, PluginContext, TransformResult } from './types.ts'
 import type { QueueTask } from './utils/index.ts'
 
-export type Logger = {
-  log: (message: string, logLevel: LogLevel) => void
+export type Logger<TParams = Record<string, any>> = {
+  log: (message: string | null, options: { logLevel: LogLevel; params: TParams }) => void
   spinner?: Ora
 }
 type BuildOptions = {
@@ -80,14 +80,14 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
       return
     }
 
-    const { strategy, hookName, plugin } = executer
+    const { hookName, plugin } = executer
 
-    if (config.logLevel === 'info' && logger?.spinner) {
-      logger.spinner.text = `[${strategy}] ${hookName}: Excecuting task for plugin ${plugin.name} \n`
+    if (config.logLevel === 'info' && logger) {
+      logger.log(null, { logLevel: config.logLevel, params: { hookName, pluginName: plugin.name } })
     }
   }
 
-  const pluginManager = new PluginManager(config, { task: queueTask as QueueTask, onExecute })
+  const pluginManager = new PluginManager(config, { task: queueTask as QueueTask<File>, onExecute })
   const { plugins, fileManager } = pluginManager
 
   await pluginManager.hookParallel<'validate', true>({
