@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.11](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.1.10...@kubb/core-v1.1.11) (2023-06-12)
+
+
+### Bug Fixes
+
+* OraWritable to create a direct stream for hooks(`execa.pipeStdout`) ([0e95549](https://github.com/kubb-project/kubb/commit/0e955496e4e64e0091951eabca5849b719b60329))
+
 ## [1.1.10](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.1.9...@kubb/core-v1.1.10) (2023-06-12)
 
 
