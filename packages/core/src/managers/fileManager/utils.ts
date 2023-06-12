@@ -82,7 +82,7 @@ export function combineFiles(files: Array<File | null>): File[] {
       const prev = acc[prevIndex]
       acc[prevIndex] = {
         ...curr,
-        source: `${prev.source}\n${curr.source}`,
+        source: prev.source && curr.source ? `${prev.source}\n${curr.source}` : "'",
         imports: [...(prev.imports || []), ...(curr.imports || [])],
         exports: [...(prev.exports || []), ...(curr.exports || [])],
       }

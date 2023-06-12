@@ -22,14 +22,15 @@ type RunProps = {
 
 export async function run({ config, options, spinner }: RunProps): Promise<void> {
   const hrstart = process.hrtime()
-  const [log] = throttle((message, { logLevel, params }) => {
+  const [log] = throttle<void, Parameters<Logger['log']>>((message, { logLevel, params }) => {
     if (logLevel === 'error') {
       spinner.fail(pc.red(`${message}\n\n` || `Something went wrong\n\n`))
     } else if (logLevel === 'info') {
       if (message) {
         spinner.text = message
       } else {
-        spinner.text = `🪂 Executing ${params.hookName}(${pc.yellow(params.pluginName)})`
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        spinner.text = `🪂 Executing ${params?.hookName || 'unknown'}(${pc.yellow(params?.pluginName || 'unknown')})`
       }
     }
   }, 100)

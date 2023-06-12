@@ -1,10 +1,8 @@
-import path from 'node:path'
-
 import { build } from './build'
-import { KubbConfig } from './types'
+import type { KubbConfig } from './types'
 import { createPlugin } from './plugin'
 
-import { File } from './managers/fileManager/types'
+import type { File } from './managers/fileManager/types'
 
 describe('build', () => {
   const pluginMocks = {
@@ -94,8 +92,6 @@ describe('build', () => {
       {
         ...file,
         meta: { pluginName: undefined },
-        // Plugin: see `load`for id and transform that appends `plugin`
-        source: 'id plugin',
       },
     ])
 

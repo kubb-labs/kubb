@@ -10,7 +10,7 @@ import type { BuildOutput, KubbPlugin, LogLevel, PluginContext, TransformResult 
 import type { QueueTask } from './utils/index.ts'
 
 export type Logger<TParams = Record<string, any>> = {
-  log: (message: string | null, options: { logLevel: LogLevel; params: TParams }) => void
+  log: (message: string | null, options: { logLevel: LogLevel; params?: TParams }) => void
   spinner?: Ora
 }
 type BuildOptions = {
