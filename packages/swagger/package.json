@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger",
-  "version": "1.1.9",
+  "version": "1.1.10",
   "description": "Generator swagger",
   "keywords": [
     "typescript",
