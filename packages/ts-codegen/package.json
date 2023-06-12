@@ -43,7 +43,7 @@
   "scripts": {
     "build": "tsup",
     "clean": "rimraf ./dist",
-    "lint": "eslint \"**/*.{ts,tsx}\"",
+    "lint": "eslint --format pretty ./src",
     "lint-fix": "bun run lint --quiet --fix",
     "prepack": "bun run build",
     "release": "pnpm publish --no-git-check",
