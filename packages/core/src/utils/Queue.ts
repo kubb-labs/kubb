@@ -1,5 +1,5 @@
 export type QueueTask<T = unknown> = {
-  (...args: unknown[]): Promise<T>
+  (...args: unknown[]): Promise<T> | Promise<void>
 }
 
 interface QueueItem {

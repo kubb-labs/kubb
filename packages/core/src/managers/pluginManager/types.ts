@@ -15,7 +15,11 @@ export type Executer<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   plugin: KubbPlugin
 }
 
-export type OnExecute<H extends PluginLifecycleHooks = PluginLifecycleHooks> = (this: PluginManager, executer: Executer<H> | undefined) => void
+export type OnExecute<H extends PluginLifecycleHooks = PluginLifecycleHooks> = (
+  this: PluginManager,
+  executer: Executer<H> | undefined,
+  pluginManager: PluginManager
+) => void
 
 export type ParseResult<H extends PluginLifecycleHooks> = PluginLifecycle[H]
 
