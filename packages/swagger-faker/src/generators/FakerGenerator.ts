@@ -271,7 +271,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
         return [{ keyword: fakerKeywords.matches, args: `/${schema.pattern}/` }]
       }
 
-      if ((schema.type !== 'string' && schema.format === 'date-time') || baseName === 'date') {
+      if (schema.type !== 'string' && (schema.format === 'date-time' || baseName === 'date')) {
         return [{ keyword: fakerKeywords.datetime }]
       }
 
