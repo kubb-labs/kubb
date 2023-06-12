@@ -9,7 +9,7 @@ import { pluginName } from '../plugin.ts'
 import type { PluginContext } from '@kubb/core'
 import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
-import type { ZodKeyword, ZodMeta } from '../parsers/index.ts'
+import type { ZodMeta } from '../parsers/index.ts'
 
 type Options = {
   withJSDocs?: boolean
@@ -127,15 +127,11 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           }
         }
 
-        if (!required && nullable) {
+        if (!isRequired && nullable) {
           validationFunctions.push({ keyword: zodKeywords.nullish })
         } else if (nullable) {
           validationFunctions.push({ keyword: zodKeywords.null })
-        } else if (!required) {
-          validationFunctions.push({ keyword: zodKeywords.optional })
-        }
-
-        if (!isRequired) {
+        } else if (!isRequired) {
           validationFunctions.push({ keyword: zodKeywords.optional })
         }
 
