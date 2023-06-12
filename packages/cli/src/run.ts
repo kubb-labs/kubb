@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { build, ParallelPluginError, PluginError, timeout } from '@kubb/core'
+import { build, throttle, ParallelPluginError, PluginError, timeout } from '@kubb/core'
 
 import { execa } from 'execa'
 import pc from 'picocolors'
@@ -12,6 +12,7 @@ import { parseText } from './utils/parseText.ts'
 
 import type { BuildOutput, CLIOptions, KubbConfig, Logger, LogLevel } from '@kubb/core'
 import type { Ora } from 'ora'
+import { OraWritable } from './utils/OraWritable.ts'
 
 type RunProps = {
   config: KubbConfig
@@ -21,14 +22,20 @@ type RunProps = {
 
 export async function run({ config, options, spinner }: RunProps): Promise<void> {
   const hrstart = process.hrtime()
-  const logger: Logger = {
-    log(message, logLevel) {
-      if (logLevel === 'error') {
-        spinner.fail(message)
+  const [log] = throttle<void, Parameters<Logger['log']>>((message, { logLevel, params }) => {
+    if (logLevel === 'error') {
+      spinner.fail(pc.red(`${message}\n\n` || `Something went wrong\n\n`))
+    } else if (logLevel === 'info') {
+      if (message) {
+        spinner.text = message
       } else {
-        spinner.info(message)
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        spinner.text = `🪂 Executing ${params?.hookName || 'unknown'}(${pc.yellow(params?.pluginName || 'unknown')})`
       }
-    },
+    }
+  }, 100)
+  const logger: Logger = {
+    log,
     spinner,
   }
 
@@ -45,18 +52,28 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
     }
 
     const promises = commands.map(async (command) => {
+      const oraWritable = new OraWritable(spinner, command)
       const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
       spinner.start(parseText(`🪂 Executing hooks(${pc.yellow('done')})`, { info: ` ${pc.dim(command)}` }, logLevel))
-      const { stdout } = await execa(cmd, _args)
-      await timeout(200)
-      spinner.succeed(parseText(`🪂 Executing hooks(${pc.yellow('done')})`, { info: ` ${pc.dim(command)}` }, logLevel))
+
+      const { stdout } = await execa(cmd, _args, {}).pipeStdout!(oraWritable)
+      spinner.suffixText = ''
+      oraWritable.destroy()
 
       if (logLevel === 'info') {
+        spinner.succeed(parseText(`🪂 Executing hooks(${pc.yellow('done')})`, { info: ` ${pc.dim(command)}` }, logLevel))
+
         console.log(stdout)
       }
+
+      await timeout(200)
     })
 
     await Promise.all(promises)
+
+    if (logLevel === 'silent') {
+      spinner.succeed(parseText(`🪂 Executing hooks(${pc.yellow('done')})`, {}, logLevel))
+    }
   }
 
   const printSummary = (pluginManager: BuildOutput['pluginManager'], status: 'success' | 'failed') => {

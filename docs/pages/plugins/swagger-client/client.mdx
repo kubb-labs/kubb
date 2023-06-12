@@ -153,8 +153,8 @@ export type RequestConfig<TVariables = unknown> = {
 }
 
 export const axiosInstance = axios.create({
-  baseURL: process.env['AXIOS_BASE'],
-  headers: process.env['AXIOS_HEADERS'] ? JSON.parse(process.env['AXIOS_HEADERS']) : {},
+  baseURL: 'https://petstore3.swagger.io/api/v3',
+  headers: '{}' ? JSON.parse('{}') : {},
 })
 
 export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<TData> => {
@@ -212,7 +212,7 @@ export type RequestConfig<TVariables = unknown> = {
 
 export const axiosInstance = axios.create({
   baseURL: process.env['AXIOS_BASE'],
-  headers: '{}' ? JSON.parse('{}') : {},
+  headers: process.env['AXIOS_HEADERS'] ? JSON.parse(process.env['AXIOS_HEADERS']) : {},
 })
 
 export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<TData> => {

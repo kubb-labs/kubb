@@ -9,11 +9,11 @@ import type { CacheStore, File, Status, UUID } from './types.ts'
 export class FileManager {
   private cache: Map<CacheStore['id'], CacheStore> = new Map()
 
-  private task?: QueueTask<unknown>
+  private task?: QueueTask<File>
 
   private queue?: Queue
 
-  constructor(options?: { queue: Queue; task?: QueueTask<unknown> }) {
+  constructor(options?: { queue: Queue; task?: QueueTask<File> }) {
     if (options) {
       this.task = options.task
       this.queue = options.queue
@@ -57,7 +57,7 @@ export class FileManager {
   }
 
   async add(file: File) {
-    const cacheItem = { id: crypto.randomUUID(), file, status: 'new' as Status }
+    const cacheItem: CacheStore = { id: crypto.randomUUID(), file, status: 'new' as Status }
 
     this.cache.set(cacheItem.id, cacheItem)
 

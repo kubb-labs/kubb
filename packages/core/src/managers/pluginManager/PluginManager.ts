@@ -4,6 +4,7 @@ import { definePlugin } from '../../plugin.ts'
 import { isPromise } from '../../utils/isPromise.ts'
 import { Queue } from '../../utils/Queue.ts'
 import { FileManager } from '../fileManager/FileManager.ts'
+import type { File } from '../fileManager/types.ts'
 import { ParallelPluginError } from './ParallelPluginError.ts'
 import { PluginError } from './PluginError.ts'
 
@@ -52,7 +53,7 @@ const convertKubbUserPluginToKubbPlugin = (plugin: KubbUserPlugin, context: Core
   return null
 }
 
-type Options = { task: QueueTask; onExecute?: OnExecute<PluginLifecycleHooks> }
+type Options = { task: QueueTask<File>; onExecute?: OnExecute<PluginLifecycleHooks> }
 
 export class PluginManager {
   public plugins: KubbPlugin[]
@@ -70,7 +71,7 @@ export class PluginManager {
   public executed: Executer[] = []
 
   constructor(config: KubbConfig, options: Options) {
-    this.onExecute = options.onExecute
+    this.onExecute = options.onExecute?.bind(this)
     this.queue = new Queue(10)
 
     this.fileManager = new FileManager({ task: options.task, queue: this.queue })
@@ -295,6 +296,7 @@ export class PluginManager {
     const errors = results.filter((result) => result.status === 'rejected').map((result) => (result as PromiseRejectedResult).reason) as PluginError[]
 
     if (errors.length) {
+      console.log(errors)
       throw new ParallelPluginError('Error', { errors, pluginManager: this })
     }
 
@@ -370,7 +372,7 @@ export class PluginManager {
   }
 
   private addExecuter(executer: Executer | undefined) {
-    this.onExecute?.call(this, executer)
+    this.onExecute?.call(this, executer, this)
 
     if (executer) {
       this.executed.push(executer)

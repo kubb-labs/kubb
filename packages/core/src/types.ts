@@ -133,7 +133,7 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
    * Unique name used for the plugin
    * @example @kubb/typescript
    */
-  name: string
+  name: PluginFactoryOptions['name']
   /**
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */

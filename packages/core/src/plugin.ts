@@ -69,7 +69,7 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
               }
               return 0
             })
-          const pluginName = plugins?.[0].name
+          const pluginName = plugins?.[0]?.name
 
           return Promise.all(
             files.map((file) => {
