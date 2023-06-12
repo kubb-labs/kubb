@@ -1,3 +1,8 @@
+/**
+ * Used for the `config`
+ * @link https://eslint.org/docs/latest/use/configure/
+ */
+
 /** @type {import("eslint").Linter.Config} */
 const config = {
   root: true,

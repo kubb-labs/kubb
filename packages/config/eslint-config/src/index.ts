@@ -25,10 +25,10 @@ const config: Linter.Config = {
   rules,
   overrides: [
     {
-      files: ['examples/**'],
+      files: ['examples/**', 'e2e/**'],
       rules: {
         'import/extensions': [
-          'warn',
+          'off',
           'ignorePackages',
           {
             js: 'always',

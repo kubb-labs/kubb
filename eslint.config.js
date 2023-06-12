@@ -1,3 +1,9 @@
+/**
+ * Used for the `flatConfig` (new)
+ * @link https://eslint.org/docs/latest/use/configure/configuration-files-new
+ * @example `ESLINT_USE_FLAT_CONFIG=true eslint`
+ */
+
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 

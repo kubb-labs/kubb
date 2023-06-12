@@ -9,7 +9,7 @@ import { pluginName } from '../plugin.ts'
 import type { PluginContext } from '@kubb/core'
 import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
-import type { ZodKeyword, ZodMeta } from '../parsers/index.ts'
+import type { ZodMeta } from '../parsers/index.ts'
 
 type Options = {
   withJSDocs?: boolean
@@ -86,6 +86,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         const min = schema.minimum ?? schema.minLength ?? undefined
         const max = schema.maximum ?? schema.maxLength ?? undefined
         const matches = schema.pattern ?? undefined
+        const nullable = schema.nullable ?? false
 
         if (min !== undefined) {
           validationFunctions.push({ keyword: zodKeywords.min, args: min })
@@ -94,7 +95,27 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           validationFunctions.push({ keyword: zodKeywords.max, args: max })
         }
         if (matches) {
-          validationFunctions.push({ keyword: zodKeywords.matches, args: `/${matches}/` })
+          const isStartWithSlash = matches.startsWith('/')
+          const isEndWithSlash = matches.endsWith('/')
+
+          const regexp = `new RegExp('${escape(matches.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))}')`
+
+          validationFunctions.push({ keyword: zodKeywords.matches, args: regexp })
+        }
+
+        if (schema.format === 'date-time' || baseName === 'date') {
+          validationFunctions.push({ keyword: zodKeywords.datetime })
+        }
+
+        if (schema.format === 'email' || baseName === 'email') {
+          validationFunctions.push({ keyword: zodKeywords.email })
+        }
+
+        if (schema.format === 'uri' || schema.format === 'hostname') {
+          validationFunctions.push({ keyword: zodKeywords.url })
+        }
+        if (schema.format === 'uuid') {
+          validationFunctions.push({ keyword: zodKeywords.uuid })
         }
 
         if (schema.default !== undefined && !Array.isArray(schema.default)) {
@@ -106,7 +127,11 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           }
         }
 
-        if (!isRequired) {
+        if (!isRequired && nullable) {
+          validationFunctions.push({ keyword: zodKeywords.nullish })
+        } else if (nullable) {
+          validationFunctions.push({ keyword: zodKeywords.null })
+        } else if (!isRequired) {
           validationFunctions.push({ keyword: zodKeywords.optional })
         }
 
@@ -274,7 +299,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
       // string, boolean, null, number
       if (schema.type in zodKeywords) {
-        return [{ keyword: schema.type as ZodKeyword }]
+        return [{ keyword: schema.type as any }]
       }
     }
 

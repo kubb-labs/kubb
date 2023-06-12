@@ -8,10 +8,15 @@ export const zodKeywords = {
   boolean: 'boolean',
   undefined: 'undefined',
   null: 'null',
+  nullish: 'nullish',
   array: 'array',
   tuple: 'tuple',
   enum: 'enum',
   union: 'union',
+  datetime: 'datetime',
+  email: 'email',
+  uuid: 'uuid',
+  url: 'url',
   /* intersection */
   default: 'default',
   and: 'and',
@@ -38,10 +43,15 @@ export const zodKeywordMapper: Record<ZodKeyword, string> = {
   boolean: 'z.boolean',
   undefined: 'z.undefined',
   null: '.nullable',
+  nullish: '.nullish',
   array: 'z.array',
   tuple: 'z.tuple',
   enum: 'z.enum',
   union: 'z.union',
+  datetime: '.datetime',
+  email: '.email',
+  uuid: '.uuid',
+  url: '.url',
   /* intersection */
   default: '.default',
   and: '.and',
@@ -63,6 +73,8 @@ type ZodMetaBase<T> = {
 
 type ZodMetaAny = { keyword: typeof zodKeywords.any }
 type ZodMetaNull = { keyword: typeof zodKeywords.null }
+
+type ZodMetaNullish = { keyword: typeof zodKeywords.nullish }
 type ZodMetaUndefined = { keyword: typeof zodKeywords.undefined }
 
 type ZodMetaNumber = { keyword: typeof zodKeywords.number }
@@ -97,9 +109,18 @@ type ZodMetaTuple = { keyword: typeof zodKeywords.tuple; args?: ZodMeta[] }
 type ZodMetaLazy = { keyword: typeof zodKeywords.lazy }
 type ZodMetaDefault = { keyword: typeof zodKeywords.default; args?: string | number | boolean }
 
+type ZodMetaDatetime = { keyword: typeof zodKeywords.datetime }
+
+type ZodMetaEmail = { keyword: typeof zodKeywords.email }
+
+type ZodMetaUuid = { keyword: typeof zodKeywords.uuid }
+
+type ZodMetaUrl = { keyword: typeof zodKeywords.url }
+
 export type ZodMeta =
   | ZodMetaAny
   | ZodMetaNull
+  | ZodMetaNullish
   | ZodMetaUndefined
   | ZodMetaInteger
   | ZodMetaNumber
@@ -120,6 +141,10 @@ export type ZodMeta =
   | ZodMetaArray
   | ZodMetaTuple
   | ZodMetaDefault
+  | ZodMetaDatetime
+  | ZodMetaEmail
+  | ZodMetaUuid
+  | ZodMetaUrl
 
 /**
  *
