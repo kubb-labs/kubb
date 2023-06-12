@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.10](https://github.com/kubb-project/kubb/compare/@kubb/swagger-faker-v1.1.9...@kubb/swagger-faker-v1.1.10) (2023-06-12)
+
+
+### Bug Fixes
+
+* date, uri, and uui support for `faker.js` ([203f701](https://github.com/kubb-project/kubb/commit/203f7016d6e9f353e31655b908a62af7eb8e8965))
+
 ## [1.1.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-faker-v1.1.8...@kubb/swagger-faker-v1.1.9) (2023-06-11)
 
 
