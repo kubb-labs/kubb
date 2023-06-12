@@ -11,7 +11,7 @@ import type { OptionalPath } from '@kubb/core'
 import type { API as SwaggerApi } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
-export const pluginName = 'swagger-tanstack-query' as const
+export const pluginName: PluginOptions['name'] = 'swagger-tanstack-query' as const
 
 // Register your plugin for maximum type safety
 declare module '@kubb/core' {

@@ -11,7 +11,7 @@ import type { OptionalPath } from '@kubb/core'
 import type { API as SwaggerApi, Options as SwaggerOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
-export const pluginName = 'swagger-client' as const
+export const pluginName: PluginOptions['name'] = 'swagger-client' as const
 
 // Register your plugin for maximum type safety
 declare module '@kubb/core' {
@@ -100,7 +100,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       // copy `client.ts`
-
       const oas = await swaggerApi.getOas(this.config)
       const clientPath = this.resolvePath({ pluginName, fileName: 'client.ts' })
 
@@ -114,7 +113,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             `Cannot find the 'client.ts' file, or 'client' is not set in the options or '@kubb/swagger-client' is not included in your dependencies`
           )
         }
-        const baseURL = oas.api.servers?.at(swaggerOptions.server || 0)?.url
+        const baseURL = oas.api.servers?.at(swaggerOptions.serverIndex || 0)?.url
 
         await this.addFile({
           fileName: 'client.ts',
@@ -122,6 +121,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           source: await read(originalClientPath),
           env: {
             AXIOS_BASE: baseURL ? `'${baseURL}'` : undefined,
+            AXIOS_HEADERS: JSON.stringify({}),
           },
         })
       }

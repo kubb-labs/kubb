@@ -38,9 +38,9 @@ type Options = {
 }
 
 // not publicly exported
-export type CorePluginOptions = PluginFactoryOptions<Options, false, PluginContext>
+export type CorePluginOptions = PluginFactoryOptions<'core', Options, false, PluginContext>
 
-export const name = 'core' as const
+export const pluginName: CorePluginOptions['name'] = 'core' as const
 
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
   const { fileManager, resolvePath, resolveName, load } = options
@@ -95,7 +95,7 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
   }
 
   return {
-    name,
+    name: pluginName,
     options,
     api,
     resolvePath(fileName) {

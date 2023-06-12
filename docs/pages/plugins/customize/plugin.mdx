@@ -14,7 +14,7 @@ type Options = {
   version: "3" | "2"
 }
 
-type MyPluginOptions = PluginFactoryOptions<Options, false>
+type MyPluginOptions = PluginFactoryOptions<"myPlugin", Options, false>
 
 export default createPlugin<MyPluginOptions>(({ version }) => {
   return {

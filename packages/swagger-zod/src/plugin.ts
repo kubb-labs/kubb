@@ -11,7 +11,7 @@ import { OperationGenerator } from './generators/index.ts'
 import type { OpenAPIV3, API as SwaggerApi } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
-export const pluginName = 'swagger-zod' as const
+export const pluginName: PluginOptions['name'] = 'swagger-zod' as const
 
 // Register your plugin for maximum type safety
 declare module '@kubb/core' {

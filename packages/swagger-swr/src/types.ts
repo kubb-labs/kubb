@@ -38,4 +38,4 @@ export type Options = {
 
 export type ResolvePathOptions = { tag?: string }
 
-export type PluginOptions = PluginFactoryOptions<Options, false, undefined, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-swr', Options, false, undefined, ResolvePathOptions>
