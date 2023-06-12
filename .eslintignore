@@ -1,15 +1,31 @@
+node_modules
+.github
+.vscode
+.codesandbox
+.devcontainer
 umd
 build
-config
+config/**
+*.config.*
 esnext
 es
 dist
 lib
-**/mocks/**
-*.config.*
+*.html
+*.json
+*.yaml
+*.MD
+*.d.ts
+globals.d.ts
+# *rc.js
+# *rc
+coverage
+assets
+docs
 **/types/**
-*rc.js
+!src
+
+# custom ones
 **/e2e/gen/**
 gen
-node_modules
-.eslintrc.cjs
+**/mocks/**

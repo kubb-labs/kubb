@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-zod",
-  "version": "1.1.8",
+  "version": "1.1.10",
   "description": "Generator swagger-zod",
   "keywords": [
     "zod",
@@ -41,7 +41,7 @@
   "scripts": {
     "build": "tsup",
     "clean": "rimraf ./dist",
-    "lint": "eslint \"**/*.{ts,tsx}\"",
+    "lint": "eslint --format pretty ./src",
     "lint-fix": "bun run lint --quiet --fix",
     "prepack": "bun run build",
     "release": "pnpm publish --no-git-check",

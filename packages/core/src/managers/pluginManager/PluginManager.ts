@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-unsafe-argument */
 
 import { definePlugin } from '../../plugin.ts'
 import { isPromise } from '../../utils/isPromise.ts'
@@ -85,14 +85,14 @@ export class PluginManager {
       api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api']
     }
 
-    const convertedCore = convertKubbUserPluginToKubbPlugin(core, core.api.call(null as any))
+    const convertedCore = convertKubbUserPluginToKubbPlugin(core, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
 
-    this.core = convertedCore as KubbPlugin<CorePluginOptions>
+    this.core = convertedCore
 
     this.plugins = [this.core, ...(config.plugins || [])].reduce((prev, plugin) => {
       // TODO HACK to be sure that this is equal to the `core.api` logic.
 
-      const convertedApi = convertKubbUserPluginToKubbPlugin(plugin!, convertedCore?.api)
+      const convertedApi = convertKubbUserPluginToKubbPlugin(plugin, convertedCore?.api)
 
       if (convertedApi) {
         return [...prev, convertedApi]
@@ -199,7 +199,9 @@ export class PluginManager {
     let promise: Promise<SafeParseResult<H>> = Promise.resolve(null as unknown as SafeParseResult<H>)
 
     for (const plugin of this.getSortedPlugins(hookName)) {
-      if (skipped && skipped.has(plugin)) continue
+      if (skipped && skipped.has(plugin)) {
+        continue
+      }
       promise = promise.then(async (parseResult) => {
         if (parseResult?.result != null) {
           return parseResult
@@ -237,7 +239,9 @@ export class PluginManager {
     let parseResult: SafeParseResult<H> = null as unknown as SafeParseResult<H>
 
     for (const plugin of this.getSortedPlugins(hookName)) {
-      if (skipped && skipped.has(plugin)) continue
+      if (skipped && skipped.has(plugin)) {
+        continue
+      }
 
       parseResult = {
         result: this.executeSync<H>({

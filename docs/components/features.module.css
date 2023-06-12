@@ -55,6 +55,6 @@
   }
   .feature svg {
     width: 16px;
-    stroke-width: 2.5px;
+    strokeWidth: 2.5px;
   }
 }

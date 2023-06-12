@@ -12,7 +12,7 @@ export type RequestConfig<TVariables = unknown> = {
 }
 
 export const axiosInstance = axios.create({
-  baseURL: process.env['AXIOS_BASE'] || 'http://localhost:3000',
+  baseURL: process.env['AXIOS_BASE'],
   headers: process.env['AXIOS_HEADERS'] ? JSON.parse(process.env['AXIOS_HEADERS']) : {},
 })
 

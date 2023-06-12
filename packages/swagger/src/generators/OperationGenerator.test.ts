@@ -3,7 +3,7 @@ import { definePlugin } from '../plugin.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
 import type { File } from '@kubb/core'
-import type { Oas, Operation, Resolver } from '../types.ts'
+import type { Operation, Resolver } from '../types.ts'
 
 class DummyOperationGenerator extends OperationGenerator {
   resolve(operation: Operation): Resolver {
@@ -53,11 +53,11 @@ const swaggerApi = definePlugin({}).api
 
 describe('abstract class OperationGenerator', () => {
   test('if pathParams return undefined when there are no params in path', async () => {
-    const oas = (await oasParser({
+    const oas = await oasParser({
       root: './',
       output: { path: 'test', clean: true },
       input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })) as Oas
+    })
 
     const og = new DummyOperationGenerator({ oas })
 

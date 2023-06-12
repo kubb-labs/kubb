@@ -37,7 +37,7 @@ jobs:
           uses: oven-sh/setup-bun@v1
  
         - name: Install dependencies
-          run: pnpm install
+          run: pnpm install --prefer-offline
 
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
           

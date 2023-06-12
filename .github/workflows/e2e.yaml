@@ -8,13 +8,14 @@ jobs:
   build:
       name: Build and Test
       timeout-minutes: 15
-      runs-on: ubuntu-latest
       strategy:
         matrix:
+          platform: [ubuntu-latest]
           node-version:
             - 18
             - 19
             - 20
+      runs-on: ${{ matrix.platform }}
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
       #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -38,7 +39,7 @@ jobs:
             registry-url: 'https://registry.npmjs.org'
  
         - name: Install dependencies
-          run: pnpm install
+          run: pnpm install --prefer-offline
           
         - name: Install bun
           uses: oven-sh/setup-bun@v1
@@ -49,7 +50,7 @@ jobs:
           run: bun run build
 
         - name: Install e2e dependencies
-          run: pnpm install
+          run: pnpm install --prefer-offline
           working-directory: ./e2e
 
         - name: E2e
@@ -63,5 +64,6 @@ jobs:
             bun run generate --input ./schemas/readme.io.yaml
             bun run generate --input ./schemas/worldtime.yaml
             bun run generate --input ./schemas/zalando.yaml
+            bun run generate --input ./schemas/requestBody.yaml
             bun run clean
 

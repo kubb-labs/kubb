@@ -1,4 +1,4 @@
-import { CreateAxiosDefaults } from 'axios'
+import type { CreateAxiosDefaults } from 'axios'
 
 import type { PluginFactoryOptions } from '@kubb/core'
 
@@ -61,4 +61,4 @@ export type Options = {
 
 export type ResolvePathOptions = { tag?: string }
 
-export type PluginOptions = PluginFactoryOptions<Options, false, undefined, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-client', Options, false, undefined, ResolvePathOptions>

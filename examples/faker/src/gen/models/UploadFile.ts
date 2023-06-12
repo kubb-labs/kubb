@@ -1,5 +1,7 @@
 import type { ApiResponse } from './ApiResponse'
 
+export type UploadFileMutationRequest = string
+
 export type UploadFilePathParams = {
   /**
    * @type integer int64

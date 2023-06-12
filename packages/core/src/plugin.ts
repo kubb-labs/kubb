@@ -38,15 +38,15 @@ type Options = {
 }
 
 // not publicly exported
-export type CorePluginOptions = PluginFactoryOptions<Options, false, PluginContext>
+export type CorePluginOptions = PluginFactoryOptions<'core', Options, false, PluginContext>
 
-export const name = 'core' as const
+export const pluginName: CorePluginOptions['name'] = 'core' as const
 
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
   const { fileManager, resolvePath, resolveName, load } = options
 
   return {
-    name,
+    name: pluginName,
     options,
     api() {
       // TODO watch out, typing is incorrect, `this` will be `null` with that core is normally the `this`
@@ -61,8 +61,12 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
           const plugins = options.config.plugins
             ?.filter((plugin) => trace[1].getFileName()?.includes(plugin.name))
             .sort((a, b) => {
-              if (a.name.length < b.name.length) return 1
-              if (a.name.length > b.name.length) return -1
+              if (a.name.length < b.name.length) {
+                return 1
+              }
+              if (a.name.length > b.name.length) {
+                return -1
+              }
               return 0
             })
           const pluginName = plugins?.[0].name

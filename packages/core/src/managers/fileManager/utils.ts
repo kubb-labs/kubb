@@ -182,7 +182,8 @@ function getEnvSource(source: string, env: NodeJS.ProcessEnv | undefined): strin
   }
 
   return keys.reduce((prev, curr: keyof NodeJS.ProcessEnv) => {
-    const value = `'${env[curr]?.replaceAll('"', '')?.replaceAll("'", '')}'`
+    const environmentValue = env[curr]
+    const value = environmentValue ? `'${environmentValue.replaceAll('"', '')?.replaceAll("'", '')}'` : 'undefined'
 
     if (typeof value === 'string') {
       return prev

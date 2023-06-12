@@ -1,7 +1,6 @@
-import fs from 'node:fs/promises'
 import pathParser from 'node:path'
 
-import { createPlugin, getLocation, getPathMode, getRelativePath, importModule, read, renderTemplate, validatePlugins, writeIndexes } from '@kubb/core'
+import { createPlugin, getLocation, getPathMode, getRelativePath, read, renderTemplate, validatePlugins, writeIndexes } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
@@ -12,7 +11,7 @@ import type { OptionalPath } from '@kubb/core'
 import type { API as SwaggerApi, Options as SwaggerOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
-export const pluginName = 'swagger-client' as const
+export const pluginName: PluginOptions['name'] = 'swagger-client' as const
 
 // Register your plugin for maximum type safety
 declare module '@kubb/core' {

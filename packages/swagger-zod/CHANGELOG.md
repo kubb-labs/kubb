@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.10](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.9...@kubb/swagger-zod-v1.1.10) (2023-06-12)
+
+
+### Bug Fixes
+
+* date, email uri, nullish and uui support for `zod` ([63bb669](https://github.com/kubb-project/kubb/commit/63bb669fc7f1fc58095fe620c612cceef7404592))
+
+## [1.1.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.8...@kubb/swagger-zod-v1.1.9) (2023-06-11)
+
+
+### Miscellaneous Chores
+
+* **@kubb/swagger-zod:** Synchronize undefined versions
+
 ## [1.1.8](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.7...@kubb/swagger-zod-v1.1.8) (2023-06-10)
 
 

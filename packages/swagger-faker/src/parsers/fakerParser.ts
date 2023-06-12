@@ -10,6 +10,10 @@ export const fakerKeywords = {
   tuple: 'tuple',
   enum: 'enum',
   union: 'union',
+  datetime: 'datetime',
+  email: 'email',
+  uuid: 'uuid',
+  url: 'url',
   /* intersection */
   and: 'and',
 
@@ -18,7 +22,6 @@ export const fakerKeywords = {
   ref: 'ref',
   catchall: 'catchall',
   matches: 'matches',
-  email: 'email',
   firstName: 'firstName',
   lastName: 'lastName',
   password: 'password',
@@ -39,6 +42,9 @@ export const fakerKeywordMapper: Record<FakerKeyword, string> = {
   tuple: 'faker.helpers.arrayElements',
   enum: 'faker.helpers.arrayElement<any>',
   union: 'faker.helpers.arrayElement',
+  datetime: 'faker.date.anytime',
+  uuid: 'faker.string.uuid',
+  url: 'faker.internet.url',
   /* intersection */
   and: 'Object.assign',
 
@@ -96,6 +102,12 @@ type FakerMetaPassword = { keyword: typeof fakerKeywords.password }
 
 type FakerMetaPhone = { keyword: typeof fakerKeywords.phone }
 
+type FakerMetaDatetime = { keyword: typeof fakerKeywords.datetime }
+
+type FakerMetaUuid = { keyword: typeof fakerKeywords.uuid }
+
+type FakerMetaUrl = { keyword: typeof fakerKeywords.url }
+
 export type FakerMeta =
   | FakerMetaAny
   | FakerMetaNull
@@ -118,6 +130,9 @@ export type FakerMeta =
   | FakerMetaLastName
   | FakerMetaPassword
   | FakerMetaPhone
+  | FakerMetaDatetime
+  | FakerMetaUuid
+  | FakerMetaUrl
 // use example
 /**
  *

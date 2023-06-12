@@ -40,6 +40,7 @@ export const rules: Linter.FlatConfig['rules'] = {
   'no-undef': 'error',
   'no-continue': 'off',
   'no-shadow': 'off',
+  'no-constant-condition': 'off',
   'no-underscore-dangle': 'off',
   'no-use-before-define': 'off',
   'no-unused-expressions': 'off',

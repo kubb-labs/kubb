@@ -12,7 +12,7 @@ export type RequestConfig<TVariables = unknown> = {
 }
 
 export const axiosInstance = axios.create({
-  baseURL: 'https://petstore3.swagger.io/api/v3' || 'http://localhost:3000',
+  baseURL: 'https://petstore3.swagger.io/api/v3',
   headers: '{}' ? JSON.parse('{}') : {},
 })
 

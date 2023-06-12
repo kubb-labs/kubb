@@ -62,7 +62,7 @@
     }
   },
   "include": [
-    "./gen/**/*"
+    "./src/gen/**/*"
   ],
   "exclude": [
     "**/node_modules",

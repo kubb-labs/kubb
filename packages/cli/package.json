@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "1.1.8",
+  "version": "1.1.10",
   "description": "Generator cli",
   "keywords": [
     "typescript",
@@ -22,10 +22,11 @@
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "kubb": "dist/index.js"
+    "kubb": "bin/kubb.js"
   },
   "files": [
     "dist",
+    "bin",
     "src",
     "!/**/**.test.**",
     "!/**/__tests__/**"
@@ -33,7 +34,7 @@
   "scripts": {
     "build": "tsup",
     "clean": "rimraf ./dist",
-    "lint": "eslint \"**/*.{ts,tsx}\"",
+    "lint": "eslint --format pretty ./src",
     "lint-fix": "bun run lint --quiet --fix",
     "prepack": "bun run build",
     "release": "pnpm publish --no-git-check",
@@ -60,7 +61,7 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/node": "^20.2.6",
+    "@types/node": "^20.3.0",
     "tsup": "^6.7.0",
     "typescript": "^5.1.3"
   },

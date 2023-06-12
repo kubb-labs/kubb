@@ -6,6 +6,7 @@ import type { Linter } from 'eslint'
 
 const config: Linter.Config = {
   root: true,
+  ignorePatterns: ['**/*.config.js', '!**/eslint.config.js', '**/dist/**', '**/mocks/**', 'globals.d.ts'],
   parser: '@typescript-eslint/parser',
   env: {
     ...globals['node'],
@@ -40,7 +41,6 @@ const config: Linter.Config = {
       },
     },
   ],
-  ignorePatterns: ['**/dist/**', '**/mocks/**'],
   parserOptions: {
     sourceType: 'module',
     ecmaVersion: 'latest',

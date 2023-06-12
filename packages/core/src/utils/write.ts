@@ -1,4 +1,4 @@
-import { promises as fs } from 'node:fs'
+import fs from 'fs-extra'
 import pathParser from 'node:path'
 
 async function safeWriteFileToPath(path: string, data: string) {

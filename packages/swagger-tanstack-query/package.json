@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-tanstack-query",
-  "version": "1.1.8",
+  "version": "1.1.10",
   "description": "Generator swagger-tanstack-query",
   "keywords": [
     "typescript",
@@ -44,7 +44,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "lint": "eslint \"**/*.{ts,tsx}\"",
+    "lint": "eslint --format pretty ./src",
     "lint-fix": "bun run lint --quiet --fix",
     "prepack": "bun run build",
     "release": "pnpm publish --no-git-check",
