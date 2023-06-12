@@ -3,7 +3,7 @@ name: e2e
 on:
   pull_request:
   workflow_dispatch:
-
+  
 jobs:
   build:
       name: Build and Test

@@ -1,33 +1,33 @@
-export interface Cache<T extends object = object> {
-  delete(id: keyof T): boolean
-  get(id: keyof T): T[keyof T] | null
-  has(id: keyof T): boolean
-  set(id: keyof T, value: unknown): void
+export interface Cache<TStore extends object = object> {
+  delete(id: keyof TStore): boolean
+  get(id: keyof TStore): TStore[keyof TStore] | null
+  has(id: keyof TStore): boolean
+  set(id: keyof TStore, value: unknown): void
 }
 
-export function createPluginCache<T extends Record<string, [number, unknown]>>(cache: T): Cache<T> {
+export function createPluginCache<TStore extends Record<string, [number, unknown]>>(Store: TStore): Cache<TStore> {
   return {
-    delete(id: keyof T) {
-      return delete cache[id]
+    set(id, value): void {
+      Store[id] = [0, value] as TStore[keyof TStore]
     },
-    get(id) {
-      const item = cache[id]
+    get(id): TStore[keyof TStore] | null {
+      const item = Store[id]
       if (!item) {
         return null
       }
       item[0] = 0
-      return item[1] as T[keyof T]
+      return item[1] as TStore[keyof TStore]
     },
-    has(id) {
-      const item = cache[id]
+    has(id): boolean {
+      const item = Store[id]
       if (!item) {
         return false
       }
       item[0] = 0
       return true
     },
-    set(id, value) {
-      cache[id] = [0, value] as T[keyof T]
+    delete(id: keyof TStore): boolean {
+      return delete Store[id]
     },
   }
 }

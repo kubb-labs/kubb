@@ -38,7 +38,7 @@
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "typecheck": "turbo run typecheck --continue --filter='./packages/*' --filter='./examples/*'",
-    "upgrade": "turbo run upgrade"
+    "upgrade": "turbo run upgrade --continue"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.0.2",
