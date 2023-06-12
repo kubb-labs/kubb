@@ -11,7 +11,7 @@ export default defineConfig(() => {
       path: 'https://petstore3.swagger.io/api/v3/openapi.json',
     },
     output: {
-      path: './gen',
+      path: './src/gen',
       clean: true,
     },
     hooks: {

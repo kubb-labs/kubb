@@ -159,8 +159,22 @@ export const test2 = 3;`,
       },
     }
 
-    expect(getFileSource(fileImport)).toMatchObject('import type { Pets } from "./Pets";\n\nexport const hello = "world";')
-    expect(getFileSource(fileImportAdvanced)).toMatchObject('import type { Pets } from "./Pets";\n\nexport const hello = "world";')
+    expect(format(getFileSource(fileImport))).toEqual(
+      format(`
+    import type { Pets } from "./Pets";
+
+    export const hello = "world";
+
+    `)
+    )
+    expect(format(getFileSource(fileImportAdvanced))).toEqual(
+      format(`
+    import type { Pets } from "./Pets";
+
+    export const hello = "world";
+
+    `)
+    )
   })
 
   test('if combineFiles is combining `exports`, `imports` and `source` for the same file', () => {

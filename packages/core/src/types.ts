@@ -123,6 +123,7 @@ export type KubbPluginKind = 'schema' | 'controller'
 
 export type KubbJSONPlugins = [plugin: keyof Register | string, options: Register[keyof Register] | object]
 
+export type KubbObjectPlugin = keyof Register
 export type KubbObjectPlugins = {
   [K in keyof Register]: Register[K] | object
 }
@@ -132,7 +133,7 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * Unique name used for the plugin
    * @example @kubb/typescript
    */
-  name: string
+  name: PluginFactoryOptions['name']
   /**
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */
@@ -151,7 +152,8 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 } & Partial<PluginLifecycle<TOptions>>
 
 // use of type objects
-export type PluginFactoryOptions<Options = unknown, Nested extends boolean = false, API = any, resolvePathOptions = Record<string, any>> = {
+export type PluginFactoryOptions<Name = string, Options = unknown, Nested extends boolean = false, API = any, resolvePathOptions = Record<string, any>> = {
+  name: Name
   options: Options
   nested: Nested
   api: API

@@ -46,8 +46,7 @@
     "items": {
       "about": {
         "title": "About Kubb",
-        "href": "/about",
-        "hidden": true
+        "href": "/about"
       }
     }
   }

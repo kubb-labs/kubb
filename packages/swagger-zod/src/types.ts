@@ -33,4 +33,4 @@ export type Options = {
 
 export type ResolvePathOptions = { tag?: string }
 
-export type PluginOptions = PluginFactoryOptions<Options, false, unknown, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-zod', Options, false, unknown, ResolvePathOptions>

@@ -13,4 +13,4 @@ export type Options = {
   output?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<Options, false, API>
+export type PluginOptions = PluginFactoryOptions<'swagger-zodios', Options, false, API>

@@ -1,0 +1,234 @@
+import { Callout } from 'nextra-theme-docs'
+
+# Client
+
+<Callout type="warning">
+ Under construction
+</Callout>
+
+
+## Features
+
+- Client that is using 'axios' behind the scenes to do REST calls
+- Override with your own implementation
+
+### Default `client`
+
+By default `@kubb/swagger-client/client` is getting used as the [`client`](http://localhost:3000/plugins/swagger-client/client#default-client).
+
+#### Config of Kubb
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerClient from '@kubb/swagger'
+
+export default defineConfig(() => {
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+      clean: true,
+    },
+    logLevel: 'info',
+    plugins: [
+      createSwagger({ output: false }),
+      createSwaggerClient({ output: './clients/axios' })
+    ],
+  }
+})
+```
+
+#### Generated `client.ts` file
+
+```typescript filename='./src/gen/clients/axios/client.ts'
+import axios from 'axios'
+
+import type { AxiosError } from 'axios'
+
+export type RequestConfig<TVariables = unknown> = {
+  method: 'get' | 'put' | 'patch' | 'post' | 'delete'
+  url: string
+  params?: unknown
+  data?: TVariables
+  responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
+  signal?: AbortSignal
+}
+
+export const axiosInstance = axios.create({
+  baseURL: 'https://petstore3.swagger.io/api/v3'
+  headers: '{}' ? JSON.parse('{}') : {},
+})
+
+export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<TData> => {
+  const promise = axiosInstance
+    .request<TData>({ ...config })
+    .then(({ data }) => data)
+    .catch((e: AxiosError<TError>) => {
+      throw e
+    })
+
+  return promise
+}
+
+export default axiosClient
+```
+
+#### Generated `addPet` file
+
+```typescript filename="./src/gen/clients/axios/addPet.ts"
+import client from './client'
+import type { AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/AddPet'
+
+/**
+ * @description Add a new pet to the store
+ * @summary Add a new pet to the store
+ * @link /pet
+ */
+export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutationRequest>(data: TVariables) {
+  return client<TData, TVariables>({
+    method: 'post',
+    url: `/pet`,
+    data,
+  })
+}
+```
+
+### Custom `client`
+
+Create your own implementation of the `client`.
+Handy when you want for examples to use `fetch` instead of `axios`.
+
+You can start with using a copy paste of `@kubb/swagger-client/client.ts`.
+
+#### Config of Kubb
+
+```typescript filename="kubb.config.ts" copy
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerClient from '@kubb/swagger'
+
+export default defineConfig(() => {
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+      clean: true,
+    },
+    logLevel: 'info',
+    plugins: [
+      createSwagger({ 
+        output: false 
+      }),
+      createSwaggerClient({ 
+        output: './clients/axios', 
+        // copy paste of @kubb/swagger-client/client.ts 
+        client: './src/client.ts' 
+      })
+    ],
+  }
+})
+```
+
+#### Generated `client.ts` file
+
+```typescript filename='./src/gen/axios/client.ts'
+import axios from 'axios'
+
+import type { AxiosError } from 'axios'
+
+export type RequestConfig<TVariables = unknown> = {
+  method: 'get' | 'put' | 'patch' | 'post' | 'delete'
+  url: string
+  params?: unknown
+  data?: TVariables
+  responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
+  signal?: AbortSignal
+}
+
+export const axiosInstance = axios.create({
+  baseURL: 'https://petstore3.swagger.io/api/v3',
+  headers: '{}' ? JSON.parse('{}') : {},
+})
+
+export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<TData> => {
+  const promise = axiosInstance
+    .request<TData>({ ...config })
+    .then(({ data }) => data)
+    .catch((e: AxiosError<TError>) => {
+      throw e
+    })
+
+  return promise
+}
+
+export default axiosClient
+```
+
+#### Generated `addPet` file
+
+```typescript filename="./src/gen/clients/axios/addPet.ts"
+import client from './client'
+import type { AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/AddPet'
+
+/**
+ * @description Add a new pet to the store
+ * @summary Add a new pet to the store
+ * @link /pet
+ */
+export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutationRequest>(data: TVariables) {
+  return client<TData, TVariables>({
+    method: 'post',
+    url: `/pet`,
+    data,
+  })
+}
+```
+## Usage
+
+### Default `client`
+
+Link: [`client.ts`](https://github.com/kubb-project/kubb/blob/main/packages/swagger-client/client.ts)
+
+```typescript filename="@kubb/swagger-client/client" copy
+import axios from 'axios'
+
+import type { AxiosError } from 'axios'
+
+export type RequestConfig<TVariables = unknown> = {
+  method: 'get' | 'put' | 'patch' | 'post' | 'delete'
+  url: string
+  params?: unknown
+  data?: TVariables
+  responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
+  signal?: AbortSignal
+}
+
+export const axiosInstance = axios.create({
+  baseURL: process.env['AXIOS_BASE'],
+  headers: process.env['AXIOS_HEADERS'] ? JSON.parse(process.env['AXIOS_HEADERS']) : {},
+})
+
+export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<TData> => {
+  const promise = axiosInstance
+    .request<TData>({ ...config })
+    .then(({ data }) => data)
+    .catch((e: AxiosError<TError>) => {
+      throw e
+    })
+
+  return promise
+}
+
+export default axiosClient
+
+```
+
+## Links
+- [plugins/core/fileManager#getenveource](/plugins/core/fileManager#getenveource)

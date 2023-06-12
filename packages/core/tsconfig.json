@@ -49,6 +49,9 @@
       "@kubb/swagger-zod": [
         "../swagger-zod/src/index.ts"
       ],
+      "@kubb/swagger-swr": [
+        "../swagger-swr/src/index.ts"
+      ],
       "@kubb/swagger-zodios": [
         "../swagger-zodios/src/index.ts"
       ],
