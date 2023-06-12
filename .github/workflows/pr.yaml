@@ -8,13 +8,14 @@ jobs:
   build:
       name: Build and Test
       timeout-minutes: 15
-      runs-on: ubuntu-latest
       strategy:
         matrix:
+          platform: [ubuntu-latest]
           node-version:
             - 18
             - 19
             - 20
+      runs-on: ${{ matrix.platform }}
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
       #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -41,15 +42,16 @@ jobs:
           uses: oven-sh/setup-bun@v1
  
         - name: Install dependencies
-          run: pnpm install
+          run: pnpm install --prefer-offline
 
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
           
         - name: Build
           run: bun run build --concurrency=1
 
-        - name: Typecheck and linting
+        - name: Typecheck
           run: bun run typecheck --concurrency=1
+          
         # OUT OF MEMORY BUG WITH ESLINT
         # - name: Linting
         #   run: bun run lint --concurrency=1

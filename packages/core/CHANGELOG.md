@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.10](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.1.9...@kubb/core-v1.1.10) (2023-06-12)
+
+
+### Miscellaneous Chores
+
+* **@kubb/core:** Synchronize undefined versions
+
+## [1.1.9](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.1.8...@kubb/core-v1.1.9) (2023-06-11)
+
+
+### Bug Fixes
+
+* `EMFILE: too many open files` for Windows ([8c9dbce](https://github.com/kubb-project/kubb/commit/8c9dbce410430df669156b211ecae32fe17c88de))
+* `path.resolve` with correct format for `Windows` ([ea7ff93](https://github.com/kubb-project/kubb/commit/ea7ff935f9be35c1899d82c1e9d2495eb92c8bcf))
+
 ## [1.1.8](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.1.7...@kubb/core-v1.1.8) (2023-06-10)
 
 

@@ -1,16 +1,16 @@
-import { promises as fs } from 'node:fs'
 import pathParser from 'node:path'
+import fs from 'fs-extra'
 
 function slash(path: string, platform: 'windows' | 'mac' | 'linux' = 'linux') {
-  const isExtendedLengthPath = /^\\\\\?\\/.test(path)
+  const isWindowsPath = /^\\\\\?\\/.test(path)
 
-  if (isExtendedLengthPath || platform === 'linux' || platform === 'mac') {
+  if (['linux', 'mac'].includes(platform) && !isWindowsPath) {
     // linux and mac
-    return path.replace('../', '').trimEnd()
+    return path.replaceAll(/\\/g, '/').replace('../', '').trimEnd()
   }
 
   // windows
-  return path.replace(/\\/g, '/').replace('../', '').trimEnd()
+  return path.replaceAll(/\\/g, '/').replace('../', '').trimEnd()
 }
 
 export function getRelativePath(rootDir?: string | null, filePath?: string | null, platform: 'windows' | 'mac' | 'linux' = 'linux') {

@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.10](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.1.9...@kubb/swagger-v1.1.10) (2023-06-12)
+
+
+### Bug Fixes
+
+* get requestSchema based on `operation.getRequestBody` or `operation.getRequestBody(requestBodyTypes.at(0)` ([85e3e78](https://github.com/kubb-project/kubb/commit/85e3e786786f1b4c57cec1605d5fb96aeac1ab83))
+
+## [1.1.9](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.1.8...@kubb/swagger-v1.1.9) (2023-06-11)
+
+
+### Miscellaneous Chores
+
+* **@kubb/swagger:** Synchronize undefined versions
+
 ## [1.1.8](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.1.7...@kubb/swagger-v1.1.8) (2023-06-10)
 
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.10](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.1.9...@kubb/ts-codegen-v1.1.10) (2023-06-12)
+
+
+### Miscellaneous Chores
+
+* **@kubb/ts-codegen:** Synchronize undefined versions
+
+## [1.1.9](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.1.8...@kubb/ts-codegen-v1.1.9) (2023-06-11)
+
+
+### Bug Fixes
+
+* `EMFILE: too many open files` for Windows ([8c9dbce](https://github.com/kubb-project/kubb/commit/8c9dbce410430df669156b211ecae32fe17c88de))
+
 ## [1.1.8](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.1.7...@kubb/ts-codegen-v1.1.8) (2023-06-10)
 
 

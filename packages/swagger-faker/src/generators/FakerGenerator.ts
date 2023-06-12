@@ -271,10 +271,22 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
         return [{ keyword: fakerKeywords.matches, args: `/${schema.pattern}/` }]
       }
 
+      if (schema.type !== 'string' && (schema.format === 'date-time' || baseName === 'date')) {
+        return [{ keyword: fakerKeywords.datetime }]
+      }
+
       if (schema.format === 'email' || baseName === 'email') {
         return [{ keyword: fakerKeywords.email }]
       }
 
+      if (schema.format === 'uri' || schema.format === 'hostname') {
+        return [{ keyword: fakerKeywords.url }]
+      }
+      if (schema.format === 'uuid') {
+        return [{ keyword: fakerKeywords.uuid }]
+      }
+
+      // based on baseName
       if (baseName === 'firstName') {
         return [{ keyword: fakerKeywords.firstName }]
       }

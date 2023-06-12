@@ -12,13 +12,17 @@ export function createPluginCache<T extends Record<string, [number, unknown]>>(c
     },
     get(id) {
       const item = cache[id]
-      if (!item) return null
+      if (!item) {
+        return null
+      }
       item[0] = 0
       return item[1] as T[keyof T]
     },
     has(id) {
       const item = cache[id]
-      if (!item) return false
+      if (!item) {
+        return false
+      }
       item[0] = 0
       return true
     },
