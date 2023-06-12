@@ -28,8 +28,8 @@ body:
       description: If possible, please provide text instead of a screenshot.
   - type: textarea
     attributes:
-      label: What do you see instead?
-      description: If possible, please provide text instead of a screenshot.
+      label: Swagger/OpenAPI file?
+      description: If possible, please provide your Swagger/OpenAPI file.
   - type: textarea
     attributes:
       label: Additional information

@@ -64,5 +64,6 @@ jobs:
             bun run generate --input ./schemas/readme.io.yaml
             bun run generate --input ./schemas/worldtime.yaml
             bun run generate --input ./schemas/zalando.yaml
+            bun run generate --input ./schemas/requestBody.yaml
             bun run clean
 

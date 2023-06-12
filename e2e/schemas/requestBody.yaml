@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Issue requestBody
+  license:
+    name: MIT
+  description: https://github.com/kubb-project/kubb/issues/274
+servers:
+  - url: http://petstore.swagger.io/v1
+paths:
+  /pets:
+    post:
+      tags:
+        - Accountants
+      requestBody:
+        content:
+          application/json-patch+json; x-api-version=1.0:
+            schema:
+              $ref: '#/components/schemas/AddAccountant'
+          application/json; x-api-version=1.0:
+            schema:
+              $ref: '#/components/schemas/AddAccountant'
+          text/json; x-api-version=1.0:
+            schema:
+              $ref: '#/components/schemas/AddAccountant'
+          application/*+json; x-api-version=1.0:
+            schema:
+              $ref: '#/components/schemas/AddAccountant'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain; x-api-version=1.0:
+              schema:
+                $ref: '#/components/schemas/StringApiResponse'
+            application/json; x-api-version=1.0:
+              schema:
+                $ref: '#/components/schemas/StringApiResponse'
+            text/json; x-api-version=1.0:
+              schema:
+                $ref: '#/components/schemas/StringApiResponse'
+components:
+  parameters:
+    breed:
+      name: breed
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    AddAccountant:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        '@id':
+          type: string
+          format: iri-reference
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+    StringApiResponse:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string

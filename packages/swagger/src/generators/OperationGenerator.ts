@@ -52,7 +52,11 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
   public getSchemas(operation: Operation): OperationSchemas {
     const pathParamsSchema = this.getParametersSchema(operation, 'path')
     const queryParamsSchema = this.getParametersSchema(operation, 'query')
-    const requestSchema = (operation.getRequestBody('application/json') as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject
+    const requestBodyTypes = operation.getRequestBodyMediaTypes()
+    const requestSchema = operation.hasRequestBody()
+      ? ((operation.getRequestBody() as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject) ||
+        ((operation.getRequestBody(requestBodyTypes.at(0)) as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject)
+      : undefined
     const responseSchema = operation.getResponseAsJSONSchema('200')?.at(0)?.schema as OpenAPIV3.SchemaObject
 
     return {
