@@ -31,6 +31,8 @@ jobs:
             # - os: windows-latest
             #   installer: pnpm run
             - os: ubuntu-latest
+              ## comment for support of node 19,20
+              node-version:  18
               installer: bun run
 
             ## comment out for support of node 19,20
