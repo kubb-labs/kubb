@@ -30,8 +30,8 @@ jobs:
             - node-version: 20
               experimental: true
 
-      runs-on: ${{ matrix.os }}
-      continue-on-error: ${{ matrix.experimental }}
+      runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+      continue-on-error: ${{ matrix.experimental || false }}
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
       #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}

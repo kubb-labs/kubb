@@ -37,7 +37,7 @@ jobs:
               experimental: true
             
       runs-on: ${{ matrix.os }}
-      continue-on-error: ${{ matrix.experimental }}
+      continue-on-error: ${{ matrix.experimental || false }}
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
       #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -104,7 +104,7 @@ jobs:
             # - 19
             # - 20
       runs-on: ${{ matrix.os }}
-      continue-on-error: ${{ matrix.experimental }}
+      continue-on-error: ${{ matrix.experimental || false }}
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
       #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
