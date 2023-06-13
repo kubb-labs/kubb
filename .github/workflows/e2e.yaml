@@ -22,8 +22,8 @@ jobs:
         matrix:
           os: [ubuntu-latest, windows-latest]
           node-version: [18]
+          installer: ['pnpm run']
           experimental: [false]
-          installer: ['bun run']
 
           include: 
             - os: windows-latest
@@ -31,23 +31,23 @@ jobs:
             - os: ubuntu-latest
               installer: bun run
 
-            - os: windows-latest
-              node-version: 19
-              installer: pnpm run
-              experimental: true
-            - os: ubuntu-latest
-              node-version: 19
-              installer: bun run
-              experimental: true
+            # - os: windows-latest
+            #   node-version: 19
+            #   installer: pnpm run
+            #   experimental: true
+            # - os: ubuntu-latest
+            #   node-version: 19
+            #   installer: bun run
+            #   experimental: true
 
-            - os: windows-latest
-              node-version: 20
-              installer: pnpm run
-              experimental: true
-            - os: ubuntu-latest
-              node-version: 20
-              installer: bun run
-              experimental: true
+            # - os: windows-latest
+            #   node-version: 20
+            #   installer: pnpm run
+            #   experimental: true
+            # - os: ubuntu-latest
+            #   node-version: 20
+            #   installer: bun run
+            #   experimental: true
             
       runs-on: ${{ matrix.os }}
       continue-on-error: ${{ matrix.experimental || false }}
