@@ -2,6 +2,7 @@ import pathParser from 'node:path'
 
 import { build, throttle, ParallelPluginError, PluginError, SummaryError, timeout } from '@kubb/core'
 
+import type { ExecaReturnValue } from 'execa'
 import { execa } from 'execa'
 import pc from 'picocolors'
 
@@ -38,40 +39,46 @@ export async function run({ config, options }: RunProps): Promise<void> {
     spinner,
   }
 
-  const onDone = async (hooks: KubbConfig['hooks'], logLevel: LogLevel) => {
+  const executeHooks = async (hooks: KubbConfig['hooks'], logLevel: LogLevel) => {
     if (!hooks?.done) {
       return
     }
 
-    let commands: string[] = []
-    if (typeof hooks?.done === 'string') {
-      commands = [hooks.done]
-    } else {
-      commands = hooks.done
-    }
-
-    const promises = commands.map(async (command) => {
-      const oraWritable = new OraWritable(spinner, command)
-      const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
-      spinner.start(parseText(`🪂 Executing hooks(${pc.yellow('done')})`, { info: ` ${pc.dim(command)}` }, logLevel))
-
-      const { stdout } = await execa(cmd, _args, {}).pipeStdout!(oraWritable)
-      spinner.suffixText = ''
-      oraWritable.destroy()
-      // wait for 50ms to be sure
-      await timeout(50)
-
-      if (logLevel === 'info') {
-        spinner.succeed(parseText(`🪂 Executing hooks(${pc.yellow('done')})`, { info: ` ${pc.dim(command)}` }, logLevel))
-
-        console.log(stdout)
-      }
-    })
-
-    await Promise.all(promises)
+    const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done]
 
     if (logLevel === 'silent') {
-      spinner.succeed(parseText(`🪂 Executing hooks(${pc.yellow('done')})`, {}, logLevel))
+      spinner.start(`🪂 Executing hooks`)
+    }
+    type Executer = { subProcess: ExecaReturnValue<string>; abort: AbortController['abort'] }
+
+    const executers: Promise<Executer>[] = commands.map(async (command) => {
+      const oraWritable = new OraWritable(spinner, command)
+      const abortController = new AbortController()
+      const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
+
+      spinner.start(parseText(`🪂 Executing hook`, { info: ` ${pc.dim(command)}` }, logLevel))
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable)
+      spinner.suffixText = ''
+
+      if (logLevel === 'info') {
+        spinner.succeed(parseText(`🪂 Executing hook`, { info: ` ${pc.dim(command)}` }, logLevel))
+
+        console.log(subProcess.stdout)
+      }
+
+      // wait for 50ms to be sure that all open files are close(fs)
+      await timeout(50)
+
+      oraWritable.destroy()
+      return { subProcess, abort: abortController.abort.bind(abortController) }
+    })
+
+    await Promise.all(executers)
+
+    if (logLevel === 'silent') {
+      spinner.succeed(`🪂 Executing hooks`)
     }
   }
 
@@ -147,7 +154,7 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
 
     spinner.succeed(parseText(`🚀 Build completed`, { info: `(${pc.dim(inputPath)})` }, logLevel))
 
-    await onDone(config.hooks, logLevel)
+    await executeHooks(config.hooks, logLevel)
 
     const summary = getSummary(output.pluginManager, 'success')
     console.log(summary.join(''))

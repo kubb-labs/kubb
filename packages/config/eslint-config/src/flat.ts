@@ -49,7 +49,7 @@ const reactPluginRecommended = require('eslint-plugin-react/configs/recommended'
 
 export const config: Linter.FlatConfig = {
   files: ['**/*.{ts,tsx}'],
-  ignores: ['**/*.config.js', '!**/eslint.config.js', '**/dist/**', '**/mocks/**', 'globals.d.ts'],
+  ignores: ['**/*.config.js', '!**/eslint.config.js', '**/dist/**', '**/mocks/**', '*.d.ts'],
   rules: {
     ...eslint.configs.recommended.rules,
     ...turboPlugin.configs['recommended'].rules,

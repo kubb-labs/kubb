@@ -154,7 +154,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         members.push(createIndexSignature(type))
       }
     }
-    return factory.createTypeLiteralNode(members.filter(Boolean) as ts.TypeElement[])
+    return factory.createTypeLiteralNode(members.filter(Boolean) )
   }
 
   /**

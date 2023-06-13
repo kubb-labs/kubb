@@ -22,4 +22,6 @@ export async function startWatcher(path: string[], cb: (path: string[]) => Promi
       spinner.warn(pc.red('Watcher failed'))
     }
   })
+
+  return
 }

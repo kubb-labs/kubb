@@ -40,7 +40,7 @@ export function writeIndexes(root: string, options: TreeNodeOptions = {}): File[
 
           return { path: importPath }
         })
-        .filter(Boolean) as File['exports']
+        .filter(Boolean)
 
       files.push({
         path,
@@ -75,7 +75,7 @@ export function writeIndexes(root: string, options: TreeNodeOptions = {}): File[
 }
 
 export function combineFiles(files: Array<File | null>): File[] {
-  return (files.filter(Boolean) as File[]).reduce((acc, curr: File) => {
+  return files.filter(Boolean).reduce((acc, curr: File) => {
     const prevIndex = acc.findIndex((item) => item.path === curr.path)
 
     if (prevIndex !== -1) {

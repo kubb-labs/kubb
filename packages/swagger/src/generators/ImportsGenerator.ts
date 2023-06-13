@@ -78,9 +78,9 @@ export class ImportsGenerator extends Generator<Options> {
         return {
           ref: refs[$ref],
           path: path.replace('./../', '../'),
-        }
+        } as ImportMeta
       })
-      .filter(Boolean) as ImportMeta[]
+      .filter(Boolean) 
 
     return [...importMeta, ...this.items]
   }

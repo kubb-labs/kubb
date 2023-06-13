@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 import { definePlugin } from '../../plugin.ts'
-import { isPromise } from '../../utils/isPromise.ts'
+import { isPromise, isPromiseRejectedResult } from '../../utils/isPromise.ts'
 import { Queue } from '../../utils/Queue.ts'
 import { FileManager } from '../fileManager/FileManager.ts'
 import type { File } from '../fileManager/types.ts'
@@ -255,7 +255,8 @@ export class PluginManager {
       }
     }
     const results = await Promise.allSettled(parallelPromises)
-    const errors = results.filter((result) => result.status === 'rejected').map((result) => (result as PromiseRejectedResult).reason) as PluginError[]
+
+    const errors = results.map((result) => (isPromiseRejectedResult<PluginError>(result) ? result.reason : undefined)).filter(Boolean)
 
     if (errors.length) {
       throw new ParallelPluginError('Error', { errors, pluginManager: this })
