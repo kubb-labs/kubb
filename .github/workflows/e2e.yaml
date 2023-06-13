@@ -23,19 +23,29 @@ jobs:
           os: [ubuntu-latest, windows-latest]
           node-version: [18]
           installer: ['pnpm run']
-          ##comment out for support of node 19,20
+          ## comment out for support of node 19,20
           # experimental: [false]
 
-          include: 
-            ## comment out for support of node 19,20
-            # - os: windows-latest
-            #   installer: pnpm run
+          ## comment for support of node 19,20
+          exclude:
             - os: ubuntu-latest
-              ## comment for support of node 19,20
-              node-version:  18
+              node-version: 18
+              installer: pnpm run
+          include: 
+            - os: windows-latest
+              node-version: 18
+              installer: pnpm run
+            - os: ubuntu-latest
+              node-version: 18
               installer: bun run
 
-            ## comment out for support of node 19,20
+          ## comment out for support of node 19,20
+          # include: 
+
+            # - os: windows-latest
+            #   installer: pnpm run
+            # - os: ubuntu-latest
+            #   installer: bun run
             # - os: windows-latest
             #   node-version: 19
             #   installer: pnpm run
