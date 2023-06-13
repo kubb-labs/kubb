@@ -21,14 +21,14 @@ jobs:
         fail-fast: true
         matrix:
           os: [ubuntu-latest]
-          node-version: [18, 10, 20]
-          # experimental: [false]
+          node-version: [18, 19, 20]
+          experimental: [false]
 
-          # include: 
-          #   - node-version: 19
-          #     experimental: true
-          #   - node-version: 20
-          #     experimental: true
+          include: 
+            - node-version: 19
+              experimental: true
+            - node-version: 20
+              experimental: true
 
       runs-on: ${{ matrix.os }}
       continue-on-error: ${{ matrix.experimental }}
