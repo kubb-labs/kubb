@@ -3,15 +3,15 @@ name: e2e
 on:
   pull_request:
   workflow_dispatch:
-    inputs:
-      platform:
-        description: Choose platform
-        required: true
-        type: choice
-        options:
-        - ubuntu-latest
-        - macos-lates
-        - windows-latest
+    # inputs:
+    #   platform:
+    #     description: Choose platform
+    #     required: true
+    #     type: choice
+    #     options:
+    #     - ubuntu-latest
+    #     - macos-lates
+    #     - windows-latest
   
 jobs:
   build_ubuntu:
@@ -21,7 +21,7 @@ jobs:
       strategy:
         fail-fast: true
         matrix:
-          platform: ${{ github.event.inputs.platform || 'ubuntu-latest' }}
+          platform: [ubuntu-latest]
           node-version:
             - 18
             - 19
@@ -99,7 +99,7 @@ jobs:
       timeout-minutes: 15
       strategy:
         matrix:
-          platform: ${{ github.event.inputs.platform || 'windows-latest' }}
+          platform: [windows-latest]
           node-version:
             - 18
             # - 19
