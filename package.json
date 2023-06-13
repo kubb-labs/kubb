@@ -29,6 +29,7 @@
     "format:pack": "npx sort-package-json \"package.json\" \"packages/**/**/package.json\" \"examples/*/package.json\" \"docs/package.json\" \"e2e/package.json\"",
     "generate": "turbo run generate && pnpm format",
     "graph": "nx graph ",
+    "install:csb": "corepack enable && pnpm install --frozen-lockfile",
     "lint": "turbo run lint",
     "lint-fix": "turbo run lint-fix",
     "lint:case": "npx case-police --fix",
