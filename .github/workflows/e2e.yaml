@@ -3,43 +3,45 @@ name: e2e
 on:
   pull_request:
   workflow_dispatch:
-    inputs:
-      os:
-        description: Choose os
-        required: true
-        type: choice
-        options:
-        - ubuntu-latest
-        - macos-latest
-        - windows-latest
+    # inputs:
+    #   os:
+    #     description: Choose os
+    #     required: true
+    #     type: choice
+    #     options:
+    #     - ubuntu-latest
+    #     - macos-latest
+    #     - windows-latest
   
 jobs:
-  build_ubuntu:
-      name: Build and Test(ubuntu-latest)
-      if: ${{ github.event.inputs.os  == 'ubuntu-latest' || github.event.inputs.os == null }}
+  build:
+      name: Build and Test
       timeout-minutes: 15
       strategy:
         fail-fast: true
         matrix:
-          os: [ubuntu-latest]
-          node-version: [18, 19, 20]
+          os: [ubuntu-latest, windows-latest]
+          node-version: [18]
           experimental: [false]
 
           include: 
             - os: windows-latest
-              node-version: [18, 19, 20]
-              experimental: [false]
               installer: pnpm
             - os: ubuntu-latest
-              node-version: [18, 19, 20]
-              experimental: [false]
               installer: bun 
 
-            - node-version: 18
-              experimental: false
-            - node-version: 19
+            - os: windows-latest
+              node-version: 19
               experimental: true
-            - node-version: 20
+            - os: ubuntu-latest
+              node-version: 19
+              experimental: true
+
+            - os: windows-latest
+              node-version: 20
+              experimental: true
+            - os: ubuntu-latest
+              node-version: 20
               experimental: true
             
       runs-on: ${{ matrix.os }}
@@ -70,9 +72,11 @@ jobs:
           run: pnpm install --prefer-offline
           
         - name: Install bun
+          if: ${{ github.event.inputs.os == 'ubuntu-latest' || matrix.os === "ubuntu-latest" }}
           uses: oven-sh/setup-bun@v1
 
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
+          if: ${{ github.event.inputs.os == 'ubuntu-latest' || matrix.os === "ubuntu-latest" }}
           with:
            # Set the prefix for the cache keys.
             cache-prefix: kubb_
@@ -97,72 +101,5 @@ jobs:
             bun run generate --input ./schemas/zalando.yaml
             bun run generate --input ./schemas/requestBody.yaml
             bun run clean
-
-  build_windows:
-      name: Build and Test(windows-latest)
-      if: ${{ github.event.inputs.os  == 'windows-latest' || github.event.inputs.os == null }}
-      timeout-minutes: 15
-      strategy:
-        matrix:
-          os: [windows-latest]
-          node-version:
-            - 18
-            # - 19
-            # - 20
-      runs-on: ${{ matrix.os }}
-      continue-on-error: ${{ matrix.experimental || false }}
-      # To use Remote Caching, uncomment the next lines and follow the steps below.
-      # env:
-      #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      #  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
- 
-      steps:
-        - name: Check out code
-          uses: actions/checkout@v3
-          with:
-            fetch-depth: 2
- 
-        - uses: pnpm/action-setup@v2.2.4
-          with:
-            version: 8
- 
-        - name: Setup Node.js(${{ matrix.node-version }}) environment
-          uses: actions/setup-node@v3
-          with:
-            node-version: ${{ matrix.node-version }}
-            cache: 'pnpm'
-            registry-url: 'https://registry.npmjs.org'
- 
-        - name: Install dependencies
-          run: pnpm install --prefer-offline
-          
-        # ENABLE when Bun has support for Windows
-        # - name: Install bun
-        #   uses: oven-sh/setup-bun@v1
-
-        # ENABLE when Turbo caching has support for Windows
-        # - uses: dtinth/setup-github-actions-caching-for-turbo@v1
-
-        - name: Build
-          run: pnpm run build
-
-        - name: Install e2e dependencies
-          run: pnpm install --prefer-offline
-          working-directory: ./e2e
-
-        - name: E2e
-          working-directory: ./e2e
-          run: |
-            pnpm run generate --input ./schemas/petStore.yaml
-            pnpm run generate --input ./schemas/twitter.json
-            pnpm run generate --input ./schemas/twitter2.json
-            pnpm run generate --input ./schemas/bunq.com.json
-            pnpm run generate --input ./schemas/jokesOne.yaml
-            pnpm run generate --input ./schemas/readme.io.yaml
-            pnpm run generate --input ./schemas/worldtime.yaml
-            pnpm run generate --input ./schemas/zalando.yaml
-            pnpm run generate --input ./schemas/requestBody.yaml
-            pnpm run clean
-
 
 
