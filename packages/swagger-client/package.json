@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-client",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "description": "Generator swagger-client",
   "keywords": [
     "typescript",
@@ -60,7 +60,6 @@
   },
   "files": [
     "dist",
-    "src",
     "client.ts",
     "*.d.ts",
     "*.d.cts",
@@ -72,7 +71,6 @@
     "clean": "rimraf ./dist",
     "lint": "eslint --format pretty ./src",
     "lint-fix": "bun run lint --quiet --fix",
-    "prepack": "bun run build",
     "release": "pnpm publish --no-git-check",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",

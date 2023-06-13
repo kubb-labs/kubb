@@ -13,7 +13,7 @@ function slash(path: string, platform: 'windows' | 'mac' | 'linux' = 'linux') {
   return path.replaceAll(/\\/g, '/').replace('../', '').trimEnd()
 }
 
-export function getRelativePath(rootDir?: string | null, filePath?: string | null, platform: 'windows' | 'mac' | 'linux' = 'linux') {
+export function getRelativePath(rootDir?: string | null, filePath?: string | null, platform: 'windows' | 'mac' | 'linux' = 'linux'): string {
   if (!rootDir || !filePath) {
     throw new Error(`Root and file should be filled in when retrieving the relativePath, ${rootDir || ''} ${filePath || ''}`)
   }
@@ -40,6 +40,6 @@ export function getPathMode(path: string | undefined | null): PathMode {
   return pathParser.extname(path) ? 'file' : 'directory'
 }
 
-export async function read(path: string) {
+export async function read(path: string): Promise<string> {
   return fs.readFile(path, { encoding: 'utf8' })
 }

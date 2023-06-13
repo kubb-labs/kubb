@@ -3,19 +3,69 @@ name: e2e
 on:
   pull_request:
   workflow_dispatch:
+    # inputs:
+    #   os:
+    #     description: Choose os
+    #     required: true
+    #     type: choice
+    #     options:
+    #     - ubuntu-latest
+    #     - macos-latest
+    #     - windows-latest
   
 jobs:
   build:
       name: Build and Test
       timeout-minutes: 15
       strategy:
+        fail-fast: true
         matrix:
-          platform: [ubuntu-latest]
-          node-version:
-            - 18
-            - 19
-            - 20
-      runs-on: ${{ matrix.platform }}
+          os: [ubuntu-latest, windows-latest]
+          node-version: [18]
+          installer: ['pnpm run']
+          ## comment out for support of node 19,20
+          # experimental: [false]
+
+          ## comment for support of node 19,20
+          exclude:
+            - os: ubuntu-latest
+              node-version: 18
+              installer: pnpm run
+          include: 
+            - os: windows-latest
+              node-version: 18
+              installer: pnpm run
+            - os: ubuntu-latest
+              node-version: 18
+              installer: bun run
+
+          ## comment out for support of node 19,20
+          # include: 
+
+            # - os: windows-latest
+            #   installer: pnpm run
+            # - os: ubuntu-latest
+            #   installer: bun run
+            # - os: windows-latest
+            #   node-version: 19
+            #   installer: pnpm run
+            #   experimental: true
+            # - os: ubuntu-latest
+            #   node-version: 19
+            #   installer: bun run
+            #   experimental: true
+
+            # - os: windows-latest
+            #   node-version: 20
+            #   installer: pnpm run
+            #   experimental: true
+            # - os: ubuntu-latest
+            #   node-version: 20
+            #   installer: bun run
+            #   experimental: true
+            
+      runs-on: ${{ matrix.os }}
+      continue-on-error: ${{ matrix.experimental || false }}
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
       #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -42,12 +92,17 @@ jobs:
           run: pnpm install --prefer-offline
           
         - name: Install bun
+          if: ${{ matrix.os == 'ubuntu-latest' }}
           uses: oven-sh/setup-bun@v1
 
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
+          if: ${{ matrix.os == 'ubuntu-latest' }}
+          with:
+           # Set the prefix for the cache keys.
+            cache-prefix: kubb_
 
         - name: Build
-          run: bun run build
+          run: ${{ matrix.installer }} build
 
         - name: Install e2e dependencies
           run: pnpm install --prefer-offline
@@ -56,14 +111,15 @@ jobs:
         - name: E2e
           working-directory: ./e2e
           run: |
-            bun run generate --input ./schemas/petStore.yaml
-            bun run generate --input ./schemas/twitter.json
-            bun run generate --input ./schemas/twitter2.json
-            bun run generate --input ./schemas/bunq.com.json
-            bun run generate --input ./schemas/jokesOne.yaml
-            bun run generate --input ./schemas/readme.io.yaml
-            bun run generate --input ./schemas/worldtime.yaml
-            bun run generate --input ./schemas/zalando.yaml
-            bun run generate --input ./schemas/requestBody.yaml
-            bun run clean
+            ${{ matrix.installer }} generate --input ./schemas/petStore.yaml
+            ${{ matrix.installer }} generate --input ./schemas/twitter.json
+            ${{ matrix.installer }} generate --input ./schemas/twitter2.json
+            ${{ matrix.installer }} generate --input ./schemas/bunq.com.json
+            ${{ matrix.installer }} generate --input ./schemas/jokesOne.yaml
+            ${{ matrix.installer }} generate --input ./schemas/readme.io.yaml
+            ${{ matrix.installer }} generate --input ./schemas/worldtime.yaml
+            ${{ matrix.installer }} generate --input ./schemas/zalando.yaml
+            ${{ matrix.installer }} generate --input ./schemas/requestBody.yaml
+            ${{ matrix.installer }} clean
+
 

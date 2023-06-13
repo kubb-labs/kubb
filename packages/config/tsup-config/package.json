@@ -19,7 +19,6 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "src",
     "schemas",
     "!/**/**.test.**",
     "!/**/__tests__/**"
@@ -31,7 +30,7 @@
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
-    "@types/node": "^20.2.6",
+    "@types/node": "^20.3.1",
     "tsup": "^6.7.0"
   },
   "peerDependencies": {

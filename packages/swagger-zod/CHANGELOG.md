@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.12](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.11...@kubb/swagger-zod-v1.1.12) (2023-06-13)
+
+
+### Bug Fixes
+
+* `z.union` does not work on a single element ([a646a5c](https://github.com/kubb-project/kubb/commit/a646a5c96854d8d8395e26758c3cf4fad35633f5))
+
 ## [1.1.11](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.10...@kubb/swagger-zod-v1.1.11) (2023-06-12)
 
 
