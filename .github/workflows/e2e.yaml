@@ -19,13 +19,26 @@ jobs:
       if: ${{ github.event.inputs.platform  == 'ubuntu-latest' || github.event.inputs.platform == null }}
       timeout-minutes: 15
       strategy:
+        fail-fast: true
         matrix:
-          platform: ${{ github.event.inputs.platform  || "ubuntu-latest" }}
+          platform: ${{ github.event.inputs.platform || 'ubuntu-latest' }}
           node-version:
             - 18
-            # - 19
-            # - 20
+            - 19
+            - 20
+          experimental: [false]
+          include: 
+            - version: 19
+              experimental: true
+            - version: 20
+              experimental: true
+            - os: windows-latest
+              installer: pnpm
+            - os: windows-latest
+              installer: bun
+
       runs-on: ${{ matrix.platform }}
+      continue-on-error: ${{ matrix.experimental }}
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
       #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -86,12 +99,13 @@ jobs:
       timeout-minutes: 15
       strategy:
         matrix:
-          platform: ${{ github.event.inputs.platform  || "windows-latest" }}
+          platform: ${{ github.event.inputs.platform || 'windows-latest' }}
           node-version:
             - 18
             # - 19
             # - 20
       runs-on: ${{ matrix.platform }}
+      continue-on-error: ${{ matrix.experimental }}
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
       #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
