@@ -41,11 +41,7 @@ export async function oasPathParser(pathOrApi: string, { validate }: OasOptions 
   if (validate) {
     const oas = new OASNormalize(pathOrApi, { enablePaths: true, colorizeErrors: true })
 
-    try {
-      await oas.validate()
-    } catch (e) {
-      console.log('\n', (e as Error).message)
-    }
+    await oas.validate()
   }
 
   const document = (await SwaggerParser.parse(pathOrApi)) as OASDocument

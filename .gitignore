@@ -40,6 +40,7 @@ cache
 .dccache
 examples/**/test.json
 e2e/gen/**
+e2e/src/gen/**
 
 ## custom ones
 private

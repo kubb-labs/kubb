@@ -230,10 +230,12 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       return [
         {
           keyword: fakerKeywords.tuple,
-          args: prefixItems.map((item) => {
-            // no baseType so we can fall back on an union when using enum
-            return this.getBaseTypeFromSchema(item, undefined)![0]
-          }),
+          args: prefixItems
+            .map((item) => {
+              // no baseType so we can fall back on an union when using enum
+              return this.getBaseTypeFromSchema(item, undefined)?.[0]
+            })
+            .filter(Boolean),
         },
       ]
     }

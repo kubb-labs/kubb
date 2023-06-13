@@ -31,7 +31,6 @@ const tsLoader = (configFile: string) => {
     if (err.code === 'MODULE_NOT_FOUND') {
       throw new Error(`'ts-node' is required for the TypeScript configuration files. Make sure it is installed\nError: ${err.message}`)
     }
-    console.log(err)
 
     throw err
   } finally {

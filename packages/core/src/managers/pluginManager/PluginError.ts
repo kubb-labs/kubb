@@ -6,6 +6,7 @@ export class PluginError extends Error {
   constructor(message: string, options: { cause?: Error; pluginManager: PluginManager }) {
     super(message, { cause: options.cause })
 
+    this.name = 'PluginError'
     this.pluginManager = options.pluginManager
   }
 }
