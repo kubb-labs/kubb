@@ -27,10 +27,16 @@ jobs:
 
           include: 
             - os: windows-latest
+              node-version: [18, 19, 20]
+              experimental: [false]
               installer: pnpm
-            - os: windows-latest
-              installer: bun
+            - os: ubuntu-latest
+              node-version: [18, 19, 20]
+              experimental: [false]
+              installer: bun 
 
+            - node-version: 18
+              experimental: false
             - node-version: 19
               experimental: true
             - node-version: 20

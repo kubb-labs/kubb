@@ -25,6 +25,8 @@ jobs:
           experimental: [false]
 
           include: 
+            - node-version: 18
+              experimental: false
             - node-version: 19
               experimental: true
             - node-version: 20
