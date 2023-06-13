@@ -26,16 +26,17 @@ jobs:
           experimental: [false]
 
           include: 
-            - node-version: 19
-              experimental: true
-            - node-version: 20
-              experimental: true
-              
             - os: windows-latest
               installer: pnpm
             - os: windows-latest
               installer: bun
 
+
+            - node-version: [19, 20]
+              experimental: true
+            - node-version: [19, 20]
+              experimental: true
+            
       runs-on: ${{ matrix.os }}
       continue-on-error: ${{ matrix.experimental }}
       # To use Remote Caching, uncomment the next lines and follow the steps below.
