@@ -32,16 +32,20 @@ jobs:
 
             - os: windows-latest
               node-version: 19
+              installer: pnpm run
               experimental: true
             - os: ubuntu-latest
               node-version: 19
+              installer: bun run
               experimental: true
 
             - os: windows-latest
               node-version: 20
+              installer: pnpm run
               experimental: true
             - os: ubuntu-latest
               node-version: 20
+              installer: bun run
               experimental: true
             
       runs-on: ${{ matrix.os }}
