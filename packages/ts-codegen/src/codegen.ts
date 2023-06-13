@@ -268,7 +268,7 @@ export function createEnumDeclaration({
         [factory.createToken(ts.SyntaxKind.ExportKeyword)],
         factory.createIdentifier(typeName),
         enums.map(([key, value]) => {
-          let initializer: ts.Expression = factory.createStringLiteral(`${value}`)
+          let initializer: ts.Expression = factory.createStringLiteral(`${value?.toString()}`)
 
           if (typeof value === 'number') {
             initializer = factory.createNumericLiteral(value)
@@ -298,7 +298,7 @@ export function createEnumDeclaration({
             factory.createAsExpression(
               factory.createObjectLiteralExpression(
                 enums.map(([key, value]) => {
-                  let initializer: ts.Expression = factory.createStringLiteral(`${value}`)
+                  let initializer: ts.Expression = factory.createStringLiteral(`${value?.toString()}`)
 
                   if (typeof value === 'number') {
                     initializer = factory.createNumericLiteral(value)
