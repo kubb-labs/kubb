@@ -36,7 +36,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return valid
     },
-    resolvePath(fileName, directory) {
+    resolvePath(fileName, _directory) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 
       return pathParser.resolve(root, fileName)

@@ -15,7 +15,7 @@ export const bannerCJS: Options['banner'] = {
 export const options: Options = {
   entry: ['src/index.ts'],
   treeshake: true,
-  sourcemap: false,
+  sourcemap: true,
   minify: false,
   clean: true,
   platform: 'node',

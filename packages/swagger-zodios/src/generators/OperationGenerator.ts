@@ -21,13 +21,18 @@ export class OperationGenerator extends Generator<Options> {
     const { resolvePath, output, resolveName } = this.options
 
     const name = resolveName({ name: output.replace('.ts', ''), pluginName })
+
+    if (!name) {
+      throw new Error('Name should be defined')
+    }
+
     const fileName = `${name}.ts`
     const filePath = resolvePath({
       fileName,
       pluginName,
     })
 
-    if (!filePath || !name) {
+    if (!filePath) {
       throw new Error('Filepath should be defined')
     }
 
@@ -211,13 +216,15 @@ export class OperationGenerator extends Generator<Options> {
               path: getRelativePath(zodios.filePath, filePath),
             })
 
-            errors.push(`
+            if (errorOperationSchema.statusCode) {
+              errors.push(`
               {
                 status: ${errorOperationSchema.statusCode},
                 description: \`${errorOperationSchema.description}\`,
                 schema: ${name}
               }
             `)
+            }
           })
       }
 

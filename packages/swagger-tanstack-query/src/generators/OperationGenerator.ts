@@ -23,13 +23,18 @@ export class OperationGenerator extends Generator<Options> {
     const imports = this.getFrameworkSpecificImports(framework)
 
     const name = imports.getName(operation)
+
+    if (!name) {
+      throw new Error('Name should be defined')
+    }
+
     const fileName = `${name}.ts`
     const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
     })
 
-    if (!filePath || !name) {
+    if (!filePath) {
       throw new Error('Filepath should be defined')
     }
 
@@ -44,10 +49,15 @@ export class OperationGenerator extends Generator<Options> {
     const { resolvePath, resolveName } = this.options
 
     const name = resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })
+
+    if (!name) {
+      throw new Error('Name should be defined')
+    }
+
     const fileName = `${name}.ts`
     const filePath = resolvePath({ fileName, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
 
-    if (!filePath || !name) {
+    if (!filePath) {
       throw new Error('Filepath should be defined')
     }
 
@@ -62,6 +72,11 @@ export class OperationGenerator extends Generator<Options> {
     const { resolvePath, resolveName } = this.options
 
     const name = resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
+
+    if (!name) {
+      throw new Error('Name should be defined')
+    }
+
     const fileName = `${name}.ts`
     const filePath = resolvePath({
       fileName,
@@ -69,7 +84,7 @@ export class OperationGenerator extends Generator<Options> {
       pluginName: swaggerTypescriptPluginName,
     })
 
-    if (!filePath || !name) {
+    if (!filePath) {
       throw new Error('Filepath should be defined')
     }
 

@@ -1,30 +1,29 @@
 import pathParser from 'node:path'
 
-import { build, throttle, ParallelPluginError, PluginError } from '@kubb/core'
+import { build, throttle, ParallelPluginError, PluginError, SummaryError, timeout } from '@kubb/core'
 
 import { execa } from 'execa'
 import pc from 'picocolors'
-import PrettyError from 'pretty-error'
+
 import { parseArgsStringToArgv } from 'string-argv'
 
 import { parseHrtimeToSeconds } from './utils/parseHrtimeToSeconds.ts'
 import { parseText } from './utils/parseText.ts'
 
 import type { BuildOutput, CLIOptions, KubbConfig, Logger, LogLevel } from '@kubb/core'
-import type { Ora } from 'ora'
 import { OraWritable } from './utils/OraWritable.ts'
+import { spinner } from './program.ts'
 
 type RunProps = {
   config: KubbConfig
-  spinner: Ora
   options: CLIOptions
 }
 
-export async function run({ config, options, spinner }: RunProps): Promise<void> {
+export async function run({ config, options }: RunProps): Promise<void> {
   const hrstart = process.hrtime()
   const [log] = throttle<void, Parameters<Logger['log']>>((message, { logLevel, params }) => {
     if (logLevel === 'error') {
-      spinner.fail(pc.red(`${message}\n\n` || `Something went wrong\n\n`))
+      throw new Error(message || 'Something went wrong')
     } else if (logLevel === 'info') {
       if (message) {
         spinner.text = message
@@ -59,6 +58,8 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
       const { stdout } = await execa(cmd, _args, {}).pipeStdout!(oraWritable)
       spinner.suffixText = ''
       oraWritable.destroy()
+      // wait for 50ms to be sure
+      await timeout(50)
 
       if (logLevel === 'info') {
         spinner.succeed(parseText(`🪂 Executing hooks(${pc.yellow('done')})`, { info: ` ${pc.dim(command)}` }, logLevel))
@@ -74,7 +75,8 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
     }
   }
 
-  const printSummary = (pluginManager: BuildOutput['pluginManager'], status: 'success' | 'failed') => {
+  const getSummary = (pluginManager: BuildOutput['pluginManager'], status: 'success' | 'failed'): string[] => {
+    const logs: string[] = []
     const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrstart))
 
     const buildStartPlugins = [
@@ -98,40 +100,25 @@ export async function run({ config, options, spinner }: RunProps): Promise<void>
       plugins:
         status === 'success'
           ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
-          : `${pc.red(`${pluginsCount - buildStartPlugins.length} failed`)}, ${pluginsCount} total`,
+          : `${pc.red(`${pluginsCount - buildStartPlugins.length + 1} failed`)}, ${pluginsCount} total`,
       filesCreated: files.length,
       time: pc.yellow(`${elapsedSeconds}s`),
       output: pathParser.resolve(config.root, config.output.path),
     } as const
 
-    console.log(`
+    if (options.debug) {
+      logs.push(pc.bold('Generated files:\n'))
+      logs.push(files.map((file) => `${pc.blue(file.meta?.pluginName)} ${file.path}`).join('\n'))
+    }
+
+    logs.push(`\n
   ${pc.bold('Plugins:')}      ${meta.plugins}
 ${pc.bold('Generated:')}      ${meta.filesCreated} files
      ${pc.bold('Time:')}      ${meta.time}
    ${pc.bold('Output:')}      ${meta.output}
-     `)
+     \n`)
 
-    if (options.debug) {
-      console.log(`${pc.bold('Generated files:')}`)
-      console.log(`${files.map((file) => `${pc.blue(file.meta?.pluginName)} ${file.path}`).join('\n')}`)
-    }
-  }
-
-  const printErrors = (error: Error) => {
-    const pe = new PrettyError()
-
-    if (options.debug) {
-      spinner.fail(pc.red(`Something went wrong\n\n`))
-      const causedError = error?.cause as Error
-
-      console.log(pe.render(error))
-
-      if (causedError) {
-        console.log(pe.render(causedError))
-      }
-    } else {
-      spinner.fail(pc.red(`Something went wrong\n\n${error?.message}`))
-    }
+    return logs
   }
 
   try {
@@ -162,18 +149,15 @@ ${pc.bold('Generated:')}      ${meta.filesCreated} files
 
     await onDone(config.hooks, logLevel)
 
-    printSummary(output.pluginManager, 'success')
+    const summary = getSummary(output.pluginManager, 'success')
+    console.log(summary.join(''))
   } catch (error: any) {
-    if (error instanceof ParallelPluginError) {
-      error.errors.map((e) => printErrors(e))
-    } else {
-      printErrors(error as Error)
-    }
-
     if (error instanceof PluginError || error instanceof ParallelPluginError) {
-      printSummary(error.pluginManager, 'failed')
+      const summary = getSummary(error.pluginManager, 'failed')
+
+      throw new SummaryError('Something went wrong\n', { cause: error, summary })
     }
 
-    throw error
+    throw new SummaryError('Something went wrong\n', { cause: error })
   }
 }
