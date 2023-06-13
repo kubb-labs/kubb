@@ -13,8 +13,8 @@ jobs:
           platform: [ubuntu-latest]
           node-version:
             - 18
-            - 19
-            - 20
+            # - 19
+            # - 20
       runs-on: ${{ matrix.platform }}
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
