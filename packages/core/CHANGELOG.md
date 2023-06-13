@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.13](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.1.12...@kubb/core-v1.1.13) (2023-06-13)
+
+
+### Bug Fixes
+
+* read/write with queue to not block nodejs ([b73d21f](https://github.com/kubb-project/kubb/commit/b73d21f4866fd58feb9ff05057cd74946cace495))
+
 ## [1.1.12](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.1.11...@kubb/core-v1.1.12) (2023-06-13)
 
 
