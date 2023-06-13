@@ -25,11 +25,9 @@ jobs:
           experimental: [false]
 
           include: 
-            - os: ubuntu-latest
-              node-version: [19]
+            - node-version: 19
               experimental: true
-            - os: ubuntu-latest
-              node-version: [20]
+            - node-version: 20
               experimental: true
 
       runs-on: ${{ matrix.os }}

@@ -31,7 +31,7 @@ jobs:
             - os: windows-latest
               installer: bun
 
-            - node-version: 10
+            - node-version: 19
               experimental: true
             - node-version: 20
               experimental: true
