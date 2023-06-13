@@ -102,7 +102,7 @@ export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutati
 Create your own implementation of the `client`.
 Handy when you want for examples to use `fetch` instead of `axios`.
 
-You can start with using a copy paste of `@kubb/swagger-client/client.ts`.
+You can start with using a copy paste of `@kubb/swagger-client/client`.
 
 #### Config of Kubb
 
@@ -128,7 +128,7 @@ export default defineConfig(() => {
       }),
       createSwaggerClient({ 
         output: './clients/axios', 
-        // copy paste of @kubb/swagger-client/client.ts 
+        // copy paste of @kubb/swagger-client/client 
         client: './src/client.ts' 
       })
     ],
