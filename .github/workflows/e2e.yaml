@@ -72,11 +72,11 @@ jobs:
           run: pnpm install --prefer-offline
           
         - name: Install bun
-          if: ${{ github.event.inputs.os == 'ubuntu-latest' || matrix.os == "ubuntu-latest" }}
+          if: ${{ matrix.os == 'ubuntu-latest' }}
           uses: oven-sh/setup-bun@v1
 
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
-          if: ${{ github.event.inputs.os == 'ubuntu-latest' || matrix.os == "ubuntu-latest" }}
+          if: ${{ matrix.os == 'ubuntu-latest' }}
           with:
            # Set the prefix for the cache keys.
             cache-prefix: kubb_
