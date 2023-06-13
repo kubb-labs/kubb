@@ -27,9 +27,9 @@ jobs:
             - 20
           experimental: [false]
           include: 
-            - version: 19
+            - node-version: 19
               experimental: true
-            - version: 20
+            - node-version: 20
               experimental: true
 
       runs-on: ${{ matrix.platform }}

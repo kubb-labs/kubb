@@ -28,13 +28,13 @@ jobs:
             - 20
           experimental: [false]
           include: 
-            - version: 19
+            - node-version: 19
               experimental: true
-            - version: 20
+            - node-version: 20
               experimental: true
-            - os: windows-latest
+            - platform: windows-latest
               installer: pnpm
-            - os: windows-latest
+            - platform: windows-latest
               installer: bun
 
       runs-on: ${{ matrix.platform }}
