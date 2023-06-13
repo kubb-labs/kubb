@@ -117,6 +117,13 @@ const input = [
     }),
     expected: 'z.union([z.string(),z.number()])',
   },
+  {
+    input: parseZodMeta({
+      keyword: 'union',
+      args: [{ keyword: 'string' }],
+    }),
+    expected: 'z.string()',
+  },
 
   {
     input: parseZodMeta({

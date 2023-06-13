@@ -172,6 +172,11 @@ export function parseZodMeta(item: ZodMeta): string {
     return `${value}(${Array.isArray(args) ? `${args.map(parseZodMeta).join('')}` : parseZodMeta(args as ZodMeta)})`
   }
   if (keyword === zodKeywords.union) {
+    // zod union type needs at least 2 items
+    if (Array.isArray(args) && args.length === 1) {
+      return parseZodMeta(args[0])
+    }
+
     return `${Array.isArray(args) ? `${value}([${args.map(parseZodMeta).join(',')}])` : parseZodMeta(args as ZodMeta)}`
   }
 
