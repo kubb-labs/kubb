@@ -26,9 +26,9 @@ jobs:
 
           include: 
             - os: windows-latest
-              installer: pnpm
+              installer: pnpm run
             - os: ubuntu-latest
-              installer: bun 
+              installer: bun run
 
             - os: windows-latest
               node-version: 19
@@ -72,17 +72,17 @@ jobs:
           run: pnpm install --prefer-offline
           
         - name: Install bun
-          if: ${{ github.event.inputs.os == 'ubuntu-latest' || matrix.os === "ubuntu-latest" }}
+          if: ${{ github.event.inputs.os == 'ubuntu-latest' || matrix.os == "ubuntu-latest" }}
           uses: oven-sh/setup-bun@v1
 
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
-          if: ${{ github.event.inputs.os == 'ubuntu-latest' || matrix.os === "ubuntu-latest" }}
+          if: ${{ github.event.inputs.os == 'ubuntu-latest' || matrix.os == "ubuntu-latest" }}
           with:
            # Set the prefix for the cache keys.
             cache-prefix: kubb_
 
         - name: Build
-          run: bun run build
+          run: ${{ matrix.installer }} build
 
         - name: Install e2e dependencies
           run: pnpm install --prefer-offline
@@ -91,15 +91,15 @@ jobs:
         - name: E2e
           working-directory: ./e2e
           run: |
-            bun run generate --input ./schemas/petStore.yaml
-            bun run generate --input ./schemas/twitter.json
-            bun run generate --input ./schemas/twitter2.json
-            bun run generate --input ./schemas/bunq.com.json
-            bun run generate --input ./schemas/jokesOne.yaml
-            bun run generate --input ./schemas/readme.io.yaml
-            bun run generate --input ./schemas/worldtime.yaml
-            bun run generate --input ./schemas/zalando.yaml
-            bun run generate --input ./schemas/requestBody.yaml
-            bun run clean
+            ${{ matrix.installer }} generate --input ./schemas/petStore.yaml
+            ${{ matrix.installer }} generate --input ./schemas/twitter.json
+            ${{ matrix.installer }} generate --input ./schemas/twitter2.json
+            ${{ matrix.installer }} generate --input ./schemas/bunq.com.json
+            ${{ matrix.installer }} generate --input ./schemas/jokesOne.yaml
+            ${{ matrix.installer }} generate --input ./schemas/readme.io.yaml
+            ${{ matrix.installer }} generate --input ./schemas/worldtime.yaml
+            ${{ matrix.installer }} generate --input ./schemas/zalando.yaml
+            ${{ matrix.installer }} generate --input ./schemas/requestBody.yaml
+            ${{ matrix.installer }} clean
 
 
