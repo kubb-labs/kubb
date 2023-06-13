@@ -4,13 +4,13 @@ on:
   pull_request:
   workflow_dispatch:
     # inputs:
-    #   platform:
-    #     description: Choose platform
+    #   os:
+    #     description: Choose os
     #     required: true
     #     type: choice
     #     options:
     #       - ubuntu-latest
-    #       - macos-lates
+    #       - macos-latest
     #       - windows-latest
   
 jobs:
@@ -20,19 +20,17 @@ jobs:
       strategy:
         fail-fast: true
         matrix:
-          platform: [ubuntu-latest]
-          node-version:
-            - 18
-            - 19
-            - 20
-          experimental: [false]
-          include: 
-            - node-version: 19
-              experimental: true
-            - node-version: 20
-              experimental: true
+          os: [ubuntu-latest]
+          node-version: [18, 10, 20]
+          # experimental: [false]
 
-      runs-on: ${{ matrix.platform }}
+          # include: 
+          #   - node-version: 19
+          #     experimental: true
+          #   - node-version: 20
+          #     experimental: true
+
+      runs-on: ${{ matrix.os }}
       continue-on-error: ${{ matrix.experimental }}
       # To use Remote Caching, uncomment the next lines and follow the steps below.
       # env:
