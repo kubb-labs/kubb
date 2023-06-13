@@ -10,7 +10,7 @@ import type { CosmiconfigResult } from '../types.ts'
 const jsLoader = async (configFile: string) => {
   return importModule(configFile)
 }
-// TODO fix tsLoader for node 20
+// TODO fix tsLoader for node 20 when using ESM only
 // https://github.com/TypeStrong/ts-node/issues/1997
 const tsLoader = (configFile: string) => {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -48,12 +48,12 @@ export async function getCosmiConfig(moduleName: string, config?: string) {
       `.${moduleName}rc.json`,
       `.${moduleName}rc.yaml`,
       `.${moduleName}rc.yml`,
-      // TODO fix tsLoader
+
       `.${moduleName}rc.ts`,
       `.${moduleName}rc.js`,
       `.${moduleName}rc.cjs`,
       `.${moduleName}rc.mjs`,
-      // TODO fix tsLoader
+
       `${moduleName}.config.ts`,
       `${moduleName}.config.js`,
       `${moduleName}.config.cjs`,

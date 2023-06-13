@@ -18,7 +18,6 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "src",
     "schemas",
     "!/**/**.test.**",
     "!/**/__tests__/**"

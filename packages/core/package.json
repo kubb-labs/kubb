@@ -34,7 +34,6 @@
   },
   "files": [
     "dist",
-    "src",
     "schemas",
     "!/**/**.test.**",
     "!/**/__tests__/**"
@@ -54,8 +53,8 @@
     "@kubb/ts-codegen": "workspace:*",
     "change-case": "^4.1.2",
     "directory-tree": "^3.5.1",
-    "graceful-fs": "^4.2.11",
     "fs-extra": "^11.1.1",
+    "graceful-fs": "^4.2.11",
     "rimraf": "^5.0.1"
   },
   "devDependencies": {
