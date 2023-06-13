@@ -20,7 +20,7 @@ jobs:
       strategy:
         fail-fast: true
         matrix:
-          platform: ${{ github.event.inputs.platform || 'ubuntu-latest' }}
+          platform: ${{ github.event.inputs.platform || [ubuntu-latest] }}
           node-version:
             - 18
             - 19
