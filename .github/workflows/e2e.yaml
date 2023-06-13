@@ -23,6 +23,7 @@ jobs:
           os: [ubuntu-latest, windows-latest]
           node-version: [18]
           experimental: [false]
+          installer: ['bun run']
 
           include: 
             - os: windows-latest
