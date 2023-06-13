@@ -42,7 +42,6 @@
     "clean": "rimraf ./dist",
     "lint": "eslint \"**/*.{ts,tsx}\"",
     "lint-fix": "bun run lint --quiet --fix",
-    "prepack": "bun run build",
     "release": "pnpm publish --no-git-check",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
