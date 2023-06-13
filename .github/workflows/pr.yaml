@@ -26,10 +26,10 @@ jobs:
 
           include: 
             - os: ubuntu-latest
-              node-version: [19, 20]
+              node-version: [19]
               experimental: true
             - os: ubuntu-latest
-              node-version: [19, 20]
+              node-version: [20]
               experimental: true
 
       runs-on: ${{ matrix.os }}

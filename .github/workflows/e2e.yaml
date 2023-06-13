@@ -31,10 +31,9 @@ jobs:
             - os: windows-latest
               installer: bun
 
-
-            - node-version: [19, 20]
+            - node-version: 10
               experimental: true
-            - node-version: [19, 20]
+            - node-version: 20
               experimental: true
             
       runs-on: ${{ matrix.os }}
