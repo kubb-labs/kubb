@@ -3,6 +3,15 @@ name: pr
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      platform:
+        description: Choose platform
+        required: true
+        type: choice
+        options:
+        - ubuntu-latest
+        - macos-lates
+        - windows-latest
   
 jobs:
   build:
@@ -10,7 +19,7 @@ jobs:
       timeout-minutes: 15
       strategy:
         matrix:
-          platform: [ubuntu-latest]
+          platform: ${{ [github.event.inputs.platform || "ubuntu-latest"] }}
           node-version:
             - 18
             # - 19
@@ -45,6 +54,9 @@ jobs:
           run: pnpm install --prefer-offline
 
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
+          with:
+           # Set the prefix for the cache keys.
+            cache-prefix: kubb_
           
         - name: Build
           run: bun run build --concurrency=1
@@ -52,9 +64,9 @@ jobs:
         - name: Typecheck
           run: bun run typecheck --concurrency=1
           
-        # OUT OF MEMORY BUG WITH ESLINT
-        # - name: Linting
-        #   run: bun run lint --concurrency=1
+        - name: Linting
+          continue-on-error: true
+          run: bun run lint --concurrency=1
 
         - name: Test
           run: bun run test:coverage

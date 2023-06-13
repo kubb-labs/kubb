@@ -5,7 +5,8 @@ on:
     branches:    
       - main
       - 'releases/**'
-
+  workflow_dispatch:
+  
 jobs:
   build:
       name: Build and Test
@@ -40,6 +41,9 @@ jobs:
           run: pnpm install --prefer-offline
 
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
+          with:
+           # Set the prefix for the cache keys.
+            cache-prefix: kubb_
           
         - name: Build
           run: bun run build --concurrency=1
@@ -62,4 +66,4 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          run: pnpm release
+          run: bun run release

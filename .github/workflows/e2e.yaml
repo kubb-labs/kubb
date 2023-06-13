@@ -3,14 +3,24 @@ name: e2e
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      platform:
+        description: Choose platform
+        required: true
+        type: choice
+        options:
+        - ubuntu-latest
+        - macos-lates
+        - windows-latest
   
 jobs:
-  build:
-      name: Build and Test
+  build_ubuntu:
+      name: Build and Test(ubuntu-latest)
+      if: ${{ github.event.inputs.platform  == 'ubuntu-latest' || github.event.inputs.platform == null }}
       timeout-minutes: 15
       strategy:
         matrix:
-          platform: [ubuntu-latest]
+          platform: ${{ github.event.inputs.platform  || "ubuntu-latest" }}
           node-version:
             - 18
             # - 19
@@ -45,6 +55,9 @@ jobs:
           uses: oven-sh/setup-bun@v1
 
         - uses: dtinth/setup-github-actions-caching-for-turbo@v1
+          with:
+           # Set the prefix for the cache keys.
+            cache-prefix: kubb_
 
         - name: Build
           run: bun run build
@@ -66,4 +79,71 @@ jobs:
             bun run generate --input ./schemas/zalando.yaml
             bun run generate --input ./schemas/requestBody.yaml
             bun run clean
+
+  build_windows:
+      name: Build and Test(windows-latest)
+      if: ${{ github.event.inputs.platform  == 'windows-latest' || github.event.inputs.platform == null }}
+      timeout-minutes: 15
+      strategy:
+        matrix:
+          platform: ${{ github.event.inputs.platform  || "windows-latest" }}
+          node-version:
+            - 18
+            # - 19
+            # - 20
+      runs-on: ${{ matrix.platform }}
+      # To use Remote Caching, uncomment the next lines and follow the steps below.
+      # env:
+      #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      #  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+ 
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 2
+ 
+        - uses: pnpm/action-setup@v2.2.4
+          with:
+            version: 8
+ 
+        - name: Setup Node.js(${{ matrix.node-version }}) environment
+          uses: actions/setup-node@v3
+          with:
+            node-version: ${{ matrix.node-version }}
+            cache: 'pnpm'
+            registry-url: 'https://registry.npmjs.org'
+ 
+        - name: Install dependencies
+          run: pnpm install --prefer-offline
+          
+        # ENABLE when Bun has support for Windows
+        # - name: Install bun
+        #   uses: oven-sh/setup-bun@v1
+
+        # ENABLE when Turbo caching has support for Windows
+        # - uses: dtinth/setup-github-actions-caching-for-turbo@v1
+
+        - name: Build
+          run: pnpm run build
+
+        - name: Install e2e dependencies
+          run: pnpm install --prefer-offline
+          working-directory: ./e2e
+
+        - name: E2e
+          working-directory: ./e2e
+          run: |
+            pnpm run generate --input ./schemas/petStore.yaml
+            pnpm run generate --input ./schemas/twitter.json
+            pnpm run generate --input ./schemas/twitter2.json
+            pnpm run generate --input ./schemas/bunq.com.json
+            pnpm run generate --input ./schemas/jokesOne.yaml
+            pnpm run generate --input ./schemas/readme.io.yaml
+            pnpm run generate --input ./schemas/worldtime.yaml
+            pnpm run generate --input ./schemas/zalando.yaml
+            pnpm run generate --input ./schemas/requestBody.yaml
+            pnpm run clean
+
+
 
