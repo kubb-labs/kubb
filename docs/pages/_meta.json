@@ -40,6 +40,7 @@
       "pagination": false
     }
   },
+ 
   "faq": {
     "title": "FAQ",
     "type": "menu",
@@ -48,6 +49,11 @@
         "title": "About Kubb",
         "href": "/about",
         "hidden": true
+      },
+      "github_release": {
+        "title": "Releases",
+        "href": "https://github.com/kubb-project/kubb/releases",
+        "newWindow": true
       }
     }
   }

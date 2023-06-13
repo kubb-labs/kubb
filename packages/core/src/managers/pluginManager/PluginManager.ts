@@ -258,7 +258,6 @@ export class PluginManager {
     const errors = results.filter((result) => result.status === 'rejected').map((result) => (result as PromiseRejectedResult).reason) as PluginError[]
 
     if (errors.length) {
-      console.log(errors)
       throw new ParallelPluginError('Error', { errors, pluginManager: this })
     }
 

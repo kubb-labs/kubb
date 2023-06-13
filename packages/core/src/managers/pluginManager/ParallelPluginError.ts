@@ -9,6 +9,7 @@ export class ParallelPluginError extends Error {
   constructor(message: string, options: { cause?: Error; errors: PluginError[]; pluginManager: PluginManager }) {
     super(message, { cause: options.cause })
 
+    this.name = 'ParallelPluginError'
     this.errors = options.errors
     this.pluginManager = options.pluginManager
   }
