@@ -1,11 +1,11 @@
 import pathParser from 'node:path'
 
-import { isPromiseFulfilledResult, write } from '@kubb/core'
+import { LogLevel, isPromiseFulfilledResult, write, canLogHierarchy } from '@kubb/core'
 
 import { $ } from 'execa'
 import pc from 'picocolors'
 
-import type { LogLevel } from '@kubb/core'
+import type { LogLevels } from '@kubb/core'
 import { spinner } from './program.ts'
 
 export type Preset = 'simple'
@@ -21,7 +21,7 @@ type RunProps = {
   /**
    * @default `'silent'`
    */
-  logLevel?: LogLevel
+  logLevel?: LogLevels
   /**
    * @default `'simple'`
    */
@@ -60,7 +60,7 @@ export default defineConfig({
   },
 }
 
-export async function init({ preset = 'simple', logLevel = 'silent', packageManager = 'pnpm' }: RunProps): Promise<undefined> {
+export async function init({ preset = 'simple', logLevel = LogLevel.silent, packageManager = 'pnpm' }: RunProps): Promise<undefined> {
   spinner.start('📦 Initializing Kubb')
 
   const presetMeta = presets[preset]
@@ -82,7 +82,7 @@ export async function init({ preset = 'simple', logLevel = 'silent', packageMana
     }),
   ])
 
-  if (logLevel === 'info') {
+  if (canLogHierarchy(logLevel, LogLevel.info)) {
     results.forEach((result) => {
       if (isPromiseFulfilledResult(result)) {
         console.log(result.value)

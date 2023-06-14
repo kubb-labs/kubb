@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import type { LogType, Logger } from './utils/logger.ts'
+import type { Logger } from './utils/logger.ts'
 import type { File, FileManager } from './managers/fileManager/index.ts'
 import type { PluginManager, SafeParseResult } from './managers/index.ts'
 import type { Cache } from './utils/cache.ts'
@@ -81,10 +81,15 @@ export type KubbConfig = {
   }
   /**
    * Log level to report when using the CLI
-   * Under construction, only info is implemented.
+   *
+   * `silent` will hide all information that is not relevant
+   *
+   * `info` will show all information possible(not related to the PluginManager)
+   *
+   * `stacktrace` will show all information possible(related to the PluginManager), handy for seeing logs
    * @default `silent`
    */
-  logLevel?: LogLevel
+  logLevel?: LogLevels
 }
 
 export type CLIOptions = {
@@ -109,7 +114,7 @@ export type CLIOptions = {
    * Override `logLevel` defined in `kubb.config.js`
    * @default `'silent'`
    */
-  logLevel?: LogLevel
+  logLevel?: LogLevels
   init?: unknown
 }
 
@@ -277,4 +282,10 @@ export type Path = string
 export type OptionalPath = Path | null | undefined
 export type FileName = string | null | undefined
 
-export type LogLevel = LogType | 'silent'
+export const LogLevel = {
+  silent: 'silent',
+  info: 'info',
+  stacktrace: 'stacktrace',
+} as const
+
+export type LogLevels = keyof typeof LogLevel

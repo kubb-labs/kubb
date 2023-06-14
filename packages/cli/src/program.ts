@@ -9,7 +9,7 @@ import { init } from './init.ts'
 import { run } from './run.ts'
 import { getConfig, getCosmiConfig, renderErrors, startWatcher } from './utils/index.ts'
 
-import { SummaryError } from '@kubb/core'
+import { LogLevel, SummaryError, canLogHierarchy } from '@kubb/core'
 import type { CLIOptions } from '@kubb/core'
 import { Warning } from '@kubb/core'
 
@@ -31,14 +31,14 @@ function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
     error = summaryError.cause as Error
   }
 
-  const message = renderErrors(error, { debug: CLIOptions.debug, prefixText: pc.red(originalError?.message) })
+  const message = renderErrors(error, { logLevel: CLIOptions.logLevel, prefixText: pc.red(originalError?.message) })
 
   if (error instanceof Warning) {
     spinner.warn(pc.yellow(error.message))
     process.exit(0)
   }
 
-  if (CLIOptions.logLevel === 'silent') {
+  if (canLogHierarchy(CLIOptions.logLevel, LogLevel.silent)) {
     spinner.fail(message)
     process.exit(1)
   }
@@ -62,7 +62,7 @@ export const program = new Command(moduleName)
 
       write(
         renderErrors(new Error(message, { cause: undefined }), {
-          debug: CLIOptions.debug,
+          logLevel: CLIOptions.logLevel,
           prefixText: pc.red('Something went wrong with processing the CLI\n'),
         }) + '\n'
       )
@@ -70,7 +70,7 @@ export const program = new Command(moduleName)
   })
   .addOption(new Option('-c, --config <path>', 'Path to the Kubb config'))
   .addOption(new Option('-i, --input <path>', 'Path of the input file(overrides the one in `kubb.config.js`)'))
-  .addOption(new Option('-l, --logLevel <type>', 'Type of the logging(overrides the one in `kubb.config.js`)').choices(['error', 'info', 'silent']))
+  .addOption(new Option('-l, --logLevel <type>', 'Type of the logging(overrides the one in `kubb.config.js`)').choices(['info', 'silent', 'stacktrace']))
   .addOption(new Option('--init', 'Init Kubb'))
   .addOption(new Option('-d, --debug', 'Debug mode').default(false))
   .addOption(new Option('-w, --watch', 'Watch mode based on the input file'))

@@ -37,7 +37,7 @@ Usage: kubb [options]
 Options:
   -c, --config <path>    Path to the Kubb config
   -i, --input <path>     Path of the input file(overrides the one in `kubb.config.js`)
-  -l, --logLevel <type>  Type of the logging(overrides the one in `kubb.config.js`) (choices: "error", "info", "silent")
+  -l, --logLevel <type>  Type of the logging(overrides the one in `kubb.config.js`) (choices: "info", "silent", "stacktrace")
   --init                 Init Kubb
   -d, --debug            Debug mode (default: false)
   -w, --watch            Watch mode based on the input file
@@ -80,6 +80,13 @@ npx kubb -d
 ### --logLevel (-l)
 
 Type of the logging(overrides the one in `kubb.config.js`)
+
+silent` will hide all information that is not relevant
+
+`info` will show all information possible(not related to the PluginManager)
+
+`stacktrace` will show all information possible(related to the PluginManager), handy for seeing logs
+ 
 
 ```sh copy
 npx kubb -d

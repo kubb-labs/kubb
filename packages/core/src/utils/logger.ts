@@ -1,3 +1,4 @@
+import type { LogLevels } from '@kubb/core'
 import type { Ora } from 'ora'
 import pc from 'picocolors'
 
@@ -45,6 +46,13 @@ export function createLogger(spinner?: Ora): Logger {
   }
 
   return logger
+}
+
+export function canLogHierarchy(input: LogLevels | undefined, compareTo: LogLevels) {
+  if (input === 'stacktrace') {
+    return canLogHierarchy('info', compareTo)
+  }
+  return input === compareTo
 }
 
 export { default as pc } from 'picocolors'

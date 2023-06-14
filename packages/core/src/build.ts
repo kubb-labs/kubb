@@ -7,6 +7,7 @@ import pc from 'picocolors'
 
 import type { File, ResolvedFile } from './managers/fileManager/index.ts'
 import type { OnExecute } from './managers/pluginManager/index.ts'
+import { LogLevel } from './types.ts'
 import type { BuildOutput, KubbPlugin, PluginContext, TransformResult } from './types.ts'
 import type { QueueTask, Logger } from './utils/index.ts'
 
@@ -82,18 +83,20 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     }
 
     const { hookName, plugin, output, input } = executer
+    const messsage = `${randomPicoColour(plugin.name)} Executing ${hookName}`
 
-    // only log execution information when we have `info` logLevel set and the hook used has an input
-    if (config.logLevel === 'info' && logger?.spinner && input) {
-      const messsage = `${randomPicoColour(plugin.name)} Executing ${hookName}`
-
+    if (config.logLevel === LogLevel.info && logger?.spinner && input) {
       if (debug) {
         logger.info(messsage)
-        const logs = [input && pc.green('Input:'), JSON.stringify(input, undefined, 2), output && pc.green('Output:'), output].filter(Boolean)
-        console.log(logs.join('\n'))
       } else {
         logger.spinner.suffixText = messsage
       }
+    }
+
+    if (config.logLevel === LogLevel.stacktrace && logger?.spinner && input) {
+      logger.info(messsage)
+      const logs = [input && pc.green('Input:'), JSON.stringify(input, undefined, 2), output && pc.green('Output:'), output].filter(Boolean)
+      console.log(logs.join('\n'))
     }
   }
 

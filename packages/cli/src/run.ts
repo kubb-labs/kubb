@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { build, ParallelPluginError, PluginError, SummaryError, timeout, createLogger, randomPicoColour } from '@kubb/core'
+import { build, ParallelPluginError, PluginError, SummaryError, timeout, createLogger, randomPicoColour, LogLevel, canLogHierarchy } from '@kubb/core'
 
 import type { ExecaReturnValue } from 'execa'
 
@@ -13,7 +13,7 @@ import { parseArgsStringToArgv } from 'string-argv'
 import { parseHrtimeToSeconds } from './utils/parseHrtimeToSeconds.ts'
 import { parseText } from './utils/parseText.ts'
 
-import type { BuildOutput, CLIOptions, KubbConfig, LogLevel } from '@kubb/core'
+import type { BuildOutput, CLIOptions, KubbConfig, LogLevels } from '@kubb/core'
 import { OraWritable } from './utils/OraWritable.ts'
 import { spinner } from './program.ts'
 
@@ -24,7 +24,7 @@ type RunProps = {
 
 type ExecutingHooksProps = {
   hooks: KubbConfig['hooks']
-  logLevel: LogLevel
+  logLevel: LogLevels
   debug?: boolean
 }
 
@@ -35,7 +35,7 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
 
   const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done]
 
-  if (logLevel === 'silent') {
+  if (canLogHierarchy(logLevel, LogLevel.silent)) {
     spinner.start(`Executing hooks`)
   }
   type Executer = { subProcess: ExecaReturnValue<string>; abort: AbortController['abort'] }
@@ -51,7 +51,7 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
     const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable)
     spinner.suffixText = ''
 
-    if (logLevel === 'info') {
+    if (canLogHierarchy(logLevel, LogLevel.info)) {
       spinner.succeed(parseText(`Executing hook`, { info: ` ${pc.dim(command)}` }, logLevel))
 
       console.log(subProcess.stdout)
@@ -66,7 +66,7 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
 
   await Promise.all(executers)
 
-  if (logLevel === 'silent') {
+  if (canLogHierarchy(logLevel, LogLevel.silent)) {
     spinner.succeed(`Executing hooks`)
   }
 }
@@ -76,10 +76,10 @@ type SummaryProps = {
   status: 'success' | 'failed'
   hrstart: [number, number]
   config: KubbConfig
-  debug?: boolean
+  logLevel?: LogLevels
 }
 
-function getSummary({ pluginManager, status, hrstart, config, debug }: SummaryProps): string[] {
+function getSummary({ pluginManager, status, hrstart, config, logLevel }: SummaryProps): string[] {
   const logs: string[] = []
   const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrstart))
 
@@ -113,7 +113,7 @@ function getSummary({ pluginManager, status, hrstart, config, debug }: SummaryPr
     output: pathParser.resolve(config.root, config.output.path),
   } as const
 
-  if (debug) {
+  if (canLogHierarchy(logLevel, 'stacktrace')) {
     logs.push(pc.bold('Generated files:\n'))
     logs.push(files.map((file) => `${randomPicoColour(file.meta?.pluginName)} ${file.path}`).join('\n'))
   }
@@ -141,7 +141,7 @@ function getSummary({ pluginManager, status, hrstart, config, debug }: SummaryPr
   return logs
 }
 
-export async function run({ config, CLIOptions: options }: RunProps): Promise<void> {
+export async function run({ config, CLIOptions }: RunProps): Promise<void> {
   const hrstart = process.hrtime()
   const logger = createLogger(spinner)
 
@@ -153,14 +153,14 @@ export async function run({ config, CLIOptions: options }: RunProps): Promise<vo
     performance.clearMarks()
   })
 
-  if (options.debug) {
+  if (CLIOptions.debug) {
     performanceOpserver.observe({ type: 'measure' })
   }
 
   try {
     const { root: _root, ...userConfig } = config
-    const logLevel = options.logLevel ?? userConfig.logLevel ?? 'silent'
-    const inputPath = options.input ?? userConfig.input.path
+    const logLevel = CLIOptions.logLevel ?? userConfig.logLevel ?? LogLevel.silent
+    const inputPath = CLIOptions.input ?? userConfig.input.path
 
     spinner.start(parseText(`🚀 Building`, { info: `(${pc.dim(inputPath)})` }, logLevel))
 
@@ -179,21 +179,21 @@ export async function run({ config, CLIOptions: options }: RunProps): Promise<vo
         },
       },
       logger,
-      debug: options.debug,
+      debug: CLIOptions.debug,
     })
 
     spinner.suffixText = ''
     spinner.succeed(parseText(`🚀 Build completed`, { info: `(${pc.dim(inputPath)})` }, logLevel))
 
-    await executeHooks({ hooks: config.hooks, logLevel, debug: options.debug })
+    await executeHooks({ hooks: config.hooks, logLevel, debug: CLIOptions.debug })
 
-    const summary = getSummary({ pluginManager: output.pluginManager, config, status: 'success', hrstart, debug: options.debug })
+    const summary = getSummary({ pluginManager: output.pluginManager, config, status: 'success', hrstart, logLevel: CLIOptions.logLevel })
     console.log(summary.join(''))
   } catch (error: any) {
     let summary: string[] = []
 
     if (error instanceof PluginError || error instanceof ParallelPluginError) {
-      summary = getSummary({ pluginManager: error.pluginManager, config, status: 'failed', hrstart, debug: options.debug })
+      summary = getSummary({ pluginManager: error.pluginManager, config, status: 'failed', hrstart, logLevel: CLIOptions.logLevel })
     }
 
     throw new SummaryError('Something went wrong\n', { cause: error, summary })
