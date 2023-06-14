@@ -88,7 +88,7 @@ describe('build', () => {
       config,
     })
 
-    expect(files).toEqual([
+    expect(files).toMatchObject([
       {
         ...file,
         meta: { pluginName: undefined },

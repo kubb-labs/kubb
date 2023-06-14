@@ -4,7 +4,6 @@ import { definePlugin } from '../../plugin.ts'
 import { isPromise, isPromiseRejectedResult } from '../../utils/isPromise.ts'
 import { Queue } from '../../utils/Queue.ts'
 import { FileManager } from '../fileManager/FileManager.ts'
-import type { File } from '../fileManager/types.ts'
 import { ParallelPluginError } from './ParallelPluginError.ts'
 import { PluginError } from './PluginError.ts'
 
@@ -23,6 +22,7 @@ import type {
 import type { QueueTask } from '../../utils/Queue.ts'
 import type { Argument0, Executer, OnExecute, ParseResult, SafeParseResult, Strategy } from './types.ts'
 import type { Logger } from '../../utils/logger.ts'
+import type { ResolvedFile } from '../fileManager/types.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
@@ -54,7 +54,7 @@ const convertKubbUserPluginToKubbPlugin = (plugin: KubbUserPlugin, context: Core
   return null
 }
 
-type Options = { task: QueueTask<File>; logger: Logger; onExecute?: OnExecute<PluginLifecycleHooks> }
+type Options = { task: QueueTask<ResolvedFile>; logger: Logger; onExecute?: OnExecute<PluginLifecycleHooks> }
 
 export class PluginManager {
   public plugins: KubbPlugin[]

@@ -18,8 +18,8 @@ describe('FileManager', () => {
       source: '',
     })
 
+    expect(fileManager.extensions).toEqual(['.js', '.ts'])
     expect(fileManager.files.length).toBe(2)
-    expect(fileManager.cachedFiles.length).toBe(2)
   })
 
   test('fileManager.addOrAppend also adds the files to the cache', async () => {
@@ -39,7 +39,6 @@ describe('FileManager', () => {
     })
 
     expect(fileManager.files.length).toBe(1)
-    expect(fileManager.cachedFiles.length).toBe(1)
 
     expect(file.source).toBe(`const file1 ='file1';\nconst file1Bis ='file1Bis';`)
     expect(file.imports).toStrictEqual([
@@ -73,10 +72,9 @@ describe('FileManager', () => {
     })
 
     expect(fileManager.files.length).toBe(4)
-    expect(fileManager.cachedFiles.length).toBe(4)
   })
 
-  test('fileManager.get', async () => {
+  test('fileManager.getCacheByUUID', async () => {
     const fileManager = new FileManager()
     const file = await fileManager.add({
       path: pathParser.resolve('./src/file1.ts'),
@@ -84,13 +82,11 @@ describe('FileManager', () => {
       source: '',
     })
 
-    const id = fileManager.getCacheByPath(file.path)
+    const resolvedFile = fileManager.getCacheByUUID(file.id)
 
-    if (id) {
-      const fileWithGet = fileManager.get(id.id)
-
-      expect(id).toBeDefined()
-      expect(fileWithGet?.source).toBe(file.source)
+    if (resolvedFile) {
+      expect(resolvedFile).toBeDefined()
+      expect(resolvedFile.source).toBe(file.source)
     }
   })
 
@@ -107,31 +103,6 @@ describe('FileManager', () => {
     expect(taskMock).toBeCalled()
   })
 
-  test('fileManager.setStatus', async () => {
-    const taskMock = vi.fn()
-
-    const fileManager = new FileManager({ queue: new Queue(5), task: taskMock })
-    const file = await fileManager.add({
-      path: pathParser.resolve('./src/file1.ts'),
-      fileName: 'file1.ts',
-      source: '',
-    })
-
-    let fileCache = fileManager.cachedFiles.find((item) => item.file.path === file.path)
-    expect(fileCache).toBeDefined()
-
-    if (fileCache) {
-      fileManager.setStatus(fileCache.id, 'removed')
-
-      fileCache = fileManager.cachedFiles.find((item) => item.file.path === file.path)
-
-      expect(fileCache?.status).toBe('removed')
-    }
-
-    expect(fileManager.setStatus('sdfsfs', 'removed')).toBeUndefined()
-    expect(taskMock).toBeCalled()
-  })
-
   test('fileManager.remove', async () => {
     const taskMock = vi.fn()
 
@@ -142,18 +113,11 @@ describe('FileManager', () => {
       source: '',
     })
 
-    let fileCache = fileManager.cachedFiles.find((item) => item.file.path === file.path)
-    expect(fileCache).toBeDefined()
+    fileManager.remove(file.path)
 
-    if (fileCache) {
-      fileManager.remove(fileCache.id)
+    const expectedRemovedFile = fileManager.files.find((f) => f.path === file.path)
 
-      fileCache = fileManager.cachedFiles.find((item) => item.file.path === file.path)
-
-      expect(fileCache?.status).toBe('removed')
-    }
-
-    expect(fileManager.remove('sdfsfs')).toBeUndefined()
+    expect(expectedRemovedFile).toBeUndefined()
     expect(taskMock).toBeCalled()
   })
 })

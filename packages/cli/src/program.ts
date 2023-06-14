@@ -19,6 +19,34 @@ export const spinner = ora({
   spinner: 'clock',
 })
 
+function programCatcher(e: unknown, options: CLIOptions): void {
+  const originalError = e as Error
+  let error = originalError
+
+  // summaryError check
+  const summaryError = error instanceof SummaryError ? error : undefined
+
+  if (summaryError) {
+    // use the real error from summaryError and use the case of SummaryError to display a summary of plugins that failed
+    error = summaryError.cause as Error
+  }
+
+  const message = renderErrors(error, { debug: options.debug, prefixText: pc.red(originalError?.message) })
+
+  if (error instanceof Warning) {
+    spinner.warn(pc.yellow(error.message))
+    process.exit(0)
+  }
+
+  if (options.logLevel === 'silent') {
+    spinner.fail(message)
+    process.exit(1)
+  }
+
+  spinner.fail([message, ...(summaryError?.summary || [])].join('\n'))
+  process.exit(1)
+}
+
 export const program = new Command(moduleName)
   .name(moduleName)
   .description('Kubb')
@@ -46,14 +74,11 @@ export const program = new Command(moduleName)
   .addOption(new Option('-w, --watch', 'Watch mode based on the input file'))
   .action(async (options: CLIOptions) => {
     try {
-      spinner.start()
-
       if (options.init) {
         return init({ logLevel: options.logLevel })
       }
 
       // CONFIG
-      // TODO use options.config to show path instead of relying on the `result`
       spinner.start('💾 Loading config')
       const result = await getCosmiConfig(moduleName, options.config)
       spinner.succeed(`💾 Config loaded(${pc.dim(pathParser.relative(process.cwd(), result.filepath))})`)
@@ -72,31 +97,7 @@ export const program = new Command(moduleName)
       const config = await getConfig(result, options)
 
       await run({ config, options })
-    } catch (e: any) {
-      const originalError = e as Error
-      let error = originalError
-
-      // summaryError check
-      const summaryError = error instanceof SummaryError ? error : undefined
-
-      if (summaryError) {
-        // use the real error from summaryError and use the case of SummaryError to display a summary of plugins that failed
-        error = summaryError.cause as Error
-      }
-
-      const message = renderErrors(error, { debug: options.debug, prefixText: pc.red(originalError?.message) })
-
-      if (error instanceof Warning) {
-        spinner.warn(pc.yellow(error.message))
-        process.exit(0)
-      }
-
-      if (options.logLevel === 'silent') {
-        spinner.fail(message)
-        process.exit(1)
-      }
-
-      spinner.fail([message, ...(summaryError?.summary || [])].join('\n'))
-      process.exit(1)
+    } catch (e) {
+      programCatcher(e, options)
     }
   })

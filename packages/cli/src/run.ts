@@ -20,114 +20,127 @@ type RunProps = {
   options: CLIOptions
 }
 
+type ExecutingHooksProps = {
+  hooks: KubbConfig['hooks']
+  logLevel: LogLevel
+  debug?: boolean
+}
+
+async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<void> {
+  if (!hooks?.done) {
+    return
+  }
+
+  const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done]
+
+  if (logLevel === 'silent') {
+    spinner.start(`🪂 Executing hooks`)
+  }
+  type Executer = { subProcess: ExecaReturnValue<string>; abort: AbortController['abort'] }
+
+  const executers: Promise<Executer>[] = commands.map(async (command) => {
+    const oraWritable = new OraWritable(spinner, command)
+    const abortController = new AbortController()
+    const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
+
+    spinner.start(parseText(`🪂 Executing hook`, { info: ` ${pc.dim(command)}` }, logLevel))
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable)
+    spinner.suffixText = ''
+
+    if (logLevel === 'info') {
+      spinner.succeed(parseText(`🪂 Executing hook`, { info: ` ${pc.dim(command)}` }, logLevel))
+
+      console.log(subProcess.stdout)
+    }
+
+    // wait for 50ms to be sure that all open files are close(fs)
+    await timeout(50)
+
+    oraWritable.destroy()
+    return { subProcess, abort: abortController.abort.bind(abortController) }
+  })
+
+  await Promise.all(executers)
+
+  if (logLevel === 'silent') {
+    spinner.succeed(`🪂 Executing hooks`)
+  }
+}
+
+type SummaryProps = {
+  pluginManager: BuildOutput['pluginManager']
+  status: 'success' | 'failed'
+  hrstart: [number, number]
+  config: KubbConfig
+  debug?: boolean
+}
+
+function getSummary({ pluginManager, status, hrstart, config, debug }: SummaryProps): string[] {
+  const logs: string[] = []
+  const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrstart))
+
+  const buildStartPlugins = [
+    ...new Set(pluginManager.executed.filter((item) => item.hookName === 'buildStart' && item.plugin.name !== 'core').map((item) => item.plugin.name)),
+  ]
+
+  const failedPlugins = config.plugins?.filter((plugin) => !buildStartPlugins.includes(plugin.name))?.map((plugin) => plugin.name)
+  const pluginsCount = config.plugins?.length || 0
+  const files = pluginManager.fileManager.files.sort((a, b) => {
+    if (!a.meta?.pluginName || !b.meta?.pluginName) {
+      return 0
+    }
+    if (a.meta?.pluginName.length < b.meta?.pluginName.length) {
+      return 1
+    }
+    if (a.meta?.pluginName.length > b.meta?.pluginName.length) {
+      return -1
+    }
+    return 0
+  })
+
+  const meta = {
+    plugins:
+      status === 'success'
+        ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
+        : `${pc.red(`${failedPlugins?.length || 0} failed`)}, ${pluginsCount} total`,
+    pluginsFailed: status === 'failed' ? failedPlugins?.join(', ') : undefined,
+    filesCreated: files.length,
+    time: pc.yellow(`${elapsedSeconds}s`),
+    output: pathParser.resolve(config.root, config.output.path),
+  } as const
+
+  if (debug) {
+    logs.push(pc.bold('Generated files:\n'))
+    logs.push(files.map((file) => `${pc.blue(file.meta?.pluginName)} ${file.path}`).join('\n'))
+  }
+
+  logs.push(
+    [
+      [`  ${pc.bold('Plugins:')}      ${meta.plugins}`, true],
+      [`   ${pc.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
+      [`${pc.bold('Generated:')}      ${meta.filesCreated} files`, true],
+      [`     ${pc.bold('Time:')}      ${meta.time}`, true],
+      [`   ${pc.bold('Output:')}      ${meta.output}`, true],
+      [`\n`, true],
+    ]
+      .map((item) => {
+        if (item.at(1)) {
+          return item.at(0)
+        }
+        return undefined
+      })
+      .filter(Boolean)
+      .join('\n')
+  )
+
+  return logs
+}
+
 export async function run({ config, options }: RunProps): Promise<void> {
   const hrstart = process.hrtime()
-
   const logger = createLogger(spinner)
-
-  const executeHooks = async (hooks: KubbConfig['hooks'], logLevel: LogLevel) => {
-    if (!hooks?.done) {
-      return
-    }
-
-    const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done]
-
-    if (logLevel === 'silent') {
-      spinner.start(`🪂 Executing hooks`)
-    }
-    type Executer = { subProcess: ExecaReturnValue<string>; abort: AbortController['abort'] }
-
-    const executers: Promise<Executer>[] = commands.map(async (command) => {
-      const oraWritable = new OraWritable(spinner, command)
-      const abortController = new AbortController()
-      const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
-
-      spinner.start(parseText(`🪂 Executing hook`, { info: ` ${pc.dim(command)}` }, logLevel))
-
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable)
-      spinner.suffixText = ''
-
-      if (logLevel === 'info') {
-        spinner.succeed(parseText(`🪂 Executing hook`, { info: ` ${pc.dim(command)}` }, logLevel))
-
-        console.log(subProcess.stdout)
-      }
-
-      // wait for 50ms to be sure that all open files are close(fs)
-      await timeout(50)
-
-      oraWritable.destroy()
-      return { subProcess, abort: abortController.abort.bind(abortController) }
-    })
-
-    await Promise.all(executers)
-
-    if (logLevel === 'silent') {
-      spinner.succeed(`🪂 Executing hooks`)
-    }
-  }
-
-  const getSummary = (pluginManager: BuildOutput['pluginManager'], status: 'success' | 'failed'): string[] => {
-    const logs: string[] = []
-    const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrstart))
-
-    const buildStartPlugins = [
-      ...new Set(pluginManager.executed.filter((item) => item.hookName === 'buildStart' && item.plugin.name !== 'core').map((item) => item.plugin.name)),
-    ]
-
-    const failedPlugins = config.plugins?.filter((plugin) => !buildStartPlugins.includes(plugin.name))?.map((plugin) => plugin.name)
-    const pluginsCount = config.plugins?.length || 0
-    const files = pluginManager.fileManager.files.sort((a, b) => {
-      if (!a.meta?.pluginName || !b.meta?.pluginName) {
-        return 0
-      }
-      if (a.meta?.pluginName.length < b.meta?.pluginName.length) {
-        return 1
-      }
-      if (a.meta?.pluginName.length > b.meta?.pluginName.length) {
-        return -1
-      }
-      return 0
-    })
-
-    const meta = {
-      plugins:
-        status === 'success'
-          ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
-          : `${pc.red(`${failedPlugins?.length || 0} failed`)}, ${pluginsCount} total`,
-      pluginsFailed: status === 'failed' ? failedPlugins?.join(', ') : undefined,
-      filesCreated: files.length,
-      time: pc.yellow(`${elapsedSeconds}s`),
-      output: pathParser.resolve(config.root, config.output.path),
-    } as const
-
-    if (options.debug) {
-      logs.push(pc.bold('Generated files:\n'))
-      logs.push(files.map((file) => `${pc.blue(file.meta?.pluginName)} ${file.path}`).join('\n'))
-    }
-
-    logs.push(
-      [
-        [`  ${pc.bold('Plugins:')}      ${meta.plugins}`, true],
-        [`   ${pc.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
-        [`${pc.bold('Generated:')}      ${meta.filesCreated} files`, true],
-        [`     ${pc.bold('Time:')}      ${meta.time}`, true],
-        [`   ${pc.bold('Output:')}      ${meta.output}`, true],
-        [`\n`, true],
-      ]
-        .map((item) => {
-          if (item.at(1)) {
-            return item.at(0)
-          }
-          return undefined
-        })
-        .filter(Boolean)
-        .join('\n')
-    )
-
-    return logs
-  }
 
   try {
     const { root: _root, ...userConfig } = config
@@ -155,17 +168,17 @@ export async function run({ config, options }: RunProps): Promise<void> {
 
     spinner.succeed(parseText(`🚀 Build completed`, { info: `(${pc.dim(inputPath)})` }, logLevel))
 
-    await executeHooks(config.hooks, logLevel)
+    await executeHooks({ hooks: config.hooks, logLevel, debug: options.debug })
 
-    const summary = getSummary(output.pluginManager, 'success')
+    const summary = getSummary({ pluginManager: output.pluginManager, config, status: 'success', hrstart, debug: options.debug })
     console.log(summary.join(''))
   } catch (error: any) {
-    if (error instanceof PluginError || error instanceof ParallelPluginError) {
-      const summary = getSummary(error.pluginManager, 'failed')
+    let summary: string[] = []
 
-      throw new SummaryError('Something went wrong\n', { cause: error, summary })
+    if (error instanceof PluginError || error instanceof ParallelPluginError) {
+      summary = getSummary({ pluginManager: error.pluginManager, config, status: 'failed', hrstart, debug: options.debug })
     }
 
-    throw new SummaryError('Something went wrong\n', { cause: error })
+    throw new SummaryError('Something went wrong\n', { cause: error, summary })
   }
 }

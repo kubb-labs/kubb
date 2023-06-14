@@ -3,7 +3,7 @@ import { PluginManager } from './managers/pluginManager/index.ts'
 import { clean, createLogger, isURL, pc, read } from './utils/index.ts'
 import { isPromise } from './utils/isPromise.ts'
 
-import type { File } from './managers/fileManager/index.ts'
+import type { File, ResolvedFile } from './managers/fileManager/index.ts'
 import type { OnExecute } from './managers/pluginManager/index.ts'
 import type { BuildOutput, KubbPlugin, PluginContext, TransformResult } from './types.ts'
 import type { QueueTask, Logger } from './utils/index.ts'
@@ -41,7 +41,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     await clean(config.output.path)
   }
 
-  const queueTask = async (id: string, file: File) => {
+  const queueTask = async (file: File) => {
     const { path } = file
 
     let code: string | null = getFileSource(file)
@@ -86,7 +86,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     }
   }
 
-  const pluginManager = new PluginManager(config, { logger, task: queueTask as QueueTask<File>, onExecute })
+  const pluginManager = new PluginManager(config, { logger, task: queueTask as QueueTask<ResolvedFile>, onExecute })
   const { plugins, fileManager } = pluginManager
 
   await pluginManager.hookParallel<'validate', true>({
