@@ -21,10 +21,13 @@
         "../../packages/cli/src/index.ts"
       ],
       "@kubb/eslint-config": [
-        "../../packages/config/eslint/src/index.ts"
+        "../../packages/config/eslint-config/src/index.ts"
       ],
       "@kubb/tsup-config": [
-        "../../packages/config/tsup/src/index.ts"
+        "../../packages/config/tsup-config/src/index.ts"
+      ],
+      "@kubb/ts-config": [
+        "../../packages/config/ts-config/src/index.ts"
       ],
       "@kubb/core": [
         "../../packages/core/src/index.ts"
@@ -36,7 +39,10 @@
         "../../packages/swagger-client/src/index.ts"
       ],
       "@kubb/swagger-client/client": [
-        "../../packages/swagger-client/src/client.ts"
+        "../../packages/swagger-client/client.ts"
+      ],
+      "@kubb/swagger-client/ts-client": [
+        "../../packages/swagger-client/client.ts"
       ],
       "@kubb/swagger-faker": [
         "../../packages/swagger-faker/src/index.ts"

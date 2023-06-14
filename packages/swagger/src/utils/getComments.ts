@@ -8,5 +8,5 @@ export function getComments(operation: Operation): string[] {
     operation.getSummary() && `@summary ${operation.getSummary()}`,
     operation.path && `@link ${new Path(operation.path).URL}`,
     operation.isDeprecated() && `@deprecated`,
-  ].filter(Boolean) as string[]
+  ].filter(Boolean)
 }

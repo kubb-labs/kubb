@@ -7,15 +7,25 @@
     // "outDir": "./dist",
     // "tsBuildInfoFile": "./build/.tsbuildinfo"
     // add paths also here because when set with `base.json` it will use the `./dist` folder instead of `./src`.
+    "types": [
+      "vitest/globals",
+      "bun-types",
+      "@kubb/core/globals",
+      "@kubb/ts-config/reset",
+      "./globals"
+    ],
     "paths": {
       "@kubb/cli": [
         "../cli/src/index.ts"
       ],
       "@kubb/eslint-config": [
-        "../config/eslint/src/index.ts"
+        "../config/eslint-config/src/index.ts"
       ],
       "@kubb/tsup-config": [
-        "../config/tsup/src/index.ts"
+        "../config/tsup-config/src/index.ts"
+      ],
+      "@kubb/ts-config": [
+        "../config/ts-config/src/index.ts"
       ],
       "@kubb/core": [
         "../core/src/index.ts"
@@ -27,7 +37,10 @@
         "../swagger-client/src/index.ts"
       ],
       "@kubb/swagger-client/client": [
-        "../swagger-client/src/client.ts"
+        "../swagger-client/client.ts"
+      ],
+      "@kubb/swagger-client/ts-client": [
+        "../swagger-client/client.ts"
       ],
       "@kubb/swagger-faker": [
         "../swagger-faker/src/index.ts"
@@ -53,7 +66,8 @@
     "src/**/*",
     "./package.json",
     "./tsup.config.ts",
-    "./vitest.config.ts"
+    "./vitest.config.ts",
+    "./client.ts"
   ],
   "exclude": [
     "**/node_modules",

@@ -39,9 +39,7 @@ function convertSwagger2ToOpenApi(document: OASDocument): Promise<OASDocument> {
 
 export async function oasPathParser(pathOrApi: string, { validate }: OasOptions = {}) {
   if (validate) {
-    const oas = new OASNormalize(pathOrApi, { enablePaths: true, colorizeErrors: true })
-
-    await oas.validate()
+    await new OASNormalize(pathOrApi, { enablePaths: true, colorizeErrors: true }).validate()
   }
 
   const document = (await SwaggerParser.parse(pathOrApi)) as OASDocument

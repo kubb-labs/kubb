@@ -1,20 +1,18 @@
 import { getFileSource } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
-import { clean, isURL, read } from './utils/index.ts'
+import { clean, createLogger, isURL, pc, read } from './utils/index.ts'
 import { isPromise } from './utils/isPromise.ts'
 
-import type { Ora } from 'ora'
 import type { File } from './managers/fileManager/index.ts'
 import type { OnExecute } from './managers/pluginManager/index.ts'
-import type { BuildOutput, KubbPlugin, LogLevel, PluginContext, TransformResult } from './types.ts'
-import type { QueueTask } from './utils/index.ts'
+import type { BuildOutput, KubbPlugin, PluginContext, TransformResult } from './types.ts'
+import type { QueueTask, Logger } from './utils/index.ts'
 
-export type Logger<TParams = Record<string, any>> = {
-  log: (message: string | null, options: { logLevel: LogLevel; params?: TParams }) => void
-  spinner?: Ora
-}
 type BuildOptions = {
   config: PluginContext['config']
+  /**
+   * @default Logger without the spinner
+   */
   logger?: Logger
 }
 
@@ -29,7 +27,7 @@ async function transformReducer(
 }
 
 export async function build(options: BuildOptions): Promise<BuildOutput> {
-  const { config, logger } = options
+  const { config, logger = createLogger() } = options
 
   try {
     if (!isURL(config.input.path)) {
@@ -82,12 +80,13 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 
     const { hookName, plugin } = executer
 
-    if (config.logLevel === 'info' && logger) {
-      logger.log(null, { logLevel: config.logLevel, params: { hookName, pluginName: plugin.name } })
+    if (config.logLevel === 'info') {
+      const messsage = `🪂 Executing ${hookName || 'unknown'}(${pc.yellow(plugin.name || 'unknown')})`
+      logger.log(messsage)
     }
   }
 
-  const pluginManager = new PluginManager(config, { task: queueTask as QueueTask<File>, onExecute })
+  const pluginManager = new PluginManager(config, { logger, task: queueTask as QueueTask<File>, onExecute })
   const { plugins, fileManager } = pluginManager
 
   await pluginManager.hookParallel<'validate', true>({

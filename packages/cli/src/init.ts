@@ -1,12 +1,12 @@
 import pathParser from 'node:path'
 
-import { write } from '@kubb/core'
+import { isPromiseFulfilledResult, write } from '@kubb/core'
 
 import { $ } from 'execa'
 import pc from 'picocolors'
 
 import type { LogLevel } from '@kubb/core'
-import type { Ora } from 'ora'
+import { spinner } from './program.ts'
 
 export type Preset = 'simple'
 
@@ -18,7 +18,6 @@ export type PresetMeta = {
 }
 
 type RunProps = {
-  spinner: Ora
   /**
    * @default `'silent'`
    */
@@ -61,7 +60,9 @@ export default defineConfig({
   },
 }
 
-export async function init({ spinner, preset = 'simple', logLevel = 'silent', packageManager = 'pnpm' }: RunProps): Promise<void> {
+export async function init({ preset = 'simple', logLevel = 'silent', packageManager = 'pnpm' }: RunProps): Promise<undefined> {
+  spinner.start('📦 Initializing Kubb')
+
   const presetMeta = presets[preset]
   const path = pathParser.resolve(process.cwd(), './kubb.config.js')
   const installCommand = packageManager === 'npm' ? 'install' : 'add'
@@ -70,7 +71,7 @@ export async function init({ spinner, preset = 'simple', logLevel = 'silent', pa
   await write(presetMeta['kubb.config'], path)
   spinner.succeed(`📀 Wrote \`kubb.config.js\` ${pc.dim(path)}`)
 
-  const data = await Promise.all([
+  const results = await Promise.allSettled([
     $`npm init es6 -y`,
     ...presetMeta.packages.map(async (pack) => {
       spinner.start(`📀 Installing ${pc.dim(pack)}`)
@@ -82,6 +83,13 @@ export async function init({ spinner, preset = 'simple', logLevel = 'silent', pa
   ])
 
   if (logLevel === 'info') {
-    data.forEach((text) => console.log(text))
+    results.forEach((result) => {
+      if (isPromiseFulfilledResult(result)) {
+        console.log(result.value)
+      }
+    })
   }
+  spinner.succeed(`📦 initialized Kubb`)
+
+  return
 }

@@ -1,5 +1,7 @@
 import type { Options } from 'tsup'
 
+export const bannerESM: Options['banner'] = {}
+
 export const bannerCJS: Options['banner'] = {
   /**
    * @link https://stackoverflow.com/questions/31931614/require-is-not-defined-node-js
@@ -9,8 +11,6 @@ export const bannerCJS: Options['banner'] = {
    const require = createRequire(import.meta.url);
   `,
 }
-
-export const bannerESM: Options['banner'] = {}
 
 export const options: Options = {
   entry: ['src/index.ts'],
@@ -23,7 +23,7 @@ export const options: Options = {
   ignoreWatch: ['**/.turbo', '**/dist', '**/node_modules', '**/.DS_STORE', '**/.git'],
 }
 
-export const optionsCJS: Options = {
+export const optionsESM: Options = {
   ...options,
   format: 'esm',
   dts: true,
@@ -31,7 +31,7 @@ export const optionsCJS: Options = {
   banner: bannerCJS,
 }
 
-export const optionsESM: Options = {
+export const optionsCJS: Options = {
   ...options,
   format: 'cjs',
   dts: {

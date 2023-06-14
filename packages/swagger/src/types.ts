@@ -19,9 +19,18 @@ export type Options = {
    * @default 'schemas'
    */
   output?: string | false
+  /**
+   * Which server to use from the array of `servers.url[serverIndex]`
+   * @example `0` will return `http://petstore.swagger.io/api` and `1` will return `http://localhost:3000`
+   * servers:
+  - url: http://petstore.swagger.io/api
+  - url: http://localhost:3000
+   * @default 0
+   */
+  serverIndex?: number
 }
 
-export type PluginOptions = PluginFactoryOptions<Options, false, API>
+export type PluginOptions = PluginFactoryOptions<'swagger', Options, false, API>
 
 export type { default as Oas } from 'oas'
 

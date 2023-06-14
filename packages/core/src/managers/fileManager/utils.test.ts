@@ -61,7 +61,7 @@ describe('FileManager utils', () => {
       },
     ])
 
-    expect(combined).toEqual([
+    expect(combined).toMatchObject([
       {
         path: path.resolve('./src/models/file1.ts'),
         fileName: 'file2.ts',
@@ -140,6 +140,9 @@ export const test2 = 3;`,
             isTypeOnly: true,
           },
         ],
+        env: {
+          test: 'test',
+        },
       },
       {
         path: path.resolve('./src/models/file1.ts'),
@@ -201,10 +204,13 @@ export const test2 = 3;`,
           },
         ],
         exports: [],
+        env: {
+          test: 'test',
+        },
       },
     ])
 
-    expect(combineFiles(exportFiles)).toEqual([
+    expect(combineFiles(exportFiles)).toMatchObject([
       {
         path: path.resolve('./src/models/file1.ts'),
         fileName: 'file2.ts',
@@ -231,5 +237,85 @@ export const test2 = 3;`,
     const files = writeIndexes(rootPath)
 
     expect(files?.every((file) => file.fileName === 'index.ts')).toBeTruthy()
+  })
+
+  test('if getFileSource is setting `process.env` based on `env` object', () => {
+    const fileImport: File = {
+      path: path.resolve('./src/models/file1.ts'),
+      fileName: 'file1.ts',
+      source: 'export const hello = process.env.HELLO;',
+      imports: [
+        {
+          name: ['Pets'],
+          path: './Pets',
+          isTypeOnly: true,
+        },
+      ],
+      env: {
+        HELLO: `"world"`,
+      },
+    }
+
+    const fileImportAdvanced: File = {
+      path: path.resolve('./src/models/file1.ts'),
+      fileName: 'file1.ts',
+      source: 'export const hello = process.env["HELLO"];',
+      imports: [
+        {
+          name: ['Pets'],
+          path: './Pets',
+          isTypeOnly: true,
+        },
+      ],
+      env: {
+        HELLO: `"world"`,
+      },
+    }
+
+    const fileImportDeclareModule: File = {
+      path: path.resolve('./src/models/file1.ts'),
+      fileName: 'file1.ts',
+      source: `
+      declare const TEST: string;
+
+      export const hello = typeof TEST !== 'undefined' ? TEST : undefined
+      `,
+      imports: [
+        {
+          name: ['Pets'],
+          path: './Pets',
+          isTypeOnly: true,
+        },
+      ],
+      env: {
+        TEST: `"world"`,
+      },
+    }
+
+    expect(format(getFileSource(fileImport))).toEqual(
+      format(`
+    import type { Pets } from "./Pets";
+
+    export const hello = "world";
+
+    `)
+    )
+    expect(format(getFileSource(fileImportAdvanced))).toEqual(
+      format(`
+    import type { Pets } from "./Pets";
+
+    export const hello = "world";
+
+    `)
+    )
+
+    expect(format(getFileSource(fileImportDeclareModule))).toEqual(
+      format(`
+    import type { Pets } from "./Pets";
+
+    export const hello = typeof "world" !== 'undefined' ? "world" : undefined
+
+    `)
+    )
   })
 })

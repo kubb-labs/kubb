@@ -196,7 +196,7 @@ import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
   hooks: {
-    done: ["npx prettier"]
+    done: ["npx prettier --write ."]
   },
   input: {
     path: './petStore.yaml',

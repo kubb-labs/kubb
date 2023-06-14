@@ -1,4 +1,5 @@
 {
+  "globals": "Global.d.ts",
   "pluginManager": "Plugin Manager/lifecycle",
   "fileManager": "File Manager"
 }

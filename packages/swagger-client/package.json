@@ -31,9 +31,19 @@
       "types": "./dist/client.d.ts",
       "import": "./dist/client.js",
       "module": "./dist/client.js",
-      "default": "./dist/client.js"
+      "default": "./dist/client.cjs"
     },
-    "./package.json": "./package.json"
+    "./ts-client": {
+      "types": "./dist/client.d.ts",
+      "import": "./client.ts",
+      "module": "./client.ts",
+      "default": "./client.ts"
+    },
+    "./package.json": "./package.json",
+    "./*": "./*",
+    "./globals": {
+      "types": "./globals.d.ts"
+    }
   },
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -42,24 +52,29 @@
     "*": {
       "client": [
         "./dist/client.d.ts"
+      ],
+      "ts-client": [
+        "./dist/client.d.ts"
       ]
     }
   },
   "files": [
     "dist",
+    "client.ts",
+    "*.d.ts",
+    "*.d.cts",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
   "scripts": {
     "build": "tsup",
     "clean": "rimraf ./dist",
-    "lint": "eslint \"**/*.{ts,tsx}\"",
-    "lint-fix": "eslint \"**/*.{ts,tsx}\" --quiet --fix",
+    "lint": "eslint --format pretty ./src",
+    "lint-fix": "bun run lint --quiet --fix",
     "release": "pnpm publish --no-git-check",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false",
-    "upgrade": "pnpm update"
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",

@@ -7,7 +7,7 @@ import mascot from 'public/mascot.png'
 
 import type { DocsThemeConfig } from 'nextra-theme-docs'
 
-export default {
+const config: DocsThemeConfig ={
   project: {
     link: 'https://github.com/kubb-project/kubb.git',
   },
@@ -29,7 +29,6 @@ export default {
     ),
   },
   docsRepositoryBase: 'https://github.com/kubb-project/kubb/blob/main/docs',
-  titleSuffix: ' – Kubb',
   useNextSeoProps() {
     return {
       titleTemplate: '%s – Kubb',
@@ -95,6 +94,8 @@ export default {
     float: true,
   },
   sidebar: {
-    defaultMenuCollapsed: true,
+    defaultMenuCollapseLevel: 1,
   },
-} as DocsThemeConfig
+}
+
+export default config

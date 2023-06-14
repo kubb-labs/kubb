@@ -19,11 +19,15 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,
-    "types": ["vitest/globals", "bun-types"],
+    "types": [
+      "vitest/globals",
+      "bun-types"
+    ],
     "paths": {
       "@kubb/cli":["packages/cli"],
-      "@kubb/eslint-config":["packages/config/eslint"],
-      "@kubb/tsup-config":["packages/config/tsup"],
+      "@kubb/eslint-config":["packages/config/eslint-config"],
+      "@kubb/ts-config":["packages/config/ts-config"],
+      "@kubb/tsup-config":["packages/config/tsup-config"],
       "@kubb/core":["packages/core"],
       "@kubb/swagger": ["packages/swagger"],
       "@kubb/swagger-client": ["packages/swagger-client"],

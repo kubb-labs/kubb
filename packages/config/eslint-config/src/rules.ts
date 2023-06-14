@@ -43,6 +43,7 @@ export const rules: Linter.FlatConfig['rules'] = {
   'no-underscore-dangle': 'off',
   'no-use-before-define': 'off',
   'no-unused-expressions': 'off',
+  'no-constant-condition': 'off',
   'class-methods-use-this': 'off',
   'default-param-last': 'off',
   'no-restricted-exports': 'off',

@@ -38,7 +38,7 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
       (schema, pathParameters) => {
         return {
           ...schema,
-          required: [...schema.required!, pathParameters.required ? pathParameters.name : undefined].filter(Boolean) as string[],
+          required: [...schema.required!, pathParameters.required ? pathParameters.name : undefined].filter(Boolean),
           properties: {
             ...schema.properties,
             [pathParameters.name]: pathParameters.schema as OpenAPIV3.SchemaObject,

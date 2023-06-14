@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
+import type { LogType, Logger } from './utils/logger.ts'
 import type { File, FileManager } from './managers/fileManager/index.ts'
 import type { PluginManager, SafeParseResult } from './managers/index.ts'
 import type { Cache } from './utils/cache.ts'
@@ -27,7 +28,7 @@ export type KubbUserConfig = Omit<KubbConfig, 'root' | 'plugins'> & {
    * Example: ['@kubb/swagger', { output: false }]
    * Or: createSwagger({ output: false })
    */
-  plugins?: KubbPlugin[] | KubbJSONPlugin[] | KubbObjectPlugin
+  plugins?: KubbPlugin[] | KubbJSONPlugins[] | KubbObjectPlugins
 }
 
 /**
@@ -121,9 +122,10 @@ export type BuildOutput = {
 
 export type KubbPluginKind = 'schema' | 'controller'
 
-export type KubbJSONPlugin = [plugin: keyof Register | string, options: Register[keyof Register] | object]
+export type KubbJSONPlugins = [plugin: keyof Register | string, options: Register[keyof Register] | object]
 
-export type KubbObjectPlugin = {
+export type KubbObjectPlugin = keyof Register
+export type KubbObjectPlugins = {
   [K in keyof Register]: Register[K] | object
 }
 
@@ -132,7 +134,11 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * Unique name used for the plugin
    * @example @kubb/typescript
    */
-  name: string
+  name: PluginFactoryOptions['name']
+  /**
+   * Options set for a specific plugin(see kubb.config.js), passthrough of options.
+   */
+  options?: TOptions['options']
   /**
    * Kind/type for the plugin
    * Type 'schema' can be used for JSON schema's, TypeScript types, ...
@@ -144,14 +150,11 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * Defined an api that can be used by other plugins
    */
   api?: TOptions['api']
-  /**
-   * Options set for a specific plugin(see kubb.config.js)
-   */
-  options?: TOptions['options']
 } & Partial<PluginLifecycle<TOptions>>
 
 // use of type objects
-export type PluginFactoryOptions<Options = unknown, Nested extends boolean = false, API = any, resolvePathOptions = Record<string, any>> = {
+export type PluginFactoryOptions<Name = string, Options = unknown, Nested extends boolean = false, API = any, resolvePathOptions = Record<string, any>> = {
+  name: Name
   options: Options
   nested: Nested
   api: API
@@ -238,6 +241,7 @@ export type PluginContext<TOptions = Record<string, any>> = {
   resolvePath: (params: ResolvePathParams<TOptions>) => OptionalPath
   resolveName: (params: ResolveNameParams) => string | null | undefined
   load: (id: string) => Promise<SafeParseResult<'load'>>
+  logger: Logger
 }
 
 // null will mean clear the watcher for this key
@@ -250,4 +254,4 @@ export type Path = string
 export type OptionalPath = Path | null | undefined
 export type FileName = string | null | undefined
 
-export type LogLevel = 'error' | 'info' | 'silent'
+export type LogLevel = LogType | 'silent'

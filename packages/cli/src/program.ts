@@ -11,6 +11,7 @@ import { getConfig, getCosmiConfig, renderErrors, startWatcher } from './utils/i
 
 import { SummaryError } from '@kubb/core'
 import type { CLIOptions } from '@kubb/core'
+import { Warning } from '@kubb/core'
 
 const moduleName = 'kubb'
 
@@ -37,40 +38,45 @@ export const program = new Command(moduleName)
       )
     },
   })
+  .addOption(new Option('-c, --config <path>', 'Path to the Kubb config'))
+  .addOption(new Option('-i, --input <path>', 'Path of the input file(overrides the one in `kubb.config.js`)'))
+  .addOption(new Option('-l, --logLevel <type>', 'Type of the logging(overrides the one in `kubb.config.js`)').choices(['error', 'info', 'silent']))
+  .addOption(new Option('--init', 'Init Kubb'))
+  .addOption(new Option('-d, --debug', 'Debug mode').default(false))
+  .addOption(new Option('-w, --watch', 'Watch mode based on the input file'))
   .action(async (options: CLIOptions) => {
     try {
       spinner.start()
 
       if (options.init) {
-        spinner.start('📦 Initializing Kubb')
-        await init({ spinner, logLevel: options.logLevel })
-        spinner.succeed(`📦 initialized Kubb`)
-        return
+        return init({ logLevel: options.logLevel })
       }
 
       // CONFIG
+      // TODO use options.config to show path instead of relying on the `result`
       spinner.start('💾 Loading config')
       const result = await getCosmiConfig(moduleName, options.config)
       spinner.succeed(`💾 Config loaded(${pc.dim(pathParser.relative(process.cwd(), result.filepath))})`)
-
       // END CONFIG
 
       if (options.watch) {
         const config = await getConfig(result, options)
 
-        startWatcher([config.input.path], async (paths) => {
+        return startWatcher([config.input.path], async (paths) => {
           await run({ config, options })
           spinner.spinner = 'simpleDotsScrolling'
           spinner.start(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
         })
-      } else {
-        const config = await getConfig(result, options)
-
-        await run({ config, options })
       }
+
+      const config = await getConfig(result, options)
+
+      await run({ config, options })
     } catch (e: any) {
       const originalError = e as Error
       let error = originalError
+
+      // summaryError check
       const summaryError = error instanceof SummaryError ? error : undefined
 
       if (summaryError) {
@@ -80,13 +86,12 @@ export const program = new Command(moduleName)
 
       const message = renderErrors(error, { debug: options.debug, prefixText: pc.red(originalError?.message) })
 
+      if (error instanceof Warning) {
+        spinner.warn(pc.yellow(error.message))
+        process.exit(0)
+      }
+
       spinner.fail([message, ...(summaryError?.summary || [])].join('\n'))
       process.exit(1)
     }
   })
-  .addOption(new Option('-c, --config <path>', 'Path to the Kubb config'))
-  .addOption(new Option('-i, --input <path>', 'Path of the input file(overrides the one in `kubb.config.js`)'))
-  .addOption(new Option('-l, --logLevel <type>', 'Type of the logging(overrides the one in `kubb.config.js`)').choices(['error', 'info', 'silent']))
-  .addOption(new Option('--init', 'Init Kubb'))
-  .addOption(new Option('-d, --debug', 'Debug mode').default(false))
-  .addOption(new Option('-w, --watch', 'Watch mode based on the input file'))

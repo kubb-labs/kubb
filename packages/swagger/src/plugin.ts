@@ -5,9 +5,9 @@ import { createPlugin } from '@kubb/core'
 import { oasParser } from './parsers/oasParser.ts'
 
 import type { OpenAPIV3 } from 'openapi-types'
-import type { API, PluginOptions } from './types.ts'
+import type { API, Oas, PluginOptions } from './types.ts'
 
-export const pluginName = 'swagger' as const
+export const pluginName: PluginOptions['name'] = 'swagger' as const
 
 // Register your plugin for maximum type safety
 declare module '@kubb/core' {
@@ -51,7 +51,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return undefined
       }
 
-      const oas = await api.getOas(this.config, { validate })
+      let oas: Oas
+
+      try {
+        oas = await api.getOas(this.config, { validate })
+      } catch (e) {
+        const error = e as Error
+        this.logger.warn(error?.message)
+
+        oas = await api.getOas(this.config, { validate: false })
+      }
+
       const schemas = oas.getDefinition().components?.schemas || {}
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {

@@ -34,16 +34,17 @@ type Options = {
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   load: PluginContext['load']
+  logger: PluginContext['logger']
   getExecuter: () => Executer<PluginLifecycleHooks> | undefined
 }
 
 // not publicly exported
-export type CorePluginOptions = PluginFactoryOptions<Options, false, PluginContext>
+export type CorePluginOptions = PluginFactoryOptions<'core', Options, false, PluginContext>
 
-export const name = 'core' as const
+export const pluginName: CorePluginOptions['name'] = 'core' as const
 
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
-  const { fileManager, resolvePath, resolveName, load } = options
+  const { fileManager, resolvePath, resolveName, load, logger } = options
 
   const api: PluginContext = {
     get config() {
@@ -92,11 +93,12 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
       return transformReservedWord(name)
     },
     load,
+    logger,
     cache: createPluginCache(Object.create(null)),
   }
 
   return {
-    name,
+    name: pluginName,
     options,
     api,
     resolvePath(fileName) {

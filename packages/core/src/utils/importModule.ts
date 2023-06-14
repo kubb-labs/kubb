@@ -22,7 +22,7 @@ export function normalizeDirectory(directory: string) {
   return directory
 }
 
-export async function importModule(path: string, cwd?: string): Promise<any> {
+export function getLocation(path: string, cwd?: string): string {
   let location = path
 
   if (cwd) {
@@ -30,7 +30,18 @@ export async function importModule(path: string, cwd?: string): Promise<any> {
     location = require.resolve(path)
   }
 
-  const module = await import(pathToFileURL(location).href)
+  return location
+}
 
-  return module?.default ?? module
+export async function importModule(path: string, cwd?: string): Promise<any | undefined> {
+  try {
+    const location = getLocation(path, cwd)
+
+    const module = await import(pathToFileURL(location).href)
+
+    return module?.default ?? module
+  } catch (e) {
+    console.log(e)
+    return undefined
+  }
 }
