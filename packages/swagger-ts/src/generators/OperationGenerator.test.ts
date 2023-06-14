@@ -1,19 +1,16 @@
-import createSwagger from '@kubb/swagger'
+import { oasParser } from '@kubb/swagger'
 
 import { format } from '../../mocks/format.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
 import type { PluginContext } from '@kubb/core'
-import type { API } from '@kubb/swagger'
 
 describe('OperationGenerator', () => {
-  const swagger = createSwagger({})
-  const swaggerApi = swagger.api as API
   const resolvePath = () => './pets.ts'
   const resolveName: PluginContext['resolveName'] = ({ name }) => name
 
   it('[GET] should generate code based on a operation', async () => {
-    const oas = await swaggerApi.getOas({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
+    const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
     const og = await new OperationGenerator({ oas, resolvePath, resolveName, enumType: 'asConst', mode: 'directory' })
     const operation = oas.operation('/pets', 'get')
 
@@ -72,7 +69,7 @@ describe('OperationGenerator', () => {
   })
 
   it('[POST] should generate code based on a operation', async () => {
-    const oas = await swaggerApi.getOas({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
+    const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
     const og = await new OperationGenerator({ oas, resolvePath, resolveName, enumType: 'asConst', mode: 'directory' })
     const operation = oas.operation('/pets', 'post')
 

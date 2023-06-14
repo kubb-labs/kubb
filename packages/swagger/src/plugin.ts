@@ -5,7 +5,9 @@ import { createPlugin } from '@kubb/core'
 import { oasParser } from './parsers/oasParser.ts'
 
 import type { OpenAPIV3 } from 'openapi-types'
-import type { API, Oas, PluginOptions } from './types.ts'
+import type { Oas, PluginOptions } from './types.ts'
+import type { KubbConfig } from '@kubb/core'
+import type { Logger } from '@kubb/core'
 
 export const pluginName: PluginOptions['name'] = 'swagger' as const
 
@@ -17,16 +19,40 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'schemas', validate = true } = options
-  const api: API = {
-    getOas: (config, oasOptions = { validate: false }) => oasParser(config, oasOptions),
+  const { output = 'schemas', validate = true, serverIndex = 0 } = options
+
+  const getOas = async (config: KubbConfig, logger: Logger): Promise<Oas> => {
+    try {
+      // needs to be in a different variable or the catch here will not work(return of a promise instead)
+      const oas = await oasParser(config, { validate })
+
+      return oas
+    } catch (e) {
+      const error = e as Error
+
+      logger.warn(error?.message)
+      return oasParser(config, { validate: false })
+    }
   }
 
   return {
     name: pluginName,
     options,
     kind: 'schema',
-    api,
+    api() {
+      const { config, logger } = this
+
+      return {
+        getOas() {
+          return getOas(config, logger)
+        },
+        async getBaseURL() {
+          const oasInstance = await this.getOas()
+          const baseURL = oasInstance.api.servers?.at(serverIndex)?.url
+          return baseURL
+        },
+      }
+    },
     resolvePath(fileName) {
       if (output === false) {
         return undefined
@@ -51,17 +77,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return undefined
       }
 
-      let oas: Oas
-
-      try {
-        oas = await api.getOas(this.config, { validate })
-      } catch (e) {
-        const error = e as Error
-        this.logger.warn(error?.message)
-
-        oas = await api.getOas(this.config, { validate: false })
-      }
-
+      const oas = await getOas(this.config, this.logger)
       const schemas = oas.getDefinition().components?.schemas || {}
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {

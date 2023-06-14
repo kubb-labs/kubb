@@ -74,7 +74,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
     },
     async buildStart() {
-      const oas = await swaggerApi.getOas(this.config)
+      const oas = await swaggerApi.getOas()
       const clientPath = this.resolvePath({ pluginName, fileName: 'client.ts' })
 
       const operationGenerator = new OperationGenerator({
@@ -100,7 +100,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       // copy `client.ts`
-      const oas = await swaggerApi.getOas(this.config)
       const clientPath = this.resolvePath({ pluginName, fileName: 'client.ts' })
 
       if (clientPath) {
@@ -113,14 +112,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             `Cannot find the 'client.ts' file, or 'client' is not set in the options or '@kubb/swagger-client' is not included in your dependencies`
           )
         }
-        const baseURL = oas.api.servers?.at(swaggerOptions.serverIndex || 0)?.url
+
+        const baseURL = await swaggerApi.getBaseURL()
 
         await this.addFile({
           fileName: 'client.ts',
           path: clientPath,
           source: await read(originalClientPath),
           env: {
-            AXIOS_BASE: baseURL ? `'${baseURL}'` : undefined,
+            AXIOS_BASE: baseURL,
             AXIOS_HEADERS: JSON.stringify({}),
           },
         })

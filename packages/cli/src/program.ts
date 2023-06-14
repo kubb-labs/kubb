@@ -91,6 +91,11 @@ export const program = new Command(moduleName)
         process.exit(0)
       }
 
+      if (options.logLevel === 'silent') {
+        spinner.fail(message)
+        process.exit(1)
+      }
+
       spinner.fail([message, ...(summaryError?.summary || [])].join('\n'))
       process.exit(1)
     }
