@@ -800,9 +800,6 @@ importers:
 
   packages/config/ts-config:
     devDependencies:
-      '@total-typescript/ts-reset':
-        specifier: ^0.4.2
-        version: 0.4.2
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -2274,10 +2271,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: false
-
-  /@total-typescript/ts-reset@0.4.2:
-    resolution: {integrity: sha512-vqd7ZUDSrXFVT1n8b2kc3LnklncDQFPvR58yUS1kEP23/nHPAO9l1lMjUfnPrXYYk4Hj54rrLKMW5ipwk7k09A==}
-    dev: true
 
   /@tsconfig/node10@1.0.9:
     resolution: {integrity: sha512-jNsYVVxU8v5g43Erja32laIDHXeoNvFEpX33OK4d6hljo3jDhCBDhx5dhCCTMWUojscpAagGiRkBKxpdl9fxqA==}
