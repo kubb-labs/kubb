@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.1.13...@kubb/swagger-v1.2.0) (2023-06-14)
+
+
+### Features
+
+* ✨ add `reset.d.ts` to the `@kubb/ts-config` that can be used to override default TypeScrip types ([ae47aa5](https://github.com/kubb-project/kubb/commit/ae47aa5bbffc0f24d878e917eda3047856ca3fc7))
+
+
+### Bug Fixes
+
+* improvements for logger used in our CLI ([9c648da](https://github.com/kubb-project/kubb/commit/9c648daef4a23c8eec3f5d2529e933cbf7d2e3d3))
+* warning with correct cli message(validate for swagger) ([b091e28](https://github.com/kubb-project/kubb/commit/b091e282f079e7694bf04a35ea6a0ebfd3aa06da))
+
 ## [1.1.13](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.1.12...@kubb/swagger-v1.1.13) (2023-06-13)
 
 
