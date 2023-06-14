@@ -13,6 +13,8 @@ export type Executer<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   strategy: Strategy
   hookName: H
   plugin: KubbPlugin
+  input?: unknown[] | undefined
+  output?: unknown
 }
 
 export type OnExecute<H extends PluginLifecycleHooks = PluginLifecycleHooks> = (

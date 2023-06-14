@@ -12,7 +12,7 @@ import type {
   KubbConfig,
   KubbPlugin,
   KubbUserPlugin,
-  MaybePromise,
+  PossiblePromise,
   PluginContext,
   PluginLifecycle,
   PluginLifecycleHooks,
@@ -54,7 +54,7 @@ const convertKubbUserPluginToKubbPlugin = (plugin: KubbUserPlugin, context: Core
   return null
 }
 
-type Options = { task: QueueTask<ResolvedFile>; logger: Logger; onExecute?: OnExecute<PluginLifecycleHooks> }
+type Options = { debug?: boolean; task: QueueTask<ResolvedFile>; logger: Logger; onExecute?: OnExecute<PluginLifecycleHooks> }
 
 export class PluginManager {
   public plugins: KubbPlugin[]
@@ -67,15 +67,13 @@ export class PluginManager {
 
   public queue: Queue
 
-  public executer: Executer | undefined
-
   public executed: Executer[] = []
   public logger: Logger
 
   constructor(config: KubbConfig, options: Options) {
     this.onExecute = options.onExecute?.bind(this)
     this.logger = options.logger
-    this.queue = new Queue(10)
+    this.queue = new Queue(100, options.debug)
 
     this.fileManager = new FileManager({ task: options.task, queue: this.queue })
     const core = definePlugin({
@@ -85,7 +83,6 @@ export class PluginManager {
       load: this.load,
       resolvePath: this.resolvePath,
       resolveName: this.resolveName,
-      getExecuter: this.getExecuter.bind(this),
     }) as KubbPlugin<CorePluginOptions> & {
       api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api']
     }
@@ -105,10 +102,6 @@ export class PluginManager {
 
       return [...prev, plugin]
     }, [] as KubbPlugin[])
-  }
-
-  getExecuter() {
-    return this.executer
   }
 
   resolvePath = (params: ResolvePathParams) => {
@@ -326,7 +319,7 @@ export class PluginManager {
   }: {
     hookName: H
     parameters: Parameters<PluginLifecycle[H]>
-    reduce: (reduction: Argument0<H>, result: ReturnType<ParseResult<H>>, plugin: KubbPlugin) => MaybePromise<Argument0<H> | null>
+    reduce: (reduction: Argument0<H>, result: ReturnType<ParseResult<H>>, plugin: KubbPlugin) => PossiblePromise<Argument0<H> | null>
   }): Promise<Argument0<H>> {
     const [argument0, ...rest] = parameters
 
@@ -383,7 +376,7 @@ export class PluginManager {
     return pluginByPluginName
   }
 
-  private addExecuter(executer: Executer | undefined) {
+  private addExecutedToCallStack(executer: Executer | undefined) {
     this.onExecute?.call(this, executer, this)
 
     if (executer) {
@@ -410,6 +403,7 @@ export class PluginManager {
     plugin: KubbPlugin
   }): Promise<TResult> | null {
     const hook = plugin[hookName]
+    let output: unknown
 
     if (!hook) {
       return null
@@ -417,43 +411,35 @@ export class PluginManager {
 
     return Promise.resolve()
       .then(() => {
-        // add current execution to the variable `this.executer` so we can track which plugin is getting called
-        this.executer = {
-          strategy,
-          hookName,
-          plugin,
-        }
-
         if (typeof hook === 'function') {
-          const hookResult = (hook as Function).apply(this.core.api, parameters) as TResult
+          const possiblePromiseResult = (hook as Function).apply(this.core.api, parameters) as TResult
 
-          if (isPromise(hookResult)) {
-            return Promise.resolve(hookResult).then((result: TResult) => {
-              this.addExecuter({
-                strategy,
-                hookName,
-                plugin,
-              })
-
-              return result
-            })
+          if (isPromise(possiblePromiseResult)) {
+            return Promise.resolve(possiblePromiseResult)
           }
-
-          return hookResult
+          return possiblePromiseResult
         }
-
-        this.addExecuter({
-          strategy,
-          hookName,
-          plugin,
-        })
 
         return hook
+      })
+      .then((result) => {
+        output = result
+
+        return result
       })
       .catch((e: Error) => {
         this.catcher<H>(e, plugin, hookName)
 
         return null as TResult
+      })
+      .finally(() => {
+        this.addExecutedToCallStack({
+          input: parameters,
+          output,
+          strategy,
+          hookName,
+          plugin,
+        })
       })
   }
 
@@ -476,42 +462,34 @@ export class PluginManager {
     plugin: KubbPlugin
   }): ReturnType<ParseResult<H>> | null {
     const hook = plugin[hookName]
+    let output: unknown
 
     if (!hook) {
       return null
     }
 
     try {
-      // add current execution to the variable `this.executer` so we can track which plugin is getting called
-      this.executer = {
-        strategy,
-        hookName,
-        plugin,
-      }
-
       if (typeof hook === 'function') {
         const fn = (hook as Function).apply(this.core.api, parameters) as ReturnType<ParseResult<H>>
 
-        this.addExecuter({
-          strategy,
-          hookName,
-          plugin,
-        })
-
+        output = fn
         return fn
       }
 
-      this.addExecuter({
-        strategy,
-        hookName,
-        plugin,
-      })
-
+      output = hook
       return hook
     } catch (e) {
       this.catcher<H>(e as Error, plugin, hookName)
 
       return null as ReturnType<ParseResult<H>>
+    } finally {
+      this.addExecutedToCallStack({
+        input: parameters,
+        output,
+        strategy,
+        hookName,
+        plugin,
+      })
     }
   }
 

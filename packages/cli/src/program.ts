@@ -19,7 +19,7 @@ export const spinner = ora({
   spinner: 'clock',
 })
 
-function programCatcher(e: unknown, options: CLIOptions): void {
+function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
   const originalError = e as Error
   let error = originalError
 
@@ -31,14 +31,14 @@ function programCatcher(e: unknown, options: CLIOptions): void {
     error = summaryError.cause as Error
   }
 
-  const message = renderErrors(error, { debug: options.debug, prefixText: pc.red(originalError?.message) })
+  const message = renderErrors(error, { debug: CLIOptions.debug, prefixText: pc.red(originalError?.message) })
 
   if (error instanceof Warning) {
     spinner.warn(pc.yellow(error.message))
     process.exit(0)
   }
 
-  if (options.logLevel === 'silent') {
+  if (CLIOptions.logLevel === 'silent') {
     spinner.fail(message)
     process.exit(1)
   }
@@ -58,11 +58,13 @@ export const program = new Command(moduleName)
   })
   .configureOutput({
     outputError: (message, write) => {
-      const options: CLIOptions = program.opts()
+      const CLIOptions: CLIOptions = program.opts()
 
       write(
-        renderErrors(new Error(message, { cause: undefined }), { debug: options.debug, prefixText: pc.red('Something went wrong with processing the CLI\n') }) +
-          '\n'
+        renderErrors(new Error(message, { cause: undefined }), {
+          debug: CLIOptions.debug,
+          prefixText: pc.red('Something went wrong with processing the CLI\n'),
+        }) + '\n'
       )
     },
   })
@@ -88,7 +90,7 @@ export const program = new Command(moduleName)
         const config = await getConfig(result, options)
 
         return startWatcher([config.input.path], async (paths) => {
-          await run({ config, options })
+          await run({ config, CLIOptions: options })
           spinner.spinner = 'simpleDotsScrolling'
           spinner.start(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
         })
@@ -96,7 +98,7 @@ export const program = new Command(moduleName)
 
       const config = await getConfig(result, options)
 
-      await run({ config, options })
+      await run({ config, CLIOptions: options })
     } catch (e) {
       programCatcher(e, options)
     }

@@ -1,8 +1,10 @@
 import pathParser from 'node:path'
 
-import { build, ParallelPluginError, PluginError, SummaryError, timeout, createLogger } from '@kubb/core'
+import { build, ParallelPluginError, PluginError, SummaryError, timeout, createLogger, randomPicoColour } from '@kubb/core'
 
 import type { ExecaReturnValue } from 'execa'
+
+import { performance, PerformanceObserver } from 'node:perf_hooks'
 import { execa } from 'execa'
 import pc from 'picocolors'
 
@@ -17,7 +19,7 @@ import { spinner } from './program.ts'
 
 type RunProps = {
   config: KubbConfig
-  options: CLIOptions
+  CLIOptions: CLIOptions
 }
 
 type ExecutingHooksProps = {
@@ -34,7 +36,7 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
   const commands = Array.isArray(hooks.done) ? hooks.done : [hooks.done]
 
   if (logLevel === 'silent') {
-    spinner.start(`🪂 Executing hooks`)
+    spinner.start(`Executing hooks`)
   }
   type Executer = { subProcess: ExecaReturnValue<string>; abort: AbortController['abort'] }
 
@@ -43,14 +45,14 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
     const abortController = new AbortController()
     const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
 
-    spinner.start(parseText(`🪂 Executing hook`, { info: ` ${pc.dim(command)}` }, logLevel))
+    spinner.start(parseText(`Executing hook`, { info: ` ${pc.dim(command)}` }, logLevel))
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable)
     spinner.suffixText = ''
 
     if (logLevel === 'info') {
-      spinner.succeed(parseText(`🪂 Executing hook`, { info: ` ${pc.dim(command)}` }, logLevel))
+      spinner.succeed(parseText(`Executing hook`, { info: ` ${pc.dim(command)}` }, logLevel))
 
       console.log(subProcess.stdout)
     }
@@ -65,7 +67,7 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
   await Promise.all(executers)
 
   if (logLevel === 'silent') {
-    spinner.succeed(`🪂 Executing hooks`)
+    spinner.succeed(`Executing hooks`)
   }
 }
 
@@ -105,7 +107,7 @@ function getSummary({ pluginManager, status, hrstart, config, debug }: SummaryPr
       status === 'success'
         ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
         : `${pc.red(`${failedPlugins?.length || 0} failed`)}, ${pluginsCount} total`,
-    pluginsFailed: status === 'failed' ? failedPlugins?.join(', ') : undefined,
+    pluginsFailed: status === 'failed' ? failedPlugins?.map((name) => randomPicoColour(name))?.join(', ') : undefined,
     filesCreated: files.length,
     time: pc.yellow(`${elapsedSeconds}s`),
     output: pathParser.resolve(config.root, config.output.path),
@@ -113,11 +115,12 @@ function getSummary({ pluginManager, status, hrstart, config, debug }: SummaryPr
 
   if (debug) {
     logs.push(pc.bold('Generated files:\n'))
-    logs.push(files.map((file) => `${pc.blue(file.meta?.pluginName)} ${file.path}`).join('\n'))
+    logs.push(files.map((file) => `${randomPicoColour(file.meta?.pluginName)} ${file.path}`).join('\n'))
   }
 
   logs.push(
     [
+      [`\n`, true],
       [`  ${pc.bold('Plugins:')}      ${meta.plugins}`, true],
       [`   ${pc.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
       [`${pc.bold('Generated:')}      ${meta.filesCreated} files`, true],
@@ -138,9 +141,21 @@ function getSummary({ pluginManager, status, hrstart, config, debug }: SummaryPr
   return logs
 }
 
-export async function run({ config, options }: RunProps): Promise<void> {
+export async function run({ config, CLIOptions: options }: RunProps): Promise<void> {
   const hrstart = process.hrtime()
   const logger = createLogger(spinner)
+
+  const performanceOpserver = new PerformanceObserver((items) => {
+    const message = `${items.getEntries()[0].duration.toFixed(0)}ms`
+
+    spinner.suffixText = pc.yellow(message)
+
+    performance.clearMarks()
+  })
+
+  if (options.debug) {
+    performanceOpserver.observe({ type: 'measure' })
+  }
 
   try {
     const { root: _root, ...userConfig } = config
@@ -164,8 +179,10 @@ export async function run({ config, options }: RunProps): Promise<void> {
         },
       },
       logger,
+      debug: options.debug,
     })
 
+    spinner.suffixText = ''
     spinner.succeed(parseText(`🚀 Build completed`, { info: `(${pc.dim(inputPath)})` }, logLevel))
 
     await executeHooks({ hooks: config.hooks, logLevel, debug: options.debug })

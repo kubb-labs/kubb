@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { getFileSource } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
-import { clean, createLogger, isURL, pc, read } from './utils/index.ts'
+import { clean, createLogger, isURL, randomPicoColour, read } from './utils/index.ts'
 import { isPromise } from './utils/isPromise.ts'
+import pc from 'picocolors'
 
 import type { File, ResolvedFile } from './managers/fileManager/index.ts'
 import type { OnExecute } from './managers/pluginManager/index.ts'
@@ -14,6 +16,7 @@ type BuildOptions = {
    * @default Logger without the spinner
    */
   logger?: Logger
+  debug?: boolean
 }
 
 async function transformReducer(
@@ -27,7 +30,7 @@ async function transformReducer(
 }
 
 export async function build(options: BuildOptions): Promise<BuildOutput> {
-  const { config, logger = createLogger() } = options
+  const { config, debug, logger = createLogger() } = options
 
   try {
     if (!isURL(config.input.path)) {
@@ -78,15 +81,23 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
       return
     }
 
-    const { hookName, plugin } = executer
+    const { hookName, plugin, output, input } = executer
 
-    if (config.logLevel === 'info') {
-      const messsage = `🪂 Executing ${hookName || 'unknown'}(${pc.yellow(plugin.name || 'unknown')})`
-      logger.log(messsage)
+    // only log execution information when we have `info` logLevel set and the hook used has an input
+    if (config.logLevel === 'info' && logger?.spinner && input) {
+      const messsage = `${randomPicoColour(plugin.name)} Executing ${hookName}`
+
+      if (debug) {
+        logger.info(messsage)
+        const logs = [input && pc.green('Input:'), JSON.stringify(input, undefined, 2), output && pc.green('Output:'), output].filter(Boolean)
+        console.log(logs.join('\n'))
+      } else {
+        logger.spinner.suffixText = messsage
+      }
     }
   }
 
-  const pluginManager = new PluginManager(config, { logger, task: queueTask as QueueTask<ResolvedFile>, onExecute })
+  const pluginManager = new PluginManager(config, { debug, logger, task: queueTask as QueueTask<ResolvedFile>, onExecute })
   const { plugins, fileManager } = pluginManager
 
   await pluginManager.hookParallel<'validate', true>({

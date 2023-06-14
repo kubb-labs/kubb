@@ -60,14 +60,16 @@
     "directory-tree": "^3.5.1",
     "fs-extra": "^11.1.1",
     "graceful-fs": "^4.2.11",
+    "picocolors": "^1.0.0",
     "rimraf": "^5.0.1",
-    "picocolors": "^1.0.0"
+    "seedrandom": "^3.0.5"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.1",
+    "@types/seedrandom": "^3.0.5",
     "eslint": "^8.42.0",
     "ora": "^6.3.1",
     "tsup": "^6.7.0",

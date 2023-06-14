@@ -6,7 +6,7 @@ import type { Cache } from './utils/cache.ts'
 
 export interface Register {}
 
-export type MaybePromise<T> = Promise<T> | T
+export type PossiblePromise<T> = Promise<T> | T
 
 /**
  * Config used in `kubb.config.js`
@@ -189,12 +189,12 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Valdiate all plugins to see if their depended plugins are installed and configured.
    * @type hookParallel
    */
-  validate: (this: Omit<PluginContext, 'addFile'>, plugins: KubbPlugin[]) => MaybePromise<true>
+  validate: (this: Omit<PluginContext, 'addFile'>, plugins: KubbPlugin[]) => PossiblePromise<true>
   /**
    * Start of the lifecycle of a plugin.
    * @type hookParallel
    */
-  buildStart: (this: PluginContext, kubbConfig: KubbConfig) => MaybePromise<void>
+  buildStart: (this: PluginContext, kubbConfig: KubbConfig) => PossiblePromise<void>
   /**
    * Resolve to a Path based on a fileName(example: `./Pet.ts`) and directory(example: `./models`).
    * Options can als be included.
@@ -213,22 +213,22 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Makes it possible to run async logic to override the path defined previously by `resolvePath`.
    * @type hookFirst
    */
-  load: (this: Omit<PluginContext, 'addFile'>, path: Path) => MaybePromise<TransformResult | null>
+  load: (this: Omit<PluginContext, 'addFile'>, path: Path) => PossiblePromise<TransformResult | null>
   /**
    * Transform the source-code.
    * @type hookReduceArg0
    */
-  transform: (this: Omit<PluginContext, 'addFile'>, source: string, path: Path) => MaybePromise<TransformResult>
+  transform: (this: Omit<PluginContext, 'addFile'>, source: string, path: Path) => PossiblePromise<TransformResult>
   /**
    * Write the result to the file-system based on the id(defined by `resolvePath` or changed by `load`).
    * @type hookParallel
    */
-  writeFile: (this: Omit<PluginContext, 'addFile'>, source: string | undefined, path: Path) => MaybePromise<void>
+  writeFile: (this: Omit<PluginContext, 'addFile'>, source: string | undefined, path: Path) => PossiblePromise<void>
   /**
    * End of the plugin lifecycle.
    * @type hookParallel
    */
-  buildEnd: (this: PluginContext) => MaybePromise<void>
+  buildEnd: (this: PluginContext) => PossiblePromise<void>
 }
 
 export type PluginLifecycleHooks = keyof PluginLifecycle
