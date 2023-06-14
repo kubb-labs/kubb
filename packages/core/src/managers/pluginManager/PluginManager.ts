@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 import { definePlugin } from '../../plugin.ts'
-import { isPromise } from '../../utils/isPromise.ts'
+import { isPromise, isPromiseRejectedResult } from '../../utils/isPromise.ts'
 import { Queue } from '../../utils/Queue.ts'
 import { FileManager } from '../fileManager/FileManager.ts'
 import type { File } from '../fileManager/types.ts'
@@ -12,6 +12,7 @@ import type { CorePluginOptions } from '../../plugin.ts'
 import type { KubbConfig, KubbPlugin, MaybePromise, PluginLifecycle, PluginLifecycleHooks, ResolveNameParams, ResolvePathParams } from '../../types.ts'
 import type { QueueTask } from '../../utils/Queue.ts'
 import type { Argument0, Executer, OnExecute, ParseResult, SafeParseResult, Strategy } from './types.ts'
+import type { Logger } from '../../utils/logger.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
@@ -30,7 +31,7 @@ const hookNames: {
 }
 export const hooks = Object.keys(hookNames) as [PluginLifecycleHooks]
 
-type Options = { task: QueueTask<File>; onExecute?: OnExecute<PluginLifecycleHooks> }
+type Options = { task: QueueTask<File>; logger: Logger; onExecute?: OnExecute<PluginLifecycleHooks> }
 
 export class PluginManager {
   public plugins: KubbPlugin[]
@@ -46,14 +47,17 @@ export class PluginManager {
   public executer: Executer | undefined
 
   public executed: Executer[] = []
+  public logger: Logger
 
   constructor(config: KubbConfig, options: Options) {
     this.onExecute = options.onExecute?.bind(this)
+    this.logger = options.logger
     this.queue = new Queue(10)
 
     this.fileManager = new FileManager({ task: options.task, queue: this.queue })
     this.core = definePlugin({
       config,
+      logger: this.logger,
       fileManager: this.fileManager,
       load: this.load,
       resolvePath: this.resolvePath,
@@ -255,7 +259,16 @@ export class PluginManager {
       }
     }
     const results = await Promise.allSettled(parallelPromises)
-    const errors = results.filter((result) => result.status === 'rejected').map((result) => (result as PromiseRejectedResult).reason) as PluginError[]
+
+    const errors = results
+      .map((result) => {
+        // needs `cause` because Warning and other errors will then not be added, only PluginError is possible here
+        if (isPromiseRejectedResult<PluginError>(result) && result.reason instanceof PluginError) {
+          return result.reason
+        }
+        return undefined
+      })
+      .filter(Boolean)
 
     if (errors.length) {
       throw new ParallelPluginError('Error', { errors, pluginManager: this })
@@ -401,7 +414,9 @@ export class PluginManager {
       })
       .catch((e: Error) => {
         this.catcher<H>(e, plugin, hookName)
-      }) as Promise<TResult>
+
+        return null as TResult
+      })
   }
 
   /**

@@ -73,9 +73,9 @@ jobs:
         - name: Typecheck
           run: bun run typecheck --concurrency=1
           
-        - name: Linting
-          continue-on-error: true
-          run: bun run lint --concurrency=1
+        # - name: Linting
+        #   continue-on-error: true
+        #   run: bun run lint --concurrency=1
 
         - name: Test
           run: bun run test:coverage
