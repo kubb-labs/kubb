@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-unsafe-argument */
 
 import { definePlugin } from '../../plugin.ts'
 import { isPromise, isPromiseRejectedResult } from '../../utils/isPromise.ts'
@@ -9,7 +9,17 @@ import { ParallelPluginError } from './ParallelPluginError.ts'
 import { PluginError } from './PluginError.ts'
 
 import type { CorePluginOptions } from '../../plugin.ts'
-import type { KubbConfig, KubbPlugin, MaybePromise, PluginLifecycle, PluginLifecycleHooks, ResolveNameParams, ResolvePathParams } from '../../types.ts'
+import type {
+  KubbConfig,
+  KubbPlugin,
+  KubbUserPlugin,
+  MaybePromise,
+  PluginContext,
+  PluginLifecycle,
+  PluginLifecycleHooks,
+  ResolveNameParams,
+  ResolvePathParams,
+} from '../../types.ts'
 import type { QueueTask } from '../../utils/Queue.ts'
 import type { Argument0, Executer, OnExecute, ParseResult, SafeParseResult, Strategy } from './types.ts'
 import type { Logger } from '../../utils/logger.ts'
@@ -30,6 +40,19 @@ const hookNames: {
   buildEnd: 1,
 }
 export const hooks = Object.keys(hookNames) as [PluginLifecycleHooks]
+// TODO move to utils file
+const convertKubbUserPluginToKubbPlugin = (plugin: KubbUserPlugin, context: CorePluginOptions['api'] | undefined): KubbPlugin | null => {
+  if (plugin.api && typeof plugin.api === 'function') {
+    const api = (plugin.api as Function).call(context)
+
+    return {
+      ...plugin,
+      api,
+    }
+  }
+
+  return null
+}
 
 type Options = { task: QueueTask<File>; logger: Logger; onExecute?: OnExecute<PluginLifecycleHooks> }
 
@@ -55,7 +78,7 @@ export class PluginManager {
     this.queue = new Queue(10)
 
     this.fileManager = new FileManager({ task: options.task, queue: this.queue })
-    this.core = definePlugin({
+    const core = definePlugin({
       config,
       logger: this.logger,
       fileManager: this.fileManager,
@@ -64,9 +87,24 @@ export class PluginManager {
       resolveName: this.resolveName,
       getExecuter: this.getExecuter.bind(this),
     }) as KubbPlugin<CorePluginOptions> & {
-      api: CorePluginOptions['api']
+      api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api']
     }
-    this.plugins = [this.core, ...(config.plugins || [])]
+
+    const convertedCore = convertKubbUserPluginToKubbPlugin(core, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
+
+    this.core = convertedCore
+
+    this.plugins = [this.core, ...(config.plugins || [])].reduce((prev, plugin) => {
+      // TODO HACK to be sure that this is equal to the `core.api` logic.
+
+      const convertedApi = convertKubbUserPluginToKubbPlugin(plugin, convertedCore?.api)
+
+      if (convertedApi) {
+        return [...prev, convertedApi]
+      }
+
+      return [...prev, plugin]
+    }, [] as KubbPlugin[])
   }
 
   getExecuter() {
