@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.1.13...@kubb/swagger-zodios-v1.2.0) (2023-06-14)
+
+
+### Features
+
+* ✨ add `reset.d.ts` to the `@kubb/ts-config` that can be used to override default TypeScrip types ([ae47aa5](https://github.com/kubb-project/kubb/commit/ae47aa5bbffc0f24d878e917eda3047856ca3fc7))
+
 ## [1.1.13](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.1.12...@kubb/swagger-zodios-v1.1.13) (2023-06-13)
 
 
