@@ -67,12 +67,6 @@
         "src/gen/**"
       ],
       "outputMode": "new-only"
-    },
-    "upgrade": {
-      "dependsOn": [],
-      "outputs": [],
-      "cache": false,
-      "outputMode": "new-only"
     }
   }
 }
