@@ -24,7 +24,7 @@ describe('PluginError', () => {
   })
 
   test('can create custom Error ParallelPluginError', () => {
-    const error = new PluginError('message', { pluginManager })
+    const error = new PluginError('message', { cause: new Error(), pluginManager })
 
     expect(error).toBeDefined()
     expect(error.pluginManager).toBe(pluginManager)

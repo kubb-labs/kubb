@@ -7,7 +7,7 @@ import type { Ora } from 'ora'
 import type { File } from './managers/fileManager/index.ts'
 import type { OnExecute } from './managers/pluginManager/index.ts'
 import type { BuildOutput, KubbPlugin, LogLevel, PluginContext, TransformResult } from './types.ts'
-import type { QueueTask } from './utils/index.ts'
+import type { QueueTask, Warning } from './utils/index.ts'
 
 export type Logger<TParams = Record<string, any>> = {
   log: (message: string | null, options: { logLevel: LogLevel; params?: TParams }) => void
@@ -87,7 +87,11 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     }
   }
 
-  const pluginManager = new PluginManager(config, { task: queueTask as QueueTask<File>, onExecute })
+  const onWarning = (error: Warning) => {
+    logger?.log(error.message, { logLevel: 'warning' })
+  }
+
+  const pluginManager = new PluginManager(config, { task: queueTask as QueueTask<File>, onExecute, onWarning })
   const { plugins, fileManager } = pluginManager
 
   await pluginManager.hookParallel<'validate', true>({

@@ -29,4 +29,6 @@ describe('ParallelPluginError', () => {
     expect(error).toBeDefined()
     expect(error.pluginManager).toBe(pluginManager)
   })
+
+  test.todo('findError')
 })

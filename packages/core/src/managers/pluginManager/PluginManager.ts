@@ -12,6 +12,7 @@ import type { CorePluginOptions } from '../../plugin.ts'
 import type { KubbConfig, KubbPlugin, MaybePromise, PluginLifecycle, PluginLifecycleHooks, ResolveNameParams, ResolvePathParams } from '../../types.ts'
 import type { QueueTask } from '../../utils/Queue.ts'
 import type { Argument0, Executer, OnExecute, ParseResult, SafeParseResult, Strategy } from './types.ts'
+import { Warning } from '../../utils/Warning.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
@@ -30,7 +31,7 @@ const hookNames: {
 }
 export const hooks = Object.keys(hookNames) as [PluginLifecycleHooks]
 
-type Options = { task: QueueTask<File>; onExecute?: OnExecute<PluginLifecycleHooks> }
+type Options = { task: QueueTask<File>; onExecute?: OnExecute<PluginLifecycleHooks>; onWarning?: (e: Warning) => void }
 
 export class PluginManager {
   public plugins: KubbPlugin[]
@@ -38,6 +39,7 @@ export class PluginManager {
   public readonly fileManager: FileManager
 
   private readonly onExecute?: OnExecute
+  private readonly onWarning?: (e: Warning) => void
 
   private readonly core: KubbPlugin<CorePluginOptions>
 
@@ -49,6 +51,7 @@ export class PluginManager {
 
   constructor(config: KubbConfig, options: Options) {
     this.onExecute = options.onExecute?.bind(this)
+    this.onWarning = options.onWarning?.bind(this)
     this.queue = new Queue(10)
 
     this.fileManager = new FileManager({ task: options.task, queue: this.queue })
@@ -256,7 +259,15 @@ export class PluginManager {
     }
     const results = await Promise.allSettled(parallelPromises)
 
-    const errors = results.map((result) => (isPromiseRejectedResult<PluginError>(result) ? result.reason : undefined)).filter(Boolean)
+    const errors = results
+      .map((result) => {
+        // needs `cause` because Warning and other errors will then not be added, only PluginError is possible here
+        if (isPromiseRejectedResult<PluginError>(result) && result.reason.cause) {
+          return result.reason
+        }
+        return undefined
+      })
+      .filter(Boolean)
 
     if (errors.length) {
       throw new ParallelPluginError('Error', { errors, pluginManager: this })
@@ -402,7 +413,9 @@ export class PluginManager {
       })
       .catch((e: Error) => {
         this.catcher<H>(e, plugin, hookName)
-      }) as Promise<TResult>
+
+        return null as TResult
+      })
   }
 
   /**
@@ -464,6 +477,12 @@ export class PluginManager {
   }
 
   private catcher<H extends PluginLifecycleHooks>(e: Error, plugin: KubbPlugin, hookName: H) {
+    const warning = e instanceof Warning ? e : undefined
+
+    if (warning) {
+      this.onWarning?.(warning)
+    }
+
     const text = `${e.message} (plugin: ${plugin.name}, hook: ${hookName})\n`
 
     throw new PluginError(text, { cause: e, pluginManager: this })

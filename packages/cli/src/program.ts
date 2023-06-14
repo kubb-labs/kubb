@@ -11,6 +11,7 @@ import { getConfig, getCosmiConfig, renderErrors, startWatcher } from './utils/i
 
 import { SummaryError } from '@kubb/core'
 import type { CLIOptions } from '@kubb/core'
+import { Warning } from '@kubb/core'
 
 const moduleName = 'kubb'
 
@@ -74,6 +75,8 @@ export const program = new Command(moduleName)
     } catch (e: any) {
       const originalError = e as Error
       let error = originalError
+
+      // summaryError check
       const summaryError = error instanceof SummaryError ? error : undefined
 
       if (summaryError) {
@@ -82,6 +85,11 @@ export const program = new Command(moduleName)
       }
 
       const message = renderErrors(error, { debug: options.debug, prefixText: pc.red(originalError?.message) })
+
+      if (error instanceof Warning) {
+        spinner.warn(pc.yellow(error.message))
+        process.exit(0)
+      }
 
       spinner.fail([message, ...(summaryError?.summary || [])].join('\n'))
       process.exit(1)

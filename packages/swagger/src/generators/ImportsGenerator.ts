@@ -80,7 +80,7 @@ export class ImportsGenerator extends Generator<Options> {
           path: path.replace('./../', '../'),
         } as ImportMeta
       })
-      .filter(Boolean) 
+      .filter(Boolean)
 
     return [...importMeta, ...this.items]
   }

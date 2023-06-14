@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { isURL } from '@kubb/core'
+import { Warning, isURL } from '@kubb/core'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
 import swagger2openapi from 'swagger2openapi'
@@ -41,7 +41,12 @@ export async function oasPathParser(pathOrApi: string, { validate }: OasOptions 
   if (validate) {
     const oas = new OASNormalize(pathOrApi, { enablePaths: true, colorizeErrors: true })
 
-    await oas.validate()
+    try {
+      await oas.validate()
+    } catch (e) {
+      const error = e as Error
+      throw new Warning(error?.message, { cause: error })
+    }
   }
 
   const document = (await SwaggerParser.parse(pathOrApi)) as OASDocument

@@ -252,4 +252,6 @@ export type Path = string
 export type OptionalPath = Path | null | undefined
 export type FileName = string | null | undefined
 
-export type LogLevel = 'error' | 'info' | 'silent'
+export type LogType = 'error' | 'info' | 'warning'
+
+export type LogLevel = LogType | 'silent'

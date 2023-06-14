@@ -23,15 +23,21 @@ type RunProps = {
 export async function run({ config, options }: RunProps): Promise<void> {
   const hrstart = process.hrtime()
   const [log] = throttle<void, Parameters<Logger['log']>>((message, { logLevel, params }) => {
-    if (logLevel === 'error') {
-      throw new Error(message || 'Something went wrong')
-    } else if (logLevel === 'info') {
+    if (logLevel === 'info') {
       if (message) {
         spinner.text = message
       } else {
+        //TODO add typings for params(now any)
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         spinner.text = `🪂 Executing ${params?.hookName || 'unknown'}(${pc.yellow(params?.pluginName || 'unknown')})`
       }
+    }
+    if (logLevel === 'error') {
+      throw new Error(message || 'Something went wrong')
+    }
+
+    if (logLevel === 'warning') {
+      spinner.warn(pc.yellow(message))
     }
   }, 100)
   const logger: Logger = {
@@ -89,6 +95,8 @@ export async function run({ config, options }: RunProps): Promise<void> {
     const buildStartPlugins = [
       ...new Set(pluginManager.executed.filter((item) => item.hookName === 'buildStart' && item.plugin.name !== 'core').map((item) => item.plugin.name)),
     ]
+
+    const failedPlugins = config.plugins?.filter((plugin) => !buildStartPlugins.includes(plugin.name))?.map((plugin) => plugin.name)
     const pluginsCount = config.plugins?.length || 0
     const files = pluginManager.fileManager.files.sort((a, b) => {
       if (!a.meta?.pluginName || !b.meta?.pluginName) {
@@ -107,7 +115,8 @@ export async function run({ config, options }: RunProps): Promise<void> {
       plugins:
         status === 'success'
           ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
-          : `${pc.red(`${pluginsCount - buildStartPlugins.length + 1} failed`)}, ${pluginsCount} total`,
+          : `${pc.red(`${failedPlugins?.length} failed`)}, ${pluginsCount} total`,
+      pluginsFailed: status === 'failed' ? failedPlugins?.join(', ') : undefined,
       filesCreated: files.length,
       time: pc.yellow(`${elapsedSeconds}s`),
       output: pathParser.resolve(config.root, config.output.path),
@@ -118,12 +127,23 @@ export async function run({ config, options }: RunProps): Promise<void> {
       logs.push(files.map((file) => `${pc.blue(file.meta?.pluginName)} ${file.path}`).join('\n'))
     }
 
-    logs.push(`\n
-  ${pc.bold('Plugins:')}      ${meta.plugins}
-${pc.bold('Generated:')}      ${meta.filesCreated} files
-     ${pc.bold('Time:')}      ${meta.time}
-   ${pc.bold('Output:')}      ${meta.output}
-     \n`)
+    logs.push(
+      [
+        [`  ${pc.bold('Plugins:')}      ${meta.plugins}`, true],
+        [`   ${pc.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
+        [`${pc.bold('Generated:')}      ${meta.filesCreated} files`, true],
+        [`     ${pc.bold('Time:')}      ${meta.time}`, true],
+        [`   ${pc.bold('Output:')}      ${meta.output}`, true],
+      ]
+        .map((item) => {
+          if (item.at(1)) {
+            return item.at(0)
+          }
+          return undefined
+        })
+        .filter(Boolean)
+        .join('\n')
+    )
 
     return logs
   }
