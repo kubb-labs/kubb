@@ -2,6 +2,7 @@ import { PluginError } from './PluginError.ts'
 import { PluginManager } from './PluginManager.ts'
 
 import type { KubbConfig } from '../../types.ts'
+import { createLogger } from '../../utils/logger.ts'
 
 describe('PluginError', () => {
   const config: KubbConfig = {
@@ -19,6 +20,7 @@ describe('PluginError', () => {
   const onExecuteMock = vi.fn()
   const queueTaskMock = vi.fn()
   const pluginManager = new PluginManager(config, {
+    logger: createLogger(),
     onExecute: onExecuteMock,
     task: queueTaskMock,
   })

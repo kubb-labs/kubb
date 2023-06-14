@@ -16,5 +16,5 @@ export default defineConfig({
     done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
   },
   logLevel: 'info',
-  plugins: [createSwagger({validate: false}), createSwaggerTS({ output: 'models.ts' }), createSwaggerTanstackQuery({ output: './hooks.ts' })],
+  plugins: [createSwagger({validate: true}), createSwaggerTS({ output: 'models.ts' }), createSwaggerTanstackQuery({ output: './hooks.ts' })],
 })

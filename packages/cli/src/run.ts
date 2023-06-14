@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { build, throttle, ParallelPluginError, PluginError, SummaryError, timeout } from '@kubb/core'
+import { build, ParallelPluginError, PluginError, SummaryError, timeout, createLogger } from '@kubb/core'
 
 import type { ExecaReturnValue } from 'execa'
 import { execa } from 'execa'
@@ -11,7 +11,7 @@ import { parseArgsStringToArgv } from 'string-argv'
 import { parseHrtimeToSeconds } from './utils/parseHrtimeToSeconds.ts'
 import { parseText } from './utils/parseText.ts'
 
-import type { BuildOutput, CLIOptions, KubbConfig, Logger, LogLevel } from '@kubb/core'
+import type { BuildOutput, CLIOptions, KubbConfig, LogLevel } from '@kubb/core'
 import { OraWritable } from './utils/OraWritable.ts'
 import { spinner } from './program.ts'
 
@@ -22,28 +22,8 @@ type RunProps = {
 
 export async function run({ config, options }: RunProps): Promise<void> {
   const hrstart = process.hrtime()
-  const [log] = throttle<void, Parameters<Logger['log']>>((message, { logLevel, params }) => {
-    if (logLevel === 'info') {
-      if (message) {
-        spinner.text = message
-      } else {
-        //TODO add typings for params(now any)
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        spinner.text = `🪂 Executing ${params?.hookName || 'unknown'}(${pc.yellow(params?.pluginName || 'unknown')})`
-      }
-    }
-    if (logLevel === 'error') {
-      throw new Error(message || 'Something went wrong')
-    }
 
-    if (logLevel === 'warning') {
-      spinner.warn(pc.yellow(message))
-    }
-  }, 100)
-  const logger: Logger = {
-    log,
-    spinner,
-  }
+  const logger = createLogger(spinner)
 
   const executeHooks = async (hooks: KubbConfig['hooks'], logLevel: LogLevel) => {
     if (!hooks?.done) {
@@ -115,7 +95,7 @@ export async function run({ config, options }: RunProps): Promise<void> {
       plugins:
         status === 'success'
           ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
-          : `${pc.red(`${failedPlugins?.length} failed`)}, ${pluginsCount} total`,
+          : `${pc.red(`${failedPlugins?.length || 0} failed`)}, ${pluginsCount} total`,
       pluginsFailed: status === 'failed' ? failedPlugins?.join(', ') : undefined,
       filesCreated: files.length,
       time: pc.yellow(`${elapsedSeconds}s`),
@@ -134,6 +114,7 @@ export async function run({ config, options }: RunProps): Promise<void> {
         [`${pc.bold('Generated:')}      ${meta.filesCreated} files`, true],
         [`     ${pc.bold('Time:')}      ${meta.time}`, true],
         [`   ${pc.bold('Output:')}      ${meta.output}`, true],
+        [`\n`, true],
       ]
         .map((item) => {
           if (item.at(1)) {
@@ -149,7 +130,7 @@ export async function run({ config, options }: RunProps): Promise<void> {
   }
 
   try {
-    const { root, ...userConfig } = config
+    const { root: _root, ...userConfig } = config
     const logLevel = options.logLevel ?? userConfig.logLevel ?? 'silent'
     const inputPath = options.input ?? userConfig.input.path
 
