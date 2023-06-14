@@ -16,8 +16,9 @@ function isObjectPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugins[])
 }
 
 async function importPlugin(name: string, options: object): Promise<KubbUserConfig['plugins']> {
-  const importedPlugin = process.env.NODE_ENV === 'test' ? await import(name) : await importModule(name, process.cwd())
+  const importedPlugin: any = process.env.NODE_ENV === 'test' ? await import(name) : await importModule(name, process.cwd())
 
+  // eslint-disable-next-line
   return importedPlugin?.default ? importedPlugin.default(options) : importedPlugin(options)
 }
 

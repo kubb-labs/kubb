@@ -67,7 +67,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       await this.fileManager.write(source, path)
     },
     async buildStart() {
-      const oas = await swaggerApi.getOas(this.config)
+      const oas = await swaggerApi.getOas()
 
       const schemas = oas.getDefinition().components?.schemas || {}
       const root = pathParser.resolve(this.config.root, this.config.output.path)

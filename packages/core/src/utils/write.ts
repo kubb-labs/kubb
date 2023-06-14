@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import pathParser from 'node:path'
 
-async function safeWriteFileToPath(path: string, data: string) {
+async function safeWriteFileToPath(path: string, data: string): Promise<void> {
   // resolve the full path and get just the directory, ignoring the file and extension
   const passedPath = pathParser.dirname(pathParser.resolve(path))
   // make the directory, recursively. Theoretically, if every directory in the path exists, this won't do anything.
@@ -10,7 +10,7 @@ async function safeWriteFileToPath(path: string, data: string) {
   return fs.writeFile(pathParser.resolve(path), data, { encoding: 'utf-8' })
 }
 
-export async function write(data: string, path: string) {
+export async function write(data: string, path: string): Promise<void> {
   try {
     await fs.stat(path)
     const oldContent = await fs.readFile(path, { encoding: 'utf-8' })

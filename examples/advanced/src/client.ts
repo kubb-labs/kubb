@@ -2,6 +2,8 @@ import axios from 'axios'
 
 import type { AxiosError } from 'axios'
 
+declare const AXIOS_BASE: string
+
 export type RequestConfig<TVariables = unknown> = {
   method: 'get' | 'put' | 'patch' | 'post' | 'delete'
   url: string
@@ -12,7 +14,7 @@ export type RequestConfig<TVariables = unknown> = {
 }
 
 export const axiosInstance = axios.create({
-  baseURL: process.env['AXIOS_BASE'],
+  baseURL: typeof AXIOS_BASE !== 'undefined' ? AXIOS_BASE : undefined,
   headers: process.env['AXIOS_HEADERS'] ? JSON.parse(process.env['AXIOS_HEADERS']) : {},
 })
 

@@ -3,6 +3,7 @@ import { createPlugin } from '../../plugin.ts'
 import { hooks, PluginManager } from './PluginManager.ts'
 
 import type { KubbConfig, TransformResult } from '../../types.ts'
+import { createLogger } from '../../utils/logger.ts'
 
 describe('PluginManager', () => {
   const pluginAMocks = {
@@ -74,6 +75,7 @@ describe('PluginManager', () => {
   const onExecuteMock = vi.fn()
   const queueTaskMock = vi.fn()
   const pluginManager = new PluginManager(config, {
+    logger: createLogger(),
     onExecute: onExecuteMock,
     task: queueTaskMock,
   })

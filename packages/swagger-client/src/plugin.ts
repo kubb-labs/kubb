@@ -74,7 +74,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
     },
     async buildStart() {
-      const oas = await swaggerApi.getOas(this.config)
+      const oas = await swaggerApi.getOas()
       const clientPath = this.resolvePath({ pluginName, fileName: 'client.ts' })
 
       const operationGenerator = new OperationGenerator({

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-zod",
-  "version": "1.1.11",
+  "version": "1.2.0",
   "description": "Generator swagger-zod",
   "keywords": [
     "zod",
@@ -34,7 +34,6 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "src",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
@@ -43,12 +42,10 @@
     "clean": "rimraf ./dist",
     "lint": "eslint --format pretty ./src",
     "lint-fix": "bun run lint --quiet --fix",
-    "prepack": "bun run build",
     "release": "pnpm publish --no-git-check",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false",
-    "upgrade": "pnpm update"
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",

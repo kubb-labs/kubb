@@ -1,13 +1,8 @@
 import pc from 'picocolors'
 
-import type { Ora } from 'ora'
+import { spinner } from '../program'
 
-type Options = {
-  path: string[]
-  spinner: Ora
-}
-export async function startWatcher(cb: (path: string[]) => Promise<void>, options: Options) {
-  const { spinner, path } = options
+export async function startWatcher(path: string[], cb: (path: string[]) => Promise<void>) {
   const { watch } = await import('chokidar')
 
   const ignored = ['**/{.git,node_modules}/**']
@@ -22,9 +17,11 @@ export async function startWatcher(cb: (path: string[]) => Promise<void>, option
     spinner.spinner = 'clock'
 
     try {
-      cb(options.path)
+      cb(path)
     } catch (e) {
       spinner.warn(pc.red('Watcher failed'))
     }
   })
+
+  return
 }

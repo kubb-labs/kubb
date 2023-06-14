@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
+import type { LogType, Logger } from './utils/logger.ts'
 import type { File, FileManager } from './managers/fileManager/index.ts'
 import type { PluginManager, SafeParseResult } from './managers/index.ts'
 import type { Cache } from './utils/cache.ts'
@@ -263,6 +264,7 @@ export type PluginContext<TOptions = Record<string, any>> = {
   resolvePath: (params: ResolvePathParams<TOptions>) => OptionalPath
   resolveName: (params: ResolveNameParams) => string | null | undefined
   load: (id: string) => Promise<SafeParseResult<'load'>>
+  logger: Logger
 }
 
 // null will mean clear the watcher for this key
@@ -275,4 +277,4 @@ export type Path = string
 export type OptionalPath = Path | null | undefined
 export type FileName = string | null | undefined
 
-export type LogLevel = 'error' | 'info' | 'silent'
+export type LogLevel = LogType | 'silent'

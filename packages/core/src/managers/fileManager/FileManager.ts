@@ -122,10 +122,22 @@ export class FileManager {
   }
 
   async write(...params: Parameters<typeof write>) {
+    if (this.queue) {
+      return this.queue.run(async () => {
+        return write(...params)
+      })
+    }
+
     return write(...params)
   }
 
   async read(...params: Parameters<typeof read>) {
+    if (this.queue) {
+      return this.queue.run(async () => {
+        return read(...params)
+      })
+    }
+
     return read(...params)
   }
 }

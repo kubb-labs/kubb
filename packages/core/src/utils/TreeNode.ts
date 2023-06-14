@@ -93,7 +93,7 @@ export class TreeNode<T = unknown> {
 
   public static build<T = unknown>(path: string, options: TreeNodeOptions = {}): TreeNode<T> | null {
     try {
-      const exclude = Array.isArray(options.exclude) ? options.exclude : ([options.exclude].filter(Boolean) as RegExp[])
+      const exclude = Array.isArray(options.exclude) ? options.exclude : [options.exclude].filter(Boolean)
       const filteredTree = dirTree(path, { extensions: options.extensions, exclude: [/node_modules/, ...exclude] })
 
       if (!filteredTree) {

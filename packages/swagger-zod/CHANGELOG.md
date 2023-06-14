@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.2.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.13...@kubb/swagger-zod-v1.2.0) (2023-06-14)
+
+
+### Features
+
+* ✨ add `reset.d.ts` to the `@kubb/ts-config` that can be used to override default TypeScrip types ([ae47aa5](https://github.com/kubb-project/kubb/commit/ae47aa5bbffc0f24d878e917eda3047856ca3fc7))
+
+## [1.1.13](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.12...@kubb/swagger-zod-v1.1.13) (2023-06-13)
+
+
+### Miscellaneous Chores
+
+* **@kubb/swagger-zod:** Synchronize undefined versions
+
+## [1.1.12](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.11...@kubb/swagger-zod-v1.1.12) (2023-06-13)
+
+
+### Bug Fixes
+
+* `z.union` does not work on a single element ([a646a5c](https://github.com/kubb-project/kubb/commit/a646a5c96854d8d8395e26758c3cf4fad35633f5))
+
 ## [1.1.11](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.1.10...@kubb/swagger-zod-v1.1.11) (2023-06-12)
 
 

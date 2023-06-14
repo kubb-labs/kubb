@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import pathParser from 'node:path'
 
 import { createExportDeclaration, createImportDeclaration, print } from '@kubb/ts-codegen'
@@ -40,7 +41,7 @@ export function writeIndexes(root: string, options: TreeNodeOptions = {}): File[
 
           return { path: importPath }
         })
-        .filter(Boolean) as File['exports']
+        .filter(Boolean)
 
       files.push({
         path,
@@ -75,7 +76,7 @@ export function writeIndexes(root: string, options: TreeNodeOptions = {}): File[
 }
 
 export function combineFiles(files: Array<File | null>): File[] {
-  return (files.filter(Boolean) as File[]).reduce((acc, curr: File) => {
+  return files.filter(Boolean).reduce((acc, curr: File) => {
     const prevIndex = acc.findIndex((item) => item.path === curr.path)
 
     if (prevIndex !== -1) {
@@ -170,6 +171,33 @@ export function getFileSource(file: File): string {
 
   return source
 }
+
+type SearchAndReplaceOptions = {
+  text: string
+  replaceBy: string
+  prefix?: string
+  key: string
+  searchValues?: (prefix: string, key: string) => Array<RegExp | string>
+}
+
+function searchAndReplace(options: SearchAndReplaceOptions): string {
+  const { text, replaceBy, prefix = '', key } = options
+
+  const searchValues = options.searchValues?.(prefix, key) || [
+    `${prefix}["${key}"]`,
+    `${prefix}['${key}']`,
+    `${prefix}[\`${key}\`]`,
+    `${prefix}"${key}"`,
+    `${prefix}'${key}'`,
+    `${prefix}\`${key}\``,
+    new RegExp(`${prefix}${key}`, 'g'),
+  ]
+
+  return searchValues.reduce((prev, searchValue) => {
+    return prev.toString().replaceAll(searchValue, replaceBy)
+  }, text) as string
+}
+
 function getEnvSource(source: string, env: NodeJS.ProcessEnv | undefined): string {
   if (!env) {
     return source
@@ -181,16 +209,18 @@ function getEnvSource(source: string, env: NodeJS.ProcessEnv | undefined): strin
     return source
   }
 
-  return keys.reduce((prev, curr: keyof NodeJS.ProcessEnv) => {
-    const environmentValue = env[curr]
-    const value = environmentValue ? `'${environmentValue.replaceAll('"', '')?.replaceAll("'", '')}'` : 'undefined'
+  return keys.reduce((prev, key: string) => {
+    const environmentValue = env[key]
+    const replaceBy = environmentValue ? `'${environmentValue.replaceAll('"', '')?.replaceAll("'", '')}'` : 'undefined'
 
-    if (typeof value === 'string') {
-      return prev
-        .replaceAll(`process.env.${curr}`, value)
-        .replaceAll(`process.env["${curr}"]`, value)
-        .replaceAll(`process.env['${curr}']`, value)
-        .replaceAll(`process.env[\`${curr}\`]`, value)
+    if (key.toUpperCase() !== key) {
+      throw new TypeError(`Environment should be in upperCase for ${key}`)
+    }
+
+    if (typeof replaceBy === 'string') {
+      prev = searchAndReplace({ text: prev.replaceAll(`process.env.${key}`, replaceBy), replaceBy, prefix: 'process.env', key })
+      // removes `declare const ...`
+      prev = searchAndReplace({ text: prev.replaceAll(new RegExp(`(declare const).*\n`, 'ig'), ''), replaceBy, key })
     }
 
     return prev

@@ -19,10 +19,15 @@ export class OperationGenerator extends Generator<Options> {
     const { resolvePath, resolveName } = this.options
 
     const name = resolveName({ name: operation.getOperationId(), pluginName })
+
+    if (!name) {
+      throw new Error('Name should be defined')
+    }
+
     const fileName = `${name}.ts`
     const filePath = resolvePath({ fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
 
-    if (!filePath || !name) {
+    if (!filePath) {
       throw new Error('Filepath should be defined')
     }
 

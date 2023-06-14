@@ -5,7 +5,9 @@ import { createPlugin } from '@kubb/core'
 import { oasParser } from './parsers/oasParser.ts'
 
 import type { OpenAPIV3 } from 'openapi-types'
-import type { PluginOptions } from './types.ts'
+import type { Oas, PluginOptions } from './types.ts'
+import type { KubbConfig } from '@kubb/core'
+import type { Logger } from '@kubb/core'
 
 export const pluginName: PluginOptions['name'] = 'swagger' as const
 
@@ -19,23 +21,36 @@ declare module '@kubb/core' {
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'schemas', validate = true, serverIndex = 0 } = options
 
+  const getOas = async (config: KubbConfig, logger: Logger): Promise<Oas> => {
+    try {
+      // needs to be in a different variable or the catch here will not work(return of a promise instead)
+      const oas = await oasParser(config, { validate })
+
+      return oas
+    } catch (e) {
+      const error = e as Error
+
+      logger.warn(error?.message)
+      return oasParser(config, { validate: false })
+    }
+  }
+
   return {
     name: pluginName,
     options,
     kind: 'schema',
     api() {
-      const config = this.config
+      const { config, logger } = this
 
       return {
-        get oas() {
-          return oasParser(config, { validate })
+        getOas() {
+          return getOas(config, logger)
         },
         async getBaseURL() {
-          const oasInstance = await oasParser(config, { validate })
+          const oasInstance = await this.getOas()
           const baseURL = oasInstance.api.servers?.at(serverIndex)?.url
           return baseURL
         },
-        getOas: (config, oasOptions = { validate: false }) => oasParser(config, oasOptions),
       }
     },
     resolvePath(fileName) {
@@ -62,7 +77,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return undefined
       }
 
-      const oas = await oasParser(this.config, { validate })
+      const oas = await getOas(this.config, this.logger)
       const schemas = oas.getDefinition().components?.schemas || {}
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {

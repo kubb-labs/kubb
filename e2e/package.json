@@ -12,6 +12,7 @@
   "sideEffects": false,
   "scripts": {
     "clean": "rimraf ./dist",
+    "format": "prettier --write **/*.{ts,tsx}",
     "generate": "kubb",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
@@ -31,7 +32,7 @@
     "@tanstack/solid-query": "^4.29.11",
     "@tanstack/svelte-query": "^4.29.11",
     "@tanstack/vue-query": "^4.29.11",
-    "@zodios/core": "^10.9.1",
+    "@zodios/core": "^10.9.2",
     "axios": "^1.4.0",
     "react": "^18.2.0",
     "rimraf": "^5.0.1",

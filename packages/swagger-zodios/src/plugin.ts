@@ -36,7 +36,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return valid
     },
-    resolvePath(fileName, directory) {
+    resolvePath(fileName, _directory) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 
       return pathParser.resolve(root, fileName)
@@ -45,7 +45,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
     },
     async buildStart() {
-      const oas = await swaggerApi.oas
+      const oas = await swaggerApi.getOas()
 
       const operationGenerator = new OperationGenerator({
         oas,

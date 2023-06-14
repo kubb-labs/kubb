@@ -16,13 +16,17 @@ When using `client` in for examples the plugin `@kubb/swagger-client` the follow
 - Copy paste `client.ts` to the output folder of the `@kubb/swagger-client` plugin
 - Replace process.env[NAME] by a correct env set in the type `File`
 
+❕environments should always be UPPERCASED
+
+#### Example with `process.env`
+
 ```typescript filename="input"
 import path from 'node:path'
 
 const file: File = {
   path: path.resolve('./src/models/file1.ts'),
   fileName: 'file1.ts',
-  source: 'export const hello = process.env.hello;',
+  source: 'export const hello = process.env.HELLO;',
   imports: [
     {
       name: ['Pets'],
@@ -31,7 +35,7 @@ const file: File = {
     },
   ],
   env: {
-    hello: `"world"`,
+    HELLO: `"world"`,
   },
 }
 ```
@@ -40,4 +44,33 @@ const file: File = {
 import type { Pets } from "./Pets";
 
 export const hello = "world";
+```
+
+
+#### Example with globals
+
+```typescript filename="input"
+import path from 'node:path'
+
+const file: File = {
+  path: path.resolve('./src/models/file1.ts'),
+  fileName: 'file1.ts',
+  source: 'declare const HELLO: string; export const hello = typeof HELLO !== "undefined" ? HELLO : undefined',
+  imports: [
+    {
+      name: ['Pets'],
+      path: './Pets',
+      isTypeOnly: true,
+    },
+  ],
+  env: {
+    HELLO: `"world"`,
+  },
+}
+```
+
+``` typescript filename="output"
+import type { Pets } from "./Pets";
+
+export const hello = typeof "world" !== "undefined" ? "world" : undefined;
 ```

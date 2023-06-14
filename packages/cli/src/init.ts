@@ -1,12 +1,12 @@
 import pathParser from 'node:path'
 
-import { write } from '@kubb/core'
+import { isPromiseFulfilledResult, write } from '@kubb/core'
 
 import { $ } from 'execa'
 import pc from 'picocolors'
 
 import type { LogLevel } from '@kubb/core'
-import type { Ora } from 'ora'
+import { spinner } from './program.ts'
 
 export type Preset = 'simple'
 
@@ -18,7 +18,6 @@ export type PresetMeta = {
 }
 
 type RunProps = {
-  spinner: Ora
   /**
    * @default `'silent'`
    */
@@ -61,31 +60,36 @@ export default defineConfig({
   },
 }
 
-export async function init({ spinner, preset = 'simple', logLevel = 'silent', packageManager = 'pnpm' }: RunProps): Promise<void> {
-  try {
-    const presetMeta = presets[preset]
-    const path = pathParser.resolve(process.cwd(), './kubb.config.js')
-    const installCommand = packageManager === 'npm' ? 'install' : 'add'
+export async function init({ preset = 'simple', logLevel = 'silent', packageManager = 'pnpm' }: RunProps): Promise<undefined> {
+  spinner.start('📦 Initializing Kubb')
 
-    spinner.start(`📀 Writing \`kubb.config.js\` ${pc.dim(path)}`)
-    await write(presetMeta['kubb.config'], path)
-    spinner.succeed(`📀 Wrote \`kubb.config.js\` ${pc.dim(path)}`)
+  const presetMeta = presets[preset]
+  const path = pathParser.resolve(process.cwd(), './kubb.config.js')
+  const installCommand = packageManager === 'npm' ? 'install' : 'add'
 
-    const data = await Promise.all([
-      $`npm init es6 -y`,
-      ...presetMeta.packages.map(async (pack) => {
-        spinner.start(`📀 Installing ${pc.dim(pack)}`)
-        const { stdout } = await $({ preferLocal: false })`${packageManager} ${installCommand} ${pack}`
-        spinner.succeed(`📀 Installed ${pc.dim(pack)}`)
+  spinner.start(`📀 Writing \`kubb.config.js\` ${pc.dim(path)}`)
+  await write(presetMeta['kubb.config'], path)
+  spinner.succeed(`📀 Wrote \`kubb.config.js\` ${pc.dim(path)}`)
 
-        return stdout
-      }),
-    ])
+  const results = await Promise.allSettled([
+    $`npm init es6 -y`,
+    ...presetMeta.packages.map(async (pack) => {
+      spinner.start(`📀 Installing ${pc.dim(pack)}`)
+      const { stdout } = await $({ preferLocal: false })`${packageManager} ${installCommand} ${pack}`
+      spinner.succeed(`📀 Installed ${pc.dim(pack)}`)
 
-    if (logLevel === 'info') {
-      data.forEach((text) => console.log(text))
-    }
-  } catch (error) {
-    spinner.fail(pc.red(`Something went wrong\n\n${(error as Error)?.message}`))
+      return stdout
+    }),
+  ])
+
+  if (logLevel === 'info') {
+    results.forEach((result) => {
+      if (isPromiseFulfilledResult(result)) {
+        console.log(result.value)
+      }
+    })
   }
+  spinner.succeed(`📦 initialized Kubb`)
+
+  return
 }

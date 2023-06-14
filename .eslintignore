@@ -29,3 +29,4 @@ docs
 **/e2e/gen/**
 gen
 **/mocks/**
+*.d.ts

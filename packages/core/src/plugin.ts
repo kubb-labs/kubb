@@ -34,6 +34,7 @@ type Options = {
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   load: PluginContext['load']
+  logger: PluginContext['logger']
   getExecuter: () => Executer<PluginLifecycleHooks> | undefined
 }
 
@@ -43,7 +44,7 @@ export type CorePluginOptions = PluginFactoryOptions<'core', Options, false, Plu
 export const pluginName: CorePluginOptions['name'] = 'core' as const
 
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
-  const { fileManager, resolvePath, resolveName, load } = options
+  const { fileManager, resolvePath, resolveName, load, logger } = options
 
   return {
     name: pluginName,
@@ -54,6 +55,7 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
         get config() {
           return options.config
         },
+        logger,
         fileManager,
         async addFile(...files) {
           // TODO unstable, based on stack trace and name of the file(can be different)

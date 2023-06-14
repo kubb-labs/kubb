@@ -6,7 +6,7 @@ import type { File } from '@kubb/core'
 import type { Operation, Resolver } from '../types.ts'
 
 class DummyOperationGenerator extends OperationGenerator {
-  resolve(operation: Operation): Resolver {
+  resolve(_operation: Operation): Resolver {
     return {
       fileName: 'fileName.ts',
       filePath: 'models/fileName/ts',
@@ -18,25 +18,25 @@ class DummyOperationGenerator extends OperationGenerator {
     return Promise.resolve(null)
   }
 
-  get(operation: Operation): Promise<File | null> {
+  get(__operation: Operation): Promise<File | null> {
     return new Promise((resolve) => {
       resolve(null)
     })
   }
 
-  post(operation: Operation): Promise<File | null> {
+  post(_operation: Operation): Promise<File | null> {
     return new Promise((resolve) => {
       resolve(null)
     })
   }
 
-  put(operation: Operation): Promise<File | null> {
+  put(_operation: Operation): Promise<File | null> {
     return new Promise((resolve) => {
       resolve(null)
     })
   }
 
-  delete(operation: Operation): Promise<File | null> {
+  delete(_operation: Operation): Promise<File | null> {
     return new Promise((resolve) => {
       resolve(null)
     })

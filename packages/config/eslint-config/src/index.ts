@@ -6,7 +6,7 @@ import type { Linter } from 'eslint'
 
 const config: Linter.Config = {
   root: true,
-  ignorePatterns: ['**/*.config.js', '!**/eslint.config.js', '**/dist/**', '**/mocks/**', 'globals.d.ts'],
+  ignorePatterns: ['**/*.config.js', '!**/eslint.config.js', '**/dist/**', '**/mocks/**', '*.d.ts'],
   parser: '@typescript-eslint/parser',
   env: {
     ...globals['node'],

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "1.1.11",
+  "version": "1.2.0",
   "description": "Generator core",
   "keywords": [
     "typescript",
@@ -38,7 +38,6 @@
   },
   "files": [
     "dist",
-    "src",
     "*.d.ts",
     "*.d.cts",
     "schemas",
@@ -50,12 +49,10 @@
     "clean": "rimraf ./dist",
     "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty ./src",
     "lint-fix": "bun run lint --quiet --fix",
-    "prepack": "bun run build",
     "release": "pnpm publish --no-git-check",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false",
-    "upgrade": "pnpm update"
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/ts-codegen": "workspace:*",
@@ -63,7 +60,8 @@
     "directory-tree": "^3.5.1",
     "fs-extra": "^11.1.1",
     "graceful-fs": "^4.2.11",
-    "rimraf": "^5.0.1"
+    "rimraf": "^5.0.1",
+    "picocolors": "^1.0.0"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
