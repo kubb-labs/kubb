@@ -83,7 +83,7 @@ export function combineFiles(files: Array<File | null>): File[] {
       const prev = acc[prevIndex]
       acc[prevIndex] = {
         ...curr,
-        source: prev.source && curr.source ? `${prev.source}\n${curr.source}` : "'",
+        source: prev.source && curr.source ? `${prev.source}\n${curr.source}` : '',
         imports: [...(prev.imports || []), ...(curr.imports || [])],
         exports: [...(prev.exports || []), ...(curr.exports || [])],
         env: { ...(prev.env || {}), ...(curr.env || {}) },
@@ -102,7 +102,6 @@ export const extensions: Array<Extension> = ['.js', '.ts']
 export function getFileSource(file: File): string {
   let { source } = file
 
-  // TODO make generic check
   if (!extensions.some((extension) => file.fileName.endsWith(extension))) {
     return file.source
   }

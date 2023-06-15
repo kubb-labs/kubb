@@ -409,7 +409,7 @@ export class PluginManager {
       return null
     }
 
-    return Promise.resolve()
+    const task = Promise.resolve()
       .then(() => {
         if (typeof hook === 'function') {
           const possiblePromiseResult = (hook as Function).apply(this.core.api, parameters) as TResult
@@ -441,6 +441,9 @@ export class PluginManager {
           plugin,
         })
       })
+
+    return this.queue.run(() => task)
+    // return task
   }
 
   /**

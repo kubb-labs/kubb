@@ -67,9 +67,10 @@ export class FileManager {
 
       return this.add({
         ...file,
-        source: `${previousCache.source}\n${file.source}`,
+        source: previousCache.source && file.source ? `${previousCache.source}\n${file.source}` : '',
         imports: [...(previousCache.imports || []), ...(file.imports || [])],
         exports: [...(previousCache.exports || []), ...(file.exports || [])],
+        env: { ...(previousCache.env || {}), ...(file.env || {}) },
       })
     }
     return this.add(file)

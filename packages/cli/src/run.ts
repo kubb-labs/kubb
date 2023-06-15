@@ -57,8 +57,8 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
       console.log(subProcess.stdout)
     }
 
-    // wait for 50ms to be sure that all open files are close(fs)
-    await timeout(50)
+    // wait for 100ms to be sure that all open files are close(fs)
+    await timeout(100)
 
     oraWritable.destroy()
     return { subProcess, abort: abortController.abort.bind(abortController) }
@@ -185,6 +185,7 @@ export async function run({ config, CLIOptions }: RunProps): Promise<void> {
     spinner.suffixText = ''
     spinner.succeed(parseText(`🚀 Build completed`, { info: `(${pc.dim(inputPath)})` }, logLevel))
 
+    await timeout(100)
     await executeHooks({ hooks: config.hooks, logLevel, debug: CLIOptions.debug })
 
     const summary = getSummary({ pluginManager: output.pluginManager, config, status: 'success', hrstart, logLevel: CLIOptions.logLevel })

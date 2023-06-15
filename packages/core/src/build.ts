@@ -95,7 +95,12 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 
     if (config.logLevel === LogLevel.stacktrace && logger?.spinner && input) {
       logger.info(messsage)
-      const logs = [input && pc.green('Input:'), JSON.stringify(input, undefined, 2), output && pc.green('Output:'), output].filter(Boolean)
+      const logs = [
+        input && `${pc.bgWhite(`Input`)} ${randomPicoColour(plugin.name)} ${hookName}`,
+        JSON.stringify(input, undefined, 2),
+        output && `${pc.bgWhite('Output')} ${randomPicoColour(plugin.name)} ${hookName}`,
+        output,
+      ].filter(Boolean)
       console.log(logs.join('\n'))
     }
   }
