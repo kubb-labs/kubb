@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // prettier-ignore-start
 
 /**
@@ -37,6 +40,7 @@ import globals from 'globals'
 import { rules } from './rules'
 
 import type { Linter } from 'eslint'
+import { ignores } from './ignores'
 
 /**
  * Recommended plugins CJS
@@ -49,7 +53,7 @@ const reactPluginRecommended = require('eslint-plugin-react/configs/recommended'
 
 export const config: Linter.FlatConfig = {
   files: ['**/*.{ts,tsx}'],
-  ignores: ['**/*.config.js', '!**/eslint.config.js', '**/dist/**', '**/mocks/**', '*.d.ts'],
+  ignores,
   rules: {
     ...eslint.configs.recommended.rules,
     ...turboPlugin.configs['recommended'].rules,
@@ -127,6 +131,16 @@ const configExamples: Linter.FlatConfig = {
   },
 }
 
-export const configs: Linter.FlatConfig[] = [reactPluginRecommended, eslintPluginRecommended, config, configExamples]
+export const configs: Linter.FlatConfig[] = [
+  reactPluginRecommended as Linter.FlatConfig,
+  eslintPluginRecommended as Linter.FlatConfig,
+  config,
+  configExamples,
+].map((flatConfig) => {
+  return {
+    ...flatConfig,
+    ignores: [...ignores, ...(flatConfig.ignores || [])],
+  }
+})
 
 export default config

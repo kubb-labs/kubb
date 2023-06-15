@@ -4,6 +4,14 @@ const moduleName = 'kubb'
 
 /** @type { PrettierConfig & Record<string,unknown> } */
 const config = {
+  overrides: [
+    {
+      files: ['**/*.{js,mjs,cjs}'],
+      options: {
+        parser: 'meriyah',
+      },
+    },
+  ],
   tabWidth: 2,
   printWidth: 160,
   parser: 'typescript',

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { getFileSource } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
 import { clean, createLogger, isURL, randomPicoColour, read } from './utils/index.ts'

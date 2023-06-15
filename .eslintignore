@@ -1,32 +1,8 @@
-node_modules
-.github
-.vscode
-.codesandbox
-.devcontainer
-umd
-build
-config/**
-*.config.*
-esnext
-es
-dist
-lib
-*.html
-*.json
-*.yaml
-*.MD
-*.d.ts
-globals.d.ts
-# *rc.js
-# *rc
-coverage
-assets
-docs
-**/types/**
-!src
-
-# custom ones
-**/e2e/gen/**
-gen
+dist/**
+**/dist/**
+coverage/**
+**/coverage/**
+mocks/**
 **/mocks/**
 *.d.ts
+**.d.ts

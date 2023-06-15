@@ -10,6 +10,9 @@ importers:
       '@kubb/eslint-config':
         specifier: workspace:*
         version: link:packages/config/eslint-config
+      '@kubb/ts-config':
+        specifier: workspace:*
+        version: link:packages/config/ts-config
       '@swc/core':
         specifier: ^1.3.64
         version: 1.3.64
@@ -229,8 +232,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zodios
       '@tanstack/react-query':
-        specifier: ^4.29.12
-        version: 4.29.12(react@18.2.0)
+        specifier: ^4.29.13
+        version: 4.29.13(react@18.2.0)
       '@tanstack/solid-query':
         specifier: ^4.29.11
         version: 4.29.11(solid-js@1.7.6)
@@ -238,8 +241,8 @@ importers:
         specifier: ^4.29.11
         version: 4.29.11(svelte@3.59.1)
       '@tanstack/vue-query':
-        specifier: ^4.29.11
-        version: 4.29.11(vue@3.3.4)
+        specifier: ^4.29.13
+        version: 4.29.13(vue@3.3.4)
       '@zodios/core':
         specifier: ^10.9.2
         version: 10.9.2(axios@1.4.0)(zod@3.21.4)
@@ -336,8 +339,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/react-query':
-        specifier: ^4.29.12
-        version: 4.29.12(react@18.2.0)
+        specifier: ^4.29.13
+        version: 4.29.13(react@18.2.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -379,8 +382,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/react-query':
-        specifier: ^4.29.12
-        version: 4.29.12(react@18.2.0)
+        specifier: ^4.29.13
+        version: 4.29.13(react@18.2.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -419,8 +422,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-ts
       '@tanstack/react-query':
-        specifier: ^4.29.12
-        version: 4.29.12(react@18.2.0)
+        specifier: ^4.29.13
+        version: 4.29.13(react@18.2.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -577,8 +580,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
-        specifier: ^4.29.11
-        version: 4.29.11(vue@3.3.4)
+        specifier: ^4.29.13
+        version: 4.29.13(vue@3.3.4)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -2235,6 +2238,23 @@ packages:
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
+  /@tanstack/react-query@4.29.13(react@18.2.0):
+    resolution: {integrity: sha512-qF8SHosMU6SzxWa7Ivxp3Q07zXvH+8PBDAlH8CR9ywfT3Y7uOK3jclfwMLzqgoGgDnYCarY2Ra+qDV0+xm19JQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@tanstack/query-core': 4.29.11
+      react: 18.2.0
+      use-sync-external-store: 1.2.0(react@18.2.0)
+    dev: false
+
   /@tanstack/solid-query@4.29.11(solid-js@1.7.6):
     resolution: {integrity: sha512-YSMeHTyI72zbcPhRcK4d63oCdZvwPhvMM2Kx0baPNR8yvH9uqzjlHTqiPms7AVpFF9WGl0wtXUJBuLvRH9iahA==}
     peerDependencies:
@@ -2255,6 +2275,22 @@ packages:
 
   /@tanstack/vue-query@4.29.11(vue@3.3.4):
     resolution: {integrity: sha512-HxaACzKQv3zlDyu2QHirMQpDNszdsQ+0vZqCzjDf1hkhQNYS+98Ofy4SvnKjSfUBsmNDc88YkZDo78eJh638jA==}
+    peerDependencies:
+      '@vue/composition-api': ^1.1.2
+      vue: ^2.5.0 || ^3.0.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      '@tanstack/match-sorter-utils': 8.8.4
+      '@tanstack/query-core': 4.29.11
+      '@vue/devtools-api': 6.5.0
+      vue: 3.3.4
+      vue-demi: 0.13.11(vue@3.3.4)
+    dev: false
+
+  /@tanstack/vue-query@4.29.13(vue@3.3.4):
+    resolution: {integrity: sha512-sp1dDNCltNZCaxkLSawdi67JjfvuzWNUWJLbhlDGi4+Ib8KcvHD8nYcywWxLZq0slYiPtiqwfWuEKbzD0vlwCg==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.5.0 || ^3.0.0

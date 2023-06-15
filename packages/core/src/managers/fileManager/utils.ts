@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import pathParser from 'node:path'
 
 import { createExportDeclaration, createImportDeclaration, print } from '@kubb/ts-codegen'

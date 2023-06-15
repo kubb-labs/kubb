@@ -14,11 +14,12 @@ import { configs as kubbConfigs } from '@kubb/eslint-config/flat'
 const configs = [
   ...kubbConfigs,
   {
+    files: ['packages/**', 'examples/**', 'docs/**'],
     languageOptions: {
       parserOptions: {
         ecmaVersion: 'latest',
         tsconfigRootDir: path.dirname(fileURLToPath(import.meta.url)),
-        project: ['./examples/*/tsconfig.json', './docs/tsconfig.json', './packages/*/tsconfig.json'],
+        project: ['./examples/*/tsconfig.json', './docs/tsconfig.json', './packages/*/tsconfig.json', './packages/config/*/tsconfig.json'],
       },
     },
   },

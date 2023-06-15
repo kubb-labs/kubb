@@ -3,10 +3,11 @@ import globals from 'globals'
 import { rules } from './rules'
 
 import type { Linter } from 'eslint'
+import { ignores } from './ignores'
 
 const config: Linter.Config = {
   root: true,
-  ignorePatterns: ['**/*.config.js', '!**/eslint.config.js', '**/dist/**', '**/mocks/**', '*.d.ts'],
+  ignorePatterns: ignores,
   parser: '@typescript-eslint/parser',
   env: {
     ...globals['node'],
@@ -69,5 +70,7 @@ const config: Linter.Config = {
     },
   },
 }
+
+export * from './ignores'
 
 export default config
