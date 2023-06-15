@@ -7,7 +7,7 @@ import { ignores } from './ignores'
 
 const config: Linter.Config = {
   root: true,
-  ignorePatterns: ignores,
+  ignorePatterns: ignores.all,
   parser: '@typescript-eslint/parser',
   env: {
     ...globals['node'],

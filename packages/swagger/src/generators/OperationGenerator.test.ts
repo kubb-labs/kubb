@@ -1,5 +1,4 @@
 import { oasParser } from '../parsers/oasParser.ts'
-import { definePlugin } from '../plugin.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
 import type { File } from '@kubb/core'
@@ -48,8 +47,6 @@ class DummyOperationGenerator extends OperationGenerator {
     })
   }
 }
-
-const swaggerApi = definePlugin({}).api
 
 describe('abstract class OperationGenerator', () => {
   test('if pathParams return undefined when there are no params in path', async () => {

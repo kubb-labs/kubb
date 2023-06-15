@@ -88,7 +88,7 @@ const reservedWords = [
   'valueOf',
 ]
 
-export function transformReservedWord(word?: string | null) {
+export function transformReservedWord(word?: string | null): string | null | undefined {
   if (word && reservedWords.includes(word)) {
     return `_${word}`
   }

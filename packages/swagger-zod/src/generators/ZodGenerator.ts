@@ -32,7 +32,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     return this
   }
 
-  build({ schema, baseName, description }: { schema: OpenAPIV3.SchemaObject; baseName: string; description?: string }) {
+  build({ schema, baseName, description }: { schema: OpenAPIV3.SchemaObject; baseName: string; description?: string }): string[] {
     const texts: string[] = []
     const zodInput = this.getTypeFromSchema(schema, baseName)
     if (description) {

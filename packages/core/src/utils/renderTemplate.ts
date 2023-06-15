@@ -1,4 +1,4 @@
-export function renderTemplate<TData extends Record<string, string> = Record<string, string>>(template: string, data: TData | undefined = undefined) {
+export function renderTemplate<TData extends Record<string, string> = Record<string, string>>(template: string, data: TData | undefined = undefined): string {
   if (!data) {
     return template.replace(/{{(.*?)}}/g, '')
   }

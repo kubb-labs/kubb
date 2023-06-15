@@ -50,7 +50,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     return this
   }
 
-  build({ schema, baseName, description }: { schema: OpenAPIV3.SchemaObject; baseName: string; description?: string }) {
+  build({ schema, baseName, description }: { schema: OpenAPIV3.SchemaObject; baseName: string; description?: string }): ts.Node[] {
     const nodes: ts.Node[] = []
     const type = this.getTypeFromSchema(schema, baseName)
 

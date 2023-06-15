@@ -18,6 +18,7 @@ import type {
   PluginLifecycleHooks,
   ResolveNameParams,
   ResolvePathParams,
+  OptionalPath,
 } from '../../types.ts'
 import type { QueueTask } from '../../utils/Queue.ts'
 import type { Argument0, Executer, OnExecute, ParseResult, SafeParseResult, Strategy } from './types.ts'
@@ -104,7 +105,7 @@ export class PluginManager {
     }, [] as KubbPlugin[])
   }
 
-  resolvePath = (params: ResolvePathParams) => {
+  resolvePath = (params: ResolvePathParams): OptionalPath => {
     if (params.pluginName) {
       return this.hookForPluginSync({
         pluginName: params.pluginName,
@@ -118,7 +119,7 @@ export class PluginManager {
     }).result
   }
 
-  resolveName = (params: ResolveNameParams) => {
+  resolveName = (params: ResolveNameParams): string | null => {
     if (params.pluginName) {
       return this.hookForPluginSync({
         pluginName: params.pluginName,
@@ -132,7 +133,7 @@ export class PluginManager {
     }).result
   }
 
-  load = async (id: string) => {
+  load = async (id: string): Promise<SafeParseResult<'load'>> => {
     return this.hookFirst({
       hookName: 'load',
       parameters: [id],
@@ -343,7 +344,7 @@ export class PluginManager {
   /**
    * Chains plugins
    */
-  hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: Parameters<PluginLifecycle[H]> }) {
+  hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: Parameters<PluginLifecycle[H]> }): Promise<void> {
     let promise: Promise<void | null> = Promise.resolve()
     for (const plugin of this.getSortedPlugins(hookName)) {
       promise = promise.then(() =>

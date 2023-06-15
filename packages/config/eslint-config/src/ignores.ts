@@ -3,9 +3,23 @@ export const defaultIgnores = ['dist/**', 'coverage/**', 'mocks/**', '*.d.ts']
 /**
  * When using in a monorepo(with a `packages` folder) we need to append `**\/`
  */
-export const monorepoIgnores = defaultIgnores.map((ignore) => `**/${ignore}`)
+export function getMonorepoIgnores(ignores: string[]) {
+  return ignores.map((ignore) => `**/${ignore}`)
+}
 
 /**
- * Combination of a ignores for a package and for a monorepo
+ * When using in a monorepo(with a `packages` folder) we need to append `**\/`
  */
-export const ignores = [...defaultIgnores, ...monorepoIgnores]
+export const monorepoIgnores = getMonorepoIgnores(defaultIgnores)
+
+export const ignores = {
+  default: defaultIgnores,
+  monoRepo: monorepoIgnores,
+  /**
+   * Combination of a ignores for a package and for a monorepo
+   */
+  all: [...defaultIgnores, ...monorepoIgnores],
+  build: getMonorepoIgnores(['dist/**', 'coverage/**']),
+}
+
+export default ignores

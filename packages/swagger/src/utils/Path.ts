@@ -11,7 +11,7 @@ export class Path {
    * Convert Swagger path to URLPath(syntax of Express)
    * @example /pet/{petId} => /pet/:petId
    */
-  get URL() {
+  get URL(): string {
     return this.toURLPath()
   }
 
@@ -21,7 +21,7 @@ export class Path {
    * @example /account/monetary-accountID => `/account/${monetaryAccountId}`
    * @example /account/userID => `/account/${userId}`
    */
-  get template() {
+  get template(): string {
     return this.toTemplateString()
   }
 
@@ -31,7 +31,7 @@ export class Path {
    * @example /account/monetary-accountID => `/account/${monetaryAccountId}`
    * @example /account/userID => `/account/${userId}`
    */
-  toTemplateString() {
+  toTemplateString(): string {
     const regex = /{(\w|-)*}/g
     const found = this.path.match(regex)
     let newPath = this.path.replaceAll('{', '${')
@@ -51,7 +51,7 @@ export class Path {
    * Convert Swagger path to URLPath(syntax of Express)
    * @example /pet/{petId} => /pet/:petId
    */
-  toURLPath() {
+  toURLPath(): string {
     return this.path.replaceAll('{', ':').replaceAll('}', '')
   }
 }

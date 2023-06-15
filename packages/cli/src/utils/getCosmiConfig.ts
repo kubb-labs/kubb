@@ -38,7 +38,7 @@ const tsLoader = (configFile: string) => {
   }
 }
 
-export async function getCosmiConfig(moduleName: string, config?: string) {
+export async function getCosmiConfig(moduleName: string, config?: string): Promise<CosmiconfigResult> {
   const explorer = cosmiconfig(moduleName, {
     cache: false,
     searchPlaces: [

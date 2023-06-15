@@ -15,7 +15,7 @@ export abstract class Generator<TOptions extends object = object> {
     return this
   }
 
-  get options() {
+  get options(): TOptions {
     return this._options
   }
 

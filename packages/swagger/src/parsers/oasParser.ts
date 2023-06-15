@@ -37,7 +37,7 @@ function convertSwagger2ToOpenApi(document: OASDocument): Promise<OASDocument> {
   })
 }
 
-export async function oasPathParser(pathOrApi: string, { validate }: OasOptions = {}) {
+export async function oasPathParser(pathOrApi: string, { validate }: OasOptions = {}): Promise<oas> {
   if (validate) {
     await new OASNormalize(pathOrApi, { enablePaths: true, colorizeErrors: true }).validate()
   }
@@ -51,7 +51,7 @@ export async function oasPathParser(pathOrApi: string, { validate }: OasOptions 
   return Oas.init(document)
 }
 
-export async function oasParser(config: KubbConfig, options: OasOptions = {}) {
+export async function oasParser(config: KubbConfig, options: OasOptions = {}): Promise<oas> {
   let pathOrApi = ''
   if (isURL(config.input.path)) {
     pathOrApi = config.input.path

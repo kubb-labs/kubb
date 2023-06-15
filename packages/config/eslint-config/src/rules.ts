@@ -37,8 +37,8 @@ export const rules: Linter.FlatConfig['rules'] = {
   'import/no-dynamic-require': 'off',
   'import/no-extraneous-dependencies': 'off',
   'import/no-unresolved': 'off',
-  'turbo/no-undeclared-env-vars': 'off',
   'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+  'turbo/no-undeclared-env-vars': 'off',
   'unused-imports/no-unused-imports': 'error',
   'unused-imports/no-unused-vars': ['warn', { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' }],
   /**
@@ -49,3 +49,4 @@ export const rules: Linter.FlatConfig['rules'] = {
   'react/jsx-uses-vars': 'error',
   'react/display-name': 'off',
 }
+export default rules

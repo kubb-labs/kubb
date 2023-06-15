@@ -9,7 +9,7 @@ type Options = {
  * Convert an string array to a string of parameters that can be used inside a function
  * The parameter name is converted to `camelcase`
  */
-export function objectToParameters(data: Data, options: Options = {}) {
+export function objectToParameters(data: Data, options: Options = {}): string {
   const { typed } = options
 
   return data

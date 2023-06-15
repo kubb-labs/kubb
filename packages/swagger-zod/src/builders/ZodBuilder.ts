@@ -28,6 +28,7 @@ function refsSorter(a: Generated, b: Generated) {
 }
 
 export class ZodBuilder extends OasBuilder<Config> {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   configure(config: Config) {
     this.config = config
 

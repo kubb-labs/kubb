@@ -31,7 +31,7 @@ type Options = {
 export class ImportsGenerator extends Generator<Options> {
   public items: ImportMeta[] = []
 
-  add(item: ImportMeta | ImportMeta[] | undefined) {
+  add(item: ImportMeta | ImportMeta[] | undefined): ImportsGenerator {
     if (!item) {
       return this
     }

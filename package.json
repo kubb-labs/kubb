@@ -33,7 +33,7 @@
     "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty ./packages/*",
     "lint:case": "npx case-police --fix",
     "lint:ci": "ESLINT_USE_FLAT_CONFIG=true eslint --max-warnings 10 --format pretty ./packages/*",
-    "lint:fix": "ESLINT_USE_FLAT_CONFIG=true eslint --fix --format pretty ./packages/** && bun run lint:case",
+    "lint:fix": "ESLINT_USE_FLAT_CONFIG=true eslint --fix --format pretty ./packages/* && bun run lint:case",
     "lint:turbo": "turbo run lint",
     "release": "turbo run release --continue",
     "start": "turbo run start --filter=./packages/*",

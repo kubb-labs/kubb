@@ -1,6 +1,7 @@
 import crypto from 'node:crypto'
 
 import { read, write } from '../../utils/index.ts'
+import type { Extension } from './utils.ts'
 import { extensions } from './utils.ts'
 
 import type { Queue, QueueTask } from '../../utils/index.ts'
@@ -20,11 +21,11 @@ export class FileManager {
       this.queue = options.queue
     }
   }
-  get extensions() {
+  get extensions(): Extension[] {
     return extensions
   }
 
-  get files() {
+  get files(): File[] {
     const files: File[] = []
     this.cache.forEach((item) => {
       files.push(...item.flat(1))
