@@ -1,4 +1,4 @@
-name: pr
+name: Pull request
 
 on:
   pull_request:
@@ -74,6 +74,8 @@ jobs:
           run: bun run typecheck --concurrency=1
           
         - name: Linting
+          env:
+            NODE_OPTIONS: "--max_old_space_size=4096"
           continue-on-error: true
           run: bun run lint:ci
 
