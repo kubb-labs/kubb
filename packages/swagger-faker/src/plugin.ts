@@ -32,7 +32,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     validate(plugins) {
       const valid = validatePlugins(plugins, [swaggerPluginName, swaggerTypeScriptPluginName])
       if (valid) {
-        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api
+        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api as SwaggerApi
       }
 
       return valid

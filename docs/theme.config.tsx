@@ -7,7 +7,7 @@ import mascot from 'public/mascot.png'
 
 import type { DocsThemeConfig } from 'nextra-theme-docs'
 
-const config: DocsThemeConfig ={
+const config: DocsThemeConfig = {
   project: {
     link: 'https://github.com/kubb-project/kubb.git',
   },

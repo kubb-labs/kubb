@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // prettier-ignore-start
 
 /**
@@ -37,6 +40,7 @@ import globals from 'globals'
 import { rules } from './rules'
 
 import type { Linter } from 'eslint'
+import { ignores } from './ignores'
 
 /**
  * Recommended plugins CJS
@@ -49,7 +53,7 @@ const reactPluginRecommended = require('eslint-plugin-react/configs/recommended'
 
 export const config: Linter.FlatConfig = {
   files: ['**/*.{ts,tsx}'],
-  ignores: ['**/*.config.js', '!**/eslint.config.js', '**/dist/**', '**/mocks/**', '*.d.ts'],
+  ignores: ignores.all,
   rules: {
     ...eslint.configs.recommended.rules,
     ...turboPlugin.configs['recommended'].rules,
@@ -82,7 +86,8 @@ export const config: Linter.FlatConfig = {
     parserOptions: {
       sourceType: 'module',
       ecmaVersion: 'latest',
-      tsconfigRootDir: __dirname,
+      tsconfigRootDir: process.cwd(),
+      project: true,
       /**
        * Removes 'WARNING: You are currently running a version of TypeScript which is not officially supported by @typescript-eslint/typescript-estree.'
        */
@@ -99,7 +104,7 @@ export const config: Linter.FlatConfig = {
     'import/resolver': {
       node: true,
       typescript: {
-        project: 'packages/*/tsconfig.json',
+        project: `'packages/*/tsconfig.json',`,
       },
     },
     react: {
@@ -111,8 +116,9 @@ export const config: Linter.FlatConfig = {
   },
 }
 
-const configExamples: Linter.FlatConfig = {
+export const configExamples: Linter.FlatConfig = {
   files: ['examples/**', 'e2e/**'],
+  ignores: ignores.all,
   rules: {
     'import/extensions': [
       'off',
@@ -127,6 +133,28 @@ const configExamples: Linter.FlatConfig = {
   },
 }
 
-export const configs: Linter.FlatConfig[] = [reactPluginRecommended, eslintPluginRecommended, config, configExamples]
+export const configTest: Linter.FlatConfig = {
+  files: ['**/*.test.*'],
+  ignores: ignores.all,
+  rules: {
+    '@typescript-eslint/no-unsafe-assignment': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-unsafe-member-access': 'off',
+    '@typescript-eslint/no-unsafe-call': 'off',
+  },
+}
+
+export const configDist: Linter.FlatConfig = {
+  ignores: ignores.build,
+}
+
+export const configs: Linter.FlatConfig[] = [
+  reactPluginRecommended as Linter.FlatConfig,
+  eslintPluginRecommended as Linter.FlatConfig,
+  config,
+  configExamples,
+  configTest,
+  configDist,
+]
 
 export default config

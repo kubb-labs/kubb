@@ -190,13 +190,13 @@ export async function run({ config, CLIOptions }: RunProps): Promise<void> {
 
     const summary = getSummary({ pluginManager: output.pluginManager, config, status: 'success', hrstart, logLevel: CLIOptions.logLevel })
     console.log(summary.join(''))
-  } catch (error: any) {
+  } catch (error) {
     let summary: string[] = []
 
     if (error instanceof PluginError || error instanceof ParallelPluginError) {
       summary = getSummary({ pluginManager: error.pluginManager, config, status: 'failed', hrstart, logLevel: CLIOptions.logLevel })
     }
 
-    throw new SummaryError('Something went wrong\n', { cause: error, summary })
+    throw new SummaryError('Something went wrong\n', { cause: error as Error, summary })
   }
 }

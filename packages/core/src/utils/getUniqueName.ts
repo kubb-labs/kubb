@@ -1,4 +1,4 @@
-export function getUniqueName(originalName: string, data: Record<string, number>) {
+export function getUniqueName(originalName: string, data: Record<string, number>): string {
   let used = data[originalName] || 0
   if (used) {
     data[originalName] = ++used

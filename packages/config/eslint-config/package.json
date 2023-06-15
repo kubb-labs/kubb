@@ -42,7 +42,11 @@
   "scripts": {
     "build": "tsup",
     "clean": "rimraf ./dist",
-    "start": "tsup --watch"
+    "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
+    "lint-fix": "bun run lint --quiet --fix",
+    "release": "pnpm publish --no-git-check",
+    "start": "tsup --watch",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@eslint/js": "^8.42.0",

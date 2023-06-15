@@ -43,7 +43,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "lint": "eslint --format pretty ./src",
+     "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
     "lint-fix": "bun run lint --quiet --fix",
     "release": "pnpm publish --no-git-check",
     "start": "tsup --watch",

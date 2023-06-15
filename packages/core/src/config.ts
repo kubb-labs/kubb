@@ -5,11 +5,13 @@ import type { CLIOptions, KubbUserConfig, PossiblePromise } from './types.ts'
  * accepts a direct {@link KubbConfig} object, or a function that returns it.
  * The function receives a {@link ConfigEnv} object that exposes two properties:
  */
-export const defineConfig = (
+export function defineConfig(
   options:
     | PossiblePromise<KubbUserConfig>
     | ((
         /** The options derived from the CLI flags */
         cliOptions: CLIOptions
       ) => PossiblePromise<KubbUserConfig>)
-) => options
+): typeof options {
+  return options
+}

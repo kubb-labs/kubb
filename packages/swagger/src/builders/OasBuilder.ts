@@ -19,7 +19,7 @@ export abstract class OasBuilder<TConfig extends object = object> {
     return this
   }
 
-  add(item: OperationSchema | OperationSchema[] | undefined) {
+  add(item: OperationSchema | OperationSchema[] | undefined): OasBuilder {
     if (!item) {
       return this
     }

@@ -10,7 +10,7 @@ type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = 
 ) => T['nested'] extends true ? Array<KubbUserPlugin<T>> : KubbUserPlugin<T>
 
 export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptions>(factory: KubbPluginFactory<T>) {
-  return (options: T['options']) => {
+  return (options: T['options']): ReturnType<KubbPluginFactory<T>> => {
     const plugin = factory(options)
     if (Array.isArray(plugin)) {
       throw new Error('Not implemented')

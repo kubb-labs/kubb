@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { getFileSource } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
 import { clean, createLogger, isURL, randomPicoColour, read } from './utils/index.ts'
@@ -37,7 +36,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     if (!isURL(config.input.path)) {
       await read(config.input.path)
     }
-  } catch (e: any) {
+  } catch (e) {
     throw new Error('Cannot read file/URL defined in `input.path` or set with --input in the CLI of your Kubb config', { cause: e })
   }
 

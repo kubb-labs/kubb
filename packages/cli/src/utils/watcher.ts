@@ -2,7 +2,7 @@ import pc from 'picocolors'
 
 import { spinner } from '../program'
 
-export async function startWatcher(path: string[], cb: (path: string[]) => Promise<void>) {
+export async function startWatcher(path: string[], cb: (path: string[]) => Promise<void>): Promise<void> {
   const { watch } = await import('chokidar')
 
   const ignored = ['**/{.git,node_modules}/**']

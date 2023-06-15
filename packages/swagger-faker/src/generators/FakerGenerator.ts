@@ -36,7 +36,17 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
     return this
   }
 
-  build({ schema, baseName, description, operationName }: { schema: OpenAPIV3.SchemaObject; baseName: string; description?: string; operationName?: string }) {
+  build({
+    schema,
+    baseName,
+    description,
+    operationName,
+  }: {
+    schema: OpenAPIV3.SchemaObject
+    baseName: string
+    description?: string
+    operationName?: string
+  }): string[] {
     const texts: string[] = []
     const fakerInput = this.getTypeFromSchema(schema, baseName)
     if (description) {

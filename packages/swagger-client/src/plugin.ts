@@ -8,7 +8,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { OperationGenerator } from './generators/OperationGenerator.ts'
 
 import type { OptionalPath } from '@kubb/core'
-import type { API as SwaggerApi, Options as SwaggerOptions } from '@kubb/swagger'
+import type { API as SwaggerApi } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger-client' as const
@@ -23,7 +23,6 @@ declare module '@kubb/core' {
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'clients', groupBy } = options
   let swaggerApi: SwaggerApi
-  let swaggerOptions: SwaggerOptions
 
   return {
     name: pluginName,
@@ -32,8 +31,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     validate(plugins) {
       const valid = validatePlugins(plugins, [swaggerPluginName])
       if (valid) {
-        swaggerOptions = plugins.find((plugin) => plugin.name === swaggerPluginName)?.options as SwaggerOptions
-        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api
+        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api as SwaggerApi
       }
 
       return valid

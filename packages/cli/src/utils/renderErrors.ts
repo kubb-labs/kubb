@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { LogLevels } from '@kubb/core'
 import { LogLevel, ParallelPluginError, canLogHierarchy } from '@kubb/core'
 import PrettyError from 'pretty-error'
 
 export const prettyError = new PrettyError()
   .skipPackage('commander')
-  .skip(function (traceLine, lineNumber) {
+  .skip(function (traceLine: any) {
     // exclude renderErrors.ts
     const pattern = new RegExp('renderErrors')
 

@@ -48,7 +48,7 @@ export function createLogger(spinner?: Ora): Logger {
   return logger
 }
 
-export function canLogHierarchy(input: LogLevels | undefined, compareTo: LogLevels) {
+export function canLogHierarchy(input: LogLevels | undefined, compareTo: LogLevels): boolean {
   if (input === 'stacktrace') {
     return canLogHierarchy('info', compareTo)
   }
