@@ -1,5 +1,5 @@
+import type { LogLevels } from '@kubb/core'
 import type { Ora } from 'ora'
-import { throttle } from '../utils'
 import pc from 'picocolors'
 
 export type LogType = 'error' | 'info' | 'warning'
@@ -13,29 +13,29 @@ export type Logger = {
 }
 
 export function createLogger(spinner?: Ora): Logger {
-  const [log] = throttle<void, Parameters<Logger['log']>>((message) => {
+  const log: Logger['log'] = (message) => {
     if (message && spinner) {
       spinner.text = message
     }
-  }, 100)
+  }
 
-  const [error] = throttle<void, Parameters<Logger['error']>>((message) => {
+  const error: Logger['error'] = (message) => {
     if (message) {
       throw new Error(message || 'Something went wrong')
     }
-  }, 100)
+  }
 
-  const [warn] = throttle<void, Parameters<Logger['warn']>>((message) => {
+  const warn: Logger['warn'] = (message) => {
     if (message && spinner) {
       spinner.warn(pc.yellow(message))
     }
-  }, 100)
+  }
 
-  const [info] = throttle<void, Parameters<Logger['warn']>>((message) => {
+  const info: Logger['warn'] = (message) => {
     if (message && spinner) {
-      spinner.text = message
+      spinner.info(message)
     }
-  }, 100)
+  }
 
   const logger: Logger = {
     log,
@@ -46,6 +46,13 @@ export function createLogger(spinner?: Ora): Logger {
   }
 
   return logger
+}
+
+export function canLogHierarchy(input: LogLevels | undefined, compareTo: LogLevels) {
+  if (input === 'stacktrace') {
+    return canLogHierarchy('info', compareTo)
+  }
+  return input === compareTo
 }
 
 export { default as pc } from 'picocolors'

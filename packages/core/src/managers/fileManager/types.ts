@@ -1,3 +1,5 @@
+import type { Path } from '@kubb/core'
+
 type Import = {
   name: string | string[]
   path: string
@@ -11,6 +13,9 @@ type Export = {
   asAlias?: boolean
 }
 
+export type UUID = string
+export type Source = string
+
 export type File = {
   /**
    * Name to be used to dynamicly create the fileName(based on input.path)
@@ -19,8 +24,8 @@ export type File = {
   /**
    * Path will be full qualified path to a specified file
    */
-  path: string
-  source: string
+  path: Path
+  source: Source
   imports?: Import[]
   exports?: Export[]
   /**
@@ -37,8 +42,11 @@ export type File = {
   env?: NodeJS.ProcessEnv
 }
 
-export type UUID = string
-
-export type CacheStore = { id: UUID; file: File; status: Status }
+export type ResolvedFile = File & {
+  /**
+   * crypto.randomUUID()
+   */
+  id: UUID
+}
 
 export type Status = 'new' | 'success' | 'removed'

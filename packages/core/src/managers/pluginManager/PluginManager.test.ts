@@ -99,7 +99,6 @@ describe('PluginManager', () => {
 
     expect(pluginAMocks.resolvePath).toBeCalled()
     expect(pluginBMocks.resolvePath).not.toBeCalled()
-    expect(pluginManager.getExecuter()?.plugin.name).toBe('pluginA')
   })
 
   test('hookFirstSync', () => {
@@ -112,7 +111,7 @@ describe('PluginManager', () => {
     expect(result).toBe('pluginA/gen')
 
     expect(pluginAMocks.resolvePath).toBeCalled()
-    expect(pluginManager.getExecuter()?.plugin.name).toBe('pluginA')
+
     expect(pluginBMocks.resolvePath).not.toBeCalled()
   })
 
@@ -124,7 +123,6 @@ describe('PluginManager', () => {
 
     expect(pluginAMocks.resolvePath).toBeCalled()
     expect(pluginBMocks.resolvePath).toBeCalled()
-    expect(pluginManager.getExecuter()?.plugin.name).toBe('pluginB')
   })
 
   test('hookReduceArg0', async () => {
@@ -144,7 +142,6 @@ describe('PluginManager', () => {
 
     expect(pluginAMocks.transform).toBeCalled()
     expect(pluginBMocks.transform).toBeCalled()
-    expect(pluginManager.getExecuter()?.plugin.name).toBe('pluginB')
   })
 
   test('hookSeq', async () => {
@@ -155,7 +152,6 @@ describe('PluginManager', () => {
 
     expect(pluginAMocks.transform).toBeCalled()
     expect(pluginBMocks.transform).toBeCalled()
-    expect(pluginManager.getExecuter()?.plugin.name).toBe('pluginB')
   })
 
   test('resolvePath without `pluginName`', () => {
@@ -240,6 +236,5 @@ describe('PluginManager', () => {
 
     expect(pluginAMocks.transform).toBeCalled()
     expect(pluginBMocks.transform).toBeCalled()
-    expect(pluginManager.getExecuter()?.plugin.name).toBe('pluginB')
   })
 })

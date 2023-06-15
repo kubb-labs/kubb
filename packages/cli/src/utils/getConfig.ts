@@ -5,13 +5,13 @@ import { getPlugins } from './getPlugins.ts'
 import type { CLIOptions, KubbConfig, KubbUserConfig } from '@kubb/core'
 import type { CosmiconfigResult } from '../types.ts'
 
-export async function getConfig(result: CosmiconfigResult, options: CLIOptions): Promise<KubbConfig> {
+export async function getConfig(result: CosmiconfigResult, CLIOptions: CLIOptions): Promise<KubbConfig> {
   const config = result?.config
   let kubbUserConfig: Promise<KubbUserConfig> = Promise.resolve(config) as Promise<KubbUserConfig>
 
   // for ts or js files
   if (typeof config === 'function') {
-    const possiblePromise = config(options)
+    const possiblePromise = config(CLIOptions)
     if (isPromise(possiblePromise)) {
       kubbUserConfig = possiblePromise
     }

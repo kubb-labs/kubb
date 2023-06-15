@@ -1,4 +1,4 @@
-import type { CLIOptions, KubbUserConfig, MaybePromise } from './types.ts'
+import type { CLIOptions, KubbUserConfig, PossiblePromise } from './types.ts'
 
 /**
  * Type helper to make it easier to use kubb.config.js
@@ -7,9 +7,9 @@ import type { CLIOptions, KubbUserConfig, MaybePromise } from './types.ts'
  */
 export const defineConfig = (
   options:
-    | MaybePromise<KubbUserConfig>
+    | PossiblePromise<KubbUserConfig>
     | ((
         /** The options derived from the CLI flags */
         cliOptions: CLIOptions
-      ) => MaybePromise<KubbUserConfig>)
+      ) => PossiblePromise<KubbUserConfig>)
 ) => options

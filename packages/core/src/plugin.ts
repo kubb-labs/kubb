@@ -3,8 +3,7 @@ import pathParser from 'node:path'
 import { createPluginCache, getStackTrace, transformReservedWord } from './utils/index.ts'
 
 import type { FileManager } from './managers/fileManager/FileManager.ts'
-import type { Executer } from './managers/index.ts'
-import type { KubbUserPlugin, PluginContext, PluginFactoryOptions, PluginLifecycleHooks } from './types.ts'
+import type { KubbUserPlugin, PluginContext, PluginFactoryOptions } from './types.ts'
 
 type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (
   options: T['options']
@@ -35,7 +34,6 @@ type Options = {
   resolveName: PluginContext['resolveName']
   load: PluginContext['load']
   logger: PluginContext['logger']
-  getExecuter: () => Executer<PluginLifecycleHooks> | undefined
 }
 
 // not publicly exported

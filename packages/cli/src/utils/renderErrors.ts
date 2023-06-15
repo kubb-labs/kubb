@@ -1,4 +1,5 @@
-import { ParallelPluginError } from '@kubb/core'
+import type { LogLevels } from '@kubb/core'
+import { LogLevel, ParallelPluginError, canLogHierarchy } from '@kubb/core'
 import PrettyError from 'pretty-error'
 
 export const prettyError = new PrettyError()
@@ -29,16 +30,16 @@ function getErrorCauses(errors: Error[]): string[] {
     .filter(Boolean)
 }
 
-export function renderErrors(error: Error | undefined, { prefixText, debug = false }: { prefixText?: string; debug?: boolean }): string {
+export function renderErrors(error: Error | undefined, { prefixText, logLevel = LogLevel.silent }: { prefixText?: string; logLevel?: LogLevels }): string {
   if (!error) {
     return ''
   }
 
   if (error instanceof ParallelPluginError) {
-    return [prefixText, ...error.errors.map((e) => renderErrors(e, { debug }))].filter(Boolean).join('\n')
+    return [prefixText, ...error.errors.map((e) => renderErrors(e, { logLevel }))].filter(Boolean).join('\n')
   }
 
-  if (debug) {
+  if (canLogHierarchy(logLevel, 'stacktrace')) {
     const errors = getErrorCauses([error])
 
     return [prefixText, ...errors].filter(Boolean).join('\n')
