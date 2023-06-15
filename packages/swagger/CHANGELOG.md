@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.2.0...@kubb/swagger-v1.2.1) (2023-06-15)
+
+
+### Bug Fixes
+
+* 🐛 fix: `fileManager` memory loop ([acc58dc](https://github.com/kubb-project/kubb/commit/acc58dcb40e4c320da2ceb09b3d8a1a32abed515))
+* pluginManager with `api` config will now be an function so the `core` functionality is accessible when using `this` ([4306318](https://github.com/kubb-project/kubb/commit/43063189a1a18ed2aca23b0505d3163aeddbc2ef))
+
 ## [1.2.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.1.13...@kubb/swagger-v1.2.0) (2023-06-14)
 
 

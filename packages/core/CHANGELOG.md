@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.1](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.2.0...@kubb/core-v1.2.1) (2023-06-15)
+
+
+### Bug Fixes
+
+* 🐛 fix: `fileManager` memory loop ([acc58dc](https://github.com/kubb-project/kubb/commit/acc58dcb40e4c320da2ceb09b3d8a1a32abed515))
+* correct use of logging(added `stacktrace` option) ([6c89e3d](https://github.com/kubb-project/kubb/commit/6c89e3dae8b318625e3f484b1dbb259f9b14d378))
+* full debug mode for fileManager, build, pluginManager and update for Queue to include `node.js` performance ([839d636](https://github.com/kubb-project/kubb/commit/839d6362e5ab19eb893e0ac1b6b1eb82d9c6de58))
+* pluginManager with `api` config will now be an function so the `core` functionality is accessible when using `this` ([4306318](https://github.com/kubb-project/kubb/commit/43063189a1a18ed2aca23b0505d3163aeddbc2ef))
+* randomColour with more options(dark mode with `bold`) ([487d59c](https://github.com/kubb-project/kubb/commit/487d59c4f25d754dc7bf9562ea1bf40334cefaaf))
+* run with a timeout and every executation will be done with our `queue` ([60e00cf](https://github.com/kubb-project/kubb/commit/60e00cf4f1dfd1628681f39959d544d8e3843a7d))
+
 ## [1.2.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.1.13...@kubb/core-v1.2.0) (2023-06-14)
 
 

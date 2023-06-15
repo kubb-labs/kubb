@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.2.0...@kubb/swagger-tanstack-query-v1.2.1) (2023-06-15)
+
+
+### Bug Fixes
+
+* pluginManager with `api` config will now be an function so the `core` functionality is accessible when using `this` ([4306318](https://github.com/kubb-project/kubb/commit/43063189a1a18ed2aca23b0505d3163aeddbc2ef))
+
 ## [1.2.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.1.13...@kubb/swagger-tanstack-query-v1.2.0) (2023-06-14)
 
 
