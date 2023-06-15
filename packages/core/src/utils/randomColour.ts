@@ -1,7 +1,8 @@
 import seedrandom from 'seedrandom'
 import pc from 'picocolors'
+import type { Formatter } from 'picocolors/types'
 
-export const defaultColours = ['blue', 'cyan', 'gray', 'green', 'magenta', 'red', 'yellow']
+export const defaultColours = ['black', 'blue', 'darkBlue', 'cyan', 'gray', 'green', 'darkGreen', 'magenta', 'red', 'darkRed', 'yellow', 'darkYellow'] as const
 
 export function randomColour(text?: string, colours = defaultColours): string {
   if (!text) {
@@ -9,7 +10,7 @@ export function randomColour(text?: string, colours = defaultColours): string {
   }
 
   const random = seedrandom(text)
-  const colour = colours.at(Math.floor(random.quick() * colours.length)) || 'white'
+  const colour = colours.at(Math.floor(random() * colours.length)) || 'white'
 
   return colour
 }
@@ -22,11 +23,16 @@ export function randomPicoColour(text?: string, colors = defaultColours): string
   }
 
   const colour = randomColour(text, colors)
+  const isDark = colour.includes('dark')
+  const key = colour.replace('dark', '').toLowerCase() as keyof typeof colours
+  const formatter: Formatter = colours[key] as Formatter
 
-  const formatter = colours[colour as keyof typeof colours]
+  if (isDark) {
+    return pc.bold(formatter(text))
+  }
 
   if (typeof formatter !== 'function') {
-    throw new Error('Formatter for pico is not of type function/Formatter')
+    throw new Error('Formatter for picoColor is not of type function/Formatter')
   }
   return formatter(text)
 }
