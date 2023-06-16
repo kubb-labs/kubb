@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-client",
-  "version": "1.2.1",
+  "version": "1.1.0",
   "description": "Generator swagger-client",
   "keywords": [
     "typescript",
@@ -69,7 +69,7 @@
   "scripts": {
     "build": "tsup",
     "clean": "rimraf ./dist",
-     "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
+    "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
     "lint-fix": "bun run lint --quiet --fix",
     "release": "pnpm publish --no-git-check",
     "start": "tsup --watch",
