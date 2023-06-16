@@ -2,6 +2,15 @@
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "separate-pull-requests": false,
   "packages": {
+    "packages/kubb": {
+      "component": "kubb",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
+    },
     "packages/core": {
       "component": "@kubb/core",
       "changelog-path": "CHANGELOG.md",
@@ -107,6 +116,7 @@
       "type": "linked-versions",
       "group-name": "@kubb",
       "components": [
+        "kubb",
         "@kubb/core",
         "@kubb/cli",
         "@kubb/ts-codegen",

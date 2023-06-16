@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - main
+      - next
       
   workflow_dispatch:
 name: release-please
@@ -10,8 +11,20 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: google-github-actions/release-please-action@v3
+      - name: Release
+        uses: google-github-actions/release-please-action@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
         with:
           command: manifest
           monorepo-tags: true
           changelog-types: '[{"type":"feat","section":"✨ Features","hidden":false},{"type":"fix","section":"🐞 Bug Fixes","hidden":false},{"type":"chore","section":"📦 Miscellaneous","hidden":false}]'
+
+      - name: Release next
+        uses: google-github-actions/release-please-action@v3
+        if: ${{ github.ref == 'refs/heads/next' }}
+        with:
+          command: manifest
+          monorepo-tags: true
+          changelog-types: '[{"type":"feat","section":"✨ Features","hidden":false},{"type":"fix","section":"🐞 Bug Fixes","hidden":false},{"type":"chore","section":"📦 Miscellaneous","hidden":false}]'
+          prerelease: true
+          default-branch: next
