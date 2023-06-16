@@ -18,6 +18,7 @@ import { OraWritable } from './utils/OraWritable.ts'
 import { spinner } from './program.ts'
 
 type RunProps = {
+  input?: string
   config: KubbConfig
   CLIOptions: CLIOptions
 }
@@ -141,7 +142,7 @@ function getSummary({ pluginManager, status, hrstart, config, logLevel }: Summar
   return logs
 }
 
-export async function run({ config, CLIOptions }: RunProps): Promise<void> {
+export async function run({ input, config, CLIOptions }: RunProps): Promise<void> {
   const hrstart = process.hrtime()
   const logger = createLogger(spinner)
 
@@ -160,7 +161,7 @@ export async function run({ config, CLIOptions }: RunProps): Promise<void> {
   try {
     const { root: _root, ...userConfig } = config
     const logLevel = CLIOptions.logLevel ?? userConfig.logLevel ?? LogLevel.silent
-    const inputPath = CLIOptions.input ?? userConfig.input.path
+    const inputPath = input ?? userConfig.input.path
 
     spinner.start(parseText(`🚀 Building`, { info: `(${pc.dim(inputPath)})` }, logLevel))
 

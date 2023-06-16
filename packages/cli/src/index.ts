@@ -1,7 +1,5 @@
-import type { Command } from 'commander'
+import { createProgram } from './program.ts'
 
-import { program } from './program.ts'
-
-export default function runCLI(argv?: readonly string[]): Command {
-  return program.parse(argv)
+export default async function runCLI(argv?: string[]): Promise<void> {
+  await createProgram(argv)
 }

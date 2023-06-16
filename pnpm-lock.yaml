@@ -232,17 +232,17 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zodios
       '@tanstack/react-query':
-        specifier: ^4.29.13
-        version: 4.29.13(react@18.2.0)
+        specifier: ^4.29.14
+        version: 4.29.14(react@18.2.0)
       '@tanstack/solid-query':
-        specifier: ^4.29.11
-        version: 4.29.11(solid-js@1.7.6)
+        specifier: ^4.29.14
+        version: 4.29.14(solid-js@1.7.6)
       '@tanstack/svelte-query':
-        specifier: ^4.29.11
-        version: 4.29.11(svelte@3.59.1)
+        specifier: ^4.29.14
+        version: 4.29.14(svelte@3.59.1)
       '@tanstack/vue-query':
-        specifier: ^4.29.13
-        version: 4.29.13(vue@3.3.4)
+        specifier: ^4.29.14
+        version: 4.29.14(vue@3.3.4)
       '@zodios/core':
         specifier: ^10.9.2
         version: 10.9.2(axios@1.4.0)(zod@3.21.4)
@@ -262,8 +262,8 @@ importers:
         specifier: ^2.1.5
         version: 2.1.5(react@18.2.0)
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       vue:
         specifier: ^3.3.4
         version: 3.3.4
@@ -305,8 +305,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
     devDependencies:
       '@kubb/ts-config':
         specifier: workspace:*
@@ -339,8 +339,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/react-query':
-        specifier: ^4.29.13
-        version: 4.29.13(react@18.2.0)
+        specifier: ^4.29.14
+        version: 4.29.14(react@18.2.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -348,8 +348,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
     devDependencies:
       '@kubb/ts-config':
         specifier: workspace:*
@@ -382,8 +382,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/react-query':
-        specifier: ^4.29.13
-        version: 4.29.13(react@18.2.0)
+        specifier: ^4.29.14
+        version: 4.29.14(react@18.2.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -391,8 +391,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
     devDependencies:
       '@kubb/ts-config':
         specifier: workspace:*
@@ -422,8 +422,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-ts
       '@tanstack/react-query':
-        specifier: ^4.29.13
-        version: 4.29.13(react@18.2.0)
+        specifier: ^4.29.14
+        version: 4.29.14(react@18.2.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -431,8 +431,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
 
   examples/solid-query:
     dependencies:
@@ -458,8 +458,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/solid-query':
-        specifier: ^4.29.11
-        version: 4.29.11(solid-js@1.7.6)
+        specifier: ^4.29.14
+        version: 4.29.14(solid-js@1.7.6)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -467,8 +467,8 @@ importers:
         specifier: ^1.7.6
         version: 1.7.6
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
     devDependencies:
       '@kubb/ts-config':
         specifier: workspace:*
@@ -501,8 +501,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/svelte-query':
-        specifier: ^4.29.11
-        version: 4.29.11(svelte@3.59.1)
+        specifier: ^4.29.14
+        version: 4.29.14(svelte@3.59.1)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -510,8 +510,8 @@ importers:
         specifier: ^3.59.1
         version: 3.59.1
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
     devDependencies:
       '@kubb/ts-config':
         specifier: workspace:*
@@ -553,8 +553,8 @@ importers:
         specifier: ^2.1.5
         version: 2.1.5(react@18.2.0)
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
 
   examples/vue-query:
     dependencies:
@@ -580,14 +580,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
-        specifier: ^4.29.13
-        version: 4.29.13(vue@3.3.4)
+        specifier: ^4.29.14
+        version: 4.29.14(vue@3.3.4)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       vue:
         specifier: ^3.3.4
         version: 3.3.4
@@ -623,8 +623,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       zod:
         specifier: ^3.21.4
         version: 3.21.4
@@ -666,8 +666,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       zod:
         specifier: ^3.21.4
         version: 3.21.4
@@ -687,12 +687,12 @@ importers:
       '@swc/core':
         specifier: ^1.3.64
         version: 1.3.64
+      cac:
+        specifier: ^6.7.14
+        version: 6.7.14
       chokidar:
         specifier: ^3.5.3
         version: 3.5.3
-      commander:
-        specifier: ^11.0.0
-        version: 11.0.0
       cosmiconfig:
         specifier: ^8.2.0
         version: 8.2.0
@@ -734,8 +734,8 @@ importers:
         specifier: ^0.5.21
         version: 0.5.21
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -795,8 +795,8 @@ importers:
         specifier: ~8.42.0
         version: 8.42.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ~5.1.3
         version: 5.1.3
@@ -816,8 +816,8 @@ importers:
         specifier: ^20.3.1
         version: 20.3.1
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
 
   packages/core:
     dependencies:
@@ -865,8 +865,8 @@ importers:
         specifier: ^6.3.1
         version: 6.3.1
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -890,8 +890,8 @@ importers:
         specifier: ^20.3.1
         version: 20.3.1
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -936,8 +936,8 @@ importers:
         specifier: ^12.1.3
         version: 12.1.3
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -976,8 +976,8 @@ importers:
         specifier: ^8.42.0
         version: 8.42.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -1013,8 +1013,8 @@ importers:
         specifier: ^8.42.0
         version: 8.42.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -1053,8 +1053,8 @@ importers:
         specifier: ^8.42.0
         version: 8.42.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -1093,8 +1093,8 @@ importers:
         specifier: ^8.42.0
         version: 8.42.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -1130,8 +1130,8 @@ importers:
         specifier: ^8.42.0
         version: 8.42.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
 
   packages/swagger-zod:
     dependencies:
@@ -1161,8 +1161,8 @@ importers:
         specifier: ^8.42.0
         version: 8.42.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -1198,8 +1198,8 @@ importers:
         specifier: ^8.42.0
         version: 8.42.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -1223,8 +1223,8 @@ importers:
         specifier: ^8.42.0
         version: 8.42.0
       tsup:
-        specifier: ^6.7.0
-        version: 6.7.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
+        specifier: ^7.0.0
+        version: 7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3)
 
 packages:
 
@@ -1479,8 +1479,24 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@esbuild/android-arm64@0.18.3:
+    resolution: {integrity: sha512-PgabCsoaEEnnOiF6rUhOBXgYoLFIrHWP6mfLOzuQ1oZ1lwBdTL0hp5ivC4K3Kvz3BD8EipjeQo6l0aty3nr4qQ==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [android]
+    requiresBuild: true
+    optional: true
+
   /@esbuild/android-arm@0.17.19:
     resolution: {integrity: sha512-rIKddzqhmav7MSmoFCmDIb6e2W57geRsM94gV2l38fzhXMwq7hZoClug9USI2pFRGL06f4IOPHHpFNOkWieR8A==}
+    engines: {node: '>=12'}
+    cpu: [arm]
+    os: [android]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/android-arm@0.18.3:
+    resolution: {integrity: sha512-QOn3VIlL6Qv1eHBpQB/s7simaZgGss2ASyxDOwYSLmc6vD0uuizZkuYawHmuLjWEm5wPwp0JQWhbpaYwwGevYw==}
     engines: {node: '>=12'}
     cpu: [arm]
     os: [android]
@@ -1495,8 +1511,24 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@esbuild/android-x64@0.18.3:
+    resolution: {integrity: sha512-1OkJf8wNX1W5ucbp5HrK+z42b9DINb4ix59oJH/PIsh9cyFMqjgRKtCBXg0zEWhkmP1k3egdfrnS7cDTpLH43g==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [android]
+    requiresBuild: true
+    optional: true
+
   /@esbuild/darwin-arm64@0.17.19:
     resolution: {integrity: sha512-80wEoCfF/hFKM6WE1FyBHc9SfUblloAWx6FJkFWTWiCoht9Mc0ARGEM47e67W9rI09YoUxJL68WHfDRYEAvOhg==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/darwin-arm64@0.18.3:
+    resolution: {integrity: sha512-57aofORpY7wDAuMs6DeqpmgSnVfZ63RgGbR/BHdOSTqJgYvHDCMY7/o1myFntl3k0YxtLE3WAm56nMf4qy3UDw==}
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [darwin]
@@ -1511,8 +1543,24 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@esbuild/darwin-x64@0.18.3:
+    resolution: {integrity: sha512-NVBqMnxT9qvgu7Z322LUDlwjh4GDk6wEePyAQnHF9noxik/WvLFmr5v3Vgz5LSvqFducLCxsdmLztKhdpFW0Gg==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    optional: true
+
   /@esbuild/freebsd-arm64@0.17.19:
     resolution: {integrity: sha512-pBwbc7DufluUeGdjSU5Si+P3SoMF5DQ/F/UmTSb8HXO80ZEAJmrykPyzo1IfNbAoaqw48YRpv8shwd1NoI0jcQ==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [freebsd]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/freebsd-arm64@0.18.3:
+    resolution: {integrity: sha512-XiLK1AsCk2wKxN7j8h9GXXCs8FPZhp07U0rnpwRkAVSVGgLaIWYSqpTRzKjAfqJiZlp+XKo1HwsmDdICEKB3Dg==}
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [freebsd]
@@ -1527,8 +1575,24 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@esbuild/freebsd-x64@0.18.3:
+    resolution: {integrity: sha512-xyITfrF0G3l1gwR79hvNCCWKQ/16uK14xNNPFgzjbIqF4EpBvhO6l3jrWxXFUW51z6dVIl2Szh3x3uIbBWzH1Q==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [freebsd]
+    requiresBuild: true
+    optional: true
+
   /@esbuild/linux-arm64@0.17.19:
     resolution: {integrity: sha512-ct1Tg3WGwd3P+oZYqic+YZF4snNl2bsnMKRkb3ozHmnM0dGWuxcPTTntAF6bOP0Sp4x0PjSF+4uHQ1xvxfRKqg==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-arm64@0.18.3:
+    resolution: {integrity: sha512-lsKUYVd8L/j2uNs8dhMjMsKC5MHYh77gR9EThu7YCeeFz1XpIkx1I4a7mhoVfPS2VPVD1pMCh+PgxuAHUcEmXw==}
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [linux]
@@ -1543,8 +1607,24 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@esbuild/linux-arm@0.18.3:
+    resolution: {integrity: sha512-fc/T0QHMzvmnlF+kfD6bHLB8u+17gg13260p/E86yYjVoKNFjonL/+Y0GGQjMbFUas9QijqOa7pcR00a9RNkwg==}
+    engines: {node: '>=12'}
+    cpu: [arm]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
   /@esbuild/linux-ia32@0.17.19:
     resolution: {integrity: sha512-w4IRhSy1VbsNxHRQpeGCHEmibqdTUx61Vc38APcsRbuVgK0OPEnQ0YD39Brymn96mOx48Y2laBQGqgZ0j9w6SQ==}
+    engines: {node: '>=12'}
+    cpu: [ia32]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-ia32@0.18.3:
+    resolution: {integrity: sha512-EyfGWeOwRqK5Xj18vok0qv8IFBZ1/+hKV+cqD44oVhGsxHo9TmPtoSiDrWn8Sa2swq/VuO5Aiog6YPDj81oIkA==}
     engines: {node: '>=12'}
     cpu: [ia32]
     os: [linux]
@@ -1559,8 +1639,24 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@esbuild/linux-loong64@0.18.3:
+    resolution: {integrity: sha512-PwXkcl3t0kSeYH5RuJIeh/fHOzKZd+ZdifAWzpVO+9TLWArutTFBJvOSkTZ3CcqQqNrTj1Qyo6nqE8MQj/a7cQ==}
+    engines: {node: '>=12'}
+    cpu: [loong64]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
   /@esbuild/linux-mips64el@0.17.19:
     resolution: {integrity: sha512-LKJltc4LVdMKHsrFe4MGNPp0hqDFA1Wpt3jE1gEyM3nKUvOiO//9PheZZHfYRfYl6AwdTH4aTcXSqBerX0ml4A==}
+    engines: {node: '>=12'}
+    cpu: [mips64el]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-mips64el@0.18.3:
+    resolution: {integrity: sha512-CRVkkSXf5GQcq7Am2a2tdIn85oqi/bkjuPvhNqcdeTgI0xgNbqLnEPRy2AEGkRuaJWB5uCX1IC4sqnY8ET14Yg==}
     engines: {node: '>=12'}
     cpu: [mips64el]
     os: [linux]
@@ -1575,8 +1671,24 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@esbuild/linux-ppc64@0.18.3:
+    resolution: {integrity: sha512-t7zK1Cheh0xvzfZbimztiE0wGnpV+YRsBg3tefcEBN3O4GzgLu6fFpA5HxEyVm3hHZW1jAC4OhoGEp7C5Ii6Eg==}
+    engines: {node: '>=12'}
+    cpu: [ppc64]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
   /@esbuild/linux-riscv64@0.17.19:
     resolution: {integrity: sha512-FC3nUAWhvFoutlhAkgHf8f5HwFWUL6bYdvLc/TTuxKlvLi3+pPzdZiFKSWz/PF30TB1K19SuCxDTI5KcqASJqA==}
+    engines: {node: '>=12'}
+    cpu: [riscv64]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-riscv64@0.18.3:
+    resolution: {integrity: sha512-fUZPtyCYih6y4lDYdSM4Yoax4nS7aH0/XixJStys+9tfp5cAlIAZhEVKOOdeGXmQn0IEyiUtlIsPnfObbeDQfQ==}
     engines: {node: '>=12'}
     cpu: [riscv64]
     os: [linux]
@@ -1591,8 +1703,24 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@esbuild/linux-s390x@0.18.3:
+    resolution: {integrity: sha512-oIcK2LqHWqfMERqjvaKJ3QJmycHn723HsXIv5gH4iGfmePfSj+gi0ZQv2h4bHUg2bs2gJtV0DlIjGhEuvdgxLw==}
+    engines: {node: '>=12'}
+    cpu: [s390x]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
   /@esbuild/linux-x64@0.17.19:
     resolution: {integrity: sha512-68ngA9lg2H6zkZcyp22tsVt38mlhWde8l3eJLWkyLrp4HwMUr3c1s/M2t7+kHIhvMjglIBrFpncX1SzMckomGw==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/linux-x64@0.18.3:
+    resolution: {integrity: sha512-RW9lpfZ6XZ6f5to2DJPvt0f/4RXEW229Xf++quVoW+YbnPrcapIJChtD/AmZ8cK3hglO/hXxJjs21pV0/l7L5w==}
     engines: {node: '>=12'}
     cpu: [x64]
     os: [linux]
@@ -1607,8 +1735,24 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@esbuild/netbsd-x64@0.18.3:
+    resolution: {integrity: sha512-piZ2oBoaq58pKZvhgdV6PemlL30Uhd9GmmOkIGZYgChwNcyVSSl6iMEJxMzU7x44Lk9q+hJ6a343M/iVEMEvxA==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [netbsd]
+    requiresBuild: true
+    optional: true
+
   /@esbuild/openbsd-x64@0.17.19:
     resolution: {integrity: sha512-cnq5brJYrSZ2CF6c35eCmviIN3k3RczmHz8eYaVlNasVqsNY+JKohZU5MKmaOI+KkllCdzOKKdPs762VCPC20g==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [openbsd]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/openbsd-x64@0.18.3:
+    resolution: {integrity: sha512-vaMfouYTz/4tKdQsXDccqhV6wgPEr+hfuxdNU5Pl/vQxYTsqcXv5DYEa5Z1RAxCoua5aEB+Uj5V7VT/bM92wxw==}
     engines: {node: '>=12'}
     cpu: [x64]
     os: [openbsd]
@@ -1623,8 +1767,24 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@esbuild/sunos-x64@0.18.3:
+    resolution: {integrity: sha512-Fa3rNQQ9q1qwy9u2cdDvuGKy3jmPnPPMDdyy/qbn5d395Pb9hjLYiPzX9BozXMPJDlCNofSY7jN3miM9gyAdHA==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [sunos]
+    requiresBuild: true
+    optional: true
+
   /@esbuild/win32-arm64@0.17.19:
     resolution: {integrity: sha512-yYx+8jwowUstVdorcMdNlzklLYhPxjniHWFKgRqH7IFlUEa0Umu3KuYplf1HUZZ422e3NU9F4LGb+4O0Kdcaag==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [win32]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/win32-arm64@0.18.3:
+    resolution: {integrity: sha512-LPJC8ub+9uzyC6ygVmp00dAqet1q1DsZ/OldGIIBt+y+Ctd1OfnKNlzQgXK8nxwY1G8fAhklFSeSRRgAUJnR0w==}
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [win32]
@@ -1639,8 +1799,24 @@ packages:
     requiresBuild: true
     optional: true
 
+  /@esbuild/win32-ia32@0.18.3:
+    resolution: {integrity: sha512-WtUyRspyxZR6NTc2HG4xd9Wvz8lP4C6OUY1gAqisrf151HvXIxsK0mfAacFJNS7EN2wvPTgjP+SM8vgBOx5+zA==}
+    engines: {node: '>=12'}
+    cpu: [ia32]
+    os: [win32]
+    requiresBuild: true
+    optional: true
+
   /@esbuild/win32-x64@0.17.19:
     resolution: {integrity: sha512-lAhycmKnVOuRYNtRtatQR1LPQf2oYCkRGkSFnseDAKPl8lu5SOsK/e1sXe5a0Pc5kHIHe6P2I/ilntNv2xf3cA==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    optional: true
+
+  /@esbuild/win32-x64@0.18.3:
+    resolution: {integrity: sha512-Z8qCK4BkBm40j5KUM4NrkxYQS0R12cBO1NBVtI4vws6uwh1n/VaNu31Hm+n2cJUWdFbfH57PBghkhm9yLgmPfw==}
     engines: {node: '>=12'}
     cpu: [x64]
     os: [win32]
@@ -2243,6 +2419,10 @@ packages:
     resolution: {integrity: sha512-8C+hF6SFAb/TlFZyS9FItgNwrw4PMa7YeX+KQYe2ZAiEz6uzg6yIr+QBzPkUwZ/L0bXvGd1sufTm3wotoz+GwQ==}
     dev: false
 
+  /@tanstack/query-core@4.29.14:
+    resolution: {integrity: sha512-ElEAahtLWA7Y7c2Haw10KdEf2tx+XZl/Z8dmyWxZehxWK3TPL5qtXtb7kUEhvt/8u2cSP62fLxgh2qqzMMGnDQ==}
+    dev: false
+
   /@tanstack/react-query@4.29.12(react@18.2.0):
     resolution: {integrity: sha512-zhcN6+zF6cxprxhTHQajHGlvxgK8npnp9uLe9yaWhGc6sYcPWXzyO4raL4HomUzQOPzu3jLvkriJQ7BOrDM8vA==}
     peerDependencies:
@@ -2260,8 +2440,8 @@ packages:
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/react-query@4.29.13(react@18.2.0):
-    resolution: {integrity: sha512-qF8SHosMU6SzxWa7Ivxp3Q07zXvH+8PBDAlH8CR9ywfT3Y7uOK3jclfwMLzqgoGgDnYCarY2Ra+qDV0+xm19JQ==}
+  /@tanstack/react-query@4.29.14(react@18.2.0):
+    resolution: {integrity: sha512-wh4bd/QIy85YgTDBtj/7/9ZkpRX41QdZuUL8xKoSzuMCukXvAE1/oJ4p0F15lqQq9W3g2pgcbr2Aa+CNvqABhg==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -2272,7 +2452,7 @@ packages:
       react-native:
         optional: true
     dependencies:
-      '@tanstack/query-core': 4.29.11
+      '@tanstack/query-core': 4.29.14
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
@@ -2286,12 +2466,30 @@ packages:
       solid-js: 1.7.6
     dev: false
 
+  /@tanstack/solid-query@4.29.14(solid-js@1.7.6):
+    resolution: {integrity: sha512-2D+CGesq8AYHliKFrgwfVsFtm0mX5PsRrej2ItSYccOlDYXKHWv7vuamaKbnLUl6cG2sy9UwTUriLukH1LjMow==}
+    peerDependencies:
+      solid-js: ^1.5.7
+    dependencies:
+      '@tanstack/query-core': 4.29.14
+      solid-js: 1.7.6
+    dev: false
+
   /@tanstack/svelte-query@4.29.11(svelte@3.59.1):
     resolution: {integrity: sha512-gfwnNocxLbipoT+MeyTeihybvirwgGAZXXhhqB+v/9Gr88xQ61fLp9vj3nZYQO7oS9jEmkkiWJXymOHHa78Nfg==}
     peerDependencies:
       svelte: ^3.54.0
     dependencies:
       '@tanstack/query-core': 4.29.11
+      svelte: 3.59.1
+    dev: false
+
+  /@tanstack/svelte-query@4.29.14(svelte@3.59.1):
+    resolution: {integrity: sha512-kO+i2BJf9ZzQDuWpBpoSnideSsldgfAU4pbza8zAV5IXtXGxI1vDSJYXX0S9ZyJYMDROs1yoMM6dCULAhtqoJg==}
+    peerDependencies:
+      svelte: ^3.54.0
+    dependencies:
+      '@tanstack/query-core': 4.29.14
       svelte: 3.59.1
     dev: false
 
@@ -2311,8 +2509,8 @@ packages:
       vue-demi: 0.13.11(vue@3.3.4)
     dev: false
 
-  /@tanstack/vue-query@4.29.13(vue@3.3.4):
-    resolution: {integrity: sha512-sp1dDNCltNZCaxkLSawdi67JjfvuzWNUWJLbhlDGi4+Ib8KcvHD8nYcywWxLZq0slYiPtiqwfWuEKbzD0vlwCg==}
+  /@tanstack/vue-query@4.29.14(vue@3.3.4):
+    resolution: {integrity: sha512-/fUNcATWD1cOJ7S2NPQ0DLr4rRuQu8/Ax83Vt54v3KpFhhWl6lb0ksqUJ4wgESuFUlaKNnSH6vYJ7K1WXNowQA==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.5.0 || ^3.0.0
@@ -2321,7 +2519,7 @@ packages:
         optional: true
     dependencies:
       '@tanstack/match-sorter-utils': 8.8.4
-      '@tanstack/query-core': 4.29.11
+      '@tanstack/query-core': 4.29.14
       '@vue/devtools-api': 6.5.0
       vue: 3.3.4
       vue-demi: 0.13.11(vue@3.3.4)
@@ -3227,6 +3425,16 @@ packages:
     dependencies:
       esbuild: 0.17.19
       load-tsconfig: 0.2.5
+    dev: false
+
+  /bundle-require@4.0.1(esbuild@0.18.3):
+    resolution: {integrity: sha512-9NQkRHlNdNpDBGmLpngF3EFDcwodhMUuLz9PaWYciVcQF9SE4LFjM2DB/xV1Li5JiuDMv7ZUWuC3rGbqR0MAXQ==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    peerDependencies:
+      esbuild: '>=0.17'
+    dependencies:
+      esbuild: 0.18.3
+      load-tsconfig: 0.2.5
 
   /busboy@1.6.0:
     resolution: {integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==}
@@ -3493,11 +3701,6 @@ packages:
       chalk: 2.4.2
       table-layout: 1.0.2
       typical: 5.2.0
-    dev: false
-
-  /commander@11.0.0:
-    resolution: {integrity: sha512-9HMlXtt/BNoYr8ooyjjNRdIilOTkVJXB+GhxMTtOKwk0R4j4lS4NpjuqmRxroBfnfTSHQIHQB7wryHhXarNjmQ==}
-    engines: {node: '>=16'}
     dev: false
 
   /commander@4.1.1:
@@ -4271,6 +4474,35 @@ packages:
       '@esbuild/win32-arm64': 0.17.19
       '@esbuild/win32-ia32': 0.17.19
       '@esbuild/win32-x64': 0.17.19
+
+  /esbuild@0.18.3:
+    resolution: {integrity: sha512-eadWJC4CRpj93+miO5ZBlvCv+m2x6pzyNBznTvUeLFObMmxs1IMd8cCf6qiDVEZuDL6W8W7u+ZNW3GKEfOdDsA==}
+    engines: {node: '>=12'}
+    hasBin: true
+    requiresBuild: true
+    optionalDependencies:
+      '@esbuild/android-arm': 0.18.3
+      '@esbuild/android-arm64': 0.18.3
+      '@esbuild/android-x64': 0.18.3
+      '@esbuild/darwin-arm64': 0.18.3
+      '@esbuild/darwin-x64': 0.18.3
+      '@esbuild/freebsd-arm64': 0.18.3
+      '@esbuild/freebsd-x64': 0.18.3
+      '@esbuild/linux-arm': 0.18.3
+      '@esbuild/linux-arm64': 0.18.3
+      '@esbuild/linux-ia32': 0.18.3
+      '@esbuild/linux-loong64': 0.18.3
+      '@esbuild/linux-mips64el': 0.18.3
+      '@esbuild/linux-ppc64': 0.18.3
+      '@esbuild/linux-riscv64': 0.18.3
+      '@esbuild/linux-s390x': 0.18.3
+      '@esbuild/linux-x64': 0.18.3
+      '@esbuild/netbsd-x64': 0.18.3
+      '@esbuild/openbsd-x64': 0.18.3
+      '@esbuild/sunos-x64': 0.18.3
+      '@esbuild/win32-arm64': 0.18.3
+      '@esbuild/win32-ia32': 0.18.3
+      '@esbuild/win32-x64': 0.18.3
 
   /escalade@3.1.1:
     resolution: {integrity: sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==}
@@ -7229,6 +7461,7 @@ packages:
       lilconfig: 2.1.0
       ts-node: 10.9.1(@swc/core@1.3.64)(@types/node@20.3.1)(typescript@5.1.3)
       yaml: 1.10.2
+    dev: false
 
   /postcss-load-config@4.0.1(postcss@8.4.24)(ts-node@10.9.1):
     resolution: {integrity: sha512-vEJIc8RdiBRu3oRAI0ymerOn+7rPuMvRXslTvZUKZonDHFIczxztIyJ1urxM1x9JXEikvpWWTUUqal5j/8QgvA==}
@@ -7246,7 +7479,6 @@ packages:
       postcss: 8.4.24
       ts-node: 10.9.1(@swc/core@1.3.64)(@types/node@20.3.1)(typescript@5.1.3)
       yaml: 2.3.1
-    dev: true
 
   /postcss-nested@6.0.1(postcss@8.4.24):
     resolution: {integrity: sha512-mEp4xPMi5bSWiMbsgoPfcP74lsWLHkQbZc3sY+jWYd65CUwXrUaTp0fmNpa01ZcETKlIgUdFN/MpS2xZtqL9dQ==}
@@ -8451,6 +8683,43 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - ts-node
+    dev: false
+
+  /tsup@7.0.0(@swc/core@1.3.64)(ts-node@10.9.1)(typescript@5.1.3):
+    resolution: {integrity: sha512-yYARDRkPq07mO3YUXTvF12ISwWQG57Odve8aFEgLdHyeGungxuKxb19yf9G0W8y59SZFkLnRj1gkoVk1gd5fbQ==}
+    engines: {node: '>=16.14'}
+    hasBin: true
+    peerDependencies:
+      '@swc/core': ^1
+      postcss: ^8.4.12
+      typescript: '>=4.1.0'
+    peerDependenciesMeta:
+      '@swc/core':
+        optional: true
+      postcss:
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@swc/core': 1.3.64
+      bundle-require: 4.0.1(esbuild@0.18.3)
+      cac: 6.7.14
+      chokidar: 3.5.3
+      debug: 4.3.4
+      esbuild: 0.18.3
+      execa: 5.1.1
+      globby: 11.1.0
+      joycon: 3.1.1
+      postcss-load-config: 4.0.1(postcss@8.4.24)(ts-node@10.9.1)
+      resolve-from: 5.0.0
+      rollup: 3.25.1
+      source-map: 0.8.0-beta.0
+      sucrase: 3.32.0
+      tree-kill: 1.2.2
+      typescript: 5.1.3
+    transitivePeerDependencies:
+      - supports-color
+      - ts-node
 
   /tsutils@3.21.0(typescript@4.9.5):
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
@@ -9149,6 +9418,7 @@ packages:
   /yaml@1.10.2:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
+    dev: false
 
   /yaml@2.3.1:
     resolution: {integrity: sha512-2eHWfjaoXgTBC2jNM1LRef62VQa0umtvRiDSk6HSzW7RvS5YtkabJrwYLLEKWBc8a5U2PTSCs+dJjUTJdlHsWQ==}

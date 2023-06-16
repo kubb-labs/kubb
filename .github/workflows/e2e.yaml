@@ -111,15 +111,15 @@ jobs:
         - name: E2e
           working-directory: ./e2e
           run: |
-            ${{ matrix.installer }} generate --input ./schemas/petStore.yaml
-            ${{ matrix.installer }} generate --input ./schemas/twitter.json
-            ${{ matrix.installer }} generate --input ./schemas/twitter2.json
-            ${{ matrix.installer }} generate --input ./schemas/bunq.com.json
-            ${{ matrix.installer }} generate --input ./schemas/jokesOne.yaml
-            ${{ matrix.installer }} generate --input ./schemas/readme.io.yaml
-            ${{ matrix.installer }} generate --input ./schemas/worldtime.yaml
-            ${{ matrix.installer }} generate --input ./schemas/zalando.yaml
-            ${{ matrix.installer }} generate --input ./schemas/requestBody.yaml
+            ${{ matrix.installer }} generate ./schemas/petStore.yaml
+            ${{ matrix.installer }} generate ./schemas/twitter.json
+            ${{ matrix.installer }} generate ./schemas/twitter2.json
+            ${{ matrix.installer }} generate ./schemas/bunq.com.json
+            ${{ matrix.installer }} generate ./schemas/jokesOne.yaml
+            ${{ matrix.installer }} generate ./schemas/readme.io.yaml
+            ${{ matrix.installer }} generate ./schemas/worldtime.yaml
+            ${{ matrix.installer }} generate ./schemas/zalando.yaml
+            ${{ matrix.installer }} generate ./schemas/requestBody.yaml
             ${{ matrix.installer }} clean
 
 
