@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import pathParser from 'node:path'
 
 import { isURL } from '@kubb/core'

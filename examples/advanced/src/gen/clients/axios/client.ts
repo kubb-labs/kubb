@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import type { AxiosError } from 'axios'
+import type { AxiosError, AxiosHeaders } from 'axios'
 
 export type RequestConfig<TVariables = unknown> = {
   method: 'get' | 'put' | 'patch' | 'post' | 'delete'
@@ -12,8 +12,8 @@ export type RequestConfig<TVariables = unknown> = {
 }
 
 export const axiosInstance = axios.create({
-  baseURL: typeof 'https://petstore3.swagger.io/api/v3' !== 'undefined' ? 'https://petstore3.swagger.io/api/v3' : undefined,
-  headers: '{}' ? JSON.parse('{}') : {},
+  baseURL: 'https://petstore3.swagger.io/api/v3',
+  headers: '{}' ? (JSON.parse('{}') as AxiosHeaders) : ({} as AxiosHeaders),
 })
 
 export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<TData> => {

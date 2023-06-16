@@ -30,6 +30,7 @@ export const rules: Linter.FlatConfig['rules'] = {
   'global-require': 'off',
   'no-empty-pattern': 'warn',
   'no-debugger': 'error',
+  'no-constant-condition': 'off',
   'default-param-last': 'error',
   'no-restricted-exports': 'off',
   'no-constructor-return': 'off',

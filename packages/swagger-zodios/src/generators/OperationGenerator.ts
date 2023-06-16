@@ -206,26 +206,28 @@ export class OperationGenerator extends Generator<Options> {
         `)
       }
       if (schemas.errors) {
-        schemas.errors
-          .filter((errorOperationSchema) => errorOperationSchema.statusCode)
-          .forEach((errorOperationSchema) => {
-            const { filePath, name } = this.resolveError(operation, errorOperationSchema.statusCode!)
+        schemas.errors.forEach((errorOperationSchema) => {
+          if (!errorOperationSchema.statusCode) {
+            return
+          }
 
-            imports.push({
-              name: [name],
-              path: getRelativePath(zodios.filePath, filePath),
-            })
+          const { filePath, name } = this.resolveError(operation, errorOperationSchema.statusCode)
 
-            if (errorOperationSchema.statusCode) {
-              errors.push(`
+          imports.push({
+            name: [name],
+            path: getRelativePath(zodios.filePath, filePath),
+          })
+
+          if (errorOperationSchema.statusCode) {
+            errors.push(`
               {
                 status: ${errorOperationSchema.statusCode},
-                description: \`${errorOperationSchema.description}\`,
+                description: \`${errorOperationSchema.description || ''}\`,
                 schema: ${name}
               }
             `)
-            }
-          })
+          }
+        })
       }
 
       return `

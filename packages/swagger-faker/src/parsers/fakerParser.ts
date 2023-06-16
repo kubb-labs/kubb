@@ -149,7 +149,7 @@ function fakerKeywordSorter(a: FakerMeta, b: FakerMeta) {
 
 export function parseFakerMeta(item: FakerMeta): string {
   // eslint-disable-next-line prefer-const
-  let { keyword, args } = (item || {}) as FakerMetaBase<any>
+  let { keyword, args } = (item || {}) as FakerMetaBase<unknown>
   const value = fakerKeywordMapper[keyword]
 
   if (keyword === fakerKeywords.tuple || keyword === fakerKeywords.array || keyword === fakerKeywords.union) {
@@ -189,7 +189,7 @@ export function parseFakerMeta(item: FakerMeta): string {
 
   // custom type
   if (keyword === fakerKeywords.ref) {
-    return `${args}()`
+    return `${args as string}()`
   }
 
   if (keyword === fakerKeywords.null || keyword === fakerKeywords.undefined || keyword === fakerKeywords.any) {

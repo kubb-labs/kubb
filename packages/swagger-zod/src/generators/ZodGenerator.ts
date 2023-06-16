@@ -251,7 +251,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       return [
         {
           keyword: zodKeywords.enum,
-          args: [`[${[...new Set(schema.enum)].map((value) => `\`${value}\``).join(', ')}]`],
+          args: [`[${[...new Set(schema.enum)].map((value: string) => `\`${value}\``).join(', ')}]`],
         },
       ]
     }
@@ -269,7 +269,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           keyword: zodKeywords.tuple,
           args: prefixItems.map((item) => {
             // no baseType so we can fall back on an union when using enum
-            return this.getBaseTypeFromSchema(item, undefined)![0]
+            return this.getBaseTypeFromSchema(item, undefined)[0]
           }),
         },
       ]
@@ -283,7 +283,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     if (schema.type) {
       if (Array.isArray(schema.type)) {
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
-        const [type] = schema.type
+        const [type] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
         return [
           ...this.getBaseTypeFromSchema(
@@ -299,7 +299,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
       // string, boolean, null, number
       if (schema.type in zodKeywords) {
-        return [{ keyword: schema.type as any }]
+        return [{ keyword: schema.type }]
       }
     }
 

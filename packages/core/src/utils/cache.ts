@@ -1,3 +1,5 @@
+import type { PluginCache } from '../types'
+
 export interface Cache<TStore extends object = object> {
   delete(id: keyof TStore): boolean
   get(id: keyof TStore): TStore[keyof TStore] | null
@@ -5,7 +7,7 @@ export interface Cache<TStore extends object = object> {
   set(id: keyof TStore, value: unknown): void
 }
 
-export function createPluginCache<TStore extends Record<string, [number, unknown]>>(Store: TStore): Cache<TStore> {
+export function createPluginCache<TStore extends PluginCache>(Store: TStore = Object.create(null) as TStore): Cache<TStore> {
   return {
     set(id, value): void {
       Store[id] = [0, value] as TStore[keyof TStore]

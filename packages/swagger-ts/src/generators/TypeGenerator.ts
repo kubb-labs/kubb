@@ -117,7 +117,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const schema = props[name] as OpenAPIV3.SchemaObject
 
       const isRequired = required && required.includes(name)
-      let type = this.getTypeFromSchema(schema, pascalCase(`${baseName} ${name}`, { delimiter: '' }))
+      let type = this.getTypeFromSchema(schema, pascalCase(`${baseName || ''} ${name}`, { delimiter: '' }))
 
       if (!type) {
         return null
@@ -135,13 +135,13 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         return appendJSDocToNode({
           node: propertySignature,
           comments: [
-            schema.description && `@description ${schema.description}`,
-            schema.type && `@type ${schema.type}${isRequired ? '' : ' | undefined'} ${schema.format || ''}`,
-            schema.example && `@example ${schema.example}`,
-            schema.deprecated && `@deprecated`,
-            schema.default !== undefined && typeof schema.default === 'string' && `@default '${schema.default}'`,
-            schema.default !== undefined && typeof schema.default !== 'string' && `@default ${schema.default}`,
-          ],
+            schema.description ? `@description ${schema.description}` : undefined,
+            schema.type ? `@type ${schema.type}${isRequired ? '' : ' | undefined'} ${schema.format || ''}` : undefined,
+            schema.example ? `@example ${schema.example as string}` : undefined,
+            schema.deprecated ? `@deprecated` : undefined,
+            schema.default !== undefined && typeof schema.default === 'string' ? `@default '${schema.default}'` : undefined,
+            schema.default !== undefined && typeof schema.default !== 'string' ? `@default ${schema.default as string}` : undefined,
+          ].filter(Boolean),
         })
       }
 
@@ -178,7 +178,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         name: uniqueId(propertyName),
       }
 
-      return factory.createTypeReferenceNode(ref.name!, undefined)
+      return factory.createTypeReferenceNode(ref.name as string, undefined)
     }
 
     ref = this.refs[$ref] = {
@@ -209,8 +209,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const union = factory.createParenthesizedType(
         createUnionDeclaration({
           nodes: schema.oneOf
-            .map((item: any) => {
-              return this.getBaseTypeFromSchema(item as OpenAPIV3.SchemaObject)
+            .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
+              return this.getBaseTypeFromSchema(item)
             })
             .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
         })
@@ -235,8 +235,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const and = factory.createParenthesizedType(
         factory.createIntersectionTypeNode(
           schema.allOf
-            .map((item: any) => {
-              return this.getBaseTypeFromSchema(item as OpenAPIV3.SchemaObject)
+            .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
+              return this.getBaseTypeFromSchema(item)
             })
             .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>
         )
@@ -257,11 +257,11 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     if (schema.enum && baseName) {
       const enumName = getUniqueName(baseName, TypeGenerator.usedEnumNames)
 
-      let enums: [key: string, value: string | number][] = [...new Set(schema.enum)]!.map((key) => [key, key])
+      let enums: [key: string, value: string | number][] = [...new Set(schema.enum)].map((key) => [key, key])
 
       if ('x-enumNames' in schema) {
         enums = [...new Set(schema['x-enumNames'] as string[])].map((key: string, index) => {
-          return [key, schema.enum![index]]
+          return [key, schema.enum?.[index]]
         })
       }
 
@@ -278,7 +278,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.enum) {
       return createUnionDeclaration({
-        nodes: schema.enum.map((name: any) => {
+        nodes: schema.enum.map((name: string) => {
           return factory.createLiteralTypeNode(typeof name === 'number' ? factory.createNumericLiteral(name) : factory.createStringLiteral(`${name}`))
         }) as unknown as ArrayTwoOrMore<ts.TypeNode>,
       })
@@ -301,7 +301,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return createTupleDeclaration({
         nodes: prefixItems.map((item) => {
           // no baseType so we can fall back on an union when using enum
-          return this.getBaseTypeFromSchema(item, undefined)!
+          return this.getBaseTypeFromSchema(item, undefined)
         }) as ArrayTwoOrMore<ts.TypeNode>,
       })
     }
@@ -314,7 +314,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     if (schema.type) {
       if (Array.isArray(schema.type)) {
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
-        const [type, nullable] = schema.type
+        const [type, nullable] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
         return createUnionDeclaration({
           nodes: [
@@ -324,7 +324,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
                 type,
               },
               baseName
-            )!,
+            ),
             nullable ? factory.createLiteralTypeNode(factory.createNull()) : undefined,
           ].filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
         })
