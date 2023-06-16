@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.2.1...@kubb/swagger-ts-v1.3.0) (2023-06-16)
+
+
+### Features
+
+* use of `cac` instead of `commander` ([3814acb](https://github.com/kubb-project/kubb/commit/3814acb392f882ded2a75ef987ccdd79227a9238))
+
 ## [1.2.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.2.0...@kubb/swagger-ts-v1.2.1) (2023-06-15)
 
 
