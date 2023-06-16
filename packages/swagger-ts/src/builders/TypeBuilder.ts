@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { nameSorter } from '@kubb/core'
 import { ImportsGenerator, OasBuilder } from '@kubb/swagger'
 import { createImportDeclaration, print } from '@kubb/ts-codegen'

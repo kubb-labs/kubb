@@ -44,7 +44,7 @@ export const hooks = Object.keys(hookNames) as [PluginLifecycleHooks]
 // TODO move to utils file
 const convertKubbUserPluginToKubbPlugin = (plugin: KubbUserPlugin, context: CorePluginOptions['api'] | undefined): KubbPlugin | null => {
   if (plugin.api && typeof plugin.api === 'function') {
-    const api = (plugin.api as Function).call(context)
+    const api = (plugin.api as Function).call(context) as typeof plugin.api
 
     return {
       ...plugin,
@@ -88,6 +88,7 @@ export class PluginManager {
       api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api']
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const convertedCore = convertKubbUserPluginToKubbPlugin(core, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
 
     this.core = convertedCore
@@ -119,13 +120,15 @@ export class PluginManager {
     }).result
   }
 
-  resolveName = (params: ResolveNameParams): string | null => {
+  resolveName = (params: ResolveNameParams): string => {
     if (params.pluginName) {
-      return this.hookForPluginSync({
-        pluginName: params.pluginName,
-        hookName: 'resolveName',
-        parameters: [params.name],
-      })
+      return (
+        this.hookForPluginSync({
+          pluginName: params.pluginName,
+          hookName: 'resolveName',
+          parameters: [params.name],
+        }) || params.name
+      )
     }
     return this.hookFirstSync({
       hookName: 'resolveName',

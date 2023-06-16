@@ -115,7 +115,7 @@ export class OperationGenerator extends Generator<Options> {
     let errors: Resolver[] = []
 
     if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`].filter(Boolean)
@@ -293,7 +293,7 @@ export class OperationGenerator extends Generator<Options> {
     let errors: Resolver[] = []
 
     if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
     const generics = [
@@ -375,8 +375,9 @@ export class OperationGenerator extends Generator<Options> {
     const sources: string[] = []
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     let errors: Resolver[] = []
+
     if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
     const generics = [
@@ -403,7 +404,7 @@ export class OperationGenerator extends Generator<Options> {
           return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
           ${new Path(operation.path).template},
           (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
-              return client<${clientGenerics}>({
+              return client<${clientGenerics.join(', ')}>({
                 method: "put",
                 url,
                 ${schemas.request?.name ? 'data,' : ''}
@@ -460,7 +461,7 @@ export class OperationGenerator extends Generator<Options> {
     let errors: Resolver[] = []
 
     if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
     const generics = [

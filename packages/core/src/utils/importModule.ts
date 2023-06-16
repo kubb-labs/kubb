@@ -14,7 +14,7 @@ const SLASHES = new Set(['/', '\\'])
  * @param {string} directory The directory to check.
  * @returns {string} The normalized directory.
  */
-export function normalizeDirectory(directory: string) {
+export function normalizeDirectory(directory: string): string {
   if (!SLASHES.has(directory[directory.length - 1])) {
     return `${directory}/`
   }
@@ -33,12 +33,15 @@ export function getLocation(path: string, cwd?: string): string {
   return location
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function importModule(path: string, cwd?: string): Promise<any | undefined> {
   try {
     const location = getLocation(path, cwd)
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const module = await import(pathToFileURL(location).href)
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return module?.default ?? module
   } catch (e) {
     console.log(e)

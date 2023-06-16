@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { importModule } from '@kubb/core'
 
@@ -27,12 +29,14 @@ const tsLoader = (configFile: string) => {
     const module = require(configFile)
 
     return module.default
-  } catch (err: any) {
-    if (err.code === 'MODULE_NOT_FOUND') {
-      throw new Error(`'ts-node' is required for the TypeScript configuration files. Make sure it is installed\nError: ${err.message}`)
+  } catch (err) {
+    const error = err as Error
+
+    if (error.name === 'MODULE_NOT_FOUND') {
+      throw new Error(`'ts-node' is required for the TypeScript configuration files. Make sure it is installed\nError: ${error.message}`)
     }
 
-    throw err
+    throw error
   } finally {
     registerer.enabled()
   }

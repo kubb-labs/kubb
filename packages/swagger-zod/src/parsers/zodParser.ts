@@ -151,7 +151,7 @@ export type ZodMeta =
  * @link based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
  */
 
-function zodKeywordSorter(a: ZodMeta, b: ZodMeta) {
+function zodKeywordSorter(a: ZodMeta, b: ZodMeta): 1 | -1 | 0 {
   if (b.keyword === zodKeywords.null) {
     return -1
   }
@@ -161,7 +161,7 @@ function zodKeywordSorter(a: ZodMeta, b: ZodMeta) {
 
 export function parseZodMeta(item: ZodMeta): string {
   // eslint-disable-next-line prefer-const
-  let { keyword, args = '' } = (item || {}) as ZodMetaBase<any>
+  let { keyword, args = '' } = (item || {}) as ZodMetaBase<unknown>
   const value = zodKeywordMapper[keyword]
 
   if (keyword === zodKeywords.tuple) {
@@ -213,7 +213,7 @@ export function parseZodMeta(item: ZodMeta): string {
   // custom type
   if (keyword === zodKeywords.ref) {
     // use of z.lazy because we need to import from files x or we use the type as a self reference
-    return `${zodKeywordMapper.lazy}(() => ${args})`
+    return `${zodKeywordMapper.lazy}(() => ${args as string})`
   }
 
   if (keyword === zodKeywords.default && args === undefined) {
@@ -221,7 +221,7 @@ export function parseZodMeta(item: ZodMeta): string {
   }
 
   if (keyword in zodKeywords) {
-    return `${value}(${args})`
+    return `${value}(${args as string})`
   }
 
   return '""'

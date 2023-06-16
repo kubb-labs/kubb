@@ -181,7 +181,8 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 } & Partial<PluginLifecycle<TOptions>>
 
 // use of type objects
-export type PluginFactoryOptions<Name = string, Options = unknown, Nested extends boolean = false, API = any, resolvePathOptions = Record<string, any>> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type PluginFactoryOptions<Name = string, Options = unknown, Nested extends boolean = false, API = any, resolvePathOptions = Record<string, unknown>> = {
   name: Name
   options: Options
   nested: Nested
@@ -238,7 +239,9 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
 
 export type PluginLifecycleHooks = keyof PluginLifecycle
 
-export type ResolvePathParams<TOptions = Record<string, any>> = {
+export type PluginCache = Record<string, [number, unknown]>
+
+export type ResolvePathParams<TOptions = Record<string, unknown>> = {
   /**
    * When set, resolvePath will only call resolvePath of the name of the plugin set here.
    * If not defined it will fall back on the resolvePath of the core plugin.
@@ -261,13 +264,13 @@ export type ResolveNameParams = {
   name: string
 }
 
-export type PluginContext<TOptions = Record<string, any>> = {
+export type PluginContext<TOptions = Record<string, unknown>> = {
   config: KubbConfig
-  cache: Cache
+  cache: Cache<PluginCache>
   fileManager: FileManager
   addFile: (...file: File[]) => Promise<File[]>
   resolvePath: (params: ResolvePathParams<TOptions>) => OptionalPath
-  resolveName: (params: ResolveNameParams) => string | null | undefined
+  resolveName: (params: ResolveNameParams) => string
   load: (id: string) => Promise<SafeParseResult<'load'>>
   logger: Logger
 }

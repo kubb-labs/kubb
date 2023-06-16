@@ -96,7 +96,7 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
           return transformReservedWord(name)
         },
         load,
-        cache: createPluginCache(Object.create(null)),
+        cache: createPluginCache(),
       }
     },
     resolvePath(fileName) {

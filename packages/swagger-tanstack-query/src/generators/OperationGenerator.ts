@@ -117,7 +117,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'svelte') {
       return {
-        getName: (operation) => resolveName({ name: `${operation.getOperationId()} query` })!,
+        getName: (operation) => resolveName({ name: `${operation.getOperationId()} query` }),
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
@@ -134,7 +134,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'solid') {
       return {
-        getName: (operation) => resolveName({ name: `${operation.getOperationId()} query` })!,
+        getName: (operation) => resolveName({ name: `${operation.getOperationId()} query` }),
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
@@ -151,7 +151,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'vue') {
       return {
-        getName: (operation) => resolveName({ name: `use ${operation.getOperationId()}` })!,
+        getName: (operation) => resolveName({ name: `use ${operation.getOperationId()}` }),
         query: {
           useQuery: 'useQuery',
           QueryKey: 'QueryKey',
@@ -167,7 +167,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     return {
-      getName: (operation) => resolveName({ name: `use ${operation.getOperationId()}` })!,
+      getName: (operation) => resolveName({ name: `use ${operation.getOperationId()}` }),
       query: {
         useQuery: 'useQuery',
         QueryKey: 'QueryKey',
@@ -244,7 +244,7 @@ export class OperationGenerator extends Generator<Options> {
     let errors: Resolver[] = []
 
     if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`].filter(Boolean)
@@ -461,8 +461,9 @@ export class OperationGenerator extends Generator<Options> {
     let errors: Resolver[] = []
 
     if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
+
     const generics = [
       `TData = ${schemas.response.name}`,
       `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
@@ -533,7 +534,7 @@ export class OperationGenerator extends Generator<Options> {
     let errors: Resolver[] = []
 
     if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
     const generics = [
@@ -608,7 +609,7 @@ export class OperationGenerator extends Generator<Options> {
     let errors: Resolver[] = []
 
     if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.filter((item) => item.statusCode).map((item) => ({ operation, statusCode: item.statusCode! })))
+      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
     const generics = [

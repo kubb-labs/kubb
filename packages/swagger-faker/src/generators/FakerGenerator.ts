@@ -98,7 +98,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
   /**
    * Recursively creates a type literal with the given props.
    */
-  private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string): FakerMeta[] {
+  private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, _baseName?: string): FakerMeta[] {
     const props = baseSchema?.properties || {}
     const additionalProperties = baseSchema?.additionalProperties
 
@@ -224,7 +224,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       return [
         {
           keyword: fakerKeywords.enum,
-          args: [`[${[...new Set(schema.enum)].map((value) => `\`${value}\``).join(', ')}]`],
+          args: [`[${[...new Set(schema.enum)].map((value: string) => `\`${value}\``).join(', ')}]`],
         },
       ]
     }
@@ -258,7 +258,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
     if (schema.type) {
       if (Array.isArray(schema.type)) {
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
-        const [type] = schema.type
+        const [type] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
         return [
           ...this.getBaseTypeFromSchema(
