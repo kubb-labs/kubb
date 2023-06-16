@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.2.1...@kubb/swagger-tanstack-query-v1.2.2) (2023-06-16)
+
+
+### Features
+
+* use of `cac` instead of `commander` ([3814acb](https://github.com/kubb-project/kubb/commit/3814acb392f882ded2a75ef987ccdd79227a9238))
+
+
+### Miscellaneous Chores
+
+* release 1.2.2 ([9489c97](https://github.com/kubb-project/kubb/commit/9489c97159a0f0e755b4257cd330e11d4d648b88))
+
 ## [1.2.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.2.0...@kubb/swagger-tanstack-query-v1.2.1) (2023-06-15)
 
 
