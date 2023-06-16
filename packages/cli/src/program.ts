@@ -1,7 +1,8 @@
 import pathParser from 'node:path'
 
-import { Command, CommanderError, Option } from 'commander'
 import ora from 'ora'
+import type { CAC } from 'cac'
+import cac from 'cac'
 import pc from 'picocolors'
 
 import { version } from '../package.json'
@@ -12,6 +13,7 @@ import { getConfig, getCosmiConfig, renderErrors, startWatcher } from './utils/i
 import { LogLevel, SummaryError, canLogHierarchy } from '@kubb/core'
 import type { CLIOptions } from '@kubb/core'
 import { Warning } from '@kubb/core'
+import { prettyError } from './utils/renderErrors'
 
 const moduleName = 'kubb'
 
@@ -47,39 +49,11 @@ function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
   process.exit(1)
 }
 
-export const program = new Command(moduleName)
-  .name(moduleName)
-  .description('Kubb')
-  .version(version, '-v')
-  .exitOverride((err) => {
-    if (err instanceof CommanderError) {
-      process.exit(1)
-    }
-  })
-  .configureOutput({
-    outputError: (message, write) => {
-      const CLIOptions: CLIOptions = program.opts()
+export async function createProgram(argv?: string[]): Promise<CAC> {
+  const program = cac(moduleName)
 
-      write(
-        renderErrors(new Error(message, { cause: undefined }), {
-          logLevel: CLIOptions.logLevel,
-          prefixText: pc.red('Something went wrong with processing the CLI\n'),
-        }) + '\n'
-      )
-    },
-  })
-  .addOption(new Option('-c, --config <path>', 'Path to the Kubb config'))
-  .addOption(new Option('-i, --input <path>', 'Path of the input file(overrides the one in `kubb.config.js`)'))
-  .addOption(new Option('-l, --logLevel <type>', 'Type of the logging(overrides the one in `kubb.config.js`)').choices(['info', 'silent', 'stacktrace']))
-  .addOption(new Option('--init', 'Init Kubb'))
-  .addOption(new Option('-d, --debug', 'Debug mode').default(false))
-  .addOption(new Option('-w, --watch', 'Watch mode based on the input file'))
-  .action(async (options: CLIOptions) => {
+  const programAction = async (input: string, options: CLIOptions) => {
     try {
-      if (options.init) {
-        return init({ logLevel: options.logLevel })
-      }
-
       // CONFIG
       spinner.start('💾 Loading config')
       const result = await getCosmiConfig(moduleName, options.config)
@@ -89,7 +63,7 @@ export const program = new Command(moduleName)
       if (options.watch) {
         const config = await getConfig(result, options)
 
-        return startWatcher([config.input.path], async (paths) => {
+        return startWatcher([input || config.input.path], async (paths) => {
           await run({ config, CLIOptions: options })
           spinner.spinner = 'simpleDotsScrolling'
           spinner.start(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
@@ -98,8 +72,51 @@ export const program = new Command(moduleName)
 
       const config = await getConfig(result, options)
 
-      await run({ config, CLIOptions: options })
+      await run({ input, config, CLIOptions: options })
     } catch (e) {
       programCatcher(e, options)
     }
+  }
+
+  program.command('[input]', 'Path of the input file(overrides the one in `kubb.config.js`)').action(programAction)
+
+  program
+    .command('generate [input]', 'Path of the input file(overrides the one in `kubb.config.js`)')
+    .option('-c, --config <path>', 'Path to the Kubb config')
+    .option('-l, --log-level <type>', 'Type of the logging(overrides the one in `kubb.config.js`)')
+    .option('-d, --debug', 'Debug mode', { default: false })
+    .option('-w, --watch', 'Watch mode based on the input file')
+    .action(programAction)
+
+  program.command('init', 'Init Kubb').action(async () => {
+    return init({ logLevel: 'info' })
   })
+
+  program.help()
+  program.version(version)
+
+  program.on('command:*', () => {
+    console.log(prettyError.render(`Invalid command: ${program.args.join(' ')}`))
+
+    process.exit(1)
+  })
+
+  try {
+    program.parse(argv, { run: false })
+
+    await program.runMatchedCommand()
+  } catch (e) {
+    const error = e as Error
+
+    console.log(
+      renderErrors(new Error(error.message, { cause: undefined }), {
+        logLevel: 'info',
+        prefixText: pc.red('Something went wrong with processing the CLI\n'),
+      })
+    )
+
+    process.exit(1)
+  }
+
+  return program
+}

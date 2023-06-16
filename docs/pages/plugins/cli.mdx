@@ -26,58 +26,74 @@ import Link from 'next/link'
 ## Usage
 
 ```sh copy
-npx kubb --config kubb.config.js
+kubb --config kubb.config.js
 ```
-
-## Options
 
 ```mdx
-Usage: kubb [options]
+kubb/1.2.1
+
+Usage:
+  $ kubb [input]
+
+Commands:
+  [input]           Path of the input file(overrides the one in `kubb.config.js`)
+  generate [input]  Path of the input file(overrides the one in `kubb.config.js`)
+  init              Init Kubb
+
+For more info, run any command with the `--help` flag:
+  $ kubb --help
+  $ kubb generate --help
+  $ kubb init --help
 
 Options:
-  -c, --config <path>    Path to the Kubb config
-  -i, --input <path>     Path of the input file(overrides the one in `kubb.config.js`)
-  -l, --logLevel <type>  Type of the logging(overrides the one in `kubb.config.js`) (choices: "info", "silent", "stacktrace")
-  --init                 Init Kubb
-  -d, --debug            Debug mode (default: false)
-  -w, --watch            Watch mode based on the input file
-  -v                     Output the version number
-  -h, --help             Display help for command
+  -h, --help     Display this message
+  -v, --version  Display version number
 ```
 
-### --config (-c)
+## Generate(alias `generate`)
 
-Path to the Kubb config.
+! `kubb generate` and `kubb` is the same
 
-```sh copy
-npx kubb -c kubb.config.ts
+```mdx
+kubb/1.2.1
+
+Usage:
+  $ kubb generate [input]
+
+Options:
+  -c, --config <path>     Path to the Kubb config
+  -l, --log-level <type>  Type of the logging(overrides the one in `kubb.config.js`)
+  -d, --debug             Debug mode (default: false)
+  -w, --watch             Watch mode based on the input file
+  -h, --help              Display this message
 ```
-
-### --input (-i)
 
 Path of the input file(overrides the one in `kubb.config.js`)
 
 ```sh copy
-npx kubb -i petStore.yaml
+kubb petStore.yaml
 ```
 
-### --init
+### Options
 
-Init Kubb(`kubb.config.js` and install packages)
+#### --config (-c)
+
+Path to the Kubb config.
 
 ```sh copy
-npx kubb --init
+kubb -c kubb.config.ts
 ```
 
-### --debug (-d)
+
+#### --debug (-d)
 
 Debug mode (default: false).
 
 ```sh copy
-npx kubb -d
+kubb -d
 ```
 
-### --logLevel (-l)
+#### --log-level (-l)
 
 Type of the logging(overrides the one in `kubb.config.js`)
 
@@ -89,31 +105,45 @@ silent` will hide all information that is not relevant
  
 
 ```sh copy
-npx kubb -d
+kubb --log-level info
 ```
 
-### --watch (-w)
+#### --watch (-w)
 
 Watch mode based on the input file.
 
 ```sh copy
-npx kubb -w
+kubb -w
 ```
 
-### --version (-v)
+#### --version (-v)
 
 Output the version number
 
 ```sh copy
-npx kubb -v
+kubb -v
 ```
 
-### --help (-h)
+#### --help (-h)
 
 Display help for command
 
 ```sh copy
-npx kubb -h
+kubb -h
+```
+
+
+## Init
+Create a starting `package.json` with dependencies needed to get started with generating files.
+
+```mdx
+kubb/1.2.1
+
+Usage:
+  $ kubb init
+
+Options:
+  -h, --help  Display this message
 ```
 
 ## Depended

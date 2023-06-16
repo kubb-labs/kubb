@@ -26,10 +26,10 @@
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@tanstack/svelte-query": "^4.29.11",
+    "@tanstack/svelte-query": "^4.29.14",
     "axios": "^1.4.0",
     "svelte": "^3.59.1",
-    "tsup": "^6.7.0"
+    "tsup": "^7.0.0"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",

@@ -105,10 +105,6 @@ export type CLIOptions = {
    * Watch changes on input
    */
   watch?: string
-  /**
-   * Override `input` defined in `kubb.config.js`
-   */
-  input?: string
 
   /**
    * Override `logLevel` defined in `kubb.config.js`
