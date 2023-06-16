@@ -60,7 +60,7 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/swagger2openapi": "^7.0.0",
-    "eslint": "^8.42.0",
+    "eslint": "^8.43.0",
     "openapi-types": "^12.1.3",
     "tsup": "^7.0.0",
     "typescript": "^5.1.3"

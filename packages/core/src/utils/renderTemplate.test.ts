@@ -7,5 +7,8 @@ describe('renderTemplate', () => {
     expect(renderTemplate('{{name}}Service')).toBe('Service')
     expect(renderTemplate('{{name}}Service', {})).toBe('Service')
     expect(renderTemplate('Service')).toBe('Service')
+
+    expect(renderTemplate('./test/{{name}}Service', {})).toBe('./test/Service')
+    expect(renderTemplate('./test/{{name}}Service hello', {})).toBe('./test/Service hello')
   })
 })

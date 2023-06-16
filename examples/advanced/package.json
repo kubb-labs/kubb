@@ -13,10 +13,10 @@
   "scripts": {
     "build": "tsup",
     "clean": "rimraf ./dist",
-    "generate": "kubb --config kubb.config.ts",
-    "generate:js": "kubb --config .kubbrc",
-    "generate:json": "kubb --config kubb.json",
-    "generate:ts": "kubb --config kubb.config.ts",
+    "generate": "kubb generate --config kubb.config.ts",
+    "generate:js": "kubb generate --config .kubbrc",
+    "generate:json": "kubb generate --config kubb.json",
+    "generate:ts": "kubb generate --config kubb.config.ts",
     "start": "tsup --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

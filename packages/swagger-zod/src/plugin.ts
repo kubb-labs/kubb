@@ -50,9 +50,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (options?.tag && groupBy?.type === 'tag') {
         const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
+        const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
-        const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag: options.tag })))
-        const name = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Schemas', { tag: options.tag }), {
+        const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
+        const name = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Schemas', { tag }), {
           delimiter: '',
           transform: camelCaseTransformMerge,
         })
@@ -66,7 +67,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           })
         }
 
-        return pathParser.resolve(root, renderTemplate(template, { tag: options.tag }), fileName)
+        return pathParser.resolve(root, renderTemplate(template, { tag }), fileName)
       }
 
       return pathParser.resolve(root, output, fileName)
