@@ -1,4 +1,5 @@
 {
+  "packages/kubb": "1.2.1",
   "packages/core": "1.2.1",
   "packages/cli": "1.2.1",
   "packages/ts-codegen": "1.2.1",
