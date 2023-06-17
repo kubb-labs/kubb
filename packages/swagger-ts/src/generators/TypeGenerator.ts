@@ -12,7 +12,7 @@ import {
   modifiers,
 } from '@kubb/ts-codegen'
 
-import { camelCase, pascalCase } from 'change-case'
+import { camelCase, type Options as CaseOptions } from 'change-case'
 import ts from 'typescript'
 
 import { pluginName } from '../plugin.ts'
@@ -43,6 +43,11 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
   // Keep track of already used type aliases
   usedAliasNames: Record<string, number> = {}
+
+  caseOptions: CaseOptions = {
+    delimiter: '',
+    stripRegexp: /[^A-Z0-9$]/gi,
+  }
 
   constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, resolveName: ({ name }) => name, enumType: 'asConst' }) {
     super(options)
@@ -117,7 +122,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const schema = props[name] as OpenAPIV3.SchemaObject
 
       const isRequired = required && required.includes(name)
-      let type = this.getTypeFromSchema(schema, pascalCase(`${baseName || ''} ${name}`, { delimiter: '' }))
+      let type = this.getTypeFromSchema(schema, this.options.resolveName({ name: `${baseName || ''} ${name}`, pluginName }))
 
       if (!type) {
         return null
@@ -168,10 +173,10 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return factory.createTypeReferenceNode(ref.name ?? ref.propertyName, undefined)
     }
 
-    const originalName = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
+    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames)
     const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
 
-    if (originalName === baseName) {
+    if (baseName && camelCase(originalName, { delimiter: '' }) === camelCase(baseName, { delimiter: '' })) {
       ref = this.refs[$ref] = {
         propertyName,
         originalName,
@@ -267,13 +272,13 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       this.extraNodes.push(
         ...createEnumDeclaration({
-          name: camelCase(enumName, { delimiter: '' }),
-          typeName: pascalCase(enumName, { delimiter: '' }),
+          name: camelCase(enumName, this.caseOptions),
+          typeName: this.options.resolveName({ name: enumName, pluginName }),
           enums,
           type: this.options.enumType,
         })
       )
-      return factory.createTypeReferenceNode(pascalCase(enumName, { delimiter: '' }), undefined)
+      return factory.createTypeReferenceNode(this.options.resolveName({ name: enumName, pluginName }), undefined)
     }
 
     if (schema.enum) {

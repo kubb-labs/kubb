@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import pathParser from 'node:path'
 
-import { isURL } from '@kubb/core'
+import { URLPath } from '@kubb/core'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
 import swagger2openapi from 'swagger2openapi'
@@ -54,7 +54,7 @@ export async function oasPathParser(pathOrApi: string, { validate }: OasOptions 
 
 export async function oasParser(config: KubbConfig, options: OasOptions = {}): Promise<oas> {
   let pathOrApi = ''
-  if (isURL(config.input.path)) {
+  if (URLPath.isURL(config.input.path)) {
     pathOrApi = config.input.path
   } else {
     pathOrApi = pathParser.resolve(config.root, config.input.path)

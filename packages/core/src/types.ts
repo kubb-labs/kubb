@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import type { Logger } from './utils/logger.ts'
 import type { File, FileManager } from './managers/fileManager/index.ts'
-import type { PluginManager, SafeParseResult } from './managers/index.ts'
+import type { PluginManager } from './managers/index.ts'
 import type { Cache } from './utils/cache.ts'
 
 export interface Register {}
@@ -267,7 +267,6 @@ export type PluginContext<TOptions = Record<string, unknown>> = {
   addFile: (...file: File[]) => Promise<File[]>
   resolvePath: (params: ResolvePathParams<TOptions>) => OptionalPath
   resolveName: (params: ResolveNameParams) => string
-  load: (id: string) => Promise<SafeParseResult<'load'>>
   logger: Logger
 }
 

@@ -17,11 +17,9 @@ describe('ParallelPluginError', () => {
     logLevel: 'info',
     plugins: [],
   }
-  const onExecuteMock = vi.fn()
   const queueTaskMock = vi.fn()
   const pluginManager = new PluginManager(config, {
     logger: createLogger(),
-    onExecute: onExecuteMock,
     task: queueTaskMock,
   })
 

@@ -120,6 +120,6 @@ jobs:
             ${{ matrix.installer }} generate ./schemas/worldtime.yaml
             ${{ matrix.installer }} generate ./schemas/zalando.yaml
             ${{ matrix.installer }} generate ./schemas/requestBody.yaml
-            ${{ matrix.installer }} clean
+            ${{ matrix.installer }} generate ./schemas/box.json
 
 

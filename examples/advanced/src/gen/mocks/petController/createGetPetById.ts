@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker'
 
-import { createPet } from './createPet'
-import { GetPetById400 } from '../models/ts/petController/GetPetById'
-import { GetPetById404 } from '../models/ts/petController/GetPetById'
-import { GetPetByIdPathParams } from '../models/ts/petController/GetPetById'
-import { GetPetByIdQueryResponse } from '../models/ts/petController/GetPetById'
+import { createPet } from '../createPet'
+import { GetPetById400 } from '../../models/ts/petController/GetPetById'
+import { GetPetById404 } from '../../models/ts/petController/GetPetById'
+import { GetPetByIdPathParams } from '../../models/ts/petController/GetPetById'
+import { GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById'
 
 /**
  * @description Invalid ID supplied

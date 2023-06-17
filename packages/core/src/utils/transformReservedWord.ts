@@ -89,7 +89,7 @@ const reservedWords = [
 ]
 
 export function transformReservedWord(word: string): string {
-  if (word && reservedWords.includes(word)) {
+  if ((word && reservedWords.includes(word)) || word?.match(/^\d/)) {
     return `_${word}`
   }
 

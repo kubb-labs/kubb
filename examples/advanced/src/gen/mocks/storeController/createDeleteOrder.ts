@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker'
 
-import { DeleteOrder400 } from '../models/ts/storeController/DeleteOrder'
-import { DeleteOrder404 } from '../models/ts/storeController/DeleteOrder'
-import { DeleteOrderMutationResponse } from '../models/ts/storeController/DeleteOrder'
-import { DeleteOrderPathParams } from '../models/ts/storeController/DeleteOrder'
+import { DeleteOrder400 } from '../../models/ts/storeController/DeleteOrder'
+import { DeleteOrder404 } from '../../models/ts/storeController/DeleteOrder'
+import { DeleteOrderMutationResponse } from '../../models/ts/storeController/DeleteOrder'
+import { DeleteOrderPathParams } from '../../models/ts/storeController/DeleteOrder'
 
 /**
  * @description Invalid ID supplied

@@ -1,8 +1,6 @@
 import { getUniqueName, SchemaGenerator, uniqueId } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 
-import { pascalCase } from 'change-case'
-
 import { zodKeywords, zodParser } from '../parsers/index.ts'
 import { pluginName } from '../plugin.ts'
 
@@ -10,6 +8,7 @@ import type { PluginContext } from '@kubb/core'
 import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
 import type { ZodMeta } from '../parsers/index.ts'
+import { camelCase } from 'change-case'
 
 type Options = {
   withJSDocs?: boolean
@@ -166,10 +165,10 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       return [{ keyword: zodKeywords.ref, args: ref.name ?? ref.propertyName }]
     }
 
-    const originalName = pascalCase(getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames), { delimiter: '' })
+    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames)
     const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
 
-    if (originalName === baseName) {
+    if (baseName && camelCase(originalName, { delimiter: '' }) === camelCase(baseName, { delimiter: '' })) {
       ref = this.refs[$ref] = {
         propertyName,
         originalName,

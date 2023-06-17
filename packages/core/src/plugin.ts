@@ -32,7 +32,6 @@ type Options = {
   fileManager: FileManager
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
-  load: PluginContext['load']
   logger: PluginContext['logger']
 }
 
@@ -42,7 +41,7 @@ export type CorePluginOptions = PluginFactoryOptions<'core', Options, false, Plu
 export const pluginName: CorePluginOptions['name'] = 'core' as const
 
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
-  const { fileManager, resolvePath, resolveName, load, logger } = options
+  const { fileManager, resolvePath, resolveName, logger } = options
 
   return {
     name: pluginName,
@@ -95,7 +94,6 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
 
           return transformReservedWord(name)
         },
-        load,
         cache: createPluginCache(),
       }
     },

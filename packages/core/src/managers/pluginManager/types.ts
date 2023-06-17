@@ -1,5 +1,4 @@
 import type { KubbPlugin, PluginLifecycle, PluginLifecycleHooks } from '../../types.ts'
-import type { PluginManager } from './PluginManager.ts'
 
 /**
  * Get the type of the first argument in a function.
@@ -13,15 +12,9 @@ export type Executer<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
   strategy: Strategy
   hookName: H
   plugin: KubbPlugin
-  input?: unknown[] | undefined
+  parameters?: unknown[] | undefined
   output?: unknown
 }
-
-export type OnExecute<H extends PluginLifecycleHooks = PluginLifecycleHooks> = (
-  this: PluginManager,
-  executer: Executer<H> | undefined,
-  pluginManager: PluginManager
-) => void
 
 export type ParseResult<H extends PluginLifecycleHooks> = PluginLifecycle[H]
 

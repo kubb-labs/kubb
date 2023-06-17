@@ -43,7 +43,7 @@ export function renderErrors(error: Error | undefined, { prefixText, logLevel = 
     return [prefixText, ...error.errors.map((e) => renderErrors(e, { logLevel }))].filter(Boolean).join('\n')
   }
 
-  if (canLogHierarchy(logLevel, 'stacktrace')) {
+  if (canLogHierarchy(logLevel, 'info')) {
     const errors = getErrorCauses([error])
 
     return [prefixText, ...errors].filter(Boolean).join('\n')

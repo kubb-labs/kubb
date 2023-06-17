@@ -42,7 +42,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(root, fileName)
     },
     resolveName(name) {
-      return camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
+      return camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
     },
     async buildStart() {
       const oas = await swaggerApi.getOas()

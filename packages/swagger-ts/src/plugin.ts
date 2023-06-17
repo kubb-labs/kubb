@@ -58,7 +58,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(root, output, fileName)
     },
     resolveName(name) {
-      return pascalCase(name, { delimiter: '', transform: pascalCaseTransformMerge })
+      return pascalCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: pascalCaseTransformMerge })
     },
     async writeFile(source, path) {
       if (!path.endsWith('.ts') || !source) {
