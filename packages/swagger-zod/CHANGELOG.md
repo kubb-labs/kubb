@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.2.3...@kubb/swagger-zod-v1.2.4) (2023-06-17)
+
+
+### Bug Fixes
+
+* enums for `Zod` cannot have min/max ([79b8374](https://github.com/kubb-project/kubb/commit/79b8374d76063bf89e3a48fdef7ebea0aa84c808))
+
 ## [1.2.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.2.2...@kubb/swagger-zod-v1.2.3) (2023-06-17)
 
 
