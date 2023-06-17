@@ -1,5 +1,5 @@
-import { getEncodedText, getRelativePath } from '@kubb/core'
-import { OperationGenerator as Generator, Path } from '@kubb/swagger'
+import { getEncodedText, getRelativePath, URLPath } from '@kubb/core'
+import { OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
@@ -233,7 +233,7 @@ export class OperationGenerator extends Generator<Options> {
       return `
         {
           method: "${operation.method}",
-          path: "${new Path(operation.path).URL}",
+          path: "${new URLPath(operation.path).URL}",
           description: \`${getEncodedText(operation.getDescription())}\`,
           requestFormat: "json",
           parameters: [

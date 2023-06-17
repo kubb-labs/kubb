@@ -13,7 +13,7 @@
   "scripts": {
     "clean": "rimraf ./dist",
     "format": "prettier --write **/*.{ts,tsx}",
-    "generate": "kubb",
+    "generate": "kubb generate",
     "generate:debug": "node --inspect ../packages/cli/bin/kubb.js",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },

@@ -1,5 +1,5 @@
-import { createJSDocBlockText, getRelativePath } from '@kubb/core'
-import { OperationGenerator as Generator, getComments, getParams, Path } from '@kubb/swagger'
+import { createJSDocBlockText, getRelativePath, URLPath } from '@kubb/core'
+import { OperationGenerator as Generator, getComments, getParams } from '@kubb/swagger'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
 import { camelCase } from 'change-case'
@@ -136,7 +136,7 @@ export class OperationGenerator extends Generator<Options> {
             fetcher: () => {
               return client<${clientGenerics.join(', ')}>({
                 method: "get",
-                url: ${new Path(operation.path).template},
+                url: ${new URLPath(operation.path).template},
                 params
               });
             },
@@ -149,7 +149,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): SWRResponse<${clientGenerics.join(', ')}> {
           const { query: queryOptions } = options ?? {};
           
-          const query = useSWR<${clientGenerics.join(', ')}, string>(${new Path(operation.path).template}, {
+          const query = useSWR<${clientGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(params),
             ...queryOptions
           });
@@ -169,7 +169,7 @@ export class OperationGenerator extends Generator<Options> {
             fetcher: () => {
               return client<${clientGenerics.join(', ')}>({
                 method: "get",
-                url: ${new Path(operation.path).template}
+                url: ${new URLPath(operation.path).template}
               });
             },
           };
@@ -181,7 +181,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): SWRResponse<${clientGenerics.join(', ')}> {
           const { query: queryOptions } = options ?? {};
           
-          const query = useSWR<${clientGenerics.join(', ')}, string>(${new Path(operation.path).template}, {
+          const query = useSWR<${clientGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(${pathParams}),
             ...queryOptions
           });
@@ -201,7 +201,7 @@ export class OperationGenerator extends Generator<Options> {
             fetcher: () => {
               return client<${clientGenerics.join(', ')}>({
                 method: "get",
-                url: ${new Path(operation.path).template},
+                url: ${new URLPath(operation.path).template},
                 params
               });
             },
@@ -214,7 +214,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): SWRResponse<${clientGenerics.join(', ')}> {
           const { query: queryOptions } = options ?? {};
           
-          const query = useSWR<${clientGenerics.join(', ')}, string>(${new Path(operation.path).template}, {
+          const query = useSWR<${clientGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(${pathParams}, params),
             ...queryOptions
           });
@@ -232,7 +232,7 @@ export class OperationGenerator extends Generator<Options> {
           fetcher: () => {
             return client<${clientGenerics.join(', ')}>({
               method: "get",
-              url: ${new Path(operation.path).template}
+              url: ${new URLPath(operation.path).template}
             });
           },
         };
@@ -244,7 +244,7 @@ export class OperationGenerator extends Generator<Options> {
         export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): SWRResponse<${clientGenerics.join(', ')}> {
           const { query: queryOptions } = options ?? {};
 
-          const query = useSWR<${clientGenerics.join(', ')}, string>(${new Path(operation.path).template}, {
+          const query = useSWR<${clientGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
             ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(),
             ...queryOptions
           });
@@ -318,7 +318,7 @@ export class OperationGenerator extends Generator<Options> {
           const { mutation: mutationOptions } = options ?? {};
 
           return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
-          ${new Path(operation.path).template},
+          ${new URLPath(operation.path).template},
             (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
               return client<${clientGenerics.join(', ')}>({
                 method: "post",
@@ -402,7 +402,7 @@ export class OperationGenerator extends Generator<Options> {
           const { mutation: mutationOptions } = options ?? {};
 
           return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
-          ${new Path(operation.path).template},
+          ${new URLPath(operation.path).template},
           (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
               return client<${clientGenerics.join(', ')}>({
                 method: "put",
@@ -486,7 +486,7 @@ export class OperationGenerator extends Generator<Options> {
         const { mutation: mutationOptions } = options ?? {};
 
         return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
-        ${new Path(operation.path).template},
+        ${new URLPath(operation.path).template},
         (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
             return client<${clientGenerics.join(', ')}>({
               method: "delete",

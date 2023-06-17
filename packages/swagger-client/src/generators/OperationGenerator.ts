@@ -1,5 +1,5 @@
-import { createJSDocBlockText, getRelativePath } from '@kubb/core'
-import { OperationGenerator as Generator, getComments, getParams, Path } from '@kubb/swagger'
+import { createJSDocBlockText, getRelativePath, URLPath } from '@kubb/core'
+import { OperationGenerator as Generator, getComments, getParams } from '@kubb/swagger'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
 import { pluginName } from '../plugin.ts'
@@ -93,7 +93,7 @@ export class OperationGenerator extends Generator<Options> {
         const operation = oas.operation(path, method as HttpMethod)
         if (operation) {
           groupedByOperationId[operation.getOperationId()] = {
-            path: new Path(path).URL,
+            path: new URLPath(path).URL,
             method: method as HttpMethod,
           }
         }
@@ -129,7 +129,7 @@ export class OperationGenerator extends Generator<Options> {
       export function ${controller.name} <${generics.join(', ')}>(${params.join(', ')}) {
         return client<${clientGenerics.join(', ')}>({
           method: "get",
-          url: ${new Path(operation.path).template},
+          url: ${new URLPath(operation.path).template},
           ${schemas.queryParams?.name ? 'params,' : ''}
         });
       };
@@ -176,7 +176,7 @@ export class OperationGenerator extends Generator<Options> {
       export function ${controller.name} <${generics.join(', ')}>(${params.join(', ')}) {
         return client<${clientGenerics.join(', ')}>({
           method: "post",
-          url: ${new Path(operation.path).template},
+          url: ${new URLPath(operation.path).template},
           ${schemas.request?.name ? 'data,' : ''}
           ${schemas.queryParams?.name ? 'params,' : ''}
         });
@@ -224,7 +224,7 @@ export class OperationGenerator extends Generator<Options> {
       export function ${controller.name} <${generics.join(', ')}>(${params.join(', ')}) {
         return client<${clientGenerics.join(', ')}>({
           method: "put",
-          url: ${new Path(operation.path).template},
+          url: ${new URLPath(operation.path).template},
           ${schemas.request?.name ? 'data,' : ''}
           ${schemas.queryParams?.name ? 'params,' : ''}
         });
@@ -272,7 +272,7 @@ export class OperationGenerator extends Generator<Options> {
       export function ${controller.name} <${generics.join(', ')}>(${params.join(', ')}) {
         return client<${clientGenerics.join(', ')}>({
           method: "delete",
-          url: ${new Path(operation.path).template},
+          url: ${new URLPath(operation.path).template},
           ${schemas.request?.name ? 'data,' : ''}
           ${schemas.queryParams?.name ? 'params,' : ''}
         });

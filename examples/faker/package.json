@@ -13,10 +13,10 @@
   "type": "module",
   "scripts": {
     "build": "tsup",
-    "generate": "kubb",
-    "generate:js": "kubb --config .kubbrc",
-    "generate:json": "kubb --config kubb.json",
-    "generate:ts": "kubb --config kubb.config.js",
+    "generate": "kubb generate",
+    "generate:js": "kubb generate --config .kubbrc",
+    "generate:json": "kubb generate --config kubb.json",
+    "generate:ts": "kubb generate --config kubb.config.js",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

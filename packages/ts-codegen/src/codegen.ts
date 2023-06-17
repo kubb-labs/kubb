@@ -221,10 +221,12 @@ export function createExportDeclaration({
   }
 
   if (!Array.isArray(name)) {
+    const parsedName = name?.match(/^\d/) ? `_${name?.slice(1)}` : name
+
     return factory.createExportDeclaration(
       undefined,
       isTypeOnly,
-      asAlias && name ? factory.createNamespaceExport(factory.createIdentifier(name)) : undefined,
+      asAlias && parsedName ? factory.createNamespaceExport(factory.createIdentifier(parsedName)) : undefined,
       factory.createStringLiteral(path),
       undefined
     )

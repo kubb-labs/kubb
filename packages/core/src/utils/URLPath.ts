@@ -1,6 +1,6 @@
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-export class Path {
+export class URLPath {
   path: string
 
   constructor(path: string) {
@@ -32,16 +32,25 @@ export class Path {
    * @example /account/userID => `/account/${userId}`
    */
   toTemplateString(): string {
+    return URLPath.toTemplateString(this.path)
+  }
+  /**
+   * Convert Swagger path to template literals/ template strings(camelcase)
+   * @example /pet/{petId} => `/pet/${petId}`
+   * @example /account/monetary-accountID => `/account/${monetaryAccountId}`
+   * @example /account/userID => `/account/${userId}`
+   */
+  static toTemplateString(path: string): string {
     const regex = /{(\w|-)*}/g
-    const found = this.path.match(regex)
-    let newPath = this.path.replaceAll('{', '${')
+    const found = path.match(regex)
+    let newPath = path.replaceAll('{', '${')
 
     if (found) {
       newPath = found.reduce((prev, curr) => {
         const replacement = `\${${camelCase(curr, { delimiter: '', transform: camelCaseTransformMerge })}}`
 
         return prev.replace(curr, replacement)
-      }, this.path)
+      }, path)
     }
 
     return `\`${newPath}\``
@@ -52,6 +61,10 @@ export class Path {
    * @example /pet/{petId} => /pet/:petId
    */
   toURLPath(): string {
-    return this.path.replaceAll('{', ':').replaceAll('}', '')
+    return URLPath.toURLPath(this.path)
+  }
+
+  static toURLPath(path: string): string {
+    return path.replaceAll('{', ':').replaceAll('}', '')
   }
 }

@@ -1,5 +1,5 @@
-import { createJSDocBlockText, getRelativePath } from '@kubb/core'
-import { OperationGenerator as Generator, getComments, getParams, Path } from '@kubb/swagger'
+import { createJSDocBlockText, getRelativePath, URLPath } from '@kubb/core'
+import { OperationGenerator as Generator, getComments, getParams } from '@kubb/swagger'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
 import { camelCase } from 'change-case'
@@ -258,7 +258,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (schemas.queryParams && !schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new Path(operation.path).template}, ...(params ? [params] : [])] as const;
+        export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new URLPath(operation.path).template}, ...(params ? [params] : [])] as const;
       `)
 
       sources.push(`
@@ -272,7 +272,7 @@ export class OperationGenerator extends Generator<Options> {
             queryFn: () => {
               return client<${clientGenerics.join(', ')}>({
                 method: "get",
-                url: ${new Path(operation.path).template},
+                url: ${new URLPath(operation.path).template},
                 params
               });
             },
@@ -302,7 +302,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (!schemas.queryParams && schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new Path(operation.path).template}] as const;
+        export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new URLPath(operation.path).template}] as const;
       `)
 
       sources.push(`
@@ -316,7 +316,7 @@ export class OperationGenerator extends Generator<Options> {
             queryFn: () => {
               return client<${clientGenerics.join(', ')}>({
                 method: "get",
-                url: ${new Path(operation.path).template}
+                url: ${new URLPath(operation.path).template}
               });
             },
           };
@@ -345,7 +345,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (schemas.queryParams && schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new Path(operation.path).template}, ...(params ? [params] : [])] as const;
+        export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new URLPath(operation.path).template}, ...(params ? [params] : [])] as const;
       `)
 
       sources.push(`
@@ -359,7 +359,7 @@ export class OperationGenerator extends Generator<Options> {
             queryFn: () => {
               return client<${clientGenerics.join(', ')}>({
                 method: "get",
-                url: ${new Path(operation.path).template},
+                url: ${new URLPath(operation.path).template},
                 params
               });
             },
@@ -389,7 +389,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (!schemas.queryParams && !schemas.pathParams) {
       sources.push(`
-        export const ${queryKey} = () => [${new Path(operation.path).template}] as const;
+        export const ${queryKey} = () => [${new URLPath(operation.path).template}] as const;
       `)
 
       sources.push(`
@@ -403,7 +403,7 @@ export class OperationGenerator extends Generator<Options> {
           queryFn: () => {
             return client<${clientGenerics.join(', ')}>({
               method: "get",
-              url: ${new Path(operation.path).template}
+              url: ${new URLPath(operation.path).template}
             });
           },
         };
@@ -487,7 +487,7 @@ export class OperationGenerator extends Generator<Options> {
             mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
               return client<${clientGenerics.join(', ')}>({
                 method: "post",
-                url: ${new Path(operation.path).template},
+                url: ${new URLPath(operation.path).template},
                 ${schemas.request?.name ? 'data,' : ''}
                 ${schemas.queryParams?.name ? 'params,' : ''}
               });
@@ -560,7 +560,7 @@ export class OperationGenerator extends Generator<Options> {
             mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
               return client<${clientGenerics.join(', ')}>({
                 method: "put",
-                url: ${new Path(operation.path).template},
+                url: ${new URLPath(operation.path).template},
                 ${schemas.request?.name ? 'data,' : ''}
                 ${schemas.queryParams?.name ? 'params,' : ''}
               });
@@ -635,7 +635,7 @@ export class OperationGenerator extends Generator<Options> {
             mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
               return client<${clientGenerics.join(', ')}>({
                 method: "delete",
-                url: ${new Path(operation.path).template},
+                url: ${new URLPath(operation.path).template},
                 ${schemas.request?.name ? 'data,' : ''}
                 ${schemas.queryParams?.name ? 'params,' : ''}
               });
