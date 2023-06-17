@@ -222,7 +222,7 @@ export class OperationGenerator extends Generator<Options> {
             errors.push(`
               {
                 status: ${errorOperationSchema.statusCode},
-                description: \`${errorOperationSchema.description || ''}\`,
+                description: \`${getEncodedText(errorOperationSchema.description)}\`,
                 schema: ${name}
               }
             `)

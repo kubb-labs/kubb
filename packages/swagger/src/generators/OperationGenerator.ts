@@ -10,8 +10,26 @@ import type { Operation } from 'oas'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types.ts'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { Oas, OperationSchemas, Resolver } from '../types.ts'
+import { Warning } from '@kubb/core'
 
 export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: Oas }> extends Generator<TOptions> {
+  /**
+   *
+   * Validate an operation to see if used with camelCase we don't overwrite other files
+   * DRAFT version
+   */
+  validate(operation: Operation): void {
+    const { oas } = this.options
+    const schemas = oas.getDefinition().components?.schemas || {}
+
+    const foundSchemaKey = Object.keys(schemas).find(
+      (key) => key.toLowerCase() === pascalCase(operation.getOperationId(), { delimiter: '', transform: pascalCaseTransformMerge }).toLowerCase()
+    )
+
+    if (foundSchemaKey) {
+      throw new Warning(`OperationId '${operation.getOperationId()}' has the same name used as in schemas '${foundSchemaKey}' when using CamelCase`)
+    }
+  }
   private getParametersSchema(operation: Operation, inKey: 'path' | 'query') {
     const { oas } = this.options
 

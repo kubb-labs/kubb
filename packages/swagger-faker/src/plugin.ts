@@ -74,7 +74,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(root, output, fileName)
     },
     resolveName(name) {
-      return camelCase(`create ${name}`, { delimiter: '', transform: camelCaseTransformMerge })
+      return camelCase(`create ${name}`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
     },
     async writeFile(source, path) {
       if (!path.endsWith('.ts') || !source) {

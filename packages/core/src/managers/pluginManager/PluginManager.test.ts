@@ -72,11 +72,9 @@ describe('PluginManager', () => {
     logLevel: 'info',
     plugins: [pluginA({}), pluginB({})],
   } satisfies KubbConfig
-  const onExecuteMock = vi.fn()
   const queueTaskMock = vi.fn()
   const pluginManager = new PluginManager(config, {
     logger: createLogger(),
-    onExecute: onExecuteMock,
     task: queueTaskMock,
   })
 
@@ -215,16 +213,6 @@ describe('PluginManager', () => {
 
     expect(name).toBe('pluginBName')
     expect(hookForPluginSyncMock).toBeCalled()
-  })
-
-  test('load', async () => {
-    const hooksFirstMock = vi.fn(pluginManager.hookFirst)
-
-    pluginManager.hookFirst = hooksFirstMock as any
-    const { result: name } = await pluginManager.load('id')
-
-    expect(name).toBe('id')
-    expect(hooksFirstMock).toBeCalledWith({ hookName: 'load', parameters: ['id'] })
   })
 
   test('hookForPlugin', async () => {

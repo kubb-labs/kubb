@@ -14,7 +14,11 @@ export class ParallelPluginError extends Error {
     this.pluginManager = options.pluginManager
   }
 
-  findError<T extends Error = Error>(searchError: T): T | undefined {
+  findError<T extends Error = Error>(searchError: T | undefined): T | undefined {
+    if (!searchError) {
+      return undefined
+    }
+
     return this.errors.find((error) => {
       if (error.cause) {
         if (error.cause.name == searchError.name) {

@@ -134,7 +134,7 @@ export const configExamples: Linter.FlatConfig = {
 }
 
 export const configTest: Linter.FlatConfig = {
-  files: ['**/*.test.*'],
+  files: ['**/*.test.ts', '**/*.test.tsx'],
   ignores: ignores.all,
   rules: {
     '@typescript-eslint/no-unsafe-assignment': 'off',

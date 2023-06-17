@@ -7,11 +7,12 @@ import { FileManager } from '../fileManager/FileManager.ts'
 import { ParallelPluginError } from './ParallelPluginError.ts'
 import { PluginError } from './PluginError.ts'
 
+import { EventEmitter } from '../../utils/EventEmitter.ts'
+
 import type { CorePluginOptions } from '../../plugin.ts'
 import type {
   KubbConfig,
   KubbPlugin,
-  KubbUserPlugin,
   PossiblePromise,
   PluginContext,
   PluginLifecycle,
@@ -21,9 +22,10 @@ import type {
   OptionalPath,
 } from '../../types.ts'
 import type { QueueTask } from '../../utils/Queue.ts'
-import type { Argument0, Executer, OnExecute, ParseResult, SafeParseResult, Strategy } from './types.ts'
+import type { Argument0, Executer, ParseResult, SafeParseResult, Strategy } from './types.ts'
 import type { Logger } from '../../utils/logger.ts'
 import type { ResolvedFile } from '../fileManager/types.ts'
+import { pluginParser } from './pluginParser.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
@@ -41,28 +43,19 @@ const hookNames: {
   buildEnd: 1,
 }
 export const hooks = Object.keys(hookNames) as [PluginLifecycleHooks]
-// TODO move to utils file
-const convertKubbUserPluginToKubbPlugin = (plugin: KubbUserPlugin, context: CorePluginOptions['api'] | undefined): KubbPlugin | null => {
-  if (plugin.api && typeof plugin.api === 'function') {
-    const api = (plugin.api as Function).call(context) as typeof plugin.api
 
-    return {
-      ...plugin,
-      api,
-    }
-  }
+type Options = { debug?: boolean; task: QueueTask<ResolvedFile>; logger: Logger }
 
-  return null
+type Events = {
+  execute: [executer: Executer]
+  executed: [executer: Executer]
+  error: [pluginError: PluginError]
 }
-
-type Options = { debug?: boolean; task: QueueTask<ResolvedFile>; logger: Logger; onExecute?: OnExecute<PluginLifecycleHooks> }
 
 export class PluginManager {
   public plugins: KubbPlugin[]
 
   public readonly fileManager: FileManager
-
-  private readonly onExecute?: OnExecute
 
   private readonly core: KubbPlugin<CorePluginOptions>
 
@@ -70,18 +63,17 @@ export class PluginManager {
 
   public executed: Executer[] = []
   public logger: Logger
+  public eventEmitter: EventEmitter<Events> = new EventEmitter()
 
   constructor(config: KubbConfig, options: Options) {
-    this.onExecute = options.onExecute?.bind(this)
     this.logger = options.logger
     this.queue = new Queue(100, options.debug)
-
     this.fileManager = new FileManager({ task: options.task, queue: this.queue })
+
     const core = definePlugin({
       config,
       logger: this.logger,
       fileManager: this.fileManager,
-      load: this.load,
       resolvePath: this.resolvePath,
       resolveName: this.resolveName,
     }) as KubbPlugin<CorePluginOptions> & {
@@ -89,14 +81,12 @@ export class PluginManager {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const convertedCore = convertKubbUserPluginToKubbPlugin(core, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
-
-    this.core = convertedCore
+    this.core = pluginParser(core, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
 
     this.plugins = [this.core, ...(config.plugins || [])].reduce((prev, plugin) => {
       // TODO HACK to be sure that this is equal to the `core.api` logic.
 
-      const convertedApi = convertKubbUserPluginToKubbPlugin(plugin, convertedCore?.api)
+      const convertedApi = pluginParser(plugin, this.core?.api)
 
       if (convertedApi) {
         return [...prev, convertedApi]
@@ -136,11 +126,9 @@ export class PluginManager {
     }).result
   }
 
-  load = async (id: string): Promise<SafeParseResult<'load'>> => {
-    return this.hookFirst({
-      hookName: 'load',
-      parameters: [id],
-    })
+  on<TEventName extends keyof Events & string>(eventName: TEventName, handler: (...eventArg: Events[TEventName]) => void): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.eventEmitter.on(eventName, handler as any)
   }
 
   /**
@@ -381,9 +369,8 @@ export class PluginManager {
   }
 
   private addExecutedToCallStack(executer: Executer | undefined) {
-    this.onExecute?.call(this, executer, this)
-
     if (executer) {
+      this.eventEmitter.emit('execute', executer)
       this.executed.push(executer)
     }
   }
@@ -413,6 +400,8 @@ export class PluginManager {
       return null
     }
 
+    this.eventEmitter.emit('execute', { strategy, hookName, parameters, plugin })
+
     const task = Promise.resolve()
       .then(() => {
         if (typeof hook === 'function') {
@@ -438,7 +427,7 @@ export class PluginManager {
       })
       .finally(() => {
         this.addExecutedToCallStack({
-          input: parameters,
+          parameters,
           output,
           strategy,
           hookName,
@@ -447,7 +436,6 @@ export class PluginManager {
       })
 
     return this.queue.run(() => task)
-    // return task
   }
 
   /**
@@ -475,6 +463,8 @@ export class PluginManager {
       return null
     }
 
+    this.eventEmitter.emit('execute', { strategy, hookName, parameters, plugin })
+
     try {
       if (typeof hook === 'function') {
         const fn = (hook as Function).apply(this.core.api, parameters) as ReturnType<ParseResult<H>>
@@ -491,7 +481,7 @@ export class PluginManager {
       return null as ReturnType<ParseResult<H>>
     } finally {
       this.addExecutedToCallStack({
-        input: parameters,
+        parameters,
         output,
         strategy,
         hookName,
@@ -502,8 +492,11 @@ export class PluginManager {
 
   private catcher<H extends PluginLifecycleHooks>(e: Error, plugin: KubbPlugin, hookName: H) {
     const text = `${e.message} (plugin: ${plugin.name}, hook: ${hookName})\n`
+    const pluginError = new PluginError(text, { cause: e, pluginManager: this })
 
-    throw new PluginError(text, { cause: e, pluginManager: this })
+    this.eventEmitter.emit('error', pluginError)
+
+    throw pluginError
   }
 }
 

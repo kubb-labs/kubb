@@ -62,9 +62,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return pathParser.resolve(root, output, fileName)
     },
-    resolveName(name) {
-      return name
-    },
     async writeFile(source, path) {
       if (!path.endsWith('.json') || !source) {
         return

@@ -1,11 +1,10 @@
 import { getFileSource } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
-import { clean, createLogger, isURL, randomPicoColour, read } from './utils/index.ts'
+import { clean, createLogger, URLPath, randomPicoColour, read } from './utils/index.ts'
 import { isPromise } from './utils/isPromise.ts'
 import pc from 'picocolors'
 
 import type { File, ResolvedFile } from './managers/fileManager/index.ts'
-import type { OnExecute } from './managers/pluginManager/index.ts'
 import { LogLevel } from './types.ts'
 import type { BuildOutput, KubbPlugin, PluginContext, TransformResult } from './types.ts'
 import type { QueueTask, Logger } from './utils/index.ts'
@@ -33,7 +32,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   const { config, debug, logger = createLogger() } = options
 
   try {
-    if (!isURL(config.input.path)) {
+    if (!URLPath.isURL(config.input.path)) {
       await read(config.input.path)
     }
   } catch (e) {
@@ -81,15 +80,14 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     }
   }
 
-  const onExecute: OnExecute = (executer) => {
-    if (!executer) {
-      return
-    }
+  const pluginManager = new PluginManager(config, { debug, logger, task: queueTask as QueueTask<ResolvedFile> })
+  const { plugins, fileManager } = pluginManager
 
-    const { hookName, plugin, output, input } = executer
+  pluginManager.on('execute', (executer) => {
+    const { hookName, plugin, output, parameters } = executer
     const messsage = `${randomPicoColour(plugin.name)} Executing ${hookName}`
 
-    if (config.logLevel === LogLevel.info && logger?.spinner && input) {
+    if (config.logLevel === LogLevel.info && logger?.spinner && parameters) {
       if (debug) {
         logger.info(messsage)
       } else {
@@ -97,20 +95,17 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
       }
     }
 
-    if (config.logLevel === LogLevel.stacktrace && logger?.spinner && input) {
+    if (config.logLevel === LogLevel.stacktrace && logger?.spinner && parameters) {
       logger.info(messsage)
       const logs = [
-        input && `${pc.bgWhite(`Input`)} ${randomPicoColour(plugin.name)} ${hookName}`,
-        JSON.stringify(input, undefined, 2),
+        parameters && `${pc.bgWhite(`Parameters`)} ${randomPicoColour(plugin.name)} ${hookName}`,
+        JSON.stringify(parameters, undefined, 2),
         output && `${pc.bgWhite('Output')} ${randomPicoColour(plugin.name)} ${hookName}`,
         output,
       ].filter(Boolean)
       console.log(logs.join('\n'))
     }
-  }
-
-  const pluginManager = new PluginManager(config, { debug, logger, task: queueTask as QueueTask<ResolvedFile>, onExecute })
-  const { plugins, fileManager } = pluginManager
+  })
 
   await pluginManager.hookParallel<'validate', true>({
     hookName: 'validate',

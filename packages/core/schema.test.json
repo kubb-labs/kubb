@@ -2,7 +2,7 @@
   "$schema": "./schema.json",
   "root": "./schemas",
   "input": {
-    "schema": "./mocks/schema.json",
+    "schema": "./mocks/schema.json"
   },
   "output": {
     "path": "./gen"

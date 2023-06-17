@@ -107,7 +107,7 @@ function getSummary({ pluginManager, status, hrstart, config, logLevel }: Summar
     plugins:
       status === 'success'
         ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
-        : `${pc.red(`${failedPlugins?.length || 0} failed`)}, ${pluginsCount} total`,
+        : `${pc.red(`${failedPlugins?.length ?? 1} failed`)}, ${pluginsCount} total`,
     pluginsFailed: status === 'failed' ? failedPlugins?.map((name) => randomPicoColour(name))?.join(', ') : undefined,
     filesCreated: files.length,
     time: pc.yellow(`${elapsedSeconds}s`),

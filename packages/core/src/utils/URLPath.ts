@@ -14,6 +14,9 @@ export class URLPath {
   get URL(): string {
     return this.toURLPath()
   }
+  get isUrl(): boolean {
+    return URLPath.isURL(this.path)
+  }
 
   /**
    * Convert Swagger path to template literals/ template strings(camelcase)
@@ -66,5 +69,17 @@ export class URLPath {
 
   static toURLPath(path: string): string {
     return path.replaceAll('{', ':').replaceAll('}', '')
+  }
+
+  static isURL(path: string): boolean {
+    try {
+      const url = new URL(path)
+      if (url?.href) {
+        return true
+      }
+    } catch (error) {
+      return false
+    }
+    return false
   }
 }
