@@ -121,5 +121,5 @@ jobs:
             ${{ matrix.installer }} generate ./schemas/zalando.yaml
             ${{ matrix.installer }} generate ./schemas/requestBody.yaml
             ${{ matrix.installer }} generate ./schemas/box.json
-
+            ${{ matrix.installer }} generate ./schemas/digitalocean.yaml
 
