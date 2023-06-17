@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.2.2...@kubb/ts-codegen-v1.2.3) (2023-06-17)
+
+
+### Bug Fixes
+
+* when alias starts with a number, exclude and replace by _ ([10962ff](https://github.com/kubb-project/kubb/commit/10962ff755f61208d88f36d0c8bd87823d5e8410))
+
 ## [1.2.2](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.2.1...@kubb/ts-codegen-v1.2.2) (2023-06-16)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js and Axios.",
   "keywords": [
     "typescript",
