@@ -21,7 +21,7 @@ import type {
   ResolvePathParams,
   OptionalPath,
 } from '../../types.ts'
-import type { QueueTask } from '../../utils/Queue.ts'
+import type { QueueJob } from '../../utils/Queue.ts'
 import type { Argument0, Executer, ParseResult, SafeParseResult, Strategy } from './types.ts'
 import type { Logger } from '../../utils/logger.ts'
 import type { ResolvedFile } from '../fileManager/types.ts'
@@ -44,7 +44,7 @@ const hookNames: {
 }
 export const hooks = Object.keys(hookNames) as [PluginLifecycleHooks]
 
-type Options = { debug?: boolean; task: QueueTask<ResolvedFile>; logger: Logger }
+type Options = { debug?: boolean; task: QueueJob<ResolvedFile>; logger: Logger }
 
 type Events = {
   execute: [executer: Executer]
@@ -63,11 +63,11 @@ export class PluginManager {
 
   public executed: Executer[] = []
   public logger: Logger
-  public eventEmitter: EventEmitter<Events> = new EventEmitter()
+  private eventEmitter: EventEmitter<Events> = new EventEmitter()
 
   constructor(config: KubbConfig, options: Options) {
     this.logger = options.logger
-    this.queue = new Queue(100, options.debug)
+    this.queue = new Queue(50, options.debug)
     this.fileManager = new FileManager({ task: options.task, queue: this.queue })
 
     const core = definePlugin({

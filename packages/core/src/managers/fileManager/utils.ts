@@ -11,7 +11,7 @@ import type { File } from './types.ts'
 
 type TreeNodeData = { type: PathMode; path: Path; name: string }
 
-export function writeIndexes(root: string, options: TreeNodeOptions = {}): File[] | null {
+export function getIndexes(root: string, options: TreeNodeOptions = {}): File[] | null {
   const tree = TreeNode.build<TreeNodeData>(root, { extensions: /\.ts/, ...options })
 
   if (!tree) {

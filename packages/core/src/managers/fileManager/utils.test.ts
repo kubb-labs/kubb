@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { format } from '../../../mocks/format.ts'
-import { combineFiles, getFileSource, writeIndexes } from './utils.ts'
+import { combineFiles, getFileSource, getIndexes } from './utils.ts'
 
 import type { File } from './types.ts'
 
@@ -234,7 +234,7 @@ export const test2 = 3;`,
 
   test(`if writeIndexes returns 'index.ts' files`, () => {
     const rootPath = path.resolve(__dirname, '../../../mocks/treeNode')
-    const files = writeIndexes(rootPath)
+    const files = getIndexes(rootPath)
 
     expect(files?.every((file) => file.fileName === 'index.ts')).toBeTruthy()
   })

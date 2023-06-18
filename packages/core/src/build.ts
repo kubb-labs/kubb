@@ -7,7 +7,7 @@ import pc from 'picocolors'
 import type { File, ResolvedFile } from './managers/fileManager/index.ts'
 import { LogLevel } from './types.ts'
 import type { BuildOutput, KubbPlugin, PluginContext, TransformResult } from './types.ts'
-import type { QueueTask, Logger } from './utils/index.ts'
+import type { QueueJob, Logger } from './utils/index.ts'
 
 type BuildOptions = {
   config: PluginContext['config']
@@ -80,7 +80,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     }
   }
 
-  const pluginManager = new PluginManager(config, { debug, logger, task: queueTask as QueueTask<ResolvedFile> })
+  const pluginManager = new PluginManager(config, { debug, logger, task: queueTask as QueueJob<ResolvedFile> })
   const { plugins, fileManager } = pluginManager
 
   pluginManager.on('execute', (executer) => {

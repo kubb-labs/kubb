@@ -1,25 +1,27 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import crypto from 'node:crypto'
 import { performance } from 'node:perf_hooks'
 
-export type QueueTask<T = unknown> = {
+export type QueueJob<T = unknown> = {
   (...args: unknown[]): Promise<T> | Promise<void>
 }
 
 type RunOptions = {
-  name: string
-  description: string
+  controller?: AbortController
+  name?: string
+  description?: string
 }
 
 type QueueItem = {
   reject: <T>(reason?: T) => void
   resolve: <T>(value: T | PromiseLike<T>) => void
-  task: QueueTask<unknown>
-} & RunOptions
+  job: QueueJob<unknown>
+} & Required<RunOptions>
 
 export class Queue {
-  private readonly queue: QueueItem[] = []
+  private queue: QueueItem[] = []
 
-  workerCount = 0
+  private workerCount = 0
 
   private maxParallel: number
   private debug = false
@@ -29,13 +31,36 @@ export class Queue {
     this.debug = debug
   }
 
-  run<T>(task: QueueTask<T>, options: RunOptions = { name: crypto.randomUUID(), description: '' }): Promise<T> {
+  run<T>(job: QueueJob<T>, options: RunOptions = { controller: new AbortController(), name: crypto.randomUUID(), description: '' }): Promise<T> {
     return new Promise<T>((resolve, reject) => {
-      const item = { reject, resolve, task, name: options.name, description: options.description || options.name } as QueueItem
+      const item = { reject, resolve, job, name: options.name, description: options.description || options.name } as QueueItem
+
+      options.controller?.signal.addEventListener('abort', () => {
+        this.queue = this.queue.filter((queueItem) => queueItem.name === item.name)
+
+        reject('Aborted')
+      })
 
       this.queue.push(item)
       this.work()
     })
+  }
+
+  runSync<T>(job: QueueJob<T>, options: RunOptions = { controller: new AbortController(), name: crypto.randomUUID(), description: '' }): void {
+    new Promise<T>((resolve, reject) => {
+      const item = { reject, resolve, job, name: options.name, description: options.description || options.name } as QueueItem
+
+      options.controller?.signal.addEventListener('abort', () => {
+        this.queue = this.queue.filter((queueItem) => queueItem.name === item.name)
+      })
+
+      this.queue.push(item)
+      this.work()
+    })
+  }
+
+  get hasJobs(): boolean {
+    return this.workerCount > 0 || this.queue.length > 0
   }
 
   private work(): void {
@@ -46,12 +71,12 @@ export class Queue {
 
     let entry: QueueItem | undefined
     while ((entry = this.queue.shift())) {
-      const { reject, resolve, task, name, description } = entry
+      const { reject, resolve, job, name, description } = entry
       if (this.debug) {
         performance.mark(name + '_start')
       }
 
-      task()
+      job()
         .then((result) => {
           resolve(result)
 

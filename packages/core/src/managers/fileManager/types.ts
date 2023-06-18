@@ -49,4 +49,8 @@ export type ResolvedFile = File & {
   id: UUID
 }
 
+export type CacheItem = ResolvedFile & {
+  cancel?: () => void
+}
+
 export type Status = 'new' | 'success' | 'removed'
