@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.5](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.2.4...@kubb/core-v1.2.5) (2023-06-18)
+
+
+### Bug Fixes
+
+* advanced queue ([e8e90b9](https://github.com/kubb-project/kubb/commit/e8e90b9cbeadad793b759a174641874dc39c2c01))
+* max 50 queue items per run ([c90e28f](https://github.com/kubb-project/kubb/commit/c90e28f324a98ea21f136058f5e02342d8b22a17))
+
 ## [1.2.4](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.2.3...@kubb/core-v1.2.4) (2023-06-17)
 
 
