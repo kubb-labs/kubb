@@ -120,7 +120,7 @@ export class FileManager {
 
   async write(...params: Parameters<typeof write>): Promise<void> {
     if (this.queue) {
-      this.queue.run(async () => {
+      return this.queue.run(async () => {
         return write(...params)
       })
     }
@@ -130,7 +130,7 @@ export class FileManager {
 
   async read(...params: Parameters<typeof read>): Promise<string> {
     if (this.queue) {
-      this.queue.run(async () => {
+      return this.queue.run(async () => {
         return read(...params)
       })
     }

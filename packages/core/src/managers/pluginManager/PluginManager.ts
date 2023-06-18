@@ -67,7 +67,7 @@ export class PluginManager {
 
   constructor(config: KubbConfig, options: Options) {
     this.logger = options.logger
-    this.queue = new Queue(1, options.debug)
+    this.queue = new Queue(50, options.debug)
     this.fileManager = new FileManager({ task: options.task, queue: this.queue })
 
     const core = definePlugin({

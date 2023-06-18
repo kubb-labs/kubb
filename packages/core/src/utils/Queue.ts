@@ -22,7 +22,6 @@ export class Queue {
   private queue: QueueItem[] = []
 
   private workerCount = 0
-  private workerExecuting = false
 
   private maxParallel: number
   private debug = false
@@ -61,7 +60,7 @@ export class Queue {
   }
 
   get hasJobs(): boolean {
-    return this.workerCount > 0 || this.workerExecuting || this.queue.length > 0
+    return this.workerCount > 0 || this.queue.length > 0
   }
 
   private work(): void {
@@ -77,8 +76,6 @@ export class Queue {
         performance.mark(name + '_start')
       }
 
-      this.workerExecuting = true
-
       job()
         .then((result) => {
           resolve(result)
@@ -89,7 +86,6 @@ export class Queue {
           }
         })
         .catch((err) => reject(err))
-        .finally(() => (this.workerExecuting = false))
     }
 
     this.workerCount--
