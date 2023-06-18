@@ -4,18 +4,18 @@ import { read, write } from '../../utils/index.ts'
 import type { Extension } from './utils.ts'
 import { extensions } from './utils.ts'
 
-import type { Queue, QueueTask } from '../../utils/index.ts'
-import type { File, ResolvedFile, UUID } from './types.ts'
+import type { Queue, QueueJob } from '../../utils/index.ts'
+import type { File, ResolvedFile, CacheItem, UUID } from './types.ts'
 import type { Path } from '../../types.ts'
 
 export class FileManager {
-  private cache: Map<Path, ResolvedFile[]> = new Map()
+  private cache: Map<Path, CacheItem[]> = new Map()
 
-  private task?: QueueTask<ResolvedFile>
+  private task?: QueueJob<ResolvedFile>
 
   private queue?: Queue
 
-  constructor(options?: { queue: Queue; task?: QueueTask<ResolvedFile> }) {
+  constructor(options?: { queue?: Queue; task?: QueueJob<ResolvedFile> }) {
     if (options) {
       this.task = options.task
       this.queue = options.queue
@@ -33,16 +33,27 @@ export class FileManager {
 
     return files
   }
+  get isExecuting(): boolean {
+    return this.queue?.hasJobs ?? false
+  }
 
   async add(file: File): Promise<ResolvedFile> {
-    const resolvedFile = { id: crypto.randomUUID(), ...file }
+    const controller = new AbortController()
+    const resolvedFile: ResolvedFile = { id: crypto.randomUUID(), ...file }
 
-    this.cache.set(resolvedFile.path, [resolvedFile])
+    this.cache.set(resolvedFile.path, [{ cancel: () => controller.abort(), ...resolvedFile }])
 
     if (this.queue) {
-      await this.queue.run(async () => {
-        await this.task?.(resolvedFile)
-      })
+      try {
+        await this.queue.run(
+          async () => {
+            return this.task?.(resolvedFile)
+          },
+          { controller }
+        )
+      } catch {
+        return resolvedFile
+      }
     }
 
     return resolvedFile
@@ -63,6 +74,8 @@ export class FileManager {
       if (sourceAlreadyExists) {
         return Promise.resolve(previousCache)
       }
+
+      previousCache.cancel?.()
 
       this.cache.delete(previousCache.path)
 
@@ -107,7 +120,7 @@ export class FileManager {
 
   async write(...params: Parameters<typeof write>): Promise<void> {
     if (this.queue) {
-      return this.queue.run(async () => {
+      this.queue.run(async () => {
         return write(...params)
       })
     }
@@ -117,7 +130,7 @@ export class FileManager {
 
   async read(...params: Parameters<typeof read>): Promise<string> {
     if (this.queue) {
-      return this.queue.run(async () => {
+      this.queue.run(async () => {
         return read(...params)
       })
     }
