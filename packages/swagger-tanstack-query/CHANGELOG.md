@@ -6,7 +6,6 @@
 ### Features
 
 * ✨ useInfiniteQuery for `React`, `Solid`, `Svelte` and `Vue` ([d683cc7](https://github.com/kubb-project/kubb/commit/d683cc7909818757f62560bc1936b79bd0a79bfe))
-* useInfiniteQuery for `React` ([effe453](https://github.com/kubb-project/kubb/commit/effe4535c51cf20b42a6f112bb757e1bbfbd8dcc))
 
 
 ### Bug Fixes
