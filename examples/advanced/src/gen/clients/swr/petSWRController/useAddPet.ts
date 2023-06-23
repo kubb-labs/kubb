@@ -9,7 +9,7 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
  * @link /pet
  */
 export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TVariables = AddPetMutationRequest>(options?: {
-  mutation?: SWRMutationConfiguration<TData, TError, TVariables, string>
+  mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
 }) {
   const { mutation: mutationOptions } = options ?? {}
 

@@ -34,6 +34,14 @@ export type Options = {
    * @default 'react'
    */
   framework?: 'react' | 'solid' | 'svelte' | 'vue'
+  infinite?: {
+    /**
+     * Specify the params key used for `pageParam`.
+     * Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`
+     * @default `'id'`
+     */
+    queryParam?: string
+  }
 }
 
 export type ResolvePathOptions = { tag?: string }

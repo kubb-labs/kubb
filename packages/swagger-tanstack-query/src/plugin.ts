@@ -21,7 +21,7 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy, framework = 'react' } = options
+  const { output = 'hooks', groupBy, framework = 'react', infinite } = options
   let swaggerApi: SwaggerApi
 
   return {
@@ -77,6 +77,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const clientPath: OptionalPath = options.client ? pathParser.resolve(this.config.root, options.client) : undefined
 
       const operationGenerator = new OperationGenerator({
+        queryParam: infinite?.queryParam || 'id',
         framework,
         clientPath,
         oas,

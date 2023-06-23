@@ -8,7 +8,7 @@ import type { CreatePetsMutationRequest, CreatePetsMutationResponse } from '../m
  * @link /pets
  */
 export function useCreatePets<TData = CreatePetsMutationResponse, TError = unknown, TVariables = CreatePetsMutationRequest>(options?: {
-  mutation?: SWRMutationConfiguration<TData, TError, TVariables, string>
+  mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
 }) {
   const { mutation: mutationOptions } = options ?? {}
 

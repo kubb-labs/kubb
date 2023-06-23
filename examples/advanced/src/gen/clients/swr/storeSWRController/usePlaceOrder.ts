@@ -9,7 +9,7 @@ import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder4
  * @link /store/order
  */
 export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(options?: {
-  mutation?: SWRMutationConfiguration<TData, TError, TVariables, string>
+  mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
 }) {
   const { mutation: mutationOptions } = options ?? {}
 

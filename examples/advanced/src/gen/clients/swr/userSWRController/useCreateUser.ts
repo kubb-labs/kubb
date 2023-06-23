@@ -9,7 +9,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
  * @link /user
  */
 export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(options?: {
-  mutation?: SWRMutationConfiguration<TData, TError, TVariables, string>
+  mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
 }) {
   const { mutation: mutationOptions } = options ?? {}
 

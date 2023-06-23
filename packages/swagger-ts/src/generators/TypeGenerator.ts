@@ -12,7 +12,8 @@ import {
   modifiers,
 } from '@kubb/ts-codegen'
 
-import { camelCase, type Options as CaseOptions } from 'change-case'
+import { camelCase } from 'change-case'
+import type { Options as CaseOptions } from 'change-case'
 import ts from 'typescript'
 
 import { pluginName } from '../plugin.ts'

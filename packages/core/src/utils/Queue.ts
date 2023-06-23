@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
+ 
 import crypto from 'node:crypto'
 import { performance } from 'node:perf_hooks'
 

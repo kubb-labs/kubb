@@ -12,7 +12,7 @@ export function useUpdatePet<
   TData = UpdatePetMutationResponse,
   TError = UpdatePet400 | UpdatePet404 | UpdatePet405,
   TVariables = UpdatePetMutationRequest
->(options?: { mutation?: SWRMutationConfiguration<TData, TError, TVariables, string> }) {
+>(options?: { mutation?: SWRMutationConfiguration<TData, TError, string, TVariables> }) {
   const { mutation: mutationOptions } = options ?? {}
 
   return useSWRMutation<TData, TError, string, TVariables>(

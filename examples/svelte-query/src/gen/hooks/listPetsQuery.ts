@@ -1,11 +1,11 @@
-import type { QueryKey, CreateQueryResult, CreateQueryOptions } from '@tanstack/svelte-query'
-import { createQuery } from '@tanstack/svelte-query'
+import type { QueryKey, CreateQueryResult, CreateQueryOptions, CreateInfiniteQueryOptions, CreateInfiniteQueryResult } from '@tanstack/svelte-query'
+import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
 import client from '@kubb/swagger-client/client'
 import type { ListPetsQueryResponse, ListPetsQueryParams } from '../models/ListPets'
 
-export const listPetsQueryKey = (params?: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
+export const listPetsQueryKey = (params: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
 
-export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unknown>(params?: ListPetsQueryParams): CreateQueryOptions<TData, TError> {
+export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unknown>(params: ListPetsQueryParams): CreateQueryOptions<TData, TError> {
   const queryKey = listPetsQueryKey(params)
 
   return {
@@ -25,7 +25,7 @@ export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unk
  * @link /pets
  */
 export function listPetsQuery<TData = ListPetsQueryResponse, TError = unknown>(
-  params?: ListPetsQueryParams,
+  params: ListPetsQueryParams,
   options?: { query?: CreateQueryOptions<TData, TError> }
 ): CreateQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
@@ -35,6 +35,47 @@ export function listPetsQuery<TData = ListPetsQueryResponse, TError = unknown>(
     ...listPetsQueryOptions<TData, TError>(params),
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & { queryKey: QueryKey }
+
+  query.queryKey = queryKey
+
+  return query
+}
+
+export function listPetsQueryOptionsInfinite<TData = ListPetsQueryResponse, TError = unknown>(
+  params: ListPetsQueryParams
+): CreateInfiniteQueryOptions<TData, TError> {
+  const queryKey = listPetsQueryKey(params)
+
+  return {
+    queryKey,
+    queryFn: ({ pageParam }) => {
+      return client<TData, TError>({
+        method: 'get',
+        url: `/pets`,
+        params: {
+          ...params,
+          ['id']: pageParam,
+        },
+      })
+    },
+  }
+}
+
+/**
+ * @summary List all pets
+ * @link /pets
+ */
+export function listPetsQueryInfinite<TData = ListPetsQueryResponse, TError = unknown>(
+  params: ListPetsQueryParams,
+  options?: { query?: CreateInfiniteQueryOptions<TData, TError> }
+): CreateInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const { query: queryOptions } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? listPetsQueryKey(params)
+
+  const query = createInfiniteQuery<TData, TError>({
+    ...listPetsQueryOptionsInfinite<TData, TError>(params),
+    ...queryOptions,
+  }) as CreateInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey
 
