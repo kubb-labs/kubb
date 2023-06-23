@@ -16,7 +16,7 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
   petId: UploadFilePathParams['petId'],
   params?: UploadFileQueryParams,
   options?: {
-    mutation?: SWRMutationConfiguration<TData, TError, TVariables, string>
+    mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
   }
 ) {
   const { mutation: mutationOptions } = options ?? {}

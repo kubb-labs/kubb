@@ -11,7 +11,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unknown, TVariables = UpdateUserMutationRequest>(
   username: UpdateUserPathParams['username'],
   options?: {
-    mutation?: SWRMutationConfiguration<TData, TError, TVariables, string>
+    mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
   }
 ) {
   const { mutation: mutationOptions } = options ?? {}

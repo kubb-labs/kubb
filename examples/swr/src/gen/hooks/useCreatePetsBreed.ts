@@ -10,7 +10,7 @@ import type { CreatePetsBreedMutationRequest, CreatePetsBreedMutationResponse, C
 export function useCreatePetsBreed<TData = CreatePetsBreedMutationResponse, TError = unknown, TVariables = CreatePetsBreedMutationRequest>(
   breed: CreatePetsBreedPathParams['breed'],
   options?: {
-    mutation?: SWRMutationConfiguration<TData, TError, TVariables, string>
+    mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
   }
 ) {
   const { mutation: mutationOptions } = options ?? {}

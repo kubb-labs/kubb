@@ -14,6 +14,10 @@ type Options = {
   oas: Oas
   resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
   resolveName: PluginContext['resolveName']
+  /**
+   * Only used of infinite
+   */
+  queryParam?: string
 }
 
 export class OperationGenerator extends Generator<Options> {
@@ -107,6 +111,10 @@ export class OperationGenerator extends Generator<Options> {
       UseQueryResult: string
       UseQueryOptions: string
       QueryOptions: string
+      //infinite
+      UseInfiniteQueryOptions: string
+      UseInfiniteQueryResult: string
+      useInfiniteQuery: string
     }
     mutate: {
       useMutation: string
@@ -124,6 +132,9 @@ export class OperationGenerator extends Generator<Options> {
           UseQueryResult: 'CreateQueryResult',
           UseQueryOptions: 'CreateQueryOptions',
           QueryOptions: 'CreateQueryOptions',
+          UseInfiniteQueryOptions: 'CreateInfiniteQueryOptions',
+          UseInfiniteQueryResult: 'CreateInfiniteQueryResult',
+          useInfiniteQuery: 'createInfiniteQuery',
         },
         mutate: {
           useMutation: 'createMutation',
@@ -141,6 +152,9 @@ export class OperationGenerator extends Generator<Options> {
           UseQueryResult: 'CreateQueryResult',
           UseQueryOptions: 'CreateQueryOptions',
           QueryOptions: 'CreateQueryOptions',
+          UseInfiniteQueryOptions: 'CreateInfiniteQueryOptions',
+          UseInfiniteQueryResult: 'CreateInfiniteQueryResult',
+          useInfiniteQuery: 'createInfiniteQuery',
         },
         mutate: {
           useMutation: 'createMutation',
@@ -158,6 +172,9 @@ export class OperationGenerator extends Generator<Options> {
           UseQueryResult: 'UseQueryReturnType',
           UseQueryOptions: 'UseQueryOptions',
           QueryOptions: 'QueryOptions',
+          UseInfiniteQueryOptions: 'UseInfiniteQueryOptions',
+          UseInfiniteQueryResult: 'UseInfiniteQueryReturnType',
+          useInfiniteQuery: 'useInfiniteQuery',
         },
         mutate: {
           useMutation: 'useMutation',
@@ -174,6 +191,9 @@ export class OperationGenerator extends Generator<Options> {
         UseQueryResult: 'UseQueryResult',
         UseQueryOptions: 'UseQueryOptions',
         QueryOptions: 'QueryOptions',
+        UseInfiniteQueryOptions: 'UseInfiniteQueryOptions',
+        UseInfiniteQueryResult: 'UseInfiniteQueryResult',
+        useInfiniteQuery: 'useInfiniteQuery',
       },
       mutate: {
         useMutation: 'useMutation',
@@ -229,206 +249,245 @@ export class OperationGenerator extends Generator<Options> {
     return null
   }
 
-  async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath, framework } = this.options
+  getQueryKey(operation: Operation, schemas: OperationSchemas): { source: string; name: string } {
+    const name = camelCase(`${operation.getOperationId()}QueryKey`)
 
-    const hook = this.resolve(operation)
-    const type = this.resolveType(operation)
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
+
+    const options = [
+      pathParamsTyped,
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+    ].filter(Boolean)
+    const result = [new URLPath(operation.path).template, schemas.queryParams?.name ? `...(params ? [params] : [])` : undefined].filter(Boolean)
+
+    const source = `export const ${name} = (${options.join(', ')}) => [${result.join(',')}] as const;`
+
+    return { source, name }
+  }
+
+  getQueryOptions(operation: Operation, schemas: OperationSchemas): { source: string; name: string } {
+    const { framework } = this.options
     const imports = this.getFrameworkSpecificImports(framework)
+    const name = camelCase(`${operation.getOperationId()}QueryOptions`)
 
-    const comments = getComments(operation)
-    const sources: string[] = []
+    const queryKeyName = this.getQueryKey(operation, schemas).name
+
     const pathParams = getParams(schemas.pathParams)
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
-    const queryKey = `${camelCase(`${operation.getOperationId()}QueryKey`)}`
     let errors: Resolver[] = []
 
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`].filter(Boolean)
-    const clientGenerics = ['TData', 'TError'].filter(Boolean)
-    const params = [
+    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const clientGenerics = ['TData', 'TError']
+    const options = [
       pathParamsTyped,
-      schemas.queryParams?.name ? `params?: ${schemas.queryParams.name}` : '',
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+    ].filter(Boolean)
+    let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
+
+    if (framework === 'solid') {
+      queryKey = `() => ${queryKey}`
+    }
+
+    const source = `
+    export function ${name} <${generics.join(', ')}>(${options.join(', ')}): ${imports.query.UseQueryOptions}<${clientGenerics.join(', ')}> {
+      const queryKey = ${queryKey};
+
+      return {
+        queryKey,
+        queryFn: () => {
+          return client<${clientGenerics.join(', ')}>({
+            method: "get",
+            url: ${new URLPath(operation.path).template},
+            ${schemas.queryParams?.name ? 'params' : ''}
+          });
+        },
+      };
+    };
+  `
+
+    return { source, name }
+  }
+
+  getQueryOptionsInfinite(operation: Operation, schemas: OperationSchemas): { source: string; name: string } {
+    const { framework, queryParam = 'id' } = this.options
+    const imports = this.getFrameworkSpecificImports(framework)
+    const name = camelCase(`${operation.getOperationId()}QueryOptionsInfinite`)
+
+    const queryKeyName = this.getQueryKey(operation, schemas).name
+
+    const pathParams = getParams(schemas.pathParams)
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
+    let errors: Resolver[] = []
+
+    if (schemas.errors) {
+      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
+    }
+
+    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const clientGenerics = ['TData', 'TError']
+    const options = [
+      pathParamsTyped,
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+    ].filter(Boolean)
+    let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
+
+    if (framework === 'solid') {
+      queryKey = `() => ${queryKey}`
+    }
+
+    const source = `
+    export function ${name} <${generics.join(', ')}>(${options.join(', ')}): ${imports.query.UseInfiniteQueryOptions}<${clientGenerics.join(', ')}> {
+      const queryKey = ${queryKey};
+
+      return {
+        queryKey,
+        queryFn: ({ pageParam }) => {
+          return client<${clientGenerics.join(', ')}>({
+            method: "get",
+            url: ${new URLPath(operation.path).template},
+            ${
+              schemas.queryParams?.name
+                ? `params: {
+              ...params,
+              ['${queryParam}']: pageParam,
+            }`
+                : ''
+            }
+          });
+        },
+      };
+    };
+  `
+
+    return { source, name }
+  }
+
+  getQuery(operation: Operation, schemas: OperationSchemas): { source: string; name: string } {
+    const { framework } = this.options
+    const imports = this.getFrameworkSpecificImports(framework)
+
+    const queryKeyName = this.getQueryKey(operation, schemas).name
+    const queryOptionsName = this.getQueryOptions(operation, schemas).name
+    const name = this.resolve(operation)?.name
+    const pathParams = getParams(schemas.pathParams)
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
+    const comments = getComments(operation)
+    let errors: Resolver[] = []
+
+    if (schemas.errors) {
+      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
+    }
+
+    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const clientGenerics = ['TData', 'TError']
+    const options = [
+      pathParamsTyped,
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : '',
       `options?: { query?: ${imports.query.UseQueryOptions}<${clientGenerics.join(', ')}> }`,
     ].filter(Boolean)
-    const paramsQueryOptions = [pathParamsTyped, schemas.queryParams?.name ? `params?: ${schemas.queryParams.name}` : ''].filter(Boolean)
+    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
+    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
+      schemas.queryParams?.name ? 'params' : ''
+    })`
 
-    if (schemas.queryParams && !schemas.pathParams) {
-      sources.push(`
-        export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new URLPath(operation.path).template}, ...(params ? [params] : [])] as const;
-      `)
+    const source = `
+    ${createJSDocBlockText({ comments })}
+    export function ${name} <${generics.join(',')}>(${options.join(', ')}): ${imports.query.UseQueryResult}<${clientGenerics.join(
+      ', '
+    )}> & { queryKey: QueryKey } {
+      const { query: queryOptions } = options ?? {};
+      const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
+      
+      const query = ${imports.query.useQuery}<${clientGenerics.join(', ')}>({
+        ...${queryOptions},
+        ...queryOptions
+      }) as ${imports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
 
-      sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(${paramsQueryOptions.join(', ')}): ${
-        imports.query.QueryOptions
-      }<${clientGenerics.join(', ')}> {
-          const queryKey =${framework === 'solid' ? `() => ${queryKey}(params)` : `${queryKey}(params)`};
+      query.queryKey = queryKey as QueryKey;
 
-          return {
-            queryKey,
-            queryFn: () => {
-              return client<${clientGenerics.join(', ')}>({
-                method: "get",
-                url: ${new URLPath(operation.path).template},
-                params
-              });
-            },
-          };
-        };
-      `)
+      return query;
+    };
+  `
 
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(',')}>(${params.join(', ')}): ${imports.query.UseQueryResult}<${clientGenerics.join(
-        ', '
-      )}> & { queryKey: QueryKey } {
-          const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(params);
-          
-          const query = ${imports.query.useQuery}<${clientGenerics.join(', ')}>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(params),
-            ...queryOptions
-          }) as ${imports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
+    return { source, name }
+  }
 
-          query.queryKey = queryKey as QueryKey;
+  getQueryInfinite(operation: Operation, schemas: OperationSchemas): { source: string; name: string } {
+    const { framework } = this.options
+    const imports = this.getFrameworkSpecificImports(framework)
 
-          return query;
-        };
-      `)
+    const queryKeyName = this.getQueryKey(operation, schemas).name
+    const queryOptionsName = this.getQueryOptionsInfinite(operation, schemas).name // changed
+    const name = `${this.resolve(operation)?.name}Infinite`
+    const pathParams = getParams(schemas.pathParams)
+    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
+    const comments = getComments(operation)
+    let errors: Resolver[] = []
+
+    if (schemas.errors) {
+      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    if (!schemas.queryParams && schemas.pathParams) {
-      sources.push(`
-        export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new URLPath(operation.path).template}] as const;
-      `)
+    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const clientGenerics = ['TData', 'TError']
+    const options = [
+      pathParamsTyped,
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : '',
+      `options?: { query?: ${imports.query.UseInfiniteQueryOptions}<${clientGenerics.join(', ')}> }`,
+    ].filter(Boolean)
+    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
+    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
+      schemas.queryParams?.name ? 'params' : ''
+    })`
 
-      sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(${paramsQueryOptions.join(', ')}): ${
-        imports.query.QueryOptions
-      }<${clientGenerics.join(', ')}> {
-          const queryKey =${framework === 'solid' ? `() => ${queryKey}(${pathParams})` : `${queryKey}(${pathParams})`};
+    const source = `
+    ${createJSDocBlockText({ comments })}
+    export function ${name} <${generics.join(',')}>(${options.join(', ')}): ${imports.query.UseInfiniteQueryResult}<${clientGenerics.join(
+      ', '
+    )}> & { queryKey: QueryKey } {
+      const { query: queryOptions } = options ?? {};
+      const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
+      
+      const query = ${imports.query.useInfiniteQuery}<${clientGenerics.join(', ')}>({
+        ...${queryOptions},
+        ...queryOptions
+      }) as ${imports.query.UseInfiniteQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
 
-          return {
-            queryKey,
-            queryFn: () => {
-              return client<${clientGenerics.join(', ')}>({
-                method: "get",
-                url: ${new URLPath(operation.path).template}
-              });
-            },
-          };
-        };
-      `)
+      query.queryKey = queryKey as QueryKey;
 
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): ${imports.query.UseQueryResult}<${clientGenerics.join(
-        ', '
-      )}> & { queryKey: QueryKey } {
-          const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(${pathParams});
-          
-          const query = ${imports.query.useQuery}<${clientGenerics.join(', ')}>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(${pathParams}),
-            ...queryOptions
-          }) as ${imports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
+      return query;
+    };
+  `
 
-          query.queryKey = queryKey as QueryKey;
+    return { source, name }
+  }
 
-          return query;
-        };
-      `)
+  async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+    const { clientPath } = this.options
+
+    const hook = this.resolve(operation)
+    const type = this.resolveType(operation)
+
+    const sources: string[] = []
+    let errors: Resolver[] = []
+
+    if (schemas.errors) {
+      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    if (schemas.queryParams && schemas.pathParams) {
-      sources.push(`
-        export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new URLPath(operation.path).template}, ...(params ? [params] : [])] as const;
-      `)
+    const { source: queryKey } = this.getQueryKey(operation, schemas)
+    const { source: queryOptions } = this.getQueryOptions(operation, schemas)
+    const { source: query } = this.getQuery(operation, schemas)
 
-      sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(${paramsQueryOptions.join(', ')}): ${
-        imports.query.QueryOptions
-      }<${clientGenerics.join(', ')}> {
-          const queryKey =${framework === 'solid' ? `() => ${queryKey}(${pathParams}, params)` : `${queryKey}(${pathParams}, params)`};
+    const { source: queryOptionsInfinite } = this.getQueryOptionsInfinite(operation, schemas)
+    const { source: queryInfinite } = this.getQueryInfinite(operation, schemas)
 
-          return {
-            queryKey,
-            queryFn: () => {
-              return client<${clientGenerics.join(', ')}>({
-                method: "get",
-                url: ${new URLPath(operation.path).template},
-                params
-              });
-            },
-          };
-        };
-      `)
-
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): ${imports.query.UseQueryResult}<${clientGenerics.join(
-        ', '
-      )}> & { queryKey: QueryKey } {
-          const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(${pathParams}, params);
-          
-          const query = ${imports.query.useQuery}<${clientGenerics.join(', ')}>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(${pathParams}, params),
-            ...queryOptions
-          }) as ${imports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
-
-          query.queryKey = queryKey as QueryKey;
-
-          return query;
-        };
-      `)
-    }
-
-    if (!schemas.queryParams && !schemas.pathParams) {
-      sources.push(`
-        export const ${queryKey} = () => [${new URLPath(operation.path).template}] as const;
-      `)
-
-      sources.push(`
-      export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(): ${imports.query.QueryOptions}<${clientGenerics.join(
-        ', '
-      )}> {
-        const queryKey =${framework === 'solid' ? `() => ${queryKey}()` : `${queryKey}()`};
-
-        return {
-          queryKey,
-          queryFn: () => {
-            return client<${clientGenerics.join(', ')}>({
-              method: "get",
-              url: ${new URLPath(operation.path).template}
-            });
-          },
-        };
-      };
-    `)
-
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): ${imports.query.UseQueryResult}<${clientGenerics.join(
-        ', '
-      )}> & { queryKey: QueryKey } {
-          const { query: queryOptions } = options ?? {};
-          const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}();
-
-          const query = ${imports.query.useQuery}<${clientGenerics.join(', ')}>({
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(),
-            ...queryOptions
-          }) as ${imports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
-
-          query.queryKey = queryKey as QueryKey;
-
-          return query;
-        };
-      `)
-    }
+    sources.push(queryKey, queryOptions, query)
+    sources.push(queryOptionsInfinite, queryInfinite)
 
     return {
       path: hook.filePath,

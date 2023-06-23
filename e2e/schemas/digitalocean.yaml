@@ -359,7 +359,7 @@ info:
     expire.
 
     *   **ratelimit-reset**: This represents the time when the oldest request
-    will expire. The value is given in [Unix epoch
+    will expire. The value is given in [UNIX epoch
     time](http://en.wikipedia.org/wiki/Unix_time). See below for more
     information about how request limits expire.
 
@@ -21293,7 +21293,7 @@ components:
         type: integer
       example: 1444931833
       description: >-
-        The time when the oldest request will expire. The value is given in Unix
+        The time when the oldest request will expire. The value is given in UNIX
         epoch time. See
         https://developers.digitalocean.com/documentation/v2/#rate-limit for
         information about how requests expire.
@@ -22053,7 +22053,7 @@ components:
           type: string
           description: Datadog API key.
           example: abcdefghijklmnopqrstuvwxyz0123456789
-      description: DataDog configuration.
+      description: Datadog configuration.
       required:
         - api_key
     app_log_destination_logtail_spec:

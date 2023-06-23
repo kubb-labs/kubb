@@ -1,5 +1,5 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from '../models/ShowPetById'
 
@@ -8,7 +8,7 @@ export const showPetByIdQueryKey = (petId: ShowPetByIdPathParams['petId'], testI
 export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId']
-): QueryOptions<TData, TError> {
+): UseQueryOptions<TData, TError> {
   const queryKey = showPetByIdQueryKey(petId, testId)
 
   return {
@@ -38,6 +38,45 @@ export function useShowPetById<TData = ShowPetByIdQueryResponse, TError = unknow
     ...showPetByIdQueryOptions<TData, TError>(petId, testId),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
+
+  query.queryKey = queryKey
+
+  return query
+}
+
+export function showPetByIdQueryOptionsInfinite<TData = ShowPetByIdQueryResponse, TError = unknown>(
+  petId: ShowPetByIdPathParams['petId'],
+  testId: ShowPetByIdPathParams['testId']
+): UseInfiniteQueryOptions<TData, TError> {
+  const queryKey = showPetByIdQueryKey(petId, testId)
+
+  return {
+    queryKey,
+    queryFn: ({ pageParam }) => {
+      return client<TData, TError>({
+        method: 'get',
+        url: `/pets/${petId}`,
+      })
+    },
+  }
+}
+
+/**
+ * @summary Info for a specific pet
+ * @link /pets/:petId
+ */
+export function useShowPetByIdInfinite<TData = ShowPetByIdQueryResponse, TError = unknown>(
+  petId: ShowPetByIdPathParams['petId'],
+  testId: ShowPetByIdPathParams['testId'],
+  options?: { query?: UseInfiniteQueryOptions<TData, TError> }
+): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const { query: queryOptions } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? showPetByIdQueryKey(petId, testId)
+
+  const query = useInfiniteQuery<TData, TError>({
+    ...showPetByIdQueryOptionsInfinite<TData, TError>(petId, testId),
+    ...queryOptions,
+  }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey
 
