@@ -107,6 +107,10 @@ export class OperationGenerator extends Generator<Options> {
       UseQueryResult: string
       UseQueryOptions: string
       QueryOptions: string
+      //infinite
+      UseInfiniteQueryOptions: string
+      UseInfiniteQueryResult: string
+      useInfiniteQuery: string
     }
     mutate: {
       useMutation: string
@@ -124,6 +128,9 @@ export class OperationGenerator extends Generator<Options> {
           UseQueryResult: 'CreateQueryResult',
           UseQueryOptions: 'CreateQueryOptions',
           QueryOptions: 'CreateQueryOptions',
+          UseInfiniteQueryOptions: 'UseInfiniteQueryOptions',
+          UseInfiniteQueryResult: 'UseInfiniteQueryResult',
+          useInfiniteQuery: 'useInfiniteQuery',
         },
         mutate: {
           useMutation: 'createMutation',
@@ -141,6 +148,9 @@ export class OperationGenerator extends Generator<Options> {
           UseQueryResult: 'CreateQueryResult',
           UseQueryOptions: 'CreateQueryOptions',
           QueryOptions: 'CreateQueryOptions',
+          UseInfiniteQueryOptions: 'UseInfiniteQueryOptions',
+          UseInfiniteQueryResult: 'UseInfiniteQueryResult',
+          useInfiniteQuery: 'useInfiniteQuery',
         },
         mutate: {
           useMutation: 'createMutation',
@@ -158,6 +168,9 @@ export class OperationGenerator extends Generator<Options> {
           UseQueryResult: 'UseQueryReturnType',
           UseQueryOptions: 'UseQueryOptions',
           QueryOptions: 'QueryOptions',
+          UseInfiniteQueryOptions: 'UseInfiniteQueryOptions',
+          UseInfiniteQueryResult: 'UseInfiniteQueryResult',
+          useInfiniteQuery: 'useInfiniteQuery',
         },
         mutate: {
           useMutation: 'useMutation',
@@ -174,6 +187,9 @@ export class OperationGenerator extends Generator<Options> {
         UseQueryResult: 'UseQueryResult',
         UseQueryOptions: 'UseQueryOptions',
         QueryOptions: 'QueryOptions',
+        UseInfiniteQueryOptions: 'UseInfiniteQueryOptions',
+        UseInfiniteQueryResult: 'UseInfiniteQueryResult',
+        useInfiniteQuery: 'useInfiniteQuery',
       },
       mutate: {
         useMutation: 'useMutation',
@@ -254,13 +270,19 @@ export class OperationGenerator extends Generator<Options> {
       schemas.queryParams?.name ? `params?: ${schemas.queryParams.name}` : '',
       `options?: { query?: ${imports.query.UseQueryOptions}<${clientGenerics.join(', ')}> }`,
     ].filter(Boolean)
-    const paramsQueryOptions = [pathParamsTyped, schemas.queryParams?.name ? `params?: ${schemas.queryParams.name}` : ''].filter(Boolean)
+    const paramsInfinite = [
+      pathParamsTyped,
+      schemas.queryParams?.name ? `params?: ${schemas.queryParams.name}` : '',
+      `options?: { query?: ${imports.query.UseInfiniteQueryOptions}<${clientGenerics.join(', ')}> }`,
+    ].filter(Boolean)
+    const paramsQueryOptions = [pathParamsTyped, schemas.queryParams?.name ? `params?: ${schemas.queryParams.name}` : undefined].filter(Boolean)
 
     if (schemas.queryParams && !schemas.pathParams) {
       sources.push(`
         export const ${queryKey} = (${paramsQueryOptions.join(', ')}) => [${new URLPath(operation.path).template}, ...(params ? [params] : [])] as const;
       `)
 
+      //single
       sources.push(`
         export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(${paramsQueryOptions.join(', ')}): ${
         imports.query.QueryOptions
@@ -279,7 +301,30 @@ export class OperationGenerator extends Generator<Options> {
           };
         };
       `)
+      //infinite
+      sources.push(`
+      export function ${camelCase(`${operation.getOperationId()}QueryOptionsInfinite`)} <${generics.join(', ')}>(${paramsQueryOptions.join(', ')}): ${
+        imports.query.UseInfiniteQueryOptions
+      }<${clientGenerics.join(', ')}> {
+        const queryKey =${framework === 'solid' ? `() => ${queryKey}(params)` : `${queryKey}(params)`};
 
+        return {
+          queryKey,
+          queryFn: ({ pageParam }) => {
+            return client<${clientGenerics.join(', ')}>({
+              method: "get",
+              url: ${new URLPath(operation.path).template},
+              params: {
+                ...params,
+                ['param']: pageParam,
+              }
+            });
+          },
+        };
+      };
+    `)
+
+      //single
       sources.push(`
         ${createJSDocBlockText({ comments })}
         export function ${hook.name} <${generics.join(',')}>(${params.join(', ')}): ${imports.query.UseQueryResult}<${clientGenerics.join(
@@ -298,6 +343,26 @@ export class OperationGenerator extends Generator<Options> {
           return query;
         };
       `)
+
+      //infinite
+      sources.push(`
+       ${createJSDocBlockText({ comments })}
+       export function ${hook.name}Infinite <${generics.join(',')}>(${paramsInfinite.join(', ')}): ${
+        imports.query.UseInfiniteQueryOptions
+      }<${clientGenerics.join(', ')}> & { queryKey: QueryKey } {
+         const { query: queryOptions } = options ?? {};
+         const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}(params);
+         
+         const query = ${imports.query.useInfiniteQuery}<${clientGenerics.join(', ')}>({
+           ...${camelCase(`${operation.getOperationId()}QueryOptionsInfinite`)}<${clientGenerics.join(', ')}>(params),
+           ...queryOptions
+         }) as ${imports.query.UseInfiniteQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
+
+         query.queryKey = queryKey as QueryKey;
+
+         return query;
+       };
+     `)
     }
 
     if (!schemas.queryParams && schemas.pathParams) {

@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsup",
     "generate": "kubb generate",
-    "start": "tsup --watch",
+    "start": "kubb generate --watch",
     "test": "vitest",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
