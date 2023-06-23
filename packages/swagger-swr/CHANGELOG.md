@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.2.4...@kubb/swagger-swr-v1.3.0) (2023-06-23)
+
+
+### Bug Fixes
+
+* advanced queue ([e8e90b9](https://github.com/kubb-project/kubb/commit/e8e90b9cbeadad793b759a174641874dc39c2c01))
+* type update for `SWR@2.2.0` ([6358699](https://github.com/kubb-project/kubb/commit/6358699e5f32846dcc889322f834c679438def16))
+
 ## [1.2.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.2.3...@kubb/swagger-swr-v1.2.4) (2023-06-17)
 
 

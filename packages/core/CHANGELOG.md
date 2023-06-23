@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.2.4...@kubb/core-v1.3.0) (2023-06-23)
+
+
+### Features
+
+* ✨ useInfiniteQuery for `React`, `Solid`, `Svelte` and `Vue` ([d683cc7](https://github.com/kubb-project/kubb/commit/d683cc7909818757f62560bc1936b79bd0a79bfe))
+
+
+### Bug Fixes
+
+* advanced queue ([e8e90b9](https://github.com/kubb-project/kubb/commit/e8e90b9cbeadad793b759a174641874dc39c2c01))
+* max 50 queue items per run ([c90e28f](https://github.com/kubb-project/kubb/commit/c90e28f324a98ea21f136058f5e02342d8b22a17))
+
 ## [1.2.4](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.2.3...@kubb/core-v1.2.4) (2023-06-17)
 
 

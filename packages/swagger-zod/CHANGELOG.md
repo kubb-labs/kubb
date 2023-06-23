@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.2.4...@kubb/swagger-zod-v1.3.0) (2023-06-23)
+
+
+### Bug Fixes
+
+* advanced queue ([e8e90b9](https://github.com/kubb-project/kubb/commit/e8e90b9cbeadad793b759a174641874dc39c2c01))
+
 ## [1.2.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.2.3...@kubb/swagger-zod-v1.2.4) (2023-06-17)
 
 
