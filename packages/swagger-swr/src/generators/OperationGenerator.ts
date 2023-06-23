@@ -303,7 +303,7 @@ export class OperationGenerator extends Generator<Options> {
     ].filter(Boolean)
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
     const SWRMutationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const SWRMutationConfigurationGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : '', 'string'].filter(Boolean)
+    const SWRMutationConfigurationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
     const params = [
       pathParamsTyped,
       schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
@@ -387,7 +387,7 @@ export class OperationGenerator extends Generator<Options> {
     ].filter(Boolean)
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
     const SWRMutationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const SWRMutationConfigurationGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : '', 'string'].filter(Boolean)
+    const SWRMutationConfigurationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
     const params = [
       pathParamsTyped,
       schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
@@ -471,7 +471,7 @@ export class OperationGenerator extends Generator<Options> {
     ].filter(Boolean)
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
     const SWRMutationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const SWRMutationConfigurationGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : '', 'string'].filter(Boolean)
+    const SWRMutationConfigurationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
     const params = [
       pathParamsTyped,
       schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
