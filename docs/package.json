@@ -20,17 +20,17 @@
   },
   "dependencies": {
     "@vercel/analytics": "1.0.1",
-    "next": "13.4.6",
+    "next": "13.4.7",
     "next-sitemap": "^4.1.3",
-    "nextra": "2.7.1",
-    "nextra-theme-docs": "2.7.1",
+    "nextra": "2.8.0",
+    "nextra-theme-docs": "2.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "sharp": "^0.32.1"
   },
   "devDependencies": {
     "@kubb/core": "workspace:*",
-    "@next/env": "^13.4.6",
+    "@next/env": "^13.4.7",
     "@types/node": "^20.3.1",
     "@types/react": "^18.2.13",
     "autoprefixer": "^10.4.14",
