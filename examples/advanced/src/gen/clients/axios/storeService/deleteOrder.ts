@@ -6,7 +6,7 @@ import type { DeleteOrderMutationResponse, DeleteOrderPathParams } from '../../.
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-export function deleteOrder<TData = DeleteOrderMutationResponse>(orderId: DeleteOrderPathParams['orderId']) {
+export function deleteOrder<TData = DeleteOrderMutationResponse>(orderId: DeleteOrderPathParams['orderId']): Promise<TData> {
   return client<TData>({
     method: 'delete',
     url: `/store/order/${orderId}`,

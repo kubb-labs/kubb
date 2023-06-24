@@ -5,7 +5,7 @@ import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../mode
  * @summary Logs user into the system
  * @link /user/login
  */
-export function loginUser<TData = LoginUserQueryResponse>(params?: LoginUserQueryParams) {
+export function loginUser<TData = LoginUserQueryResponse>(params: LoginUserQueryParams): Promise<TData> {
   return client<TData>({
     method: 'get',
     url: `/user/login`,

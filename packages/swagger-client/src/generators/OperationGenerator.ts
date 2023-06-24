@@ -1,5 +1,5 @@
-import { createJSDocBlockText, getRelativePath, URLPath } from '@kubb/core'
-import { OperationGenerator as Generator, getComments, getParams } from '@kubb/swagger'
+import { getRelativePath, URLPath } from '@kubb/core'
+import { OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
 import { pluginName } from '../plugin.ts'
@@ -7,6 +7,7 @@ import { pluginName } from '../plugin.ts'
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
 import type { HttpMethod, Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { ResolvePathOptions } from '../types.ts'
+import { ClientBuilder } from '../builders/ClientBuilder.ts'
 
 type Options = {
   clientPath?: OptionalPath
@@ -111,34 +112,17 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath } = this.options
+    const { oas, clientPath } = this.options
 
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const comments = getComments(operation)
-    const sources: string[] = []
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
-
-    const generics = [`TData = ${schemas.response.name}`].filter(Boolean)
-    const clientGenerics = ['TData'].filter(Boolean)
-    const params = [pathParamsTyped, schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : ''].filter(Boolean)
-
-    sources.push(`
-      ${createJSDocBlockText({ comments })}
-      export function ${controller.name} <${generics.join(', ')}>(${params.join(', ')}) {
-        return client<${clientGenerics.join(', ')}>({
-          method: "get",
-          url: ${new URLPath(operation.path).template},
-          ${schemas.queryParams?.name ? 'params,' : ''}
-        });
-      };
-    `)
+    const source = new ClientBuilder(oas).configure({ method: operation.method, name: controller.name, operation, schemas }).print()
 
     return {
       path: controller.filePath,
       fileName: controller.fileName,
-      source: sources.join('\n'),
+      source,
       imports: [
         {
           name: 'client',
@@ -154,39 +138,17 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath } = this.options
+    const { oas, clientPath } = this.options
 
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const comments = getComments(operation)
-    const sources: string[] = []
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
-
-    const generics = [`TData = ${schemas.response.name}`, schemas.request?.name ? `TVariables = ${schemas.request?.name}` : ''].filter(Boolean)
-    const clientGenerics = ['TData', schemas.request?.name ? 'TVariables' : ''].filter(Boolean)
-    const params = [
-      pathParamsTyped,
-      schemas.request?.name ? 'data: TVariables' : '',
-      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
-    ].filter(Boolean)
-
-    sources.push(`
-      ${createJSDocBlockText({ comments })}
-      export function ${controller.name} <${generics.join(', ')}>(${params.join(', ')}) {
-        return client<${clientGenerics.join(', ')}>({
-          method: "post",
-          url: ${new URLPath(operation.path).template},
-          ${schemas.request?.name ? 'data,' : ''}
-          ${schemas.queryParams?.name ? 'params,' : ''}
-        });
-      };
-    `)
+    const source = new ClientBuilder(oas).configure({ method: operation.method, name: controller.name, operation, schemas }).print()
 
     return {
       path: controller.filePath,
       fileName: controller.fileName,
-      source: sources.join('\n'),
+      source,
       imports: [
         {
           name: 'client',
@@ -202,39 +164,17 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath } = this.options
+    const { oas, clientPath } = this.options
 
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const comments = getComments(operation)
-    const sources: string[] = []
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
-
-    const generics = [`TData = ${schemas.response.name}`, schemas.request?.name ? `TVariables = ${schemas.request?.name}` : ''].filter(Boolean)
-    const clientGenerics = ['TData', schemas.request?.name ? 'TVariables' : ''].filter(Boolean)
-    const params = [
-      pathParamsTyped,
-      schemas.request?.name ? 'data: TVariables' : '',
-      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
-    ].filter(Boolean)
-
-    sources.push(`
-      ${createJSDocBlockText({ comments })}
-      export function ${controller.name} <${generics.join(', ')}>(${params.join(', ')}) {
-        return client<${clientGenerics.join(', ')}>({
-          method: "put",
-          url: ${new URLPath(operation.path).template},
-          ${schemas.request?.name ? 'data,' : ''}
-          ${schemas.queryParams?.name ? 'params,' : ''}
-        });
-      };
-    `)
+    const source = new ClientBuilder(oas).configure({ method: operation.method, name: controller.name, operation, schemas }).print()
 
     return {
       path: controller.filePath,
       fileName: controller.fileName,
-      source: sources.join('\n'),
+      source,
       imports: [
         {
           name: 'client',
@@ -250,39 +190,17 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath } = this.options
+    const { oas, clientPath } = this.options
 
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const comments = getComments(operation)
-    const sources: string[] = []
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
-
-    const generics = [`TData = ${schemas.response.name}`, schemas.request?.name ? `TVariables = ${schemas.request?.name}` : ''].filter(Boolean)
-    const clientGenerics = ['TData', schemas.request?.name ? 'TVariables' : ''].filter(Boolean)
-    const params = [
-      pathParamsTyped,
-      schemas.request?.name ? 'data: TVariables' : '',
-      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
-    ].filter(Boolean)
-
-    sources.push(`
-      ${createJSDocBlockText({ comments })}
-      export function ${controller.name} <${generics.join(', ')}>(${params.join(', ')}) {
-        return client<${clientGenerics.join(', ')}>({
-          method: "delete",
-          url: ${new URLPath(operation.path).template},
-          ${schemas.request?.name ? 'data,' : ''}
-          ${schemas.queryParams?.name ? 'params,' : ''}
-        });
-      };
-    `)
+    const source = new ClientBuilder(oas).configure({ method: operation.method, name: controller.name, operation, schemas }).print()
 
     return {
       path: controller.filePath,
       fileName: controller.fileName,
-      source: sources.join('\n'),
+      source,
       imports: [
         {
           name: 'client',

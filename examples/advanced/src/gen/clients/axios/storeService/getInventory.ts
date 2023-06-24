@@ -6,7 +6,7 @@ import type { GetInventoryQueryResponse } from '../../../models/ts/storeControll
  * @summary Returns pet inventories by status
  * @link /store/inventory
  */
-export function getInventory<TData = GetInventoryQueryResponse>() {
+export function getInventory<TData = GetInventoryQueryResponse>(): Promise<TData> {
   return client<TData>({
     method: 'get',
     url: `/store/inventory`,

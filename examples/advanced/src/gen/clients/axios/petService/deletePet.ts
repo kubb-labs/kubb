@@ -6,7 +6,7 @@ import type { DeletePetMutationResponse, DeletePetPathParams } from '../../../mo
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-export function deletePet<TData = DeletePetMutationResponse>(petId: DeletePetPathParams['petId']) {
+export function deletePet<TData = DeletePetMutationResponse>(petId: DeletePetPathParams['petId']): Promise<TData> {
   return client<TData>({
     method: 'delete',
     url: `/pet/${petId}`,
