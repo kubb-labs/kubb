@@ -1,6 +1,6 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { createJSDocBlockText } from '@kubb/core'
-import type { Resolver, HttpMethod } from '@kubb/swagger'
+import type { Resolver } from '@kubb/swagger'
 import { OasBuilder, getComments } from '@kubb/swagger'
 
 import { URLPath } from '@kubb/core'
@@ -21,9 +21,7 @@ type QueryConfig = BaseConfig & {
   queryParam?: string
 }
 
-type MutationConfig = BaseConfig & {
-  method: HttpMethod
-}
+type MutationConfig = BaseConfig
 type Config = QueryConfig | MutationConfig
 
 type QueryResult = { source: string; name: string }
@@ -225,18 +223,19 @@ export class QueryBuilder extends OasBuilder<Config> {
   }
 
   private get mutation(): QueryResult {
-    const { frameworkImports, errors, operation, schemas, method } = this.config as MutationConfig
+    const { framework, frameworkImports, errors, operation, schemas } = this.config as MutationConfig
 
     const name = frameworkImports.getName(operation)
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     const comments = getComments(operation)
+    const method = operation.method
 
     const generics = [
       `TData = ${schemas.response.name}`,
       `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
       schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined,
     ].filter(Boolean)
-    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
+    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : undefined, framework === 'vue' ? 'unknown' : undefined].filter(Boolean)
     const options = [
       pathParamsTyped,
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : '',
@@ -252,7 +251,7 @@ export class QueryBuilder extends OasBuilder<Config> {
       
       return ${frameworkImports.mutate.useMutation}<${clientGenerics.join(', ')}>({
         mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
-          return client<${clientGenerics.join(', ')}>({
+          return client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>({
             method: "${method}",
             url: ${new URLPath(operation.path).template},
             ${schemas.request?.name ? 'data,' : ''}

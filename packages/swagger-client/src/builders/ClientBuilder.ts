@@ -1,6 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { createJSDocBlockText } from '@kubb/core'
-import type { HttpMethod } from '@kubb/swagger'
 import { OasBuilder, getComments } from '@kubb/swagger'
 
 import { URLPath } from '@kubb/core'
@@ -10,7 +9,6 @@ import { getParams } from '@kubb/swagger'
 type Config = {
   operation: Operation
   schemas: OperationSchemas
-  method: HttpMethod
   name: string
 }
 
@@ -18,10 +16,11 @@ type ClientResult = { source: string; name: string }
 
 export class ClientBuilder extends OasBuilder<Config> {
   private get client(): ClientResult {
-    const { name, operation, schemas, method } = this.config
+    const { name, operation, schemas } = this.config
 
     const comments = getComments(operation)
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
+    const method = operation.method
 
     const generics = [`TData = ${schemas.response.name}`, schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined].filter(Boolean)
     const clientGenerics = ['TData', schemas.request?.name ? 'TVariables' : undefined].filter(Boolean)

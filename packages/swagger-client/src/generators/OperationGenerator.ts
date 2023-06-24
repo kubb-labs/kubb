@@ -117,7 +117,7 @@ export class OperationGenerator extends Generator<Options> {
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const source = new ClientBuilder(oas).configure({ method: operation.method, name: controller.name, operation, schemas }).print()
+    const source = new ClientBuilder(oas).configure({ name: controller.name, operation, schemas }).print()
 
     return {
       path: controller.filePath,
@@ -143,7 +143,7 @@ export class OperationGenerator extends Generator<Options> {
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const source = new ClientBuilder(oas).configure({ method: operation.method, name: controller.name, operation, schemas }).print()
+    const source = new ClientBuilder(oas).configure({ name: controller.name, operation, schemas }).print()
 
     return {
       path: controller.filePath,
@@ -169,7 +169,7 @@ export class OperationGenerator extends Generator<Options> {
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const source = new ClientBuilder(oas).configure({ method: operation.method, name: controller.name, operation, schemas }).print()
+    const source = new ClientBuilder(oas).configure({ name: controller.name, operation, schemas }).print()
 
     return {
       path: controller.filePath,
@@ -195,7 +195,7 @@ export class OperationGenerator extends Generator<Options> {
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const source = new ClientBuilder(oas).configure({ method: operation.method, name: controller.name, operation, schemas }).print()
+    const source = new ClientBuilder(oas).configure({ name: controller.name, operation, schemas }).print()
 
     return {
       path: controller.filePath,

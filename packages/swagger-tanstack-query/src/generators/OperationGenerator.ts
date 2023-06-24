@@ -282,7 +282,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, method: operation.method }).print('mutation')
+    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas }).print('mutation')
 
     return {
       path: hook.filePath,
@@ -322,7 +322,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, method: operation.method }).print('mutation')
+    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas }).print('mutation')
 
     return {
       path: hook.filePath,
@@ -364,7 +364,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, method: operation.method }).print('mutation')
+    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas }).print('mutation')
 
     return {
       path: hook.filePath,
