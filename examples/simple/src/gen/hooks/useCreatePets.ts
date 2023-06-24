@@ -1,4 +1,4 @@
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { CreatePetsMutationRequest, CreatePetsMutationResponse, CreatePets500 } from '../models/CreatePets'
@@ -9,7 +9,7 @@ import type { CreatePetsMutationRequest, CreatePetsMutationResponse, CreatePets5
  */
 export function useCreatePets<TData = CreatePetsMutationResponse, TError = CreatePets500, TVariables = CreatePetsMutationRequest>(options?: {
   mutation?: UseMutationOptions<TData, TError, TVariables>
-}) {
+}): UseMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({

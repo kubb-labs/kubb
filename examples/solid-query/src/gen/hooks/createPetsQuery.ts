@@ -1,4 +1,4 @@
-import type { CreateMutationOptions } from '@tanstack/solid-query'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
 import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
 import type { CreatePetsMutationRequest, CreatePetsMutationResponse } from '../models/CreatePets'
@@ -9,7 +9,7 @@ import type { CreatePetsMutationRequest, CreatePetsMutationResponse } from '../m
  */
 export function createPetsQuery<TData = CreatePetsMutationResponse, TError = unknown, TVariables = CreatePetsMutationRequest>(options?: {
   mutation?: CreateMutationOptions<TData, TError, TVariables>
-}) {
+}): CreateMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return createMutation<TData, TError, TVariables>({

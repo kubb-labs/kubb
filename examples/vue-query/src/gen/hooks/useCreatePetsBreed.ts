@@ -1,4 +1,5 @@
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { CreatePetsBreedMutationRequest, CreatePetsBreedMutationResponse, CreatePetsBreedPathParams } from '../models/CreatePetsBreed'
@@ -12,7 +13,7 @@ export function useCreatePetsBreed<TData = CreatePetsBreedMutationResponse, TErr
   options?: {
     mutation?: VueMutationObserverOptions<TData, TError, TVariables>
   }
-) {
+): UseMutationReturnType<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({

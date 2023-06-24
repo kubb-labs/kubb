@@ -1,4 +1,4 @@
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import client from '../../../../client'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser'
@@ -13,7 +13,7 @@ export function useDeleteUser<TData = DeleteUserMutationResponse, TError = Delet
   options?: {
     mutation?: UseMutationOptions<TData, TError>
   }
-) {
+): UseMutationResult<TData, TError> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError>({

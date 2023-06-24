@@ -1,4 +1,4 @@
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import client from '../../../../client'
 import type {
@@ -14,11 +14,11 @@ import type {
  */
 export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
   petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithFormQueryParams,
+  params: UpdatePetWithFormQueryParams,
   options?: {
     mutation?: UseMutationOptions<TData, TError>
   }
-) {
+): UseMutationResult<TData, TError> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError>({
