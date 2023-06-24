@@ -11,12 +11,12 @@ import type { CreatePetsBreedMutationRequest, CreatePetsBreedMutationResponse, C
 export function useCreatePetsBreed<TData = CreatePetsBreedMutationResponse, TError = unknown, TVariables = CreatePetsBreedMutationRequest>(
   breed: CreatePetsBreedPathParams['breed'],
   options?: {
-    mutation?: VueMutationObserverOptions<TData, TError, TVariables>
+    mutation?: VueMutationObserverOptions<TData, TError, TVariables, unknown>
   }
-): UseMutationReturnType<TData, TError, TVariables> {
+): UseMutationReturnType<TData, TError, TVariables, unknown> {
   const { mutation: mutationOptions } = options ?? {}
 
-  return useMutation<TData, TError, TVariables>({
+  return useMutation<TData, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',

@@ -1,5 +1,5 @@
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../client'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../../../models/ts/storeController/PlaceOrder'
 
@@ -10,7 +10,7 @@ import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder4
  */
 export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(options?: {
   mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
-}) {
+}): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useSWRMutation<TData, TError, string, TVariables>(

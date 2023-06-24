@@ -1,5 +1,5 @@
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../client'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser'
 
@@ -13,7 +13,7 @@ export function useDeleteUser<TData = DeleteUserMutationResponse, TError = Delet
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string>
   }
-) {
+): SWRMutationResponse<TData, TError, string> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useSWRMutation<TData, TError, string>(

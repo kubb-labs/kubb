@@ -1,5 +1,5 @@
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
 import type { CreatePetsBreedMutationRequest, CreatePetsBreedMutationResponse, CreatePetsBreedPathParams } from '../models/CreatePetsBreed'
 
@@ -12,7 +12,7 @@ export function useCreatePetsBreed<TData = CreatePetsBreedMutationResponse, TErr
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
   }
-) {
+): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useSWRMutation<TData, TError, string, TVariables>(
