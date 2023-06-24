@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-faker-v1.3.0...@kubb/swagger-faker-v1.3.1) (2023-06-24)
+
+
+### Miscellaneous Chores
+
+* release 1.3.1 ([fc869d9](https://github.com/kubb-project/kubb/commit/fc869d9c1429f3b513e3ba5a8854e1bf1d1f2122))
+
 ## [1.3.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-faker-v1.2.4...@kubb/swagger-faker-v1.3.0) (2023-06-23)
 
 
