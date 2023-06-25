@@ -28,7 +28,7 @@
     "@kubb/swagger-zod": "workspace:*",
     "@tanstack/svelte-query": "^4.29.15",
     "axios": "^1.4.0",
-    "svelte": "^4.0.0",
+    "svelte": "^3.54.0",
     "tsup": "^7.1.0"
   },
   "devDependencies": {

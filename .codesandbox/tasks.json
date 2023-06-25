@@ -1,0 +1,9 @@
+{
+  "$schema": "https://codesandbox.io/schemas/tasks.json",
+  "setupTasks": [
+    {
+      "name": "Install Dependencies",
+      "command": "corepack enable && pnpm install --frozen-lockfile"
+    }
+  ]
+}
