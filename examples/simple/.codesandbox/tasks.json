@@ -5,7 +5,7 @@
     {
       "name": "Enabled corepack",
       "command": "corepack enable"
-    }
+    },
     {
       "name": "Install Dependencies",
       "command": "pnpm install --frozen-lockfile"
