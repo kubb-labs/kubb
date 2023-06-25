@@ -17,7 +17,6 @@ type Options = {
 export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, string[]> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
-  paths: Record<string, string> = {}
 
   extraTexts: string[] = []
 
@@ -56,8 +55,8 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, baseName?: string): FormMeta[] {
-    const validationFunctions = this.getBaseTypeFromSchema(schema, baseName)
+  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, baseName?: string, fullName?: string): FormMeta[] {
+    const validationFunctions = this.getBaseTypeFromSchema(schema, baseName, fullName)
     if (validationFunctions) {
       return validationFunctions
     }
@@ -68,7 +67,7 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   /**
    * Recursively creates a type literal with the given props.
    */
-  private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string): FormMeta[] {
+  private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string, fullName?: string): FormMeta[] {
     const properties = baseSchema?.properties || {}
     const required = baseSchema?.required
     const additionalProperties = baseSchema?.additionalProperties
@@ -80,9 +79,11 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         const schema = properties[name] as OpenAPIV3.SchemaObject
         const isRequired = required && required.includes(name)
 
-        this.paths[name] = [baseName, name].filter(Boolean).join('.')
+        validationFunctions.push(...this.getTypeFromSchema(schema, name, [fullName ?? baseName, name].filter(Boolean).join('.')))
 
-        validationFunctions.push(...this.getTypeFromSchema(schema, name))
+        if (this.options.withJSDocs && schema.description) {
+          validationFunctions.push({ keyword: formKeywords.describe, args: schema.description.replaceAll('\n', ' ').replaceAll('`', "'") })
+        }
 
         const min = schema.minimum ?? schema.minLength ?? undefined
         const max = schema.maximum ?? schema.maxLength ?? undefined
@@ -190,7 +191,7 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): FormMeta[] {
+  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string, fullName?: string): FormMeta[] {
     if (!schema) {
       return [{ keyword: formKeywords.any }]
     }
@@ -210,7 +211,7 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         }),
       }
       if (schemaWithoutOneOf.properties) {
-        return [...this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName), union]
+        return [...this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName, fullName), union]
       }
 
       return [union]
@@ -231,7 +232,7 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       }
 
       if (schemaWithoutAllOf.properties) {
-        return [...this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName), and]
+        return [...this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName, fullName), and]
       }
 
       return [{ keyword: formKeywords.object, args: {} }, and]
@@ -257,7 +258,7 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if ('items' in schema) {
       // items -> array
-      return [{ keyword: formKeywords.array, args: this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName) }]
+      return [{ keyword: formKeywords.array, args: this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName, fullName) }]
     }
 
     if ('prefixItems' in schema) {
@@ -268,7 +269,7 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
           keyword: formKeywords.tuple,
           args: prefixItems.map((item) => {
             // no baseType so we can fall back on an union when using enum
-            return this.getBaseTypeFromSchema(item, undefined)[0]
+            return this.getBaseTypeFromSchema(item, undefined, fullName)[0]
           }),
         },
       ]
@@ -276,7 +277,7 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      return this.getTypeFromProperties(schema, baseName)
+      return this.getTypeFromProperties(schema, baseName, fullName)
     }
 
     if (schema.type) {
@@ -290,15 +291,16 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
               ...schema,
               type,
             },
-            baseName
+            baseName,
+            fullName
           ),
-          { keyword: formKeywords.null, args: { name: baseName } },
+          { keyword: formKeywords.null, args: { name: baseName, fullName } },
         ]
       }
 
       // string, boolean, null, number
       if (schema.type in formKeywords) {
-        return [{ keyword: schema.type, args: { name: baseName, fullName: baseName ? this.paths[baseName] : undefined } } as FormMeta]
+        return [{ keyword: schema.type, args: { name: baseName, fullName } } as FormMeta]
       }
     }
 

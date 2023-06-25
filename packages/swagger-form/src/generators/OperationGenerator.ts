@@ -107,6 +107,10 @@ export class OperationGenerator extends Generator<Options> {
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { oas, withDevtools, resolveName } = this.options
 
+    if (!schemas.request?.name) {
+      return null
+    }
+
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
 
@@ -114,10 +118,6 @@ export class OperationGenerator extends Generator<Options> {
 
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
-    }
-
-    if (!schemas.request?.name) {
-      return null
     }
 
     const source = new FormBuilder(oas).configure({ name: hook.name, resolveName, withDevtools, errors, operation, schemas }).print()
@@ -155,6 +155,10 @@ export class OperationGenerator extends Generator<Options> {
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { oas, withDevtools, resolveName } = this.options
 
+    if (!schemas.request?.name) {
+      return null
+    }
+
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
 
@@ -162,10 +166,6 @@ export class OperationGenerator extends Generator<Options> {
 
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
-    }
-
-    if (!schemas.request?.name) {
-      return null
     }
 
     const source = new FormBuilder(oas).configure({ name: hook.name, resolveName, withDevtools, errors, operation, schemas }).print()
@@ -203,6 +203,10 @@ export class OperationGenerator extends Generator<Options> {
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
     const { oas, withDevtools, resolveName } = this.options
 
+    if (!schemas.request?.name) {
+      return null
+    }
+
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
 
@@ -210,10 +214,6 @@ export class OperationGenerator extends Generator<Options> {
 
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
-    }
-
-    if (!schemas.request?.name) {
-      return null
     }
 
     const source = new FormBuilder(oas).configure({ resolveName, name: hook.name, withDevtools, errors, operation, schemas }).print()

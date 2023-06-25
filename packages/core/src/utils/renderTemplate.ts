@@ -7,14 +7,11 @@ export function renderTemplate<TData extends Record<string, unknown> = Record<st
     .replace(/{{(.*?)}}/g, (match) => {
       const value = data[match.split(/{{|}}/).filter(Boolean)[0].trim()]
 
-      if (typeof value === 'string') {
-        return value || ''
-      }
-
       if (typeof value === 'boolean') {
         return `${value.toString()}` || 'false'
       }
-      return value as string
+
+      return (value as string) || ''
     })
     .trim()
 }

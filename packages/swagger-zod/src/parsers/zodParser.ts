@@ -201,9 +201,9 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
         return schema && typeof schema.map === 'function'
       })
       .map((item) => {
-        const key = item[0]
+        const name = item[0]
         const schema = item[1] as ZodMeta[]
-        return `"${key}": ${schema
+        return `"${name}": ${schema
           .sort(zodKeywordSorter)
           .map((item) => parseZodMeta(item, mapper))
           .join('')}`

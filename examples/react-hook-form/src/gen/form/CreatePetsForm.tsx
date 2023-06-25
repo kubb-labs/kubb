@@ -35,11 +35,11 @@ export function CreatePetsForm(props: Props): React.ReactNode {
           onSubmit?.(data)
         })}
       >
-        <label>name</label>
+        <label>Name</label>
         <input {...register('name', { required: true })} defaultValue="Lily" />
         {errors['name'] && <p>This field is required</p>}
 
-        <label>tag</label>
+        <label>Tag</label>
         <input {...register('tag', { required: true })} defaultValue="" />
         {errors['tag'] && <p>This field is required</p>}
         <input type="submit" />

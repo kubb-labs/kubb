@@ -43,7 +43,11 @@ export class FormBuilder extends OasBuilder<Config> {
     })
     const form = formGenerator.build({
       schema: schemas.request.schema,
-      baseName: undefined,
+      /**
+       * In case of type is like `type UploadFileMutationRequest = string;`, then it should use the operationId as naming.
+       * Same for `FieldValues`
+       */
+      baseName: schemas.request.schema.type === 'object' ? undefined : operationId,
       description: schemas.request.description,
     })
 
