@@ -29,7 +29,7 @@
     "@tanstack/solid-query": "^4.29.15",
     "axios": "^1.4.0",
     "solid-js": "^1.7.6",
-    "tsup": "^7.0.0"
+    "tsup": "^7.1.0"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
