@@ -18,6 +18,9 @@
       "path": "../../swagger-faker"
     },
     {
+      "path": "../../swagger-form"
+    },
+    {
       "path": "../../swagger-tanstack-query"
     },
     {

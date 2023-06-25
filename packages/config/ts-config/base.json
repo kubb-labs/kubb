@@ -32,6 +32,7 @@
       "@kubb/swagger": ["packages/swagger"],
       "@kubb/swagger-client": ["packages/swagger-client"],
       "@kubb/swagger-faker": ["packages/swagger-faker"],
+      "@kubb/swagger-form": ["packages/swagger-form"],
       "@kubb/swagger-tanstack-query": ["packages/swagger-tanstack-query"],
       "@kubb/swagger-ts": ["packages/swagger-ts"],
       "@kubb/swagger-zod": ["packages/swagger-zod"],

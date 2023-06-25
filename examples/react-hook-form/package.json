@@ -1,0 +1,48 @@
+{
+  "name": "react-hook-form-pet-store",
+  "version": "0.0.1",
+  "description": "ReactHookForm PetStore example",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kubb-project/kubb.git",
+    "directory": "packages/examples/react-hook-form"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "sideEffects": false,
+  "type": "module",
+  "scripts": {
+    "build": "tsup && vite build",
+    "clean": "rimraf ./dist",
+    "dev": "vite",
+    "generate": "kubb generate",
+    "start": "tsup --watch",
+    "test": "vitest",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/cli": "workspace:*",
+    "@kubb/core": "workspace:*",
+    "@kubb/swagger": "workspace:*",
+    "@kubb/swagger-ts": "workspace:*",
+    "@kubb/swagger-form": "workspace:*",
+    "axios": "^1.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.45.0",
+    "tsup": "^7.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.6",
+    "@vitejs/plugin-react": "^4.0.1",
+    "msw": "^1.2.2",
+    "typescript": "^5.1.3",
+    "vite": "^4.3.9"
+  },
+  "packageManager": "pnpm@8.3.0",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8.3.0"
+  }
+}
