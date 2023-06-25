@@ -3,6 +3,10 @@
   // These tasks will run in order when initializing your CodeSandbox project.
   "setupTasks": [
     {
+      "name": "Enabled corepack",
+      "command": "corepack enable"
+    }
+    {
       "name": "Install Dependencies",
       "command": "pnpm install --frozen-lockfile"
     }
