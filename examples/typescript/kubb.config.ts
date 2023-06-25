@@ -1,7 +1,6 @@
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
-import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
 
 export default defineConfig({
   root: '.',
@@ -16,5 +15,5 @@ export default defineConfig({
     done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
   },
   logLevel: 'info',
-  plugins: [createSwagger({ validate: false }), createSwaggerTS({ output: 'models', enumType: 'enum' }), createSwaggerTanstackQuery({ output: './hooks' })],
+  plugins: [createSwagger({ validate: false }), createSwaggerTS({ output: 'models', enumType: 'enum' })],
 })

@@ -145,7 +145,7 @@ importers:
         version: link:../packages/swagger-zodios
       '@tanstack/react-query':
         specifier: ^4.29.15
-        version: 4.29.15(react-dom@18.2.0)(react@18.2.0)
+        version: 4.29.15(react@18.2.0)
       '@tanstack/solid-query':
         specifier: ^4.29.15
         version: 4.29.15(solid-js@1.7.6)
@@ -233,7 +233,7 @@ importers:
         version: link:../../packages/swagger-zodios
       '@tanstack/react-query':
         specifier: ^4.29.15
-        version: 4.29.15(react-dom@18.2.0)(react@18.2.0)
+        version: 4.29.15(react@18.2.0)
       '@tanstack/solid-query':
         specifier: ^4.29.15
         version: 4.29.15(solid-js@1.7.6)
@@ -335,64 +335,15 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
-      '@kubb/swagger-zod':
-        specifier: workspace:*
-        version: link:../../packages/swagger-zod
       '@tanstack/react-query':
         specifier: ^4.29.15
-        version: 4.29.15(react-dom@18.2.0)(react@18.2.0)
+        version: 4.29.15(react@18.2.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
-      tsup:
-        specifier: ^7.1.0
-        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
-    devDependencies:
-      '@kubb/ts-config':
-        specifier: workspace:*
-        version: link:../../packages/config/ts-config
-      typescript:
-        specifier: ^5.1.3
-        version: 5.1.3
-
-  examples/simple:
-    dependencies:
-      '@kubb/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@kubb/swagger':
-        specifier: workspace:*
-        version: link:../../packages/swagger
-      '@kubb/swagger-client':
-        specifier: workspace:*
-        version: link:../../packages/swagger-client
-      '@kubb/swagger-tanstack-query':
-        specifier: workspace:*
-        version: link:../../packages/swagger-tanstack-query
-      '@kubb/swagger-ts':
-        specifier: workspace:*
-        version: link:../../packages/swagger-ts
-      '@kubb/swagger-zod':
-        specifier: workspace:*
-        version: link:../../packages/swagger-zod
-      '@tanstack/react-query':
-        specifier: ^4.29.15
-        version: 4.29.15(react-dom@18.2.0)(react@18.2.0)
-      axios:
-        specifier: ^1.4.0
-        version: 1.4.0
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
       tsup:
         specifier: ^7.1.0
         version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
@@ -438,7 +389,7 @@ importers:
         version: link:../../packages/swagger-ts
       '@tanstack/react-query':
         specifier: ^4.29.15
-        version: 4.29.15(react-dom@18.2.0)(react@18.2.0)
+        version: 4.29.15(react@18.2.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -570,6 +521,31 @@ importers:
       tsup:
         specifier: ^7.1.0
         version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
+
+  examples/typescript:
+    dependencies:
+      '@kubb/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@kubb/swagger':
+        specifier: workspace:*
+        version: link:../../packages/swagger
+      '@kubb/swagger-ts':
+        specifier: workspace:*
+        version: link:../../packages/swagger-ts
+      axios:
+        specifier: ^1.4.0
+        version: 1.4.0
+      tsup:
+        specifier: ^7.1.0
+        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
+    devDependencies:
+      typescript:
+        specifier: ^5.1.3
+        version: 5.1.3
 
   examples/vue-query:
     dependencies:
@@ -2509,7 +2485,7 @@ packages:
     resolution: {integrity: sha512-Recc1d5rjHesKhzlH3Aw66v+vQxtB9OHEXP/vxgEcEJ0DwEpfe3EQ4id20vuBJHY2XRjfgWGmUs6ZgK6PSsTXA==}
     dev: false
 
-  /@tanstack/react-query@4.29.15(react-dom@18.2.0)(react@18.2.0):
+  /@tanstack/react-query@4.29.15(react@18.2.0):
     resolution: {integrity: sha512-1zDkv95ljuJ623hhbYU8YIprPW2x6774kh3IQNEuZav62+S+Zr26uUOrE2zGRp9I1uO5Liw/0uYB3dWXQP5+3Q==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -2523,7 +2499,6 @@ packages:
     dependencies:
       '@tanstack/query-core': 4.29.15
       react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
@@ -5578,7 +5553,7 @@ packages:
     engines: {node: '>=12.0.0'}
     dependencies:
       ansi-escapes: 4.3.2
-      chalk: 4.1.1
+      chalk: 4.1.2
       cli-cursor: 3.1.0
       cli-width: 3.0.0
       external-editor: 3.1.0
@@ -7382,7 +7357,7 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       bl: 4.1.0
-      chalk: 4.1.1
+      chalk: 4.1.2
       cli-cursor: 3.1.0
       cli-spinners: 2.9.0
       is-interactive: 1.0.0

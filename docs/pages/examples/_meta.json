@@ -1,14 +1,6 @@
 {
-  "simple": {
-    "title": "Simple PetStore",
-    "theme": {
-      "layout": "full",
-      "footer": true,
-      "toc": false
-    }
-  },
-  "simple-single": {
-    "title": "Simple with one file for models PetStore",
+  "typescript": {
+    "title": "TypeScript PetStore",
     "theme": {
       "layout": "full",
       "footer": true,
@@ -65,6 +57,14 @@
   },
   "faker": {
     "title": "Faker PetStore",
+    "theme": {
+      "layout": "full",
+      "footer": true,
+      "toc": false
+    }
+  },
+  "simple-single": {
+    "title": "Simple with one file for models PetStore",
     "theme": {
       "layout": "full",
       "footer": true,

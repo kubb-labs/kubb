@@ -17,7 +17,7 @@ worker
     serviceWorker: {
       /**
        * Use a custom Service Worker script URL to resolve
-       * the mock worker served by Codesandbox.
+       * the mock worker served by CodeSandbox.
        * @note You DO NOT need this in your application.
        * @see https://mswjs.io/docs/api/setup-worker/start#serviceworker
        */

@@ -9,17 +9,13 @@ try {
     const oldVersion = "workspace:*";
     const newVersion = "latest";
 
-
     const content = JSON.stringify(pkg, null, "\t") + "\n";
-    console.log(content)
     const newContent = content
       // @ts-ignore
       .replaceAll(
         `"${oldVersion}"`,
         `"${newVersion}"`,
       )
-
-    console.log(newContent)
 
     fs.writeFileSync(pkgJsonPath, newContent);
   }
