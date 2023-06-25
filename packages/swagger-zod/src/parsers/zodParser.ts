@@ -159,17 +159,17 @@ function zodKeywordSorter(a: ZodMeta, b: ZodMeta): 1 | -1 | 0 {
   return 0
 }
 
-export function parseZodMeta(item: ZodMeta): string {
+export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> = zodKeywordMapper): string {
   // eslint-disable-next-line prefer-const
   let { keyword, args = '' } = (item || {}) as ZodMetaBase<unknown>
-  const value = zodKeywordMapper[keyword]
+  const value = mapper[keyword]
 
   if (keyword === zodKeywords.tuple) {
-    return `${value}(${Array.isArray(args) ? `[${args.map(parseZodMeta).join(',')}]` : parseZodMeta(args as ZodMeta)})`
+    return `${value}(${Array.isArray(args) ? `[${args.map((item) => parseZodMeta(item as ZodMeta, mapper)).join(',')}]` : parseZodMeta(args as ZodMeta)})`
   }
 
   if (keyword === zodKeywords.array) {
-    return `${value}(${Array.isArray(args) ? `${args.map(parseZodMeta).join('')}` : parseZodMeta(args as ZodMeta)})`
+    return `${value}(${Array.isArray(args) ? `${args.map((item) => parseZodMeta(item as ZodMeta, mapper)).join('')}` : parseZodMeta(args as ZodMeta)})`
   }
   if (keyword === zodKeywords.union) {
     // zod union type needs at least 2 items
@@ -177,16 +177,16 @@ export function parseZodMeta(item: ZodMeta): string {
       return parseZodMeta(args[0] as ZodMeta)
     }
 
-    return `${Array.isArray(args) ? `${value}([${args.map(parseZodMeta).join(',')}])` : parseZodMeta(args as ZodMeta)}`
+    return `${Array.isArray(args) ? `${value}([${args.map((item) => parseZodMeta(item as ZodMeta, mapper)).join(',')}])` : parseZodMeta(args as ZodMeta)}`
   }
 
   if (keyword === zodKeywords.catchall) {
-    return `${value}(${Array.isArray(args) ? `${args.map(parseZodMeta).join('')}` : parseZodMeta(args as ZodMeta)})`
+    return `${value}(${Array.isArray(args) ? `${args.map((item) => parseZodMeta(item as ZodMeta, mapper)).join('')}` : parseZodMeta(args as ZodMeta)})`
   }
 
   if (keyword === zodKeywords.and && Array.isArray(args)) {
     return `${args
-      .map(parseZodMeta)
+      .map((item) => parseZodMeta(item as ZodMeta, mapper))
       .map((item) => `${value}(${item})`)
       .join('')}`
   }
@@ -203,7 +203,10 @@ export function parseZodMeta(item: ZodMeta): string {
       .map((item) => {
         const key = item[0]
         const schema = item[1] as ZodMeta[]
-        return `"${key}": ${schema.sort(zodKeywordSorter).map(parseZodMeta).join('')}`
+        return `"${key}": ${schema
+          .sort(zodKeywordSorter)
+          .map((item) => parseZodMeta(item, mapper))
+          .join('')}`
       })
       .join(',')
 
@@ -213,7 +216,7 @@ export function parseZodMeta(item: ZodMeta): string {
   // custom type
   if (keyword === zodKeywords.ref) {
     // use of z.lazy because we need to import from files x or we use the type as a self reference
-    return `${zodKeywordMapper.lazy}(() => ${args as string})`
+    return `${mapper.lazy}(() => ${args as string})`
   }
 
   if (keyword === zodKeywords.default && args === undefined) {
@@ -227,10 +230,10 @@ export function parseZodMeta(item: ZodMeta): string {
   return '""'
 }
 
-export function zodParser(items: ZodMeta[], options: { name: string }): string {
+export function zodParser(items: ZodMeta[], options: { mapper?: Record<ZodKeyword, string>; name: string }): string {
   if (!items.length) {
     return `export const ${options.name} = '';`
   }
 
-  return `export const ${options.name} = ${items.map(parseZodMeta).join('')};`
+  return `export const ${options.name} = ${items.map((item) => parseZodMeta(item, options.mapper)).join('')};`
 }

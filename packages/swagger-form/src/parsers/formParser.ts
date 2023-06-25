@@ -140,10 +140,10 @@ export type FormMeta =
   | FormMetaUuid
   | FormMetaUrl
 
-export function parseFormMeta(item: FormMeta): string {
+export function parseFormMeta(item: FormMeta, mapper: Record<FormKeyword, string> = formKeywordMapper): string {
   // eslint-disable-next-line prefer-const
   let { keyword, args = '' } = (item || {}) as FormMetaBase<unknown>
-  const value = formKeywordMapper[keyword]
+  const value = mapper[keyword]
 
   if (keyword === formKeywords.object) {
     if (!args) {
@@ -174,7 +174,7 @@ export function parseFormMeta(item: FormMeta): string {
             }
             return item
           })
-          .map(parseFormMeta)
+          .map((item) => parseFormMeta(item, mapper))
           .join('')
       })
       .join('\n\n')
@@ -185,12 +185,12 @@ export function parseFormMeta(item: FormMeta): string {
   // custom type
   if (keyword === formKeywords.ref) {
     // use of z.lazy because we need to import from files x or we use the type as a self reference
-    return `${formKeywordMapper.lazy}(() => ${args as string})`
+    return `${mapper.lazy}(() => ${args as string})`
   }
 
   if (keyword === formKeywords.string) {
     const { name, required, defaultValue = '""' } = args as FormMetaString['args']
-    const template = [value, required ? renderTemplate(formKeywordMapper[formKeywords.required], { name }) : undefined].filter(Boolean)
+    const template = [value, required ? renderTemplate(mapper[formKeywords.required], { name }) : undefined].filter(Boolean)
 
     return renderTemplate(template.join(''), { name, required, defaultValue })
   }
@@ -202,10 +202,10 @@ export function parseFormMeta(item: FormMeta): string {
   return ''
 }
 
-export function formParser(items: FormMeta[]): string {
+export function formParser(items: FormMeta[], options: { mapper?: Record<FormKeyword, string> } = {}): string {
   if (!items.length) {
     return ''
   }
 
-  return items.map(parseFormMeta).join('')
+  return items.map((item) => parseFormMeta(item, options.mapper)).join('')
 }
