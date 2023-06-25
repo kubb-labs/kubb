@@ -3,9 +3,15 @@
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "sourceMap": true,
     "strictNullChecks": true,
-    "jsx": "react",
+    "isolatedModules": true,
+    "jsx": "react-jsx",
     "declaration": true,
     "outDir": "es",
     "experimentalDecorators": true,

@@ -14,7 +14,7 @@ import { configs as kubbConfigs } from '@kubb/eslint-config/flat'
 export default [
   ...kubbConfigs,
   {
-    ignores: ['e2e/**', 'docs/**', 'vitest.config.ts'],
+    ignores: ['e2e/**', 'docs/**', 'vitest.config.ts', 'vite.config.ts'],
     files: ['packages/**', 'examples/**', 'docs/**'],
     languageOptions: {
       parserOptions: {

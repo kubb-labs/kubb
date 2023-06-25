@@ -14,7 +14,7 @@ import type {
  */
 export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
   petId: UpdatePetWithFormPathParams['petId'],
-  params: UpdatePetWithFormQueryParams,
+  params?: UpdatePetWithFormQueryParams,
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string>
   }

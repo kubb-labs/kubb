@@ -3,7 +3,7 @@ import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../client'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
 
-export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(params: LoginUserQueryParams): SWRConfiguration<TData, TError> {
+export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(params?: LoginUserQueryParams): SWRConfiguration<TData, TError> {
   return {
     fetcher: () => {
       return client<TData, TError>({
@@ -21,7 +21,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
  * @link /user/login
  */
 export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params: LoginUserQueryParams,
+  params?: LoginUserQueryParams,
   options?: { query?: SWRConfiguration<TData, TError> }
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}

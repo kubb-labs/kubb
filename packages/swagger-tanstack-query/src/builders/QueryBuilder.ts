@@ -35,7 +35,7 @@ export class QueryBuilder extends OasBuilder<Config> {
 
     const options = [
       pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
     ].filter(Boolean)
     const result = [new URLPath(operation.path).template, schemas.queryParams?.name ? `...(params ? [params] : [])` : undefined].filter(Boolean)
 
@@ -57,7 +57,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const clientGenerics = ['TData', 'TError']
     const options = [
       pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
     ].filter(Boolean)
     let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
 
@@ -99,7 +99,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const clientGenerics = ['TData', 'TError']
     const options = [
       pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : '',
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
       `options?: { query?: ${frameworkImports.query.UseQueryOptions}<${clientGenerics.join(', ')}> }`,
     ].filter(Boolean)
     const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
@@ -143,7 +143,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const clientGenerics = ['TData', 'TError']
     const options = [
       pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
     ].filter(Boolean)
     let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
 
@@ -192,7 +192,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const clientGenerics = ['TData', 'TError']
     const options = [
       pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : '',
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
       `options?: { query?: ${frameworkImports.query.UseInfiniteQueryOptions}<${clientGenerics.join(', ')}> }`,
     ].filter(Boolean)
     const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
@@ -238,7 +238,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : undefined, framework === 'vue' ? 'unknown' : undefined].filter(Boolean)
     const options = [
       pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : '',
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
       `options?: {
         mutation?: ${frameworkImports.mutate.UseMutationOptions}<${clientGenerics.join(', ')}>
     }`,

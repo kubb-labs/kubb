@@ -4,7 +4,7 @@ import client from '../../../../client'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
 
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params: FindPetsByStatusQueryParams
+  params?: FindPetsByStatusQueryParams
 ): SWRConfiguration<TData, TError> {
   return {
     fetcher: () => {
@@ -24,7 +24,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
  * @link /pet/findByStatus
  */
 export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params: FindPetsByStatusQueryParams,
+  params?: FindPetsByStatusQueryParams,
   options?: { query?: SWRConfiguration<TData, TError> }
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}

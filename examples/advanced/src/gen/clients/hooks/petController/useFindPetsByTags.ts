@@ -3,10 +3,10 @@ import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../client'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../../../models/ts/petController/FindPetsByTags'
 
-export const findPetsByTagsQueryKey = (params: FindPetsByTagsQueryParams) => [`/pet/findByTags`, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [`/pet/findByTags`, ...(params ? [params] : [])] as const
 
 export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  params: FindPetsByTagsQueryParams
+  params?: FindPetsByTagsQueryParams
 ): UseQueryOptions<TData, TError> {
   const queryKey = findPetsByTagsQueryKey(params)
 
@@ -28,7 +28,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
  * @link /pet/findByTags
  */
 export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  params: FindPetsByTagsQueryParams,
+  params?: FindPetsByTagsQueryParams,
   options?: { query?: UseQueryOptions<TData, TError> }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
@@ -45,7 +45,7 @@ export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = 
 }
 
 export function findPetsByTagsQueryOptionsInfinite<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  params: FindPetsByTagsQueryParams
+  params?: FindPetsByTagsQueryParams
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = findPetsByTagsQueryKey(params)
 
@@ -70,7 +70,7 @@ export function findPetsByTagsQueryOptionsInfinite<TData = FindPetsByTagsQueryRe
  * @link /pet/findByTags
  */
 export function useFindPetsByTagsInfinite<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  params: FindPetsByTagsQueryParams,
+  params?: FindPetsByTagsQueryParams,
   options?: { query?: UseInfiniteQueryOptions<TData, TError> }
 ): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}

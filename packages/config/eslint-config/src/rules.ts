@@ -42,12 +42,12 @@ export const rules: Linter.FlatConfig['rules'] = {
   'turbo/no-undeclared-env-vars': 'off',
   'unused-imports/no-unused-imports': 'error',
   'unused-imports/no-unused-vars': ['warn', { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' }],
-  /**
-   * If writing react code you need to install eslint-plugin-react and enable the two rules react/jsx-uses-react and react/jsx-uses-vars. Otherwise all imports for components will be reported unused.
-   * @link https://github.com/sweepline/eslint-plugin-unused-imports
-   */
-  'react/jsx-uses-react': 'error',
   'react/jsx-uses-vars': 'error',
   'react/display-name': 'off',
+  /**
+   * @link https://legacy.reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html#eslint
+   */
+  'react/jsx-uses-react': 'off',
+  'react/react-in-jsx-scope': 'off',
 }
 export default rules

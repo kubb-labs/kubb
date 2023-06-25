@@ -3,9 +3,9 @@ import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { ListPetsQueryResponse, ListPetsQueryParams } from '../models/ListPets'
 
-export const listPetsQueryKey = (params: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
+export const listPetsQueryKey = (params?: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
 
-export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unknown>(params: ListPetsQueryParams): UseQueryOptions<TData, TError> {
+export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unknown>(params?: ListPetsQueryParams): UseQueryOptions<TData, TError> {
   const queryKey = listPetsQueryKey(params)
 
   return {
@@ -25,7 +25,7 @@ export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unk
  * @link /pets
  */
 export function useListPets<TData = ListPetsQueryResponse, TError = unknown>(
-  params: ListPetsQueryParams,
+  params?: ListPetsQueryParams,
   options?: { query?: UseQueryOptions<TData, TError> }
 ): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
@@ -42,7 +42,7 @@ export function useListPets<TData = ListPetsQueryResponse, TError = unknown>(
 }
 
 export function listPetsQueryOptionsInfinite<TData = ListPetsQueryResponse, TError = unknown>(
-  params: ListPetsQueryParams
+  params?: ListPetsQueryParams
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = listPetsQueryKey(params)
 
@@ -66,7 +66,7 @@ export function listPetsQueryOptionsInfinite<TData = ListPetsQueryResponse, TErr
  * @link /pets
  */
 export function useListPetsInfinite<TData = ListPetsQueryResponse, TError = unknown>(
-  params: ListPetsQueryParams,
+  params?: ListPetsQueryParams,
   options?: { query?: UseInfiniteQueryOptions<TData, TError> }
 ): UseInfiniteQueryReturnType<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}

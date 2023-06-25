@@ -3,12 +3,12 @@ import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { ListPetsBreedQueryResponse, ListPetsBreedPathParams, ListPetsBreedQueryParams } from '../models/ListPetsBreed'
 
-export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], params: ListPetsBreedQueryParams) =>
+export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], params?: ListPetsBreedQueryParams) =>
   [`/pets/${breed}`, ...(params ? [params] : [])] as const
 
 export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
-  params: ListPetsBreedQueryParams
+  params?: ListPetsBreedQueryParams
 ): UseQueryOptions<TData, TError> {
   const queryKey = listPetsBreedQueryKey(breed, params)
 
@@ -30,7 +30,7 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TE
  */
 export function useListPetsBreed<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
-  params: ListPetsBreedQueryParams,
+  params?: ListPetsBreedQueryParams,
   options?: { query?: UseQueryOptions<TData, TError> }
 ): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
@@ -48,7 +48,7 @@ export function useListPetsBreed<TData = ListPetsBreedQueryResponse, TError = un
 
 export function listPetsBreedQueryOptionsInfinite<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
-  params: ListPetsBreedQueryParams
+  params?: ListPetsBreedQueryParams
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = listPetsBreedQueryKey(breed, params)
 
@@ -73,7 +73,7 @@ export function listPetsBreedQueryOptionsInfinite<TData = ListPetsBreedQueryResp
  */
 export function useListPetsBreedInfinite<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
-  params: ListPetsBreedQueryParams,
+  params?: ListPetsBreedQueryParams,
   options?: { query?: UseInfiniteQueryOptions<TData, TError> }
 ): UseInfiniteQueryReturnType<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}

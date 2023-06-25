@@ -53,6 +53,9 @@ const config: Linter.Config = {
   },
   reportUnusedDisableDirectives: true,
   settings: {
+    ecmaFeatures: {
+      jsx: true,
+    },
     'import/parsers': {
       '@typescript-eslint/parser': ['.ts', '.tsx'],
     },

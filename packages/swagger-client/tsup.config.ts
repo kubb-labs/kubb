@@ -14,5 +14,6 @@ export default defineConfig([
     ...optionsESM,
     entry: ['./client.ts'],
     name: 'client',
+    banner: {},
   },
 ])

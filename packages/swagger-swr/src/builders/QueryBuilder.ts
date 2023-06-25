@@ -28,7 +28,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const clientGenerics = ['TData', 'TError']
     const options = [
       pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
     ].filter(Boolean)
 
     const source = `
@@ -62,7 +62,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const clientGenerics = ['TData', 'TError']
     const options = [
       pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : '',
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
       `options?: { query?: SWRConfiguration<${clientGenerics.join(', ')}> }`,
     ].filter(Boolean)
 
@@ -107,7 +107,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     //end mutate specific
     const options = [
       pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : '',
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
       `options?: {
         mutation?: SWRMutationConfiguration<${SWRMutationConfigurationGenerics.join(', ')}>
       }`,

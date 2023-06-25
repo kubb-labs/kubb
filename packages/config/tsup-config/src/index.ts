@@ -1,8 +1,8 @@
 import type { Options } from 'tsup'
 
-export const bannerESM: Options['banner'] = {}
+export const bannerCJS: Options['banner'] = {}
 
-export const bannerCJS: Options['banner'] = {
+export const bannerESM: Options['banner'] = {
   /**
    * @link https://stackoverflow.com/questions/31931614/require-is-not-defined-node-js
    */
@@ -28,7 +28,7 @@ export const optionsESM: Options = {
   format: 'esm',
   dts: true,
   splitting: false,
-  banner: bannerCJS,
+  banner: bannerESM,
 }
 
 export const optionsCJS: Options = {
@@ -41,7 +41,7 @@ export const optionsCJS: Options = {
       moduleResolution: 'node',
     },
   },
-  banner: bannerESM,
+  banner: bannerCJS,
   // esbuildOptions: (options) => {
   //   options.footer = {
   //     // This will ensure we can continue writing this plugin

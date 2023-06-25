@@ -3,9 +3,9 @@ import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../client'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
 
-export const loginUserQueryKey = (params: LoginUserQueryParams) => [`/user/login`, ...(params ? [params] : [])] as const
+export const loginUserQueryKey = (params?: LoginUserQueryParams) => [`/user/login`, ...(params ? [params] : [])] as const
 
-export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(params: LoginUserQueryParams): UseQueryOptions<TData, TError> {
+export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(params?: LoginUserQueryParams): UseQueryOptions<TData, TError> {
   const queryKey = loginUserQueryKey(params)
 
   return {
@@ -25,7 +25,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
  * @link /user/login
  */
 export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params: LoginUserQueryParams,
+  params?: LoginUserQueryParams,
   options?: { query?: UseQueryOptions<TData, TError> }
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
@@ -42,7 +42,7 @@ export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser4
 }
 
 export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params: LoginUserQueryParams
+  params?: LoginUserQueryParams
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = loginUserQueryKey(params)
 
@@ -66,7 +66,7 @@ export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TE
  * @link /user/login
  */
 export function useLoginUserInfinite<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params: LoginUserQueryParams,
+  params?: LoginUserQueryParams,
   options?: { query?: UseInfiniteQueryOptions<TData, TError> }
 ): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}

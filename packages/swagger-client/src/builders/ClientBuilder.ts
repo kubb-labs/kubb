@@ -27,7 +27,7 @@ export class ClientBuilder extends OasBuilder<Config> {
     const options = [
       pathParamsTyped,
       schemas.request?.name ? 'data: TVariables' : undefined,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
     ].filter(Boolean)
 
     const source = `

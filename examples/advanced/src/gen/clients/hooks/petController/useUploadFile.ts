@@ -14,7 +14,7 @@ import type {
  */
 export function useUploadFile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
-  params: UploadFileQueryParams,
+  params?: UploadFileQueryParams,
   options?: {
     mutation?: UseMutationOptions<TData, TError, TVariables>
   }

@@ -98,6 +98,9 @@ export const config: Linter.FlatConfig = {
     reportUnusedDisableDirectives: true,
   },
   settings: {
+    ecmaFeatures: {
+      jsx: true,
+    },
     'import/parsers': {
       '@typescript-eslint/parser': ['.ts', '.tsx'],
     },
