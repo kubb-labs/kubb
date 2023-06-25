@@ -12,6 +12,7 @@ type Options = {
   oas: Oas
   resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
   resolveName: PluginContext['resolveName']
+  withDevtools?: boolean
 }
 
 export class OperationGenerator extends Generator<Options> {
@@ -104,7 +105,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { oas, clientPath } = this.options
+    const { oas, withDevtools } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -115,7 +116,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new FormBuilder(oas).configure({ name: hook.name, errors, operation, schemas }).print('mutation')
+    const source = new FormBuilder(oas).configure({ name: hook.name, withDevtools, errors, operation, schemas }).print()
 
     return {
       path: hook.filePath,
@@ -126,10 +127,12 @@ export class OperationGenerator extends Generator<Options> {
           name: ['useForm'],
           path: 'react-hook-form',
         },
-        {
-          name: 'client',
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
-        },
+        withDevtools
+          ? {
+              name: ['DevTool'],
+              path: '@hookform/devtools',
+            }
+          : undefined,
         {
           name: [
             schemas.request?.name,
@@ -141,12 +144,12 @@ export class OperationGenerator extends Generator<Options> {
           path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },
-      ],
+      ].filter(Boolean),
     }
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { oas, clientPath } = this.options
+    const { oas, withDevtools } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -157,7 +160,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new FormBuilder(oas).configure({ name: hook.name, errors, operation, schemas }).print('mutation')
+    const source = new FormBuilder(oas).configure({ name: hook.name, withDevtools, errors, operation, schemas }).print()
 
     return {
       path: hook.filePath,
@@ -168,10 +171,12 @@ export class OperationGenerator extends Generator<Options> {
           name: ['useForm'],
           path: 'react-hook-form',
         },
-        {
-          name: 'client',
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
-        },
+        withDevtools
+          ? {
+              name: ['DevTool'],
+              path: '@hookform/devtools',
+            }
+          : undefined,
         {
           name: [
             schemas.request?.name,
@@ -183,14 +188,12 @@ export class OperationGenerator extends Generator<Options> {
           path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },
-      ],
+      ].filter(Boolean),
     }
-
-    // end hook creation
   }
 
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { oas, clientPath } = this.options
+    const { oas, withDevtools } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -201,7 +204,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new FormBuilder(oas).configure({ name: hook.name, errors, operation, schemas }).print('mutation')
+    const source = new FormBuilder(oas).configure({ name: hook.name, withDevtools, errors, operation, schemas }).print()
 
     return {
       path: hook.filePath,
@@ -212,10 +215,12 @@ export class OperationGenerator extends Generator<Options> {
           name: ['useForm'],
           path: 'react-hook-form',
         },
-        {
-          name: 'client',
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
-        },
+        withDevtools
+          ? {
+              name: ['DevTool'],
+              path: '@hookform/devtools',
+            }
+          : undefined,
         {
           name: [
             schemas.request?.name,
@@ -227,7 +232,7 @@ export class OperationGenerator extends Generator<Options> {
           path: getRelativePath(hook.filePath, type.filePath),
           isTypeOnly: true,
         },
-      ],
+      ].filter(Boolean),
     }
   }
 }

@@ -115,12 +115,12 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    * Recursively creates a type literal with the given props.
    */
   private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string) {
-    const props = baseSchema?.properties || {}
+    const properties = baseSchema?.properties || {}
     const required = baseSchema?.required
     const additionalProperties = baseSchema?.additionalProperties
 
-    const members: Array<ts.TypeElement | null> = Object.keys(props).map((name) => {
-      const schema = props[name] as OpenAPIV3.SchemaObject
+    const members: Array<ts.TypeElement | null> = Object.keys(properties).map((name) => {
+      const schema = properties[name] as OpenAPIV3.SchemaObject
 
       const isRequired = required && required.includes(name)
       let type = this.getTypeFromSchema(schema, this.options.resolveName({ name: `${baseName || ''} ${name}`, pluginName }))

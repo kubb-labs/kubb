@@ -98,14 +98,14 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
    * Recursively creates a type literal with the given props.
    */
   private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, _baseName?: string): FakerMeta[] {
-    const props = baseSchema?.properties || {}
+    const properties = baseSchema?.properties || {}
     const additionalProperties = baseSchema?.additionalProperties
 
-    const objectMembers = Object.keys(props)
+    const objectMembers = Object.keys(properties)
       .map((name) => {
         const validationFunctions: FakerMeta[] = []
 
-        const schema = props[name] as OpenAPIV3.SchemaObject
+        const schema = properties[name] as OpenAPIV3.SchemaObject
 
         validationFunctions.push(...this.getTypeFromSchema(schema, name))
 

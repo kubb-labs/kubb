@@ -29,6 +29,11 @@ export type Options = {
     exportAs?: string
   }
   client?: string
+  /**
+   * Include `@hookform/devtools`
+   * @default `false`
+   */
+  withDevtools?: boolean
 }
 
 export type ResolvePathOptions = { tag?: string }

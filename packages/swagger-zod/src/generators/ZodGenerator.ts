@@ -66,15 +66,15 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
    * Recursively creates a type literal with the given props.
    */
   private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string): ZodMeta[] {
-    const props = baseSchema?.properties || {}
+    const properties = baseSchema?.properties || {}
     const required = baseSchema?.required
     const additionalProperties = baseSchema?.additionalProperties
 
-    const objectMembers = Object.keys(props)
+    const objectMembers = Object.keys(properties)
       .map((name) => {
         const validationFunctions: ZodMeta[] = []
 
-        const schema = props[name] as OpenAPIV3.SchemaObject
+        const schema = properties[name] as OpenAPIV3.SchemaObject
         const isRequired = required && required.includes(name)
 
         validationFunctions.push(...this.getTypeFromSchema(schema, name))

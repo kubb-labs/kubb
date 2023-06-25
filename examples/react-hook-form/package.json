@@ -21,11 +21,12 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@hookform/devtools": "^4.3.1",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-form": "workspace:*",
+    "@kubb/swagger-ts": "workspace:*",
     "axios": "^1.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

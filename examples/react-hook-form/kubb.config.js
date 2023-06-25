@@ -16,5 +16,5 @@ export default defineConfig({
     done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
   },
   logLevel: 'info',
-  plugins: [createSwagger({ output: false }), createSwaggerTS({ output: 'models.ts' }), createForm({ output: './form' })],
+  plugins: [createSwagger({ output: false }), createSwaggerTS({ output: 'models.ts' }), createForm({ output: './form', withDevtools: true })],
 })

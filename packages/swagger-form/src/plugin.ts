@@ -21,7 +21,7 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy } = options
+  const { output = 'hooks', groupBy, withDevtools = false } = options
   let swaggerApi: SwaggerApi
 
   return {
@@ -88,6 +88,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         oas,
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
+        withDevtools,
       })
 
       const files = await operationGenerator.build()

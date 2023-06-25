@@ -5,40 +5,21 @@ import { OasBuilder, getComments, isReference } from '@kubb/swagger'
 
 import type { Operation, OperationSchemas } from '@kubb/swagger'
 import { getParams } from '@kubb/swagger'
+import { DevTool } from '@hookform/devtools'
 
 type Config = {
   operation: Operation
   schemas: OperationSchemas
   errors: Resolver[]
   name: string
+  withDevtools?: boolean
 }
 
 type FormResult = { source: string; name: string }
 
 export class FormBuilder extends OasBuilder<Config> {
-  private get query(): FormResult {
-    const { name, operation, schemas } = this.config
-
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
-    const comments = getComments(operation)
-
-    const options = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
-    ].filter(Boolean)
-
-    const source = `
-    ${createJSDocBlockText({ comments })}
-    export function ${name}(${options.join(', ')}): React.ReactNode {
-      return null
-    };
-  `
-
-    return { source, name }
-  }
-
   private get mutation(): FormResult {
-    const { name, operation, schemas } = this.config
+    const { name, operation, schemas, withDevtools } = this.config
 
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     const comments = getComments(operation)
@@ -97,6 +78,7 @@ export class FormBuilder extends OasBuilder<Config> {
       const { onSubmit } = props;
 
       const {
+        control,
         register,
         handleSubmit,
         formState: { errors }
@@ -107,14 +89,18 @@ export class FormBuilder extends OasBuilder<Config> {
       });
 
       return (
-        <form
-          onSubmit={handleSubmit((data) => {
-            onSubmit?.(data)
-          })}
-        >
-          ${inputs.join('\n')}
-          <input type="submit" />
-        </form>
+        <>
+          <form
+            onSubmit={handleSubmit((data) => {
+              onSubmit?.(data)
+            })}
+          >
+            ${inputs.join('\n')}
+            <input type="submit" />
+            ${withDevtools ? `<DevTool id="${operation.getOperationId()}" control={control} styles={{ button: { position: 'relative' } }} />` : ''}
+          </form>
+       
+        </>
       );
     };
   `
@@ -128,23 +114,12 @@ export class FormBuilder extends OasBuilder<Config> {
     return this
   }
 
-  print(type: 'query' | 'mutation'): string {
+  print(): string {
     const codes: string[] = []
-
-    //query
-    const { source: query } = this.query
-
-    //mutate
 
     const { source: mutation } = this.mutation
 
-    if (type === 'query') {
-      codes.push(query)
-    }
-
-    if (type === 'mutation') {
-      codes.push(mutation)
-    }
+    codes.push(mutation)
 
     return codes.join('\n')
   }
