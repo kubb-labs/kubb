@@ -6,10 +6,11 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
  * @summary Create user
  * @link /user
  */
-export function createUser<TData = CreateUserMutationResponse, TVariables = CreateUserMutationRequest>(data: TVariables) {
+export function createUser<TData = CreateUserMutationResponse, TVariables = CreateUserMutationRequest>(data: TVariables): Promise<TData> {
   return client<TData, TVariables>({
     method: 'post',
     url: `/user`,
+
     data,
   })
 }

@@ -1,14 +1,13 @@
-import { createJSDocBlockText, getRelativePath, URLPath } from '@kubb/core'
-import { OperationGenerator as Generator, getComments, getParams } from '@kubb/swagger'
+import { getRelativePath } from '@kubb/core'
+import { OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
-
-import { camelCase } from 'change-case'
 
 import { pluginName } from '../plugin.ts'
 
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
 import type { Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { ResolvePathOptions } from '../types.ts'
+import { QueryBuilder } from '../builders/QueryBuilder.ts'
 
 type Options = {
   clientPath?: OptionalPath
@@ -103,161 +102,23 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath } = this.options
+    const { oas, clientPath } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const comments = getComments(operation)
-    const sources: string[] = []
-    const pathParams = getParams(schemas.pathParams)
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     let errors: Resolver[] = []
 
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`].filter(Boolean)
-    const clientGenerics = ['TData', 'TError'].filter(Boolean)
-    const params = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
-      `options?: { query?: SWRConfiguration<${clientGenerics.join(', ')}> }`,
-    ].filter(Boolean)
-    const paramsQueryOptions = [pathParamsTyped, schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : ''].filter(Boolean)
-
-    if (schemas.queryParams && !schemas.pathParams) {
-      sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(${paramsQueryOptions.join(
-        ', '
-      )}): SWRConfiguration<${clientGenerics.join(', ')}> {
-          return {
-            fetcher: () => {
-              return client<${clientGenerics.join(', ')}>({
-                method: "get",
-                url: ${new URLPath(operation.path).template},
-                params
-              });
-            },
-          };
-        };
-      `)
-
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): SWRResponse<${clientGenerics.join(', ')}> {
-          const { query: queryOptions } = options ?? {};
-          
-          const query = useSWR<${clientGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(params),
-            ...queryOptions
-          });
-
-          return query;
-        };
-      `)
-    }
-
-    if (!schemas.queryParams && schemas.pathParams) {
-      sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(${paramsQueryOptions.join(
-        ', '
-      )}): SWRConfiguration<${clientGenerics.join(', ')}> {
-
-          return {
-            fetcher: () => {
-              return client<${clientGenerics.join(', ')}>({
-                method: "get",
-                url: ${new URLPath(operation.path).template}
-              });
-            },
-          };
-        };
-      `)
-
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): SWRResponse<${clientGenerics.join(', ')}> {
-          const { query: queryOptions } = options ?? {};
-          
-          const query = useSWR<${clientGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(${pathParams}),
-            ...queryOptions
-          });
-
-          return query;
-        };
-      `)
-    }
-
-    if (schemas.queryParams && schemas.pathParams) {
-      sources.push(`
-        export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(${paramsQueryOptions.join(
-        ', '
-      )}): SWRConfiguration<${clientGenerics.join(', ')}> {
-
-          return {
-            fetcher: () => {
-              return client<${clientGenerics.join(', ')}>({
-                method: "get",
-                url: ${new URLPath(operation.path).template},
-                params
-              });
-            },
-          };
-        };
-      `)
-
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): SWRResponse<${clientGenerics.join(', ')}> {
-          const { query: queryOptions } = options ?? {};
-          
-          const query = useSWR<${clientGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(${pathParams}, params),
-            ...queryOptions
-          });
-
-          return query;
-        };
-      `)
-    }
-
-    if (!schemas.queryParams && !schemas.pathParams) {
-      sources.push(`
-      export function ${camelCase(`${operation.getOperationId()}QueryOptions`)} <${generics.join(', ')}>(): SWRConfiguration<${clientGenerics.join(', ')}> {
-
-        return {
-          fetcher: () => {
-            return client<${clientGenerics.join(', ')}>({
-              method: "get",
-              url: ${new URLPath(operation.path).template}
-            });
-          },
-        };
-      };
-    `)
-
-      sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}): SWRResponse<${clientGenerics.join(', ')}> {
-          const { query: queryOptions } = options ?? {};
-
-          const query = useSWR<${clientGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
-            ...${camelCase(`${operation.getOperationId()}QueryOptions`)}<${clientGenerics.join(', ')}>(),
-            ...queryOptions
-          });
-
-          return query;
-        };
-      `)
-    }
+    const source = new QueryBuilder(oas).configure({ name: hook.name, errors, operation, schemas }).print('query')
 
     return {
       path: hook.filePath,
       fileName: hook.fileName,
-      source: sources.join('\n'),
+      source,
       imports: [
         {
           name: 'useSWR',
@@ -282,67 +143,30 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath } = this.options
+    const { oas, clientPath } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const comments = getComments(operation)
-    const sources: string[] = []
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     let errors: Resolver[] = []
 
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const generics = [
-      `TData = ${schemas.response.name}`,
-      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
-      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : '',
-    ].filter(Boolean)
-    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const SWRMutationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const SWRMutationConfigurationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const params = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
-      `options?: {
-      mutation?: SWRMutationConfiguration<${SWRMutationConfigurationGenerics.join(', ')}>
-    }`,
-    ].filter(Boolean)
-
-    sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}) {
-          const { mutation: mutationOptions } = options ?? {};
-
-          return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
-          ${new URLPath(operation.path).template},
-            (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
-              return client<${clientGenerics.join(', ')}>({
-                method: "post",
-                url,
-                ${schemas.request?.name ? 'data,' : ''}
-                ${schemas.queryParams?.name ? 'params,' : ''}
-              })
-            },
-            mutationOptions
-          );
-        };
-    `)
+    const source = new QueryBuilder(oas).configure({ name: hook.name, errors, operation, schemas }).print('mutation')
 
     return {
       path: hook.filePath,
       fileName: hook.fileName,
-      source: sources.join('\n'),
+      source,
       imports: [
         {
           name: 'useSWRMutation',
           path: 'swr/mutation',
         },
         {
-          name: ['SWRMutationConfiguration'],
+          name: ['SWRMutationConfiguration', 'SWRMutationResponse'],
           path: 'swr/mutation',
           isTypeOnly: true,
         },
@@ -366,67 +190,29 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath } = this.options
+    const { oas, clientPath } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const comments = getComments(operation)
-    const sources: string[] = []
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     let errors: Resolver[] = []
 
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
-
-    const generics = [
-      `TData = ${schemas.response.name}`,
-      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
-      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : '',
-    ].filter(Boolean)
-    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const SWRMutationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const SWRMutationConfigurationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const params = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
-      `options?: {
-      mutation?: SWRMutationConfiguration<${SWRMutationConfigurationGenerics.join(', ')}>
-    }`,
-    ].filter(Boolean)
-
-    sources.push(`
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}) {
-          const { mutation: mutationOptions } = options ?? {};
-
-          return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
-          ${new URLPath(operation.path).template},
-          (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
-              return client<${clientGenerics.join(', ')}>({
-                method: "put",
-                url,
-                ${schemas.request?.name ? 'data,' : ''}
-                ${schemas.queryParams?.name ? 'params,' : ''}
-              })
-            },
-            mutationOptions
-          );
-        };
-    `)
+    const source = new QueryBuilder(oas).configure({ name: hook.name, errors, operation, schemas }).print('mutation')
 
     return {
       path: hook.filePath,
       fileName: hook.fileName,
-      source: sources.join('\n'),
+      source,
       imports: [
         {
           name: 'useSWRMutation',
           path: 'swr/mutation',
         },
         {
-          name: ['SWRMutationConfiguration'],
+          name: ['SWRMutationConfiguration', 'SWRMutationResponse'],
           path: 'swr/mutation',
           isTypeOnly: true,
         },
@@ -450,67 +236,30 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath } = this.options
+    const { oas, clientPath } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const comments = getComments(operation)
-    const sources: string[] = []
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     let errors: Resolver[] = []
 
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const generics = [
-      `TData = ${schemas.response.name}`,
-      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
-      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : '',
-    ].filter(Boolean)
-    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const SWRMutationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const SWRMutationConfigurationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const params = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
-      `options?: {
-      mutation?: SWRMutationConfiguration<${SWRMutationConfigurationGenerics.join(', ')}>
-    }`,
-    ].filter(Boolean)
-
-    sources.push(`
-      ${createJSDocBlockText({ comments })}
-      export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}) {
-        const { mutation: mutationOptions } = options ?? {};
-
-        return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
-        ${new URLPath(operation.path).template},
-        (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
-            return client<${clientGenerics.join(', ')}>({
-              method: "delete",
-              url,
-              ${schemas.request?.name ? 'data,' : ''}
-              ${schemas.queryParams?.name ? 'params,' : ''}
-            })
-          },
-          mutationOptions
-        );
-      };
-    `)
+    const source = new QueryBuilder(oas).configure({ name: hook.name, errors, operation, schemas }).print('mutation')
 
     return {
       path: hook.filePath,
       fileName: hook.fileName,
-      source: sources.join('\n'),
+      source,
       imports: [
         {
           name: 'useSWRMutation',
           path: 'swr/mutation',
         },
         {
-          name: ['SWRMutationConfiguration'],
+          name: ['SWRMutationConfiguration', 'SWRMutationResponse'],
           path: 'swr/mutation',
           isTypeOnly: true,
         },

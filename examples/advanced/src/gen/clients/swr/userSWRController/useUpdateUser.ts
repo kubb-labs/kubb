@@ -1,5 +1,5 @@
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 
@@ -13,7 +13,7 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
   }
-) {
+): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useSWRMutation<TData, TError, string, TVariables>(

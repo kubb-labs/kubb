@@ -1,4 +1,4 @@
-import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
 import client from '@kubb/swagger-client/client'
 import type { CreatePetsBreedMutationRequest, CreatePetsBreedMutationResponse, CreatePetsBreedPathParams } from '../models/CreatePetsBreed'
@@ -12,7 +12,7 @@ export function createPetsBreedQuery<TData = CreatePetsBreedMutationResponse, TE
   options?: {
     mutation?: CreateMutationOptions<TData, TError, TVariables>
   }
-) {
+): CreateMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return createMutation<TData, TError, TVariables>({

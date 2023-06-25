@@ -1,4 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
+import type { Operation } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -33,7 +34,7 @@ export type Options = {
    * Framework to be generated for
    * @default 'react'
    */
-  framework?: 'react' | 'solid' | 'svelte' | 'vue'
+  framework?: Framework
   infinite?: {
     /**
      * Specify the params key used for `pageParam`.
@@ -41,6 +42,28 @@ export type Options = {
      * @default `'id'`
      */
     queryParam?: string
+  }
+}
+
+export type Framework = 'react' | 'solid' | 'svelte' | 'vue'
+
+export type FrameworkImports = {
+  getName: (operation: Operation) => string
+  query: {
+    useQuery: string
+    QueryKey: string
+    UseQueryResult: string
+    UseQueryOptions: string
+    QueryOptions: string
+    //infinite
+    UseInfiniteQueryOptions: string
+    UseInfiniteQueryResult: string
+    useInfiniteQuery: string
+  }
+  mutate: {
+    useMutation: string
+    UseMutationOptions: string
+    UseMutationResult: string
   }
 }
 

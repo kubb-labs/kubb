@@ -6,7 +6,7 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../mod
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-export function getPetById<TData = GetPetByIdQueryResponse>(petId: GetPetByIdPathParams['petId']) {
+export function getPetById<TData = GetPetByIdQueryResponse>(petId: GetPetByIdPathParams['petId']): Promise<TData> {
   return client<TData>({
     method: 'get',
     url: `/pet/${petId}`,

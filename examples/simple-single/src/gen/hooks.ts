@@ -1,4 +1,12 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseMutationOptions } from '@tanstack/react-query'
+import type {
+  QueryKey,
+  UseQueryResult,
+  UseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  UseMutationOptions,
+  UseMutationResult,
+} from '@tanstack/react-query'
 import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type {
@@ -96,7 +104,7 @@ export function useListPetsInfinite<TData = ListPetsQueryResponse, TError = unkn
  */
 export function useCreatePets<TData = CreatePetsMutationResponse, TError = CreatePets201, TVariables = CreatePetsMutationRequest>(options?: {
   mutation?: UseMutationOptions<TData, TError, TVariables>
-}) {
+}): UseMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({

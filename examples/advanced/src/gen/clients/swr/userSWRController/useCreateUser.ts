@@ -1,5 +1,5 @@
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../client'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser'
 
@@ -10,7 +10,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
  */
 export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(options?: {
   mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
-}) {
+}): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useSWRMutation<TData, TError, string, TVariables>(

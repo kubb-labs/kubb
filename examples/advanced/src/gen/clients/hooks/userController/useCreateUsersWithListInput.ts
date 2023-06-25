@@ -1,4 +1,4 @@
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import client from '../../../../client'
 import type {
@@ -15,7 +15,7 @@ export function useCreateUsersWithListInput<
   TData = CreateUsersWithListInputMutationResponse,
   TError = unknown,
   TVariables = CreateUsersWithListInputMutationRequest
->(options?: { mutation?: UseMutationOptions<TData, TError, TVariables> }) {
+>(options?: { mutation?: UseMutationOptions<TData, TError, TVariables> }): UseMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({

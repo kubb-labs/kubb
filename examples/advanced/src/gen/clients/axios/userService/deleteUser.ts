@@ -6,7 +6,7 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../
  * @summary Delete user
  * @link /user/:username
  */
-export function deleteUser<TData = DeleteUserMutationResponse>(username: DeleteUserPathParams['username']) {
+export function deleteUser<TData = DeleteUserMutationResponse>(username: DeleteUserPathParams['username']): Promise<TData> {
   return client<TData>({
     method: 'delete',
     url: `/user/${username}`,

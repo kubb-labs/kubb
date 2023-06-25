@@ -1,15 +1,14 @@
-import { createJSDocBlockText, getRelativePath, URLPath } from '@kubb/core'
-import { OperationGenerator as Generator, getComments, getParams } from '@kubb/swagger'
+import { getRelativePath } from '@kubb/core'
+import { OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
-
-import { camelCase } from 'change-case'
 
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
 import type { Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
-import type { ResolvePathOptions } from '../types.ts'
+import type { ResolvePathOptions, Framework, FrameworkImports } from '../types.ts'
+import { QueryBuilder } from '../builders/QueryBuilder.ts'
 
 type Options = {
-  framework: 'react' | 'solid' | 'svelte' | 'vue'
+  framework: Framework
   clientPath?: OptionalPath
   oas: Oas
   resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
@@ -103,24 +102,7 @@ export class OperationGenerator extends Generator<Options> {
     return items.map((item) => this.resolveError(item.operation, item.statusCode))
   }
 
-  getFrameworkSpecificImports(framework: Options['framework']): {
-    getName: (operation: Operation) => string
-    query: {
-      useQuery: string
-      QueryKey: string
-      UseQueryResult: string
-      UseQueryOptions: string
-      QueryOptions: string
-      //infinite
-      UseInfiniteQueryOptions: string
-      UseInfiniteQueryResult: string
-      useInfiniteQuery: string
-    }
-    mutate: {
-      useMutation: string
-      UseMutationOptions: string
-    }
-  } {
+  getFrameworkSpecificImports(framework: Options['framework']): FrameworkImports {
     const { resolveName } = this.options
 
     if (framework === 'svelte') {
@@ -139,6 +121,7 @@ export class OperationGenerator extends Generator<Options> {
         mutate: {
           useMutation: 'createMutation',
           UseMutationOptions: 'CreateMutationOptions',
+          UseMutationResult: 'CreateMutationResult',
         },
       }
     }
@@ -159,6 +142,7 @@ export class OperationGenerator extends Generator<Options> {
         mutate: {
           useMutation: 'createMutation',
           UseMutationOptions: 'CreateMutationOptions',
+          UseMutationResult: 'CreateMutationResult',
         },
       }
     }
@@ -179,6 +163,7 @@ export class OperationGenerator extends Generator<Options> {
         mutate: {
           useMutation: 'useMutation',
           UseMutationOptions: 'VueMutationObserverOptions',
+          UseMutationResult: 'UseMutationReturnType',
         },
       }
     }
@@ -198,6 +183,7 @@ export class OperationGenerator extends Generator<Options> {
       mutate: {
         useMutation: 'useMutation',
         UseMutationOptions: 'UseMutationOptions',
+        UseMutationResult: 'UseMutationResult',
       },
     }
   }
@@ -249,250 +235,25 @@ export class OperationGenerator extends Generator<Options> {
     return null
   }
 
-  getQueryKey(operation: Operation, schemas: OperationSchemas): { source: string; name: string } {
-    const name = camelCase(`${operation.getOperationId()}QueryKey`)
-
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
-
-    const options = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
-    ].filter(Boolean)
-    const result = [new URLPath(operation.path).template, schemas.queryParams?.name ? `...(params ? [params] : [])` : undefined].filter(Boolean)
-
-    const source = `export const ${name} = (${options.join(', ')}) => [${result.join(',')}] as const;`
-
-    return { source, name }
-  }
-
-  getQueryOptions(operation: Operation, schemas: OperationSchemas): { source: string; name: string } {
-    const { framework } = this.options
-    const imports = this.getFrameworkSpecificImports(framework)
-    const name = camelCase(`${operation.getOperationId()}QueryOptions`)
-
-    const queryKeyName = this.getQueryKey(operation, schemas).name
-
-    const pathParams = getParams(schemas.pathParams)
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
-    let errors: Resolver[] = []
-
-    if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
-    }
-
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
-    const clientGenerics = ['TData', 'TError']
-    const options = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
-    ].filter(Boolean)
-    let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
-
-    if (framework === 'solid') {
-      queryKey = `() => ${queryKey}`
-    }
-
-    const source = `
-    export function ${name} <${generics.join(', ')}>(${options.join(', ')}): ${imports.query.UseQueryOptions}<${clientGenerics.join(', ')}> {
-      const queryKey = ${queryKey};
-
-      return {
-        queryKey,
-        queryFn: () => {
-          return client<${clientGenerics.join(', ')}>({
-            method: "get",
-            url: ${new URLPath(operation.path).template},
-            ${schemas.queryParams?.name ? 'params' : ''}
-          });
-        },
-      };
-    };
-  `
-
-    return { source, name }
-  }
-
-  getQueryOptionsInfinite(operation: Operation, schemas: OperationSchemas): { source: string; name: string } {
-    const { framework, queryParam = 'id' } = this.options
-    const imports = this.getFrameworkSpecificImports(framework)
-    const name = camelCase(`${operation.getOperationId()}QueryOptionsInfinite`)
-
-    const queryKeyName = this.getQueryKey(operation, schemas).name
-
-    const pathParams = getParams(schemas.pathParams)
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
-    let errors: Resolver[] = []
-
-    if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
-    }
-
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
-    const clientGenerics = ['TData', 'TError']
-    const options = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
-    ].filter(Boolean)
-    let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
-
-    if (framework === 'solid') {
-      queryKey = `() => ${queryKey}`
-    }
-
-    const source = `
-    export function ${name} <${generics.join(', ')}>(${options.join(', ')}): ${imports.query.UseInfiniteQueryOptions}<${clientGenerics.join(', ')}> {
-      const queryKey = ${queryKey};
-
-      return {
-        queryKey,
-        queryFn: ({ pageParam }) => {
-          return client<${clientGenerics.join(', ')}>({
-            method: "get",
-            url: ${new URLPath(operation.path).template},
-            ${
-              schemas.queryParams?.name
-                ? `params: {
-              ...params,
-              ['${queryParam}']: pageParam,
-            }`
-                : ''
-            }
-          });
-        },
-      };
-    };
-  `
-
-    return { source, name }
-  }
-
-  getQuery(operation: Operation, schemas: OperationSchemas): { source: string; name: string } {
-    const { framework } = this.options
-    const imports = this.getFrameworkSpecificImports(framework)
-
-    const queryKeyName = this.getQueryKey(operation, schemas).name
-    const queryOptionsName = this.getQueryOptions(operation, schemas).name
-    const name = this.resolve(operation)?.name
-    const pathParams = getParams(schemas.pathParams)
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
-    const comments = getComments(operation)
-    let errors: Resolver[] = []
-
-    if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
-    }
-
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
-    const clientGenerics = ['TData', 'TError']
-    const options = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : '',
-      `options?: { query?: ${imports.query.UseQueryOptions}<${clientGenerics.join(', ')}> }`,
-    ].filter(Boolean)
-    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
-      schemas.queryParams?.name ? 'params' : ''
-    })`
-
-    const source = `
-    ${createJSDocBlockText({ comments })}
-    export function ${name} <${generics.join(',')}>(${options.join(', ')}): ${imports.query.UseQueryResult}<${clientGenerics.join(
-      ', '
-    )}> & { queryKey: QueryKey } {
-      const { query: queryOptions } = options ?? {};
-      const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
-      
-      const query = ${imports.query.useQuery}<${clientGenerics.join(', ')}>({
-        ...${queryOptions},
-        ...queryOptions
-      }) as ${imports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
-
-      query.queryKey = queryKey as QueryKey;
-
-      return query;
-    };
-  `
-
-    return { source, name }
-  }
-
-  getQueryInfinite(operation: Operation, schemas: OperationSchemas): { source: string; name: string } {
-    const { framework } = this.options
-    const imports = this.getFrameworkSpecificImports(framework)
-
-    const queryKeyName = this.getQueryKey(operation, schemas).name
-    const queryOptionsName = this.getQueryOptionsInfinite(operation, schemas).name // changed
-    const name = `${this.resolve(operation)?.name}Infinite`
-    const pathParams = getParams(schemas.pathParams)
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
-    const comments = getComments(operation)
-    let errors: Resolver[] = []
-
-    if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
-    }
-
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
-    const clientGenerics = ['TData', 'TError']
-    const options = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required ? '?' : ''}: ${schemas.queryParams.name}` : '',
-      `options?: { query?: ${imports.query.UseInfiniteQueryOptions}<${clientGenerics.join(', ')}> }`,
-    ].filter(Boolean)
-    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
-      schemas.queryParams?.name ? 'params' : ''
-    })`
-
-    const source = `
-    ${createJSDocBlockText({ comments })}
-    export function ${name} <${generics.join(',')}>(${options.join(', ')}): ${imports.query.UseInfiniteQueryResult}<${clientGenerics.join(
-      ', '
-    )}> & { queryKey: QueryKey } {
-      const { query: queryOptions } = options ?? {};
-      const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
-      
-      const query = ${imports.query.useInfiniteQuery}<${clientGenerics.join(', ')}>({
-        ...${queryOptions},
-        ...queryOptions
-      }) as ${imports.query.UseInfiniteQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
-
-      query.queryKey = queryKey as QueryKey;
-
-      return query;
-    };
-  `
-
-    return { source, name }
-  }
-
   async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath } = this.options
+    const { oas, clientPath, framework, queryParam } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const sources: string[] = []
     let errors: Resolver[] = []
+    const frameworkImports = this.getFrameworkSpecificImports(framework)
 
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const { source: queryKey } = this.getQueryKey(operation, schemas)
-    const { source: queryOptions } = this.getQueryOptions(operation, schemas)
-    const { source: query } = this.getQuery(operation, schemas)
-
-    const { source: queryOptionsInfinite } = this.getQueryOptionsInfinite(operation, schemas)
-    const { source: queryInfinite } = this.getQueryInfinite(operation, schemas)
-
-    sources.push(queryKey, queryOptions, query)
-    sources.push(queryOptionsInfinite, queryInfinite)
+    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, queryParam }).print('query')
 
     return {
       path: hook.filePath,
       fileName: hook.fileName,
-      source: sources.join('\n'),
+      source,
       imports: [
         ...this.getQueryImports('query'),
         {
@@ -509,52 +270,19 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath, framework } = this.options
+    const { oas, clientPath, framework } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
-    const imports = this.getFrameworkSpecificImports(framework)
 
-    const comments = getComments(operation)
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     let errors: Resolver[] = []
+    const frameworkImports = this.getFrameworkSpecificImports(framework)
 
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const generics = [
-      `TData = ${schemas.response.name}`,
-      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
-      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : '',
-    ].filter(Boolean)
-    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const params = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
-      `options?: {
-        mutation?: ${imports.mutate.UseMutationOptions}<${clientGenerics.join(', ')}>
-    }`,
-    ].filter(Boolean)
-
-    const source = `
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}) {
-          const { mutation: mutationOptions } = options ?? {};
-
-          return ${imports.mutate.useMutation}<${clientGenerics.join(', ')}>({
-            mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
-              return client<${clientGenerics.join(', ')}>({
-                method: "post",
-                url: ${new URLPath(operation.path).template},
-                ${schemas.request?.name ? 'data,' : ''}
-                ${schemas.queryParams?.name ? 'params,' : ''}
-              });
-            },
-            ...mutationOptions
-          });
-        };
-    `
+    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas }).print('mutation')
 
     return {
       path: hook.filePath,
@@ -582,52 +310,19 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath, framework } = this.options
+    const { oas, clientPath, framework } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
-    const imports = this.getFrameworkSpecificImports(framework)
 
-    const comments = getComments(operation)
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     let errors: Resolver[] = []
+    const frameworkImports = this.getFrameworkSpecificImports(framework)
 
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const generics = [
-      `TData = ${schemas.response.name}`,
-      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
-      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : '',
-    ].filter(Boolean)
-    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const params = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
-      `options?: {
-        mutation?: ${imports.mutate.UseMutationOptions}<${clientGenerics.join(', ')}>
-    }`,
-    ].filter(Boolean)
-
-    const source = `
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}) {
-          const { mutation: mutationOptions } = options ?? {};
-
-          return ${imports.mutate.useMutation}<${clientGenerics.join(', ')}>({
-            mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
-              return client<${clientGenerics.join(', ')}>({
-                method: "put",
-                url: ${new URLPath(operation.path).template},
-                ${schemas.request?.name ? 'data,' : ''}
-                ${schemas.queryParams?.name ? 'params,' : ''}
-              });
-            },
-            ...mutationOptions
-          });
-        };
-    `
+    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas }).print('mutation')
 
     return {
       path: hook.filePath,
@@ -657,52 +352,19 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { clientPath, framework } = this.options
+    const { oas, clientPath, framework } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
-    const imports = this.getFrameworkSpecificImports(framework)
 
-    const comments = getComments(operation)
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     let errors: Resolver[] = []
+    const frameworkImports = this.getFrameworkSpecificImports(framework)
 
     if (schemas.errors) {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const generics = [
-      `TData = ${schemas.response.name}`,
-      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
-      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : '',
-    ].filter(Boolean)
-    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : ''].filter(Boolean)
-    const params = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params?: ${schemas.queryParams?.name}` : '',
-      `options?: {
-        mutation?: ${imports.mutate.UseMutationOptions}<${clientGenerics.join(', ')}>
-    }`,
-    ].filter(Boolean)
-
-    const source = `
-        ${createJSDocBlockText({ comments })}
-        export function ${hook.name} <${generics.join(', ')}>(${params.join(', ')}) {
-          const { mutation: mutationOptions } = options ?? {};
-
-          return ${imports.mutate.useMutation}<${clientGenerics.join(', ')}>({
-            mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
-              return client<${clientGenerics.join(', ')}>({
-                method: "delete",
-                url: ${new URLPath(operation.path).template},
-                ${schemas.request?.name ? 'data,' : ''}
-                ${schemas.queryParams?.name ? 'params,' : ''}
-              });
-            },
-            ...mutationOptions
-          });
-        };
-    `
+    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas }).print('mutation')
 
     return {
       path: hook.filePath,

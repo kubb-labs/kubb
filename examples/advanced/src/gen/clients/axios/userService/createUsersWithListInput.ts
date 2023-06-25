@@ -11,10 +11,11 @@ import type {
  */
 export function createUsersWithListInput<TData = CreateUsersWithListInputMutationResponse, TVariables = CreateUsersWithListInputMutationRequest>(
   data: TVariables
-) {
+): Promise<TData> {
   return client<TData, TVariables>({
     method: 'post',
     url: `/user/createWithList`,
+
     data,
   })
 }

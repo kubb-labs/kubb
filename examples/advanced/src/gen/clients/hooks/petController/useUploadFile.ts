@@ -1,4 +1,4 @@
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import client from '../../../../client'
 import type {
@@ -14,11 +14,11 @@ import type {
  */
 export function useUploadFile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
-  params?: UploadFileQueryParams,
+  params: UploadFileQueryParams,
   options?: {
     mutation?: UseMutationOptions<TData, TError, TVariables>
   }
-) {
+): UseMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({

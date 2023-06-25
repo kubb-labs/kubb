@@ -1,5 +1,5 @@
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../client'
 import type {
   UploadFileMutationRequest,
@@ -14,11 +14,11 @@ import type {
  */
 export function useUploadFile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
-  params?: UploadFileQueryParams,
+  params: UploadFileQueryParams,
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
   }
-) {
+): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useSWRMutation<TData, TError, string, TVariables>(

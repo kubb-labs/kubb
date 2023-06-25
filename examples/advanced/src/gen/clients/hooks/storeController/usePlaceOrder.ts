@@ -1,4 +1,4 @@
-import type { UseMutationOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import client from '../../../../client'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../../../models/ts/storeController/PlaceOrder'
@@ -10,7 +10,7 @@ import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder4
  */
 export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(options?: {
   mutation?: UseMutationOptions<TData, TError, TVariables>
-}) {
+}): UseMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({

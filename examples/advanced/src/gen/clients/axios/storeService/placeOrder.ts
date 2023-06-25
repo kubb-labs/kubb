@@ -6,10 +6,11 @@ import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../.
  * @summary Place an order for a pet
  * @link /store/order
  */
-export function placeOrder<TData = PlaceOrderMutationResponse, TVariables = PlaceOrderMutationRequest>(data: TVariables) {
+export function placeOrder<TData = PlaceOrderMutationResponse, TVariables = PlaceOrderMutationRequest>(data: TVariables): Promise<TData> {
   return client<TData, TVariables>({
     method: 'post',
     url: `/store/order`,
+
     data,
   })
 }

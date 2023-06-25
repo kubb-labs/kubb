@@ -6,7 +6,7 @@ import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams } from '../../..
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-export function getOrderById<TData = GetOrderByIdQueryResponse>(orderId: GetOrderByIdPathParams['orderId']) {
+export function getOrderById<TData = GetOrderByIdQueryResponse>(orderId: GetOrderByIdPathParams['orderId']): Promise<TData> {
   return client<TData>({
     method: 'get',
     url: `/store/order/${orderId}`,
