@@ -9,6 +9,7 @@ export default defineConfig([
     ...optionsCJS,
     entry: ['./client.ts'],
     name: 'client',
+    banner: {},
   },
   {
     ...optionsESM,
