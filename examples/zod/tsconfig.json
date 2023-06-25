@@ -5,7 +5,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "strictNullChecks": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "declaration": true,
     "outDir": "es",
     "experimentalDecorators": true,

@@ -8,7 +8,7 @@
     "strict": true,
     "sourceMap": true,
     "strictNullChecks": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "declaration": true,
     "declarationMap": false,
     "noEmit": true,
