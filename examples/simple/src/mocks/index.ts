@@ -1,6 +1,6 @@
 import { setupWorker, rest } from 'msw'
 
-const worker = setupWorker(
+export const worker = setupWorker(
   rest.get('/pets', (req, res, ctx) => {
     return res(
       ctx.json([
@@ -12,4 +12,3 @@ const worker = setupWorker(
     )
   })
 )
-worker.start()

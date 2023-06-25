@@ -29,6 +29,11 @@
       "name": "build",
       "command": "pnpm build",
       "runAtStart": false
+    },
+    "update": {
+      "name": "update",
+      "command": "pnpm update",
+      "runAtStart": false
     }
   }
 }
