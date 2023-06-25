@@ -10,6 +10,7 @@
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
+  "type": "module",
   "scripts": {
     "clean": "rimraf ./dist",
     "format": "prettier --write **/*.{ts,tsx}",
@@ -37,6 +38,7 @@
     "@zodios/core": "^10.9.2",
     "axios": "^1.4.0",
     "react": "^18.2.0",
+    "react-hook-form": "^7.45.0",
     "rimraf": "^5.0.1",
     "solid-js": "^1.7.6",
     "svelte": "^3.54.0",

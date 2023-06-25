@@ -5,12 +5,16 @@ import { OasBuilder, getComments, isReference } from '@kubb/swagger'
 
 import type { Operation, OperationSchemas } from '@kubb/swagger'
 import { getParams } from '@kubb/swagger'
+import { FormGenerator } from '../generators/FormGenerator'
+import type { PluginContext } from '@kubb/core'
+import { camelCase } from 'change-case'
 
 type Config = {
   operation: Operation
   schemas: OperationSchemas
   errors: Resolver[]
   name: string
+  resolveName: PluginContext['resolveName']
   withDevtools?: boolean
 }
 
@@ -18,8 +22,13 @@ type FormResult = { source: string; name: string }
 
 export class FormBuilder extends OasBuilder<Config> {
   private get mutation(): FormResult {
-    const { name, operation, schemas, withDevtools } = this.config
+    const { name, operation, schemas, resolveName, withDevtools } = this.config
 
+    if (!schemas.request?.name) {
+      return { name, source: '' }
+    }
+
+    const operationId = camelCase(operation.getOperationId())
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     const comments = getComments(operation)
 
@@ -28,28 +37,17 @@ export class FormBuilder extends OasBuilder<Config> {
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
     ].filter(Boolean)
 
+    const formGenerator = new FormGenerator({
+      resolveName,
+      withJSDocs: true,
+    })
+    const form = formGenerator.build({
+      schema: schemas.request.schema,
+      baseName: schemas.request.schema.type === 'object' ? schemas.request.name : operationId,
+      description: schemas.request.description,
+    })
+
     const properties = schemas.request?.schema?.properties || {}
-    const required = schemas.request?.schema?.required
-
-    //TODO move to FormGenerator(like we have done with FakerGenerator, ...)
-    const inputs = Object.keys(properties)
-      .map((name) => {
-        const schema = properties[name as keyof typeof properties]
-        const isRequired = required && required.includes(name)
-
-        if (isReference(schema)) {
-          return undefined
-        }
-
-        if (schema.type === 'string') {
-          return `
-          <label>${name}</label>
-          <input {...register("${name}", { required: ${isRequired ? 'true' : 'false'} })} defaultValue="${(schema.default as string) || ''}" />
-          {errors['${name}'] && <p>This field is required</p>}
-        `
-        }
-      })
-      .filter(Boolean)
 
     const defaultValues = Object.keys(properties)
       .map((key) => {
@@ -60,7 +58,7 @@ export class FormBuilder extends OasBuilder<Config> {
         }
 
         if (schema.type === 'string') {
-          return `${key}: ""`
+          return `${key}: ${schema.default ? `"${schema.default as string}"` : 'undefined'}`
         }
       })
       .filter(Boolean)
@@ -68,10 +66,12 @@ export class FormBuilder extends OasBuilder<Config> {
     const source = `
     ${createJSDocBlockText({ comments })}
 
+    type FieldValues = ${schemas.request.schema.type === 'object' ? schemas.request.name : `{ ${operationId}?: ${schemas.request.name} }`};
+
     type Props = {
-      onSubmit?: (data: ${schemas.response.name}) => Promise<void> | void; 
+      onSubmit?: (data: FieldValues) => Promise<${schemas.response.name}> | void; 
       ${options.join(';\n')}
-    }
+    };
 
     export function ${name}(props: Props): React.ReactNode {
       const { onSubmit } = props;
@@ -81,7 +81,7 @@ export class FormBuilder extends OasBuilder<Config> {
         register,
         handleSubmit,
         formState: { errors }
-      } = useForm<${schemas.response.name}>({
+      } = useForm<FieldValues>({
         defaultValues: {
           ${defaultValues.join(',\n')}
         }
@@ -94,8 +94,9 @@ export class FormBuilder extends OasBuilder<Config> {
               onSubmit?.(data)
             })}
           >
-            ${inputs.join('\n')}
+            ${form.join('\n')}
             <input type="submit" />
+
             ${withDevtools ? `<DevTool id="${operation.getOperationId()}" control={control} styles={{ button: { position: 'relative' } }} />` : ''}
           </form>
        

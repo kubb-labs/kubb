@@ -167,6 +167,9 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.2.0
+      react-hook-form:
+        specifier: ^7.45.0
+        version: 7.45.0(react@18.2.0)
       rimraf:
         specifier: ^5.0.1
         version: 5.0.1
@@ -219,6 +222,9 @@ importers:
       '@kubb/swagger-faker':
         specifier: workspace:*
         version: link:../../packages/swagger-faker
+      '@kubb/swagger-form':
+        specifier: workspace:*
+        version: link:../../packages/swagger-form
       '@kubb/swagger-swr':
         specifier: workspace:*
         version: link:../../packages/swagger-swr
@@ -255,6 +261,9 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.2.0
+      react-hook-form:
+        specifier: ^7.45.0
+        version: 7.45.0(react@18.2.0)
       solid-js:
         specifier: ^1.7.6
         version: 1.7.6

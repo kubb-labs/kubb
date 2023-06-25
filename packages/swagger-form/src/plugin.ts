@@ -80,6 +80,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     },
     async buildStart() {
       const oas = await swaggerApi.getOas()
+      // needed so we have the full object instead of a ref(form cannot work with refs)
+      await oas.dereference()
 
       const operationGenerator = new OperationGenerator({
         oas,

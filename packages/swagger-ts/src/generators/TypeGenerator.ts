@@ -20,7 +20,7 @@ import { pluginName } from '../plugin.ts'
 import { keywordTypeNodes } from '../utils/index.ts'
 
 import type { PluginContext } from '@kubb/core'
-import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
+import type { OpenAPIV3, Refs } from '@kubb/swagger'
 import type { ArrayTwoOrMore } from '@kubb/ts-codegen'
 
 const { factory } = ts
@@ -50,7 +50,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     stripRegexp: /[^A-Z0-9$]/gi,
   }
 
-  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, resolveName: ({ name }) => name, enumType: 'asConst' }) {
+  constructor(options: Options = { withJSDocs: true, resolveName: ({ name }) => name, enumType: 'asConst' }) {
     super(options)
 
     return this

@@ -5,5 +5,6 @@ export * from './types.ts'
 
 export * from './generators/index.ts'
 export * from './builders/index.ts'
+export * from './parsers/index.ts'
 
 export default definePlugin

@@ -105,7 +105,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { oas, withDevtools } = this.options
+    const { oas, withDevtools, resolveName } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -116,7 +116,11 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new FormBuilder(oas).configure({ name: hook.name, withDevtools, errors, operation, schemas }).print()
+    if (!schemas.request?.name) {
+      return null
+    }
+
+    const source = new FormBuilder(oas).configure({ name: hook.name, resolveName, withDevtools, errors, operation, schemas }).print()
 
     return {
       path: hook.filePath,
@@ -149,7 +153,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { oas, withDevtools } = this.options
+    const { oas, withDevtools, resolveName } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -160,7 +164,11 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new FormBuilder(oas).configure({ name: hook.name, withDevtools, errors, operation, schemas }).print()
+    if (!schemas.request?.name) {
+      return null
+    }
+
+    const source = new FormBuilder(oas).configure({ name: hook.name, resolveName, withDevtools, errors, operation, schemas }).print()
 
     return {
       path: hook.filePath,
@@ -193,7 +201,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { oas, withDevtools } = this.options
+    const { oas, withDevtools, resolveName } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -204,7 +212,11 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new FormBuilder(oas).configure({ name: hook.name, withDevtools, errors, operation, schemas }).print()
+    if (!schemas.request?.name) {
+      return null
+    }
+
+    const source = new FormBuilder(oas).configure({ resolveName, name: hook.name, withDevtools, errors, operation, schemas }).print()
 
     return {
       path: hook.filePath,

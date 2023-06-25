@@ -30,6 +30,6 @@ coverage
 *.tgz
 
 ## custom ones
-/e2e
+# /e2e
 .next
 !src

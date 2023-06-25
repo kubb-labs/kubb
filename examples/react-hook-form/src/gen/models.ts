@@ -116,6 +116,7 @@ export type ListPetsQueryResponse = Pets
 export type CreatePetsMutationRequest = {
   /**
    * @type string
+   * @default 'Lily'
    */
   name: string
   /**
