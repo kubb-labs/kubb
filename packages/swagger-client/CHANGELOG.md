@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.3.1...@kubb/swagger-client-v1.3.2) (2023-06-25)
+
+
+### Bug Fixes
+
+* no banner for subpackage client ([a0a6627](https://github.com/kubb-project/kubb/commit/a0a6627a0e3215884fdde191a9a153a309516e57))
+
 ## [1.3.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.3.0...@kubb/swagger-client-v1.3.1) (2023-06-24)
 
 
