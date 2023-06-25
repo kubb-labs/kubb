@@ -28,7 +28,6 @@ export type Options = {
      */
     exportAs?: string
   }
-  client?: string
   /**
    * Include `@hookform/devtools`
    * @default `false`

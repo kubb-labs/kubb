@@ -7,7 +7,6 @@ import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/index.ts'
 
-import type { OptionalPath } from '@kubb/core'
 import type { API as SwaggerApi } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
@@ -81,10 +80,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     },
     async buildStart() {
       const oas = await swaggerApi.getOas()
-      const clientPath: OptionalPath = options.client ? pathParser.resolve(this.config.root, options.client) : undefined
 
       const operationGenerator = new OperationGenerator({
-        clientPath,
         oas,
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),

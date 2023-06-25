@@ -5,7 +5,6 @@ import { OasBuilder, getComments, isReference } from '@kubb/swagger'
 
 import type { Operation, OperationSchemas } from '@kubb/swagger'
 import { getParams } from '@kubb/swagger'
-import { DevTool } from '@hookform/devtools'
 
 type Config = {
   operation: Operation

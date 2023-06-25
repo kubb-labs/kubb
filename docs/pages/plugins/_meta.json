@@ -6,6 +6,7 @@
   "swagger-client": "@kubb/swagger-client",
   "swagger-tanstack-query": "@kubb/swagger-tanstack-query",
   "swagger-faker": "@kubb/swagger-faker",
+  "swagger-form": "@kubb/swagger-form",
   "swagger-zod": "@kubb/swagger-zod",
   "swagger-zodios": "@kubb/swagger-zodios",
   "swagger-swr": "@kubb/swagger-swr",
