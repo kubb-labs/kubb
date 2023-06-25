@@ -72,14 +72,32 @@ type FormMetaBase<T> = {
 }
 
 type FormMetaAny = { keyword: typeof formKeywords.any }
-type FormMetaUndefined = { keyword: typeof formKeywords.undefined; args: { name?: string; required?: boolean; defaultValue?: string | number | boolean } }
-type FormMetaNull = { keyword: typeof formKeywords.null; args: { name?: string; required?: boolean; defaultValue?: string | number | boolean } }
-type FormMetaNumber = { keyword: typeof formKeywords.number; args: { name?: string; required?: boolean; defaultValue?: string | number | boolean } }
-type FormMetaInteger = { keyword: typeof formKeywords.integer; args: { name?: string; required?: boolean; defaultValue?: string | number | boolean } }
+type FormMetaUndefined = {
+  keyword: typeof formKeywords.undefined
+  args: { name?: string; fullName?: string; required?: boolean; defaultValue?: string | number | boolean }
+}
+type FormMetaNull = {
+  keyword: typeof formKeywords.null
+  args: { name?: string; fullName?: string; required?: boolean; defaultValue?: string | number | boolean }
+}
+type FormMetaNumber = {
+  keyword: typeof formKeywords.number
+  args: { name?: string; fullName?: string; required?: boolean; defaultValue?: string | number | boolean }
+}
+type FormMetaInteger = {
+  keyword: typeof formKeywords.integer
+  args: { name?: string; fullName?: string; required?: boolean; defaultValue?: string | number | boolean }
+}
 
-type FormMetaString = { keyword: typeof formKeywords.string; args: { name?: string; required?: boolean; defaultValue?: string | number | boolean } }
+type FormMetaString = {
+  keyword: typeof formKeywords.string
+  args: { name?: string; fullName?: string; required?: boolean; defaultValue?: string | number | boolean }
+}
 
-type FormMetaBoolean = { keyword: typeof formKeywords.boolean; args: { name?: string; required?: boolean; defaultValue?: string | number | boolean } }
+type FormMetaBoolean = {
+  keyword: typeof formKeywords.boolean
+  args: { name?: string; fullName?: string; required?: boolean; defaultValue?: string | number | boolean }
+}
 
 type FormMetaMin = { keyword: typeof formKeywords.min; args?: number }
 
@@ -155,6 +173,7 @@ export function parseFormMeta(item: FormMeta, mapper: Record<FormKeyword, string
         return schema && typeof schema.map === 'function'
       })
       .map((item) => {
+        const name = item[0]
         const schema = item[1] as FormMeta[]
 
         const required = schema.some((item) => item.keyword === formKeywords.required)
@@ -189,10 +208,10 @@ export function parseFormMeta(item: FormMeta, mapper: Record<FormKeyword, string
   }
 
   if (keyword === formKeywords.string) {
-    const { name, required, defaultValue = '""' } = args as FormMetaString['args']
-    const template = [value, required ? renderTemplate(mapper[formKeywords.required], { name }) : undefined].filter(Boolean)
+    const { fullName, required, defaultValue = '""' } = args as FormMetaString['args']
+    const template = [value, required ? renderTemplate(mapper[formKeywords.required], { name: fullName }) : undefined].filter(Boolean)
 
-    return renderTemplate(template.join(''), { name, required, defaultValue })
+    return renderTemplate(template.join(''), { name: fullName, required, defaultValue })
   }
 
   // if (keyword in formKeywords && args) {

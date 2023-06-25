@@ -17,6 +17,7 @@ type Options = {
 export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, string[]> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
+  paths: Record<string, string> = {}
 
   extraTexts: string[] = []
 
@@ -31,7 +32,7 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     return this
   }
 
-  build({ schema, baseName, description }: { schema: OpenAPIV3.SchemaObject; baseName: string; description?: string }): string[] {
+  build({ schema, baseName, description }: { schema: OpenAPIV3.SchemaObject; baseName?: string; description?: string }): string[] {
     const texts: string[] = []
     const zodInput = this.getTypeFromSchema(schema, baseName)
     if (description) {
@@ -78,6 +79,8 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
         const schema = properties[name] as OpenAPIV3.SchemaObject
         const isRequired = required && required.includes(name)
+
+        this.paths[name] = [baseName, name].filter(Boolean).join('.')
 
         validationFunctions.push(...this.getTypeFromSchema(schema, name))
 
@@ -295,7 +298,7 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       // string, boolean, null, number
       if (schema.type in formKeywords) {
-        return [{ keyword: schema.type, args: { name: baseName } } as FormMeta]
+        return [{ keyword: schema.type, args: { name: baseName, fullName: baseName ? this.paths[baseName] : undefined } } as FormMeta]
       }
     }
 

@@ -43,7 +43,7 @@ export class FormBuilder extends OasBuilder<Config> {
     })
     const form = formGenerator.build({
       schema: schemas.request.schema,
-      baseName: schemas.request.schema.type === 'object' ? schemas.request.name : operationId,
+      baseName: undefined,
       description: schemas.request.description,
     })
 
