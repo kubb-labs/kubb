@@ -204,7 +204,6 @@ export function parseFormMeta(item: FormMeta, mapper: Record<FormKeyword, string
 
         const required = schema.some((item) => item.keyword === formKeywords.required)
         const defaultArgs = schema.find((item) => item.keyword === formKeywords.default) as FormMetaDefault | undefined
-        const describeArgs = schema.find((item) => item.keyword === formKeywords.describe) as FormMetaDescribe | undefined
 
         return schema
           .map((item) => {
@@ -217,7 +216,7 @@ export function parseFormMeta(item: FormMeta, mapper: Record<FormKeyword, string
                   ...args,
                   required,
                   defaultValue: defaultArgs?.args,
-                  label: describeArgs?.args || (args.name ? sentenceCase(args.name) : ''),
+                  label: args.name ? sentenceCase(args.name) : '',
                 },
               } as FormMetaString
             }
@@ -231,12 +230,6 @@ export function parseFormMeta(item: FormMeta, mapper: Record<FormKeyword, string
     return argsObject
   }
 
-  // custom type
-  // if (keyword === formKeywords.ref) {
-  //   // use of z.lazy because we need to import from files x or we use the type as a self reference
-  //   return `${mapper.lazy}(() => ${args as string})`
-  // }
-
   if (keyword === formKeywords.string) {
     const { name, fullName, required = false, label, defaultValue = `''` } = args as FormMetaString['args']
 
@@ -246,7 +239,7 @@ export function parseFormMeta(item: FormMeta, mapper: Record<FormKeyword, string
       required ? renderTemplate(mapper[formKeywords.required], { name: fullName ?? name }) : undefined,
     ].filter(Boolean)
 
-    return renderTemplate(template.join(''), { name: fullName ?? name, required, defaultValue: `{${defaultValue}}` })
+    return renderTemplate(template.join(''), { name: fullName ?? name, required, label, defaultValue: `{${defaultValue}}` })
   }
 
   if (keyword === formKeywords.boolean) {
@@ -258,7 +251,7 @@ export function parseFormMeta(item: FormMeta, mapper: Record<FormKeyword, string
       required ? renderTemplate(mapper[formKeywords.required], { name: fullName ?? name }) : undefined,
     ].filter(Boolean)
 
-    return renderTemplate(template.join(''), { name: fullName ?? name, required, defaultValue: `{${defaultValue}}` })
+    return renderTemplate(template.join(''), { name: fullName ?? name, required, label, defaultValue: `{${defaultValue}}` })
   }
 
   // if (keyword in formKeywords && args) {
@@ -273,5 +266,5 @@ export function formParser(items: FormMeta[], options: { mapper?: Record<FormKey
     return ''
   }
 
-  return items.map((item) => parseFormMeta(item, options.mapper)).join('')
+  return items.map((item) => parseFormMeta(item, { ...formKeywordMapper, ...options.mapper })).join('')
 }

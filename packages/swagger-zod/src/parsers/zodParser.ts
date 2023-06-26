@@ -235,5 +235,5 @@ export function zodParser(items: ZodMeta[], options: { mapper?: Record<ZodKeywor
     return `export const ${options.name} = '';`
   }
 
-  return `export const ${options.name} = ${items.map((item) => parseZodMeta(item, options.mapper)).join('')};`
+  return `export const ${options.name} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')};`
 }

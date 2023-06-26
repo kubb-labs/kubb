@@ -148,7 +148,7 @@ importers:
         version: link:../packages/swagger-zodios
       '@tanstack/react-query':
         specifier: ^4.29.15
-        version: 4.29.15(react-dom@18.2.0)(react@18.2.0)
+        version: 4.29.15(react@18.2.0)
       '@tanstack/solid-query':
         specifier: ^4.29.15
         version: 4.29.15(solid-js@1.7.6)
@@ -241,17 +241,17 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zodios
       '@tanstack/react-query':
-        specifier: ^4.29.15
-        version: 4.29.15(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^4.29.17
+        version: 4.29.17(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/solid-query':
-        specifier: ^4.29.15
-        version: 4.29.15(solid-js@1.7.6)
+        specifier: ^4.29.17
+        version: 4.29.17(solid-js@1.7.6)
       '@tanstack/svelte-query':
-        specifier: ^4.29.15
-        version: 4.29.15(svelte@3.54.0)
+        specifier: ^4.29.17
+        version: 4.29.17(svelte@3.54.0)
       '@tanstack/vue-query':
-        specifier: ^4.29.15
-        version: 4.29.15(vue@3.3.4)
+        specifier: ^4.29.17
+        version: 4.29.17(vue@3.3.4)
       '@zodios/core':
         specifier: ^10.9.2
         version: 10.9.2(axios@1.4.0)(zod@3.21.4)
@@ -289,6 +289,64 @@ importers:
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
+
+  examples/data-driven-forms:
+    dependencies:
+      '@data-driven-forms/ant-component-mapper':
+        specifier: ^3.20.12
+        version: 3.20.12(@data-driven-forms/react-form-renderer@3.20.12)(antd@5.6.3)(react-dom@18.2.0)(react@18.2.0)
+      '@data-driven-forms/react-form-renderer':
+        specifier: ^3.20.12
+        version: 3.20.12(react-dom@18.2.0)(react@18.2.0)
+      '@kubb/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@kubb/swagger':
+        specifier: workspace:*
+        version: link:../../packages/swagger
+      '@kubb/swagger-form':
+        specifier: workspace:*
+        version: link:../../packages/swagger-form
+      '@kubb/swagger-ts':
+        specifier: workspace:*
+        version: link:../../packages/swagger-ts
+      antd:
+        specifier: ^5.6.3
+        version: 5.6.3(react-dom@18.2.0)(react@18.2.0)
+      axios:
+        specifier: ^1.4.0
+        version: 1.4.0
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: ^18.2.6
+        version: 18.2.6
+      '@vitejs/plugin-react':
+        specifier: ^4.0.1
+        version: 4.0.1(vite@4.3.9)
+      msw:
+        specifier: ^1.2.2
+        version: 1.2.2(typescript@5.1.3)
+      tsup:
+        specifier: ^7.1.0
+        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
+      typescript:
+        specifier: ^5.1.3
+        version: 5.1.3
+      vite:
+        specifier: ^4.3.9
+        version: 4.3.9(@types/node@20.3.1)
 
   examples/faker:
     dependencies:
@@ -362,9 +420,6 @@ importers:
       react-hook-form:
         specifier: ^7.45.0
         version: 7.45.0(react@18.2.0)
-      tsup:
-        specifier: ^7.1.0
-        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
     devDependencies:
       '@types/react':
         specifier: ^18.2.14
@@ -378,6 +433,9 @@ importers:
       msw:
         specifier: ^1.2.2
         version: 1.2.2(typescript@5.1.3)
+      tsup:
+        specifier: ^7.1.0
+        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -406,8 +464,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-ts
       '@tanstack/react-query':
-        specifier: ^4.29.15
-        version: 4.29.15(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^4.29.17
+        version: 4.29.17(react-dom@18.2.0)(react@18.2.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -461,8 +519,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-ts
       '@tanstack/react-query':
-        specifier: ^4.29.15
-        version: 4.29.15(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^4.29.17
+        version: 4.29.17(react-dom@18.2.0)(react@18.2.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -497,8 +555,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/solid-query':
-        specifier: ^4.29.15
-        version: 4.29.15(solid-js@1.7.6)
+        specifier: ^4.29.17
+        version: 4.29.17(solid-js@1.7.6)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -540,8 +598,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/svelte-query':
-        specifier: ^4.29.15
-        version: 4.29.15(svelte@3.54.0)
+        specifier: ^4.29.17
+        version: 4.29.17(svelte@3.54.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -644,8 +702,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
-        specifier: ^4.29.15
-        version: 4.29.15(vue@3.3.4)
+        specifier: ^4.29.17
+        version: 4.29.17(vue@3.3.4)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -1659,6 +1717,52 @@ packages:
   /@ctrl/tinycolor@3.6.0:
     resolution: {integrity: sha512-/Z3l6pXthq0JvMYdUFyX9j0MaCltlIn6mfh9jLyQwg5aPKxkyNa0PTHtU1AlFXLNk55ZuAeJRcpvq+tmLfKmaQ==}
     engines: {node: '>=10'}
+    dev: false
+
+  /@data-driven-forms/ant-component-mapper@3.20.12(@data-driven-forms/react-form-renderer@3.20.12)(antd@5.6.3)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-BZ6zri+qDFBY+9go+oNxUEJ6k3rtWQZrlWNlAeKrAM6xNQcq24eGzlV/elQ2ONLhR5BW4L4Vmgmax4bxNlTEMw==}
+    peerDependencies:
+      '@data-driven-forms/react-form-renderer': ^3.20.12
+      antd: ^4.2.0
+      react: ^16.13.1 || ^17.0.2 || ^18.0.0
+      react-dom: ^16.13.1 || ^17.0.2 || ^18.0.0
+    dependencies:
+      '@data-driven-forms/common': 3.20.12(react-dom@18.2.0)(react@18.2.0)
+      '@data-driven-forms/react-form-renderer': 3.20.12(react-dom@18.2.0)(react@18.2.0)
+      antd: 5.6.3(react-dom@18.2.0)(react@18.2.0)
+      lodash: 4.17.21
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@data-driven-forms/common@3.20.12(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-n8ZuOnSRNLiSQ6+cRECtNHoK8I8Zg6A2TMozG2fGEGQGrIXoT8ShoCj08tfK0IlrGLbCA9h3A8sLv/KPHZX/wg==}
+    peerDependencies:
+      react: ^16.13.1 || ^17.0.2 || ^18.0.0
+      react-dom: ^16.13.1 || ^17.0.2 || ^18.0.0
+    dependencies:
+      clsx: 1.2.1
+      lodash: 4.17.21
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@data-driven-forms/react-form-renderer@3.20.12(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-65v9sXNzrdEkwA88VDG9NTMsZmj/19ESjOQC3TyQzqgBNkk8txPjccGS0lXkwZyGKIgzVe+8wAb+YysTFrXe1A==}
+    peerDependencies:
+      react: ^16.13.1 || ^17.0.2 || ^18.0.0
+      react-dom: ^16.13.1 || ^17.0.2 || ^18.0.0
+    dependencies:
+      final-form: 4.20.9
+      final-form-arrays: 3.1.0(final-form@4.20.9)
+      final-form-focus: 1.1.2(final-form@4.20.9)
+      lodash: 4.17.21
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-final-form: 6.5.9(final-form@4.20.9)(react@18.2.0)
+      react-final-form-arrays: 3.1.4(final-form-arrays@3.1.0)(final-form@4.20.9)(react-final-form@6.5.9)(react@18.2.0)
     dev: false
 
   /@emotion/babel-plugin@11.11.0:
@@ -2898,7 +3002,11 @@ packages:
     resolution: {integrity: sha512-Recc1d5rjHesKhzlH3Aw66v+vQxtB9OHEXP/vxgEcEJ0DwEpfe3EQ4id20vuBJHY2XRjfgWGmUs6ZgK6PSsTXA==}
     dev: false
 
-  /@tanstack/react-query@4.29.15(react-dom@18.2.0)(react@18.2.0):
+  /@tanstack/query-core@4.29.17:
+    resolution: {integrity: sha512-iDbO8yZOpm1lqgq6L8mpxGbKaoiyZSjthxEB3WGU7mNPYss9q4H3Q67+e2xXGwkemEVmtEX/WwvtFitrvVU8TA==}
+    dev: false
+
+  /@tanstack/react-query@4.29.15(react@18.2.0):
     resolution: {integrity: sha512-1zDkv95ljuJ623hhbYU8YIprPW2x6774kh3IQNEuZav62+S+Zr26uUOrE2zGRp9I1uO5Liw/0uYB3dWXQP5+3Q==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -2911,6 +3019,24 @@ packages:
         optional: true
     dependencies:
       '@tanstack/query-core': 4.29.15
+      react: 18.2.0
+      use-sync-external-store: 1.2.0(react@18.2.0)
+    dev: false
+
+  /@tanstack/react-query@4.29.17(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-udOy/jgqiBHBAP93YPAU3QoVYO+Rtx9HT/10xGDQzC8iQU/wIxcIaT/usX+1NSzoUFYU5hUcPaNErPWZnR7XgA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@tanstack/query-core': 4.29.17
+      client-only: 0.0.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       use-sync-external-store: 1.2.0(react@18.2.0)
@@ -2925,12 +3051,30 @@ packages:
       solid-js: 1.7.6
     dev: false
 
+  /@tanstack/solid-query@4.29.17(solid-js@1.7.6):
+    resolution: {integrity: sha512-z2HNuvHmvJ8oqKj3Up/ZVqb5zHWY1jyfhHH6eunn25vYlOl3zKRnzT8USPwmO6Ny3UfKUxVYsvpiVfmh6FeKcQ==}
+    peerDependencies:
+      solid-js: ^1.5.7
+    dependencies:
+      '@tanstack/query-core': 4.29.17
+      solid-js: 1.7.6
+    dev: false
+
   /@tanstack/svelte-query@4.29.15(svelte@3.54.0):
     resolution: {integrity: sha512-i42PHTGrxozVOLMPZ6XP0XMFQmcy4zN4wKYnFQgXN1lcD/jOkF8s9/OLlGp2uN9LrDgIboXwVImzEHNOpvEQpQ==}
     peerDependencies:
       svelte: ^3.54.0
     dependencies:
       '@tanstack/query-core': 4.29.15
+      svelte: 3.54.0
+    dev: false
+
+  /@tanstack/svelte-query@4.29.17(svelte@3.54.0):
+    resolution: {integrity: sha512-/4m5IAf1EYmKSk89noe4cTQTsn5kysRDp/A/ln8I2KBmmBH14EhqbKlVwy/6nC13y32SrUF8LOM+S2CvKY7MsA==}
+    peerDependencies:
+      svelte: ^3.54.0
+    dependencies:
+      '@tanstack/query-core': 4.29.17
       svelte: 3.54.0
     dev: false
 
@@ -2945,6 +3089,22 @@ packages:
     dependencies:
       '@tanstack/match-sorter-utils': 8.8.4
       '@tanstack/query-core': 4.29.15
+      '@vue/devtools-api': 6.5.0
+      vue: 3.3.4
+      vue-demi: 0.13.11(vue@3.3.4)
+    dev: false
+
+  /@tanstack/vue-query@4.29.17(vue@3.3.4):
+    resolution: {integrity: sha512-rja7/9Bbs1iEe07yDzjdEfY63e3+ngxEPp60b7abPa1dUWblsC6RepfJrMg08RqH6CRIrwNx2cJsowVJ3T9hGA==}
+    peerDependencies:
+      '@vue/composition-api': ^1.1.2
+      vue: ^2.5.0 || ^3.0.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      '@tanstack/match-sorter-utils': 8.8.4
+      '@tanstack/query-core': 4.29.17
       '@vue/devtools-api': 6.5.0
       vue: 3.3.4
       vue-demi: 0.13.11(vue@3.3.4)
@@ -5554,6 +5714,28 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       to-regex-range: 5.0.1
+
+  /final-form-arrays@3.1.0(final-form@4.20.9):
+    resolution: {integrity: sha512-TWBvun+AopgBLw9zfTFHBllnKMVNEwCEyDawphPuBGGqNsuhGzhT7yewHys64KFFwzIs6KEteGLpKOwvTQEscQ==}
+    peerDependencies:
+      final-form: ^4.20.8
+    dependencies:
+      final-form: 4.20.9
+    dev: false
+
+  /final-form-focus@1.1.2(final-form@4.20.9):
+    resolution: {integrity: sha512-Gd+Bd2Ll7ijo3/sd6kJ/bwLkhc2bUJPxTON6fIqee/008EJpACWhT+zoWCm9q6NcfMcWRS+Sp5ikRX8iqdXeGQ==}
+    peerDependencies:
+      final-form: '>=1.3.0'
+    dependencies:
+      final-form: 4.20.9
+    dev: false
+
+  /final-form@4.20.9:
+    resolution: {integrity: sha512-shA1X/7v8RmukWMNRHx0l7+Bm41hOivY78IvOiBrPVHjyWFIyqqIEMCz7yTVRc9Ea+EU4WkZ5r4MH6whSo5taw==}
+    dependencies:
+      '@babel/runtime': 7.22.5
+    dev: false
 
   /find-replace@3.0.0:
     resolution: {integrity: sha512-6Tb2myMioCAgv5kfvP5/PkZZ/ntTpVK39fHY7WkWBgvbeE+VHd/tZuZ4mrC+bxh4cfOZeYKVPaJIZtZXV7GNCQ==}
@@ -8873,6 +9055,32 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.0
+    dev: false
+
+  /react-final-form-arrays@3.1.4(final-form-arrays@3.1.0)(final-form@4.20.9)(react-final-form@6.5.9)(react@18.2.0):
+    resolution: {integrity: sha512-siVFAolUAe29rMR6u8VwepoysUcUdh6MLV2OWnCtKpsPRUdT9VUgECjAPaVMAH2GROZNiVB9On1H9MMrm9gdpg==}
+    peerDependencies:
+      final-form: ^4.15.0
+      final-form-arrays: '>=1.0.4'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-final-form: ^6.2.1
+    dependencies:
+      '@babel/runtime': 7.22.5
+      final-form: 4.20.9
+      final-form-arrays: 3.1.0(final-form@4.20.9)
+      react: 18.2.0
+      react-final-form: 6.5.9(final-form@4.20.9)(react@18.2.0)
+    dev: false
+
+  /react-final-form@6.5.9(final-form@4.20.9)(react@18.2.0):
+    resolution: {integrity: sha512-x3XYvozolECp3nIjly+4QqxdjSSWfcnpGEL5K8OBT6xmGrq5kBqbA6+/tOqoom9NwqIPPbxPNsOViFlbKgowbA==}
+    peerDependencies:
+      final-form: ^4.20.4
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@babel/runtime': 7.22.5
+      final-form: 4.20.9
+      react: 18.2.0
     dev: false
 
   /react-hook-form@7.45.0(react@18.2.0):

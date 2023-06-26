@@ -34,15 +34,16 @@ export type Options = {
    * @default `false`
    */
   withDevtools?: boolean
-  /**
-   * Override default formKeywordMapper
-   * TODO call it overrides?
-   */
-  mapper?: Record<FormKeyword, string>
-  /**
-   * When using `ant-design` or another ui library you need to have extra imports when using `mapper`
-   */
-  extraImports?: File['imports']
+  overrides?: {
+    /**
+     * Override default formKeywordMapper
+     */
+    mapper?: Partial<Record<FormKeyword, { template: string; imports?: File['imports'] }>>
+    /**
+     * Override default form
+     */
+    form?: { template: string; imports?: File['imports'] }
+  }
 }
 
 export type ResolvePathOptions = { tag?: string }

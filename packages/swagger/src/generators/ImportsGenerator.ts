@@ -18,7 +18,7 @@ import type { FileResolver } from '../builders/OasBuilder.ts'
 export type Ref = { propertyName: string; originalName: string; name?: string; pluginName?: string }
 export type Refs = Record<string, Ref>
 
-export type Import = { refs: Refs; name: string }
+type Import = { refs: Refs; name: string }
 
 export type ImportMeta = {
   ref: Ref

@@ -20,7 +20,7 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy, withDevtools = false, mapper, extraImports } = options
+  const { output = 'hooks', groupBy, withDevtools = false, overrides } = options
   let swaggerApi: SwaggerApi
 
   return {
@@ -52,7 +52,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         const tag = pascalCase(options.tag, { delimiter: '', transform: pascalCaseTransformMerge })
 
         const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
-        const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Hooks', { tag }), pluginName })
+        const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Forms', { tag }), pluginName })
 
         if (name) {
           this.fileManager.addOrAppend({
@@ -88,8 +88,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
         withDevtools,
-        extraImports,
-        mapper,
+        overrides,
       })
 
       const files = await operationGenerator.build()

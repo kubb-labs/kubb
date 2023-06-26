@@ -29,39 +29,37 @@ export function CreatePetsForm(props: Props): React.ReactNode {
   })
 
   return (
-    <>
-      <form
-        onSubmit={handleSubmit((data) => {
-          onSubmit?.(data)
-        })}
-      >
-        <label htmlFor="name">Name</label>
-        <Controller
-          name="name"
-          render={({ field }) => <input {...field} id="name" />}
-          control={control}
-          defaultValue={'Lily'}
-          rules={{
-            required: true,
-          }}
-        />
-        {errors['name'] && <p>This field is required</p>}
+    <form
+      onSubmit={handleSubmit((data) => {
+        onSubmit?.(data)
+      })}
+    >
+      <label htmlFor="name">Name</label>
+      <Controller
+        name="name"
+        render={({ field }) => <input {...field} id="name" />}
+        control={control}
+        defaultValue={'Lily'}
+        rules={{
+          required: true,
+        }}
+      />
+      {errors['name'] && <p>This field is required</p>}
 
-        <label htmlFor="tag">Tag</label>
-        <Controller
-          name="tag"
-          render={({ field }) => <input {...field} id="tag" />}
-          control={control}
-          defaultValue={''}
-          rules={{
-            required: true,
-          }}
-        />
-        {errors['tag'] && <p>This field is required</p>}
-        <input type="submit" />
-      </form>
+      <label htmlFor="tag">Tag</label>
+      <Controller
+        name="tag"
+        render={({ field }) => <input {...field} id="tag" />}
+        control={control}
+        defaultValue={''}
+        rules={{
+          required: true,
+        }}
+      />
+      {errors['tag'] && <p>This field is required</p>}
+      <input type="submit" />
 
       <DevTool id="createPets" control={control} styles={{ button: { position: 'relative' } }} />
-    </>
+    </form>
   )
 }

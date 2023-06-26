@@ -222,7 +222,7 @@ export function fakerParser(items: FakerMeta[], options: { mapper?: Record<Faker
 
   return `
     export function ${options.name}()${options.typeName ? `: ${options.typeName}` : ''} {
-      return ${items.map((item) => parseFakerMeta(item, options.mapper)).join('')};
+      return ${items.map((item) => parseFakerMeta(item, { ...fakerKeywordMapper, ...options.mapper })).join('')};
     }
   `
 }

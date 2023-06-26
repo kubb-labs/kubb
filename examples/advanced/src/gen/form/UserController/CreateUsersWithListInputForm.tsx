@@ -26,14 +26,12 @@ export function CreateUsersWithListInputForm(props: Props): React.ReactNode {
   })
 
   return (
-    <>
-      <form
-        onSubmit={handleSubmit((data) => {
-          onSubmit?.(data)
-        })}
-      >
-        <input type="submit" />
-      </form>
-    </>
+    <form
+      onSubmit={handleSubmit((data) => {
+        onSubmit?.(data)
+      })}
+    >
+      <input type="submit" />
+    </form>
   )
 }

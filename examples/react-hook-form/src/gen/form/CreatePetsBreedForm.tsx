@@ -31,52 +31,48 @@ export function CreatePetsBreedForm(props: Props): React.ReactNode {
   })
 
   return (
-    <>
-      <form
-        onSubmit={handleSubmit((data) => {
-          onSubmit?.(data)
-        })}
-      >
-        <label htmlFor="name">Name</label>
-        <Controller
-          name="name"
-          render={({ field }) => <input {...field} id="name" />}
-          control={control}
-          defaultValue={''}
-          rules={{
-            required: true,
-          }}
-        />
-        {errors['name'] && <p>This field is required</p>}
+    <form
+      onSubmit={handleSubmit((data) => {
+        onSubmit?.(data)
+      })}
+    >
+      <label htmlFor="name">Name</label>
+      <Controller
+        name="name"
+        render={({ field }) => <input {...field} id="name" />}
+        control={control}
+        defaultValue={''}
+        rules={{
+          required: true,
+        }}
+      />
+      {errors['name'] && <p>This field is required</p>}
 
-        <label htmlFor="tag">Tag</label>
-        <Controller
-          name="tag"
-          render={({ field }) => <input {...field} id="tag" />}
-          control={control}
-          defaultValue={''}
-          rules={{
-            required: true,
-          }}
-        />
-        {errors['tag'] && <p>This field is required</p>}
+      <label htmlFor="tag">Tag</label>
+      <Controller
+        name="tag"
+        render={({ field }) => <input {...field} id="tag" />}
+        control={control}
+        defaultValue={''}
+        rules={{
+          required: true,
+        }}
+      />
+      {errors['tag'] && <p>This field is required</p>}
 
-        <label htmlFor="isActive">Is active</label>
-        <Controller
-          name="isActive"
-          render={({ field }) => (
-            <Checkbox {...(field as any)} id="isActive" type="checkbox" value={field.value ? 'checked' : undefined} checked={field.value} />
-          )}
-          control={control}
-          defaultValue={false}
-          rules={{
-            required: false,
-          }}
-        />
-        <input type="submit" />
-      </form>
+      <label htmlFor="isActive">Is active</label>
+      <Controller
+        name="isActive"
+        render={({ field }) => <Checkbox {...(field as any)} id="isActive" type="checkbox" value={field.value ? 'checked' : undefined} checked={field.value} />}
+        control={control}
+        defaultValue={false}
+        rules={{
+          required: false,
+        }}
+      />
+      <input type="submit" />
 
       <DevTool id="createPetsBreed" control={control} styles={{ button: { position: 'relative' } }} />
-    </>
+    </form>
   )
 }

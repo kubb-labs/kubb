@@ -29,35 +29,33 @@ export function PlaceOrderForm(props: Props): React.ReactNode {
   })
 
   return (
-    <>
-      <form
-        onSubmit={handleSubmit((data) => {
-          onSubmit?.(data)
-        })}
-      >
-        <label htmlFor="shipDate">Ship date</label>
-        <Controller
-          name="shipDate"
-          render={({ field }) => <input {...field} id="shipDate" />}
-          control={control}
-          defaultValue={''}
-          rules={{
-            required: false,
-          }}
-        />
+    <form
+      onSubmit={handleSubmit((data) => {
+        onSubmit?.(data)
+      })}
+    >
+      <label htmlFor="shipDate">Ship date</label>
+      <Controller
+        name="shipDate"
+        render={({ field }) => <input {...field} id="shipDate" />}
+        control={control}
+        defaultValue={''}
+        rules={{
+          required: false,
+        }}
+      />
 
-        <label htmlFor="complete">Complete</label>
-        <Controller
-          name="complete"
-          render={({ field }) => <input {...field} id="complete" type="checkbox" value={field.value ? 'checked' : undefined} checked={field.value} />}
-          control={control}
-          defaultValue={false}
-          rules={{
-            required: false,
-          }}
-        />
-        <input type="submit" />
-      </form>
-    </>
+      <label htmlFor="complete">Complete</label>
+      <Controller
+        name="complete"
+        render={({ field }) => <input {...field} id="complete" type="checkbox" value={field.value ? 'checked' : undefined} checked={field.value} />}
+        control={control}
+        defaultValue={false}
+        rules={{
+          required: false,
+        }}
+      />
+      <input type="submit" />
+    </form>
   )
 }

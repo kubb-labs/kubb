@@ -32,23 +32,21 @@ export function UploadFileForm(props: Props): React.ReactNode {
   })
 
   return (
-    <>
-      <form
-        onSubmit={handleSubmit((data) => {
-          onSubmit?.(data)
-        })}
-      >
-        <Controller
-          name="uploadFile"
-          render={({ field }) => <input {...field} id="uploadFile" />}
-          control={control}
-          defaultValue={''}
-          rules={{
-            required: false,
-          }}
-        />
-        <input type="submit" />
-      </form>
-    </>
+    <form
+      onSubmit={handleSubmit((data) => {
+        onSubmit?.(data)
+      })}
+    >
+      <Controller
+        name="uploadFile"
+        render={({ field }) => <input {...field} id="uploadFile" />}
+        control={control}
+        defaultValue={''}
+        rules={{
+          required: false,
+        }}
+      />
+      <input type="submit" />
+    </form>
   )
 }

@@ -78,5 +78,21 @@
       "footer": true,
       "toc": false
     }
+  },
+  "data-driven-forms": {
+    "title": "Data-driven-forms PetStore",
+    "theme": {
+      "layout": "full",
+      "footer": true,
+      "toc": false
+    }
+  },
+  "react-hook-form": {
+    "title": "React-hook-form PetStore",
+    "theme": {
+      "layout": "full",
+      "footer": true,
+      "toc": false
+    }
   }
 }

@@ -29,41 +29,39 @@ export function AddPetForm(props: Props): React.ReactNode {
   })
 
   return (
-    <>
-      <form
-        onSubmit={handleSubmit((data) => {
-          onSubmit?.(data)
-        })}
-      >
-        {/**
-         * @description Create a new pet in the store
-         */}
+    <form
+      onSubmit={handleSubmit((data) => {
+        onSubmit?.(data)
+      })}
+    >
+      {/**
+       * @description Create a new pet in the store
+       */}
 
-        <label htmlFor="name">Name</label>
-        <Controller
-          name="name"
-          render={({ field }) => <input {...field} id="name" />}
-          control={control}
-          defaultValue={''}
-          rules={{
-            required: true,
-          }}
-        />
-        {errors['name'] && <p>This field is required</p>}
+      <label htmlFor="name">Name</label>
+      <Controller
+        name="name"
+        render={({ field }) => <input {...field} id="name" />}
+        control={control}
+        defaultValue={''}
+        rules={{
+          required: true,
+        }}
+      />
+      {errors['name'] && <p>This field is required</p>}
 
-        <label htmlFor="name">Name</label>
-        <Controller
-          name="category.name"
-          render={({ field }) => <input {...field} id="category.name" />}
-          control={control}
-          defaultValue={''}
-          rules={{
-            required: false,
-          }}
-        />
+      <label htmlFor="name">Name</label>
+      <Controller
+        name="category.name"
+        render={({ field }) => <input {...field} id="category.name" />}
+        control={control}
+        defaultValue={''}
+        rules={{
+          required: false,
+        }}
+      />
 
-        <input type="submit" />
-      </form>
-    </>
+      <input type="submit" />
+    </form>
   )
 }

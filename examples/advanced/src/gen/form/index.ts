@@ -1,3 +1,3 @@
-export * as PetHooks from './PetController'
-export * as StoreHooks from './StoreController'
-export * as UserHooks from './UserController'
+export * as PetForms from './PetController'
+export * as StoreForms from './StoreController'
+export * as UserForms from './UserController'

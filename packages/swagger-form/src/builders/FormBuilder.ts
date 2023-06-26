@@ -8,8 +8,9 @@ import { getParams } from '@kubb/swagger'
 import { FormGenerator } from '../generators/FormGenerator'
 import type { PluginContext } from '@kubb/core'
 import { camelCase } from 'change-case'
-import type { FormKeyword } from '../parsers/index.ts'
 import { renderTemplate } from '@kubb/core'
+import type { Options as PluginOptions } from '../types.ts'
+import type { FormKeyword } from '../parsers/index.ts'
 
 type Config = {
   operation: Operation
@@ -18,14 +19,14 @@ type Config = {
   name: string
   resolveName: PluginContext['resolveName']
   withDevtools?: boolean
-  mapper?: Record<FormKeyword, string>
+  overrides?: PluginOptions['overrides']
 }
 
 type FormResult = { source: string; name: string }
 
 export class FormBuilder extends OasBuilder<Config> {
   private get mutation(): FormResult {
-    const { name, operation, schemas, resolveName, withDevtools, mapper } = this.config
+    const { name, operation, schemas, resolveName, withDevtools, overrides } = this.config
 
     if (!schemas.request?.name) {
       return { name, source: '' }
@@ -40,6 +41,17 @@ export class FormBuilder extends OasBuilder<Config> {
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
     ].filter(Boolean)
 
+    const mapper = overrides?.mapper
+      ? Object.entries(overrides.mapper).reduce((prev, curr) => {
+          const [key, { template }] = curr
+
+          return {
+            ...prev,
+            [key]: template,
+          }
+        }, {} as Record<FormKeyword, string>)
+      : undefined
+
     const formGenerator = new FormGenerator({
       resolveName,
       withJSDocs: true,
@@ -51,11 +63,11 @@ export class FormBuilder extends OasBuilder<Config> {
        * In case of type is like `type UploadFileMutationRequest = string;`, then it should use the operationId as naming.
        * Same for `FieldValues`
        */
-      baseName: schemas.request.schema.type === 'object' ? undefined : operationId,
+      baseName: schemas.request.schema.properties ? undefined : operationId,
       description: schemas.request.description,
     })
 
-    const properties = schemas.request?.schema?.properties || {}
+    const properties = schemas.request.schema.properties || {}
 
     const defaultValues = Object.keys(properties)
       .map((key) => {
@@ -72,51 +84,49 @@ export class FormBuilder extends OasBuilder<Config> {
       .filter(Boolean)
 
     const form = renderTemplate(
-      `
-      <form
-        onSubmit={handleSubmit((data) => {
-          onSubmit?.(data)
-        })}
-      >
-        {{fields}}
-        <input type="submit" />
-      </form>
+      overrides?.form?.template ||
+        `export function {{name}}(props: Props): React.ReactNode {
+          const { onSubmit } = props;
+    
+          const {
+            control,
+            register,
+            handleSubmit,
+            formState: { errors }
+          } = useForm<FieldValues>({
+            defaultValues: {
+              ${defaultValues.join(',\n')}
+            }
+          });
+    
+          return (
+            <form
+              onSubmit={handleSubmit((data) => {
+                onSubmit?.(data)
+              })}
+            >
+              {{fields}}
+              <input type="submit" />
+
+              ${withDevtools ? `<DevTool id="${operation.getOperationId()}" control={control} styles={{ button: { position: 'relative' } }} />` : ''}
+            </form>
+          );
+        };
     `,
-      { fields: fields.join('\n') }
+      { name, fields: fields.join('\n') }
     )
 
     const source = `
     ${createJSDocBlockText({ comments })}
 
-    type FieldValues = ${schemas.request.schema.type === 'object' ? schemas.request.name : `{ ${operationId}?: ${schemas.request.name} }`};
+    type FieldValues = ${schemas.request.schema.properties ? schemas.request.name : `{ ${operationId}?: ${schemas.request.name} }`};
 
     type Props = {
       onSubmit?: (data: FieldValues) => Promise<${schemas.response.name}> | void; 
       ${options.join(';\n')}
     };
 
-    export function ${name}(props: Props): React.ReactNode {
-      const { onSubmit } = props;
-
-      const {
-        control,
-        register,
-        handleSubmit,
-        formState: { errors }
-      } = useForm<FieldValues>({
-        defaultValues: {
-          ${defaultValues.join(',\n')}
-        }
-      });
-
-      return (
-        <>
-          ${form}
-          
-          ${withDevtools ? `<DevTool id="${operation.getOperationId()}" control={control} styles={{ button: { position: 'relative' } }} />` : ''}
-        </>
-      );
-    };
+    ${form}
   `
 
     return { source, name }
