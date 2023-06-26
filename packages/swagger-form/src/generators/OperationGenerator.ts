@@ -6,6 +6,7 @@ import type { File, OptionalPath, PluginContext } from '@kubb/core'
 import type { Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { ResolvePathOptions } from '../types.ts'
 import { FormBuilder } from '../builders/FormBuilder.ts'
+import type { FormKeyword } from '../parsers/index.ts'
 
 type Options = {
   clientPath?: OptionalPath
@@ -13,6 +14,8 @@ type Options = {
   resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
   resolveName: PluginContext['resolveName']
   withDevtools?: boolean
+  mapper?: Record<FormKeyword, string>
+  extraImports?: File['imports']
 }
 
 export class OperationGenerator extends Generator<Options> {
@@ -105,7 +108,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { oas, withDevtools, resolveName } = this.options
+    const { oas, withDevtools, resolveName, mapper } = this.options
 
     if (!schemas.request?.name) {
       return null
@@ -120,15 +123,16 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new FormBuilder(oas).configure({ name: hook.name, resolveName, withDevtools, errors, operation, schemas }).print()
+    const source = new FormBuilder(oas).configure({ name: hook.name, mapper, resolveName, withDevtools, errors, operation, schemas }).print()
 
     return {
       path: hook.filePath,
       fileName: hook.fileName,
       source,
       imports: [
+        ...(this.options.extraImports || []),
         {
-          name: ['useForm'],
+          name: ['useForm', 'Controller'],
           path: 'react-hook-form',
         },
         withDevtools
@@ -153,7 +157,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { oas, withDevtools, resolveName } = this.options
+    const { oas, withDevtools, resolveName, mapper } = this.options
 
     if (!schemas.request?.name) {
       return null
@@ -168,15 +172,16 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new FormBuilder(oas).configure({ name: hook.name, resolveName, withDevtools, errors, operation, schemas }).print()
+    const source = new FormBuilder(oas).configure({ name: hook.name, mapper, resolveName, withDevtools, errors, operation, schemas }).print()
 
     return {
       path: hook.filePath,
       fileName: hook.fileName,
       source,
       imports: [
+        ...(this.options.extraImports || []),
         {
-          name: ['useForm'],
+          name: ['useForm', 'Controller'],
           path: 'react-hook-form',
         },
         withDevtools
@@ -201,7 +206,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
-    const { oas, withDevtools, resolveName } = this.options
+    const { oas, withDevtools, resolveName, mapper } = this.options
 
     if (!schemas.request?.name) {
       return null
@@ -216,15 +221,16 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new FormBuilder(oas).configure({ resolveName, name: hook.name, withDevtools, errors, operation, schemas }).print()
+    const source = new FormBuilder(oas).configure({ resolveName, mapper, name: hook.name, withDevtools, errors, operation, schemas }).print()
 
     return {
       path: hook.filePath,
       fileName: hook.fileName,
       source,
       imports: [
+        ...(this.options.extraImports || []),
         {
-          name: ['useForm'],
+          name: ['useForm', 'Controller'],
           path: 'react-hook-form',
         },
         withDevtools

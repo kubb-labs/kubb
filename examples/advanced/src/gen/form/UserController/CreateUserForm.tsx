@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/ts/userController/CreateUser'
 
 /**
@@ -43,23 +43,71 @@ export function CreateUserForm(props: Props): React.ReactNode {
          * @description Created user object
          */}
 
-        <label>username</label>
-        <input {...register('username', { required: false })} defaultValue="" />
+        <label htmlFor="username">Username</label>
+        <Controller
+          name="username"
+          render={({ field }) => <input {...field} id="username" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: false,
+          }}
+        />
 
-        <label>firstName</label>
-        <input {...register('firstName', { required: false })} defaultValue="" />
+        <label htmlFor="firstName">First name</label>
+        <Controller
+          name="firstName"
+          render={({ field }) => <input {...field} id="firstName" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: false,
+          }}
+        />
 
-        <label>lastName</label>
-        <input {...register('lastName', { required: false })} defaultValue="" />
+        <label htmlFor="lastName">Last name</label>
+        <Controller
+          name="lastName"
+          render={({ field }) => <input {...field} id="lastName" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: false,
+          }}
+        />
 
-        <label>email</label>
-        <input {...register('email', { required: false })} defaultValue="" />
+        <label htmlFor="email">Email</label>
+        <Controller
+          name="email"
+          render={({ field }) => <input {...field} id="email" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: false,
+          }}
+        />
 
-        <label>password</label>
-        <input {...register('password', { required: false })} defaultValue="" />
+        <label htmlFor="password">Password</label>
+        <Controller
+          name="password"
+          render={({ field }) => <input {...field} id="password" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: false,
+          }}
+        />
 
-        <label>phone</label>
-        <input {...register('phone', { required: false })} defaultValue="" />
+        <label htmlFor="phone">Phone</label>
+        <Controller
+          name="phone"
+          render={({ field }) => <input {...field} id="phone" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: false,
+          }}
+        />
 
         <input type="submit" />
       </form>

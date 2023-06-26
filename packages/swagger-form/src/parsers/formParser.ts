@@ -1,4 +1,5 @@
-import { renderTemplate } from '../../../core/src/utils/renderTemplate'
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+import { renderTemplate } from '@kubb/core'
 import { sentenceCase } from 'change-case'
 export const formKeywords = {
   any: 'any',
@@ -40,8 +41,32 @@ export const formKeywordMapper: Record<FormKeyword, string> = {
   integer: 'z.number',
   object: 'z.object',
   lazy: 'z.lazy',
-  string: `<input {...register('{{name}}', { required: {{required}} })} defaultValue={{defaultValue}} />`,
-  boolean: 'z.boolean',
+  string: `
+  <Controller
+    name="{{name}}"
+    render={({ field }) => (
+      <input {...field} id="{{name}}" />
+    )}
+    control={control}
+    defaultValue={{defaultValue}}
+    rules={{
+      required: {{required}} 
+    }}
+  />
+ `,
+  boolean: `
+  <Controller
+    name="{{name}}"
+    render={({ field }) => (
+      <input {...field} id="{{name}}" type="checkbox" value={field.value? "checked": undefined} checked={field.value} />
+    )}
+    control={control}
+    defaultValue={{defaultValue}}
+    rules={{
+      required: {{required}} 
+    }}
+  />
+ `,
   undefined: 'z.undefined',
   null: 'z.null',
   array: 'z.array',
@@ -54,7 +79,7 @@ export const formKeywordMapper: Record<FormKeyword, string> = {
   url: '.url',
   /* intersection */
   default: '.default',
-  describe: '<label>{{label}}</label>',
+  describe: '<label htmlFor="{{name}}">{{label}}</label>',
   and: '.and',
   min: '.min',
   max: '.max',
@@ -183,8 +208,9 @@ export function parseFormMeta(item: FormMeta, mapper: Record<FormKeyword, string
 
         return schema
           .map((item) => {
-            if (item.keyword === formKeywords.string) {
-              const args = item.args || {}
+            if (item.keyword === formKeywords.string || item.keyword === formKeywords.boolean) {
+              const args = (item as FormMetaString).args || {}
+
               return {
                 ...item,
                 args: {
@@ -212,15 +238,27 @@ export function parseFormMeta(item: FormMeta, mapper: Record<FormKeyword, string
   // }
 
   if (keyword === formKeywords.string) {
-    const { name, fullName, required, label, defaultValue = '""' } = args as FormMetaString['args']
+    const { name, fullName, required = false, label, defaultValue = `''` } = args as FormMetaString['args']
 
     const template = [
-      label ? renderTemplate(mapper[formKeywords.describe], { label }) : undefined,
+      label ? renderTemplate(mapper[formKeywords.describe], { name, label }) : undefined,
       value,
       required ? renderTemplate(mapper[formKeywords.required], { name: fullName ?? name }) : undefined,
     ].filter(Boolean)
 
-    return renderTemplate(template.join(''), { name: fullName ?? name, required, defaultValue })
+    return renderTemplate(template.join(''), { name: fullName ?? name, required, defaultValue: `{${defaultValue}}` })
+  }
+
+  if (keyword === formKeywords.boolean) {
+    const { name, fullName, required = false, label, defaultValue = `false` } = args as FormMetaString['args']
+
+    const template = [
+      label ? renderTemplate(mapper[formKeywords.describe], { name, label }) : undefined,
+      value,
+      required ? renderTemplate(mapper[formKeywords.required], { name: fullName ?? name }) : undefined,
+    ].filter(Boolean)
+
+    return renderTemplate(template.join(''), { name: fullName ?? name, required, defaultValue: `{${defaultValue}}` })
   }
 
   // if (keyword in formKeywords && args) {

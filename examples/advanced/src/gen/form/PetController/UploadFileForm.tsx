@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -38,8 +38,15 @@ export function UploadFileForm(props: Props): React.ReactNode {
           onSubmit?.(data)
         })}
       >
-        <label>uploadFile</label>
-        <input {...register('uploadFile', { required: undefined })} defaultValue="" />
+        <Controller
+          name="uploadFile"
+          render={({ field }) => <input {...field} id="uploadFile" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: false,
+          }}
+        />
         <input type="submit" />
       </form>
     </>

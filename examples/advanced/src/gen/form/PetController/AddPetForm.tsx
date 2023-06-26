@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import type { AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/petController/AddPet'
 
 /**
@@ -39,12 +39,28 @@ export function AddPetForm(props: Props): React.ReactNode {
          * @description Create a new pet in the store
          */}
 
-        <label>name</label>
-        <input {...register('name', { required: true })} defaultValue="" />
+        <label htmlFor="name">Name</label>
+        <Controller
+          name="name"
+          render={({ field }) => <input {...field} id="name" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: true,
+          }}
+        />
         {errors['name'] && <p>This field is required</p>}
 
-        <label>name</label>
-        <input {...register('name', { required: false })} defaultValue="" />
+        <label htmlFor="name">Name</label>
+        <Controller
+          name="category.name"
+          render={({ field }) => <input {...field} id="category.name" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: false,
+          }}
+        />
 
         <input type="submit" />
       </form>

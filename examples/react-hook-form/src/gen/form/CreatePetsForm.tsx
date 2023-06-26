@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { DevTool } from '@hookform/devtools'
 import type { CreatePetsMutationRequest, CreatePetsMutationResponse } from '../models'
 
@@ -35,17 +35,33 @@ export function CreatePetsForm(props: Props): React.ReactNode {
           onSubmit?.(data)
         })}
       >
-        <label>Name</label>
-        <input {...register('name', { required: true })} defaultValue="Lily" />
+        <label htmlFor="name">Name</label>
+        <Controller
+          name="name"
+          render={({ field }) => <input {...field} id="name" />}
+          control={control}
+          defaultValue={'Lily'}
+          rules={{
+            required: true,
+          }}
+        />
         {errors['name'] && <p>This field is required</p>}
 
-        <label>Tag</label>
-        <input {...register('tag', { required: true })} defaultValue="" />
+        <label htmlFor="tag">Tag</label>
+        <Controller
+          name="tag"
+          render={({ field }) => <input {...field} id="tag" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: true,
+          }}
+        />
         {errors['tag'] && <p>This field is required</p>}
         <input type="submit" />
-
-        <DevTool id="createPets" control={control} styles={{ button: { position: 'relative' } }} />
       </form>
+
+      <DevTool id="createPets" control={control} styles={{ button: { position: 'relative' } }} />
     </>
   )
 }

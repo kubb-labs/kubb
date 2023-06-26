@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../../models/ts/storeController/PlaceOrder'
 
 /**
@@ -35,9 +35,27 @@ export function PlaceOrderForm(props: Props): React.ReactNode {
           onSubmit?.(data)
         })}
       >
-        <label>shipDate</label>
-        <input {...register('shipDate', { required: false })} defaultValue="" />
+        <label htmlFor="shipDate">Ship date</label>
+        <Controller
+          name="shipDate"
+          render={({ field }) => <input {...field} id="shipDate" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: false,
+          }}
+        />
 
+        <label htmlFor="complete">Complete</label>
+        <Controller
+          name="complete"
+          render={({ field }) => <input {...field} id="complete" type="checkbox" value={field.value ? 'checked' : undefined} checked={field.value} />}
+          control={control}
+          defaultValue={false}
+          rules={{
+            required: false,
+          }}
+        />
         <input type="submit" />
       </form>
     </>

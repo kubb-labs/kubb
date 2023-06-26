@@ -189,6 +189,10 @@ export type CreatePetsBreedMutationRequest = {
    * @type string
    */
   tag: string
+  /**
+   * @type boolean | undefined
+   */
+  isActive?: boolean | undefined
 }
 
 export type CreatePetsBreedPathParams = {

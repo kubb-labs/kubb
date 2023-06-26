@@ -8,6 +8,8 @@ import { getParams } from '@kubb/swagger'
 import { FormGenerator } from '../generators/FormGenerator'
 import type { PluginContext } from '@kubb/core'
 import { camelCase } from 'change-case'
+import type { FormKeyword } from '../parsers/index.ts'
+import { renderTemplate } from '@kubb/core'
 
 type Config = {
   operation: Operation
@@ -16,13 +18,14 @@ type Config = {
   name: string
   resolveName: PluginContext['resolveName']
   withDevtools?: boolean
+  mapper?: Record<FormKeyword, string>
 }
 
 type FormResult = { source: string; name: string }
 
 export class FormBuilder extends OasBuilder<Config> {
   private get mutation(): FormResult {
-    const { name, operation, schemas, resolveName, withDevtools } = this.config
+    const { name, operation, schemas, resolveName, withDevtools, mapper } = this.config
 
     if (!schemas.request?.name) {
       return { name, source: '' }
@@ -40,8 +43,9 @@ export class FormBuilder extends OasBuilder<Config> {
     const formGenerator = new FormGenerator({
       resolveName,
       withJSDocs: true,
+      mapper,
     })
-    const form = formGenerator.build({
+    const fields = formGenerator.build({
       schema: schemas.request.schema,
       /**
        * In case of type is like `type UploadFileMutationRequest = string;`, then it should use the operationId as naming.
@@ -62,10 +66,24 @@ export class FormBuilder extends OasBuilder<Config> {
         }
 
         if (schema.type === 'string') {
-          return `${key}: ${schema.default ? `"${schema.default as string}"` : 'undefined'}`
+          return `"${key}": ${schema.default ? `"${schema.default as string}"` : 'undefined'}`
         }
       })
       .filter(Boolean)
+
+    const form = renderTemplate(
+      `
+      <form
+        onSubmit={handleSubmit((data) => {
+          onSubmit?.(data)
+        })}
+      >
+        {{fields}}
+        <input type="submit" />
+      </form>
+    `,
+      { fields: fields.join('\n') }
+    )
 
     const source = `
     ${createJSDocBlockText({ comments })}
@@ -93,17 +111,9 @@ export class FormBuilder extends OasBuilder<Config> {
 
       return (
         <>
-          <form
-            onSubmit={handleSubmit((data) => {
-              onSubmit?.(data)
-            })}
-          >
-            ${form.join('\n')}
-            <input type="submit" />
-
-            ${withDevtools ? `<DevTool id="${operation.getOperationId()}" control={control} styles={{ button: { position: 'relative' } }} />` : ''}
-          </form>
-       
+          ${form}
+          
+          ${withDevtools ? `<DevTool id="${operation.getOperationId()}" control={control} styles={{ button: { position: 'relative' } }} />` : ''}
         </>
       );
     };

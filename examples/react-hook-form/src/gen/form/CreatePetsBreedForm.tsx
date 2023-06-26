@@ -1,4 +1,5 @@
-import { useForm } from 'react-hook-form'
+import { Checkbox } from 'antd'
+import { useForm, Controller } from 'react-hook-form'
 import { DevTool } from '@hookform/devtools'
 import type { CreatePetsBreedMutationRequest, CreatePetsBreedMutationResponse, CreatePetsBreedPathParams } from '../models'
 
@@ -36,17 +37,46 @@ export function CreatePetsBreedForm(props: Props): React.ReactNode {
           onSubmit?.(data)
         })}
       >
-        <label>Name</label>
-        <input {...register('name', { required: true })} defaultValue="" />
+        <label htmlFor="name">Name</label>
+        <Controller
+          name="name"
+          render={({ field }) => <input {...field} id="name" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: true,
+          }}
+        />
         {errors['name'] && <p>This field is required</p>}
 
-        <label>Tag</label>
-        <input {...register('tag', { required: true })} defaultValue="" />
+        <label htmlFor="tag">Tag</label>
+        <Controller
+          name="tag"
+          render={({ field }) => <input {...field} id="tag" />}
+          control={control}
+          defaultValue={''}
+          rules={{
+            required: true,
+          }}
+        />
         {errors['tag'] && <p>This field is required</p>}
-        <input type="submit" />
 
-        <DevTool id="createPetsBreed" control={control} styles={{ button: { position: 'relative' } }} />
+        <label htmlFor="isActive">Is active</label>
+        <Controller
+          name="isActive"
+          render={({ field }) => (
+            <Checkbox {...(field as any)} id="isActive" type="checkbox" value={field.value ? 'checked' : undefined} checked={field.value} />
+          )}
+          control={control}
+          defaultValue={false}
+          rules={{
+            required: false,
+          }}
+        />
+        <input type="submit" />
       </form>
+
+      <DevTool id="createPetsBreed" control={control} styles={{ button: { position: 'relative' } }} />
     </>
   )
 }

@@ -157,6 +157,8 @@ paths:
                   type: string
                 tag:
                   type: string
+                isActive:
+                  type: boolean
       responses:
         '200':
           description: Created Pet

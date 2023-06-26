@@ -7,12 +7,13 @@ import { pluginName } from '../plugin.ts'
 import type { PluginContext } from '@kubb/core'
 import type { OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
-import type { FormMeta } from '../parsers/index.ts'
+import type { FormKeyword, FormMeta } from '../parsers/index.ts'
 import { camelCase } from 'change-case'
 
 type Options = {
   withJSDocs?: boolean
   resolveName: PluginContext['resolveName']
+  mapper?: Record<FormKeyword, string>
 }
 export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, string[]> {
   // Collect the types of all referenced schemas so we can export them later
@@ -43,7 +44,7 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       }`)
     }
 
-    const zodOutput = formParser(zodInput)
+    const zodOutput = formParser(zodInput, { mapper: this.options.mapper })
 
     texts.push(zodOutput)
 
