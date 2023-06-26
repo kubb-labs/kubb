@@ -4,7 +4,6 @@ on:
   push:
     branches:    
       - main
-      - next
       - 'releases/**'
   workflow_dispatch:
   
@@ -19,6 +18,15 @@ jobs:
       #  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
  
       steps:
+        - name: Release
+          uses: google-github-actions/release-please-action@v3
+          id: release
+          with:
+            command: manifest
+            monorepo-tags: true
+            token: ${{secrets.GITHUB_TOKEN}}
+            default-branch: main
+            
         - name: Check out code
           uses: actions/checkout@v3
           with:
@@ -57,23 +65,25 @@ jobs:
 
         - name: Upload coverage reports to Codecov
           uses: codecov/codecov-action@v3
+          if: ${{ steps.release.outputs.releases_created }}
           env:
              CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-        - name: Release next
+        - name: Release
           continue-on-error: true
-          if: ${{ success() && github.ref == 'refs/heads/next' && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
+          if: ${{ steps.release.outputs.releases_created && success() && github.ref == 'refs/heads/main' && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          run: bun run release:next
+          run: bun run release
 
-        - name: Release
+        - name: Release canary
           continue-on-error: true
           if: ${{ success() && github.ref == 'refs/heads/main' && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          run: bun run release
+          run: |
+            bun run release:canary --concurrency=1
