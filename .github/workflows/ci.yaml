@@ -18,16 +18,6 @@ jobs:
       #  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
  
       steps:
-        - name: Release
-          uses: google-github-actions/release-please-action@v3
-          id: release
-          continue-on-error: true
-          with:
-            command: manifest
-            monorepo-tags: true
-            token: ${{secrets.GITHUB_TOKEN}}
-            default-branch: main
-            
         - name: Check out code
           uses: actions/checkout@v3
           with:
@@ -66,12 +56,11 @@ jobs:
 
         - name: Upload coverage reports to Codecov
           uses: codecov/codecov-action@v3
-          if: ${{ steps.release.outputs.releases_created }}
           env:
              CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
         - name: Release
-          id: releaseNpm
+          id: release
           continue-on-error: true
           if: ${{ success() && github.ref == 'refs/heads/main' && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
           env:
@@ -82,7 +71,7 @@ jobs:
 
         - name: Release canary
           continue-on-error: true
-          if: steps.releaseNpm.outcome == 'failure'
+          if: steps.release.outcome == 'failure'
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,4 +1,4 @@
-name: Pull request
+name: pr
 
 on:
   pull_request:
