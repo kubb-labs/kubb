@@ -16,32 +16,6 @@
 * use of `exports` for the fileManager ([e0582ee](https://github.com/kubb-project/kubb/commit/e0582eef921d10d3fc35af8a802ef2d81f790639))
 
 
-### 🐞 Bug Fixes
-
-* `fakerParser`, `formParser` and `zodParser` with custom mapper ([77151ba](https://github.com/kubb-project/kubb/commit/77151ba528759a032d8b86db98694c28a232be16))
-* `z.union` does not work on a single element ([a646a5c](https://github.com/kubb-project/kubb/commit/a646a5c96854d8d8395e26758c3cf4fad35633f5))
-* add types to mocks based on `@kubb/swagger-ts` ([5b51fe0](https://github.com/kubb-project/kubb/commit/5b51fe01b237f99b801bb76d9bb71578dba70113))
-* advanced queue ([e8e90b9](https://github.com/kubb-project/kubb/commit/e8e90b9cbeadad793b759a174641874dc39c2c01))
-* correct use of `path.resolve` so windows can transform / to \ ([a4052e2](https://github.com/kubb-project/kubb/commit/a4052e24ec57e3920a6285d1b4bee9570f2e4e9f))
-* correct use of params ([2352c51](https://github.com/kubb-project/kubb/commit/2352c511fc7fd76adfed1260773c3f6fdee3b23a))
-* date, email uri, nullish and uui support for `zod` ([63bb669](https://github.com/kubb-project/kubb/commit/63bb669fc7f1fc58095fe620c612cceef7404592))
-* default for Zod and TypeScript ([6602116](https://github.com/kubb-project/kubb/commit/660211670f9f4ea9e76ec482629844801050dc92))
-* drop of node 16 in favour of node 18 as minimum version ([f4112ef](https://github.com/kubb-project/kubb/commit/f4112efc4abc3a95e50b58a3fa925c7425d911dd))
-* duplicate import names ([7a8e6fa](https://github.com/kubb-project/kubb/commit/7a8e6fa3f00e37c771b15fb0287adc1dd166acb7))
-* enums for `Zod` cannot have min/max ([79b8374](https://github.com/kubb-project/kubb/commit/79b8374d76063bf89e3a48fdef7ebea0aa84c808))
-* init cli ([2f79cb0](https://github.com/kubb-project/kubb/commit/2f79cb08141f924b3c3834183fbe97b197acef20))
-* no fileManager needed for OperationGenerator + this.addFile change with multiParams ([cde8225](https://github.com/kubb-project/kubb/commit/cde8225a5207360bd17f4ede66ce2a07d5dfd53d))
-* oneOf and allOf should check if properties exists(else we have a z.any/any) ([1914b6a](https://github.com/kubb-project/kubb/commit/1914b6a25e8266eb635459c4e9354b33df4fc4ad))
-* pluginManager with `api` config will now be an function so the `core` functionality is accessible when using `this` ([4306318](https://github.com/kubb-project/kubb/commit/43063189a1a18ed2aca23b0505d3163aeddbc2ef))
-* ref.name ?? ref.propertyName so unique names can be used ([4df0984](https://github.com/kubb-project/kubb/commit/4df0984f3131b85146edda0c10ab7d4e1fec87d1))
-* remove `lodash` dependency ([8729ef8](https://github.com/kubb-project/kubb/commit/8729ef8f3f3d487b7c239f015e8321aabe17bd3b))
-* remove propdrilling of directory ([99b8016](https://github.com/kubb-project/kubb/commit/99b801658a514a223e590d14f7d7729e85391ffc))
-* resolvePath and resolveName sync ([935ca2a](https://github.com/kubb-project/kubb/commit/935ca2a137006d9a59ef276e16f54770391b0a42))
-* use of camelCaseTransformMerge for every camelcase transform ([69f77ec](https://github.com/kubb-project/kubb/commit/69f77ecb45d62c14cb5ec7724cc64c9fe63a2365))
-* writeIndexes without write, use of the filemanager instead ([5359521](https://github.com/kubb-project/kubb/commit/53595216451a21f25a8687e564c16f4d13d1f594))
-* zod import without 'default export' ([c703153](https://github.com/kubb-project/kubb/commit/c7031534279ebe99ab5b9926eb2d57b2458ad4ab))
-
-
 ### 📚 Documentation
 
 * documentation for client and globals ([8f2b478](https://github.com/kubb-project/kubb/commit/8f2b478f91f307d7b322466bf623f9f8d192b876))
@@ -71,11 +45,31 @@
 * release 1.4.0 ([fc0de82](https://github.com/kubb-project/kubb/commit/fc0de826f94c2ff933dd2cefe26168ea6fcf8c3b))
 * release 1.4.0 ([b1d4561](https://github.com/kubb-project/kubb/commit/b1d456179bc4415168142939b4be64b225a4870f))
 
-## [1.4.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.3.3..@kubb/swagger-zod-v1.4.0) (2023-06-27)
 
-### 📦 Miscellaneous Chores
+### 🐞 Bug Fixes
 
-* **@kubb/swagger-zod:** Synchronize undefined versions
+* `fakerParser`, `formParser` and `zodParser` with custom mapper ([77151ba](https://github.com/kubb-project/kubb/commit/77151ba528759a032d8b86db98694c28a232be16))
+* `z.union` does not work on a single element ([a646a5c](https://github.com/kubb-project/kubb/commit/a646a5c96854d8d8395e26758c3cf4fad35633f5))
+* add types to mocks based on `@kubb/swagger-ts` ([5b51fe0](https://github.com/kubb-project/kubb/commit/5b51fe01b237f99b801bb76d9bb71578dba70113))
+* advanced queue ([e8e90b9](https://github.com/kubb-project/kubb/commit/e8e90b9cbeadad793b759a174641874dc39c2c01))
+* correct use of `path.resolve` so windows can transform / to \ ([a4052e2](https://github.com/kubb-project/kubb/commit/a4052e24ec57e3920a6285d1b4bee9570f2e4e9f))
+* correct use of params ([2352c51](https://github.com/kubb-project/kubb/commit/2352c511fc7fd76adfed1260773c3f6fdee3b23a))
+* date, email uri, nullish and uui support for `zod` ([63bb669](https://github.com/kubb-project/kubb/commit/63bb669fc7f1fc58095fe620c612cceef7404592))
+* default for Zod and TypeScript ([6602116](https://github.com/kubb-project/kubb/commit/660211670f9f4ea9e76ec482629844801050dc92))
+* drop of node 16 in favour of node 18 as minimum version ([f4112ef](https://github.com/kubb-project/kubb/commit/f4112efc4abc3a95e50b58a3fa925c7425d911dd))
+* duplicate import names ([7a8e6fa](https://github.com/kubb-project/kubb/commit/7a8e6fa3f00e37c771b15fb0287adc1dd166acb7))
+* enums for `Zod` cannot have min/max ([79b8374](https://github.com/kubb-project/kubb/commit/79b8374d76063bf89e3a48fdef7ebea0aa84c808))
+* init cli ([2f79cb0](https://github.com/kubb-project/kubb/commit/2f79cb08141f924b3c3834183fbe97b197acef20))
+* no fileManager needed for OperationGenerator + this.addFile change with multiParams ([cde8225](https://github.com/kubb-project/kubb/commit/cde8225a5207360bd17f4ede66ce2a07d5dfd53d))
+* oneOf and allOf should check if properties exists(else we have a z.any/any) ([1914b6a](https://github.com/kubb-project/kubb/commit/1914b6a25e8266eb635459c4e9354b33df4fc4ad))
+* pluginManager with `api` config will now be an function so the `core` functionality is accessible when using `this` ([4306318](https://github.com/kubb-project/kubb/commit/43063189a1a18ed2aca23b0505d3163aeddbc2ef))
+* ref.name ?? ref.propertyName so unique names can be used ([4df0984](https://github.com/kubb-project/kubb/commit/4df0984f3131b85146edda0c10ab7d4e1fec87d1))
+* remove `lodash` dependency ([8729ef8](https://github.com/kubb-project/kubb/commit/8729ef8f3f3d487b7c239f015e8321aabe17bd3b))
+* remove propdrilling of directory ([99b8016](https://github.com/kubb-project/kubb/commit/99b801658a514a223e590d14f7d7729e85391ffc))
+* resolvePath and resolveName sync ([935ca2a](https://github.com/kubb-project/kubb/commit/935ca2a137006d9a59ef276e16f54770391b0a42))
+* uniqueId per plugin ([b170dd8](https://github.com/kubb-project/kubb/commit/b170dd80433852c7c7dfe462c737c8abd11f8d6d))
+* use of camelCaseTransformMerge for every camelcase transform ([69f77ec](https://github.com/kubb-project/kubb/commit/69f77ecb45d62c14cb5ec7724cc64c9fe63a2365))
+* zod import without 'default export' ([c703153](https://github.com/kubb-project/kubb/commit/c7031534279ebe99ab5b9926eb2d57b2458ad4ab))
 
 ## [1.3.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.3.2...@kubb/swagger-zod-v1.3.3) (2023-06-27)
 

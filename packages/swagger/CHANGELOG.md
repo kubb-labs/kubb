@@ -63,13 +63,6 @@
 * release 1.4.0 ([fc0de82](https://github.com/kubb-project/kubb/commit/fc0de826f94c2ff933dd2cefe26168ea6fcf8c3b))
 * release 1.4.0 ([b1d4561](https://github.com/kubb-project/kubb/commit/b1d456179bc4415168142939b4be64b225a4870f))
 
-## [1.4.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.3.2...@kubb/swagger-v1.4.0) (2023-06-25)
-
-
-### Miscellaneous Chores
-
-* **@kubb/swagger:** Synchronize undefined versions
-
 ## [1.3.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.3.2...@kubb/swagger-v1.3.3) (2023-06-27)
 
 
