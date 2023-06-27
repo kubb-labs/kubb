@@ -1,12 +1,12 @@
 import type { Path } from '@kubb/core'
 
-type Import = {
+export type Import = {
   name: string | string[]
   path: string
   isTypeOnly?: boolean
 }
 
-type Export = {
+export type Export = {
   name?: string | string[]
   path: string
   isTypeOnly?: boolean

@@ -46,7 +46,7 @@ export class FakerBuilder extends OasBuilder<Config> {
       .filter((operationSchema) => (name ? operationSchema.name === name : true))
       .sort(nameSorter)
       .map((operationSchema) => {
-        const generator = new FakerGenerator(this.oas, {
+        const generator = new FakerGenerator({
           withJSDocs: this.config.withJSDocs,
           resolveName: this.config.resolveName,
           fileResolver: this.config.fileResolver,

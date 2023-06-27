@@ -6,7 +6,7 @@ import { fakerKeywords, fakerParser } from '../parsers/index.ts'
 import { pluginName } from '../plugin.ts'
 
 import type { PluginContext } from '@kubb/core'
-import type { FileResolver, ImportMeta, Oas, OpenAPIV3, Refs } from '@kubb/swagger'
+import type { FileResolver, ImportMeta, OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
 import type { FakerKeyword, FakerMeta } from '../parsers/index.ts'
 import { camelCase } from 'change-case'
@@ -29,7 +29,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
   // Keep track of already used type aliases
   usedAliasNames: Record<string, number> = {}
 
-  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, resolveName: ({ name }) => name }) {
+  constructor(options: Options = { withJSDocs: true, resolveName: ({ name }) => name }) {
     super(options)
 
     return this
@@ -98,14 +98,14 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
    * Recursively creates a type literal with the given props.
    */
   private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, _baseName?: string): FakerMeta[] {
-    const props = baseSchema?.properties || {}
+    const properties = baseSchema?.properties || {}
     const additionalProperties = baseSchema?.additionalProperties
 
-    const objectMembers = Object.keys(props)
+    const objectMembers = Object.keys(properties)
       .map((name) => {
         const validationFunctions: FakerMeta[] = []
 
-        const schema = props[name] as OpenAPIV3.SchemaObject
+        const schema = properties[name] as OpenAPIV3.SchemaObject
 
         validationFunctions.push(...this.getTypeFromSchema(schema, name))
 

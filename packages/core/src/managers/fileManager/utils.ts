@@ -94,14 +94,20 @@ export function combineFiles(files: Array<File | null>): File[] {
     return acc
   }, [] as File[])
 }
+/**
+ * Support for js, ts and tsx(React)
+ */
+export type Extension = '.ts' | '.js' | '.tsx'
+export const extensions: Array<Extension> = ['.js', '.ts', '.tsx']
 
-export type Extension = '.ts' | '.js'
-export const extensions: Array<Extension> = ['.js', '.ts']
+export function isExtensionAllowed(fileName: string): boolean {
+  return extensions.some((extension) => fileName.endsWith(extension))
+}
 
 export function getFileSource(file: File): string {
   let { source } = file
 
-  if (!extensions.some((extension) => file.fileName.endsWith(extension))) {
+  if (!isExtensionAllowed(file.fileName)) {
     return file.source
   }
   const imports: File['imports'] = []

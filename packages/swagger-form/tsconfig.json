@@ -1,0 +1,81 @@
+{
+  "extends": "@kubb/ts-config/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    // "composite": true,
+    // "rootDir": "./",
+    // "outDir": "./dist",
+    // "tsBuildInfoFile": "./build/.tsbuildinfo"
+    // add paths also here because when set with `base.json` it will use the `./dist` folder instead of `./src`.
+    "types": [
+      "vitest/globals",
+      "bun-types",
+      "@kubb/core/globals",
+      "@kubb/swagger-client/globals",
+      "@kubb/ts-config/reset"
+    ],
+    "paths": {
+      "@kubb/cli": [
+        "../cli/src/index.ts"
+      ],
+      "@kubb/eslint-config": [
+        "../config/eslint-config/src/index.ts"
+      ],
+      "@kubb/tsup-config": [
+        "../config/tsup-config/src/index.ts"
+      ],
+      "@kubb/ts-config": [
+        "../config/ts-config/src/index.ts"
+      ],
+      "@kubb/core": [
+        "../core/src/index.ts"
+      ],
+      "@kubb/swagger": [
+        "../swagger/src/index.ts"
+      ],
+      "@kubb/swagger-client": [
+        "../swagger-client/src/index.ts"
+      ],
+      "@kubb/swagger-client/client": [
+        "../swagger-client/client.ts"
+      ],
+      "@kubb/swagger-client/ts-client": [
+        "../swagger-client/client.ts"
+      ],
+      "@kubb/swagger-faker": [
+        "../swagger-faker/src/index.ts"
+      ],
+      "@kubb/swagger-tanstack-query": [
+        "../swagger-tanstack-query/src/index.ts"
+      ],
+      "@kubb/swagger-ts": [
+        "../swagger-ts/src/index.ts"
+      ],
+      "@kubb/swagger-zod": [
+        "../swagger-zod/src/index.ts"
+      ],
+      "@kubb/swagger-zodios": [
+        "../swagger-zodios/src/index.ts"
+      ],
+      "@kubb/ts-codegen": [
+        "../ts-codegen/src/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "./package.json",
+    "./tsup.config.ts",
+    "./vitest.config.ts"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/types/**"
+  ],
+  // "references": [
+  //   { "path": "../core" },
+  //   { "path": "../swagger" },
+  //   { "path": "../ts-codegen" },
+  //   { "path": "../swagger-ts"}
+  // ]
+}

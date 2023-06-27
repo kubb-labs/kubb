@@ -147,17 +147,21 @@ function fakerKeywordSorter(a: FakerMeta, b: FakerMeta) {
   return 0
 }
 
-export function parseFakerMeta(item: FakerMeta): string {
+export function parseFakerMeta(item: FakerMeta, mapper: Record<FakerKeyword, string> = fakerKeywordMapper): string {
   // eslint-disable-next-line prefer-const
   let { keyword, args } = (item || {}) as FakerMetaBase<unknown>
-  const value = fakerKeywordMapper[keyword]
+  const value = mapper[keyword]
 
   if (keyword === fakerKeywords.tuple || keyword === fakerKeywords.array || keyword === fakerKeywords.union) {
-    return `${value}(${Array.isArray(args) ? `[${args.map(parseFakerMeta).join(',')}]` : parseFakerMeta(args as FakerMeta)}) as any`
+    return `${value}(${
+      Array.isArray(args) ? `[${args.map((item) => parseFakerMeta(item as FakerMeta, mapper)).join(',')}]` : parseFakerMeta(args as FakerMeta)
+    }) as any`
   }
 
   if (keyword === fakerKeywords.and) {
-    return `${value}({},${Array.isArray(args) ? `${args.map(parseFakerMeta).join(',')}` : parseFakerMeta(args as FakerMeta)})`
+    return `${value}({},${
+      Array.isArray(args) ? `${args.map((item) => parseFakerMeta(item as FakerMeta, mapper)).join(',')}` : parseFakerMeta(args as FakerMeta)
+    })`
   }
 
   if (keyword === fakerKeywords.enum) {
@@ -178,9 +182,12 @@ export function parseFakerMeta(item: FakerMeta): string {
         return schema && typeof schema.map === 'function'
       })
       .map((item) => {
-        const key = item[0]
+        const name = item[0]
         const schema = item[1] as FakerMeta[]
-        return `"${key}": ${schema.sort(fakerKeywordSorter).map(parseFakerMeta).join('')}`
+        return `"${name}": ${schema
+          .sort(fakerKeywordSorter)
+          .map((item) => parseFakerMeta(item, mapper))
+          .join('')}`
       })
       .join(',')
 
@@ -204,7 +211,7 @@ export function parseFakerMeta(item: FakerMeta): string {
   return '""'
 }
 
-export function fakerParser(items: FakerMeta[], options: { name: string; typeName?: string | null }): string {
+export function fakerParser(items: FakerMeta[], options: { mapper?: Record<FakerKeyword, string>; name: string; typeName?: string | null }): string {
   if (!items.length) {
     return `
       export function ${options.name}()${options.typeName ? `: ${options.typeName}` : ''} {
@@ -215,7 +222,7 @@ export function fakerParser(items: FakerMeta[], options: { name: string; typeNam
 
   return `
     export function ${options.name}()${options.typeName ? `: ${options.typeName}` : ''} {
-      return ${items.map(parseFakerMeta).join('')};
+      return ${items.map((item) => parseFakerMeta(item, { ...fakerKeywordMapper, ...options.mapper })).join('')};
     }
   `
 }

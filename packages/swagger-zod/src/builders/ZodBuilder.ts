@@ -46,7 +46,7 @@ export class ZodBuilder extends OasBuilder<Config> {
       .filter((operationSchema) => (name ? operationSchema.name === name : true))
       .sort(nameSorter)
       .map((operationSchema) => {
-        const generator = new ZodGenerator(this.oas, { withJSDocs: this.config.withJSDocs, resolveName: this.config.resolveName })
+        const generator = new ZodGenerator({ withJSDocs: this.config.withJSDocs, resolveName: this.config.resolveName })
         const sources = generator.build({ schema: operationSchema.schema, baseName: operationSchema.name, description: operationSchema.description })
         return {
           import: {

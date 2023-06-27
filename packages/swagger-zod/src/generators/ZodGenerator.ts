@@ -5,7 +5,7 @@ import { zodKeywords, zodParser } from '../parsers/index.ts'
 import { pluginName } from '../plugin.ts'
 
 import type { PluginContext } from '@kubb/core'
-import type { Oas, OpenAPIV3, Refs } from '@kubb/swagger'
+import type { OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
 import type { ZodMeta } from '../parsers/index.ts'
 import { camelCase } from 'change-case'
@@ -25,7 +25,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   // Keep track of already used type aliases
   usedAliasNames: Record<string, number> = {}
 
-  constructor(public readonly oas: Oas, options: Options = { withJSDocs: true, resolveName: ({ name }) => name }) {
+  constructor(options: Options = { withJSDocs: true, resolveName: ({ name }) => name }) {
     super(options)
 
     return this
@@ -66,15 +66,15 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
    * Recursively creates a type literal with the given props.
    */
   private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string): ZodMeta[] {
-    const props = baseSchema?.properties || {}
+    const properties = baseSchema?.properties || {}
     const required = baseSchema?.required
     const additionalProperties = baseSchema?.additionalProperties
 
-    const objectMembers = Object.keys(props)
+    const objectMembers = Object.keys(properties)
       .map((name) => {
         const validationFunctions: ZodMeta[] = []
 
-        const schema = props[name] as OpenAPIV3.SchemaObject
+        const schema = properties[name] as OpenAPIV3.SchemaObject
         const isRequired = required && required.includes(name)
 
         validationFunctions.push(...this.getTypeFromSchema(schema, name))

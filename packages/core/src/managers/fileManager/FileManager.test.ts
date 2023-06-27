@@ -18,7 +18,7 @@ describe('FileManager', () => {
       source: '',
     })
 
-    expect(fileManager.extensions).toEqual(['.js', '.ts'])
+    expect(fileManager.extensions).toEqual(['.js', '.ts', '.tsx'])
     expect(fileManager.files.length).toBe(2)
   })
 

@@ -47,7 +47,7 @@ export class TypeBuilder extends OasBuilder<Config> {
       .filter((operationSchema) => (name ? operationSchema.name === name : true))
       .sort(nameSorter)
       .map((operationSchema) => {
-        const generator = new TypeGenerator(this.oas, {
+        const generator = new TypeGenerator({
           withJSDocs: this.config.withJSDocs,
           resolveName: this.config.resolveName,
           enumType: this.config.enumType,
