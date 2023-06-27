@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/kubb-project/kubb/compare/kubb-v1.3.3...kubb-v1.4.0) (2023-06-27)
+
+
+### 🐞 Bug Fixes
+
+* update packages ([8b5a483](https://github.com/kubb-project/kubb/commit/8b5a4836d13009138d94f2af236a9fa0bec50c6d))
+
 ## [1.3.3](https://github.com/kubb-project/kubb/compare/kubb-v1.3.2...kubb-v1.3.3) (2023-06-27)
 
 

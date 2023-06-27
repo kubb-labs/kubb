@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.3.3...@kubb/swagger-v1.4.0) (2023-06-27)
+
+
+### 📚 Documentation
+
+* react-hook-form + data-driven-forms example ([df538f9](https://github.com/kubb-project/kubb/commit/df538f95763976c2fe544c761b13288b62b182ef))
+
+
+### 🐞 Bug Fixes
+
+* update packages ([8b5a483](https://github.com/kubb-project/kubb/commit/8b5a4836d13009138d94f2af236a9fa0bec50c6d))
+
 ## [1.3.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.3.2...@kubb/swagger-v1.3.3) (2023-06-27)
 
 

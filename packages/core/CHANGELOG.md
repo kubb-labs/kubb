@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.3.3...@kubb/core-v1.4.0) (2023-06-27)
+
+
+### ✨ Features
+
+* ✨ `swagger-form` FormGenerator and FormParser ([6424e5f](https://github.com/kubb-project/kubb/commit/6424e5f48960a24313e4ce2c115fd58af3cde814))
+
+
+### 📚 Documentation
+
+* react-hook-form + data-driven-forms example ([df538f9](https://github.com/kubb-project/kubb/commit/df538f95763976c2fe544c761b13288b62b182ef))
+* update docs ([a246bb1](https://github.com/kubb-project/kubb/commit/a246bb1171a95ba9d639468c5f8214573bd33513))
+
 ## [1.3.3](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.3.2...@kubb/core-v1.3.3) (2023-06-27)
 
 

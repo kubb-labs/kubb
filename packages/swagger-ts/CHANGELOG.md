@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.3.3...@kubb/swagger-ts-v1.4.0) (2023-06-27)
+
+
+### ✨ Features
+
+* ✨ `swagger-form` FormGenerator and FormParser ([6424e5f](https://github.com/kubb-project/kubb/commit/6424e5f48960a24313e4ce2c115fd58af3cde814))
+
 ## [1.3.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.3.2...@kubb/swagger-ts-v1.3.3) (2023-06-27)
 
 
