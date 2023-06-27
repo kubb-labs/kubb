@@ -241,17 +241,17 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zodios
       '@tanstack/react-query':
-        specifier: ^4.29.18
-        version: 4.29.18(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^4.29.19
+        version: 4.29.19(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/solid-query':
-        specifier: ^4.29.17
-        version: 4.29.17(solid-js@1.7.7)
+        specifier: ^4.29.19
+        version: 4.29.19(solid-js@1.7.7)
       '@tanstack/svelte-query':
-        specifier: ^4.29.17
-        version: 4.29.17(svelte@3.54.0)
+        specifier: ^4.29.19
+        version: 4.29.19(svelte@4.0.0)
       '@tanstack/vue-query':
-        specifier: ^4.29.18
-        version: 4.29.18(vue@3.3.4)
+        specifier: ^4.29.19
+        version: 4.29.19(vue@3.3.4)
       '@zodios/core':
         specifier: ^10.9.2
         version: 10.9.2(axios@1.4.0)(zod@3.21.4)
@@ -268,14 +268,11 @@ importers:
         specifier: ^1.7.7
         version: 1.7.7
       svelte:
-        specifier: ^3.54.0
-        version: 3.54.0
+        specifier: ~4.0.0
+        version: 4.0.0
       swr:
         specifier: ^2.2.0
         version: 2.2.0(react@18.2.0)
-      tsup:
-        specifier: ^7.1.0
-        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
       vue:
         specifier: ^3.3.4
         version: 3.3.4
@@ -286,6 +283,9 @@ importers:
       '@kubb/ts-config':
         specifier: workspace:*
         version: link:../../packages/config/ts-config
+      tsup:
+        specifier: ^7.1.0
+        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -464,8 +464,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-ts
       '@tanstack/react-query':
-        specifier: ^4.29.18
-        version: 4.29.18(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^4.29.19
+        version: 4.29.19(react-dom@18.2.0)(react@18.2.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -519,8 +519,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-ts
       '@tanstack/react-query':
-        specifier: ^4.29.18
-        version: 4.29.18(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^4.29.19
+        version: 4.29.19(react-dom@18.2.0)(react@18.2.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -555,8 +555,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/solid-query':
-        specifier: ^4.29.17
-        version: 4.29.17(solid-js@1.7.7)
+        specifier: ^4.29.19
+        version: 4.29.19(solid-js@1.7.7)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -598,14 +598,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/svelte-query':
-        specifier: ^4.29.17
-        version: 4.29.17(svelte@3.54.0)
+        specifier: ^4.29.19
+        version: 4.29.19(svelte@4.0.0)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
       svelte:
-        specifier: ^3.54.0
-        version: 3.54.0
+        specifier: ~4.0.0
+        version: 4.0.0
       tsup:
         specifier: ^7.1.0
         version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
@@ -702,14 +702,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
-        specifier: ^4.29.18
-        version: 4.29.18(vue@3.3.4)
+        specifier: ^4.29.19
+        version: 4.29.19(vue@3.3.4)
       axios:
         specifier: ^1.4.0
         version: 1.4.0
-      tsup:
-        specifier: ^7.1.0
-        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
       vue:
         specifier: ^3.3.4
         version: 3.3.4
@@ -717,6 +714,9 @@ importers:
       '@kubb/ts-config':
         specifier: workspace:*
         version: link:../../packages/config/ts-config
+      tsup:
+        specifier: ^7.1.0
+        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -787,9 +787,6 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.2.0
-      tsup:
-        specifier: ^7.1.0
-        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
       zod:
         specifier: ^3.21.4
         version: 3.21.4
@@ -797,6 +794,9 @@ importers:
       '@kubb/ts-config':
         specifier: workspace:*
         version: link:../../packages/config/ts-config
+      tsup:
+        specifier: ^7.1.0
+        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
       typescript:
         specifier: ^5.1.3
         version: 5.1.3
@@ -3002,8 +3002,8 @@ packages:
     resolution: {integrity: sha512-Recc1d5rjHesKhzlH3Aw66v+vQxtB9OHEXP/vxgEcEJ0DwEpfe3EQ4id20vuBJHY2XRjfgWGmUs6ZgK6PSsTXA==}
     dev: false
 
-  /@tanstack/query-core@4.29.17:
-    resolution: {integrity: sha512-iDbO8yZOpm1lqgq6L8mpxGbKaoiyZSjthxEB3WGU7mNPYss9q4H3Q67+e2xXGwkemEVmtEX/WwvtFitrvVU8TA==}
+  /@tanstack/query-core@4.29.19:
+    resolution: {integrity: sha512-uPe1DukeIpIHpQi6UzIgBcXsjjsDaLnc7hF+zLBKnaUlh7jFE/A+P8t4cU4VzKPMFB/C970n/9SxtpO5hmIRgw==}
     dev: false
 
   /@tanstack/react-query@4.29.15(react@18.2.0):
@@ -3023,8 +3023,8 @@ packages:
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/react-query@4.29.18(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-CyoxrT8U7MWLZOdl0XLCiHC+W5cnXNELafFtzcsrwrALiUulONEfWFl6TzgvENfhC50OBjVGy/6Yl3YsIhAM6g==}
+  /@tanstack/react-query@4.29.19(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-XiTIOHHQ5Cw1WUlHaD4fmVUMhoWjuNJlAeJGq7eM4BraI5z7y8WkZO+NR8PSuRnQGblpuVdjClQbDFtwxTtTUw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -3035,7 +3035,7 @@ packages:
       react-native:
         optional: true
     dependencies:
-      '@tanstack/query-core': 4.29.17
+      '@tanstack/query-core': 4.29.19
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       use-sync-external-store: 1.2.0(react@18.2.0)
@@ -3050,12 +3050,12 @@ packages:
       solid-js: 1.7.6
     dev: false
 
-  /@tanstack/solid-query@4.29.17(solid-js@1.7.7):
-    resolution: {integrity: sha512-z2HNuvHmvJ8oqKj3Up/ZVqb5zHWY1jyfhHH6eunn25vYlOl3zKRnzT8USPwmO6Ny3UfKUxVYsvpiVfmh6FeKcQ==}
+  /@tanstack/solid-query@4.29.19(solid-js@1.7.7):
+    resolution: {integrity: sha512-RumbsioKk/eP3GSw5CDBTcBpPKxK7jH4w3EcxEqJLo4qgSpU3P6ikH3ihete4jBPzpf18NawKtkwCk7MXWchZQ==}
     peerDependencies:
       solid-js: ^1.5.7
     dependencies:
-      '@tanstack/query-core': 4.29.17
+      '@tanstack/query-core': 4.29.19
       solid-js: 1.7.7
     dev: false
 
@@ -3068,13 +3068,13 @@ packages:
       svelte: 3.54.0
     dev: false
 
-  /@tanstack/svelte-query@4.29.17(svelte@3.54.0):
-    resolution: {integrity: sha512-/4m5IAf1EYmKSk89noe4cTQTsn5kysRDp/A/ln8I2KBmmBH14EhqbKlVwy/6nC13y32SrUF8LOM+S2CvKY7MsA==}
+  /@tanstack/svelte-query@4.29.19(svelte@4.0.0):
+    resolution: {integrity: sha512-1d8kqEfjULf7L/mNgNe8HUsGy8G71YRNKAQVDrEpaqtCk1i2LE1d09vJ4WTCO6Low37q3f5WNQQutqW3vZU14Q==}
     peerDependencies:
       svelte: ^3.54.0
     dependencies:
-      '@tanstack/query-core': 4.29.17
-      svelte: 3.54.0
+      '@tanstack/query-core': 4.29.19
+      svelte: 4.0.0
     dev: false
 
   /@tanstack/vue-query@4.29.15(vue@3.3.4):
@@ -3093,8 +3093,8 @@ packages:
       vue-demi: 0.13.11(vue@3.3.4)
     dev: false
 
-  /@tanstack/vue-query@4.29.18(vue@3.3.4):
-    resolution: {integrity: sha512-4lBbseNR+ScWMLa5wZpKXQ1n6SSCXO7dChHs3WbYkP9fR3EC9B7RzhXI/OttRD2FGaL1kUOy4HDZMpAK8fkXsg==}
+  /@tanstack/vue-query@4.29.19(vue@3.3.4):
+    resolution: {integrity: sha512-5Vc+MMLWhGmiOCwoYc4wBDKIwbGl7pTQ02w4X9V+yat5l837VbHb7JIjMNvycMfSEyTKZMQfM9ygY9U3b0pOTg==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.5.0 || ^3.0.0
@@ -3103,7 +3103,7 @@ packages:
         optional: true
     dependencies:
       '@tanstack/match-sorter-utils': 8.8.4
-      '@tanstack/query-core': 4.29.17
+      '@tanstack/query-core': 4.29.19
       '@vue/devtools-api': 6.5.0
       vue: 3.3.4
       vue-demi: 0.13.11(vue@3.3.4)
@@ -3917,6 +3917,12 @@ packages:
   /argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
+  /aria-query@5.3.0:
+    resolution: {integrity: sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==}
+    dependencies:
+      dequal: 2.0.3
+    dev: false
+
   /array-back@3.1.0:
     resolution: {integrity: sha512-TkuxA4UCOvxuDK6NZYXCalszEzj+TLszyASooky+i742l9TqsOdYCMJJupxRic61hwquNtppB3hgcuq9SVSH1Q==}
     engines: {node: '>=6'}
@@ -4027,6 +4033,12 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
+
+  /axobject-query@3.2.1:
+    resolution: {integrity: sha512-jsyHu61e6N4Vbz/v18DHwWYKK0bSWLqn47eeDSKPB7m8tqMHF9YJ+mhIk2lVteyZrY8tnSj/jHOv4YiTCuCJgg==}
+    dependencies:
+      dequal: 2.0.3
+    dev: false
 
   /babel-plugin-macros@3.1.0:
     resolution: {integrity: sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg==}
@@ -4360,6 +4372,16 @@ packages:
     engines: {node: '>= 4'}
     dev: false
 
+  /code-red@1.0.3:
+    resolution: {integrity: sha512-kVwJELqiILQyG5aeuyKFbdsI1fmQy1Cmf7dQ8eGmVuJoaRVdwey7WaMknr2ZFeVSYSKT0rExsa8EGw0aoI/1QQ==}
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.4.15
+      '@types/estree': 1.0.1
+      acorn: 8.9.0
+      estree-walker: 3.0.3
+      periscopic: 3.1.0
+    dev: false
+
   /color-convert@1.9.3:
     resolution: {integrity: sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==}
     dependencies:
@@ -4561,6 +4583,14 @@ packages:
       domhandler: 4.3.1
       domutils: 2.8.0
       nth-check: 2.1.1
+    dev: false
+
+  /css-tree@2.3.1:
+    resolution: {integrity: sha512-6Fv1DV/TYw//QF5IzQdqsNDjx/wc8TrMBZsqjL9eW01tWb7R7k/mq+/VXfJCl7SoD5emsJop9cOByJZfs8hYIw==}
+    engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0}
+    dependencies:
+      mdn-data: 2.0.30
+      source-map-js: 1.0.2
     dev: false
 
   /css-what@6.1.0:
@@ -6845,6 +6875,10 @@ packages:
     engines: {node: '>=14'}
     dev: true
 
+  /locate-character@3.0.0:
+    resolution: {integrity: sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA==}
+    dev: false
+
   /locate-path@6.0.0:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
@@ -7186,6 +7220,10 @@ packages:
     resolution: {integrity: sha512-V4Zn/ncyN1QNSqSBxTrMOLpjr+IKdHl2v3KVLoWmDPscP4r9GcCi71gjgvUV1SFSKh92AjAG4peFuBl2/YgCJg==}
     dependencies:
       '@types/mdast': 3.0.11
+    dev: false
+
+  /mdn-data@2.0.30:
+    resolution: {integrity: sha512-GaqWWShW4kv/G9IEucWScBx9G1/vsFZZJUO+tD26M8J8z3Kw5RDQjaoZe03YAClgeS/SWPOcb4nkFBTEi5DUEA==}
     dev: false
 
   /memoizee@0.4.15:
@@ -9948,6 +9986,25 @@ packages:
   /svelte@3.54.0:
     resolution: {integrity: sha512-tdrgeJU0hob0ZWAMoKXkhcxXA7dpTg6lZGxUeko5YqvPdJBiyRspGsCwV27kIrbrqPP2WUoSV9ca0gnLlw8YzQ==}
     engines: {node: '>= 8'}
+    dev: false
+
+  /svelte@4.0.0:
+    resolution: {integrity: sha512-+yCYu3AEUu9n91dnQNGIbnVp8EmNQtuF/YImW4+FTXRHard7NMo+yTsWzggPAbj3fUEJ1FBJLkql/jkp6YB5pg==}
+    engines: {node: '>=16'}
+    dependencies:
+      '@ampproject/remapping': 2.2.1
+      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/trace-mapping': 0.3.18
+      acorn: 8.9.0
+      aria-query: 5.3.0
+      axobject-query: 3.2.1
+      code-red: 1.0.3
+      css-tree: 2.3.1
+      estree-walker: 3.0.3
+      is-reference: 3.0.1
+      locate-character: 3.0.0
+      magic-string: 0.30.0
+      periscopic: 3.1.0
     dev: false
 
   /swagger2openapi@7.0.8:
