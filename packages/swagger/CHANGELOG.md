@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.4.0...@kubb/swagger-v1.4.1) (2023-06-27)
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.4.1 ([9805506](https://github.com/kubb-project/kubb/commit/98055065a6931b96dc1038890eb56ebb0342818f))
+
 ## [1.4.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.4.0...@kubb/swagger-v1.4.0) (2023-06-27)
 
 
