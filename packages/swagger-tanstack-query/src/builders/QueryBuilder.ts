@@ -235,7 +235,7 @@ export class QueryBuilder extends OasBuilder<Config> {
       `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
       schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined,
     ].filter(Boolean)
-    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : undefined, framework === 'vue' ? 'unknown' : undefined].filter(Boolean)
+    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : 'void', framework === 'vue' ? 'unknown' : undefined].filter(Boolean)
     const options = [
       pathParamsTyped,
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',

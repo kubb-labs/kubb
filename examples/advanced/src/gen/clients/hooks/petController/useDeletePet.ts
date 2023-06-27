@@ -11,14 +11,14 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletePet400 } fro
 export function useDeletePet<TData = DeletePetMutationResponse, TError = DeletePet400>(
   petId: DeletePetPathParams['petId'],
   options?: {
-    mutation?: UseMutationOptions<TData, TError>
+    mutation?: UseMutationOptions<TData, TError, void>
   }
-): UseMutationResult<TData, TError> {
+): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions } = options ?? {}
 
-  return useMutation<TData, TError>({
+  return useMutation<TData, TError, void>({
     mutationFn: () => {
-      return client<TData, TError>({
+      return client<TData, TError, void>({
         method: 'delete',
         url: `/pet/${petId}`,
       })

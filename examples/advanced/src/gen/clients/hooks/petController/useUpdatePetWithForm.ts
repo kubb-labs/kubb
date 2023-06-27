@@ -16,14 +16,14 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options?: {
-    mutation?: UseMutationOptions<TData, TError>
+    mutation?: UseMutationOptions<TData, TError, void>
   }
-): UseMutationResult<TData, TError> {
+): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions } = options ?? {}
 
-  return useMutation<TData, TError>({
+  return useMutation<TData, TError, void>({
     mutationFn: () => {
-      return client<TData, TError>({
+      return client<TData, TError, void>({
         method: 'post',
         url: `/pet/${petId}`,
 
