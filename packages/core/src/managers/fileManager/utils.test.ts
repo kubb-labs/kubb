@@ -19,12 +19,14 @@ describe('FileManager utils', () => {
         },
       ],
     })
-    expect(format(code)).toMatchInlineSnapshot(`
-    "import type { Pets } from './Pets'
+    expect(format(code)).toMatch(
+      format(`
+    import type { Pets } from './Pets'
 
     export type Pet = Pets
-    "
+    
    `)
+    )
   })
 
   test('if getFileSource is returning code with imports and default import', () => {
@@ -40,12 +42,14 @@ describe('FileManager utils', () => {
         },
       ],
     })
-    expect(format(code)).toMatchInlineSnapshot(`
-    "import type Pets from './Pets'
+    expect(format(code)).toMatch(
+      format(`
+    import type Pets from './Pets'
 
     export type Pet = Pets
-    "
+    
    `)
+    )
   })
   test('if combineFiles is removing previouscode', () => {
     const combined = combineFiles([

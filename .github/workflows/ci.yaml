@@ -15,10 +15,6 @@ jobs:
       name: Build and Test
       timeout-minutes: 15
       runs-on: ubuntu-latest
-      # To use Remote Caching, uncomment the next lines and follow the steps below.
-      # env:
-      #  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      #  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
  
       steps:
         - name: Check out code
@@ -55,7 +51,7 @@ jobs:
           run: bun run typecheck --concurrency=1
 
         - name: Test
-          run: bun run test:coverage
+          run: bun run test
 
         - name: Upload coverage reports to Codecov
           uses: codecov/codecov-action@v3

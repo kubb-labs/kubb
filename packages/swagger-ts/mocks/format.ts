@@ -15,7 +15,7 @@ const formatOptions: Options = {
 }
 export function format(source?: string) {
   if (!source) {
-    return null
+    return ''
   }
   return prettierFormat(source, formatOptions)
 }

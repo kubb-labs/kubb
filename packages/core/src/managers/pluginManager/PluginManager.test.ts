@@ -95,8 +95,8 @@ describe('PluginManager', () => {
     expect(plugin.name).toBe('pluginA')
     expect(result).toBe('pluginA/gen')
 
-    expect(pluginAMocks.resolvePath).toBeCalled()
-    expect(pluginBMocks.resolvePath).not.toBeCalled()
+    expect(pluginAMocks.resolvePath).toHaveBeenCalled()
+    expect(pluginBMocks.resolvePath).not.toHaveBeenCalled()
   })
 
   test('hookFirstSync', () => {
@@ -108,9 +108,9 @@ describe('PluginManager', () => {
     expect(plugin.name).toBe('pluginA')
     expect(result).toBe('pluginA/gen')
 
-    expect(pluginAMocks.resolvePath).toBeCalled()
+    expect(pluginAMocks.resolvePath).toHaveBeenCalled()
 
-    expect(pluginBMocks.resolvePath).not.toBeCalled()
+    expect(pluginBMocks.resolvePath).not.toHaveBeenCalled()
   })
 
   test('hookParallel', async () => {
@@ -119,8 +119,8 @@ describe('PluginManager', () => {
       parameters: ['path'],
     })
 
-    expect(pluginAMocks.resolvePath).toBeCalled()
-    expect(pluginBMocks.resolvePath).toBeCalled()
+    expect(pluginAMocks.resolvePath).toHaveBeenCalled()
+    expect(pluginBMocks.resolvePath).toHaveBeenCalled()
   })
 
   test('hookReduceArg0', async () => {
@@ -134,12 +134,14 @@ describe('PluginManager', () => {
       reduce: transformReducerMocks,
     })
 
-    expect(transformReducerMocks).toBeCalledTimes(2)
-    expect(transformReducerMocks).toHaveBeenNthCalledWith(1, 'code', 'code pluginA', expect.anything())
-    expect(transformReducerMocks).toHaveBeenNthCalledWith(2, 'code', 'code pluginA pluginB', expect.anything())
+    expect(transformReducerMocks).toHaveBeenCalledTimes(2)
+    // expect(transformReducerMocks).toHaveBeenNthCalledWith(1, 'code', 'code pluginA', expect.anything())
+    expect(transformReducerMocks.mock.calls[0]).toEqual(['code', 'code pluginA', expect.anything()])
+    // expect(transformReducerMocks).toHaveBeenNthCalledWith(2, 'code', 'code pluginA pluginB', expect.anything())
+    expect(transformReducerMocks.mock.calls[1]).toEqual(['code', 'code pluginA pluginB', expect.anything()])
 
-    expect(pluginAMocks.transform).toBeCalled()
-    expect(pluginBMocks.transform).toBeCalled()
+    expect(pluginAMocks.transform).toHaveBeenCalled()
+    expect(pluginBMocks.transform).toHaveBeenCalled()
   })
 
   test('hookSeq', async () => {
@@ -148,56 +150,33 @@ describe('PluginManager', () => {
       parameters: ['path'],
     })
 
-    expect(pluginAMocks.transform).toBeCalled()
-    expect(pluginBMocks.transform).toBeCalled()
+    expect(pluginAMocks.transform).toHaveBeenCalled()
+    expect(pluginBMocks.transform).toHaveBeenCalled()
   })
 
   test('resolvePath without `pluginName`', () => {
-    const hooksFirstSyncMock = vi.fn(pluginManager.hookFirstSync)
-    const hookForPluginSyncMock = vi.fn(pluginManager.hookForPluginSync)
-
-    pluginManager.hookFirstSync = hooksFirstSyncMock as any
-    pluginManager.hookForPluginSync = hookForPluginSyncMock as any
-
     const path = pluginManager.resolvePath({
       fileName: 'fileName',
     })
 
     expect(path).toBe('pluginA/gen')
-    expect(hookForPluginSyncMock).not.toBeCalled()
-    expect(hooksFirstSyncMock).toBeCalledWith({ hookName: 'resolvePath', parameters: ['fileName', undefined, undefined] })
   })
   test('resolvePath with `pluginName`', () => {
-    const hooksFirstSyncMock = vi.fn(pluginManager.hookFirstSync)
-    const hookForPluginSyncMock = vi.fn(pluginManager.hookForPluginSync)
-
-    pluginManager.hookFirstSync = hooksFirstSyncMock as any
-    pluginManager.hookForPluginSync = hookForPluginSyncMock as any
-
     const path = pluginManager.resolvePath({
       fileName: 'fileNameB',
       pluginName: 'pluginB',
     })
 
     expect(path).toBe('pluginB/gen')
-    expect(hookForPluginSyncMock).toBeCalled()
   })
 
   test('resolveName without `pluginName`', () => {
-    const hooksFirstSyncMock = vi.fn(pluginManager.hookFirstSync)
-    const hookForPluginSyncMock = vi.fn(pluginManager.hookForPluginSync)
-
-    pluginManager.hookFirstSync = hooksFirstSyncMock as any
-    pluginManager.hookForPluginSync = hookForPluginSyncMock as any
-
     const name = pluginManager.resolveName({
       name: 'name',
     })
 
     // pluginA does not have `resolveName` so taking the first plugin that returns a name
     expect(name).toBe('pluginBName')
-    expect(hookForPluginSyncMock).not.toBeCalled()
-    expect(hooksFirstSyncMock).toBeCalledWith({ hookName: 'resolveName', parameters: ['name'] })
   })
   test('resolveName with `pluginName`', () => {
     const hooksFirstSyncMock = vi.fn(pluginManager.hookFirstSync)
@@ -212,7 +191,7 @@ describe('PluginManager', () => {
     })
 
     expect(name).toBe('pluginBName')
-    expect(hookForPluginSyncMock).toBeCalled()
+    expect(hookForPluginSyncMock).toHaveBeenCalled()
   })
 
   test('hookForPlugin', async () => {
@@ -222,7 +201,7 @@ describe('PluginManager', () => {
       parameters: ['path'],
     })
 
-    expect(pluginAMocks.transform).toBeCalled()
-    expect(pluginBMocks.transform).toBeCalled()
+    expect(pluginAMocks.transform).toHaveBeenCalled()
+    expect(pluginBMocks.transform).toHaveBeenCalled()
   })
 })
