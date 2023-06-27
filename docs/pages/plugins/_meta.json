@@ -5,11 +5,11 @@
   "swagger-ts": "@kubb/swagger-ts",
   "swagger-client": "@kubb/swagger-client",
   "swagger-tanstack-query": "@kubb/swagger-tanstack-query",
+  "swagger-swr": "@kubb/swagger-swr",
   "swagger-faker": "@kubb/swagger-faker",
-  "swagger-form": "@kubb/swagger-form",
   "swagger-zod": "@kubb/swagger-zod",
   "swagger-zodios": "@kubb/swagger-zodios",
-  "swagger-swr": "@kubb/swagger-swr",
   "ts-codegen": "@kubb/ts-codegen",
+  "swagger-form": "[beta] @kubb/swagger-form",
   "customize": "Customize"
 }
