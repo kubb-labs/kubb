@@ -71,7 +71,7 @@ jobs:
 
         - name: Release
           continue-on-error: true
-          if: ${{ steps.release.outputs.releases_created && success() && github.ref == 'refs/heads/main' && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
+          if: ${{ success() && github.ref == 'refs/heads/main' && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -86,4 +86,6 @@ jobs:
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           run: |
-            bun run release:canary --concurrency=1
+            npm --no-git-tag-version version minor
+            npm --no-git-tag-version version $(npm pkg get version | sed 's/"//g')-canary.$(date +'%Y%m%dT%H%M%S')
+            bun run release:canary
