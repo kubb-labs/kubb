@@ -20,7 +20,7 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy, withDevtools = false, overrides } = options
+  const { output = 'forms', groupBy, withDevtools = false, overrides } = options
   let swaggerApi: SwaggerApi
 
   return {

@@ -1,14 +1,14 @@
-import type { PluginFactoryOptions, File } from '@kubb/core'
+import type { PluginFactoryOptions, Import } from '@kubb/core'
 import type { FormKeyword } from './parsers/index.ts'
 
 export type Options = {
   /**
-   * Output to save the @tanstack/query hooks.
-   * @default `"hooks"`
+   * Output to save the form.
+   * @default `"forms"`
    */
   output?: string
   /**
-   * Group the @tanstack/query hooks based on the provided name.
+   * Group the form based on the provided name.
    */
   groupBy?: {
     /**
@@ -16,33 +16,40 @@ export type Options = {
      */
     type: 'tag'
     /**
-     * Relative path to save the grouped @tanstack/query hooks.
+     * Relative path to save the grouped form.
      *
      * `{{tag}}` will be replaced by the current tagName.
-     * @example `${output}/{{tag}}Controller` => `hooks/PetController`
+     * @example `${output}/{{tag}}Controller` => `forms/PetController`
      * @default `${output}/{{tag}}Controller`
      */
     output?: string
     /**
      * Name to be used for the `export * as {{exportAs}} from './`
-     * @default `"{{tag}}Hooks"`
+     * @default `"{{tag}}forms"`
      */
     exportAs?: string
   }
   /**
-   * Include `@hookform/devtools`
+   * Includes `@hookform/devtools`
    * @default `false`
    */
   withDevtools?: boolean
+  /**
+   * Override default behaviour of the formParser
+   */
   overrides?: {
     /**
-     * Override default formKeywordMapper
+     * Override the default fields templates with your own
+     * @link https://kubb.dev/examples/data-driven-forms
+     * @link https://kubb.dev/examples/react-hook-form
      */
-    mapper?: Partial<Record<FormKeyword, { template: string; imports?: File['imports'] }>>
+    mapper?: Partial<Record<FormKeyword, { template: string; imports?: Import[] }>>
     /**
-     * Override default form
+     * Override the form templates with your own
+     * @link https://kubb.dev/examples/data-driven-forms
+     * @link https://kubb.dev/examples/react-hook-form
      */
-    form?: { template: string; imports?: File['imports'] }
+    form?: { template: string; imports?: Import[] }
   }
 }
 

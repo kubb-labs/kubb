@@ -10,7 +10,6 @@ export function renderTemplate<TData extends Record<string, unknown> = Record<st
       const value = data[curr.split(/{{|}}/).filter(Boolean)[0].trim()]
 
       if (value === undefined) {
-        console.log({ prev })
         return prev
       }
 
@@ -25,22 +24,4 @@ export function renderTemplate<TData extends Record<string, unknown> = Record<st
         .trim()
     }, template) || ''
   )
-
-  // return template
-  //   .replace(/{{(.*?)}}/g, (match, ...rest) => {
-  //     const value = data[match.split(/{{|}}/).filter(Boolean)[0].trim()]
-
-  //     if (value === undefined && Object.keys(data).length) {
-  //       // return template
-  //     }
-
-  //     if (typeof value === 'boolean') {
-  //       return `${value.toString()}` || 'false'
-  //     }
-
-  //     template = (value as string) || ''
-
-  //     return template
-  //   })
-  //   .trim()
 }
