@@ -40,13 +40,18 @@ export type Options = {
   overrides?: {
     /**
      * Override the default fields templates with your own
+     * `{{name}}` will be replaced by the key used in properties of your schema
+     * `{{required}}` will be replaced by true if the property is required
+     * `{{label}} will be replaced by the name in sentenceCase
+     * `{{defaultValue}}` will be replaced by defaultValue set in the schema
      * @link https://kubb.dev/examples/data-driven-forms
      * @link https://kubb.dev/examples/react-hook-form
      */
     mapper?: Partial<Record<FormKeyword, { template: string; imports?: Import[] }>>
     /**
      * Override the form templates with your own
-     * @link https://kubb.dev/examples/data-driven-forms
+     * `{{name}}` will be replaced by the key used in properties of your schema
+     * `{{fields}}` will be replaced by what has been set in the overrides or the default FormKeyword mapper
      * @link https://kubb.dev/examples/react-hook-form
      */
     form?: { template: string; imports?: Import[] }
