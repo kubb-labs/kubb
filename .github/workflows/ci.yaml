@@ -2,9 +2,12 @@ name: ci
 
 on:
   push:
+    paths:
+      - 'packages/**'
     branches:    
       - main
       - 'releases/**'
+
   workflow_dispatch:
   
 jobs:
