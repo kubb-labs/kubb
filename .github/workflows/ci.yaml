@@ -21,6 +21,7 @@ jobs:
         - name: Release
           uses: google-github-actions/release-please-action@v3
           id: release
+          continue-on-error: true
           with:
             command: manifest
             monorepo-tags: true
