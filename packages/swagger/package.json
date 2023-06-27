@@ -52,7 +52,7 @@
     "@apidevtools/swagger-parser": "^10.1.0",
     "@kubb/core": "workspace:*",
     "change-case": "^4.1.2",
-    "oas": "^20.8.4",
+    "oas": "^20.8.5",
     "oas-normalize": "^8.4.1",
     "swagger2openapi": "^7.0.8"
   },
