@@ -23,7 +23,6 @@
 * init cli ([2f79cb0](https://github.com/kubb-project/kubb/commit/2f79cb08141f924b3c3834183fbe97b197acef20))
 * use of codegen for imports and exports ([aeccdbd](https://github.com/kubb-project/kubb/commit/aeccdbdc0068ef6e99902243958f4982e8b27223))
 * when alias starts with a number, exclude and replace by _ ([10962ff](https://github.com/kubb-project/kubb/commit/10962ff755f61208d88f36d0c8bd87823d5e8410))
-* writeIndexes without write, use of the filemanager instead ([5359521](https://github.com/kubb-project/kubb/commit/53595216451a21f25a8687e564c16f4d13d1f594))
 
 
 ### 📦 Miscellaneous Chores
@@ -48,12 +47,6 @@
 * release 1.3.1 ([fc869d9](https://github.com/kubb-project/kubb/commit/fc869d9c1429f3b513e3ba5a8854e1bf1d1f2122))
 * release 1.4.0 ([fc0de82](https://github.com/kubb-project/kubb/commit/fc0de826f94c2ff933dd2cefe26168ea6fcf8c3b))
 * release 1.4.0 ([b1d4561](https://github.com/kubb-project/kubb/commit/b1d456179bc4415168142939b4be64b225a4870f))
-
-## [1.4.0](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.3.2...@kubb/ts-codegen-v1.4.0) (2023-06-27)
-
-### 📦 Miscellaneous Chores
-
-* **@kubb/ts-codegen:** Synchronize undefined versions
 
 ## [1.3.3](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.3.2...@kubb/ts-codegen-v1.3.3) (2023-06-27)
 
