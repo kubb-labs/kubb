@@ -1,4 +1,16 @@
 # Changelog
+## [1.4.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-form-v1.4.0...@kubb/swagger-form-v1.4.1) (2023-06-27)
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.4.1 ([9805506](https://github.com/kubb-project/kubb/commit/98055065a6931b96dc1038890eb56ebb0342818f))
+
+
+### 🐞 Bug Fixes
+
+* add jsdocs for overrides ([aa29352](https://github.com/kubb-project/kubb/commit/aa29352e279aa2c30fa98244281c54d66b5a1d5d))
+
 ## [1.4.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-form-v1.4.0...@kubb/swagger-form-v1.4.0) (2023-06-27)
 
 
