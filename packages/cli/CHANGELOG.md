@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.3](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.3.2...@kubb/cli-v1.3.3) (2023-06-27)
+
+
+### 🐞 Bug Fixes
+
+* update packages ([8b5a483](https://github.com/kubb-project/kubb/commit/8b5a4836d13009138d94f2af236a9fa0bec50c6d))
+
 ## [1.3.2](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.3.1...@kubb/cli-v1.3.2) (2023-06-25)
 
 
