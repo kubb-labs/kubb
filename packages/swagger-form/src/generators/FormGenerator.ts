@@ -1,4 +1,4 @@
-import { getUniqueName, SchemaGenerator, uniqueId } from '@kubb/core'
+import { getUniqueName, SchemaGenerator, uniqueIdFactory } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 
 import { formKeywords, formParser } from '../parsers/index.ts'
@@ -9,6 +9,8 @@ import type { OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
 import type { FormKeyword, FormMeta } from '../parsers/index.ts'
 import { camelCase } from 'change-case'
+
+const uniqueId = uniqueIdFactory(0)
 
 type Options = {
   withJSDocs?: boolean

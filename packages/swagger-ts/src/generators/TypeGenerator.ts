@@ -1,4 +1,4 @@
-import { getUniqueName, SchemaGenerator, uniqueId } from '@kubb/core'
+import { getUniqueName, SchemaGenerator, uniqueIdFactory } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 import {
   appendJSDocToNode,
@@ -24,6 +24,8 @@ import type { OpenAPIV3, Refs } from '@kubb/swagger'
 import type { ArrayTwoOrMore } from '@kubb/ts-codegen'
 
 const { factory } = ts
+
+const uniqueId = uniqueIdFactory(0)
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 

@@ -1,4 +1,4 @@
-import { getUniqueName, SchemaGenerator, uniqueId } from '@kubb/core'
+import { getUniqueName, SchemaGenerator, uniqueIdFactory } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
@@ -10,6 +10,8 @@ import type { FileResolver, ImportMeta, OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
 import type { FakerKeyword, FakerMeta } from '../parsers/index.ts'
 import { camelCase } from 'change-case'
+
+const uniqueId = uniqueIdFactory(0)
 
 type Options = {
   fileResolver?: FileResolver
