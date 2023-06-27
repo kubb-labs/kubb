@@ -3,7 +3,6 @@
   "separate-pull-requests": false,
   "group-pull-request-title-pattern": "chore: releasing Kubb",
   "pull-request-title-pattern": "chore${scope}: release${component} ${version}",
-  "last-release-sha": "8c597730599cfe6bdb39c8b515635bed000a5730",
   "changelog-sections": [
     { "type": "feat", "section": "✨ Features" },
     { "type": "feature", "section": "✨ Features" },
