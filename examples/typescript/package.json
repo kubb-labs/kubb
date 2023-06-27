@@ -10,7 +10,6 @@
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
-  "type": "module",
   "scripts": {
     "build": "tsup && vite build",
     "clean": "rimraf ./dist",
