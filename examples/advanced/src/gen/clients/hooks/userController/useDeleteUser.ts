@@ -11,14 +11,14 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, D
 export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400 | DeleteUser404>(
   username: DeleteUserPathParams['username'],
   options?: {
-    mutation?: UseMutationOptions<TData, TError>
+    mutation?: UseMutationOptions<TData, TError, void>
   }
-): UseMutationResult<TData, TError> {
+): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions } = options ?? {}
 
-  return useMutation<TData, TError>({
+  return useMutation<TData, TError, void>({
     mutationFn: () => {
-      return client<TData, TError>({
+      return client<TData, TError, void>({
         method: 'delete',
         url: `/user/${username}`,
       })

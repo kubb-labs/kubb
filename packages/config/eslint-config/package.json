@@ -52,8 +52,8 @@
   "dependencies": {
     "@eslint/js": "^8.43.0",
     "@types/eslint": "~8.40.2",
-    "@typescript-eslint/eslint-plugin": "^5.60.0",
-    "@typescript-eslint/parser": "~5.60.0",
+    "@typescript-eslint/eslint-plugin": "^5.60.1",
+    "@typescript-eslint/parser": "~5.60.1",
     "eslint-config-prettier": "~8.8.0",
     "eslint-config-turbo": "~1.10.6",
     "eslint-formatter-pretty": "^5.0.0",

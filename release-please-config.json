@@ -1,18 +1,20 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "separate-pull-requests": false,
+  "group-pull-request-title-pattern": "chore: releasing Kubb",
+  "pull-request-title-pattern": "chore${scope}: release${component} ${version}",
+  "last-release-sha": "8c597730599cfe6bdb39c8b515635bed000a5730",
   "changelog-sections": [
     { "type": "feat", "section": "✨ Features" },
     { "type": "feature", "section": "✨ Features" },
     { "type": "fix", "section": "🐞 Bug Fixes" },
     { "type": "perf", "section": "🚀 Performance Improvements" },
     { "type": "revert", "section": "Reverts" },
-    { "type": "docs", "section": "📚 Documentation", "hidden": true },
+    { "type": "docs", "section": "📚 Documentation" },
     { "type": "style", "section": "Styles", "hidden": true },
     { "type": "chore", "section": "📦 Miscellaneous Chores", "hidden": true },
     { "type": "refactor", "section": "Code Refactoring", "hidden": true },
     { "type": "test", "section": "Tests", "hidden": true },
-    { "type": "build", "section": "Build System", "hidden": true },
     { "type": "ci", "section": "Continuous Integration", "hidden": true }
   ],
   "packages": {
