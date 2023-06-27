@@ -1,8 +1,9 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "separate-pull-requests": false,
-  "group-pull-request-title-pattern": "chore: releasing Kubb ${version}",
+  "group-pull-request-title-pattern": "chore: releasing Kubb",
   "pull-request-title-pattern": "chore${scope}: release${component} ${version}",
+  "last-release-sha": "8c597730599cfe6bdb39c8b515635bed000a5730",
   "changelog-sections": [
     { "type": "feat", "section": "✨ Features" },
     { "type": "feature", "section": "✨ Features" },
@@ -16,92 +17,114 @@
     { "type": "test", "section": "Tests", "hidden": true },
     { "type": "ci", "section": "Continuous Integration", "hidden": true }
   ],
-  "draft": false,
-  "prerelease": false,
   "packages": {
     "packages/kubb": {
       "component": "kubb",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     },
     "packages/core": {
       "component": "@kubb/core",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     },
     "packages/cli": {
       "component": "@kubb/cli",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     },
     "packages/ts-codegen": {
       "component": "@kubb/ts-codegen",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     },
     "packages/swagger": {
       "component": "@kubb/swagger",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     },
     "packages/swagger-ts": {
       "component": "@kubb/swagger-ts",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     },
     "packages/swagger-client": {
       "component": "@kubb/swagger-client",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     },
     "packages/swagger-tanstack-query": {
       "component": "@kubb/swagger-tanstack-query",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     },
     "packages/swagger-faker": {
       "component": "@kubb/swagger-faker",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     },
     "packages/swagger-zod": {
       "component": "@kubb/swagger-zod",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     },
     "packages/swagger-zodios": {
       "component": "@kubb/swagger-zodios",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     },
     "packages/swagger-swr": {
       "component": "@kubb/swagger-swr",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     }
   },
   "plugins": [
