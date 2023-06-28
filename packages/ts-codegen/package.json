@@ -19,7 +19,6 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "module": "./dist/index.js",
       "default": "./dist/index.cjs"
@@ -59,6 +58,9 @@
     "@kubb/tsup-config": "workspace:*",
     "eslint": "^8.43.0",
     "tsup": "^7.1.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.1.5"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

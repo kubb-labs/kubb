@@ -39,12 +39,12 @@
     "release:canary": "turbo run release:canary --filter=./packages/* --continue",
     "start": "turbo run start --filter=./packages/*",
     "test": "vitest run --config ./configs/vitest.config.ts --coverage",
-    "test:watch": "vitest --config ./configs/vitest.config.ts",
     "test:bun": "bun test --preload ./configs/setup.ts",
     "test:jest": "npx jest --config ./configs/jest.config.ts",
     "test:vitest": "vitest run --config ./configs/vitest.config.ts",
+    "test:watch": "vitest --config ./configs/vitest.config.ts",
     "typecheck": "turbo run typecheck --continue --filter='./packages/*' --filter='./examples/*'",
-    "upgrade": "npx npm-check-updates -u && npx npm-check-updates -u --packageFile **/packages/**/package.json && npx npm-check-updates -u --packageFile **/examples/**/package.json && npx npm-check-updates -u --packageFile **/docs/package.json"
+    "upgrade": "npx taze -r -w --exclude pnpm"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.0.2",

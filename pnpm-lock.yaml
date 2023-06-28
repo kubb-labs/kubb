@@ -153,17 +153,17 @@ importers:
         specifier: workspace:*
         version: link:../packages/swagger-zodios
       '@tanstack/react-query':
-        specifier: ^4.29.15
-        version: 4.29.15(react@18.2.0)
+        specifier: ^4.29.19
+        version: 4.29.19(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/solid-query':
-        specifier: ^4.29.15
-        version: 4.29.15(solid-js@1.7.6)
+        specifier: ^4.29.19
+        version: 4.29.19(solid-js@1.7.7)
       '@tanstack/svelte-query':
-        specifier: ^4.29.15
-        version: 4.29.15(svelte@3.54.0)
+        specifier: ^4.29.19
+        version: 4.29.19(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^4.29.15
-        version: 4.29.15(vue@3.3.4)
+        specifier: ^4.29.19
+        version: 4.29.19(vue@3.3.4)
       '@zodios/core':
         specifier: ^10.9.2
         version: 10.9.2(axios@1.4.0)(zod@3.21.4)
@@ -174,23 +174,23 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       react-hook-form:
-        specifier: ^7.45.0
-        version: 7.45.0(react@18.2.0)
+        specifier: ^7.45.1
+        version: 7.45.1(react@18.2.0)
       rimraf:
         specifier: ^5.0.1
         version: 5.0.1
       solid-js:
-        specifier: ^1.7.6
-        version: 1.7.6
+        specifier: ^1.7.7
+        version: 1.7.7
       svelte:
-        specifier: ^3.54.0
-        version: 3.54.0
+        specifier: ^3.59.2
+        version: 3.59.2
       swr:
         specifier: ^2.2.0
         version: 2.2.0(react@18.2.0)
       tsup:
         specifier: ^7.1.0
-        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3)
+        version: 7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.5)
       vue:
         specifier: ^3.3.4
         version: 3.3.4
@@ -205,8 +205,8 @@ importers:
         specifier: workspace:*
         version: link:../packages/config/tsup-config
       typescript:
-        specifier: ^5.1.3
-        version: 5.1.3
+        specifier: ^5.1.5
+        version: 5.1.5
 
   examples/advanced:
     dependencies:
@@ -268,8 +268,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       react-hook-form:
-        specifier: ^7.45.0
-        version: 7.45.0(react@18.2.0)
+        specifier: ^7.45.1
+        version: 7.45.1(react@18.2.0)
       solid-js:
         specifier: ^1.7.7
         version: 1.7.7
@@ -424,8 +424,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
       react-hook-form:
-        specifier: ^7.45.0
-        version: 7.45.0(react@18.2.0)
+        specifier: ^7.45.1
+        version: 7.45.1(react@18.2.0)
     devDependencies:
       '@types/react':
         specifier: ^18.2.14
@@ -3402,29 +3402,8 @@ packages:
       remove-accents: 0.4.2
     dev: false
 
-  /@tanstack/query-core@4.29.15:
-    resolution: {integrity: sha512-Recc1d5rjHesKhzlH3Aw66v+vQxtB9OHEXP/vxgEcEJ0DwEpfe3EQ4id20vuBJHY2XRjfgWGmUs6ZgK6PSsTXA==}
-    dev: false
-
   /@tanstack/query-core@4.29.19:
     resolution: {integrity: sha512-uPe1DukeIpIHpQi6UzIgBcXsjjsDaLnc7hF+zLBKnaUlh7jFE/A+P8t4cU4VzKPMFB/C970n/9SxtpO5hmIRgw==}
-    dev: false
-
-  /@tanstack/react-query@4.29.15(react@18.2.0):
-    resolution: {integrity: sha512-1zDkv95ljuJ623hhbYU8YIprPW2x6774kh3IQNEuZav62+S+Zr26uUOrE2zGRp9I1uO5Liw/0uYB3dWXQP5+3Q==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-    dependencies:
-      '@tanstack/query-core': 4.29.15
-      react: 18.2.0
-      use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
   /@tanstack/react-query@4.29.19(react-dom@18.2.0)(react@18.2.0):
@@ -3445,15 +3424,6 @@ packages:
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/solid-query@4.29.15(solid-js@1.7.6):
-    resolution: {integrity: sha512-xzFs7Yyi2Gvalxch0VP1fkJiALRHan/Jjb5aLJiA7co25V5KwWzyEDLTpsx9XqNqn+vXY1rf4DLYPQuv0yY1cA==}
-    peerDependencies:
-      solid-js: ^1.5.7
-    dependencies:
-      '@tanstack/query-core': 4.29.15
-      solid-js: 1.7.6
-    dev: false
-
   /@tanstack/solid-query@4.29.19(solid-js@1.7.7):
     resolution: {integrity: sha512-RumbsioKk/eP3GSw5CDBTcBpPKxK7jH4w3EcxEqJLo4qgSpU3P6ikH3ihete4jBPzpf18NawKtkwCk7MXWchZQ==}
     peerDependencies:
@@ -3463,15 +3433,6 @@ packages:
       solid-js: 1.7.7
     dev: false
 
-  /@tanstack/svelte-query@4.29.15(svelte@3.54.0):
-    resolution: {integrity: sha512-i42PHTGrxozVOLMPZ6XP0XMFQmcy4zN4wKYnFQgXN1lcD/jOkF8s9/OLlGp2uN9LrDgIboXwVImzEHNOpvEQpQ==}
-    peerDependencies:
-      svelte: ^3.54.0
-    dependencies:
-      '@tanstack/query-core': 4.29.15
-      svelte: 3.54.0
-    dev: false
-
   /@tanstack/svelte-query@4.29.19(svelte@3.59.2):
     resolution: {integrity: sha512-1d8kqEfjULf7L/mNgNe8HUsGy8G71YRNKAQVDrEpaqtCk1i2LE1d09vJ4WTCO6Low37q3f5WNQQutqW3vZU14Q==}
     peerDependencies:
@@ -3479,22 +3440,6 @@ packages:
     dependencies:
       '@tanstack/query-core': 4.29.19
       svelte: 3.59.2
-    dev: false
-
-  /@tanstack/vue-query@4.29.15(vue@3.3.4):
-    resolution: {integrity: sha512-m2tot3xmNI+9z1PqkGIW6zfUTMECbqMHO2obVHnp3HTWzTEQLeo7sBPzPnH3va5r7hKe5nKV3cu8xHbM//CGvw==}
-    peerDependencies:
-      '@vue/composition-api': ^1.1.2
-      vue: ^2.5.0 || ^3.0.0
-    peerDependenciesMeta:
-      '@vue/composition-api':
-        optional: true
-    dependencies:
-      '@tanstack/match-sorter-utils': 8.8.4
-      '@tanstack/query-core': 4.29.15
-      '@vue/devtools-api': 6.5.0
-      vue: 3.3.4
-      vue-demi: 0.13.11(vue@3.3.4)
     dev: false
 
   /@tanstack/vue-query@4.29.19(vue@3.3.4):
@@ -10286,8 +10231,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /react-hook-form@7.45.0(react@18.2.0):
-    resolution: {integrity: sha512-AbHeZ4ad+0dEIknSW9dBgIwcvRDfZ1O97sgj75WaMdOX0eg8TBiUf9wxzVkIjZbk76BBIE9lmFOzyD4PN80ZQg==}
+  /react-hook-form@7.45.1(react@18.2.0):
+    resolution: {integrity: sha512-6dWoFJwycbuFfw/iKMcl+RdAOAOHDiF11KWYhNDRN/OkUt+Di5qsZHwA0OwsVnu9y135gkHpTw9DJA+WzCeR9w==}
     engines: {node: '>=12.22.0'}
     peerDependencies:
       react: ^16.8.0 || ^17 || ^18
@@ -10807,13 +10752,6 @@ packages:
       tslib: 2.5.3
     dev: false
 
-  /solid-js@1.7.6:
-    resolution: {integrity: sha512-DXVOTjUh/bIAhE0fIqu3ezGLyQaez7v8EOw3uPLIi87DmLjg+hsuCAgKyNIZ+o4jUetOk3ZORccvJmE1yZUk8g==}
-    dependencies:
-      csstype: 3.1.2
-      seroval: 0.5.1
-    dev: false
-
   /solid-js@1.7.7:
     resolution: {integrity: sha512-SPdYVke/Z6Za24PBTbULyQYPrhGO1ZbPany76atO2zF2dmYn2pCotbsw1JtlgWnr9dK2JbwPGnA3ODTGPLhZNw==}
     dependencies:
@@ -11140,11 +11078,6 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  /svelte@3.54.0:
-    resolution: {integrity: sha512-tdrgeJU0hob0ZWAMoKXkhcxXA7dpTg6lZGxUeko5YqvPdJBiyRspGsCwV27kIrbrqPP2WUoSV9ca0gnLlw8YzQ==}
-    engines: {node: '>= 8'}
-    dev: false
-
   /svelte@3.59.2:
     resolution: {integrity: sha512-vzSyuGr3eEoAtT/A6bmajosJZIUWySzY2CzB3w2pgPvnkUjGqlDnsNnA0PMO+mMAhuyMul6C2uuZzY6ELSkzyA==}
     engines: {node: '>= 8'}
@@ -11417,43 +11350,6 @@ packages:
   /tslib@2.5.3:
     resolution: {integrity: sha512-mSxlJJwl3BMEQCUNnxXBU9jP4JBktcEGhURcPR6VQVlnP0FdDEsIaz0C35dXNGLyRfrATNofF0F5p2KPxQgB+w==}
 
-  /tsup@7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.3):
-    resolution: {integrity: sha512-mazl/GRAk70j8S43/AbSYXGgvRP54oQeX8Un4iZxzATHt0roW0t6HYDVZIXMw0ZQIpvr1nFMniIVnN5186lW7w==}
-    engines: {node: '>=16.14'}
-    hasBin: true
-    peerDependencies:
-      '@swc/core': ^1
-      postcss: ^8.4.12
-      typescript: '>=4.1.0'
-    peerDependenciesMeta:
-      '@swc/core':
-        optional: true
-      postcss:
-        optional: true
-      typescript:
-        optional: true
-    dependencies:
-      '@swc/core': 1.3.66
-      bundle-require: 4.0.1(esbuild@0.18.8)
-      cac: 6.7.14
-      chokidar: 3.5.3
-      debug: 4.3.4
-      esbuild: 0.18.8
-      execa: 5.1.1
-      globby: 11.1.0
-      joycon: 3.1.1
-      postcss-load-config: 4.0.1(postcss@8.4.24)(ts-node@10.9.1)
-      resolve-from: 5.0.0
-      rollup: 3.25.2
-      source-map: 0.8.0-beta.0
-      sucrase: 3.32.0
-      tree-kill: 1.2.2
-      typescript: 5.1.3
-    transitivePeerDependencies:
-      - supports-color
-      - ts-node
-    dev: false
-
   /tsup@7.1.0(@swc/core@1.3.66)(ts-node@10.9.1)(typescript@5.1.5):
     resolution: {integrity: sha512-mazl/GRAk70j8S43/AbSYXGgvRP54oQeX8Un4iZxzATHt0roW0t6HYDVZIXMw0ZQIpvr1nFMniIVnN5186lW7w==}
     engines: {node: '>=16.14'}
@@ -11627,11 +11523,6 @@ packages:
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: true
-
-  /typescript@5.1.3:
-    resolution: {integrity: sha512-XH627E9vkeqhlZFQuL+UsyAXEnibT0kWR2FWONlr4sTjvxyJYnyefgrkyECLzM5NenmKzRAy2rR/OlYLA1HkZw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
 
   /typescript@5.1.5:
     resolution: {integrity: sha512-FOH+WN/DQjUvN6WgW+c4Ml3yi0PH+a/8q+kNIfRehv1wLhWONedw85iu+vQ39Wp49IzTJEsZ2lyLXpBF7mkF1g==}

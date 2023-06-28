@@ -6,13 +6,11 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "module": "./dist/index.js",
       "default": "./dist/index.cjs"
     },
     "./flat": {
-      "types": "./dist/flat.d.ts",
       "import": "./dist/flat.js",
       "module": "./dist/flat.js",
       "default": "./dist/flat.cjs"
