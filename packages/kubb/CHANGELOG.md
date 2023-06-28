@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/kubb-project/kubb/compare/kubb-v1.4.1...kubb-v1.4.2) (2023-06-28)
+
+
+### 📦 Miscellaneous Chores
+
+* **kubb:** Synchronize undefined versions
+
 ## [1.4.1](https://github.com/kubb-project/kubb/compare/kubb-v1.4.0...kubb-v1.4.1) (2023-06-27)
 
 
