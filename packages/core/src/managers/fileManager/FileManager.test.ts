@@ -100,7 +100,7 @@ describe('FileManager', () => {
       source: '',
     })
 
-    expect(taskMock).toBeCalled()
+    expect(taskMock).toHaveBeenCalled()
   })
 
   test('fileManager.remove', async () => {
@@ -118,6 +118,6 @@ describe('FileManager', () => {
     const expectedRemovedFile = fileManager.files.find((f) => f.path === file.path)
 
     expect(expectedRemovedFile).toBeUndefined()
-    expect(taskMock).toBeCalled()
+    expect(taskMock).toHaveBeenCalled()
   })
 })

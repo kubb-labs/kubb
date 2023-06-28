@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import mod from 'node:module'
 import { pathToFileURL } from 'node:url'
+import os from 'node:os'
 
 const SLASHES = new Set(['/', '\\'])
 
@@ -36,10 +37,14 @@ export function getLocation(path: string, cwd?: string): string {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function importModule(path: string, cwd?: string): Promise<any | undefined> {
   try {
-    const location = getLocation(path, cwd)
+    let location = getLocation(path, cwd)
+
+    if (os.platform() == 'win32') {
+      location = pathToFileURL(location).href
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const module = await import(pathToFileURL(location).href)
+    const module = await import(location)
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return module?.default ?? module

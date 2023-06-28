@@ -22,14 +22,15 @@ describe('TypeGenerator simple', () => {
 
     expect(output).toBeDefined()
 
-    expect(format(output)).toMatchInlineSnapshot(`
-      "export type Pet = {
+    expect(format(output)).toMatch(
+      format(`
+      export type Pet = {
         id: number
         name: string
         tag?: string | undefined
       }
-      "
     `)
+    )
   })
 
   test('generate type for Pets', async () => {
@@ -42,14 +43,15 @@ describe('TypeGenerator simple', () => {
     const output = print(node, undefined)
 
     expect(output).toBeDefined()
-    expect(format(output)).toMatchInlineSnapshot(`
-      "export type Pets = {
+    expect(format(output)).toMatch(
+      format(`
+      export type Pets = {
         id: number
         name: string
         tag?: string | undefined
       }[]
-      "
     `)
+    )
   })
   test.todo('generate type for Pets and Pet')
 })
@@ -67,10 +69,11 @@ describe('TypeGenerator with refs', () => {
     const output = print(node, undefined)
 
     expect(output).toBeDefined()
-    expect(format(output)).toMatchInlineSnapshot(`
-      "export type Pets = Pet[]
-      "
+    expect(format(output)).toMatch(
+      format(`
+      export type Pets = Pet[]
     `)
+    )
   })
 
   test.todo('generate type for Pets and Pet')

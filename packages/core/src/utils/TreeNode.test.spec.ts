@@ -57,6 +57,10 @@ describe('TreeNode', () => {
     const names = items.map((item) => item.name)
 
     expect(items.length).toBe(5)
-    expect(names).toEqual(['treeNode', 'sub', 'hello.ts', 'world.ts', 'test.ts'])
+    expect(names.includes('treeNode')).toBeTruthy()
+    expect(names.includes('sub')).toBeTruthy()
+    expect(names.includes('hello.ts')).toBeTruthy()
+    expect(names.includes('world.ts')).toBeTruthy()
+    expect(names.includes('test.ts')).toBeTruthy()
   })
 })

@@ -5,6 +5,8 @@ export default defineConfig({
     globals: true,
     exclude: ['**/node_modules/**', '**/dist/**', '**/mocks/**'],
     alias: {
+      //overrides jest/globals so it can use vitest
+      '@jest/globals': 'vitest',
       '@kubb/cli': 'packages/cli/src/index.ts',
       '@kubb/eslint-config': 'packages/config/eslint/src/index.ts',
       '@kubb/tsup-config': 'packages/config/tsup/src/index.ts',

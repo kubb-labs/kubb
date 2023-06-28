@@ -5,11 +5,11 @@ describe('throttle', () => {
     const fnMock = vi.fn(console.log)
 
     const [run] = throttle(fnMock, 100)
-    expect(fnMock).not.toBeCalled()
+    expect(fnMock).not.toHaveBeenCalled()
 
     run()
 
     expect(run).toBeDefined()
-    expect(fnMock).toBeCalled()
+    expect(fnMock).toHaveBeenCalled()
   })
 })

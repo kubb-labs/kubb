@@ -95,18 +95,20 @@ describe('build', () => {
       },
     ])
 
-    expect(pluginMocks.validate).toBeCalledTimes(1)
-    expect(pluginMocks.buildStart).toBeCalledTimes(1)
+    expect(pluginMocks.validate).toHaveBeenCalledTimes(1)
+    expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
 
-    expect(pluginMocks.load).toBeCalledTimes(1)
-    expect(pluginMocks.load).toBeCalledWith('hello/world.json')
+    expect(pluginMocks.load).toHaveBeenCalledTimes(1)
+    // expect(pluginMocks.load).toHaveBeenCalledWith('hello/world.json')
+    expect(pluginMocks.load.mock.lastCall).toEqual(['hello/world.json'])
 
-    expect(pluginMocks.transform).toBeCalledWith('id', 'hello/world.json')
-    expect(pluginMocks.transform).toBeCalledWith('id', 'hello/world.json')
+    // expect(pluginMocks.transform).toHaveBeenCalledWith('id', 'hello/world.json')
+    expect(pluginMocks.transform.mock.lastCall).toEqual(['id', 'hello/world.json'])
 
-    expect(pluginMocks.writeFile).toBeCalledTimes(1)
-    expect(pluginMocks.writeFile).toBeCalledWith('id plugin', 'hello/world.json')
+    expect(pluginMocks.writeFile).toHaveBeenCalledTimes(1)
+    // expect(pluginMocks.writeFile).toHaveBeenCalledWith('id plugin', 'hello/world.json')
+    expect(pluginMocks.writeFile.mock.lastCall).toEqual(['id plugin', 'hello/world.json'])
 
-    expect(pluginMocks.buildEnd).toBeCalledTimes(1)
+    expect(pluginMocks.buildEnd).toHaveBeenCalledTimes(1)
   })
 })
