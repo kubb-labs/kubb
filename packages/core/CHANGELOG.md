@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.4.1...@kubb/core-v1.4.2) (2023-06-28)
+
+
+### 🐞 Bug Fixes
+
+* types fix `exports` based on `https://arethetypeswrong.github.io/` ([f942def](https://github.com/kubb-project/kubb/commit/f942defb40584fdfddc94852bf751a6acf10476a))
+
 ## [1.4.1](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.4.0...@kubb/core-v1.4.1) (2023-06-27)
 
 
