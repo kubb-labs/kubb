@@ -16,9 +16,9 @@
       "packages/config/eslint-config/*",
       "packages/config/tsup-config/*",
       "packages/config/ts-config/*",
-      "docs/*",
+      "docs",
       "examples/*",
-      "e2e/*"
+      "e2e"
     ]
   },
   "scripts": {
