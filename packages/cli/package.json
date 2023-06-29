@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@swc/core": "^1.3.66",
+    "@swc/core": "^1.3.67",
     "cac": "^6.7.14",
     "chokidar": "^3.5.3",
     "cosmiconfig": "^8.2.0",
@@ -62,7 +62,7 @@
     "@types/node": "^20.3.2",
     "source-map-support": "^0.5.21",
     "tsup": "^7.1.0",
-    "typescript": "^5.1.5"
+    "typescript": "^5.1.6"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

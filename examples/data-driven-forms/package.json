@@ -21,8 +21,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@data-driven-forms/ant-component-mapper": "^3.20.12",
-    "@data-driven-forms/react-form-renderer": "^3.20.12",
+    "@data-driven-forms/ant-component-mapper": "^3.20.13",
+    "@data-driven-forms/react-form-renderer": "^3.20.13",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",
@@ -39,7 +39,7 @@
     "@vitejs/plugin-react": "^4.0.1",
     "msw": "^1.2.2",
     "tsup": "^7.1.0",
-    "typescript": "^5.1.5",
+    "typescript": "^5.1.6",
     "vite": "^4.3.9"
   },
   "packageManager": "pnpm@8.3.0",
