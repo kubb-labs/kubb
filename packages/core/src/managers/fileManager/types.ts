@@ -16,7 +16,13 @@ export type Export = {
 export type UUID = string
 export type Source = string
 
-export type File = {
+export type File<
+  Meta extends {
+    pluginName?: string
+  } = {
+    pluginName?: string
+  }
+> = {
   /**
    * Name to be used to dynamicly create the fileName(based on input.path)
    */
@@ -33,9 +39,7 @@ export type File = {
    * @default `false`
    */
   override?: boolean
-  meta?: {
-    pluginName?: string
-  }
+  meta?: Meta
   /**
    * This will override `process.env[key]` inside the `source`, see `getFileSource`.
    */

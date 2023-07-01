@@ -1,5 +1,6 @@
 import type { PluginFactoryOptions, Import } from '@kubb/core'
 import type { FormKeyword } from './parsers/index.ts'
+import type { SkipBy } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -29,6 +30,7 @@ export type Options = {
      */
     exportAs?: string
   }
+  skipBy?: SkipBy[]
   /**
    * Includes `@hookform/devtools`
    * @default `false`
@@ -56,6 +58,11 @@ export type Options = {
      */
     form?: { template: string; imports?: Import[] }
   }
+}
+
+export type FileMeta = {
+  pluginName?: string
+  tag: string
 }
 
 export type ResolvePathOptions = { tag?: string }

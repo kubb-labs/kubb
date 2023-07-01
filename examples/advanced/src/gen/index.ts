@@ -1,5 +1,4 @@
 export * as petSwrHooks from './clients/swr/petSWRController'
-export * as storeSwrHooks from './clients/swr/storeSWRController'
 export * as userSwrHooks from './clients/swr/userSWRController'
 export * from './clients'
 export * from './form'

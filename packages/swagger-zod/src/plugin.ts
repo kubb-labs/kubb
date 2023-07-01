@@ -1,5 +1,6 @@
 import pathParser from 'node:path'
 
+import type { File } from '@kubb/core'
 import { createPlugin, getPathMode, getRelativePath, renderTemplate, validatePlugins, getIndexes } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
@@ -9,7 +10,7 @@ import { ZodBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
 
 import type { OpenAPIV3, API as SwaggerApi } from '@kubb/swagger'
-import type { PluginOptions } from './types.ts'
+import type { FileMeta, PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger-zod' as const
 
@@ -21,7 +22,8 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'zod', groupBy } = options
+  const { output = 'zod', groupBy, skipBy = [] } = options
+  const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let swaggerApi: SwaggerApi
 
   return {
@@ -36,6 +38,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return valid
     },
+    api() {
+      return {
+        skipBy,
+      }
+    },
     resolvePath(fileName, directory, options) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
       const mode = getPathMode(pathParser.resolve(root, output))
@@ -49,23 +56,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (options?.tag && groupBy?.type === 'tag') {
-        const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
-
-        const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
-        const name = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Schemas', { tag }), {
-          delimiter: '',
-          transform: camelCaseTransformMerge,
-        })
-
-        if (name) {
-          this.fileManager.addOrAppend({
-            fileName: 'index.ts',
-            path: pathParser.resolve(root, output, 'index.ts'),
-            source: '',
-            exports: [{ path, asAlias: true, name }],
-          })
-        }
 
         return pathParser.resolve(root, renderTemplate(template, { tag }), fileName)
       }
@@ -129,6 +120,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
                 path: 'zod',
               },
             ],
+            meta: {
+              pluginName,
+            },
           })
         }
 
@@ -167,11 +161,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
               path: 'zod',
             },
           ],
+          meta: {
+            pluginName,
+          },
         })
       }
 
       const operationGenerator = new OperationGenerator({
         oas,
+        skipBy,
         mode,
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
@@ -186,6 +184,35 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       const root = pathParser.resolve(this.config.root, this.config.output.path)
+
+      if (groupBy?.type === 'tag') {
+        const filteredFiles = this.fileManager.files.filter((file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag) as File<FileMeta>[]
+        const rootFiles = filteredFiles
+          .map((file) => {
+            const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
+            const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
+            const name = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Schemas', { tag }), {
+              delimiter: '',
+              transform: camelCaseTransformMerge,
+            })
+
+            if (name) {
+              return {
+                fileName: 'index.ts',
+                path: pathParser.resolve(root, output, 'index.ts'),
+                source: '',
+                exports: [{ path, asAlias: true, name }],
+                meta: {
+                  pluginName,
+                },
+              }
+            }
+          })
+          .filter(Boolean)
+
+        await this.addFile(...rootFiles)
+      }
+
       const files = await getIndexes(root, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
 
       if (files) {

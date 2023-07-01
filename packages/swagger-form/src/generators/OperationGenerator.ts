@@ -3,14 +3,17 @@ import { OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
-import type { Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
+import type { Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
 import type { ResolvePathOptions, Options as PluginOptions } from '../types.ts'
 import { FormBuilder } from '../builders/FormBuilder.ts'
 import type { Import } from '@kubb/core'
+import type { FileMeta } from '../types.ts'
+import { pluginName } from '../plugin.ts'
 
 type Options = {
   clientPath?: OptionalPath
   oas: Oas
+  skipBy?: SkipBy[]
   resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
   resolveName: PluginContext['resolveName']
   withDevtools?: boolean
@@ -106,7 +109,7 @@ export class OperationGenerator extends Generator<Options> {
     return null
   }
 
-  async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { oas, withDevtools, resolveName, overrides } = this.options
 
     if (!schemas.request?.name) {
@@ -163,10 +166,14 @@ export class OperationGenerator extends Generator<Options> {
           isTypeOnly: true,
         },
       ].filter(Boolean),
+      meta: {
+        pluginName,
+        tag: operation.getTags()[0]?.name,
+      },
     }
   }
 
-  async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { oas, withDevtools, resolveName, overrides } = this.options
 
     if (!schemas.request?.name) {
@@ -223,10 +230,14 @@ export class OperationGenerator extends Generator<Options> {
           isTypeOnly: true,
         },
       ].filter(Boolean),
+      meta: {
+        pluginName,
+        tag: operation.getTags()[0]?.name,
+      },
     }
   }
 
-  async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async delete(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { oas, withDevtools, resolveName, overrides } = this.options
 
     if (!schemas.request?.name) {
@@ -282,6 +293,10 @@ export class OperationGenerator extends Generator<Options> {
           isTypeOnly: true,
         },
       ].filter(Boolean),
+      meta: {
+        pluginName,
+        tag: operation.getTags()[0]?.name,
+      },
     }
   }
 }

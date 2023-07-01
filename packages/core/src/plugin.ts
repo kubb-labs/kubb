@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { createPluginCache, getStackTrace, transformReservedWord } from './utils/index.ts'
+import { createPluginCache, transformReservedWord } from './utils/index.ts'
 
 import type { FileManager } from './managers/fileManager/FileManager.ts'
 import type { KubbUserPlugin, PluginContext, PluginFactoryOptions } from './types.ts'
@@ -55,36 +55,13 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
         logger,
         fileManager,
         async addFile(...files) {
-          // TODO unstable, based on stack trace and name of the file(can be different)
-          const trace = getStackTrace()
-          const plugins = options.config.plugins
-            ?.filter((plugin) => trace[1].getFileName()?.includes(plugin.name))
-            .sort((a, b) => {
-              if (a.name.length < b.name.length) {
-                return 1
-              }
-              if (a.name.length > b.name.length) {
-                return -1
-              }
-              return 0
-            })
-          const pluginName = plugins?.[0]?.name
-
           return Promise.all(
             files.map((file) => {
-              const fileWithMeta = {
-                ...file,
-                meta: {
-                  ...(file.meta || {}),
-                  pluginName,
-                },
-              }
-
               if (file.override) {
-                return fileManager.add(fileWithMeta)
+                return fileManager.add(file)
               }
 
-              return fileManager.addOrAppend(fileWithMeta)
+              return fileManager.addOrAppend(file)
             })
           )
         },

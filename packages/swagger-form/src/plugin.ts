@@ -1,5 +1,6 @@
 import pathParser from 'node:path'
 
+import type { File } from '@kubb/core'
 import { createPlugin, getPathMode, getRelativePath, renderTemplate, validatePlugins, getIndexes, isExtensionAllowed } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
@@ -8,7 +9,7 @@ import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 import { OperationGenerator } from './generators/index.ts'
 
 import type { API as SwaggerApi } from '@kubb/swagger'
-import type { PluginOptions } from './types.ts'
+import type { FileMeta, PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger-form' as const
 
@@ -20,7 +21,8 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'forms', groupBy, withDevtools = false, overrides } = options
+  const { output = 'forms', groupBy, skipBy = [], withDevtools = false, overrides } = options
+  const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let swaggerApi: SwaggerApi
 
   return {
@@ -48,20 +50,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (options?.tag && groupBy?.type === 'tag') {
-        const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
         const tag = pascalCase(options.tag, { delimiter: '', transform: pascalCaseTransformMerge })
-
-        const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
-        const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Forms', { tag }), pluginName })
-
-        if (name) {
-          this.fileManager.addOrAppend({
-            fileName: 'index.ts',
-            path: pathParser.resolve(this.config.root, this.config.output.path, output, 'index.ts'),
-            source: '',
-            exports: [{ path, asAlias: true, name }],
-          })
-        }
 
         return pathParser.resolve(root, renderTemplate(template, { tag }), fileName)
       }
@@ -85,6 +74,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const operationGenerator = new OperationGenerator({
         oas,
+        skipBy,
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
         withDevtools,
@@ -100,6 +90,32 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       const root = pathParser.resolve(this.config.root, this.config.output.path)
+
+      if (groupBy?.type === 'tag') {
+        const filteredFiles = this.fileManager.files.filter((file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag) as File<FileMeta>[]
+        const rootFiles = filteredFiles
+          .map((file) => {
+            const tag = file.meta?.tag && pascalCase(file.meta.tag, { delimiter: '', transform: pascalCaseTransformMerge })
+            const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
+            const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Forms', { tag }), pluginName })
+
+            if (name) {
+              return {
+                fileName: 'index.ts',
+                path: pathParser.resolve(this.config.root, this.config.output.path, output, 'index.ts'),
+                source: '',
+                exports: [{ path, asAlias: true, name }],
+                meta: {
+                  pluginName,
+                },
+              }
+            }
+          })
+          .filter(Boolean)
+
+        await this.addFile(...rootFiles)
+      }
+
       const files = await getIndexes(root, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
 
       if (files) {

@@ -12,20 +12,6 @@ import {
 } from './zod/petController/updatePetWithFormSchema'
 import { deletePetMutationResponseSchema, deletePetPathParamsSchema, deletePet400Schema } from './zod/petController/deletePetSchema'
 import { uploadFileMutationResponseSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from './zod/petController/uploadFileSchema'
-import { getInventoryQueryResponseSchema } from './zod/storeController/getInventorySchema'
-import { placeOrderMutationResponseSchema, placeOrder405Schema } from './zod/storeController/placeOrderSchema'
-import {
-  getOrderByIdQueryResponseSchema,
-  getOrderByIdPathParamsSchema,
-  getOrderById400Schema,
-  getOrderById404Schema,
-} from './zod/storeController/getOrderByIdSchema'
-import {
-  deleteOrderMutationResponseSchema,
-  deleteOrderPathParamsSchema,
-  deleteOrder400Schema,
-  deleteOrder404Schema,
-} from './zod/storeController/deleteOrderSchema'
 import { createUserMutationResponseSchema } from './zod/userController/createUserSchema'
 import { createUsersWithListInputMutationResponseSchema } from './zod/userController/createUsersWithListInputSchema'
 import { loginUserQueryResponseSchema, loginUserQueryParamsSchema, loginUser400Schema } from './zod/userController/loginUserSchema'
@@ -229,88 +215,6 @@ const endpoints = makeApi([
     ],
     response: uploadFileMutationResponseSchema,
     errors: [],
-  },
-
-  {
-    method: 'get',
-    path: '/store/inventory',
-    description: `Returns a map of status codes to quantities`,
-    requestFormat: 'json',
-    parameters: [],
-    response: getInventoryQueryResponseSchema,
-    errors: [],
-  },
-
-  {
-    method: 'post',
-    path: '/store/order',
-    description: `Place a new order in the store`,
-    requestFormat: 'json',
-    parameters: [],
-    response: placeOrderMutationResponseSchema,
-    errors: [
-      {
-        status: 405,
-        description: `Invalid input`,
-        schema: placeOrder405Schema,
-      },
-    ],
-  },
-
-  {
-    method: 'get',
-    path: '/store/order/:orderId',
-    description: `For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'GetOrderByIdPathParams',
-        description: ``,
-        type: 'Path',
-        schema: getOrderByIdPathParamsSchema,
-      },
-    ],
-    response: getOrderByIdQueryResponseSchema,
-    errors: [
-      {
-        status: 400,
-        description: `Invalid ID supplied`,
-        schema: getOrderById400Schema,
-      },
-      {
-        status: 404,
-        description: `Order not found`,
-        schema: getOrderById404Schema,
-      },
-    ],
-  },
-
-  {
-    method: 'delete',
-    path: '/store/order/:orderId',
-    description: `For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'DeleteOrderPathParams',
-        description: ``,
-        type: 'Path',
-        schema: deleteOrderPathParamsSchema,
-      },
-    ],
-    response: deleteOrderMutationResponseSchema,
-    errors: [
-      {
-        status: 400,
-        description: `Invalid ID supplied`,
-        schema: deleteOrder400Schema,
-      },
-      {
-        status: 404,
-        description: `Order not found`,
-        schema: deleteOrder404Schema,
-      },
-    ],
   },
 
   {

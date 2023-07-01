@@ -435,7 +435,7 @@ export class PluginManager {
         })
       })
 
-    return this.queue.run(() => task)
+    return task
   }
 
   /**

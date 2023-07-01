@@ -9,6 +9,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { OperationGenerator } from './generators/index.ts'
 
 import type { API as SwaggerApi } from '@kubb/swagger'
+import type { API as ZodApi } from '@kubb/swagger-zod'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger-zodios' as const
@@ -23,6 +24,7 @@ declare module '@kubb/core' {
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'zodios.ts' } = options
   let swaggerApi: SwaggerApi
+  let zodApi: ZodApi
 
   return {
     name: pluginName,
@@ -32,6 +34,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const valid = validatePlugins(plugins, [swaggerPluginName, swaggerZodPluginName])
       if (valid) {
         swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api as SwaggerApi
+        zodApi = plugins.find((plugin) => plugin.name === swaggerZodPluginName)?.api as ZodApi
       }
 
       return valid
@@ -50,6 +53,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const operationGenerator = new OperationGenerator({
         oas,
         output,
+        skipBy: zodApi.skipBy,
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
       })
