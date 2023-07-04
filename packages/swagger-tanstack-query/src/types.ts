@@ -1,5 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { Operation } from '@kubb/swagger'
+import type { Operation, SkipBy } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -34,6 +34,7 @@ export type Options = {
    * Framework to be generated for
    * @default 'react'
    */
+  skipBy?: SkipBy[]
   framework?: Framework
   infinite?: {
     /**
@@ -65,6 +66,11 @@ export type FrameworkImports = {
     UseMutationOptions: string
     UseMutationResult: string
   }
+}
+
+export type FileMeta = {
+  pluginName?: string
+  tag: string
 }
 
 export type ResolvePathOptions = { tag?: string }

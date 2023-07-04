@@ -21,7 +21,8 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'models', groupBy, enumType = 'asConst' } = options
+  const { output = 'models', groupBy, skipBy = [], enumType = 'asConst' } = options
+  const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let swaggerApi: SwaggerApi
 
   return {
@@ -49,7 +50,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (options?.tag && groupBy?.type === 'tag') {
-        const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
         return pathParser.resolve(root, renderTemplate(template, { tag }), fileName)
@@ -109,6 +109,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             path,
             fileName: `${this.resolveName({ name, pluginName })}.ts`,
             source: builder.print(name),
+            meta: {
+              pluginName,
+            },
           })
         }
 
@@ -141,11 +144,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           path,
           fileName: `${this.resolveName({ name: output, pluginName })}.ts`,
           source: builder.print(),
+          meta: {
+            pluginName,
+          },
         })
       }
 
       const operationGenerator = new OperationGenerator({
         oas,
+        skipBy,
         mode,
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),

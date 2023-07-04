@@ -68,15 +68,6 @@ export class FileManager {
     const previousCache = previousCaches ? previousCaches.at(previousCaches.length - 1) : undefined
 
     if (previousCache) {
-      // empty source will also return true when using includes
-      const sourceAlreadyExists = file.source && previousCache.source.includes(file.source)
-
-      if (sourceAlreadyExists) {
-        return Promise.resolve(previousCache)
-      }
-
-      previousCache.cancel?.()
-
       this.cache.delete(previousCache.path)
 
       return this.add({

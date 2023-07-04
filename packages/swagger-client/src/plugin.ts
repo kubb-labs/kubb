@@ -7,9 +7,10 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/OperationGenerator.ts'
 
-import type { OptionalPath } from '@kubb/core'
+import type { OptionalPath, File } from '@kubb/core'
 import type { API as SwaggerApi } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
+import type { FileMeta } from './types'
 
 export const pluginName: PluginOptions['name'] = 'swagger-client' as const
 
@@ -21,7 +22,8 @@ declare module '@kubb/core' {
 }
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'clients', groupBy } = options
+  const { output = 'clients', groupBy, skipBy = [] } = options
+  const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let swaggerApi: SwaggerApi
 
   return {
@@ -51,20 +53,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (options?.tag && groupBy?.type === 'tag') {
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
-        const template = groupBy.output ? groupBy.output : `${output}/{{tag}}Controller`
-
-        const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
-        const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Service', { tag }), pluginName })
-
-        if (name) {
-          this.fileManager.addOrAppend({
-            fileName: 'index.ts',
-            path: pathParser.resolve(this.config.root, this.config.output.path, output, 'index.ts'),
-            source: '',
-            exports: [{ path, asAlias: true, name }],
-          })
-        }
-
         return pathParser.resolve(root, renderTemplate(template, { tag }), fileName)
       }
 
@@ -80,19 +68,46 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const operationGenerator = new OperationGenerator({
         clientPath,
         oas,
+        skipBy,
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
       })
 
       const files = await operationGenerator.build()
+
       await this.addFile(...files)
     },
     async buildEnd() {
       if (this.config.output.write === false) {
         return
       }
-
       const root = pathParser.resolve(this.config.root, this.config.output.path)
+
+      if (groupBy?.type === 'tag') {
+        const filteredFiles = this.fileManager.files.filter((file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag) as File<FileMeta>[]
+        const rootFiles = filteredFiles
+          .map((file) => {
+            const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
+            const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
+            const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Service', { tag }), pluginName })
+
+            if (name) {
+              return {
+                fileName: 'index.ts',
+                path: pathParser.resolve(this.config.root, this.config.output.path, output, 'index.ts'),
+                source: '',
+                exports: [{ path, asAlias: true, name }],
+                meta: {
+                  pluginName,
+                },
+              }
+            }
+          })
+          .filter(Boolean)
+
+        await this.addFile(...rootFiles)
+      }
+
       const files = await getIndexes(root, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
 
       if (files) {

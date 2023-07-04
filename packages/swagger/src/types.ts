@@ -1,6 +1,7 @@
 import type { Path, PluginFactoryOptions } from '@kubb/core'
 import type Oas from 'oas'
 import type { OpenAPIV3 } from 'openapi-types'
+import type { HttpMethods as HttpMethod } from 'oas/dist/rmoas.types.ts'
 
 export type API = {
   getOas: () => Promise<Oas>
@@ -66,3 +67,25 @@ export type OperationSchemas = {
   response: OperationSchema
   errors?: OperationSchema[]
 }
+
+type SkipByTag = {
+  type: 'tag'
+  pattern: string | RegExp
+}
+
+type SkipByOperationId = {
+  type: 'operationId'
+  pattern: string | RegExp
+}
+
+type SkipByPath = {
+  type: 'path'
+  pattern: string | RegExp
+}
+
+type SkipByMethod = {
+  type: 'method'
+  pattern: HttpMethod | RegExp
+}
+
+export type SkipBy = SkipByTag | SkipByOperationId | SkipByPath | SkipByMethod

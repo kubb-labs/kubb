@@ -31,13 +31,93 @@ export default defineConfig(async () => {
           enumType: 'asPascalConst',
         },
       ],
-      ['@kubb/swagger-tanstack-query', { output: './clients/hooks', groupBy: { type: 'tag' }, client: './src/client.ts' }],
-      ['@kubb/swagger-swr', { output: './clients/swr', groupBy: { type: 'tag' }, client: './src/client.ts' }],
-      ['@kubb/swagger-client', { output: './clients/axios', groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' }, client: './src/client.ts' }],
-      ['@kubb/swagger-zod', { output: './zod', groupBy: { type: 'tag' } }],
-      ['@kubb/swagger-zodios', { output: 'zodios.ts' }],
-      ['@kubb/swagger-faker', { output: 'mocks', groupBy: { type: 'tag' } }],
-      ['@kubb/swagger-form', { output: 'form', groupBy: { type: 'tag' } }],
+      [
+        '@kubb/swagger-tanstack-query',
+        {
+          output: './clients/hooks',
+          skipBy: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          groupBy: { type: 'tag' },
+          client: './src/client.ts',
+        },
+      ],
+      [
+        '@kubb/swagger-swr',
+        {
+          output: './clients/swr',
+          skipBy: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          groupBy: { type: 'tag' },
+          client: './src/client.ts',
+        },
+      ],
+      [
+        '@kubb/swagger-client',
+        {
+          output: './clients/axios',
+          skipBy: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' },
+          client: './src/client.ts',
+        },
+      ],
+      [
+        '@kubb/swagger-zod',
+        {
+          output: './zod',
+          skipBy: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          groupBy: { type: 'tag' },
+        },
+      ],
+      [
+        '@kubb/swagger-zodios',
+        {
+          output: 'zodios.ts',
+        },
+      ],
+      [
+        '@kubb/swagger-faker',
+        {
+          output: 'mocks',
+          skipBy: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          groupBy: { type: 'tag' },
+        },
+      ],
+      [
+        '@kubb/swagger-form',
+        {
+          output: 'form',
+          skipBy: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          groupBy: { type: 'tag' },
+        },
+      ],
     ],
   }
 })

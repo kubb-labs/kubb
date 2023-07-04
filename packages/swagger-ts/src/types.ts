@@ -1,4 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
+import type { SkipBy } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -24,11 +25,17 @@ export type Options = {
      */
     output?: string
   }
+  skipBy?: SkipBy[]
   /**
    * Choose to use `enum` or `as const` for enums
    * @default `asConst`
    */
   enumType?: 'enum' | 'asConst' | 'asPascalConst'
+}
+
+export type FileMeta = {
+  pluginName?: string
+  tag: string
 }
 
 export type ResolvePathOptions = { tag?: string }
