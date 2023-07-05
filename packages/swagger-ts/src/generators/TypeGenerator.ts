@@ -77,7 +77,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         appendJSDocToNode({
           node,
           comments: [`@description ${description}`],
-        })
+        }),
       )
     } else {
       nodes.push(node)
@@ -87,8 +87,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     const filterdNodes = nodes.filter(
       (node: ts.Node) =>
         !this.extraNodes.some(
-          (extraNode: ts.Node) => (extraNode as ts.TypeAliasDeclaration)?.name?.escapedText === (node as ts.TypeAliasDeclaration)?.name?.escapedText
-        )
+          (extraNode: ts.Node) => (extraNode as ts.TypeAliasDeclaration)?.name?.escapedText === (node as ts.TypeAliasDeclaration)?.name?.escapedText,
+        ),
     )
 
     return [...this.extraNodes, ...filterdNodes]
@@ -221,7 +221,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
               return this.getBaseTypeFromSchema(item)
             })
             .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
-        })
+        }),
       )
 
       if (schemaWithoutOneOf.properties) {
@@ -246,8 +246,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
             .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
               return this.getBaseTypeFromSchema(item)
             })
-            .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>
-        )
+            .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
+        ),
       )
 
       if (schemaWithoutAllOf.properties) {
@@ -279,7 +279,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
           typeName: this.options.resolveName({ name: enumName, pluginName }),
           enums,
           type: this.options.enumType,
-        })
+        }),
       )
       return factory.createTypeReferenceNode(this.options.resolveName({ name: enumName, pluginName }), undefined)
     }
@@ -331,7 +331,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
                 ...schema,
                 type,
               },
-              baseName
+              baseName,
             ),
             nullable ? factory.createLiteralTypeNode(factory.createNull()) : undefined,
           ].filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,

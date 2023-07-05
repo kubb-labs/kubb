@@ -6,7 +6,7 @@ import { combineFiles, getFileSource, getIndexes } from './utils.ts'
 import type { File } from './types.ts'
 
 describe('FileManager utils', () => {
-  test('if getFileSource is returning code with imports', () => {
+  test('if getFileSource is returning code with imports', async () => {
     const code = getFileSource({
       fileName: 'test.ts',
       path: 'models/ts/test.ts',
@@ -19,17 +19,17 @@ describe('FileManager utils', () => {
         },
       ],
     })
-    expect(format(code)).toMatch(
-      format(`
+    expect(await format(code)).toMatch(
+      await format(`
     import type { Pets } from './Pets'
 
     export type Pet = Pets
     
-   `)
+   `),
     )
   })
 
-  test('if getFileSource is returning code with imports and default import', () => {
+  test('if getFileSource is returning code with imports and default import', async () => {
     const code = getFileSource({
       fileName: 'test.ts',
       path: 'models/ts/test.ts',
@@ -42,13 +42,13 @@ describe('FileManager utils', () => {
         },
       ],
     })
-    expect(format(code)).toMatch(
-      format(`
+    expect(await format(code)).toMatch(
+      await format(`
     import type Pets from './Pets'
 
     export type Pet = Pets
     
-   `)
+   `),
     )
   })
   test('if combineFiles is removing previouscode', () => {
@@ -243,7 +243,7 @@ export const test2 = 3;`,
     expect(files?.every((file) => file.fileName === 'index.ts')).toBeTruthy()
   })
 
-  test('if getFileSource is setting `process.env` based on `env` object', () => {
+  test('if getFileSource is setting `process.env` based on `env` object', async () => {
     const fileImport: File = {
       path: path.resolve('./src/models/file1.ts'),
       fileName: 'file1.ts',
@@ -296,30 +296,30 @@ export const test2 = 3;`,
       },
     }
 
-    expect(format(getFileSource(fileImport))).toEqual(
-      format(`
+    expect(await format(getFileSource(fileImport))).toEqual(
+      await format(`
     import type { Pets } from "./Pets";
 
     export const hello = "world";
 
-    `)
+    `),
     )
-    expect(format(getFileSource(fileImportAdvanced))).toEqual(
-      format(`
+    expect(await format(getFileSource(fileImportAdvanced))).toEqual(
+      await format(`
     import type { Pets } from "./Pets";
 
     export const hello = "world";
 
-    `)
+    `),
     )
 
-    expect(format(getFileSource(fileImportDeclareModule))).toEqual(
-      format(`
+    expect(await format(getFileSource(fileImportDeclareModule))).toEqual(
+      await format(`
     import type { Pets } from "./Pets";
 
     export const hello = typeof "world" !== 'undefined' ? "world" : undefined
 
-    `)
+    `),
     )
   })
 })

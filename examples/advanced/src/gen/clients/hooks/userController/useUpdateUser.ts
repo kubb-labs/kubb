@@ -12,7 +12,7 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
   username: UpdateUserPathParams['username'],
   options?: {
     mutation?: UseMutationOptions<TData, TError, TVariables>
-  }
+  },
 ): UseMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 

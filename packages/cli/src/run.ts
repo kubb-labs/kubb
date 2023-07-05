@@ -135,7 +135,7 @@ function getSummary({ pluginManager, status, hrstart, config, logLevel }: Summar
         return undefined
       })
       .filter(Boolean)
-      .join('\n')
+      .join('\n'),
   )
 
   return logs

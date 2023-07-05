@@ -12,7 +12,7 @@ export function useDeleteUser<TData = DeleteUserMutationResponse, TError = Delet
   username: DeleteUserPathParams['username'],
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string>
-  }
+  },
 ): SWRMutationResponse<TData, TError, string> {
   const { mutation: mutationOptions } = options ?? {}
 
@@ -24,6 +24,6 @@ export function useDeleteUser<TData = DeleteUserMutationResponse, TError = Delet
         url,
       })
     },
-    mutationOptions
+    mutationOptions,
   )
 }

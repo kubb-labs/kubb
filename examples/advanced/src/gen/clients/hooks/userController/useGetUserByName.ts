@@ -6,7 +6,7 @@ import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [`/user/${username}`] as const
 
 export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
-  username: GetUserByNamePathParams['username']
+  username: GetUserByNamePathParams['username'],
 ): UseQueryOptions<TData, TError> {
   const queryKey = getUserByNameQueryKey(username)
 
@@ -27,7 +27,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
  */
 export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
   username: GetUserByNamePathParams['username'],
-  options?: { query?: UseQueryOptions<TData, TError> }
+  options?: { query?: UseQueryOptions<TData, TError> },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
@@ -43,7 +43,7 @@ export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = Ge
 }
 
 export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
-  username: GetUserByNamePathParams['username']
+  username: GetUserByNamePathParams['username'],
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = getUserByNameQueryKey(username)
 
@@ -64,7 +64,7 @@ export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResp
  */
 export function useGetUserByNameInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
   username: GetUserByNamePathParams['username'],
-  options?: { query?: UseInfiniteQueryOptions<TData, TError> }
+  options?: { query?: UseInfiniteQueryOptions<TData, TError> },
 ): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)

@@ -17,7 +17,7 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
   params?: UploadFileQueryParams,
   options?: {
     mutation?: UseMutationOptions<TData, TError, TVariables>
-  }
+  },
 ): UseMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 

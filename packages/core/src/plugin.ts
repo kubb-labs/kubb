@@ -6,7 +6,7 @@ import type { FileManager } from './managers/fileManager/FileManager.ts'
 import type { KubbUserPlugin, PluginContext, PluginFactoryOptions } from './types.ts'
 
 type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (
-  options: T['options']
+  options: T['options'],
 ) => T['nested'] extends true ? Array<KubbUserPlugin<T>> : KubbUserPlugin<T>
 
 export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptions>(factory: KubbPluginFactory<T>) {
@@ -62,7 +62,7 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
               }
 
               return fileManager.addOrAppend(file)
-            })
+            }),
           )
         },
         resolvePath,

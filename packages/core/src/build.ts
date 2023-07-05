@@ -23,7 +23,7 @@ async function transformReducer(
   _previousCode: string,
   result: TransformResult | Promise<TransformResult>,
 
-  _plugin: KubbPlugin
+  _plugin: KubbPlugin,
 ): Promise<string | null> {
   return result
 }
@@ -40,7 +40,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
       'Cannot read file/URL defined in `input.path` or set with `kubb generate PATH` in the CLI of your Kubb config ' + pc.dim(config.input.path),
       {
         cause: e,
-      }
+      },
     )
   }
 

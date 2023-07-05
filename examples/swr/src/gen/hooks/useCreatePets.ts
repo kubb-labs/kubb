@@ -21,6 +21,6 @@ export function useCreatePets<TData = CreatePetsMutationResponse, TError = unkno
         data,
       })
     },
-    mutationOptions
+    mutationOptions,
   )
 }

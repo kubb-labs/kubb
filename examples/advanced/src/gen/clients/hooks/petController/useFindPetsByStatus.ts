@@ -6,7 +6,7 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPe
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [`/pet/findByStatus`, ...(params ? [params] : [])] as const
 
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams
+  params?: FindPetsByStatusQueryParams,
 ): UseQueryOptions<TData, TError> {
   const queryKey = findPetsByStatusQueryKey(params)
 
@@ -29,7 +29,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
  */
 export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams,
-  options?: { query?: UseQueryOptions<TData, TError> }
+  options?: { query?: UseQueryOptions<TData, TError> },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
@@ -45,7 +45,7 @@ export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TErro
 }
 
 export function findPetsByStatusQueryOptionsInfinite<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams
+  params?: FindPetsByStatusQueryParams,
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = findPetsByStatusQueryKey(params)
 
@@ -71,7 +71,7 @@ export function findPetsByStatusQueryOptionsInfinite<TData = FindPetsByStatusQue
  */
 export function useFindPetsByStatusInfinite<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams,
-  options?: { query?: UseInfiniteQueryOptions<TData, TError> }
+  options?: { query?: UseInfiniteQueryOptions<TData, TError> },
 ): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)

@@ -6,7 +6,7 @@ importers:
     devDependencies:
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.0.2
-        version: 4.0.2(prettier@2.8.8)
+        version: 4.0.2(prettier@3.0.0)
       '@kubb/eslint-config':
         specifier: workspace:*
         version: link:packages/config/eslint-config
@@ -35,14 +35,14 @@ importers:
         specifier: ^29.6.0
         version: 29.6.0(@types/node@20.3.3)(ts-node@10.9.1)
       prettier:
-        specifier: ^2.8.8
-        version: 2.8.8
+        specifier: ^3.0.0
+        version: 3.0.0
       prettier-eslint:
         specifier: ^15.0.1
         version: 15.0.1
       prettier-plugin-curly:
         specifier: ^0.1.1
-        version: 0.1.1(prettier@2.8.8)
+        version: 0.1.1(prettier@3.0.0)
       rimraf:
         specifier: ^5.0.1
         version: 5.0.1
@@ -1039,8 +1039,8 @@ importers:
         specifier: ^4.1.2
         version: 4.1.2
       oas:
-        specifier: ^20.8.7
-        version: 20.8.7
+        specifier: ^20.8.8
+        version: 20.8.8
       oas-normalize:
         specifier: ^8.4.1
         version: 8.4.1
@@ -2533,7 +2533,7 @@ packages:
   /@humanwhocodes/object-schema@1.2.1:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
 
-  /@ianvs/prettier-plugin-sort-imports@4.0.2(prettier@2.8.8):
+  /@ianvs/prettier-plugin-sort-imports@4.0.2(prettier@3.0.0):
     resolution: {integrity: sha512-VnsTzyb9aSWpc3v6HvZKD6eolZRvofIYjhda+6IbW1GYwr2byWqK0KhLPbYNkit9MAgShad5bhZ1hgBn867A1A==}
     peerDependencies:
       '@vue/compiler-sfc': '>=3.0.0'
@@ -2547,7 +2547,7 @@ packages:
       '@babel/parser': 7.22.5
       '@babel/traverse': 7.22.5
       '@babel/types': 7.22.5
-      prettier: 2.8.8
+      prettier: 3.0.0
       semver: 7.5.3
     transitivePeerDependencies:
       - supports-color
@@ -9176,8 +9176,8 @@ packages:
       yaml: 1.10.2
     dev: false
 
-  /oas@20.8.7:
-    resolution: {integrity: sha512-XpDs0PLr2o2+i9eVowHpFyvSZcWlIRHK8ymySU6ezq0ok0HdI9cgcXEeSJVPwG4QG/5b180+x4+lzDdvnVi28A==}
+  /oas@20.8.8:
+    resolution: {integrity: sha512-JJuVbFbjqU69sfv2lCy5gFUWysgv242frRaBCKet/UsN27vGEqjVzW/liX/zNScrzrgJfmePBouZpuJtJIlk7Q==}
     engines: {node: '>=14'}
     dependencies:
       '@readme/json-schema-ref-parser': 1.2.0
@@ -9668,7 +9668,7 @@ packages:
       - supports-color
     dev: true
 
-  /prettier-plugin-curly@0.1.1(prettier@2.8.8):
+  /prettier-plugin-curly@0.1.1(prettier@3.0.0):
     resolution: {integrity: sha512-nbisA1XyqbaN47pi1ZLOc+oQ2uWaPTovJ3zMF4s/q47hwcFcc3j+60S4tSsgP1qEvo1qyRXmY9Wb4/hCRANpxQ==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -9676,7 +9676,7 @@ packages:
     dependencies:
       '@babel/parser': 7.22.5
       '@babel/traverse': 7.22.5
-      prettier: 2.8.8
+      prettier: 3.0.0
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -9684,6 +9684,12 @@ packages:
   /prettier@2.8.8:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: true
+
+  /prettier@3.0.0:
+    resolution: {integrity: sha512-zBf5eHpwHOGPC47h0zrPyNn+eAEIdEzfywMoYn2XPi0P44Zp0tSq64rq0xAREh4auw2cJZHo9QUob+NqCQky4g==}
+    engines: {node: '>=14'}
     hasBin: true
     dev: true
 

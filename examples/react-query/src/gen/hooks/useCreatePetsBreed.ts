@@ -11,7 +11,7 @@ export function useCreatePetsBreed<TData = CreatePetsBreedMutationResponse, TErr
   breed: CreatePetsBreedPathParams['breed'],
   options?: {
     mutation?: UseMutationOptions<TData, TError, TVariables>
-  }
+  },
 ): UseMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 

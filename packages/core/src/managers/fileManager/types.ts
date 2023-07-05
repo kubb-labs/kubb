@@ -21,7 +21,7 @@ export type File<
     pluginName?: string
   } = {
     pluginName?: string
-  }
+  },
 > = {
   /**
    * Name to be used to dynamicly create the fileName(based on input.path)

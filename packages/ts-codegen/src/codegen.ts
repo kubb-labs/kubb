@@ -92,7 +92,7 @@ export function createParameterSignature(
     questionToken?: ts.QuestionToken | boolean
     type?: ts.TypeNode
     initializer?: ts.Expression
-  }
+  },
 ): ts.ParameterDeclaration {
   return factory.createParameterDeclaration(modifiers, dotDotDotToken, name, createQuestionToken(questionToken), type, initializer)
 }
@@ -106,8 +106,8 @@ export function createJSDoc({ comments }: { comments: string[] }) {
         }
 
         return factory.createJSDocText(`${comment}\n`)
-      })
-    )
+      }),
+    ),
   )
 }
 
@@ -140,7 +140,7 @@ export function createIndexSignature(
     indexType?: ts.TypeNode
     decorators?: Array<ts.Decorator>
     modifiers?: Array<ts.Modifier>
-  } = {}
+  } = {},
 ) {
   return factory.createIndexSignature(modifiers, [createParameterSignature(indexName, { type: indexType })], type)
 }
@@ -177,7 +177,7 @@ export function createImportDeclaration({
       undefined,
       factory.createImportClause(isTypeOnly, factory.createIdentifier(name), undefined),
       factory.createStringLiteral(path),
-      undefined
+      undefined,
     )
   }
 
@@ -197,11 +197,11 @@ export function createImportDeclaration({
           }
 
           return factory.createImportSpecifier(false, undefined, typeof propertyName === 'string' ? factory.createIdentifier(propertyName) : propertyName)
-        })
-      )
+        }),
+      ),
     ),
     factory.createStringLiteral(path),
-    undefined
+    undefined,
   )
 }
 
@@ -228,7 +228,7 @@ export function createExportDeclaration({
       isTypeOnly,
       asAlias && parsedName ? factory.createNamespaceExport(factory.createIdentifier(parsedName)) : undefined,
       factory.createStringLiteral(path),
-      undefined
+      undefined,
     )
   }
 
@@ -238,10 +238,10 @@ export function createExportDeclaration({
     factory.createNamedExports(
       name.map((propertyName) => {
         return factory.createExportSpecifier(false, undefined, typeof propertyName === 'string' ? factory.createIdentifier(propertyName) : propertyName)
-      })
+      }),
     ),
     factory.createStringLiteral(path),
-    undefined
+    undefined,
   )
 }
 
@@ -281,7 +281,7 @@ export function createEnumDeclaration({
           }
 
           return factory.createEnumMember(factory.createStringLiteral(`${key}`), initializer)
-        })
+        }),
       ),
     ]
   }
@@ -312,14 +312,14 @@ export function createEnumDeclaration({
 
                   return factory.createPropertyAssignment(factory.createStringLiteral(`${key}`), initializer)
                 }),
-                true
+                true,
               ),
-              factory.createTypeReferenceNode(factory.createIdentifier('const'), undefined)
-            )
+              factory.createTypeReferenceNode(factory.createIdentifier('const'), undefined),
+            ),
           ),
         ],
-        ts.NodeFlags.Const
-      )
+        ts.NodeFlags.Const,
+      ),
     ),
     factory.createTypeAliasDeclaration(
       [factory.createToken(ts.SyntaxKind.ExportKeyword)],
@@ -327,8 +327,8 @@ export function createEnumDeclaration({
       undefined,
       factory.createIndexedAccessTypeNode(
         factory.createParenthesizedType(factory.createTypeQueryNode(factory.createIdentifier(identifierName), undefined)),
-        factory.createTypeOperatorNode(ts.SyntaxKind.KeyOfKeyword, factory.createTypeQueryNode(factory.createIdentifier(identifierName), undefined))
-      )
+        factory.createTypeOperatorNode(ts.SyntaxKind.KeyOfKeyword, factory.createTypeQueryNode(factory.createIdentifier(identifierName), undefined)),
+      ),
     ),
   ]
 }

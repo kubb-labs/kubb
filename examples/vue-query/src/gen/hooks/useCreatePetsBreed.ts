@@ -12,7 +12,7 @@ export function useCreatePetsBreed<TData = CreatePetsBreedMutationResponse, TErr
   breed: CreatePetsBreedPathParams['breed'],
   options?: {
     mutation?: VueMutationObserverOptions<TData, TError, TVariables, unknown>
-  }
+  },
 ): UseMutationReturnType<TData, TError, TVariables, unknown> {
   const { mutation: mutationOptions } = options ?? {}
 

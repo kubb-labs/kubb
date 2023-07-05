@@ -22,7 +22,7 @@ export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unk
  */
 export function useListPets<TData = ListPetsQueryResponse, TError = unknown>(
   params?: ListPetsQueryParams,
-  options?: { query?: SWRConfiguration<TData, TError> }
+  options?: { query?: SWRConfiguration<TData, TError> },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
 

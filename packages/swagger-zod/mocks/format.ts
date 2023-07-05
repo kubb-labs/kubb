@@ -1,5 +1,5 @@
 import { format as prettierFormat } from 'prettier'
-import parserTypescript from 'prettier/parser-typescript'
+import pluginTypescript from 'prettier/plugins/typescript'
 
 import type { Options } from 'prettier'
 
@@ -11,11 +11,11 @@ const formatOptions: Options = {
   semi: false,
   bracketSameLine: false,
   endOfLine: 'auto',
-  plugins: [parserTypescript],
+  plugins: [pluginTypescript],
 }
 export function format(source?: string) {
   if (!source) {
-    return null
+    return ''
   }
   return prettierFormat(source, formatOptions)
 }

@@ -49,7 +49,7 @@ export class FileManager {
           async () => {
             return this.task?.(resolvedFile)
           },
-          { controller }
+          { controller },
         )
       } catch {
         return resolvedFile

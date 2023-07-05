@@ -295,7 +295,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
               ...schema,
               type,
             },
-            baseName
+            baseName,
           ),
           { keyword: zodKeywords.null },
         ]

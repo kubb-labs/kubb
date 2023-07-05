@@ -124,7 +124,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         if (!originalClientPath) {
           throw new Error(
-            `Cannot find the 'client.ts' file, or 'client' is not set in the options or '@kubb/swagger-client' is not included in your dependencies`
+            `Cannot find the 'client.ts' file, or 'client' is not set in the options or '@kubb/swagger-client' is not included in your dependencies`,
           )
         }
 

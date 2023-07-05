@@ -267,7 +267,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
               ...schema,
               type,
             },
-            baseName
+            baseName,
           ),
           { keyword: fakerKeywords.null },
         ]

@@ -11,7 +11,7 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400,
 export function useUpdatePet<
   TData = UpdatePetMutationResponse,
   TError = UpdatePet400 | UpdatePet404 | UpdatePet405,
-  TVariables = UpdatePetMutationRequest
+  TVariables = UpdatePetMutationRequest,
 >(options?: { mutation?: UseMutationOptions<TData, TError, TVariables> }): UseMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 

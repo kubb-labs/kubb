@@ -11,7 +11,7 @@ export function useCreatePetsBreed<TData = CreatePetsBreedMutationResponse, TErr
   breed: CreatePetsBreedPathParams['breed'],
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
-  }
+  },
 ): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
@@ -24,6 +24,6 @@ export function useCreatePetsBreed<TData = CreatePetsBreedMutationResponse, TErr
         data,
       })
     },
-    mutationOptions
+    mutationOptions,
   )
 }

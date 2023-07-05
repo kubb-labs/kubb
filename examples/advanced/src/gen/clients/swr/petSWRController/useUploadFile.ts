@@ -17,7 +17,7 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
   params?: UploadFileQueryParams,
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
-  }
+  },
 ): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
@@ -31,6 +31,6 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
         params,
       })
     },
-    mutationOptions
+    mutationOptions,
   )
 }

@@ -8,7 +8,7 @@ export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], p
 
 export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
-  params?: ListPetsBreedQueryParams
+  params?: ListPetsBreedQueryParams,
 ): UseQueryOptions<TData, TError> {
   const queryKey = listPetsBreedQueryKey(breed, params)
 
@@ -31,7 +31,7 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TE
 export function useListPetsBreed<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
-  options?: { query?: UseQueryOptions<TData, TError> }
+  options?: { query?: UseQueryOptions<TData, TError> },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? listPetsBreedQueryKey(breed, params)
@@ -48,7 +48,7 @@ export function useListPetsBreed<TData = ListPetsBreedQueryResponse, TError = un
 
 export function listPetsBreedQueryOptionsInfinite<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
-  params?: ListPetsBreedQueryParams
+  params?: ListPetsBreedQueryParams,
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = listPetsBreedQueryKey(breed, params)
 
@@ -74,7 +74,7 @@ export function listPetsBreedQueryOptionsInfinite<TData = ListPetsBreedQueryResp
 export function useListPetsBreedInfinite<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
-  options?: { query?: UseInfiniteQueryOptions<TData, TError> }
+  options?: { query?: UseInfiniteQueryOptions<TData, TError> },
 ): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? listPetsBreedQueryKey(breed, params)

@@ -17,7 +17,7 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
   params?: UpdatePetWithFormQueryParams,
   options?: {
     mutation?: UseMutationOptions<TData, TError, void>
-  }
+  },
 ): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions } = options ?? {}
 

@@ -12,7 +12,7 @@ export function useDeletePet<TData = DeletePetMutationResponse, TError = DeleteP
   petId: DeletePetPathParams['petId'],
   options?: {
     mutation?: UseMutationOptions<TData, TError, void>
-  }
+  },
 ): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions } = options ?? {}
 

@@ -114,7 +114,7 @@ export async function createProgram(argv?: string[]): Promise<CAC> {
       renderErrors(new Error(error.message, { cause: undefined }), {
         logLevel: 'info',
         prefixText: pc.red('Something went wrong with processing the CLI\n'),
-      })
+      }),
     )
 
     process.exit(1)

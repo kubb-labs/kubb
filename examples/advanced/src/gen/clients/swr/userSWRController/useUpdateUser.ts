@@ -12,7 +12,7 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
   username: UpdateUserPathParams['username'],
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
-  }
+  },
 ): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
@@ -25,6 +25,6 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
         data,
       })
     },
-    mutationOptions
+    mutationOptions,
   )
 }

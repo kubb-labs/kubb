@@ -295,7 +295,7 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
               type,
             },
             baseName,
-            fullName
+            fullName,
           ),
           { keyword: formKeywords.null, args: { name: baseName, fullName } },
         ]

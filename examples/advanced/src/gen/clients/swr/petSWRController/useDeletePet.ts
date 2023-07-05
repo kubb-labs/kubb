@@ -12,7 +12,7 @@ export function useDeletePet<TData = DeletePetMutationResponse, TError = DeleteP
   petId: DeletePetPathParams['petId'],
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string>
-  }
+  },
 ): SWRMutationResponse<TData, TError, string> {
   const { mutation: mutationOptions } = options ?? {}
 
@@ -24,6 +24,6 @@ export function useDeletePet<TData = DeletePetMutationResponse, TError = DeleteP
         url,
       })
     },
-    mutationOptions
+    mutationOptions,
   )
 }

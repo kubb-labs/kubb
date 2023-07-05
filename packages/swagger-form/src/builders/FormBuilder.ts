@@ -42,14 +42,17 @@ export class FormBuilder extends OasBuilder<Config> {
     ].filter(Boolean)
 
     const mapper = overrides?.mapper
-      ? Object.entries(overrides.mapper).reduce((prev, curr) => {
-          const [key, { template }] = curr
+      ? Object.entries(overrides.mapper).reduce(
+          (prev, curr) => {
+            const [key, { template }] = curr
 
-          return {
-            ...prev,
-            [key]: template,
-          }
-        }, {} as Record<FormKeyword, string>)
+            return {
+              ...prev,
+              [key]: template,
+            }
+          },
+          {} as Record<FormKeyword, string>,
+        )
       : undefined
 
     const formGenerator = new FormGenerator({
@@ -113,7 +116,7 @@ export class FormBuilder extends OasBuilder<Config> {
           );
         };
     `,
-      { name, fields: fields.join('\n') }
+      { name, fields: fields.join('\n') },
     )
 
     const source = `

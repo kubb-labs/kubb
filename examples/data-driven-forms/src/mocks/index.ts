@@ -8,7 +8,7 @@ export const worker = setupWorker(
           id: '1234',
           name: 'Lily',
         },
-      ])
+      ]),
     )
-  })
+  }),
 )

@@ -22,7 +22,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
  */
 export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
-  options?: { query?: SWRConfiguration<TData, TError> }
+  options?: { query?: SWRConfiguration<TData, TError> },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
 

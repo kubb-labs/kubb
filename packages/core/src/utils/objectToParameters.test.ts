@@ -9,8 +9,8 @@ describe('objectToParameters', () => {
           ['firstName', 'FirstName'],
           ['lastName', 'LastName'],
         ],
-        { typed: false }
-      )
+        { typed: false },
+      ),
     ).toEqual('firstName, lastName')
   })
 
@@ -22,8 +22,8 @@ describe('objectToParameters', () => {
           ['firstName', 'User'],
           ['lastName', 'User'],
         ],
-        { typed: true }
-      )
+        { typed: true },
+      ),
     ).toEqual('firstName: User["firstName"], lastName: User["lastName"]')
   })
 })

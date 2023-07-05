@@ -10,7 +10,7 @@ import type {
  * @link /user/createWithList
  */
 export function createUsersWithListInput<TData = CreateUsersWithListInputMutationResponse, TVariables = CreateUsersWithListInputMutationRequest>(
-  data: TVariables
+  data: TVariables,
 ): Promise<TData> {
   return client<TData, TVariables>({
     method: 'post',

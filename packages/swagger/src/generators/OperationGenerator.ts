@@ -28,7 +28,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     const schemas = oas.getDefinition().components?.schemas || {}
 
     const foundSchemaKey = Object.keys(schemas).find(
-      (key) => key.toLowerCase() === pascalCase(operation.getOperationId(), { delimiter: '', transform: pascalCaseTransformMerge }).toLowerCase()
+      (key) => key.toLowerCase() === pascalCase(operation.getOperationId(), { delimiter: '', transform: pascalCaseTransformMerge }).toLowerCase(),
     )
 
     if (foundSchemaKey) {
@@ -70,7 +70,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
 
     Object.keys(parameterSchemas).forEach((name) => {
       const exists = refParams.some(
-        (param) => (param as unknown as OpenAPIV3.ReferenceObject).$ref && (param as unknown as OpenAPIV3.ReferenceObject).$ref.replace(/.+\//, '') === name
+        (param) => (param as unknown as OpenAPIV3.ReferenceObject).$ref && (param as unknown as OpenAPIV3.ReferenceObject).$ref.replace(/.+\//, '') === name,
       )
       const schema = parameterSchemas[name] as OpenAPIV3.ParameterObject
 
@@ -94,7 +94,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
           },
         }
       },
-      { type: 'object', required: [], properties: {} } as OpenAPIV3.SchemaObject
+      { type: 'object', required: [], properties: {} } as OpenAPIV3.SchemaObject,
     )
   }
 
@@ -191,25 +191,28 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     const { oas } = this.options
     const paths = oas.getPaths()
 
-    const promises = Object.keys(paths).reduce((acc, path) => {
-      const methods = Object.keys(paths[path]) as HttpMethod[]
+    const promises = Object.keys(paths).reduce(
+      (acc, path) => {
+        const methods = Object.keys(paths[path]) as HttpMethod[]
 
-      methods.forEach((method) => {
-        const operation = oas.operation(path, method)
-        if (operation && this.methods[method]) {
-          const isSkipped = this.isSkipped(operation, method)
+        methods.forEach((method) => {
+          const operation = oas.operation(path, method)
+          if (operation && this.methods[method]) {
+            const isSkipped = this.isSkipped(operation, method)
 
-          if (!isSkipped) {
-            const promise = this.methods[method].call(this, operation, this.getSchemas(operation))
-            if (promise) {
-              acc.push(promise)
+            if (!isSkipped) {
+              const promise = this.methods[method].call(this, operation, this.getSchemas(operation))
+              if (promise) {
+                acc.push(promise)
+              }
             }
           }
-        }
-      })
+        })
 
-      return acc
-    }, [] as Promise<File | null>[])
+        return acc
+      },
+      [] as Promise<File | null>[],
+    )
 
     promises.push(this.all(paths))
 

@@ -6,7 +6,7 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetP
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [`/pet/${petId}`] as const
 
 export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
-  petId: GetPetByIdPathParams['petId']
+  petId: GetPetByIdPathParams['petId'],
 ): UseQueryOptions<TData, TError> {
   const queryKey = getPetByIdQueryKey(petId)
 
@@ -28,7 +28,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
  */
 export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
   petId: GetPetByIdPathParams['petId'],
-  options?: { query?: UseQueryOptions<TData, TError> }
+  options?: { query?: UseQueryOptions<TData, TError> },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
@@ -44,7 +44,7 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetBy
 }
 
 export function getPetByIdQueryOptionsInfinite<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
-  petId: GetPetByIdPathParams['petId']
+  petId: GetPetByIdPathParams['petId'],
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = getPetByIdQueryKey(petId)
 
@@ -66,7 +66,7 @@ export function getPetByIdQueryOptionsInfinite<TData = GetPetByIdQueryResponse, 
  */
 export function useGetPetByIdInfinite<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
   petId: GetPetByIdPathParams['petId'],
-  options?: { query?: UseInfiniteQueryOptions<TData, TError> }
+  options?: { query?: UseInfiniteQueryOptions<TData, TError> },
 ): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
