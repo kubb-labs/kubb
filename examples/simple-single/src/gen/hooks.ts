@@ -5,9 +5,12 @@ import type {
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
   UseMutationOptions,
-  UseMutationResult,
+  UseMutationResult} from '@tanstack/react-query';
+import {
+  useQuery,
+  useInfiniteQuery,
+  useMutation
 } from '@tanstack/react-query'
-import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type {
   ListPetsQueryResponse,
@@ -52,7 +55,7 @@ export function useListPets<TData = ListPetsQueryResponse, TError = unknown>(
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey 
 
   return query
 }
@@ -93,7 +96,7 @@ export function useListPetsInfinite<TData = ListPetsQueryResponse, TError = unkn
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey 
 
   return query
 }
@@ -155,7 +158,7 @@ export function useShowPetById<TData = ShowPetByIdQueryResponse, TError = unknow
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey 
 
   return query
 }
@@ -194,7 +197,7 @@ export function useShowPetByIdInfinite<TData = ShowPetByIdQueryResponse, TError 
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey 
 
   return query
 }

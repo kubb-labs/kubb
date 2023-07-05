@@ -105,6 +105,8 @@ export async function createProgram(argv?: string[]): Promise<CAC> {
     program.parse(argv, { run: false })
 
     await program.runMatchedCommand()
+
+    process.exit(0)
   } catch (e) {
     const error = e as Error
 

@@ -4,7 +4,6 @@ import { build, ParallelPluginError, PluginError, SummaryError, timeout, createL
 
 import type { ExecaReturnValue } from 'execa'
 
-import { performance, PerformanceObserver } from 'node:perf_hooks'
 import { execa } from 'execa'
 import pc from 'picocolors'
 
@@ -146,15 +145,17 @@ export async function run({ input, config, CLIOptions }: RunProps): Promise<void
   const hrstart = process.hrtime()
   const logger = createLogger(spinner)
 
-  const performanceOpserver = new PerformanceObserver((items) => {
-    const message = `${items.getEntries()[0].duration.toFixed(0)}ms`
-
-    spinner.suffixText = pc.yellow(message)
-
-    performance.clearMarks()
-  })
-
   if (CLIOptions.debug) {
+    const { performance, PerformanceObserver } = await import('node:perf_hooks')
+
+    const performanceOpserver = new PerformanceObserver((items) => {
+      const message = `${items.getEntries()[0].duration.toFixed(0)}ms`
+
+      spinner.suffixText = pc.yellow(message)
+
+      performance.clearMarks()
+    })
+
     performanceOpserver.observe({ type: 'measure' })
   }
 
