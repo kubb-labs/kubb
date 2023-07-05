@@ -9,10 +9,15 @@ import type { File } from '@kubb/core'
 import type { Operation } from 'oas'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types.ts'
 import type { OpenAPIV3 } from 'openapi-types'
-import type { Oas, OperationSchemas, Resolver } from '../types.ts'
+import type { Oas, OperationSchemas, Resolver, SkipBy } from '../types.ts'
 import { Warning } from '@kubb/core'
 
-export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: Oas }> extends Generator<TOptions> {
+type Options = {
+  oas: Oas
+  skipBy?: SkipBy[]
+}
+
+export abstract class OperationGenerator<TOptions extends Options = Options> extends Generator<TOptions> {
   /**
    *
    * Validate an operation to see if used with camelCase we don't overwrite other files
@@ -30,6 +35,32 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
       throw new Warning(`OperationId '${operation.getOperationId()}' has the same name used as in schemas '${foundSchemaKey}' when using CamelCase`)
     }
   }
+
+  isSkipped(operation: Operation, method: HttpMethod): boolean {
+    const { skipBy = [] } = this.options
+    let skip = false
+
+    skipBy.forEach(({ pattern, type }) => {
+      if (type === 'tag' && !skip) {
+        skip = !!operation.getTags()[0]?.name.match(pattern)
+      }
+
+      if (type === 'operationId' && !skip) {
+        skip = !!operation.getOperationId().match(pattern)
+      }
+
+      if (type === 'path' && !skip) {
+        skip = !!operation.path.match(pattern)
+      }
+
+      if (type === 'method' && !skip) {
+        skip = !!method.match(pattern)
+      }
+    })
+
+    return skip
+  }
+
   private getParametersSchema(operation: Operation, inKey: 'path' | 'query') {
     const { oas } = this.options
 
@@ -166,9 +197,13 @@ export abstract class OperationGenerator<TOptions extends { oas: Oas } = { oas: 
       methods.forEach((method) => {
         const operation = oas.operation(path, method)
         if (operation && this.methods[method]) {
-          const promise = this.methods[method].call(this, operation, this.getSchemas(operation))
-          if (promise) {
-            acc.push(promise)
+          const isSkipped = this.isSkipped(operation, method)
+
+          if (!isSkipped) {
+            const promise = this.methods[method].call(this, operation, this.getSchemas(operation))
+            if (promise) {
+              acc.push(promise)
+            }
           }
         }
       })

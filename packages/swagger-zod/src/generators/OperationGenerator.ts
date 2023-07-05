@@ -5,10 +5,12 @@ import { ZodBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
 
 import type { File, PathMode, PluginContext } from '@kubb/core'
-import type { FileResolver, Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
+import type { FileResolver, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
+import type { FileMeta } from '../types.ts'
 
 type Options = {
   oas: Oas
+  skipBy?: SkipBy[]
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   mode: PathMode
@@ -42,7 +44,7 @@ export class OperationGenerator extends Generator<Options> {
     return null
   }
 
-  async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { resolvePath, mode, resolveName, oas } = this.options
 
     const zod = this.resolve(operation)
@@ -77,10 +79,14 @@ export class OperationGenerator extends Generator<Options> {
           path: 'zod',
         },
       ],
+      meta: {
+        pluginName,
+        tag: operation.getTags()[0]?.name,
+      },
     }
   }
 
-  async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { resolvePath, mode, resolveName, oas } = this.options
 
     const zod = this.resolve(operation)
@@ -116,10 +122,14 @@ export class OperationGenerator extends Generator<Options> {
           path: 'zod',
         },
       ],
+      meta: {
+        pluginName,
+        tag: operation.getTags()[0]?.name,
+      },
     }
   }
 
-  async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { resolvePath, mode, resolveName, oas } = this.options
 
     const zod = this.resolve(operation)
@@ -155,10 +165,14 @@ export class OperationGenerator extends Generator<Options> {
           path: 'zod',
         },
       ],
+      meta: {
+        pluginName,
+        tag: operation.getTags()[0]?.name,
+      },
     }
   }
 
-  async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async delete(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { resolvePath, mode, resolveName, oas } = this.options
 
     const zod = this.resolve(operation)
@@ -194,6 +208,10 @@ export class OperationGenerator extends Generator<Options> {
           path: 'zod',
         },
       ],
+      meta: {
+        pluginName,
+        tag: operation.getTags()[0]?.name,
+      },
     }
   }
 }

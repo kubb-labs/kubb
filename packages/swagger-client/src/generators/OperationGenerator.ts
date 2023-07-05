@@ -5,13 +5,14 @@ import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { pluginName } from '../plugin.ts'
 
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
-import type { HttpMethod, Oas, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
-import type { ResolvePathOptions } from '../types.ts'
+import type { HttpMethod, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
+import type { ResolvePathOptions, FileMeta } from '../types.ts'
 import { ClientBuilder } from '../builders/ClientBuilder.ts'
 
 type Options = {
   clientPath?: OptionalPath
   oas: Oas
+  skipBy: SkipBy[]
   resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
   resolveName: PluginContext['resolveName']
 }
@@ -66,7 +67,7 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File | null> {
+  async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File<FileMeta> | null> {
     const { resolvePath, resolveName, oas } = this.options
 
     const controllerName = resolveName({ name: 'operations' })
@@ -111,7 +112,7 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async get(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { oas, clientPath } = this.options
 
     const controller = this.resolve(operation)
@@ -134,10 +135,14 @@ export class OperationGenerator extends Generator<Options> {
           isTypeOnly: true,
         },
       ],
+      meta: {
+        pluginName,
+        tag: operation.getTags()[0]?.name,
+      },
     }
   }
 
-  async post(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { oas, clientPath } = this.options
 
     const controller = this.resolve(operation)
@@ -160,10 +165,14 @@ export class OperationGenerator extends Generator<Options> {
           isTypeOnly: true,
         },
       ],
+      meta: {
+        pluginName,
+        tag: operation.getTags()[0]?.name,
+      },
     }
   }
 
-  async put(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { oas, clientPath } = this.options
 
     const controller = this.resolve(operation)
@@ -186,10 +195,14 @@ export class OperationGenerator extends Generator<Options> {
           isTypeOnly: true,
         },
       ],
+      meta: {
+        pluginName,
+        tag: operation.getTags()[0]?.name,
+      },
     }
   }
 
-  async delete(operation: Operation, schemas: OperationSchemas): Promise<File | null> {
+  async delete(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { oas, clientPath } = this.options
 
     const controller = this.resolve(operation)
@@ -212,6 +225,10 @@ export class OperationGenerator extends Generator<Options> {
           isTypeOnly: true,
         },
       ],
+      meta: {
+        pluginName,
+        tag: operation.getTags()[0]?.name,
+      },
     }
   }
 }

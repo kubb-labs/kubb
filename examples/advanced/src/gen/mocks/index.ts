@@ -1,5 +1,4 @@
 export * as petMocks from './petController'
-export * as storeMocks from './storeController'
 export * as userMocks from './userController'
 export * from './createAddPetRequest'
 export * from './createAddress'

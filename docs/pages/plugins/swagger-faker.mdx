@@ -58,6 +58,15 @@ Name to be used for the `export * as {{exportAs}} from './`
 Type: `string` <br/>
 Default: `"{{tag}}Mocks"`
 
+### skipBy
+Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
+
+Type: `Array<SkipBy>` <br/>
+
+#### [0]
+Type: `{ type: 'tag' | 'operationId' | 'path' | 'method' ; pattern: string | RegExp }` <br/>
+
+
 ## Depended
 
 - [`@kubb/swagger`](/docs/usage/swagger)

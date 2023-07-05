@@ -1,4 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
+import type { SkipBy } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -29,6 +30,12 @@ export type Options = {
      */
     exportAs?: string
   }
+  skipBy?: SkipBy[]
+}
+
+export type FileMeta = {
+  pluginName?: string
+  tag: string
 }
 
 export type ResolvePathOptions = { tag?: string }

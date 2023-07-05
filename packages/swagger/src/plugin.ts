@@ -91,6 +91,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           path,
           fileName: `${name}.json`,
           source: JSON.stringify(schema),
+          meta: {
+            pluginName,
+          },
         })
       }
 

@@ -1,4 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
+import type { SkipBy } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -28,12 +29,18 @@ export type Options = {
      */
     exportAs?: string
   }
+  skipBy?: SkipBy[]
   /**
    * Path to the client that will be used to do the API calls.
    * Relative to the root
    * @default '@kubb/swagger-client/ts-client'
    */
   client?: string
+}
+
+export type FileMeta = {
+  pluginName?: string
+  tag: string
 }
 
 export type ResolvePathOptions = { tag?: string }

@@ -1,4 +1,9 @@
 import type { PluginFactoryOptions } from '@kubb/core'
+import type { SkipBy } from '@kubb/swagger'
+
+export type API = {
+  skipBy?: SkipBy[]
+}
 
 export type Options = {
   /**
@@ -29,8 +34,14 @@ export type Options = {
      */
     exportAs?: string
   }
+  skipBy?: SkipBy[]
+}
+
+export type FileMeta = {
+  pluginName?: string
+  tag: string
 }
 
 export type ResolvePathOptions = { tag?: string }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-zod', Options, false, unknown, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-zod', Options, false, API, ResolvePathOptions>

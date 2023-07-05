@@ -91,7 +91,6 @@ describe('build', () => {
     expect(files).toMatchObject([
       {
         ...file,
-        meta: { pluginName: undefined },
       },
     ])
 
