@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.4.2...@kubb/cli-v1.5.0) (2023-07-05)
+
+
+### ✨ Features
+
+* ✨ skipBy to exclude `tags`, `names`, `paths`, ... out of the generation ([44be77b](https://github.com/kubb-project/kubb/commit/44be77bb8748ae0188481716ef19dc6a39f1e538))
+* support for `bun` with read/write ([4c4283b](https://github.com/kubb-project/kubb/commit/4c4283bb92995d369c65ba8087f81771ffb36086))
+
 ## [1.4.2](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.4.1...@kubb/cli-v1.4.2) (2023-06-28)
 
 
