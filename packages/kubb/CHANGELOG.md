@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/kubb-project/kubb/compare/kubb-v1.4.2...kubb-v1.5.0) (2023-07-05)
+
+
+### ✨ Features
+
+* ✨ skipBy to exclude `tags`, `names`, `paths`, ... out of the generation ([44be77b](https://github.com/kubb-project/kubb/commit/44be77bb8748ae0188481716ef19dc6a39f1e538))
+
 ## [1.4.2](https://github.com/kubb-project/kubb/compare/kubb-v1.4.1...kubb-v1.4.2) (2023-06-28)
 
 

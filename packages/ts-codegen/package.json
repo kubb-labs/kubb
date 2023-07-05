@@ -1,6 +1,6 @@
 {
   "name": "@kubb/ts-codegen",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "description": "Generator ts-codegen",
   "keywords": [
     "typescript",
