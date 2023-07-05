@@ -55,5 +55,5 @@ export function renderErrors(error: Error | undefined, { prefixText, logLevel = 
     return true
   } as PrettyError.Callback)
 
-  return [prefixText, prettyError.render(error.message)].filter(Boolean).join('\n')
+  return [prefixText, prettyError.render(error)].filter(Boolean).join('\n')
 }
