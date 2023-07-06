@@ -3,7 +3,7 @@ export * from './getPlugins.ts'
 export * from './watcher.ts'
 export * from './getCosmiConfig.ts'
 export * from './parseHrtimeToSeconds.ts'
-export * from './parseText.ts'
 export * from './OraWritable.ts'
 export * from './renderErrors.ts'
 export * from './getErrorCause.ts'
+export * from "./spinner.ts"

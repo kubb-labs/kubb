@@ -87,7 +87,6 @@ export default defineConfig(async () => {
     output: {
       path: './src/gen',
     },
-    logLevel: 'info',
     plugins: [createSwagger({ "output": "schemas", "validate": true })],
   }
 })
@@ -146,7 +145,6 @@ You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packa
     path: ./petStore.yaml
   output:
     path: ./src/gen
-  logLevel: info
   plugins:
     - '@kubb/swagger'
     - output: schemas

@@ -1,12 +1,12 @@
 import pathParser from 'node:path'
 
-import { LogLevel, isPromiseFulfilledResult, write, canLogHierarchy } from '@kubb/core'
+import { LogLevel, isPromiseFulfilledResult, write } from '@kubb/core'
 
 import { $ } from 'execa'
 import pc from 'picocolors'
 
 import type { LogLevels } from '@kubb/core'
-import { spinner } from './program.ts'
+import { spinner } from './utils/spinner.ts'
 
 export type Preset = 'simple'
 
@@ -17,7 +17,7 @@ export type PresetMeta = {
   packages: string[]
 }
 
-type RunProps = {
+type InitProps = {
   /**
    * @default `'silent'`
    */
@@ -52,7 +52,6 @@ export default defineConfig({
   hooks: {
     done: 'echo "🎉 done"',
   },
-  logLevel: 'info',
   plugins: [createSwagger({}), createSwaggerTS({ output: 'models', enumType: 'enum' }), createSwaggerTanstackQuery({ output: './hooks' })],
 })
   `,
@@ -60,7 +59,7 @@ export default defineConfig({
   },
 }
 
-export async function init({ preset = 'simple', logLevel = LogLevel.silent, packageManager = 'pnpm' }: RunProps): Promise<undefined> {
+export default async function init({ preset = 'simple', logLevel = LogLevel.silent, packageManager = 'pnpm' }: InitProps): Promise<undefined> {
   spinner.start('📦 Initializing Kubb')
 
   const presetMeta = presets[preset]
@@ -82,7 +81,7 @@ export async function init({ preset = 'simple', logLevel = LogLevel.silent, pack
     }),
   ])
 
-  if (canLogHierarchy(logLevel, LogLevel.info)) {
+  if (logLevel === LogLevel.info) {
     results.forEach((result) => {
       if (isPromiseFulfilledResult(result)) {
         console.log(result.value)
