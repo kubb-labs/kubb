@@ -2,7 +2,7 @@ import { Callout } from 'nextra-theme-docs'
 
 # Options
 
-This page is a reference to the different options of configuring your Kubb generation.
+This page is a reference to the different options you can use for configuring your Kubb generation.
 By setting the following options you can override the default behaviour of Kubb and even extend it with your own plugins.
 
 ## root
@@ -80,11 +80,10 @@ export default defineConfig({
     path: './src/gen',
     clean: true
   },
-  logLevel: "info"
 })
 ```
 ### write
-Enabled or disable the writing to the filesystem. This is being used for the playground.
+Enabled or disable the writing to the filesystem.
 
 Type: `boolean` <br/>
 Default: `true`
@@ -101,7 +100,6 @@ export default defineConfig({
     clean: true,
     write: true
   },
-  logLevel: "info"
 })
 ```
 
@@ -159,35 +157,12 @@ Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/pl
 }
 ```
 
-
-## logLevel
-Log level to report when using the CLI
-<Callout type="warning">
- Under construction, only info is implemented.
-</Callout>
-Type: `'error' | 'info' | 'silent'` <br/>
-Default: `'silent'`
-
-```typescript filename="kubb.config.js" copy
-import { defineConfig } from '@kubb/core'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  logLevel: "info"
-})
-```
-
 ## hooks
 Hooks that will be called when a specific action is triggered in Kubb.
 
 ### done
 Hook that will be triggerend at the end of all executions.
-Useful for running Prettier or ESLint to use your own linting structure.
+Useful for running Prettier or ESLint after all files has been created.
 
 Type: `string | string[]` <br/>
 
@@ -204,6 +179,5 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  logLevel: "info"
 })
 ```

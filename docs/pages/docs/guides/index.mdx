@@ -35,7 +35,6 @@ export default defineConfig(async () => {
     output: {
       path: './src',
     },
-    logLevel: 'info',
     plugins: [createSwagger({ output: false, validate: true }), createSwaggerTS({ output: 'models' })],
   }
 })

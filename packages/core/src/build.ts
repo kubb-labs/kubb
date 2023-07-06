@@ -6,7 +6,7 @@ import pc from 'picocolors'
 
 import type { File, ResolvedFile } from './managers/fileManager/index.ts'
 import { LogLevel } from './types.ts'
-import type { BuildOutput, KubbPlugin, PluginContext, TransformResult } from './types.ts'
+import type { BuildOutput, KubbPlugin, LogLevels, PluginContext, TransformResult } from './types.ts'
 import type { QueueJob, Logger } from './utils/index.ts'
 
 type BuildOptions = {
@@ -15,7 +15,7 @@ type BuildOptions = {
    * @default Logger without the spinner
    */
   logger?: Logger
-  debug?: boolean
+  logLevel?: LogLevels
 }
 
 async function transformReducer(
@@ -29,7 +29,7 @@ async function transformReducer(
 }
 
 export async function build(options: BuildOptions): Promise<BuildOutput> {
-  const { config, debug, logger = createLogger() } = options
+  const { config, logLevel, logger = createLogger() } = options
 
   try {
     if (!URLPath.isURL(config.input.path)) {
@@ -80,22 +80,20 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     }
   }
 
-  const pluginManager = new PluginManager(config, { debug, logger, task: queueTask as QueueJob<ResolvedFile> })
+  const pluginManager = new PluginManager(config, { debug: logLevel === LogLevel.debug, logger, task: queueTask as QueueJob<ResolvedFile> })
   const { plugins, fileManager } = pluginManager
 
   pluginManager.on('execute', (executer) => {
     const { hookName, plugin, output, parameters } = executer
     const messsage = `${randomPicoColour(plugin.name)} Executing ${hookName}`
 
-    if (config.logLevel === LogLevel.info && logger?.spinner && parameters) {
-      if (debug) {
-        logger.info(messsage)
-      } else {
+    if (logLevel === LogLevel.info) {
+      if (logger.spinner) {
         logger.spinner.suffixText = messsage
       }
     }
 
-    if (config.logLevel === LogLevel.stacktrace && logger?.spinner && parameters) {
+    if (logLevel === LogLevel.debug) {
       logger.info(messsage)
       const logs = [
         parameters && `${pc.bgWhite(`Parameters`)} ${randomPicoColour(plugin.name)} ${hookName}`,

@@ -1,6 +1,6 @@
 import pc from 'picocolors'
 
-import { spinner } from '../program'
+import { spinner } from './spinner.ts'
 
 export async function startWatcher(path: string[], cb: (path: string[]) => Promise<void>): Promise<void> {
   const { watch } = await import('chokidar')

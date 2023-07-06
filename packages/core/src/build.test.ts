@@ -61,7 +61,6 @@ describe('build', () => {
       path: './src/gen',
       clean: true,
     },
-    logLevel: 'info',
     plugins: [plugin({})],
   } satisfies KubbConfig
 

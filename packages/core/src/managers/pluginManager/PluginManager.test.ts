@@ -69,7 +69,6 @@ describe('PluginManager', () => {
       path: './src/gen',
       clean: true,
     },
-    logLevel: 'info',
     plugins: [pluginA({}), pluginB({})],
   } satisfies KubbConfig
   const queueTaskMock = vi.fn()

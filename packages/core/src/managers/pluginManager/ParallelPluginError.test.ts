@@ -14,7 +14,6 @@ describe('ParallelPluginError', () => {
       path: './src/gen',
       clean: true,
     },
-    logLevel: 'info',
     plugins: [],
   }
   const queueTaskMock = vi.fn()

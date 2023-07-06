@@ -31,7 +31,7 @@
   "devDependencies": {
     "@kubb/core": "workspace:*",
     "@next/env": "^13.4.8",
-    "@types/node": "^20.3.3",
+    "@types/node": "^20.4.0",
     "@types/react": "^18.2.14",
     "autoprefixer": "^10.4.14",
     "postcss": "8.4.24",

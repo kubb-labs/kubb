@@ -62,8 +62,7 @@ Usage:
 
 Options:
   -c, --config <path>     Path to the Kubb config
-  -l, --log-level <type>  Type of the logging(overrides the one in `kubb.config.js`)
-  -d, --debug             Debug mode (default: false)
+  -l, --log-level <type>  Info, silent or debug
   -w, --watch             Watch mode based on the input file
   -h, --help              Display this message
 ```
@@ -84,24 +83,15 @@ Path to the Kubb config.
 kubb -c kubb.config.ts
 ```
 
-
-#### --debug (-d)
-
-Debug mode (default: false).
-
-```sh copy
-kubb -d
-```
-
 #### --log-level (-l)
 
 Type of the logging(overrides the one in `kubb.config.js`)
 
-silent` will hide all information that is not relevant
+`silent` will hide all information that is not relevant
 
 `info` will show all information possible(not related to the PluginManager)
 
-`stacktrace` will show all information possible(related to the PluginManager), handy for seeing logs
+`debug` will show all information possible(related to the PluginManager), handy for seeing logs
  
 
 ```sh copy
