@@ -22,6 +22,6 @@ export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TV
         data,
       })
     },
-    mutationOptions
+    mutationOptions,
   )
 }

@@ -13,7 +13,7 @@ import type {
 export function uploadFile<TData = UploadFileMutationResponse, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
   data: TVariables,
-  params?: UploadFileQueryParams
+  params?: UploadFileQueryParams,
 ): Promise<TData> {
   return client<TData, TVariables>({
     method: 'post',

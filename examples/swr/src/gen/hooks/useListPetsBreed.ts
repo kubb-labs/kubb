@@ -5,7 +5,7 @@ import type { ListPetsBreedQueryResponse, ListPetsBreedPathParams, ListPetsBreed
 
 export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
-  params?: ListPetsBreedQueryParams
+  params?: ListPetsBreedQueryParams,
 ): SWRConfiguration<TData, TError> {
   return {
     fetcher: () => {
@@ -26,7 +26,7 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TE
 export function useListPetsBreed<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
-  options?: { query?: SWRConfiguration<TData, TError> }
+  options?: { query?: SWRConfiguration<TData, TError> },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
 

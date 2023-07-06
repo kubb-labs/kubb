@@ -4,7 +4,7 @@ import client from '../../../../client'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
 
 export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
-  petId: GetPetByIdPathParams['petId']
+  petId: GetPetByIdPathParams['petId'],
 ): SWRConfiguration<TData, TError> {
   return {
     fetcher: () => {
@@ -23,7 +23,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
  */
 export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
   petId: GetPetByIdPathParams['petId'],
-  options?: { query?: SWRConfiguration<TData, TError> }
+  options?: { query?: SWRConfiguration<TData, TError> },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
 

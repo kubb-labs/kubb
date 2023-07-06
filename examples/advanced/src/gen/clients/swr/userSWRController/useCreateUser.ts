@@ -22,6 +22,6 @@ export function useCreateUser<TData = CreateUserMutationResponse, TError = unkno
         data,
       })
     },
-    mutationOptions
+    mutationOptions,
   )
 }

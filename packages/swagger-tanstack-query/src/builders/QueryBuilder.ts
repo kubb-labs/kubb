@@ -110,7 +110,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const source = `
     ${createJSDocBlockText({ comments })}
     export function ${name} <${generics.join(',')}>(${options.join(', ')}): ${frameworkImports.query.UseQueryResult}<${clientGenerics.join(
-      ', '
+      ', ',
     )}> & { queryKey: QueryKey } {
       const { query: queryOptions } = options ?? {};
       const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
@@ -203,7 +203,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const source = `
     ${createJSDocBlockText({ comments })}
     export function ${name} <${generics.join(',')}>(${options.join(', ')}): ${frameworkImports.query.UseInfiniteQueryResult}<${clientGenerics.join(
-      ', '
+      ', ',
     )}> & { queryKey: QueryKey } {
       const { query: queryOptions } = options ?? {};
       const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};

@@ -5,7 +5,7 @@ import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from '../models/
 
 export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
-  testId: ShowPetByIdPathParams['testId']
+  testId: ShowPetByIdPathParams['testId'],
 ): SWRConfiguration<TData, TError> {
   return {
     fetcher: () => {
@@ -24,7 +24,7 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError
 export function useShowPetById<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
-  options?: { query?: SWRConfiguration<TData, TError> }
+  options?: { query?: SWRConfiguration<TData, TError> },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
 

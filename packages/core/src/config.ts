@@ -10,8 +10,8 @@ export function defineConfig(
     | PossiblePromise<KubbUserConfig>
     | ((
         /** The options derived from the CLI flags */
-        cliOptions: CLIOptions
-      ) => PossiblePromise<KubbUserConfig>)
+        cliOptions: CLIOptions,
+      ) => PossiblePromise<KubbUserConfig>),
 ): typeof options {
   return options
 }

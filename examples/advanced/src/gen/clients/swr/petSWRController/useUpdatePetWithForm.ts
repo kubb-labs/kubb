@@ -17,7 +17,7 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
   params?: UpdatePetWithFormQueryParams,
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string>
-  }
+  },
 ): SWRMutationResponse<TData, TError, string> {
   const { mutation: mutationOptions } = options ?? {}
 
@@ -31,6 +31,6 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
         params,
       })
     },
-    mutationOptions
+    mutationOptions,
   )
 }

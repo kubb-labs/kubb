@@ -8,7 +8,7 @@ export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], p
 
 export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
-  params?: ListPetsBreedQueryParams
+  params?: ListPetsBreedQueryParams,
 ): CreateQueryOptions<TData, TError> {
   const queryKey = listPetsBreedQueryKey(breed, params)
 
@@ -31,7 +31,7 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TE
 export function listPetsBreedQuery<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
-  options?: { query?: CreateQueryOptions<TData, TError> }
+  options?: { query?: CreateQueryOptions<TData, TError> },
 ): CreateQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? listPetsBreedQueryKey(breed, params)
@@ -48,7 +48,7 @@ export function listPetsBreedQuery<TData = ListPetsBreedQueryResponse, TError = 
 
 export function listPetsBreedQueryOptionsInfinite<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
-  params?: ListPetsBreedQueryParams
+  params?: ListPetsBreedQueryParams,
 ): CreateInfiniteQueryOptions<TData, TError> {
   const queryKey = listPetsBreedQueryKey(breed, params)
 
@@ -74,7 +74,7 @@ export function listPetsBreedQueryOptionsInfinite<TData = ListPetsBreedQueryResp
 export function listPetsBreedQueryInfinite<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
-  options?: { query?: CreateInfiniteQueryOptions<TData, TError> }
+  options?: { query?: CreateInfiniteQueryOptions<TData, TError> },
 ): CreateInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? listPetsBreedQueryKey(breed, params)

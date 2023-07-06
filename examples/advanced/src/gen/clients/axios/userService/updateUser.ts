@@ -8,7 +8,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  */
 export function updateUser<TData = UpdateUserMutationResponse, TVariables = UpdateUserMutationRequest>(
   username: UpdateUserPathParams['username'],
-  data: TVariables
+  data: TVariables,
 ): Promise<TData> {
   return client<TData, TVariables>({
     method: 'put',

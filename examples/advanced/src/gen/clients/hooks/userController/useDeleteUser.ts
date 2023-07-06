@@ -12,7 +12,7 @@ export function useDeleteUser<TData = DeleteUserMutationResponse, TError = Delet
   username: DeleteUserPathParams['username'],
   options?: {
     mutation?: UseMutationOptions<TData, TError, void>
-  }
+  },
 ): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions } = options ?? {}
 

@@ -37,7 +37,7 @@ const writer = runtimeSwitch(
       }
     },
   },
-  writeNode
+  writeNode,
 )
 
 export async function write(data: string, path: string): Promise<void> {

@@ -7,7 +7,7 @@ export const showPetByIdQueryKey = (petId: ShowPetByIdPathParams['petId'], testI
 
 export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
-  testId: ShowPetByIdPathParams['testId']
+  testId: ShowPetByIdPathParams['testId'],
 ): UseQueryOptions<TData, TError> {
   const queryKey = showPetByIdQueryKey(petId, testId)
 
@@ -29,7 +29,7 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError
 export function useShowPetById<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
-  options?: { query?: UseQueryOptions<TData, TError> }
+  options?: { query?: UseQueryOptions<TData, TError> },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? showPetByIdQueryKey(petId, testId)
@@ -46,7 +46,7 @@ export function useShowPetById<TData = ShowPetByIdQueryResponse, TError = unknow
 
 export function showPetByIdQueryOptionsInfinite<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
-  testId: ShowPetByIdPathParams['testId']
+  testId: ShowPetByIdPathParams['testId'],
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = showPetByIdQueryKey(petId, testId)
 
@@ -68,7 +68,7 @@ export function showPetByIdQueryOptionsInfinite<TData = ShowPetByIdQueryResponse
 export function useShowPetByIdInfinite<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
-  options?: { query?: UseInfiniteQueryOptions<TData, TError> }
+  options?: { query?: UseInfiniteQueryOptions<TData, TError> },
 ): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? showPetByIdQueryKey(petId, testId)

@@ -55,7 +55,7 @@ const reader = runtimeSwitch(
       return file.text()
     },
   },
-  readNode
+  readNode,
 )
 
 export async function read(path: string): Promise<string> {

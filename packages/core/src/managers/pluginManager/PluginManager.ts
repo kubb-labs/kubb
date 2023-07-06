@@ -344,7 +344,7 @@ export class PluginManager {
           hookName,
           parameters,
           plugin,
-        })
+        }),
       )
     }
     return promise.then(noReturn)

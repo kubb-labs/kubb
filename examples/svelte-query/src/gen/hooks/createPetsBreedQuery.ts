@@ -11,7 +11,7 @@ export function createPetsBreedQuery<TData = CreatePetsBreedMutationResponse, TE
   breed: CreatePetsBreedPathParams['breed'],
   options?: {
     mutation?: CreateMutationOptions<TData, TError, TVariables>
-  }
+  },
 ): CreateMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 

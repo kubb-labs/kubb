@@ -34,7 +34,7 @@ describe('OperationGenerator', () => {
     * @description A paged array of pets
     */
     export type ListPetsQueryResponse = Pets;
-    `)
+    `),
     )
 
     const operationShowById = oas.operation('/pets/{petId}', 'get')
@@ -64,7 +64,7 @@ describe('OperationGenerator', () => {
     */
     export type ShowPetByIdQueryResponse = Pet;
     
-    `)
+    `),
     )
   })
 
@@ -99,7 +99,7 @@ describe('OperationGenerator', () => {
        * @description unexpected error
        */
        export type CreatePetsError = Error;
-    `)
+    `),
     )
   })
 })

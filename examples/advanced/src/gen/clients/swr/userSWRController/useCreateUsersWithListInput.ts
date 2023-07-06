@@ -14,7 +14,7 @@ import type {
 export function useCreateUsersWithListInput<
   TData = CreateUsersWithListInputMutationResponse,
   TError = unknown,
-  TVariables = CreateUsersWithListInputMutationRequest
+  TVariables = CreateUsersWithListInputMutationRequest,
 >(options?: { mutation?: SWRMutationConfiguration<TData, TError, string, TVariables> }): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
 
@@ -27,6 +27,6 @@ export function useCreateUsersWithListInput<
         data,
       })
     },
-    mutationOptions
+    mutationOptions,
   )
 }

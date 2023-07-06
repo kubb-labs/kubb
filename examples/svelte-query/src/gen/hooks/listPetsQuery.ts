@@ -26,7 +26,7 @@ export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unk
  */
 export function listPetsQuery<TData = ListPetsQueryResponse, TError = unknown>(
   params?: ListPetsQueryParams,
-  options?: { query?: CreateQueryOptions<TData, TError> }
+  options?: { query?: CreateQueryOptions<TData, TError> },
 ): CreateQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? listPetsQueryKey(params)
@@ -42,7 +42,7 @@ export function listPetsQuery<TData = ListPetsQueryResponse, TError = unknown>(
 }
 
 export function listPetsQueryOptionsInfinite<TData = ListPetsQueryResponse, TError = unknown>(
-  params?: ListPetsQueryParams
+  params?: ListPetsQueryParams,
 ): CreateInfiniteQueryOptions<TData, TError> {
   const queryKey = listPetsQueryKey(params)
 
@@ -67,7 +67,7 @@ export function listPetsQueryOptionsInfinite<TData = ListPetsQueryResponse, TErr
  */
 export function listPetsQueryInfinite<TData = ListPetsQueryResponse, TError = unknown>(
   params?: ListPetsQueryParams,
-  options?: { query?: CreateInfiniteQueryOptions<TData, TError> }
+  options?: { query?: CreateInfiniteQueryOptions<TData, TError> },
 ): CreateInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? listPetsQueryKey(params)

@@ -9,11 +9,7 @@ function Pets(): JSX.Element {
   return (
     <>
       <h1>Pets:</h1>
-      <ul>
-        {pets?.map((pet) => (
-          <li key={pet.id}>{pet.name}</li>
-        ))}
-      </ul>
+      <ul>{pets?.map((pet) => <li key={pet.id}>{pet.name}</li>)}</ul>
     </>
   )
 }

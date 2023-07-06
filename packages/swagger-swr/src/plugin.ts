@@ -91,7 +91,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
             const path = getRelativePath(
               pathParser.resolve(this.config.root, this.config.output.path),
-              pathParser.resolve(root, renderTemplate(template, { tag }))
+              pathParser.resolve(root, renderTemplate(template, { tag })),
             )
             const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}SWRHooks', { tag }), pluginName })
 

@@ -26,7 +26,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
  */
 export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
-  options?: { query?: UseQueryOptions<TData, TError> }
+  options?: { query?: UseQueryOptions<TData, TError> },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
@@ -42,7 +42,7 @@ export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser4
 }
 
 export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params?: LoginUserQueryParams
+  params?: LoginUserQueryParams,
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = loginUserQueryKey(params)
 
@@ -67,7 +67,7 @@ export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TE
  */
 export function useLoginUserInfinite<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
-  options?: { query?: UseInfiniteQueryOptions<TData, TError> }
+  options?: { query?: UseInfiniteQueryOptions<TData, TError> },
 ): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)

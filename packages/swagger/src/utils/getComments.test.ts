@@ -16,7 +16,7 @@ describe('getComments', () => {
         isDeprecated() {
           return true
         },
-      } as Operation)
+      } as Operation),
     ).toStrictEqual(['@description description', '@summary summary', '@link /pets/:id', '@deprecated'])
   })
 })

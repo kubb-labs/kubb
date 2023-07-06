@@ -24,7 +24,7 @@ describe('getConfig', () => {
         filepath: './',
         isEmpty: false,
       },
-      {}
+      {},
     )
 
     expect(kubbUserConfig).toEqual({
@@ -56,7 +56,7 @@ describe('getConfig', () => {
         filepath: './',
         isEmpty: false,
       },
-      {}
+      {},
     )
 
     expect(kubbUserConfig).toEqual({
@@ -88,7 +88,7 @@ describe('getConfig', () => {
         filepath: './',
         isEmpty: false,
       },
-      {}
+      {},
     )
 
     expect(kubbUserConfig.plugins?.[0].name).toEqual(createSwagger({}).name)
@@ -112,7 +112,7 @@ describe('getConfig', () => {
         filepath: './',
         isEmpty: false,
       },
-      {}
+      {},
     )
 
     expect(kubbUserConfig.plugins?.[0].name).toEqual(createSwagger({}).name)

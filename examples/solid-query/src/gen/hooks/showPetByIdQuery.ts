@@ -7,7 +7,7 @@ export const showPetByIdQueryKey = (petId: ShowPetByIdPathParams['petId'], testI
 
 export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
-  testId: ShowPetByIdPathParams['testId']
+  testId: ShowPetByIdPathParams['testId'],
 ): CreateQueryOptions<TData, TError> {
   const queryKey = () => showPetByIdQueryKey(petId, testId)
 
@@ -29,7 +29,7 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError
 export function showPetByIdQuery<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
-  options?: { query?: CreateQueryOptions<TData, TError> }
+  options?: { query?: CreateQueryOptions<TData, TError> },
 ): CreateQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey?.() ?? showPetByIdQueryKey(petId, testId)
@@ -46,7 +46,7 @@ export function showPetByIdQuery<TData = ShowPetByIdQueryResponse, TError = unkn
 
 export function showPetByIdQueryOptionsInfinite<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
-  testId: ShowPetByIdPathParams['testId']
+  testId: ShowPetByIdPathParams['testId'],
 ): CreateInfiniteQueryOptions<TData, TError> {
   const queryKey = () => showPetByIdQueryKey(petId, testId)
 
@@ -68,7 +68,7 @@ export function showPetByIdQueryOptionsInfinite<TData = ShowPetByIdQueryResponse
 export function showPetByIdQueryInfinite<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
-  options?: { query?: CreateInfiniteQueryOptions<TData, TError> }
+  options?: { query?: CreateInfiniteQueryOptions<TData, TError> },
 ): CreateInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey?.() ?? showPetByIdQueryKey(petId, testId)
