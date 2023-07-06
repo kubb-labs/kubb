@@ -18,7 +18,6 @@ export default defineConfig(async () => {
     hooks: {
       done: ['npx eslint --fix ./src/gen', 'prettier --write "**/*.{ts,tsx}"', 'pnpm typecheck'],
     },
-    logLevel: 'info',
     plugins: [
       ['@kubb/swagger', { output: false, validate: true }],
       [

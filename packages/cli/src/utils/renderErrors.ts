@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { LogLevels } from '@kubb/core'
-import { LogLevel, ParallelPluginError, canLogHierarchy } from '@kubb/core'
+import { LogLevel, ParallelPluginError } from '@kubb/core'
 import PrettyError from 'pretty-error'
 
 export const prettyError = new PrettyError()
@@ -43,17 +43,17 @@ export function renderErrors(error: Error | undefined, { prefixText, logLevel = 
     return [prefixText, ...error.errors.map((e) => renderErrors(e, { logLevel }))].filter(Boolean).join('\n')
   }
 
-  if (canLogHierarchy(logLevel, 'info')) {
-    const errors = getErrorCauses([error])
+  if (logLevel === LogLevel.silent) {
+    // skip when no debug is set
+    prettyError.skipNodeFiles()
+    prettyError.skip(function () {
+      return true
+    } as PrettyError.Callback)
 
-    return [prefixText, ...errors].filter(Boolean).join('\n')
+    return [prefixText, prettyError.render(error)].filter(Boolean).join('\n')
   }
 
-  // skip when no debug is set
-  prettyError.skipNodeFiles()
-  prettyError.skip(function () {
-    return true
-  } as PrettyError.Callback)
+  const errors = getErrorCauses([error])
 
-  return [prefixText, prettyError.render(error)].filter(Boolean).join('\n')
+  return [prefixText, ...errors].filter(Boolean).join('\n')
 }

@@ -81,15 +81,6 @@
         }
       ],
       "description": "Plugins"
-    },
-    "logLevel": {
-      "type": "string",
-      "description": "Log level to report when using the CLI. silent` will hide all information that is not relevant. `info` will show all information possible(not related to the PluginManager). `stacktrace` will show all information possible(related to the PluginManager), handy for seeing logs.",
-      "enum": [
-        "silent",
-        "info",
-        "stacktrace"
-      ]
     }
   }
 }

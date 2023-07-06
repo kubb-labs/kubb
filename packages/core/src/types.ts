@@ -79,17 +79,6 @@ export type KubbConfig = {
      */
     done?: string | string[]
   }
-  /**
-   * Log level to report when using the CLI
-   *
-   * `silent` will hide all information that is not relevant
-   *
-   * `info` will show all information possible(not related to the PluginManager)
-   *
-   * `stacktrace` will show all information possible(related to the PluginManager), handy for seeing logs
-   * @default `silent`
-   */
-  logLevel?: LogLevels
 }
 
 export type CLIOptions = {
@@ -98,17 +87,19 @@ export type CLIOptions = {
    */
   config?: string
   /**
-   * Enable debug mode
-   */
-  debug?: boolean
-  /**
    * Watch changes on input
    */
   watch?: string
 
   /**
-   * Override `logLevel` defined in `kubb.config.js`
-   * @default `'silent'`
+   * Log level to report when using the CLI
+   *
+   * `silent` will hide all information that is not relevant
+   *
+   * `info` will show all information possible(not related to the PluginManager)
+   *
+   * `debug` will show all information possible(related to the PluginManager), handy for seeing logs
+   * @default `silent`
    */
   logLevel?: LogLevels
   init?: unknown
@@ -283,7 +274,7 @@ export type FileName = string | null | undefined
 export const LogLevel = {
   silent: 'silent',
   info: 'info',
-  stacktrace: 'stacktrace',
+  debug: 'debug',
 } as const
 
 export type LogLevels = keyof typeof LogLevel

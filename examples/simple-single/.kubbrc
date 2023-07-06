@@ -12,7 +12,6 @@ module.exports = defineConfig(() => {
     output: {
       path: './src/gen',
     },
-    logLevel: 'info',
     plugins: [createSwagger({  }), createSwaggerTS({}), createSwaggerTanstackQuery({})],
   }
 })

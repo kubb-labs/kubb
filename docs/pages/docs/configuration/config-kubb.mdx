@@ -1,7 +1,7 @@
 import { Callout } from 'nextra-theme-docs'
 
 ## Configuring Kubb
-Kubb is configured with an configuation file (prefered with `kubb.config.js`).
+Kubb is configured with an configuation file (preferably with `kubb.config.js`).
 
 ## TypeScript/JavaScript
 
@@ -87,7 +87,6 @@ export default defineConfig(async () => {
     output: {
       path: './src/gen',
     },
-    logLevel: 'info',
     plugins: [createSwagger({ "output": "schemas", "validate": true })],
   }
 })
@@ -95,7 +94,7 @@ export default defineConfig(async () => {
 
 ## JSON
 
-You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packages/core/schemas/config.json) to have some auto complete.
+You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packages/core/schema.json) to be sure you are using the correct configs.
 
 ### Example with a plugin
 
@@ -146,7 +145,6 @@ You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packa
     path: ./petStore.yaml
   output:
     path: ./src/gen
-  logLevel: info
   plugins:
     - '@kubb/swagger'
     - output: schemas
