@@ -261,7 +261,7 @@ export default defineConfig({
     ],
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2022-present Stijn Van Hulle',
+      copyright: `Copyright © 2022-${new Date().getFullYear()} Stijn Van Hulle`,
     },
     // algolia: {
     //   appId: "",
