@@ -19,6 +19,10 @@ With the Swagger Form plugin you can create:
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/swagger-form
+```
+
 ```shell [pnpm]
 pnpm add @kubb/swagger-form
 ```
@@ -66,7 +70,7 @@ Name to be used for the `export * as {{exportAs}} from './`
 Type: `string` <br/>
 Default: `"{{tag}}forms"`
 
-### withDevtools
+### withDevtools <Badge type="danger" text="deprecated" />
 Includes `@hookform/devtools
 
 Type: `boolean` <br/>

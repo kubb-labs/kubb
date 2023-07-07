@@ -23,6 +23,13 @@ export default defineConfig({
   srcDir: './src',
   cleanUrls: true,
   ignoreDeadLinks: true,
+  lastUpdated: true,
+  markdown: {
+    theme: {
+      light: 'github-light',
+      dark: 'github-dark',
+    },
+  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: {
@@ -76,12 +83,12 @@ export default defineConfig({
         text: 'Configuration',
         items: [
           {
-            text: 'kubb.config.js',
-            link: '/configuration/configure',
-          },
-          {
             text: 'Options',
             link: '/configuration/options',
+          },
+          {
+            text: '<code class="code">kubb.config.js</code>',
+            link: '/configuration/configure',
           },
         ],
       },
@@ -112,7 +119,7 @@ export default defineConfig({
             link: '/plugins/core/',
             items: [
               {
-                text: 'globals.d.ts',
+                text: 'globals.d.ts <span class="beta">beta</span>',
                 link: '/plugins/core/globals',
               },
             ],
@@ -127,7 +134,7 @@ export default defineConfig({
           },
           {
             text: 'swagger',
-            collapsed: true,
+            collapsed: false,
             items: [
               { text: '@kubb/swagger', link: '/plugins/swagger' },
               {
@@ -135,11 +142,11 @@ export default defineConfig({
                 link: '/plugins/swagger-client/',
                 items: [
                   {
-                    text: 'globals.d.ts',
+                    text: 'globals.d.ts <span class="beta">beta</span>',
                     link: '/plugins/swagger-client/globals',
                   },
                   {
-                    text: 'client',
+                    text: 'client <span class="beta">beta</span>',
                     link: '/plugins/swagger-client/client',
                   },
                 ],
@@ -165,11 +172,11 @@ export default defineConfig({
                 link: '/plugins/swagger-swr',
               },
               {
-                text: '@kubb/swagger-faker',
+                text: '@kubb/swagger-faker <span class="new">new</span>',
                 link: '/plugins/swagger-faker',
               },
               {
-                text: '@kubb/swagger-form',
+                text: '@kubb/swagger-form <span class="new">new</span><span class="beta">beta</span>',
                 link: '/plugins/swagger-form',
               },
             ],
@@ -177,7 +184,7 @@ export default defineConfig({
         ],
       },
       {
-        text: 'API',
+        text: 'API <span class="beta">under construction</span>',
         collapsed: false,
         items: [
           {
@@ -232,7 +239,7 @@ export default defineConfig({
             link: '/examples/faker',
           },
           {
-            text: 'Form',
+            text: 'Form <span class="new">new</span>',
             items: [
               {
                 text: 'Data-driven-forms',

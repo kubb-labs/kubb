@@ -27,6 +27,10 @@ The Swagger plugin also contains some classes and functions that can be used in 
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/swagger
+```
+
 ```shell [pnpm]
 pnpm add @kubb/swagger
 ```

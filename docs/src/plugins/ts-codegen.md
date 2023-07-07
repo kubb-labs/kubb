@@ -20,6 +20,10 @@ This library contains also the logic to `print` the nodes(convert AST to string)
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/ts-codegen
+```
+
 ```shell [pnpm]
 pnpm add @kubb/ts-codegen
 ```

@@ -12,6 +12,10 @@ With the Swagger zodios plugin you can use [zodios](https://github.com/ecyrbe/zo
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/swagger-zodios
+```
+
 ```shell [pnpm]
 pnpm add @kubb/swagger-zodios
 ```

@@ -12,6 +12,10 @@ With the Swagger TypeScript plugin you can create [TypeScript](https://www.types
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/swagger-ts
+```
+
 ```shell [pnpm]
 pnpm add @kubb/swagger-ts
 ```

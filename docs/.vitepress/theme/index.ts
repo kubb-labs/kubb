@@ -8,7 +8,9 @@ import './style.css'
 
 import allContributorsStr from '../../../.all-contributorsrc?raw'
 
-inject({})
+inject({
+  mode: 'auto',
+})
 
 export default {
   extends: Theme,

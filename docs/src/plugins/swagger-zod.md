@@ -12,6 +12,10 @@ With the Swagger Zod plugin you can use [Zod](https://zod.dev/) to validate your
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/swagger-zod
+```
+
 ```shell [pnpm]
 pnpm add @kubb/swagger-zod
 ```

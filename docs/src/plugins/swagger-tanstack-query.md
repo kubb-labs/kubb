@@ -18,6 +18,10 @@ With the Swagger Tanstack Query plugin you can create:
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/swagger-tanstack-query
+```
+
 ```shell [pnpm]
 pnpm add @kubb/swagger-tanstack-query
 ```

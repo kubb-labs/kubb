@@ -12,6 +12,10 @@ With the Swagger SWR plugin you can create [SWR hooks](https://swr.vercel.app/) 
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/swagger-swr
+```
+
 ```shell [pnpm]
 pnpm add @kubb/swagger-swr
 ```

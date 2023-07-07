@@ -92,6 +92,10 @@ Run the Kubb script with the following command.
 
 ::: code-group
 
+```shell [bun]
+bun run generate
+```
+
 ```shell [pnpm]
 pnpm run generate
 ```

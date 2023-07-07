@@ -27,6 +27,10 @@ The core contains the building blocks for all plugins.
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/core
+```
+
 ```shell [pnpm]
 pnpm add @kubb/core
 ```

@@ -19,6 +19,10 @@ You can install Kubb via [NPM](https://www.npmjs.com/).
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/cli @kubb/core
+```
+
 ```shell [pnpm]
 pnpm add @kubb/cli @kubb/core
 ```
@@ -37,6 +41,10 @@ yarn add @kubb/cli @kubb/core
 Kubb also publishes a canary version on every commit. To install the canary:
 
 ::: code-group
+
+```shell [bun]
+bun add @kubb/cli@canary @kubb/core@canary
+```
 
 ```shell [pnpm]
 pnpm add @kubb/cli@canary @kubb/core@canary

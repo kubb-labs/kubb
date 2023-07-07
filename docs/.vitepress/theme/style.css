@@ -85,3 +85,42 @@
   --docsearch-primary-color: var(--vp-c-brand) !important;
 }
 
+.details a {
+  color: var(--vp-c-brand);
+}
+
+.new {
+  border-color: var(--vp-badge-tip-border);
+  color: var(--vp-badge-tip-text);
+  background-color: var(--vp-badge-tip-bg);
+  display: inline-block;
+  margin-left: 5px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0 8px;
+  line-height: 18px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.beta {
+  border-color: var(--vp-badge-warning-border);
+  color: var(--vp-badge-warning-text);
+  background-color: var(--vp-badge-warning-bg);
+  display: inline-block;
+  margin-left: 5px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0 8px;
+  line-height: 18px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.code {
+  border-radius: 4px;
+  padding: 3px 6px;
+  color: var(--vp-c-text-code);
+  background-color: var(--vp-c-mute);
+  transition: color 0.5s, background-color 0.5s;
+}

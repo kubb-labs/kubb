@@ -12,6 +12,10 @@ With the Swagger Faker plugin you can use [Faker](https://fakerjs.dev/) to creat
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/swagger-faker
+```
+
 ```shell [pnpm]
 pnpm add @kubb/swagger-faker
 ```

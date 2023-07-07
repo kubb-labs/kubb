@@ -10,6 +10,10 @@ outline: deep
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/cli
+```
+
 ```shell [pnpm]
 pnpm add @kubb/cli
 ```

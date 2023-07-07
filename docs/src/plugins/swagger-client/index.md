@@ -12,6 +12,10 @@ With the Swagger client plugin you can create [Axios](https://axios-http.com/doc
 
 ::: code-group
 
+```shell [bun]
+bun add @kubb/swagger-client
+```
+
 ```shell [pnpm]
 pnpm add @kubb/swagger-client
 ```
