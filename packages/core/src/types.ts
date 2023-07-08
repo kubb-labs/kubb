@@ -102,7 +102,6 @@ export type CLIOptions = {
    * @default `silent`
    */
   logLevel?: LogLevels
-  init?: unknown
 }
 
 export type BuildOutput = {

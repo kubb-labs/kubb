@@ -3,14 +3,15 @@ import { defineConfig } from 'vitepress'
 import { version } from '../../packages/core/package.json'
 
 const ogImage = 'https://kubb.dev/og.png'
+const description = 'Generate SDKs for all your APIs'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   lang: 'en-UK',
   title: 'Kubb',
-  description: 'OpenAPI generated clients',
+  description,
   head: [
-    ['meta', { property: 'og:title', content: 'Kubb: OpenAPI generated clients' }],
+    ['meta', { property: 'og:title', content: `Kubb: ${description}` }],
     ['meta', { property: 'og:image', content: ogImage }],
     ['meta', { name: 'twitter:image', content: ogImage }],
     ['meta', { name: 'theme-color', content: '#DBCAFF' }],
@@ -72,6 +73,10 @@ export default defineConfig({
           {
             text: 'Introduction',
             link: '/introduction',
+          },
+          {
+            text: 'Comparison <span class="beta">under construction</span>',
+            link: '/comparison',
           },
           {
             text: 'Quick start',

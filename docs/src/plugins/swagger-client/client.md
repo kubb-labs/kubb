@@ -5,12 +5,7 @@ title: Client
 outline: deep
 ---
 
-# Client
-
-::: warning
- Under construction
-:::
-
+# Client <Badge type="warning" text="beta" />
 
 ## Features
 

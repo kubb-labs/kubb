@@ -6,7 +6,7 @@ outline: deep
 ---
 
 # Configuring Kubb
-Kubb is configured with an configuation file (preferably with `kubb.config.js`).
+Kubb is configured with a configuation file (preferably with `kubb.config.js`).
 
 ## TypeScript/JavaScript
 
@@ -54,9 +54,26 @@ Here you can choose between returning the config options synchronously or asynch
 ``` typescript
 // CLI options flags
 export type CLIOptions = {
+  /**
+   * Path to `kubb.config.js`
+   */
   config?: string
-  debug?: boolean
+  /**
+   * Watch changes on input
+   */
   watch?: string
+
+  /**
+   * Log level to report when using the CLI
+   *
+   * `silent` will hide all information that is not relevant
+   *
+   * `info` will show all information possible(not related to the PluginManager)
+   *
+   * `debug` will show all information possible(related to the PluginManager), handy for seeing logs
+   * @default `silent`
+   */
+  logLevel?: LogLevels
 }
 ```
 

@@ -4,11 +4,7 @@ layout: doc
 title: Globals.d.ts
 outline: deep
 ---
-# Globals.d.ts
-
-::: warning
- Under construction
-:::
+# Globals.d.ts <Badge type="warning" text="beta" />
 
 ## Features
 

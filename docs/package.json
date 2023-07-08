@@ -23,7 +23,7 @@
   "devDependencies": {
     "@kubb/core": "workspace:*",
     "@next/env": "^13.4.9",
-    "@types/node": "^20.4.0",
+    "@types/node": "^20.4.1",
     "vitepress": "1.0.0-beta.5"
   },
   "packageManager": "pnpm@8.3.0",

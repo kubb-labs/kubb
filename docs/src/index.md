@@ -3,12 +3,12 @@ layout: home
 sidebar: false
 
 title: Kubb
-titleTemplate: OpenAPI generated clients
+titleTemplate: Generate SDKs for all your APIs
 
 hero:
   name: Kubb
-  text: OpenAPI generated clients
-  # tagline:
+  text: Generate SDKs for all your APIs
+  tagline: OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js and Axios. 
   image:
     src: /logo.png
     alt: Kubbb
@@ -28,7 +28,7 @@ features:
       src: ./typescript.svg
       height: 24
     title: TypeScript
-    details: Out-of-box <a href=""https://www.typescriptlang.org/">TypeScript</a> (with JSDoc) support.
+    details: Out-of-box <a href="https://www.typescriptlang.org/">TypeScript</a> (with JSDoc) support.
   - icon: 
       src: ./tanstack.svg
       height: 24
@@ -44,7 +44,7 @@ features:
       src: ./zod.svg
       height: 24
     title: Zod
-    details: Validate your data with <a href="https:/zod.dev/">Zod</a> schemas.
+    details: Validates your data with the power of <a href="https:/zod.dev/">Zod</a> schemas.
   - icon: 
       src: ./zodios.svg
     title: Zodios
@@ -57,7 +57,7 @@ features:
       dark: ./form-dark.svg
       light: ./form-light.svg
     title: Forms <span class="new">new</span> <span class="beta">beta</span>
-    details: Create forms based on your Swagger/OpenAPI file with support for react-hook-form, data-driven-forms.
+    details: Create forms based on your Swagger/OpenAPI file with support for <a href="https://react-hook-form.com/">react-hook-form</a>, <a href="https://www.data-driven-forms.org/">data-driven-forms</a>.
   - icon: 
       src: https://fakerjs.dev/logo.svg
     title: Faker <span class="new">new</span>
@@ -69,7 +69,7 @@ features:
   - icon: 
       src: ./cli.svg
     title: CLI support
-    details: Log and see what is happening with the Kubb command.
+    details: Log and see what is happening with the <span class="code">Kubb</span> CLI command.
   - icon: 
       dark: ./plugins-dark.svg
       light: ./plugins-light.svg
