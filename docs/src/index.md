@@ -48,7 +48,7 @@ features:
   - icon: 
       src: ./zodios.svg
     title: Zodios
-    details: <a href=""https://www.zodios.org/>End-to-end typesafe REST API toolbox</a> created based on our <a href="https:/zod.dev/">Zod</a> plugin.
+    details: <a href="https://www.zodios.org/>End-to-end typesafe REST API toolbox</a> created based on our <a href="https:/zod.dev/">Zod</a> plugin.
   - icon: 
       src: ./axios.svg
     title: Axios
