@@ -51,17 +51,15 @@
     },
     "release": {
       "dependsOn": [
-        "^build"
+     
       ],
-      "outputs": [],
-      "cache": false
+      "outputs": []
     },
     "release:canary": {
       "dependsOn": [
-        "^build"
+     
       ],
-      "outputs": [],
-      "cache": false
+      "outputs": []
     },
     "generate": {
       "dependsOn": [
