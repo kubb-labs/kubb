@@ -1,7 +1,9 @@
 // https://vitepress.dev/guide/custom-theme
 import { h } from 'vue'
-import Theme from 'vitepress/theme'
+import DefaultTheme from 'vitepress/theme'
+import { EnhanceAppContext } from 'vitepress/dist/client'
 import { inject } from '@vercel/analytics'
+
 import HomePage from './HomePage.vue'
 
 import './style.css'
@@ -13,14 +15,14 @@ inject({
 })
 
 export default {
-  extends: Theme,
+  ...DefaultTheme,
   Layout: () => {
-    return h(Theme.Layout, null, {
+    return h(DefaultTheme.Layout, null, {
       // https://vitepress.dev/guide/extending-default-theme#layout-slots
-      // 'home-features-after': () => h(HomePage, { allContributors: JSON.parse(allContributorsStr) }),
+      'home-features-after': () => h(HomePage, { allContributors: JSON.parse(allContributorsStr) }),
     })
   },
-  enhanceApp({ app, router, siteData }) {
-    // ...
+  enhanceApp(ctx: EnhanceAppContext) {
+    DefaultTheme.enhanceApp(ctx)
   },
 }
