@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.5.0...@kubb/swagger-tanstack-query-v1.5.1) (2023-07-08)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/swagger-tanstack-query:** Synchronize undefined versions
+
 ## [1.5.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.4.2...@kubb/swagger-tanstack-query-v1.5.0) (2023-07-05)
 
 

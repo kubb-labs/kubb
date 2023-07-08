@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.5.0...@kubb/core-v1.5.1) (2023-07-08)
+
+
+### 📚 Documentation
+
+* use of vitepress ([346a3b7](https://github.com/kubb-project/kubb/commit/346a3b7099e7019c04750bad8fe1fa9dc66c3c97))
+
 ## [1.5.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.4.2...@kubb/core-v1.5.0) (2023-07-05)
 
 
