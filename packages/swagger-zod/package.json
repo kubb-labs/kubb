@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-zod",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Generator swagger-zod",
   "keywords": [
     "zod",
