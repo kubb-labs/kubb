@@ -17,7 +17,7 @@ export default {
   Layout: () => {
     return h(Theme.Layout, null, {
       // https://vitepress.dev/guide/extending-default-theme#layout-slots
-      'home-features-after': () => h(HomePage, { allContributors: JSON.parse(allContributorsStr) }),
+      // 'home-features-after': () => h(HomePage, { allContributors: JSON.parse(allContributorsStr) }),
     })
   },
   enhanceApp({ app, router, siteData }) {
