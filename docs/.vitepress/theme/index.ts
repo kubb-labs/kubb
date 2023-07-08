@@ -8,7 +8,7 @@ import HomePage from './HomePage.vue'
 
 import './style.css'
 
-import allContributorsStr from '../../.all-contributorsrc?raw'
+import allContributorsStr from '../../../.all-contributorsrc?raw'
 
 inject({
   mode: 'auto',
