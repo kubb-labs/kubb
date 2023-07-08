@@ -3,21 +3,26 @@ import { defineConfig } from 'vitepress'
 import { version } from '../../packages/core/package.json'
 
 const ogImage = 'https://kubb.dev/og.png'
-const description = 'Generate SDKs for all your APIs'
+const title = 'Generate SDKs for all your APIs'
+const description = 'OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js and Axios. '
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   lang: 'en-UK',
   title: 'Kubb',
-  description,
+  description: title,
   head: [
-    ['meta', { property: 'og:title', content: `Kubb: ${description}` }],
+    ['meta', { property: 'og:title', content: `Kubb: ${title}` }],
     ['meta', { property: 'og:image', content: ogImage }],
+    ['meta', { property: 'og:description', content: description }],
+    ['meta', { property: 'og:url', content: 'https://kubb.dev' }],
     ['meta', { name: 'twitter:image', content: ogImage }],
     ['meta', { name: 'theme-color', content: '#DBCAFF' }],
     ['meta', { property: 'twitter:card', content: 'summary_large_image' }],
     ['meta', { property: 'twitter:site:domain', content: 'kubb.dev' }],
     ['meta', { property: 'twitter:site:url', content: 'https://kubb.dev' }],
+    ['meta', { property: 'twitter:title', content: title }],
+    ['meta', { property: 'twitter:description', content: description }],
     ['link', { rel: 'icon', href: '/logo.png', type: 'image/png' }],
     ['link', { rel: 'mask-icon', href: '/logo.png', color: '#ffffff' }],
   ],
