@@ -138,7 +138,7 @@ export default defineConfig({
             link: '/plugins/ts-codegen',
           },
           {
-            text: 'swagger',
+            text: 'Swagger plugins',
             collapsed: false,
             items: [
               { text: '@kubb/swagger', link: '/plugins/swagger' },
