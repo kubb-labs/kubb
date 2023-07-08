@@ -47,7 +47,7 @@
 
 ## Features
 
-<img src="assets/kubb-generate.gif" alt="generate gif"  height="auto" />
+<img src="../assets/kubb-generate.gif" alt="generate gif"  height="auto" />
 
 * Generates Axios calls for every endpoint, with typed payload.
 * Generates strong TypeScript types for every operation and property based on a specific OpenAPI specification.
