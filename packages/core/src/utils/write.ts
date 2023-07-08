@@ -1,6 +1,6 @@
 import fs from 'fs-extra'
 import pathParser from 'node:path'
-import { runtimeSwitch } from 'js-runtime'
+import { switcher } from 'js-runtime'
 
 async function saveCreateDirectory(path: string): Promise<void> {
   // resolve the full path and get just the directory, ignoring the file and extension
@@ -9,24 +9,22 @@ async function saveCreateDirectory(path: string): Promise<void> {
   await fs.mkdir(passedPath, { recursive: true })
 }
 
-const writeNode = async (path: string, data: string) => {
-  try {
-    await fs.stat(path)
-    const oldContent = await fs.readFile(path, { encoding: 'utf-8' })
-    if (oldContent?.toString() === data) {
-      return
-    }
-  } catch (_err) {
-    /* empty */
-  }
-
-  await saveCreateDirectory(path)
-  return fs.writeFile(pathParser.resolve(path), data, { encoding: 'utf-8' })
-}
-
-const writer = runtimeSwitch(
+const writer = switcher(
   {
-    node: writeNode,
+    node: async (path: string, data: string) => {
+      try {
+        await fs.stat(path)
+        const oldContent = await fs.readFile(path, { encoding: 'utf-8' })
+        if (oldContent?.toString() === data) {
+          return
+        }
+      } catch (_err) {
+        /* empty */
+      }
+
+      await saveCreateDirectory(path)
+      return fs.writeFile(pathParser.resolve(path), data, { encoding: 'utf-8' })
+    },
     bun: async (path: string, data: string) => {
       try {
         await saveCreateDirectory(path)
@@ -37,7 +35,7 @@ const writer = runtimeSwitch(
       }
     },
   },
-  writeNode,
+  'node',
 )
 
 export async function write(data: string, path: string): Promise<void> {

@@ -1,7 +1,7 @@
 import pathParser from 'node:path'
 import fs from 'fs-extra'
 
-import { runtimeSwitch } from 'js-runtime'
+import { switcher } from 'js-runtime'
 
 function slash(path: string, platform: 'windows' | 'mac' | 'linux' = 'linux') {
   const isWindowsPath = /^\\\\\?\\/.test(path)
@@ -42,20 +42,18 @@ export function getPathMode(path: string | undefined | null): PathMode {
   return pathParser.extname(path) ? 'file' : 'directory'
 }
 
-const readNode = async (path: string) => {
-  return fs.readFile(path, { encoding: 'utf8' })
-}
-
-const reader = runtimeSwitch(
+const reader = switcher(
   {
-    node: readNode,
+    node: async (path: string) => {
+      return fs.readFile(path, { encoding: 'utf8' })
+    },
     bun: async (path: string) => {
       const file = Bun.file(path)
 
       return file.text()
     },
   },
-  readNode,
+  'node',
 )
 
 export async function read(path: string): Promise<string> {

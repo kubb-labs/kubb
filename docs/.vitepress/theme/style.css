@@ -1,0 +1,178 @@
+/**
+ * Customize default theme styling by overriding CSS variables:
+ * https://github.com/vuejs/vitepress/blob/main/src/client/theme-default/styles/vars.css
+ */
+
+/**
+ * Colors
+ * -------------------------------------------------------------------------- */
+
+ :root {
+  --vp-c-brand: #f58517;
+  --vp-c-brand-light: #f58517;
+  --vp-c-brand-lighter: #f58517;
+  --vp-c-brand-lightest: #f58517;
+  --vp-c-brand-dark: #854811;
+  --vp-c-brand-darker: #854811;
+  --vp-c-brand-dimm: rgba(100, 108, 255, 0.08);
+}
+
+/**
+ * Component: Button
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --vp-button-brand-border: var(--vp-c-brand-light);
+  --vp-button-brand-text: var(--vp-c-white);
+  --vp-button-brand-bg: var(--vp-c-brand);
+  --vp-button-brand-hover-border: var(--vp-c-brand-light);
+  --vp-button-brand-hover-text: var(--vp-c-white);
+  --vp-button-brand-hover-bg: var(--vp-c-brand-light);
+  --vp-button-brand-active-border: var(--vp-c-brand-light);
+  --vp-button-brand-active-text: var(--vp-c-white);
+  --vp-button-brand-active-bg: var(--vp-button-brand-bg);
+}
+
+/**
+ * Component: Home
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: -webkit-linear-gradient(
+    120deg,
+    #f58517 30%,
+    #f7797d
+  );
+
+  --vp-home-hero-image-background-image: linear-gradient(-45deg, rgb(245, 133, 23) 50%, rgb(227, 192, 157) 50%);
+  --vp-home-hero-image-background-image-invert: linear-gradient(-90deg, rgb(245, 133, 23) 50%, rgb(227, 192, 157) 50%);
+  --vp-home-hero-image-filter: blur(40px);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --vp-home-hero-image-filter: blur(56px);
+  }
+}
+
+@media (min-width: 960px) {
+  :root {
+    --vp-home-hero-image-filter: blur(72px);
+  }
+}
+
+/**
+ * Component: Custom Block
+ * -------------------------------------------------------------------------- */
+
+:root {
+  --vp-custom-block-tip-border: var(--vp-c-brand);
+  --vp-custom-block-tip-text: var(--vp-c-brand-darker);
+  --vp-custom-block-tip-bg: var(--vp-c-brand-dimm);
+}
+
+.dark {
+  --vp-custom-block-tip-border: var(--vp-c-brand);
+  --vp-custom-block-tip-text: var(--vp-c-brand-lightest);
+  --vp-custom-block-tip-bg: var(--vp-c-brand-dimm);
+}
+
+/**
+ * Component: Algolia
+ * -------------------------------------------------------------------------- */
+
+.DocSearch {
+  --docsearch-primary-color: var(--vp-c-brand) !important;
+}
+
+.details a {
+  color: var(--vp-c-brand);
+}
+
+.new {
+  border-color: var(--vp-badge-tip-border);
+  color: var(--vp-badge-tip-text);
+  background-color: var(--vp-badge-tip-bg);
+  display: inline-block;
+  margin-left: 5px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0 8px;
+  line-height: 18px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.beta {
+  border-color: var(--vp-badge-warning-border);
+  color: var(--vp-badge-warning-text);
+  background-color: var(--vp-badge-warning-bg);
+  display: inline-block;
+  margin-left: 5px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0 8px;
+  line-height: 18px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.code {
+  border-radius: 4px;
+  padding: 3px 6px;
+  color: var(--vp-c-text-code);
+  background-color: var(--vp-c-mute);
+  transition: color 0.5s, background-color 0.5s;
+}
+
+.item .VPFeature {
+  transition: transform 0.25s ease 0s, filter 0.25s ease 0s, box-shadow 0.25s ease 0s;
+}
+.item .VPFeature:hover {
+  box-shadow: 0 25px 65px 0px rgba(0, 0, 0, 0.35);
+}
+
+@keyframes scale {
+  0% {
+    transform: scale(1)
+  }
+  50% {
+    transform: scale(1.2)
+  }
+  100% {
+    transform: scale(1)
+  }
+}
+
+@keyframes scale-mascot {
+  0% {
+    transform-origin: 0 0;
+    transform: scale(1) rotate(0deg) translate(-50%, -50%)
+  }
+  50% {
+    transform-origin: 0 0;
+    transform: scale(1.2) rotate(10deg) translate(-50%, -50%)
+  }
+  100% {
+    transform-origin: 0 0;
+    transform: scale(1) rotate(0deg) translate(-50%, -50%)
+  }
+}
+
+.image {
+  transition: transform .25s, visibility .25s ease-in;
+  animation-name: scale;
+  animation-duration: 5s;
+  animation-delay: 2.5s;
+  animation-iteration-count: 10;
+}
+
+.image img {
+  transition: transform .25s, visibility .25s ease-in;
+  animation-name: scale-mascot;
+  animation-duration: 5s;
+  animation-delay: 2.5s;
+  animation-
+  animation-iteration-count: 10;
+}
