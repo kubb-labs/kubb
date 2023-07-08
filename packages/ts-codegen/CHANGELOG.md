@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.5.0...@kubb/ts-codegen-v1.5.1) (2023-07-08)
+
+
+### 🐞 Bug Fixes
+
+* upgrade packages for vitest ([9a0778e](https://github.com/kubb-project/kubb/commit/9a0778e07969a23d8e5663da308181d36b1d8272))
+
 ## [1.5.0](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.4.2...@kubb/ts-codegen-v1.5.0) (2023-07-05)
 
 
