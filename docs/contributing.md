@@ -8,7 +8,7 @@ import {
   VPTeamMembers
 } from 'vitepress/theme'
 
-import allContributorsStr from '../../.all-contributorsrc?raw'
+import allContributorsStr from '../.all-contributorsrc?raw'
 
 const allContributors= JSON.parse(allContributorsStr)
 
