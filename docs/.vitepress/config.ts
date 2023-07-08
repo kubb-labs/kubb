@@ -21,7 +21,6 @@ export default defineConfig({
     ['link', { rel: 'icon', href: '/logo.png', type: 'image/png' }],
     ['link', { rel: 'mask-icon', href: '/logo.png', color: '#ffffff' }],
   ],
-  srcDir: './src',
   cleanUrls: true,
   ignoreDeadLinks: true,
   lastUpdated: true,

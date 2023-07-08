@@ -1,8 +1,8 @@
 <script setup>
-import { computed } from 'vue';
-const props = defineProps(['allContributors']);
+import { computed } from 'vue'
+const props = defineProps(['allContributors'])
 
-const contributors = computed(() => props.allContributors.contributors);
+const contributors = computed(() => props.allContributors.contributors)
 </script>
 
 <template>

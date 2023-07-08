@@ -12,7 +12,7 @@ import allContributorsStr from '../../.all-contributorsrc?raw'
 
 const allContributors= JSON.parse(allContributorsStr)
 
-const members =  allContributors?.contributors.map(item=>{
+const members =  allContributors?.contributors?.map(item=>{
   return {
     avatar: item.avatar_url,
     name: item.name,
@@ -22,7 +22,7 @@ const members =  allContributors?.contributors.map(item=>{
       item.login==="stijnvanhulle"? { icon: 'twitter', link: "https://twitter.com/stijnvanhulle" }: undefined
     ].filter(Boolean)
   }
-})
+}) || []
 </script>
 
 <VPTeamPage>

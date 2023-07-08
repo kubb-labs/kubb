@@ -1,7 +1,7 @@
 <script setup>
-import Contributors from './Contributors.vue';
+import Contributors from './Contributors.vue'
 
-const props = defineProps(['allContributors']);
+const props = defineProps(['allContributors'])
 </script>
 
 <template>
