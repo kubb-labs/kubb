@@ -1,4 +1,3 @@
-
 import { build, ParallelPluginError, PluginError, SummaryError, timeout, createLogger, LogLevel } from '@kubb/core'
 
 import type { ExecaReturnValue } from 'execa'
@@ -40,14 +39,14 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
     const abortController = new AbortController()
     const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
 
-    spinner.start(`Executing hook ${logLevel!=="silent"? pc.dim(command) : ""}`)
+    spinner.start(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable)
     spinner.suffixText = ''
 
     if (logLevel === LogLevel.silent) {
-      spinner.succeed(`Executing hook ${logLevel!=="silent"? pc.dim(command) : ""}`)
+      spinner.succeed(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
 
       console.log(subProcess.stdout)
     }
@@ -89,7 +88,7 @@ export default async function generate({ input, config, CLIOptions }: GeneratePr
     const logLevel = CLIOptions.logLevel ?? LogLevel.silent
     const inputPath = input ?? userConfig.input.path
 
-    spinner.start(`🚀 Building ${logLevel!=="silent"? pc.dim(inputPath) : ""}`)
+    spinner.start(`🚀 Building ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
 
     const output = await build({
       config: {
@@ -108,13 +107,12 @@ export default async function generate({ input, config, CLIOptions }: GeneratePr
     })
 
     spinner.suffixText = ''
-    spinner.succeed(`🚀 Build completed ${logLevel!=="silent"? pc.dim(inputPath) : ""}`)
+    spinner.succeed(`🚀 Build completed ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
 
     await executeHooks({ hooks: config.hooks, logLevel })
 
     const summary = getSummary({ pluginManager: output.pluginManager, config, status: 'success', hrstart, logLevel: CLIOptions.logLevel })
     console.log(summary.join(''))
-
   } catch (error) {
     let summary: string[] = []
 

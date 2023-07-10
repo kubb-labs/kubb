@@ -1,4 +1,4 @@
-import ora from 'ora';
+import ora from 'ora'
 export const spinner = ora({
   spinner: 'clock',
 })

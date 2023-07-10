@@ -6,4 +6,4 @@ export * from './parseHrtimeToSeconds.ts'
 export * from './OraWritable.ts'
 export * from './renderErrors.ts'
 export * from './getErrorCause.ts'
-export * from "./spinner.ts"
+export * from './spinner.ts'
