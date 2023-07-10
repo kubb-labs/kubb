@@ -46,21 +46,9 @@
 
 ## Features
 
-<img src="assets/kubb-generate.gif" alt="generate gif"  height="auto" />
-
-* Generates Axios calls for every endpoint, with typed payload.
-* Generates strong TypeScript types for every operation and property based on a specific OpenAPI specification.
-* Generates Zod schemas for every operation and property based on a specific OpenAPI specification.
-* Generates React-Query hooks for every endpoint, with a typed payload based on the generated TypesScript types.
-* Plugin system to create your own implementation of an existing package or create a new integration(Angular Clients, Solid-Query, ...). 
-
-<!-- About the Project 
-## :star2: About the Project
-
 <div align="center"> 
-  <img src="assets/screenshot.jpg" alt="screenshot" />
+  <img src="https://raw.githubusercontent.com/kubb-project/kubb/main/assets/features.png" alt="features"  height="auto" />
 </div>
--->
 
 ## Contributors
 
