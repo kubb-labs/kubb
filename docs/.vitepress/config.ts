@@ -1,10 +1,15 @@
 import { defineConfig } from 'vitepress'
+import { createWriteStream } from 'node:fs'
+import { resolve } from 'node:path'
+import { SitemapStream } from 'sitemap'
 
 import { version } from '../../packages/core/package.json'
 
 const ogImage = 'https://kubb.dev/og.png'
 const title = 'Generate SDKs for all your APIs'
 const description = 'OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js and Axios. '
+
+const links: Array<{ url: string; lastmod: number | undefined }> = []
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -26,6 +31,25 @@ export default defineConfig({
     ['link', { rel: 'icon', href: '/logo.png', type: 'image/png' }],
     ['link', { rel: 'mask-icon', href: '/logo.png', color: '#ffffff' }],
   ],
+  transformHtml: (_, id, { pageData }) => {
+    if (!/[\\/]404\.html$/.test(id)) {
+      links.push({
+        // you might need to change this if not using clean urls mode
+        url: pageData.relativePath.replace(/((^|\/)index)?\.md$/, '$2'),
+        lastmod: pageData.lastUpdated,
+      })
+    }
+  },
+  buildEnd: async ({ outDir }) => {
+    const sitemap = new SitemapStream({
+      hostname: 'https://kubb.dev/',
+    })
+    const writeStream = createWriteStream(resolve(outDir, 'sitemap.xml'))
+    sitemap.pipe(writeStream)
+    links.forEach((link) => sitemap.write(link))
+    sitemap.end()
+    await new Promise((r) => writeStream.on('finish', r))
+  },
   cleanUrls: true,
   ignoreDeadLinks: true,
   lastUpdated: true,
