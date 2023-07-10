@@ -41,7 +41,6 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
 
     spinner.start(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable)
     spinner.suffixText = ''
 

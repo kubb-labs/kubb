@@ -15,7 +15,6 @@ const jsLoader = async (configFile: string) => {
 // TODO fix tsLoader for node 20 when using ESM only
 // https://github.com/TypeStrong/ts-node/issues/1997
 const tsLoader = (configFile: string) => {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   let registerer = { enabled() {} }
 
   try {

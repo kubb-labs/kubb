@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { renderTemplate } from '@kubb/core'
 import { sentenceCase } from 'change-case'
 export const formKeywords = {

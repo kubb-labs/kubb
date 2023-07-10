@@ -15,12 +15,12 @@ export default [
   ...kubbConfigs,
   {
     ignores: ['e2e/**', 'docs/**', 'vitest.config.ts', 'vite.config.ts'],
-    files: ['packages/**', 'examples/**', 'docs/**'],
+    files: ['packages/**', 'examples/**'],
     languageOptions: {
       parserOptions: {
         ecmaVersion: 'latest',
         tsconfigRootDir: path.dirname(fileURLToPath(import.meta.url)),
-        project: ['./examples/*/tsconfig.json', './docs/tsconfig.json', './packages/*/tsconfig.json', './packages/config/*/tsconfig.json'],
+        project: ['./examples/*/tsconfig.json', './packages/*/tsconfig.json', './packages/config/*/tsconfig.json'],
       },
     },
   },
