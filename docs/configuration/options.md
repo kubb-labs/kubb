@@ -34,7 +34,7 @@ export default defineConfig({
 :::
 
 ## input
-### input.path
+### path
 Path to be used as the input. Can be an absolute path, or a path relative from the defined root option.
 
 Type: `string` <br/>
@@ -58,7 +58,7 @@ export default defineConfig({
 :::
 
 ## output
-### output.path
+### path
 Path to be used to export all generated files. Can be an absolute path, or a path relative from the defined root option.
 
 Type: `string` <br/>

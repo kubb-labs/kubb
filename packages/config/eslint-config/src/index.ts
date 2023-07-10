@@ -19,8 +19,8 @@ const config: Linter.Config = {
     'eslint:recommended',
     'turbo',
     'prettier',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'plugin:@typescript-eslint/recommended-type-checked',
+    'plugin:@typescript-eslint/stylistic-type-checked',
     'plugin:react/recommended',
   ],
   plugins: ['@typescript-eslint', 'vitest', 'vitest-globals', 'unused-imports', 'import', 'turbo'],
@@ -50,6 +50,7 @@ const config: Linter.Config = {
      * Removes 'WARNING: You are currently running a version of TypeScript which is not officially supported by @typescript-eslint/typescript-estree.'
      */
     warnOnUnsupportedTypeScriptVersion: false,
+    project: true,
   },
   reportUnusedDisableDirectives: true,
   settings: {
@@ -67,9 +68,6 @@ const config: Linter.Config = {
     },
     react: {
       version: 'detect',
-    },
-    next: {
-      rootDir: ['docs/*/'],
     },
   },
 }

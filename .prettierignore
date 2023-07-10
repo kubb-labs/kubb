@@ -8,6 +8,7 @@
 *.css
 *.sass
 *.scss
+*.vue
 *.MD
 **/*.d.ts
 *.d.ts

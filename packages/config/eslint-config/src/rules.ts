@@ -27,6 +27,7 @@ export const rules: Linter.FlatConfig['rules'] = {
   '@typescript-eslint/no-unsafe-return': 'warn',
   '@typescript-eslint/ban-types': 'error',
   '@typescript-eslint/no-misused-promises': 'off',
+  '@typescript-eslint/no-redundant-type-constituents': 'off',
   camelcase: 'off',
   'global-require': 'off',
   'no-empty-pattern': 'warn',

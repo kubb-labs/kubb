@@ -10,11 +10,11 @@
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
-  "main": "index.js",
   "type": "module",
+  "main": "index.js",
   "scripts": {
-    "dev": "vitepress dev",
     "build": "vitepress build",
+    "dev": "vitepress dev",
     "preview": "vitepress preview",
     "serve": "vitepress serve"
   },
