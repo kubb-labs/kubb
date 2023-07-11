@@ -28,13 +28,6 @@ import type { PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'plugin-demo' as const
 
-// Register your plugin for maximum type safety
-declare module '@kubb/core' {
-  interface Register {
-    ['@kubb/plugin-demo']: PluginOptions['options']
-  }
-}
-
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'demo' } = options
   let swaggerApi: SwaggerApi

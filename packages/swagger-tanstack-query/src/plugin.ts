@@ -13,13 +13,6 @@ import type { FileMeta, PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger-tanstack-query' as const
 
-// Register your plugin for maximum type safety
-declare module '@kubb/core' {
-  interface Register {
-    ['@kubb/swagger-tanstack-query']: PluginOptions['options']
-  }
-}
-
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'hooks', groupBy, skipBy = [], framework = 'react', infinite } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`

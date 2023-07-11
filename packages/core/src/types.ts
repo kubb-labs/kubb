@@ -3,6 +3,9 @@ import type { File, FileManager } from './managers/fileManager/index.ts'
 import type { PluginManager } from './managers/index.ts'
 import type { Cache } from './utils/cache.ts'
 
+/**
+ * @deprecated
+ */
 export interface Register {}
 
 export type PossiblePromise<T> = Promise<T> | T
@@ -112,11 +115,12 @@ export type BuildOutput = {
 
 export type KubbPluginKind = 'schema' | 'controller'
 
-export type KubbJSONPlugins = [plugin: keyof Register | string, options: Register[keyof Register] | object]
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type KubbJSONPlugins = [plugin: keyof Kubb.OptionsPlugins | (string & {}), options: Kubb.OptionsPlugins[keyof Kubb.OptionsPlugins]]
 
-export type KubbObjectPlugin = keyof Register
+export type KubbObjectPlugin = keyof Kubb.OptionsPlugins
 export type KubbObjectPlugins = {
-  [K in keyof Register]: Register[K] | object
+  [K in keyof Kubb.OptionsPlugins]: Kubb.OptionsPlugins[K] | object
 }
 
 export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {

@@ -4,26 +4,15 @@ layout: doc
 title: Globals.d.ts
 outline: deep
 ---
-# Globals.d.ts <Badge type="warning" text="beta" />
+# Globals.d.ts
 
 ## Features
 
-Every plugin of `Kubb` has a `declare module` set that will append all plugins(mainly the options) to `KubbJSONPlugins` and `KubbObjectPlugins`.
+Every plugin of `Kubb` has options and with the global `Kubb` you can access those options with `KubbJSONPlugins` and `KubbObjectPlugins`.
 
-See [packages/core/src/types.ts](https://github.com/kubb-project/kubb/blob/main/packages/core/src/types.ts)
-
-But when using 'global.d.ts' or `@kubb/core` you can have a global `kubb` that will also include that information.
+See [packages/core/src/globals.d.ts](https://github.com/kubb-project/kubb/blob/main/packages/core/global.d.ts)
 
 ::: code-group
-
-```typescript [packages/swagger/src/plugin.ts]
-// Register your plugin for maximum type safety
-declare module '@kubb/core' {
-  interface Register {
-    ['@kubb/swagger']: PluginOptions['options']
-  }
-}
-```
 
 ```typescript [packages/core/globals.d.ts]
 declare module Kubb {

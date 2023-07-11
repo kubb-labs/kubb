@@ -25,12 +25,6 @@ ___ validate: true
 }
 */
 declare module Kubb {
-  /**
-   * Make it possible to extends
-   */
-  interface _Register extends KubbObjectPlugins {
-    
-  }
   type Plugins = _Register
   type OptionsPlugins = {[K in keyof KubbObjectPlugins]: KubbObjectPlugins[K]["options"]}
   

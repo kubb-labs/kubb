@@ -14,13 +14,6 @@ import type { FileMeta } from './types'
 
 export const pluginName: PluginOptions['name'] = 'swagger-client' as const
 
-// Register your plugin for maximum type safety
-declare module '@kubb/core' {
-  interface Register {
-    ['@kubb/swagger-client']: PluginOptions['options']
-  }
-}
-
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'clients', groupBy, skipBy = [] } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`

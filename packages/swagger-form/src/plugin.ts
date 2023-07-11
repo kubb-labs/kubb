@@ -13,13 +13,6 @@ import type { FileMeta, PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger-form' as const
 
-// Register your plugin for maximum type safety
-declare module '@kubb/core' {
-  interface Register {
-    ['@kubb/swagger-form']: PluginOptions['options']
-  }
-}
-
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'forms', groupBy, skipBy = [], withDevtools = false, overrides } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`

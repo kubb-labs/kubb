@@ -152,7 +152,7 @@ export default defineConfig({
             link: '/plugins/core/',
             items: [
               {
-                text: 'globals.d.ts <span class="beta">beta</span>',
+                text: 'globals.d.ts',
                 link: '/plugins/core/globals',
               },
             ],

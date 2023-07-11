@@ -44,6 +44,9 @@
       "@kubb/swagger-faker": [
         "../swagger-faker/src/index.ts"
       ],
+      "@kubb/swagger-form": [
+        "../swagger-form/src/index.ts"
+      ],
       "@kubb/swagger-tanstack-query": [
         "../swagger-tanstack-query/src/index.ts"
       ],

@@ -11,13 +11,6 @@ import type { Logger } from '@kubb/core'
 
 export const pluginName: PluginOptions['name'] = 'swagger' as const
 
-// Register your plugin for maximum type safety
-declare module '@kubb/core' {
-  interface Register {
-    ['@kubb/swagger']: PluginOptions['options']
-  }
-}
-
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'schemas', validate = true, serverIndex = 0 } = options
 

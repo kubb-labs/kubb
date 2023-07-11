@@ -14,13 +14,6 @@ import type { PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger-zodios' as const
 
-// Register your plugin for maximum type safety
-declare module '@kubb/core' {
-  interface Register {
-    ['@kubb/swagger-zodios']: PluginOptions['options']
-  }
-}
-
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'zodios.ts' } = options
   let swaggerApi: SwaggerApi

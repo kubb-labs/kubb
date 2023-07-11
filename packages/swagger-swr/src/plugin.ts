@@ -14,13 +14,6 @@ import type { FileMeta } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger-swr' as const
 
-// Register your plugin for maximum type safety
-declare module '@kubb/core' {
-  interface Register {
-    ['@kubb/swagger-swr']: PluginOptions['options']
-  }
-}
-
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'hooks', groupBy, skipBy = [] } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}SWRController`

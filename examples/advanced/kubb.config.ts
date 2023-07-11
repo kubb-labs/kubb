@@ -1,5 +1,7 @@
 import { defineConfig } from '@kubb/core'
 
+export type SwaggerPluginOptions = Kubb.OptionsPlugins
+
 export default defineConfig(async () => {
   await setTimeout(() => {
     // wait for 1s, async behaviour
@@ -101,6 +103,7 @@ export default defineConfig(async () => {
               pattern: 'store',
             },
           ],
+
           groupBy: { type: 'tag' },
         },
       ],

@@ -13,13 +13,6 @@ import type { PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger-ts' as const
 
-// Register your plugin for maximum type safety
-declare module '@kubb/core' {
-  interface Register {
-    ['@kubb/swagger-ts']: PluginOptions['options']
-  }
-}
-
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'models', groupBy, skipBy = [], enumType = 'asConst' } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
