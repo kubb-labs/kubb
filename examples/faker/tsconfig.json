@@ -16,9 +16,6 @@
     "allowJs": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "types": [
-      "@kubb/core/globals"
-    ],
     "paths": {
       "@kubb/cli": [
         "../../packages/cli/src/index.ts"
@@ -68,8 +65,7 @@
     }
   },
   "include": [
-    "./src/**/*",
-    "kubb.config.js"
+    "./src/**/*"
   ],
   "exclude": [
     "**/node_modules",
