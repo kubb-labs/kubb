@@ -27,7 +27,7 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-form": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "antd": "^5.7.0",
+    "antd": "^5.7.1",
     "axios": "^1.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -37,7 +37,7 @@
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
-    "msw": "^1.2.2",
+    "msw": "^1.2.3",
     "tsup": "^7.1.0",
     "typescript": "^5.1.6",
     "vite": "^4.4.4"
