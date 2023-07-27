@@ -56,7 +56,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     },
     async buildStart() {
       const oas = await swaggerApi.getOas()
-      const clientPath = this.resolvePath({ pluginName, fileName: 'client.ts' })
+      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const clientPath = pathParser.resolve(root, 'client.ts')
 
       const operationGenerator = new OperationGenerator({
         clientPath,
@@ -108,7 +109,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       // copy `client.ts`
-      const clientPath = this.resolvePath({ pluginName, fileName: 'client.ts' })
+      const clientPath = pathParser.resolve(root, 'client.ts')
 
       if (clientPath) {
         const originalClientPath: OptionalPath = options.client
