@@ -108,7 +108,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       // copy `client.ts`
-      const clientPath = this.resolvePath({ pluginName, fileName: 'client.ts' })
+      const clientPath = pathParser.resolve(root, 'client.ts')
 
       if (clientPath) {
         const originalClientPath: OptionalPath = options.client
