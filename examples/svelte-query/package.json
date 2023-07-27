@@ -26,7 +26,7 @@
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@tanstack/svelte-query": "^4.29.25",
+    "@tanstack/svelte-query": "^4.32.0",
     "axios": "^1.4.0",
     "svelte": "~3.59.2",
     "tsup": "^7.1.0"
