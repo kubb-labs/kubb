@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.5.2...@kubb/swagger-client-v1.5.3) (2023-07-27)
+
+
+### 🐞 Bug Fixes
+
+* resolve `client.ts` based on root instead of using the generic `this.resolvePath` ([073b81f](https://github.com/kubb-project/kubb/commit/073b81f91681f4f62fb14f8b4304aceac89c255b))
+
 ## [1.5.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.5.1...@kubb/swagger-client-v1.5.2) (2023-07-08)
 
 
