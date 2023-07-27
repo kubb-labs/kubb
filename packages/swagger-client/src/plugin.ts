@@ -56,7 +56,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     },
     async buildStart() {
       const oas = await swaggerApi.getOas()
-      const clientPath = this.resolvePath({ pluginName, fileName: 'client.ts' })
+      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const clientPath = pathParser.resolve(root, 'client.ts')
 
       const operationGenerator = new OperationGenerator({
         clientPath,
