@@ -187,7 +187,7 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
   if (keyword === zodKeywords.and && Array.isArray(args)) {
     return `${args
       .map((item) => parseZodMeta(item as ZodMeta, mapper))
-      .map((item) => `${value}(${item})`)
+      .map((item, index) => (index === 0 ? item : `${value}(${item})`))
       .join('')}`
   }
 
