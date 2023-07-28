@@ -41,7 +41,6 @@ const endpoints = makeApi([
       },
     ],
   },
-
   {
     method: 'put',
     path: '/pet',
@@ -67,7 +66,6 @@ const endpoints = makeApi([
       },
     ],
   },
-
   {
     method: 'get',
     path: '/pet/findByStatus',
@@ -90,7 +88,6 @@ const endpoints = makeApi([
       },
     ],
   },
-
   {
     method: 'get',
     path: '/pet/findByTags',
@@ -113,7 +110,6 @@ const endpoints = makeApi([
       },
     ],
   },
-
   {
     method: 'get',
     path: '/pet/:petId',
@@ -141,7 +137,6 @@ const endpoints = makeApi([
       },
     ],
   },
-
   {
     method: 'post',
     path: '/pet/:petId',
@@ -170,7 +165,6 @@ const endpoints = makeApi([
       },
     ],
   },
-
   {
     method: 'delete',
     path: '/pet/:petId',
@@ -193,7 +187,6 @@ const endpoints = makeApi([
       },
     ],
   },
-
   {
     method: 'post',
     path: '/pet/:petId/uploadImage',
@@ -216,7 +209,6 @@ const endpoints = makeApi([
     response: uploadFileMutationResponseSchema,
     errors: [],
   },
-
   {
     method: 'post',
     path: '/user',
@@ -226,7 +218,6 @@ const endpoints = makeApi([
     response: createUserMutationResponseSchema,
     errors: [],
   },
-
   {
     method: 'post',
     path: '/user/createWithList',
@@ -236,7 +227,6 @@ const endpoints = makeApi([
     response: createUsersWithListInputMutationResponseSchema,
     errors: [],
   },
-
   {
     method: 'get',
     path: '/user/login',
@@ -259,7 +249,6 @@ const endpoints = makeApi([
       },
     ],
   },
-
   {
     method: 'get',
     path: '/user/logout',
@@ -269,7 +258,6 @@ const endpoints = makeApi([
     response: logoutUserQueryResponseSchema,
     errors: [],
   },
-
   {
     method: 'get',
     path: '/user/:username',
@@ -297,7 +285,6 @@ const endpoints = makeApi([
       },
     ],
   },
-
   {
     method: 'put',
     path: '/user/:username',
@@ -314,7 +301,6 @@ const endpoints = makeApi([
     response: updateUserMutationResponseSchema,
     errors: [],
   },
-
   {
     method: 'delete',
     path: '/user/:username',

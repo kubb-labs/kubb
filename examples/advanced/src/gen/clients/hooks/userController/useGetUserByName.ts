@@ -1,11 +1,11 @@
 import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../client'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
+import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400 } from '../../../models/ts/userController/GetUserByName'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [`/user/${username}`] as const
 
-export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   username: GetUserByNamePathParams['username'],
 ): UseQueryOptions<TData, TError> {
   const queryKey = getUserByNameQueryKey(username)
@@ -25,7 +25,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
  * @summary Get user by user name
  * @link /user/:username
  */
-export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   username: GetUserByNamePathParams['username'],
   options?: { query?: UseQueryOptions<TData, TError> },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -42,7 +42,7 @@ export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = Ge
   return query
 }
 
-export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   username: GetUserByNamePathParams['username'],
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = getUserByNameQueryKey(username)
@@ -62,7 +62,7 @@ export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResp
  * @summary Get user by user name
  * @link /user/:username
  */
-export function useGetUserByNameInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+export function useGetUserByNameInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   username: GetUserByNamePathParams['username'],
   options?: { query?: UseInfiniteQueryOptions<TData, TError> },
 ): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
