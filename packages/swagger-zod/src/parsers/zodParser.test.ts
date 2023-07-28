@@ -145,7 +145,7 @@ const input = [
       keyword: 'and',
       args: [{ keyword: 'string' }, { keyword: 'number' }],
     }),
-    expected: '.and(z.string()).and(z.number())',
+    expected: 'z.string().and(z.number())',
   },
 
   {
