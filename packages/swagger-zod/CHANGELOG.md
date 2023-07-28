@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.5.3...@kubb/swagger-zod-v1.5.4) (2023-07-28)
+
+
+### 🐞 Bug Fixes
+
+* `and` for `zod` without `z.object` ([5d89c93](https://github.com/kubb-project/kubb/commit/5d89c9381e75ae8a268d0ce4aa26af7873c9e866))
+* combine `allOf` and `properties` ([36c022d](https://github.com/kubb-project/kubb/commit/36c022d1876abde9fedcd986fa85a71121114af0))
+
 ## [1.5.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.5.2...@kubb/swagger-zod-v1.5.3) (2023-07-27)
 
 
