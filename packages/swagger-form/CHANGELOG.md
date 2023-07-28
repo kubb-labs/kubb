@@ -1,4 +1,11 @@
 # Changelog
+## [1.5.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-form-v1.5.3...@kubb/swagger-form-v1.5.4) (2023-07-28)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/swagger-form:** Synchronize undefined versions
+
 ## [1.5.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-form-v1.5.2...@kubb/swagger-form-v1.5.3) (2023-07-27)
 
 
