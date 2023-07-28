@@ -1,0 +1,99 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "test",
+    "description": "",
+    "license": {
+      "name": ""
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/test/{test_id}": {
+      "post": {
+        "tags": ["test"],
+        "summary": "Creates a test",
+        "description": "Creates a test",
+        "operationId": "create_test",
+        "parameters": [
+          {
+            "name": "test_id",
+            "in": "path",
+            "description": "The ID of the test",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TestId"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created Test with ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TestId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "TestName": {
+        "type": "string"
+      },
+      "TestContent": {
+        "type": "string"
+      },
+
+      "CreateTestRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "content": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TestContent"
+              }
+            ],
+            "nullable": true
+          },
+          "name": {
+            "$ref": "#/components/schemas/TestName"
+          }
+        }
+      },
+      "CreateTestResponse": {
+        "type": "object",
+        "required": [
+          "test_id"
+        ],
+        "properties": {
+          "test_id": {
+            "$ref": "#/components/schemas/TestId"
+          }
+        }
+      }
+    }
+  }
+}

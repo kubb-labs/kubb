@@ -236,10 +236,15 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       }
 
       if (schemaWithoutAllOf.properties) {
-        return [...this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName), and]
+        return [
+          {
+            ...and,
+            args: [...(and.args || []), ...this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName)],
+          },
+        ]
       }
 
-      return [{ keyword: zodKeywords.object, args: {} }, and]
+      return [and]
     }
 
     if (schema.enum) {

@@ -38,7 +38,7 @@
     "tsup": "^7.1.0"
   },
   "peerDependencies": {
-    "tsup": "^7.0.0"
+    "tsup": "^7.1.0"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

@@ -59,7 +59,7 @@
     "eslint-plugin-import": "~2.27.5",
     "eslint-plugin-react": "~7.32.2",
     "eslint-plugin-unused-imports": "~2.0.0",
-    "eslint-plugin-vitest": "~0.2.6",
+    "eslint-plugin-vitest": "~0.2.8",
     "eslint-plugin-vitest-globals": "~1.4.0",
     "globals": "^13.20.0"
   },

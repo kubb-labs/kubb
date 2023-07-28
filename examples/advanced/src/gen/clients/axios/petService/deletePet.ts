@@ -1,4 +1,4 @@
-import client from '../client'
+import client from '../../../client'
 import type { DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet'
 
 /**
