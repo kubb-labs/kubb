@@ -21,7 +21,7 @@ By default `@kubb/swagger-client/client` is getting used as the [`client`](http:
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger'
+import createSwaggerClient from '@kubb/swagger-client'
 
 export default defineConfig(() => {
   return {
@@ -108,7 +108,7 @@ You can start with using a copy paste of `@kubb/swagger-client/client`.
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
-import createSwaggerClient from '@kubb/swagger'
+import createSwaggerClient from '@kubb/swagger-client'
 
 export default defineConfig(() => {
   return {
