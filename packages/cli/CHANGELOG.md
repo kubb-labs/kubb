@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.5](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.5.4...@kubb/cli-v1.5.5) (2023-08-11)
+
+
+### 📚 Documentation
+
+* add tip for `module` import ([5b7e24a](https://github.com/kubb-project/kubb/commit/5b7e24a7171e644d35e6f9a49fc2e6543868ba64))
+
+
+### 🐞 Bug Fixes
+
+* export `client.ts` in `index.js` ([52b0c81](https://github.com/kubb-project/kubb/commit/52b0c81f190cae86de557bb62db60c8e18cfb07b))
+
 ## [1.5.4](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.5.3...@kubb/cli-v1.5.4) (2023-07-28)
 
 
