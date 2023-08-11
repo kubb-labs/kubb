@@ -102,12 +102,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         await this.addFile(...rootFiles)
       }
 
-      const files = await getIndexes(root, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
-
-      if (files) {
-        await this.addFile(...files)
-      }
-
       // copy `client.ts`
       const clientPath = pathParser.resolve(root, 'client.ts')
 
@@ -133,6 +127,12 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             AXIOS_HEADERS: JSON.stringify({}),
           },
         })
+      }
+
+      const files = await getIndexes(root, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
+
+      if (files) {
+        await this.addFile(...files)
       }
     },
   }

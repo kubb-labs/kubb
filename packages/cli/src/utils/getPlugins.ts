@@ -34,7 +34,7 @@ export function getPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugins[
   if (isJSONPlugins(plugins)) {
     const promises = plugins.map((plugin) => {
       const [name, options = {}] = plugin
-      return importPlugin(name, options)
+      return importPlugin(name, options as object)
     })
     return Promise.all(promises)
   }
