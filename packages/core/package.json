@@ -72,7 +72,7 @@
     "@types/seedrandom": "^3.0.5",
     "eslint": "^8.46.0",
     "ora": "^7.0.1",
-    "tsup": "^7.1.0",
+    "tsup": "^7.2.0",
     "typescript": "^5.1.6"
   },
   "packageManager": "pnpm@8.3.0",

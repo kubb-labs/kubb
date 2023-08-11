@@ -26,10 +26,10 @@
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@tanstack/solid-query": "^4.32.1",
+    "@tanstack/solid-query": "^4.32.6",
     "axios": "^1.4.0",
-    "solid-js": "^1.7.8",
-    "tsup": "^7.1.0"
+    "solid-js": "^1.7.11",
+    "tsup": "^7.2.0"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",

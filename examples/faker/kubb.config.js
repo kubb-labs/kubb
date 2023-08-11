@@ -1,6 +1,6 @@
-import { defineConfig } from '@kubb/core'
+const { defineConfig } = require('@kubb/core')
 
-export default defineConfig(async () => {
+module.exports= defineConfig(async () => {
   await setTimeout(() => {
     // wait for 1s, async behaviour
     return Promise.resolve(true)

@@ -30,7 +30,7 @@
     "@kubb/swagger-faker": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "react": "^18.2.0",
-    "tsup": "^7.1.0"
+    "tsup": "^7.2.0"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",

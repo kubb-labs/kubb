@@ -10,6 +10,12 @@ Kubb is configured with a configuation file (preferably with `kubb.config.js`).
 
 ## TypeScript/JavaScript
 
+::: tip
+When using a `import` statement you need to set `"type": "module"` in your `package.json`.
+
+You can also rename your file to `kubb.config.mjs` to use the module way of importing files in Node.
+:::
+
 ### DefineConfig
 
 When using TypeScript/JavaScript you need to use `defineConfig` to create your config.
