@@ -44,6 +44,9 @@ export type Options = {
      */
     queryParam?: string
   }
+  transformers?: {
+    name?: (name: string) => string
+  }
 }
 
 export type Framework = 'react' | 'solid' | 'svelte' | 'vue'

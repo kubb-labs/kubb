@@ -14,7 +14,7 @@ import type { FileMeta, PluginOptions } from './types.ts'
 export const pluginName: PluginOptions['name'] = 'swagger-tanstack-query' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy, skipBy = [], framework = 'react', infinite } = options
+  const { output = 'hooks', groupBy, skipBy = [], framework = 'react', infinite, transformers = {} } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let swaggerApi: SwaggerApi
 
@@ -51,7 +51,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(root, output, fileName)
     },
     resolveName(name) {
-      return camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+      const resvoledName = camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+
+      return transformers?.name?.(resvoledName) || resvoledName
     },
     async buildStart() {
       const oas = await swaggerApi.getOas()
