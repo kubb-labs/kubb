@@ -1,4 +1,11 @@
 # Changelog
+## [1.5.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-form-v1.5.4...@kubb/swagger-form-v1.5.5) (2023-08-11)
+
+
+### 📚 Documentation
+
+* add tip for `module` import ([5b7e24a](https://github.com/kubb-project/kubb/commit/5b7e24a7171e644d35e6f9a49fc2e6543868ba64))
+
 ## [1.5.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-form-v1.5.3...@kubb/swagger-form-v1.5.4) (2023-07-28)
 
 
