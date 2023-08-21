@@ -26,10 +26,10 @@
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "@kubb/swagger-zodios": "workspace:*",
-    "@zodios/core": "^10.9.3",
+    "@zodios/core": "^10.9.5",
     "axios": "^1.4.0",
     "react": "^18.2.0",
-    "zod": "^3.21.4"
+    "zod": "^3.22.2"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
