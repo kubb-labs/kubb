@@ -61,9 +61,9 @@
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "eslint": "^8.46.0",
+    "eslint": "^8.47.0",
     "tsup": "^7.2.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.2.2"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {
