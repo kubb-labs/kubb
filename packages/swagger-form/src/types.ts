@@ -58,6 +58,12 @@ export type Options = {
      */
     form?: { template: string; imports?: Import[] }
   }
+  transformers?: {
+    /**
+     * Override the name of the form that is getting generated, this will also override the name of the file.
+     */
+    name?: (name: string) => string
+  }
 }
 
 export type FileMeta = {

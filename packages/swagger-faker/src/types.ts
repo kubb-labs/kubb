@@ -31,6 +31,12 @@ export type Options = {
     exportAs?: string
   }
   skipBy?: SkipBy[]
+  transformers?: {
+    /**
+     * Override the name of the faker data that is getting generated, this will also override the name of the file.
+     */
+    name?: (name: string) => string
+  }
 }
 
 export type FileMeta = {

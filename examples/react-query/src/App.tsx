@@ -1,10 +1,10 @@
-import { useListPets } from './gen'
+import { useListPetsHook } from './gen'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const queryClient = new QueryClient()
 
 function Pets(): JSX.Element {
-  const { data: pets } = useListPets({})
+  const { data: pets } = useListPetsHook({})
 
   return (
     <>

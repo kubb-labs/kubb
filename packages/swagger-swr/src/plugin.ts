@@ -15,7 +15,7 @@ import type { FileMeta } from './types.ts'
 export const pluginName: PluginOptions['name'] = 'swagger-swr' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy, skipBy = [] } = options
+  const { output = 'hooks', groupBy, skipBy = [], transformers = {} } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}SWRController`
   let swaggerApi: SwaggerApi
 
@@ -52,7 +52,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(root, output, fileName)
     },
     resolveName(name) {
-      return camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+      const resolvedName = camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+
+      return transformers?.name?.(resolvedName) || resolvedName
     },
     async buildStart() {
       const oas = await swaggerApi.getOas()

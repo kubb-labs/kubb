@@ -1,5 +1,13 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import type {
+  QueryKey,
+  UseQueryResult,
+  UseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult} from '@tanstack/react-query';
+import {
+  useQuery,
+  useInfiniteQuery,
+} from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from '../models/ShowPetById'
 
@@ -26,7 +34,7 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError
  * @summary Info for a specific pet
  * @link /pets/:petId
  */
-export function useShowPetById<TData = ShowPetByIdQueryResponse, TError = unknown>(
+export function useShowPetByIdHook<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
   options?: { query?: UseQueryOptions<TData, TError> },
@@ -39,7 +47,7 @@ export function useShowPetById<TData = ShowPetByIdQueryResponse, TError = unknow
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey 
 
   return query
 }
@@ -65,7 +73,7 @@ export function showPetByIdQueryOptionsInfinite<TData = ShowPetByIdQueryResponse
  * @summary Info for a specific pet
  * @link /pets/:petId
  */
-export function useShowPetByIdInfinite<TData = ShowPetByIdQueryResponse, TError = unknown>(
+export function useShowPetByIdHookInfinite<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
   options?: { query?: UseInfiniteQueryOptions<TData, TError> },
@@ -78,7 +86,7 @@ export function useShowPetByIdInfinite<TData = ShowPetByIdQueryResponse, TError 
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey 
 
   return query
 }
