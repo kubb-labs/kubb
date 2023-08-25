@@ -17,12 +17,13 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ output: 'models' }),
+    createSwaggerTS({
+      output: 'models',
+    }),
     createSwaggerTanstackQuery({
       transformers: {
         name: (name) => {
-          console.log(name)
-          return name
+          return `${name}Hook`
         },
       },
       output: './hooks',

@@ -1,5 +1,13 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import type {
+  QueryKey,
+  UseQueryResult,
+  UseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult} from '@tanstack/react-query';
+import {
+  useQuery,
+  useInfiniteQuery,
+} from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { ListPetsBreedQueryResponse, ListPetsBreedPathParams, ListPetsBreedQueryParams } from '../models/ListPetsBreed'
 
@@ -28,7 +36,7 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TE
  * @summary List all pets with breed
  * @link /pets/:breed
  */
-export function useListPetsBreed<TData = ListPetsBreedQueryResponse, TError = unknown>(
+export function useListPetsBreedHook<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
   options?: { query?: UseQueryOptions<TData, TError> },
@@ -41,7 +49,7 @@ export function useListPetsBreed<TData = ListPetsBreedQueryResponse, TError = un
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey 
 
   return query
 }
@@ -71,7 +79,7 @@ export function listPetsBreedQueryOptionsInfinite<TData = ListPetsBreedQueryResp
  * @summary List all pets with breed
  * @link /pets/:breed
  */
-export function useListPetsBreedInfinite<TData = ListPetsBreedQueryResponse, TError = unknown>(
+export function useListPetsBreedHookInfinite<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
   options?: { query?: UseInfiniteQueryOptions<TData, TError> },
@@ -84,7 +92,7 @@ export function useListPetsBreedInfinite<TData = ListPetsBreedQueryResponse, TEr
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey 
 
   return query
 }

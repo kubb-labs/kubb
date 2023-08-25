@@ -1,5 +1,13 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import type {
+  QueryKey,
+  UseQueryResult,
+  UseQueryOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult} from '@tanstack/react-query';
+import {
+  useQuery,
+  useInfiniteQuery,
+} from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { ListPetsQueryResponse, ListPetsQueryParams } from '../models/ListPets'
 
@@ -24,7 +32,7 @@ export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unk
  * @summary List all pets
  * @link /pets
  */
-export function useListPets<TData = ListPetsQueryResponse, TError = unknown>(
+export function useListPetsHook<TData = ListPetsQueryResponse, TError = unknown>(
   params?: ListPetsQueryParams,
   options?: { query?: UseQueryOptions<TData, TError> },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -36,7 +44,7 @@ export function useListPets<TData = ListPetsQueryResponse, TError = unknown>(
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey 
 
   return query
 }
@@ -65,7 +73,7 @@ export function listPetsQueryOptionsInfinite<TData = ListPetsQueryResponse, TErr
  * @summary List all pets
  * @link /pets
  */
-export function useListPetsInfinite<TData = ListPetsQueryResponse, TError = unknown>(
+export function useListPetsHookInfinite<TData = ListPetsQueryResponse, TError = unknown>(
   params?: ListPetsQueryParams,
   options?: { query?: UseInfiniteQueryOptions<TData, TError> },
 ): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -77,7 +85,7 @@ export function useListPetsInfinite<TData = ListPetsQueryResponse, TError = unkn
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey 
 
   return query
 }

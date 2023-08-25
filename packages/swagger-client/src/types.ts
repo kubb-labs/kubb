@@ -59,6 +59,12 @@ export type Options = {
    * @default '@kubb/swagger-client/ts-client'
    */
   client?: string
+  transformers?: {
+    /**
+     * Override the name of the client that is getting generated, this will also override the name of the file.
+     */
+    name?: (name: string) => string
+  }
 }
 
 export type FileMeta = {

@@ -16,7 +16,7 @@ import type { FileMeta, PluginOptions } from './types.ts'
 export const pluginName: PluginOptions['name'] = 'swagger-faker' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'mocks', groupBy, skipBy = [] } = options
+  const { output = 'mocks', groupBy, skipBy = [], transformers = {} } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let swaggerApi: SwaggerApi
 
@@ -53,7 +53,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(root, output, fileName)
     },
     resolveName(name) {
-      return camelCase(`create ${name}`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+      const resolvedName = camelCase(`create ${name}`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+
+      return transformers?.name?.(resolvedName) || resolvedName
     },
     async writeFile(source, path) {
       if (!path.endsWith('.ts') || !source) {

@@ -70,6 +70,14 @@ Name to be used for the `export * as {{exportAs}} from './`
 Type: `string` <br/>
 Default: `"{{tag}}forms"`
 
+### transformers
+
+#### name
+Override the name of the form that is getting generated, this will also override the name of the file.
+
+Type: `(name: string) => string` <br/>
+
+
 ### withDevtools <Badge type="danger" text="deprecated" />
 Includes `@hookform/devtools
 

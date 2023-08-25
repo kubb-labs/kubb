@@ -72,6 +72,13 @@ Type: `Array<SkipBy>` <br/>
 #### [0]
 Type: `{ type: 'tag' | 'operationId' | 'path' | 'method' ; pattern: string | RegExp }` <br/>
 
+### transformers
+
+#### name
+Override the name of the faker data that is getting generated, this will also override the name of the file.
+
+Type: `(name: string) => string` <br/>
+
 
 ## Depended
 

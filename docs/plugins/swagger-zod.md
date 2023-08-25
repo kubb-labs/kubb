@@ -33,7 +33,6 @@ yarn add @kubb/swagger-zod
 
 ## Options
 
-
 ### output
 Relative path to save the Zod schemas.
 When output is a file it will save all models inside that file else it will create a file per schema item.
@@ -73,6 +72,12 @@ Type: `Array<SkipBy>` <br/>
 #### [0]
 Type: `{ type: 'tag' | 'operationId' | 'path' | 'method' ; pattern: string | RegExp }` <br/>
 
+### transformers
+
+#### name
+Override the name of the Zod schema that is getting generated, this will also override the name of the file.
+
+Type: `(name: string) => string` <br/>
 
 ## Depended
 
