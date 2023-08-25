@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.5.5...@kubb/swagger-swr-v1.6.0) (2023-08-25)
+
+
+### ✨ Features
+
+* use of a tranformer function to override the name of the hook/type/client ([f405183](https://github.com/kubb-project/kubb/commit/f405183b198e47e732873108956f639d94d94937))
+
 ## [1.5.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.5.4...@kubb/swagger-swr-v1.5.5) (2023-08-11)
 
 
