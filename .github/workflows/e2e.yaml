@@ -119,4 +119,5 @@ jobs:
             ${{ matrix.installer }} generate ./schemas/box.json
             ${{ matrix.installer }} generate ./schemas/digitalocean.yaml
             ${{ matrix.installer }} generate ./schemas/allOf.json
+            ${{ matrix.installer }} generate ./schemas/petStoreContent.json
 
