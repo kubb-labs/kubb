@@ -28,7 +28,7 @@
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@tanstack/react-query": "^4.33.0",
-    "axios": "^1.4.0",
+    "axios": "^1.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tsup": "^7.2.0"
@@ -37,7 +37,7 @@
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.4",
-    "msw": "^1.2.4",
+    "msw": "^1.2.5",
     "typescript": "^5.2.2",
     "vite": "^4.4.9"
   },

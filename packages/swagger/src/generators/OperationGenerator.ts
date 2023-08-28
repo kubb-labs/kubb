@@ -64,6 +64,8 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
   private getParametersSchema(operation: Operation, inKey: 'path' | 'query') {
     const { oas } = this.options
 
+    const requestBodyTypes = operation.getRequestBodyMediaTypes()
+    const applicationJson = (requestBodyTypes.at(0) as 'application/json') || 'application/json' //TODO remove hardcoded bodyType application/json
     const params = operation.getParameters().filter((v) => v.in === inKey)
     const refParams = operation.getParameters().filter((v) => isReference(v))
     const parameterSchemas = oas.getDefinition().components?.parameters || {}
@@ -72,10 +74,10 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
       const exists = refParams.some(
         (param) => (param as unknown as OpenAPIV3.ReferenceObject).$ref && (param as unknown as OpenAPIV3.ReferenceObject).$ref.replace(/.+\//, '') === name,
       )
-      const schema = parameterSchemas[name] as OpenAPIV3.ParameterObject
+      const paramsObject = parameterSchemas[name] as OpenAPIV3.ParameterObject
 
-      if (exists && schema.in === inKey) {
-        params.push(schema)
+      if (exists && paramsObject.in === inKey) {
+        params.push(paramsObject)
       }
     })
 
@@ -90,7 +92,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
           required: [...(schema.required || []), pathParameters.required ? pathParameters.name : undefined].filter(Boolean),
           properties: {
             ...schema.properties,
-            [pathParameters.name]: pathParameters.schema as OpenAPIV3.SchemaObject,
+            [pathParameters.name]: pathParameters.content?.[applicationJson]?.schema ?? (pathParameters.schema as OpenAPIV3.SchemaObject),
           },
         }
       },
@@ -102,9 +104,10 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     const pathParamsSchema = this.getParametersSchema(operation, 'path')
     const queryParamsSchema = this.getParametersSchema(operation, 'query')
     const requestBodyTypes = operation.getRequestBodyMediaTypes()
+    const applicationJson = (requestBodyTypes.at(0) as 'application/json') || 'application/json' //TODO remove hardcoded bodyType application/json
     const requestSchema = operation.hasRequestBody()
       ? ((operation.getRequestBody() as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject) ||
-        ((operation.getRequestBody(requestBodyTypes.at(0)) as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject)
+        ((operation.getRequestBody(applicationJson) as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject)
       : undefined
     const responseSchema = operation.getResponseAsJSONSchema('200')?.at(0)?.schema as OpenAPIV3.SchemaObject
 
