@@ -27,7 +27,7 @@
     "@kubb/swagger-zod": "workspace:*",
     "@kubb/swagger-zodios": "workspace:*",
     "@zodios/core": "^10.9.6",
-    "axios": "^1.4.0",
+    "axios": "^1.5.0",
     "react": "^18.2.0",
     "zod": "^3.22.2"
   },

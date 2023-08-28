@@ -27,7 +27,7 @@
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "@tanstack/vue-query": "^4.34.0",
-    "axios": "^1.4.0",
+    "axios": "^1.5.0",
     "vue": "^3.3.4"
   },
   "devDependencies": {
