@@ -234,7 +234,25 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     }
 
     if (schema.anyOf) {
-      // TODO anyOf -> union
+      const schemaWithoutAnyOf = { ...schema, anyOf: undefined }
+
+      const union = factory.createParenthesizedType(
+        createUnionDeclaration({
+          nodes: schema.anyOf
+            .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
+              return this.getBaseTypeFromSchema(item)
+            })
+            .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
+        }),
+      )
+
+      if (schemaWithoutAnyOf.properties) {
+        return createIntersectionDeclaration({
+          nodes: [this.getBaseTypeFromSchema(schemaWithoutAnyOf, baseName), union].filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
+        })
+      }
+
+      return union
     }
     if (schema.allOf) {
       // intersection/add

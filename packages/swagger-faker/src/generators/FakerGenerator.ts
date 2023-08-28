@@ -192,7 +192,20 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
     }
 
     if (schema.anyOf) {
-      // TODO anyOf -> union
+      // union
+      const schemaWithouAnyOf = { ...schema, anyOf: undefined }
+
+      const union: FakerMeta = {
+        keyword: fakerKeywords.union,
+        args: schema.anyOf.map((item) => {
+          return this.getBaseTypeFromSchema(item)[0]
+        }),
+      }
+      if (schemaWithouAnyOf.properties && union.args) {
+        return [{ ...union, args: [...this.getBaseTypeFromSchema(schemaWithouAnyOf, baseName), ...union.args] }]
+      }
+
+      return [union]
     }
     if (schema.allOf) {
       // intersection/add

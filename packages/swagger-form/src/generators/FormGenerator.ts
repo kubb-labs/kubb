@@ -221,7 +221,20 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     }
 
     if (schema.anyOf) {
-      // TODO anyOf -> union
+      // union
+      const schemaWithoutAnyOf = { ...schema, anyOf: undefined }
+
+      const union: FormMeta = {
+        keyword: formKeywords.union,
+        args: schema.anyOf.map((item) => {
+          return this.getBaseTypeFromSchema(item)[0]
+        }),
+      }
+      if (schemaWithoutAnyOf.properties) {
+        return [...this.getBaseTypeFromSchema(schemaWithoutAnyOf, baseName, fullName), union]
+      }
+
+      return [union]
     }
     if (schema.allOf) {
       // intersection/add
