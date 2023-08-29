@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.6.0...@kubb/cli-v1.6.1) (2023-08-29)
+
+
+### 🐞 Bug Fixes
+
+* anyOf support(same result as oneOf) ([70f5d47](https://github.com/kubb-project/kubb/commit/70f5d47a93a1eebfaef50c18f9b0fbc4c17cc6ff))
+
 ## [1.6.0](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.5.5...@kubb/cli-v1.6.0) (2023-08-25)
 
 

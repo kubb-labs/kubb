@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.6.0...@kubb/swagger-v1.6.1) (2023-08-29)
+
+
+### 🐞 Bug Fixes
+
+* use of `content[bodyType || 'application/json']` when available + fallback on `schema` for `OperationGenerator ([20cf285](https://github.com/kubb-project/kubb/commit/20cf285ca82618beed4afad74d646dced100a53e))
+
 ## [1.6.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.5.5...@kubb/swagger-v1.6.0) (2023-08-25)
 
 
