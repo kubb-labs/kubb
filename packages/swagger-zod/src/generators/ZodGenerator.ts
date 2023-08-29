@@ -222,7 +222,20 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     }
 
     if (schema.anyOf) {
-      // TODO anyOf -> union
+      // union
+      const schemaWithoutAnyOf = { ...schema, anyOf: undefined }
+
+      const union: ZodMeta = {
+        keyword: zodKeywords.union,
+        args: schema.anyOf.map((item) => {
+          return this.getBaseTypeFromSchema(item)[0]
+        }),
+      }
+      if (schemaWithoutAnyOf.properties) {
+        return [...this.getBaseTypeFromSchema(schemaWithoutAnyOf, baseName), union]
+      }
+
+      return [union]
     }
     if (schema.allOf) {
       // intersection/add

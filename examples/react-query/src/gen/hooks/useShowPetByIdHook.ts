@@ -1,13 +1,5 @@
-import type {
-  QueryKey,
-  UseQueryResult,
-  UseQueryOptions,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult} from '@tanstack/react-query';
-import {
-  useQuery,
-  useInfiniteQuery,
-} from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from '../models/ShowPetById'
 
@@ -47,7 +39,7 @@ export function useShowPetByIdHook<TData = ShowPetByIdQueryResponse, TError = un
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey 
+  query.queryKey = queryKey
 
   return query
 }
@@ -86,7 +78,7 @@ export function useShowPetByIdHookInfinite<TData = ShowPetByIdQueryResponse, TEr
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey 
+  query.queryKey = queryKey
 
   return query
 }

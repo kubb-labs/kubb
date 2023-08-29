@@ -48,7 +48,7 @@ export function createIntersectionDeclaration({ nodes }: { nodes: ArrayTwoOrMore
 
 /**
  *
- * Minimum nodes lenght of 2
+ * Minimum nodes length of 2
  * @example `string & number`
  */
 export function createTupleDeclaration({ nodes }: { nodes: ArrayTwoOrMore<ts.TypeNode> }) {
@@ -56,7 +56,7 @@ export function createTupleDeclaration({ nodes }: { nodes: ArrayTwoOrMore<ts.Typ
 }
 /**
  *
- * Minimum nodes lenght of 2
+ * Minimum nodes length of 2
  * @example `string | number`
  */
 export function createUnionDeclaration({ nodes }: { nodes: ArrayTwoOrMore<ts.TypeNode> }) {

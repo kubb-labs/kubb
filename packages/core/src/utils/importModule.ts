@@ -34,7 +34,7 @@ export function getLocation(path: string, cwd?: string): string {
   return location
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 export async function importModule(path: string, cwd?: string): Promise<any | undefined> {
   try {
     let location = getLocation(path, cwd)

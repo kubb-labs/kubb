@@ -80,7 +80,7 @@ export class PluginManager {
       api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api']
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     this.core = pluginParser(core, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
 
     this.plugins = [this.core, ...(config.plugins || [])].reduce((prev, plugin) => {
@@ -127,7 +127,7 @@ export class PluginManager {
   }
 
   on<TEventName extends keyof Events & string>(eventName: TEventName, handler: (...eventArg: Events[TEventName]) => void): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     this.eventEmitter.on(eventName, handler as any)
   }
 
