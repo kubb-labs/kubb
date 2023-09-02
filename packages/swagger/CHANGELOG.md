@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.6.1...@kubb/swagger-v1.6.2) (2023-09-02)
+
+
+### 🐞 Bug Fixes
+
+* support for PATCH ([c326d7c](https://github.com/kubb-project/kubb/commit/c326d7cafaa2ddf258579f889f061bbdf51a96fd))
+* upgrade oas(es support) and overall packages ([c5b1f4e](https://github.com/kubb-project/kubb/commit/c5b1f4e0f6e4fc880df94f8a02d9a0b9b81053ff))
+
 ## [1.6.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.6.0...@kubb/swagger-v1.6.1) (2023-08-29)
 
 

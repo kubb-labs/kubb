@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.6.1...@kubb/swagger-client-v1.6.2) (2023-09-02)
+
+
+### 🐞 Bug Fixes
+
+* support for PATCH ([c326d7c](https://github.com/kubb-project/kubb/commit/c326d7cafaa2ddf258579f889f061bbdf51a96fd))
+
 ## [1.6.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.6.0...@kubb/swagger-client-v1.6.1) (2023-08-29)
 
 
