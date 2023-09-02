@@ -9,15 +9,19 @@ import type { File } from '@kubb/core'
 import type { Operation } from 'oas'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types.ts'
 import type { OpenAPIV3 } from 'openapi-types'
-import type { Oas, OperationSchemas, Resolver, SkipBy } from '../types.ts'
+import type { ContentType, Oas, OperationSchemas, Resolver, SkipBy } from '../types.ts'
 import { Warning } from '@kubb/core'
 
 type Options = {
   oas: Oas
   skipBy?: SkipBy[]
+  contentType?: ContentType
 }
 
 export abstract class OperationGenerator<TOptions extends Options = Options> extends Generator<TOptions> {
+  private get contentType(): ContentType {
+    return this.options.contentType || 'application/json'
+  }
   /**
    *
    * Validate an operation to see if used with camelCase we don't overwrite other files
@@ -61,11 +65,9 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     return skip
   }
 
-  private getParametersSchema(operation: Operation, inKey: 'path' | 'query') {
+  private getParametersSchema(operation: Operation, inKey: 'path' | 'query'): OpenAPIV3.SchemaObject | null {
     const { oas } = this.options
 
-    const requestBodyTypes = operation.getRequestBodyMediaTypes()
-    const applicationJson = (requestBodyTypes.at(0) as 'application/json') || 'application/json' //TODO remove hardcoded bodyType application/json
     const params = operation.getParameters().filter((v) => v.in === inKey)
     const refParams = operation.getParameters().filter((v) => isReference(v))
     const parameterSchemas = oas.getDefinition().components?.parameters || {}
@@ -92,7 +94,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
           required: [...(schema.required || []), pathParameters.required ? pathParameters.name : undefined].filter(Boolean),
           properties: {
             ...schema.properties,
-            [pathParameters.name]: pathParameters.content?.[applicationJson]?.schema ?? (pathParameters.schema as OpenAPIV3.SchemaObject),
+            [pathParameters.name]: pathParameters.content?.[this.contentType]?.schema ?? (pathParameters.schema as OpenAPIV3.SchemaObject),
           },
         }
       },
@@ -100,16 +102,30 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     )
   }
 
+  private getResponseSchema(operation: Operation, statusCode: string | number): OpenAPIV3.SchemaObject {
+    const { oas } = this.options
+
+    const schema = operation.schema.responses?.[statusCode] as OpenAPIV3.ReferenceObject
+
+    if (isReference(schema)) {
+      const $ref = schema?.$ref
+      const originalName = $ref.replace(/.+\//, '')
+      const responseSchema = oas.getDefinition().components?.responses?.[originalName] as OpenAPIV3.ResponseObject
+
+      return responseSchema?.content?.[this.contentType]?.schema as OpenAPIV3.SchemaObject
+    }
+
+    return operation.getResponseAsJSONSchema(statusCode)?.at(0)?.schema as OpenAPIV3.SchemaObject
+  }
+
   public getSchemas(operation: Operation): OperationSchemas {
     const pathParamsSchema = this.getParametersSchema(operation, 'path')
     const queryParamsSchema = this.getParametersSchema(operation, 'query')
-    const requestBodyTypes = operation.getRequestBodyMediaTypes()
-    const applicationJson = (requestBodyTypes.at(0) as 'application/json') || 'application/json' //TODO remove hardcoded bodyType application/json
     const requestSchema = operation.hasRequestBody()
       ? ((operation.getRequestBody() as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject) ||
-        ((operation.getRequestBody(applicationJson) as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject)
+        ((operation.getRequestBody(this.options.contentType) as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject)
       : undefined
-    const responseSchema = operation.getResponseAsJSONSchema('200')?.at(0)?.schema as OpenAPIV3.SchemaObject
+    const responseSchema = this.getResponseSchema(operation, '200')
 
     return {
       pathParams: pathParamsSchema
