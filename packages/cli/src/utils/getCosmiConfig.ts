@@ -1,17 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { importModule } from '@kubb/core'
-
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { cosmiconfig } from 'cosmiconfig'
 import tsNode from 'ts-node'
-import yaml from 'yaml'
 
 import type { CosmiconfigResult } from '../types.ts'
 
-const jsLoader = async (configFile: string) => {
-  return importModule(configFile)
-}
 // TODO fix tsLoader for node 20 when using ESM only
 // https://github.com/TypeStrong/ts-node/issues/1997
 const tsLoader = (configFile: string) => {
@@ -62,13 +56,7 @@ export async function getCosmiConfig(moduleName: string, config?: string): Promi
       `${moduleName}.config.mjs`,
     ],
     loaders: {
-      '.yaml': (filepath, content) => yaml.parse(content),
-      '.yml': (filepath, content) => yaml.parse(content),
-      '.js': jsLoader,
-      '.cjs': jsLoader,
-      '.mjs': jsLoader,
       '.ts': tsLoader,
-      noExt: jsLoader,
     },
   })
 

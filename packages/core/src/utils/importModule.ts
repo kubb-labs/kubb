@@ -34,7 +34,6 @@ export function getLocation(path: string, cwd?: string): string {
   return location
 }
 
- 
 export async function importModule(path: string, cwd?: string): Promise<any | undefined> {
   try {
     let location = getLocation(path, cwd)

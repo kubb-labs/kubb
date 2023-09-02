@@ -170,7 +170,7 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 } & Partial<PluginLifecycle<TOptions>>
 
 // use of type objects
- 
+
 export type PluginFactoryOptions<Name = string, Options = unknown, Nested extends boolean = false, API = any, resolvePathOptions = Record<string, unknown>> = {
   name: Name
   options: Options

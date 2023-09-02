@@ -21,14 +21,14 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@data-driven-forms/ant-component-mapper": "^3.21.0",
-    "@data-driven-forms/react-form-renderer": "^3.21.0",
+    "@data-driven-forms/ant-component-mapper": "^3.21.3",
+    "@data-driven-forms/react-form-renderer": "^3.21.3",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-form": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "antd": "^5.8.5",
+    "antd": "^5.8.6",
     "axios": "^1.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
