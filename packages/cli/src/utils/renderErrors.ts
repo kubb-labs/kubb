@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
- 
+
 import type { LogLevels } from '@kubb/core'
 import { LogLevel, ParallelPluginError } from '@kubb/core'
 import PrettyError from 'pretty-error'

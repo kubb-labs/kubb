@@ -27,7 +27,7 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-form": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "antd": "^5.8.5",
+    "antd": "^5.8.6",
     "axios": "^1.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
@@ -16,7 +17,6 @@ function isObjectPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugins[])
 }
 
 async function importPlugin(name: string, options: object): Promise<KubbUserConfig['plugins']> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const importedPlugin: any = process.env.NODE_ENV === 'test' ? await import(name) : await importModule(name, process.cwd())
 
   // eslint-disable-next-line

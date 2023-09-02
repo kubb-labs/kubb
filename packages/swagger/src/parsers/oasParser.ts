@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import pathParser from 'node:path'
 
 import { URLPath } from '@kubb/core'
@@ -10,16 +9,11 @@ import { isOpenApiV3Document } from '../utils/index.ts'
 
 import type { KubbConfig } from '@kubb/core'
 import type oas from 'oas'
-import type oasNormalize from 'oas-normalize'
 import type { OASDocument } from 'oas/dist/rmoas.types.ts'
 import type { OpenAPIV2 } from 'openapi-types'
 
-type Oas = typeof oas
-
-// TODO should be import Oas from "oas";
-// TODO add issue for oas to also include `exports` for ESM
-const Oas = require('oas').default as Oas
-const OASNormalize = require('oas-normalize').default as typeof oasNormalize
+import Oas from 'oas'
+import OASNormalize from 'oas-normalize'
 
 export type OasOptions = {
   validate?: boolean
