@@ -12,7 +12,7 @@ import type { Logger } from '@kubb/core'
 export const pluginName: PluginOptions['name'] = 'swagger' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'schemas', validate = true, serverIndex = 0 } = options
+  const { output = 'schemas', validate = true, serverIndex = 0, contentType = 'application/json' } = options
 
   const getOas = async (config: KubbConfig, logger: Logger): Promise<Oas> => {
     try {
@@ -44,6 +44,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           const baseURL = oasInstance.api.servers?.at(serverIndex)?.url
           return baseURL
         },
+        contentType,
       }
     },
     resolvePath(fileName) {

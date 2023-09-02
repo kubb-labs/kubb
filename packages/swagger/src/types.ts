@@ -3,9 +3,13 @@ import type Oas from 'oas'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { HttpMethods as HttpMethod } from 'oas/dist/rmoas.types.ts'
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type ContentType = 'application/json' | (string & {})
+
 export type API = {
   getOas: () => Promise<Oas>
   getBaseURL: () => Promise<string | undefined>
+  contentType?: ContentType
 }
 
 export type Options = {
@@ -29,6 +33,11 @@ export type Options = {
    * @default 0
    */
   serverIndex?: number
+  /**
+   * Set ContentType to be used for requests and responses.
+   * @default 'application/json'
+   */
+  contentType?: ContentType
 }
 
 export type PluginOptions = PluginFactoryOptions<'swagger', Options, false, API>

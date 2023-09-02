@@ -5,12 +5,13 @@ import { FakerBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
 
 import type { File, PathMode, PluginContext } from '@kubb/core'
-import type { FileResolver, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
+import type { ContentType, FileResolver, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
 import type { FileMeta } from '../types.ts'
 
 type Options = {
   oas: Oas
   skipBy?: SkipBy[]
+  contentType?: ContentType
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   mode: PathMode

@@ -7,11 +7,12 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { pluginName } from '../plugin.ts'
 
 import type { File, PluginContext } from '@kubb/core'
-import type { HttpMethod, Oas, Operation, Resolver, SkipBy } from '@kubb/swagger'
+import type { ContentType, HttpMethod, Oas, Operation, Resolver, SkipBy } from '@kubb/swagger'
 
 type Options = {
   oas: Oas
   skipBy?: SkipBy[]
+  contentType?: ContentType
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   output: string
