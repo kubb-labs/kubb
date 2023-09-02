@@ -172,6 +172,9 @@ export class OperationGenerator extends Generator<Options> {
       },
     }
   }
+  async patch(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+    return null
+  }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { oas, withDevtools, resolveName, overrides } = this.options

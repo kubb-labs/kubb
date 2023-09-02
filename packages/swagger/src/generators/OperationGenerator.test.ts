@@ -29,6 +29,11 @@ class DummyOperationGenerator extends OperationGenerator {
       resolve(null)
     })
   }
+  patch(_operation: Operation): Promise<File | null> {
+    return new Promise((resolve) => {
+      resolve(null)
+    })
+  }
 
   put(_operation: Operation): Promise<File | null> {
     return new Promise((resolve) => {

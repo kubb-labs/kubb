@@ -173,62 +173,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath } = this.options
-
-    const controller = this.resolve(operation)
-    const type = this.resolveType(operation)
-
-    const source = new ClientBuilder(oas).configure({ name: controller.name, operation, schemas }).print()
-
-    return {
-      path: controller.filePath,
-      fileName: controller.fileName,
-      source,
-      imports: [
-        {
-          name: 'client',
-          path: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
-        },
-        {
-          name: [schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean),
-          path: getRelativePath(controller.filePath, type.filePath),
-          isTypeOnly: true,
-        },
-      ],
-      meta: {
-        pluginName,
-        tag: operation.getTags()[0]?.name,
-      },
-    }
+    return this.post(operation, schemas)
   }
-
+  async patch(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+    return this.post(operation, schemas)
+  }
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath } = this.options
-
-    const controller = this.resolve(operation)
-    const type = this.resolveType(operation)
-
-    const source = new ClientBuilder(oas).configure({ name: controller.name, operation, schemas }).print()
-
-    return {
-      path: controller.filePath,
-      fileName: controller.fileName,
-      source,
-      imports: [
-        {
-          name: 'client',
-          path: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
-        },
-        {
-          name: [schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name].filter(Boolean),
-          path: getRelativePath(controller.filePath, type.filePath),
-          isTypeOnly: true,
-        },
-      ],
-      meta: {
-        pluginName,
-        tag: operation.getTags()[0]?.name,
-      },
-    }
+    return this.post(operation, schemas)
   }
 }
