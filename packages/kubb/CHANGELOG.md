@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.3](https://github.com/kubb-project/kubb/compare/kubb-v1.6.2...kubb-v1.6.3) (2023-09-03)
+
+
+### 🐞 Bug Fixes
+
+* add `@swc/core` ([7c44878](https://github.com/kubb-project/kubb/commit/7c44878e83d65eeb57dbbea15b2066cc61cc2471))
+
 ## [1.6.2](https://github.com/kubb-project/kubb/compare/kubb-v1.6.1...kubb-v1.6.2) (2023-09-02)
 
 
