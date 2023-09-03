@@ -1,4 +1,11 @@
 # Changelog
+## [1.6.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-form-v1.6.2...@kubb/swagger-form-v1.6.3) (2023-09-03)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/swagger-form:** Synchronize undefined versions
+
 ## [1.6.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-form-v1.6.1...@kubb/swagger-form-v1.6.2) (2023-09-02)
 
 
