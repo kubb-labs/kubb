@@ -6,12 +6,8 @@ import { AddPet405 } from '../../models/ts/petController/AddPet'
 import { AddPetMutationRequest } from '../../models/ts/petController/AddPet'
 import { AddPetMutationResponse } from '../../models/ts/petController/AddPet'
 
-/**
- * @description Invalid input
- */
-
 export function createAddPet405(): AddPet405 {
-  return undefined
+  return { code: faker.number.float({}), message: faker.string.alpha() }
 }
 
 /**

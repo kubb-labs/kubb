@@ -34,8 +34,7 @@ export type Options = {
    */
   serverIndex?: number
   /**
-   * Set ContentType to be used for requests and responses.
-   * @default 'application/json'
+   * Override ContentType to be used for requests and responses.
    */
   contentType?: ContentType
 }

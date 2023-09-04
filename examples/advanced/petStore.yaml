@@ -108,6 +108,7 @@ paths:
                 $ref: '#/components/schemas/Pet'
         '405':
           description: Invalid input
+          $ref: '#/components/responses/PetNotFound'
       security:
         - petstore_auth:
             - write:pets
@@ -169,6 +170,8 @@ paths:
             type: array
             items:
               type: string
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
       responses:
         '200':
           description: successful operation
@@ -838,3 +841,31 @@ components:
       type: apiKey
       name: api_key
       in: header
+  parameters:
+    page:
+      description: to request with required page number or pagination
+      in: query
+      name: page
+      required: false
+      schema:
+        type: string
+    pageSize:
+      description: to request with required page size
+      in: query
+      name: pageSize
+      required: false
+      schema:
+        type: string
+  responses:
+     PetNotFound:
+      content:
+        application/json:
+          schema:
+            properties:
+              code:
+                format: int32
+                type: integer
+              message:
+                type: string
+      description: Pet not found
+

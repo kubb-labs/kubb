@@ -36,7 +36,7 @@ const endpoints = makeApi([
     errors: [
       {
         status: 405,
-        description: `Invalid input`,
+        description: ``,
         schema: addPet405Schema,
       },
     ],

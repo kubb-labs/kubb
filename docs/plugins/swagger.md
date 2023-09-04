@@ -67,10 +67,9 @@ Which server to use from the array of `servers.url[serverIndex]`
 For example `0` will return `http://petstore.swagger.io/api` and `1` will return `http://localhost:3000`
 
 ### contentType
-Set ContentType to be used for requests and responses.
+Override ContentType to be used for requests and responses.
 
 Type: `string` <br/>
-Default: `"application/json"`
 
 ```yaml
 openapi: 3.0.3
