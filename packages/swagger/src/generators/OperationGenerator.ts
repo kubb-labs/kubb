@@ -189,15 +189,13 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     return {
       get: this.get,
       post: this.post,
+      patch: this.patch,
       put: this.put,
       delete: this.delete,
       head: () => {
         return null
       },
       options: () => {
-        return null
-      },
-      patch: () => {
         return null
       },
       trace: () => {
@@ -249,6 +247,10 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
    * POST
    */
   abstract post(operation: Operation, schemas: OperationSchemas): Promise<File | null>
+  /**
+   * PATCH
+   */
+  abstract patch(operation: Operation, schemas: OperationSchemas): Promise<File | null>
 
   /**
    * PUT
@@ -261,7 +263,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
   abstract delete(operation: Operation, schemas: OperationSchemas): Promise<File | null>
 
   /**
-   * Combination of GET, POST, PUT, DELETE
+   * Combination of GET, POST, PATCH, PUT, DELETE
    */
   abstract all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File | null>
 

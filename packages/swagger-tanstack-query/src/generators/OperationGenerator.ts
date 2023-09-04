@@ -322,92 +322,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, framework } = this.options
-
-    const hook = this.resolve(operation)
-    const type = this.resolveType(operation)
-
-    let errors: Resolver[] = []
-    const frameworkImports = this.getFrameworkSpecificImports(framework)
-
-    if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
-    }
-
-    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas }).print('mutation')
-
-    return {
-      path: hook.filePath,
-      fileName: hook.fileName,
-      source,
-      imports: [
-        ...this.getQueryImports('mutate'),
-        {
-          name: 'client',
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
-        },
-        {
-          name: [
-            schemas.request?.name,
-            schemas.response.name,
-            schemas.pathParams?.name,
-            schemas.queryParams?.name,
-            ...errors.map((error) => error.name),
-          ].filter(Boolean),
-          path: getRelativePath(hook.filePath, type.filePath),
-          isTypeOnly: true,
-        },
-      ],
-      meta: {
-        pluginName,
-        tag: operation.getTags()[0]?.name,
-      },
-    }
-
-    // end hook creation
+    return this.post(operation, schemas)
   }
-
+  async patch(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+    return this.post(operation, schemas)
+  }
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, framework } = this.options
-
-    const hook = this.resolve(operation)
-    const type = this.resolveType(operation)
-
-    let errors: Resolver[] = []
-    const frameworkImports = this.getFrameworkSpecificImports(framework)
-
-    if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
-    }
-
-    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas }).print('mutation')
-
-    return {
-      path: hook.filePath,
-      fileName: hook.fileName,
-      source,
-      imports: [
-        ...this.getQueryImports('mutate'),
-        {
-          name: 'client',
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
-        },
-        {
-          name: [
-            schemas.request?.name,
-            schemas.response.name,
-            schemas.pathParams?.name,
-            schemas.queryParams?.name,
-            ...errors.map((error) => error.name),
-          ].filter(Boolean),
-          path: getRelativePath(hook.filePath, type.filePath),
-          isTypeOnly: true,
-        },
-      ],
-      meta: {
-        pluginName,
-        tag: operation.getTags()[0]?.name,
-      },
-    }
+    return this.post(operation, schemas)
   }
 }

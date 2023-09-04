@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "1.6.1",
+  "version": "1.6.3",
   "description": "OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js and Axios.",
   "keywords": [
     "typescript",
@@ -48,7 +48,7 @@
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/node": "^20.5.8",
+    "@types/node": "^20.5.9",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   },

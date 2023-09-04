@@ -259,6 +259,9 @@ export class OperationGenerator extends Generator<Options> {
       if (operations.post && !this.isSkipped(operations.post, 'post')) {
         acc.push(mapOperationToZodios(operations.post))
       }
+      if (operations.patch && !this.isSkipped(operations.patch, 'patch')) {
+        acc.push(mapOperationToZodios(operations.patch))
+      }
 
       if (operations.put && !this.isSkipped(operations.put, 'put')) {
         acc.push(mapOperationToZodios(operations.put))
@@ -294,6 +297,9 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(): Promise<File | null> {
+    return null
+  }
+  async patch(): Promise<File | null> {
     return null
   }
 

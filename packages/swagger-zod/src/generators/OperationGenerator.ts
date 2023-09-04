@@ -131,88 +131,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { resolvePath, mode, resolveName, oas } = this.options
-
-    const zod = this.resolve(operation)
-
-    const fileResolver: FileResolver = (name) => {
-      // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ fileName: zod.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
-      // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = resolvePath({
-        fileName: `${name}.ts`,
-        pluginName,
-      })
-
-      return getRelativePath(root, resolvedTypeId)
-    }
-
-    const source = new ZodBuilder(oas)
-      .add(schemas.pathParams)
-      .add(schemas.queryParams)
-      .add(schemas.request)
-      .add(schemas.response)
-      .add(schemas.errors)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName })
-      .print()
-
-    return {
-      path: zod.filePath,
-      fileName: zod.fileName,
-      source,
-      imports: [
-        {
-          name: ['z'],
-          path: 'zod',
-        },
-      ],
-      meta: {
-        pluginName,
-        tag: operation.getTags()[0]?.name,
-      },
-    }
+    return this.post(operation, schemas)
   }
-
+  async patch(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+    return this.post(operation, schemas)
+  }
   async delete(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { resolvePath, mode, resolveName, oas } = this.options
-
-    const zod = this.resolve(operation)
-
-    const fileResolver: FileResolver = (name) => {
-      // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ fileName: zod.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
-      // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = resolvePath({
-        fileName: `${name}.ts`,
-        pluginName,
-      })
-
-      return getRelativePath(root, resolvedTypeId)
-    }
-
-    const source = new ZodBuilder(oas)
-      .add(schemas.pathParams)
-      .add(schemas.request)
-      .add(schemas.queryParams)
-      .add(schemas.response)
-      .add(schemas.errors)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName })
-      .print()
-
-    return {
-      path: zod.filePath,
-      fileName: zod.fileName,
-      source,
-      imports: [
-        {
-          name: ['z'],
-          path: 'zod',
-        },
-      ],
-      meta: {
-        pluginName,
-        tag: operation.getTags()[0]?.name,
-      },
-    }
+    return this.post(operation, schemas)
   }
 }
