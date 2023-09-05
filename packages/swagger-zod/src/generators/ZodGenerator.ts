@@ -197,9 +197,13 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
       const union: ZodMeta = {
         keyword: zodKeywords.union,
-        args: schema.oneOf.map((item) => {
-          return this.getBaseTypeFromSchema(item)[0]
-        }),
+        args: schema.oneOf
+          .map((item) => {
+            return this.getBaseTypeFromSchema(item)[0]
+          })
+          .filter((item) => {
+            return item && item.keyword !== zodKeywords.any
+          }),
       }
       if (schemaWithoutOneOf.properties) {
         return [...this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName), union]
@@ -214,9 +218,13 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
       const union: ZodMeta = {
         keyword: zodKeywords.union,
-        args: schema.anyOf.map((item) => {
-          return this.getBaseTypeFromSchema(item)[0]
-        }),
+        args: schema.anyOf
+          .map((item) => {
+            return this.getBaseTypeFromSchema(item)[0]
+          })
+          .filter((item) => {
+            return item && item.keyword !== zodKeywords.any
+          }),
       }
       if (schemaWithoutAnyOf.properties) {
         return [...this.getBaseTypeFromSchema(schemaWithoutAnyOf, baseName), union]
@@ -230,9 +238,13 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
       const and: ZodMeta = {
         keyword: zodKeywords.and,
-        args: schema.allOf.map((item) => {
-          return this.getBaseTypeFromSchema(item)[0]
-        }),
+        args: schema.allOf
+          .map((item) => {
+            return this.getBaseTypeFromSchema(item)[0]
+          })
+          .filter((item) => {
+            return item && item.keyword !== zodKeywords.any
+          }),
       }
 
       if (schemaWithoutAllOf.properties) {

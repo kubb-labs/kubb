@@ -167,9 +167,13 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
       const union: FakerMeta = {
         keyword: fakerKeywords.union,
-        args: schema.oneOf.map((item) => {
-          return this.getBaseTypeFromSchema(item)[0]
-        }),
+        args: schema.oneOf
+          .map((item) => {
+            return this.getBaseTypeFromSchema(item)[0]
+          })
+          .filter((item) => {
+            return item && item.keyword !== fakerKeywords.any
+          }),
       }
       if (schemaWithoutOneOf.properties && union.args) {
         return [{ ...union, args: [...this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName), ...union.args] }]
@@ -184,9 +188,13 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
       const union: FakerMeta = {
         keyword: fakerKeywords.union,
-        args: schema.anyOf.map((item) => {
-          return this.getBaseTypeFromSchema(item)[0]
-        }),
+        args: schema.anyOf
+          .map((item) => {
+            return this.getBaseTypeFromSchema(item)[0]
+          })
+          .filter((item) => {
+            return item && item.keyword !== fakerKeywords.any
+          }),
       }
       if (schemaWithouAnyOf.properties && union.args) {
         return [{ ...union, args: [...this.getBaseTypeFromSchema(schemaWithouAnyOf, baseName), ...union.args] }]
@@ -200,9 +208,13 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
       const and: FakerMeta = {
         keyword: fakerKeywords.and,
-        args: schema.allOf.map((item) => {
-          return this.getBaseTypeFromSchema(item)[0]
-        }),
+        args: schema.allOf
+          .map((item) => {
+            return this.getBaseTypeFromSchema(item)[0]
+          })
+          .filter((item) => {
+            return item && item.keyword !== fakerKeywords.any
+          }),
       }
 
       if (schemaWithoutAllOf.properties && and.args) {

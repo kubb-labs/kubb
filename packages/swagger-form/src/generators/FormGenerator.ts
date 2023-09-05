@@ -8,7 +8,6 @@ import type { PluginContext } from '@kubb/core'
 import type { OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
 import type { FormKeyword, FormMeta } from '../parsers/index.ts'
-import { camelCase } from 'change-case'
 
 type Options = {
   withJSDocs?: boolean
@@ -197,9 +196,13 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       const union: FormMeta = {
         keyword: formKeywords.union,
-        args: schema.oneOf.map((item) => {
-          return this.getBaseTypeFromSchema(item)[0]
-        }),
+        args: schema.oneOf
+          .map((item) => {
+            return this.getBaseTypeFromSchema(item)[0]
+          })
+          .filter((item) => {
+            return item && item.keyword !== formKeywords.any
+          }),
       }
       if (schemaWithoutOneOf.properties) {
         return [...this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName, fullName), union]
@@ -214,9 +217,13 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       const union: FormMeta = {
         keyword: formKeywords.union,
-        args: schema.anyOf.map((item) => {
-          return this.getBaseTypeFromSchema(item)[0]
-        }),
+        args: schema.anyOf
+          .map((item) => {
+            return this.getBaseTypeFromSchema(item)[0]
+          })
+          .filter((item) => {
+            return item && item.keyword !== formKeywords.any
+          }),
       }
       if (schemaWithoutAnyOf.properties) {
         return [...this.getBaseTypeFromSchema(schemaWithoutAnyOf, baseName, fullName), union]
@@ -230,9 +237,13 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       const and: FormMeta = {
         keyword: formKeywords.and,
-        args: schema.allOf.map((item) => {
-          return this.getBaseTypeFromSchema(item)[0]
-        }),
+        args: schema.allOf
+          .map((item) => {
+            return this.getBaseTypeFromSchema(item)[0]
+          })
+          .filter((item) => {
+            return item && item.keyword !== formKeywords.any
+          }),
       }
 
       if (schemaWithoutAllOf.properties) {
