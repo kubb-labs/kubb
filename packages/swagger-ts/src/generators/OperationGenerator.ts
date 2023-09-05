@@ -16,6 +16,7 @@ type Options = {
   resolveName: PluginContext['resolveName']
   mode: PathMode
   enumType: 'enum' | 'asConst' | 'asPascalConst'
+  dateType: 'string' | 'date'
 }
 
 export class OperationGenerator extends Generator<Options> {
@@ -47,7 +48,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { resolvePath, mode, resolveName, oas, enumType } = this.options
+    const { resolvePath, mode, resolveName, oas, enumType, dateType } = this.options
 
     const type = this.resolve(operation)
 
@@ -68,7 +69,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.queryParams)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName, enumType })
+      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName, enumType, dateType })
       .print()
 
     return {
@@ -83,7 +84,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { resolvePath, mode, resolveName, oas, enumType } = this.options
+    const { resolvePath, mode, resolveName, oas, enumType, dateType } = this.options
 
     const type = this.resolve(operation)
 
@@ -105,7 +106,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.request)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName, enumType })
+      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName, enumType, dateType })
       .print()
 
     return {

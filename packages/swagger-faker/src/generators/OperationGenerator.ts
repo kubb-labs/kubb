@@ -15,6 +15,7 @@ type Options = {
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   mode: PathMode
+  dateType: 'string' | 'date'
 }
 
 export class OperationGenerator extends Generator<Options> {
@@ -46,7 +47,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { resolvePath, mode, resolveName, oas } = this.options
+    const { resolvePath, mode, resolveName, oas, dateType } = this.options
 
     const faker = this.resolve(operation)
 
@@ -68,7 +69,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.queryParams)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName })
+      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, dateType, resolveName })
       .print()
 
     return {
@@ -89,7 +90,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { resolvePath, mode, resolveName, oas } = this.options
+    const { resolvePath, mode, resolveName, oas, dateType } = this.options
 
     const faker = this.resolve(operation)
 
@@ -112,7 +113,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.request)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName })
+      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName, dateType })
       .print()
 
     return {

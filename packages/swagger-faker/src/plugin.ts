@@ -16,7 +16,7 @@ import type { FileMeta, PluginOptions } from './types.ts'
 export const pluginName: PluginOptions['name'] = 'swagger-faker' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'mocks', groupBy, skipBy = [], transformers = {} } = options
+  const { output = 'mocks', groupBy, skipBy = [], transformers = {}, dateType = 'string' } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let swaggerApi: SwaggerApi
 
@@ -84,6 +84,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             return getRelativePath(root, resolvedTypeId)
           },
           withJSDocs: true,
+          dateType,
         })
 
         Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
@@ -127,6 +128,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         const builder = new FakerBuilder(oas).configure({
           resolveName: (params) => this.resolveName({ pluginName, ...params }),
           withJSDocs: true,
+          dateType,
         })
         const mapFileSchema = ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
@@ -165,6 +167,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         mode,
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
+        dateType,
       })
 
       const files = await operationGenerator.build()

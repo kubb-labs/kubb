@@ -15,6 +15,7 @@ type Config = {
   resolveName: PluginContext['resolveName']
   withJSDocs?: boolean
   withImports?: boolean
+  dateType: 'string' | 'date'
 }
 
 // TODO create another function that sort based on the refs(first the ones without refs)
@@ -50,6 +51,7 @@ export class FakerBuilder extends OasBuilder<Config> {
           withJSDocs: this.config.withJSDocs,
           resolveName: this.config.resolveName,
           fileResolver: this.config.fileResolver,
+          dateType: this.config.dateType,
         })
         const sources = generator.build({
           schema: operationSchema.schema,

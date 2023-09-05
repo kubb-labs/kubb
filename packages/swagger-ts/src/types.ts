@@ -28,9 +28,14 @@ export type Options = {
   skipBy?: SkipBy[]
   /**
    * Choose to use `enum` or `as const` for enums
-   * @default `asConst`
+   * @default 'asConst'
    */
   enumType?: 'enum' | 'asConst' | 'asPascalConst'
+  /**
+   * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
+   * @default 'string'
+   */
+  dateType?: 'string' | 'date'
   transformers?: {
     /**
      * Override the name of the TypeScript type that is getting generated, this will also override the name of the file.

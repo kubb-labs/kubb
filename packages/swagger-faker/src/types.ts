@@ -37,6 +37,11 @@ export type Options = {
      */
     name?: (name: string) => string
   }
+  /**
+   * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
+   * @default 'string'
+   */
+  dateType?: 'string' | 'date'
 }
 
 export type FileMeta = {

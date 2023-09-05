@@ -14,7 +14,7 @@ import type { PluginOptions } from './types.ts'
 export const pluginName: PluginOptions['name'] = 'swagger-ts' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'models', groupBy, skipBy = [], enumType = 'asConst', transformers = {} } = options
+  const { output = 'models', groupBy, skipBy = [], enumType = 'asConst', dateType = 'string', transformers = {} } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let swaggerApi: SwaggerApi
 
@@ -84,6 +84,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           },
           withJSDocs: true,
           enumType,
+          dateType,
         })
         Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
@@ -121,6 +122,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           resolveName: (params) => this.resolveName({ pluginName, ...params }),
           withJSDocs: true,
           enumType,
+          dateType,
         })
         Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
@@ -153,6 +155,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
         enumType,
+        dateType,
       })
 
       const files = await operationGenerator.build()
