@@ -1,4 +1,12 @@
 # Changelog
+## [1.6.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-form-v1.6.3...@kubb/swagger-form-v1.6.4) (2023-09-05)
+
+
+### 🐞 Bug Fixes
+
+* allOf, anyOf without `any & any` fallback ([ee0237f](https://github.com/kubb-project/kubb/commit/ee0237f7a7516a9adebf5dbbeeae0df4a2369fec))
+* remove uniqueId ([2607eff](https://github.com/kubb-project/kubb/commit/2607effc60d1fb2aa1f4e69d60498234d7c03a96))
+
 ## [1.6.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-form-v1.6.2...@kubb/swagger-form-v1.6.3) (2023-09-03)
 
 

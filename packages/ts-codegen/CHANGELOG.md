@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.4](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.6.3...@kubb/ts-codegen-v1.6.4) (2023-09-05)
+
+
+### 🐞 Bug Fixes
+
+* allOf, anyOf without `any & any` fallback ([ee0237f](https://github.com/kubb-project/kubb/commit/ee0237f7a7516a9adebf5dbbeeae0df4a2369fec))
+
 ## [1.6.3](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.6.2...@kubb/ts-codegen-v1.6.3) (2023-09-03)
 
 
