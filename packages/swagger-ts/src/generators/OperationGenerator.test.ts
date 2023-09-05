@@ -11,7 +11,7 @@ describe('OperationGenerator', () => {
 
   it('[GET] should generate code based on a operation', async () => {
     const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
-    const og = await new OperationGenerator({ oas, resolvePath, resolveName, enumType: 'asConst', mode: 'directory' })
+    const og = await new OperationGenerator({ oas, resolvePath, resolveName, enumType: 'asConst', mode: 'directory', dateType: 'string' })
     const operation = oas.operation('/pets', 'get')
 
     const get = await og.get(operation, og.getSchemas(operation))
@@ -70,7 +70,7 @@ describe('OperationGenerator', () => {
 
   it('[POST] should generate code based on a operation', async () => {
     const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
-    const og = await new OperationGenerator({ oas, resolvePath, resolveName, enumType: 'asConst', mode: 'directory' })
+    const og = await new OperationGenerator({ oas, resolvePath, resolveName, enumType: 'asConst', mode: 'directory', dateType: 'string' })
     const operation = oas.operation('/pets', 'post')
 
     const post = await og.post(operation, og.getSchemas(operation))
