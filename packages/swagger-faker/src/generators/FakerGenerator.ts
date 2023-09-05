@@ -1,4 +1,4 @@
-import { getUniqueName, SchemaGenerator, uniqueIdFactory } from '@kubb/core'
+import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
@@ -9,9 +9,6 @@ import type { PluginContext } from '@kubb/core'
 import type { FileResolver, ImportMeta, OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
 import type { FakerKeyword, FakerMeta } from '../parsers/index.ts'
-import { camelCase } from 'change-case'
-
-const uniqueId = uniqueIdFactory(0)
 
 type Options = {
   fileResolver?: FileResolver
@@ -137,21 +134,11 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
     let ref = this.refs[$ref]
 
     if (ref) {
-      return [{ keyword: fakerKeywords.ref, args: ref.name ?? ref.propertyName }]
+      return [{ keyword: fakerKeywords.ref, args: ref.propertyName }]
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames)
     const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
-
-    if (baseName && camelCase(originalName, { delimiter: '' }) === camelCase(baseName, { delimiter: '' })) {
-      ref = this.refs[$ref] = {
-        propertyName,
-        originalName,
-        name: uniqueId(propertyName),
-      }
-
-      return [{ keyword: fakerKeywords.ref, args: ref.name }]
-    }
 
     ref = this.refs[$ref] = {
       propertyName,

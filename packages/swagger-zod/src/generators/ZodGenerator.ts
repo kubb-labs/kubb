@@ -1,4 +1,4 @@
-import { getUniqueName, SchemaGenerator, uniqueIdFactory } from '@kubb/core'
+import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 
 import { zodKeywords, zodParser } from '../parsers/index.ts'
@@ -8,9 +8,6 @@ import type { PluginContext } from '@kubb/core'
 import type { OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
 import type { ZodMeta } from '../parsers/index.ts'
-import { camelCase } from 'change-case'
-
-const uniqueId = uniqueIdFactory(0)
 
 type Options = {
   withJSDocs?: boolean
@@ -167,21 +164,11 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     let ref = this.refs[$ref]
 
     if (ref) {
-      return [{ keyword: zodKeywords.ref, args: ref.name ?? ref.propertyName }]
+      return [{ keyword: zodKeywords.ref, args: ref.propertyName }]
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames)
     const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
-
-    if (baseName && camelCase(originalName, { delimiter: '' }) === camelCase(baseName, { delimiter: '' })) {
-      ref = this.refs[$ref] = {
-        propertyName,
-        originalName,
-        name: uniqueId(propertyName),
-      }
-
-      return [{ keyword: zodKeywords.ref, args: ref.name }]
-    }
 
     ref = this.refs[$ref] = {
       propertyName,

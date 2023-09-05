@@ -75,7 +75,7 @@ export class TypeBuilder extends OasBuilder<Config> {
       if (importMeta) {
         const nodes = importMeta.map((item) => {
           return createImportDeclaration({
-            name: [{ propertyName: item.ref.propertyName, name: item.ref.name }],
+            name: [{ propertyName: item.ref.propertyName }],
             path: item.path,
             isTypeOnly: true,
           })

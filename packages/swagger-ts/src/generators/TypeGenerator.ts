@@ -1,4 +1,4 @@
-import { getUniqueName, SchemaGenerator, uniqueIdFactory } from '@kubb/core'
+import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 import {
   appendJSDocToNode,
@@ -24,8 +24,6 @@ import type { OpenAPIV3, Refs } from '@kubb/swagger'
 import type { ArrayTwoOrMore } from '@kubb/ts-codegen'
 
 const { factory } = ts
-
-const uniqueId = uniqueIdFactory(0)
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
@@ -173,21 +171,11 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     let ref = this.refs[$ref]
 
     if (ref) {
-      return factory.createTypeReferenceNode(ref.name ?? ref.propertyName, undefined)
+      return factory.createTypeReferenceNode(ref.propertyName, undefined)
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames)
     const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
-
-    if (baseName && camelCase(originalName, { delimiter: '' }) === camelCase(baseName, { delimiter: '' })) {
-      ref = this.refs[$ref] = {
-        propertyName,
-        originalName,
-        name: uniqueId(propertyName),
-      }
-
-      return factory.createTypeReferenceNode(ref.name as string, undefined)
-    }
 
     ref = this.refs[$ref] = {
       propertyName,

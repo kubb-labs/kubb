@@ -8,14 +8,11 @@ import type { FileResolver } from '../builders/OasBuilder.ts'
  *
  * `originalName` is the original name used(in PascalCase), only used to remove duplicates
  *
- * `name` is used to make the type more unique when multiple same names are used(see `createImportDeclaration` in `@kubb/ts-codegen`)
- * @example `import { Pet as Cat } from './Pet'`
- *
  * `pluginName` can be used to override the current plugin being used, handy when you want to import a type/schema out of another plugin
  * @example import a type(swagger-ts) for a mock file(swagger-faker)
  */
 
-export type Ref = { propertyName: string; originalName: string; name?: string; pluginName?: string }
+export type Ref = { propertyName: string; originalName: string; pluginName?: string }
 export type Refs = Record<string, Ref>
 
 type Import = { refs: Refs; name: string }
@@ -60,11 +57,11 @@ export class ImportsGenerator extends Generator<Options> {
     // add imports based on $ref
     const importMeta = [...new Set(Object.keys(refs))]
       .map(($ref: string) => {
-        const { propertyName, originalName, name } = refs[$ref]
+        const { propertyName, originalName } = refs[$ref]
 
         const exists = imports.some((item) => item.name.toLowerCase() === originalName.toLowerCase())
 
-        if (exists && !name) {
+        if (exists) {
           return undefined
         }
 
