@@ -1,0 +1,51 @@
+info:
+  license:
+    name: MIT
+  title: Swagger Petstore
+  version: 1.0.0
+openapi: '3.0.0'
+components:
+  responses:
+    GetPet200Response:
+      content:
+        application/json:
+          schema:
+            properties:
+              id:
+                format: int64
+                type: integer
+              name:
+                type: string
+              tag:
+                type: string
+      description: Expected response to a valid request
+    PetNotFound:
+      content:
+        application/json:
+          schema:
+            properties:
+              code:
+                format: int32
+                type: integer
+              message:
+                type: string
+      description: Pet not found
+paths:
+  /pets/{petId}:
+    get:
+      operationId: showPetById
+      parameters:
+        - description: The id of the pet to retrieve
+          in: path
+          name: petId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/GetPet200Response'
+        '404':
+          $ref: '#/components/responses/PetNotFound'
+      summary: Info for a specific pet
+      tags:
+        - pets

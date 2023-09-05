@@ -5,7 +5,7 @@ import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { pluginName } from '../plugin.ts'
 
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
-import type { Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
+import type { ContentType, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
 import type { ResolvePathOptions } from '../types.ts'
 import { QueryBuilder } from '../builders/QueryBuilder.ts'
 import type { FileMeta } from '../types.ts'
@@ -13,6 +13,7 @@ import type { FileMeta } from '../types.ts'
 type Options = {
   clientPath?: OptionalPath
   oas: Oas
+  contentType?: ContentType
   skipBy?: SkipBy[]
   resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
   resolveName: PluginContext['resolveName']

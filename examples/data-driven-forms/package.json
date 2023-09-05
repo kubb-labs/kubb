@@ -21,8 +21,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@data-driven-forms/ant-component-mapper": "^3.21.3",
-    "@data-driven-forms/react-form-renderer": "^3.21.3",
+    "@data-driven-forms/ant-component-mapper": "^3.21.4",
+    "@data-driven-forms/react-form-renderer": "^3.21.4",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/swagger": "workspace:*",

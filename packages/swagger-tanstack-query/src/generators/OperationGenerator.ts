@@ -3,7 +3,7 @@ import { OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
-import type { Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
+import type { ContentType, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
 import type { ResolvePathOptions, Framework, FrameworkImports } from '../types.ts'
 import { QueryBuilder } from '../builders/QueryBuilder.ts'
 import type { FileMeta } from '../types.ts'
@@ -13,6 +13,7 @@ type Options = {
   framework: Framework
   clientPath?: OptionalPath
   oas: Oas
+  contentType?: ContentType
   skipBy: SkipBy[]
   resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
   resolveName: PluginContext['resolveName']

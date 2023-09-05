@@ -1,4 +1,4 @@
-import { getUniqueName, SchemaGenerator, uniqueIdFactory } from '@kubb/core'
+import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 
 import { formKeywords, formParser } from '../parsers/index.ts'
@@ -8,9 +8,6 @@ import type { PluginContext } from '@kubb/core'
 import type { OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
 import type { FormKeyword, FormMeta } from '../parsers/index.ts'
-import { camelCase } from 'change-case'
-
-const uniqueId = uniqueIdFactory(0)
 
 type Options = {
   withJSDocs?: boolean
@@ -166,21 +163,11 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     let ref = this.refs[$ref]
 
     if (ref) {
-      return [{ keyword: formKeywords.ref, args: ref.name ?? ref.propertyName }]
+      return [{ keyword: formKeywords.ref, args: ref.propertyName }]
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames)
     const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
-
-    if (baseName && camelCase(originalName, { delimiter: '' }) === camelCase(baseName, { delimiter: '' })) {
-      ref = this.refs[$ref] = {
-        propertyName,
-        originalName,
-        name: uniqueId(propertyName),
-      }
-
-      return [{ keyword: formKeywords.ref, args: ref.name }]
-    }
 
     ref = this.refs[$ref] = {
       propertyName,
@@ -209,9 +196,13 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       const union: FormMeta = {
         keyword: formKeywords.union,
-        args: schema.oneOf.map((item) => {
-          return this.getBaseTypeFromSchema(item)[0]
-        }),
+        args: schema.oneOf
+          .map((item) => {
+            return this.getBaseTypeFromSchema(item)[0]
+          })
+          .filter((item) => {
+            return item && item.keyword !== formKeywords.any
+          }),
       }
       if (schemaWithoutOneOf.properties) {
         return [...this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName, fullName), union]
@@ -226,9 +217,13 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       const union: FormMeta = {
         keyword: formKeywords.union,
-        args: schema.anyOf.map((item) => {
-          return this.getBaseTypeFromSchema(item)[0]
-        }),
+        args: schema.anyOf
+          .map((item) => {
+            return this.getBaseTypeFromSchema(item)[0]
+          })
+          .filter((item) => {
+            return item && item.keyword !== formKeywords.any
+          }),
       }
       if (schemaWithoutAnyOf.properties) {
         return [...this.getBaseTypeFromSchema(schemaWithoutAnyOf, baseName, fullName), union]
@@ -242,9 +237,13 @@ export class FormGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       const and: FormMeta = {
         keyword: formKeywords.and,
-        args: schema.allOf.map((item) => {
-          return this.getBaseTypeFromSchema(item)[0]
-        }),
+        args: schema.allOf
+          .map((item) => {
+            return this.getBaseTypeFromSchema(item)[0]
+          })
+          .filter((item) => {
+            return item && item.keyword !== formKeywords.any
+          }),
       }
 
       if (schemaWithoutAllOf.properties) {

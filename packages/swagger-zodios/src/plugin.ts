@@ -44,6 +44,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const oas = await swaggerApi.getOas()
 
       const operationGenerator = new OperationGenerator({
+        contentType: swaggerApi.contentType,
         oas,
         output,
         skipBy: zodApi.skipBy,

@@ -60,6 +60,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const clientPath: OptionalPath = options.client ? pathParser.resolve(this.config.root, options.client) : undefined
 
       const operationGenerator = new OperationGenerator({
+        contentType: swaggerApi.contentType,
         queryParam: infinite?.queryParam || 'id',
         framework,
         skipBy,

@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker'
 
-import { createAddress as createAddress1 } from './createAddress'
+import { createAddress } from './createAddress'
 import { Customer } from '../models/Customer'
 
 export function createCustomer(): Customer {
-  return { id: faker.number.float({}), username: faker.string.alpha(), address: faker.helpers.arrayElements([createAddress1()]) as any }
+  return { id: faker.number.float({}), username: faker.string.alpha(), address: faker.helpers.arrayElements([createAddress()]) as any }
 }

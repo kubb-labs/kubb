@@ -1,4 +1,4 @@
-import { getUniqueName, SchemaGenerator, uniqueIdFactory } from '@kubb/core'
+import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 import {
   appendJSDocToNode,
@@ -24,8 +24,6 @@ import type { OpenAPIV3, Refs } from '@kubb/swagger'
 import type { ArrayTwoOrMore } from '@kubb/ts-codegen'
 
 const { factory } = ts
-
-const uniqueId = uniqueIdFactory(0)
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
@@ -137,7 +135,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const propertySignature = createPropertySignature({
         questionToken: !isRequired,
         name,
-        type,
+        type: type as any,
       })
       if (this.options.withJSDocs) {
         return appendJSDocToNode({
@@ -173,21 +171,11 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     let ref = this.refs[$ref]
 
     if (ref) {
-      return factory.createTypeReferenceNode(ref.name ?? ref.propertyName, undefined)
+      return factory.createTypeReferenceNode(ref.propertyName, undefined)
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames)
     const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
-
-    if (baseName && camelCase(originalName, { delimiter: '' }) === camelCase(baseName, { delimiter: '' })) {
-      ref = this.refs[$ref] = {
-        propertyName,
-        originalName,
-        name: uniqueId(propertyName),
-      }
-
-      return factory.createTypeReferenceNode(ref.name as string, undefined)
-    }
 
     ref = this.refs[$ref] = {
       propertyName,
@@ -214,15 +202,16 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       // union
       const schemaWithoutOneOf = { ...schema, oneOf: undefined }
 
-      const union = factory.createParenthesizedType(
-        createUnionDeclaration({
-          nodes: schema.oneOf
-            .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
-              return this.getBaseTypeFromSchema(item)
-            })
-            .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
-        }),
-      )
+      const union = createUnionDeclaration({
+        withParentheses: true,
+        nodes: schema.oneOf
+          .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
+            return this.getBaseTypeFromSchema(item)
+          })
+          .filter((item) => {
+            return item && item !== keywordTypeNodes.any
+          }) as ArrayTwoOrMore<ts.TypeNode>,
+      })
 
       if (schemaWithoutOneOf.properties) {
         return createIntersectionDeclaration({
@@ -236,15 +225,16 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     if (schema.anyOf) {
       const schemaWithoutAnyOf = { ...schema, anyOf: undefined }
 
-      const union = factory.createParenthesizedType(
-        createUnionDeclaration({
-          nodes: schema.anyOf
-            .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
-              return this.getBaseTypeFromSchema(item)
-            })
-            .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
-        }),
-      )
+      const union = createUnionDeclaration({
+        withParentheses: true,
+        nodes: schema.anyOf
+          .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
+            return this.getBaseTypeFromSchema(item)
+          })
+          .filter((item) => {
+            return item && item !== keywordTypeNodes.any
+          }) as ArrayTwoOrMore<ts.TypeNode>,
+      })
 
       if (schemaWithoutAnyOf.properties) {
         return createIntersectionDeclaration({
@@ -258,15 +248,16 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       // intersection/add
       const schemaWithoutAllOf = { ...schema, allOf: undefined }
 
-      const and = factory.createParenthesizedType(
-        factory.createIntersectionTypeNode(
-          schema.allOf
-            .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
-              return this.getBaseTypeFromSchema(item)
-            })
-            .filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
-        ),
-      )
+      const and = createIntersectionDeclaration({
+        withParentheses: true,
+        nodes: schema.allOf
+          .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
+            return this.getBaseTypeFromSchema(item)
+          })
+          .filter((item) => {
+            return item && item !== keywordTypeNodes.any
+          }) as ArrayTwoOrMore<ts.TypeNode>,
+      })
 
       if (schemaWithoutAllOf.properties) {
         return createIntersectionDeclaration({

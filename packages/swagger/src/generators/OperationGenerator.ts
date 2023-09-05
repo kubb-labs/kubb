@@ -9,12 +9,17 @@ import type { File } from '@kubb/core'
 import type { Operation } from 'oas'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types.ts'
 import type { OpenAPIV3 } from 'openapi-types'
-import type { Oas, OperationSchemas, Resolver, SkipBy } from '../types.ts'
+import type { ContentType, Oas, OperationSchemas, Resolver, SkipBy } from '../types.ts'
 import { Warning } from '@kubb/core'
+
+import { utils } from 'oas'
+
+const { findSchemaDefinition } = utils
 
 type Options = {
   oas: Oas
   skipBy?: SkipBy[]
+  contentType?: ContentType
 }
 
 export abstract class OperationGenerator<TOptions extends Options = Options> extends Generator<TOptions> {
@@ -61,25 +66,19 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     return skip
   }
 
-  private getParametersSchema(operation: Operation, inKey: 'path' | 'query') {
-    const { oas } = this.options
+  private getParametersSchema(operation: Operation, inKey: 'path' | 'query'): OpenAPIV3.SchemaObject | null {
+    const contentType = this.options.contentType || operation.getContentType()
+    const params = operation
+      .getParameters()
+      .map((item) => {
+        const param = item as unknown as OpenAPIV3.ReferenceObject & OpenAPIV3.ParameterObject
+        if (isReference(param)) {
+          return findSchemaDefinition(param.$ref, operation.api) as OpenAPIV3.ParameterObject
+        }
 
-    const requestBodyTypes = operation.getRequestBodyMediaTypes()
-    const applicationJson = (requestBodyTypes.at(0) as 'application/json') || 'application/json' //TODO remove hardcoded bodyType application/json
-    const params = operation.getParameters().filter((v) => v.in === inKey)
-    const refParams = operation.getParameters().filter((v) => isReference(v))
-    const parameterSchemas = oas.getDefinition().components?.parameters || {}
-
-    Object.keys(parameterSchemas).forEach((name) => {
-      const exists = refParams.some(
-        (param) => (param as unknown as OpenAPIV3.ReferenceObject).$ref && (param as unknown as OpenAPIV3.ReferenceObject).$ref.replace(/.+\//, '') === name,
-      )
-      const paramsObject = parameterSchemas[name] as OpenAPIV3.ParameterObject
-
-      if (exists && paramsObject.in === inKey) {
-        params.push(paramsObject)
-      }
-    })
+        return param
+      })
+      .filter((v) => v.in === inKey)
 
     if (!params.length) {
       return null
@@ -92,7 +91,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
           required: [...(schema.required || []), pathParameters.required ? pathParameters.name : undefined].filter(Boolean),
           properties: {
             ...schema.properties,
-            [pathParameters.name]: pathParameters.content?.[applicationJson]?.schema ?? (pathParameters.schema as OpenAPIV3.SchemaObject),
+            [pathParameters.name]: pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as OpenAPIV3.SchemaObject),
           },
         }
       },
@@ -100,16 +99,28 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     )
   }
 
+  private getResponseSchema(operation: Operation, statusCode: string | number): OpenAPIV3.SchemaObject {
+    const schema = operation.schema.responses?.[statusCode] as OpenAPIV3.ReferenceObject
+    const contentType = this.options.contentType || operation.getContentType()
+
+    if (isReference(schema)) {
+      const responseSchema = findSchemaDefinition(schema?.$ref, operation.api) as OpenAPIV3.ResponseObject
+
+      return responseSchema.content?.[contentType]?.schema as OpenAPIV3.SchemaObject
+    }
+
+    return operation.getResponseAsJSONSchema(statusCode)?.at(0)?.schema as OpenAPIV3.SchemaObject
+  }
+
   public getSchemas(operation: Operation): OperationSchemas {
+    const contentType = this.options.contentType || operation.getContentType()
     const pathParamsSchema = this.getParametersSchema(operation, 'path')
     const queryParamsSchema = this.getParametersSchema(operation, 'query')
-    const requestBodyTypes = operation.getRequestBodyMediaTypes()
-    const applicationJson = (requestBodyTypes.at(0) as 'application/json') || 'application/json' //TODO remove hardcoded bodyType application/json
     const requestSchema = operation.hasRequestBody()
       ? ((operation.getRequestBody() as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject) ||
-        ((operation.getRequestBody(applicationJson) as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject)
+        ((operation.getRequestBody(contentType) as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject)
       : undefined
-    const responseSchema = operation.getResponseAsJSONSchema('200')?.at(0)?.schema as OpenAPIV3.SchemaObject
+    const responseSchema = this.getResponseSchema(operation, '200')
 
     return {
       pathParams: pathParamsSchema
@@ -161,7 +172,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
             description:
               operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description ||
               (operation.getResponseByStatusCode(statusCode) as OpenAPIV3.ResponseObject)?.description,
-            schema: operation.getResponseAsJSONSchema(statusCode)?.at(0)?.schema as OpenAPIV3.SchemaObject,
+            schema: this.getResponseSchema(operation, statusCode),
             operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
             statusCode: name === 'error' ? undefined : Number(statusCode),
           }

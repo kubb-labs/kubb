@@ -14,7 +14,7 @@ export const modifiers = {
   static: factory.createModifier(ts.SyntaxKind.StaticKeyword),
 } as const
 
-function isValidIdentifier(str: string) {
+function isValidIdentifier(str: string): boolean {
   if (!str.length || str.trim() !== str) {
     return false
   }
@@ -42,8 +42,28 @@ export function createQuestionToken(token?: boolean | ts.QuestionToken) {
   return token
 }
 
-export function createIntersectionDeclaration({ nodes }: { nodes: ArrayTwoOrMore<ts.TypeNode> }) {
-  return factory.createIntersectionTypeNode(nodes)
+export function createIntersectionDeclaration({
+  nodes,
+  withParentheses,
+}: {
+  nodes: ArrayTwoOrMore<ts.TypeNode>
+  withParentheses?: boolean
+}): ts.TypeNode | null {
+  if (!nodes.length) {
+    return null
+  }
+
+  if (nodes.length === 1) {
+    return nodes[0]
+  }
+
+  const node = factory.createIntersectionTypeNode(nodes)
+
+  if (withParentheses) {
+    return factory.createParenthesizedType(node)
+  }
+
+  return node
 }
 
 /**
@@ -51,16 +71,44 @@ export function createIntersectionDeclaration({ nodes }: { nodes: ArrayTwoOrMore
  * Minimum nodes length of 2
  * @example `string & number`
  */
-export function createTupleDeclaration({ nodes }: { nodes: ArrayTwoOrMore<ts.TypeNode> }) {
-  return factory.createTupleTypeNode(nodes)
+export function createTupleDeclaration({ nodes, withParentheses }: { nodes: ArrayTwoOrMore<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
+  if (!nodes.length) {
+    return null
+  }
+
+  if (nodes.length === 1) {
+    return nodes[0]
+  }
+
+  const node = factory.createTupleTypeNode(nodes)
+
+  if (withParentheses) {
+    return factory.createParenthesizedType(node)
+  }
+
+  return node
 }
 /**
  *
  * Minimum nodes length of 2
  * @example `string | number`
  */
-export function createUnionDeclaration({ nodes }: { nodes: ArrayTwoOrMore<ts.TypeNode> }) {
-  return factory.createUnionTypeNode(nodes)
+export function createUnionDeclaration({ nodes, withParentheses }: { nodes: ArrayTwoOrMore<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
+  if (!nodes.length) {
+    return null
+  }
+
+  if (nodes.length === 1) {
+    return nodes[0]
+  }
+
+  const node = factory.createUnionTypeNode(nodes)
+
+  if (withParentheses) {
+    return factory.createParenthesizedType(node)
+  }
+
+  return node
 }
 
 export function createPropertySignature({

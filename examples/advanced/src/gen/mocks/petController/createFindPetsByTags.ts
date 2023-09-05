@@ -14,7 +14,7 @@ export function createFindPetsByTags400(): FindPetsByTags400 {
 }
 
 export function createFindPetsByTagsQueryParams(): FindPetsByTagsQueryParams {
-  return { tags: faker.helpers.arrayElements([faker.string.alpha()]) as any }
+  return { tags: faker.helpers.arrayElements([faker.string.alpha()]) as any, page: faker.string.alpha(), pageSize: faker.string.alpha() }
 }
 
 /**

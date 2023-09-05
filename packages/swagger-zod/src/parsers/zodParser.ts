@@ -176,6 +176,9 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
     if (Array.isArray(args) && args.length === 1) {
       return parseZodMeta(args[0] as ZodMeta)
     }
+    if (Array.isArray(args) && !args.length) {
+      return ''
+    }
 
     return `${Array.isArray(args) ? `${value}([${args.map((item) => parseZodMeta(item as ZodMeta, mapper)).join(',')}])` : parseZodMeta(args as ZodMeta)}`
   }
@@ -187,6 +190,7 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
   if (keyword === zodKeywords.and && Array.isArray(args)) {
     return `${args
       .map((item) => parseZodMeta(item as ZodMeta, mapper))
+      .filter(Boolean)
       .map((item, index) => (index === 0 ? item : `${value}(${item})`))
       .join('')}`
   }
