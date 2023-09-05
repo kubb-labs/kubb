@@ -14,6 +14,7 @@ type Options = {
   fileResolver?: FileResolver
   withJSDocs?: boolean
   resolveName: PluginContext['resolveName']
+  dateType: 'string' | 'date'
 }
 export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, string[]> {
   // Collect the types of all referenced schemas so we can export them later
@@ -28,7 +29,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
   // Keep track of already used type aliases
   usedAliasNames: Record<string, number> = {}
 
-  constructor(options: Options = { withJSDocs: true, resolveName: ({ name }) => name }) {
+  constructor(options: Options = { withJSDocs: true, dateType: 'string', resolveName: ({ name }) => name }) {
     super(options)
 
     return this
@@ -296,7 +297,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
         return [{ keyword: fakerKeywords.matches, args: `/${schema.pattern}/` }]
       }
 
-      if (schema.type !== 'string' && (schema.format === 'date-time' || baseName === 'date')) {
+      if (this.options.dateType === 'date' && ['date', 'date-time'].some((item) => item === schema.format)) {
         return [{ keyword: fakerKeywords.datetime }]
       }
 

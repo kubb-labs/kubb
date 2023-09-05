@@ -79,6 +79,12 @@ Override the name of the faker data that is getting generated, this will also ov
 
 Type: `(name: string) => string` <br/>
 
+### dateType
+Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
+
+Type: `'string' | 'date'` <br/>
+Default: `'string'`
+
 
 ## Depended
 

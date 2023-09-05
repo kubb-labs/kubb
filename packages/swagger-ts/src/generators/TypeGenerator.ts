@@ -31,6 +31,7 @@ type Options = {
   withJSDocs?: boolean
   resolveName: PluginContext['resolveName']
   enumType: 'enum' | 'asConst' | 'asPascalConst'
+  dateType: 'string' | 'date'
 }
 export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.Node[]> {
   // Collect the types of all referenced schemas so we can export them later
@@ -50,7 +51,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     stripRegexp: /[^A-Z0-9$]/gi,
   }
 
-  constructor(options: Options = { withJSDocs: true, resolveName: ({ name }) => name, enumType: 'asConst' }) {
+  constructor(options: Options = { withJSDocs: true, resolveName: ({ name }) => name, enumType: 'asConst', dateType: 'string' }) {
     super(options)
 
     return this
@@ -346,6 +347,11 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
           ].filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
         })
       }
+
+      if (this.options.dateType === 'date' && ['date', 'date-time'].some((item) => item === schema.format)) {
+        return factory.createTypeReferenceNode(factory.createIdentifier('Date'))
+      }
+
       // string, boolean, null, number
       if (schema.type in keywordTypeNodes) {
         return keywordTypeNodes[schema.type as keyof typeof keywordTypeNodes]

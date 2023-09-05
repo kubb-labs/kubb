@@ -30,6 +30,7 @@ export default defineConfig(async () => {
             type: 'tag',
           },
           enumType: 'asPascalConst',
+          dateType: 'date',
         },
       ],
       [
@@ -103,8 +104,8 @@ export default defineConfig(async () => {
               pattern: 'store',
             },
           ],
-
           groupBy: { type: 'tag' },
+          dateType: 'date',
         },
       ],
       [

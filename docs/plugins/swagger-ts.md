@@ -57,12 +57,19 @@ Example: `models/{{tag}}Controller` => `models/PetController` <br/>
 Default: `${output}/{{tag}}Controller`
 
 ### enumType
-Choose to use `enum` or `as const` for enums. 
-`asConst` will use camelCase for the naming.
+Choose to use `enum` or `as const` for enums. <br/>
+`asConst` will use camelCase for the naming. <br/>
 `asPascalConst` will use PascalCase for the naming.
 
 Type: `'enum' | 'asConst' | 'asPascalConst'` <br/>
-Default: `asConst`
+Default: `'asConst'`
+
+### dateType
+Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
+
+Type: `'string' | 'date'` <br/>
+Default: `'string'`
+
 
 ### skipBy
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.

@@ -7,7 +7,7 @@ export function createOrder(): Order {
     id: faker.number.float({}),
     petId: faker.number.float({}),
     quantity: faker.number.float({}),
-    shipDate: faker.string.alpha(),
+    shipDate: faker.date.anytime(),
     status: faker.helpers.arrayElement<any>([`placed`, `approved`, `delivered`]),
     complete: faker.datatype.boolean(),
   }
