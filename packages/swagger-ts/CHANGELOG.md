@@ -1,4 +1,17 @@
 # Changelog
+## [1.7.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.6.3...@kubb/swagger-ts-v1.7.0) (2023-09-05)
+
+
+### 🐞 Bug Fixes
+
+* allOf, anyOf without `any & any` fallback ([ee0237f](https://github.com/kubb-project/kubb/commit/ee0237f7a7516a9adebf5dbbeeae0df4a2369fec))
+* remove uniqueId ([2607eff](https://github.com/kubb-project/kubb/commit/2607effc60d1fb2aa1f4e69d60498234d7c03a96))
+
+
+### ✨ Features
+
+* choose to use `Date` or `string` type for format `date` or `date-time` ([404227d](https://github.com/kubb-project/kubb/commit/404227de2c0baea4e0a14e9ff4c59efbc5c1db59))
+
 ## [1.6.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.6.2...@kubb/swagger-ts-v1.6.3) (2023-09-03)
 
 
