@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.6.3...@kubb/swagger-v1.7.0) (2023-09-05)
+
+
+### 🐞 Bug Fixes
+
+* better use of `$ref` ([73f0b53](https://github.com/kubb-project/kubb/commit/73f0b53ed142ba01bcb284d24344ecd57b647e32))
+* remove uniqueId ([2607eff](https://github.com/kubb-project/kubb/commit/2607effc60d1fb2aa1f4e69d60498234d7c03a96))
+
 ## [1.6.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.6.2...@kubb/swagger-v1.6.3) (2023-09-03)
 
 
