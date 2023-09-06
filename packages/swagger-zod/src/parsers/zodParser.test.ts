@@ -70,7 +70,7 @@ const input = [
       keyword: 'enum',
       args: ['"A"', '"B"', '"C"', 2],
     }),
-    expected: 'z.enum("A","B","C",2)',
+    expected: 'z.enum(["A","B","C",2])',
   },
 
   {
