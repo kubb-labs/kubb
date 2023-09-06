@@ -13,6 +13,7 @@ export const zodKeywords = {
   tuple: 'tuple',
   enum: 'enum',
   union: 'union',
+  literal: 'literal',
   datetime: 'datetime',
   email: 'email',
   uuid: 'uuid',
@@ -48,6 +49,7 @@ export const zodKeywordMapper: Record<ZodKeyword, string> = {
   tuple: 'z.tuple',
   enum: 'z.enum',
   union: 'z.union',
+  literal: 'z.literal',
   datetime: '.datetime',
   email: '.email',
   uuid: '.uuid',
@@ -98,6 +100,7 @@ type ZodMetaCatchall = { keyword: typeof zodKeywords.catchall; args?: ZodMeta[] 
 type ZodMetaRef = { keyword: typeof zodKeywords.ref; args?: string }
 
 type ZodMetaUnion = { keyword: typeof zodKeywords.union; args?: ZodMeta[] }
+type ZodMetaLiteral = { keyword: typeof zodKeywords.literal; args?: string | number }
 
 type ZodMetaAnd = { keyword: typeof zodKeywords.and; args?: ZodMeta[] }
 
@@ -144,6 +147,7 @@ export type ZodMeta =
   | ZodMetaDatetime
   | ZodMetaEmail
   | ZodMetaUuid
+  | ZodMetaLiteral
   | ZodMetaUrl
 
 /**
