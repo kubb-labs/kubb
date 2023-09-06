@@ -172,6 +172,10 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
     return `${value}(${Array.isArray(args) ? `[${args.map((item) => parseZodMeta(item as ZodMeta, mapper)).join(',')}]` : parseZodMeta(args as ZodMeta)})`
   }
 
+  if (keyword === zodKeywords.enum) {
+    return `${value}(${Array.isArray(args) ? `[${args.join(',')}]` : parseZodMeta(args as ZodMeta)})`
+  }
+
   if (keyword === zodKeywords.array) {
     return `${value}(${Array.isArray(args) ? `${args.map((item) => parseZodMeta(item as ZodMeta, mapper)).join('')}` : parseZodMeta(args as ZodMeta)})`
   }
