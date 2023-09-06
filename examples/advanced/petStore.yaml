@@ -627,6 +627,14 @@ components:
             - placed
             - approved
             - delivered
+        http_status:
+          type: number
+          description: Http Status
+          example: 200
+          enum:
+            - 200
+            - 400
+            - 500
         complete:
           type: boolean
       xml:

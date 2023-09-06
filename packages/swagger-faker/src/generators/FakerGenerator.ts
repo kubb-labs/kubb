@@ -235,6 +235,15 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
         ]
       }
 
+      if (schema.type === 'number' || schema.type === 'integer') {
+        return [
+          {
+            keyword: fakerKeywords.enum,
+            args: [`[${[...new Set(schema.enum)].join(', ')}]`],
+          },
+        ]
+      }
+
       return [
         {
           keyword: fakerKeywords.enum,

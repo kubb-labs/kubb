@@ -264,7 +264,22 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         return [
           {
             keyword: zodKeywords.enum,
-            args: [`[${[...new Set(schema['x-enumNames'] as string[])].map((value) => `\`${value}\``).join(', ')}]`],
+            args: [...new Set(schema['x-enumNames'] as string[])].map((value: string) => `\`${value}\``),
+          },
+        ]
+      }
+
+      if (schema.type === 'number' || schema.type === 'integer') {
+        // we cannot use z.enum when enum type is number/integer
+        return [
+          {
+            keyword: zodKeywords.union,
+            args: [...new Set(schema.enum)].map((value: string) => {
+              return {
+                keyword: zodKeywords.literal,
+                args: value,
+              }
+            }),
           },
         ]
       }
@@ -272,7 +287,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       return [
         {
           keyword: zodKeywords.enum,
-          args: [`[${[...new Set(schema.enum)].map((value: string) => `\`${value}\``).join(', ')}]`],
+          args: [...new Set(schema.enum)].map((value: string) => `\`${value}\``),
         },
       ]
     }
