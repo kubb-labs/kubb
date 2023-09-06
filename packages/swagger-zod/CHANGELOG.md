@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.7.0...@kubb/swagger-zod-v1.7.1) (2023-09-06)
+
+
+### 🐞 Bug Fixes
+
+* use `z.union` when enum has `type: number` set ([7fa922d](https://github.com/kubb-project/kubb/commit/7fa922d5fd0663ee4c84de6a57f5426e6f972ae9))
+
 ## [1.7.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.6.3...@kubb/swagger-zod-v1.7.0) (2023-09-05)
 
 
