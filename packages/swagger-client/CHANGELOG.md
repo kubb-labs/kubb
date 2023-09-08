@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.7.1...@kubb/swagger-client-v1.7.2) (2023-09-08)
+
+
+### 🐞 Bug Fixes
+
+* clientOptions to override Axios/Fetch options ([f9799e7](https://github.com/kubb-project/kubb/commit/f9799e70d9fafe64d53959792061f14f74d3ed21))
+
 ## [1.7.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.7.0...@kubb/swagger-client-v1.7.1) (2023-09-06)
 
 
