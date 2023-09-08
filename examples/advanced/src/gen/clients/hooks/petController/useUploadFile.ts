@@ -17,9 +17,10 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
   params?: UploadFileQueryParams,
   options?: {
     mutation?: UseMutationOptions<TData, TError, TVariables>
+    client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
   },
 ): UseMutationResult<TData, TError, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
@@ -28,6 +29,7 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
         url: `/pet/${petId}/uploadImage`,
         data,
         params,
+        ...clientOptions,
       })
     },
     ...mutationOptions,

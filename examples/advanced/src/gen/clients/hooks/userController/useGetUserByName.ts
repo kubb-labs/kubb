@@ -7,6 +7,7 @@ export const getUserByNameQueryKey = (username: GetUserByNamePathParams['usernam
 
 export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   username: GetUserByNamePathParams['username'],
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = getUserByNameQueryKey(username)
 
@@ -16,6 +17,8 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
       return client<TData, TError>({
         method: 'get',
         url: `/user/${username}`,
+
+        ...options,
       })
     },
   }
@@ -44,6 +47,7 @@ export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = Ge
 
 export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   username: GetUserByNamePathParams['username'],
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = getUserByNameQueryKey(username)
 
@@ -53,6 +57,7 @@ export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResp
       return client<TData, TError>({
         method: 'get',
         url: `/user/${username}`,
+        ...options,
       })
     },
   }

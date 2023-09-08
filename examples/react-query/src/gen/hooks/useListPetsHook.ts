@@ -5,7 +5,10 @@ import type { ListPetsQueryResponse, ListPetsQueryParams } from '../models/ListP
 
 export const listPetsQueryKey = (params?: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
 
-export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unknown>(params?: ListPetsQueryParams): UseQueryOptions<TData, TError> {
+export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unknown>(
+  params?: ListPetsQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
+): UseQueryOptions<TData, TError> {
   const queryKey = listPetsQueryKey(params)
 
   return {
@@ -15,6 +18,7 @@ export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unk
         method: 'get',
         url: `/pets`,
         params,
+        ...options,
       })
     },
   }
@@ -43,6 +47,7 @@ export function useListPetsHook<TData = ListPetsQueryResponse, TError = unknown>
 
 export function listPetsQueryOptionsInfinite<TData = ListPetsQueryResponse, TError = unknown>(
   params?: ListPetsQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = listPetsQueryKey(params)
 
@@ -52,9 +57,11 @@ export function listPetsQueryOptionsInfinite<TData = ListPetsQueryResponse, TErr
       return client<TData, TError>({
         method: 'get',
         url: `/pets`,
+        ...options,
         params: {
           ...params,
           ['id']: pageParam,
+          ...(options.params || {}),
         },
       })
     },

@@ -12,10 +12,13 @@ import type {
 export function updatePetWithForm<TData = UpdatePetWithFormMutationResponse>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<TData> {
   return client<TData>({
     method: 'post',
     url: `/pet/${petId}`,
     params,
+
+    ...options,
   })
 }

@@ -10,8 +10,9 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400 
  */
 export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdatePet400, TVariables = UpdatePetMutationRequest>(options?: {
   mutation?: UseMutationOptions<TData, TError, TVariables>
+  client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
 }): UseMutationResult<TData, TError, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
@@ -19,6 +20,8 @@ export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdateP
         method: 'put',
         url: `/pet`,
         data,
+
+        ...clientOptions,
       })
     },
     ...mutationOptions,

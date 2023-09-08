@@ -10,8 +10,9 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
  */
 export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TVariables = AddPetMutationRequest>(options?: {
   mutation?: UseMutationOptions<TData, TError, TVariables>
+  client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
 }): UseMutationResult<TData, TError, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
@@ -19,6 +20,8 @@ export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TV
         method: 'post',
         url: `/pet`,
         data,
+
+        ...clientOptions,
       })
     },
     ...mutationOptions,

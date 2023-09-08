@@ -14,11 +14,13 @@ export function uploadFile<TData = UploadFileMutationResponse, TVariables = Uplo
   petId: UploadFilePathParams['petId'],
   data: TVariables,
   params?: UploadFileQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<TData> {
   return client<TData, TVariables>({
     method: 'post',
     url: `/pet/${petId}/uploadImage`,
     params,
     data,
+    ...options,
   })
 }
