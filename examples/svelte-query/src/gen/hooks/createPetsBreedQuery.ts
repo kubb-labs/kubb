@@ -11,9 +11,10 @@ export function createPetsBreedQuery<TData = CreatePetsBreedMutationResponse, TE
   breed: CreatePetsBreedPathParams['breed'],
   options?: {
     mutation?: CreateMutationOptions<TData, TError, TVariables>
+    client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
   },
 ): CreateMutationResult<TData, TError, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return createMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
@@ -21,6 +22,8 @@ export function createPetsBreedQuery<TData = CreatePetsBreedMutationResponse, TE
         method: 'post',
         url: `/pets/${breed}`,
         data,
+
+        ...clientOptions,
       })
     },
     ...mutationOptions,

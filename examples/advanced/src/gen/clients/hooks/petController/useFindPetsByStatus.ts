@@ -7,6 +7,7 @@ export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) =
 
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = findPetsByStatusQueryKey(params)
 
@@ -17,6 +18,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
         method: 'get',
         url: `/pet/findByStatus`,
         params,
+        ...options,
       })
     },
   }
@@ -46,6 +48,7 @@ export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TErro
 
 export function findPetsByStatusQueryOptionsInfinite<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = findPetsByStatusQueryKey(params)
 
@@ -55,9 +58,11 @@ export function findPetsByStatusQueryOptionsInfinite<TData = FindPetsByStatusQue
       return client<TData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
+        ...options,
         params: {
           ...params,
           ['id']: pageParam,
+          ...(options.params || {}),
         },
       })
     },

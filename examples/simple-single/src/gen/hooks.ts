@@ -21,7 +21,10 @@ import type {
 
 export const listPetsQueryKey = (params?: ListPetsQueryParams) => [`/pets`, ...(params ? [params] : [])] as const
 
-export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unknown>(params?: ListPetsQueryParams): UseQueryOptions<TData, TError> {
+export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unknown>(
+  params?: ListPetsQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
+): UseQueryOptions<TData, TError> {
   const queryKey = listPetsQueryKey(params)
 
   return {
@@ -31,6 +34,7 @@ export function listPetsQueryOptions<TData = ListPetsQueryResponse, TError = unk
         method: 'get',
         url: `/pets`,
         params,
+        ...options,
       })
     },
   }
@@ -59,6 +63,7 @@ export function useListPets<TData = ListPetsQueryResponse, TError = unknown>(
 
 export function listPetsQueryOptionsInfinite<TData = ListPetsQueryResponse, TError = unknown>(
   params?: ListPetsQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = listPetsQueryKey(params)
 
@@ -68,9 +73,11 @@ export function listPetsQueryOptionsInfinite<TData = ListPetsQueryResponse, TErr
       return client<TData, TError>({
         method: 'get',
         url: `/pets`,
+        ...options,
         params: {
           ...params,
           ['id']: pageParam,
+          ...(options.params || {}),
         },
       })
     },
@@ -104,8 +111,9 @@ export function useListPetsInfinite<TData = ListPetsQueryResponse, TError = unkn
  */
 export function useCreatePets<TData = CreatePetsMutationResponse, TError = CreatePets201, TVariables = CreatePetsMutationRequest>(options?: {
   mutation?: UseMutationOptions<TData, TError, TVariables>
+  client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
 }): UseMutationResult<TData, TError, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
@@ -113,6 +121,8 @@ export function useCreatePets<TData = CreatePetsMutationResponse, TError = Creat
         method: 'post',
         url: `/pets`,
         data,
+
+        ...clientOptions,
       })
     },
     ...mutationOptions,
@@ -124,6 +134,7 @@ export const showPetByIdQueryKey = (petId: ShowPetByIdPathParams['petId'], testI
 export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = showPetByIdQueryKey(petId, testId)
 
@@ -133,6 +144,8 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError
       return client<TData, TError>({
         method: 'get',
         url: `/pets/${petId}`,
+
+        ...options,
       })
     },
   }
@@ -163,6 +176,7 @@ export function useShowPetById<TData = ShowPetByIdQueryResponse, TError = unknow
 export function showPetByIdQueryOptionsInfinite<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = showPetByIdQueryKey(petId, testId)
 
@@ -172,6 +186,7 @@ export function showPetByIdQueryOptionsInfinite<TData = ShowPetByIdQueryResponse
       return client<TData, TError>({
         method: 'get',
         url: `/pets/${petId}`,
+        ...options,
       })
     },
   }

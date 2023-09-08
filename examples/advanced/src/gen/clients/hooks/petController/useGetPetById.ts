@@ -7,6 +7,7 @@ export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [`/p
 
 export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400>(
   petId: GetPetByIdPathParams['petId'],
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = getPetByIdQueryKey(petId)
 
@@ -16,6 +17,8 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
       return client<TData, TError>({
         method: 'get',
         url: `/pet/${petId}`,
+
+        ...options,
       })
     },
   }
@@ -45,6 +48,7 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetBy
 
 export function getPetByIdQueryOptionsInfinite<TData = GetPetByIdQueryResponse, TError = GetPetById400>(
   petId: GetPetByIdPathParams['petId'],
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = getPetByIdQueryKey(petId)
 
@@ -54,6 +58,7 @@ export function getPetByIdQueryOptionsInfinite<TData = GetPetByIdQueryResponse, 
       return client<TData, TError>({
         method: 'get',
         url: `/pet/${petId}`,
+        ...options,
       })
     },
   }

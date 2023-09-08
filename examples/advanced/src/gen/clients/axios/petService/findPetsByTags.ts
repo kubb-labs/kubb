@@ -6,10 +6,15 @@ import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams } from '../
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export function findPetsByTags<TData = FindPetsByTagsQueryResponse>(params?: FindPetsByTagsQueryParams): Promise<TData> {
+export function findPetsByTags<TData = FindPetsByTagsQueryResponse>(
+  params?: FindPetsByTagsQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
+): Promise<TData> {
   return client<TData>({
     method: 'get',
     url: `/pet/findByTags`,
     params,
+
+    ...options,
   })
 }

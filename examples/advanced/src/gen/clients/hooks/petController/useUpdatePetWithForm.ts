@@ -17,9 +17,10 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
   params?: UpdatePetWithFormQueryParams,
   options?: {
     mutation?: UseMutationOptions<TData, TError, void>
+    client: Partial<Parameters<typeof client<TData, TError, void>>[0]>
   },
 ): UseMutationResult<TData, TError, void> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<TData, TError, void>({
     mutationFn: () => {
@@ -28,6 +29,7 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
         url: `/pet/${petId}`,
 
         params,
+        ...clientOptions,
       })
     },
     ...mutationOptions,

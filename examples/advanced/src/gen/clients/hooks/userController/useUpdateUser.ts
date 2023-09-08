@@ -12,9 +12,10 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
   username: UpdateUserPathParams['username'],
   options?: {
     mutation?: UseMutationOptions<TData, TError, TVariables>
+    client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
   },
 ): UseMutationResult<TData, TError, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
@@ -22,6 +23,8 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
         method: 'put',
         url: `/user/${username}`,
         data,
+
+        ...clientOptions,
       })
     },
     ...mutationOptions,

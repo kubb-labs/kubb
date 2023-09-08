@@ -8,6 +8,7 @@ export const showPetByIdQueryKey = (petId: ShowPetByIdPathParams['petId'], testI
 export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): CreateQueryOptions<TData, TError> {
   const queryKey = () => showPetByIdQueryKey(petId, testId)
 
@@ -17,6 +18,8 @@ export function showPetByIdQueryOptions<TData = ShowPetByIdQueryResponse, TError
       return client<TData, TError>({
         method: 'get',
         url: `/pets/${petId}`,
+
+        ...options,
       })
     },
   }
@@ -47,6 +50,7 @@ export function showPetByIdQuery<TData = ShowPetByIdQueryResponse, TError = unkn
 export function showPetByIdQueryOptionsInfinite<TData = ShowPetByIdQueryResponse, TError = unknown>(
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): CreateInfiniteQueryOptions<TData, TError> {
   const queryKey = () => showPetByIdQueryKey(petId, testId)
 
@@ -56,6 +60,7 @@ export function showPetByIdQueryOptionsInfinite<TData = ShowPetByIdQueryResponse
       return client<TData, TError>({
         method: 'get',
         url: `/pets/${petId}`,
+        ...options,
       })
     },
   }

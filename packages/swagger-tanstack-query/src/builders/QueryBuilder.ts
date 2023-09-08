@@ -58,6 +58,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const options = [
       pathParamsTyped,
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+      'options: Partial<Parameters<typeof client>[0]> = {}',
     ].filter(Boolean)
     let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
 
@@ -75,7 +76,8 @@ export class QueryBuilder extends OasBuilder<Config> {
           return client<${clientGenerics.join(', ')}>({
             method: "get",
             url: ${new URLPath(operation.path).template},
-            ${schemas.queryParams?.name ? 'params' : ''}
+            ${schemas.queryParams?.name ? 'params,' : ''}
+            ...options,
           });
         },
       };
@@ -144,6 +146,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const options = [
       pathParamsTyped,
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+      'options: Partial<Parameters<typeof client>[0]> = {}',
     ].filter(Boolean)
     let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
 
@@ -161,11 +164,13 @@ export class QueryBuilder extends OasBuilder<Config> {
           return client<${clientGenerics.join(', ')}>({
             method: "get",
             url: ${new URLPath(operation.path).template},
+            ...options,
             ${
               schemas.queryParams?.name
                 ? `params: {
               ...params,
               ['${queryParam}']: pageParam,
+              ...(options.params || {}),
             }`
                 : ''
             }
@@ -240,14 +245,15 @@ export class QueryBuilder extends OasBuilder<Config> {
       pathParamsTyped,
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
       `options?: {
-        mutation?: ${frameworkImports.mutate.UseMutationOptions}<${clientGenerics.join(', ')}>
+        mutation?: ${frameworkImports.mutate.UseMutationOptions}<${clientGenerics.join(', ')}>,
+        client: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
     }`,
     ].filter(Boolean)
 
     const source = `
     ${createJSDocBlockText({ comments })}
     export function ${name} <${generics.join(',')}>(${options.join(', ')}): ${frameworkImports.mutate.UseMutationResult}<${clientGenerics.join(', ')}> {
-      const { mutation: mutationOptions } = options ?? {};
+      const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
       
       return ${frameworkImports.mutate.useMutation}<${clientGenerics.join(', ')}>({
         mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
@@ -256,6 +262,7 @@ export class QueryBuilder extends OasBuilder<Config> {
             url: ${new URLPath(operation.path).template},
             ${schemas.request?.name ? 'data,' : ''}
             ${schemas.queryParams?.name ? 'params,' : ''}
+            ...clientOptions
           });
         },
         ...mutationOptions

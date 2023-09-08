@@ -10,8 +10,9 @@ import type { CreatePetsMutationRequest, CreatePetsMutationResponse } from '../m
  */
 export function useCreatePets<TData = CreatePetsMutationResponse, TError = unknown, TVariables = CreatePetsMutationRequest>(options?: {
   mutation?: VueMutationObserverOptions<TData, TError, TVariables, unknown>
+  client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
 }): UseMutationReturnType<TData, TError, TVariables, unknown> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<TData, TError, TVariables, unknown>({
     mutationFn: (data) => {
@@ -19,6 +20,8 @@ export function useCreatePets<TData = CreatePetsMutationResponse, TError = unkno
         method: 'post',
         url: `/pets`,
         data,
+
+        ...clientOptions,
       })
     },
     ...mutationOptions,

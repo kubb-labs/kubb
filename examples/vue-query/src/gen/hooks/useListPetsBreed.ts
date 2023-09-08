@@ -9,6 +9,7 @@ export const listPetsBreedQueryKey = (breed: ListPetsBreedPathParams['breed'], p
 export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = listPetsBreedQueryKey(breed, params)
 
@@ -19,6 +20,7 @@ export function listPetsBreedQueryOptions<TData = ListPetsBreedQueryResponse, TE
         method: 'get',
         url: `/pets/${breed}`,
         params,
+        ...options,
       })
     },
   }
@@ -49,6 +51,7 @@ export function useListPetsBreed<TData = ListPetsBreedQueryResponse, TError = un
 export function listPetsBreedQueryOptionsInfinite<TData = ListPetsBreedQueryResponse, TError = unknown>(
   breed: ListPetsBreedPathParams['breed'],
   params?: ListPetsBreedQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = listPetsBreedQueryKey(breed, params)
 
@@ -58,9 +61,11 @@ export function listPetsBreedQueryOptionsInfinite<TData = ListPetsBreedQueryResp
       return client<TData, TError>({
         method: 'get',
         url: `/pets/${breed}`,
+        ...options,
         params: {
           ...params,
           ['id']: pageParam,
+          ...(options.params || {}),
         },
       })
     },

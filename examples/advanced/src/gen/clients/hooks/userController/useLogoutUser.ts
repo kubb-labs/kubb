@@ -5,7 +5,9 @@ import type { LogoutUserQueryResponse } from '../../../models/ts/userController/
 
 export const logoutUserQueryKey = () => [`/user/logout`] as const
 
-export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(): UseQueryOptions<TData, TError> {
+export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(
+  options: Partial<Parameters<typeof client>[0]> = {},
+): UseQueryOptions<TData, TError> {
   const queryKey = logoutUserQueryKey()
 
   return {
@@ -14,6 +16,8 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
       return client<TData, TError>({
         method: 'get',
         url: `/user/logout`,
+
+        ...options,
       })
     },
   }
@@ -39,7 +43,9 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>
   return query
 }
 
-export function logoutUserQueryOptionsInfinite<TData = LogoutUserQueryResponse, TError = unknown>(): UseInfiniteQueryOptions<TData, TError> {
+export function logoutUserQueryOptionsInfinite<TData = LogoutUserQueryResponse, TError = unknown>(
+  options: Partial<Parameters<typeof client>[0]> = {},
+): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = logoutUserQueryKey()
 
   return {
@@ -48,6 +54,7 @@ export function logoutUserQueryOptionsInfinite<TData = LogoutUserQueryResponse, 
       return client<TData, TError>({
         method: 'get',
         url: `/user/logout`,
+        ...options,
       })
     },
   }

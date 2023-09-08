@@ -5,7 +5,10 @@ import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from 
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [`/user/login`, ...(params ? [params] : [])] as const
 
-export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(params?: LoginUserQueryParams): UseQueryOptions<TData, TError> {
+export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
+  params?: LoginUserQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
+): UseQueryOptions<TData, TError> {
   const queryKey = loginUserQueryKey(params)
 
   return {
@@ -15,6 +18,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
         method: 'get',
         url: `/user/login`,
         params,
+        ...options,
       })
     },
   }
@@ -43,6 +47,7 @@ export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser4
 
 export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = loginUserQueryKey(params)
 
@@ -52,9 +57,11 @@ export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TE
       return client<TData, TError>({
         method: 'get',
         url: `/user/login`,
+        ...options,
         params: {
           ...params,
           ['id']: pageParam,
+          ...(options.params || {}),
         },
       })
     },
