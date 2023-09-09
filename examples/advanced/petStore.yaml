@@ -629,7 +629,7 @@ components:
             - delivered
         http_status:
           type: number
-          description: Http Status
+          description: HTTP Status
           example: 200
           enum:
             - 200

@@ -18,7 +18,9 @@ type BaseConfig = {
 }
 
 type QueryConfig = BaseConfig & {
-  queryParam?: string
+  infinite?: {
+    queryParam?: string
+  }
 }
 
 type MutationConfig = BaseConfig
@@ -133,7 +135,7 @@ export class QueryBuilder extends OasBuilder<Config> {
 
   //infinite
   private get queryOptionsInfinite(): QueryResult {
-    const { framework, frameworkImports, errors, operation, schemas, queryParam = 'id' } = this.config as QueryConfig
+    const { framework, frameworkImports, errors, operation, schemas, infinite: { queryParam = 'id' } = {} } = this.config as QueryConfig
     const name = camelCase(`${operation.getOperationId()}QueryOptionsInfinite`)
 
     const queryKeyName = this.queryKey.name
@@ -280,6 +282,8 @@ export class QueryBuilder extends OasBuilder<Config> {
   }
 
   print(type: 'query' | 'mutation'): string {
+    const { infinite } = this.config as QueryConfig
+
     const codes: string[] = []
 
     //query
@@ -296,7 +300,9 @@ export class QueryBuilder extends OasBuilder<Config> {
 
     if (type === 'query') {
       codes.push(queryKey, queryOptions, query)
-      codes.push(queryOptionsInfinite, queryInfinite)
+      if (infinite) {
+        codes.push(queryOptionsInfinite, queryInfinite)
+      }
     }
 
     if (type === 'mutation') {

@@ -37,7 +37,7 @@ export type Order = {
    */
   status?: OrderStatus | undefined
   /**
-   * @description Http Status
+   * @description HTTP Status
    * @type number | undefined
    * @example 200
    */

@@ -1,13 +1,5 @@
-import type {
-  QueryKey,
-  UseQueryResult,
-  UseQueryOptions,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  UseMutationOptions,
-  UseMutationResult,
-} from '@tanstack/react-query'
-import { useQuery, useInfiniteQuery, useMutation } from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type {
   ListPetsQueryResponse,
@@ -55,50 +47,6 @@ export function useListPets<TData = ListPetsQueryResponse, TError = unknown>(
     ...listPetsQueryOptions<TData, TError>(params),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey
-
-  return query
-}
-
-export function listPetsQueryOptionsInfinite<TData = ListPetsQueryResponse, TError = unknown>(
-  params?: ListPetsQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseInfiniteQueryOptions<TData, TError> {
-  const queryKey = listPetsQueryKey(params)
-
-  return {
-    queryKey,
-    queryFn: ({ pageParam }) => {
-      return client<TData, TError>({
-        method: 'get',
-        url: `/pets`,
-        ...options,
-        params: {
-          ...params,
-          ['id']: pageParam,
-          ...(options.params || {}),
-        },
-      })
-    },
-  }
-}
-
-/**
- * @summary List all pets
- * @link /pets
- */
-export function useListPetsInfinite<TData = ListPetsQueryResponse, TError = unknown>(
-  params?: ListPetsQueryParams,
-  options?: { query?: UseInfiniteQueryOptions<TData, TError> },
-): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? listPetsQueryKey(params)
-
-  const query = useInfiniteQuery<TData, TError>({
-    ...listPetsQueryOptionsInfinite<TData, TError>(params),
-    ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey
 
@@ -167,47 +115,6 @@ export function useShowPetById<TData = ShowPetByIdQueryResponse, TError = unknow
     ...showPetByIdQueryOptions<TData, TError>(petId, testId),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey
-
-  return query
-}
-
-export function showPetByIdQueryOptionsInfinite<TData = ShowPetByIdQueryResponse, TError = unknown>(
-  petId: ShowPetByIdPathParams['petId'],
-  testId: ShowPetByIdPathParams['testId'],
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseInfiniteQueryOptions<TData, TError> {
-  const queryKey = showPetByIdQueryKey(petId, testId)
-
-  return {
-    queryKey,
-    queryFn: ({ pageParam }) => {
-      return client<TData, TError>({
-        method: 'get',
-        url: `/pets/${petId}`,
-        ...options,
-      })
-    },
-  }
-}
-
-/**
- * @summary Info for a specific pet
- * @link /pets/:petId
- */
-export function useShowPetByIdInfinite<TData = ShowPetByIdQueryResponse, TError = unknown>(
-  petId: ShowPetByIdPathParams['petId'],
-  testId: ShowPetByIdPathParams['testId'],
-  options?: { query?: UseInfiniteQueryOptions<TData, TError> },
-): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const { query: queryOptions } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? showPetByIdQueryKey(petId, testId)
-
-  const query = useInfiniteQuery<TData, TError>({
-    ...showPetByIdQueryOptionsInfinite<TData, TError>(petId, testId),
-    ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey
 

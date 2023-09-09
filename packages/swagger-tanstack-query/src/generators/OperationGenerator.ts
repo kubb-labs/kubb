@@ -20,7 +20,9 @@ type Options = {
   /**
    * Only used of infinite
    */
-  queryParam?: string
+  infinite?: {
+    queryParam?: string
+  }
 }
 
 export class OperationGenerator extends Generator<Options> {
@@ -240,7 +242,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, framework, queryParam } = this.options
+    const { oas, clientPath, framework, infinite } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -252,7 +254,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, queryParam }).print('query')
+    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, infinite }).print('query')
 
     return {
       path: hook.filePath,
