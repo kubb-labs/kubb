@@ -51,7 +51,7 @@
     "@apidevtools/swagger-parser": "^10.1.0",
     "@kubb/core": "workspace:*",
     "change-case": "^4.1.2",
-    "oas": "^21.0.2",
+    "oas": "^21.0.3",
     "oas-normalize": "^9.0.0",
     "swagger2openapi": "^7.0.8"
   },
@@ -60,7 +60,7 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/swagger2openapi": "^7.0.0",
-    "eslint": "^8.48.0",
+    "eslint": "^8.49.0",
     "openapi-types": "^12.1.3",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"

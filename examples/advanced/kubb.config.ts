@@ -45,6 +45,7 @@ export default defineConfig(async () => {
           ],
           groupBy: { type: 'tag' },
           client: './src/client.ts',
+          infinite: {},
         },
       ],
       [
