@@ -61,7 +61,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const operationGenerator = new OperationGenerator({
         contentType: swaggerApi.contentType,
-        queryParam: infinite?.queryParam || 'id',
+        infinite: infinite,
         framework,
         skipBy,
         clientPath,
