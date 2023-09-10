@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.7.3...@kubb/swagger-zod-v1.8.0) (2023-09-10)
+
+
+### 📚 Documentation
+
+* swagger-msw plugin ([b8f14c1](https://github.com/kubb-project/kubb/commit/b8f14c1690bc66160936c92144a2e2b0ce227d88))
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.8.0 ([218b7f0](https://github.com/kubb-project/kubb/commit/218b7f0e8ec1cbc8b6db504ec6e06d8dbeb1109e))
+
 ## [1.7.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.7.2...@kubb/swagger-zod-v1.7.3) (2023-09-09)
 
 
