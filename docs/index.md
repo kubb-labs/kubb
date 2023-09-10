@@ -8,7 +8,7 @@ titleTemplate: Generate SDKs for all your APIs
 hero:
   name: Kubb
   text: Generate SDKs for all your APIs
-  tagline: OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js and Axios. 
+  tagline: OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js, MSW and Axios. 
   image:
     src: /logo.png
     alt: Kubbb
@@ -62,6 +62,10 @@ features:
       src: https://fakerjs.dev/logo.svg
     title: Faker <span class="new">new</span>
     details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data that can be used to create fake API calls. Useful when using <a href="https://mswjs.io/">MSW</a> 
+  - icon: 
+      src: ./feature/msw.svg
+    title: MSW <span class="new">new</span>
+    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on faker data.
   - icon: 
       src: ./feature/json.svg
     title: JSON Schemas

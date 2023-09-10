@@ -16,7 +16,7 @@ import type { FileMeta, PluginOptions } from './types.ts'
 export const pluginName: PluginOptions['name'] = 'swagger-msw' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'mocks', groupBy, skipBy = [], transformers = {} } = options
+  const { output = 'handlers', groupBy, skipBy = [], transformers = {} } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let swaggerApi: SwaggerApi
 

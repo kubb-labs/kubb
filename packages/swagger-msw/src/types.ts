@@ -26,7 +26,7 @@ export type Options = {
     output?: string
     /**
      * Name to be used for the `export * as {{exportAs}} from './`
-     * @default `"{{tag}}Mocks"`
+     * @default `"{{tag}}Handlers"`
      */
     exportAs?: string
   }

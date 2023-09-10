@@ -30,7 +30,7 @@ export default defineConfig(async () => {
       },
       '@kubb/swagger-msw': {
         output: './msw',
-        groupBy: { type: 'tag', output: './msw/{{tag}}Mocks' },
+        groupBy: { type: 'tag', output: './msw/{{tag}}Handlers' },
       },
     },
   }

@@ -7,7 +7,7 @@ import { version } from '../../packages/core/package.json'
 
 const ogImage = 'https://kubb.dev/og.png'
 const title = 'Generate SDKs for all your APIs'
-const description = 'OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js and Axios. '
+const description = 'OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js, MSW and Axios. '
 
 const links: Array<{ url: string; lastmod: number | undefined }> = []
 
@@ -207,6 +207,10 @@ export default defineConfig({
               {
                 text: '@kubb/swagger-faker <span class="new">new</span>',
                 link: '/plugins/swagger-faker',
+              },
+              {
+                text: '@kubb/swagger-msw <span class="new">new</span>',
+                link: '/plugins/swagger-msw',
               },
               {
                 text: '@kubb/swagger-form <span class="new">new</span><span class="beta">beta</span>',
