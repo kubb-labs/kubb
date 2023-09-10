@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.7.3...@kubb/swagger-swr-v1.7.4) (2023-09-10)
+
+
+### 📚 Documentation
+
+* swagger-msw plugin ([b8f14c1](https://github.com/kubb-project/kubb/commit/b8f14c1690bc66160936c92144a2e2b0ce227d88))
+
 ## [1.7.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.7.2...@kubb/swagger-swr-v1.7.3) (2023-09-09)
 
 
