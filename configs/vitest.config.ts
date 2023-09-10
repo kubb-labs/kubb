@@ -14,6 +14,7 @@ export default defineConfig({
       '@kubb/swagger': 'packages/swagger/src/index.ts',
       '@kubb/swagger-client': 'packages/swagger-client/src/index.ts',
       '@kubb/swagger-faker': 'packages/swagger-faker/src/index.ts',
+      '@kubb/swagger-msw': 'packages/swagger-msw/src/index.ts',
       '@kubb/swagger-tanstack-query': 'packages/swagger-tanstack-query/src/index.ts',
       '@kubb/swagger-ts': 'packages/swagger-ts/src/index.ts',
       '@kubb/swagger-zod': 'packages/swagger-zod/src/index.ts',

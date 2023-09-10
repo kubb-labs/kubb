@@ -25,6 +25,7 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-faker": "workspace:*",
+    "@kubb/swagger-msw": "workspace:*",
     "@kubb/swagger-form": "workspace:*",
     "@kubb/swagger-swr": "workspace:*",
     "@kubb/swagger-tanstack-query": "workspace:*",

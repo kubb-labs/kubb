@@ -47,6 +47,9 @@
       "@kubb/swagger-faker": [
         "../packages/swagger-faker/src/index.ts"
       ],
+      "@kubb/swagger-msw": [
+        "../packages/swagger-msw/src/index.ts"
+      ],
       "@kubb/swagger-form": [
         "../packages/swagger-form/src/index.ts"
       ],
