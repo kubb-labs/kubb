@@ -202,8 +202,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
   async build(): Promise<File[]> {
     const { oas } = this.options
     const paths = oas.getPaths()
-
-    const promises = Object.keys(paths).reduce(
+    const filterdPaths = Object.keys(paths).reduce(
       (acc, path) => {
         const methods = Object.keys(paths[path]) as HttpMethod[]
 
@@ -213,11 +212,25 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
             const isSkipped = this.isSkipped(operation, method)
 
             if (!isSkipped) {
-              const promise = this.methods[method].call(this, operation, this.getSchemas(operation))
-              if (promise) {
-                acc.push(promise)
-              }
+              acc[path] = paths[path]
             }
+          }
+        })
+
+        return acc
+      },
+      {} as typeof paths,
+    )
+
+    const promises = Object.keys(filterdPaths).reduce(
+      (acc, path) => {
+        const methods = Object.keys(paths[path]) as HttpMethod[]
+
+        methods.forEach((method) => {
+          const operation = oas.operation(path, method)
+          const promise = this.methods[method].call(this, operation, this.getSchemas(operation))
+          if (promise) {
+            acc.push(promise)
           }
         })
 
@@ -226,7 +239,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
       [] as Promise<File | null>[],
     )
 
-    promises.push(this.all(paths))
+    promises.push(this.all(filterdPaths))
 
     const files = await Promise.all(promises)
 

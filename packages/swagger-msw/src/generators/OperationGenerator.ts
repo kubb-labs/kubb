@@ -1,12 +1,12 @@
-import { getRelativePath } from '@kubb/core'
+import { URLPath, getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerFakerPluginName } from '@kubb/swagger-faker'
 
 import { MSWBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
 
-import type { File, PathMode, PluginContext } from '@kubb/core'
-import type { ContentType, FileResolver, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
+import type { File, Import, PathMode, PluginContext } from '@kubb/core'
+import type { ContentType, FileResolver, HttpMethod, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
 import type { FileMeta } from '../types.ts'
 
 type Options = {
@@ -65,8 +65,49 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async all(): Promise<File | null> {
-    return null
+  async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File<FileMeta> | null> {
+    const { resolvePath, resolveName, oas } = this.options
+
+    const controllerFileName = `handlers.ts`
+    const controllerFilePath = resolvePath({
+      fileName: controllerFileName,
+    })
+
+    if (!controllerFilePath) {
+      return null
+    }
+    // end controller setup
+
+    const sources: string[] = []
+    const imports: Import[] = []
+    const handlers: string[] = []
+
+    Object.keys(paths).forEach((path) => {
+      Object.keys(paths[path]).forEach((method) => {
+        const operation = oas.operation(path, method as HttpMethod)
+        if (operation) {
+          const name = resolveName({ name: `${operation.getOperationId()}` })
+
+          const msw = this.resolve(operation)
+
+          handlers.push(name)
+
+          imports.push({
+            name: [name],
+            path: getRelativePath(controllerFilePath, msw.filePath),
+          })
+        }
+      })
+    })
+
+    sources.push(`export const handlers = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const;`)
+
+    return {
+      path: controllerFilePath,
+      fileName: controllerFileName,
+      source: sources.join('\n'),
+      imports: imports.filter(Boolean),
+    }
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
