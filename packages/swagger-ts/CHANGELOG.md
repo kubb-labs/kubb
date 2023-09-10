@@ -1,4 +1,11 @@
 # Changelog
+## [1.8.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.8.0...@kubb/swagger-ts-v1.8.1) (2023-09-10)
+
+
+### 🐞 Bug Fixes
+
+* better timeout order for CLI ([44dee73](https://github.com/kubb-project/kubb/commit/44dee7370ca5e65e85aa312dcedc83dac61e85dd))
+
 ## [1.8.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.7.3...@kubb/swagger-ts-v1.8.0) (2023-09-10)
 
 
