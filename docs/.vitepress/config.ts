@@ -276,6 +276,10 @@ export default defineConfig({
             link: '/examples/faker',
           },
           {
+            text: 'MSW',
+            link: '/examples/msw',
+          },
+          {
             text: 'Form <span class="new">new</span>',
             items: [
               {
