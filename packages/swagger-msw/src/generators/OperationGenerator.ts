@@ -1,4 +1,4 @@
-import { URLPath, getRelativePath } from '@kubb/core'
+import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerFakerPluginName } from '@kubb/swagger-faker'
 

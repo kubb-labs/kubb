@@ -39,6 +39,9 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
     const abortController = new AbortController()
     const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
 
+    // wait for 100ms to be sure that all open files are close(fs)
+    await timeout(100)
+
     spinner.start(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
 
     const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable)
@@ -50,12 +53,12 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
       console.log(subProcess.stdout)
     }
 
-    // wait for 100ms to be sure that all open files are close(fs)
-    await timeout(100)
-
     oraWritable.destroy()
     return { subProcess, abort: abortController.abort.bind(abortController) }
   })
+
+  // wait for 100ms to be sure that all open files are close(fs)
+  await timeout(100)
 
   await Promise.all(executers)
 
