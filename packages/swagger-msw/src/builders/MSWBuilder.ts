@@ -25,7 +25,7 @@ export class MSWBuilder extends OasBuilder<Config> {
 
     return `
 
-    export const ${name}Handler = rest.get('*${URLPath.toURLPath(operation.path)}', function handler(req, res, ctx) {
+    export const ${name} = rest.${operation.method}('*${URLPath.toURLPath(operation.path)}', function handler(req, res, ctx) {
       return res(
         ctx.json(${responseName}()),
       )

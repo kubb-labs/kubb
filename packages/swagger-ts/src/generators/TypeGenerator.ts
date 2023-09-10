@@ -136,7 +136,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const propertySignature = createPropertySignature({
         questionToken: !isRequired,
         name,
-        type: type as any,
+        type: type as ts.TypeNode,
       })
       if (this.options.withJSDocs) {
         return appendJSDocToNode({

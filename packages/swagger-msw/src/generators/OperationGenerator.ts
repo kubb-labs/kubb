@@ -5,8 +5,8 @@ import { pluginName as swaggerFakerPluginName } from '@kubb/swagger-faker'
 import { MSWBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
 
-import type { File, PathMode, PluginContext } from '@kubb/core'
-import type { ContentType, FileResolver, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
+import type { File, Import, PathMode, PluginContext } from '@kubb/core'
+import type { ContentType, FileResolver, HttpMethod, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
 import type { FileMeta } from '../types.ts'
 
 type Options = {
@@ -65,8 +65,69 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async all(): Promise<File | null> {
-    return null
+  async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File<FileMeta> | null> {
+    const { resolvePath, resolveName, oas } = this.options
+
+    const controllerFileName = `handlers.ts`
+    const controllerFilePath = resolvePath({
+      fileName: controllerFileName,
+    })
+
+    if (!controllerFilePath) {
+      return null
+    }
+    // end controller setup
+
+    const sources: string[] = []
+    const imports: Import[] = []
+    const handlers: string[] = []
+
+    const addOperationToHandler = (operation: Operation) => {
+      if (operation) {
+        const name = resolveName({ name: `${operation.getOperationId()}` })
+
+        const msw = this.resolve(operation)
+
+        handlers.push(name)
+
+        imports.push({
+          name: [name],
+          path: getRelativePath(controllerFilePath, msw.filePath),
+        })
+      }
+    }
+
+    Object.keys(paths).forEach((path) => {
+      const operations = paths[path]
+
+      if (operations.get) {
+        addOperationToHandler(operations.get)
+      }
+
+      if (operations.post) {
+        addOperationToHandler(operations.post)
+      }
+      if (operations.patch) {
+        addOperationToHandler(operations.patch)
+      }
+
+      if (operations.put) {
+        addOperationToHandler(operations.put)
+      }
+
+      if (operations.delete) {
+        addOperationToHandler(operations.delete)
+      }
+    })
+
+    sources.push(`export const handlers = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const;`)
+
+    return {
+      path: controllerFilePath,
+      fileName: controllerFileName,
+      source: sources.join('\n'),
+      imports: imports.filter(Boolean),
+    }
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
