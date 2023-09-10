@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.8.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-msw-v1.8.0...@kubb/swagger-msw-v1.8.1) (2023-09-10)
+
+
+### 🐞 Bug Fixes
+
+* better timeout order for CLI ([44dee73](https://github.com/kubb-project/kubb/commit/44dee7370ca5e65e85aa312dcedc83dac61e85dd))
+* handlers + demo MSW ([3c3b636](https://github.com/kubb-project/kubb/commit/3c3b6364ea28e44e407940299268166b5a348ab8))
+* skipBy improvements ([b6fd85e](https://github.com/kubb-project/kubb/commit/b6fd85eac66b3a6ecbd7d8099f374a37b17937a8))
+
 ## 1.8.0 (2023-09-10)
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.8.0...@kubb/swagger-zodios-v1.8.1) (2023-09-10)
+
+
+### 🐞 Bug Fixes
+
+* skipBy improvements ([b6fd85e](https://github.com/kubb-project/kubb/commit/b6fd85eac66b3a6ecbd7d8099f374a37b17937a8))
+
 ## [1.8.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.7.3...@kubb/swagger-zodios-v1.8.0) (2023-09-10)
 
 
