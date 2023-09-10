@@ -82,6 +82,21 @@ Type: `'react' | 'solid' | 'svelte' | 'vue'` <br/>
 Default: `"react"`
 
 ### infinite
+When set, an infiniteQuery is getting created, example: 
+```typescript
+{
+    output: './clients/hooks',
+    skipBy: [
+      {
+        type: 'tag',
+        pattern: 'store',
+      },
+    ],
+    groupBy: { type: 'tag' },
+    client: './src/client.ts',
+    infinite: {}
+  },
+```
 
 #### queryParam
 Specify the params key used for `pageParam`.

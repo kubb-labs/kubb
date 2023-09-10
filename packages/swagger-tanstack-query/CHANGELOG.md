@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.7.2...@kubb/swagger-tanstack-query-v1.7.3) (2023-09-09)
+
+
+### 🐞 Bug Fixes
+
+* don't create an infiniteQuery when the `infinite` option is unset. ([ee8b799](https://github.com/kubb-project/kubb/commit/ee8b799c2e50cf2ce9c1eb28314dff7228363f4c))
+
 ## [1.7.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.7.1...@kubb/swagger-tanstack-query-v1.7.2) (2023-09-08)
 
 

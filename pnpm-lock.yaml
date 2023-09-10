@@ -29,8 +29,8 @@ importers:
         specifier: ^0.34.4
         version: 0.34.4(vitest@0.34.4)
       bun-types:
-        specifier: ^0.8.1
-        version: 0.8.1
+        specifier: ^1.0.1
+        version: 1.0.1
       jest:
         specifier: ^29.6.4
         version: 29.6.4(@types/node@20.6.0)(ts-node@10.9.1)
@@ -4629,8 +4629,8 @@ packages:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  /bun-types@0.8.1:
-    resolution: {integrity: sha512-VuCBox66P/3a8gVOffLCWIS6vdpXq4y3eJuF3VnsyC5HpykmIjkcr5wYDn22qQdeTUmOfCcBy1SZmtrZCeUr3A==}
+  /bun-types@1.0.1:
+    resolution: {integrity: sha512-7NrXqhMIaNKmWn2dSWEQ50znMZqrN/5Z0NBMXvQTRu/+Y1CvoXRznFy0pnqLe024CeZgVdXoEpARNO1JZLAPGw==}
     dev: true
 
   /bundle-require@4.0.1(esbuild@0.18.11):

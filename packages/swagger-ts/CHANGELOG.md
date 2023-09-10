@@ -1,4 +1,11 @@
 # Changelog
+## [1.7.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.7.2...@kubb/swagger-ts-v1.7.3) (2023-09-09)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/swagger-ts:** Synchronize undefined versions
+
 ## [1.7.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.7.1...@kubb/swagger-ts-v1.7.2) (2023-09-08)
 
 
