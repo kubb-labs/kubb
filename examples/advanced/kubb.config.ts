@@ -110,6 +110,19 @@ export default defineConfig(async () => {
         },
       ],
       [
+        '@kubb/swagger-msw',
+        {
+          output: 'msw',
+          skipBy: [
+            {
+              type: 'tag',
+              pattern: 'store',
+            },
+          ],
+          groupBy: { type: 'tag' },
+        },
+      ],
+      [
         '@kubb/swagger-form',
         {
           output: 'form',

@@ -96,6 +96,15 @@
       "draft": false,
       "prerelease": false
     },
+    "packages/swagger-msw": {
+      "component": "@kubb/swagger-msw",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
+    },
     "packages/swagger-zod": {
       "component": "@kubb/swagger-zod",
       "changelog-path": "CHANGELOG.md",
@@ -150,6 +159,7 @@
         "@kubb/swagger-zod",
         "@kubb/swagger-zodios",
         "@kubb/swagger-faker",
+        "@kubb/swagger-msw",
         "@kubb/swagger-form"
       ]
     }

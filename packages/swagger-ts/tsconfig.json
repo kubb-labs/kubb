@@ -70,7 +70,8 @@
   ],
   "exclude": [
     "**/node_modules",
-    "**/types/**"
+    "**/types/**",
+    ".sink.d.ts'"
   ],
   // "references": [
   //   { "path": "../core" },
