@@ -53,12 +53,7 @@ features:
       src: ./feature/axios.svg
     title: Axios
     details: <a href="https://axios-http.com/">Promise based HTTP calls</a> with a custom Client to set baseURL, headers, ... options.
-  - icon: 
-      dark: ./feature/form-dark.svg
-      light: ./feature/form-light.svg
-    title: Forms <span class="new">new</span> <span class="beta">beta</span>
-    details: Create forms based on your Swagger/OpenAPI file with support for <a href="https://react-hook-form.com/">react-hook-form</a>, <a href="https://www.data-driven-forms.org/">data-driven-forms</a>.
-  - icon: 
+ - icon: 
       src: https://fakerjs.dev/logo.svg
     title: Faker <span class="new">new</span>
     details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data that can be used to create fake API calls. Useful when using <a href="https://mswjs.io/">MSW</a> 

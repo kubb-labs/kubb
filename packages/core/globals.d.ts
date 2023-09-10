@@ -10,7 +10,7 @@ type KubbObjectPlugins = {
   ['@kubb/swagger-ts']: import('@kubb/swagger-ts').PluginOptions
   ['@kubb/swagger-zod']: import('@kubb/swagger-zod').PluginOptions
   ['@kubb/swagger-zodios']: import('@kubb/swagger-zodios').PluginOptions
-  ['@kubb/swagger-form']: import('@kubb/swagger-form').PluginOptions
+  ['@kubb/swagger-msw']: import('@kubb/swagger-msw').PluginOptions
 }
 /**
 * `tsconfig.json`

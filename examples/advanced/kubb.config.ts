@@ -122,19 +122,6 @@ export default defineConfig(async () => {
           groupBy: { type: 'tag' },
         },
       ],
-      [
-        '@kubb/swagger-form',
-        {
-          output: 'form',
-          skipBy: [
-            {
-              type: 'tag',
-              pattern: 'store',
-            },
-          ],
-          groupBy: { type: 'tag' },
-        },
-      ],
     ],
   }
 })

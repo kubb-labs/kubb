@@ -212,10 +212,6 @@ export default defineConfig({
                 text: '@kubb/swagger-msw <span class="new">new</span>',
                 link: '/plugins/swagger-msw',
               },
-              {
-                text: '@kubb/swagger-form <span class="new">new</span><span class="beta">beta</span>',
-                link: '/plugins/swagger-form',
-              },
             ],
           },
         ],
@@ -278,19 +274,6 @@ export default defineConfig({
           {
             text: 'MSW',
             link: '/examples/msw',
-          },
-          {
-            text: 'Form <span class="new">new</span>',
-            items: [
-              {
-                text: 'Data-driven-forms',
-                link: '/examples/data-driven-forms',
-              },
-              {
-                text: 'React-hook-form',
-                link: '/examples/react-hook-form',
-              },
-            ],
           },
           {
             text: 'Simple',

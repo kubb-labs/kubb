@@ -36,7 +36,6 @@ export default defineConfig(() => {
       ['@kubb/swagger-zodios', { output: 'zodios.ts' }],
       ['@kubb/swagger-faker', { output: 'mocks', groupBy: { type: 'tag' } }],
       ['@kubb/swagger-msw', { output: 'msw', groupBy: { type: 'tag' } }],
-      ['@kubb/swagger-form', { output: 'form', groupBy: { type: 'tag' } }],
     ],
   }
 })

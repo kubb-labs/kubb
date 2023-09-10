@@ -10,6 +10,5 @@
   "packages/swagger-swr": "1.7.3",
   "packages/swagger-zod": "1.7.3",
   "packages/swagger-zodios": "1.7.3",
-  "packages/swagger-faker": "1.7.3",
-  "packages/swagger-form": "1.7.3"
+  "packages/swagger-faker": "1.7.3"
 }

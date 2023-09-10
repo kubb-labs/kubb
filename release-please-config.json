@@ -131,15 +131,6 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": false
-    },
-    "packages/swagger-form": {
-      "component": "@kubb/swagger-form",
-      "changelog-path": "CHANGELOG.md",
-      "release-type": "node",
-      "bump-minor-pre-major": false,
-      "bump-patch-for-minor-pre-major": false,
-      "draft": false,
-      "prerelease": false
     }
   },
   "plugins": [
@@ -159,8 +150,7 @@
         "@kubb/swagger-zod",
         "@kubb/swagger-zodios",
         "@kubb/swagger-faker",
-        "@kubb/swagger-msw",
-        "@kubb/swagger-form"
+        "@kubb/swagger-msw"
       ]
     }
   ]
