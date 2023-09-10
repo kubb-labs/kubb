@@ -82,22 +82,42 @@ export class OperationGenerator extends Generator<Options> {
     const imports: Import[] = []
     const handlers: string[] = []
 
+    const addOperationToHandler = (operation: Operation) => {
+      if (operation) {
+        const name = resolveName({ name: `${operation.getOperationId()}` })
+
+        const msw = this.resolve(operation)
+
+        handlers.push(name)
+
+        imports.push({
+          name: [name],
+          path: getRelativePath(controllerFilePath, msw.filePath),
+        })
+      }
+    }
+
     Object.keys(paths).forEach((path) => {
-      Object.keys(paths[path]).forEach((method) => {
-        const operation = oas.operation(path, method as HttpMethod)
-        if (operation) {
-          const name = resolveName({ name: `${operation.getOperationId()}` })
+      const operations = paths[path]
 
-          const msw = this.resolve(operation)
+      if (operations.get) {
+        addOperationToHandler(operations.get)
+      }
 
-          handlers.push(name)
+      if (operations.post) {
+        addOperationToHandler(operations.post)
+      }
+      if (operations.patch) {
+        addOperationToHandler(operations.patch)
+      }
 
-          imports.push({
-            name: [name],
-            path: getRelativePath(controllerFilePath, msw.filePath),
-          })
-        }
-      })
+      if (operations.put) {
+        addOperationToHandler(operations.put)
+      }
+
+      if (operations.delete) {
+        addOperationToHandler(operations.delete)
+      }
     })
 
     sources.push(`export const handlers = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const;`)
