@@ -6,5 +6,6 @@ try {
 } catch (err) {}
 
 import('../dist/index.js').then(({ default: runCLI }) => {
+  process.title = 'Kubb'
   runCLI(process.argv)
 })
