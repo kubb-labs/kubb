@@ -1,3 +1,3 @@
-export * as petMocks from './petHandlers'
-export * as storeMocks from './storeHandlers'
-export * as userMocks from './userHandlers'
+export * as petHandlers from './petHandlers'
+export * as storeHandlers from './storeHandlers'
+export * as userHandlers from './userHandlers'
