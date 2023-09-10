@@ -95,7 +95,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           .map((file) => {
             const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
             const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
-            const name = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Mocks', { tag }), {
+            const name = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Handlers', { tag }), {
               delimiter: '',
               transform: camelCaseTransformMerge,
             })
