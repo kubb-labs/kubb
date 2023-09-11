@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.8.1...@kubb/swagger-zod-v1.8.2) (2023-09-11)
+
+
+### 🐞 Bug Fixes
+
+* use of pluginsOptions and small cleanup ([15d50a5](https://github.com/kubb-project/kubb/commit/15d50a5d56f1ca8b44ef70be56fefc489eaf6d93))
+
 ## [1.8.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.8.0...@kubb/swagger-zod-v1.8.1) (2023-09-10)
 
 
