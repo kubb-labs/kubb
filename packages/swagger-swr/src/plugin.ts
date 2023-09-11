@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { createPlugin, getPathMode, getRelativePath, renderTemplate, validatePlugins, getIndexes } from '@kubb/core'
+import { createPlugin, getPathMode, getRelativePath, renderTemplate, getDependedPlugins, getIndexes } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
@@ -8,28 +8,25 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { OperationGenerator } from './generators/index.ts'
 
 import type { OptionalPath, File } from '@kubb/core'
-import type { API as SwaggerApi } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 import type { FileMeta } from './types.ts'
+import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 
 export const pluginName: PluginOptions['name'] = 'swagger-swr' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'hooks', groupBy, skipBy = [], transformers = {} } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}SWRController`
-  let swaggerApi: SwaggerApi
+  let pluginsOptions: [SwaggerPluginOptions]
 
   return {
     name: pluginName,
     options,
     kind: 'controller',
     validate(plugins) {
-      const valid = validatePlugins(plugins, [swaggerPluginName])
-      if (valid) {
-        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api as SwaggerApi
-      }
+      pluginsOptions = getDependedPlugins<[SwaggerPluginOptions]>(plugins, [swaggerPluginName])
 
-      return valid
+      return true
     },
     resolvePath(fileName, directory, options) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
@@ -57,12 +54,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return transformers?.name?.(resolvedName) || resolvedName
     },
     async buildStart() {
-      const oas = await swaggerApi.getOas()
+      const [swaggerPlugin] = pluginsOptions
+
+      const oas = await swaggerPlugin.api.getOas()
 
       const clientPath: OptionalPath = options.client ? pathParser.resolve(this.config.root, options.client) : undefined
 
       const operationGenerator = new OperationGenerator({
-        contentType: swaggerApi.contentType,
+        contentType: swaggerPlugin.api.contentType,
         clientPath,
         oas,
         skipBy,

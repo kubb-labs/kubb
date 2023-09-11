@@ -23,26 +23,23 @@ import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import type { File } from '@kubb/core'
-import type { API as SwaggerApi } from '@kubb/swagger'
+import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'plugin-demo' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'demo' } = options
-  let swaggerApi: SwaggerApi
+  let pluginsOptions: [SwaggerPluginOptions]
 
   return {
     name: pluginName,
     options,
     kind: 'controller',
     validate(plugins) {
-      const valid = validatePlugins(plugins, [swaggerPluginName])
-      if (valid) {
-        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api as SwaggerApi
-      }
+      pluginsOptions = getDependedPlugins<[SwaggerPluginOptions]>(plugins, [swaggerPluginName])
 
-      return valid
+      return true
     },
     resolvePath(fileName, directory, options) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
@@ -62,6 +59,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
     },
     async buildStart() {
+      // const [swaggerPlugin] = pluginsOptions
       // const oas = await swaggerApi.getOas()
 
       const files: File[] = [

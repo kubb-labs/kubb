@@ -2,7 +2,7 @@ import type { KubbPlugin } from '../../types.ts'
 
 export class ValidationPluginError extends Error {}
 
-export function validatePlugins(plugins: KubbPlugin[], dependedPluginNames: string | string[]): true {
+export function getDependedPlugins<TPlugins extends KubbPlugin[]>(plugins: KubbPlugin[], dependedPluginNames: string | string[]): TPlugins {
   let pluginNames: string[] = []
   if (typeof dependedPluginNames === 'string') {
     pluginNames = [dependedPluginNames]
@@ -10,12 +10,11 @@ export function validatePlugins(plugins: KubbPlugin[], dependedPluginNames: stri
     pluginNames = dependedPluginNames
   }
 
-  pluginNames.forEach((pluginName) => {
-    const exists = plugins.some((plugin) => plugin.name === pluginName)
-    if (!exists) {
+  return pluginNames.map((pluginName) => {
+    const plugin = plugins.find((plugin) => plugin.name === pluginName)
+    if (!plugin) {
       throw new ValidationPluginError(`This plugin depends on the ${pluginName} plugin.`)
     }
-  })
-
-  return true
+    return plugin
+  }) as TPlugins
 }

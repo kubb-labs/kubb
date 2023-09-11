@@ -1,8 +1,9 @@
 import pathParser from 'node:path'
 
 import type { File } from '@kubb/core'
-import { createPlugin, getPathMode, getRelativePath, renderTemplate, validatePlugins, getIndexes } from '@kubb/core'
+import { createPlugin, getPathMode, getRelativePath, renderTemplate, getDependedPlugins, getIndexes } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
+
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 import { pluginName as swaggerFakerPluginName } from '@kubb/swagger-faker'
 
@@ -10,27 +11,24 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/index.ts'
 
-import type { API as SwaggerApi } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
+import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 
 export const pluginName: PluginOptions['name'] = 'swagger-msw' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'handlers', groupBy, skipBy = [], transformers = {} } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
-  let swaggerApi: SwaggerApi
+  let pluginsOptions: [SwaggerPluginOptions]
 
   return {
     name: pluginName,
     options,
     kind: 'schema',
     validate(plugins) {
-      const valid = validatePlugins(plugins, [swaggerPluginName, swaggerTypeScriptPluginName, swaggerFakerPluginName])
-      if (valid) {
-        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api as SwaggerApi
-      }
+      pluginsOptions = getDependedPlugins<[SwaggerPluginOptions]>(plugins, [swaggerPluginName, swaggerTypeScriptPluginName, swaggerFakerPluginName])
 
-      return valid
+      return true
     },
     resolvePath(fileName, directory, options) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
@@ -65,13 +63,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       await this.fileManager.write(source, path)
     },
     async buildStart() {
-      const oas = await swaggerApi.getOas()
+      const [swaggerPlugin] = pluginsOptions
+
+      const oas = await swaggerPlugin.api.getOas()
 
       const root = pathParser.resolve(this.config.root, this.config.output.path)
       const mode = getPathMode(pathParser.resolve(root, output))
 
       const operationGenerator = new OperationGenerator({
-        contentType: swaggerApi.contentType,
+        contentType: swaggerPlugin.api.contentType,
         oas,
         skipBy,
         mode,

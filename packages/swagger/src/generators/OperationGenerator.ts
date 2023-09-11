@@ -217,7 +217,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
               }
               acc[path] = {
                 ...acc[path],
-                [method]: acc.path[method],
+                [method]: paths[path][method],
               }
             }
           }

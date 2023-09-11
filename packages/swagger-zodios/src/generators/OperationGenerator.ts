@@ -252,22 +252,20 @@ export class OperationGenerator extends Generator<Options> {
     const definitions = Object.keys(paths).reduce((acc, path) => {
       const operations = paths[path]
 
-      if (operations.get) {
+      // use isSkipped to also exclude operations(skipby in our Zod plugin).
+      if (operations.get && !this.isSkipped(operations.get, 'get')) {
         acc.push(mapOperationToZodios(operations.get))
       }
 
-      if (operations.post) {
+      if (operations.post && !this.isSkipped(operations.post, 'post')) {
         acc.push(mapOperationToZodios(operations.post))
       }
-      if (operations.patch) {
-        acc.push(mapOperationToZodios(operations.patch))
-      }
 
-      if (operations.put) {
+      if (operations.put && !this.isSkipped(operations.put, 'put')) {
         acc.push(mapOperationToZodios(operations.put))
       }
 
-      if (operations.delete) {
+      if (operations.delete && !this.isSkipped(operations.delete, 'delete')) {
         acc.push(mapOperationToZodios(operations.delete))
       }
 

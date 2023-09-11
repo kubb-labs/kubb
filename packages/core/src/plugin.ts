@@ -3,7 +3,7 @@ import pathParser from 'node:path'
 import { createPluginCache, transformReservedWord } from './utils/index.ts'
 
 import type { FileManager } from './managers/fileManager/FileManager.ts'
-import type { KubbUserPlugin, PluginContext, PluginFactoryOptions } from './types.ts'
+import type { KubbPlugin, KubbUserPlugin, PluginContext, PluginFactoryOptions } from './types.ts'
 
 type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (
   options: T['options'],
@@ -33,6 +33,7 @@ type Options = {
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   logger: PluginContext['logger']
+  getPlugins: () => KubbPlugin[]
 }
 
 // not publicly exported
@@ -51,6 +52,9 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
       return {
         get config() {
           return options.config
+        },
+        get plugins() {
+          return options.getPlugins()
         },
         logger,
         fileManager,

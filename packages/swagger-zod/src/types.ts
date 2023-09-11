@@ -1,10 +1,6 @@
 import type { PluginFactoryOptions } from '@kubb/core'
 import type { SkipBy } from '@kubb/swagger'
 
-export type API = {
-  skipBy?: SkipBy[]
-}
-
 export type Options = {
   /**
    * Relative path to save the Zod schemas.
@@ -50,4 +46,4 @@ export type FileMeta = {
 
 export type ResolvePathOptions = { tag?: string }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-zod', Options, false, API, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-zod', Options, false, undefined, ResolvePathOptions>

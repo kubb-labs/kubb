@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { createPlugin, getPathMode, getRelativePath, renderTemplate, validatePlugins, getIndexes, timeout } from '@kubb/core'
+import { createPlugin, getPathMode, getRelativePath, renderTemplate, getDependedPlugins, getIndexes, timeout } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { pascalCase, pascalCaseTransformMerge, camelCase, camelCaseTransformMerge } from 'change-case'
@@ -8,27 +8,25 @@ import { pascalCase, pascalCaseTransformMerge, camelCase, camelCaseTransformMerg
 import { TypeBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
 
-import type { OpenAPIV3, API as SwaggerApi } from '@kubb/swagger'
+import type { OpenAPIV3 } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
+import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 
 export const pluginName: PluginOptions['name'] = 'swagger-ts' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'models', groupBy, skipBy = [], enumType = 'asConst', dateType = 'string', transformers = {} } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
-  let swaggerApi: SwaggerApi
+  let pluginsOptions: [SwaggerPluginOptions]
 
   return {
     name: pluginName,
     options,
     kind: 'schema',
     validate(plugins) {
-      const valid = validatePlugins(plugins, [swaggerPluginName])
-      if (valid) {
-        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api as SwaggerApi
-      }
+      pluginsOptions = getDependedPlugins<[SwaggerPluginOptions]>(plugins, [swaggerPluginName])
 
-      return valid
+      return true
     },
     resolvePath(fileName, directory, options) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
@@ -63,7 +61,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       await this.fileManager.write(source, path)
     },
     async buildStart() {
-      const oas = await swaggerApi.getOas()
+      const [swaggerPlugin] = pluginsOptions
+
+      const oas = await swaggerPlugin.api.getOas()
 
       const schemas = oas.getDefinition().components?.schemas || {}
       const root = pathParser.resolve(this.config.root, this.config.output.path)
@@ -148,7 +148,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       const operationGenerator = new OperationGenerator({
-        contentType: swaggerApi.contentType,
+        contentType: swaggerPlugin.api.contentType,
         oas,
         skipBy,
         mode,

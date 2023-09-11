@@ -66,16 +66,18 @@ export class PluginManager {
   private eventEmitter: EventEmitter<Events> = new EventEmitter()
 
   constructor(config: KubbConfig, options: Options) {
+    // TODO use logger for all warnings/errors
     this.logger = options.logger
-    this.queue = new Queue(50, options.debug)
+    this.queue = new Queue(100, options.debug)
     this.fileManager = new FileManager({ task: options.task, queue: this.queue })
 
     const core = definePlugin({
       config,
       logger: this.logger,
       fileManager: this.fileManager,
-      resolvePath: this.resolvePath,
-      resolveName: this.resolveName,
+      resolvePath: this.resolvePath.bind(this),
+      resolveName: this.resolveName.bind(this),
+      getPlugins: this.getSortedPlugins.bind(this),
     }) as KubbPlugin<CorePluginOptions> & {
       api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api']
     }
@@ -186,7 +188,7 @@ export class PluginManager {
   }): Promise<SafeParseResult<H>> {
     let promise: Promise<SafeParseResult<H>> = Promise.resolve(null as unknown as SafeParseResult<H>)
 
-    for (const plugin of this.getSortedPlugins(hookName)) {
+    for (const plugin of this.getSortedPlugins()) {
       if (skipped && skipped.has(plugin)) {
         continue
       }
@@ -226,7 +228,7 @@ export class PluginManager {
   }): SafeParseResult<H> {
     let parseResult: SafeParseResult<H> = null as unknown as SafeParseResult<H>
 
-    for (const plugin of this.getSortedPlugins(hookName)) {
+    for (const plugin of this.getSortedPlugins()) {
       if (skipped && skipped.has(plugin)) {
         continue
       }
@@ -261,7 +263,7 @@ export class PluginManager {
   }): Promise<Awaited<TOuput>[]> {
     const parallelPromises: Promise<TOuput>[] = []
 
-    for (const plugin of this.getSortedPlugins(hookName)) {
+    for (const plugin of this.getSortedPlugins()) {
       // TODO implement sequential with `buildStart` as an object({ sequential: boolean; handler: PluginContext["buildStart"] })
       // if ((plugin[hookName] as { sequential?: boolean })?.sequential) {
       //   await Promise.all(parallelPromises)
@@ -314,7 +316,7 @@ export class PluginManager {
     const [argument0, ...rest] = parameters
 
     let promise: Promise<Argument0<H>> = Promise.resolve(argument0)
-    for (const plugin of this.getSortedPlugins(hookName)) {
+    for (const plugin of this.getSortedPlugins()) {
       promise = promise
         .then((arg0) => {
           const value = this.execute({
@@ -335,7 +337,7 @@ export class PluginManager {
    */
   hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: Parameters<PluginLifecycle[H]> }): Promise<void> {
     let promise: Promise<void | null> = Promise.resolve()
-    for (const plugin of this.getSortedPlugins(hookName)) {
+    for (const plugin of this.getSortedPlugins()) {
       promise = promise.then(() =>
         this.execute({
           strategy: 'hookSeq',
@@ -348,8 +350,12 @@ export class PluginManager {
     return promise.then(noReturn)
   }
 
-  private getSortedPlugins(_hookName: keyof PluginLifecycle): KubbPlugin[] {
+  private getSortedPlugins(hookName?: keyof PluginLifecycle): KubbPlugin[] {
     const plugins = [...this.plugins].filter((plugin) => plugin.name !== 'core')
+
+    if (hookName) {
+      return plugins.filter((item) => item[hookName])
+    }
 
     return plugins
   }

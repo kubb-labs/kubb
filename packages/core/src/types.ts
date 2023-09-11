@@ -261,6 +261,7 @@ export type PluginContext<TOptions = Record<string, unknown>> = {
   resolvePath: (params: ResolvePathParams<TOptions>) => OptionalPath
   resolveName: (params: ResolveNameParams) => string
   logger: Logger
+  plugins: KubbPlugin[]
 }
 
 // null will mean clear the watcher for this key

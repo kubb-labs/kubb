@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { createPlugin, getLocation, getPathMode, getRelativePath, read, renderTemplate, validatePlugins, getIndexes } from '@kubb/core'
+import { createPlugin, getLocation, getPathMode, getRelativePath, read, renderTemplate, getDependedPlugins, getIndexes } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
@@ -8,7 +8,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { OperationGenerator } from './generators/OperationGenerator.ts'
 
 import type { OptionalPath, File } from '@kubb/core'
-import type { API as SwaggerApi } from '@kubb/swagger'
+import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 import type { FileMeta } from './types'
 
@@ -17,19 +17,16 @@ export const pluginName: PluginOptions['name'] = 'swagger-client' as const
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'clients', groupBy, skipBy = [], transformers = {} } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
-  let swaggerApi: SwaggerApi
+  let pluginsOptions: [SwaggerPluginOptions]
 
   return {
     name: pluginName,
     options,
     kind: 'controller',
     validate(plugins) {
-      const valid = validatePlugins(plugins, [swaggerPluginName])
-      if (valid) {
-        swaggerApi = plugins.find((plugin) => plugin.name === swaggerPluginName)?.api as SwaggerApi
-      }
+      pluginsOptions = getDependedPlugins<[SwaggerPluginOptions]>(plugins, [swaggerPluginName])
 
-      return valid
+      return true
     },
     resolvePath(fileName, directory, options) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
@@ -57,12 +54,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return transformers?.name?.(resolvedName) || resolvedName
     },
     async buildStart() {
-      const oas = await swaggerApi.getOas()
+      const [swaggerPlugin] = pluginsOptions
+
+      const oas = await swaggerPlugin.api.getOas()
       const root = pathParser.resolve(this.config.root, this.config.output.path)
       const clientPath = pathParser.resolve(root, 'client.ts')
 
       const operationGenerator = new OperationGenerator({
-        contentType: swaggerApi.contentType,
+        contentType: swaggerPlugin.api.contentType,
         clientPath,
         oas,
         skipBy,
@@ -78,6 +77,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (this.config.output.write === false) {
         return
       }
+      const [swaggerPlugin] = pluginsOptions
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 
       if (groupBy?.type === 'tag') {
@@ -119,7 +119,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           )
         }
 
-        const baseURL = await swaggerApi.getBaseURL()
+        const baseURL = await swaggerPlugin.api.getBaseURL()
 
         await this.addFile({
           fileName: 'client.ts',
