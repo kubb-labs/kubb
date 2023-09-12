@@ -12,19 +12,19 @@ With the Swagger Zod plugin you can use [Zod](https://zod.dev/) to validate your
 
 ::: code-group
 
-```shell [bun]
+```shell [bun <img src="/feature/bun.svg"/>] 
 bun add @kubb/swagger-zod
 ```
 
-```shell [pnpm]
+```shell [pnpm <img src="/feature/pnpm.svg"/>] 
 pnpm add @kubb/swagger-zod
 ```
 
-```shell [npm]
+```shell [npm <img src="/feature/npm.svg"/>] 
 npm install @kubb/swagger-zod
 ```
 
-```shell [yarn]
+```shell [yarn <img src="/feature/yarn.svg"/>] 
 yarn add @kubb/swagger-zod
 ```
 

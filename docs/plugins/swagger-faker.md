@@ -12,19 +12,19 @@ With the Swagger Faker plugin you can use [Faker](https://fakerjs.dev/) to creat
 
 ::: code-group
 
-```shell [bun]
+```shell [bun <img src="/feature/bun.svg"/>] 
 bun add @kubb/swagger-faker
 ```
 
-```shell [pnpm]
+```shell [pnpm <img src="/feature/pnpm.svg"/>] 
 pnpm add @kubb/swagger-faker
 ```
 
-```shell [npm]
+```shell [npm <img src="/feature/npm.svg"/>] 
 npm install @kubb/swagger-faker
 ```
 
-```shell [yarn]
+```shell [yarn <img src="/feature/yarn.svg"/>] 
 yarn add @kubb/swagger-faker
 ```
 

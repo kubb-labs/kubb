@@ -92,19 +92,19 @@ Run the Kubb script with the following command.
 
 ::: code-group
 
-```shell [bun]
+```shell [bun <img src="/feature/bun.svg"/>] 
 bun run generate
 ```
 
-```shell [pnpm]
+```shell [pnpm <img src="/feature/pnpm.svg"/>] 
 pnpm run generate
 ```
 
-```shell [npm]
+```shell [npm <img src="/feature/npm.svg"/>] 
 npm run generate
 ```
 
-```shell [yarn]
+```shell [yarn <img src="/feature/yarn.svg"/>] 
 yarn run generate
 ```
 

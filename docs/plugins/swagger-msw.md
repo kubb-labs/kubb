@@ -12,19 +12,19 @@ With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks bas
 
 ::: code-group
 
-```shell [bun]
+```shell [bun <img src="/feature/bun.svg"/>] 
 bun add @kubb/swagger-msw
 ```
 
-```shell [pnpm]
+```shell [pnpm <img src="/feature/pnpm.svg"/>] 
 pnpm add @kubb/swagger-msw
 ```
 
-```shell [npm]
+```shell [npm <img src="/feature/npm.svg"/>] 
 npm install @kubb/swagger-msw
 ```
 
-```shell [yarn]
+```shell [yarn <img src="/feature/yarn.svg"/>] 
 yarn add @kubb/swagger-msw
 ```
 

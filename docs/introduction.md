@@ -27,12 +27,12 @@ The problem is that most of them are good at one *thing*: generating TypeScript 
 Swagger/OpenAPI has been used a lot as a contract between frontend and backend teams, this was the same for the last couple of projects I did. Every project is different so it always came down in choosing one of the provided <a href="https://tools.openapis.org/categories/code-generators.html">code generators</a> or the default one of <a href="https://swagger.io/tools/swagger-codegen/">Swagger</a>. But that wasn't enough for my needs 🙁.
 
 Main features ✨:
-- Every client is it's own package
-- Clean code that follows the examples of the client(no extra un-needed boilerplate code)
+- Every generated client(React-Query, MSW, Zod, ...) is contained in it's own package.
+- Clean code that follows the examples of the client(no extra un-needed boilerplate code).
 - Out-of-box <a href="https://www.typescriptlang.org/">TypeScript</a> (with JSDoc) support.
-- Easy code base and open-source first
-- Plugins system like Rollup and other tools work
-- CLI
+- Open-source first.
+- Plugins system based on Rollup, ESBuild,
+- CLI support.
 
 ## Installation
 
@@ -41,19 +41,19 @@ You can install Kubb via [NPM](https://www.npmjs.com/).
 
 ::: code-group
 
-```shell [bun]
+```shell [bun <img src="/feature/bun.svg"/>] 
 bun add @kubb/cli @kubb/core
 ```
 
-```shell [pnpm]
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
 pnpm add @kubb/cli @kubb/core
 ```
 
-```shell [npm]
+```shell [npm <img src="/feature/npm.svg"/>]
 npm install @kubb/cli @kubb/core
 ```
 
-```shell [yarn]
+```shell [yarn <img src="/feature/yarn.svg"/>]
 yarn add @kubb/cli @kubb/core
 ```
 
@@ -65,19 +65,19 @@ To install the canary version:
 
 ::: code-group
 
-```shell [bun]
+```shell [bun <img src="/feature/bun.svg"/>] 
 bun add @kubb/cli@canary @kubb/core@canary
 ```
 
-```shell [pnpm]
+```shell [pnpm <img src="/feature/pnpm.svg"/>] 
 pnpm add @kubb/cli@canary @kubb/core@canary
 ```
 
-```shell [npm]
+```shell [npm <img src="/feature/npm.svg"/>] 
 npm install @kubb/cli@canary @kubb/core@canary
 ```
 
-```shell [yarn]
+```shell [yarn <img src="/feature/yarn.svg"/>] 
 yarn add @kubb/cli@canary @kubb/core@canary
 ```
 

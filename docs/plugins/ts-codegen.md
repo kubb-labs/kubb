@@ -20,19 +20,19 @@ This library contains also the logic to `print` the nodes(convert AST to string)
 
 ::: code-group
 
-```shell [bun]
+```shell [bun <img src="/feature/bun.svg"/>] 
 bun add @kubb/ts-codegen
 ```
 
-```shell [pnpm]
+```shell [pnpm <img src="/feature/pnpm.svg"/>] 
 pnpm add @kubb/ts-codegen
 ```
 
-```shell [npm]
+```shell [npm <img src="/feature/npm.svg"/>] 
 npm install @kubb/ts-codegen
 ```
 
-```shell [yarn]
+```shell [yarn <img src="/feature/yarn.svg"/>] 
 yarn add @kubb/ts-codegen
 ```
 

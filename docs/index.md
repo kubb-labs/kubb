@@ -39,7 +39,15 @@ features:
       light: ./feature/swr-light.svg
       height: 24
     title: SWR
-    details: Creates hooks for React with <a href="https://swr.vercel.app/">SWR</a>.
+    details: Creates React Hooks for Data Fetching with <a href="https://swr.vercel.app/">SWR</a>.
+  - icon: 
+      src: ./feature/axios.svg
+    title: Axios
+    details: <a href="https://axios-http.com/">Promise based HTTP calls</a> with a custom Client to set baseURL, headers, ... options.
+  - icon: 
+      src: ./feature/msw.svg
+    title: MSW <span class="new">new</span>
+    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on faker data.
   - icon: 
       src: ./feature/zod.svg
       height: 24
@@ -50,17 +58,9 @@ features:
     title: Zodios
     details: <a href="https://www.zodios.org"/>End-to-end typesafe REST API toolbox</a> created based on our <a href="https://zod.dev/">Zod</a> plugin.
   - icon: 
-      src: ./feature/axios.svg
-    title: Axios
-    details: <a href="https://axios-http.com/">Promise based HTTP calls</a> with a custom Client to set baseURL, headers, ... options.
-  - icon: 
       src: https://fakerjs.dev/logo.svg
     title: Faker <span class="new">new</span>
-    details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data that can be used to create fake API calls. Useful when using <a href="https://mswjs.io/">MSW</a> 
-  - icon: 
-      src: ./feature/msw.svg
-    title: MSW <span class="new">new</span>
-    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on faker data.
+    details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data that can be used to create fake API calls.
   - icon: 
       src: ./feature/json.svg
     title: JSON Schemas
