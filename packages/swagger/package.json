@@ -73,5 +73,10 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "oas-normalize@9.0.0": "patches/oas-normalize@9.0.0.patch"
+    }
   }
 }
