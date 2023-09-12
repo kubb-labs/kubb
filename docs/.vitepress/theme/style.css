@@ -132,3 +132,19 @@
 .item .VPFeature:hover {
   box-shadow: 0 25px 65px 0px rgba(0, 0, 0, 0.35);
 }
+
+.vp-code-group .tabs {
+  gap: 0.3em;
+}
+
+.vp-code-group .tabs label {
+  display: flex;
+  align-items: baseline;
+}
+
+.vp-code-group .tabs img {
+  padding-left: 0.5rem;
+  align-items: center;
+  font-size: 15px;
+  height: 15px;
+}

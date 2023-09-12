@@ -289,6 +289,7 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/kubb-project/kubb' },
       { icon: 'discord', link: 'https://discord.gg/shfBFeczrm' },
+      { icon: 'twitter', link: 'https://twitter.com/kubbproject' },
     ],
     footer: {
       message: 'Released under the MIT License.',

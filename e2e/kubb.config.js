@@ -33,7 +33,7 @@ export default defineConfig(() => {
       ['@kubb/swagger-swr', { output: './clients/swr', groupBy: { type: 'tag' } }],
       ['@kubb/swagger-client', { output: './clients/axios', groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' } }],
       ['@kubb/swagger-zod', { output: './zod', groupBy: { type: 'tag' } }],
-      ['@kubb/swagger-zodios', { output: 'zodios.ts' }],
+      // ['@kubb/swagger-zodios', { output: 'zodios.ts' }],
       ['@kubb/swagger-faker', { output: 'mocks', groupBy: { type: 'tag' } }],
       ['@kubb/swagger-msw', { output: 'msw', groupBy: { type: 'tag' } }],
     ],
