@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { beforeAll } from '@jest/globals'
+import { beforeAll } from 'bun:test'
 
 beforeAll(() => {
   if (globalThis.Bun) {
@@ -16,14 +16,3 @@ beforeAll(() => {
     http.OutgoingMessage = { prototype: {} }
   }
 })
-
-if (globalThis.jest) {
-  /** @type {import('@jest/globals')} */
-  const { jest } = require('@jest/globals')
-  const http = require('http')
-
-  globalThis.vi = jest
-
-  http.ClientRequest = { prototype: {} }
-  http.OutgoingMessage = { prototype: {} }
-}

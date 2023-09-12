@@ -80,11 +80,7 @@ jobs:
 
         - name: Test with Bun
           continue-on-error: true
-          run: bun run test:bun
-
-        - name: Test with Jest
-          continue-on-error: true
-          run: bun run test:jest
+          run: bun run test:bun --coverage
 
         - name: Upload coverage reports to Codecov
           uses: codecov/codecov-action@v3
