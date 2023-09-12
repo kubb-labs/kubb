@@ -850,8 +850,8 @@ importers:
         specifier: ^11.1.1
         version: 11.1.1
       js-runtime:
-        specifier: ^0.0.4
-        version: 0.0.4
+        specifier: ^0.0.6
+        version: 0.0.6
       picocolors:
         specifier: ^1.0.0
         version: 1.0.0
@@ -5654,9 +5654,9 @@ packages:
     resolution: {integrity: sha512-X2BB11YZtrRqY4EnQcLX5Rh373zbK4alC1FW7D7MBhL2gtcC17cTnr6DmfHZeS0s2rTHjUTMMHfG7gO8SSdw+g==}
     engines: {node: '>=0.10.0'}
 
-  /js-runtime@0.0.4:
-    resolution: {integrity: sha512-1B6JW9OHgxlbgz1OhZCs/WtpfafC8ke8UHK2quERwhWSvqmMbC2e5p7U7vNhYnEsVQ4uwjiwyj2067cF4yappw==}
-    engines: {node: '>=18', pnpm: '>=8.3.0'}
+  /js-runtime@0.0.6:
+    resolution: {integrity: sha512-K7a9G3DvaQkfkttja3t/owZSbhRptoWBtyPAvPm4qwVpnMM3thpRdsjxvlPeZj8BEQGvEXj/UaWOXLYgFP/kkA==}
+    engines: {bun: '>=1.0.0', node: '>=20'}
     dev: false
 
   /js-tokens@4.0.0:
