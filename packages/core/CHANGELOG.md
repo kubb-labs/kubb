@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.3](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.8.2...@kubb/core-v1.8.3) (2023-09-12)
+
+
+### 📚 Documentation
+
+* readme update + typo's ([a1bb145](https://github.com/kubb-project/kubb/commit/a1bb14550c7d6d73832da612275ef66f65d32a02))
+
+
+### 🐞 Bug Fixes
+
+* upgrade js-runtime ([4c1379d](https://github.com/kubb-project/kubb/commit/4c1379dad889cd244f5d3e0bd3178b08a34eb981))
+
 ## [1.8.2](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.8.1...@kubb/core-v1.8.2) (2023-09-11)
 
 

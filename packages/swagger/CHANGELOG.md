@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.8.2...@kubb/swagger-v1.8.3) (2023-09-12)
+
+
+### 📚 Documentation
+
+* readme update + typo's ([a1bb145](https://github.com/kubb-project/kubb/commit/a1bb14550c7d6d73832da612275ef66f65d32a02))
+
+
+### 🐞 Bug Fixes
+
+* patch of oas-normalize(https://github.com/readmeio/oas-normalize/pull/291) ([0f1bcef](https://github.com/kubb-project/kubb/commit/0f1bcefba3d6afb462fd4962bfd7d9f54fa475e3))
+
 ## [1.8.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.8.1...@kubb/swagger-v1.8.2) (2023-09-11)
 
 
