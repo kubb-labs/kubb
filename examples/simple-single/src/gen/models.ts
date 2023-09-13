@@ -99,6 +99,17 @@ export type Order = {
   complete?: boolean | undefined
 }
 
+export type PetNotFound = {
+  /**
+   * @type integer | undefined int32
+   */
+  code?: number | undefined
+  /**
+   * @type string | undefined
+   */
+  message?: string | undefined
+}
+
 export type Tag = {
   /**
    * @type integer | undefined int64
@@ -170,6 +181,8 @@ export type Customer = {
    */
   address?: Address[] | undefined
 }
+
+export type UserArray = User[]
 
 export const addPetRequestStatus = {
   available: 'available',

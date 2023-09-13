@@ -65,7 +65,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const oas = await swaggerPlugin.api.getOas()
 
-      const schemas = oas.getDefinition().components?.schemas || {}
+      const schemas = await swaggerPlugin.api.getSchemas()
       const root = pathParser.resolve(this.config.root, this.config.output.path)
       const mode = getPathMode(pathParser.resolve(root, output))
 

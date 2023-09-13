@@ -8,6 +8,7 @@ import type { OpenAPIV3 } from 'openapi-types'
 import type { Oas, PluginOptions } from './types.ts'
 import type { KubbConfig } from '@kubb/core'
 import type { Logger } from '@kubb/core'
+import { getSchemas } from './utils/getSchemas.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger' as const
 
@@ -38,6 +39,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return {
         getOas() {
           return getOas(config, logger)
+        },
+        async getSchemas({ includes } = {}) {
+          const oas = await this.getOas()
+          return getSchemas({ oas, contentType, includes })
         },
         async getBaseURL() {
           const oasInstance = await this.getOas()
@@ -70,7 +75,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const oas = await getOas(this.config, this.logger)
       await oas.dereference()
-      const schemas = oas.getDefinition().components?.schemas || {}
+      const schemas = getSchemas({ oas, contentType })
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
         const path = this.resolvePath({
