@@ -246,28 +246,18 @@ export class OperationGenerator extends Generator<Options> {
               ${errors.join(',')}
           ],
       }
-      
       `
     }
     const definitions = Object.keys(paths).reduce((acc, path) => {
       const operations = paths[path]
+      const methods: HttpMethod[] = ['get', 'post', 'patch', 'put', 'delete']
 
-      // use isSkipped to also exclude operations(skipby in our Zod plugin).
-      if (operations.get && !this.isSkipped(operations.get, 'get')) {
-        acc.push(mapOperationToZodios(operations.get))
-      }
-
-      if (operations.post && !this.isSkipped(operations.post, 'post')) {
-        acc.push(mapOperationToZodios(operations.post))
-      }
-
-      if (operations.put && !this.isSkipped(operations.put, 'put')) {
-        acc.push(mapOperationToZodios(operations.put))
-      }
-
-      if (operations.delete && !this.isSkipped(operations.delete, 'delete')) {
-        acc.push(mapOperationToZodios(operations.delete))
-      }
+      methods.forEach((method) => {
+        // use isSkipped to also exclude operations(skipby in our Zod plugin).
+        if (operations[method] && !this.isSkipped(operations[method]!, method)) {
+          acc.push(mapOperationToZodios(operations[method]!))
+        }
+      })
 
       return acc
     }, [] as string[])

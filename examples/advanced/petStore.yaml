@@ -368,6 +368,33 @@ paths:
                 $ref: '#/components/schemas/Order'
         '405':
           description: Invalid input
+
+    patch:
+      tags:
+        - store
+      summary: Place an order for a pet with patch
+      description: Place a new order in the store with patch
+      operationId: placeOrderPatch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '405':
+          description: Invalid input
   /store/order/{orderId}:
     get:
       tags:
