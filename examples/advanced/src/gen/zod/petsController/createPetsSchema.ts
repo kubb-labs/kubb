@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { petNotFoundSchema } from '../petNotFoundSchema'
+
 /**
  * @description Null response
  */

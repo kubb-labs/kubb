@@ -1,5 +1,7 @@
 import type { ApiResponse } from '../ApiResponse'
+
 export type UploadFileMutationRequest = string
+
 export type UploadFilePathParams = {
   /**
    * @description ID of pet to update
@@ -7,6 +9,7 @@ export type UploadFilePathParams = {
    */
   petId: number
 }
+
 export type UploadFileQueryParams = {
   /**
    * @description Additional Metadata
@@ -14,6 +17,7 @@ export type UploadFileQueryParams = {
    */
   additionalMetadata?: string | undefined
 }
+
 /**
  * @description successful operation
  */

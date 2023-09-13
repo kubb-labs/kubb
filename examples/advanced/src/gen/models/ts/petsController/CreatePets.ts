@@ -1,8 +1,10 @@
 import type { PetNotFound } from '../PetNotFound'
+
 /**
  * @description Null response
  */
 export type CreatePets201 = any | null
+
 export type CreatePetsMutationRequest = {
   /**
    * @type string
@@ -13,7 +15,9 @@ export type CreatePetsMutationRequest = {
    */
   tag: string
 }
+
 export type CreatePetsMutationResponse = any | null
+
 export type CreatePetsPathParams = {
   /**
    * @description UUID
@@ -21,6 +25,7 @@ export type CreatePetsPathParams = {
    */
   uuid: string
 }
+
 export type CreatePetsQueryParams = {
   /**
    * @description Offset
@@ -28,6 +33,7 @@ export type CreatePetsQueryParams = {
    */
   offset?: number | undefined
 }
+
 /**
  * @description unexpected error
  */

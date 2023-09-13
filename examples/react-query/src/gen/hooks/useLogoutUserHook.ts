@@ -4,19 +4,16 @@ import client from '@kubb/swagger-client/client'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
 export const logoutUserQueryKey = () => [`/user/logout`] as const
-
 export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = logoutUserQueryKey()
-
   return {
     queryKey,
     queryFn: () => {
       return client<TData, TError>({
         method: 'get',
         url: `/user/logout`,
-
         ...options,
       })
     },
@@ -32,13 +29,10 @@ export function useLogoutUserHook<TData = LogoutUserQueryResponse, TError = unkn
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
-
   const query = useQuery<TData, TError>({
     ...logoutUserQueryOptions<TData, TError>(),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
   query.queryKey = queryKey
-
   return query
 }

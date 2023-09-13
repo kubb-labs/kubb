@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { userSchema } from '../userSchema'
+
 export const createUserMutationResponseSchema = z.any()
 /**
  * @description successful operation

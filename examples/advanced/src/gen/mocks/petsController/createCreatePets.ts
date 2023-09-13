@@ -7,6 +7,7 @@ import { CreatePetsMutationResponse } from '../../models/ts/petsController/Creat
 import { CreatePetsPathParams } from '../../models/ts/petsController/CreatePets'
 import { CreatePetsQueryParams } from '../../models/ts/petsController/CreatePets'
 import { CreatePetsError } from '../../models/ts/petsController/CreatePets'
+
 /**
  * @description Null response
  */

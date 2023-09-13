@@ -16,14 +16,12 @@ export function updateUserQuery<TData = UpdateUserMutationResponse, TError = unk
   },
 ): CreateMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'put',
         url: `/user/${username}`,
         data,
-
         ...clientOptions,
       })
     },

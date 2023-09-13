@@ -21,13 +21,11 @@ export function useUpdatePetWithFormHook<TData = UpdatePetWithFormMutationRespon
   },
 ): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'post',
         url: `/pet/${petId}`,
-
         params,
         ...clientOptions,
       })

@@ -3,6 +3,7 @@ import { faker } from '@faker-js/faker'
 import { LoginUser400 } from '../../models/ts/userController/LoginUser'
 import { LoginUserQueryParams } from '../../models/ts/userController/LoginUser'
 import { LoginUserQueryResponse } from '../../models/ts/userController/LoginUser'
+
 /**
  * @description Invalid username/password supplied
  */

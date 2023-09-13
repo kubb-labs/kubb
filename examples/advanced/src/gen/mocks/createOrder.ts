@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker'
 
 import { Order } from '../models/ts/Order'
+
 export function createOrder(): Order {
   return {
     id: faker.number.float({}),

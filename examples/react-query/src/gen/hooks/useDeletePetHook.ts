@@ -16,13 +16,11 @@ export function useDeletePetHook<TData = DeletePetMutationResponse, TError = Del
   },
 ): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'delete',
         url: `/pet/${petId}`,
-
         ...clientOptions,
       })
     },

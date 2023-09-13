@@ -26,11 +26,9 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetBy
   options?: { query?: SWRConfiguration<TData, TError> },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
-
   const query = useSWR<TData, TError, string>(`/pet/${petId}`, {
     ...getPetByIdQueryOptions<TData, TError>(petId),
     ...queryOptions,
   })
-
   return query
 }

@@ -9,7 +9,6 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
       return client<TData, TError>({
         method: 'get',
         url: `/user/login`,
-
         params,
       })
     },
@@ -25,11 +24,9 @@ export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser4
   options?: { query?: SWRConfiguration<TData, TError> },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
-
   const query = useSWR<TData, TError, string>(`/user/login`, {
     ...loginUserQueryOptions<TData, TError>(params),
     ...queryOptions,
   })
-
   return query
 }

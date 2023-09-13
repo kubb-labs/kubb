@@ -23,11 +23,9 @@ export function useGetInventory<TData = GetInventoryQueryResponse, TError = unkn
   query?: SWRConfiguration<TData, TError>
 }): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
-
   const query = useSWR<TData, TError, string>(`/store/inventory`, {
     ...getInventoryQueryOptions<TData, TError>(),
     ...queryOptions,
   })
-
   return query
 }

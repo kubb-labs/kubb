@@ -26,11 +26,9 @@ export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetO
   options?: { query?: SWRConfiguration<TData, TError> },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
-
   const query = useSWR<TData, TError, string>(`/store/order/${orderId}`, {
     ...getOrderByIdQueryOptions<TData, TError>(orderId),
     ...queryOptions,
   })
-
   return query
 }

@@ -4,6 +4,7 @@ import { DeleteUser400 } from '../../models/ts/userController/DeleteUser'
 import { DeleteUser404 } from '../../models/ts/userController/DeleteUser'
 import { DeleteUserMutationResponse } from '../../models/ts/userController/DeleteUser'
 import { DeleteUserPathParams } from '../../models/ts/userController/DeleteUser'
+
 /**
  * @description Invalid username supplied
  */

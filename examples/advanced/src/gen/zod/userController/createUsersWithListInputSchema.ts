@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { userSchema } from '../userSchema'
+
 /**
  * @description successful operation
  */

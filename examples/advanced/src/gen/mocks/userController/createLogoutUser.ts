@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker'
 
 import { LogoutUserError } from '../../models/ts/userController/LogoutUser'
 import { LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUser'
+
 /**
  * @description successful operation
  */

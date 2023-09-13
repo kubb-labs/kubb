@@ -4,6 +4,7 @@ import { createUser } from '../createUser'
 import { CreateUsersWithListInputError } from '../../models/ts/userController/CreateUsersWithListInput'
 import { CreateUsersWithListInputMutationRequest } from '../../models/ts/userController/CreateUsersWithListInput'
 import { CreateUsersWithListInputMutationResponse } from '../../models/ts/userController/CreateUsersWithListInput'
+
 /**
  * @description successful operation
  */

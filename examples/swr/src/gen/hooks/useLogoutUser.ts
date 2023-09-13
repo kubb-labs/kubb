@@ -22,11 +22,9 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>
   query?: SWRConfiguration<TData, TError>
 }): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
-
   const query = useSWR<TData, TError, string>(`/user/logout`, {
     ...logoutUserQueryOptions<TData, TError>(),
     ...queryOptions,
   })
-
   return query
 }
