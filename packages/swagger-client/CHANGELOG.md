@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.8.4...@kubb/swagger-client-v1.8.5) (2023-09-13)
+
+
+### 🐞 Bug Fixes
+
+* spacing TS ([4218c1b](https://github.com/kubb-project/kubb/commit/4218c1b59bbd0f2189cf2a0f88da089ed0cb086d))
+
 ## [1.8.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.8.3...@kubb/swagger-client-v1.8.4) (2023-09-13)
 
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.8.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.8.4...@kubb/swagger-zod-v1.8.5) (2023-09-13)
+
+
+### 🐞 Bug Fixes
+
+* include all schemas in `components` responses and request ([269929f](https://github.com/kubb-project/kubb/commit/269929fc182822bd0757bab2a619340fc232e735))
+* spacing TS ([4218c1b](https://github.com/kubb-project/kubb/commit/4218c1b59bbd0f2189cf2a0f88da089ed0cb086d))
+
 ## [1.8.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v1.8.3...@kubb/swagger-zod-v1.8.4) (2023-09-13)
 
 
