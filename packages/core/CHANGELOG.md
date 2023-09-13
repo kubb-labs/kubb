@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.4](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.8.3...@kubb/core-v1.8.4) (2023-09-13)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/core:** Synchronize undefined versions
+
 ## [1.8.3](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.8.2...@kubb/core-v1.8.3) (2023-09-12)
 
 
