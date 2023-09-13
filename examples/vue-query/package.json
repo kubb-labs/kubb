@@ -26,7 +26,7 @@
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@tanstack/vue-query": "^4.35.2",
+    "@tanstack/vue-query": "^4.35.3",
     "axios": "^1.5.0",
     "vue": "^3.3.4"
   },

@@ -51,7 +51,7 @@
     "@eslint/js": "^8.49.0",
     "@types/eslint": "~8.44.2",
     "@typescript-eslint/eslint-plugin": "^6.7.0",
-    "@typescript-eslint/parser": "~6.6.0",
+    "@typescript-eslint/parser": "~6.7.0",
     "eslint-config-prettier": "~9.0.0",
     "eslint-config-turbo": "~1.10.13",
     "eslint-formatter-pretty": "^5.0.0",
@@ -66,7 +66,7 @@
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "eslint": "~8.48.0",
+    "eslint": "~8.49.0",
     "tsup": "^7.2.0",
     "typescript": "~5.2.2"
   },
