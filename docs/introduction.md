@@ -31,7 +31,7 @@ Main features ✨:
 - Clean code that follows the examples of the client(no extra un-needed boilerplate code).
 - Out-of-box <a href="https://www.typescriptlang.org/">TypeScript</a> (with JSDoc) support.
 - Open-source first.
-- Plugins system based on Rollup, ESBuild,
+- Plugins system based on Rollup, esbuild,
 - CLI support.
 
 ## Installation
