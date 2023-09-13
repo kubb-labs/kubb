@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.8.4](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.8.3...@kubb/ts-codegen-v1.8.4) (2023-09-13)
+
+
+### 🐞 Bug Fixes
+
+* add enum name when enum value is a number ([5c04268](https://github.com/kubb-project/kubb/commit/5c04268982359984d6ca096cd4ece11a5bb3a61a))
+* typescript enum value needs to be a string ([6bfdd17](https://github.com/kubb-project/kubb/commit/6bfdd178fa5e2bd49336c2bf9ae5ef395b14b03c))
+
 ## [1.8.3](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.8.2...@kubb/ts-codegen-v1.8.3) (2023-09-12)
 
 
