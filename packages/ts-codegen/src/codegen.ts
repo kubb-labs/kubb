@@ -170,7 +170,7 @@ export function appendJSDocToNode<TNode extends ts.Node>({ node, comments }: { n
   }
 
   const text = filteredComments.reduce((acc = '', comment = '') => {
-    return `${acc}\n* ${comment}`
+    return `${acc}\n * ${comment}`
   }, '*')
 
   // node: {...node}, with that ts.addSyntheticLeadingComment is appending

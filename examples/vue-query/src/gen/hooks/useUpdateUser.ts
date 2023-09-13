@@ -17,14 +17,12 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
   },
 ): UseMutationReturnType<TData, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'put',
         url: `/user/${username}`,
         data,
-
         ...clientOptions,
       })
     },

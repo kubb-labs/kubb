@@ -1,5 +1,4 @@
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import client from '../../../../client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 
@@ -16,14 +15,12 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
   },
 ): UseMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'put',
         url: `/user/${username}`,
         data,
-
         ...clientOptions,
       })
     },

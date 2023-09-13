@@ -6,6 +6,7 @@ import { createImportDeclaration, print } from '@kubb/ts-codegen'
 import { FakerGenerator } from '../generators/index.ts'
 
 import type { PluginContext } from '@kubb/core'
+import { combineCodes } from '@kubb/core'
 import type { FileResolver, ImportMeta, Refs } from '@kubb/swagger'
 
 type Generated = { import: { refs: Refs; name: string }; sources: string[]; imports?: ImportMeta[] }
@@ -94,6 +95,6 @@ export class FakerBuilder extends OasBuilder<Config> {
       }
     }
 
-    return codes.join('\n')
+    return combineCodes(codes)
   }
 }

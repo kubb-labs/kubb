@@ -13,7 +13,6 @@ export function getPetById<TData = GetPetByIdQueryResponse>(
   return client<TData>({
     method: 'get',
     url: `/pet/${petId}`,
-
     ...options,
   })
 }

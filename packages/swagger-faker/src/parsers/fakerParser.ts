@@ -214,15 +214,15 @@ export function parseFakerMeta(item: FakerMeta, mapper: Record<FakerKeyword, str
 export function fakerParser(items: FakerMeta[], options: { mapper?: Record<FakerKeyword, string>; name: string; typeName?: string | null }): string {
   if (!items.length) {
     return `
-      export function ${options.name}()${options.typeName ? `: ${options.typeName}` : ''} {
-        return undefined;
-      }
-    `
+export function ${options.name}()${options.typeName ? `: ${options.typeName}` : ''} {
+  return undefined;
+}
+`
   }
 
   return `
-    export function ${options.name}()${options.typeName ? `: ${options.typeName}` : ''} {
-      return ${items.map((item) => parseFakerMeta(item, { ...fakerKeywordMapper, ...options.mapper })).join('')};
-    }
+export function ${options.name}()${options.typeName ? `: ${options.typeName}` : ''} {
+  return ${items.map((item) => parseFakerMeta(item, { ...fakerKeywordMapper, ...options.mapper })).join('')};
+}
   `
 }

@@ -13,14 +13,12 @@ export function useUpdatePetHook<TData = UpdatePetMutationResponse, TError = Upd
   client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
 }): UseMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'put',
         url: `/pet`,
         data,
-
         ...clientOptions,
       })
     },

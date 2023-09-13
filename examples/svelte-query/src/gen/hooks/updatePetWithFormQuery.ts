@@ -21,13 +21,11 @@ export function updatePetWithFormQuery<TData = UpdatePetWithFormMutationResponse
   },
 ): CreateMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<TData, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'post',
         url: `/pet/${petId}`,
-
         params,
         ...clientOptions,
       })

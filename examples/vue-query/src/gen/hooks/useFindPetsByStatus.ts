@@ -4,13 +4,11 @@ import client from '@kubb/swagger-client/client'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [`/pet/findByStatus`, ...(params ? [params] : [])] as const
-
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = findPetsByStatusQueryKey(params)
-
   return {
     queryKey,
     queryFn: () => {
@@ -35,13 +33,10 @@ export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TErro
 ): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
-
   const query = useQuery<TData, TError>({
     ...findPetsByStatusQueryOptions<TData, TError>(params),
     ...queryOptions,
   }) as UseQueryReturnType<TData, TError> & { queryKey: QueryKey }
-
   query.queryKey = queryKey as QueryKey
-
   return query
 }

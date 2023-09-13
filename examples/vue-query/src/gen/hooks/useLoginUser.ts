@@ -4,13 +4,11 @@ import client from '@kubb/swagger-client/client'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [`/user/login`, ...(params ? [params] : [])] as const
-
 export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = loginUserQueryKey(params)
-
   return {
     queryKey,
     queryFn: () => {
@@ -34,13 +32,10 @@ export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser4
 ): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
-
   const query = useQuery<TData, TError>({
     ...loginUserQueryOptions<TData, TError>(params),
     ...queryOptions,
   }) as UseQueryReturnType<TData, TError> & { queryKey: QueryKey }
-
   query.queryKey = queryKey as QueryKey
-
   return query
 }

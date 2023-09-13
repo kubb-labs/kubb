@@ -13,14 +13,12 @@ export function addPetQuery<TData = AddPetMutationResponse, TError = AddPet405, 
   client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
 }): CreateMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',
         url: `/pet`,
         data,
-
         ...clientOptions,
       })
     },

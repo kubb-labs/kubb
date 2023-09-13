@@ -7,7 +7,6 @@ import { DeletePetPathParams } from '../../models/DeletePet'
 /**
  * @description Invalid pet value
  */
-
 export function createDeletePet400(): DeletePet400 {
   return undefined
 }

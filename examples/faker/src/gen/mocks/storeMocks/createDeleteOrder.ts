@@ -8,7 +8,6 @@ import { DeleteOrderPathParams } from '../../models/DeleteOrder'
 /**
  * @description Invalid ID supplied
  */
-
 export function createDeleteOrder400(): DeleteOrder400 {
   return undefined
 }
@@ -16,7 +15,6 @@ export function createDeleteOrder400(): DeleteOrder400 {
 /**
  * @description Order not found
  */
-
 export function createDeleteOrder404(): DeleteOrder404 {
   return undefined
 }

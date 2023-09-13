@@ -8,7 +8,6 @@ import { FindPetsByTagsQueryResponse } from '../../models/ts/petController/FindP
 /**
  * @description Invalid tag value
  */
-
 export function createFindPetsByTags400(): FindPetsByTags400 {
   return undefined
 }
@@ -20,7 +19,6 @@ export function createFindPetsByTagsQueryParams(): FindPetsByTagsQueryParams {
 /**
  * @description successful operation
  */
-
 export function createFindPetsByTagsQueryResponse(): FindPetsByTagsQueryResponse {
   return faker.helpers.arrayElements([createPet()]) as any
 }

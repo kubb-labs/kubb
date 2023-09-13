@@ -17,7 +17,6 @@ export function useCreateUsersWithListInput<
   TVariables = CreateUsersWithListInputMutationRequest,
 >(options?: { mutation?: SWRMutationConfiguration<TData, TError, string, TVariables> }): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
-
   return useSWRMutation<TData, TError, string, TVariables>(
     `/user/createWithList`,
     (url, { arg: data }) => {

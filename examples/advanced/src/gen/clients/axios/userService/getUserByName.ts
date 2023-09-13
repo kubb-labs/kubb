@@ -12,7 +12,6 @@ export function getUserByName<TData = GetUserByNameQueryResponse>(
   return client<TData>({
     method: 'get',
     url: `/user/${username}`,
-
     ...options,
   })
 }

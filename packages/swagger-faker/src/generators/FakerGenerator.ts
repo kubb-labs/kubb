@@ -9,6 +9,7 @@ import type { PluginContext } from '@kubb/core'
 import type { FileResolver, ImportMeta, OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
 import type { FakerKeyword, FakerMeta } from '../parsers/index.ts'
+import { createJSDocBlockText } from '../../../core/src/utils/jsdoc'
 
 type Options = {
   fileResolver?: FileResolver
@@ -49,10 +50,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
     const texts: string[] = []
     const fakerInput = this.getTypeFromSchema(schema, baseName)
     if (description) {
-      texts.push(`
-      /**
-       * @description ${description}
-       */`)
+      texts.push(createJSDocBlockText({ comments: [`@description ${description}`] }))
     }
 
     const name = this.options.resolveName({ name: baseName, pluginName }) || baseName

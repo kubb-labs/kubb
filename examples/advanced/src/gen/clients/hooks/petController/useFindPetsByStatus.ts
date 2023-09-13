@@ -1,16 +1,22 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import {
+  useQuery,
+  QueryKey,
+  UseQueryResult,
+  UseQueryOptions,
+  QueryOptions,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  useInfiniteQuery,
+} from '@tanstack/react-query'
 import client from '../../../../client'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [`/pet/findByStatus`, ...(params ? [params] : [])] as const
-
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = findPetsByStatusQueryKey(params)
-
   return {
     queryKey,
     queryFn: () => {
@@ -35,14 +41,11 @@ export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TErro
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
-
   const query = useQuery<TData, TError>({
     ...findPetsByStatusQueryOptions<TData, TError>(params),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey
-
+  query.queryKey = queryKey as QueryKey
   return query
 }
 
@@ -51,7 +54,6 @@ export function findPetsByStatusQueryOptionsInfinite<TData = FindPetsByStatusQue
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = findPetsByStatusQueryKey(params)
-
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -80,13 +82,10 @@ export function useFindPetsByStatusInfinite<TData = FindPetsByStatusQueryRespons
 ): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
-
   const query = useInfiniteQuery<TData, TError>({
     ...findPetsByStatusQueryOptionsInfinite<TData, TError>(params),
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey
-
+  query.queryKey = queryKey as QueryKey
   return query
 }

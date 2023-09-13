@@ -10,7 +10,6 @@ export function loginUser<TData = LoginUserQueryResponse>(params?: LoginUserQuer
     method: 'get',
     url: `/user/login`,
     params,
-
     ...options,
   })
 }

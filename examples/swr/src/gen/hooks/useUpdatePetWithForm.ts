@@ -20,14 +20,12 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
   },
 ): SWRMutationResponse<TData, TError, string> {
   const { mutation: mutationOptions } = options ?? {}
-
   return useSWRMutation<TData, TError, string>(
     `/pet/${petId}`,
     (url) => {
       return client<TData, TError>({
         method: 'post',
         url,
-
         params,
       })
     },

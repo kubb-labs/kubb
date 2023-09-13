@@ -7,7 +7,6 @@ import { LoginUserQueryResponse } from '../../models/ts/userController/LoginUser
 /**
  * @description Invalid username/password supplied
  */
-
 export function createLoginUser400(): LoginUser400 {
   return undefined
 }
@@ -19,7 +18,6 @@ export function createLoginUserQueryParams(): LoginUserQueryParams {
 /**
  * @description successful operation
  */
-
 export function createLoginUserQueryResponse(): LoginUserQueryResponse {
   return faker.string.alpha()
 }

@@ -3,7 +3,7 @@ import { createJSDocBlockText } from '@kubb/core'
 import type { Resolver } from '@kubb/swagger'
 import { OasBuilder, getComments } from '@kubb/swagger'
 
-import { URLPath } from '@kubb/core'
+import { URLPath, combineCodes } from '@kubb/core'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
 import { getParams } from '@kubb/swagger'
 import { camelCase } from 'change-case'
@@ -15,11 +15,12 @@ type Config = {
   name: string
 }
 
-type QueryResult = { source: string; name: string }
+type QueryResult = { code: string; name: string }
 
 export class QueryBuilder extends OasBuilder<Config> {
   private get queryOptions(): QueryResult {
     const { operation, schemas, errors } = this.config
+    const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
@@ -31,26 +32,27 @@ export class QueryBuilder extends OasBuilder<Config> {
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
     ].filter(Boolean)
 
-    const source = `
-    export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRConfiguration<${clientGenerics.join(', ')}> {
-      return {
-        fetcher: () => {
-          return client<${clientGenerics.join(', ')}>({
-            method: "get",
-            url: ${new URLPath(operation.path).template},
-            ${schemas.request?.name ? 'data,' : ''}
-            ${schemas.queryParams?.name ? 'params,' : ''}
-          });
-        },
-      };
-    };
-  `
+    codes.push(`
+export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRConfiguration<${clientGenerics.join(', ')}> {
+  return {
+    fetcher: () => {
+      return client<${clientGenerics.join(', ')}>({
+        method: "get",
+        url: ${new URLPath(operation.path).template},
+        ${schemas.request?.name ? 'data,' : ''}
+        ${schemas.queryParams?.name ? 'params,' : ''}
+      });
+    },
+  };
+};
+`)
 
-    return { source, name }
+    return { code: combineCodes(codes), name }
   }
 
   private get query(): QueryResult {
     const { name, errors, operation, schemas } = this.config
+    const codes: string[] = []
 
     const queryOptionsName = this.queryOptions.name
 
@@ -70,25 +72,26 @@ export class QueryBuilder extends OasBuilder<Config> {
       schemas.queryParams?.name ? 'params' : ''
     })`
 
-    const source = `
-    ${createJSDocBlockText({ comments })}
-    export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRResponse<${clientGenerics.join(', ')}> {
-      const { query: queryOptions } = options ?? {};
-      
-      const query = useSWR<${clientGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
-        ...${queryOptions},
-        ...queryOptions
-      });
+    codes.push(createJSDocBlockText({ comments }))
+    codes.push(`
+export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRResponse<${clientGenerics.join(', ')}> {
+  const { query: queryOptions } = options ?? {};
+  
+  const query = useSWR<${clientGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
+    ...${queryOptions},
+    ...queryOptions
+  });
 
-      return query;
-    };
-  `
+  return query;
+};
+`)
 
-    return { source, name }
+    return { code: combineCodes(codes), name }
   }
 
   private get mutation(): QueryResult {
     const { name, errors, operation, schemas } = this.config
+    const codes: string[] = []
 
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     const comments = getComments(operation)
@@ -113,27 +116,27 @@ export class QueryBuilder extends OasBuilder<Config> {
       }`,
     ].filter(Boolean)
 
-    const source = `
-    ${createJSDocBlockText({ comments })}
-    export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRMutationResponse<${SWRMutationGenerics.join(', ')}> {
-      const { mutation: mutationOptions } = options ?? {};
+    codes.push(createJSDocBlockText({ comments }))
+    codes.push(`
+export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRMutationResponse<${SWRMutationGenerics.join(', ')}> {
+  const { mutation: mutationOptions } = options ?? {};
 
-      return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
-      ${new URLPath(operation.path).template},
-        (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
-          return client<${clientGenerics.join(', ')}>({
-            method: "${method}",
-            url,
-            ${schemas.request?.name ? 'data,' : ''}
-            ${schemas.queryParams?.name ? 'params,' : ''}
-          })
-        },
-        mutationOptions
-      );
-    };
-`
+  return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
+  ${new URLPath(operation.path).template},
+    (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
+      return client<${clientGenerics.join(', ')}>({
+        method: "${method}",
+        url,
+        ${schemas.request?.name ? 'data,' : ''}
+        ${schemas.queryParams?.name ? 'params,' : ''}
+      })
+    },
+    mutationOptions
+  );
+};
+`)
 
-    return { source, name }
+    return { code: combineCodes(codes), name }
   }
 
   configure(config: Config): this {
@@ -146,12 +149,12 @@ export class QueryBuilder extends OasBuilder<Config> {
     const codes: string[] = []
 
     //query
-    const { source: queryOptions } = this.queryOptions
-    const { source: query } = this.query
+    const { code: queryOptions } = this.queryOptions
+    const { code: query } = this.query
 
     //mutate
 
-    const { source: mutation } = this.mutation
+    const { code: mutation } = this.mutation
 
     if (type === 'query') {
       codes.push(queryOptions, query)

@@ -15,7 +15,6 @@ export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = Del
   },
 ): SWRMutationResponse<TData, TError, string> {
   const { mutation: mutationOptions } = options ?? {}
-
   return useSWRMutation<TData, TError, string>(
     `/store/order/${orderId}`,
     (url) => {

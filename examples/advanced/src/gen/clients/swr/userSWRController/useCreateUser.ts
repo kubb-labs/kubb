@@ -12,7 +12,6 @@ export function useCreateUser<TData = CreateUserMutationResponse, TError = unkno
   mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
 }): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
-
   return useSWRMutation<TData, TError, string, TVariables>(
     `/user`,
     (url, { arg: data }) => {

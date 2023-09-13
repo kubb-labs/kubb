@@ -6,7 +6,6 @@ import { LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUs
 /**
  * @description successful operation
  */
-
 export function createLogoutUserError(): LogoutUserError {
   return undefined
 }

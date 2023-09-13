@@ -6,7 +6,6 @@ import { LogoutUserQueryResponse } from '../../models/LogoutUser'
 /**
  * @description successful operation
  */
-
 export function createLogoutUserError(): LogoutUserError {
   return undefined
 }

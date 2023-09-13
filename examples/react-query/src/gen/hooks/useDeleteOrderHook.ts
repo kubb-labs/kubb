@@ -16,13 +16,11 @@ export function useDeleteOrderHook<TData = DeleteOrderMutationResponse, TError =
   },
 ): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'delete',
         url: `/store/order/${orderId}`,
-
         ...clientOptions,
       })
     },

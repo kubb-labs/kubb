@@ -13,7 +13,6 @@ export function createUser<TData = CreateUserMutationResponse, TVariables = Crea
   return client<TData, TVariables>({
     method: 'post',
     url: `/user`,
-
     data,
     ...options,
   })

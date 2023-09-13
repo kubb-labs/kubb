@@ -1,5 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { createJSDocBlockText } from '@kubb/core'
+import { createJSDocBlockText, combineCodes } from '@kubb/core'
 import { OasBuilder, getComments } from '@kubb/swagger'
 
 import { URLPath } from '@kubb/core'
@@ -12,11 +12,12 @@ type Config = {
   name: string
 }
 
-type ClientResult = { source: string; name: string }
+type ClientResult = { code: string; name: string }
 
 export class ClientBuilder extends OasBuilder<Config> {
   private get client(): ClientResult {
     const { name, operation, schemas } = this.config
+    const codes: string[] = []
 
     const comments = getComments(operation)
     const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
@@ -31,19 +32,19 @@ export class ClientBuilder extends OasBuilder<Config> {
       'options: Partial<Parameters<typeof client>[0]> = {}',
     ].filter(Boolean)
 
-    const source = `
-    ${createJSDocBlockText({ comments })}
-    export function ${name} <${generics.join(', ')}>(${options.join(', ')}): Promise<TData> {
-      return client<${clientGenerics.join(', ')}>({
-        method: "${method}",
-        url: ${new URLPath(operation.path).template},
-        ${schemas.queryParams?.name ? 'params,' : ''}
-        ${schemas.request?.name ? 'data,' : ''}
-        ...options
-      });
-    };
-  `
-    return { source, name }
+    codes.push(createJSDocBlockText({ comments }))
+    codes.push(`
+export function ${name} <${generics.join(', ')}>(${options.join(', ')}): Promise<TData> {
+  return client<${clientGenerics.join(', ')}>({
+    method: "${method}",
+    url: ${new URLPath(operation.path).template},
+    ${schemas.queryParams?.name ? 'params,' : ''}
+    ${schemas.request?.name ? 'data,' : ''}
+    ...options
+  });
+};
+`)
+    return { code: combineCodes(codes), name }
   }
 
   configure(config: Config): this {
@@ -53,12 +54,6 @@ export class ClientBuilder extends OasBuilder<Config> {
   }
 
   print(): string {
-    const codes: string[] = []
-
-    const { source } = this.client
-
-    codes.push(source)
-
-    return codes.join('\n')
+    return this.client.code
   }
 }

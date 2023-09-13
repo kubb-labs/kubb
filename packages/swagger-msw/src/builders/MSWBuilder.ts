@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { OasBuilder } from '@kubb/swagger'
 
+import { combineCodes } from '@kubb/core'
 import type { PluginContext } from '@kubb/core'
 import type { Operation } from '@kubb/swagger'
 import { URLPath } from '../../../core/src/utils/URLPath'
@@ -12,6 +13,8 @@ type Config = {
   responseName?: string
 }
 
+type MSWResult = { code: string; name: string }
+
 export class MSWBuilder extends OasBuilder<Config> {
   configure(config: Config) {
     this.config = config
@@ -19,26 +22,24 @@ export class MSWBuilder extends OasBuilder<Config> {
     return this
   }
 
-  private get mock(): string {
+  private get mock(): MSWResult {
     const { resolveName, responseName, operation } = this.config
+    const codes: string[] = []
+
     const name = resolveName({ name: `${operation.getOperationId()}` })
 
-    return `
+    codes.push(`
+export const ${name} = rest.${operation.method}('*${URLPath.toURLPath(operation.path)}', function handler(req, res, ctx) {
+  return res(
+    ctx.json(${responseName}()),
+  );
+});
+`)
 
-    export const ${name} = rest.${operation.method}('*${URLPath.toURLPath(operation.path)}', function handler(req, res, ctx) {
-      return res(
-        ctx.json(${responseName}()),
-      )
-    })
-    
-    `
+    return { code: combineCodes(codes), name }
   }
 
   print(): string {
-    const codes: string[] = []
-
-    codes.push(this.mock)
-
-    return codes.join('\n')
+    return this.mock.code
   }
 }

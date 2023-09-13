@@ -15,7 +15,6 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
   },
 ): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
-
   return useSWRMutation<TData, TError, string, TVariables>(
     `/user/${username}`,
     (url, { arg: data }) => {

@@ -13,7 +13,6 @@ export function deletePet<TData = DeletePetMutationResponse>(
   return client<TData>({
     method: 'delete',
     url: `/pet/${petId}`,
-
     ...options,
   })
 }

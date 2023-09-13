@@ -16,13 +16,11 @@ export function deleteUserQuery<TData = DeleteUserMutationResponse, TError = Del
   },
 ): CreateMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<TData, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'delete',
         url: `/user/${username}`,
-
         ...clientOptions,
       })
     },

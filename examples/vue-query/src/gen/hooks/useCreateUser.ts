@@ -14,14 +14,12 @@ export function useCreateUser<TData = CreateUserMutationResponse, TError = unkno
   client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
 }): UseMutationReturnType<TData, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',
         url: `/user`,
         data,
-
         ...clientOptions,
       })
     },

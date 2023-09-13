@@ -1,5 +1,4 @@
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import client from '../../../../client'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePet400 } from '../../../models/ts/petController/DeletePet'
 
@@ -16,13 +15,11 @@ export function useDeletePet<TData = DeletePetMutationResponse, TError = DeleteP
   },
 ): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'delete',
         url: `/pet/${petId}`,
-
         ...clientOptions,
       })
     },

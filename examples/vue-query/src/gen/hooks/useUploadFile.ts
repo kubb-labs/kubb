@@ -17,7 +17,6 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
   },
 ): UseMutationReturnType<TData, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({

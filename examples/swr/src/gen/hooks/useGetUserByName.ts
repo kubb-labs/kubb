@@ -25,11 +25,9 @@ export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = Ge
   options?: { query?: SWRConfiguration<TData, TError> },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
-
   const query = useSWR<TData, TError, string>(`/user/${username}`, {
     ...getUserByNameQueryOptions<TData, TError>(username),
     ...queryOptions,
   })
-
   return query
 }

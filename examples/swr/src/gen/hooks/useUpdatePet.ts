@@ -12,7 +12,6 @@ export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdateP
   mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
 }): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
-
   return useSWRMutation<TData, TError, string, TVariables>(
     `/pet`,
     (url, { arg: data }) => {

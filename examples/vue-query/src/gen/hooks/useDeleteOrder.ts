@@ -17,13 +17,11 @@ export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = Del
   },
 ): UseMutationReturnType<TData, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, void, unknown>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'delete',
         url: `/store/order/${orderId}`,
-
         ...clientOptions,
       })
     },

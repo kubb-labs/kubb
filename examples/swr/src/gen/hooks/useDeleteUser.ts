@@ -15,7 +15,6 @@ export function useDeleteUser<TData = DeleteUserMutationResponse, TError = Delet
   },
 ): SWRMutationResponse<TData, TError, string> {
   const { mutation: mutationOptions } = options ?? {}
-
   return useSWRMutation<TData, TError, string>(
     `/user/${username}`,
     (url) => {

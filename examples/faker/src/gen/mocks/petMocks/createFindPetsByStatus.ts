@@ -8,7 +8,6 @@ import { FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus'
 /**
  * @description Invalid status value
  */
-
 export function createFindPetsByStatus400(): FindPetsByStatus400 {
   return undefined
 }
@@ -20,7 +19,6 @@ export function createFindPetsByStatusQueryParams(): FindPetsByStatusQueryParams
 /**
  * @description successful operation
  */
-
 export function createFindPetsByStatusQueryResponse(): FindPetsByStatusQueryResponse {
   return faker.helpers.arrayElements([createPet()]) as any
 }

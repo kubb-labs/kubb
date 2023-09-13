@@ -16,13 +16,11 @@ export function deleteOrderQuery<TData = DeleteOrderMutationResponse, TError = D
   },
 ): CreateMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<TData, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'delete',
         url: `/store/order/${orderId}`,
-
         ...clientOptions,
       })
     },

@@ -4,7 +4,6 @@ import { z } from 'zod'
  * @description Invalid ID supplied
  */
 export const deleteOrder400Schema = z.any()
-
 /**
  * @description Order not found
  */

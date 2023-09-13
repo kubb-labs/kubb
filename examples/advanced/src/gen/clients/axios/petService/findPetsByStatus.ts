@@ -14,7 +14,6 @@ export function findPetsByStatus<TData = FindPetsByStatusQueryResponse>(
     method: 'get',
     url: `/pet/findByStatus`,
     params,
-
     ...options,
   })
 }

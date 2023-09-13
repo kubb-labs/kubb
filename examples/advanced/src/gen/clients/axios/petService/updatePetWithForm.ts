@@ -18,7 +18,6 @@ export function updatePetWithForm<TData = UpdatePetWithFormMutationResponse>(
     method: 'post',
     url: `/pet/${petId}`,
     params,
-
     ...options,
   })
 }
