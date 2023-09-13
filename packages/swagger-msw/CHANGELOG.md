@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-msw-v1.8.4...@kubb/swagger-msw-v1.8.5) (2023-09-13)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/swagger-msw:** Synchronize undefined versions
+
 ## [1.8.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-msw-v1.8.3...@kubb/swagger-msw-v1.8.4) (2023-09-13)
 
 
