@@ -322,10 +322,14 @@ export function createEnumDeclaration({
           let initializer: ts.Expression = factory.createStringLiteral(`${value?.toString()}`)
 
           if (typeof value === 'number') {
-            initializer = factory.createStringLiteral(`${value}`)
+            initializer = factory.createNumericLiteral(value)
           }
           if (typeof value === 'boolean') {
             initializer = value ? factory.createTrue() : factory.createFalse()
+          }
+
+          if (typeof key === 'number') {
+            return factory.createEnumMember(factory.createStringLiteral(`${typeName}_${key}`), initializer)
           }
 
           return factory.createEnumMember(factory.createStringLiteral(`${key}`), initializer)

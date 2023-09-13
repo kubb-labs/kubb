@@ -4,9 +4,9 @@ export enum OrderStatus {
   'delivered' = 'delivered',
 }
 export enum OrderHttpStatus {
-  '200' = '200',
-  '400' = '400',
-  '500' = '500',
+  'OrderHttpStatus_200' = 200,
+  'OrderHttpStatus_400' = 400,
+  'OrderHttpStatus_500' = 500,
 }
 export type Order = {
   /**
