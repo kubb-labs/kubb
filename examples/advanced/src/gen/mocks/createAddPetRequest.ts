@@ -3,7 +3,6 @@ import { faker } from '@faker-js/faker'
 import { createCategory } from './createCategory'
 import { createTag } from './createTag'
 import { AddPetRequest } from '../models/ts/AddPetRequest'
-
 export function createAddPetRequest(): AddPetRequest {
   return {
     id: faker.number.float({}),

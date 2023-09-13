@@ -13,7 +13,6 @@ export function updatePet<TData = UpdatePetMutationResponse, TVariables = Update
   return client<TData, TVariables>({
     method: 'put',
     url: `/pet`,
-
     data,
     ...options,
   })

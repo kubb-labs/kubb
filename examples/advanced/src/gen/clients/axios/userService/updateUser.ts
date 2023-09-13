@@ -14,7 +14,6 @@ export function updateUser<TData = UpdateUserMutationResponse, TVariables = Upda
   return client<TData, TVariables>({
     method: 'put',
     url: `/user/${username}`,
-
     data,
     ...options,
   })

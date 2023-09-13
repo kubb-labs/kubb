@@ -12,7 +12,6 @@ export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TV
   mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
 }): SWRMutationResponse<TData, TError, string, TVariables> {
   const { mutation: mutationOptions } = options ?? {}
-
   return useSWRMutation<TData, TError, string, TVariables>(
     `/pet`,
     (url, { arg: data }) => {

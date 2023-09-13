@@ -9,7 +9,6 @@ export function logoutUser<TData = LogoutUserQueryResponse>(options: Partial<Par
   return client<TData>({
     method: 'get',
     url: `/user/logout`,
-
     ...options,
   })
 }

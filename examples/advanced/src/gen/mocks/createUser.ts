@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker'
 
 import { User } from '../models/ts/User'
-
 export function createUser(): User {
   return {
     id: faker.number.float({}),

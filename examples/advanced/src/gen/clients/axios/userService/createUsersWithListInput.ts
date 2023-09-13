@@ -16,7 +16,6 @@ export function createUsersWithListInput<TData = CreateUsersWithListInputMutatio
   return client<TData, TVariables>({
     method: 'post',
     url: `/user/createWithList`,
-
     data,
     ...options,
   })

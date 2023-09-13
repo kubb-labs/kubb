@@ -2,7 +2,6 @@ import { z } from 'zod'
 
 import { categorySchema } from './categorySchema'
 import { tagSchema } from './tagSchema'
-
 export const addPetRequestSchema = z.object({
   id: z.number().optional(),
   name: z.string(),

@@ -13,7 +13,6 @@ export function deleteUser<TData = DeleteUserMutationResponse>(
   return client<TData>({
     method: 'delete',
     url: `/user/${username}`,
-
     ...options,
   })
 }

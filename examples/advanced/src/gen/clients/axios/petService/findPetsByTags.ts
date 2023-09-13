@@ -14,7 +14,6 @@ export function findPetsByTags<TData = FindPetsByTagsQueryResponse>(
     method: 'get',
     url: `/pet/findByTags`,
     params,
-
     ...options,
   })
 }

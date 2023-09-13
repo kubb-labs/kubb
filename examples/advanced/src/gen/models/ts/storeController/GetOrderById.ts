@@ -1,15 +1,12 @@
 import type { Order } from '../Order'
-
 /**
  * @description Invalid ID supplied
  */
 export type GetOrderById400 = any | null
-
 /**
  * @description Order not found
  */
 export type GetOrderById404 = any | null
-
 export type GetOrderByIdPathParams = {
   /**
    * @description ID of order that needs to be fetched
@@ -17,7 +14,6 @@ export type GetOrderByIdPathParams = {
    */
   orderId: number
 }
-
 /**
  * @description successful operation
  */

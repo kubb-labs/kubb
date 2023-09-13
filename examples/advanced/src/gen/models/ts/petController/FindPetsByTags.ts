@@ -1,10 +1,8 @@
 import type { Pet } from '../Pet'
-
 /**
  * @description Invalid tag value
  */
 export type FindPetsByTags400 = any | null
-
 export type FindPetsByTagsQueryParams = {
   /**
    * @description Tags to filter by
@@ -22,7 +20,6 @@ export type FindPetsByTagsQueryParams = {
    */
   pageSize?: string | undefined
 }
-
 /**
  * @description successful operation
  */

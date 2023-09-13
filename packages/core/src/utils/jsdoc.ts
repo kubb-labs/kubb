@@ -5,9 +5,5 @@ export function createJSDocBlockText({ comments }: { comments: Array<string> }):
     return ''
   }
 
-  const text = filteredComments.reduce((acc, comment) => {
-    return `${acc}\n* ${comment}`
-  }, '/**')
-
-  return `${text}\n*/`
+  return `/**\n * ${filteredComments.join('\n * ')}\n */`
 }

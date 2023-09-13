@@ -11,7 +11,6 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
       return client<TData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
-
         params,
       })
     },
@@ -28,11 +27,9 @@ export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TErro
   options?: { query?: SWRConfiguration<TData, TError> },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions } = options ?? {}
-
   const query = useSWR<TData, TError, string>(`/pet/findByStatus`, {
     ...findPetsByStatusQueryOptions<TData, TError>(params),
     ...queryOptions,
   })
-
   return query
 }

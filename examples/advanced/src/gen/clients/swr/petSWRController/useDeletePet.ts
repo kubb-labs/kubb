@@ -15,7 +15,6 @@ export function useDeletePet<TData = DeletePetMutationResponse, TError = DeleteP
   },
 ): SWRMutationResponse<TData, TError, string> {
   const { mutation: mutationOptions } = options ?? {}
-
   return useSWRMutation<TData, TError, string>(
     `/pet/${petId}`,
     (url) => {

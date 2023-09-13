@@ -5,7 +5,6 @@ import { UploadFileMutationRequest } from '../../models/ts/petController/UploadF
 import { UploadFilePathParams } from '../../models/ts/petController/UploadFile'
 import { UploadFileQueryParams } from '../../models/ts/petController/UploadFile'
 import { UploadFileMutationResponse } from '../../models/ts/petController/UploadFile'
-
 export function createUploadFileMutationRequest(): UploadFileMutationRequest {
   return faker.string.alpha()
 }
@@ -21,7 +20,6 @@ export function createUploadFileQueryParams(): UploadFileQueryParams {
 /**
  * @description successful operation
  */
-
 export function createUploadFileMutationResponse(): UploadFileMutationResponse {
   return createApiResponse()
 }

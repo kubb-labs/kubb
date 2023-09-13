@@ -4,11 +4,9 @@ import { createUser } from '../createUser'
 import { CreateUsersWithListInputError } from '../../models/ts/userController/CreateUsersWithListInput'
 import { CreateUsersWithListInputMutationRequest } from '../../models/ts/userController/CreateUsersWithListInput'
 import { CreateUsersWithListInputMutationResponse } from '../../models/ts/userController/CreateUsersWithListInput'
-
 /**
  * @description successful operation
  */
-
 export function createCreateUsersWithListInputError(): CreateUsersWithListInputError {
   return undefined
 }
@@ -20,7 +18,6 @@ export function createCreateUsersWithListInputMutationRequest(): CreateUsersWith
 /**
  * @description Successful operation
  */
-
 export function createCreateUsersWithListInputMutationResponse(): CreateUsersWithListInputMutationResponse {
   return createUser()
 }
