@@ -41,9 +41,9 @@ export async function oasPathParser(pathOrApi: string, { validate }: OasOptions 
 
   if (!isOpenApiV3Document(document)) {
     const convertedDocument = await convertSwagger2ToOpenApi(document)
-    return Oas.init(convertedDocument)
+    return new Oas(convertedDocument)
   }
-  return Oas.init(document)
+  return new Oas(document)
 }
 
 export async function oasParser(config: KubbConfig, options: OasOptions = {}): Promise<oas> {

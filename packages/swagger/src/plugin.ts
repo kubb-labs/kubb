@@ -69,6 +69,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       const oas = await getOas(this.config, this.logger)
+      await oas.dereference()
       const schemas = oas.getDefinition().components?.schemas || {}
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
