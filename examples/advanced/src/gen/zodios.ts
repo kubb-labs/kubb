@@ -1,4 +1,10 @@
 import { makeApi, Zodios } from '@zodios/core'
+import {
+  createPetsMutationResponseSchema,
+  createPetsPathParamsSchema,
+  createPetsQueryParamsSchema,
+  createPets201Schema,
+} from './zod/petsController/createPetsSchema'
 import { addPetMutationResponseSchema, addPet405Schema } from './zod/petController/addPetSchema'
 import { updatePetMutationResponseSchema, updatePet400Schema, updatePet404Schema, updatePet405Schema } from './zod/petController/updatePetSchema'
 import { findPetsByStatusQueryResponseSchema, findPetsByStatusQueryParamsSchema, findPetsByStatus400Schema } from './zod/petController/findPetsByStatusSchema'
@@ -26,6 +32,34 @@ import { updateUserMutationResponseSchema, updateUserPathParamsSchema } from './
 import { deleteUserMutationResponseSchema, deleteUserPathParamsSchema, deleteUser400Schema, deleteUser404Schema } from './zod/userController/deleteUserSchema'
 
 const endpoints = makeApi([
+  {
+    method: 'post',
+    path: '/pets/:uuid',
+    description: ``,
+    requestFormat: 'json',
+    parameters: [
+      {
+        name: 'CreatePetsPathParams',
+        description: ``,
+        type: 'Path',
+        schema: createPetsPathParamsSchema,
+      },
+      {
+        name: 'CreatePetsQueryParams',
+        description: ``,
+        type: 'Query',
+        schema: createPetsQueryParamsSchema,
+      },
+    ],
+    response: createPetsMutationResponseSchema,
+    errors: [
+      {
+        status: 201,
+        description: `Null response`,
+        schema: createPets201Schema,
+      },
+    ],
+  },
   {
     method: 'post',
     path: '/pet',

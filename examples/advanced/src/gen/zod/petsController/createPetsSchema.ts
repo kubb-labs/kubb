@@ -1,0 +1,17 @@
+import { z } from 'zod'
+
+import { petNotFoundSchema } from '../petNotFoundSchema'
+
+/**
+ * @description Null response
+ */
+export const createPets201Schema = z.any()
+export const createPetsMutationRequestSchema = z.object({ name: z.string(), tag: z.string() })
+export const createPetsMutationResponseSchema = z.any()
+export const createPetsPathParamsSchema = z.object({ uuid: z.string().describe(`UUID`) })
+export const createPetsQueryParamsSchema = z.object({ offset: z.number().describe(`Offset`).optional() })
+
+/**
+ * @description unexpected error
+ */
+export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema)

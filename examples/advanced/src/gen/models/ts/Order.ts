@@ -5,9 +5,8 @@ export const OrderStatus = {
 } as const
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 export const OrderHttpStatus = {
-  '200': 200,
-  '400': 400,
-  '500': 500,
+  ok: 200,
+  not_found: 400,
 } as const
 export type OrderHttpStatus = (typeof OrderHttpStatus)[keyof typeof OrderHttpStatus]
 export type Order = {
