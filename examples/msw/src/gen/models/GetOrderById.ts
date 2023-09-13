@@ -12,6 +12,7 @@ export type GetOrderById404 = any | null
 
 export type GetOrderByIdPathParams = {
   /**
+   * @description ID of order that needs to be fetched
    * @type integer int64
    */
   orderId: number

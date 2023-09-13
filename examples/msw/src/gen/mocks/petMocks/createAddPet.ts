@@ -1,16 +1,13 @@
 import { faker } from '@faker-js/faker'
 
+import { createAddPetRequest } from '../createAddPetRequest'
 import { createPet } from '../createPet'
 import { AddPet405 } from '../../models/AddPet'
 import { AddPetMutationRequest } from '../../models/AddPet'
 import { AddPetMutationResponse } from '../../models/AddPet'
 
-/**
- * @description Invalid input
- */
-
 export function createAddPet405(): AddPet405 {
-  return undefined
+  return { code: faker.number.float({}), message: faker.string.alpha() }
 }
 
 /**
@@ -18,7 +15,7 @@ export function createAddPet405(): AddPet405 {
  */
 
 export function createAddPetMutationRequest(): AddPetMutationRequest {
-  return createPet()
+  return createAddPetRequest()
 }
 
 /**

@@ -14,6 +14,7 @@ import { deletePetMutationResponseSchema, deletePetPathParamsSchema, deletePet40
 import { uploadFileMutationResponseSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from './zod/uploadFileSchema'
 import { getInventoryQueryResponseSchema } from './zod/getInventorySchema'
 import { placeOrderMutationResponseSchema, placeOrder405Schema } from './zod/placeOrderSchema'
+import { placeOrderPatchMutationResponseSchema, placeOrderPatch405Schema } from './zod/placeOrderPatchSchema'
 import { getOrderByIdQueryResponseSchema, getOrderByIdPathParamsSchema, getOrderById400Schema, getOrderById404Schema } from './zod/getOrderByIdSchema'
 import { deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema, deleteOrder400Schema, deleteOrder404Schema } from './zod/deleteOrderSchema'
 import { createUserMutationResponseSchema } from './zod/createUserSchema'
@@ -35,7 +36,7 @@ const endpoints = makeApi([
     errors: [
       {
         status: 405,
-        description: `Invalid input`,
+        description: ``,
         schema: addPet405Schema,
       },
     ],
@@ -229,6 +230,21 @@ const endpoints = makeApi([
         status: 405,
         description: `Invalid input`,
         schema: placeOrder405Schema,
+      },
+    ],
+  },
+  {
+    method: 'patch',
+    path: '/store/order',
+    description: `Place a new order in the store with patch`,
+    requestFormat: 'json',
+    parameters: [],
+    response: placeOrderPatchMutationResponseSchema,
+    errors: [
+      {
+        status: 405,
+        description: `Invalid input`,
+        schema: placeOrderPatch405Schema,
       },
     ],
   },

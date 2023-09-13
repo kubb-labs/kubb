@@ -328,6 +328,10 @@ export function createEnumDeclaration({
             initializer = value ? factory.createTrue() : factory.createFalse()
           }
 
+          if (typeof key === 'number') {
+            return factory.createEnumMember(factory.createStringLiteral(`${typeName}_${key}`), initializer)
+          }
+
           return factory.createEnumMember(factory.createStringLiteral(`${key}`), initializer)
         }),
       ),

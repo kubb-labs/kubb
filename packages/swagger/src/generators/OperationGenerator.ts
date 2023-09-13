@@ -86,12 +86,20 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
 
     return params.reduce(
       (schema, pathParameters) => {
+        const property = pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as OpenAPIV3.SchemaObject)
         return {
           ...schema,
+          description: pathParameters.description,
+          pathParameters: pathParameters.deprecated,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          example: pathParameters.example,
           required: [...(schema.required || []), pathParameters.required ? pathParameters.name : undefined].filter(Boolean),
           properties: {
             ...schema.properties,
-            [pathParameters.name]: pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as OpenAPIV3.SchemaObject),
+            [pathParameters.name]: {
+              description: pathParameters.description,
+              ...property,
+            },
           },
         }
       },

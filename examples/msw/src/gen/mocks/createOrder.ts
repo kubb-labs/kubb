@@ -9,6 +9,7 @@ export function createOrder(): Order {
     quantity: faker.number.float({}),
     shipDate: faker.string.alpha(),
     status: faker.helpers.arrayElement<any>([`placed`, `approved`, `delivered`]),
+    http_status: faker.helpers.arrayElement<any>([200, 400, 500]),
     complete: faker.datatype.boolean(),
   }
 }

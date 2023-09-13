@@ -5,4 +5,4 @@ import { z } from 'zod'
  */
 export const deletePet400Schema = z.any()
 export const deletePetMutationResponseSchema = z.any()
-export const deletePetPathParamsSchema = z.object({ petId: z.number() })
+export const deletePetPathParamsSchema = z.object({ petId: z.number().describe(`Pet id to delete`) })

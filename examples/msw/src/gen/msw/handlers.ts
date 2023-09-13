@@ -8,6 +8,7 @@ import { deletePetHandler } from './petHandlers/deletePetHandler'
 import { uploadFileHandler } from './petHandlers/uploadFileHandler'
 import { getInventoryHandler } from './storeHandlers/getInventoryHandler'
 import { placeOrderHandler } from './storeHandlers/placeOrderHandler'
+import { placeOrderPatchHandler } from './storeHandlers/placeOrderPatchHandler'
 import { getOrderByIdHandler } from './storeHandlers/getOrderByIdHandler'
 import { deleteOrderHandler } from './storeHandlers/deleteOrderHandler'
 import { createUserHandler } from './userHandlers/createUserHandler'
@@ -29,6 +30,7 @@ export const handlers = [
   uploadFileHandler,
   getInventoryHandler,
   placeOrderHandler,
+  placeOrderPatchHandler,
   getOrderByIdHandler,
   deleteOrderHandler,
   createUserHandler,
