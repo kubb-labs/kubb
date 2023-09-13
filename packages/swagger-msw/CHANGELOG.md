@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-msw-v1.8.3...@kubb/swagger-msw-v1.8.4) (2023-09-13)
+
+
+### 🐞 Bug Fixes
+
+* dereference for swagger JSON schemas ([ce3565a](https://github.com/kubb-project/kubb/commit/ce3565a38cb50b5c213bc569d75977ad882e5b95))
+
 ## [1.8.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-msw-v1.8.2...@kubb/swagger-msw-v1.8.3) (2023-09-12)
 
 
