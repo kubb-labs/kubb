@@ -1,4 +1,4 @@
-import { build, ParallelPluginError, PluginError, SummaryError, timeout, createLogger, LogLevel } from '@kubb/core'
+import { build, ParallelPluginError, PluginError, SummaryError, timeout, LogLevel } from '@kubb/core'
 
 import type { ExecaReturnValue } from 'execa'
 
@@ -6,21 +6,25 @@ import { execa } from 'execa'
 import pc from 'picocolors'
 import { parseArgsStringToArgv } from 'string-argv'
 
-import type { CLIOptions, KubbConfig, LogLevels } from '@kubb/core'
+import type { CLIOptions, KubbConfig } from '@kubb/core'
 import { OraWritable } from './utils/OraWritable.ts'
 import { spinner } from './utils/spinner.ts'
 import { getSummary } from './utils/getSummary.ts'
+import type { Logger } from '@kubb/core'
 
 type GenerateProps = {
   input?: string
   config: KubbConfig
   CLIOptions: CLIOptions
+  logger: Logger
 }
 
 type ExecutingHooksProps = {
   hooks: KubbConfig['hooks']
-  logLevel: LogLevels
+  logLevel: LogLevel
 }
+
+type Executer = { subProcess: ExecaReturnValue<string>; abort: AbortController['abort'] }
 
 async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<void> {
   if (!hooks?.done) {
@@ -32,7 +36,6 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
   if (logLevel === LogLevel.silent) {
     spinner.start(`Executing hooks`)
   }
-  type Executer = { subProcess: ExecaReturnValue<string>; abort: AbortController['abort'] }
 
   const executers: Promise<Executer>[] = commands.map(async (command) => {
     const oraWritable = new OraWritable(spinner, command)
@@ -67,9 +70,8 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
   }
 }
 
-export default async function generate({ input, config, CLIOptions }: GenerateProps): Promise<void> {
+export default async function generate({ input, config, CLIOptions, logger }: GenerateProps): Promise<void> {
   const hrstart = process.hrtime()
-  const logger = createLogger(spinner)
 
   if (CLIOptions.logLevel === LogLevel.debug) {
     const { performance, PerformanceObserver } = await import('node:perf_hooks')

@@ -9,12 +9,15 @@ export type Logger = {
   info: (message: string | null) => void
   warn: (message: string | null) => void
   spinner?: Ora
+  logs: string[]
 }
 
 export function createLogger(spinner?: Ora): Logger {
+  const logs: string[] = []
   const log: Logger['log'] = (message) => {
     if (message && spinner) {
       spinner.text = message
+      logs.push(message)
     }
   }
 
@@ -27,12 +30,14 @@ export function createLogger(spinner?: Ora): Logger {
   const warn: Logger['warn'] = (message) => {
     if (message && spinner) {
       spinner.warn(pc.yellow(message))
+      logs.push(message)
     }
   }
 
   const info: Logger['warn'] = (message) => {
     if (message && spinner) {
       spinner.info(message)
+      logs.push(message)
     }
   }
 
@@ -42,6 +47,7 @@ export function createLogger(spinner?: Ora): Logger {
     warn,
     info,
     spinner,
+    logs,
   }
 
   return logger

@@ -8,11 +8,12 @@ import init from './init.ts'
 import generate from './generate.ts'
 import { getConfig, getCosmiConfig, renderErrors, spinner, startWatcher } from './utils/index.ts'
 
-import { LogLevel, SummaryError } from '@kubb/core'
+import { LogLevel, SummaryError, createLogger } from '@kubb/core'
 import type { CLIOptions } from '@kubb/core'
 import { Warning } from '@kubb/core'
 
 const moduleName = 'kubb'
+const logger = createLogger(spinner)
 
 function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
   const originalError = e as Error
@@ -43,17 +44,15 @@ function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
 }
 
 async function generateAction(input: string, CLIOptions: CLIOptions) {
-  // CONFIG
   spinner.start('💾 Loading config')
   const result = await getCosmiConfig(moduleName, CLIOptions.config)
   spinner.succeed(`💾 Config loaded(${pc.dim(pathParser.relative(process.cwd(), result.filepath))})`)
-  // END CONFIG
 
   if (CLIOptions.watch) {
     const config = await getConfig(result, CLIOptions)
 
     return startWatcher([input || config.input.path], async (paths) => {
-      await generate({ config, CLIOptions: CLIOptions })
+      await generate({ config, CLIOptions, logger })
       spinner.spinner = 'simpleDotsScrolling'
       spinner.start(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
     })
@@ -61,7 +60,7 @@ async function generateAction(input: string, CLIOptions: CLIOptions) {
 
   const config = await getConfig(result, CLIOptions)
 
-  await generate({ input, config, CLIOptions })
+  await generate({ input, config, CLIOptions, logger })
 }
 
 export default async function runCLI(argv?: string[]): Promise<void> {

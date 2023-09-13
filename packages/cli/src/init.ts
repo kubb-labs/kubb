@@ -5,7 +5,6 @@ import { LogLevel, isPromiseFulfilledResult, write } from '@kubb/core'
 import { $ } from 'execa'
 import pc from 'picocolors'
 
-import type { LogLevels } from '@kubb/core'
 import { spinner } from './utils/spinner.ts'
 
 export type Preset = 'simple'
@@ -21,7 +20,7 @@ type InitProps = {
   /**
    * @default `'silent'`
    */
-  logLevel?: LogLevels
+  logLevel?: LogLevel
   /**
    * @default `'simple'`
    */

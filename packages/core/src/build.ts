@@ -6,7 +6,7 @@ import pc from 'picocolors'
 
 import type { File, ResolvedFile } from './managers/fileManager/index.ts'
 import { LogLevel } from './types.ts'
-import type { BuildOutput, KubbPlugin, LogLevels, PluginContext, TransformResult } from './types.ts'
+import type { BuildOutput, KubbPlugin, PluginContext, TransformResult } from './types.ts'
 import type { QueueJob, Logger } from './utils/index.ts'
 
 type BuildOptions = {
@@ -15,7 +15,7 @@ type BuildOptions = {
    * @default Logger without the spinner
    */
   logger?: Logger
-  logLevel?: LogLevels
+  logLevel?: LogLevel
 }
 
 async function transformReducer(
