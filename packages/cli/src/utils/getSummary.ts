@@ -1,5 +1,5 @@
 import pathParser from 'node:path'
-import type { BuildOutput, KubbConfig, LogLevels } from '@kubb/core'
+import type { BuildOutput, KubbConfig } from '@kubb/core'
 import { randomPicoColour, LogLevel } from '@kubb/core'
 import pc from 'picocolors'
 import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
@@ -9,7 +9,7 @@ type SummaryProps = {
   status: 'success' | 'failed'
   hrstart: [number, number]
   config: KubbConfig
-  logLevel?: LogLevels
+  logLevel?: LogLevel
 }
 
 export function getSummary({ pluginManager, status, hrstart, config, logLevel }: SummaryProps): string[] {

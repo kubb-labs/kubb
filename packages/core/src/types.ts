@@ -103,7 +103,7 @@ export type CLIOptions = {
    * `debug` will show all information possible(related to the PluginManager), handy for seeing logs
    * @default `silent`
    */
-  logLevel?: LogLevels
+  logLevel?: LogLevel
 }
 
 export type BuildOutput = {
@@ -280,4 +280,4 @@ export const LogLevel = {
   debug: 'debug',
 } as const
 
-export type LogLevels = keyof typeof LogLevel
+export type LogLevel = keyof typeof LogLevel

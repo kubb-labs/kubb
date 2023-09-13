@@ -2,8 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-import type { LogLevels } from '@kubb/core'
-import { LogLevel, ParallelPluginError } from '@kubb/core'
+import { LogLevel } from '@kubb/core'
+import { ParallelPluginError } from '@kubb/core'
 import PrettyError from 'pretty-error'
 
 export const prettyError = new PrettyError()
@@ -34,7 +34,7 @@ function getErrorCauses(errors: Error[]): string[] {
     .filter(Boolean)
 }
 
-export function renderErrors(error: Error | undefined, { prefixText, logLevel = LogLevel.silent }: { prefixText?: string; logLevel?: LogLevels }): string {
+export function renderErrors(error: Error | undefined, { prefixText, logLevel = LogLevel.silent }: { prefixText?: string; logLevel?: LogLevel }): string {
   if (!error) {
     return ''
   }
