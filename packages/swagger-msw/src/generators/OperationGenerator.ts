@@ -66,7 +66,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File<FileMeta> | null> {
-    const { resolvePath, resolveName, } = this.options
+    const { resolvePath, resolveName } = this.options
 
     const controllerFileName = `handlers.ts`
     const controllerFilePath = resolvePath({
