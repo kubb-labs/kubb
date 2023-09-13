@@ -1,1 +1,0 @@
-{"type":"object","oneOf":[{"$ref":"#/components/schemas/Labradoodle"},{"$ref":"#/components/schemas/Dachshund"}],"required":["type"],"properties":{"barksPerMinute":{"type":"integer"},"type":{"type":"string","enum":["dog"]}},"discriminator":{"propertyName":"breed","mapping":{"Labradoodle":"#/components/schemas/Labradoodle","Dachshund":"#/components/schemas/Dachshund"}}}

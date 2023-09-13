@@ -9,6 +9,7 @@ export type UpdateUserMutationResponse = any | null
 
 export type UpdateUserPathParams = {
   /**
+   * @description name that need to be deleted
    * @type string
    */
   username: string

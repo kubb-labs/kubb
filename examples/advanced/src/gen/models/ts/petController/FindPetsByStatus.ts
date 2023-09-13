@@ -13,6 +13,7 @@ export const FindPetsByStatusQueryParamsStatus = {
 export type FindPetsByStatusQueryParamsStatus = (typeof FindPetsByStatusQueryParamsStatus)[keyof typeof FindPetsByStatusQueryParamsStatus]
 export type FindPetsByStatusQueryParams = {
   /**
+   * @description Status values that need to be considered for filter
    * @type string | undefined
    * @default 'available'
    */

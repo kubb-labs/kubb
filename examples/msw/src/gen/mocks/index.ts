@@ -1,6 +1,7 @@
 export * as petMocks from './petMocks'
 export * as storeMocks from './storeMocks'
 export * as userMocks from './userMocks'
+export * from './createAddPetRequest'
 export * from './createAddress'
 export * from './createApiResponse'
 export * from './createCategory'

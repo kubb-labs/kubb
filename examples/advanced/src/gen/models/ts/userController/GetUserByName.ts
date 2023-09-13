@@ -12,6 +12,7 @@ export type GetUserByName404 = any | null
 
 export type GetUserByNamePathParams = {
   /**
+   * @description The name that needs to be fetched. Use user1 for testing.
    * @type string
    */
   username: string

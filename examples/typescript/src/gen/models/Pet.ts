@@ -1,41 +1,34 @@
-import type { Dog } from './Dog'
-import type { Cat } from './Cat'
+import type { Category } from './Category'
+import type { Tag } from './Tag'
 
-export enum PetCallingCode {
-  '+33' = '+33',
-  '+420' = '+420',
-}
-export enum PetCountry {
-  "People's Republic of China" = "People's Republic of China",
-  'Uruguay' = 'Uruguay',
+export enum PetStatus {
+  'available' = 'available',
+  'pending' = 'pending',
+  'sold' = 'sold',
 }
 export type Pet = {
   /**
-   * @type string | undefined iri-reference
+   * @type integer | undefined int64
+   * @example 10
    */
-  '@id'?: string | undefined
-  /**
-   * @type integer int64
-   */
-  id: number
+  id?: number | undefined
   /**
    * @type string
+   * @example doggie
    */
   name: string
+  category?: Category | undefined
   /**
+   * @type array
+   */
+  photoUrls: string[]
+  /**
+   * @type array | undefined
+   */
+  tags?: Tag[] | undefined
+  /**
+   * @description pet status in the store
    * @type string | undefined
    */
-  tag?: string | undefined
-  /**
-   * @type string | undefined email
-   */
-  email?: string | undefined
-  /**
-   * @type string | undefined
-   */
-  callingCode?: PetCallingCode | undefined
-  /**
-   * @type string | undefined
-   */
-  country?: PetCountry | undefined
-} & (Dog | Cat)
+  status?: PetStatus | undefined
+}
