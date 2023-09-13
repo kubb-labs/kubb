@@ -1,4 +1,5 @@
 import type { Path, PluginFactoryOptions } from '@kubb/core'
+import type { GetSchemasProps } from './utils/getSchemas'
 import type Oas from 'oas'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { HttpMethods as HttpMethod } from 'oas/dist/rmoas.types.ts'
@@ -8,6 +9,7 @@ export type ContentType = 'application/json' | (string & {})
 
 export type API = {
   getOas: () => Promise<Oas>
+  getSchemas: (options?: Pick<GetSchemasProps, 'includes'>) => Promise<Record<string, OpenAPIV3.SchemaObject>>
   getBaseURL: () => Promise<string | undefined>
   contentType?: ContentType
 }
