@@ -12,6 +12,7 @@ export type RequestConfig<TVariables = unknown> = {
   data?: TVariables
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal
+  headers?: AxiosHeaders
 }
 
 export const axiosInstance = axios.create({

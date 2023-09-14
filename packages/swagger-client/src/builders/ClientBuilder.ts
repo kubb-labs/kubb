@@ -29,6 +29,7 @@ export class ClientBuilder extends OasBuilder<Config> {
       pathParamsTyped,
       schemas.request?.name ? 'data: TVariables' : undefined,
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+      schemas.headerParams?.name ? `headers${!schemas.headerParams.schema.required?.length ? '?' : ''}: ${schemas.headerParams.name}` : undefined,
       'options: Partial<Parameters<typeof client>[0]> = {}',
     ].filter(Boolean)
 
@@ -40,6 +41,7 @@ export function ${name} <${generics.join(', ')}>(${options.join(', ')}): Promise
     url: ${new URLPath(operation.path).template},
     ${schemas.queryParams?.name ? 'params,' : ''}
     ${schemas.request?.name ? 'data,' : ''}
+    ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
     ...options
   });
 };

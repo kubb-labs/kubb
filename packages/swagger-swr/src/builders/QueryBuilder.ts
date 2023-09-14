@@ -30,6 +30,8 @@ export class QueryBuilder extends OasBuilder<Config> {
     const options = [
       pathParamsTyped,
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+      schemas.headerParams?.name ? `headers${!schemas.headerParams.schema.required?.length ? '?' : ''}: ${schemas.headerParams.name}` : undefined,
+      'options: Partial<Parameters<typeof client>[0]> = {}',
     ].filter(Boolean)
 
     codes.push(`
@@ -41,6 +43,8 @@ export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRConf
         url: ${new URLPath(operation.path).template},
         ${schemas.request?.name ? 'data,' : ''}
         ${schemas.queryParams?.name ? 'params,' : ''}
+        ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+        ...options,
       });
     },
   };
@@ -111,6 +115,7 @@ export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRResp
     const options = [
       pathParamsTyped,
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
+      schemas.headerParams?.name ? `headers${!schemas.headerParams.schema.required?.length ? '?' : ''}: ${schemas.headerParams.name}` : undefined,
       `options?: {
         mutation?: SWRMutationConfiguration<${SWRMutationConfigurationGenerics.join(', ')}>
       }`,
@@ -129,6 +134,8 @@ export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRMuta
         url,
         ${schemas.request?.name ? 'data,' : ''}
         ${schemas.queryParams?.name ? 'params,' : ''}
+        ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+        ...options,
       })
     },
     mutationOptions

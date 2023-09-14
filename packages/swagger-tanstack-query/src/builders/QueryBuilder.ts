@@ -63,6 +63,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const options = [
       pathParamsTyped,
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+      schemas.headerParams?.name ? `headers${!schemas.headerParams.schema.required?.length ? '?' : ''}: ${schemas.headerParams.name}` : undefined,
       'options: Partial<Parameters<typeof client>[0]> = {}',
     ].filter(Boolean)
     let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
@@ -82,6 +83,7 @@ export function ${name} <${generics.join(', ')}>(${options.join(', ')}): ${frame
         method: "get",
         url: ${new URLPath(operation.path).template},
         ${schemas.queryParams?.name ? 'params,' : ''}
+        ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
         ...options,
       });
     },
@@ -154,6 +156,7 @@ export function ${name} <${generics.join(',')}>(${options.join(', ')}): ${framew
     const options = [
       pathParamsTyped,
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
+      schemas.headerParams?.name ? `headers${!schemas.headerParams.schema.required?.length ? '?' : ''}: ${schemas.headerParams.name}` : undefined,
       'options: Partial<Parameters<typeof client>[0]> = {}',
     ].filter(Boolean)
     let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
@@ -172,6 +175,7 @@ export function ${name} <${generics.join(', ')}>(${options.join(', ')}): ${frame
       return client<${clientGenerics.join(', ')}>({
         method: "get",
         url: ${new URLPath(operation.path).template},
+        ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
         ...options,
         ${
           schemas.queryParams?.name
@@ -254,6 +258,7 @@ export function ${name} <${generics.join(',')}>(${options.join(', ')}): ${framew
     const options = [
       pathParamsTyped,
       schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
+      schemas.headerParams?.name ? `headers${!schemas.headerParams.schema.required?.length ? '?' : ''}: ${schemas.headerParams.name}` : undefined,
       `options?: {
         mutation?: ${frameworkImports.mutate.UseMutationOptions}<${clientGenerics.join(', ')}>,
         client: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
@@ -272,6 +277,7 @@ export function ${name} <${generics.join(',')}>(${options.join(', ')}): ${framew
         url: ${new URLPath(operation.path).template},
         ${schemas.request?.name ? 'data,' : ''}
         ${schemas.queryParams?.name ? 'params,' : ''}
+        ${schemas.headerParams?.name ? 'headers: { ...headers, ...clientOptions.headers },' : ''}
         ...clientOptions
       });
     },
