@@ -1,6 +1,5 @@
 import type { OpenAPIV3 } from 'openapi-types'
 import type { ContentType, Oas } from '../types.ts'
-import { Warning } from '@kubb/core'
 
 type Mode = 'schemas' | 'responses' | 'requestBodies'
 
