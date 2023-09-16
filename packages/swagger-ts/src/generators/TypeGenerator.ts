@@ -32,6 +32,7 @@ type Options = {
   resolveName: PluginContext['resolveName']
   enumType: 'enum' | 'asConst' | 'asPascalConst'
   dateType: 'string' | 'date'
+  optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
 }
 export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.Node[]> {
   // Collect the types of all referenced schemas so we can export them later
@@ -51,7 +52,9 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     stripRegexp: /[^A-Z0-9$]/gi,
   }
 
-  constructor(options: Options = { withJSDocs: true, resolveName: ({ name }) => name, enumType: 'asConst', dateType: 'string' }) {
+  constructor(
+    options: Options = { withJSDocs: true, resolveName: ({ name }) => name, enumType: 'asConst', dateType: 'string', optionalType: 'questionToken' },
+  ) {
     super(options)
 
     return this
@@ -116,6 +119,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    * Recursively creates a type literal with the given props.
    */
   private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string) {
+    const { optionalType } = this.options
     const properties = baseSchema?.properties || {}
     const required = baseSchema?.required
     const additionalProperties = baseSchema?.additionalProperties
@@ -130,11 +134,11 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         return null
       }
 
-      if (!isRequired) {
+      if (!isRequired && ['undefined', 'questionTokenAndUndefined'].includes(optionalType)) {
         type = createUnionDeclaration({ nodes: [type, keywordTypeNodes.undefined] })
       }
       const propertySignature = createPropertySignature({
-        questionToken: !isRequired,
+        questionToken: ['questionToken', 'questionTokenAndUndefined'].includes(optionalType) && !isRequired,
         name,
         type: type as ts.TypeNode,
       })

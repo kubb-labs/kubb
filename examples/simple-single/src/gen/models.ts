@@ -3,37 +3,37 @@ export type Address = {
    * @type string | undefined
    * @example 437 Lytton
    */
-  street?: string | undefined
+  street?: string
   /**
    * @type string | undefined
    * @example Palo Alto
    */
-  city?: string | undefined
+  city?: string
   /**
    * @type string | undefined
    * @example CA
    */
-  state?: string | undefined
+  state?: string
   /**
    * @type string | undefined
    * @example 94301
    */
-  zip?: string | undefined
+  zip?: string
 }
 
 export type ApiResponse = {
   /**
    * @type integer | undefined int32
    */
-  code?: number | undefined
+  code?: number
   /**
    * @type string | undefined
    */
-  type?: string | undefined
+  type?: string
   /**
    * @type string | undefined
    */
-  message?: string | undefined
+  message?: string
 }
 
 export type Category = {
@@ -41,12 +41,12 @@ export type Category = {
    * @type integer | undefined int64
    * @example 1
    */
-  id?: number | undefined
+  id?: number
   /**
    * @type string | undefined
    * @example Dogs
    */
-  name?: string | undefined
+  name?: string
 }
 
 export const orderStatus = {
@@ -66,59 +66,59 @@ export type Order = {
    * @type integer | undefined int64
    * @example 10
    */
-  id?: number | undefined
+  id?: number
   /**
    * @type integer | undefined int64
    * @example 198772
    */
-  petId?: number | undefined
+  petId?: number
   /**
    * @type integer | undefined int32
    * @example 7
    */
-  quantity?: number | undefined
+  quantity?: number
   /**
    * @type string | undefined date-time
    */
-  shipDate?: string | undefined
+  shipDate?: string
   /**
    * @description Order Status
    * @type string | undefined
    * @example approved
    */
-  status?: OrderStatus | undefined
+  status?: OrderStatus
   /**
    * @description HTTP Status
    * @type number | undefined
    * @example 200
    */
-  http_status?: OrderHttpStatus | undefined
+  http_status?: OrderHttpStatus
   /**
    * @type boolean | undefined
    */
-  complete?: boolean | undefined
+  complete?: boolean
 }
 
 export type PetNotFound = {
   /**
    * @type integer | undefined int32
    */
-  code?: number | undefined
+  code?: number
   /**
    * @type string | undefined
    */
-  message?: string | undefined
+  message?: string
 }
 
 export type Tag = {
   /**
    * @type integer | undefined int64
    */
-  id?: number | undefined
+  id?: number
   /**
    * @type string | undefined
    */
-  name?: string | undefined
+  name?: string
 }
 
 export type User = {
@@ -126,43 +126,43 @@ export type User = {
    * @type integer | undefined int64
    * @example 10
    */
-  id?: number | undefined
+  id?: number
   /**
    * @type string | undefined
    * @example theUser
    */
-  username?: string | undefined
+  username?: string
   /**
    * @type string | undefined
    * @example John
    */
-  firstName?: string | undefined
+  firstName?: string
   /**
    * @type string | undefined
    * @example James
    */
-  lastName?: string | undefined
+  lastName?: string
   /**
    * @type string | undefined
    * @example john@email.com
    */
-  email?: string | undefined
+  email?: string
   /**
    * @type string | undefined
    * @example 12345
    */
-  password?: string | undefined
+  password?: string
   /**
    * @type string | undefined
    * @example 12345
    */
-  phone?: string | undefined
+  phone?: string
   /**
    * @description User Status
    * @type integer | undefined int32
    * @example 1
    */
-  userStatus?: number | undefined
+  userStatus?: number
 }
 
 export type Customer = {
@@ -170,16 +170,16 @@ export type Customer = {
    * @type integer | undefined int64
    * @example 100000
    */
-  id?: number | undefined
+  id?: number
   /**
    * @type string | undefined
    * @example fehguy
    */
-  username?: string | undefined
+  username?: string
   /**
    * @type array | undefined
    */
-  address?: Address[] | undefined
+  address?: Address[]
 }
 
 export type UserArray = User[]
@@ -195,13 +195,13 @@ export type AddPetRequest = {
    * @type integer | undefined int64
    * @example 10
    */
-  id?: number | undefined
+  id?: number
   /**
    * @type string
    * @example doggie
    */
   name: string
-  category?: Category | undefined
+  category?: Category
   /**
    * @type array
    */
@@ -209,12 +209,12 @@ export type AddPetRequest = {
   /**
    * @type array | undefined
    */
-  tags?: Tag[] | undefined
+  tags?: Tag[]
   /**
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatus | undefined
+  status?: AddPetRequestStatus
 }
 
 export const petStatus = {
@@ -228,13 +228,13 @@ export type Pet = {
    * @type integer | undefined int64
    * @example 10
    */
-  id?: number | undefined
+  id?: number
   /**
    * @type string
    * @example doggie
    */
   name: string
-  category?: Category | undefined
+  category?: Category
   /**
    * @type array
    */
@@ -242,12 +242,12 @@ export type Pet = {
   /**
    * @type array | undefined
    */
-  tags?: Tag[] | undefined
+  tags?: Tag[]
   /**
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: PetStatus | undefined
+  status?: PetStatus
 }
 
 /**
@@ -279,11 +279,11 @@ export type AddPet405 = {
   /**
    * @type integer | undefined int32
    */
-  code?: number | undefined
+  code?: number
   /**
    * @type string | undefined
    */
-  message?: string | undefined
+  message?: string
 }
 
 /**
@@ -313,7 +313,7 @@ export type FindPetsByStatusQueryParams = {
    * @type string | undefined
    * @default 'available'
    */
-  status?: FindPetsByStatusQueryParamsStatus | undefined
+  status?: FindPetsByStatusQueryParamsStatus
 }
 
 /**
@@ -331,17 +331,17 @@ export type FindPetsByTagsQueryParams = {
    * @description Tags to filter by
    * @type array | undefined
    */
-  tags?: string[] | undefined
+  tags?: string[]
   /**
    * @description to request with required page number or pagination
    * @type string | undefined
    */
-  page?: string | undefined
+  page?: string
   /**
    * @description to request with required page size
    * @type string | undefined
    */
-  pageSize?: string | undefined
+  pageSize?: string
 }
 
 /**
@@ -392,12 +392,12 @@ export type UpdatePetWithFormQueryParams = {
    * @description Name of pet that needs to be updated
    * @type string | undefined
    */
-  name?: string | undefined
+  name?: string
   /**
    * @description Status of pet that needs to be updated
    * @type string | undefined
    */
-  status?: string | undefined
+  status?: string
 }
 
 /**
@@ -430,7 +430,7 @@ export type UploadFileQueryParams = {
    * @description Additional Metadata
    * @type string | undefined
    */
-  additionalMetadata?: string | undefined
+  additionalMetadata?: string
 }
 
 /**
@@ -546,12 +546,12 @@ export type LoginUserQueryParams = {
    * @description The user name for login
    * @type string | undefined
    */
-  username?: string | undefined
+  username?: string
   /**
    * @description The password for login in clear text
    * @type string | undefined
    */
-  password?: string | undefined
+  password?: string
 }
 
 /**

@@ -8,12 +8,12 @@ export type LoginUserQueryParams = {
    * @description The user name for login
    * @type string | undefined
    */
-  username?: string | undefined
+  username?: string
   /**
    * @description The password for login in clear text
    * @type string | undefined
    */
-  password?: string | undefined
+  password?: string
 }
 
 /**

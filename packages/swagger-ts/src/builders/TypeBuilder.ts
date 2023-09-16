@@ -18,6 +18,7 @@ type Config = {
   withImports?: boolean
   enumType: 'enum' | 'asConst' | 'asPascalConst'
   dateType: 'string' | 'date'
+  optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
 }
 
 // TODO create another function that sort based on the refs(first the ones without refs)
@@ -54,6 +55,7 @@ export class TypeBuilder extends OasBuilder<Config> {
           resolveName: this.config.resolveName,
           enumType: this.config.enumType,
           dateType: this.config.dateType,
+          optionalType: this.config.optionalType,
         })
         const sources = generator.build({ schema: operationSchema.schema, baseName: operationSchema.name, description: operationSchema.description })
 

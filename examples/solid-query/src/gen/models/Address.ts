@@ -3,20 +3,20 @@ export type Address = {
    * @type string | undefined
    * @example 437 Lytton
    */
-  street?: string | undefined
+  street?: string
   /**
    * @type string | undefined
    * @example Palo Alto
    */
-  city?: string | undefined
+  city?: string
   /**
    * @type string | undefined
    * @example CA
    */
-  state?: string | undefined
+  state?: string
   /**
    * @type string | undefined
    * @example 94301
    */
-  zip?: string | undefined
+  zip?: string
 }

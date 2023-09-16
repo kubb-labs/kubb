@@ -36,6 +36,14 @@ export type Options = {
    * @default 'string'
    */
   dateType?: 'string' | 'date'
+  /**
+   * Choose what to use as mode for an optional value.
+   * @examples 'questionToken': type?: string
+   * @examples 'undefined': type: string | undefined
+   * @examples 'questionTokenAndUndefined': type?: string | undefined
+   * @default 'questionToken'
+   */
+  optionalType?: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
   transformers?: {
     /**
      * Override the name of the TypeScript type that is getting generated, this will also override the name of the file.

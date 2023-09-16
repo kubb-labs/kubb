@@ -15,7 +15,7 @@ import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 export const pluginName: PluginOptions['name'] = 'swagger-ts' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'models', groupBy, skipBy = [], enumType = 'asConst', dateType = 'string', transformers = {} } = options
+  const { output = 'models', groupBy, skipBy = [], enumType = 'asConst', dateType = 'string', optionalType = 'questionToken', transformers = {} } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [SwaggerPluginOptions]
 
@@ -85,6 +85,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           withJSDocs: true,
           enumType,
           dateType,
+          optionalType,
         })
         Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
@@ -123,6 +124,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           withJSDocs: true,
           enumType,
           dateType,
+          optionalType,
         })
         Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
@@ -156,6 +158,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
         enumType,
         dateType,
+        optionalType,
       })
 
       const files = await operationGenerator.build()
