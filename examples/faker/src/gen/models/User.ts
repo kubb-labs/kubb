@@ -3,41 +3,41 @@ export type User = {
    * @type integer | undefined int64
    * @example 10
    */
-  id?: number | undefined
+  id?: number
   /**
    * @type string | undefined
    * @example theUser
    */
-  username?: string | undefined
+  username?: string
   /**
    * @type string | undefined
    * @example John
    */
-  firstName?: string | undefined
+  firstName?: string
   /**
    * @type string | undefined
    * @example James
    */
-  lastName?: string | undefined
+  lastName?: string
   /**
    * @type string | undefined
    * @example john@email.com
    */
-  email?: string | undefined
+  email?: string
   /**
    * @type string | undefined
    * @example 12345
    */
-  password?: string | undefined
+  password?: string
   /**
    * @type string | undefined
    * @example 12345
    */
-  phone?: string | undefined
+  phone?: string
   /**
    * @description User Status
    * @type integer | undefined int32
    * @example 1
    */
-  userStatus?: number | undefined
+  userStatus?: number
 }

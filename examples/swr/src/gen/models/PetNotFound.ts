@@ -2,9 +2,9 @@ export type PetNotFound = {
   /**
    * @type integer | undefined int32
    */
-  code?: number | undefined
+  code?: number
   /**
    * @type string | undefined
    */
-  message?: string | undefined
+  message?: string
 }

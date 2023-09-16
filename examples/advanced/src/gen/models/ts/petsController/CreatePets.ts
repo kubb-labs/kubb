@@ -31,7 +31,7 @@ export type CreatePetsQueryParams = {
    * @description Offset
    * @type integer | undefined
    */
-  offset?: number | undefined
+  offset?: number
 }
 
 /**

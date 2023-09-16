@@ -15,35 +15,35 @@ export type Order = {
    * @type integer | undefined int64
    * @example 10
    */
-  id?: number | undefined
+  id?: number
   /**
    * @type integer | undefined int64
    * @example 198772
    */
-  petId?: number | undefined
+  petId?: number
   /**
    * @type integer | undefined int32
    * @example 7
    */
-  quantity?: number | undefined
+  quantity?: number
   /**
    * @type string | undefined date-time
    */
-  shipDate?: string | undefined
+  shipDate?: string
   /**
    * @description Order Status
    * @type string | undefined
    * @example approved
    */
-  status?: OrderStatus | undefined
+  status?: OrderStatus
   /**
    * @description HTTP Status
    * @type number | undefined
    * @example 200
    */
-  http_status?: OrderHttpStatus | undefined
+  http_status?: OrderHttpStatus
   /**
    * @type boolean | undefined
    */
-  complete?: boolean | undefined
+  complete?: boolean
 }
