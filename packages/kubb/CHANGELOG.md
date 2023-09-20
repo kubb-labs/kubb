@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/kubb-project/kubb/compare/kubb-v1.8.5...kubb-v1.9.0) (2023-09-20)
+
+
+### ✨ Features
+
+* `optionalType` for `swagger-ts` ([ae204ea](https://github.com/kubb-project/kubb/commit/ae204ea5bd02a7817c281bcd14fbf729e4d48eb3))
+
 ## [1.8.5](https://github.com/kubb-project/kubb/compare/kubb-v1.8.4...kubb-v1.8.5) (2023-09-13)
 
 
