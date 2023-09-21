@@ -18,10 +18,10 @@ export type UpdatePetWithFormQueryParams = {
    * @description Name of pet that needs to be updated
    * @type string | undefined
    */
-  name?: string | undefined
+  name?: string
   /**
    * @description Status of pet that needs to be updated
    * @type string | undefined
    */
-  status?: string | undefined
+  status?: string
 }

@@ -11,13 +11,13 @@ export type AddPetRequest = {
    * @type integer | undefined int64
    * @example 10
    */
-  id?: number | undefined
+  id?: number
   /**
    * @type string
    * @example doggie
    */
   name: string
-  category?: Category | undefined
+  category?: Category
   /**
    * @type array
    */
@@ -25,10 +25,10 @@ export type AddPetRequest = {
   /**
    * @type array | undefined
    */
-  tags?: Tag[] | undefined
+  tags?: Tag[]
   /**
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: AddPetRequestStatus | undefined
+  status?: AddPetRequestStatus
 }

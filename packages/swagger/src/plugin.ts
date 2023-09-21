@@ -1,13 +1,12 @@
 import pathParser from 'node:path'
 
+import type { KubbConfig, Logger } from '@kubb/core'
 import { createPlugin } from '@kubb/core'
 
 import { oasParser } from './parsers/oasParser.ts'
 
 import type { OpenAPIV3 } from 'openapi-types'
 import type { Oas, PluginOptions } from './types.ts'
-import type { KubbConfig } from '@kubb/core'
-import type { Logger } from '@kubb/core'
 import { getSchemas } from './utils/getSchemas.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger' as const

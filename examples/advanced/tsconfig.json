@@ -16,6 +16,13 @@
     "allowJs": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
+    "types": [
+      "vitest/globals",
+      "bun-types",
+      "@kubb/core/globals",
+      "@kubb/swagger-client/globals",
+      "@kubb/ts-config/reset"
+    ],
     "paths": {
       "@kubb/cli": [
         "../../packages/cli/src/index.ts"
@@ -50,6 +57,9 @@
       "@kubb/swagger-msw": [
         "../../packages/swagger-msw/src/index.ts"
       ],
+      "@kubb/swagger-swr": [
+        "../../packages/swagger-swr/src/index.ts"
+      ],
       "@kubb/swagger-tanstack-query": [
         "../../packages/swagger-tanstack-query/src/index.ts"
       ],
@@ -68,7 +78,8 @@
     }
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "kubb.config.ts"
   ],
   "exclude": [
     "**/node_modules",

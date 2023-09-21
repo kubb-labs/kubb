@@ -67,9 +67,41 @@ Default: `'asConst'`
 ### dateType
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
+::: code-group
+
+```typescript ['string']
+date: string
+```
+
+```typescript ['date']
+date: Date 
+```
+:::
+
 Type: `'string' | 'date'` <br/>
 Default: `'string'`
 
+
+### optionalType
+Choose what to use as mode for an optional value.<br/>
+
+::: code-group
+
+```typescript ['questionToken']
+type?: string
+```
+
+```typescript ['undefined']
+type: string | undefined
+```
+
+```typescript ['questionTokenAndUndefined']
+type?: string | undefined`
+```
+:::
+
+Type: `'questionToken' | 'undefined' | 'questionTokenAndUndefined'` <br/>
+Default: `'questionToken'`
 
 ### skipBy
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.

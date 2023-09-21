@@ -10,7 +10,7 @@ export type FindPetsByTagsQueryParams = {
    * @description Tags to filter by
    * @type array | undefined
    */
-  tags?: string[] | undefined
+  tags?: string[]
 }
 
 /**
