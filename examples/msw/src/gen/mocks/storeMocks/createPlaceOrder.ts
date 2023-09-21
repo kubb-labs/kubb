@@ -8,6 +8,7 @@ import { PlaceOrderMutationResponse } from '../../models/PlaceOrder'
 /**
  * @description Invalid input
  */
+
 export function createPlaceOrder405(): PlaceOrder405 {
   return undefined
 }
@@ -19,6 +20,7 @@ export function createPlaceOrderMutationRequest(): PlaceOrderMutationRequest {
 /**
  * @description successful operation
  */
+
 export function createPlaceOrderMutationResponse(): PlaceOrderMutationResponse {
   return createOrder()
 }

@@ -9,17 +9,22 @@ import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder4
  * @summary Place an order for a pet
  * @link /store/order
  */
-export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(options?: {
-  mutation?: VueMutationObserverOptions<TData, TError, TVariables, unknown>
-  client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-}): UseMutationReturnType<TData, TError, TVariables, unknown> {
+
+export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(
+  options: {
+    mutation?: VueMutationObserverOptions<TData, TError, TVariables, unknown>
+    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+  } = {},
+): UseMutationReturnType<TData, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',
         url: `/store/order`,
         data,
+
         ...clientOptions,
       })
     },

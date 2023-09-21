@@ -6,14 +6,17 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
  * @summary Create user
  * @link /user
  */
+
 export function createUser<TData = CreateUserMutationResponse, TVariables = CreateUserMutationRequest>(
-  data: TVariables,
+  data?: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<TData> {
   return client<TData, TVariables>({
     method: 'post',
     url: `/user`,
+
     data,
+
     ...options,
   })
 }

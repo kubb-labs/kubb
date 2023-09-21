@@ -8,10 +8,13 @@ import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder4
  * @summary Place an order for a pet
  * @link /store/order
  */
+
 export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(options?: {
   mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
 }): SWRMutationResponse<TData, TError, string, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useSWRMutation<TData, TError, string, TVariables>(
     `/store/order`,
     (url, { arg: data }) => {
@@ -19,6 +22,8 @@ export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = Place
         method: 'post',
         url,
         data,
+
+        ...clientOptions,
       })
     },
     mutationOptions,

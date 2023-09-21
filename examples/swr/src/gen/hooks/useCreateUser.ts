@@ -8,10 +8,13 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../m
  * @summary Create user
  * @link /user
  */
+
 export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(options?: {
   mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
 }): SWRMutationResponse<TData, TError, string, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useSWRMutation<TData, TError, string, TVariables>(
     `/user`,
     (url, { arg: data }) => {
@@ -19,6 +22,8 @@ export function useCreateUser<TData = CreateUserMutationResponse, TError = unkno
         method: 'post',
         url,
         data,
+
+        ...clientOptions,
       })
     },
     mutationOptions,

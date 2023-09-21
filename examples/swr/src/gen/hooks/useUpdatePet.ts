@@ -8,10 +8,13 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400 
  * @summary Update an existing pet
  * @link /pet
  */
+
 export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdatePet400, TVariables = UpdatePetMutationRequest>(options?: {
   mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
 }): SWRMutationResponse<TData, TError, string, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useSWRMutation<TData, TError, string, TVariables>(
     `/pet`,
     (url, { arg: data }) => {
@@ -19,6 +22,8 @@ export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdateP
         method: 'put',
         url,
         data,
+
+        ...clientOptions,
       })
     },
     mutationOptions,

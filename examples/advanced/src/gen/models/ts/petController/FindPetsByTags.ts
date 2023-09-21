@@ -5,6 +5,20 @@ import type { Pet } from '../Pet'
  */
 export type FindPetsByTags400 = any | null
 
+export const FindPetsByTagsHeaderParamsXExample = {
+  ONE: 'ONE',
+  TWO: 'TWO',
+  THREE: 'THREE',
+} as const
+export type FindPetsByTagsHeaderParamsXExample = (typeof FindPetsByTagsHeaderParamsXExample)[keyof typeof FindPetsByTagsHeaderParamsXExample]
+export type FindPetsByTagsHeaderParams = {
+  /**
+   * @description Header parameters
+   * @type string
+   */
+  'X-EXAMPLE': FindPetsByTagsHeaderParamsXExample
+}
+
 export type FindPetsByTagsQueryParams = {
   /**
    * @description Tags to filter by

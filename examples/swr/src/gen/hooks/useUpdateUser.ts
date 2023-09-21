@@ -8,13 +8,16 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @summary Update user
  * @link /user/:username
  */
+
 export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unknown, TVariables = UpdateUserMutationRequest>(
   username: UpdateUserPathParams['username'],
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
+    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
   },
 ): SWRMutationResponse<TData, TError, string, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useSWRMutation<TData, TError, string, TVariables>(
     `/user/${username}`,
     (url, { arg: data }) => {
@@ -22,6 +25,8 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
         method: 'put',
         url,
         data,
+
+        ...clientOptions,
       })
     },
     mutationOptions,

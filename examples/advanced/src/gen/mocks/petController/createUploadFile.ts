@@ -21,6 +21,7 @@ export function createUploadFileQueryParams(): UploadFileQueryParams {
 /**
  * @description successful operation
  */
+
 export function createUploadFileMutationResponse(): UploadFileMutationResponse {
   return createApiResponse()
 }

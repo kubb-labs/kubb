@@ -11,6 +11,7 @@ export const findPetsByTagsQueryParamsSchema = z.object({
   page: z.string().describe(`to request with required page number or pagination`).optional(),
   pageSize: z.string().describe(`to request with required page size`).optional(),
 })
+
 /**
  * @description successful operation
  */

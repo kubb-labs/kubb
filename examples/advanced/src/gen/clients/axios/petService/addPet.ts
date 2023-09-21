@@ -6,6 +6,7 @@ import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../mod
  * @summary Add a new pet to the store
  * @link /pet
  */
+
 export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutationRequest>(
   data: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -13,7 +14,9 @@ export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutati
   return client<TData, TVariables>({
     method: 'post',
     url: `/pet`,
+
     data,
+
     ...options,
   })
 }

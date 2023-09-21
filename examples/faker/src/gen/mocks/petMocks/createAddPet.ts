@@ -8,6 +8,7 @@ import { AddPetMutationResponse } from '../../models/AddPet'
 /**
  * @description Invalid input
  */
+
 export function createAddPet405(): AddPet405 {
   return undefined
 }
@@ -15,6 +16,7 @@ export function createAddPet405(): AddPet405 {
 /**
  * @description Create a new pet in the store
  */
+
 export function createAddPetMutationRequest(): AddPetMutationRequest {
   return createPet()
 }
@@ -22,6 +24,7 @@ export function createAddPetMutationRequest(): AddPetMutationRequest {
 /**
  * @description Successful operation
  */
+
 export function createAddPetMutationResponse(): AddPetMutationResponse {
   return createPet()
 }

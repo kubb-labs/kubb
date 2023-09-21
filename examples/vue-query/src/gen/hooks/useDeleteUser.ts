@@ -9,19 +9,22 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400 } 
  * @summary Delete user
  * @link /user/:username
  */
+
 export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400>(
   username: DeleteUserPathParams['username'],
-  options?: {
+  options: {
     mutation?: VueMutationObserverOptions<TData, TError, void, unknown>
-    client: Partial<Parameters<typeof client<TData, TError, void>>[0]>
-  },
+    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
+  } = {},
 ): UseMutationReturnType<TData, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, void, unknown>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'delete',
         url: `/user/${username}`,
+
         ...clientOptions,
       })
     },

@@ -5,12 +5,15 @@ import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400
 
 export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
   orderId: GetOrderByIdPathParams['orderId'],
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, TError> {
   return {
     fetcher: () => {
       return client<TData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
+
+        ...options,
       })
     },
   }
@@ -21,14 +24,20 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
+
 export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
   orderId: GetOrderByIdPathParams['orderId'],
-  options?: { query?: SWRConfiguration<TData, TError> },
+  options?: {
+    query?: SWRConfiguration<TData, TError>
+    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+  },
 ): SWRResponse<TData, TError> {
-  const { query: queryOptions } = options ?? {}
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+
   const query = useSWR<TData, TError, string>(`/store/order/${orderId}`, {
-    ...getOrderByIdQueryOptions<TData, TError>(orderId),
+    ...getOrderByIdQueryOptions<TData, TError>(orderId, clientOptions),
     ...queryOptions,
   })
+
   return query
 }

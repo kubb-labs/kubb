@@ -5,6 +5,7 @@ import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../
  * @summary Get user by user name
  * @link /user/:username
  */
+
 export function getUserByName<TData = GetUserByNameQueryResponse>(
   username: GetUserByNamePathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -12,6 +13,7 @@ export function getUserByName<TData = GetUserByNameQueryResponse>(
   return client<TData>({
     method: 'get',
     url: `/user/${username}`,
+
     ...options,
   })
 }

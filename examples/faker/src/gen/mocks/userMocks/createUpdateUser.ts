@@ -9,6 +9,7 @@ import { UpdateUserMutationRequest } from '../../models/UpdateUser'
 /**
  * @description successful operation
  */
+
 export function createUpdateUserError(): UpdateUserError {
   return undefined
 }
@@ -24,6 +25,7 @@ export function createUpdateUserPathParams(): UpdateUserPathParams {
 /**
  * @description Update an existent user in the store
  */
+
 export function createUpdateUserMutationRequest(): UpdateUserMutationRequest {
   return createUser()
 }

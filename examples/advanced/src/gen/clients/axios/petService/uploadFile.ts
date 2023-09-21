@@ -10,9 +10,10 @@ import type {
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
+
 export function uploadFile<TData = UploadFileMutationResponse, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
-  data: TVariables,
+  data?: TVariables,
   params?: UploadFileQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<TData> {
@@ -21,6 +22,7 @@ export function uploadFile<TData = UploadFileMutationResponse, TVariables = Uplo
     url: `/pet/${petId}/uploadImage`,
     params,
     data,
+
     ...options,
   })
 }

@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import type { AxiosError, AxiosHeaders } from 'axios'
+import type { AxiosError, AxiosHeaders, AxiosRequestConfig } from 'axios'
 
 declare const AXIOS_BASE: string
 declare const AXIOS_HEADERS: string
@@ -12,7 +12,7 @@ export type RequestConfig<TVariables = unknown> = {
   data?: TVariables
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal
-  headers?: AxiosHeaders
+  headers?: AxiosRequestConfig['headers']
 }
 
 export const axiosInstance = axios.create({

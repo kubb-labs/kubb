@@ -6,6 +6,7 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../
  * @summary Update an existing pet
  * @link /pet
  */
+
 export function updatePet<TData = UpdatePetMutationResponse, TVariables = UpdatePetMutationRequest>(
   data: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -13,7 +14,9 @@ export function updatePet<TData = UpdatePetMutationResponse, TVariables = Update
   return client<TData, TVariables>({
     method: 'put',
     url: `/pet`,
+
     data,
+
     ...options,
   })
 }

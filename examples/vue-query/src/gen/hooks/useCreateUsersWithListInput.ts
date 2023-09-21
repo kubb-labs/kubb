@@ -9,21 +9,26 @@ import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputM
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
+
 export function useCreateUsersWithListInput<
   TData = CreateUsersWithListInputMutationResponse,
   TError = unknown,
   TVariables = CreateUsersWithListInputMutationRequest,
->(options?: {
-  mutation?: VueMutationObserverOptions<TData, TError, TVariables, unknown>
-  client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-}): UseMutationReturnType<TData, TError, TVariables, unknown> {
+>(
+  options: {
+    mutation?: VueMutationObserverOptions<TData, TError, TVariables, unknown>
+    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+  } = {},
+): UseMutationReturnType<TData, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',
         url: `/user/createWithList`,
         data,
+
         ...clientOptions,
       })
     },

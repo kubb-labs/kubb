@@ -1,10 +1,9 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { createJSDocBlockText, combineCodes } from '@kubb/core'
-import { OasBuilder, getComments } from '@kubb/swagger'
+import { createJSDocBlockText, combineCodes, createFunctionParams } from '@kubb/core'
+import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
 
 import { URLPath } from '@kubb/core'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
-import { getParams } from '@kubb/swagger'
 
 type Config = {
   operation: Operation
@@ -20,22 +19,40 @@ export class ClientBuilder extends OasBuilder<Config> {
     const codes: string[] = []
 
     const comments = getComments(operation)
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     const method = operation.method
 
     const generics = [`TData = ${schemas.response.name}`, schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined].filter(Boolean)
     const clientGenerics = ['TData', schemas.request?.name ? 'TVariables' : undefined].filter(Boolean)
-    const options = [
-      pathParamsTyped,
-      schemas.request?.name ? 'data: TVariables' : undefined,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
-      schemas.headerParams?.name ? `headers${!schemas.headerParams.schema.required?.length ? '?' : ''}: ${schemas.headerParams.name}` : undefined,
-      'options: Partial<Parameters<typeof client>[0]> = {}',
-    ].filter(Boolean)
+    const params = createFunctionParams([
+      ...getDataParams(schemas.pathParams, { typed: true }),
+      {
+        name: 'data',
+        type: 'TVariables',
+        enabled: !!schemas.request?.name,
+        required: !!schemas.request?.schema.required?.length,
+      },
+      {
+        name: 'params',
+        type: schemas.queryParams?.name,
+        enabled: !!schemas.queryParams?.name,
+        required: !!schemas.queryParams?.schema.required?.length,
+      },
+      {
+        name: 'headers',
+        type: schemas.headerParams?.name,
+        enabled: !!schemas.headerParams?.name,
+        required: !!schemas.headerParams?.schema.required?.length,
+      },
+      {
+        name: 'options',
+        type: `Partial<Parameters<typeof client>[0]>`,
+        default: '{}',
+      },
+    ])
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${options.join(', ')}): Promise<TData> {
+export function ${name} <${generics.join(', ')}>(${params}): Promise<TData> {
   return client<${clientGenerics.join(', ')}>({
     method: "${method}",
     url: ${new URLPath(operation.path).template},

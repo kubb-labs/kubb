@@ -1,7 +1,7 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { createJSDocBlockText } from '@kubb/core'
+import { createFunctionParams, createJSDocBlockText } from '@kubb/core'
 import type { Resolver } from '@kubb/swagger'
-import { OasBuilder, getComments } from '@kubb/swagger'
+import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
 
 import { URLPath, combineCodes } from '@kubb/core'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
@@ -23,19 +23,32 @@ export class QueryBuilder extends OasBuilder<Config> {
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
-    const options = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : undefined,
-      schemas.headerParams?.name ? `headers${!schemas.headerParams.schema.required?.length ? '?' : ''}: ${schemas.headerParams.name}` : undefined,
-      'options: Partial<Parameters<typeof client>[0]> = {}',
-    ].filter(Boolean)
+    const params = createFunctionParams([
+      ...getDataParams(schemas.pathParams, { typed: true }),
+      {
+        name: 'params',
+        type: schemas.queryParams?.name,
+        enabled: !!schemas.queryParams?.name,
+        required: !!schemas.queryParams?.schema.required?.length,
+      },
+      {
+        name: 'headers',
+        type: schemas.headerParams?.name,
+        enabled: !!schemas.headerParams?.name,
+        required: !!schemas.headerParams?.schema.required?.length,
+      },
+      {
+        name: 'options',
+        type: `Partial<Parameters<typeof client>[0]>`,
+        default: '{}',
+      },
+    ])
 
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRConfiguration<${clientGenerics.join(', ')}> {
+export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${clientGenerics.join(', ')}> {
   return {
     fetcher: () => {
       return client<${clientGenerics.join(', ')}>({
@@ -60,26 +73,57 @@ export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRConf
 
     const queryOptionsName = this.queryOptions.name
 
-    const pathParams = getParams(schemas.pathParams)
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     const comments = getComments(operation)
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
-    const options = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
-      `options?: { query?: SWRConfiguration<${clientGenerics.join(', ')}> }`,
-    ].filter(Boolean)
+    const params = createFunctionParams([
+      ...getDataParams(schemas.pathParams, { typed: true }),
+      {
+        name: 'params',
+        type: schemas.queryParams?.name,
+        enabled: !!schemas.queryParams?.name,
+        required: !!schemas.queryParams?.schema.required?.length,
+      },
+      {
+        name: 'headers',
+        type: schemas.headerParams?.name,
+        enabled: !!schemas.headerParams?.name,
+        required: !!schemas.headerParams?.schema.required?.length,
+      },
+      {
+        name: 'options',
+        required: false,
+        type: `{ 
+          query?: SWRConfiguration<${clientGenerics.join(', ')}>,
+          client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
+        }`,
+        default: '{}',
+      },
+    ])
 
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
-      schemas.queryParams?.name ? 'params' : ''
-    })`
+    const queryParams = createFunctionParams([
+      ...getDataParams(schemas.pathParams, { typed: false }),
+      {
+        name: 'params',
+        enabled: !!schemas.queryParams?.name,
+        required: !!schemas.queryParams?.schema.required?.length,
+      },
+      {
+        name: 'headers',
+        enabled: !!schemas.headerParams?.name,
+        required: !!schemas.headerParams?.schema.required?.length,
+      },
+      {
+        name: 'clientOptions',
+      },
+    ])
+    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams})`
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRResponse<${clientGenerics.join(', ')}> {
-  const { query: queryOptions } = options ?? {};
+export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${clientGenerics.join(', ')}> {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {};
   
   const query = useSWR<${clientGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
     ...${queryOptions},
@@ -97,7 +141,6 @@ export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRResp
     const { name, errors, operation, schemas } = this.config
     const codes: string[] = []
 
-    const pathParamsTyped = getParams(schemas.pathParams, { typed: true })
     const comments = getComments(operation)
     const method = operation.method
 
@@ -112,19 +155,35 @@ export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRResp
     const SWRMutationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
     const SWRMutationConfigurationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
     //end mutate specific
-    const options = [
-      pathParamsTyped,
-      schemas.queryParams?.name ? `params${!schemas.queryParams.schema.required?.length ? '?' : ''}: ${schemas.queryParams.name}` : '',
-      schemas.headerParams?.name ? `headers${!schemas.headerParams.schema.required?.length ? '?' : ''}: ${schemas.headerParams.name}` : undefined,
-      `options?: {
-        mutation?: SWRMutationConfiguration<${SWRMutationConfigurationGenerics.join(', ')}>
-      }`,
-    ].filter(Boolean)
+    const params = createFunctionParams([
+      ...getDataParams(schemas.pathParams, { typed: true }),
+      {
+        name: 'params',
+        type: schemas.queryParams?.name,
+        enabled: !!schemas.queryParams?.name,
+        required: !!schemas.queryParams?.schema.required?.length,
+      },
+      {
+        name: 'headers',
+        type: schemas.headerParams?.name,
+        enabled: !!schemas.headerParams?.name,
+        required: !!schemas.headerParams?.schema.required?.length,
+      },
+      {
+        name: 'options',
+        required: false,
+        type: `{
+          mutation?: SWRMutationConfiguration<${SWRMutationConfigurationGenerics.join(', ')}>,
+          client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
+        }`,
+        default: '{}',
+      },
+    ])
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRMutationResponse<${SWRMutationGenerics.join(', ')}> {
-  const { mutation: mutationOptions } = options ?? {};
+export function ${name} <${generics.join(', ')}>(${params}): SWRMutationResponse<${SWRMutationGenerics.join(', ')}> {
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
 
   return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
   ${new URLPath(operation.path).template},
@@ -134,8 +193,8 @@ export function ${name} <${generics.join(', ')}>(${options.join(', ')}): SWRMuta
         url,
         ${schemas.request?.name ? 'data,' : ''}
         ${schemas.queryParams?.name ? 'params,' : ''}
-        ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
-        ...options,
+        ${schemas.headerParams?.name ? 'headers: { ...headers, ...clientOptions.headers },' : ''}
+        ...clientOptions,
       })
     },
     mutationOptions

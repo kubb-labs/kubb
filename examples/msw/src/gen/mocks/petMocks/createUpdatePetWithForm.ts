@@ -8,6 +8,7 @@ import { UpdatePetWithFormQueryParams } from '../../models/UpdatePetWithForm'
 /**
  * @description Invalid input
  */
+
 export function createUpdatePetWithForm405(): UpdatePetWithForm405 {
   return undefined
 }
