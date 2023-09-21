@@ -21,7 +21,8 @@ type FunctionParamsAst = {
 export function createFunctionParams(data: FunctionParamsAst[]): string {
   return data
     .sort((a, b) => {
-      return a.required === b.required ? 0 : a.required ? -1 : 1
+      const required = a.required ?? true
+      return a.required === b.required ? 0 : required ? -1 : 1
     })
     .filter(({ enabled = true }) => enabled)
     .reduce((acc, { name, type = false, required = true, ...rest }) => {
