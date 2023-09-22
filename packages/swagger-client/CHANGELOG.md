@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.8.5...@kubb/swagger-client-v1.9.0) (2023-09-22)
+
+
+### 🐞 Bug Fixes
+
+* headers ([fdc228a](https://github.com/kubb-project/kubb/commit/fdc228a848f180ef1f1307ccedcdaa74c16caa5c))
+
 ## [1.8.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.8.4...@kubb/swagger-client-v1.8.5) (2023-09-13)
 
 
