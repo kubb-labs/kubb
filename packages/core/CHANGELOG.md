@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.9.0...@kubb/core-v1.9.1) (2023-09-22)
+
+
+### 🐞 Bug Fixes
+
+* remove rimraf + use of correct order for params ([03180e3](https://github.com/kubb-project/kubb/commit/03180e3d33c5dd96bb101be691ae56a2edd3f0b9))
+
 ## [1.9.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.8.5...@kubb/core-v1.9.0) (2023-09-22)
 
 
