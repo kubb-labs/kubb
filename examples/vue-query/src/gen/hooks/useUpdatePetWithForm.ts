@@ -13,21 +13,25 @@ import type {
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
+
 export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
-  options?: {
+  options: {
     mutation?: VueMutationObserverOptions<TData, TError, void, unknown>
-    client: Partial<Parameters<typeof client<TData, TError, void>>[0]>
-  },
+    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
+  } = {},
 ): UseMutationReturnType<TData, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, void, unknown>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'post',
         url: `/pet/${petId}`,
+
         params,
+
         ...clientOptions,
       })
     },

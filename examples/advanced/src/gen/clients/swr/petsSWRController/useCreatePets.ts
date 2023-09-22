@@ -6,6 +6,7 @@ import type {
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsHeaderParams,
   CreatePets201,
 } from '../../../models/ts/petsController/CreatePets'
 
@@ -13,14 +14,18 @@ import type {
  * @summary Create a pet
  * @link /pets/:uuid
  */
+
 export function useCreatePets<TData = CreatePetsMutationResponse, TError = CreatePets201, TVariables = CreatePetsMutationRequest>(
+  headers: CreatePetsHeaderParams,
   uuid: CreatePetsPathParams['uuid'],
   params?: CreatePetsQueryParams,
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
+    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
   },
 ): SWRMutationResponse<TData, TError, string, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useSWRMutation<TData, TError, string, TVariables>(
     `/pets/${uuid}`,
     (url, { arg: data }) => {
@@ -29,6 +34,8 @@ export function useCreatePets<TData = CreatePetsMutationResponse, TError = Creat
         url,
         data,
         params,
+        headers: { ...headers, ...clientOptions.headers },
+        ...clientOptions,
       })
     },
     mutationOptions,

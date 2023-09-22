@@ -223,6 +223,16 @@ paths:
               type: string
         - $ref: "#/components/parameters/page"
         - $ref: "#/components/parameters/pageSize"
+        - description: Header parameters
+          in: header
+          name: X-EXAMPLE
+          required: true
+          schema:
+            type: string
+            enum:
+              - ONE
+              - TWO
+              - THREE
       responses:
         "200":
           description: successful operation

@@ -7,6 +7,7 @@ import { orderSchema } from './orderSchema'
  */
 export const placeOrderPatch405Schema = z.any()
 export const placeOrderPatchMutationRequestSchema = z.lazy(() => orderSchema)
+
 /**
  * @description successful operation
  */

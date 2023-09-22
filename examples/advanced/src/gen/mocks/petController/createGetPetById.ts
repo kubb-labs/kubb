@@ -9,6 +9,7 @@ import { GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetByI
 /**
  * @description Invalid ID supplied
  */
+
 export function createGetPetById400(): GetPetById400 {
   return undefined
 }
@@ -16,6 +17,7 @@ export function createGetPetById400(): GetPetById400 {
 /**
  * @description Pet not found
  */
+
 export function createGetPetById404(): GetPetById404 {
   return undefined
 }
@@ -27,6 +29,7 @@ export function createGetPetByIdPathParams(): GetPetByIdPathParams {
 /**
  * @description successful operation
  */
+
 export function createGetPetByIdQueryResponse(): GetPetByIdQueryResponse {
   return createPet()
 }

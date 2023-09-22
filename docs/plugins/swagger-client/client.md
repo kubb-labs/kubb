@@ -46,7 +46,7 @@ export default defineConfig(() => {
 ```typescript [./src/gen/clients/axios/client.ts]
 import axios from 'axios'
 
-import type { AxiosError } from 'axios'
+import type { AxiosError, AxiosRequestConfig} from 'axios'
 
 export type RequestConfig<TVariables = unknown> = {
   method: 'get' | 'put' | 'patch' | 'post' | 'delete'
@@ -55,6 +55,7 @@ export type RequestConfig<TVariables = unknown> = {
   data?: TVariables
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal
+  headers?: AxiosRequestConfig['headers']
 }
 
 export const axiosInstance = axios.create({
@@ -137,7 +138,7 @@ export default defineConfig(() => {
 ```typescript [./src/gen/axios/client.ts]
 import axios from 'axios'
 
-import type { AxiosError } from 'axios'
+import type { AxiosError, AxiosRequestConfig } from 'axios'
 
 export type RequestConfig<TVariables = unknown> = {
   method: 'get' | 'put' | 'patch' | 'post' | 'delete'
@@ -146,6 +147,7 @@ export type RequestConfig<TVariables = unknown> = {
   data?: TVariables
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal
+  headers?: AxiosRequestConfig['headers']
 }
 
 export const axiosInstance = axios.create({
@@ -195,7 +197,7 @@ Link: [`client.ts`](https://github.com/kubb-project/kubb/blob/main/packages/swag
 ```typescript
 import axios from 'axios'
 
-import type { AxiosError } from 'axios'
+import type { AxiosError, AxiosRequestConfig } from 'axios'
 
 export type RequestConfig<TVariables = unknown> = {
   method: 'get' | 'put' | 'patch' | 'post' | 'delete'
@@ -204,6 +206,7 @@ export type RequestConfig<TVariables = unknown> = {
   data?: TVariables
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal
+  headers?: AxiosRequestConfig['headers']
 }
 
 export const axiosInstance = axios.create({
@@ -233,7 +236,7 @@ Link: [`client.ts`](https://github.com/kubb-project/kubb/blob/main/packages/swag
 ```typescript
 import axios from 'axios'
 
-import type { AxiosError, AxiosHeaders } from 'axios'
+import type { AxiosError, AxiosHeaders, AxiosRequestConfig } from 'axios'
 
 declare const AXIOS_BASE: string
 declare const AXIOS_HEADERS: string
@@ -245,6 +248,7 @@ export type RequestConfig<TVariables = unknown> = {
   data?: TVariables
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal
+  headers?: AxiosRequestConfig['headers']
 }
 
 export const axiosInstance = axios.create({

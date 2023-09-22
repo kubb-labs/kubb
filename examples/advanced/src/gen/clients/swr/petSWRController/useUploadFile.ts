@@ -12,14 +12,17 @@ import type {
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
+
 export function useUploadFile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
   params?: UploadFileQueryParams,
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
+    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
   },
 ): SWRMutationResponse<TData, TError, string, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useSWRMutation<TData, TError, string, TVariables>(
     `/pet/${petId}/uploadImage`,
     (url, { arg: data }) => {
@@ -28,6 +31,8 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
         url,
         data,
         params,
+
+        ...clientOptions,
       })
     },
     mutationOptions,

@@ -8,19 +8,24 @@ import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
+
 export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = DeleteOrder400>(
   orderId: DeleteOrderPathParams['orderId'],
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string>
+    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   },
 ): SWRMutationResponse<TData, TError, string> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useSWRMutation<TData, TError, string>(
     `/store/order/${orderId}`,
     (url) => {
       return client<TData, TError>({
         method: 'delete',
         url,
+
+        ...clientOptions,
       })
     },
     mutationOptions,

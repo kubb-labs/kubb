@@ -5,13 +5,17 @@ import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsBy
 
 export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
   params?: FindPetsByTagsQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, TError> {
   return {
     fetcher: () => {
       return client<TData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
+
         params,
+
+        ...options,
       })
     },
   }
@@ -22,14 +26,20 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
+
 export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
   params?: FindPetsByTagsQueryParams,
-  options?: { query?: SWRConfiguration<TData, TError> },
+  options?: {
+    query?: SWRConfiguration<TData, TError>
+    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+  },
 ): SWRResponse<TData, TError> {
-  const { query: queryOptions } = options ?? {}
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+
   const query = useSWR<TData, TError, string>(`/pet/findByTags`, {
-    ...findPetsByTagsQueryOptions<TData, TError>(params),
+    ...findPetsByTagsQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
   })
+
   return query
 }

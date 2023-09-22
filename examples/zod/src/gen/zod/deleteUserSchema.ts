@@ -4,6 +4,7 @@ import { z } from 'zod'
  * @description Invalid username supplied
  */
 export const deleteUser400Schema = z.any()
+
 /**
  * @description User not found
  */

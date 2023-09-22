@@ -8,12 +8,17 @@ import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, P
  * @summary Place an order for a pet with patch
  * @link /store/order
  */
+
 export function usePlaceOrderPatch<
   TData = PlaceOrderPatchMutationResponse,
   TError = PlaceOrderPatch405,
   TVariables = PlaceOrderPatchMutationRequest,
->(options?: { mutation?: SWRMutationConfiguration<TData, TError, string, TVariables> }): SWRMutationResponse<TData, TError, string, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+>(options?: {
+  mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+}): SWRMutationResponse<TData, TError, string, TVariables> {
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useSWRMutation<TData, TError, string, TVariables>(
     `/store/order`,
     (url, { arg: data }) => {
@@ -21,6 +26,8 @@ export function usePlaceOrderPatch<
         method: 'patch',
         url,
         data,
+
+        ...clientOptions,
       })
     },
     mutationOptions,

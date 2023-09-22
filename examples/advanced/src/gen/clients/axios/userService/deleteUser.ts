@@ -6,6 +6,7 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../
  * @summary Delete user
  * @link /user/:username
  */
+
 export function deleteUser<TData = DeleteUserMutationResponse>(
   username: DeleteUserPathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -13,6 +14,7 @@ export function deleteUser<TData = DeleteUserMutationResponse>(
   return client<TData>({
     method: 'delete',
     url: `/user/${username}`,
+
     ...options,
   })
 }

@@ -8,15 +8,17 @@ import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFileP
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
+
 export function useUploadFile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
   params?: UploadFileQueryParams,
-  options?: {
+  options: {
     mutation?: VueMutationObserverOptions<TData, TError, TVariables, unknown>
-    client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  },
+    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+  } = {},
 ): UseMutationReturnType<TData, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
@@ -24,6 +26,7 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
         url: `/pet/${petId}/uploadImage`,
         data,
         params,
+
         ...clientOptions,
       })
     },

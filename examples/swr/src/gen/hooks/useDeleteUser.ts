@@ -8,19 +8,24 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400 } 
  * @summary Delete user
  * @link /user/:username
  */
+
 export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400>(
   username: DeleteUserPathParams['username'],
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string>
+    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   },
 ): SWRMutationResponse<TData, TError, string> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useSWRMutation<TData, TError, string>(
     `/user/${username}`,
     (url) => {
       return client<TData, TError>({
         method: 'delete',
         url,
+
+        ...clientOptions,
       })
     },
     mutationOptions,

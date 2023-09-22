@@ -66,7 +66,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     return skip
   }
 
-  private getParametersSchema(operation: Operation, inKey: 'path' | 'query'): OpenAPIV3.SchemaObject | null {
+  private getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): OpenAPIV3.SchemaObject | null {
     const contentType = this.options.contentType || operation.getContentType()
     const params = operation
       .getParameters()
@@ -108,8 +108,8 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
   }
 
   private getResponseSchema(operation: Operation, statusCode: string | number): OpenAPIV3.SchemaObject {
-    const schema = operation.schema.responses?.[statusCode] as OpenAPIV3.ReferenceObject
     const contentType = this.options.contentType || operation.getContentType()
+    const schema = operation.schema.responses?.[statusCode] as OpenAPIV3.ReferenceObject
 
     if (isReference(schema)) {
       const responseSchema = findSchemaDefinition(schema?.$ref, operation.api) as OpenAPIV3.ResponseObject
@@ -120,14 +120,32 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     return operation.getResponseAsJSONSchema(statusCode)?.at(0)?.schema as OpenAPIV3.SchemaObject
   }
 
-  public getSchemas(operation: Operation): OperationSchemas {
+  private getRequestSchema(operation: Operation): OpenAPIV3.SchemaObject | null {
     const contentType = this.options.contentType || operation.getContentType()
-    const pathParamsSchema = this.getParametersSchema(operation, 'path')
-    const queryParamsSchema = this.getParametersSchema(operation, 'query')
-    const requestSchema = operation.hasRequestBody()
+    const schema = operation.hasRequestBody()
       ? ((operation.getRequestBody() as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject) ||
         ((operation.getRequestBody(contentType) as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject)
       : undefined
+
+    if (!schema) {
+      return null
+    }
+
+    if (isReference(schema)) {
+      return {
+        ...findSchemaDefinition(schema?.$ref, operation.api),
+        $ref: schema.$ref,
+      } as OpenAPIV3.SchemaObject
+    }
+
+    return schema
+  }
+
+  public getSchemas(operation: Operation): OperationSchemas {
+    const pathParamsSchema = this.getParametersSchema(operation, 'path')
+    const queryParamsSchema = this.getParametersSchema(operation, 'query')
+    const headerParamsSchema = this.getParametersSchema(operation, 'header')
+    const requestSchema = this.getRequestSchema(operation)
     const responseSchema = this.getResponseSchema(operation, '200')
 
     return {
@@ -143,6 +161,13 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
             name: pascalCase(`${operation.getOperationId()} QueryParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
             operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
             schema: queryParamsSchema,
+          }
+        : undefined,
+      headerParams: headerParamsSchema
+        ? {
+            name: pascalCase(`${operation.getOperationId()} HeaderParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            schema: headerParamsSchema,
           }
         : undefined,
       request: requestSchema
@@ -209,6 +234,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
 
   async build(): Promise<File[]> {
     const { oas } = this.options
+
     const paths = oas.getPaths()
     const filterdPaths = Object.keys(paths).reduce(
       (acc, path) => {

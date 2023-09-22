@@ -8,6 +8,7 @@ import { CreateUsersWithListInputMutationResponse } from '../../models/ts/userCo
 /**
  * @description successful operation
  */
+
 export function createCreateUsersWithListInputError(): CreateUsersWithListInputError {
   return undefined
 }
@@ -19,6 +20,7 @@ export function createCreateUsersWithListInputMutationRequest(): CreateUsersWith
 /**
  * @description Successful operation
  */
+
 export function createCreateUsersWithListInputMutationResponse(): CreateUsersWithListInputMutationResponse {
   return createUser()
 }

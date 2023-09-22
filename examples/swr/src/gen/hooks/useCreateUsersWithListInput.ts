@@ -8,12 +8,17 @@ import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputM
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
+
 export function useCreateUsersWithListInput<
   TData = CreateUsersWithListInputMutationResponse,
   TError = unknown,
   TVariables = CreateUsersWithListInputMutationRequest,
->(options?: { mutation?: SWRMutationConfiguration<TData, TError, string, TVariables> }): SWRMutationResponse<TData, TError, string, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+>(options?: {
+  mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+}): SWRMutationResponse<TData, TError, string, TVariables> {
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useSWRMutation<TData, TError, string, TVariables>(
     `/user/createWithList`,
     (url, { arg: data }) => {
@@ -21,6 +26,8 @@ export function useCreateUsersWithListInput<
         method: 'post',
         url,
         data,
+
+        ...clientOptions,
       })
     },
     mutationOptions,

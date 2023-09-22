@@ -9,17 +9,22 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../m
  * @summary Create user
  * @link /user
  */
-export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(options?: {
-  mutation?: VueMutationObserverOptions<TData, TError, TVariables, unknown>
-  client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-}): UseMutationReturnType<TData, TError, TVariables, unknown> {
+
+export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(
+  options: {
+    mutation?: VueMutationObserverOptions<TData, TError, TVariables, unknown>
+    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+  } = {},
+): UseMutationReturnType<TData, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',
         url: `/user`,
         data,
+
         ...clientOptions,
       })
     },

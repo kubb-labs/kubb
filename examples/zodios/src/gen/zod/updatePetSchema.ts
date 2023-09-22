@@ -6,18 +6,22 @@ import { petSchema } from './petSchema'
  * @description Invalid ID supplied
  */
 export const updatePet400Schema = z.any()
+
 /**
  * @description Pet not found
  */
 export const updatePet404Schema = z.any()
+
 /**
  * @description Validation exception
  */
 export const updatePet405Schema = z.any()
+
 /**
  * @description Update an existent pet in the store
  */
 export const updatePetMutationRequestSchema = z.lazy(() => petSchema)
+
 /**
  * @description Successful operation
  */

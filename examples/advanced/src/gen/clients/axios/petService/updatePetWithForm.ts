@@ -9,6 +9,7 @@ import type {
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
+
 export function updatePetWithForm<TData = UpdatePetWithFormMutationResponse>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
@@ -18,6 +19,7 @@ export function updatePetWithForm<TData = UpdatePetWithFormMutationResponse>(
     method: 'post',
     url: `/pet/${petId}`,
     params,
+
     ...options,
   })
 }

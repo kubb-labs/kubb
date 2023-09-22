@@ -12,21 +12,25 @@ import type {
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
+
 export function useUpdatePetWithFormHook<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
-  options?: {
+  options: {
     mutation?: UseMutationOptions<TData, TError, void>
-    client: Partial<Parameters<typeof client<TData, TError, void>>[0]>
-  },
+    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
+  } = {},
 ): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'post',
         url: `/pet/${petId}`,
+
         params,
+
         ...clientOptions,
       })
     },

@@ -8,17 +8,22 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../m
  * @summary Create user
  * @link /user
  */
-export function createUserQuery<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(options?: {
-  mutation?: CreateMutationOptions<TData, TError, TVariables>
-  client: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-}): CreateMutationResult<TData, TError, TVariables> {
+
+export function createUserQuery<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(
+  options: {
+    mutation?: CreateMutationOptions<TData, TError, TVariables>
+    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+  } = {},
+): CreateMutationResult<TData, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return createMutation<TData, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',
         url: `/user`,
         data,
+
         ...clientOptions,
       })
     },

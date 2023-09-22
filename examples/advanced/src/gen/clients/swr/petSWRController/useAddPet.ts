@@ -8,10 +8,13 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
  * @summary Add a new pet to the store
  * @link /pet
  */
+
 export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TVariables = AddPetMutationRequest>(options?: {
   mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
 }): SWRMutationResponse<TData, TError, string, TVariables> {
-  const { mutation: mutationOptions } = options ?? {}
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useSWRMutation<TData, TError, string, TVariables>(
     `/pet`,
     (url, { arg: data }) => {
@@ -19,6 +22,8 @@ export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TV
         method: 'post',
         url,
         data,
+
+        ...clientOptions,
       })
     },
     mutationOptions,

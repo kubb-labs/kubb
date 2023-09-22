@@ -2,14 +2,20 @@ import { faker } from '@faker-js/faker'
 
 import { createPet } from '../createPet'
 import { FindPetsByTags400 } from '../../models/ts/petController/FindPetsByTags'
+import { FindPetsByTagsHeaderParams } from '../../models/ts/petController/FindPetsByTags'
 import { FindPetsByTagsQueryParams } from '../../models/ts/petController/FindPetsByTags'
 import { FindPetsByTagsQueryResponse } from '../../models/ts/petController/FindPetsByTags'
 
 /**
  * @description Invalid tag value
  */
+
 export function createFindPetsByTags400(): FindPetsByTags400 {
   return undefined
+}
+
+export function createFindPetsByTagsHeaderParams(): FindPetsByTagsHeaderParams {
+  return { 'X-EXAMPLE': faker.helpers.arrayElement<any>([`ONE`, `TWO`, `THREE`]) }
 }
 
 export function createFindPetsByTagsQueryParams(): FindPetsByTagsQueryParams {
@@ -19,6 +25,7 @@ export function createFindPetsByTagsQueryParams(): FindPetsByTagsQueryParams {
 /**
  * @description successful operation
  */
+
 export function createFindPetsByTagsQueryResponse(): FindPetsByTagsQueryResponse {
   return faker.helpers.arrayElements([createPet()]) as any
 }

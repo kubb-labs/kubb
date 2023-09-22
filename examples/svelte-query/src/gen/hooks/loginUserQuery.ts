@@ -4,11 +4,13 @@ import client from '@kubb/swagger-client/client'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [`/user/login`, ...(params ? [params] : [])] as const
+
 export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): CreateQueryOptions<TData, TError> {
   const queryKey = loginUserQueryKey(params)
+
   return {
     queryKey,
     queryFn: () => {
@@ -16,6 +18,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
         method: 'get',
         url: `/user/login`,
         params,
+
         ...options,
       })
     },
@@ -26,16 +29,23 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
  * @summary Logs user into the system
  * @link /user/login
  */
+
 export function loginUserQuery<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
-  options?: { query?: CreateQueryOptions<TData, TError> },
+  options: {
+    query?: CreateQueryOptions<TData, TError>
+    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+  } = {},
 ): CreateQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const { query: queryOptions } = options ?? {}
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
+
   const query = createQuery<TData, TError>({
-    ...loginUserQueryOptions<TData, TError>(params),
+    ...loginUserQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & { queryKey: QueryKey }
+
   query.queryKey = queryKey
+
   return query
 }

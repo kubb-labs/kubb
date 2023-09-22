@@ -9,6 +9,7 @@ import { GetUserByNameQueryResponse } from '../../models/GetUserByName'
 /**
  * @description Invalid username supplied
  */
+
 export function createGetUserByName400(): GetUserByName400 {
   return undefined
 }
@@ -16,6 +17,7 @@ export function createGetUserByName400(): GetUserByName400 {
 /**
  * @description User not found
  */
+
 export function createGetUserByName404(): GetUserByName404 {
   return undefined
 }
@@ -27,6 +29,7 @@ export function createGetUserByNamePathParams(): GetUserByNamePathParams {
 /**
  * @description successful operation
  */
+
 export function createGetUserByNameQueryResponse(): GetUserByNameQueryResponse {
   return createUser()
 }
