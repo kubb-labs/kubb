@@ -12,7 +12,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
-    "clean": "rimraf ./dist",
+    "clean": "npx rimraf ./dist",
     "generate": "kubb generate --config kubb.config.ts",
     "generate:bun": "bun ./node_modules/@kubb/cli/bin/kubb.js generate --config .kubbrc.js",
     "generate:js": "kubb generate --config .kubbrc.js",

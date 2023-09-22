@@ -5,7 +5,6 @@ import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
 
 import { URLPath, combineCodes } from '@kubb/core'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
-import { getParams } from '@kubb/swagger'
 import { camelCase } from 'change-case'
 
 type Config = {
@@ -116,6 +115,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
       },
       {
         name: 'clientOptions',
+        required: false,
       },
     ])
     const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams})`

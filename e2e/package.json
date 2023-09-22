@@ -12,7 +12,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "clean": "rimraf ./dist",
+    "clean": "npx rimraf ./dist",
     "format": "prettier --write **/*.{ts,tsx}",
     "generate": "kubb generate",
     "generate:debug": "node --inspect ../packages/cli/bin/kubb.js",
@@ -39,7 +39,6 @@
     "axios": "^1.5.0",
     "msw": "^1.3.1",
     "react": "^18.2.0",
-    "rimraf": "^5.0.1",
     "solid-js": "^1.7.12",
     "svelte": "^3.59.2",
     "swr": "^2.2.2",

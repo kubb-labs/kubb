@@ -162,6 +162,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
       },
       {
         name: 'clientOptions',
+        required: false,
       },
     ])
     const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams})`
@@ -306,6 +307,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
       },
       {
         name: 'clientOptions',
+        required: false,
       },
     ])
     const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams})`

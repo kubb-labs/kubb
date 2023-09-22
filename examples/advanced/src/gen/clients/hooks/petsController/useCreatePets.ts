@@ -15,8 +15,8 @@ import type {
  */
 
 export function useCreatePets<TData = CreatePetsMutationResponse, TError = CreatePets201, TVariables = CreatePetsMutationRequest>(
-  headers: CreatePetsHeaderParams,
   uuid: CreatePetsPathParams['uuid'],
+  headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
   options: {
     mutation?: UseMutationOptions<TData, TError, TVariables>

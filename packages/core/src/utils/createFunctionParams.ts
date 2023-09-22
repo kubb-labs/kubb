@@ -1,4 +1,5 @@
 import { camelCase, camelCaseTransformMerge } from 'change-case'
+import { orderBy } from 'natural-orderby'
 
 type FunctionParamsAst = {
   name: string
@@ -19,14 +20,11 @@ type FunctionParamsAst = {
  * The parameter name is converted to `camelcase`
  */
 export function createFunctionParams(data: FunctionParamsAst[]): string {
-  return data
-    .sort((a, b) => {
-      const requiredA = a.required ?? true
-      const requiredB = b.required ?? true
-      return requiredA === requiredB ? 0 : requiredA ? -1 : 1
-    })
+  const sortedData = orderBy(data, [(v) => v.default, (v) => v.required ?? true], ['desc', 'desc'])
+
+  return sortedData
     .filter(({ enabled = true }) => enabled)
-    .reduce((acc, { name, type = false, required = true, ...rest }) => {
+    .reduce((acc, { name, type, required = true, ...rest }) => {
       const parameterName = camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
 
       if (type) {
