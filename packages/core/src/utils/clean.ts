@@ -1,5 +1,5 @@
-import { rimraf } from 'rimraf'
+import { remove } from 'fs-extra'
 
-export async function clean(path: string): Promise<boolean> {
-  return rimraf(path)
+export async function clean(path: string): Promise<void> {
+  return remove(path)
 }

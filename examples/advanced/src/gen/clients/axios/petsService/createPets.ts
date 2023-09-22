@@ -13,9 +13,9 @@ import type {
  */
 
 export function createPets<TData = CreatePetsMutationResponse, TVariables = CreatePetsMutationRequest>(
+  uuid: CreatePetsPathParams['uuid'],
   data: TVariables,
   headers: CreatePetsHeaderParams,
-  uuid: CreatePetsPathParams['uuid'],
   params?: CreatePetsQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<TData> {

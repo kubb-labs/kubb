@@ -12,7 +12,7 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsup && vite build",
-    "clean": "rimraf ./dist",
+    "clean": "npx rimraf ./dist",
     "generate": "kubb generate",
     "start": "tsup --watch",
     "test": "vitest",

@@ -29,5 +29,12 @@ describe('objectToParameters', () => {
         { name: 'lastName', type: 'User["lastName"]', required: false },
       ]),
     ).toEqual('firstName?: User["firstName"], lastName?: User["lastName"]')
+
+    expect(
+      createFunctionParams([
+        { name: 'firstName', type: 'User["firstName"]', default: '{}' },
+        { name: 'lastName', type: 'User["lastName"]', required: false },
+      ]),
+    ).toEqual('lastName?: User["lastName"], firstName: User["firstName"] = {}')
   })
 })

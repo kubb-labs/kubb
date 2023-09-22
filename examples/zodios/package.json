@@ -13,7 +13,7 @@
   "type": "module",
   "scripts": {
     "build": "tsup",
-    "clean": "rimraf ./dist",
+    "clean": "npx rimraf ./dist",
     "generate": "kubb generate",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
