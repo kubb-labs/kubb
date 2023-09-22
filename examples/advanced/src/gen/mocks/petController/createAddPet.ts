@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker'
 
-import { createAddpetrequest } from '../createAddpetrequest'
+import { createAddPetRequest } from '../createAddPetRequest'
 import { createPet } from '../createPet'
 import { AddPet405 } from '../../models/ts/petController/AddPet'
 import { AddPetMutationRequest } from '../../models/ts/petController/AddPet'
 import { AddPetMutationResponse } from '../../models/ts/petController/AddPet'
 
-export function createAddpet405(): AddPet405 {
+export function createAddPet405(): AddPet405 {
   return { code: faker.number.float({}), message: faker.string.alpha() }
 }
 
@@ -14,14 +14,14 @@ export function createAddpet405(): AddPet405 {
  * @description Create a new pet in the store
  */
 
-export function createAddpetmutationrequest(): AddPetMutationRequest {
-  return createAddpetrequest()
+export function createAddPetMutationRequest(): AddPetMutationRequest {
+  return createAddPetRequest()
 }
 
 /**
  * @description Successful operation
  */
 
-export function createAddpetmutationresponse(): AddPetMutationResponse {
+export function createAddPetMutationResponse(): AddPetMutationResponse {
   return createPet()
 }

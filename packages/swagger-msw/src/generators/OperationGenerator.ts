@@ -84,7 +84,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const addOperationToHandler = (operation: Operation) => {
       if (operation) {
-        const name = resolveName({ name: `${operation.getOperationId()}` })
+        const name = resolveName({ name: operation.getOperationId() })
 
         const msw = this.resolve(operation)
 

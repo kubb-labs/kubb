@@ -1,5 +1,5 @@
 import client from '../../../client'
-import type { FindPetsByStatusQueryResponse, FindpetsbystatusQueryparams } from '../../../models/ts/petController/FindPetsByStatus'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from '../../../models/ts/petController/FindPetsByStatus'
 
 /**
  * @description Multiple status values can be provided with comma separated strings
@@ -8,7 +8,7 @@ import type { FindPetsByStatusQueryResponse, FindpetsbystatusQueryparams } from 
  */
 
 export function findPetsByStatus<TData = FindPetsByStatusQueryResponse>(
-  params?: FindpetsbystatusQueryparams,
+  params?: FindPetsByStatusQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<TData> {
   return client<TData>({

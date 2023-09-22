@@ -1,6 +1,6 @@
 import { useMutation, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import client from '../../../../client'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletepetHeaderparams, Deletepet400 } from '../../../models/ts/petController/DeletePet'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet'
 
 /**
  * @description delete a pet
@@ -8,9 +8,9 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletepetHeaderpar
  * @link /pet/:petId
  */
 
-export function useDeletepet<TData = DeletePetMutationResponse, TError = Deletepet400>(
+export function usedeletePet<TData = DeletePetMutationResponse, TError = DeletePet400>(
   petId: DeletePetPathParams['petId'],
-  headers?: DeletepetHeaderparams,
+  headers?: DeletePetHeaderParams,
   options: {
     mutation?: UseMutationOptions<TData, TError, void>
     client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>

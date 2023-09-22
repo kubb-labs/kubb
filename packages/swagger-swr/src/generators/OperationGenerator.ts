@@ -23,7 +23,7 @@ export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = resolveName({ name: `use ${operation.getOperationId()}`, pluginName })
+    const name = resolveName({ name: `use${operation.getOperationId()}`, pluginName })
 
     if (!name) {
       throw new Error('Name should be defined')
@@ -72,7 +72,7 @@ export class OperationGenerator extends Generator<Options> {
   resolveError(operation: Operation, statusCode: number): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
+    const name = resolveName({ name: `${operation.getOperationId()}${statusCode}`, pluginName: swaggerTypescriptPluginName })
 
     if (!name) {
       throw new Error('Name should be defined')

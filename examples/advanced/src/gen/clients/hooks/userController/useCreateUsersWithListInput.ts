@@ -11,7 +11,7 @@ import type {
  * @link /user/createWithList
  */
 
-export function useCreateuserswithlistinput<
+export function usecreateUsersWithListInput<
   TData = CreateUsersWithListInputMutationResponse,
   TError = unknown,
   TVariables = CreateUsersWithListInputMutationRequest,

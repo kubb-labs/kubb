@@ -3,7 +3,7 @@ import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
-  UploadfileQueryparams,
+  UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile'
 
 /**
@@ -14,7 +14,7 @@ import type {
 export function uploadFile<TData = UploadFileMutationResponse, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
   data?: TVariables,
-  params?: UploadfileQueryparams,
+  params?: UploadFileQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<TData> {
   return client<TData, TVariables>({

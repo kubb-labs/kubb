@@ -1,5 +1,5 @@
 import client from '../../../client'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletepetHeaderparams } from '../../../models/ts/petController/DeletePet'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams } from '../../../models/ts/petController/DeletePet'
 
 /**
  * @description delete a pet
@@ -9,7 +9,7 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletepetHeaderpar
 
 export function deletePet<TData = DeletePetMutationResponse>(
   petId: DeletePetPathParams['petId'],
-  headers?: DeletepetHeaderparams,
+  headers?: DeletePetHeaderParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<TData> {
   return client<TData>({

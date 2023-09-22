@@ -1,11 +1,23 @@
 import type { PetNotFound } from '../PetNotFound'
 
 /**
- * CreatePets201
- * CreatePets201
  * @description Null response
  */
 export type CreatePets201 = any | null
+
+export const CreatePetsHeaderParamsXExample = {
+  ONE: 'ONE',
+  TWO: 'TWO',
+  THREE: 'THREE',
+} as const
+export type CreatePetsHeaderParamsXExample = (typeof CreatePetsHeaderParamsXExample)[keyof typeof CreatePetsHeaderParamsXExample]
+export type CreatePetsHeaderParams = {
+  /**
+   * @description Header parameters
+   * @type string
+   */
+  'X-EXAMPLE': CreatePetsHeaderParamsXExample
+}
 
 export type CreatePetsMutationRequest = {
   /**
@@ -28,21 +40,7 @@ export type CreatePetsPathParams = {
   uuid: string
 }
 
-export const CreatepetsheaderparamsXexample = {
-  ONE: 'ONE',
-  TWO: 'TWO',
-  THREE: 'THREE',
-} as const
-export type CreatepetsheaderparamsXexample = (typeof CreatepetsheaderparamsXexample)[keyof typeof CreatepetsheaderparamsXexample]
-export type CreatepetsHeaderparams = {
-  /**
-   * @description Header parameters
-   * @type string
-   */
-  'X-EXAMPLE': CreatepetsheaderparamsXexample
-}
-
-export type CreatepetsQueryparams = {
+export type CreatePetsQueryParams = {
   /**
    * @description Offset
    * @type integer | undefined
@@ -51,8 +49,6 @@ export type CreatepetsQueryparams = {
 }
 
 /**
- * CreatePetserror
- * CreatePetserror
  * @description unexpected error
  */
-export type CreatePetserror = PetNotFound
+export type CreatePetsError = PetNotFound

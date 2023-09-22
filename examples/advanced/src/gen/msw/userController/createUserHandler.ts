@@ -1,6 +1,6 @@
 import { rest } from 'msw'
-import { createCreateusermutationresponse, createCreateusermutationrequest } from '../../mocks/userController/createCreateuser'
+import { createCreateUserMutationResponse, createCreateUserMutationRequest } from '../../mocks/userController/createCreateUser'
 
-export const createuserHandler = rest.post('*/user', function handler(req, res, ctx) {
-  return res(ctx.json(createCreateusermutationresponse()))
+export const createUserHandler = rest.post('*/user', function handler(req, res, ctx) {
+  return res(ctx.json(createCreateUserMutationResponse()))
 })

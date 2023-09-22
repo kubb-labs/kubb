@@ -5,7 +5,7 @@ import { userSchema } from '../userSchema'
 /**
  * @description successful operation
  */
-export const createUsersWithListInputerrorSchema = z.any()
+export const createUsersWithListInputErrorSchema = z.any()
 export const createUsersWithListInputMutationRequestSchema = z.array(z.lazy(() => userSchema))
 
 /**

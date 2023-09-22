@@ -80,7 +80,7 @@ export class OperationGenerator extends Generator<Options> {
   resolveError(operation: Operation, statusCode: number): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
+    const name = resolveName({ name: `${operation.getOperationId()}${statusCode}`, pluginName: swaggerTypescriptPluginName })
 
     if (!name) {
       throw new Error('Name should be defined')
@@ -113,7 +113,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'svelte') {
       return {
-        getName: (operation) => resolveName({ name: `${operation.getOperationId()} query` }),
+        getName: (operation) => resolveName({ name: `${operation.getOperationId()}Query` }),
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
@@ -134,7 +134,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'solid') {
       return {
-        getName: (operation) => resolveName({ name: `${operation.getOperationId()} query` }),
+        getName: (operation) => resolveName({ name: `${operation.getOperationId()}Query` }),
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
@@ -155,7 +155,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'vue') {
       return {
-        getName: (operation) => resolveName({ name: `use ${operation.getOperationId()}` }),
+        getName: (operation) => resolveName({ name: `use${operation.getOperationId()}` }),
         query: {
           useQuery: 'useQuery',
           QueryKey: 'QueryKey',
@@ -175,7 +175,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     return {
-      getName: (operation) => resolveName({ name: `use ${operation.getOperationId()}` }),
+      getName: (operation) => resolveName({ name: `use${operation.getOperationId()}` }),
       query: {
         useQuery: 'useQuery',
         QueryKey: 'QueryKey',

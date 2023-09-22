@@ -10,7 +10,7 @@ import { GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetByI
  * @description Invalid ID supplied
  */
 
-export function createGetpetbyid400(): GetPetById400 {
+export function createGetPetById400(): GetPetById400 {
   return undefined
 }
 
@@ -18,11 +18,11 @@ export function createGetpetbyid400(): GetPetById400 {
  * @description Pet not found
  */
 
-export function createGetpetbyid404(): GetPetById404 {
+export function createGetPetById404(): GetPetById404 {
   return undefined
 }
 
-export function createGetpetbyidpathparams(): GetPetByIdPathParams {
+export function createGetPetByIdPathParams(): GetPetByIdPathParams {
   return { petId: faker.number.float({}) }
 }
 
@@ -30,6 +30,6 @@ export function createGetpetbyidpathparams(): GetPetByIdPathParams {
  * @description successful operation
  */
 
-export function createGetpetbyidqueryresponse(): GetPetByIdQueryResponse {
+export function createGetPetByIdQueryResponse(): GetPetByIdQueryResponse {
   return createPet()
 }

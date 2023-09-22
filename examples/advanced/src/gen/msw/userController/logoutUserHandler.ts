@@ -1,6 +1,6 @@
 import { rest } from 'msw'
-import { createLogoutuserqueryresponse } from '../../mocks/userController/createLogoutuser'
+import { createLogoutUserQueryResponse } from '../../mocks/userController/createLogoutUser'
 
-export const logoutuserHandler = rest.get('*/user/logout', function handler(req, res, ctx) {
-  return res(ctx.json(createLogoutuserqueryresponse()))
+export const logoutUserHandler = rest.get('*/user/logout', function handler(req, res, ctx) {
+  return res(ctx.json(createLogoutUserQueryResponse()))
 })

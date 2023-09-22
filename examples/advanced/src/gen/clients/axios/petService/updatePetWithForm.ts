@@ -2,7 +2,7 @@ import client from '../../../client'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
-  UpdatepetwithformQueryparams,
+  UpdatePetWithFormQueryParams,
 } from '../../../models/ts/petController/UpdatePetWithForm'
 
 /**
@@ -12,7 +12,7 @@ import type {
 
 export function updatePetWithForm<TData = UpdatePetWithFormMutationResponse>(
   petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatepetwithformQueryparams,
+  params?: UpdatePetWithFormQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<TData> {
   return client<TData>({

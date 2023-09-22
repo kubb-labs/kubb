@@ -4,7 +4,7 @@ import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
-  UploadfileQueryparams,
+  UploadFileQueryParams,
 } from '../../../models/ts/petController/UploadFile'
 
 /**
@@ -12,9 +12,9 @@ import type {
  * @link /pet/:petId/uploadImage
  */
 
-export function useUploadfile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
+export function useuploadFile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
-  params?: UploadfileQueryparams,
+  params?: UploadFileQueryParams,
   options: {
     mutation?: UseMutationOptions<TData, TError, TVariables>
     client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>

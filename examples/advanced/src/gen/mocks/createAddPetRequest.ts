@@ -4,7 +4,7 @@ import { createCategory } from './createCategory'
 import { createTag } from './createTag'
 import { AddPetRequest } from '../models/ts/AddPetRequest'
 
-export function createAddpetrequest(): AddPetRequest {
+export function createAddPetRequest(): AddPetRequest {
   return {
     id: faker.number.float({}),
     name: faker.string.alpha(),

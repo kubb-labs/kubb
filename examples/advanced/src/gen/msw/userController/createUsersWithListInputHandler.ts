@@ -1,9 +1,9 @@
 import { rest } from 'msw'
 import {
-  createCreateuserswithlistinputmutationresponse,
-  createCreateuserswithlistinputmutationrequest,
-} from '../../mocks/userController/createCreateuserswithlistinput'
+  createCreateUsersWithListInputMutationResponse,
+  createCreateUsersWithListInputMutationRequest,
+} from '../../mocks/userController/createCreateUsersWithListInput'
 
-export const createuserswithlistinputHandler = rest.post('*/user/createWithList', function handler(req, res, ctx) {
-  return res(ctx.json(createCreateuserswithlistinputmutationresponse()))
+export const createUsersWithListInputHandler = rest.post('*/user/createWithList', function handler(req, res, ctx) {
+  return res(ctx.json(createCreateUsersWithListInputMutationResponse()))
 })

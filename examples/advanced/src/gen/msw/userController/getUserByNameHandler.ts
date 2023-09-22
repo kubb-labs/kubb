@@ -1,6 +1,6 @@
 import { rest } from 'msw'
-import { createGetuserbynamequeryresponse } from '../../mocks/userController/createGetuserbyname'
+import { createGetUserByNameQueryResponse } from '../../mocks/userController/createGetUserByName'
 
-export const getuserbynameHandler = rest.get('*/user/:username', function handler(req, res, ctx) {
-  return res(ctx.json(createGetuserbynamequeryresponse()))
+export const getUserByNameHandler = rest.get('*/user/:username', function handler(req, res, ctx) {
+  return res(ctx.json(createGetUserByNameQueryResponse()))
 })

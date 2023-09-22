@@ -159,14 +159,14 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
         : undefined,
       queryParams: queryParamsSchema
         ? {
-            name: pascalCase(`${operationName} QueryParams`),
+            name: pascalCase(`${operationName}QueryParams`),
             operationName,
             schema: queryParamsSchema,
           }
         : undefined,
       headerParams: headerParamsSchema
         ? {
-            name: pascalCase(`${operationName} HeaderParams`),
+            name: pascalCase(`${operationName}HeaderParams`),
             operationName,
             schema: headerParamsSchema,
           }
@@ -196,7 +196,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
           }
 
           return {
-            name: pascalCase(`${operationName}${name}`),
+            name: [operationName, name].map((name) => pascalCase(name)).join(''),
             description:
               operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description ||
               (operation.getResponseByStatusCode(statusCode) as OpenAPIV3.ResponseObject)?.description,

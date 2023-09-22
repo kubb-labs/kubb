@@ -72,7 +72,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       nodes.push(
         appendJSDocToNode({
           node,
-          comments: [baseName, this.options.resolveName({ name: baseName, pluginName }) || baseName, `@description ${description}`],
+          comments: [`@description ${description}`],
         }),
       )
     } else {
@@ -122,7 +122,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const schema = properties[name] as OpenAPIV3.SchemaObject
 
       const isRequired = required && required.includes(name)
-      let type = this.getTypeFromSchema(schema, this.options.resolveName({ name: `${baseName || ''} ${name}`, pluginName }))
+
+      let type = this.getTypeFromSchema(schema, `${baseName || ''}${this.options.resolveName({ name, pluginName })}`)
 
       if (!type) {
         return null

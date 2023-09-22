@@ -34,7 +34,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const { operation, schemas } = this.config
     const codes: string[] = []
 
-    const name = camelCase(`${operation.getOperationId()}QueryKey`)
+    const name = camelCase(`${operation.getOperationId()} QueryKey`)
 
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
@@ -56,7 +56,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const { operation, schemas, framework, frameworkImports, errors } = this.config
     const codes: string[] = []
 
-    const name = camelCase(`${operation.getOperationId()}QueryOptions`)
+    const name = camelCase(`${operation.getOperationId()} QueryOptions`)
     const queryKeyName = this.queryKey.name
 
     const pathParams = getParams(schemas.pathParams)
@@ -192,7 +192,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
     const { framework, frameworkImports, errors, operation, schemas, infinite: { queryParam = 'id' } = {} } = this.config as QueryConfig
     const codes: string[] = []
 
-    const name = camelCase(`${operation.getOperationId()}QueryOptionsInfinite`)
+    const name = camelCase(`${operation.getOperationId()} QueryOptionsInfinite`)
 
     const queryKeyName = this.queryKey.name
 

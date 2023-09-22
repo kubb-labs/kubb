@@ -3,8 +3,8 @@ import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
-  CreatepetsQueryparams,
-  CreatepetsHeaderparams,
+  CreatePetsQueryParams,
+  CreatePetsHeaderParams,
 } from '../../../models/ts/petsController/CreatePets'
 
 /**
@@ -15,8 +15,8 @@ import type {
 export function createPets<TData = CreatePetsMutationResponse, TVariables = CreatePetsMutationRequest>(
   uuid: CreatePetsPathParams['uuid'],
   data: TVariables,
-  headers: CreatepetsHeaderparams,
-  params?: CreatepetsQueryparams,
+  headers: CreatePetsHeaderParams,
+  params?: CreatePetsQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<TData> {
   return client<TData, TVariables>({

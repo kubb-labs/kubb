@@ -1,15 +1,11 @@
 import type { Order } from '../Order'
 
 /**
- * GetOrderById400
- * GetOrderById400
  * @description Invalid ID supplied
  */
 export type GetOrderById400 = any | null
 
 /**
- * GetOrderById404
- * GetOrderById404
  * @description Order not found
  */
 export type GetOrderById404 = any | null
@@ -23,8 +19,6 @@ export type GetOrderByIdPathParams = {
 }
 
 /**
- * GetOrderByIdQueryResponse
- * GetOrderByIdQueryResponse
  * @description successful operation
  */
 export type GetOrderByIdQueryResponse = Order

@@ -1,6 +1,4 @@
 /**
- * UpdatePetWithForm405
- * UpdatePetWithForm405
  * @description Invalid input
  */
 export type UpdatePetWithForm405 = any | null
@@ -15,7 +13,7 @@ export type UpdatePetWithFormPathParams = {
   petId: number
 }
 
-export type UpdatepetwithformQueryparams = {
+export type UpdatePetWithFormQueryParams = {
   /**
    * @description Name of pet that needs to be updated
    * @type string | undefined

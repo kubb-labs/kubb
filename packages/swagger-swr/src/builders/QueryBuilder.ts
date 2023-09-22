@@ -21,7 +21,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const { operation, schemas, errors } = this.config
     const codes: string[] = []
 
-    const name = camelCase(`${operation.getOperationId()}QueryOptions`)
+    const name = camelCase(`${operation.getOperationId()} QueryOptions`)
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']

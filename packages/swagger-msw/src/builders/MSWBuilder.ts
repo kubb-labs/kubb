@@ -26,7 +26,7 @@ export class MSWBuilder extends OasBuilder<Config> {
     const { resolveName, responseName, operation } = this.config
     const codes: string[] = []
 
-    const name = resolveName({ name: `${operation.getOperationId()}` })
+    const name = resolveName({ name: operation.getOperationId() })
 
     codes.push(`
 export const ${name} = rest.${operation.method}('*${URLPath.toURLPath(operation.path)}', function handler(req, res, ctx) {

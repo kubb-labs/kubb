@@ -50,7 +50,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(root, output, fileName)
     },
     resolveName(name) {
-      const resolvedName = camelCase(`${name}Schema`)
+      const resolvedName = `${camelCase(name)}Schema`
 
       return transformers?.name?.(resolvedName) || resolvedName
     },

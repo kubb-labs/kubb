@@ -3,8 +3,8 @@ import client from '../../../../client'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
-  UpdatepetwithformQueryparams,
-  Updatepetwithform405,
+  UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm'
 
 /**
@@ -12,9 +12,9 @@ import type {
  * @link /pet/:petId
  */
 
-export function useUpdatepetwithform<TData = UpdatePetWithFormMutationResponse, TError = Updatepetwithform405>(
+export function useupdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
   petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatepetwithformQueryparams,
+  params?: UpdatePetWithFormQueryParams,
   options: {
     mutation?: UseMutationOptions<TData, TError, void>
     client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>

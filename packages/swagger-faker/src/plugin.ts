@@ -5,7 +5,7 @@ import { createPlugin, getPathMode, getRelativePath, renderTemplate, getDepended
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
-import { camelCase } from 'case-anything'
+import { camelCase, pascalCase } from 'case-anything'
 
 import { FakerBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
@@ -52,7 +52,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(root, output, fileName)
     },
     resolveName(name) {
-      const resolvedName = camelCase(`create ${name}`)
+      const resolvedName = `create${pascalCase(name)}`
 
       return transformers?.name?.(resolvedName) || resolvedName
     },

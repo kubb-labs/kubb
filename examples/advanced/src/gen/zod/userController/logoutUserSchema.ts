@@ -1,8 +1,7 @@
 import { z } from 'zod'
 
-export const logoutUserQueryResponseSchema = z.any()
-
 /**
  * @description successful operation
  */
-export const logoutUsererrorSchema = z.any()
+export const logoutUserErrorSchema = z.any()
+export const logoutUserQueryResponseSchema = z.any()

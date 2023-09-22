@@ -10,7 +10,7 @@ import { GetUserByNameQueryResponse } from '../../models/ts/userController/GetUs
  * @description Invalid username supplied
  */
 
-export function createGetuserbyname400(): GetUserByName400 {
+export function createGetUserByName400(): GetUserByName400 {
   return undefined
 }
 
@@ -18,11 +18,11 @@ export function createGetuserbyname400(): GetUserByName400 {
  * @description User not found
  */
 
-export function createGetuserbyname404(): GetUserByName404 {
+export function createGetUserByName404(): GetUserByName404 {
   return undefined
 }
 
-export function createGetuserbynamepathparams(): GetUserByNamePathParams {
+export function createGetUserByNamePathParams(): GetUserByNamePathParams {
   return { username: faker.string.alpha() }
 }
 
@@ -30,6 +30,6 @@ export function createGetuserbynamepathparams(): GetUserByNamePathParams {
  * @description successful operation
  */
 
-export function createGetuserbynamequeryresponse(): GetUserByNameQueryResponse {
+export function createGetUserByNameQueryResponse(): GetUserByNameQueryResponse {
   return createUser()
 }
