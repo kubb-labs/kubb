@@ -9,7 +9,7 @@ import { DeleteUserPathParams } from '../../models/ts/userController/DeleteUser'
  * @description Invalid username supplied
  */
 
-export function createDeleteUser400(): DeleteUser400 {
+export function createDeleteuser400(): DeleteUser400 {
   return undefined
 }
 
@@ -17,14 +17,14 @@ export function createDeleteUser400(): DeleteUser400 {
  * @description User not found
  */
 
-export function createDeleteUser404(): DeleteUser404 {
+export function createDeleteuser404(): DeleteUser404 {
   return undefined
 }
 
-export function createDeleteUserMutationResponse(): DeleteUserMutationResponse {
+export function createDeleteusermutationresponse(): DeleteUserMutationResponse {
   return undefined
 }
 
-export function createDeleteUserPathParams(): DeleteUserPathParams {
+export function createDeleteuserpathparams(): DeleteUserPathParams {
   return { username: faker.string.alpha() }
 }

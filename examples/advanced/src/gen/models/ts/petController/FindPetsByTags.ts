@@ -1,25 +1,27 @@
 import type { Pet } from '../Pet'
 
 /**
+ * FindPetsByTags400
+ * FindPetsByTags400
  * @description Invalid tag value
  */
 export type FindPetsByTags400 = any | null
 
-export const FindPetsByTagsHeaderParamsXExample = {
+export const FindpetsbytagsheaderparamsXexample = {
   ONE: 'ONE',
   TWO: 'TWO',
   THREE: 'THREE',
 } as const
-export type FindPetsByTagsHeaderParamsXExample = (typeof FindPetsByTagsHeaderParamsXExample)[keyof typeof FindPetsByTagsHeaderParamsXExample]
-export type FindPetsByTagsHeaderParams = {
+export type FindpetsbytagsheaderparamsXexample = (typeof FindpetsbytagsheaderparamsXexample)[keyof typeof FindpetsbytagsheaderparamsXexample]
+export type FindpetsbytagsHeaderparams = {
   /**
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': FindPetsByTagsHeaderParamsXExample
+  'X-EXAMPLE': FindpetsbytagsheaderparamsXexample
 }
 
-export type FindPetsByTagsQueryParams = {
+export type FindpetsbytagsQueryparams = {
   /**
    * @description Tags to filter by
    * @type array | undefined
@@ -38,6 +40,8 @@ export type FindPetsByTagsQueryParams = {
 }
 
 /**
+ * FindPetsByTagsQueryResponse
+ * FindPetsByTagsQueryResponse
  * @description successful operation
  */
 export type FindPetsByTagsQueryResponse = Pet[]

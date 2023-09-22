@@ -1,7 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../client'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../../../models/ts/petController/UpdatePet'
+import type { UpdatePetMutationRequest, UpdatePetMutationResponse, Updatepet400, Updatepet404, Updatepet405 } from '../../../models/ts/petController/UpdatePet'
 
 /**
  * @description Update an existing pet by Id
@@ -9,9 +9,9 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400,
  * @link /pet
  */
 
-export function useUpdatePet<
+export function useUpdatepet<
   TData = UpdatePetMutationResponse,
-  TError = UpdatePet400 | UpdatePet404 | UpdatePet405,
+  TError = Updatepet400 | Updatepet404 | Updatepet405,
   TVariables = UpdatePetMutationRequest,
 >(options?: {
   mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>

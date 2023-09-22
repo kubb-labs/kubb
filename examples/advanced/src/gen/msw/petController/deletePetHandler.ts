@@ -1,6 +1,6 @@
 import { rest } from 'msw'
-import { createDeletePetMutationResponse } from '../../mocks/petController/createDeletePet'
+import { createDeletepetmutationresponse } from '../../mocks/petController/createDeletepet'
 
-export const deletePetHandler = rest.delete('*/pet/:petId', function handler(req, res, ctx) {
-  return res(ctx.json(createDeletePetMutationResponse()))
+export const deletepetHandler = rest.delete('*/pet/:petId', function handler(req, res, ctx) {
+  return res(ctx.json(createDeletepetmutationresponse()))
 })

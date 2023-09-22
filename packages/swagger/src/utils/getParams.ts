@@ -1,4 +1,5 @@
 import { createFunctionParams } from '@kubb/core'
+import { camelCase } from 'case-anything'
 
 import type { OperationSchema } from '../types.ts'
 import { isParameterObject } from './isParameterObject'
@@ -12,7 +13,9 @@ export function getDataParams(
   }
   return Object.entries(operationSchema.schema.properties).map(([name, schema]) => {
     const isParam = isParameterObject(schema)
-    return { name, required: isParam ? schema.required : undefined, type: typed ? `${operationSchema.name}["${name}"]` : undefined }
+    const parameterName = camelCase(name)
+
+    return { name: parameterName, required: isParam ? schema.required : undefined, type: typed ? `${operationSchema.name}["${parameterName}"]` : undefined }
   })
 }
 

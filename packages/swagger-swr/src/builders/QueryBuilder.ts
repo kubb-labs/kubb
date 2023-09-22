@@ -5,7 +5,7 @@ import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
 
 import { URLPath, combineCodes } from '@kubb/core'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
-import { camelCase } from 'change-case'
+import { camelCase } from 'case-anything'
 
 type Config = {
   operation: Operation

@@ -1,20 +1,20 @@
 import { faker } from '@faker-js/faker'
 
-import { createApiResponse } from '../createApiResponse'
+import { createApiresponse } from '../createApiresponse'
 import { UploadFileMutationRequest } from '../../models/ts/petController/UploadFile'
 import { UploadFilePathParams } from '../../models/ts/petController/UploadFile'
-import { UploadFileQueryParams } from '../../models/ts/petController/UploadFile'
+import { UploadfileQueryparams } from '../../models/ts/petController/UploadFile'
 import { UploadFileMutationResponse } from '../../models/ts/petController/UploadFile'
 
-export function createUploadFileMutationRequest(): UploadFileMutationRequest {
+export function createUploadfilemutationrequest(): UploadFileMutationRequest {
   return faker.string.alpha()
 }
 
-export function createUploadFilePathParams(): UploadFilePathParams {
+export function createUploadfilepathparams(): UploadFilePathParams {
   return { petId: faker.number.float({}) }
 }
 
-export function createUploadFileQueryParams(): UploadFileQueryParams {
+export function createUploadfilequeryparams(): UploadfileQueryparams {
   return { additionalMetadata: faker.string.alpha() }
 }
 
@@ -22,6 +22,6 @@ export function createUploadFileQueryParams(): UploadFileQueryParams {
  * @description successful operation
  */
 
-export function createUploadFileMutationResponse(): UploadFileMutationResponse {
-  return createApiResponse()
+export function createUploadfilemutationresponse(): UploadFileMutationResponse {
+  return createApiresponse()
 }

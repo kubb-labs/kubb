@@ -1,6 +1,8 @@
+export type LogoutUserQueryResponse = any | null
+
 /**
+ * LogoutUsererror
+ * LogoutUsererror
  * @description successful operation
  */
-export type LogoutUserError = any | null
-
-export type LogoutUserQueryResponse = any | null
+export type LogoutUsererror = any | null

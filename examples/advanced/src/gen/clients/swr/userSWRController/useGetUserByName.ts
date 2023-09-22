@@ -1,9 +1,9 @@
 import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../client'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
+import type { GetUserByNameQueryResponse, GetUserByNamePathParams, Getuserbyname400, Getuserbyname404 } from '../../../models/ts/userController/GetUserByName'
 
-export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = Getuserbyname400 | Getuserbyname404>(
   username: GetUserByNamePathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, TError> {
@@ -24,7 +24,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
  * @link /user/:username
  */
 
-export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+export function useGetuserbyname<TData = GetUserByNameQueryResponse, TError = Getuserbyname400 | Getuserbyname404>(
   username: GetUserByNamePathParams['username'],
   options?: {
     query?: SWRConfiguration<TData, TError>

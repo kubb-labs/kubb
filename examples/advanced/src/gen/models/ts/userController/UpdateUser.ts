@@ -1,10 +1,5 @@
 import type { User } from '../User'
 
-/**
- * @description successful operation
- */
-export type UpdateUserError = any | null
-
 export type UpdateUserMutationResponse = any | null
 
 export type UpdateUserPathParams = {
@@ -16,6 +11,15 @@ export type UpdateUserPathParams = {
 }
 
 /**
+ * UpdateUsererror
+ * UpdateUsererror
+ * @description successful operation
+ */
+export type UpdateUsererror = any | null
+
+/**
+ * UpdateUserMutationRequest
+ * UpdateUserMutationRequest
  * @description Update an existent user in the store
  */
 export type UpdateUserMutationRequest = User

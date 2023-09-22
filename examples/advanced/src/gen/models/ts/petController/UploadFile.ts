@@ -10,7 +10,7 @@ export type UploadFilePathParams = {
   petId: number
 }
 
-export type UploadFileQueryParams = {
+export type UploadfileQueryparams = {
   /**
    * @description Additional Metadata
    * @type string | undefined
@@ -19,6 +19,8 @@ export type UploadFileQueryParams = {
 }
 
 /**
+ * UploadFileMutationResponse
+ * UploadFileMutationResponse
  * @description successful operation
  */
 export type UploadFileMutationResponse = ApiResponse

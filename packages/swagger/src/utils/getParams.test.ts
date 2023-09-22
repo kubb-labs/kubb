@@ -27,6 +27,22 @@ describe('getParams', () => {
         },
       }),
     ).toBe('name, age')
+
+    expect(
+      getParams({
+        name: 'Pet',
+        schema: {
+          properties: {
+            ['name-of']: {
+              type: 'string',
+            },
+            age: {
+              type: 'number',
+            },
+          },
+        },
+      }),
+    ).toBe('nameOf, age')
   })
 
   test('if operation returns a string with typed parameters', () => {

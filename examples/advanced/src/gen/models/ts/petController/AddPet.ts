@@ -13,11 +13,15 @@ export type AddPet405 = {
 }
 
 /**
+ * AddPetMutationRequest
+ * AddPetMutationRequest
  * @description Create a new pet in the store
  */
 export type AddPetMutationRequest = AddPetRequest
 
 /**
+ * AddPetMutationResponse
+ * AddPetMutationResponse
  * @description Successful operation
  */
 export type AddPetMutationResponse = Pet

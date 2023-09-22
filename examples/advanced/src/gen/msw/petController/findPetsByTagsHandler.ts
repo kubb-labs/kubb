@@ -1,6 +1,6 @@
 import { rest } from 'msw'
-import { createFindPetsByTagsQueryResponse } from '../../mocks/petController/createFindPetsByTags'
+import { createFindpetsbytagsqueryresponse } from '../../mocks/petController/createFindpetsbytags'
 
-export const findPetsByTagsHandler = rest.get('*/pet/findByTags', function handler(req, res, ctx) {
-  return res(ctx.json(createFindPetsByTagsQueryResponse()))
+export const findpetsbytagsHandler = rest.get('*/pet/findByTags', function handler(req, res, ctx) {
+  return res(ctx.json(createFindpetsbytagsqueryresponse()))
 })

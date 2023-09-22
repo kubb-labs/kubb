@@ -1,6 +1,6 @@
 import { rest } from 'msw'
-import { createUploadFileMutationResponse, createUploadFileMutationRequest } from '../../mocks/petController/createUploadFile'
+import { createUploadfilemutationresponse, createUploadfilemutationrequest } from '../../mocks/petController/createUploadfile'
 
-export const uploadFileHandler = rest.post('*/pet/:petId/uploadImage', function handler(req, res, ctx) {
-  return res(ctx.json(createUploadFileMutationResponse()))
+export const uploadfileHandler = rest.post('*/pet/:petId/uploadImage', function handler(req, res, ctx) {
+  return res(ctx.json(createUploadfilemutationresponse()))
 })

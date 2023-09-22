@@ -12,8 +12,7 @@ import {
   modifiers,
 } from '@kubb/ts-codegen'
 
-import { camelCase } from 'change-case'
-import type { Options as CaseOptions } from 'change-case'
+import { camelCase } from 'case-anything'
 import ts from 'typescript'
 
 import { pluginName } from '../plugin.ts'
@@ -47,11 +46,6 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   // Keep track of already used type aliases
   usedAliasNames: Record<string, number> = {}
 
-  caseOptions: CaseOptions = {
-    delimiter: '',
-    stripRegexp: /[^A-Z0-9$]/gi,
-  }
-
   constructor(
     options: Options = { withJSDocs: true, resolveName: ({ name }) => name, enumType: 'asConst', dateType: 'string', optionalType: 'questionToken' },
   ) {
@@ -78,7 +72,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       nodes.push(
         appendJSDocToNode({
           node,
-          comments: [`@description ${description}`],
+          comments: [baseName, this.options.resolveName({ name: baseName, pluginName }) || baseName, `@description ${description}`],
         }),
       )
     } else {
@@ -289,7 +283,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       this.extraNodes.push(
         ...createEnumDeclaration({
-          name: camelCase(enumName, this.caseOptions),
+          name: camelCase(enumName),
           typeName: this.options.resolveName({ name: enumName, pluginName }),
           enums,
           type: this.options.enumType,

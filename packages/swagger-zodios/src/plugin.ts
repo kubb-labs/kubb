@@ -4,7 +4,7 @@ import { createPlugin, getDependedPlugins } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
-import { camelCase, camelCaseTransformMerge } from 'change-case'
+import { camelCase } from 'case-anything'
 
 import { OperationGenerator } from './generators/index.ts'
 
@@ -33,7 +33,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(root, fileName)
     },
     resolveName(name) {
-      return camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+      return camelCase(name)
     },
     async buildStart() {
       const [swaggerPlugin, swaggerZodPlugin] = pluginsOptions

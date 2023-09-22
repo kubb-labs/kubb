@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 
 import { createUser } from '../createUser'
-import { CreateUsersWithListInputError } from '../../models/ts/userController/CreateUsersWithListInput'
+import { CreateUsersWithListInputerror } from '../../models/ts/userController/CreateUsersWithListInput'
 import { CreateUsersWithListInputMutationRequest } from '../../models/ts/userController/CreateUsersWithListInput'
 import { CreateUsersWithListInputMutationResponse } from '../../models/ts/userController/CreateUsersWithListInput'
 
@@ -9,11 +9,11 @@ import { CreateUsersWithListInputMutationResponse } from '../../models/ts/userCo
  * @description successful operation
  */
 
-export function createCreateUsersWithListInputError(): CreateUsersWithListInputError {
+export function createCreateuserswithlistinputerror(): CreateUsersWithListInputerror {
   return undefined
 }
 
-export function createCreateUsersWithListInputMutationRequest(): CreateUsersWithListInputMutationRequest {
+export function createCreateuserswithlistinputmutationrequest(): CreateUsersWithListInputMutationRequest {
   return faker.helpers.arrayElements([createUser()]) as any
 }
 
@@ -21,6 +21,6 @@ export function createCreateUsersWithListInputMutationRequest(): CreateUsersWith
  * @description Successful operation
  */
 
-export function createCreateUsersWithListInputMutationResponse(): CreateUsersWithListInputMutationResponse {
+export function createCreateuserswithlistinputmutationresponse(): CreateUsersWithListInputMutationResponse {
   return createUser()
 }

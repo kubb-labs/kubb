@@ -4,11 +4,11 @@ export const OrderStatus = {
   delivered: 'delivered',
 } as const
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
-export const OrderHttpStatus = {
+export const OrderHttpstatus = {
   ok: 200,
   not_found: 400,
 } as const
-export type OrderHttpStatus = (typeof OrderHttpStatus)[keyof typeof OrderHttpStatus]
+export type OrderHttpstatus = (typeof OrderHttpstatus)[keyof typeof OrderHttpstatus]
 export type Order = {
   /**
    * @type integer | undefined int64
@@ -40,7 +40,7 @@ export type Order = {
    * @type number | undefined
    * @example 200
    */
-  http_status?: OrderHttpStatus
+  http_status?: OrderHttpstatus
   /**
    * @type boolean | undefined
    */

@@ -3,11 +3,15 @@ import type { User } from '../User'
 export type CreateUserMutationResponse = any | null
 
 /**
- * @description successful operation
- */
-export type CreateUserError = User
-
-/**
+ * CreateUserMutationRequest
+ * CreateUserMutationRequest
  * @description Created user object
  */
 export type CreateUserMutationRequest = User
+
+/**
+ * CreateUsererror
+ * CreateUsererror
+ * @description successful operation
+ */
+export type CreateUsererror = User

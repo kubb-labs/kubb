@@ -57,7 +57,7 @@
     "@kubb/swagger-faker": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/ts-codegen": "workspace:*",
-    "change-case": "^4.1.2"
+    "case-anything": "^2.1.13"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",

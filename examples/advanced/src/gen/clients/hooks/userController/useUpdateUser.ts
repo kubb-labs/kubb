@@ -8,7 +8,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @link /user/:username
  */
 
-export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unknown, TVariables = UpdateUserMutationRequest>(
+export function useUpdateuser<TData = UpdateUserMutationResponse, TError = unknown, TVariables = UpdateUserMutationRequest>(
   username: UpdateUserPathParams['username'],
   options: {
     mutation?: UseMutationOptions<TData, TError, TVariables>

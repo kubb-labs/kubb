@@ -1,35 +1,35 @@
-import { createPetsHandler } from './petsController/createPetsHandler'
-import { addPetHandler } from './petController/addPetHandler'
-import { updatePetHandler } from './petController/updatePetHandler'
-import { findPetsByStatusHandler } from './petController/findPetsByStatusHandler'
-import { findPetsByTagsHandler } from './petController/findPetsByTagsHandler'
-import { getPetByIdHandler } from './petController/getPetByIdHandler'
-import { updatePetWithFormHandler } from './petController/updatePetWithFormHandler'
-import { deletePetHandler } from './petController/deletePetHandler'
-import { uploadFileHandler } from './petController/uploadFileHandler'
-import { createUserHandler } from './userController/createUserHandler'
-import { createUsersWithListInputHandler } from './userController/createUsersWithListInputHandler'
-import { loginUserHandler } from './userController/loginUserHandler'
-import { logoutUserHandler } from './userController/logoutUserHandler'
-import { getUserByNameHandler } from './userController/getUserByNameHandler'
-import { updateUserHandler } from './userController/updateUserHandler'
-import { deleteUserHandler } from './userController/deleteUserHandler'
+import { createpetsHandler } from './petsController/createpetsHandler'
+import { addpetHandler } from './petController/addpetHandler'
+import { updatepetHandler } from './petController/updatepetHandler'
+import { findpetsbystatusHandler } from './petController/findpetsbystatusHandler'
+import { findpetsbytagsHandler } from './petController/findpetsbytagsHandler'
+import { getpetbyidHandler } from './petController/getpetbyidHandler'
+import { updatepetwithformHandler } from './petController/updatepetwithformHandler'
+import { deletepetHandler } from './petController/deletepetHandler'
+import { uploadfileHandler } from './petController/uploadfileHandler'
+import { createuserHandler } from './userController/createuserHandler'
+import { createuserswithlistinputHandler } from './userController/createuserswithlistinputHandler'
+import { loginuserHandler } from './userController/loginuserHandler'
+import { logoutuserHandler } from './userController/logoutuserHandler'
+import { getuserbynameHandler } from './userController/getuserbynameHandler'
+import { updateuserHandler } from './userController/updateuserHandler'
+import { deleteuserHandler } from './userController/deleteuserHandler'
 
 export const handlers = [
-  createPetsHandler,
-  addPetHandler,
-  updatePetHandler,
-  findPetsByStatusHandler,
-  findPetsByTagsHandler,
-  getPetByIdHandler,
-  updatePetWithFormHandler,
-  deletePetHandler,
-  uploadFileHandler,
-  createUserHandler,
-  createUsersWithListInputHandler,
-  loginUserHandler,
-  logoutUserHandler,
-  getUserByNameHandler,
-  updateUserHandler,
-  deleteUserHandler,
+  createpetsHandler,
+  addpetHandler,
+  updatepetHandler,
+  findpetsbystatusHandler,
+  findpetsbytagsHandler,
+  getpetbyidHandler,
+  updatepetwithformHandler,
+  deletepetHandler,
+  uploadfileHandler,
+  createuserHandler,
+  createuserswithlistinputHandler,
+  loginuserHandler,
+  logoutuserHandler,
+  getuserbynameHandler,
+  updateuserHandler,
+  deleteuserHandler,
 ] as const

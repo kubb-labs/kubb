@@ -1,10 +1,10 @@
 import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../client'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
+import type { FindPetsByStatusQueryResponse, FindpetsbystatusQueryparams, Findpetsbystatus400 } from '../../../models/ts/petController/FindPetsByStatus'
 
-export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
+export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = Findpetsbystatus400>(
+  params?: FindpetsbystatusQueryparams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, TError> {
   return {
@@ -27,8 +27,8 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
  * @link /pet/findByStatus
  */
 
-export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
+export function useFindpetsbystatus<TData = FindPetsByStatusQueryResponse, TError = Findpetsbystatus400>(
+  params?: FindpetsbystatusQueryparams,
   options?: {
     query?: SWRConfiguration<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>

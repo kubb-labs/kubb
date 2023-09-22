@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { combineFiles, Generator } from '@kubb/core'
 
-import { pascalCase, pascalCaseTransformMerge } from 'change-case'
+import { pascalCase } from 'case-anything'
 
 import { isReference } from '../utils/isReference.ts'
 
@@ -31,10 +31,9 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
   validate(operation: Operation): void {
     const { oas } = this.options
     const schemas = oas.getDefinition().components?.schemas || {}
+    const operationName = pascalCase(operation.getOperationId())
 
-    const foundSchemaKey = Object.keys(schemas).find(
-      (key) => key.toLowerCase() === pascalCase(operation.getOperationId(), { delimiter: '', transform: pascalCaseTransformMerge }).toLowerCase(),
-    )
+    const foundSchemaKey = Object.keys(schemas).find((key) => key.toLowerCase() === operationName.toLowerCase())
 
     if (foundSchemaKey) {
       throw new Warning(`OperationId '${operation.getOperationId()}' has the same name used as in schemas '${foundSchemaKey}' when using CamelCase`)
@@ -148,46 +147,42 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     const requestSchema = this.getRequestSchema(operation)
     const responseSchema = this.getResponseSchema(operation, '200')
 
+    const operationName = pascalCase(operation.getOperationId())
+
     return {
       pathParams: pathParamsSchema
         ? {
-            name: pascalCase(`${operation.getOperationId()} PathParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            name: pascalCase(`${operationName}PathParams`),
+            operationName,
             schema: pathParamsSchema,
           }
         : undefined,
       queryParams: queryParamsSchema
         ? {
-            name: pascalCase(`${operation.getOperationId()} QueryParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            name: pascalCase(`${operationName} QueryParams`),
+            operationName,
             schema: queryParamsSchema,
           }
         : undefined,
       headerParams: headerParamsSchema
         ? {
-            name: pascalCase(`${operation.getOperationId()} HeaderParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            name: pascalCase(`${operationName} HeaderParams`),
+            operationName,
             schema: headerParamsSchema,
           }
         : undefined,
       request: requestSchema
         ? {
-            name: pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`, {
-              delimiter: '',
-              transform: pascalCaseTransformMerge,
-            }),
+            name: pascalCase(`${operationName}${operation.method === 'get' ? 'QueryRequest' : 'MutationRequest'}`),
             description: (operation.schema.requestBody as RequestBodyObject)?.description,
-            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            operationName,
             schema: requestSchema,
           }
         : undefined,
       response: {
-        name: pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`, {
-          delimiter: '',
-          transform: pascalCaseTransformMerge,
-        }),
+        name: pascalCase(`${operationName}${operation.method === 'get' ? 'QueryResponse' : 'MutationResponse'}`),
         description: operation.getResponseAsJSONSchema('200')?.at(0)?.description,
-        operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+        operationName,
         schema: responseSchema,
         statusCode: 200,
       },
@@ -201,12 +196,12 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
           }
 
           return {
-            name: pascalCase(`${operation.getOperationId()} ${name}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            name: pascalCase(`${operationName}${name}`),
             description:
               operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description ||
               (operation.getResponseByStatusCode(statusCode) as OpenAPIV3.ResponseObject)?.description,
             schema: this.getResponseSchema(operation, statusCode),
-            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            operationName,
             statusCode: name === 'error' ? undefined : Number(statusCode),
           }
         }),

@@ -8,7 +8,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
  * @link /user
  */
 
-export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(
+export function useCreateuser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(
   options: {
     mutation?: UseMutationOptions<TData, TError, TVariables>
     client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>

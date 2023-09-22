@@ -1,6 +1,6 @@
 import { rest } from 'msw'
-import { createDeleteUserMutationResponse } from '../../mocks/userController/createDeleteUser'
+import { createDeleteusermutationresponse } from '../../mocks/userController/createDeleteuser'
 
-export const deleteUserHandler = rest.delete('*/user/:username', function handler(req, res, ctx) {
-  return res(ctx.json(createDeleteUserMutationResponse()))
+export const deleteuserHandler = rest.delete('*/user/:username', function handler(req, res, ctx) {
+  return res(ctx.json(createDeleteusermutationresponse()))
 })

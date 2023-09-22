@@ -36,7 +36,7 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
  * @link /user/logout
  */
 
-export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>(
+export function useLogoutuser<TData = LogoutUserQueryResponse, TError = unknown>(
   options: {
     query?: UseQueryOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
@@ -78,7 +78,7 @@ export function logoutUserQueryOptionsInfinite<TData = LogoutUserQueryResponse, 
  * @link /user/logout
  */
 
-export function useLogoutUserInfinite<TData = LogoutUserQueryResponse, TError = unknown>(
+export function useLogoutuserInfinite<TData = LogoutUserQueryResponse, TError = unknown>(
   options: {
     query?: UseInfiniteQueryOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>

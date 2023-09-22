@@ -9,11 +9,11 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query'
 import client from '../../../../client'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, Getpetbyid400, Getpetbyid404 } from '../../../models/ts/petController/GetPetById'
 
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [`/pet/${petId}`] as const
 
-export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
+export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = Getpetbyid400 | Getpetbyid404>(
   petId: GetPetByIdPathParams['petId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
@@ -38,7 +38,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
  * @link /pet/:petId
  */
 
-export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
+export function useGetpetbyid<TData = GetPetByIdQueryResponse, TError = Getpetbyid400 | Getpetbyid404>(
   petId: GetPetByIdPathParams['petId'],
   options: {
     query?: UseQueryOptions<TData, TError>
@@ -58,7 +58,7 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetBy
   return query
 }
 
-export function getPetByIdQueryOptionsInfinite<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
+export function getPetByIdQueryOptionsInfinite<TData = GetPetByIdQueryResponse, TError = Getpetbyid400 | Getpetbyid404>(
   petId: GetPetByIdPathParams['petId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
@@ -83,7 +83,7 @@ export function getPetByIdQueryOptionsInfinite<TData = GetPetByIdQueryResponse, 
  * @link /pet/:petId
  */
 
-export function useGetPetByIdInfinite<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
+export function useGetpetbyidInfinite<TData = GetPetByIdQueryResponse, TError = Getpetbyid400 | Getpetbyid404>(
   petId: GetPetByIdPathParams['petId'],
   options: {
     query?: UseInfiniteQueryOptions<TData, TError>

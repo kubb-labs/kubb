@@ -1,7 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../client'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet'
+import type { AddPetMutationRequest, AddPetMutationResponse, Addpet405 } from '../../../models/ts/petController/AddPet'
 
 /**
  * @description Add a new pet to the store
@@ -9,7 +9,7 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
  * @link /pet
  */
 
-export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TVariables = AddPetMutationRequest>(options?: {
+export function useAddpet<TData = AddPetMutationResponse, TError = Addpet405, TVariables = AddPetMutationRequest>(options?: {
   mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
   client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
 }): SWRMutationResponse<TData, TError, string, TVariables> {

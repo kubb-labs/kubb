@@ -3,14 +3,14 @@ import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../client'
 import type {
   FindPetsByTagsQueryResponse,
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParams,
-  FindPetsByTags400,
+  FindpetsbytagsQueryparams,
+  FindpetsbytagsHeaderparams,
+  Findpetsbytags400,
 } from '../../../models/ts/petController/FindPetsByTags'
 
-export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
+export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = Findpetsbytags400>(
+  headers: FindpetsbytagsHeaderparams,
+  params?: FindpetsbytagsQueryparams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, TError> {
   return {
@@ -33,9 +33,9 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
  * @link /pet/findByTags
  */
 
-export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
+export function useFindpetsbytags<TData = FindPetsByTagsQueryResponse, TError = Findpetsbytags400>(
+  headers: FindpetsbytagsHeaderparams,
+  params?: FindpetsbytagsQueryparams,
   options?: {
     query?: SWRConfiguration<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>

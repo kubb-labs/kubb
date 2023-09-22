@@ -50,7 +50,7 @@
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "@kubb/core": "workspace:*",
-    "change-case": "^4.1.2",
+    "case-anything": "^2.1.13",
     "oas": "^21.1.1",
     "oas-normalize": "^10.1.0",
     "swagger2openapi": "^7.0.8"

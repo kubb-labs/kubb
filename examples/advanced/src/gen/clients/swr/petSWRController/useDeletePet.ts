@@ -1,7 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../client'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletepetHeaderparams, Deletepet400 } from '../../../models/ts/petController/DeletePet'
 
 /**
  * @description delete a pet
@@ -9,9 +9,9 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderPar
  * @link /pet/:petId
  */
 
-export function useDeletePet<TData = DeletePetMutationResponse, TError = DeletePet400>(
+export function useDeletepet<TData = DeletePetMutationResponse, TError = Deletepet400>(
   petId: DeletePetPathParams['petId'],
-  headers?: DeletePetHeaderParams,
+  headers?: DeletepetHeaderparams,
   options?: {
     mutation?: SWRMutationConfiguration<TData, TError, string>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>

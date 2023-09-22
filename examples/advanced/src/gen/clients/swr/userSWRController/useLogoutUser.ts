@@ -23,7 +23,7 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
  * @link /user/logout
  */
 
-export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>(options?: {
+export function useLogoutuser<TData = LogoutUserQueryResponse, TError = unknown>(options?: {
   query?: SWRConfiguration<TData, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>
 }): SWRResponse<TData, TError> {

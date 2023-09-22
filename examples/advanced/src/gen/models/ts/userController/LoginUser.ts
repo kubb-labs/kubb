@@ -1,9 +1,18 @@
 /**
+ * LoginUser400
+ * LoginUser400
  * @description Invalid username/password supplied
  */
 export type LoginUser400 = any | null
 
-export type LoginUserQueryParams = {
+/**
+ * LoginUserQueryResponse
+ * LoginUserQueryResponse
+ * @description successful operation
+ */
+export type LoginUserQueryResponse = string
+
+export type LoginuserQueryparams = {
   /**
    * @description The user name for login
    * @type string | undefined
@@ -15,8 +24,3 @@ export type LoginUserQueryParams = {
    */
   password?: string
 }
-
-/**
- * @description successful operation
- */
-export type LoginUserQueryResponse = string

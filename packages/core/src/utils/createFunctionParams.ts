@@ -1,4 +1,3 @@
-import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { orderBy } from 'natural-orderby'
 
 type FunctionParamsAst = {
@@ -25,16 +24,14 @@ export function createFunctionParams(data: FunctionParamsAst[]): string {
   return sortedData
     .filter(({ enabled = true }) => enabled)
     .reduce((acc, { name, type, required = true, ...rest }) => {
-      const parameterName = camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
-
       if (type) {
         if (required) {
-          acc.push(`${parameterName}: ${type}${rest.default ? ` = ${rest.default}` : ''}`)
+          acc.push(`${name}: ${type}${rest.default ? ` = ${rest.default}` : ''}`)
         } else {
-          acc.push(`${parameterName}?: ${type}`)
+          acc.push(`${name}?: ${type}`)
         }
       } else {
-        acc.push(`${parameterName}`)
+        acc.push(`${name}`)
       }
 
       return acc

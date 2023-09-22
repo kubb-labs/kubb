@@ -1,6 +1,6 @@
 import { rest } from 'msw'
-import { createCreatePetsMutationResponse, createCreatePetsMutationRequest } from '../../mocks/petsController/createCreatePets'
+import { createCreatepetsmutationresponse, createCreatepetsmutationrequest } from '../../mocks/petsController/createCreatepets'
 
-export const createPetsHandler = rest.post('*/pets/:uuid', function handler(req, res, ctx) {
-  return res(ctx.json(createCreatePetsMutationResponse()))
+export const createpetsHandler = rest.post('*/pets/:uuid', function handler(req, res, ctx) {
+  return res(ctx.json(createCreatepetsmutationresponse()))
 })

@@ -1,6 +1,6 @@
 import { rest } from 'msw'
-import { createUpdatePetWithFormMutationResponse } from '../../mocks/petController/createUpdatePetWithForm'
+import { createUpdatepetwithformmutationresponse } from '../../mocks/petController/createUpdatepetwithform'
 
-export const updatePetWithFormHandler = rest.post('*/pet/:petId', function handler(req, res, ctx) {
-  return res(ctx.json(createUpdatePetWithFormMutationResponse()))
+export const updatepetwithformHandler = rest.post('*/pet/:petId', function handler(req, res, ctx) {
+  return res(ctx.json(createUpdatepetwithformmutationresponse()))
 })

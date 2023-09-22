@@ -9,12 +9,12 @@ import {
   useInfiniteQuery,
 } from '@tanstack/react-query'
 import client from '../../../../client'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
+import type { FindPetsByStatusQueryResponse, FindpetsbystatusQueryparams, Findpetsbystatus400 } from '../../../models/ts/petController/FindPetsByStatus'
 
-export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [`/pet/findByStatus`, ...(params ? [params] : [])] as const
+export const findPetsByStatusQueryKey = (params?: FindpetsbystatusQueryparams) => [`/pet/findByStatus`, ...(params ? [params] : [])] as const
 
-export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
+export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = Findpetsbystatus400>(
+  params?: FindpetsbystatusQueryparams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = findPetsByStatusQueryKey(params)
@@ -39,8 +39,8 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
  * @link /pet/findByStatus
  */
 
-export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
+export function useFindpetsbystatus<TData = FindPetsByStatusQueryResponse, TError = Findpetsbystatus400>(
+  params?: FindpetsbystatusQueryparams,
   options: {
     query?: UseQueryOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
@@ -59,8 +59,8 @@ export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TErro
   return query
 }
 
-export function findPetsByStatusQueryOptionsInfinite<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
+export function findPetsByStatusQueryOptionsInfinite<TData = FindPetsByStatusQueryResponse, TError = Findpetsbystatus400>(
+  params?: FindpetsbystatusQueryparams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = findPetsByStatusQueryKey(params)
@@ -89,8 +89,8 @@ export function findPetsByStatusQueryOptionsInfinite<TData = FindPetsByStatusQue
  * @link /pet/findByStatus
  */
 
-export function useFindPetsByStatusInfinite<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
+export function useFindpetsbystatusInfinite<TData = FindPetsByStatusQueryResponse, TError = Findpetsbystatus400>(
+  params?: FindpetsbystatusQueryparams,
   options: {
     query?: UseInfiniteQueryOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>

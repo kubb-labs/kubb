@@ -4,6 +4,7 @@ import { format } from '../../mocks/format.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
 import type { PluginContext } from '@kubb/core'
+import { camelCase } from 'case-anything'
 
 describe('OperationGenerator', () => {
   const resolvePath = () => './pets.ts'
@@ -21,6 +22,8 @@ describe('OperationGenerator', () => {
       optionalType: 'questionToken',
     })
     const operation = oas.operation('/pets', 'get')
+
+    console.log(og.getSchemas(operation))
 
     const get = await og.get(operation, og.getSchemas(operation))
 

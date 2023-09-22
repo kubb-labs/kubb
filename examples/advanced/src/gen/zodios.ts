@@ -2,34 +2,34 @@ import { makeApi, Zodios } from '@zodios/core'
 import {
   createPetsMutationResponseSchema,
   createPetsPathParamsSchema,
-  createPetsQueryParamsSchema,
-  createPets201Schema,
+  createpetsQueryparamsSchema,
+  createpets201schema,
 } from './zod/petsController/createPetsSchema'
-import { addPetMutationResponseSchema, addPet405Schema } from './zod/petController/addPetSchema'
-import { updatePetMutationResponseSchema, updatePet400Schema, updatePet404Schema, updatePet405Schema } from './zod/petController/updatePetSchema'
-import { findPetsByStatusQueryResponseSchema, findPetsByStatusQueryParamsSchema, findPetsByStatus400Schema } from './zod/petController/findPetsByStatusSchema'
-import { findPetsByTagsQueryResponseSchema, findPetsByTagsQueryParamsSchema, findPetsByTags400Schema } from './zod/petController/findPetsByTagsSchema'
-import { getPetByIdQueryResponseSchema, getPetByIdPathParamsSchema, getPetById400Schema, getPetById404Schema } from './zod/petController/getPetByIdSchema'
+import { addPetMutationResponseSchema, addpet405schema } from './zod/petController/addPetSchema'
+import { updatePetMutationResponseSchema, updatepet400schema, updatepet404schema, updatepet405schema } from './zod/petController/updatePetSchema'
+import { findPetsByStatusQueryResponseSchema, findpetsbystatusQueryparamsSchema, findpetsbystatus400schema } from './zod/petController/findPetsByStatusSchema'
+import { findPetsByTagsQueryResponseSchema, findpetsbytagsQueryparamsSchema, findpetsbytags400schema } from './zod/petController/findPetsByTagsSchema'
+import { getPetByIdQueryResponseSchema, getPetByIdPathParamsSchema, getpetbyid400schema, getpetbyid404schema } from './zod/petController/getPetByIdSchema'
 import {
   updatePetWithFormMutationResponseSchema,
   updatePetWithFormPathParamsSchema,
-  updatePetWithFormQueryParamsSchema,
-  updatePetWithForm405Schema,
+  updatepetwithformQueryparamsSchema,
+  updatepetwithform405schema,
 } from './zod/petController/updatePetWithFormSchema'
-import { deletePetMutationResponseSchema, deletePetPathParamsSchema, deletePet400Schema } from './zod/petController/deletePetSchema'
-import { uploadFileMutationResponseSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from './zod/petController/uploadFileSchema'
+import { deletePetMutationResponseSchema, deletePetPathParamsSchema, deletepet400schema } from './zod/petController/deletePetSchema'
+import { uploadFileMutationResponseSchema, uploadFilePathParamsSchema, uploadfileQueryparamsSchema } from './zod/petController/uploadFileSchema'
 import { createUserMutationResponseSchema } from './zod/userController/createUserSchema'
 import { createUsersWithListInputMutationResponseSchema } from './zod/userController/createUsersWithListInputSchema'
-import { loginUserQueryResponseSchema, loginUserQueryParamsSchema, loginUser400Schema } from './zod/userController/loginUserSchema'
+import { loginUserQueryResponseSchema, loginuserQueryparamsSchema, loginuser400schema } from './zod/userController/loginUserSchema'
 import { logoutUserQueryResponseSchema } from './zod/userController/logoutUserSchema'
 import {
   getUserByNameQueryResponseSchema,
   getUserByNamePathParamsSchema,
-  getUserByName400Schema,
-  getUserByName404Schema,
+  getuserbyname400schema,
+  getuserbyname404schema,
 } from './zod/userController/getUserByNameSchema'
 import { updateUserMutationResponseSchema, updateUserPathParamsSchema } from './zod/userController/updateUserSchema'
-import { deleteUserMutationResponseSchema, deleteUserPathParamsSchema, deleteUser400Schema, deleteUser404Schema } from './zod/userController/deleteUserSchema'
+import { deleteUserMutationResponseSchema, deleteUserPathParamsSchema, deleteuser400schema, deleteuser404schema } from './zod/userController/deleteUserSchema'
 
 const endpoints = makeApi([
   {
@@ -45,10 +45,10 @@ const endpoints = makeApi([
         schema: createPetsPathParamsSchema,
       },
       {
-        name: 'CreatePetsQueryParams',
+        name: 'CreatepetsQueryparams',
         description: ``,
         type: 'Query',
-        schema: createPetsQueryParamsSchema,
+        schema: createpetsQueryparamsSchema,
       },
     ],
     response: createPetsMutationResponseSchema,
@@ -56,7 +56,7 @@ const endpoints = makeApi([
       {
         status: 201,
         description: `Null response`,
-        schema: createPets201Schema,
+        schema: createpets201schema,
       },
     ],
   },
@@ -71,7 +71,7 @@ const endpoints = makeApi([
       {
         status: 405,
         description: ``,
-        schema: addPet405Schema,
+        schema: addpet405schema,
       },
     ],
   },
@@ -86,17 +86,17 @@ const endpoints = makeApi([
       {
         status: 400,
         description: `Invalid ID supplied`,
-        schema: updatePet400Schema,
+        schema: updatepet400schema,
       },
       {
         status: 404,
         description: `Pet not found`,
-        schema: updatePet404Schema,
+        schema: updatepet404schema,
       },
       {
         status: 405,
         description: `Validation exception`,
-        schema: updatePet405Schema,
+        schema: updatepet405schema,
       },
     ],
   },
@@ -107,10 +107,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'FindPetsByStatusQueryParams',
+        name: 'FindpetsbystatusQueryparams',
         description: ``,
         type: 'Query',
-        schema: findPetsByStatusQueryParamsSchema,
+        schema: findpetsbystatusQueryparamsSchema,
       },
     ],
     response: findPetsByStatusQueryResponseSchema,
@@ -118,7 +118,7 @@ const endpoints = makeApi([
       {
         status: 400,
         description: `Invalid status value`,
-        schema: findPetsByStatus400Schema,
+        schema: findpetsbystatus400schema,
       },
     ],
   },
@@ -129,10 +129,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'FindPetsByTagsQueryParams',
+        name: 'FindpetsbytagsQueryparams',
         description: ``,
         type: 'Query',
-        schema: findPetsByTagsQueryParamsSchema,
+        schema: findpetsbytagsQueryparamsSchema,
       },
     ],
     response: findPetsByTagsQueryResponseSchema,
@@ -140,7 +140,7 @@ const endpoints = makeApi([
       {
         status: 400,
         description: `Invalid tag value`,
-        schema: findPetsByTags400Schema,
+        schema: findpetsbytags400schema,
       },
     ],
   },
@@ -162,12 +162,12 @@ const endpoints = makeApi([
       {
         status: 400,
         description: `Invalid ID supplied`,
-        schema: getPetById400Schema,
+        schema: getpetbyid400schema,
       },
       {
         status: 404,
         description: `Pet not found`,
-        schema: getPetById404Schema,
+        schema: getpetbyid404schema,
       },
     ],
   },
@@ -184,10 +184,10 @@ const endpoints = makeApi([
         schema: updatePetWithFormPathParamsSchema,
       },
       {
-        name: 'UpdatePetWithFormQueryParams',
+        name: 'UpdatepetwithformQueryparams',
         description: ``,
         type: 'Query',
-        schema: updatePetWithFormQueryParamsSchema,
+        schema: updatepetwithformQueryparamsSchema,
       },
     ],
     response: updatePetWithFormMutationResponseSchema,
@@ -195,7 +195,7 @@ const endpoints = makeApi([
       {
         status: 405,
         description: `Invalid input`,
-        schema: updatePetWithForm405Schema,
+        schema: updatepetwithform405schema,
       },
     ],
   },
@@ -217,7 +217,7 @@ const endpoints = makeApi([
       {
         status: 400,
         description: `Invalid pet value`,
-        schema: deletePet400Schema,
+        schema: deletepet400schema,
       },
     ],
   },
@@ -234,10 +234,10 @@ const endpoints = makeApi([
         schema: uploadFilePathParamsSchema,
       },
       {
-        name: 'UploadFileQueryParams',
+        name: 'UploadfileQueryparams',
         description: ``,
         type: 'Query',
-        schema: uploadFileQueryParamsSchema,
+        schema: uploadfileQueryparamsSchema,
       },
     ],
     response: uploadFileMutationResponseSchema,
@@ -268,10 +268,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'LoginUserQueryParams',
+        name: 'LoginuserQueryparams',
         description: ``,
         type: 'Query',
-        schema: loginUserQueryParamsSchema,
+        schema: loginuserQueryparamsSchema,
       },
     ],
     response: loginUserQueryResponseSchema,
@@ -279,7 +279,7 @@ const endpoints = makeApi([
       {
         status: 400,
         description: `Invalid username/password supplied`,
-        schema: loginUser400Schema,
+        schema: loginuser400schema,
       },
     ],
   },
@@ -310,12 +310,12 @@ const endpoints = makeApi([
       {
         status: 400,
         description: `Invalid username supplied`,
-        schema: getUserByName400Schema,
+        schema: getuserbyname400schema,
       },
       {
         status: 404,
         description: `User not found`,
-        schema: getUserByName404Schema,
+        schema: getuserbyname404schema,
       },
     ],
   },
@@ -353,12 +353,12 @@ const endpoints = makeApi([
       {
         status: 400,
         description: `Invalid username supplied`,
-        schema: deleteUser400Schema,
+        schema: deleteuser400schema,
       },
       {
         status: 404,
         description: `User not found`,
-        schema: deleteUser404Schema,
+        schema: deleteuser404schema,
       },
     ],
   },

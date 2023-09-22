@@ -1,4 +1,4 @@
-import { camelCase, camelCaseTransformMerge } from 'change-case'
+import { camelCase } from 'case-anything'
 
 export class URLPath {
   path: string
@@ -50,7 +50,7 @@ export class URLPath {
 
     if (found) {
       newPath = found.reduce((prev, curr) => {
-        const replacement = `\${${camelCase(curr, { delimiter: '', transform: camelCaseTransformMerge })}}`
+        const replacement = `\${${camelCase(curr)}}`
 
         return prev.replace(curr, replacement)
       }, path)

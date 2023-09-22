@@ -6,7 +6,7 @@ import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
 import { URLPath, combineCodes } from '@kubb/core'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
 import { getParams } from '@kubb/swagger'
-import { camelCase } from 'change-case'
+import { camelCase } from 'case-anything'
 import type { Framework, FrameworkImports } from '../types.ts'
 import { createFunctionParams } from '../../../core/src/utils/createFunctionParams'
 

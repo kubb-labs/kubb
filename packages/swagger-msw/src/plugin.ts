@@ -7,7 +7,7 @@ import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 import { pluginName as swaggerFakerPluginName } from '@kubb/swagger-faker'
 
-import { camelCase, camelCaseTransformMerge } from 'change-case'
+import { camelCase } from 'case-anything'
 
 import { OperationGenerator } from './generators/index.ts'
 
@@ -43,7 +43,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (options?.tag && groupBy?.type === 'tag') {
-        const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
+        const tag = camelCase(options.tag)
 
         return pathParser.resolve(root, renderTemplate(template, { tag }), fileName)
       }
@@ -51,7 +51,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(root, output, fileName)
     },
     resolveName(name) {
-      const resolvedName = camelCase(`${name} Handler`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+      const resolvedName = camelCase(`${name} Handler`)
 
       return transformers?.name?.(resolvedName) || resolvedName
     },
@@ -93,12 +93,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         const filteredFiles = this.fileManager.files.filter((file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag) as File<FileMeta>[]
         const rootFiles = filteredFiles
           .map((file) => {
-            const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
+            const tag = file.meta?.tag && camelCase(file.meta.tag)
             const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
-            const name = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Handlers', { tag }), {
-              delimiter: '',
-              transform: camelCaseTransformMerge,
-            })
+            const name = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Handlers', { tag }))
 
             if (name) {
               return {

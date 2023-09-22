@@ -3,7 +3,7 @@ import pathParser from 'node:path'
 import { createPlugin, getPathMode, getRelativePath, renderTemplate, getDependedPlugins, getIndexes, timeout } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
-import { pascalCase, pascalCaseTransformMerge, camelCase, camelCaseTransformMerge } from 'change-case'
+import { camelCase, pascalCase } from 'case-anything'
 
 import { TypeBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
@@ -41,7 +41,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (options?.tag && groupBy?.type === 'tag') {
-        const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
+        const tag = camelCase(options.tag)
 
         return pathParser.resolve(root, renderTemplate(template, { tag }), fileName)
       }
@@ -49,7 +49,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return pathParser.resolve(root, output, fileName)
     },
     resolveName(name) {
-      const resolvedName = pascalCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: pascalCaseTransformMerge })
+      const resolvedName = pascalCase(name)
 
       return transformers?.name?.(resolvedName) || resolvedName
     },

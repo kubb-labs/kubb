@@ -11,7 +11,7 @@ import { UpdatePetMutationResponse } from '../../models/ts/petController/UpdateP
  * @description Invalid ID supplied
  */
 
-export function createUpdatePet400(): UpdatePet400 {
+export function createUpdatepet400(): UpdatePet400 {
   return undefined
 }
 
@@ -19,7 +19,7 @@ export function createUpdatePet400(): UpdatePet400 {
  * @description Pet not found
  */
 
-export function createUpdatePet404(): UpdatePet404 {
+export function createUpdatepet404(): UpdatePet404 {
   return undefined
 }
 
@@ -27,7 +27,7 @@ export function createUpdatePet404(): UpdatePet404 {
  * @description Validation exception
  */
 
-export function createUpdatePet405(): UpdatePet405 {
+export function createUpdatepet405(): UpdatePet405 {
   return undefined
 }
 
@@ -35,7 +35,7 @@ export function createUpdatePet405(): UpdatePet405 {
  * @description Update an existent pet in the store
  */
 
-export function createUpdatePetMutationRequest(): UpdatePetMutationRequest {
+export function createUpdatepetmutationrequest(): UpdatePetMutationRequest {
   return createPet()
 }
 
@@ -43,6 +43,6 @@ export function createUpdatePetMutationRequest(): UpdatePetMutationRequest {
  * @description Successful operation
  */
 
-export function createUpdatePetMutationResponse(): UpdatePetMutationResponse {
+export function createUpdatepetmutationresponse(): UpdatePetMutationResponse {
   return createPet()
 }
