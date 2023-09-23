@@ -2,6 +2,8 @@
   "extends": "@kubb/ts-config/base.json",
   "compilerOptions": {
     "baseUrl": ".",
+    // full type in vscode
+    "noErrorTruncation": true,
     // "composite": true,
     // "rootDir": "./",
     // "outDir": "./dist",

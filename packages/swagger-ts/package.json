@@ -25,6 +25,11 @@
       "module": "./dist/index.js",
       "default": "./dist/index.cjs"
     },
+    "./engine": {
+      "import": "./dist/engine.js",
+      "module": "./dist/engine.js",
+      "default": "./dist/engine.cjs"
+    },
     "./package.json": "./package.json",
     "./*": "./*"
   },
@@ -52,14 +57,16 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/ts-codegen": "workspace:*",
     "change-case": "^4.1.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "hotscript": "^1.0.13"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "eslint": "^8.49.0",
-    "tsup": "^7.2.0"
+    "tsup": "^7.2.0",
+    "expect-type": "^0.16.0"
   },
   "peerDependencies": {
     "typescript": "^5.2.2"

@@ -2,13 +2,12 @@ import type { Logger } from './utils/logger.ts'
 import type { File, FileManager } from './managers/fileManager/index.ts'
 import type { PluginManager } from './managers/index.ts'
 import type { Cache } from './utils/cache.ts'
+import type { PossiblePromise } from './utils/types.ts'
 
 /**
  * @deprecated
  */
 export interface Register {}
-
-export type PossiblePromise<T> = Promise<T> | T
 
 /**
  * Config used in `kubb.config.js`

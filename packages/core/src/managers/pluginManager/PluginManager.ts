@@ -13,7 +13,6 @@ import type { CorePluginOptions } from '../../plugin.ts'
 import type {
   KubbConfig,
   KubbPlugin,
-  PossiblePromise,
   PluginContext,
   PluginLifecycle,
   PluginLifecycleHooks,
@@ -26,6 +25,7 @@ import type { Argument0, Executer, ParseResult, SafeParseResult, Strategy } from
 import type { Logger } from '../../utils/logger.ts'
 import type { ResolvedFile } from '../fileManager/types.ts'
 import { pluginParser } from './pluginParser.ts'
+import type { PossiblePromise } from '../../utils/types.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
