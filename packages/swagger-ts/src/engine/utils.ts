@@ -12,6 +12,7 @@ export type TrimRight<V extends string> = V extends `${infer R}${Whitespace}` ? 
 export type Trim<V extends string> = TrimLeft<TrimRight<V>>
 
 export type Head<T extends unknown[]> = T extends [infer H, ...infer _T] ? H : []
+export type Pop<T extends unknown[]> = T extends [...infer H, infer _T] ? H : []
 
 export type Tail<T extends unknown[]> = T extends [...infer _H, infer T] ? T : []
 
@@ -56,3 +57,7 @@ export type Join<T extends unknown[], D extends string, Acc extends string = ''>
   : T extends [Primitive, ...infer U]
   ? Join<U, D, `${Acc}${T[0]}${D}`>
   : string
+
+export type Merge<A, B> = {
+  [K in keyof A | keyof B]: K extends keyof A & keyof B ? A[K] | B[K] : K extends keyof B ? B[K] : K extends keyof A ? A[K] : never
+}

@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable unused-imports/no-unused-vars */
-import type { TokenMap, Identifier, SwitchToken } from './AST.ts'
+import type { ASTMap, Identifier, ASTSwitch } from './AST.ts'
 import type { Head, Shift, Split, Join, ParserError, Trim } from './utils.ts'
+import type { CombineTokens } from './AST'
 
-type ExtractIdentifier<Acc extends string[], Token extends string = Join<Acc, ''>> = Token extends keyof TokenMap
-  ? SwitchToken<Token>
+type ExtractIdentifier<Acc extends string[], Token extends string = Join<Acc, ''>> = Token extends keyof ASTMap
+  ? ASTSwitch<Token>
   : Acc extends []
   ? ParserError<`Acc cannot be a []`>
   : Identifier<Token>
@@ -17,16 +18,16 @@ type TokenizeInternal<Tokens extends string[], Acc extends string[] = [], Curr =
   ? Acc extends []
     ? Res
     : [...Res, ExtractIdentifier<Acc>]
-  : Curr extends keyof TokenMap
+  : Curr extends keyof ASTMap
   ? Acc['length'] extends 0
     ? // if accumulator is empty then we can just go as single tokens
-      TokenizeInternal<Shift<Tokens>, [], Head<Shift<Tokens>>, [...Res, SwitchToken<Curr>]>
+      TokenizeInternal<Shift<Tokens>, [], Head<Shift<Tokens>>, [...Res, ExtractIdentifier<[Curr]>]>
     : // else extract the identifier
-      TokenizeInternal<Shift<Tokens>, [], Head<Shift<Tokens>>, [...Res, ExtractIdentifier<Acc>, SwitchToken<Curr>]>
+      TokenizeInternal<Shift<Tokens>, [], Head<Shift<Tokens>>, [...Res, ExtractIdentifier<Acc>, ASTSwitch<Curr>]>
   : // loop back and update acc, curr
     TokenizeInternal<Shift<Tokens>, [...Acc, Extract<Curr, string>], Head<Shift<Tokens>>, Res>
 
-export type Tokenize<T extends string> = TokenizeInternal<Split<Trim<T>, ''>>
+export type Tokenize<T extends string> = CombineTokens<TokenizeInternal<Split<Trim<T>, ''>>>
 
 type Schema1 = `
 Pet:
@@ -56,8 +57,8 @@ type Demo1 = Tokenize<Schema1>
 type Demo2 = Tokenize<Schema2>
 //    ^?
 
-type Demo3 = SwitchToken<':'>
+type Demo3 = ASTSwitch<':'>
 //    ^?
 
-type Demo4 = SwitchToken<'  '>
+type Demo4 = ASTSwitch<'  '>
 //    ^?

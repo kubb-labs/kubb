@@ -1,19 +1,19 @@
 import type { ValueOf } from '@kubb/core'
 
-import type { Indent1, Indent2, Indent3, Indent4, Indent5, Indent6, Indent7, Head, Shift } from './utils.ts'
+import type { Indent1, Indent2, Indent3, Indent4, Indent5, Indent6, Indent7, Head, Shift, Tail, Pop } from './utils.ts'
 import type { Call, Numbers } from 'hotscript'
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable unused-imports/no-unused-vars */
 
-export type TokenTypes = {
+export type ASTTypes = {
   COLLON: 'COLLON' // :
   IDENT: 'IDENT' // identifer
   INDENT: 'INDENT' // \t ' '
   LINEBREAK: 'LINEBREAK' // \r \n
 }
 
-export type TokenMap = {
+export type ASTMap = {
   ':': Collon
   '\r': LineBreak<1>
   '\r ': LineBreak<2>
@@ -28,54 +28,64 @@ export type TokenMap = {
   [Indent1]: Indent<1>
 }
 
-export type Identifier<T> = {
-  type: TokenTypes['IDENT']
-  name: T
+export type Identifier<TName extends string> = {
+  type: ASTTypes['IDENT']
+  name: TName
 }
 
 export type Collon = {
-  type: TokenTypes['COLLON']
+  type: ASTTypes['COLLON']
 }
 
 export type Indent<Level = 1> = {
-  type: TokenTypes['INDENT']
+  type: ASTTypes['INDENT']
   level: Level
 }
 
 export type LineBreak<Level = 1> = {
-  type: TokenTypes['LINEBREAK']
+  type: ASTTypes['LINEBREAK']
   level: Level
 }
 
-export type Tokens = ValueOf<TokenMap>
+export type ASTs = ValueOf<ASTMap> | Identifier<any>
 
-export type SwitchToken<T> = T extends keyof TokenMap ? TokenMap[T] : T
+export type ASTSwitch<T> = T extends keyof ASTMap ? ASTMap[T] : T
 
-type CombineLevel<TailRes, N extends number = 1> = TailRes extends { type: TokenTypes['INDENT']; level: infer LevelIndent extends number }
+type CombineLevel<Token, N extends number = 1> = Token extends { type: ASTTypes['INDENT']; level: infer LevelIndent extends number }
   ? Indent<Call<Numbers.Add<LevelIndent, N>>>
-  : TailRes extends { type: TokenTypes['LINEBREAK']; level: infer LevelLineBreak extends number }
+  : Token extends { type: ASTTypes['LINEBREAK']; level: infer LevelLineBreak extends number }
   ? LineBreak<Call<Numbers.Add<LevelLineBreak, N>>>
   : never
 
 type HasLevel<T> = T extends { level: number } ? true : false
-
-export type CombineTokens<T extends Tokens[], Acc extends Tokens[] = [], Curr = Head<T>, Res extends Tokens[] = []> = Curr extends []
+/**
+ * Tokens extends any[] should be Tokens extends ASTs[]
+ */
+export type CombineTokens<Tokens extends any[], Acc extends ASTs[] = [], Curr = Head<Tokens>, Res extends any[] = []> = Curr extends []
   ? Acc extends []
     ? Res
     : [...Res, Acc]
-  : Curr extends Tokens
-  ? HasLevel<Curr> extends true
-    ? CombineTokens<Shift<T>, [], Head<Shift<T>>, [...Res, Extract<CombineLevel<Curr>, Tokens>]>
-    : CombineTokens<Shift<T>, [], Head<Shift<T>>, [...Res, Curr]>
-  : CombineTokens<Shift<T>, [...Acc, Extract<Curr, Tokens>], Head<Shift<T>>, Res>
+  : Curr extends ASTs
+  ? Curr extends { level: number }
+    ? CombineTokens<
+        Shift<Tokens>,
+        [],
+        Head<Shift<Tokens>>,
+        Tail<Res> extends { level: number; type: Curr['type'] }
+          ? [...Pop<Res>, Extract<CombineLevel<Curr, Tail<Res>['level']>, ASTs>]
+          : [...Res, Extract<Curr, ASTs>]
+      >
+    : // all Tokens that does not have `level`
+      CombineTokens<Shift<Tokens>, [], Head<Shift<Tokens>>, [...Res, Curr]>
+  : CombineTokens<Shift<Tokens>, [...Acc, Extract<Curr, ASTs>], Head<Shift<Tokens>>, Res>
 
-type Demo1 = SwitchToken<' '>
+type Demo1 = ASTSwitch<' '>
 //    ^?
 
-type Demo2 = SwitchToken<'  '>
+type Demo2 = ASTSwitch<'  '>
 //    ^?
 
-type Demo3 = SwitchToken<`\n`>
+type Demo3 = ASTSwitch<`\n`>
 //    ^?
 
 type Demo4 = [CombineLevel<Indent<1>>, CombineLevel<LineBreak<1>>, CombineLevel<Indent<2>>, CombineLevel<Indent<3>>]
