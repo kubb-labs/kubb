@@ -57,7 +57,7 @@ export type LineBreak<Level = 1> = {
 
 // export type ASTs = ValueOf<ASTMap> | Identifier<any>
 
-export type ASTs = { type: keyof ASTTypes; [x: string]: any }
+export type ASTs = { type?: keyof ASTTypes; [x: string]: any }
 
 export type ASTSwitch<T> = T extends keyof ASTMap ? ASTMap[T] : T
 
