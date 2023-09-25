@@ -22,7 +22,7 @@ export type Engine = {
 export type CreateEngine<TInput extends string> = Parser<Tokenize<TInput>> extends infer Typed
   ? {
       schema: Prettify<TInput>
-      parsed: Prettify<Typed>
+      json: Prettify<Typed>
       ast: Tokenize<TInput>
     }
   : never

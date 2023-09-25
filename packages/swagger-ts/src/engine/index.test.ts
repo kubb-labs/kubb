@@ -35,10 +35,10 @@ Tag:
       type: string
 `
 
-type Demo1 = CreateEngine<typeof property>['parsed']
+type Demo1 = CreateEngine<typeof property>['json']
 //    ^?
 
-type Demo2 = CreateEngine<typeof schema>['parsed']
+type Demo2 = CreateEngine<typeof schema>['json']
 //    ^??
 
 expectTypeOf<Demo1>().toEqualTypeOf<{

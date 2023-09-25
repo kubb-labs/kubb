@@ -53,10 +53,9 @@ export type Parser<
   LookAhead extends ASTs = Head2<T, ASTs>,
 > = Cursor extends ASTs
   ? IsToken<Cursor, keyof ASTTypes> extends true
-    ? IsToken<Cursor, ASTTypes['COLLON']> extends true
-      ? Parser<TailBy<T, 1>, AST, Head<T>> // skip collon
-      : IsToken<Cursor, ASTTypes['LINEBREAK']> extends true
-      ? Parser<TailBy<T, 1>, AST, Head<T>> // skip linebreak
+    ? // skip linebreak and collon
+      IsToken<Cursor, ASTTypes['LINEBREAK' | 'COLLON']> extends true
+      ? Parser<TailBy<T, 1>, AST, Head<T>>
       : IsToken<Cursor, ASTTypes['IDENT']> extends true
       ? Parser<TailBy<T, 1>, AST & { type: 'Identifier'; value: Cursor['name'] }, Head<T>>
       : [LookAhead] extends [never]
