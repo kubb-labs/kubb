@@ -12,7 +12,8 @@ type ParseIdentifier<T extends ASTs[], AST extends ASTs, LookBack extends ASTs, 
 }
   ? AST extends { type: 'Identifier' }
     ? LookBack extends { type: ASTTypes['LINEBREAK'] }
-      ? Debug<
+      ? // Tag:
+        Debug<
           {
             type: 'IdentifierRoot'
             debug: {
@@ -25,7 +26,8 @@ type ParseIdentifier<T extends ASTs[], AST extends ASTs, LookBack extends ASTs, 
           },
           Engine['debug']['parser']
         >
-      : Debug<
+      : // type: object
+        Debug<
           {
             type: 'Identifier'
             debug: {
@@ -42,27 +44,31 @@ type ParseIdentifier<T extends ASTs[], AST extends ASTs, LookBack extends ASTs, 
           },
           Engine['debug']['parser']
         >
-    : AST
-  : AST
+    : never
+  : never
+
+type ParserInternal<
+  T extends ASTs[],
+  AST extends ASTs = {},
+  LookBack extends ASTs = never,
+  Cursor extends ASTs = Head<T, ASTs>,
+  LookAhead extends ASTs = Head2<T, ASTs>,
+> = IsToken<Cursor, ASTTypes['LINEBREAK' | 'COLLON']> extends true // skip linebreak and collon
+  ? ParserInternal<TailBy<T, 1>, AST, Head<T>>
+  : IsToken<Cursor, ASTTypes['IDENT']> extends true
+  ? ParserInternal<TailBy<T, 1>, AST & { type: 'Identifier'; value: Cursor['name'] }, Head<T>>
+  : [LookAhead] extends [never]
+  ? ParserError<`Unexpected end of input, expected IDENT`>
+  : ParseIdentifier<T, AST, LookBack, Cursor, LookAhead>
 
 export type Parser<
   T extends ASTs[],
   AST extends ASTs = {},
   LookBack extends ASTs = never,
-  Cursor extends ASTs | [] = Head<T, ASTs>,
+  Cursor extends ASTs = Head<T, ASTs>,
   LookAhead extends ASTs = Head2<T, ASTs>,
-> = Cursor extends ASTs
-  ? IsToken<Cursor, keyof ASTTypes> extends true
-    ? // skip linebreak and collon
-      IsToken<Cursor, ASTTypes['LINEBREAK' | 'COLLON']> extends true
-      ? Parser<TailBy<T, 1>, AST, Head<T>>
-      : IsToken<Cursor, ASTTypes['IDENT']> extends true
-      ? Parser<TailBy<T, 1>, AST & { type: 'Identifier'; value: Cursor['name'] }, Head<T>>
-      : [LookAhead] extends [never]
-      ? ParserError<`Unexpected end of input, expected IDENT`>
-      : ParseIdentifier<T, AST, LookBack, Cursor, LookAhead>
-    : ParserError<`Expected token of type IDENT, got ${LookAhead['type']}`>
-  : AST
+> = ParserInternal<T, AST, LookBack, Cursor, LookAhead>
+
 type Schema1 = `
 Pet:
   description: test
