@@ -7,44 +7,42 @@ import type { Tokenize } from './tokenizer.ts'
 import type { Engine } from './index.ts'
 import type { Debug } from '@kubb/core'
 
-type ParseIdentifier<T extends ASTs[], AST extends ASTs, LookBack extends ASTs, Cursor extends ASTs, LookAhead extends ASTs> = LookAhead extends {
-  type: ASTTypes['IDENT']
+type ParseIdentifier<T extends ASTs[], AST extends ASTs, LookBack extends ASTs, Cursor extends ASTs, LookAhead extends ASTs> = AST extends {
+  type: 'Identifier'
 }
-  ? AST extends { type: 'Identifier' }
-    ? LookBack extends { type: ASTTypes['LINEBREAK'] }
-      ? // Tag:
-        Debug<
-          {
-            type: 'IdentifierRoot'
-            debug: {
-              Cursor: Cursor
-              LookBack: LookBack
-              LookAhead: LookAhead
-            }
-            value: AST
-            children: Parser<TailBy<T, 1>>
-          },
-          Engine['debug']['parser']
-        >
-      : // type: object
-        Debug<
-          {
-            type: 'Identifier'
-            debug: {
-              Cursor: Cursor
-              LookBack: LookBack
-              LookAhead: LookAhead
-            }
-            value: AST['value']
-            children: LookAhead extends { type: ASTTypes['IDENT'] }
-              ? LookAhead['name']
-              : Parser<TailBy<T, 1>> extends { value: string }
-              ? Parser<TailBy<T, 1>>['value']
-              : never
-          },
-          Engine['debug']['parser']
-        >
-    : never
+  ? LookBack extends { type: ASTTypes['LINEBREAK'] }
+    ? // Tag:
+      Debug<
+        {
+          type: 'IdentifierRoot'
+          debug: {
+            Cursor: Cursor
+            LookBack: LookBack
+            LookAhead: LookAhead
+          }
+          value: AST
+          children: Parser<TailBy<T, 1>>
+        },
+        Engine['debug']['parser']
+      >
+    : // type: object
+      Debug<
+        {
+          type: 'Identifier'
+          debug: {
+            Cursor: Cursor
+            LookBack: LookBack
+            LookAhead: LookAhead
+          }
+          value: AST['value']
+          children: LookAhead extends { type: ASTTypes['IDENT'] }
+            ? LookAhead['name']
+            : Parser<TailBy<T, 1>> extends { value: string }
+            ? Parser<TailBy<T, 1>>['value']
+            : never
+        },
+        Engine['debug']['parser']
+      >
   : never
 
 type ParserInternal<
@@ -59,8 +57,12 @@ type ParserInternal<
   ? ParserInternal<TailBy<T, 1>, AST & { type: 'Identifier'; value: Cursor['name'] }, Head<T>>
   : [LookAhead] extends [never]
   ? ParserError<`Unexpected end of input, expected IDENT`>
-  : ParseIdentifier<T, AST, LookBack, Cursor, LookAhead>
-
+  : LookAhead extends {
+      type: ASTTypes['IDENT']
+    }
+  ? ParseIdentifier<T, AST, LookBack, Cursor, LookAhead>
+  : never
+//ParserError<`Expected token of type IDENT, got ${LookAhead['type']}`>
 export type Parser<
   T extends ASTs[],
   AST extends ASTs = {},

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable unused-imports/no-unused-vars */
 import { expectTypeOf } from 'expect-type'
 
 import type { CreateEngine } from './index'
@@ -35,7 +37,12 @@ Tag:
       type: string
 `
 
+type DemoAST1 = CreateEngine<typeof property>['ast']
+//    ^?
 type DemoJSON1 = CreateEngine<typeof property>['json']
+//    ^?
+
+type DemoAST2 = CreateEngine<typeof schema>['ast']
 //    ^?
 
 type DemoJSON2 = CreateEngine<typeof schema>['json']
