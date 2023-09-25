@@ -3,6 +3,7 @@
 import type { ASTMap, Identifier, ASTSwitch } from './AST.ts'
 import type { Head, Shift, Split, Join, ParserError, Trim } from './utils.ts'
 import type { CombineTokens } from './AST'
+import type { Engine } from './index.ts'
 
 type ExtractIdentifier<Acc extends string[], Token extends string = Join<Acc, ''>> = Token extends keyof ASTMap
   ? ASTSwitch<Token>
@@ -21,7 +22,21 @@ type TokenizeInternal<Tokens extends string[], Acc extends string[] = [], Curr =
   : Curr extends keyof ASTMap
   ? Acc['length'] extends 0
     ? // if accumulator is empty then we can just go as single tokens
-      TokenizeInternal<Shift<Tokens>, [], Head<Shift<Tokens>>, [...Res, ExtractIdentifier<[Curr]>]>
+      TokenizeInternal<
+        Shift<Tokens>,
+        [],
+        Head<Shift<Tokens>>,
+        [
+          ...Res,
+          debug: Engine['debug']['ast'] extends true
+            ? ExtractIdentifier<[Curr]> & {
+                debug: {
+                  Cursor: Curr
+                }
+              }
+            : ExtractIdentifier<[Curr]>,
+        ]
+      >
     : // else extract the identifier
       TokenizeInternal<Shift<Tokens>, [], Head<Shift<Tokens>>, [...Res, ExtractIdentifier<Acc>, ASTSwitch<Curr>]>
   : // loop back and update acc, curr

@@ -4,52 +4,59 @@
 import type { Head, Head2, ParserError, TailBy } from './utils.ts'
 import type { IsToken, ASTs, ASTTypes } from './AST.ts'
 import type { Tokenize } from './tokenizer.ts'
-
-type Debug = true
+import type { Engine } from './index.ts'
 
 export type Parser<
   T extends ASTs[],
   AST extends ASTs = {},
+  LookBack extends ASTs = never,
   Cursor extends ASTs | [] = Head<T, ASTs>,
   LookAhead extends ASTs = Head2<T, ASTs>,
 > = Cursor extends ASTs
   ? IsToken<Cursor, keyof ASTTypes> extends true
     ? IsToken<Cursor, ASTTypes['COLLON']> extends true
-      ? Parser<TailBy<T, 1>, AST> // skip collon
+      ? Parser<TailBy<T, 1>, AST, Head<T>> // skip collon
       : IsToken<Cursor, ASTTypes['LINEBREAK']> extends true
-      ? Parser<TailBy<T, 1>, AST> // skip linebreak
+      ? Parser<TailBy<T, 1>, AST, Head<T>> // skip linebreak
       : IsToken<Cursor, ASTTypes['IDENT']> extends true
-      ? Parser<TailBy<T, 1>, AST & { type: 'Identifier'; value: Cursor['name'] }>
+      ? Parser<TailBy<T, 1>, AST & { type: 'Identifier'; value: Cursor['name'] }, Head<T>>
       : [LookAhead] extends [never]
       ? ParserError<`Unexpected end of input, expected IDENT`>
       : LookAhead extends { type: ASTTypes['IDENT'] }
       ? AST extends { type: 'Identifier' }
-        ? {
-            type: 'Identifier'
-            debug: Debug extends true
-              ? {
-                  Cursor: Cursor
-                  LookAhead: LookAhead
-                }
-              : never
-            value: AST['value']
-            children: Parser<TailBy<T, 1>> extends { value: string } ? Parser<TailBy<T, 1>>['value'] : never
-          }
-        : {
-            debug: Debug extends true
-              ? {
-                  Cursor: Cursor
-                  LookAhead: LookAhead
-                }
-              : never
-            value: AST
-            children: Parser<TailBy<T, 1>>
-          }
+        ? LookBack extends { type: ASTTypes['LINEBREAK'] }
+          ? {
+              type: 'IdentifierRoot'
+              debug: Engine['debug']['parser'] extends true
+                ? {
+                    Cursor: Cursor
+                    LookBack: LookBack
+                    LookAhead: LookAhead
+                  }
+                : never
+              value: AST
+              children: Parser<TailBy<T, 1>>
+            }
+          : {
+              type: 'Identifier'
+              debug: Engine['debug']['parser'] extends true
+                ? {
+                    Cursor: Cursor
+                    LookBack: LookBack
+                    LookAhead: LookAhead
+                  }
+                : never
+              value: AST['value']
+              children: Parser<TailBy<T, 1>> extends { value: string } ? Parser<TailBy<T, 1>>['value'] : LookAhead['name']
+            }
+        : AST
       : ParserError<`Expected token of type IDENT, got ${LookAhead['type']}`>
     : AST
   : AST
 type Schema1 = `
-type: object
+Pet:
+  description: test
+  required: true
 `
 
 type Schema2 = `

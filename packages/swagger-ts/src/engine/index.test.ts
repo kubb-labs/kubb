@@ -2,6 +2,10 @@ import { expectTypeOf } from 'expect-type'
 
 import type { CreateEngine } from './index'
 
+const property = `
+description: test
+`
+
 const schema = `
 Pet:
   type: object
@@ -31,17 +35,27 @@ Tag:
       type: string
 `
 
-type Engine = CreateEngine<typeof schema>
+type Demo1 = CreateEngine<typeof property>
 //    ^?
 
-type Values = Engine['$']
-//    ^?
+type Demo2 = CreateEngine<typeof schema>
+//    ^??
 
-// type Test = Values['Tag']
+expectTypeOf<Demo1['parsed']>().toMatchTypeOf<{
+  type: 'Identifier'
+  value: 'description'
+  children: 'test'
+}>()
 
-type Pet = Values['Pet']
-
-expectTypeOf<Engine>().toMatchTypeOf<{
-  schema: typeof schema
-  $: ''
+expectTypeOf<Demo2['parsed']>().toMatchTypeOf<{
+  type: 'IdentifierRoot'
+  value: {
+    type: 'Identifier'
+    value: 'Pet'
+  }
+  children: {
+    type: 'Identifier'
+    value: 'type'
+    children: 'object'
+  }
 }>()

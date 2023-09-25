@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import type { Prettify } from '@kubb/core'
-import type { Parser } from './parser'
+
+import type { Parser } from './parser.ts'
+import type { Tokenize } from './tokenizer.ts'
+
+export type Engine = {
+  debug: {
+    parser: true
+    ast: false
+  }
+}
 
 /**
  * 🚧 Unstable API, not ready for production.
@@ -10,10 +19,11 @@ import type { Parser } from './parser'
  * @link https://github.com/anuraghazra/typelevel-parser/blob/main/parser.ts
  * @link https://github.com/codemix/ts-sql/blob/master/src/Schema.ts
  */
-export type CreateEngine<TInput extends string> = Parser<TInput> extends infer Typed
+export type CreateEngine<TInput extends string> = Parser<Tokenize<TInput>> extends infer Typed
   ? {
       schema: Prettify<TInput>
-      $: Prettify<Typed>
+      parsed: Prettify<Typed>
+      ast: Tokenize<TInput>
     }
   : never
 
