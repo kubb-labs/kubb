@@ -11,7 +11,9 @@ export type TrimRight<V extends string> = V extends `${infer R}${Whitespace}` ? 
 
 export type Trim<V extends string> = TrimLeft<TrimRight<V>>
 
-export type Head<T extends unknown[]> = T extends [infer H, ...infer _T] ? H : []
+export type Head<TInput extends unknown[], TOutput = unknown> = TInput extends [infer H, ...infer _T] ? Extract<H, TOutput> : []
+
+export type Head2<TInput extends unknown[], TOutput = unknown> = TInput extends [infer H1, infer H2, ...infer _P] ? Extract<H2, TOutput> : never
 export type Pop<T extends unknown[]> = T extends [...infer H, infer _T] ? H : []
 
 export type Tail<T extends unknown[]> = T extends [...infer _H, infer T] ? T : []

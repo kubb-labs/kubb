@@ -33,6 +33,7 @@ type Schema1 = `
 Pet:
   type: object
   description: test
+  
   required: true
 `
 

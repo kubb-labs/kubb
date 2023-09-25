@@ -1,47 +1,50 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable @typescript-eslint/ban-types */
-import type { Prettify, Comparator, Comparison } from '@kubb/core'
-import type { Pipe, Call, Tuples, Strings, Objects } from 'hotscript'
-import type { Trim, TrimLeft } from './utils.ts'
+import type { Head, Head2, ParserError, TailBy } from './utils.ts'
+import type { IsToken, ASTs, ASTTypes } from './AST.ts'
+import type { Tokenize } from './tokenizer.ts'
+export type Parser<T extends ASTs[], AST = {}, Cursor extends ASTs | [] = Head<T, ASTs>, LookAhead extends ASTs = Head2<T, ASTs>> = Cursor extends ASTs
+  ? IsToken<Cursor, keyof ASTTypes> extends true
+    ? IsToken<Cursor, ASTTypes['COLLON']> extends true
+      ? Parser<TailBy<T, 1>, AST> // skip collon
+      : IsToken<Cursor, ASTTypes['IDENT']> extends true
+      ? Parser<TailBy<T, 1>, AST & { type: 'Identifier'; value: Cursor['name'] }>
+      : [LookAhead] extends [never]
+      ? ParserError<`Unexpected end of input, expected IDENT`>
+      : LookAhead extends { type: ASTTypes['IDENT'] }
+      ? {
+          // debug: {
+          //   LookAhead: LookAhead
+          // }
+          value: AST
+          children: Parser<TailBy<T, 1>>
+        }
+      : ParserError<`Expected token of type IDENT, got ${LookAhead['type']}`>
+    : AST
+  : AST
+type Schema1 = `
+type: object
+`
 
-type CustomTypes = Record<string, string | number | Record<string, unknown>>
+type Schema2 = `
+Pet:
+  type: object
+  description: test
+  required: true
+Tag:
+  type: object
+  properties:
+    id:
+      type: integer
+      format: int64
+    name:
+      type: string
+`
+type Token1 = Tokenize<Schema1>
+//    ^?
+type Demo1 = Parser<Token1>
+//    ^?
 
-type Keywords = 'type' | 'required'
-
-type IndentingOfString<S extends string, T extends string[] = []> = S extends ` ${infer R}` ? IndentingOfString<R, [...T, string]> : T['length']
-
-type GetKeyValue<TInput extends string = ''> = TInput extends `${infer Key}:${infer Value}`
-  ? { key: Trim<Key>; value: Trim<Value> }
-  : { key: TInput; value: TInput }
-type Test = Call<Objects.Update<'a.b', 'Hello'>, { a: { b: 1 } }>
-type TestSplit = Pipe<'sdfs', [Strings.Split<'\n'>, Tuples.Map<Strings.Trim<' '>>, Tuples.ToUnion, Objects.FromEntries]>
-
-export type Parser<
-  TInput extends string = '',
-  Known extends CustomTypes = {},
-  Indenting extends number = 0,
-  PrevKey extends string = '',
-> = TInput extends `${infer Key}:${infer Value}${infer Rest}`
-  ? Rest extends `${infer Schema}\n${infer RestB}`
-    ? Comparator<IndentingOfString<Key>, Indenting> extends Comparison.Equal
-      ? Prettify<
-          Call<
-            Objects.Update<
-              PrevKey extends '' ? `${Trim<Key>}.${GetKeyValue<Schema>['key']}` : `${PrevKey}.${Trim<Key>}.${GetKeyValue<Schema>['key']}`,
-              GetKeyValue<Schema>['value']
-            >,
-            Known
-          > &
-            Parser<RestB, Known, IndentingOfString<Key>, PrevKey extends '' ? Trim<Key> : `${PrevKey}.${Trim<Key>}`>
-        >
-      : Comparator<IndentingOfString<Key>, Indenting> extends Comparison.Greater
-      ? Prettify<
-          Call<Objects.Update<PrevKey extends '' ? `test.${Trim<Key>}` : `${PrevKey}.${Trim<Key>}`, Schema>, Known> &
-            Parser<RestB, Known, IndentingOfString<Key>, PrevKey extends '' ? Trim<Key> : `${Trim<PrevKey>}.${Trim<Key>}`>
-        >
-      : Comparator<IndentingOfString<Key>, Indenting> extends Comparison.Lower
-      ? Prettify<{
-          [name in TrimLeft<Key>]: { rest: Schema; prev2: Indenting; indent: IndentingOfString<Key> }
-        }>
-      : Prettify<Known & { value: Schema }>
-    : Known
-  : Known
+type Demo2 = Parser<Tokenize<Schema2>>
+//    ^?
