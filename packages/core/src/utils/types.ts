@@ -81,8 +81,7 @@ export type Prettify<T> = {
   // eslint-disable-next-line @typescript-eslint/ban-types
 } & {}
 
-export type ValueOf<T> = T[keyof T]
-
+export type Debug<T, Debug extends boolean> = Prettify<Omit<T, Debug extends true ? '' : 'debug'>>
 export type PossiblePromise<T> = Promise<T> | T
 
 export enum Comparison {

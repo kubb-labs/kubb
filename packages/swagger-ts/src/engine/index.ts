@@ -6,7 +6,7 @@ import type { Tokenize } from './tokenizer.ts'
 
 export type Engine = {
   debug: {
-    parser: true
+    parser: false
     ast: false
   }
 }

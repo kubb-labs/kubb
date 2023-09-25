@@ -35,19 +35,19 @@ Tag:
       type: string
 `
 
-type Demo1 = CreateEngine<typeof property>
+type Demo1 = CreateEngine<typeof property>['parsed']
 //    ^?
 
-type Demo2 = CreateEngine<typeof schema>
+type Demo2 = CreateEngine<typeof schema>['parsed']
 //    ^??
 
-expectTypeOf<Demo1['parsed']>().toMatchTypeOf<{
+expectTypeOf<Demo1>().toEqualTypeOf<{
   type: 'Identifier'
   value: 'description'
   children: 'test'
 }>()
 
-expectTypeOf<Demo2['parsed']>().toMatchTypeOf<{
+expectTypeOf<Demo2>().toEqualTypeOf<{
   type: 'IdentifierRoot'
   value: {
     type: 'Identifier'
