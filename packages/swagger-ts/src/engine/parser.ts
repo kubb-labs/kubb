@@ -38,12 +38,13 @@ type ParseIdentifier<Tokens extends ASTs[], Res extends Parsers, LookBack extend
 /**
  *  [Identifier<'type'>, Collon, Indent<1>, Identifier<'object'>, LineBreak<1>, Indent<2>, Identifier<'description'>]
  */
-type ParseIdentifiers<Tokens extends ASTs[], Acc extends Parsers[] = [], Cursor = Head<Tokens>, Res extends Parsers[] = []> = Cursor extends []
-  ? Acc extends []
+type ParseIdentifiers<Tokens extends ASTs[], Res extends Parsers[] = [], Cursor = Head<Tokens>> = Cursor extends []
+  ? Res extends []
     ? Res
-    : [...Res, Acc]
-  : HasNoErrors<SelectToken<Tokens[4], 'LINEBREAK'> | SelectToken<Tokens[5], 'INDENT'>> extends true
-  ? ParseIdentifiers<TailBy<Tokens, 6>, [], Head<TailBy<Tokens, 6>>, [...Res, ParserInternal<TailBy<Tokens, 6>>]>
+    : Res
+  : //TODO check if indent is lower than the previous one and return Res instead
+  HasNoErrors<SelectToken<Tokens[4], 'LINEBREAK'> | SelectToken<Tokens[5], 'INDENT'>> extends true
+  ? ParseIdentifiers<TailBy<Tokens, 6>, [...Res, ParserInternal<TailBy<Tokens, 6>>], Head<TailBy<Tokens, 6>>>
   : Res
 
 type ParseRootIdentifier<Tokens extends ASTs[], Res extends Parsers, LookBack extends ASTs, Cursor extends ASTs, LookAhead extends ASTs> = LookBack extends {
