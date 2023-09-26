@@ -1,5 +1,6 @@
-import type { Indent1, Indent2, Indent3, Indent4, Indent5, Indent6, Indent7, Head, Shift, Tail, Pop } from './utils.ts'
+import type { Indent1, Indent2, Indent3, Indent4, Indent5, Indent6, Indent7, Head, Shift, Tail, Pop, ParserError } from './utils.ts'
 import type { Call, Numbers } from 'hotscript'
+import { expectTypeOf } from 'expect-type'
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable unused-imports/no-unused-vars */
@@ -55,25 +56,32 @@ export type LineBreak<Level = 1> = {
   level: Level
 }
 
-// export type ASTs = ValueOf<ASTMap> | Identifier<any>
-
 export type ASTs = { type?: keyof ASTTypes; [x: string]: any }
 
 export type ASTSwitch<T> = T extends keyof ASTMap ? ASTMap[T] : T
 
-type CombineLevel<Token, N extends number = 1> = Token extends { type: ASTTypes['INDENT']; level: infer LevelIndent extends number }
+export type CombineLevel<Token, N extends number = 1> = Token extends { type: ASTTypes['INDENT']; level: infer LevelIndent extends number }
   ? Indent<Call<Numbers.Add<LevelIndent, N>>>
   : Token extends { type: ASTTypes['LINEBREAK']; level: infer LevelLineBreak extends number }
   ? LineBreak<Call<Numbers.Add<LevelLineBreak, N>>>
   : never
 
-type HasLevel<T> = T extends { level: number } ? true : false
+type Expect<Token extends ASTs, Type extends string, Else> = [Token] extends [never]
+  ? ParserError<`Unexpected end of input, Expected token of type ${Type}`>
+  : Token extends undefined
+  ? ParserError<`Unexpected end of input, Expected token of type ${Type}`>
+  : Token['type'] extends Type
+  ? Else
+  : ParserError<`Expected token of type ${Type}, got ${Token['type']}`>
 
-export type IsToken<T, Type extends keyof ASTTypes> = T extends { type: Type } ? true : false
+export type SelectToken<Token extends ASTs, Where extends keyof ASTTypes> = Expect<Token, Where, true> extends true ? Token : Expect<Token, Where, true>
+
+export type HasLevel<Token> = Token extends { level: number } ? true : false
+export type IsToken<Token, Type extends keyof ASTTypes> = Token extends { type: Type } ? true : false
 /**
  * Tokens extends any[] should be Tokens extends ASTs[]
  */
-export type CombineTokens<Tokens extends any[], Acc extends ASTs[] = [], Curr = Head<Tokens>, Res extends any[] = []> = Curr extends []
+export type CombineTokens<Tokens extends ASTs[], Acc extends ASTs[] = [], Curr = Head<Tokens>, Res extends ASTs[] = []> = Curr extends []
   ? Acc extends []
     ? Res
     : [...Res, Acc]
@@ -114,3 +122,10 @@ type Demo7 = CombineTokens<[Indent<2>, Indent<2>, Collon, LineBreak<1>, LineBrea
 
 type Demo8 = [HasLevel<LineBreak<1>>, HasLevel<Collon>]
 //    ^?
+
+type SelectTokenCollonDemo = SelectToken<{ type: ASTTypes['COLLON'] }, 'COLLON'>
+//    ^?
+
+expectTypeOf<SelectTokenCollonDemo>().toEqualTypeOf<{
+  type: ASTTypes['COLLON']
+}>()

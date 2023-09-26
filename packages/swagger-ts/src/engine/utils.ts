@@ -5,15 +5,17 @@ import type { Whitespace, Primitive } from '@kubb/core'
 declare const ErrorBrand: unique symbol
 export type ParserError<T extends string> = T & { __brand: typeof ErrorBrand }
 
+export type HasErrors<T, Else> = T extends ParserError<string> ? T : Else
+
 export type TrimLeft<V extends string> = V extends `${Whitespace}${infer R}` ? TrimLeft<R> : V
 
 export type TrimRight<V extends string> = V extends `${infer R}${Whitespace}` ? TrimRight<R> : V
 
 export type Trim<V extends string> = TrimLeft<TrimRight<V>>
 
-export type Head<TInput extends unknown[], TOutput = unknown> = TInput extends [infer H, ...infer _T] ? Extract<H, TOutput> : []
+export type Head<TInput extends unknown[]> = TInput extends [infer H, ...infer _T] ? H : []
 
-export type Head2<TInput extends unknown[], TOutput = unknown> = TInput extends [infer H1, infer H2, ...infer _P] ? Extract<H2, TOutput> : never
+export type Head2<TInput extends unknown[]> = TInput extends [infer H1, infer H2, ...infer _P] ? H2 : []
 export type Pop<T extends unknown[]> = T extends [...infer H, infer _T] ? H : []
 
 export type Tail<T extends unknown[]> = T extends [...infer _H, infer T] ? T : []
