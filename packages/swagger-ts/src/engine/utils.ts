@@ -5,7 +5,9 @@ import type { Whitespace, Primitive } from '@kubb/core'
 declare const ErrorBrand: unique symbol
 export type ParserError<T extends string> = T & { __brand: typeof ErrorBrand }
 
-export type HasErrors<T, Else> = T extends ParserError<string> ? T : Else
+type InternalHasErrors<T, Else> = T extends ParserError<string> ? T : Else
+
+export type HasErrors<T> = InternalHasErrors<T, []> extends [] ? false : true
 
 export type TrimLeft<V extends string> = V extends `${Whitespace}${infer R}` ? TrimLeft<R> : V
 

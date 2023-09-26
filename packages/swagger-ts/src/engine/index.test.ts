@@ -48,11 +48,15 @@ type DemoAST2 = CreateEngine<typeof schema>['ast']
 type DemoJSON2 = CreateEngine<typeof schema>['json']
 //    ^??
 
-expectTypeOf<DemoJSON1>().toEqualTypeOf<{
-  type: 'Identifier'
-  value: 'description'
-  children: 'test'
-}>()
+expectTypeOf<DemoJSON1>().toEqualTypeOf<
+  [
+    {
+      type: 'Identifier'
+      value: 'description'
+      children: 'test'
+    },
+  ]
+>()
 
 expectTypeOf<DemoJSON2>().toEqualTypeOf<{
   type: 'IdentifierRoot'
@@ -60,9 +64,11 @@ expectTypeOf<DemoJSON2>().toEqualTypeOf<{
     type: 'Identifier'
     value: 'Pet'
   }
-  children: {
-    type: 'Identifier'
-    value: 'type'
-    children: 'object'
-  }
+  children: [
+    {
+      type: 'Identifier'
+      value: 'type'
+      children: 'object'
+    },
+  ]
 }>()
