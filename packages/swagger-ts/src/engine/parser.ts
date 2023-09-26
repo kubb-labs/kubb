@@ -37,7 +37,8 @@ type ParseIdentifier<T extends ASTs[], AST extends ASTs, LookBack extends ASTs, 
           value: AST['value']
           children: LookAhead extends { type: ASTTypes['IDENT'] }
             ? LookAhead['name']
-            : Parser<TailBy<T, 1>> extends { value: string }
+            : // check to see if value property exists(or we have a ts error)
+            Parser<TailBy<T, 1>> extends { value: string }
             ? Parser<TailBy<T, 1>>['value']
             : never
         },
