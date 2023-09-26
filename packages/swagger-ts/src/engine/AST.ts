@@ -40,6 +40,7 @@ export type ASTMap = {
 export type Identifier<TName extends string> = {
   type: ASTTypes['IDENT']
   name: TName
+  children: any[]
 }
 
 export type Collon = {

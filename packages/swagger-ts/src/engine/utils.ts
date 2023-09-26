@@ -21,11 +21,10 @@ export type Head2<TInput extends unknown[]> = TInput extends [infer H1, infer H2
 export type Pop<T extends unknown[]> = T extends [...infer H, infer _T] ? H : []
 
 export type Tail<T extends unknown[]> = T extends [...infer _H, infer T] ? T : []
+export type TailBy<T extends unknown[], By extends number, A extends number[] = []> = By extends A['length'] ? T : TailBy<Shift<T>, By, Push<A>>
 
 export type Shift<T extends unknown[]> = T extends [infer _H, ...infer T] ? T : []
 export type Push<T extends unknown[], V = 0> = [...T, V]
-
-export type TailBy<T extends unknown[], By extends number, A extends number[] = []> = By extends A['length'] ? T : TailBy<Shift<T>, By, Push<A>>
 
 export type Filter<T extends unknown[], P> = T extends [infer F, ...infer R] ? (F extends P ? [F, ...Filter<R, P>] : Filter<R, P>) : never
 
