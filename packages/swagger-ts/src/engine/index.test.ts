@@ -13,7 +13,40 @@ Pet:
   type: object
   description: test
   required: true
-  test: aho
+`
+/*
+const advancedSchema = `
+Pet:
+  type: object
+  required:
+    - name
+  properties:
+    id:
+      type: integer
+      format: int64
+    name:
+      type: string
+    category:
+      $ref: '#/components/schemas/Category'
+    status:
+      type: string
+      description: pet status in the store
+      enum:
+        - available
+        - pending
+        - sold
+`
+*/
+
+const advancedSchema = `
+Pet:
+  type: object
+  description: test
+  required: true
+  properties:
+    id:
+      type: integer
+      format: int64
 `
 
 const doubleSchema = `
@@ -37,25 +70,56 @@ Tag:
       type: string
 `
 
-type DemoAST1 = CreateEngine<typeof property>['ast']
+type DemoPropertyAST = CreateEngine<typeof property>['ast']
 //    ^?
-type DemoJSON1 = CreateEngine<typeof property>['json']
-//    ^?
-
-type DemoAST2 = CreateEngine<typeof schema>['ast']
+type DemoPropertyJSON = CreateEngine<typeof property>['json']
 //    ^?
 
-type DemoJSON2 = CreateEngine<typeof schema>['json']
+type DemoSchemaAST = CreateEngine<typeof schema>['ast']
+//    ^?
+
+type DemoSchemaJSON = CreateEngine<typeof schema>['json']
+//    ^?
+
+type DemoAdvancedSchemaAST = CreateEngine<typeof advancedSchema>['ast']
+//    ^?
+
+type DemoAdvancedSchemaJSON = CreateEngine<typeof advancedSchema>['json']
 //    ^??
 
-expectTypeOf<DemoJSON1>().toEqualTypeOf<{
+expectTypeOf<DemoPropertyJSON>().toEqualTypeOf<{
   type: 'Identifier'
   value: 'description'
   children: 'test'
 }>()
 
-expectTypeOf<DemoJSON2>().toEqualTypeOf<{
-  type: 'IdentifierRoot'
+expectTypeOf<DemoSchemaJSON>().toEqualTypeOf<{
+  type: 'RootIdentifier'
+  value: {
+    type: 'Identifier'
+    value: 'Pet'
+  }
+  children: [
+    {
+      type: 'Identifier'
+      value: 'type'
+      children: 'object'
+    },
+    {
+      type: 'Identifier'
+      value: 'description'
+      children: 'test'
+    },
+    {
+      type: 'Identifier'
+      value: 'required'
+      children: 'true'
+    },
+  ]
+}>()
+
+expectTypeOf<DemoAdvancedSchemaJSON>().toEqualTypeOf<{
+  type: 'RootIdentifier'
   value: {
     type: 'Identifier'
     value: 'Pet'
@@ -77,9 +141,32 @@ expectTypeOf<DemoJSON2>().toEqualTypeOf<{
       children: 'true'
     },
     {
-      type: 'Identifier'
-      value: 'test'
-      children: 'aho'
+      type: 'RootIdentifier'
+      value: {
+        type: 'Identifier'
+        value: 'properties'
+      }
+      children: [
+        {
+          type: 'RootIdentifier'
+          value: {
+            type: 'Identifier'
+            value: 'id'
+          }
+          children: [
+            {
+              type: 'Identifier'
+              value: 'type'
+              children: 'integer'
+            },
+            {
+              type: 'Identifier'
+              value: 'format'
+              children: 'int64'
+            },
+          ]
+        },
+      ]
     },
   ]
 }>()

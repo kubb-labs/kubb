@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable @typescript-eslint/ban-types */
-import type { HasNoErrors, Head, Head2, Shift, ParserError, TailBy } from './utils.ts'
+import type { HasNoErrors, Head, Head2, ParserError, TailBy } from './utils.ts'
 import type { IsToken, ASTs, ASTTypes, SelectToken, Identifier, Collon, Indent, LineBreak } from './AST.ts'
 import type { Tokenize } from './tokenizer.ts'
 import type { Engine } from './index.ts'
@@ -38,22 +38,21 @@ type ParseIdentifier<Tokens extends ASTs[], Res extends Parsers, LookBack extend
 /**
  *  [Identifier<'type'>, Collon, Indent<1>, Identifier<'object'>, LineBreak<1>, Indent<2>, Identifier<'description'>]
  */
-type ParseIdentifiers<Tokens extends ASTs[], Res extends Parsers[] = [], Cursor = Head<Tokens>> = Cursor extends []
-  ? Res extends []
+type ParseIdentifiers<Tokens extends ASTs[], Acc extends Parsers[] = [], Cursor = Head<Tokens>, Res extends Parsers[] = []> = Cursor extends []
+  ? Acc extends []
     ? Res
-    : Res
+    : [...Res, Acc]
   : HasNoErrors<SelectToken<Tokens[4], 'LINEBREAK'> | SelectToken<Tokens[5], 'INDENT'>> extends true
-  ? ParseIdentifiers<Shift<Tokens>, [...Res, ParserInternal<TailBy<Tokens, 6>>], Head<Shift<Tokens>>>
-  : // loop back and update acc, curr
-    ParseIdentifiers<Shift<Tokens>, Res, Head<Shift<Tokens>>>
+  ? ParseIdentifiers<TailBy<Tokens, 6>, [], Head<TailBy<Tokens, 6>>, [...Res, ParserInternal<TailBy<Tokens, 6>>]>
+  : Res
 
-type ParseIdentifierRoot<Tokens extends ASTs[], Res extends Parsers, LookBack extends ASTs, Cursor extends ASTs, LookAhead extends ASTs> = LookBack extends {
+type ParseRootIdentifier<Tokens extends ASTs[], Res extends Parsers, LookBack extends ASTs, Cursor extends ASTs, LookAhead extends ASTs> = LookBack extends {
   type: ASTTypes['LINEBREAK']
 }
-  ? // Tag:
+  ? // Tag:\n
     Debug<
       {
-        type: 'IdentifierRoot'
+        type: 'RootIdentifier'
         debug: {
           CurrCursor: Cursor
           CurrTokens: Tokens
@@ -109,7 +108,7 @@ type ParserInternal<
     Res extends {
       type: ParseTypes['Identifier']
     }
-    ? ParseIdentifierRoot<TailBy<Tokens, 1>, Res, LookBack, Head<TailBy<Tokens, 1>>, Head2<TailBy<Tokens, 1>>>
+    ? ParseRootIdentifier<TailBy<Tokens, 1>, Res, LookBack, Head<TailBy<Tokens, 1>>, Head2<TailBy<Tokens, 1>>>
     : never
   : Res
 
@@ -123,10 +122,6 @@ Pet:
 `
 
 type Schema2 = `
-Pet:
-  type: object
-  description: test
-  required: true
 Tag:
   type: object
   properties:
