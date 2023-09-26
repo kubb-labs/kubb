@@ -733,6 +733,14 @@ components:
         name:
           type: string
           example: doggie
+        log:
+          type: string
+          maxLength: 42
+          minLength: 2
+          pattern: >-
+            ^[A-Za-z0-9()\[\]'"][-A-Za-z0-9_.
+            \/()\[\]]{0,40}[A-Za-z0-9()\[\]'"]$
+          example: my_log_destination
         category:
           $ref: '#/components/schemas/Category'
         photoUrls:
