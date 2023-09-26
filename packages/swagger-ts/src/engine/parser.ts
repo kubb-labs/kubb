@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable @typescript-eslint/ban-types */
-import type { HasErrors, Head, Head2, ParserError, TailBy } from './utils.ts'
-import type { IsToken, ASTs, ASTTypes, SelectToken } from './AST.ts'
+import type { HasNoErrors, Head, Head2, Shift, ParserError, TailBy } from './utils.ts'
+import type { IsToken, ASTs, ASTTypes, SelectToken, Identifier, Collon, Indent, LineBreak } from './AST.ts'
 import type { Tokenize } from './tokenizer.ts'
 import type { Engine } from './index.ts'
 import type { Debug } from '@kubb/core'
@@ -35,6 +35,18 @@ type ParseIdentifier<Tokens extends ASTs[], Res extends Parsers, LookBack extend
   Engine['debug']['parser']
 >
 
+/**
+ *  [Identifier<'type'>, Collon, Indent<1>, Identifier<'object'>, LineBreak<1>, Indent<2>, Identifier<'description'>]
+ */
+type ParseIdentifiers<Tokens extends ASTs[], Res extends Parsers[] = [], Cursor = Head<Tokens>> = Cursor extends []
+  ? Res extends []
+    ? Res
+    : Res
+  : HasNoErrors<SelectToken<Tokens[4], 'LINEBREAK'> | SelectToken<Tokens[5], 'INDENT'>> extends true
+  ? ParseIdentifiers<Shift<Tokens>, [...Res, ParserInternal<TailBy<Tokens, 6>>], Head<Shift<Tokens>>>
+  : // loop back and update acc, curr
+    ParseIdentifiers<Shift<Tokens>, Res, Head<Shift<Tokens>>>
+
 type ParseIdentifierRoot<Tokens extends ASTs[], Res extends Parsers, LookBack extends ASTs, Cursor extends ASTs, LookAhead extends ASTs> = LookBack extends {
   type: ASTTypes['LINEBREAK']
 }
@@ -48,9 +60,9 @@ type ParseIdentifierRoot<Tokens extends ASTs[], Res extends Parsers, LookBack ex
           PrevToken: LookBack
           NextToken: LookAhead
           // [Collon, Indent<x>, Identifier<"object">, LineBreak<1> and Indent<x>]
-          NextIndentLevel: HasErrors<SelectToken<Tokens[4], 'LINEBREAK'> | SelectToken<Tokens[5], 'INDENT'>> extends true
-            ? ParserError<'[LineBreak<1>, Indent<x>] order not found'>
-            : Extract<SelectToken<Tokens[2], 'INDENT'>, { level: number }>['level']
+          NextIndentLevel: HasNoErrors<SelectToken<Tokens[4], 'LINEBREAK'> | SelectToken<Tokens[5], 'INDENT'>> extends true
+            ? Extract<SelectToken<Tokens[2], 'INDENT'>, { level: number }>['level']
+            : ParserError<'[LineBreak<1>, Indent<x>] order not found'>
         }
         value: Res
         children: [
@@ -62,8 +74,8 @@ type ParseIdentifierRoot<Tokens extends ASTs[], Res extends Parsers, LookBack ex
           //     }
           //   : // loop back to type: 'Identifier'
           //     ParserInternal<Tokens>,
-          ParserInternal<TailBy<Tokens, 0>>,
-          ...(HasErrors<SelectToken<Tokens[4], 'LINEBREAK'> | SelectToken<Tokens[5], 'INDENT'>> extends false ? [ParserInternal<TailBy<Tokens, 6>>] : []),
+          ParserInternal<Tokens>,
+          ...ParseIdentifiers<Tokens>,
         ]
       },
       Engine['debug']['parser']
@@ -131,4 +143,32 @@ type Demo1 = Parser<Token1>
 //    ^?
 
 type Demo2 = Parser<Tokenize<Schema2>>
+//    ^?
+
+type ParseIdentifiersDemo = ParseIdentifiers<
+  [
+    Identifier<'type'>,
+    Collon,
+    Indent<1>,
+    Identifier<'object'>,
+    LineBreak<1>,
+    Indent<2>,
+    Identifier<'description'>,
+    Collon,
+    Indent<1>,
+    Identifier<'test'>,
+    LineBreak<1>,
+    Indent<2>,
+    Identifier<'required'>,
+    Collon,
+    Indent<1>,
+    Identifier<'true'>,
+    LineBreak<1>,
+    Indent<2>,
+    Identifier<'test'>,
+    Collon,
+    Indent<1>,
+    Identifier<'aho'>,
+  ]
+>
 //    ^?

@@ -71,10 +71,15 @@ expectTypeOf<DemoJSON2>().toEqualTypeOf<{
       value: 'description'
       children: 'test'
     },
-    // {
-    //   type: 'Identifier'
-    //   value: 'required'
-    //   children: 'true'
-    // },
+    {
+      type: 'Identifier'
+      value: 'required'
+      children: 'true'
+    },
+    {
+      type: 'Identifier'
+      value: 'test'
+      children: 'aho'
+    },
   ]
 }>()
