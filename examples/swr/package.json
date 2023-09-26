@@ -28,7 +28,7 @@
     "@kubb/swagger-zod": "workspace:*",
     "axios": "^1.5.0",
     "react": "^18.2.0",
-    "swr": "^2.2.2",
+    "swr": "^2.2.4",
     "tsup": "^7.2.0"
   }
 }

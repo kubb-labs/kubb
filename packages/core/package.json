@@ -69,8 +69,8 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.2",
-    "@types/seedrandom": "^3.0.5",
-    "eslint": "^8.49.0",
+    "@types/seedrandom": "^3.0.6",
+    "eslint": "^8.50.0",
     "ora": "^7.0.1",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
