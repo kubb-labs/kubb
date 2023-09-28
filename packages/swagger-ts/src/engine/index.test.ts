@@ -49,6 +49,19 @@ Pet:
       format: int64
 `
 
+const propertiesSchema = `
+Pet:
+  type: object
+  description: test
+  required: true
+  properties:
+    id:
+      type: integer
+      format: int64
+    name:
+      type: string
+`
+
 const doubleSchema = `
 Pet:
   type: object
@@ -85,6 +98,12 @@ type DemoAdvancedSchemaAST = CreateEngine<typeof advancedSchema>['ast']
 //    ^?
 
 type DemoAdvancedSchemaJSON = CreateEngine<typeof advancedSchema>['json']
+//    ^?
+
+type DemoPropertiesSchemaAST = CreateEngine<typeof propertiesSchema>['ast']
+//    ^?
+
+type DemoPropertiesSchemaJSON = CreateEngine<typeof propertiesSchema>['json']
 //    ^??
 
 expectTypeOf<DemoPropertyJSON>().toEqualTypeOf<{
@@ -163,6 +182,73 @@ expectTypeOf<DemoAdvancedSchemaJSON>().toEqualTypeOf<{
               type: 'Identifier'
               value: 'format'
               children: 'int64'
+            },
+          ]
+        },
+      ]
+    },
+  ]
+}>()
+
+expectTypeOf<DemoPropertiesSchemaJSON>().toEqualTypeOf<{
+  type: 'RootIdentifier'
+  value: {
+    type: 'Identifier'
+    value: 'Pet'
+  }
+  children: [
+    {
+      type: 'Identifier'
+      value: 'type'
+      children: 'object'
+    },
+    {
+      type: 'Identifier'
+      value: 'description'
+      children: 'test'
+    },
+    {
+      type: 'Identifier'
+      value: 'required'
+      children: 'true'
+    },
+    {
+      type: 'RootIdentifier'
+      value: {
+        type: 'Identifier'
+        value: 'properties'
+      }
+      children: [
+        {
+          type: 'RootIdentifier'
+          value: {
+            type: 'Identifier'
+            value: 'id'
+          }
+          children: [
+            {
+              type: 'Identifier'
+              value: 'type'
+              children: 'integer'
+            },
+            {
+              type: 'Identifier'
+              value: 'format'
+              children: 'int64'
+            },
+          ]
+        },
+        {
+          type: 'RootIdentifier'
+          value: {
+            type: 'Identifier'
+            value: 'name'
+          }
+          children: [
+            {
+              type: 'Identifier'
+              value: 'type'
+              children: 'string'
             },
           ]
         },
