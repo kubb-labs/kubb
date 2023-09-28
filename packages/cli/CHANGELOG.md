@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.3](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.9.2...@kubb/cli-v1.9.3) (2023-09-28)
+
+
+### 🐞 Bug Fixes
+
+* msw without requestMock ([17a1ba2](https://github.com/kubb-project/kubb/commit/17a1ba23886dea79efb0752eb23323dd60dbaebd))
+
 ## [1.9.2](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.9.1...@kubb/cli-v1.9.2) (2023-09-27)
 
 
