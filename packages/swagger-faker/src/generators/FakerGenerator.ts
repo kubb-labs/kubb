@@ -294,8 +294,8 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       }
 
       if (schema.type === fakerKeywords.number || schema.type === fakerKeywords.integer) {
-        const min = schema.minimum ?? schema.minLength ?? undefined
-        const max = schema.maximum ?? schema.maxLength ?? undefined
+        const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
+        const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
 
         return [{ keyword: fakerKeywords.number, args: { min, max } }]
       }
