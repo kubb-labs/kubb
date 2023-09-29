@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-faker-v1.9.3...@kubb/swagger-faker-v1.9.4) (2023-09-29)
+
+
+### 🐞 Bug Fixes
+
+* support for `minItems` and `maxItems` ([90a92a2](https://github.com/kubb-project/kubb/commit/90a92a234e930f465709c8bb9d92f12723272d1e))
+
 ## [1.9.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-faker-v1.9.2...@kubb/swagger-faker-v1.9.3) (2023-09-28)
 
 
