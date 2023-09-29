@@ -81,8 +81,8 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         if (this.options.withJSDocs && schema.description) {
           validationFunctions.push({ keyword: zodKeywords.describe, args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
         }
-        const min = schema.minimum ?? schema.minLength ?? undefined
-        const max = schema.maximum ?? schema.maxLength ?? undefined
+        const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
+        const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
         const matches = schema.pattern ?? undefined
         const nullable = schema.nullable ?? false
         const isEnum = validationFunctions.some((item) => item.keyword === zodKeywords.enum)
