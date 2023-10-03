@@ -19,10 +19,10 @@ type ParseIdentifier<Tokens extends ASTs[], Res extends Parsers, LookBack extend
   {
     type: 'Identifier'
     debug: {
-      CurrCursor: Cursor
-      CurrTokens: Tokens
-      PrevToken: LookBack
-      NextToken: LookAhead
+      // CurrCursor: Cursor
+      // CurrTokens: Tokens
+      // PrevToken: LookBack
+      // NextToken: LookAhead
       // [LineBreak<1> and Indent<x>]
       // NextIndentLevel: HasErrors<SelectToken<Tokens[1], 'LINEBREAK'> | SelectToken<Tokens[2], 'INDENT'>> extends true
       //   ? ParserError<'[LineBreak<1>, Indent<x>] order not found'>
@@ -46,14 +46,7 @@ type ParseIdentifiers<Tokens extends ASTs[], Res extends Parsers[] = [], Cursor 
   ? ParseIdentifiers<TailBy<Tokens, 6>, [...Res, ParserInternal<TailBy<Tokens, 6>>], Head<TailBy<Tokens, 6>>>
   : Res
 
-type ParseRootIdentifier<
-  Tokens extends ASTs[],
-  Res extends Parsers,
-  LookBack extends ASTs,
-  Cursor extends ASTs,
-  LookAhead extends ASTs,
-  Indent extends number,
-> = LookBack extends {
+type ParseRootIdentifier<Tokens extends ASTs[], Res extends Parsers, LookBack extends ASTs, Cursor extends ASTs, LookAhead extends ASTs> = LookBack extends {
   type: ASTTypes['LINEBREAK']
 }
   ? // Tag:\n
@@ -61,10 +54,10 @@ type ParseRootIdentifier<
       {
         type: 'RootIdentifier'
         debug: {
-          CurrCursor: Cursor
-          CurrTokens: Tokens
-          PrevToken: LookBack
-          NextToken: LookAhead
+          // CurrCursor: Cursor
+          // CurrTokens: Tokens
+          // PrevToken: LookBack
+          // NextToken: LookAhead
           // [Collon, Indent<x>, Identifier<"object">, LineBreak<1> and Indent<x>]
           NextIndentLevel: HasNoErrors<SelectToken<Tokens[4], 'LINEBREAK'> | SelectToken<Tokens[5], 'INDENT'>> extends true
             ? Extract<SelectToken<Tokens[2], 'INDENT'>, { level: number }>['level']
@@ -111,6 +104,7 @@ type ParserInternal<
   ? ParserInternal<TailBy<Tokens, 1>, Res, Head<Tokens>>
   : IsToken<Cursor, 'IDENT'> extends true
   ? // keep data to reuse later on when checking on Res, we need the correct name here
+    // ParserInternal<TailBy<Tokens, 1>, Res & { type: 'Identifier'; value: Cursor['name']; indent: Cursor['indent'] }, Head<TailBy<Tokens, 1>>>
     ParserInternal<TailBy<Tokens, 1>, Res & { type: 'Identifier'; value: Cursor['name'] }, Head<TailBy<Tokens, 1>>>
   : LookAhead extends {
       type: ASTTypes['IDENT']
@@ -120,14 +114,7 @@ type ParserInternal<
     Res extends {
       type: ParseTypes['Identifier']
     }
-    ? ParseRootIdentifier<
-        TailBy<Tokens, 1>,
-        Res,
-        LookBack,
-        Head<TailBy<Tokens, 1>>,
-        Head2<TailBy<Tokens, 1>>,
-        LookBack extends ASTs ? LookBack['level'] : never
-      >
+    ? ParseRootIdentifier<TailBy<Tokens, 1>, Res, LookBack, Head<TailBy<Tokens, 1>>, Head2<TailBy<Tokens, 1>>>
     : never
   : Res
 
@@ -153,6 +140,8 @@ Tag:
 type Token1 = Tokenize<Schema1>
 //    ^?
 // [Identifier<"Pet">, Collon, LineBreak<1>, Indent<2>, Identifier<"description">, Collon, Indent<1>, Identifier<"test">, LineBreak<1>, Indent<2>, Identifier<"required">, Collon, Indent<1>, Identifier<"true">]
+type Token2 = Tokenize<Schema2>
+//    ^?
 type Demo1 = Parser<Token1>
 //    ^?
 
@@ -166,30 +155,33 @@ properties:
   name:
     type: string
 `
+
+type Token3 = Tokenize<typeof parseIdentifiersDemoSchema>
+//    ^?
 type ParseIdentifiersDemo = Parser<
   [
-    Identifier<'properties'>,
+    Identifier<'properties', 0>,
     Collon,
     LineBreak<1>,
     Indent<2>,
-    Identifier<'id'>,
+    Identifier<'id', 2>,
     Collon,
     LineBreak<1>,
     Indent<4>,
-    Identifier<'type'>,
+    Identifier<'type', 4>,
     Collon,
     Indent<1>,
-    Identifier<'integer'>,
+    Identifier<'integer', 1>,
     LineBreak<1>,
     Indent<2>,
-    Identifier<'name'>,
+    Identifier<'name', 2>,
     Collon,
     LineBreak<1>,
     Indent<4>,
-    Identifier<'type'>,
+    Identifier<'type', 4>,
     Collon,
     Indent<1>,
-    Identifier<'string'>,
+    Identifier<'string', 1>,
   ]
 >
 //    ^?

@@ -37,9 +37,10 @@ export type ASTMap = {
   [Indent1]: Indent<1>
 }
 
-export type Identifier<TName extends string> = {
+export type Identifier<TName extends string, TIndent extends number = 0> = {
   type: ASTTypes['IDENT']
   name: TName
+  indent: TIndent
   children: any[]
 }
 
@@ -92,13 +93,18 @@ export type CombineTokens<Tokens extends ASTs[], Acc extends ASTs[] = [], Curr =
         Shift<Tokens>,
         [],
         Head<Shift<Tokens>>,
-        Tail<Res> extends { level: number; type: Curr['type'] }
-          ? [...Pop<Res>, Extract<CombineLevel<Curr, Tail<Res>['level']>, ASTs>]
-          : [...Res, Extract<Curr, ASTs>]
+        Tail<Res> extends { level: number; type: Curr['type'] } ? [...Pop<Res>, CombineLevel<Curr, Tail<Res>['level']>] : [...Res, Curr]
+      >
+    : Curr extends { type: ASTTypes['IDENT'] }
+    ? CombineTokens<
+        Shift<Tokens>,
+        [],
+        Head<Shift<Tokens>>,
+        [...Res, Identifier<Curr['name'], Tail<Res> extends { type: ASTTypes['INDENT']; level: number } ? Tail<Res>['level'] : 0>]
       >
     : // all Tokens that does not have `level`
       CombineTokens<Shift<Tokens>, [], Head<Shift<Tokens>>, [...Res, Curr]>
-  : CombineTokens<Shift<Tokens>, [...Acc, Extract<Curr, ASTs>], Head<Shift<Tokens>>, Res>
+  : CombineTokens<Shift<Tokens>, Acc, Head<Shift<Tokens>>, Res>
 
 type Demo1 = ASTSwitch<' '>
 //    ^?
@@ -124,6 +130,8 @@ type Demo7 = CombineTokens<[Indent<2>, Indent<2>, Collon, LineBreak<1>, LineBrea
 type Demo8 = [HasLevel<LineBreak<1>>, HasLevel<Collon>]
 //    ^?
 
+type Demo9 = CombineTokens<[Indent<1>, Indent<1>, Indent<1>, Identifier<'properties'>, LineBreak<1>, Indent<1>, Identifier<'properties2'>, Collon]>
+//    ^?
 type SelectTokenCollonDemo = SelectToken<{ type: ASTTypes['COLLON'] }, 'COLLON'>
 //    ^?
 
