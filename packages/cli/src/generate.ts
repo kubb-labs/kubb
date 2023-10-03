@@ -1,6 +1,7 @@
 import { build, ParallelPluginError, PluginError, SummaryError, timeout, LogLevel } from '@kubb/core'
 
 import type { ExecaReturnValue } from 'execa'
+import type { Writable } from 'node:stream'
 
 import { execa } from 'execa'
 import pc from 'picocolors'
@@ -47,7 +48,7 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
 
     spinner.start(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
 
-    const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable)
+    const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable as Writable)
     spinner.suffixText = ''
 
     if (logLevel === LogLevel.silent) {

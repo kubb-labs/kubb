@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.9.4](https://github.com/kubb-project/kubb/compare/kubb-v1.9.3...kubb-v1.9.4) (2023-09-29)
+
+
+### 📦 Miscellaneous Chores
+
+* **kubb:** Synchronize undefined versions
+
+## [1.9.3](https://github.com/kubb-project/kubb/compare/kubb-v1.9.2...kubb-v1.9.3) (2023-09-28)
+
+
+### 🐞 Bug Fixes
+
+* msw without requestMock ([17a1ba2](https://github.com/kubb-project/kubb/commit/17a1ba23886dea79efb0752eb23323dd60dbaebd))
+
+## [1.9.2](https://github.com/kubb-project/kubb/compare/kubb-v1.9.1...kubb-v1.9.2) (2023-09-27)
+
+
+### 📦 Miscellaneous Chores
+
+* **kubb:** Synchronize undefined versions
+
 ## [1.9.1](https://github.com/kubb-project/kubb/compare/kubb-v1.9.0...kubb-v1.9.1) (2023-09-22)
 
 

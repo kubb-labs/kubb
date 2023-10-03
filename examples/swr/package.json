@@ -26,7 +26,7 @@
     "@kubb/swagger-swr": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "axios": "^1.5.0",
+    "axios": "^1.5.1",
     "react": "^18.2.0",
     "swr": "^2.2.4",
     "tsup": "^7.2.0"

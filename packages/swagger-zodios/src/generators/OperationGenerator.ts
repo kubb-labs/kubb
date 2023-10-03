@@ -1,4 +1,4 @@
-import { getEncodedText, getRelativePath, URLPath } from '@kubb/core'
+import { escape, getRelativePath, URLPath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
@@ -183,7 +183,7 @@ export class OperationGenerator extends Generator<Options> {
         parameters.push(`
           {
             name: "${schemas.pathParams.name}",
-            description: \`${getEncodedText(schemas.pathParams.description)}\`,
+            description: \`${escape(schemas.pathParams.description)}\`,
             type: "Path",
             schema: ${pathParams.name}
           }
@@ -201,7 +201,7 @@ export class OperationGenerator extends Generator<Options> {
         parameters.push(`
           {
             name: "${schemas.queryParams.name}",
-            description: \`${getEncodedText(schemas.queryParams.description)}\`,
+            description: \`${escape(schemas.queryParams.description)}\`,
             type: "Query",
             schema: ${queryParams.name}
           }
@@ -224,7 +224,7 @@ export class OperationGenerator extends Generator<Options> {
             errors.push(`
               {
                 status: ${errorOperationSchema.statusCode},
-                description: \`${getEncodedText(errorOperationSchema.description)}\`,
+                description: \`${escape(errorOperationSchema.description)}\`,
                 schema: ${name}
               }
             `)
@@ -236,7 +236,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           method: "${operation.method}",
           path: "${new URLPath(operation.path).URL}",
-          description: \`${getEncodedText(operation.getDescription())}\`,
+          description: \`${escape(operation.getDescription())}\`,
           requestFormat: "json",
           parameters: [
               ${parameters.join(',')}

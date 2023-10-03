@@ -1,4 +1,4 @@
-import { getUniqueName, SchemaGenerator } from '@kubb/core'
+import { getUniqueName, SchemaGenerator, jsStringEscape } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 
 import { zodKeywords, zodParser } from '../parsers/index.ts'
@@ -81,8 +81,8 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         if (this.options.withJSDocs && schema.description) {
           validationFunctions.push({ keyword: zodKeywords.describe, args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
         }
-        const min = schema.minimum ?? schema.minLength ?? undefined
-        const max = schema.maximum ?? schema.maxLength ?? undefined
+        const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
+        const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
         const matches = schema.pattern ?? undefined
         const nullable = schema.nullable ?? false
         const isEnum = validationFunctions.some((item) => item.keyword === zodKeywords.enum)
@@ -99,7 +99,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           const isStartWithSlash = matches.startsWith('/')
           const isEndWithSlash = matches.endsWith('/')
 
-          const regexp = `new RegExp('${escape(matches.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))}')`
+          const regexp = `new RegExp('${jsStringEscape(matches.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))}')`
 
           validationFunctions.push({ keyword: zodKeywords.matches, args: regexp })
         }

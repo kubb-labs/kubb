@@ -152,11 +152,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const source = new MSWBuilder(oas)
-      .add(schemas.pathParams)
-      .add(schemas.queryParams)
-      .add(schemas.headerParams)
       .add(schemas.response)
-      .add(schemas.errors)
       .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, responseName, operation, resolveName })
       .print()
 
@@ -205,12 +201,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const source = new MSWBuilder(oas)
-      .add(schemas.pathParams)
-      .add(schemas.queryParams)
-      .add(schemas.headerParams)
-      .add(schemas.request)
       .add(schemas.response)
-      .add(schemas.errors)
       .configure({
         fileResolver: mode === 'file' ? undefined : fileResolver,
         withJSDocs: true,
@@ -231,7 +222,7 @@ export class OperationGenerator extends Generator<Options> {
         },
         faker
           ? {
-              name: [responseName, requestName].filter(Boolean),
+              name: [responseName].filter(Boolean),
               path: getRelativePath(msw.filePath, faker.filePath),
             }
           : undefined,

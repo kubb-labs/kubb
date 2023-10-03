@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.9.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.9.3...@kubb/swagger-zodios-v1.9.4) (2023-09-29)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/swagger-zodios:** Synchronize undefined versions
+
+## [1.9.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.9.2...@kubb/swagger-zodios-v1.9.3) (2023-09-28)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/swagger-zodios:** Synchronize undefined versions
+
+## [1.9.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.9.1...@kubb/swagger-zodios-v1.9.2) (2023-09-27)
+
+
+### 🐞 Bug Fixes
+
+* proper escape Regex(Escape all characters not included in SingleStringCharacters and DoubleStringCharacters) ([4b43cc1](https://github.com/kubb-project/kubb/commit/4b43cc169de5173eec8a760148fb4ab33d2a4eab))
+
 ## [1.9.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.9.0...@kubb/swagger-zodios-v1.9.1) (2023-09-22)
 
 

@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.9.4](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.9.3...@kubb/ts-codegen-v1.9.4) (2023-09-29)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/ts-codegen:** Synchronize undefined versions
+
+## [1.9.3](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.9.2...@kubb/ts-codegen-v1.9.3) (2023-09-28)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/ts-codegen:** Synchronize undefined versions
+
+## [1.9.2](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.9.1...@kubb/ts-codegen-v1.9.2) (2023-09-27)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/ts-codegen:** Synchronize undefined versions
+
 ## [1.9.1](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.9.0...@kubb/ts-codegen-v1.9.1) (2023-09-22)
 
 
