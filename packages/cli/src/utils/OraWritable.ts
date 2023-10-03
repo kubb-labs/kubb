@@ -17,7 +17,7 @@ export class OraWritable extends Writable {
     this.command = command
     this.spinner = spinner
   }
-  _write(chunk: any, _encoding: NodeJS.BufferEncoding, callback: (error?: Error | null) => void): void {
+  _write(chunk: any, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
     this.spinner.suffixText = `\n\n${pc.bold(pc.blue(this.command))}: ${chunk?.toString()}`
 
     callback()
