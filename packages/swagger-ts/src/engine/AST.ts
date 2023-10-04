@@ -1,4 +1,5 @@
-import type { Indent1, Indent2, Indent3, Indent4, Indent5, Indent6, Indent7, Head, Shift, Tail, Pop, ParserError, Tail2 } from './utils.ts'
+/* eslint-disable @typescript-eslint/ban-types */
+import type { Indent1, Indent2, Indent3, Indent4, Indent5, Indent6, Indent7, Head, Shift, Tail, Pop, ParserError, Tail2, Reverse, TailBy } from './utils.ts'
 import type { Call, Numbers } from 'hotscript'
 import { expectTypeOf } from 'expect-type'
 
@@ -116,27 +117,18 @@ export type CombineTokens<Tokens extends ASTs[], Acc extends ASTs[] = [], Curr =
       CombineTokens<Shift<Tokens>, [], Head<Shift<Tokens>>, [...Res, Curr]>
   : CombineTokens<Shift<Tokens>, Acc, Head<Shift<Tokens>>, Res>
 
-export type SplitIdentifierByIndent<
-  Tokens extends ASTs[],
-  Acc extends ASTs[] = [],
-  Curr = Head<Tokens>,
-  Res extends ASTs[] = [],
-  Res2 extends ASTs[] = [],
-> = Curr extends []
-  ? Acc extends []
-    ? [Res, Res2]
-    : [Res, Res2]
-  : Curr extends ASTs
-  ? Curr extends { type: ASTTypes['IDENT'] }
-    ? SplitIdentifierByIndent<
-        Shift<Tokens>,
-        [],
-        Head<Shift<Tokens>>,
-        Tail<Res> extends { type: Curr['type'] } ? (Tail<Res> extends { indent: Curr['indent'] } ? [...Res, Curr] : [...Res]) : [...Res, Curr],
-        Tail<Res> extends { type: Curr['type'] } ? (Tail<Res> extends { indent: Curr['indent'] } ? [...Res2] : [...Res2, Curr]) : [...Res2]
-      >
-    : SplitIdentifierByIndent<Shift<Tokens>, [], Head<Shift<Tokens>>, Res, Res2>
-  : SplitIdentifierByIndent<Shift<Tokens>, Acc, Head<Shift<Tokens>>, Res, Res2>
+// export type FindPreviousIdentifier<Tokens extends ASTs[], ReversedTokens= Reverse<Tokens>>=never
+
+type FindPreviousIdentifierInternal<Tokens extends ASTs[], Res extends ASTs = {}, Cursor = Head<Tokens>> = Cursor extends []
+  ? Res extends {}
+    ? Res
+    : Res
+  : Head<Tokens> extends { type: ASTTypes['IDENT'] }
+  ? Head<Tokens>
+  : FindPreviousIdentifierInternal<TailBy<Tokens, 1>, Res>
+
+export type FindPreviousIdentifier<Tokens extends ASTs[]> = FindPreviousIdentifierInternal<Reverse<Tokens>>
+
 type Demo1 = ASTSwitch<' '>
 //    ^?
 
@@ -164,8 +156,9 @@ type Demo8 = [HasLevel<LineBreak<1>>, HasLevel<Collon>]
 type Demo9 = CombineTokens<[Indent<1>, Indent<1>, Indent<1>, Identifier<'properties'>, LineBreak<1>, Indent<1>, Identifier<'properties2'>, Collon]>
 //    ^?
 
-type Demo10 = SplitIdentifierByIndent<[Indent<3>, Identifier<'properties', 3>, LineBreak<1>, Indent<2>, Identifier<'properties2', 2>, Collon]>
+type Demo10 = FindPreviousIdentifier<[Indent<1>, Indent<1>, Indent<1>, Identifier<'properties'>, LineBreak<1>, Indent<1>, Identifier<'properties2'>, Collon]>
 //    ^?
+
 type SelectTokenCollonDemo = SelectToken<{ type: ASTTypes['COLLON'] }, 'COLLON'>
 //    ^?
 
