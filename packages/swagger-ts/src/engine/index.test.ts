@@ -114,10 +114,7 @@ expectTypeOf<DemoPropertyJSON>().toEqualTypeOf<{
 
 expectTypeOf<DemoSchemaJSON>().toEqualTypeOf<{
   type: 'RootIdentifier'
-  value: {
-    type: 'Identifier'
-    value: 'Pet'
-  }
+  value: 'Pet'
   children: [
     {
       type: 'Identifier'
@@ -139,10 +136,7 @@ expectTypeOf<DemoSchemaJSON>().toEqualTypeOf<{
 
 expectTypeOf<DemoAdvancedSchemaJSON>().toEqualTypeOf<{
   type: 'RootIdentifier'
-  value: {
-    type: 'Identifier'
-    value: 'Pet'
-  }
+  value: 'Pet'
   children: [
     {
       type: 'Identifier'
@@ -161,17 +155,11 @@ expectTypeOf<DemoAdvancedSchemaJSON>().toEqualTypeOf<{
     },
     {
       type: 'RootIdentifier'
-      value: {
-        type: 'Identifier'
-        value: 'properties'
-      }
+      value: 'properties'
       children: [
         {
           type: 'RootIdentifier'
-          value: {
-            type: 'Identifier'
-            value: 'id'
-          }
+          value: 'id'
           children: [
             {
               type: 'Identifier'
@@ -192,10 +180,7 @@ expectTypeOf<DemoAdvancedSchemaJSON>().toEqualTypeOf<{
 
 expectTypeOf<DemoPropertiesSchemaJSON>().toEqualTypeOf<{
   type: 'RootIdentifier'
-  value: {
-    type: 'Identifier'
-    value: 'Pet'
-  }
+  value: 'Pet'
   children: [
     {
       type: 'Identifier'
@@ -214,17 +199,11 @@ expectTypeOf<DemoPropertiesSchemaJSON>().toEqualTypeOf<{
     },
     {
       type: 'RootIdentifier'
-      value: {
-        type: 'Identifier'
-        value: 'properties'
-      }
+      value: 'properties'
       children: [
         {
           type: 'RootIdentifier'
-          value: {
-            type: 'Identifier'
-            value: 'id'
-          }
+          value: 'id'
           children: [
             {
               type: 'Identifier'
@@ -240,10 +219,7 @@ expectTypeOf<DemoPropertiesSchemaJSON>().toEqualTypeOf<{
         },
         {
           type: 'RootIdentifier'
-          value: {
-            type: 'Identifier'
-            value: 'name'
-          }
+          value: 'name'
           children: [
             {
               type: 'Identifier'

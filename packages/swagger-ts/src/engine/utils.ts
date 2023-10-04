@@ -22,6 +22,12 @@ export type Head2<TInput extends unknown[]> = TInput extends [infer H1, infer H2
 export type Pop<T extends unknown[]> = T extends [...infer H, infer _T] ? H : []
 
 export type Tail<T extends unknown[]> = T extends [...infer _H, infer T] ? T : []
+
+export type Tail2<T extends unknown[]> = T extends [...infer _H, infer T, infer _P] ? T : []
+/**
+ * By will be number to say how many items from the beginning that needs to be removed
+ * @example TailBy<[2,3,4], 2> => [4]
+ */
 export type TailBy<T extends unknown[], By extends number, A extends number[] = []> = By extends A['length'] ? T : TailBy<Shift<T>, By, Push<A>>
 
 export type Shift<T extends unknown[]> = T extends [infer _H, ...infer T] ? T : []

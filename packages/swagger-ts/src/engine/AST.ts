@@ -1,4 +1,4 @@
-import type { Indent1, Indent2, Indent3, Indent4, Indent5, Indent6, Indent7, Head, Shift, Tail, Pop, ParserError } from './utils.ts'
+import type { Indent1, Indent2, Indent3, Indent4, Indent5, Indent6, Indent7, Head, Shift, Tail, Pop, ParserError, Tail2 } from './utils.ts'
 import type { Call, Numbers } from 'hotscript'
 import { expectTypeOf } from 'expect-type'
 
@@ -100,12 +100,43 @@ export type CombineTokens<Tokens extends ASTs[], Acc extends ASTs[] = [], Curr =
         Shift<Tokens>,
         [],
         Head<Shift<Tokens>>,
-        [...Res, Identifier<Curr['name'], Tail<Res> extends { type: ASTTypes['INDENT']; level: number } ? Tail<Res>['level'] : 0>]
+        [
+          ...Res,
+          Identifier<
+            Curr['name'],
+            Tail<Res> extends { type: ASTTypes['INDENT']; level: number }
+              ? Tail2<Res> extends { type: ASTTypes['LINEBREAK']; level: number }
+                ? Tail<Res>['level']
+                : never
+              : never
+          >,
+        ]
       >
     : // all Tokens that does not have `level`
       CombineTokens<Shift<Tokens>, [], Head<Shift<Tokens>>, [...Res, Curr]>
   : CombineTokens<Shift<Tokens>, Acc, Head<Shift<Tokens>>, Res>
 
+export type SplitIdentifierByIndent<
+  Tokens extends ASTs[],
+  Acc extends ASTs[] = [],
+  Curr = Head<Tokens>,
+  Res extends ASTs[] = [],
+  Res2 extends ASTs[] = [],
+> = Curr extends []
+  ? Acc extends []
+    ? [Res, Res2]
+    : [Res, Res2]
+  : Curr extends ASTs
+  ? Curr extends { type: ASTTypes['IDENT'] }
+    ? SplitIdentifierByIndent<
+        Shift<Tokens>,
+        [],
+        Head<Shift<Tokens>>,
+        Tail<Res> extends { type: Curr['type'] } ? (Tail<Res> extends { indent: Curr['indent'] } ? [...Res, Curr] : [...Res]) : [...Res, Curr],
+        Tail<Res> extends { type: Curr['type'] } ? (Tail<Res> extends { indent: Curr['indent'] } ? [...Res2] : [...Res2, Curr]) : [...Res2]
+      >
+    : SplitIdentifierByIndent<Shift<Tokens>, [], Head<Shift<Tokens>>, Res, Res2>
+  : SplitIdentifierByIndent<Shift<Tokens>, Acc, Head<Shift<Tokens>>, Res, Res2>
 type Demo1 = ASTSwitch<' '>
 //    ^?
 
@@ -131,6 +162,9 @@ type Demo8 = [HasLevel<LineBreak<1>>, HasLevel<Collon>]
 //    ^?
 
 type Demo9 = CombineTokens<[Indent<1>, Indent<1>, Indent<1>, Identifier<'properties'>, LineBreak<1>, Indent<1>, Identifier<'properties2'>, Collon]>
+//    ^?
+
+type Demo10 = SplitIdentifierByIndent<[Indent<3>, Identifier<'properties', 3>, LineBreak<1>, Indent<2>, Identifier<'properties2', 2>, Collon]>
 //    ^?
 type SelectTokenCollonDemo = SelectToken<{ type: ASTTypes['COLLON'] }, 'COLLON'>
 //    ^?
