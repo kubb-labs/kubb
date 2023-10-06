@@ -108,9 +108,11 @@ export function combineExports(exports: Export[]): Export[] {
   return exports.reduce((prev, curr) => {
     const name = curr.name
     const prevByPath = prev.findLast((imp) => imp.path === curr.path)
-    const uniquePrev = prev.findLast((imp) => imp.path === curr.path)
+    const uniquePrev = prev.findLast(
+      (imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly && imp.asAlias === curr.asAlias,
+    )
 
-    if (uniquePrev || (Array.isArray(name) && !name.length)) {
+    if (uniquePrev || (Array.isArray(name) && !name.length) || (prevByPath?.asAlias && !curr.asAlias)) {
       return prev
     }
 

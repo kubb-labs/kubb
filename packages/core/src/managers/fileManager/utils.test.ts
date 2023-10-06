@@ -6,7 +6,7 @@ import { combineFiles, createFileSource, getIndexes } from './utils.ts'
 import type { File } from './types.ts'
 
 describe('FileManager utils', () => {
-  test.only('if getFileSource is returning code with imports', async () => {
+  test('if getFileSource is returning code with imports', async () => {
     const code = createFileSource({
       fileName: 'test.ts',
       path: 'models/ts/test.ts',
@@ -147,11 +147,12 @@ export const test2 = 3;`,
     ])
   })
 
-  test('if getFileSource is returning code with exports and exports as', () => {
+  test('if getFileSource is returning code with exports and exports as', async () => {
     const fileImport: File = {
       path: path.resolve('./src/models/file1.ts'),
       fileName: 'file1.ts',
-      source: 'export const test = 2;',
+      source: `export const test = 2;
+      type Test = Pets | Lily | Dog;`,
       imports: [
         {
           name: ['Pets'],
@@ -195,9 +196,21 @@ export const test2 = 3;`,
       ],
     }
 
-    expect(createFileSource(fileImport)).toEqual('import type { Pets, Lily } from "./Pets";\nimport type Dog from "./Dog";\n\nexport const test = 2;')
+    expect(await format(createFileSource(fileImport))).toMatch(
+      await format(`
+      import type { Pets, Lily } from "./Pets";
+      import type Dog from "./Dog";
+      
+      export const test = 2;
+      type Test = Pets | Lily | Dog;`),
+    )
 
-    expect(createFileSource(fileExport)).toEqual('export type { Pets, Lily } from "./Pets";\nexport type * as Dog from "./Dog";\n\n')
+    expect(await format(createFileSource(fileExport))).toEqual(
+      await format(`
+    export type { Pets, Lily } from "./Pets";
+    export type * as Dog from "./Dog";
+    `),
+    )
   })
 
   test('if combineFiles is combining `exports`, `imports` and `source` for the same file', () => {
@@ -333,7 +346,7 @@ export const test2 = 3;`,
     const fileImportAdvanced: File = {
       path: path.resolve('./src/models/file1.ts'),
       fileName: 'file1.ts',
-      source: 'export const hello = process.env["HELLO"];',
+      source: 'export const hello = process.env["HELLO"]; type Test = Pets;',
       imports: [
         {
           name: ['Pets'],
@@ -353,6 +366,7 @@ export const test2 = 3;`,
       declare const TEST: string;
 
       export const hello = typeof TEST !== 'undefined' ? TEST : undefined
+      type Test = Pets;
       `,
       imports: [
         {
@@ -368,10 +382,7 @@ export const test2 = 3;`,
 
     expect(await format(createFileSource(fileImport))).toEqual(
       await format(`
-    import type { Pets } from "./Pets";
-
     export const hello = "world";
-
     `),
     )
     expect(await format(createFileSource(fileImportAdvanced))).toEqual(
@@ -379,6 +390,7 @@ export const test2 = 3;`,
     import type { Pets } from "./Pets";
 
     export const hello = "world";
+    type Test = Pets;
 
     `),
     )
@@ -388,6 +400,7 @@ export const test2 = 3;`,
     import type { Pets } from "./Pets";
 
     export const hello = typeof "world" !== 'undefined' ? "world" : undefined
+    type Test = Pets;
 
     `),
     )
