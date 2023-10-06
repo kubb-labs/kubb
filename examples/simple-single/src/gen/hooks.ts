@@ -1,29 +1,73 @@
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from './models'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from './models'
-import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from './models'
-import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from './models'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from './models'
-import type { UpdatePetWithFormMutationResponse, UpdatePetWithFormPathParams, UpdatePetWithFormQueryParams, UpdatePetWithForm405 } from './models'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from './models'
-import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from './models'
-import type { GetInventoryQueryResponse } from './models'
-import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from './models'
-import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from './models'
-import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from './models'
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from './models'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from './models'
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from './models'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from './models'
-import type { LogoutUserQueryResponse } from './models'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from './models'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from './models'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from './models'
+import type {
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
+  UpdatePet400,
+  UpdatePet404,
+  UpdatePet405,
+  AddPetMutationRequest,
+  AddPetMutationResponse,
+  AddPet405,
+  FindPetsByStatusQueryResponse,
+  FindPetsByStatusQueryParams,
+  FindPetsByStatus400,
+  FindPetsByTagsQueryResponse,
+  FindPetsByTagsQueryParams,
+  FindPetsByTags400,
+  GetPetByIdQueryResponse,
+  GetPetByIdPathParams,
+  GetPetById400,
+  GetPetById404,
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
+  DeletePetMutationResponse,
+  DeletePetPathParams,
+  DeletePetHeaderParams,
+  DeletePet400,
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
+  UploadFilePathParams,
+  UploadFileQueryParams,
+  GetInventoryQueryResponse,
+  PlaceOrderMutationRequest,
+  PlaceOrderMutationResponse,
+  PlaceOrder405,
+  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchMutationResponse,
+  PlaceOrderPatch405,
+  GetOrderByIdQueryResponse,
+  GetOrderByIdPathParams,
+  GetOrderById400,
+  GetOrderById404,
+  DeleteOrderMutationResponse,
+  DeleteOrderPathParams,
+  DeleteOrder400,
+  DeleteOrder404,
+  CreateUserMutationRequest,
+  CreateUserMutationResponse,
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
+  LoginUserQueryResponse,
+  LoginUserQueryParams,
+  LoginUser400,
+  LogoutUserQueryResponse,
+  GetUserByNameQueryResponse,
+  GetUserByNamePathParams,
+  GetUserByName400,
+  GetUserByName404,
+  UpdateUserMutationRequest,
+  UpdateUserMutationResponse,
+  UpdateUserPathParams,
+  DeleteUserMutationResponse,
+  DeleteUserPathParams,
+  DeleteUser400,
+  DeleteUser404,
+} from './models'
 
 /**
  * @description Update an existing pet by Id

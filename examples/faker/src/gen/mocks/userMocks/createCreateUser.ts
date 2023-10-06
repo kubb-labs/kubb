@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker'
-
 import { createUser } from '../createUser'
 import { CreateUserMutationResponse } from '../../models/CreateUser'
 import { CreateUserError } from '../../models/CreateUser'

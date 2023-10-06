@@ -1,7 +1,6 @@
 import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../client'
-import type { ResponseConfig } from '../../../../client'
 import type {
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQueryParams,

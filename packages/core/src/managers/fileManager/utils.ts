@@ -1,14 +1,13 @@
 import pathParser from 'node:path'
-import isEqual from 'lodash.isequal'
 
 import { createExportDeclaration, createImportDeclaration, print } from '@kubb/ts-codegen'
 
 import { TreeNode } from '../../utils/index.ts'
 
-import type ts from 'typescript'
 import type { Path } from '../../types.ts'
 import type { PathMode, TreeNodeOptions } from '../../utils/index.ts'
-import type { File } from './types.ts'
+import type { Import, Export, File } from './types.ts'
+import isEqual from 'lodash.isequal'
 
 type TreeNodeData = { type: PathMode; path: Path; name: string }
 
@@ -105,60 +104,98 @@ export function isExtensionAllowed(fileName: string): boolean {
   return extensions.some((extension) => fileName.endsWith(extension))
 }
 
-export function getFileSource(file: File): string {
+export function combineExports(exports: Export[]): Export[] {
+  return exports.reduce((prev, curr) => {
+    const name = curr.name
+    const prevByPath = prev.findLast((imp) => imp.path === curr.path)
+    const uniquePrev = prev.findLast((imp) => imp.path === curr.path)
+
+    if (uniquePrev || (Array.isArray(name) && !name.length)) {
+      return prev
+    }
+
+    if (!prevByPath) {
+      return [
+        ...prev,
+        {
+          ...curr,
+          name: Array.isArray(name) ? [...new Set(name)] : name,
+        },
+      ]
+    }
+
+    if (prevByPath && Array.isArray(prevByPath.name) && Array.isArray(curr.name) && prevByPath.isTypeOnly === curr.isTypeOnly) {
+      prevByPath.name = [...new Set([...prevByPath.name, ...curr.name])]
+
+      return prev
+    }
+
+    return [...prev, curr]
+  }, [] as Export[])
+}
+
+export function combineImports(imports: Import[], exports: Export[], source: string): Import[] {
+  return imports.reduce((prev, curr) => {
+    let name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
+
+    const hasImportInSource = (importName: string) => {
+      const checker = (name?: string) => name && !!source.includes(`${name}`)
+      return checker(importName) || exports.some(({ name }) => (Array.isArray(name) ? name.some(checker) : checker(name)))
+    }
+
+    if (Array.isArray(name)) {
+      name = name.filter((item) => hasImportInSource(item))
+    }
+
+    const prevByPath = prev.findLast((imp) => imp.path === curr.path && imp.isTypeOnly === curr.isTypeOnly)
+    const uniquePrev = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly)
+
+    if (uniquePrev || (Array.isArray(name) && !name.length)) {
+      return prev
+    }
+
+    if (!prevByPath) {
+      return [
+        ...prev,
+        {
+          ...curr,
+          name,
+        },
+      ]
+    }
+
+    if (prevByPath && Array.isArray(prevByPath.name) && Array.isArray(name) && prevByPath.isTypeOnly === curr.isTypeOnly) {
+      prevByPath.name = [...new Set([...prevByPath.name, ...name])]
+
+      return prev
+    }
+
+    if (!Array.isArray(name) && name && !hasImportInSource(name)) {
+      return prev
+    }
+
+    return [...prev, curr]
+  }, [] as Import[])
+}
+
+export function createFileSource(file: File): string {
   let { source } = file
 
   if (!isExtensionAllowed(file.fileName)) {
     return file.source
   }
-  const imports: File['imports'] = []
-  const exports: File['exports'] = []
 
-  file.imports?.forEach((curr) => {
-    const existingImport = imports.find((imp) => imp.path === curr.path && isEqual(imp.name, curr.name))
+  const exports = file.exports ? combineExports(file.exports) : []
+  const imports = file.imports ? combineImports(file.imports, exports, source) : []
 
-    if (!existingImport) {
-      imports.push({
-        ...curr,
-        name: Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name,
-      })
-    }
-
-    if (existingImport && Array.isArray(existingImport.name) && Array.isArray(curr.name)) {
-      existingImport.name = [...new Set([...existingImport.name, ...curr.name])]
-    }
-  })
-
-  file.exports?.forEach((curr) => {
-    const exists = exports.find((imp) => imp.path === curr.path)
-    if (!exists) {
-      exports.push({
-        ...curr,
-        name: Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name,
-      })
-    }
-
-    if (exists && !Array.isArray(exists.name) && exists.name !== curr.name && exists.asAlias === curr.asAlias) {
-      exports.push(curr)
-    }
-
-    if (exists && Array.isArray(exists.name)) {
-      if (Array.isArray(curr.name)) {
-        exists.name = [...new Set([...exists.name, ...curr.name])]
-      }
-    }
-  })
-
-  const importNodes = imports.reduce((prev, curr) => {
-    return [...prev, createImportDeclaration({ name: curr.name, path: curr.path, isTypeOnly: curr.isTypeOnly })]
-  }, [] as ts.ImportDeclaration[])
+  const importNodes = imports.map((item) => createImportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly }))
   const importSource = print(importNodes)
 
-  const exportNodes = exports.reduce((prev, curr) => {
-    return [...prev, createExportDeclaration({ name: curr.name, path: curr.path, isTypeOnly: curr.isTypeOnly, asAlias: curr.asAlias })]
-  }, [] as ts.ExportDeclaration[])
+  const exportNodes = exports.map((item) => createExportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly, asAlias: item.asAlias }))
   const exportSource = print(exportNodes)
-  source = getEnvSource(source, file.env)
+
+  // need to after `combineImports`
+  source = getEnvSource(file.source, file.env)
 
   if (importSource) {
     source = `${importSource}\n${source}`

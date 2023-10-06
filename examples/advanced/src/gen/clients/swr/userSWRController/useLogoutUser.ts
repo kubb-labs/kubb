@@ -1,7 +1,6 @@
 import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../client'
-import type { ResponseConfig } from '../../../../client'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 
 export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(

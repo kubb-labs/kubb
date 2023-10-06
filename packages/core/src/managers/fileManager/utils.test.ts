@@ -1,13 +1,13 @@
 import path from 'node:path'
 
 import { format } from '../../../mocks/format.ts'
-import { combineFiles, getFileSource, getIndexes } from './utils.ts'
+import { combineFiles, createFileSource, getIndexes } from './utils.ts'
 
 import type { File } from './types.ts'
 
 describe('FileManager utils', () => {
-  test('if getFileSource is returning code with imports', async () => {
-    const code = getFileSource({
+  test.only('if getFileSource is returning code with imports', async () => {
+    const code = createFileSource({
       fileName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets;',
@@ -19,6 +19,52 @@ describe('FileManager utils', () => {
         },
       ],
     })
+    const codeWithDefaultImport = createFileSource({
+      fileName: 'test.ts',
+      path: 'models/ts/test.ts',
+      source: 'export type Pet = Pets | Cat; const test = [client, React];',
+      imports: [
+        {
+          name: 'client',
+          path: './Pets',
+        },
+        {
+          name: ['Pets', 'Cat'],
+          path: './Pets',
+          isTypeOnly: true,
+        },
+        {
+          name: 'React',
+          path: './React',
+        },
+      ],
+    })
+    const codeWithDefaultImportOrder = createFileSource({
+      fileName: 'test.ts',
+      path: 'models/ts/test.ts',
+      source: 'export type Pet = Pets | Cat;\nconst test = [client, React];',
+      imports: [
+        {
+          name: ['Pets', 'Cat'],
+          path: './Pets',
+          isTypeOnly: true,
+        },
+        {
+          name: 'client',
+          path: './Pets',
+        },
+        {
+          name: 'React',
+          path: './React',
+        },
+        {
+          name: ['Pets', 'Cat'],
+          path: './Pets',
+          isTypeOnly: true,
+        },
+      ],
+    })
+
     expect(await format(code)).toMatch(
       await format(`
     import type { Pets } from './Pets'
@@ -27,10 +73,34 @@ describe('FileManager utils', () => {
     
    `),
     )
+
+    expect(await format(codeWithDefaultImport)).toMatch(
+      await format(`
+    import client from './Pets'
+    import type { Pets, Cat } from './Pets'
+    import React from './React'
+
+    export type Pet = Pets | Cat
+    const test = [client, React]
+    
+   `),
+    )
+
+    expect(await format(codeWithDefaultImportOrder)).toMatch(
+      await format(`
+    import type { Pets, Cat } from './Pets'
+    import client from './Pets'
+    import React from './React'
+
+    export type Pet = Pets | Cat
+    const test = [client, React]
+
+   `),
+    )
   })
 
   test('if getFileSource is returning code with imports and default import', async () => {
-    const code = getFileSource({
+    const code = createFileSource({
       fileName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets;',
@@ -125,9 +195,9 @@ export const test2 = 3;`,
       ],
     }
 
-    expect(getFileSource(fileImport)).toEqual('import type { Pets, Lily } from "./Pets";\nimport type Dog from "./Dog";\n\nexport const test = 2;')
+    expect(createFileSource(fileImport)).toEqual('import type { Pets, Lily } from "./Pets";\nimport type Dog from "./Dog";\n\nexport const test = 2;')
 
-    expect(getFileSource(fileExport)).toEqual('export type { Pets, Lily } from "./Pets";\nexport type * as Dog from "./Dog";\n\n')
+    expect(createFileSource(fileExport)).toEqual('export type { Pets, Lily } from "./Pets";\nexport type * as Dog from "./Dog";\n\n')
   })
 
   test('if combineFiles is combining `exports`, `imports` and `source` for the same file', () => {
@@ -296,7 +366,7 @@ export const test2 = 3;`,
       },
     }
 
-    expect(await format(getFileSource(fileImport))).toEqual(
+    expect(await format(createFileSource(fileImport))).toEqual(
       await format(`
     import type { Pets } from "./Pets";
 
@@ -304,7 +374,7 @@ export const test2 = 3;`,
 
     `),
     )
-    expect(await format(getFileSource(fileImportAdvanced))).toEqual(
+    expect(await format(createFileSource(fileImportAdvanced))).toEqual(
       await format(`
     import type { Pets } from "./Pets";
 
@@ -313,7 +383,7 @@ export const test2 = 3;`,
     `),
     )
 
-    expect(await format(getFileSource(fileImportDeclareModule))).toEqual(
+    expect(await format(createFileSource(fileImportDeclareModule))).toEqual(
       await format(`
     import type { Pets } from "./Pets";
 
