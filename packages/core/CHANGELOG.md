@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.5](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.9.4...@kubb/core-v1.9.5) (2023-10-06)
+
+
+### 🐞 Bug Fixes
+
+* remove out unused imports ([14f7c48](https://github.com/kubb-project/kubb/commit/14f7c488963b5d0659f00c38983dc5c14209b4d0))
+* ResponseConfig for mutation ([4c48ff6](https://github.com/kubb-project/kubb/commit/4c48ff694ff5df1091aad3290420b3a85234bf1c))
+
 ## [1.9.4](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.9.3...@kubb/core-v1.9.4) (2023-09-29)
 
 
