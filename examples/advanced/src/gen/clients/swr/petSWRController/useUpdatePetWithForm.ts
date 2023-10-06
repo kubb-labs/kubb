@@ -1,6 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../client'
+import type { ResponseConfig } from '../../../../client'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -17,13 +18,13 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options?: {
-    mutation?: SWRMutationConfiguration<TData, TError, string>
+    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   },
-): SWRMutationResponse<TData, TError, string> {
+): SWRMutationResponse<ResponseConfig<TData>, TError, string> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
-  return useSWRMutation<TData, TError, string>(
+  return useSWRMutation<ResponseConfig<TData>, TError, string>(
     `/pet/${petId}`,
     (url) => {
       return client<TData, TError>({

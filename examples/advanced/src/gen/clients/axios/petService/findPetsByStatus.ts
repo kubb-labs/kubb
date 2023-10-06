@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from '../../../models/ts/petController/FindPetsByStatus'
 
 /**
@@ -7,15 +8,17 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from 
  * @link /pet/findByStatus
  */
 
-export function findPetsByStatus<TData = FindPetsByStatusQueryResponse>(
+export async function findPetsByStatus<TData = FindPetsByStatusQueryResponse>(
   params?: FindPetsByStatusQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<TData> {
-  return client<TData>({
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData>({
     method: 'get',
     url: `/pet/findByStatus`,
     params,
 
     ...options,
   })
+
+  return resData
 }

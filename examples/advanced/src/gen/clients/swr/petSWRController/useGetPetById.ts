@@ -1,6 +1,7 @@
 import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../client'
+import type { ResponseConfig } from '../../../../client'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
 
 export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
@@ -14,7 +15,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
         url: `/pet/${petId}`,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }

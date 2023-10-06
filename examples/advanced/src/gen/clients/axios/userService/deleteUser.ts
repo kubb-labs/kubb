@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser'
 
 /**
@@ -7,14 +8,16 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../
  * @link /user/:username
  */
 
-export function deleteUser<TData = DeleteUserMutationResponse>(
+export async function deleteUser<TData = DeleteUserMutationResponse>(
   username: DeleteUserPathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<TData> {
-  return client<TData>({
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData>({
     method: 'delete',
     url: `/user/${username}`,
 
     ...options,
   })
+
+  return resData
 }

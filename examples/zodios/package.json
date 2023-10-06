@@ -29,7 +29,7 @@
     "@zodios/core": "^10.9.6",
     "axios": "^1.5.1",
     "react": "^18.2.0",
-    "zod": "^3.22.2"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",

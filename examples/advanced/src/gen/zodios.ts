@@ -1,35 +1,50 @@
 import { makeApi, Zodios } from '@zodios/core'
-import {
-  createPetsMutationResponseSchema,
-  createPetsPathParamsSchema,
-  createPetsQueryParamsSchema,
-  createPets201Schema,
-} from './zod/petsController/createPetsSchema'
-import { addPetMutationResponseSchema, addPet405Schema } from './zod/petController/addPetSchema'
-import { updatePetMutationResponseSchema, updatePet400Schema, updatePet404Schema, updatePet405Schema } from './zod/petController/updatePetSchema'
-import { findPetsByStatusQueryResponseSchema, findPetsByStatusQueryParamsSchema, findPetsByStatus400Schema } from './zod/petController/findPetsByStatusSchema'
-import { findPetsByTagsQueryResponseSchema, findPetsByTagsQueryParamsSchema, findPetsByTags400Schema } from './zod/petController/findPetsByTagsSchema'
-import { getPetByIdQueryResponseSchema, getPetByIdPathParamsSchema, getPetById400Schema, getPetById404Schema } from './zod/petController/getPetByIdSchema'
-import {
-  updatePetWithFormMutationResponseSchema,
-  updatePetWithFormPathParamsSchema,
-  updatePetWithFormQueryParamsSchema,
-  updatePetWithForm405Schema,
-} from './zod/petController/updatePetWithFormSchema'
-import { deletePetMutationResponseSchema, deletePetPathParamsSchema, deletePet400Schema } from './zod/petController/deletePetSchema'
-import { uploadFileMutationResponseSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from './zod/petController/uploadFileSchema'
+import { createPetsMutationResponseSchema } from './zod/petsController/createPetsSchema'
+import { createPetsPathParamsSchema } from './zod/petsController/createPetsSchema'
+import { createPetsQueryParamsSchema } from './zod/petsController/createPetsSchema'
+import { createPets201Schema } from './zod/petsController/createPetsSchema'
+import { addPetMutationResponseSchema } from './zod/petController/addPetSchema'
+import { addPet405Schema } from './zod/petController/addPetSchema'
+import { updatePetMutationResponseSchema } from './zod/petController/updatePetSchema'
+import { updatePet400Schema } from './zod/petController/updatePetSchema'
+import { updatePet404Schema } from './zod/petController/updatePetSchema'
+import { updatePet405Schema } from './zod/petController/updatePetSchema'
+import { findPetsByStatusQueryResponseSchema } from './zod/petController/findPetsByStatusSchema'
+import { findPetsByStatusQueryParamsSchema } from './zod/petController/findPetsByStatusSchema'
+import { findPetsByStatus400Schema } from './zod/petController/findPetsByStatusSchema'
+import { findPetsByTagsQueryResponseSchema } from './zod/petController/findPetsByTagsSchema'
+import { findPetsByTagsQueryParamsSchema } from './zod/petController/findPetsByTagsSchema'
+import { findPetsByTags400Schema } from './zod/petController/findPetsByTagsSchema'
+import { getPetByIdQueryResponseSchema } from './zod/petController/getPetByIdSchema'
+import { getPetByIdPathParamsSchema } from './zod/petController/getPetByIdSchema'
+import { getPetById400Schema } from './zod/petController/getPetByIdSchema'
+import { getPetById404Schema } from './zod/petController/getPetByIdSchema'
+import { updatePetWithFormMutationResponseSchema } from './zod/petController/updatePetWithFormSchema'
+import { updatePetWithFormPathParamsSchema } from './zod/petController/updatePetWithFormSchema'
+import { updatePetWithFormQueryParamsSchema } from './zod/petController/updatePetWithFormSchema'
+import { updatePetWithForm405Schema } from './zod/petController/updatePetWithFormSchema'
+import { deletePetMutationResponseSchema } from './zod/petController/deletePetSchema'
+import { deletePetPathParamsSchema } from './zod/petController/deletePetSchema'
+import { deletePet400Schema } from './zod/petController/deletePetSchema'
+import { uploadFileMutationResponseSchema } from './zod/petController/uploadFileSchema'
+import { uploadFilePathParamsSchema } from './zod/petController/uploadFileSchema'
+import { uploadFileQueryParamsSchema } from './zod/petController/uploadFileSchema'
 import { createUserMutationResponseSchema } from './zod/userController/createUserSchema'
 import { createUsersWithListInputMutationResponseSchema } from './zod/userController/createUsersWithListInputSchema'
-import { loginUserQueryResponseSchema, loginUserQueryParamsSchema, loginUser400Schema } from './zod/userController/loginUserSchema'
+import { loginUserQueryResponseSchema } from './zod/userController/loginUserSchema'
+import { loginUserQueryParamsSchema } from './zod/userController/loginUserSchema'
+import { loginUser400Schema } from './zod/userController/loginUserSchema'
 import { logoutUserQueryResponseSchema } from './zod/userController/logoutUserSchema'
-import {
-  getUserByNameQueryResponseSchema,
-  getUserByNamePathParamsSchema,
-  getUserByName400Schema,
-  getUserByName404Schema,
-} from './zod/userController/getUserByNameSchema'
-import { updateUserMutationResponseSchema, updateUserPathParamsSchema } from './zod/userController/updateUserSchema'
-import { deleteUserMutationResponseSchema, deleteUserPathParamsSchema, deleteUser400Schema, deleteUser404Schema } from './zod/userController/deleteUserSchema'
+import { getUserByNameQueryResponseSchema } from './zod/userController/getUserByNameSchema'
+import { getUserByNamePathParamsSchema } from './zod/userController/getUserByNameSchema'
+import { getUserByName400Schema } from './zod/userController/getUserByNameSchema'
+import { getUserByName404Schema } from './zod/userController/getUserByNameSchema'
+import { updateUserMutationResponseSchema } from './zod/userController/updateUserSchema'
+import { updateUserPathParamsSchema } from './zod/userController/updateUserSchema'
+import { deleteUserMutationResponseSchema } from './zod/userController/deleteUserSchema'
+import { deleteUserPathParamsSchema } from './zod/userController/deleteUserSchema'
+import { deleteUser400Schema } from './zod/userController/deleteUserSchema'
+import { deleteUser404Schema } from './zod/userController/deleteUserSchema'
 
 const endpoints = makeApi([
   {

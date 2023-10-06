@@ -1,6 +1,7 @@
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
 import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 
 /**
@@ -11,13 +12,13 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../m
 
 export function createUserQuery<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(
   options: {
-    mutation?: CreateMutationOptions<TData, TError, TVariables>
+    mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, TVariables>
     client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
   } = {},
-): CreateMutationResult<TData, TError, TVariables> {
+): CreateMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
-  return createMutation<TData, TError, TVariables>({
+  return createMutation<ResponseConfig<TData>, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',

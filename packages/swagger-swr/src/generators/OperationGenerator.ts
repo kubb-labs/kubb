@@ -137,6 +137,11 @@ export class OperationGenerator extends Generator<Options> {
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
         },
         {
+          name: ['ResponseConfig'],
+          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          isTypeOnly: true,
+        },
+        {
           name: [
             schemas.response.name,
             schemas.pathParams?.name,
@@ -186,6 +191,11 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: 'client',
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+        },
+        {
+          name: ['ResponseConfig'],
+          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          isTypeOnly: true,
         },
         {
           name: [

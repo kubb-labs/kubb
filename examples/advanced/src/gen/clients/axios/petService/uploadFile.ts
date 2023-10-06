@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -11,13 +12,13 @@ import type {
  * @link /pet/:petId/uploadImage
  */
 
-export function uploadFile<TData = UploadFileMutationResponse, TVariables = UploadFileMutationRequest>(
+export async function uploadFile<TData = UploadFileMutationResponse, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
   data?: TVariables,
   params?: UploadFileQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<TData> {
-  return client<TData, TVariables>({
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData, TVariables>({
     method: 'post',
     url: `/pet/${petId}/uploadImage`,
     params,
@@ -25,4 +26,6 @@ export function uploadFile<TData = UploadFileMutationResponse, TVariables = Uplo
 
     ...options,
   })
+
+  return resData
 }

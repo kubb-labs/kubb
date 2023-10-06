@@ -1,14 +1,7 @@
-import {
-  useQuery,
-  QueryKey,
-  UseQueryResult,
-  UseQueryOptions,
-  QueryOptions,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  useInfiniteQuery,
-} from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../client'
+import type { ResponseConfig } from '../../../../client'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [`/user/login`, ...(params ? [params] : [])] as const
@@ -28,7 +21,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
         params,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }
@@ -77,7 +70,7 @@ export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TE
           ['id']: pageParam,
           ...(options.params || {}),
         },
-      })
+      }).then((res) => res.data)
     },
   }
 }

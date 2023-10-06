@@ -1,4 +1,5 @@
 import pathParser from 'node:path'
+import isEqual from 'lodash.isequal'
 
 import { createExportDeclaration, createImportDeclaration, print } from '@kubb/ts-codegen'
 
@@ -114,7 +115,7 @@ export function getFileSource(file: File): string {
   const exports: File['exports'] = []
 
   file.imports?.forEach((curr) => {
-    const existingImport = imports.find((imp) => imp.path === curr.path)
+    const existingImport = imports.find((imp) => imp.path === curr.path && isEqual(imp.name, curr.name))
 
     if (!existingImport) {
       imports.push({
@@ -123,14 +124,8 @@ export function getFileSource(file: File): string {
       })
     }
 
-    if (existingImport && !Array.isArray(existingImport.name) && existingImport.name !== curr.name) {
-      imports.push(curr)
-    }
-
-    if (existingImport && Array.isArray(existingImport.name)) {
-      if (Array.isArray(curr.name)) {
-        existingImport.name = [...new Set([...existingImport.name, ...curr.name])]
-      }
+    if (existingImport && Array.isArray(existingImport.name) && Array.isArray(curr.name)) {
+      existingImport.name = [...new Set([...existingImport.name, ...curr.name])]
     }
   })
 

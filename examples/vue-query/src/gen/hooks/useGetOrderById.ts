@@ -19,7 +19,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
         url: `/store/order/${orderId}`,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }

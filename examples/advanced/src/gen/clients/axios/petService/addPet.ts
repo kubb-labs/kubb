@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet'
 
 /**
@@ -7,11 +8,11 @@ import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../mod
  * @link /pet
  */
 
-export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutationRequest>(
+export async function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutationRequest>(
   data: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<TData> {
-  return client<TData, TVariables>({
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData, TVariables>({
     method: 'post',
     url: `/pet`,
 
@@ -19,4 +20,6 @@ export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutati
 
     ...options,
   })
+
+  return resData
 }

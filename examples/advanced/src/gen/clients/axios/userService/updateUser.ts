@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 
 /**
@@ -7,12 +8,12 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @link /user/:username
  */
 
-export function updateUser<TData = UpdateUserMutationResponse, TVariables = UpdateUserMutationRequest>(
+export async function updateUser<TData = UpdateUserMutationResponse, TVariables = UpdateUserMutationRequest>(
   username: UpdateUserPathParams['username'],
   data?: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<TData> {
-  return client<TData, TVariables>({
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData, TVariables>({
     method: 'put',
     url: `/user/${username}`,
 
@@ -20,4 +21,6 @@ export function updateUser<TData = UpdateUserMutationResponse, TVariables = Upda
 
     ...options,
   })
+
+  return resData
 }

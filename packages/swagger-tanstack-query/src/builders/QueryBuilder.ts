@@ -63,6 +63,7 @@ export class QueryBuilder extends OasBuilder<Config> {
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
+    const queryGenerics = ['TData', 'TError']
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -90,7 +91,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     }
 
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.query.UseQueryOptions}<${clientGenerics.join(', ')}> {
+export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
   const queryKey = ${queryKey};
 
   return {
@@ -102,7 +103,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
         ${schemas.queryParams?.name ? 'params,' : ''}
         ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
         ...options,
-      });
+      }).then(res => res.data);
     },
   };
 };
@@ -123,6 +124,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
+    const queryGenerics = ['TData', 'TError']
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -140,7 +142,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
       {
         name: 'options',
         type: `{ 
-          query?: ${frameworkImports.query.UseQueryOptions}<${clientGenerics.join(', ')}>,
+          query?: ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
         }`,
         default: '{}',
@@ -169,11 +171,11 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey } {
+export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.query.UseQueryResult}<${queryGenerics.join(', ')}> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
   const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
   
-  const query = ${frameworkImports.query.useQuery}<${clientGenerics.join(', ')}>({
+  const query = ${frameworkImports.query.useQuery}<${queryGenerics.join(', ')}>({
     ...${queryOptions},
     ...queryOptions
   }) as ${frameworkImports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
@@ -200,6 +202,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
+    const queryGenerics = ['TData', 'TError']
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -227,7 +230,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
     }
 
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.query.UseInfiniteQueryOptions}<${clientGenerics.join(', ')}> {
+export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}> {
   const queryKey = ${queryKey};
 
   return {
@@ -247,7 +250,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
         }`
             : ''
         }
-      });
+      }).then(res => res.data);
     },
   };
 };
@@ -268,6 +271,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
+    const queryGenerics = ['TData', 'TError']
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -285,7 +289,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
       {
         name: 'options',
         type: `{ 
-          query?: ${frameworkImports.query.UseInfiniteQueryOptions}<${clientGenerics.join(', ')}>,
+          query?: ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
         }`,
         default: '{}',
@@ -314,13 +318,13 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.query.UseInfiniteQueryResult}<${clientGenerics.join(
+export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.query.UseInfiniteQueryResult}<${queryGenerics.join(
       ', ',
     )}> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
   const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
   
-  const query = ${frameworkImports.query.useInfiniteQuery}<${clientGenerics.join(', ')}>({
+  const query = ${frameworkImports.query.useInfiniteQuery}<${queryGenerics.join(', ')}>({
     ...${queryOptions},
     ...queryOptions
   }) as ${frameworkImports.query.UseInfiniteQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
@@ -349,6 +353,12 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
       schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined,
     ].filter(Boolean)
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : 'void', framework === 'vue' ? 'unknown' : undefined].filter(Boolean)
+    const mutationGenerics = [
+      'ResponseConfig<TData>',
+      'TError',
+      schemas.request?.name ? `TVariables` : 'void',
+      framework === 'vue' ? 'unknown' : undefined,
+    ].filter(Boolean)
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -366,7 +376,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
       {
         name: 'options',
         type: `{
-          mutation?: ${frameworkImports.mutate.UseMutationOptions}<${clientGenerics.join(', ')}>,
+          mutation?: ${frameworkImports.mutate.UseMutationOptions}<${mutationGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
       }`,
         default: '{}',
@@ -375,10 +385,10 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.mutate.UseMutationResult}<${clientGenerics.join(', ')}> {
+export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.mutate.UseMutationResult}<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
   
-  return ${frameworkImports.mutate.useMutation}<${clientGenerics.join(', ')}>({
+  return ${frameworkImports.mutate.useMutation}<${mutationGenerics.join(', ')}>({
     mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
       return client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>({
         method: "${method}",

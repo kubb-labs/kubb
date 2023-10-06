@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -10,16 +11,18 @@ import type {
  * @link /pet/:petId
  */
 
-export function updatePetWithForm<TData = UpdatePetWithFormMutationResponse>(
+export async function updatePetWithForm<TData = UpdatePetWithFormMutationResponse>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<TData> {
-  return client<TData>({
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData>({
     method: 'post',
     url: `/pet/${petId}`,
     params,
 
     ...options,
   })
+
+  return resData
 }

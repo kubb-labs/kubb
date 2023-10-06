@@ -2,6 +2,7 @@ import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/u
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
 
 /**
@@ -12,13 +13,13 @@ import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder4
 
 export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(
   options: {
-    mutation?: VueMutationObserverOptions<TData, TError, TVariables, unknown>
+    mutation?: VueMutationObserverOptions<ResponseConfig<TData>, TError, TVariables, unknown>
     client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
   } = {},
-): UseMutationReturnType<TData, TError, TVariables, unknown> {
+): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
-  return useMutation<TData, TError, TVariables, unknown>({
+  return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',

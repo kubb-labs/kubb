@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../models/ts/petController/GetPetById'
 
 /**
@@ -7,14 +8,16 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../mod
  * @link /pet/:petId
  */
 
-export function getPetById<TData = GetPetByIdQueryResponse>(
+export async function getPetById<TData = GetPetByIdQueryResponse>(
   petId: GetPetByIdPathParams['petId'],
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<TData> {
-  return client<TData>({
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData>({
     method: 'get',
     url: `/pet/${petId}`,
 
     ...options,
   })
+
+  return resData
 }

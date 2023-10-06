@@ -1,6 +1,7 @@
 import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../client'
+import type { ResponseConfig } from '../../../../client'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 
 export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(
@@ -13,7 +14,7 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
         url: `/user/logout`,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }

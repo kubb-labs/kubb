@@ -19,7 +19,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
         url: `/pet/${petId}`,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }

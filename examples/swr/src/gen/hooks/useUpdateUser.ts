@@ -1,6 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
 
 /**
@@ -12,13 +13,13 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unknown, TVariables = UpdateUserMutationRequest>(
   username: UpdateUserPathParams['username'],
   options?: {
-    mutation?: SWRMutationConfiguration<TData, TError, string, TVariables>
+    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string, TVariables>
     client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
   },
-): SWRMutationResponse<TData, TError, string, TVariables> {
+): SWRMutationResponse<ResponseConfig<TData>, TError, string, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
-  return useSWRMutation<TData, TError, string, TVariables>(
+  return useSWRMutation<ResponseConfig<TData>, TError, string, TVariables>(
     `/user/${username}`,
     (url, { arg: data }) => {
       return client<TData, TError, TVariables>({

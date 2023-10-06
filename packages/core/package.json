@@ -61,6 +61,7 @@
     "fs-extra": "^11.1.1",
     "js-runtime": "^0.0.6",
     "natural-orderby": "^3.0.2",
+    "lodash.isequal": "^4.5.0",
     "picocolors": "^1.0.0",
     "seedrandom": "^3.0.5"
   },
@@ -69,6 +70,7 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.2",
+    "@types/lodash.isequal": "4.5.6",
     "@types/seedrandom": "^3.0.6",
     "eslint": "^8.50.0",
     "ora": "^7.0.1",

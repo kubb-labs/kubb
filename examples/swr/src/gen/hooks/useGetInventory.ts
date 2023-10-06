@@ -13,7 +13,7 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
         url: `/store/inventory`,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }

@@ -1,6 +1,7 @@
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
 import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400 } from '../models/DeleteOrder'
 
 /**
@@ -12,13 +13,13 @@ import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400
 export function deleteOrderQuery<TData = DeleteOrderMutationResponse, TError = DeleteOrder400>(
   orderId: DeleteOrderPathParams['orderId'],
   options: {
-    mutation?: CreateMutationOptions<TData, TError, void>
+    mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, void>
     client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
   } = {},
-): CreateMutationResult<TData, TError, void> {
+): CreateMutationResult<ResponseConfig<TData>, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
-  return createMutation<TData, TError, void>({
+  return createMutation<ResponseConfig<TData>, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'delete',
