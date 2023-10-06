@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker'
-
 import { LogoutUserError } from '../../models/LogoutUser'
 import { LogoutUserQueryResponse } from '../../models/LogoutUser'
 

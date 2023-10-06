@@ -20,7 +20,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
         params,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }

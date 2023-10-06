@@ -1,4 +1,4 @@
-import { getFileSource } from './managers/fileManager/index.ts'
+import { createFileSource } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
 import { clean, createLogger, URLPath, randomPicoColour, read } from './utils/index.ts'
 import { isPromise } from './utils/isPromise.ts'
@@ -51,7 +51,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   const queueTask = async (file: File) => {
     const { path } = file
 
-    let code: string | null = getFileSource(file)
+    let code: string | null = createFileSource(file)
 
     const { result: loadedResult } = await pluginManager.hookFirst({
       hookName: 'load',
@@ -117,5 +117,5 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 
   await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
-  return { files: fileManager.files.map((file) => ({ ...file, source: getFileSource(file) })), pluginManager }
+  return { files: fileManager.files.map((file) => ({ ...file, source: createFileSource(file) })), pluginManager }
 }

@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTagsHeaderParams } from '../../../models/ts/petController/FindPetsByTags'
 
 /**
@@ -7,12 +8,12 @@ import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsBy
  * @link /pet/findByTags
  */
 
-export function findPetsByTags<TData = FindPetsByTagsQueryResponse>(
+export async function findPetsByTags<TData = FindPetsByTagsQueryResponse>(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<TData> {
-  return client<TData>({
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData>({
     method: 'get',
     url: `/pet/findByTags`,
     params,
@@ -20,4 +21,6 @@ export function findPetsByTags<TData = FindPetsByTagsQueryResponse>(
     headers: { ...headers, ...options.headers },
     ...options,
   })
+
+  return resData
 }

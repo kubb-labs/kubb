@@ -1,6 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400 } from '../models/DeleteOrder'
 
 /**
@@ -12,13 +13,13 @@ import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400
 export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = DeleteOrder400>(
   orderId: DeleteOrderPathParams['orderId'],
   options?: {
-    mutation?: SWRMutationConfiguration<TData, TError, string>
+    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   },
-): SWRMutationResponse<TData, TError, string> {
+): SWRMutationResponse<ResponseConfig<TData>, TError, string> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
-  return useSWRMutation<TData, TError, string>(
+  return useSWRMutation<ResponseConfig<TData>, TError, string>(
     `/store/order/${orderId}`,
     (url) => {
       return client<TData, TError>({

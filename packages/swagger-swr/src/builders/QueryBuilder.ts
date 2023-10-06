@@ -25,6 +25,7 @@ export class QueryBuilder extends OasBuilder<Config> {
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
+    const queryGenerics = ['TData', 'TError']
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -47,7 +48,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     ])
 
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${clientGenerics.join(', ')}> {
+export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${queryGenerics.join(', ')}> {
   return {
     fetcher: () => {
       return client<${clientGenerics.join(', ')}>({
@@ -57,7 +58,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
         ${schemas.queryParams?.name ? 'params,' : ''}
         ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
         ...options,
-      });
+      }).then(res => res.data);
     },
   };
 };
@@ -76,6 +77,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
+    const queryGenerics = ['TData', 'TError']
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -94,7 +96,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
         name: 'options',
         required: false,
         type: `{ 
-          query?: SWRConfiguration<${clientGenerics.join(', ')}>,
+          query?: SWRConfiguration<${queryGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
         }`,
         default: '{}',
@@ -122,10 +124,10 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${clientGenerics.join(', ')}> {
+export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${queryGenerics.join(', ')}> {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
   
-  const query = useSWR<${clientGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
+  const query = useSWR<${queryGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
     ...${queryOptions},
     ...queryOptions
   });
@@ -150,11 +152,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${clien
       schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined,
     ].filter(Boolean)
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
-    //start mutate specific
-    //TODO move client.post to it's own function
-    const SWRMutationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
-    const SWRMutationConfigurationGenerics = ['TData', 'TError', 'string', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
-    //end mutate specific
+    const mutationGenerics = ['ResponseConfig<TData>', 'TError', 'string', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -173,7 +171,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${clien
         name: 'options',
         required: false,
         type: `{
-          mutation?: SWRMutationConfiguration<${SWRMutationConfigurationGenerics.join(', ')}>,
+          mutation?: SWRMutationConfiguration<${mutationGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
         }`,
         default: '{}',
@@ -182,10 +180,10 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${clien
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): SWRMutationResponse<${SWRMutationGenerics.join(', ')}> {
+export function ${name} <${generics.join(', ')}>(${params}): SWRMutationResponse<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
 
-  return useSWRMutation<${SWRMutationGenerics.join(', ')}>(
+  return useSWRMutation<${mutationGenerics.join(', ')}>(
   ${new URLPath(operation.path).template},
     (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
       return client<${clientGenerics.join(', ')}>({

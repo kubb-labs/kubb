@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker'
-
 import { createPet } from '../createPet'
 import { AddPet405 } from '../../models/AddPet'
 import { AddPetMutationRequest } from '../../models/AddPet'

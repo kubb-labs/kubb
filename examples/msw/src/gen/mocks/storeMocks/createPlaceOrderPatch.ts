@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker'
-
 import { createOrder } from '../createOrder'
 import { PlaceOrderPatch405 } from '../../models/PlaceOrderPatch'
 import { PlaceOrderPatchMutationRequest } from '../../models/PlaceOrderPatch'

@@ -1,5 +1,3 @@
-import { faker } from '@faker-js/faker'
-
 import { createPet } from '../createPet'
 import { UpdatePet400 } from '../../models/ts/petController/UpdatePet'
 import { UpdatePet404 } from '../../models/ts/petController/UpdatePet'

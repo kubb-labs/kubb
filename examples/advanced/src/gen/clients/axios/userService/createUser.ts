@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser'
 
 /**
@@ -7,11 +8,11 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
  * @link /user
  */
 
-export function createUser<TData = CreateUserMutationResponse, TVariables = CreateUserMutationRequest>(
+export async function createUser<TData = CreateUserMutationResponse, TVariables = CreateUserMutationRequest>(
   data?: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<TData> {
-  return client<TData, TVariables>({
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData, TVariables>({
     method: 'post',
     url: `/user`,
 
@@ -19,4 +20,6 @@ export function createUser<TData = CreateUserMutationResponse, TVariables = Crea
 
     ...options,
   })
+
+  return resData
 }

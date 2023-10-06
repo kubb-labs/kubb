@@ -14,7 +14,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
         url: `/user/${username}`,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }

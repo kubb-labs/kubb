@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
@@ -12,14 +13,14 @@ import type {
  * @link /pets/:uuid
  */
 
-export function createPets<TData = CreatePetsMutationResponse, TVariables = CreatePetsMutationRequest>(
+export async function createPets<TData = CreatePetsMutationResponse, TVariables = CreatePetsMutationRequest>(
   uuid: CreatePetsPathParams['uuid'],
   data: TVariables,
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<TData> {
-  return client<TData, TVariables>({
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData, TVariables>({
     method: 'post',
     url: `/pets/${uuid}`,
     params,
@@ -27,4 +28,6 @@ export function createPets<TData = CreatePetsMutationResponse, TVariables = Crea
     headers: { ...headers, ...options.headers },
     ...options,
   })
+
+  return resData
 }

@@ -1,13 +1,5 @@
-import {
-  useQuery,
-  QueryKey,
-  UseQueryResult,
-  UseQueryOptions,
-  QueryOptions,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  useInfiniteQuery,
-} from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 
@@ -27,7 +19,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
         url: `/user/${username}`,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }
@@ -71,7 +63,7 @@ export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResp
         url: `/user/${username}`,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }

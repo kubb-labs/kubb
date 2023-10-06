@@ -16,7 +16,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
         params,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }

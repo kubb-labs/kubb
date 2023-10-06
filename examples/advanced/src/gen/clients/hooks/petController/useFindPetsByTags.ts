@@ -1,13 +1,5 @@
-import {
-  useQuery,
-  QueryKey,
-  UseQueryResult,
-  UseQueryOptions,
-  QueryOptions,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  useInfiniteQuery,
-} from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../client'
 import type {
   FindPetsByTagsQueryResponse,
@@ -34,7 +26,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
         params,
         headers: { ...headers, ...options.headers },
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }
@@ -86,7 +78,7 @@ export function findPetsByTagsQueryOptionsInfinite<TData = FindPetsByTagsQueryRe
           ['id']: pageParam,
           ...(options.params || {}),
         },
-      })
+      }).then((res) => res.data)
     },
   }
 }

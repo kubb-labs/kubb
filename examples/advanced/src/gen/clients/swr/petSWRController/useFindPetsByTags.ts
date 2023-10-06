@@ -22,7 +22,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
         params,
         headers: { ...headers, ...options.headers },
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }

@@ -20,7 +20,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
         params,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }

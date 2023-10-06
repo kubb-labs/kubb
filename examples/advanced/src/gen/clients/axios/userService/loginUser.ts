@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../models/ts/userController/LoginUser'
 
 /**
@@ -6,12 +7,17 @@ import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../mode
  * @link /user/login
  */
 
-export function loginUser<TData = LoginUserQueryResponse>(params?: LoginUserQueryParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<TData> {
-  return client<TData>({
+export async function loginUser<TData = LoginUserQueryResponse>(
+  params?: LoginUserQueryParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData>({
     method: 'get',
     url: `/user/login`,
     params,
 
     ...options,
   })
+
+  return resData
 }

@@ -1,5 +1,7 @@
-import { useMutation, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import client from '../../../../client'
+import type { ResponseConfig } from '../../../../client'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -16,13 +18,13 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options: {
-    mutation?: UseMutationOptions<TData, TError, void>
+    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
     client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
   } = {},
-): UseMutationResult<TData, TError, void> {
+): UseMutationResult<ResponseConfig<TData>, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
-  return useMutation<TData, TError, void>({
+  return useMutation<ResponseConfig<TData>, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'post',

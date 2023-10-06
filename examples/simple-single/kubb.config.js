@@ -13,7 +13,7 @@ export default defineConfig({
     clean: true,
   },
   hooks: {
-    done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
+    // done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
   },
   plugins: [createSwagger({ validate: true }), createSwaggerTS({ output: 'models.ts' }), createSwaggerTanstackQuery({ output: './hooks.ts' })],
 })

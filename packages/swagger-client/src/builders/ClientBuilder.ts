@@ -52,8 +52,8 @@ export class ClientBuilder extends OasBuilder<Config> {
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): Promise<TData> {
-  return client<${clientGenerics.join(', ')}>({
+export async function ${name} <${generics.join(', ')}>(${params}): Promise<ResponseConfig<${clientGenerics[0]}>["data"]> {
+  const { data: resData } = await client<${clientGenerics.join(', ')}>({
     method: "${method}",
     url: ${new URLPath(operation.path).template},
     ${schemas.queryParams?.name ? 'params,' : ''}
@@ -61,6 +61,8 @@ export function ${name} <${generics.join(', ')}>(${params}): Promise<TData> {
     ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
     ...options
   });
+
+  return resData;
 };
 `)
     return { code: combineCodes(codes), name }

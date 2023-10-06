@@ -1,13 +1,5 @@
-import {
-  useQuery,
-  QueryKey,
-  UseQueryResult,
-  UseQueryOptions,
-  QueryOptions,
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  useInfiniteQuery,
-} from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../client'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
 
@@ -28,7 +20,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
         params,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }
@@ -78,7 +70,7 @@ export function findPetsByStatusQueryOptionsInfinite<TData = FindPetsByStatusQue
           ['id']: pageParam,
           ...(options.params || {}),
         },
-      })
+      }).then((res) => res.data)
     },
   }
 }

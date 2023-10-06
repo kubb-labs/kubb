@@ -198,24 +198,40 @@ export class OperationGenerator extends Generator<Options> {
     const { framework } = this.options
 
     if (framework === 'svelte') {
+      const values = Object.values(this.getFrameworkSpecificImports('svelte')[type])
+
       return [
         {
-          name: Object.values(this.getFrameworkSpecificImports('svelte')[type]),
+          name: values.filter((item) => /[A-Z]/.test(item.charAt(0))),
+          path: '@tanstack/svelte-query',
+          isTypeOnly: true,
+        },
+        {
+          name: values.filter((item) => !/[A-Z]/.test(item.charAt(0))),
           path: '@tanstack/svelte-query',
         },
       ]
     }
 
     if (framework === 'solid') {
+      const values = Object.values(this.getFrameworkSpecificImports('solid')[type])
+
       return [
         {
-          name: Object.values(this.getFrameworkSpecificImports('solid')[type]),
+          name: values.filter((item) => /[A-Z]/.test(item.charAt(0))),
+          path: '@tanstack/solid-query',
+          isTypeOnly: true,
+        },
+        {
+          name: values.filter((item) => !/[A-Z]/.test(item.charAt(0))),
           path: '@tanstack/solid-query',
         },
       ]
     }
 
     if (framework === 'vue') {
+      const values = Object.values(this.getFrameworkSpecificImports('vue')[type]).filter((item) => item !== 'VueMutationObserverOptions')
+
       return [
         {
           name: ['VueMutationObserverOptions'],
@@ -223,15 +239,27 @@ export class OperationGenerator extends Generator<Options> {
           isTypeOnly: true,
         },
         {
-          name: Object.values(this.getFrameworkSpecificImports('vue')[type]).filter((item) => item !== 'VueMutationObserverOptions'),
+          name: values.filter((item) => /[A-Z]/.test(item.charAt(0))),
+          path: '@tanstack/vue-query',
+          isTypeOnly: true,
+        },
+        {
+          name: values.filter((item) => !/[A-Z]/.test(item.charAt(0))),
           path: '@tanstack/vue-query',
         },
       ]
     }
 
+    const values = Object.values(this.getFrameworkSpecificImports('react')[type])
+
     return [
       {
-        name: Object.values(this.getFrameworkSpecificImports('react')[type]),
+        name: values.filter((item) => /[A-Z]/.test(item.charAt(0))),
+        path: '@tanstack/react-query',
+        isTypeOnly: true,
+      },
+      {
+        name: values.filter((item) => !/[A-Z]/.test(item.charAt(0))),
         path: '@tanstack/react-query',
       },
     ]
@@ -265,6 +293,11 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: 'client',
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+        },
+        {
+          name: ['ResponseConfig'],
+          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          isTypeOnly: true,
         },
         {
           name: [
@@ -309,6 +342,11 @@ export class OperationGenerator extends Generator<Options> {
         {
           name: 'client',
           path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+        },
+        {
+          name: ['ResponseConfig'],
+          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          isTypeOnly: true,
         },
         {
           name: [

@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../../models/ts/petController/UpdatePet'
 
 /**
@@ -7,11 +8,11 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../
  * @link /pet
  */
 
-export function updatePet<TData = UpdatePetMutationResponse, TVariables = UpdatePetMutationRequest>(
+export async function updatePet<TData = UpdatePetMutationResponse, TVariables = UpdatePetMutationRequest>(
   data: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<TData> {
-  return client<TData, TVariables>({
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData, TVariables>({
     method: 'put',
     url: `/pet`,
 
@@ -19,4 +20,6 @@ export function updatePet<TData = UpdatePetMutationResponse, TVariables = Update
 
     ...options,
   })
+
+  return resData
 }

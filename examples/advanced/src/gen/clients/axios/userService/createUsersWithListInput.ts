@@ -1,4 +1,5 @@
 import client from '../../../client'
+import type { ResponseConfig } from '../../../client'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
@@ -10,11 +11,11 @@ import type {
  * @link /user/createWithList
  */
 
-export function createUsersWithListInput<TData = CreateUsersWithListInputMutationResponse, TVariables = CreateUsersWithListInputMutationRequest>(
+export async function createUsersWithListInput<TData = CreateUsersWithListInputMutationResponse, TVariables = CreateUsersWithListInputMutationRequest>(
   data?: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<TData> {
-  return client<TData, TVariables>({
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData, TVariables>({
     method: 'post',
     url: `/user/createWithList`,
 
@@ -22,4 +23,6 @@ export function createUsersWithListInput<TData = CreateUsersWithListInputMutatio
 
     ...options,
   })
+
+  return resData
 }

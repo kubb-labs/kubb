@@ -18,7 +18,7 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
         url: `/user/logout`,
 
         ...options,
-      })
+      }).then((res) => res.data)
     },
   }
 }
