@@ -1,5 +1,22 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import type { Indent1, Indent2, Indent3, Indent4, Indent5, Indent6, Indent7, Head, Shift, Tail, Pop, ParserError, Tail2, Reverse, TailBy } from './utils.ts'
+import type {
+  Indent1,
+  Indent2,
+  Indent3,
+  Indent4,
+  Indent5,
+  Indent6,
+  Indent7,
+  Head,
+  Shift,
+  Tail,
+  Pop,
+  ParserError,
+  Tail2,
+  Reverse,
+  TailBy,
+  IndexOf,
+} from './utils.ts'
 import type { Call, Numbers } from 'hotscript'
 import { expectTypeOf } from 'expect-type'
 
@@ -117,17 +134,26 @@ export type CombineTokens<Tokens extends ASTs[], Acc extends ASTs[] = [], Curr =
       CombineTokens<Shift<Tokens>, [], Head<Shift<Tokens>>, [...Res, Curr]>
   : CombineTokens<Shift<Tokens>, Acc, Head<Shift<Tokens>>, Res>
 
-// export type FindPreviousIdentifier<Tokens extends ASTs[], ReversedTokens= Reverse<Tokens>>=never
-
-type FindPreviousIdentifierInternal<Tokens extends ASTs[], Res extends ASTs = {}, Cursor = Head<Tokens>> = Cursor extends []
+type GetByInternal<Tokens extends ASTs[], FindBy, Res extends ASTs = {}, Cursor extends ASTs = Head<Tokens>> = Cursor extends []
   ? Res extends {}
     ? Res
     : Res
-  : Head<Tokens> extends { type: ASTTypes['IDENT'] }
+  : Head<Tokens> extends FindBy
   ? Head<Tokens>
-  : FindPreviousIdentifierInternal<TailBy<Tokens, 1>, Res>
+  : GetByInternal<TailBy<Tokens, 1>, FindBy, Res>
 
-export type FindPreviousIdentifier<Tokens extends ASTs[]> = FindPreviousIdentifierInternal<Reverse<Tokens>>
+type FindByInternal<Tokens extends ASTs[], FindBy, Res extends ASTs[] = [], Cursor extends ASTs = Head<Tokens>> = Cursor extends []
+  ? Res extends []
+    ? Res
+    : Res
+  : Head<Tokens> extends FindBy
+  ? [...Res, Cursor]
+  : FindByInternal<TailBy<Tokens, 1>, FindBy, [...Res, Cursor]>
+
+export type GetPreviousIdentifier<Tokens extends ASTs[], FindBy = { type: ASTTypes['IDENT'] }> = GetByInternal<Reverse<Tokens>, FindBy>
+export type GetNextIdentifier<Tokens extends ASTs[], FindBy = { type: ASTTypes['IDENT'] }> = GetByInternal<Tokens, FindBy>
+
+export type FindNextIdentifier<Tokens extends ASTs[], FindBy = { type: ASTTypes['IDENT'] }> = FindByInternal<Tokens, FindBy>
 
 type Demo1 = ASTSwitch<' '>
 //    ^?
@@ -156,9 +182,20 @@ type Demo8 = [HasLevel<LineBreak<1>>, HasLevel<Collon>]
 type Demo9 = CombineTokens<[Indent<1>, Indent<1>, Indent<1>, Identifier<'properties'>, LineBreak<1>, Indent<1>, Identifier<'properties2'>, Collon]>
 //    ^?
 
-type Demo10 = FindPreviousIdentifier<[Indent<1>, Indent<1>, Indent<1>, Identifier<'properties'>, LineBreak<1>, Indent<1>, Identifier<'properties2'>, Collon]>
+type Demo10 = GetPreviousIdentifier<[Indent<1>, Indent<1>, Indent<1>, Identifier<'properties'>, LineBreak<1>, Indent<1>, Identifier<'properties2'>, Collon]>
 //    ^?
 
+type Demo11 = GetNextIdentifier<[Indent<1>, Indent<1>, Indent<1>, Identifier<'properties'>, LineBreak<1>, Indent<1>, Identifier<'properties2'>, Collon]>
+//    ^?
+
+type Demo12 = FindNextIdentifier<[Indent<1>, Indent<1>, Indent<1>, Identifier<'properties'>, LineBreak<1>, Indent<1>, Identifier<'properties2'>, Collon]>
+//    ^?
+
+type Demo13 = IndexOf<
+  [Indent<1>, Indent<1>, Indent<1>, Identifier<'properties'>, LineBreak<1>, Indent<1>, Identifier<'properties2'>, Collon],
+  Identifier<'properties'>
+>
+//    ^?
 type SelectTokenCollonDemo = SelectToken<{ type: ASTTypes['COLLON'] }, 'COLLON'>
 //    ^?
 

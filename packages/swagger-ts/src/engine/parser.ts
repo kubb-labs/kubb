@@ -6,7 +6,7 @@ import type { IsToken, ASTs, ASTTypes, SelectToken, Identifier, Collon, Indent, 
 import type { Tokenize } from './tokenizer.ts'
 import type { Engine } from './index.ts'
 import type { Debug } from '@kubb/core'
-import { SplitIdentifierByIndent, FindPreviousIdentifier } from './AST'
+import { SplitIdentifierByIndent, GetPreviousIdentifier, FindNextIdentifier } from './AST'
 
 export type ParseTypes = {
   Identifier: 'Identifier'
@@ -73,7 +73,7 @@ type ParseRootIdentifier<
             : ParserError<'[LineBreak<1>, Indent<x>] order not found'>
         }
         value: Res['value']
-
+        prevIdent: Res['prevIdent']
         children: [
           // IsToken<Head<Tokens>, 'IDENT'> extends true
           //   ? // ParserInternal<Tokens> extends { type: 'Identifier'; value: string; children: ASTs }
@@ -116,10 +116,11 @@ type ParserInternal<
   : IsToken<Cursor, 'IDENT'> extends true
   ? // keep data to reuse later on when checking on Res, we need the correct name here
     // ParserInternal<TailBy<Tokens, 1>, Res & { type: 'Identifier'; value: Cursor['name']; indent: Cursor['indent'] }, Head<TailBy<Tokens, 1>>>
+    //TODO all tokens until next identifier that has the same indent, Tokens will be without all childs. Add children with tokens that will be needed
     ParserInternal<
       TailBy<Tokens, 1>,
       [...UsedTokens, Head<Tokens>],
-      Res & { type: 'Identifier'; value: Cursor['name']; indent: Cursor['indent']; prevIdent: FindPreviousIdentifier<[...UsedTokens]> },
+      Res & { type: 'Identifier'; value: Cursor['name']; indent: Cursor['indent']; prevIdent: FindNextIdentifier<TailBy<Tokens, 1>> },
       Head<Tokens>
     >
   : LookAhead extends {

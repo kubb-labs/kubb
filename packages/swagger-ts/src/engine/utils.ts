@@ -75,3 +75,9 @@ type ArrayWithLength<T extends number, U extends any[] = []> = U['length'] exten
 export type GreaterThan<T extends number, U extends number> = ArrayWithLength<U> extends [...ArrayWithLength<T>, ...infer _] ? false : true
 
 export type Reverse<T extends any[]> = T extends [infer F, ...infer Rest] ? [...Reverse<Rest>, F] : T
+
+export type IndexOf<T, U, Index extends any[] = []> = T extends [infer V, ...infer Rest]
+  ? V extends U
+    ? Index['length']
+    : IndexOf<Rest, U, [...Index, 0]>
+  : -1
