@@ -7,7 +7,6 @@ import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsBy
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-
 export async function findPetsByTags<TData = FindPetsByTagsQueryResponse>(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
@@ -17,7 +16,6 @@ export async function findPetsByTags<TData = FindPetsByTagsQueryResponse>(
     method: 'get',
     url: `/pet/findByTags`,
     params,
-
     headers: { ...headers, ...options.headers },
     ...options,
   })

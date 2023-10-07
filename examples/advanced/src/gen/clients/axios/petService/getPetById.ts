@@ -7,7 +7,6 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../mod
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-
 export async function getPetById<TData = GetPetByIdQueryResponse>(
   petId: GetPetByIdPathParams['petId'],
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -15,7 +14,6 @@ export async function getPetById<TData = GetPetByIdQueryResponse>(
   const { data: resData } = await client<TData>({
     method: 'get',
     url: `/pet/${petId}`,
-
     ...options,
   })
 

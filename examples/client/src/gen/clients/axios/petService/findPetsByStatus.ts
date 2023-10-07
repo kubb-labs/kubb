@@ -7,7 +7,6 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from 
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
-
 export async function findPetsByStatus<TData = FindPetsByStatusQueryResponse>(
   params?: FindPetsByStatusQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -16,7 +15,6 @@ export async function findPetsByStatus<TData = FindPetsByStatusQueryResponse>(
     method: 'get',
     url: `/pet/findByStatus`,
     params,
-
     ...options,
   })
 

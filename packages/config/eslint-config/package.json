@@ -48,7 +48,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@eslint/js": "^8.50.0",
+    "@eslint/js": "^8.51.0",
     "@types/eslint": "~8.44.3",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "~6.7.4",

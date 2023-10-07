@@ -12,7 +12,6 @@ import type {
  * @summary Create a pet
  * @link /pets/:uuid
  */
-
 export async function createPets<TData = CreatePetsMutationResponse, TVariables = CreatePetsMutationRequest>(
   uuid: CreatePetsPathParams['uuid'],
   data: TVariables,

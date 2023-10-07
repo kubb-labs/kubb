@@ -1,1 +1,1 @@
-export * from './ClientBuilder.ts'
+export * from './ClientBuilder.tsx'

@@ -7,7 +7,6 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @summary Update user
  * @link /user/:username
  */
-
 export async function updateUser<TData = UpdateUserMutationResponse, TVariables = UpdateUserMutationRequest>(
   username: UpdateUserPathParams['username'],
   data?: TVariables,
@@ -16,9 +15,7 @@ export async function updateUser<TData = UpdateUserMutationResponse, TVariables 
   const { data: resData } = await client<TData, TVariables>({
     method: 'put',
     url: `/user/${username}`,
-
     data,
-
     ...options,
   })
 

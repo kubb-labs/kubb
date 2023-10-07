@@ -7,7 +7,6 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../
  * @summary Delete user
  * @link /user/:username
  */
-
 export async function deleteUser<TData = DeleteUserMutationResponse>(
   username: DeleteUserPathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -15,7 +14,6 @@ export async function deleteUser<TData = DeleteUserMutationResponse>(
   const { data: resData } = await client<TData>({
     method: 'delete',
     url: `/user/${username}`,
-
     ...options,
   })
 

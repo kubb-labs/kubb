@@ -11,7 +11,6 @@ import type {
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-
 export async function uploadFile<TData = UploadFileMutationResponse, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
   data?: TVariables,
@@ -23,7 +22,6 @@ export async function uploadFile<TData = UploadFileMutationResponse, TVariables 
     url: `/pet/${petId}/uploadImage`,
     params,
     data,
-
     ...options,
   })
 

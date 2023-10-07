@@ -6,7 +6,6 @@ import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../mode
  * @summary Logs user into the system
  * @link /user/login
  */
-
 export async function loginUser<TData = LoginUserQueryResponse>(
   params?: LoginUserQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -15,7 +14,6 @@ export async function loginUser<TData = LoginUserQueryResponse>(
     method: 'get',
     url: `/user/login`,
     params,
-
     ...options,
   })
 

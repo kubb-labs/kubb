@@ -59,6 +59,9 @@
       ],
       "@kubb/ts-codegen": [
         "../ts-codegen/src/index.ts"
+      ],
+      "@kubb/react-template": [
+        "../react-template/src/index.ts"
       ]
     }
   },

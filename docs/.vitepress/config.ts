@@ -166,6 +166,10 @@ export default defineConfig({
             link: '/plugins/ts-codegen',
           },
           {
+            text: '@kubb/react-templates <span class="beta">under construction</span>',
+            link: '/plugins/react-templates',
+          },
+          {
             text: 'Swagger plugins',
             collapsed: false,
             items: [

@@ -1,6 +1,7 @@
 import React from 'react'
 import type { ReactNode } from 'react'
 import { Text } from './Text.tsx'
+import { createJSDocBlockText } from '@kubb/core'
 
 type Props = {
   name: string
@@ -10,12 +11,20 @@ type Props = {
   params?: string
   returnType?: string
   children?: ReactNode
-  jsDoc?: string
+  JSDoc?: {
+    comments: string[]
+  }
 }
 
-export function Function({ name, export: canExport, async, generics, params, returnType, children }: Props): React.ReactNode {
+export function Function({ name, export: canExport, async, generics, params, returnType, JSDoc, children }: Props): React.ReactNode {
   return (
     <>
+      {JSDoc?.comments && (
+        <>
+          <Text>{createJSDocBlockText({ comments: JSDoc.comments })}</Text>
+          <br />
+        </>
+      )}
       {canExport && <Text>export </Text>}
       {async && <Text>async </Text>}
       <Text>function {name}</Text>
@@ -27,7 +36,14 @@ export function Function({ name, export: canExport, async, generics, params, ret
         </Text>
       )}
       <Text>({params})</Text>
-      {returnType && <Text>: {returnType}</Text>}
+      {returnType && !async && <Text>: {returnType}</Text>}
+      {returnType && async && (
+        <Text>
+          : Promise{'<'}
+          {returnType}
+          {'>'}
+        </Text>
+      )}
       <Text>{' {'}</Text>
       <br />
       <Text indentSize={4}>{children}</Text>
@@ -37,9 +53,15 @@ export function Function({ name, export: canExport, async, generics, params, ret
   )
 }
 
-export function ArrowFunction({ name, export: canExport, async, generics, params, returnType, children }: Props): React.ReactNode {
+export function ArrowFunction({ name, export: canExport, async, generics, params, returnType, JSDoc, children }: Props): React.ReactNode {
   return (
     <>
+      {JSDoc?.comments && (
+        <>
+          <Text>{createJSDocBlockText({ comments: JSDoc.comments })}</Text>
+          <br />
+        </>
+      )}
       {canExport && <Text>export </Text>}
       <Text>const {name} = </Text>
       {async && <Text>async </Text>}

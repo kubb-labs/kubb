@@ -7,7 +7,6 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
  * @summary Create user
  * @link /user
  */
-
 export async function createUser<TData = CreateUserMutationResponse, TVariables = CreateUserMutationRequest>(
   data?: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -15,9 +14,7 @@ export async function createUser<TData = CreateUserMutationResponse, TVariables 
   const { data: resData } = await client<TData, TVariables>({
     method: 'post',
     url: `/user`,
-
     data,
-
     ...options,
   })
 

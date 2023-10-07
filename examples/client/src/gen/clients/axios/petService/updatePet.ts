@@ -7,7 +7,6 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../
  * @summary Update an existing pet
  * @link /pet
  */
-
 export async function updatePet<TData = UpdatePetMutationResponse, TVariables = UpdatePetMutationRequest>(
   data: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -15,9 +14,7 @@ export async function updatePet<TData = UpdatePetMutationResponse, TVariables = 
   const { data: resData } = await client<TData, TVariables>({
     method: 'put',
     url: `/pet`,
-
     data,
-
     ...options,
   })
 
