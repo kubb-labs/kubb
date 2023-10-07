@@ -2,8 +2,8 @@ import React from 'react'
 import type { ReactNode } from 'react'
 
 type Props = {
-  readonly children?: ReactNode
-  readonly indentSize?: number
+  children?: ReactNode
+  indentSize?: number
 }
 
 export function Text({ indentSize = 0, children }: Props): React.ReactNode {

@@ -3,13 +3,14 @@ import type { ReactNode } from 'react'
 import { Text } from './Text.tsx'
 
 type Props = {
-  readonly name: string
-  readonly export?: boolean
-  readonly async?: boolean
-  readonly generics?: string[]
-  readonly params?: string
-  readonly returnType?: string
-  readonly children?: ReactNode
+  name: string
+  export?: boolean
+  async?: boolean
+  generics?: string[]
+  params?: string
+  returnType?: string
+  children?: ReactNode
+  jsDoc?: string
 }
 
 export function Function({ name, export: canExport, async, generics, params, returnType, children }: Props): React.ReactNode {

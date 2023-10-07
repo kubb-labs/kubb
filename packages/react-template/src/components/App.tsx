@@ -3,7 +3,7 @@ import React from 'react'
 import type { ReactNode } from 'react'
 
 type Props = {
-  readonly children?: ReactNode
+  children?: ReactNode
 }
 
 export function App(props: Props): React.ReactNode {

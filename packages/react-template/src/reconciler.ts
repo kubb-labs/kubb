@@ -3,8 +3,6 @@
 import createReconciler from 'react-reconciler'
 import { DefaultEventPriority } from 'react-reconciler/constants.js'
 
-import Yoga from 'yoga-wasm-web/auto'
-import type { Node as YogaNode } from 'yoga-wasm-web/auto'
 import { createTextNode, appendChildNode, insertBeforeNode, removeChildNode, setTextNodeValue, createNode, setAttribute } from './dom.js'
 import type { DOMNodeAttribute, TextNode, DOMElement } from './dom.ts'
 import type { ElementNames } from './types.ts'
@@ -42,11 +40,6 @@ const diff = (before: AnyObject, after: AnyObject): AnyObject | undefined => {
   }
 
   return isChanged ? changed : undefined
-}
-
-const cleanupYogaNode = (node?: YogaNode): void => {
-  node?.unsetMeasureFunc()
-  node?.freeRecursive()
 }
 
 type Props = Record<string, unknown>
@@ -150,12 +143,6 @@ export const reconciler = createReconciler<
     setTextNodeValue(node, text)
   },
   getPublicInstance: (instance) => instance,
-  hideInstance(node) {
-    node.yogaNode?.setDisplay(Yoga.DISPLAY_NONE)
-  },
-  unhideInstance(node) {
-    node.yogaNode?.setDisplay(Yoga.DISPLAY_FLEX)
-  },
   appendInitialChild: appendChildNode,
   appendChild: appendChildNode,
   insertBefore: insertBeforeNode,
@@ -188,7 +175,6 @@ export const reconciler = createReconciler<
   insertInContainerBefore: insertBeforeNode,
   removeChildFromContainer(node, removeNode) {
     removeChildNode(node, removeNode)
-    cleanupYogaNode(removeNode.yogaNode)
   },
   prepareUpdate(node, _type, oldProps, newProps, rootNode) {
     if (node.internal_static) {
@@ -227,6 +213,5 @@ export const reconciler = createReconciler<
   },
   removeChild(node, removeNode) {
     removeChildNode(node, removeNode)
-    cleanupYogaNode(removeNode.yogaNode)
   },
 })

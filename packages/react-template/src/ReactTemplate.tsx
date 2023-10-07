@@ -5,7 +5,6 @@ import type { ReactNode } from 'react'
 import { throttle } from '@kubb/core'
 import autoBind from 'auto-bind'
 import type { FiberRoot } from 'react-reconciler'
-import Yoga from 'yoga-wasm-web/auto'
 import { reconciler } from './reconciler.ts'
 import { renderer } from './renderer.ts'
 import * as dom from './dom.js'
@@ -42,7 +41,6 @@ export class ReactTemplate {
 
     this.options = options
     this.rootNode = dom.createNode('kubb-root')
-    this.rootNode.onComputeLayout = this.calculateLayout
 
     this.rootNode.onRender = options.debug ? this.onRender : throttle(this.onRender, 32)[0]
 
@@ -90,23 +88,12 @@ export class ReactTemplate {
   }
 
   resized = () => {
-    this.calculateLayout()
     this.onRender()
   }
 
   resolveExitPromise: () => void = () => {}
   rejectExitPromise: (reason?: Error) => void = () => {}
   unsubscribeExit: () => void = () => {}
-
-  calculateLayout = () => {
-    // The 'columns' property can be undefined or 0 when not using a TTY.
-    // In that case we fall back to 80.
-    const terminalWidth = this.options.stdout.columns || 80
-
-    this.rootNode.yogaNode!.setWidth(terminalWidth)
-
-    this.rootNode.yogaNode!.calculateLayout(undefined, undefined, Yoga.DIRECTION_LTR)
-  }
 
   onRender: () => void = () => {
     if (this.isUnmounted) {
@@ -161,7 +148,6 @@ export class ReactTemplate {
       return
     }
 
-    this.calculateLayout()
     this.onRender()
     this.unsubscribeExit()
 

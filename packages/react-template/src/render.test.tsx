@@ -79,8 +79,6 @@ describe('Render', () => {
     }
     const { output } = render(<Component />)
 
-    console.log(output)
-
     expect(await format(output)).toMatch(
       await format(`
       export const getData = async <TData>(): Promise<number> => {

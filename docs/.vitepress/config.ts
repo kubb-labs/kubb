@@ -280,6 +280,10 @@ export default defineConfig({
             link: '/examples/simple',
           },
           {
+            text: 'Client',
+            link: '/examples/client',
+          },
+          {
             text: 'Advanced',
             link: '/examples/advanced',
           },
