@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/kubb-project/kubb/compare/kubb-v1.9.5...kubb-v1.10.0) (2023-10-07)
+
+
+### ✨ Features
+
+* `ClientFunction` with React for creating an axios get/post/put call ([7ef6819](https://github.com/kubb-project/kubb/commit/7ef68198c85888d76bf2949d9cc99993c1dd7fc7))
+
 ## [1.9.5](https://github.com/kubb-project/kubb/compare/kubb-v1.9.4...kubb-v1.9.5) (2023-10-06)
 
 
