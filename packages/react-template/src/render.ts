@@ -39,7 +39,7 @@ export type Instance = {
 /**
  * Mount a component and render the output.
  */
-export function render(node: ReactNode, options: RenderOptions = {}): Instance {
+export function render(node: ReactNode | JSX.Element, options: RenderOptions = {}): Instance {
   const reactTemplateOptions: ReactTemplateOptions = {
     stdout: process.stdout,
     stdin: process.stdin,

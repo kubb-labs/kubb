@@ -1,5 +1,5 @@
 import { render } from './render.ts'
-import { Text, Function } from './components/index.ts'
+import { Text, ArrowFunction, Function } from './components/index.ts'
 import { format } from '../mocks/format.ts'
 
 describe('Render', () => {
@@ -29,6 +29,26 @@ describe('Render', () => {
        `),
     )
   })
+
+  test('render ArrowFunction', async () => {
+    const Component = () => {
+      return (
+        <ArrowFunction name="getData" export async>
+          return 2;
+        </ArrowFunction>
+      )
+    }
+    const { output } = render(<Component />)
+
+    expect(await format(output)).toMatch(
+      await format(`
+      export const getData = async () => {
+        return 2;
+      };
+        
+       `),
+    )
+  })
   test('render Function Generics', async () => {
     const Component = () => {
       return (
@@ -48,4 +68,46 @@ describe('Render', () => {
        `),
     )
   })
+
+  test('render ArrowFunction Generics', async () => {
+    const Component = () => {
+      return (
+        <ArrowFunction name="getData" export async generics={['TData']} returnType="number">
+          return 2;
+        </ArrowFunction>
+      )
+    }
+    const { output } = render(<Component />)
+
+    console.log(output)
+
+    expect(await format(output)).toMatch(
+      await format(`
+      export const getData = async <TData>(): Promise<number> => {
+        return 2;
+      };
+        
+       `),
+    )
+  })
+  // test('render Function ServerComponent(beta)', async () => {
+  //   const Component = async () => {
+  //     const data = await Promise.resolve('return 2;')
+  //     return (
+  //       <Function name="getData" export async generics={['TData']} returnType="number">
+  //         {data}
+  //       </Function>
+  //     )
+  //   }
+  //   const { output } = render(<Component />)
+
+  //   expect(await format(output)).toMatch(
+  //     await format(`
+  //     export async function getData<TData>(): number {
+  //         return 2;
+  //     };
+
+  //      `),
+  //   )
+  // })
 })

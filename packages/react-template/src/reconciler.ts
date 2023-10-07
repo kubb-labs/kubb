@@ -6,7 +6,8 @@ import { DefaultEventPriority } from 'react-reconciler/constants.js'
 import Yoga from 'yoga-wasm-web/auto'
 import type { Node as YogaNode } from 'yoga-wasm-web/auto'
 import { createTextNode, appendChildNode, insertBeforeNode, removeChildNode, setTextNodeValue, createNode, setAttribute } from './dom.js'
-import type { DOMNodeAttribute, TextNode, ElementNames, DOMElement } from './dom.ts'
+import type { DOMNodeAttribute, TextNode, DOMElement } from './dom.ts'
+import type { ElementNames } from './types.ts'
 
 type AnyObject = Record<string, unknown>
 
