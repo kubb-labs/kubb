@@ -1,7 +1,7 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createFunctionParams } from '@kubb/core'
+import { Import, combineCodes, createFunctionParams } from '@kubb/core'
 import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
-import { render } from '@kubb/react-template'
+import { Import as ImportTemplate, render } from '@kubb/react-template'
 
 import { URLPath } from '@kubb/core'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
@@ -11,13 +11,14 @@ type Config = {
   operation: Operation
   schemas: OperationSchemas
   name: string
+  clientPath: string
 }
 
-type ClientResult = { code: string; name: string }
+type ClientResult = { code: string; name: string; imports: Import[] }
 
 export class ClientBuilder extends OasBuilder<Config> {
   private get client(): ClientResult {
-    const { name, operation, schemas } = this.config
+    const { name, operation, schemas, clientPath } = this.config
     const codes: string[] = []
 
     const comments = getComments(operation)
@@ -54,25 +55,30 @@ export class ClientBuilder extends OasBuilder<Config> {
 
     const Component = () => {
       return (
-        <ClientFunction
-          name={name}
-          generics={generics}
-          clientGenerics={clientGenerics}
-          params={params}
-          returnType={`ResponseConfig<${clientGenerics[0]}>["data"]`}
-          method={method}
-          url={new URLPath(operation.path).template}
-          withParams={!!schemas.queryParams?.name}
-          withData={!!schemas.request?.name}
-          withHeaders={!!schemas.headerParams?.name}
-          comments={comments}
-        />
+        <>
+          <ImportTemplate name={'client'} path={clientPath} />
+          <ImportTemplate name={['ResponseConfig']} path={clientPath} isTypeOnly />
+          <ClientFunction
+            name={name}
+            generics={generics}
+            clientGenerics={clientGenerics}
+            params={params}
+            returnType={`ResponseConfig<${clientGenerics[0]}>["data"]`}
+            method={method}
+            url={new URLPath(operation.path).template}
+            withParams={!!schemas.queryParams?.name}
+            withData={!!schemas.request?.name}
+            withHeaders={!!schemas.headerParams?.name}
+            comments={comments}
+          />
+        </>
       )
     }
+    const { output, imports } = render(<Component />)
 
-    codes.push(render(<Component />).output)
+    codes.push(output)
 
-    return { code: combineCodes(codes), name }
+    return { code: combineCodes(codes), name, imports }
   }
 
   configure(config: Config): this {
@@ -83,5 +89,9 @@ export class ClientBuilder extends OasBuilder<Config> {
 
   print(): string {
     return this.client.code
+  }
+
+  imports(): Import[] {
+    return this.client.imports
   }
 }

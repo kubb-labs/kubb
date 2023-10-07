@@ -1,5 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { createJSDocBlockText } from '@kubb/core'
+import { Import, createJSDocBlockText } from '@kubb/core'
 import type { Resolver } from '@kubb/swagger'
 import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
 
@@ -442,5 +442,9 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.m
     }
 
     return codes.join('\n')
+  }
+
+  imports(type: 'query' | 'mutation'): Import[] {
+    return []
   }
 }

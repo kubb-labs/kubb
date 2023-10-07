@@ -964,6 +964,9 @@ importers:
       '@kubb/eslint-config':
         specifier: workspace:*
         version: link:../config/eslint-config
+      '@kubb/ts-codegen':
+        specifier: workspace:*
+        version: link:../ts-codegen
       '@kubb/ts-config':
         specifier: workspace:*
         version: link:../config/ts-config

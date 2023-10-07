@@ -2,7 +2,7 @@
 import process from 'node:process'
 import React from 'react'
 import type { ReactNode } from 'react'
-import { throttle } from '@kubb/core'
+import { Import, throttle } from '@kubb/core'
 import autoBind from 'auto-bind'
 import type { FiberRoot } from 'react-reconciler'
 import { reconciler } from './reconciler.ts'
@@ -27,6 +27,7 @@ export class ReactTemplate {
   // Ignore last render after unmounting a tree to prevent empty output before exit
   private isUnmounted: boolean
   private lastOutput: string
+  private lastImports: Import[]
   private readonly container: FiberRoot
   private readonly rootNode: dom.DOMElement
   // This variable is used only in debug mode to store full static output
@@ -86,6 +87,9 @@ export class ReactTemplate {
   get output(): string {
     return this.lastOutput
   }
+  get imports(): Import[] {
+    return this.lastImports
+  }
 
   resized = () => {
     this.onRender()
@@ -100,7 +104,7 @@ export class ReactTemplate {
       return
     }
 
-    const { output } = renderer(this.rootNode)
+    const { output, imports } = renderer(this.rootNode)
 
     if (this.options.debug) {
       this.options.stdout.write(this.fullStaticOutput + output)
@@ -108,6 +112,7 @@ export class ReactTemplate {
     }
 
     this.lastOutput = output
+    this.lastImports = imports
   }
 
   render(node: ReactNode): void {

@@ -1,8 +1,7 @@
 import React from 'react'
 import type { ReactNode } from 'react'
-import { Function } from '@kubb/react-template'
+import { Function, createIndent, Import } from '@kubb/react-template'
 import type { HttpMethod } from '@kubb/swagger'
-import { createIndent } from '../../../react-template/src/components/Text'
 
 type Props = {
   name: string
@@ -42,15 +41,19 @@ export function ClientFunction({
     '...options',
   ].filter(Boolean)
 
+  const clientOptions = `${createIndent(4)}${clientParams.join(`,\n${createIndent(4)}`)}`
+
   return (
-    <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
-      {`
+    <>
+      <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
+        {`
 const { data: resData } = await client<${clientGenerics.join(', ')}>({
-${createIndent(4)}${clientParams.join(`,\n${createIndent(4)}`)}
+${clientOptions}
 });
 
 return resData;`}
-      {children}
-    </Function>
+        {children}
+      </Function>
+    </>
   )
 }
