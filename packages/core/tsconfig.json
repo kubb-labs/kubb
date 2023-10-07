@@ -11,7 +11,8 @@
       "vitest/globals",
       "bun-types",
       "./globals",
-      "@kubb/ts-config/reset"
+      "../config/ts-config/reset.d.ts",
+      "../react-template/globals.d.ts"
     ],
     "paths": {
       "@kubb/cli": [

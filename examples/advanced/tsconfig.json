@@ -19,9 +19,10 @@
     "types": [
       "vitest/globals",
       "bun-types",
-      "@kubb/core/globals",
-      "@kubb/swagger-client/globals",
-      "@kubb/ts-config/reset"
+      "../../packages/core/globals.d.ts",
+      "../../packages/swagger-client/globals.d.ts",
+      "../../packages/config/ts-config/reset.d.ts",
+      "../../packages/react-template/globals.d.ts"
     ],
     "paths": {
       "@kubb/cli": [

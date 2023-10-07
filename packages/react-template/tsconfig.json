@@ -9,7 +9,8 @@
       "vitest/globals",
       "bun-types",
       "./globals",
-      "@kubb/ts-config/reset"
+      "../core/globals.d.ts",
+      "../config/ts-config/reset.d.ts",
     ],
   },
   "include": [
