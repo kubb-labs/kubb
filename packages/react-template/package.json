@@ -1,0 +1,84 @@
+{
+  "name": "@kubb/react-template",
+  "version": "1.9.5",
+  "description": "Generator react-template",
+  "keywords": [
+    "typescript",
+    "plugins",
+    "kubb",
+    "codegen"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kubb-project/kubb.git",
+    "directory": "packages/react-template"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "module": "./dist/index.js",
+      "default": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json",
+    "./globals": {
+      "types": "./globals.d.ts"
+    },
+    "./*": "./*"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {}
+  },
+  "files": [
+    "dist",
+    "schemas",
+    "*.d.ts",
+    "*.d.cts",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "npx rimraf ./dist",
+    "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
+    "lint-fix": "bun run lint --quiet --fix",
+    "release": "pnpm publish --no-git-check",
+    "release:canary": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag canary",
+    "start": "tsup --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/core": "workspace:*",
+    "auto-bind": "^4.0.0",
+    "react-reconciler": "^0.29.0"
+  },
+  "devDependencies": {
+    "@kubb/eslint-config": "workspace:*",
+    "@kubb/ts-config": "workspace:*",
+    "@kubb/tsup-config": "workspace:*",
+    "@types/react": ">=18.2.25",
+    "@types/react-reconciler": "^0.28.5",
+    "eslint": "^8.51.0",
+    "tsup": "^7.2.0"
+  },
+  "peerDependencies": {
+    "@types/react": ">=18.2.25",
+    "react": ">=18.2.0"
+  },
+  "packageManager": "pnpm@8.3.0",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8.3.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

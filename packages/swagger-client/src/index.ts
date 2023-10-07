@@ -6,5 +6,6 @@ export type { RequestConfig } from '../client.ts'
 
 export * from './generators/index.ts'
 export * from './builders/index.ts'
+export * from './components/index.ts'
 
 export default definePlugin

@@ -10,9 +10,10 @@
     "types": [
       "vitest/globals",
       "bun-types",
-      "@kubb/core/globals",
-      "@kubb/ts-config/reset",
-      "./globals"
+      "./globals",
+      "../core/globals.d.ts",
+      "../config/ts-config/reset.d.ts",
+      "../react-template/globals.d.ts"
     ],
     "paths": {
       "@kubb/cli": [
@@ -59,6 +60,9 @@
       ],
       "@kubb/ts-codegen": [
         "../ts-codegen/src/index.ts"
+      ],
+      "@kubb/react-template": [
+        "../react-template/src/index.ts"
       ]
     }
   },

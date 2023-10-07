@@ -37,7 +37,8 @@
       "@kubb/swagger-ts": ["packages/swagger-ts"],
       "@kubb/swagger-zod": ["packages/swagger-zod"],
       "@kubb/swagger-zodios": ["packages/swagger-zodios"],
-      "@kubb/ts-codegen": ["packages/ts-codegen"]
+      "@kubb/ts-codegen": ["packages/ts-codegen"],
+      "@kubb/react-template": ["packages/react-template"]
     }
   },
   "exclude": [

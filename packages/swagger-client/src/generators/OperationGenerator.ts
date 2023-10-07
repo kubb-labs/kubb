@@ -7,7 +7,7 @@ import { pluginName } from '../plugin.ts'
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
 import type { ContentType, HttpMethod, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
 import type { ResolvePathOptions, FileMeta } from '../types.ts'
-import { ClientBuilder } from '../builders/ClientBuilder.ts'
+import { ClientBuilder } from '../builders/ClientBuilder.tsx'
 
 type Options = {
   clientPath?: OptionalPath

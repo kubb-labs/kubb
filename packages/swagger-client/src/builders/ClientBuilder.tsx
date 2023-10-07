@@ -1,9 +1,11 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { createJSDocBlockText, combineCodes, createFunctionParams } from '@kubb/core'
+import { combineCodes, createFunctionParams } from '@kubb/core'
 import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
+import { render } from '@kubb/react-template'
 
 import { URLPath } from '@kubb/core'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
+import { ClientFunction } from '../components/index.ts'
 
 type Config = {
   operation: Operation
@@ -50,21 +52,26 @@ export class ClientBuilder extends OasBuilder<Config> {
       },
     ])
 
-    codes.push(createJSDocBlockText({ comments }))
-    codes.push(`
-export async function ${name} <${generics.join(', ')}>(${params}): Promise<ResponseConfig<${clientGenerics[0]}>["data"]> {
-  const { data: resData } = await client<${clientGenerics.join(', ')}>({
-    method: "${method}",
-    url: ${new URLPath(operation.path).template},
-    ${schemas.queryParams?.name ? 'params,' : ''}
-    ${schemas.request?.name ? 'data,' : ''}
-    ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
-    ...options
-  });
+    const Component = () => {
+      return (
+        <ClientFunction
+          name={name}
+          generics={generics}
+          clientGenerics={clientGenerics}
+          params={params}
+          returnType={`ResponseConfig<${clientGenerics[0]}>["data"]`}
+          method={method}
+          url={new URLPath(operation.path).template}
+          withParams={!!schemas.queryParams?.name}
+          withData={!!schemas.request?.name}
+          withHeaders={!!schemas.headerParams?.name}
+          comments={comments}
+        />
+      )
+    }
 
-  return resData;
-};
-`)
+    codes.push(render(<Component />).output)
+
     return { code: combineCodes(codes), name }
   }
 
