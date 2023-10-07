@@ -131,6 +131,15 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": false
+    },
+    "packages/react-template": {
+      "component": "@kubb/react-template",
+      "changelog-path": "CHANGELOG.md",
+      "release-type": "node",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "draft": false,
+      "prerelease": false
     }
   },
   "plugins": [
@@ -142,6 +151,7 @@
         "@kubb/core",
         "@kubb/cli",
         "@kubb/ts-codegen",
+        "@kubb/react-template",
         "@kubb/swagger",
         "@kubb/swagger-ts",
         "@kubb/swagger-client",

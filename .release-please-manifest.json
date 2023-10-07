@@ -11,5 +11,6 @@
   "packages/swagger-zod": "1.9.5",
   "packages/swagger-zodios": "1.9.5",
   "packages/swagger-faker": "1.9.5",
-  "packages/swagger-msw": "1.9.5"
+  "packages/swagger-msw": "1.9.5",
+  "packages/react-template": "1.9.5"
 }
