@@ -1,15 +1,8 @@
-import { render } from './render.ts'
-import { Text, ArrowFunction, Function } from './components/index.ts'
-import { format } from '../mocks/format.ts'
+import { format } from '../../mocks/format.ts'
+import { render } from '../render.ts'
+import { Function } from './Function.tsx'
 
-describe('Render', () => {
-  test('render Text', () => {
-    const Component = () => {
-      return <Text>hallo</Text>
-    }
-    const { output } = render(<Component />)
-    expect(output).toBe('hallo')
-  })
+describe('<Function/>', () => {
   test('render Function', async () => {
     const Component = () => {
       return (
@@ -33,9 +26,9 @@ describe('Render', () => {
   test('render ArrowFunction', async () => {
     const Component = () => {
       return (
-        <ArrowFunction name="getData" export async>
+        <Function.Arrow name="getData" export async>
           return 2;
-        </ArrowFunction>
+        </Function.Arrow>
       )
     }
     const { output } = render(<Component />)
@@ -72,9 +65,9 @@ describe('Render', () => {
   test('render ArrowFunction Generics', async () => {
     const Component = () => {
       return (
-        <ArrowFunction name="getData" export async generics={['TData']} returnType="number">
+        <Function.Arrow name="getData" export async generics={['TData']} returnType="number">
           return 2;
-        </ArrowFunction>
+        </Function.Arrow>
       )
     }
     const { output } = render(<Component />)

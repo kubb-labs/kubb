@@ -1,5 +1,6 @@
 import {type ReactNode, type Key, type LegacyRef} from 'react';
 import {createImportDeclaration, createExportDeclaration, print} from '@kubb/ts-codegen';
+import type { Export, Import } from '@kubb/core'
 
 /// <reference no-default-lib="true" />
 /// <reference lib="esnext" />
@@ -23,13 +24,11 @@ declare module Kubb {
       key?: Key;
       style?: Styles;
     };
-    type Import = Parameters<typeof createImportDeclaration>[0] & {
-      children?: ReactNode;
+    type Import = Import & {
       print?: boolean
     }
 
-    type Export =  Parameters<typeof createExportDeclaration>[0] &{
-      children?: ReactNode;
+    type Export =  Export &{
       print?: boolean
     }
   }

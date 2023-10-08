@@ -1,5 +1,6 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { Import, combineCodes, createFunctionParams } from '@kubb/core'
+import type { Import } from '@kubb/core'
+import { combineCodes, createFunctionParams } from '@kubb/core'
 import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
 import { Import as ImportTemplate, render } from '@kubb/react-template'
 

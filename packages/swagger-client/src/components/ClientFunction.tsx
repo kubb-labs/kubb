@@ -1,6 +1,6 @@
 import React from 'react'
 import type { ReactNode } from 'react'
-import { Function, createIndent, Import } from '@kubb/react-template'
+import { Function, createIndent } from '@kubb/react-template'
 import type { HttpMethod } from '@kubb/swagger'
 
 type Props = {

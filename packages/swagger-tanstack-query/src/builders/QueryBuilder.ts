@@ -1,5 +1,6 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { Import, createJSDocBlockText } from '@kubb/core'
+import type { Import} from '@kubb/core';
+import { createJSDocBlockText } from '@kubb/core'
 import type { Resolver } from '@kubb/swagger'
 import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
 

@@ -1,5 +1,8 @@
 import type { Import } from '@kubb/core'
+
+import type { Import as ImportComponent } from './components/Import.ts'
 import type { DOMElement } from './dom.js'
+import type React from 'react'
 
 export function squashImportNodes(node: DOMElement): Import[] {
   const imports: Import[] = []
@@ -11,8 +14,9 @@ export function squashImportNodes(node: DOMElement): Import[] {
       continue
     }
 
-    if (childNode.nodeName === 'kubb-import' && childNode.attributes) {
-      imports.push(childNode.attributes as Import)
+    if (childNode.nodeName === 'kubb-import' && !childNode.attributes.print) {
+      const attributes = childNode.attributes as React.ComponentProps<typeof ImportComponent>
+      imports.push({ name: attributes['name'], path: attributes['path'], isTypeOnly: attributes.isTypeOnly })
     }
   }
 
