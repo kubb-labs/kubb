@@ -107,9 +107,10 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     )
   }
 
-  private getResponseSchema(operation: Operation, statusCode: string | number): OpenAPIV3.SchemaObject {
+  private getResponseSchema(operation: Operation, statusCode?: string | number): OpenAPIV3.SchemaObject {
     const contentType = this.options.contentType || operation.getContentType()
-    const schema = operation.schema.responses?.[statusCode] as OpenAPIV3.ReferenceObject
+    const responseStatusCode = statusCode || (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
+    const schema = operation.schema.responses?.[responseStatusCode] as OpenAPIV3.ReferenceObject
 
     if (isReference(schema)) {
       const responseSchema = findSchemaDefinition(schema?.$ref, operation.api) as OpenAPIV3.ResponseObject
@@ -117,7 +118,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
       return responseSchema.content?.[contentType]?.schema as OpenAPIV3.SchemaObject
     }
 
-    return operation.getResponseAsJSONSchema(statusCode)?.at(0)?.schema as OpenAPIV3.SchemaObject
+    return operation.getResponseAsJSONSchema(responseStatusCode)?.at(0)?.schema as OpenAPIV3.SchemaObject
   }
 
   private getRequestSchema(operation: Operation): OpenAPIV3.SchemaObject | null {
@@ -146,7 +147,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     const queryParamsSchema = this.getParametersSchema(operation, 'query')
     const headerParamsSchema = this.getParametersSchema(operation, 'header')
     const requestSchema = this.getRequestSchema(operation)
-    const responseSchema = this.getResponseSchema(operation, '200')
+    const responseSchema = this.getResponseSchema(operation)
 
     return {
       pathParams: pathParamsSchema

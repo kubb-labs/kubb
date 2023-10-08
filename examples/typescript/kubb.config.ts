@@ -14,5 +14,9 @@ export default defineConfig({
   hooks: {
     done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
   },
-  plugins: [createSwagger({ validate: false }), createSwaggerTS({ output: 'models', enumType: 'enum' })],
+  plugins: [
+    createSwagger({ validate: false }),
+    createSwaggerTS({ output: 'models.ts', enumType: 'enum' }),
+    // createSwaggerTS({ output: 'models', enumType: 'enum' }),
+  ],
 })
