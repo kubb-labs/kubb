@@ -3,7 +3,9 @@ import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
-export const getInventoryQueryKey = () => [`/store/inventory`] as const
+export const getInventoryQueryKey = () => {
+  return [`/store/inventory`] as const
+}
 
 export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TError = unknown>(
   options: Partial<Parameters<typeof client>[0]> = {},

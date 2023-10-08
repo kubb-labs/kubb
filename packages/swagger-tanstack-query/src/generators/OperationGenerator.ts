@@ -241,6 +241,15 @@ export class OperationGenerator extends Generator<Options> {
           isTypeOnly: true,
         },
         {
+          name: ['unref'],
+          path: 'vue',
+        },
+        {
+          name: ['MaybeRef'],
+          path: 'vue',
+          isTypeOnly: true,
+        },
+        {
           name: values.filter((item) => /[A-Z]/.test(item.charAt(0))),
           path: '@tanstack/vue-query',
           isTypeOnly: true,

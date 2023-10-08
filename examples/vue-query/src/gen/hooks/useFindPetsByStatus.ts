@@ -1,14 +1,21 @@
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { QueryKey, UseQueryReturnType, UseQueryOptions } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
 
-export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [`/pet/findByStatus`, ...(params ? [params] : [])] as const
+export const findPetsByStatusQueryKey = (refParams?: MaybeRef<FindPetsByStatusQueryParams>) => {
+  const params = unref(refParams)
+
+  return [`/pet/findByStatus`, ...(params ? [params] : [])] as const
+}
 
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
+  refParams?: MaybeRef<FindPetsByStatusQueryParams>,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
+  const params = unref(refParams)
   const queryKey = findPetsByStatusQueryKey(params)
 
   return {
@@ -32,7 +39,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
  */
 
 export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
+  params?: MaybeRef<FindPetsByStatusQueryParams>,
   options: {
     query?: UseQueryOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
