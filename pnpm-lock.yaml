@@ -951,6 +951,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/ts-codegen':
+        specifier: workspace:*
+        version: link:../ts-codegen
       auto-bind:
         specifier: ^4.0.0
         version: 4.0.0

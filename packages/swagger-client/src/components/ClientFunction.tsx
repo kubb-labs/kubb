@@ -44,12 +44,14 @@ export function ClientFunction({
     '...options',
   ].filter(Boolean)
 
+  const clientOptions = `${createIndent(4)}${clientParams.join(`,\n${createIndent(4)}`)}`
+
   return (
     <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
       {dataReturnType === 'data' &&
         `
 const { data: resData } = await client<${clientGenerics.join(', ')}>({
-${createIndent(4)}${clientParams.join(`,\n${createIndent(4)}`)}
+${clientOptions}
 });
 
 return resData;`}

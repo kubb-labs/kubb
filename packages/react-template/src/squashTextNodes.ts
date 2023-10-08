@@ -1,4 +1,7 @@
 import type { DOMElement } from './dom.js'
+import type { Export as ExportComponent } from './components/Export.tsx'
+import type { Import as ImportComponent } from './components/Import.ts'
+import { createExportDeclaration, createImportDeclaration, print } from '@kubb/ts-codegen'
 
 // Squashing text nodes allows to combine multiple text nodes into one and write
 // to `Output` instance only once. For example, <Text>hello{' '}world</Text>
@@ -12,7 +15,7 @@ export function squashTextNodes(node: DOMElement): string {
   for (let index = 0; index < node.childNodes.length; index++) {
     const childNode = node.childNodes[index]
 
-    if (childNode === undefined) {
+    if (!childNode) {
       continue
     }
 
@@ -23,6 +26,18 @@ export function squashTextNodes(node: DOMElement): string {
     } else {
       if (childNode.nodeName === 'kubb-text') {
         nodeText = squashTextNodes(childNode)
+      }
+
+      if (childNode.nodeName === 'kubb-import' && childNode.attributes.print) {
+        const attributes = childNode.attributes as React.ComponentProps<typeof ImportComponent>
+        nodeText = print(createImportDeclaration({ name: attributes.name, path: attributes.path, isTypeOnly: attributes.isTypeOnly }))
+      }
+
+      if (childNode.nodeName === 'kubb-export' && childNode.attributes.print) {
+        const attributes = childNode.attributes as React.ComponentProps<typeof ExportComponent>
+        nodeText = print(
+          createExportDeclaration({ name: attributes.name, path: attributes.path, isTypeOnly: attributes.isTypeOnly, asAlias: attributes.asAlias }),
+        )
       }
 
       if (childNode.nodeName === 'br') {

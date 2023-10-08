@@ -121,22 +121,20 @@ export class OperationGenerator extends Generator<Options> {
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const source = new ClientBuilder(oas).configure({ name: controller.name, operation, schemas, dataReturnType }).print()
+    const clientBuilder = new ClientBuilder(oas).configure({
+      name: controller.name,
+      operation,
+      schemas,
+      dataReturnType,
+      clientPath: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
+    })
 
     return {
       path: controller.filePath,
       fileName: controller.fileName,
-      source,
+      source: clientBuilder.print(),
       imports: [
-        {
-          name: 'client',
-          path: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
-        },
-        {
-          name: ['ResponseConfig'],
-          path: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
-          isTypeOnly: true,
-        },
+        ...clientBuilder.imports(),
         {
           name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(Boolean),
           path: getRelativePath(controller.filePath, type.filePath),
@@ -156,22 +154,20 @@ export class OperationGenerator extends Generator<Options> {
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const source = new ClientBuilder(oas).configure({ name: controller.name, operation, schemas, dataReturnType }).print()
+    const clientBuilder = new ClientBuilder(oas).configure({
+      name: controller.name,
+      operation,
+      schemas,
+      dataReturnType,
+      clientPath: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
+    })
 
     return {
       path: controller.filePath,
       fileName: controller.fileName,
-      source,
+      source: clientBuilder.print(),
       imports: [
-        {
-          name: 'client',
-          path: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
-        },
-        {
-          name: ['ResponseConfig'],
-          path: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
-          isTypeOnly: true,
-        },
+        ...clientBuilder.imports(),
         {
           name: [schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(Boolean),
           path: getRelativePath(controller.filePath, type.filePath),

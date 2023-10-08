@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import type { ReactTemplateOptions } from './ReactTemplate.ts'
 import { ReactTemplate } from './ReactTemplate.tsx'
 import { instances } from './instances.ts'
+import type { Export, Import } from '@kubb/core'
 
 export type RenderOptions = {
   /**
@@ -34,6 +35,8 @@ export type Instance = {
    */
   clear: () => void
   output: string
+  imports: Import[]
+  exports: Export[]
 }
 
 /**
@@ -57,6 +60,8 @@ export function render(node: ReactNode | JSX.Element, options: RenderOptions = {
   return {
     rerender: instance.render,
     output: instance.output,
+    imports: instance.imports,
+    exports: instance.exports,
     unmount() {
       instance.unmount()
     },
