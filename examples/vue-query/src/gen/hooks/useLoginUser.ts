@@ -37,17 +37,17 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
  */
 
 export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params?: MaybeRef<LoginUserQueryParams>,
+  refParams?: MaybeRef<LoginUserQueryParams>,
   options: {
     query?: UseQueryOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
 ): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(refParams)
 
   const query = useQuery<TData, TError>({
-    ...loginUserQueryOptions<TData, TError>(params, clientOptions),
+    ...loginUserQueryOptions<TData, TError>(refParams, clientOptions),
     ...queryOptions,
   }) as UseQueryReturnType<TData, TError> & { queryKey: QueryKey }
 

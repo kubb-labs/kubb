@@ -172,13 +172,13 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
         override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
       }),
       {
-        name: 'params',
+        name: framework === 'vue' ? 'refParams' : 'params',
         type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
       {
-        name: 'headers',
+        name: framework === 'vue' ? 'refHeaders' : 'headers',
         type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
         enabled: !!schemas.headerParams?.name,
         required: !!schemas.headerParams?.schema.required?.length,
@@ -193,19 +193,21 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
       },
     ])
 
-    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
+    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
+      schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
+    })`
     const queryParams = createFunctionParams([
       ...getDataParams(schemas.pathParams, {
         typed: false,
         override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
       }),
       {
-        name: 'params',
+        name: framework === 'vue' ? 'refParams' : 'params',
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
       {
-        name: 'headers',
+        name: framework === 'vue' ? 'refHeaders' : 'headers',
         enabled: !!schemas.headerParams?.name,
         required: !!schemas.headerParams?.schema.required?.length,
       },
@@ -342,13 +344,13 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
         override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
       }),
       {
-        name: 'params',
+        name: framework === 'vue' ? 'refParams' : 'params',
         type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
       {
-        name: 'headers',
+        name: framework === 'vue' ? 'refHeaders' : 'headers',
         type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
         enabled: !!schemas.headerParams?.name,
         required: !!schemas.headerParams?.schema.required?.length,
@@ -363,19 +365,21 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
       },
     ])
 
-    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
+    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
+      schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
+    })`
     const queryParams = createFunctionParams([
       ...getDataParams(schemas.pathParams, {
         typed: false,
         override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
       }),
       {
-        name: 'params',
+        name: framework === 'vue' ? 'refParams' : 'params',
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
       {
-        name: 'headers',
+        name: framework === 'vue' ? 'refHeaders' : 'headers',
         enabled: !!schemas.headerParams?.name,
         required: !!schemas.headerParams?.schema.required?.length,
       },

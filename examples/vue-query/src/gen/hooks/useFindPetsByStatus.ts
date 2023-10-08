@@ -38,17 +38,17 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
  */
 
 export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: MaybeRef<FindPetsByStatusQueryParams>,
+  refParams?: MaybeRef<FindPetsByStatusQueryParams>,
   options: {
     query?: UseQueryOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
 ): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(refParams)
 
   const query = useQuery<TData, TError>({
-    ...findPetsByStatusQueryOptions<TData, TError>(params, clientOptions),
+    ...findPetsByStatusQueryOptions<TData, TError>(refParams, clientOptions),
     ...queryOptions,
   }) as UseQueryReturnType<TData, TError> & { queryKey: QueryKey }
 
