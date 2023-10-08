@@ -11,13 +11,11 @@ export async function updateUser<TData = UpdateUserMutationResponse, TVariables 
   username: UpdateUserPathParams['username'],
   data?: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData, TVariables>({
+): Promise<ResponseConfig<TData>> {
+  return client<TData, TVariables>({
     method: 'put',
     url: `/user/${username}`,
     data,
     ...options,
   })
-
-  return resData
 }

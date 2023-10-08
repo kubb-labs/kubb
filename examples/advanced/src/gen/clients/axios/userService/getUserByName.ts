@@ -9,12 +9,10 @@ import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../
 export async function getUserByName<TData = GetUserByNameQueryResponse>(
   username: GetUserByNamePathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData>({
+): Promise<ResponseConfig<TData>> {
+  return client<TData>({
     method: 'get',
     url: `/user/${username}`,
     ...options,
   })
-
-  return resData
 }

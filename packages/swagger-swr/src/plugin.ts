@@ -15,7 +15,7 @@ import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 export const pluginName: PluginOptions['name'] = 'swagger-swr' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy, skipBy = [], transformers = {} } = options
+  const { output = 'hooks', groupBy, skipBy = [], transformers = {}, dataReturnType = 'data' } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}SWRController`
   let pluginsOptions: [SwaggerPluginOptions]
 
@@ -62,6 +62,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const operationGenerator = new OperationGenerator({
         contentType: swaggerPlugin.api.contentType,
+        dataReturnType,
         clientPath,
         oas,
         skipBy,

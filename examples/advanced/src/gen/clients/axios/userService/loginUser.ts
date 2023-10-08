@@ -9,13 +9,11 @@ import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../mode
 export async function loginUser<TData = LoginUserQueryResponse>(
   params?: LoginUserQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData>({
+): Promise<ResponseConfig<TData>> {
+  return client<TData>({
     method: 'get',
     url: `/user/login`,
     params,
     ...options,
   })
-
-  return resData
 }

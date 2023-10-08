@@ -167,7 +167,7 @@ export default defineConfig({
           },
           {
             text: '@kubb/react-templates <span class="beta">under construction</span>',
-            link: '/plugins/react-templates',
+            link: '/plugins/react-template',
           },
           {
             text: 'Swagger plugins',

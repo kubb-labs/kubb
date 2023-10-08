@@ -15,7 +15,7 @@ import type { FileMeta } from './types'
 export const pluginName: PluginOptions['name'] = 'swagger-client' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'clients', groupBy, skipBy = [], transformers = {} } = options
+  const { output = 'clients', groupBy, skipBy = [], transformers = {}, dataReturnType = 'data' } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [SwaggerPluginOptions]
 
@@ -62,6 +62,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const operationGenerator = new OperationGenerator({
         contentType: swaggerPlugin.api.contentType,
+        dataReturnType,
         clientPath,
         oas,
         skipBy,

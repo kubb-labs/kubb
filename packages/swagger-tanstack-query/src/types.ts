@@ -31,6 +31,18 @@ export type Options = {
   }
   client?: string
   /**
+   * Experimental
+   *
+   * ReturnType that needs to be used when calling client().
+   *
+   * `Data` will return ResponseConfig[data].
+   *
+   * `Full` will return ResponseConfig.
+   * @default `'data'`
+   * @private
+   */
+  dataReturnType?: 'data' | 'full'
+  /**
    * Framework to be generated for
    * @default 'react'
    */

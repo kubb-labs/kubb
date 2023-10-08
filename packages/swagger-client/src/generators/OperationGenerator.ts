@@ -8,9 +8,11 @@ import type { File, OptionalPath, PluginContext } from '@kubb/core'
 import type { ContentType, HttpMethod, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
 import type { ResolvePathOptions, FileMeta } from '../types.ts'
 import { ClientBuilder } from '../builders/ClientBuilder.tsx'
+import type { Options as PluginOptions } from '../types'
 
 type Options = {
   clientPath?: OptionalPath
+  dataReturnType: PluginOptions['dataReturnType']
   oas: Oas
   contentType?: ContentType
   skipBy: SkipBy[]
@@ -114,12 +116,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath } = this.options
+    const { oas, clientPath, dataReturnType } = this.options
 
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const source = new ClientBuilder(oas).configure({ name: controller.name, operation, schemas }).print()
+    const source = new ClientBuilder(oas).configure({ name: controller.name, operation, schemas, dataReturnType }).print()
 
     return {
       path: controller.filePath,
@@ -149,12 +151,12 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath } = this.options
+    const { oas, clientPath, dataReturnType } = this.options
 
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
-    const source = new ClientBuilder(oas).configure({ name: controller.name, operation, schemas }).print()
+    const source = new ClientBuilder(oas).configure({ name: controller.name, operation, schemas, dataReturnType }).print()
 
     return {
       path: controller.filePath,

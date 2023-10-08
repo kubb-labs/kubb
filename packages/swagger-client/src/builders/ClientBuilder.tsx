@@ -6,8 +6,10 @@ import { render } from '@kubb/react-template'
 import { URLPath } from '@kubb/core'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
 import { ClientFunction } from '../components/index.ts'
+import type { Options as PluginOptions } from '../types'
 
 type Config = {
+  dataReturnType: PluginOptions['dataReturnType']
   operation: Operation
   schemas: OperationSchemas
   name: string
@@ -17,7 +19,7 @@ type ClientResult = { code: string; name: string }
 
 export class ClientBuilder extends OasBuilder<Config> {
   private get client(): ClientResult {
-    const { name, operation, schemas } = this.config
+    const { name, operation, schemas, dataReturnType } = this.config
     const codes: string[] = []
 
     const comments = getComments(operation)
@@ -58,8 +60,9 @@ export class ClientBuilder extends OasBuilder<Config> {
           name={name}
           generics={generics}
           clientGenerics={clientGenerics}
+          dataReturnType={dataReturnType}
           params={params}
-          returnType={`ResponseConfig<${clientGenerics[0]}>["data"]`}
+          returnType={dataReturnType === 'data' ? `ResponseConfig<${clientGenerics[0]}>["data"]` : `ResponseConfig<${clientGenerics[0]}>`}
           method={method}
           url={new URLPath(operation.path).template}
           withParams={!!schemas.queryParams?.name}
