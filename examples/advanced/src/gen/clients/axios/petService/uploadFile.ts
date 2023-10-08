@@ -16,14 +16,12 @@ export async function uploadFile<TData = UploadFileMutationResponse, TVariables 
   data?: TVariables,
   params?: UploadFileQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData, TVariables>({
+): Promise<ResponseConfig<TData>> {
+  return client<TData, TVariables>({
     method: 'post',
     url: `/pet/${petId}/uploadImage`,
     params,
     data,
     ...options,
   })
-
-  return resData
 }

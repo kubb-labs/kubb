@@ -8,10 +8,12 @@ import type { ResolvePathOptions, Framework, FrameworkImports } from '../types.t
 import { QueryBuilder } from '../builders/QueryBuilder.ts'
 import type { FileMeta } from '../types.ts'
 import { pluginName } from '../plugin.ts'
+import type { Options as PluginOptions } from '../types'
 
 type Options = {
   framework: Framework
   clientPath?: OptionalPath
+  dataReturnType: PluginOptions['dataReturnType']
   oas: Oas
   contentType?: ContentType
   skipBy: SkipBy[]
@@ -270,7 +272,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, framework, infinite } = this.options
+    const { oas, clientPath, framework, infinite, dataReturnType } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -282,7 +284,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, infinite }).print('query')
+    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, infinite, dataReturnType }).print('query')
 
     return {
       path: hook.filePath,
@@ -319,7 +321,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, framework } = this.options
+    const { oas, clientPath, framework, dataReturnType } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -331,7 +333,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas }).print('mutation')
+    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, dataReturnType }).print('mutation')
 
     return {
       path: hook.filePath,

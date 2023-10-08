@@ -11,14 +11,12 @@ export async function findPetsByTags<TData = FindPetsByTagsQueryResponse>(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData>({
+): Promise<ResponseConfig<TData>> {
+  return client<TData>({
     method: 'get',
     url: `/pet/findByTags`,
     params,
     headers: { ...headers, ...options.headers },
     ...options,
   })
-
-  return resData
 }

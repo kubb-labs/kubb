@@ -10,13 +10,11 @@ import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../mod
 export async function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutationRequest>(
   data: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData, TVariables>({
+): Promise<ResponseConfig<TData>> {
+  return client<TData, TVariables>({
     method: 'post',
     url: `/pet`,
     data,
     ...options,
   })
-
-  return resData
 }

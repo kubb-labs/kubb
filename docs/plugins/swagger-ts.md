@@ -81,7 +81,6 @@ date: Date
 Type: `'string' | 'date'` <br/>
 Default: `'string'`
 
-
 ### optionalType
 Choose what to use as mode for an optional value.<br/>
 

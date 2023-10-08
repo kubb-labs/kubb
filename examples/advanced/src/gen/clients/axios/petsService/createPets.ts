@@ -18,8 +18,8 @@ export async function createPets<TData = CreatePetsMutationResponse, TVariables 
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData, TVariables>({
+): Promise<ResponseConfig<TData>> {
+  return client<TData, TVariables>({
     method: 'post',
     url: `/pets/${uuid}`,
     params,
@@ -27,6 +27,4 @@ export async function createPets<TData = CreatePetsMutationResponse, TVariables 
     headers: { ...headers, ...options.headers },
     ...options,
   })
-
-  return resData
 }

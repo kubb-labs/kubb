@@ -14,7 +14,7 @@ import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 export const pluginName: PluginOptions['name'] = 'swagger-tanstack-query' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy, skipBy = [], framework = 'react', infinite, transformers = {} } = options
+  const { output = 'hooks', groupBy, skipBy = [], framework = 'react', infinite, transformers = {}, dataReturnType = 'data' } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [SwaggerPluginOptions]
 
@@ -60,6 +60,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const operationGenerator = new OperationGenerator({
         contentType: swaggerPlugin.api.contentType,
+        dataReturnType,
         infinite: infinite,
         framework,
         skipBy,

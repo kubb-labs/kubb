@@ -10,13 +10,11 @@ import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from 
 export async function findPetsByStatus<TData = FindPetsByStatusQueryResponse>(
   params?: FindPetsByStatusQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData>({
+): Promise<ResponseConfig<TData>> {
+  return client<TData>({
     method: 'get',
     url: `/pet/findByStatus`,
     params,
     ...options,
   })
-
-  return resData
 }

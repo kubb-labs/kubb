@@ -6,7 +6,10 @@ outline: deep
 ---
 # @kubb/react-template <Badge type="warning" text="under construction" />
 
+Use React to create templates/variants for any plugin.
+
 <hr/>
+
 
 ## Installation
 

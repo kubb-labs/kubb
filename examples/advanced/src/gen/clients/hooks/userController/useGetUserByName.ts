@@ -1,6 +1,7 @@
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../client'
+import type { ResponseConfig } from '../../../../client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [`/user/${username}`] as const
@@ -8,7 +9,7 @@ export const getUserByNameQueryKey = (username: GetUserByNamePathParams['usernam
 export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
   username: GetUserByNamePathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+): UseQueryOptions<ResponseConfig<TData>, TError> {
   const queryKey = getUserByNameQueryKey(username)
 
   return {
@@ -19,7 +20,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
         url: `/user/${username}`,
 
         ...options,
-      }).then((res) => res.data)
+      }).then((res) => res)
     },
   }
 }
@@ -32,17 +33,17 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
 export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: UseQueryOptions<TData, TError>
+    query?: UseQueryOptions<ResponseConfig<TData>, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
 
-  const query = useQuery<TData, TError>({
+  const query = useQuery<ResponseConfig<TData>, TError>({
     ...getUserByNameQueryOptions<TData, TError>(username, clientOptions),
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
+  }) as UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey as QueryKey
 
@@ -52,7 +53,7 @@ export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = Ge
 export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
   username: GetUserByNamePathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
-): UseInfiniteQueryOptions<TData, TError> {
+): UseInfiniteQueryOptions<ResponseConfig<TData>, TError> {
   const queryKey = getUserByNameQueryKey(username)
 
   return {
@@ -63,7 +64,7 @@ export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResp
         url: `/user/${username}`,
 
         ...options,
-      }).then((res) => res.data)
+      }).then((res) => res)
     },
   }
 }
@@ -76,17 +77,17 @@ export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResp
 export function useGetUserByNameInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: UseInfiniteQueryOptions<TData, TError>
+    query?: UseInfiniteQueryOptions<ResponseConfig<TData>, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
-): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseInfiniteQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
 
-  const query = useInfiniteQuery<TData, TError>({
+  const query = useInfiniteQuery<ResponseConfig<TData>, TError>({
     ...getUserByNameQueryOptionsInfinite<TData, TError>(username, clientOptions),
     ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
+  }) as UseInfiniteQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey as QueryKey
 

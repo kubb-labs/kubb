@@ -1,6 +1,7 @@
 import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../client'
+import type { ResponseConfig } from '../../../../client'
 import type {
   FindPetsByTagsQueryResponse,
   FindPetsByTagsQueryParams,
@@ -12,7 +13,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): SWRConfiguration<TData, TError> {
+): SWRConfiguration<ResponseConfig<TData>, TError> {
   return {
     fetcher: () => {
       return client<TData, TError>({
@@ -22,7 +23,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
         params,
         headers: { ...headers, ...options.headers },
         ...options,
-      }).then((res) => res.data)
+      }).then((res) => res)
     },
   }
 }
@@ -37,13 +38,13 @@ export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = 
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
   options?: {
-    query?: SWRConfiguration<TData, TError>
+    query?: SWRConfiguration<ResponseConfig<TData>, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   },
-): SWRResponse<TData, TError> {
+): SWRResponse<ResponseConfig<TData>, TError> {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
 
-  const query = useSWR<TData, TError, string>(`/pet/findByTags`, {
+  const query = useSWR<ResponseConfig<TData>, TError, string>(`/pet/findByTags`, {
     ...findPetsByTagsQueryOptions<TData, TError>(headers, params, clientOptions),
     ...queryOptions,
   })
