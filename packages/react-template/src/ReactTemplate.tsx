@@ -2,7 +2,7 @@
 import process from 'node:process'
 import React from 'react'
 import type { ReactNode } from 'react'
-import type { Export, Import} from '@kubb/core';
+import type { Export, Import } from '@kubb/core'
 import { throttle } from '@kubb/core'
 import autoBind from 'auto-bind'
 import type { FiberRoot } from 'react-reconciler'

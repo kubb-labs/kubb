@@ -1,5 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import type { Import} from '@kubb/core';
+import type { Import } from '@kubb/core'
 import { createJSDocBlockText } from '@kubb/core'
 import type { Resolver } from '@kubb/swagger'
 import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
@@ -9,9 +9,11 @@ import type { Operation, OperationSchemas } from '@kubb/swagger'
 import { getParams } from '@kubb/swagger'
 import { camelCase } from 'change-case'
 import type { Framework, FrameworkImports } from '../types.ts'
-import { createFunctionParams } from '../../../core/src/utils/createFunctionParams'
+import { createFunctionParams } from '@kubb/core'
+import type { Options as PluginOptions } from '../types'
 
 type BaseConfig = {
+  dataReturnType: PluginOptions['dataReturnType']
   operation: Operation
   schemas: OperationSchemas
   framework: Framework
@@ -54,7 +56,7 @@ export class QueryBuilder extends OasBuilder<Config> {
   }
 
   private get queryOptions(): QueryResult {
-    const { operation, schemas, framework, frameworkImports, errors } = this.config
+    const { operation, schemas, framework, frameworkImports, errors, dataReturnType } = this.config
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
@@ -64,7 +66,7 @@ export class QueryBuilder extends OasBuilder<Config> {
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
-    const queryGenerics = ['TData', 'TError']
+    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -104,7 +106,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
         ${schemas.queryParams?.name ? 'params,' : ''}
         ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
         ...options,
-      }).then(res => res.data);
+      }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
     },
   };
 };
@@ -114,7 +116,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
   }
 
   private get query(): QueryResult {
-    const { framework, frameworkImports, errors, operation, schemas } = this.config
+    const { framework, frameworkImports, errors, operation, schemas, dataReturnType } = this.config
     const codes: string[] = []
 
     const queryKeyName = this.queryKey.name
@@ -125,7 +127,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
-    const queryGenerics = ['TData', 'TError']
+    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -179,7 +181,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
   const query = ${frameworkImports.query.useQuery}<${queryGenerics.join(', ')}>({
     ...${queryOptions},
     ...queryOptions
-  }) as ${frameworkImports.query.UseQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
+  }) as ${frameworkImports.query.UseQueryResult}<${queryGenerics.join(', ')}> & { queryKey: QueryKey };
 
   query.queryKey = queryKey as QueryKey;
 
@@ -192,7 +194,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
 
   //infinite
   private get queryOptionsInfinite(): QueryResult {
-    const { framework, frameworkImports, errors, operation, schemas, infinite: { queryParam = 'id' } = {} } = this.config as QueryConfig
+    const { framework, frameworkImports, errors, operation, schemas, infinite: { queryParam = 'id' } = {}, dataReturnType } = this.config as QueryConfig
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryOptionsInfinite`)
@@ -203,7 +205,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
-    const queryGenerics = ['TData', 'TError']
+    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -251,7 +253,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
         }`
             : ''
         }
-      }).then(res => res.data);
+      }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
     },
   };
 };
@@ -261,7 +263,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
   }
 
   private get queryInfinite(): QueryResult {
-    const { framework, frameworkImports, errors, operation, schemas } = this.config
+    const { framework, frameworkImports, errors, operation, schemas, dataReturnType } = this.config
     const codes: string[] = []
 
     const queryKeyName = this.queryKey.name
@@ -272,7 +274,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
-    const queryGenerics = ['TData', 'TError']
+    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -328,7 +330,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
   const query = ${frameworkImports.query.useInfiniteQuery}<${queryGenerics.join(', ')}>({
     ...${queryOptions},
     ...queryOptions
-  }) as ${frameworkImports.query.UseInfiniteQueryResult}<${clientGenerics.join(', ')}> & { queryKey: QueryKey };
+  }) as ${frameworkImports.query.UseInfiniteQueryResult}<${queryGenerics.join(', ')}> & { queryKey: QueryKey };
 
   query.queryKey = queryKey as QueryKey;
 

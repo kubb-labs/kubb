@@ -46,6 +46,7 @@ export default defineConfig(async () => {
           groupBy: { type: 'tag' },
           client: './src/client.ts',
           infinite: {},
+          dataReturnType: 'full',
         },
       ],
       [
@@ -60,6 +61,7 @@ export default defineConfig(async () => {
           ],
           groupBy: { type: 'tag' },
           client: './src/client.ts',
+          dataReturnType: 'full',
         },
       ],
       [
@@ -74,6 +76,7 @@ export default defineConfig(async () => {
           ],
           groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' },
           client: './src/client.ts',
+          dataReturnType: 'full',
         },
       ],
       [

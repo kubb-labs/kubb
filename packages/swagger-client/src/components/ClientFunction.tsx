@@ -2,6 +2,7 @@ import React from 'react'
 import type { ReactNode } from 'react'
 import { Function, createIndent } from '@kubb/react-template'
 import type { HttpMethod } from '@kubb/swagger'
+import type { Options as PluginOptions } from '../types'
 
 type Props = {
   name: string
@@ -11,6 +12,7 @@ type Props = {
   method: HttpMethod
   url: string
   clientGenerics: string[]
+  dataReturnType: PluginOptions['dataReturnType']
   withParams?: boolean
   withData?: boolean
   withHeaders?: boolean
@@ -31,6 +33,7 @@ export function ClientFunction({
   withHeaders,
   comments,
   children,
+  dataReturnType,
 }: Props): React.ReactNode {
   const clientParams = [
     `method: "${method}"`,
@@ -44,16 +47,21 @@ export function ClientFunction({
   const clientOptions = `${createIndent(4)}${clientParams.join(`,\n${createIndent(4)}`)}`
 
   return (
-    <>
-      <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
-        {`
+    <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
+      {dataReturnType === 'data' &&
+        `
 const { data: resData } = await client<${clientGenerics.join(', ')}>({
 ${clientOptions}
 });
 
 return resData;`}
-        {children}
-      </Function>
-    </>
+
+      {dataReturnType === 'full' &&
+        `
+return client<${clientGenerics.join(', ')}>({
+${createIndent(4)}${clientParams.join(`,\n${createIndent(4)}`)}
+});`}
+      {children}
+    </Function>
   )
 }

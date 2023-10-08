@@ -10,12 +10,10 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../mod
 export async function getPetById<TData = GetPetByIdQueryResponse>(
   petId: GetPetByIdPathParams['petId'],
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData>({
+): Promise<ResponseConfig<TData>> {
+  return client<TData>({
     method: 'get',
     url: `/pet/${petId}`,
     ...options,
   })
-
-  return resData
 }

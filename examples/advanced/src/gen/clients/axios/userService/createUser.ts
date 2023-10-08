@@ -10,13 +10,11 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
 export async function createUser<TData = CreateUserMutationResponse, TVariables = CreateUserMutationRequest>(
   data?: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData, TVariables>({
+): Promise<ResponseConfig<TData>> {
+  return client<TData, TVariables>({
     method: 'post',
     url: `/user`,
     data,
     ...options,
   })
-
-  return resData
 }

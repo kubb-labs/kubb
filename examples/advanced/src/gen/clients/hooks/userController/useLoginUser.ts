@@ -1,6 +1,7 @@
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../client'
+import type { ResponseConfig } from '../../../../client'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [`/user/login`, ...(params ? [params] : [])] as const
@@ -8,7 +9,7 @@ export const loginUserQueryKey = (params?: LoginUserQueryParams) => [`/user/logi
 export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+): UseQueryOptions<ResponseConfig<TData>, TError> {
   const queryKey = loginUserQueryKey(params)
 
   return {
@@ -20,7 +21,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
         params,
 
         ...options,
-      }).then((res) => res.data)
+      }).then((res) => res)
     },
   }
 }
@@ -33,17 +34,17 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
 export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
   options: {
-    query?: UseQueryOptions<TData, TError>
+    query?: UseQueryOptions<ResponseConfig<TData>, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 
-  const query = useQuery<TData, TError>({
+  const query = useQuery<ResponseConfig<TData>, TError>({
     ...loginUserQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
+  }) as UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey as QueryKey
 
@@ -53,7 +54,7 @@ export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser4
 export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): UseInfiniteQueryOptions<TData, TError> {
+): UseInfiniteQueryOptions<ResponseConfig<TData>, TError> {
   const queryKey = loginUserQueryKey(params)
 
   return {
@@ -69,7 +70,7 @@ export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TE
           ['id']: pageParam,
           ...(options.params || {}),
         },
-      }).then((res) => res.data)
+      }).then((res) => res)
     },
   }
 }
@@ -82,17 +83,17 @@ export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TE
 export function useLoginUserInfinite<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
   options: {
-    query?: UseInfiniteQueryOptions<TData, TError>
+    query?: UseInfiniteQueryOptions<ResponseConfig<TData>, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
-): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseInfiniteQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 
-  const query = useInfiniteQuery<TData, TError>({
+  const query = useInfiniteQuery<ResponseConfig<TData>, TError>({
     ...loginUserQueryOptionsInfinite<TData, TError>(params, clientOptions),
     ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
+  }) as UseInfiniteQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey as QueryKey
 

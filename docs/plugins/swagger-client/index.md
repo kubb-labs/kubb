@@ -70,6 +70,15 @@ Relative to the root
 Type: `string` <br/>
 Default: `"@kubb/swagger-client/ts-client"`
 
+### dataReturnType <Badge type="warning" text="experimental" />
+ReturnType that needs to be used when calling client().
+
+`Data` will return ResponseConfig[data]. <br/>
+`Full` will return ResponseConfig.
+
+Type: `string` <br/>
+Default: `"data"`
+
 ### skipBy
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
 
@@ -84,6 +93,7 @@ Type: `{ type: 'tag' | 'operationId' | 'path' | 'method' ; pattern: string | Reg
 Override the name of the client that is getting generated, this will also override the name of the file.
 
 Type: `(name: string) => string` <br/>
+
 
 
 ## Depended

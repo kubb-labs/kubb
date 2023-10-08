@@ -6,8 +6,10 @@ import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
 import { URLPath, combineCodes } from '@kubb/core'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
 import { camelCase } from 'change-case'
+import type { Options as PluginOptions } from '../types'
 
 type Config = {
+  dataReturnType: PluginOptions['dataReturnType']
   operation: Operation
   schemas: OperationSchemas
   errors: Resolver[]
@@ -18,14 +20,14 @@ type QueryResult = { code: string; name: string }
 
 export class QueryBuilder extends OasBuilder<Config> {
   private get queryOptions(): QueryResult {
-    const { operation, schemas, errors } = this.config
+    const { operation, schemas, errors, dataReturnType } = this.config
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
-    const queryGenerics = ['TData', 'TError']
+    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {
@@ -58,7 +60,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
         ${schemas.queryParams?.name ? 'params,' : ''}
         ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
         ...options,
-      }).then(res => res.data);
+      }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
     },
   };
 };
@@ -68,7 +70,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
   }
 
   private get query(): QueryResult {
-    const { name, errors, operation, schemas } = this.config
+    const { name, errors, operation, schemas, dataReturnType } = this.config
     const codes: string[] = []
 
     const queryOptionsName = this.queryOptions.name
@@ -77,7 +79,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
-    const queryGenerics = ['TData', 'TError']
+    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, { typed: true }),
       {

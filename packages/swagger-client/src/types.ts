@@ -59,6 +59,18 @@ export type Options = {
    * @default '@kubb/swagger-client/ts-client'
    */
   client?: string
+  /**
+   * Experimental
+   *
+   * ReturnType that needs to be used when calling client().
+   *
+   * `Data` will return ResponseConfig[data].
+   *
+   * `Full` will return ResponseConfig.
+   * @default `'data'`
+   * @private
+   */
+  dataReturnType?: 'data' | 'full'
   transformers?: {
     /**
      * Override the name of the client that is getting generated, this will also override the name of the file.

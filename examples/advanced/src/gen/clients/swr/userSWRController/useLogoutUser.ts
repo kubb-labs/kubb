@@ -1,11 +1,12 @@
 import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../client'
+import type { ResponseConfig } from '../../../../client'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 
 export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(
   options: Partial<Parameters<typeof client>[0]> = {},
-): SWRConfiguration<TData, TError> {
+): SWRConfiguration<ResponseConfig<TData>, TError> {
   return {
     fetcher: () => {
       return client<TData, TError>({
@@ -13,7 +14,7 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
         url: `/user/logout`,
 
         ...options,
-      }).then((res) => res.data)
+      }).then((res) => res)
     },
   }
 }
@@ -24,12 +25,12 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
  */
 
 export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>(options?: {
-  query?: SWRConfiguration<TData, TError>
+  query?: SWRConfiguration<ResponseConfig<TData>, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-}): SWRResponse<TData, TError> {
+}): SWRResponse<ResponseConfig<TData>, TError> {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
 
-  const query = useSWR<TData, TError, string>(`/user/logout`, {
+  const query = useSWR<ResponseConfig<TData>, TError, string>(`/user/logout`, {
     ...logoutUserQueryOptions<TData, TError>(clientOptions),
     ...queryOptions,
   })
