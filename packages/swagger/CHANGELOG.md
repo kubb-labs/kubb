@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.10.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.9.5...@kubb/swagger-v1.10.0) (2023-10-08)
+
+
+### ✨ Features
+
+* `ClientFunction` with React for creating an axios get/post/put call ([7ef6819](https://github.com/kubb-project/kubb/commit/7ef68198c85888d76bf2949d9cc99993c1dd7fc7))
+
+
+### 🐞 Bug Fixes
+
+* fallback on 2xx instead of hardcoded 200 for the ResponseSchema ([84686f0](https://github.com/kubb-project/kubb/commit/84686f00e3da65a38de971e99168c50ef0030d0f))
+
 ## [1.9.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.9.4...@kubb/swagger-v1.9.5) (2023-10-06)
 
 
