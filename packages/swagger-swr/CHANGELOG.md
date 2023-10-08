@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.10.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.9.5...@kubb/swagger-swr-v1.10.0) (2023-10-08)
+
+
+### ✨ Features
+
+* `ClientFunction` with React for creating an axios get/post/put call ([7ef6819](https://github.com/kubb-project/kubb/commit/7ef68198c85888d76bf2949d9cc99993c1dd7fc7))
+* `dataReturnType` for @kubb/swagger-tanstack-query, @kubb/swagger-client and @kubb/swagger-swr ([9e5b124](https://github.com/kubb-project/kubb/commit/9e5b12451c592d17e41546e9d214cad80b6f24ca))
+
 ## [1.9.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.9.4...@kubb/swagger-swr-v1.9.5) (2023-10-06)
 
 
