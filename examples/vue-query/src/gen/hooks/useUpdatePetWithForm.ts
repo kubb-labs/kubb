@@ -28,7 +28,6 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   const petId = unref(refPetId)
   const params = unref(refParams)
-
   return useMutation<ResponseConfig<TData>, TError, void, unknown>({
     mutationFn: () => {
       return client<TData, TError, void>({

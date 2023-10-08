@@ -13,7 +13,7 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400 } 
  * @link /user/:username
  */
 
-export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400  >(
+export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400>(
   refUsername: MaybeRef<DeleteUserPathParams['username']>,
   options: {
     mutation?: VueMutationObserverOptions<ResponseConfig<TData>, TError, void, unknown>
@@ -22,7 +22,6 @@ export function useDeleteUser<TData = DeleteUserMutationResponse, TError = Delet
 ): UseMutationReturnType<ResponseConfig<TData>, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   const username = unref(refUsername)
-
   return useMutation<ResponseConfig<TData>, TError, void, unknown>({
     mutationFn: () => {
       return client<TData, TError, void>({

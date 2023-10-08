@@ -7,7 +7,6 @@ import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsBy
 
 export const findPetsByTagsQueryKey = (refParams?: MaybeRef<FindPetsByTagsQueryParams>) => {
   const params = unref(refParams)
-
   return [`/pet/findByTags`, ...(params ? [params] : [])] as const
 }
 

@@ -7,11 +7,10 @@ import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400
 
 export const getOrderByIdQueryKey = (refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>) => {
   const orderId = unref(refOrderId)
-
   return [`/store/order/${orderId}`] as const
 }
 
-export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400  >(
+export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
   refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
@@ -37,7 +36,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
  * @link /store/order/:orderId
  */
 
-export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetOrderById400  >(
+export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
   refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>,
   options: {
     query?: UseQueryOptions<TData, TError>

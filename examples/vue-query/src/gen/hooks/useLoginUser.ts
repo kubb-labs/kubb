@@ -7,7 +7,6 @@ import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from 
 
 export const loginUserQueryKey = (refParams?: MaybeRef<LoginUserQueryParams>) => {
   const params = unref(refParams)
-
   return [`/user/login`, ...(params ? [params] : [])] as const
 }
 

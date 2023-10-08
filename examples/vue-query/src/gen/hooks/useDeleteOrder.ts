@@ -13,7 +13,7 @@ import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400
  * @link /store/order/:orderId
  */
 
-export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = DeleteOrder400  >(
+export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = DeleteOrder400>(
   refOrderId: MaybeRef<DeleteOrderPathParams['orderId']>,
   options: {
     mutation?: VueMutationObserverOptions<ResponseConfig<TData>, TError, void, unknown>
@@ -22,7 +22,6 @@ export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = Del
 ): UseMutationReturnType<ResponseConfig<TData>, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   const orderId = unref(refOrderId)
-
   return useMutation<ResponseConfig<TData>, TError, void, unknown>({
     mutationFn: () => {
       return client<TData, TError, void>({

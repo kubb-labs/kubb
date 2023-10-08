@@ -7,11 +7,10 @@ import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400 } fro
 
 export const getPetByIdQueryKey = (refPetId: MaybeRef<GetPetByIdPathParams['petId']>) => {
   const petId = unref(refPetId)
-
   return [`/pet/${petId}`] as const
 }
 
-export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400  >(
+export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400>(
   refPetId: MaybeRef<GetPetByIdPathParams['petId']>,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
@@ -37,7 +36,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
  * @link /pet/:petId
  */
 
-export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400  >(
+export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400>(
   refPetId: MaybeRef<GetPetByIdPathParams['petId']>,
   options: {
     query?: UseQueryOptions<TData, TError>

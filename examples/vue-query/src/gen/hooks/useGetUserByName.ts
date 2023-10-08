@@ -7,11 +7,10 @@ import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName
 
 export const getUserByNameQueryKey = (refUsername: MaybeRef<GetUserByNamePathParams['username']>) => {
   const username = unref(refUsername)
-
   return [`/user/${username}`] as const
 }
 
-export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400  >(
+export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   refUsername: MaybeRef<GetUserByNamePathParams['username']>,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
@@ -36,7 +35,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
  * @link /user/:username
  */
 
-export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400  >(
+export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   refUsername: MaybeRef<GetUserByNamePathParams['username']>,
   options: {
     query?: UseQueryOptions<TData, TError>

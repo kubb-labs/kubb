@@ -11,7 +11,7 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400 
  * @link /pet
  */
 
-export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdatePet400    , TVariables = UpdatePetMutationRequest>(
+export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdatePet400, TVariables = UpdatePetMutationRequest>(
   options: {
     mutation?: VueMutationObserverOptions<ResponseConfig<TData>, TError, TVariables, unknown>
     client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
