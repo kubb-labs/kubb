@@ -15,12 +15,14 @@ import { renderer } from './renderer.ts'
 import type { Export, Import } from '@kubb/core'
 import type { ReactNode } from 'react'
 import type { FiberRoot } from 'react-reconciler'
+import type { AppContextProps } from './components/AppContext.tsx'
 
 const noop = () => {}
 
-export type ReactTemplateOptions = {
+export type ReactTemplateOptions<Context = AppContextProps> = {
   id: string
   debug: boolean
+  context: Context
 }
 
 export class ReactTemplate {
@@ -107,7 +109,9 @@ export class ReactTemplate {
   }
 
   render(node: ReactNode): void {
-    const tree = <App>{node}</App>
+    const { meta } = this.options.context
+
+    const tree = <App meta={meta}>{node}</App>
 
     reconciler.updateContainer(tree, this.container, null, noop)
   }

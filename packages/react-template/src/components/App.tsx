@@ -1,12 +1,12 @@
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import React from 'react'
 
-import type { ReactNode } from 'react'
+import { AppContext } from './AppContext.tsx'
 
-type Props = {
-  children?: ReactNode
+type Props<Meta extends Record<string, unknown> = Record<string, unknown>> = {
+  meta: Meta
+  children?: React.ReactNode
 }
 
-export function App(props: Props): React.ReactNode {
-  return props.children
+export function App<Meta extends Record<string, unknown> = Record<string, unknown>>({ meta, children }: Props<Meta>): React.ReactNode {
+  return <AppContext.Provider value={{ meta }}>{children}</AppContext.Provider>
 }

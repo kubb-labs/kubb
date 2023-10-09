@@ -6,15 +6,17 @@ import { ReactTemplate } from './ReactTemplate.tsx'
 
 import type { Export, Import } from '@kubb/core'
 import type { ReactNode } from 'react'
+import type { AppContextProps } from './components/AppContext'
 import type { ReactTemplateOptions } from './ReactTemplate.ts'
 
-export type RenderOptions = {
+export type RenderOptions<Context extends AppContextProps = AppContextProps> = {
   /**
    * If true, each update will be rendered as a separate output, without replacing the previous one.
    *
    * @default false
    */
   debug?: boolean
+  context?: Context
 }
 
 export type Instance = {
@@ -40,10 +42,11 @@ export type Instance = {
 /**
  * Mount a component and render the output.
  */
-export function render(node: ReactNode | JSX.Element, options: RenderOptions = {}): Instance {
+export function render<Context extends AppContextProps = AppContextProps>(node: ReactNode | JSX.Element, options: RenderOptions<Context> = {}): Instance {
   const reactTemplateOptions: ReactTemplateOptions = {
     debug: false,
     id: crypto.randomUUID(),
+    context: { meta: {} },
     ...options,
   }
 
