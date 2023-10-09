@@ -57,8 +57,7 @@
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/ts-codegen": "workspace:*",
     "change-case": "^4.1.2",
-    "@kubb/react-template": "workspace:*",
-    "react": "^18.2.0"
+    "@kubb/react-template": "workspace:*"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
@@ -68,6 +67,9 @@
     "eslint": "^8.51.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "react": ">=18.2.0"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {
