@@ -34,8 +34,8 @@ export class URLPath {
    * @example /account/monetary-accountID => `/account/${monetaryAccountId}`
    * @example /account/userID => `/account/${userId}`
    */
-  toTemplateString(): string {
-    return URLPath.toTemplateString(this.path)
+  toTemplateString(replacer?: (pathParam: string) => string): string {
+    return URLPath.toTemplateString(this.path, replacer)
   }
   /**
    * Convert Swagger path to template literals/ template strings(camelcase)
@@ -43,14 +43,17 @@ export class URLPath {
    * @example /account/monetary-accountID => `/account/${monetaryAccountId}`
    * @example /account/userID => `/account/${userId}`
    */
-  static toTemplateString(path: string): string {
+  static toTemplateString(path: string, replacer?: (pathParam: string) => string): string {
     const regex = /{(\w|-)*}/g
     const found = path.match(regex)
     let newPath = path.replaceAll('{', '${')
 
     if (found) {
       newPath = found.reduce((prev, curr) => {
-        const replacement = `\${${camelCase(curr, { delimiter: '', transform: camelCaseTransformMerge })}}`
+        const pathParam = replacer
+          ? replacer(camelCase(curr, { delimiter: '', transform: camelCaseTransformMerge }))
+          : camelCase(curr, { delimiter: '', transform: camelCaseTransformMerge })
+        const replacement = `\${${pathParam}}`
 
         return prev.replace(curr, replacement)
       }, path)

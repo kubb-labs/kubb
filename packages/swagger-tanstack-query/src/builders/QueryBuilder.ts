@@ -42,10 +42,10 @@ export class QueryBuilder extends OasBuilder<Config> {
     const paramsData = [
       ...getDataParams(schemas.pathParams, {
         typed: true,
-        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
+        override: framework === 'vue' ? (item) => ({ ...item, type: `MaybeRef<${item.type}>` }) : undefined,
       }),
       {
-        name: framework === 'vue' ? 'refParams' : 'params',
+        name: 'params',
         type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
@@ -53,25 +53,12 @@ export class QueryBuilder extends OasBuilder<Config> {
     ]
     const params = createFunctionParams(paramsData)
 
-    const result = [new URLPath(operation.path).template, schemas.queryParams?.name ? `...(params ? [params] : [])` : undefined].filter(Boolean)
+    const result = [
+      new URLPath(operation.path).toTemplateString((pathParam) => (framework === 'vue' ? `unref(${pathParam})` : pathParam)),
+      schemas.queryParams?.name ? `...(params ? [params] : [])` : undefined,
+    ].filter(Boolean)
 
-    if (framework === 'vue') {
-      const unrefs =
-        framework === 'vue'
-          ? paramsData
-              .filter((item) => item.type?.startsWith('MaybeRef<'))
-              .map((item) => {
-                return `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})`
-              })
-              .join('\n')
-          : ''
-      codes.push(`export const ${name} = (${params}) => {
-      ${unrefs}
-      return [${result.join(',')}] as const;
-    }`)
-    } else {
-      codes.push(`export const ${name} = (${params}) => [${result.join(',')}] as const;`)
-    }
+    codes.push(`export const ${name} = (${params}) => [${result.join(',')}] as const;`)
 
     return { code: combineCodes(codes), name }
   }
@@ -83,7 +70,9 @@ export class QueryBuilder extends OasBuilder<Config> {
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
     const queryKeyName = this.queryKey.name
 
-    const pathParams = getParams(schemas.pathParams)
+    const pathParams = getParams(schemas.pathParams, {
+      override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
+    })
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
@@ -122,20 +111,24 @@ export class QueryBuilder extends OasBuilder<Config> {
             })
             .join('\n')
         : ''
+
     let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
 
     if (framework === 'solid') {
       queryKey = `() => ${queryKey}`
     }
+    if (framework === 'vue') {
+      queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'refParams' : ''})`
+    }
 
     codes.push(`
 export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
-  ${unrefs}
   const queryKey = ${queryKey};
   
   return {
     queryKey,
     queryFn: () => {
+      ${unrefs}
       return client<${clientGenerics.join(', ')}>({
         method: "get",
         url: ${new URLPath(operation.path).template},
@@ -247,7 +240,9 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
 
     const queryKeyName = this.queryKey.name
 
-    const pathParams = getParams(schemas.pathParams)
+    const pathParams = getParams(schemas.pathParams, {
+      override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
+    })
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
@@ -291,15 +286,18 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
     if (framework === 'solid') {
       queryKey = `() => ${queryKey}`
     }
+    if (framework === 'vue') {
+      queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'refParams' : ''})`
+    }
 
     codes.push(`
 export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}> {
-  ${unrefs}
   const queryKey = ${queryKey};
 
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
+      ${unrefs}
       return client<${clientGenerics.join(', ')}>({
         method: "get",
         url: ${new URLPath(operation.path).template},
@@ -475,9 +473,9 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
     codes.push(`
 export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.mutate.UseMutationResult}<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
-  ${unrefs}
   return ${frameworkImports.mutate.useMutation}<${mutationGenerics.join(', ')}>({
     mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
+      ${unrefs}
       return client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>({
         method: "${method}",
         url: ${new URLPath(operation.path).template},

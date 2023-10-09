@@ -21,9 +21,9 @@ export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = Del
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  const orderId = unref(refOrderId)
   return useMutation<ResponseConfig<TData>, TError, void, unknown>({
     mutationFn: () => {
+      const orderId = unref(refOrderId)
       return client<TData, TError, void>({
         method: 'delete',
         url: `/store/order/${orderId}`,

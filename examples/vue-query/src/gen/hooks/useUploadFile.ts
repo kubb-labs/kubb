@@ -21,10 +21,10 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  const petId = unref(refPetId)
-  const params = unref(refParams)
   return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
     mutationFn: (data) => {
+      const petId = unref(refPetId)
+      const params = unref(refParams)
       return client<TData, TError, TVariables>({
         method: 'post',
         url: `/pet/${petId}/uploadImage`,

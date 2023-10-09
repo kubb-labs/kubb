@@ -21,9 +21,9 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  const username = unref(refUsername)
   return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
     mutationFn: (data) => {
+      const username = unref(refUsername)
       return client<TData, TError, TVariables>({
         method: 'put',
         url: `/user/${username}`,

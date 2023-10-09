@@ -22,7 +22,6 @@ export function useCreateUsersWithListInput<
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({

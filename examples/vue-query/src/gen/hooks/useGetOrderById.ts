@@ -5,21 +5,18 @@ import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400 } from '../models/GetOrderById'
 
-export const getOrderByIdQueryKey = (refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>) => {
-  const orderId = unref(refOrderId)
-  return [`/store/order/${orderId}`] as const
-}
+export const getOrderByIdQueryKey = (orderId: MaybeRef<GetOrderByIdPathParams['orderId']>) => [`/store/order/${unref(orderId)}`] as const
 
 export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
   refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
-  const orderId = unref(refOrderId)
-  const queryKey = getOrderByIdQueryKey(orderId)
+  const queryKey = getOrderByIdQueryKey(refOrderId)
 
   return {
     queryKey,
     queryFn: () => {
+      const orderId = unref(refOrderId)
       return client<TData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
