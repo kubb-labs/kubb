@@ -54,7 +54,11 @@ export class QueryBuilder extends OasBuilder<Config> {
     const params = createFunctionParams(paramsData)
 
     const result = [
-      new URLPath(operation.path).toTemplateString((pathParam) => (framework === 'vue' ? `unref(${pathParam})` : pathParam)),
+      new URLPath(operation.path).toObject({
+        type: 'template',
+        stringify: true,
+        replacer: framework === 'vue' ? (pathParam) => `unref(${pathParam})` : undefined,
+      }),
       schemas.queryParams?.name ? `...(params ? [params] : [])` : undefined,
     ].filter(Boolean)
 
@@ -473,6 +477,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
     codes.push(`
 export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.mutate.UseMutationResult}<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
+  
   return ${frameworkImports.mutate.useMutation}<${mutationGenerics.join(', ')}>({
     mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
       ${unrefs}

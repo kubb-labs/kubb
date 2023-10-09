@@ -22,6 +22,7 @@ export function useDeletePet<TData = DeletePetMutationResponse, TError = DeleteP
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<ResponseConfig<TData>, TError, void, unknown>({
     mutationFn: () => {
       const petId = unref(refPetId)

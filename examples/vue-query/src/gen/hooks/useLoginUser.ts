@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 
-export const loginUserQueryKey = (params?: MaybeRef<LoginUserQueryParams>) => [`/user/login`, ...(params ? [params] : [])] as const
+export const loginUserQueryKey = (params?: MaybeRef<LoginUserQueryParams>) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
 
 export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
   refParams?: MaybeRef<LoginUserQueryParams>,

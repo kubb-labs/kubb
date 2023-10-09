@@ -1,5 +1,16 @@
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
+type URLObject = {
+  url: string
+  params?: Record<string, string>
+}
+
+type ObjectOptions = {
+  type?: 'path' | 'template'
+  replacer?: (pathParam: string) => string
+  stringify?: boolean
+}
+
 export class URLPath {
   path: string
 
@@ -26,6 +37,17 @@ export class URLPath {
    */
   get template(): string {
     return this.toTemplateString()
+  }
+
+  get object(): URLObject | string {
+    return this.toObject()
+  }
+  get params(): Record<string, string> | undefined {
+    return this.getParams()
+  }
+
+  toObject(options: ObjectOptions = {}): URLObject | string {
+    return URLPath.toObject(this.path, options)
   }
 
   /**
@@ -62,6 +84,32 @@ export class URLPath {
     return `\`${newPath}\``
   }
 
+  getParams(replacer?: (pathParam: string) => string): Record<string, string> | undefined {
+    return URLPath.getParams(this.path, replacer)
+  }
+
+  static getParams(path: string, replacer?: (pathParam: string) => string): Record<string, string> | undefined {
+    const regex = /{(\w|-)*}/g
+    const found = path.match(regex)
+
+    if (!found) {
+      return undefined
+    }
+
+    const params: Record<string, string> = {}
+    found.forEach((item) => {
+      item = item.replaceAll('{', '').replaceAll('}', '')
+
+      const pathParam = replacer
+        ? replacer(camelCase(item, { delimiter: '', transform: camelCaseTransformMerge }))
+        : camelCase(item, { delimiter: '', transform: camelCaseTransformMerge })
+
+      params[pathParam] = pathParam
+    }, path)
+
+    return params
+  }
+
   /**
    * Convert Swagger path to URLPath(syntax of Express)
    * @example /pet/{petId} => /pet/:petId
@@ -72,6 +120,22 @@ export class URLPath {
 
   static toURLPath(path: string): string {
     return path.replaceAll('{', ':').replaceAll('}', '')
+  }
+
+  static toObject(path: string, { type = 'path', replacer, stringify }: ObjectOptions = {}): URLObject | string {
+    const object = {
+      url: type === 'path' ? URLPath.toURLPath(path) : URLPath.toTemplateString(path, replacer),
+      params: URLPath.getParams(path),
+    }
+
+    if (stringify) {
+      if (type !== 'template') {
+        throw new Error('Type should be `template` when using stringiyf')
+      }
+      return JSON.stringify(object).replaceAll("'", '').replaceAll(`"`, '')
+    }
+
+    return object
   }
 
   static isURL(path: string): boolean {

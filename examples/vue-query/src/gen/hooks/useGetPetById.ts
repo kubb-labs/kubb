@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400 } from '../models/GetPetById'
 
-export const getPetByIdQueryKey = (petId: MaybeRef<GetPetByIdPathParams['petId']>) => [`/pet/${unref(petId)}`] as const
+export const getPetByIdQueryKey = (petId: MaybeRef<GetPetByIdPathParams['petId']>) => [{ url: `/pet/${unref(petId)}`, params: { petId: petId } }] as const
 
 export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400>(
   refPetId: MaybeRef<GetPetByIdPathParams['petId']>,

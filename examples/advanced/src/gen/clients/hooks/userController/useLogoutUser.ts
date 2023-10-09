@@ -4,7 +4,7 @@ import client from '../../../../client'
 import type { ResponseConfig } from '../../../../client'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 
-export const logoutUserQueryKey = () => [`/user/logout`] as const
+export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const
 
 export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(
   options: Partial<Parameters<typeof client>[0]> = {},

@@ -125,7 +125,7 @@ export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TV
   })
 }
 
-export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [`/pet/findByStatus`, ...(params ? [params] : [])] as const
+export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: `/pet/findByStatus` }, ...(params ? [params] : [])] as const
 
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams,
@@ -173,7 +173,7 @@ export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TErro
   return query
 }
 
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [`/pet/findByTags`, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
 
 export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
   params?: FindPetsByTagsQueryParams,
@@ -221,7 +221,7 @@ export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = 
   return query
 }
 
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [`/pet/${petId}`] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: `/pet/${petId}`, params: { petId: petId } }] as const
 
 export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
   petId: GetPetByIdPathParams['petId'],
@@ -358,7 +358,7 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
   })
 }
 
-export const getInventoryQueryKey = () => [`/store/inventory`] as const
+export const getInventoryQueryKey = () => [{ url: `/store/inventory` }] as const
 
 export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TError = unknown>(
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -459,7 +459,7 @@ export function usePlaceOrderPatch<TData = PlaceOrderPatchMutationResponse, TErr
   })
 }
 
-export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [`/store/order/${orderId}`] as const
+export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: `/store/order/${orderId}`, params: { orderId: orderId } }] as const
 
 export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
   orderId: GetOrderByIdPathParams['orderId'],
@@ -594,7 +594,7 @@ export function useCreateUsersWithListInput<
   })
 }
 
-export const loginUserQueryKey = (params?: LoginUserQueryParams) => [`/user/login`, ...(params ? [params] : [])] as const
+export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
 
 export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
@@ -641,7 +641,7 @@ export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser4
   return query
 }
 
-export const logoutUserQueryKey = () => [`/user/logout`] as const
+export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const
 
 export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -685,7 +685,7 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>
   return query
 }
 
-export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [`/user/${username}`] as const
+export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: `/user/${username}`, params: { username: username } }] as const
 
 export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
   username: GetUserByNamePathParams['username'],

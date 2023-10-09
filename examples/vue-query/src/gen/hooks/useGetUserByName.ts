@@ -5,7 +5,8 @@ import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400 } from '../models/GetUserByName'
 
-export const getUserByNameQueryKey = (username: MaybeRef<GetUserByNamePathParams['username']>) => [`/user/${unref(username)}`] as const
+export const getUserByNameQueryKey = (username: MaybeRef<GetUserByNamePathParams['username']>) =>
+  [{ url: `/user/${unref(username)}`, params: { username: username } }] as const
 
 export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   refUsername: MaybeRef<GetUserByNamePathParams['username']>,
