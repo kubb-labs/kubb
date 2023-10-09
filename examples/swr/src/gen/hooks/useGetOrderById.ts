@@ -3,8 +3,8 @@ import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '@kubb/swagger-client/client'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400 } from '../models/GetOrderById'
 
-export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
-  orderId: GetOrderByIdPathParams['orderId'],
+export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400  >(
+  orderId?: GetOrderByIdPathParams['orderId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, TError> {
   return {
@@ -25,16 +25,18 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
  * @link /store/order/:orderId
  */
 
-export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
-  orderId: GetOrderByIdPathParams['orderId'],
+export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetOrderById400  >(
+  orderId?: GetOrderByIdPathParams['orderId'],
   options?: {
     query?: SWRConfiguration<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    shouldFetch?: boolean
   },
 ): SWRResponse<TData, TError> {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  const query = useSWR<TData, TError, string>(`/store/order/${orderId}`, {
+  const url = shouldFetch ? `/store/order/${orderId}` : null
+  const query = useSWR<TData, TError, string | null>(url, {
     ...getOrderByIdQueryOptions<TData, TError>(orderId, clientOptions),
     ...queryOptions,
   })

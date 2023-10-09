@@ -15,13 +15,15 @@ export function usePlaceOrderPatch<
   TError = PlaceOrderPatch405,
   TVariables = PlaceOrderPatchMutationRequest,
 >(options?: {
-  mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string, TVariables>
+  mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
   client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-}): SWRMutationResponse<ResponseConfig<TData>, TError, string, TVariables> {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  shouldFetch?: boolean
+}): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
+  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  return useSWRMutation<ResponseConfig<TData>, TError, string, TVariables>(
-    `/store/order`,
+  const url = shouldFetch ? `/store/order` : null
+  return useSWRMutation<ResponseConfig<TData>, TError, string | null, TVariables>(
+    url,
     (url, { arg: data }) => {
       return client<TData, TError, TVariables>({
         method: 'patch',

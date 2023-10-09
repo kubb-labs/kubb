@@ -31,11 +31,13 @@ export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser4
   options?: {
     query?: SWRConfiguration<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    shouldFetch?: boolean
   },
 ): SWRResponse<TData, TError> {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  const query = useSWR<TData, TError, string>(`/user/login`, {
+  const url = shouldFetch ? `/user/login` : null
+  const query = useSWR<TData, TError, string | null>(url, {
     ...loginUserQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
   })

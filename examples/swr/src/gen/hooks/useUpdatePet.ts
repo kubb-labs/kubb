@@ -10,14 +10,20 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400 
  * @link /pet
  */
 
-export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdatePet400, TVariables = UpdatePetMutationRequest>(options?: {
-  mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string, TVariables>
+export function useUpdatePet<
+  TData = UpdatePetMutationResponse,
+  TError = UpdatePet400    ,
+  TVariables = UpdatePetMutationRequest,
+>(options?: {
+  mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
   client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-}): SWRMutationResponse<ResponseConfig<TData>, TError, string, TVariables> {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  shouldFetch?: boolean
+}): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
+  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  return useSWRMutation<ResponseConfig<TData>, TError, string, TVariables>(
-    `/pet`,
+  const url = shouldFetch ? `/pet` : null
+  return useSWRMutation<ResponseConfig<TData>, TError, string | null, TVariables>(
+    url,
     (url, { arg: data }) => {
       return client<TData, TError, TVariables>({
         method: 'put',

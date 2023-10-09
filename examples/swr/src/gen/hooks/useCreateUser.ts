@@ -11,13 +11,15 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../m
  */
 
 export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(options?: {
-  mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string, TVariables>
+  mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
   client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-}): SWRMutationResponse<ResponseConfig<TData>, TError, string, TVariables> {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  shouldFetch?: boolean
+}): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
+  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  return useSWRMutation<ResponseConfig<TData>, TError, string, TVariables>(
-    `/user`,
+  const url = shouldFetch ? `/user` : null
+  return useSWRMutation<ResponseConfig<TData>, TError, string | null, TVariables>(
+    url,
     (url, { arg: data }) => {
       return client<TData, TError, TVariables>({
         method: 'post',
