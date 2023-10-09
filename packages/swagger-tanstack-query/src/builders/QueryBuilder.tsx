@@ -8,8 +8,9 @@ import { camelCase, pascalCase } from 'change-case'
 import { QueryKeyFunction } from '../components/index.ts'
 
 import type { Import } from '@kubb/core'
+import type { AppContextProps } from '@kubb/react-template'
 import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
-import type { Framework, FrameworkImports, Options as PluginOptions } from '../types.ts'
+import type { AppMeta, Framework, FrameworkImports, Options as PluginOptions } from '../types.ts'
 
 type BaseConfig = {
   dataReturnType: PluginOptions['dataReturnType']
@@ -37,29 +38,16 @@ export class QueryBuilder extends OasBuilder<Config> {
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryKey`)
-    const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, {
-        typed: true,
-        override: framework === 'vue' ? (item) => ({ ...item, type: `MaybeRef<${item.type}>` }) : undefined,
-      }),
-      {
-        name: 'params',
-        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
-        enabled: !!schemas.queryParams?.name,
-        required: !!schemas.queryParams?.schema.required?.length,
-      },
-    ])
-
     const FrameworkComponent = QueryKeyFunction[framework]
 
     const Component = () => {
       return (
         <>
-          <FrameworkComponent name={name} params={params} path={new URLPath(operation.path)} withParams={!!schemas.queryParams?.name} />
+          <FrameworkComponent name={name} />
         </>
       )
     }
-    const { output, imports } = render(<Component />)
+    const { output, imports } = render<AppContextProps<AppMeta>>(<Component />, { context: { meta: { schemas, operation } } })
 
     codes.push(output)
 

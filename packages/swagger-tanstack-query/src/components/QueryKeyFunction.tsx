@@ -1,23 +1,39 @@
 import React from 'react'
 
+import { createFunctionParams, URLPath } from '@kubb/core'
 import { Function } from '@kubb/react-template'
+import { getDataParams } from '@kubb/swagger'
 
-import type { URLObject, URLPath } from '@kubb/core'
+import { useOperation, useSchemas } from '../hooks/index.ts'
 
 type Props = {
   name: string
-  params: string
   // generics: string[]
   // returnType: string
   // comments: string[]
-  children?: React.ReactNode
+  // children?: React.ReactNode
 
   // props QueryKey
-  path: URLPath
-  withParams: boolean
 }
 
-function QueryKeyFunctionBase({ name, params, path, withParams, children }: Props): React.ReactNode {
+function QueryKeyFunctionBase({ name }: Props): React.ReactNode {
+  const schemas = useSchemas()
+  const operation = useOperation()
+  const path = new URLPath(operation.path)
+  const withParams = !!schemas.queryParams?.name
+
+  const params = createFunctionParams([
+    ...getDataParams(schemas.pathParams, {
+      typed: true,
+    }),
+    {
+      name: 'params',
+      type: schemas.queryParams?.name,
+      enabled: !!schemas.queryParams?.name,
+      required: !!schemas.queryParams?.schema.required?.length,
+    },
+  ])
+
   const result = [
     path.toObject({
       type: 'template',
@@ -28,12 +44,30 @@ function QueryKeyFunctionBase({ name, params, path, withParams, children }: Prop
 
   return (
     <Function.Arrow name={name} export params={params} singleLine>
-      {children ? children : `[${result.join(',')}] as const;`}
+      {`[${result.join(',')}] as const;`}
     </Function.Arrow>
   )
 }
 
-function QueryKeyFunctionVue({ name, params, path, withParams }: Props): React.ReactNode {
+function QueryKeyFunctionVue({ name }: Props): React.ReactNode {
+  const schemas = useSchemas()
+  const operation = useOperation()
+  const path = new URLPath(operation.path)
+  const withParams = !!schemas.queryParams?.name
+
+  const params = createFunctionParams([
+    ...getDataParams(schemas.pathParams, {
+      typed: true,
+      override: (item) => ({ ...item, type: `MaybeRef<${item.type}>` }),
+    }),
+    {
+      name: 'params',
+      type: schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : undefined,
+      enabled: !!schemas.queryParams?.name,
+      required: !!schemas.queryParams?.schema.required?.length,
+    },
+  ])
+
   const result = [
     path.toObject({
       type: 'template',
@@ -44,9 +78,9 @@ function QueryKeyFunctionVue({ name, params, path, withParams }: Props): React.R
   ].filter(Boolean)
 
   return (
-    <QueryKeyFunctionBase name={name} params={params} path={path} withParams={withParams}>
+    <Function.Arrow name={name} export params={params} singleLine>
       {`[${result.join(',')}] as const;`}
-    </QueryKeyFunctionBase>
+    </Function.Arrow>
   )
 }
 
