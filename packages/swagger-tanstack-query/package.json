@@ -56,12 +56,15 @@
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/ts-codegen": "workspace:*",
-    "change-case": "^4.1.2"
+    "change-case": "^4.1.2",
+    "@kubb/react-template": "workspace:*",
+    "react": "^18.2.0"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
+    "@types/react": "^18.2.25",
     "eslint": "^8.51.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"

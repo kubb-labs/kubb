@@ -69,7 +69,7 @@ export class ClientBuilder extends OasBuilder<Config> {
             params={params}
             returnType={dataReturnType === 'data' ? `ResponseConfig<${clientGenerics[0]}>["data"]` : `ResponseConfig<${clientGenerics[0]}>`}
             method={method}
-            url={new URLPath(operation.path).template}
+            path={new URLPath(operation.path)}
             withParams={!!schemas.queryParams?.name}
             withData={!!schemas.request?.name}
             withHeaders={!!schemas.headerParams?.name}

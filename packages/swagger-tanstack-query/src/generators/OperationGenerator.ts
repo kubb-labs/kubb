@@ -2,7 +2,7 @@ import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
-import { QueryBuilder } from '../builders/QueryBuilder.ts'
+import { QueryBuilder } from '../builders/QueryBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
@@ -293,13 +293,14 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, infinite, dataReturnType }).print('query')
+    const queryBuilder = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, infinite, dataReturnType })
 
     return {
       path: hook.filePath,
       fileName: hook.fileName,
-      source,
+      source: queryBuilder.print('query'),
       imports: [
+        ...queryBuilder.imports(),
         ...this.getQueryImports('query'),
         {
           name: 'client',
@@ -342,13 +343,14 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const source = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, dataReturnType }).print('mutation')
+    const queryBuilder = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, dataReturnType })
 
     return {
       path: hook.filePath,
       fileName: hook.fileName,
-      source,
+      source: queryBuilder.print('mutation'),
       imports: [
+        ...queryBuilder.imports(),
         ...this.getQueryImports('mutate'),
         {
           name: 'client',

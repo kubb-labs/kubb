@@ -1,6 +1,6 @@
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-type URLObject = {
+export type URLObject = {
   url: string
   params?: Record<string, string>
 }

@@ -1203,6 +1203,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/react-template':
+        specifier: workspace:*
+        version: link:../react-template
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
@@ -1218,6 +1221,9 @@ importers:
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
     devDependencies:
       '@kubb/eslint-config':
         specifier: workspace:*
@@ -1228,6 +1234,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup-config
+      '@types/react':
+        specifier: ^18.2.25
+        version: 18.2.25
       eslint:
         specifier: ^8.51.0
         version: 8.51.0

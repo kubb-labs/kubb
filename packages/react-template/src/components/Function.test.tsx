@@ -81,6 +81,19 @@ describe('<Function/>', () => {
        `),
     )
   })
+
+  test('render ArrowFunction SingleLine', async () => {
+    const Component = () => {
+      return (
+        <Function.Arrow name="getData" export async generics={['TData']} singleLine returnType="number">
+          2;
+        </Function.Arrow>
+      )
+    }
+    const { output } = render(<Component />)
+
+    expect(await format(output)).toMatch(await format(`export const getData = async <TData>(): Promise<number> => 2;`))
+  })
   // test('render Function ServerComponent(beta)', async () => {
   //   const Component = async () => {
   //     const data = await Promise.resolve('return 2;')

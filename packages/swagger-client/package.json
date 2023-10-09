@@ -80,7 +80,8 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/ts-codegen": "workspace:*",
-    "change-case": "^4.1.2"
+    "change-case": "^4.1.2",
+    "react": "^18.2.0"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
@@ -93,13 +94,7 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
-    "axios": "^1.4.0",
-    "react": "^18.2.0"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    }
+    "axios": "^1.4.0"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

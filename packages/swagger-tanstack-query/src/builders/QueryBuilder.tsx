@@ -1,13 +1,15 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { combineCodes, createFunctionParams, createJSDocBlockText, URLPath } from '@kubb/core'
+import { render } from '@kubb/react-template'
 import { getComments, getDataParams, getParams, OasBuilder } from '@kubb/swagger'
 
 import { camelCase, pascalCase } from 'change-case'
 
+import { QueryKeyFunction } from '../components/index.ts'
+
 import type { Import } from '@kubb/core'
 import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
-import type { Options as PluginOptions } from '../types'
-import type { Framework, FrameworkImports } from '../types.ts'
+import type { Framework, FrameworkImports, Options as PluginOptions } from '../types.ts'
 
 type BaseConfig = {
   dataReturnType: PluginOptions['dataReturnType']
@@ -27,7 +29,7 @@ type QueryConfig = BaseConfig & {
 type MutationConfig = BaseConfig
 type Config = QueryConfig | MutationConfig
 
-type QueryResult = { code: string; name: string }
+type QueryResult = { code: string; name: string; imports: Import[] }
 
 export class QueryBuilder extends OasBuilder<Config> {
   private get queryKey(): QueryResult {
@@ -35,8 +37,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryKey`)
-
-    const paramsData = [
+    const params = createFunctionParams([
       ...getDataParams(schemas.pathParams, {
         typed: true,
         override: framework === 'vue' ? (item) => ({ ...item, type: `MaybeRef<${item.type}>` }) : undefined,
@@ -47,21 +48,22 @@ export class QueryBuilder extends OasBuilder<Config> {
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
-    ]
-    const params = createFunctionParams(paramsData)
+    ])
 
-    const result = [
-      new URLPath(operation.path).toObject({
-        type: 'template',
-        stringify: true,
-        replacer: framework === 'vue' ? (pathParam) => `unref(${pathParam})` : undefined,
-      }),
-      schemas.queryParams?.name ? `...(params ? [params] : [])` : undefined,
-    ].filter(Boolean)
+    const FrameworkComponent = QueryKeyFunction[framework]
 
-    codes.push(`export const ${name} = (${params}) => [${result.join(',')}] as const;`)
+    const Component = () => {
+      return (
+        <>
+          <FrameworkComponent name={name} params={params} path={new URLPath(operation.path)} withParams={!!schemas.queryParams?.name} />
+        </>
+      )
+    }
+    const { output, imports } = render(<Component />)
 
-    return { code: combineCodes(codes), name }
+    codes.push(output)
+
+    return { code: combineCodes(codes), name, imports }
   }
 
   private get queryOptions(): QueryResult {
@@ -142,7 +144,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: combineCodes(codes), name, imports: [] }
   }
 
   private get query(): QueryResult {
@@ -229,7 +231,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: combineCodes(codes), name, imports: [] }
   }
 
   //infinite
@@ -319,7 +321,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
 };
   `)
 
-    return { code: combineCodes(codes), name }
+    return { code: combineCodes(codes), name, imports: [] }
   }
 
   private get queryInfinite(): QueryResult {
@@ -408,7 +410,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: combineCodes(codes), name, imports: [] }
   }
 
   private get mutation(): QueryResult {
@@ -492,7 +494,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.m
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: combineCodes(codes), name, imports: [] }
   }
 
   configure(config: Config): this {
@@ -532,7 +534,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.m
     return codes.join('\n')
   }
 
-  imports(type: 'query' | 'mutation'): Import[] {
-    return []
+  imports(): Import[] {
+    return [...this.queryKey.imports]
   }
 }

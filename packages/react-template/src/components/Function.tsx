@@ -56,7 +56,21 @@ export function Function({ name, export: canExport, async, generics, params, ret
   )
 }
 
-export function ArrowFunction({ name, export: canExport, async, generics, params, returnType, JSDoc, children }: Props): React.ReactNode {
+type ArrowFunctionProps = Props & {
+  singleLine?: boolean
+}
+
+export function ArrowFunction({
+  name,
+  export: canExport,
+  async,
+  generics,
+  params,
+  returnType,
+  JSDoc,
+  singleLine,
+  children,
+}: ArrowFunctionProps): React.ReactNode {
   return (
     <>
       {JSDoc?.comments && (
@@ -84,11 +98,22 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
           {'>'}
         </Text>
       )}
-      <Text>{' => {'}</Text>
-      <br />
-      <Text indentSize={4}>{children}</Text>
-      <br />
-      <Text>{'};'}</Text>
+      {singleLine && (
+        <>
+          <Text>{' => '}</Text>
+          <Text indentSize={4}>{children}</Text>
+        </>
+      )}
+
+      {!singleLine && (
+        <>
+          <Text>{' => {'}</Text>
+          <br />
+          <Text indentSize={4}>{children}</Text>
+          <br />
+          <Text>{'};'}</Text>
+        </>
+      )}
     </>
   )
 }
