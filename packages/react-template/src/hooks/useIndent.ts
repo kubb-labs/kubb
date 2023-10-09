@@ -3,7 +3,7 @@ type Props = {
   children?: React.ReactNode
 }
 
-function createIndent(size: number): string {
+export function createIndent(size: number): string {
   return Array.from({ length: size }).join(' ')
 }
 
