@@ -1,16 +1,13 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import type { Import } from '@kubb/core'
-import { createJSDocBlockText } from '@kubb/core'
-import type { Resolver } from '@kubb/swagger'
-import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
+import { combineCodes, createFunctionParams, createJSDocBlockText, URLPath } from '@kubb/core'
+import { getComments, getDataParams, getParams, OasBuilder } from '@kubb/swagger'
 
-import { URLPath, combineCodes } from '@kubb/core'
-import type { Operation, OperationSchemas } from '@kubb/swagger'
-import { getParams } from '@kubb/swagger'
 import { camelCase, pascalCase } from 'change-case'
-import type { Framework, FrameworkImports } from '../types.ts'
-import { createFunctionParams } from '@kubb/core'
+
+import type { Import } from '@kubb/core'
+import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { Options as PluginOptions } from '../types'
+import type { Framework, FrameworkImports } from '../types.ts'
 
 type BaseConfig = {
   dataReturnType: PluginOptions['dataReturnType']

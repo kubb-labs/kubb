@@ -1,16 +1,15 @@
 import pathParser from 'node:path'
 
-import { createPlugin, getPathMode, getRelativePath, renderTemplate, getDependedPlugins, getIndexes, timeout } from '@kubb/core'
+import { createPlugin, getDependedPlugins, getIndexes, getPathMode, getRelativePath, renderTemplate, timeout } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
-import { pascalCase, pascalCaseTransformMerge, camelCase, camelCaseTransformMerge } from 'change-case'
+import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import { TypeBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
 
-import type { OpenAPIV3 } from '@kubb/swagger'
+import type { OpenAPIV3, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
-import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 
 export const pluginName: PluginOptions['name'] = 'swagger-ts' as const
 

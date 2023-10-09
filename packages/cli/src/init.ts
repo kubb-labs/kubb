@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { LogLevel, isPromiseFulfilledResult, write } from '@kubb/core'
+import { isPromiseFulfilledResult, LogLevel, write } from '@kubb/core'
 
 import { $ } from 'execa'
 import pc from 'picocolors'

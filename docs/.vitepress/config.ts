@@ -1,7 +1,8 @@
-import { defineConfig } from 'vitepress'
 import { createWriteStream } from 'node:fs'
 import { resolve } from 'node:path'
+
 import { SitemapStream } from 'sitemap'
+import { defineConfig } from 'vitepress'
 
 import { version } from '../../packages/core/package.json'
 

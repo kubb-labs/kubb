@@ -18,8 +18,7 @@ export default defineComponent({
       }
     })
     
-    const petsQuery = useFindPetsByStatus(params  )
-
+    const petsQuery = useFindPetsByStatus(params)
     const pets = computed(() => unref(petsQuery?.data));
 
     return {

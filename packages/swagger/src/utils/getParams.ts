@@ -1,7 +1,8 @@
 import { createFunctionParams } from '@kubb/core'
 
-import type { OperationSchema } from '../types.ts'
 import { isParameterObject } from './isParameterObject'
+
+import type { OperationSchema } from '../types.ts'
 
 type FunctionParamsAst = Parameters<typeof createFunctionParams>[0][number]
 

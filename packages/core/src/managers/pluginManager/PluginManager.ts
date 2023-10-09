@@ -1,31 +1,30 @@
 /* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-unsafe-argument */
 
 import { definePlugin } from '../../plugin.ts'
+import { EventEmitter } from '../../utils/EventEmitter.ts'
 import { isPromise, isPromiseRejectedResult } from '../../utils/isPromise.ts'
 import { Queue } from '../../utils/Queue.ts'
 import { FileManager } from '../fileManager/FileManager.ts'
 import { ParallelPluginError } from './ParallelPluginError.ts'
 import { PluginError } from './PluginError.ts'
-
-import { EventEmitter } from '../../utils/EventEmitter.ts'
+import { pluginParser } from './pluginParser.ts'
 
 import type { CorePluginOptions } from '../../plugin.ts'
 import type {
   KubbConfig,
   KubbPlugin,
-  PossiblePromise,
+  OptionalPath,
   PluginContext,
   PluginLifecycle,
   PluginLifecycleHooks,
+  PossiblePromise,
   ResolveNameParams,
   ResolvePathParams,
-  OptionalPath,
 } from '../../types.ts'
-import type { QueueJob } from '../../utils/Queue.ts'
-import type { Argument0, Executer, ParseResult, SafeParseResult, Strategy } from './types.ts'
 import type { Logger } from '../../utils/logger.ts'
+import type { QueueJob } from '../../utils/Queue.ts'
 import type { ResolvedFile } from '../fileManager/types.ts'
-import { pluginParser } from './pluginParser.ts'
+import type { Argument0, Executer, ParseResult, SafeParseResult, Strategy } from './types.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 

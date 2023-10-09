@@ -1,12 +1,12 @@
 import crypto from 'node:crypto'
 
 import { read, write } from '../../utils/index.ts'
-import type { Extension } from './utils.ts'
 import { extensions } from './utils.ts'
 
-import type { Queue, QueueJob } from '../../utils/index.ts'
-import type { File, ResolvedFile, CacheItem, UUID } from './types.ts'
 import type { Path } from '../../types.ts'
+import type { Queue, QueueJob } from '../../utils/index.ts'
+import type { CacheItem, File, ResolvedFile, UUID } from './types.ts'
+import type { Extension } from './utils.ts'
 
 export class FileManager {
   private cache: Map<Path, CacheItem[]> = new Map()

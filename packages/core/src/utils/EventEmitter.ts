@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { EventEmitter as NodeEventEmitter } from 'node:events'
+
 export class EventEmitter<TEvents extends Record<string, any>> {
   private emitter = new NodeEventEmitter()
 

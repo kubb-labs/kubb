@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { createPlugin } from '../../plugin.ts'
+import { createLogger } from '../../utils/logger.ts'
 import { hooks, PluginManager } from './PluginManager.ts'
 
 import type { KubbConfig, TransformResult } from '../../types.ts'
-import { createLogger } from '../../utils/logger.ts'
 
 describe('PluginManager', () => {
   const pluginAMocks = {

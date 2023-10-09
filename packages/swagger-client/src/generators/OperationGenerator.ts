@@ -2,13 +2,13 @@ import { getRelativePath, URLPath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
+import { ClientBuilder } from '../builders/ClientBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
 import type { ContentType, HttpMethod, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
-import type { ResolvePathOptions, FileMeta } from '../types.ts'
-import { ClientBuilder } from '../builders/ClientBuilder.tsx'
 import type { Options as PluginOptions } from '../types'
+import type { FileMeta, ResolvePathOptions } from '../types.ts'
 
 type Options = {
   clientPath?: OptionalPath

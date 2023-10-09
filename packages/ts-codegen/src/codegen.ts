@@ -311,7 +311,7 @@ export function createEnumDeclaration({
    * Enum name in PascalCase.
    */
   typeName: string
-  enums: [key: string, value: string | number | boolean][]
+  enums: [key: string | number, value: string | number | boolean][]
 }) {
   if (type === 'enum') {
     return [

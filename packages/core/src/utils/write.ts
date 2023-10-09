@@ -1,5 +1,6 @@
-import fs from 'fs-extra'
 import pathParser from 'node:path'
+
+import fs from 'fs-extra'
 import { switcher } from 'js-runtime'
 
 async function saveCreateDirectory(path: string): Promise<void> {

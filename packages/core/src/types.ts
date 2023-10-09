@@ -1,7 +1,7 @@
-import type { Logger } from './utils/logger.ts'
 import type { File, FileManager } from './managers/fileManager/index.ts'
 import type { PluginManager } from './managers/index.ts'
 import type { Cache } from './utils/cache.ts'
+import type { Logger } from './utils/logger.ts'
 
 /**
  * @deprecated

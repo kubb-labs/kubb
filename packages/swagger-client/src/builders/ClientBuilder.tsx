@@ -1,12 +1,12 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import type { Import } from '@kubb/core'
-import { combineCodes, createFunctionParams } from '@kubb/core'
-import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
+import { combineCodes, createFunctionParams, URLPath } from '@kubb/core'
 import { Import as ImportTemplate, render } from '@kubb/react-template'
+import { getComments, getDataParams, OasBuilder } from '@kubb/swagger'
 
-import { URLPath } from '@kubb/core'
-import type { Operation, OperationSchemas } from '@kubb/swagger'
 import { ClientFunction } from '../components/index.ts'
+
+import type { Import } from '@kubb/core'
+import type { Operation, OperationSchemas } from '@kubb/swagger'
 import type { Options as PluginOptions } from '../types'
 
 type Config = {

@@ -1,4 +1,5 @@
 import React from 'react'
+
 import type { Import as ImportFileType } from '@kubb/core'
 
 type Props = ImportFileType & {

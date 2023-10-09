@@ -2,6 +2,7 @@ import { getUniqueName, SchemaGenerator } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
+import { createJSDocBlockText } from '../../../core/src/utils/jsdoc'
 import { fakerKeywords, fakerParser } from '../parsers/index.ts'
 import { pluginName } from '../plugin.ts'
 
@@ -9,7 +10,6 @@ import type { PluginContext } from '@kubb/core'
 import type { FileResolver, ImportMeta, OpenAPIV3, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
 import type { FakerKeyword, FakerMeta } from '../parsers/index.ts'
-import { createJSDocBlockText } from '../../../core/src/utils/jsdoc'
 
 type Options = {
   fileResolver?: FileResolver

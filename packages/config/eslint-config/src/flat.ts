@@ -38,10 +38,10 @@ import vitestGlobalsPlugin from 'eslint-plugin-vitest-globals'
  */
 import globals from 'globals'
 
+import { ignores } from './ignores'
 import { rules } from './rules'
 
 import type { Linter } from 'eslint'
-import { ignores } from './ignores'
 
 /**
  * Recommended plugins CJS

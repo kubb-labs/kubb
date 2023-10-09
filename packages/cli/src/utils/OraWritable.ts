@@ -3,10 +3,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
-import type { WritableOptions } from 'node:stream'
 import { Writable } from 'node:stream'
-import type { Ora } from 'ora'
+
 import pc from 'picocolors'
+
+import type { WritableOptions } from 'node:stream'
+import type { Ora } from 'ora'
 
 export class OraWritable extends Writable {
   public command: string

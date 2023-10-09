@@ -34,9 +34,6 @@ importers:
       prettier-eslint:
         specifier: ^15.0.1
         version: 15.0.1
-      prettier-plugin-curly:
-        specifier: ^0.1.3
-        version: 0.1.3(prettier@3.0.3)
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@swc/core@1.3.82)(@types/node@20.8.3)(typescript@5.2.2)
@@ -120,8 +117,8 @@ importers:
         specifier: ^4.36.1
         version: 4.36.1(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^4.36.1
-        version: 4.36.1(vue@3.3.4)
+        specifier: ^4.36.2
+        version: 4.36.2(vue@3.3.4)
       '@zodios/core':
         specifier: ^10.9.6
         version: 10.9.6(axios@1.5.1)(zod@3.22.4)
@@ -211,8 +208,8 @@ importers:
         specifier: ^4.36.1
         version: 4.36.1(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^4.36.1
-        version: 4.36.1(vue@3.3.4)
+        specifier: ^4.36.2
+        version: 4.36.2(vue@3.3.4)
       '@zodios/core':
         specifier: ^10.9.6
         version: 10.9.6(axios@1.5.1)(zod@3.22.4)
@@ -621,8 +618,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
-        specifier: ^4.36.1
-        version: 4.36.1(vue@3.3.4)
+        specifier: ^4.36.2
+        version: 4.36.2(vue@3.3.4)
       axios:
         specifier: ^1.5.1
         version: 1.5.1
@@ -2668,8 +2665,8 @@ packages:
       svelte: 3.59.2
     dev: false
 
-  /@tanstack/vue-query@4.36.1(vue@3.3.4):
-    resolution: {integrity: sha512-+dS/+Xb5OL0bdy8iurT2U4oX9R5T+eUJCK3JHIn6JAQKcVk+Zp09uVzF/dwy1Xe/8Xhy593vcr+wWc9fMrsAPQ==}
+  /@tanstack/vue-query@4.36.2(vue@3.3.4):
+    resolution: {integrity: sha512-zZjP1q7Fe+tmvZeJeQ9v56VQ4VgyafdjjCRaYxLNHDBlXB+fpqP4kWhUfTKQEDHSAyzrtX8Bk789jg/yUPyIKQ==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.5.0 || ^3.0.0
@@ -6557,19 +6554,6 @@ packages:
       require-relative: 0.8.7
       typescript: 4.9.5
       vue-eslint-parser: 8.3.0(eslint@8.43.0)
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
-
-  /prettier-plugin-curly@0.1.3(prettier@3.0.3):
-    resolution: {integrity: sha512-NYr2BPex/0fFwDbiZZr91kfgBko1tmaorLOrVAkT5rN91mIYYJRiWabRxWGFqzRSO7J0eoEcxakY9NWvJWAh4w==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      prettier: ^2 || ^3
-    dependencies:
-      '@babel/parser': 7.22.7
-      '@babel/traverse': 7.22.8
-      prettier: 3.0.3
     transitivePeerDependencies:
       - supports-color
     dev: true

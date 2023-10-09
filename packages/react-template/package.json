@@ -62,9 +62,9 @@
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
+    "@kubb/ts-codegen": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@kubb/ts-codegen": "workspace:*",
     "@types/react": ">=18.2.25",
     "@types/react-reconciler": "^0.28.5",
     "eslint": "^8.51.0",

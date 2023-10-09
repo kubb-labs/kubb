@@ -1,8 +1,8 @@
 // https://vitepress.dev/guide/custom-theme
-import { h } from 'vue'
-import DefaultTheme from 'vitepress/theme'
-import { EnhanceAppContext } from 'vitepress/dist/client'
 import { inject } from '@vercel/analytics'
+import { EnhanceAppContext } from 'vitepress/dist/client'
+import DefaultTheme from 'vitepress/theme'
+import { h } from 'vue'
 
 import HomePage from './HomePage.vue'
 

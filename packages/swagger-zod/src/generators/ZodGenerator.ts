@@ -1,4 +1,4 @@
-import { getUniqueName, SchemaGenerator, jsStringEscape } from '@kubb/core'
+import { getUniqueName, jsStringEscape, SchemaGenerator } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 
 import { zodKeywords, zodParser } from '../parsers/index.ts'

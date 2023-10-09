@@ -1,17 +1,16 @@
-import { build, ParallelPluginError, PluginError, SummaryError, timeout, LogLevel } from '@kubb/core'
-
-import type { ExecaReturnValue } from 'execa'
-import type { Writable } from 'node:stream'
+import { build, LogLevel, ParallelPluginError, PluginError, SummaryError, timeout } from '@kubb/core'
 
 import { execa } from 'execa'
 import pc from 'picocolors'
 import { parseArgsStringToArgv } from 'string-argv'
 
-import type { CLIOptions, KubbConfig } from '@kubb/core'
+import { getSummary } from './utils/getSummary.ts'
 import { OraWritable } from './utils/OraWritable.ts'
 import { spinner } from './utils/spinner.ts'
-import { getSummary } from './utils/getSummary.ts'
-import type { Logger } from '@kubb/core'
+
+import type { CLIOptions, KubbConfig, Logger } from '@kubb/core'
+import type { ExecaReturnValue } from 'execa'
+import type { Writable } from 'node:stream'
 
 type GenerateProps = {
   input?: string

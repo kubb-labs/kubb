@@ -19,10 +19,10 @@ const config = {
   semi: false,
   bracketSameLine: false,
   endOfLine: 'auto',
-  plugins: ['@ianvs/prettier-plugin-sort-imports', 'prettier-plugin-curly'],
+  plugins: ['@ianvs/prettier-plugin-sort-imports'],
   // `@ianvs/prettier-plugin-sort-imports` plugin's options
   importOrderParserPlugins: ['typescript', 'jsx', 'decorators-legacy'],
-  importOrderTypeScriptVersion: '5.1.3',
+  importOrderTypeScriptVersion: '5.0.0',
   importOrder: [
     '^(react/(.*)$)|^(react$)',
     '<BUILTIN_MODULES>', // Node.js built-in modules

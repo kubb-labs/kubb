@@ -1,16 +1,16 @@
 import pathParser from 'node:path'
 
+import { createLogger, LogLevel, SummaryError, Warning } from '@kubb/core'
+
 import cac from 'cac'
 import pc from 'picocolors'
 
 import { version } from '../package.json'
-import init from './init.ts'
 import generate from './generate.ts'
+import init from './init.ts'
 import { getConfig, getCosmiConfig, renderErrors, spinner, startWatcher } from './utils/index.ts'
 
-import { LogLevel, SummaryError, createLogger } from '@kubb/core'
 import type { CLIOptions } from '@kubb/core'
-import { Warning } from '@kubb/core'
 
 const moduleName = 'kubb'
 const logger = createLogger(spinner)

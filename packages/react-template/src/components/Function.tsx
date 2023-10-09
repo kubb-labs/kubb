@@ -1,7 +1,10 @@
 import React from 'react'
-import type { ReactNode } from 'react'
-import { Text } from './Text.tsx'
+
 import { createJSDocBlockText } from '@kubb/core'
+
+import { Text } from './Text.tsx'
+
+import type { ReactNode } from 'react'
 
 type Props = {
   name: string
