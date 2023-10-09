@@ -2,7 +2,7 @@ import { setupWorker, rest } from 'msw'
 
 export const worker = setupWorker(
   rest.get('/pet/findByStatus', (req, res, ctx) => {
-    if (req.params['status'] === 'pending') {
+    if (req.url.searchParams.get('status') === 'pending') {
       return res(
         ctx.json([
           {

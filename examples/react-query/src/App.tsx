@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FindPetsByStatusQueryParamsStatus } from './gen'
 import { useFindPetsByStatusHook } from './gen'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const queryClient = new QueryClient()
 
@@ -23,6 +24,7 @@ export function App(): JSX.Element {
   return (
     <QueryClientProvider client={queryClient}>
       <Pets />
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   )
 }
