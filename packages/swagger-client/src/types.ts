@@ -1,7 +1,6 @@
-import type { CreateAxiosDefaults } from 'axios'
-
 import type { PluginFactoryOptions } from '@kubb/core'
 import type { SkipBy } from '@kubb/swagger'
+import type { CreateAxiosDefaults } from 'axios'
 
 /**
  * We override `process.env` so no need to import this

@@ -1,5 +1,6 @@
-import seedrandom from 'seedrandom'
 import pc from 'picocolors'
+import seedrandom from 'seedrandom'
+
 import type { Formatter } from 'picocolors/types'
 
 export const defaultColours = ['black', 'blue', 'darkBlue', 'cyan', 'gray', 'green', 'darkGreen', 'magenta', 'red', 'darkRed', 'yellow', 'darkYellow'] as const

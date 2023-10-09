@@ -1,9 +1,9 @@
 import globals from 'globals'
 
+import { ignores } from './ignores'
 import { rules } from './rules'
 
 import type { Linter } from 'eslint'
-import { ignores } from './ignores'
 
 const config: Linter.Config = {
   root: true,

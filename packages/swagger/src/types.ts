@@ -1,8 +1,8 @@
 import type { Path, PluginFactoryOptions } from '@kubb/core'
-import type { GetSchemasProps } from './utils/getSchemas'
 import type Oas from 'oas'
-import type { OpenAPIV3 } from 'openapi-types'
 import type { HttpMethods as HttpMethod } from 'oas/dist/rmoas.types.ts'
+import type { OpenAPIV3 } from 'openapi-types'
+import type { GetSchemasProps } from './utils/getSchemas'
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type ContentType = 'application/json' | (string & {})

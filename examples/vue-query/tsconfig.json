@@ -5,7 +5,8 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "strictNullChecks": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
     "declaration": true,
     "outDir": "es",
     "experimentalDecorators": true,
@@ -61,11 +62,13 @@
       ],
       "@kubb/ts-codegen": [
         "../../packages/ts-codegen/src/index.ts"
-      ]
+      ],
     }
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "vite.config.ts",
+    "shims-vue.d.ts"
   ],
   "exclude": [
     "**/node_modules",

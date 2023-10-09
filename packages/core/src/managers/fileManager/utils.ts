@@ -2,12 +2,13 @@ import pathParser from 'node:path'
 
 import { createExportDeclaration, createImportDeclaration, print } from '@kubb/ts-codegen'
 
+import isEqual from 'lodash.isequal'
+
 import { TreeNode } from '../../utils/index.ts'
 
 import type { Path } from '../../types.ts'
 import type { PathMode, TreeNodeOptions } from '../../utils/index.ts'
-import type { Import, Export, File } from './types.ts'
-import isEqual from 'lodash.isequal'
+import type { Export, File, Import } from './types.ts'
 
 type TreeNodeData = { type: PathMode; path: Path; name: string }
 

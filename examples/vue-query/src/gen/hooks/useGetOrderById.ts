@@ -1,19 +1,23 @@
+import { unref } from 'vue'
+import type { MaybeRef } from 'vue'
 import type { QueryKey, UseQueryReturnType, UseQueryOptions } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400 } from '../models/GetOrderById'
 
-export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [`/store/order/${orderId}`] as const
+export const getOrderByIdQueryKey = (orderId: MaybeRef<GetOrderByIdPathParams['orderId']>) =>
+  [{ url: `/store/order/${unref(orderId)}`, params: { orderId: orderId } }] as const
 
 export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
-  orderId: GetOrderByIdPathParams['orderId'],
+  refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
-  const queryKey = getOrderByIdQueryKey(orderId)
+  const queryKey = getOrderByIdQueryKey(refOrderId)
 
   return {
     queryKey,
     queryFn: () => {
+      const orderId = unref(refOrderId)
       return client<TData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
@@ -31,17 +35,17 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
  */
 
 export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
-  orderId: GetOrderByIdPathParams['orderId'],
+  refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>,
   options: {
     query?: UseQueryOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
 ): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
+  const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(refOrderId)
 
   const query = useQuery<TData, TError>({
-    ...getOrderByIdQueryOptions<TData, TError>(orderId, clientOptions),
+    ...getOrderByIdQueryOptions<TData, TError>(refOrderId, clientOptions),
     ...queryOptions,
   }) as UseQueryReturnType<TData, TError> & { queryKey: QueryKey }
 

@@ -3,6 +3,8 @@ import pathParser from 'node:path'
 import { URLPath } from '@kubb/core'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
+import Oas from 'oas'
+import OASNormalize from 'oas-normalize'
 import swagger2openapi from 'swagger2openapi'
 
 import { isOpenApiV3Document } from '../utils/index.ts'
@@ -11,9 +13,6 @@ import type { KubbConfig } from '@kubb/core'
 import type oas from 'oas'
 import type { OASDocument } from 'oas/dist/rmoas.types.ts'
 import type { OpenAPIV2 } from 'openapi-types'
-
-import Oas from 'oas'
-import OASNormalize from 'oas-normalize'
 
 export type OasOptions = {
   validate?: boolean

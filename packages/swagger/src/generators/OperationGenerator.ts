@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { combineFiles, Generator } from '@kubb/core'
+import { combineFiles, Generator, Warning } from '@kubb/core'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
+import { utils } from 'oas'
 
 import { isReference } from '../utils/isReference.ts'
 
@@ -10,9 +11,6 @@ import type { Operation } from 'oas'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types.ts'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { ContentType, Oas, OperationSchemas, Resolver, SkipBy } from '../types.ts'
-import { Warning } from '@kubb/core'
-
-import { utils } from 'oas'
 
 const { findSchemaDefinition } = utils
 

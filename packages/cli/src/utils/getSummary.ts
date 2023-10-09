@@ -1,8 +1,12 @@
 import pathParser from 'node:path'
-import type { BuildOutput, KubbConfig } from '@kubb/core'
-import { randomPicoColour, LogLevel } from '@kubb/core'
+
+import { LogLevel, randomPicoColour } from '@kubb/core'
+
 import pc from 'picocolors'
+
 import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
+
+import type { BuildOutput, KubbConfig } from '@kubb/core'
 
 type SummaryProps = {
   pluginManager: BuildOutput['pluginManager']

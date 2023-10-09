@@ -1,7 +1,9 @@
 import React from 'react'
-import type { ReactNode } from 'react'
-import { Function, createIndent } from '@kubb/react-template'
+
+import { createIndent, Function } from '@kubb/react-template'
+
 import type { HttpMethod } from '@kubb/swagger'
+import type { ReactNode } from 'react'
 import type { Options as PluginOptions } from '../types'
 
 type Props = {

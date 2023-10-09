@@ -8,9 +8,9 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/index.ts'
 
+import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions as SwaggerZodPluginOptions } from '@kubb/swagger-zod'
 import type { PluginOptions } from './types.ts'
-import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 
 export const pluginName: PluginOptions['name'] = 'swagger-zodios' as const
 

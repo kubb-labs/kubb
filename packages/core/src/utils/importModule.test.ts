@@ -1,5 +1,6 @@
-import { importModule, normalizeDirectory } from './importModule.ts'
 import path from 'node:path'
+
+import { importModule, normalizeDirectory } from './importModule.ts'
 
 describe('importModule', () => {
   test('normalizeDirectory', () => {

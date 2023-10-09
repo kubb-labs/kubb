@@ -1,8 +1,8 @@
 import { build } from './build'
-import type { KubbConfig } from './types'
 import { createPlugin } from './plugin'
 
 import type { File } from './managers/fileManager/types'
+import type { KubbConfig } from './types'
 
 describe('build', () => {
   const pluginMocks = {

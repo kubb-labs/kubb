@@ -1,7 +1,8 @@
-import type { DOMElement } from './dom.js'
+import { createExportDeclaration, createImportDeclaration, print } from '@kubb/ts-codegen'
+
 import type { Export as ExportComponent } from './components/Export.tsx'
 import type { Import as ImportComponent } from './components/Import.ts'
-import { createExportDeclaration, createImportDeclaration, print } from '@kubb/ts-codegen'
+import type { DOMElement } from './dom.ts'
 
 // Squashing text nodes allows to combine multiple text nodes into one and write
 // to `Output` instance only once. For example, <Text>hello{' '}world</Text>

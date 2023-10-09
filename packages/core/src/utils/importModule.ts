@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import mod from 'node:module'
-import { pathToFileURL } from 'node:url'
 import os from 'node:os'
+import { pathToFileURL } from 'node:url'
 
 const SLASHES = new Set(['/', '\\'])
 

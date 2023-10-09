@@ -3,8 +3,9 @@
 import createReconciler from 'react-reconciler'
 import { DefaultEventPriority } from 'react-reconciler/constants.js'
 
-import { createTextNode, appendChildNode, insertBeforeNode, removeChildNode, setTextNodeValue, createNode, setAttribute } from './dom.js'
-import type { DOMNodeAttribute, TextNode, DOMElement } from './dom.ts'
+import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './dom.ts'
+
+import type { DOMElement, DOMNodeAttribute, TextNode } from './dom.ts'
 import type { ElementNames } from './types.ts'
 
 type AnyObject = Record<string, unknown>
@@ -105,7 +106,7 @@ export const reconciler = createReconciler<
     return { isInsideText }
   },
   shouldSetTextContent: () => false,
-  createInstance(originalType, newProps, _root, hostContext) {
+  createInstance(originalType, newProps, _root) {
     const node = createNode(originalType)
 
     for (const [key, value] of Object.entries(newProps)) {

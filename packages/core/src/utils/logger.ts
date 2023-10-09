@@ -1,5 +1,6 @@
-import type { Ora } from 'ora'
 import pc from 'picocolors'
+
+import type { Ora } from 'ora'
 
 export type LogType = 'error' | 'info' | 'warning'
 

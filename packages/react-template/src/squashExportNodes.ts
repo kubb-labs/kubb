@@ -1,7 +1,7 @@
-import type { Export as ExportComponent } from './components/Export.tsx'
-import type { DOMElement } from './dom.js'
-import type React from 'react'
 import type { Export } from '@kubb/core'
+import type React from 'react'
+import type { Export as ExportComponent } from './components/Export.tsx'
+import type { DOMElement } from './dom.ts'
 
 export function squashExportNodes(node: DOMElement): Export[] {
   const exports: Export[] = []

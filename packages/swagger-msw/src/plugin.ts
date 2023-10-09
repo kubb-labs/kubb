@@ -1,18 +1,17 @@
 import pathParser from 'node:path'
 
-import type { File } from '@kubb/core'
-import { createPlugin, getPathMode, getRelativePath, renderTemplate, getDependedPlugins, getIndexes } from '@kubb/core'
+import { createPlugin, getDependedPlugins, getIndexes, getPathMode, getRelativePath, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
-
-import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 import { pluginName as swaggerFakerPluginName } from '@kubb/swagger-faker'
+import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/index.ts'
 
-import type { FileMeta, PluginOptions } from './types.ts'
+import type { File } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import type { FileMeta, PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger-msw' as const
 

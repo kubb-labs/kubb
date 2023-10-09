@@ -2,14 +2,13 @@ import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
+import { QueryBuilder } from '../builders/QueryBuilder.ts'
 import { pluginName } from '../plugin.ts'
 
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
 import type { ContentType, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
-import type { ResolvePathOptions } from '../types.ts'
-import { QueryBuilder } from '../builders/QueryBuilder.ts'
-import type { FileMeta } from '../types.ts'
 import type { Options as PluginOptions } from '../types'
+import type { FileMeta, ResolvePathOptions } from '../types.ts'
 
 type Options = {
   clientPath?: OptionalPath

@@ -1,11 +1,10 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { createFunctionParams, createJSDocBlockText } from '@kubb/core'
-import type { Resolver } from '@kubb/swagger'
-import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
+import { combineCodes, createFunctionParams, createJSDocBlockText, URLPath } from '@kubb/core'
+import { getComments, getDataParams, OasBuilder } from '@kubb/swagger'
 
-import { URLPath, combineCodes } from '@kubb/core'
-import type { Operation, OperationSchemas } from '@kubb/swagger'
 import { camelCase } from 'change-case'
+
+import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { Options as PluginOptions } from '../types'
 
 type Config = {

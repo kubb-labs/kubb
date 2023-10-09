@@ -12,7 +12,9 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && vite build",
+    "clean": "npx rimraf ./dist",
+    "dev": "vite",
     "generate": "kubb generate",
     "start": "tsup --watch",
     "test": "vitest",
@@ -26,14 +28,16 @@
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@tanstack/vue-query": "^4.36.1",
+    "@tanstack/vue-query": "^4.36.2",
     "axios": "^1.5.1",
     "vue": "^3.3.4"
   },
   "devDependencies": {
-    "@kubb/ts-config": "workspace:*",
+    "@vitejs/plugin-vue": "^4.4.0",
+    "msw": "^1.3.2",
     "tsup": "^7.2.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vite": "^4.4.11"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

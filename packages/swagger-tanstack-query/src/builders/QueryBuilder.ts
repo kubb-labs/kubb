@@ -1,16 +1,13 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import type { Import } from '@kubb/core'
-import { createJSDocBlockText } from '@kubb/core'
-import type { Resolver } from '@kubb/swagger'
-import { OasBuilder, getComments, getDataParams } from '@kubb/swagger'
+import { combineCodes, createFunctionParams, createJSDocBlockText, URLPath } from '@kubb/core'
+import { getComments, getDataParams, getParams, OasBuilder } from '@kubb/swagger'
 
-import { URLPath, combineCodes } from '@kubb/core'
-import type { Operation, OperationSchemas } from '@kubb/swagger'
-import { getParams } from '@kubb/swagger'
-import { camelCase } from 'change-case'
-import type { Framework, FrameworkImports } from '../types.ts'
-import { createFunctionParams } from '@kubb/core'
+import { camelCase, pascalCase } from 'change-case'
+
+import type { Import } from '@kubb/core'
+import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { Options as PluginOptions } from '../types'
+import type { Framework, FrameworkImports } from '../types.ts'
 
 type BaseConfig = {
   dataReturnType: PluginOptions['dataReturnType']
@@ -34,21 +31,33 @@ type QueryResult = { code: string; name: string }
 
 export class QueryBuilder extends OasBuilder<Config> {
   private get queryKey(): QueryResult {
-    const { operation, schemas } = this.config
+    const { operation, schemas, framework } = this.config
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryKey`)
 
-    const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+    const paramsData = [
+      ...getDataParams(schemas.pathParams, {
+        typed: true,
+        override: framework === 'vue' ? (item) => ({ ...item, type: `MaybeRef<${item.type}>` }) : undefined,
+      }),
       {
         name: 'params',
-        type: schemas.queryParams?.name,
+        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
-    ])
-    const result = [new URLPath(operation.path).template, schemas.queryParams?.name ? `...(params ? [params] : [])` : undefined].filter(Boolean)
+    ]
+    const params = createFunctionParams(paramsData)
+
+    const result = [
+      new URLPath(operation.path).toObject({
+        type: 'template',
+        stringify: true,
+        replacer: framework === 'vue' ? (pathParam) => `unref(${pathParam})` : undefined,
+      }),
+      schemas.queryParams?.name ? `...(params ? [params] : [])` : undefined,
+    ].filter(Boolean)
 
     codes.push(`export const ${name} = (${params}) => [${result.join(',')}] as const;`)
 
@@ -62,22 +71,27 @@ export class QueryBuilder extends OasBuilder<Config> {
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
     const queryKeyName = this.queryKey.name
 
-    const pathParams = getParams(schemas.pathParams)
+    const pathParams = getParams(schemas.pathParams, {
+      override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
+    })
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
-    const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+    const paramsData = [
+      ...getDataParams(schemas.pathParams, {
+        typed: true,
+        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
+      }),
       {
-        name: 'params',
-        type: schemas.queryParams?.name,
+        name: framework === 'vue' ? 'refParams' : 'params',
+        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
       {
-        name: 'headers',
-        type: schemas.headerParams?.name,
+        name: framework === 'vue' ? 'refHeaders' : 'headers',
+        type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
         enabled: !!schemas.headerParams?.name,
         required: !!schemas.headerParams?.schema.required?.length,
       },
@@ -86,20 +100,36 @@ export class QueryBuilder extends OasBuilder<Config> {
         type: 'Partial<Parameters<typeof client>[0]>',
         default: '{}',
       },
-    ])
+    ]
+    const params = createFunctionParams(paramsData)
+
+    const unrefs =
+      framework === 'vue'
+        ? paramsData
+            .filter((item) => item.type?.startsWith('MaybeRef<'))
+            .map((item) => {
+              return `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})`
+            })
+            .join('\n')
+        : ''
+
     let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
 
     if (framework === 'solid') {
       queryKey = `() => ${queryKey}`
     }
+    if (framework === 'vue') {
+      queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'refParams' : ''})`
+    }
 
     codes.push(`
 export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
   const queryKey = ${queryKey};
-
+  
   return {
     queryKey,
     queryFn: () => {
+      ${unrefs}
       return client<${clientGenerics.join(', ')}>({
         method: "get",
         url: ${new URLPath(operation.path).template},
@@ -122,23 +152,28 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
     const queryKeyName = this.queryKey.name
     const queryOptionsName = this.queryOptions.name
     const name = frameworkImports.getName(operation)
-    const pathParams = getParams(schemas.pathParams)
+    const pathParams = getParams(schemas.pathParams, {
+      override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
+    })
     const comments = getComments(operation)
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+      ...getDataParams(schemas.pathParams, {
+        typed: true,
+        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
+      }),
       {
-        name: 'params',
-        type: schemas.queryParams?.name,
+        name: framework === 'vue' ? 'refParams' : 'params',
+        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
       {
-        name: 'headers',
-        type: schemas.headerParams?.name,
+        name: framework === 'vue' ? 'refHeaders' : 'headers',
+        type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
         enabled: !!schemas.headerParams?.name,
         required: !!schemas.headerParams?.schema.required?.length,
       },
@@ -152,16 +187,21 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
       },
     ])
 
-    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
+    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
+      schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
+    })`
     const queryParams = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: false }),
+      ...getDataParams(schemas.pathParams, {
+        typed: false,
+        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
+      }),
       {
-        name: 'params',
+        name: framework === 'vue' ? 'refParams' : 'params',
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
       {
-        name: 'headers',
+        name: framework === 'vue' ? 'refHeaders' : 'headers',
         enabled: !!schemas.headerParams?.name,
         required: !!schemas.headerParams?.schema.required?.length,
       },
@@ -201,22 +241,27 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
 
     const queryKeyName = this.queryKey.name
 
-    const pathParams = getParams(schemas.pathParams)
+    const pathParams = getParams(schemas.pathParams, {
+      override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
+    })
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
-    const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+    const paramsData = [
+      ...getDataParams(schemas.pathParams, {
+        typed: true,
+        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
+      }),
       {
-        name: 'params',
-        type: schemas.queryParams?.name,
+        name: framework === 'vue' ? 'refParams' : 'params',
+        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
       {
-        name: 'headers',
-        type: schemas.headerParams?.name,
+        name: framework === 'vue' ? 'refHeaders' : 'headers',
+        type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
         enabled: !!schemas.headerParams?.name,
         required: !!schemas.headerParams?.schema.required?.length,
       },
@@ -225,11 +270,25 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
         type: 'Partial<Parameters<typeof client>[0]>',
         default: '{}',
       },
-    ])
+    ]
+    const params = createFunctionParams(paramsData)
+
+    const unrefs =
+      framework === 'vue'
+        ? paramsData
+            .filter((item) => item.type?.startsWith('MaybeRef<'))
+            .map((item) => {
+              return `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})`
+            })
+            .join('\n')
+        : ''
     let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
 
     if (framework === 'solid') {
       queryKey = `() => ${queryKey}`
+    }
+    if (framework === 'vue') {
+      queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'refParams' : ''})`
     }
 
     codes.push(`
@@ -239,6 +298,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
+      ${unrefs}
       return client<${clientGenerics.join(', ')}>({
         method: "get",
         url: ${new URLPath(operation.path).template},
@@ -269,23 +329,28 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
     const queryKeyName = this.queryKey.name
     const queryOptionsName = this.queryOptionsInfinite.name // changed
     const name = `${frameworkImports.getName(operation)}Infinite`
-    const pathParams = getParams(schemas.pathParams)
+    const pathParams = getParams(schemas.pathParams, {
+      override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
+    })
     const comments = getComments(operation)
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+      ...getDataParams(schemas.pathParams, {
+        typed: true,
+        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
+      }),
       {
-        name: 'params',
-        type: schemas.queryParams?.name,
+        name: framework === 'vue' ? 'refParams' : 'params',
+        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
       {
-        name: 'headers',
-        type: schemas.headerParams?.name,
+        name: framework === 'vue' ? 'refHeaders' : 'headers',
+        type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
         enabled: !!schemas.headerParams?.name,
         required: !!schemas.headerParams?.schema.required?.length,
       },
@@ -299,16 +364,21 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
       },
     ])
 
-    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
+    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
+      schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
+    })`
     const queryParams = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: false }),
+      ...getDataParams(schemas.pathParams, {
+        typed: false,
+        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
+      }),
       {
-        name: 'params',
+        name: framework === 'vue' ? 'refParams' : 'params',
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
       {
-        name: 'headers',
+        name: framework === 'vue' ? 'refHeaders' : 'headers',
         enabled: !!schemas.headerParams?.name,
         required: !!schemas.headerParams?.schema.required?.length,
       },
@@ -362,17 +432,20 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
       schemas.request?.name ? `TVariables` : 'void',
       framework === 'vue' ? 'unknown' : undefined,
     ].filter(Boolean)
-    const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+    const paramsData = [
+      ...getDataParams(schemas.pathParams, {
+        typed: true,
+        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
+      }),
       {
-        name: 'params',
-        type: schemas.queryParams?.name,
+        name: framework === 'vue' ? 'refParams' : 'params',
+        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
       {
-        name: 'headers',
-        type: schemas.headerParams?.name,
+        name: framework === 'vue' ? 'refHeaders' : 'headers',
+        type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
         enabled: !!schemas.headerParams?.name,
         required: !!schemas.headerParams?.schema.required?.length,
       },
@@ -384,7 +457,18 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
       }`,
         default: '{}',
       },
-    ])
+    ]
+    const params = createFunctionParams(paramsData)
+
+    const unrefs =
+      framework === 'vue'
+        ? paramsData
+            .filter((item) => item.type?.startsWith('MaybeRef<'))
+            .map((item) => {
+              return `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})`
+            })
+            .join('\n')
+        : ''
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
@@ -393,6 +477,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.m
   
   return ${frameworkImports.mutate.useMutation}<${mutationGenerics.join(', ')}>({
     mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
+      ${unrefs}
       return client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>({
         method: "${method}",
         url: ${new URLPath(operation.path).template},

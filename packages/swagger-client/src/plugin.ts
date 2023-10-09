@@ -1,16 +1,16 @@
 import pathParser from 'node:path'
 
-import { createPlugin, getLocation, getPathMode, getRelativePath, read, renderTemplate, getDependedPlugins, getIndexes } from '@kubb/core'
+import { createPlugin, getDependedPlugins, getIndexes, getLocation, getPathMode, getRelativePath, read, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/OperationGenerator.ts'
 
-import type { OptionalPath, File } from '@kubb/core'
+import type { File, OptionalPath } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
-import type { PluginOptions } from './types.ts'
 import type { FileMeta } from './types'
+import type { PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger-client' as const
 

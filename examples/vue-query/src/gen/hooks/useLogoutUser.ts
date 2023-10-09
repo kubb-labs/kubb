@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
-export const logoutUserQueryKey = () => [`/user/logout`] as const
+export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const
 
 export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(
   options: Partial<Parameters<typeof client>[0]> = {},
