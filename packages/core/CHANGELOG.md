@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.10.1](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.10.0...@kubb/core-v1.10.1) (2023-10-09)
+
+
+### 🐞 Bug Fixes
+
+* make `vue` work with refs ([d243087](https://github.com/kubb-project/kubb/commit/d2430871401ab23fc3b3af1823be3538819fdba1))
+* queryKey with `{url, params}` object ([186e05d](https://github.com/kubb-project/kubb/commit/186e05d5c310766c8579fd840ce3dc6bb6f14bb5))
+
 ## [1.10.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.9.5...@kubb/core-v1.10.0) (2023-10-08)
 
 
