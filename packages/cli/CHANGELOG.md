@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.2](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.10.1...@kubb/cli-v1.10.2) (2023-10-10)
+
+
+### 🐞 Bug Fixes
+
+* support for `configs/` folder for `kubb.config.ts` ([e448c32](https://github.com/kubb-project/kubb/commit/e448c3274a5df672bb9a8bfbfb9957dbdf954afd))
+
 ## [1.10.1](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.10.0...@kubb/cli-v1.10.1) (2023-10-10)
 
 
