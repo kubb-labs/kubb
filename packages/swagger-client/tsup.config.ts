@@ -3,8 +3,8 @@ import { optionsCJS, optionsESM } from '@kubb/tsup-config'
 import { defineConfig } from 'tsup'
 
 export default defineConfig([
-  optionsCJS,
-  optionsESM,
+  { ...optionsCJS, noExternal: [/react-reconcile/, /react/, /react\/jsx-runtime/] },
+  { ...optionsESM, noExternal: [/react-reconcile/, /react/, /react\/jsx-runtime/] },
   {
     ...optionsCJS,
     entry: ['./client.ts'],
