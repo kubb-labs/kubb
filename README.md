@@ -58,6 +58,16 @@
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
+## Star History
+
+<a href="https://star-history.com/#kubb-project/kubb&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=kubb-project/kubb&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=kubb-project/kubb&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kubb-project/kubb&type=Date" />
+  </picture>
+</a>
+
 <!-- Badges -->
 
 [npm-version-src]: https://img.shields.io/npm/v/@kubb/core?flat&colorA=18181B&colorB=f58517
