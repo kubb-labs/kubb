@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.11.0](https://github.com/kubb-project/kubb/compare/kubb-v1.10.3...kubb-v1.11.0) (2023-10-10)
+
+
+### 📚 Documentation
+
+* update .all-contributorsrc [skip ci] ([e58d89c](https://github.com/kubb-project/kubb/commit/e58d89c4ac94e441dcbf8e4c2a41da5ef2814276))
+* update README.md [skip ci] ([b38bc52](https://github.com/kubb-project/kubb/commit/b38bc52279f0eed2259619f30a0486c0d1679e2a))
+
+
+### ✨ Features
+
+* **swr:** shouldFetch option for swr plugin ([adbfd73](https://github.com/kubb-project/kubb/commit/adbfd7366928101170e070348eaef64f7a145bc3))
+
 ## [1.10.3](https://github.com/kubb-project/kubb/compare/kubb-v1.10.2...kubb-v1.10.3) (2023-10-10)
 
 

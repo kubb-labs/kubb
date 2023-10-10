@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.10.3...@kubb/swagger-swr-v1.11.0) (2023-10-10)
+
+
+### ✨ Features
+
+* **swr:** shouldFetch option for swr plugin ([adbfd73](https://github.com/kubb-project/kubb/commit/adbfd7366928101170e070348eaef64f7a145bc3))
+
 ## [1.10.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.10.2...@kubb/swagger-swr-v1.10.3) (2023-10-10)
 
 

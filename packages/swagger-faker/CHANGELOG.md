@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-faker-v1.10.3...@kubb/swagger-faker-v1.11.0) (2023-10-10)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/swagger-faker:** Synchronize undefined versions
+
 ## [1.10.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-faker-v1.10.2...@kubb/swagger-faker-v1.10.3) (2023-10-10)
 
 
