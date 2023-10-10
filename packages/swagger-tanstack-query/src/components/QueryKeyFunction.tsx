@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { createFunctionParams, URLPath } from '@kubb/core'
-import { Function, usePluginManager } from '@kubb/react-template'
+import { Function } from '@kubb/react-template'
 import { getDataParams, useOperation, useSchemas } from '@kubb/swagger'
 
 type Props = {
@@ -15,13 +15,10 @@ type Props = {
 }
 
 function QueryKeyFunctionBase({ name }: Props): React.ReactNode {
-  const pluginManager = usePluginManager()
   const schemas = useSchemas()
   const operation = useOperation()
   const path = new URLPath(operation.path)
   const withParams = !!schemas.queryParams?.name
-
-  console.log(pluginManager.plugins)
 
   const params = createFunctionParams([
     ...getDataParams(schemas.pathParams, {
