@@ -83,7 +83,7 @@
   },
   "include": [
     "./src/**/*",
-    "kubb.config.ts"
+    "configs/kubb.config.ts"
   ],
   "exclude": [
     "**/node_modules",

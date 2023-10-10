@@ -36,24 +36,33 @@ const tsLoader = (configFile: string) => {
 }
 
 export async function getCosmiConfig(moduleName: string, config?: string): Promise<CosmiconfigResult> {
+  const searchPlaces = [
+    'package.json',
+    `.${moduleName}rc`,
+    `.${moduleName}rc.json`,
+    `.${moduleName}rc.yaml`,
+    `.${moduleName}rc.yml`,
+
+    `.${moduleName}rc.ts`,
+    `.${moduleName}rc.js`,
+    `.${moduleName}rc.cjs`,
+    `.${moduleName}rc.mjs`,
+
+    `${moduleName}.config.ts`,
+    `${moduleName}.config.js`,
+    `${moduleName}.config.cjs`,
+    `${moduleName}.config.mjs`,
+  ]
   const explorer = cosmiconfig(moduleName, {
     cache: false,
     searchPlaces: [
-      'package.json',
-      `.${moduleName}rc`,
-      `.${moduleName}rc.json`,
-      `.${moduleName}rc.yaml`,
-      `.${moduleName}rc.yml`,
-
-      `.${moduleName}rc.ts`,
-      `.${moduleName}rc.js`,
-      `.${moduleName}rc.cjs`,
-      `.${moduleName}rc.mjs`,
-
-      `${moduleName}.config.ts`,
-      `${moduleName}.config.js`,
-      `${moduleName}.config.cjs`,
-      `${moduleName}.config.mjs`,
+      ...searchPlaces.map((searchPlace) => {
+        return `.config/${searchPlace}`
+      }),
+      ...searchPlaces.map((searchPlace) => {
+        return `configs/${searchPlace}`
+      }),
+      ...searchPlaces,
     ],
     loaders: {
       '.ts': tsLoader,

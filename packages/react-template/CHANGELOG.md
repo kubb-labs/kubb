@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.10.4](https://github.com/kubb-project/kubb/compare/@kubb/react-template-v1.10.3...@kubb/react-template-v1.10.4) (2023-10-10)
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.10.4 ([e2607b3](https://github.com/kubb-project/kubb/commit/e2607b3499ea9c810b508456b4e0ad5841a27347))
+
+## [1.10.3](https://github.com/kubb-project/kubb/compare/@kubb/react-template-v1.10.2...@kubb/react-template-v1.10.3) (2023-10-10)
+
+
+### 🐞 Bug Fixes
+
+* include `react` and `react-reconciler` in the bundle ([4193520](https://github.com/kubb-project/kubb/commit/419352026db0f650825c877bd171b42e4e838e51))
+
+## [1.10.2](https://github.com/kubb-project/kubb/compare/@kubb/react-template-v1.10.1...@kubb/react-template-v1.10.2) (2023-10-10)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/react-template:** Synchronize undefined versions
+
 ## [1.10.1](https://github.com/kubb-project/kubb/compare/@kubb/react-template-v1.10.0...@kubb/react-template-v1.10.1) (2023-10-10)
 
 

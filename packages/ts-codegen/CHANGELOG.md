@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.10.4](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.10.3...@kubb/ts-codegen-v1.10.4) (2023-10-10)
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.10.4 ([e2607b3](https://github.com/kubb-project/kubb/commit/e2607b3499ea9c810b508456b4e0ad5841a27347))
+
+## [1.10.3](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.10.2...@kubb/ts-codegen-v1.10.3) (2023-10-10)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/ts-codegen:** Synchronize undefined versions
+
+## [1.10.2](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.10.1...@kubb/ts-codegen-v1.10.2) (2023-10-10)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/ts-codegen:** Synchronize undefined versions
+
 ## [1.10.1](https://github.com/kubb-project/kubb/compare/@kubb/ts-codegen-v1.10.0...@kubb/ts-codegen-v1.10.1) (2023-10-10)
 
 

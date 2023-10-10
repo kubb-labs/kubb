@@ -94,4 +94,8 @@ This means you can configure Kubb via (in order of precedence):
 - A `.kubbrc.js`, `.kubbrc.cjs`, `kubb.config.js`, or `kubb.config.cjs` file that exports an object using module.exports.
 - A `.kubbrc.ts` or `kubb.config.ts` file that exports an object using export default.
 
+::: tip
+You can also use `configs/kubb.config.ts` or `.config/kubb.config.ts` instead of `kubb.config.ts` in the root of your project.
+:::
+
 See [kubb.config.js](/configuration/options) on how to configure Kubb.
