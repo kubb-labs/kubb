@@ -6,12 +6,12 @@
   "commit": false,
   "commitConvention": "angular",
   "contributors": [
-   {
+    {
       "login": "stijnvanhulle",
       "name": "Stijn Van Hulle",
       "avatar_url": "https://avatars.githubusercontent.com/u/5904681?v=4",
       "profile": "http://www.stijnvanhulle.be",
-       "contributions": [
+      "contributions": [
         "code"
       ]
     },
@@ -23,6 +23,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "b6pzeusbc54tvhw5jgpyw8pwz2x6gs",
+      "name": "Alfred",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15520015?v=4",
+      "profile": "https://aluc.io/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
@@ -30,5 +39,6 @@
   "repoType": "github",
   "repoHost": "https://github.com",
   "projectName": "kubb",
-  "projectOwner": "kubb-project"
+  "projectOwner": "kubb-project",
+  "commitType": "docs"
 }
