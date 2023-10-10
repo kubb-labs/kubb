@@ -7,12 +7,13 @@ import { camelCase, pascalCase } from 'change-case'
 
 import { QueryKeyFunction } from '../components/index.ts'
 
-import type { Import } from '@kubb/core'
+import type { Import, PluginManager } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react-template'
 import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { AppMeta, Framework, FrameworkImports, Options as PluginOptions } from '../types.ts'
 
 type BaseConfig = {
+  pluginManager: PluginManager
   dataReturnType: PluginOptions['dataReturnType']
   operation: Operation
   schemas: OperationSchemas
@@ -34,7 +35,7 @@ type QueryResult = { code: string; name: string; imports: Import[] }
 
 export class QueryBuilder extends OasBuilder<Config> {
   private get queryKey(): QueryResult {
-    const { operation, schemas, framework } = this.config
+    const { pluginManager, operation, schemas, framework } = this.config
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryKey`)
@@ -47,7 +48,7 @@ export class QueryBuilder extends OasBuilder<Config> {
         </>
       )
     }
-    const { output, imports } = render<AppContextProps<AppMeta>>(<Component />, { context: { meta: { schemas, operation } } })
+    const { output, imports } = render<AppContextProps<AppMeta>>(<Component />, { context: { meta: { pluginManager, schemas, operation } } })
 
     codes.push(output)
 

@@ -61,6 +61,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const clientPath = pathParser.resolve(root, 'client.ts')
 
       const operationGenerator = new OperationGenerator({
+        pluginManager: this.pluginManager,
         contentType: swaggerPlugin.api.contentType,
         dataReturnType,
         clientPath,

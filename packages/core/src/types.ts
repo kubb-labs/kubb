@@ -245,18 +245,19 @@ export type ResolvePathParams<TOptions = Record<string, unknown>> = {
 }
 
 export type ResolveNameParams = {
+  name: string
   /**
    * When set, resolvePath will only call resolvePath of the name of the plugin set here.
    * If not defined it will fall back on the resolvePath of the core plugin.
    */
   pluginName?: string
-  name: string
 }
 
 export type PluginContext<TOptions = Record<string, unknown>> = {
   config: KubbConfig
   cache: Cache<PluginCache>
   fileManager: FileManager
+  pluginManager: PluginManager
   addFile: (...file: File[]) => Promise<File[]>
   resolvePath: (params: ResolvePathParams<TOptions>) => OptionalPath
   resolveName: (params: ResolveNameParams) => string
@@ -281,3 +282,5 @@ export const LogLevel = {
 } as const
 
 export type LogLevel = keyof typeof LogLevel
+
+export type AppMeta = { pluginManager: PluginManager }

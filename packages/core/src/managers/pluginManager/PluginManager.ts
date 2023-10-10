@@ -73,6 +73,7 @@ export class PluginManager {
     const core = definePlugin({
       config,
       logger: this.logger,
+      pluginManager: this,
       fileManager: this.fileManager,
       resolvePath: this.resolvePath.bind(this),
       resolveName: this.resolveName.bind(this),

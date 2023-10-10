@@ -5,12 +5,13 @@ import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { ClientBuilder } from '../builders/ClientBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
-import type { File, OptionalPath, PluginContext } from '@kubb/core'
-import type { ContentType, HttpMethod, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
+import type { File, OptionalPath, PluginContext, PluginManager } from '@kubb/core'
+import type { ContentType, HttpMethod, Oas, Operation, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
 import type { Options as PluginOptions } from '../types'
-import type { FileMeta, ResolvePathOptions } from '../types.ts'
+import type { FileMeta } from '../types.ts'
 
 type Options = {
+  pluginManager: PluginManager
   clientPath?: OptionalPath
   dataReturnType: PluginOptions['dataReturnType']
   oas: Oas
@@ -116,12 +117,13 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, dataReturnType } = this.options
+    const { pluginManager, oas, clientPath, dataReturnType } = this.options
 
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
     const clientBuilder = new ClientBuilder(oas).configure({
+      pluginManager,
       name: controller.name,
       operation,
       schemas,
@@ -149,12 +151,13 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, dataReturnType } = this.options
+    const { pluginManager, oas, clientPath, dataReturnType } = this.options
 
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
     const clientBuilder = new ClientBuilder(oas).configure({
+      pluginManager,
       name: controller.name,
       operation,
       schemas,

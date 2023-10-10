@@ -5,11 +5,13 @@ import { getComments, getDataParams, OasBuilder } from '@kubb/swagger'
 
 import { ClientFunction } from '../components/index.ts'
 
-import type { Import } from '@kubb/core'
+import type { Import, PluginManager } from '@kubb/core'
+import type { AppContextProps } from '@kubb/react-template'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
-import type { Options as PluginOptions } from '../types'
+import type { AppMeta, Options as PluginOptions } from '../types'
 
 type Config = {
+  pluginManager: PluginManager
   dataReturnType: PluginOptions['dataReturnType']
   operation: Operation
   schemas: OperationSchemas
@@ -21,7 +23,7 @@ type ClientResult = { code: string; name: string; imports: Import[] }
 
 export class ClientBuilder extends OasBuilder<Config> {
   private get client(): ClientResult {
-    const { name, operation, schemas, clientPath, dataReturnType } = this.config
+    const { pluginManager, name, operation, schemas, clientPath, dataReturnType } = this.config
     const codes: string[] = []
 
     const comments = getComments(operation)
@@ -78,7 +80,7 @@ export class ClientBuilder extends OasBuilder<Config> {
         </>
       )
     }
-    const { output, imports } = render(<Component />)
+    const { output, imports } = render<AppContextProps<AppMeta>>(<Component />, { context: { meta: { pluginManager } } })
 
     codes.push(output)
 

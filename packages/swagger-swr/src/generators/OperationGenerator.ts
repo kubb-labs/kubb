@@ -6,9 +6,9 @@ import { QueryBuilder } from '../builders/QueryBuilder.ts'
 import { pluginName } from '../plugin.ts'
 
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
-import type { ContentType, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
+import type { ContentType, Oas, Operation, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
 import type { Options as PluginOptions } from '../types'
-import type { FileMeta, ResolvePathOptions } from '../types.ts'
+import type { FileMeta } from '../types.ts'
 
 type Options = {
   clientPath?: OptionalPath

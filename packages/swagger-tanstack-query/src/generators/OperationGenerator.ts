@@ -5,12 +5,13 @@ import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
-import type { File, OptionalPath, PluginContext } from '@kubb/core'
-import type { ContentType, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
+import type { File, OptionalPath, PluginContext, PluginManager } from '@kubb/core'
+import type { ContentType, Oas, Operation, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
 import type { Options as PluginOptions } from '../types'
-import type { FileMeta, Framework, FrameworkImports, ResolvePathOptions } from '../types.ts'
+import type { FileMeta, Framework, FrameworkImports } from '../types.ts'
 
 type Options = {
+  pluginManager: PluginManager
   framework: Framework
   clientPath?: OptionalPath
   dataReturnType: PluginOptions['dataReturnType']
@@ -281,7 +282,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, framework, infinite, dataReturnType } = this.options
+    const { pluginManager, oas, clientPath, framework, infinite, dataReturnType } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -293,7 +294,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const queryBuilder = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, infinite, dataReturnType })
+    const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, errors, framework, frameworkImports, operation, schemas, infinite, dataReturnType })
 
     return {
       path: hook.filePath,
@@ -331,7 +332,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, framework, dataReturnType } = this.options
+    const { pluginManager, oas, clientPath, framework, dataReturnType } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -343,7 +344,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
     }
 
-    const queryBuilder = new QueryBuilder(oas).configure({ errors, framework, frameworkImports, operation, schemas, dataReturnType })
+    const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, errors, framework, frameworkImports, operation, schemas, dataReturnType })
 
     return {
       path: hook.filePath,

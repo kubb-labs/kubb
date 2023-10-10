@@ -1,5 +1,5 @@
-import type { PluginFactoryOptions } from '@kubb/core'
-import type { Operation, OperationSchemas, SkipBy } from '@kubb/swagger'
+import type { AppMeta as CoreAppMeta, PluginFactoryOptions } from '@kubb/core'
+import type { Operation, OperationSchemas, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -91,8 +91,6 @@ export type FileMeta = {
   tag: string
 }
 
-export type ResolvePathOptions = { tag?: string }
-
 export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', Options, false, undefined, ResolvePathOptions>
 
-export type AppMeta = { schemas: OperationSchemas; operation: Operation }
+export type AppMeta = CoreAppMeta & { schemas: OperationSchemas; operation: Operation }
