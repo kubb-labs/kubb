@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.10.0...@kubb/swagger-v1.10.1) (2023-10-10)
+
+
+### 🐞 Bug Fixes
+
+* support for refs in `tanstack-query-vue` ([1afc5cb](https://github.com/kubb-project/kubb/commit/1afc5cb645cfaa5959fc005365d679cd6abdbb6d))
+
 ## [1.10.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.9.5...@kubb/swagger-v1.10.0) (2023-10-08)
 
 

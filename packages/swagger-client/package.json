@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-client",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "Generator swagger-client",
   "keywords": [
     "typescript",
@@ -94,8 +94,12 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
-    "axios": "^1.4.0",
-    "react": ">=18.2.0"
+    "axios": "^1.4.0"
+  },
+  "peerDependenciesMeta": {
+    "axios": {
+      "optional": true
+    }
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

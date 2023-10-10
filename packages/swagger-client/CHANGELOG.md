@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.10.0...@kubb/swagger-client-v1.10.1) (2023-10-10)
+
+
+### 🐞 Bug Fixes
+
+* remove peerDependency for 'react' in swagger-client ([29af254](https://github.com/kubb-project/kubb/commit/29af25436f60e79715bdad7f35266edbe208c112))
+
 ## [1.10.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.9.5...@kubb/swagger-client-v1.10.0) (2023-10-08)
 
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.10.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.10.0...@kubb/swagger-tanstack-query-v1.10.1) (2023-10-10)
+
+
+### 🐞 Bug Fixes
+
+* make `vue` work with refs ([d243087](https://github.com/kubb-project/kubb/commit/d2430871401ab23fc3b3af1823be3538819fdba1))
+* queryKey with `{url, params}` object ([186e05d](https://github.com/kubb-project/kubb/commit/186e05d5c310766c8579fd840ce3dc6bb6f14bb5))
+* support for refs in `tanstack-query-vue` ([1afc5cb](https://github.com/kubb-project/kubb/commit/1afc5cb645cfaa5959fc005365d679cd6abdbb6d))
+
 ## [1.10.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.9.5...@kubb/swagger-tanstack-query-v1.10.0) (2023-10-08)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-tanstack-query",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "Generator swagger-tanstack-query",
   "keywords": [
     "typescript",
@@ -65,11 +65,9 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.2.27",
     "eslint": "^8.51.0",
+    "react": ">=18.2.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
-  },
-  "peerDependencies": {
-    "react": ">=18.2.0"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {
