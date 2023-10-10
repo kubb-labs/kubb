@@ -1,12 +1,12 @@
 import { getRelativePath } from '@kubb/core'
-import { OperationGenerator as Generator } from '@kubb/swagger'
+import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { resolve as resolveSwaggerTypescript, pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
 import type { File, OptionalPath, PluginContext, PluginManager } from '@kubb/core'
-import type { ContentType, Oas, Operation, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
+import type { ContentType, Oas, Operation, OperationSchema, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
 import type { Options as PluginOptions } from '../types'
 import type { FileMeta, Framework, FrameworkImports } from '../types.ts'
 
@@ -30,31 +30,17 @@ type Options = {
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
-    const { resolvePath, framework } = this.options
+    const { resolvePath, resolveName, framework } = this.options
 
     const imports = this.getFrameworkSpecificImports(framework)
-
     const name = imports.getName(operation)
 
-    if (!name) {
-      throw new Error('Name should be defined')
-    }
-
-    const fileName = `${name}.ts`
-    const filePath = resolvePath({
-      fileName,
-      options: { tag: operation.getTags()[0]?.name },
-    })
-
-    if (!filePath) {
-      throw new Error('Filepath should be defined')
-    }
-
-    return {
+    return resolve({
       name,
-      fileName,
-      filePath,
-    }
+      operation,
+      resolveName,
+      resolvePath,
+    })
   }
 
   resolveType(operation: Operation): Resolver {
@@ -80,8 +66,15 @@ export class OperationGenerator extends Generator<Options> {
     })
   }
 
-  resolveErrors(items: Array<{ operation: Operation; statusCode: number }>): Resolver[] {
-    return items.map((item) => this.resolveError(item.operation, item.statusCode))
+  resolveErrors(operation: Operation, errors: OperationSchema[]): Resolver[] {
+    return errors
+      .map((item) => {
+        if (item.statusCode) {
+          return this.resolveError(operation, item.statusCode)
+        }
+        return undefined
+      })
+      .filter(Boolean)
   }
 
   getFrameworkSpecificImports(framework: Options['framework']): FrameworkImports {
@@ -264,7 +257,7 @@ export class OperationGenerator extends Generator<Options> {
     const frameworkImports = this.getFrameworkSpecificImports(framework)
 
     if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
+      errors = this.resolveErrors(operation, schemas.errors)
     }
 
     const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, errors, framework, frameworkImports, operation, schemas, infinite, dataReturnType })
@@ -314,7 +307,7 @@ export class OperationGenerator extends Generator<Options> {
     const frameworkImports = this.getFrameworkSpecificImports(framework)
 
     if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
+      errors = this.resolveErrors(operation, schemas.errors)
     }
 
     const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, errors, framework, frameworkImports, operation, schemas, dataReturnType })

@@ -6,7 +6,7 @@ import { QueryBuilder } from '../builders/QueryBuilder.ts'
 import { pluginName } from '../plugin.ts'
 
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
-import type { ContentType, Oas, Operation, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
+import type { ContentType, Oas, Operation, OperationSchema, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
 import type { Options as PluginOptions } from '../types'
 import type { FileMeta } from '../types.ts'
 
@@ -58,8 +58,15 @@ export class OperationGenerator extends Generator<Options> {
     })
   }
 
-  resolveErrors(items: Array<{ operation: Operation; statusCode: number }>): Resolver[] {
-    return items.map((item) => this.resolveError(item.operation, item.statusCode))
+  resolveErrors(operation: Operation, errors: OperationSchema[]): Resolver[] {
+    return errors
+      .map((item) => {
+        if (item.statusCode) {
+          return this.resolveError(operation, item.statusCode)
+        }
+        return undefined
+      })
+      .filter(Boolean)
   }
 
   async all(): Promise<File | null> {
@@ -75,7 +82,7 @@ export class OperationGenerator extends Generator<Options> {
     let errors: Resolver[] = []
 
     if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
+      errors = this.resolveErrors(operation, schemas.errors)
     }
 
     const source = new QueryBuilder(oas).configure({ name: hook.name, errors, operation, schemas, dataReturnType }).print('query')
@@ -131,7 +138,7 @@ export class OperationGenerator extends Generator<Options> {
     let errors: Resolver[] = []
 
     if (schemas.errors) {
-      errors = this.resolveErrors(schemas.errors?.map((item) => item.statusCode && { operation, statusCode: item.statusCode }).filter(Boolean))
+      errors = this.resolveErrors(operation, schemas.errors)
     }
 
     const source = new QueryBuilder(oas).configure({ name: hook.name, errors, operation, schemas, dataReturnType }).print('mutation')

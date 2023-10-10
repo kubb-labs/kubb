@@ -133,10 +133,6 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  resolveErrors(items: Array<{ operation: Operation; statusCode: number }>): Resolver[] {
-    return items.map((item) => this.resolveError(item.operation, item.statusCode))
-  }
-
   async all(paths: Record<string, Record<HttpMethod, Operation | undefined>>): Promise<File | null> {
     const imports: File['imports'] = [
       {
