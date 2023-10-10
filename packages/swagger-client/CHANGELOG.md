@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.10.2...@kubb/swagger-client-v1.10.3) (2023-10-10)
+
+
+### 🐞 Bug Fixes
+
+* include `react` and `react-reconciler` in the bundle ([4193520](https://github.com/kubb-project/kubb/commit/419352026db0f650825c877bd171b42e4e838e51))
+
 ## [1.10.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.10.1...@kubb/swagger-client-v1.10.2) (2023-10-10)
 
 
