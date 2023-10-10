@@ -10,7 +10,7 @@ type Props = {
   name: string
   export?: boolean
   async?: boolean
-  generics?: string[]
+  generics?: string | string[]
   params?: string
   returnType?: string
   children?: ReactNode
@@ -34,7 +34,7 @@ export function Function({ name, export: canExport, async, generics, params, ret
       {generics && (
         <>
           <Text>{'<'}</Text>
-          <Text>{generics.join(',').trim()}</Text>
+          <Text>{Array.isArray(generics) ? generics.join(', ').trim() : generics}</Text>
           <Text>{'>'}</Text>
         </>
       )}
@@ -85,7 +85,7 @@ export function ArrowFunction({
       {generics && (
         <>
           <Text>{'<'}</Text>
-          <Text>{generics.join(',').trim()}</Text>
+          <Text>{Array.isArray(generics) ? generics.join(', ').trim() : generics}</Text>
           <Text>{'>'}</Text>
         </>
       )}

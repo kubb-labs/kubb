@@ -2,7 +2,7 @@ import React from 'react'
 
 import { createFunctionParams, URLPath } from '@kubb/core'
 import { Function } from '@kubb/react-template'
-import { getDataParams, useOperation, useSchemas } from '@kubb/swagger'
+import { getASTParams, useOperation, useSchemas } from '@kubb/swagger'
 
 type Props = {
   name: string
@@ -21,7 +21,7 @@ function QueryKeyFunctionBase({ name }: Props): React.ReactNode {
   const withParams = !!schemas.queryParams?.name
 
   const params = createFunctionParams([
-    ...getDataParams(schemas.pathParams, {
+    ...getASTParams(schemas.pathParams, {
       typed: true,
     }),
     {
@@ -54,7 +54,7 @@ function QueryKeyFunctionVue({ name }: Props): React.ReactNode {
   const withParams = !!schemas.queryParams?.name
 
   const params = createFunctionParams([
-    ...getDataParams(schemas.pathParams, {
+    ...getASTParams(schemas.pathParams, {
       typed: true,
       override: (item) => ({ ...item, type: `MaybeRef<${item.type}>` }),
     }),

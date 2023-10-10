@@ -1,6 +1,6 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { combineCodes, createFunctionParams, createJSDocBlockText, URLPath } from '@kubb/core'
-import { getComments, getDataParams, OasBuilder } from '@kubb/swagger'
+import { getASTParams, getComments, OasBuilder } from '@kubb/swagger'
 
 import { camelCase } from 'change-case'
 
@@ -28,7 +28,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+      ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
         type: schemas.queryParams?.name,
@@ -80,7 +80,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+      ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
         type: schemas.queryParams?.name,
@@ -105,7 +105,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
     ])
 
     const queryParams = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: false }),
+      ...getASTParams(schemas.pathParams, { typed: false }),
       {
         name: 'params',
         enabled: !!schemas.queryParams?.name,
@@ -155,7 +155,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${query
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
     const mutationGenerics = ['ResponseConfig<TData>', 'TError', 'string', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+      ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
         type: schemas.queryParams?.name,

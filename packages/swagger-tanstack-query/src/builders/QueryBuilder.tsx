@@ -1,7 +1,7 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { combineCodes, createFunctionParams, createJSDocBlockText, URLPath } from '@kubb/core'
 import { render } from '@kubb/react-template'
-import { getComments, getDataParams, getParams, OasBuilder } from '@kubb/swagger'
+import { getASTParams, getComments, getParams, OasBuilder } from '@kubb/swagger'
 
 import { camelCase, pascalCase } from 'change-case'
 
@@ -63,16 +63,19 @@ export class QueryBuilder extends OasBuilder<Config> {
     const queryKeyName = this.queryKey.name
 
     const pathParams = getParams(schemas.pathParams, {
-      override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
-    })
+      override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
+    }).toString()
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const paramsData = [
-      ...getDataParams(schemas.pathParams, {
+      ...getASTParams(schemas.pathParams, {
         typed: true,
-        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
+        override:
+          framework === 'vue'
+            ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
+            : undefined,
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
@@ -99,7 +102,7 @@ export class QueryBuilder extends OasBuilder<Config> {
         ? paramsData
             .filter((item) => item.type?.startsWith('MaybeRef<'))
             .map((item) => {
-              return `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})`
+              return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
             })
             .join('\n')
         : ''
@@ -144,17 +147,20 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
     const queryOptionsName = this.queryOptions.name
     const name = frameworkImports.getName(operation)
     const pathParams = getParams(schemas.pathParams, {
-      override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
-    })
+      override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
+    }).toString()
     const comments = getComments(operation)
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, {
+      ...getASTParams(schemas.pathParams, {
         typed: true,
-        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
+        override:
+          framework === 'vue'
+            ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
+            : undefined,
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
@@ -182,9 +188,9 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
       schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
     })`
     const queryParams = createFunctionParams([
-      ...getDataParams(schemas.pathParams, {
+      ...getASTParams(schemas.pathParams, {
         typed: false,
-        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
+        override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
@@ -233,16 +239,19 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
     const queryKeyName = this.queryKey.name
 
     const pathParams = getParams(schemas.pathParams, {
-      override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
-    })
+      override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
+    }).toString()
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const paramsData = [
-      ...getDataParams(schemas.pathParams, {
+      ...getASTParams(schemas.pathParams, {
         typed: true,
-        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
+        override:
+          framework === 'vue'
+            ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
+            : undefined,
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
@@ -269,7 +278,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
         ? paramsData
             .filter((item) => item.type?.startsWith('MaybeRef<'))
             .map((item) => {
-              return `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})`
+              return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
             })
             .join('\n')
         : ''
@@ -321,17 +330,20 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
     const queryOptionsName = this.queryOptionsInfinite.name // changed
     const name = `${frameworkImports.getName(operation)}Infinite`
     const pathParams = getParams(schemas.pathParams, {
-      override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
-    })
+      override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
+    }).toString()
     const comments = getComments(operation)
 
     const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, {
+      ...getASTParams(schemas.pathParams, {
         typed: true,
-        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
+        override:
+          framework === 'vue'
+            ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
+            : undefined,
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
@@ -359,9 +371,9 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
       schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
     })`
     const queryParams = createFunctionParams([
-      ...getDataParams(schemas.pathParams, {
+      ...getASTParams(schemas.pathParams, {
         typed: false,
-        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}` }) : undefined,
+        override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
@@ -424,9 +436,12 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
       framework === 'vue' ? 'unknown' : undefined,
     ].filter(Boolean)
     const paramsData = [
-      ...getDataParams(schemas.pathParams, {
+      ...getASTParams(schemas.pathParams, {
         typed: true,
-        override: framework === 'vue' ? (item) => ({ ...item, name: `ref${pascalCase(item.name)}`, type: `MaybeRef<${item.type}>` }) : undefined,
+        override:
+          framework === 'vue'
+            ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
+            : undefined,
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
@@ -456,7 +471,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
         ? paramsData
             .filter((item) => item.type?.startsWith('MaybeRef<'))
             .map((item) => {
-              return `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})`
+              return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
             })
             .join('\n')
         : ''

@@ -1,7 +1,7 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { combineCodes, createFunctionParams, URLPath } from '@kubb/core'
 import { Import as ImportTemplate, render } from '@kubb/react-template'
-import { getComments, getDataParams, OasBuilder } from '@kubb/swagger'
+import { getASTParams, getComments, OasBuilder } from '@kubb/swagger'
 
 import { ClientFunction } from '../components/index.ts'
 
@@ -29,10 +29,15 @@ export class ClientBuilder extends OasBuilder<Config> {
     const comments = getComments(operation)
     const method = operation.method
 
-    const generics = [`TData = ${schemas.response.name}`, schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined].filter(Boolean)
-    const clientGenerics = ['TData', schemas.request?.name ? 'TVariables' : undefined].filter(Boolean)
+    // TODO use of new Class for creating params
+    const generics = createFunctionParams([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TVariables', enabled: !!schemas.request?.name, default: schemas.request?.name },
+    ])
+    const clientGenerics = createFunctionParams([{ type: 'TData' }, { type: 'TVariables', enabled: !!schemas.request?.name }])
+
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+      ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'data',
         type: 'TVariables',
@@ -69,7 +74,7 @@ export class ClientBuilder extends OasBuilder<Config> {
             clientGenerics={clientGenerics}
             dataReturnType={dataReturnType}
             params={params}
-            returnType={dataReturnType === 'data' ? `ResponseConfig<${clientGenerics[0]}>["data"]` : `ResponseConfig<${clientGenerics[0]}>`}
+            returnType={dataReturnType === 'data' ? `ResponseConfig<TData>["data"]` : `ResponseConfig<TData>`}
             method={method}
             path={new URLPath(operation.path)}
             withParams={!!schemas.queryParams?.name}

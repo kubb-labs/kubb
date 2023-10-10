@@ -10,7 +10,7 @@ import type { Options as PluginOptions } from '../types'
 type Props = {
   name: string
   params: string
-  generics: string[]
+  generics: string
   returnType: string
   comments: string[]
   children?: ReactNode
@@ -18,7 +18,7 @@ type Props = {
   // props Client
   method: HttpMethod
   path: URLPath
-  clientGenerics: string[]
+  clientGenerics: string
   dataReturnType: PluginOptions['dataReturnType']
   withParams?: boolean
   withData?: boolean
@@ -55,7 +55,7 @@ export function ClientFunction({
     return (
       <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
         {`
-  return client<${clientGenerics.join(', ')}>({
+  return client<${clientGenerics}>({
   ${createIndent(4)}${clientParams.join(`,\n${createIndent(4)}`)}
   });`}
         {children}
@@ -66,7 +66,7 @@ export function ClientFunction({
   return (
     <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
       {`
-const { data: resData } = await client<${clientGenerics.join(', ')}>({
+const { data: resData } = await client<${clientGenerics}>({
 ${clientOptions}
 });
 
