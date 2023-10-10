@@ -32,11 +32,13 @@ export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = 
   options?: {
     query?: SWRConfiguration<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    shouldFetch?: boolean
   },
 ): SWRResponse<TData, TError> {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  const query = useSWR<TData, TError, string>(`/pet/findByTags`, {
+  const url = shouldFetch ? `/pet/findByTags` : null
+  const query = useSWR<TData, TError, string | null>(url, {
     ...findPetsByTagsQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
   })

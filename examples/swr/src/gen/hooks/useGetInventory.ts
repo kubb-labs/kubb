@@ -27,10 +27,12 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
 export function useGetInventory<TData = GetInventoryQueryResponse, TError = unknown>(options?: {
   query?: SWRConfiguration<TData, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+  shouldFetch?: boolean
 }): SWRResponse<TData, TError> {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  const query = useSWR<TData, TError, string>(`/store/inventory`, {
+  const url = shouldFetch ? `/store/inventory` : null
+  const query = useSWR<TData, TError, string | null>(url, {
     ...getInventoryQueryOptions<TData, TError>(clientOptions),
     ...queryOptions,
   })

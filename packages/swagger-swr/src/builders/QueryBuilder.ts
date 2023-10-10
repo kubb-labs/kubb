@@ -24,22 +24,30 @@ export class QueryBuilder extends OasBuilder<Config> {
 
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const generics = [
+      `TData = ${schemas.response.name}`,
+      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
+    ]
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
+
+    console.log('schemas.queryParams?.name:' + schemas.queryParams?.name)
+    console.log('schemas.pathParams:')
+    console.log(schemas.pathParams)
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+      ...getDataParams(schemas.pathParams, { typed: true })
+        .map(param => ({ ...param, required: false })),
       {
         name: 'params',
         type: schemas.queryParams?.name,
         enabled: !!schemas.queryParams?.name,
-        required: !!schemas.queryParams?.schema.required?.length,
+        required: false,
       },
       {
         name: 'headers',
         type: schemas.headerParams?.name,
         enabled: !!schemas.headerParams?.name,
-        required: !!schemas.headerParams?.schema.required?.length,
+        required: false,
       },
       {
         name: 'options',
@@ -48,8 +56,14 @@ export class QueryBuilder extends OasBuilder<Config> {
       },
     ])
 
+    console.log(params)
+
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${queryGenerics.join(', ')}> {
+export function ${name} <
+  ${generics.join(', ')}
+>(
+  ${params}
+): SWRConfiguration<${queryGenerics.join(', ')}> {
   return {
     fetcher: () => {
       return client<${clientGenerics.join(', ')}>({
@@ -76,22 +90,26 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
 
     const comments = getComments(operation)
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const generics = [
+      `TData = ${schemas.response.name}`,
+      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
+    ]
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+      ...getDataParams(schemas.pathParams, { typed: true })
+        .map(param => ({ ...param, required: false })),
       {
         name: 'params',
         type: schemas.queryParams?.name,
         enabled: !!schemas.queryParams?.name,
-        required: !!schemas.queryParams?.schema.required?.length,
+        required: false,
       },
       {
         name: 'headers',
         type: schemas.headerParams?.name,
         enabled: !!schemas.headerParams?.name,
-        required: !!schemas.headerParams?.schema.required?.length,
+        required: false,
       },
       {
         name: 'options',
@@ -99,22 +117,24 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
         type: `{ 
           query?: SWRConfiguration<${queryGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
+          shouldFetch?: boolean,
         }`,
         default: '{}',
       },
     ])
 
     const queryParams = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: false }),
+      ...getDataParams(schemas.pathParams, { typed: false })
+        .map(param => ({ ...param, required: false })),
       {
         name: 'params',
         enabled: !!schemas.queryParams?.name,
-        required: !!schemas.queryParams?.schema.required?.length,
+        required: false,
       },
       {
         name: 'headers',
         enabled: !!schemas.headerParams?.name,
-        required: !!schemas.headerParams?.schema.required?.length,
+        required: false,
       },
       {
         name: 'clientOptions',
@@ -126,9 +146,10 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRConfiguration<${
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
 export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${queryGenerics.join(', ')}> {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {};
+  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
   
-  const query = useSWR<${queryGenerics.join(', ')}, string>(${new URLPath(operation.path).template}, {
+  const url = shouldFetch ? ${new URLPath(operation.path).template} : null;
+  const query = useSWR<${queryGenerics.join(', ')}, string | null>(url, {
     ...${queryOptions},
     ...queryOptions
   });
@@ -152,21 +173,34 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${query
       `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
       schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined,
     ].filter(Boolean)
-    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
-    const mutationGenerics = ['ResponseConfig<TData>', 'TError', 'string', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
+
+    const clientGenerics = [
+      'TData',
+      'TError',
+      schemas.request?.name ? `TVariables` : undefined,
+    ].filter(Boolean)
+
+    const mutationGenerics = [
+      'ResponseConfig<TData>',
+      'TError',
+      'string | null',
+      schemas.request?.name ? `TVariables` : undefined,
+    ].filter(Boolean)
+
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+      ...getDataParams(schemas.pathParams, { typed: true })
+        .map(param => ({ ...param, required: false })),
       {
         name: 'params',
         type: schemas.queryParams?.name,
         enabled: !!schemas.queryParams?.name,
-        required: !!schemas.queryParams?.schema.required?.length,
+        required: false,
       },
       {
         name: 'headers',
         type: schemas.headerParams?.name,
         enabled: !!schemas.headerParams?.name,
-        required: !!schemas.headerParams?.schema.required?.length,
+        required: false,
       },
       {
         name: 'options',
@@ -174,6 +208,7 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${query
         type: `{
           mutation?: SWRMutationConfiguration<${mutationGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
+          shouldFetch?: boolean,
         }`,
         default: '{}',
       },
@@ -181,11 +216,16 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${query
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): SWRMutationResponse<${mutationGenerics.join(', ')}> {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
-
+export function ${name} <
+  ${generics.join(', ')}
+>(
+  ${params}
+): SWRMutationResponse<${mutationGenerics.join(', ')}> {
+  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
+  
+  const url = shouldFetch ? ${new URLPath(operation.path).template} : null;
   return useSWRMutation<${mutationGenerics.join(', ')}>(
-  ${new URLPath(operation.path).template},
+    url,
     (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
       return client<${clientGenerics.join(', ')}>({
         method: "${method}",
