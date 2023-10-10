@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { createIndent, Function } from '@kubb/react-template'
 
 import type { URLPath } from '@kubb/core'
@@ -39,7 +37,7 @@ export function ClientFunction({
   comments,
   children,
   dataReturnType,
-}: Props): React.ReactNode {
+}: Props): ReactNode {
   const clientParams = [
     `method: "${method}"`,
     `url: ${path.template}`,

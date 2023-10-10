@@ -21,6 +21,7 @@
     ".": {
       "import": "./dist/index.js",
       "module": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
     "./package.json": "./package.json",
@@ -70,8 +71,8 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.2",
-    "@types/react": "^18.2.27",
     "@types/lodash.isequal": "4.5.6",
+    "@types/react": "^18.2.28",
     "@types/seedrandom": "^3.0.6",
     "eslint": "^8.51.0",
     "ora": "^7.0.1",

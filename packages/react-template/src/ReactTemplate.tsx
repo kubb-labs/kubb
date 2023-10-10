@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import React from 'react'
 import process from 'node:process'
 
 import { throttle } from '@kubb/core'

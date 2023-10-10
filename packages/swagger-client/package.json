@@ -24,16 +24,18 @@
     ".": {
       "import": "./dist/index.js",
       "module": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
     "./client": {
       "import": "./dist/client.js",
       "module": "./dist/client.js",
+      "require": "./dist/client.cjs",
       "default": "./dist/client.cjs"
     },
     "./ts-client": {
       "import": "./client.ts",
-      "module": "./client.ts",
+      "require": "./client.ts",
       "default": "./client.ts"
     },
     "./package.json": "./package.json",
@@ -87,7 +89,7 @@
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/react": "^18.2.27",
+    "@types/react": "^18.2.28",
     "axios": "^1.5.1",
     "eslint": "^8.51.0",
     "tsup": "^7.2.0",

@@ -11,7 +11,7 @@ import { isOpenApiV3Document } from '../utils/index.ts'
 
 import type { KubbConfig } from '@kubb/core'
 import type oas from 'oas'
-import type { OASDocument } from 'oas/dist/rmoas.types.ts'
+import type { OASDocument } from 'oas/rmoas.types'
 import type { OpenAPIV2 } from 'openapi-types'
 
 export type OasOptions = {

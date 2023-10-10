@@ -2,17 +2,15 @@
 import { combineFiles, Generator, Warning } from '@kubb/core'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
-import { utils } from 'oas'
+import { findSchemaDefinition } from 'oas/utils'
 
 import { isReference } from '../utils/isReference.ts'
 
 import type { File } from '@kubb/core'
-import type { Operation } from 'oas'
-import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types.ts'
+import type Operation from 'oas/operation'
+import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { ContentType, Oas, OperationSchemas, Resolver, SkipBy } from '../types.ts'
-
-const { findSchemaDefinition } = utils
 
 type Options = {
   oas: Oas

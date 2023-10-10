@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { createJSDocBlockText } from '@kubb/core'
 
 import { Text } from './Text.tsx'
@@ -19,7 +17,7 @@ type Props = {
   }
 }
 
-export function Function({ name, export: canExport, async, generics, params, returnType, JSDoc, children }: Props): React.ReactNode {
+export function Function({ name, export: canExport, async, generics, params, returnType, JSDoc, children }: Props): ReactNode {
   return (
     <>
       {JSDoc?.comments && (
@@ -60,17 +58,7 @@ type ArrowFunctionProps = Props & {
   singleLine?: boolean
 }
 
-export function ArrowFunction({
-  name,
-  export: canExport,
-  async,
-  generics,
-  params,
-  returnType,
-  JSDoc,
-  singleLine,
-  children,
-}: ArrowFunctionProps): React.ReactNode {
+export function ArrowFunction({ name, export: canExport, async, generics, params, returnType, JSDoc, singleLine, children }: ArrowFunctionProps): ReactNode {
   return (
     <>
       {JSDoc?.comments && (

@@ -1,7 +1,7 @@
 import type { AppMeta as AppCoreMeta, Path, PluginFactoryOptions } from '@kubb/core'
-import type { Operation } from 'oas'
 import type Oas from 'oas'
-import type { HttpMethods as HttpMethod } from 'oas/dist/rmoas.types.ts'
+import type Operation from 'oas/operation'
+import type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { GetSchemasProps } from './utils/getSchemas'
 
@@ -48,10 +48,10 @@ export type PluginOptions = PluginFactoryOptions<'swagger', Options, false, API>
 
 export type { default as Oas } from 'oas'
 
-export type { Operation } from 'oas'
+export type { default as Operation } from 'oas/operation'
 
 export type { OpenAPIV3 } from 'openapi-types'
-export type { HttpMethods as HttpMethod } from 'oas/dist/rmoas.types.ts'
+export type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
 
 export type Resolver = {
   name: string

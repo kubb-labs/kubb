@@ -1,6 +1,6 @@
 import { URLPath } from '@kubb/core'
 
-import type { Operation } from 'oas'
+import type Operation from 'oas/operation'
 
 export function getComments(operation: Operation): string[] {
   return [

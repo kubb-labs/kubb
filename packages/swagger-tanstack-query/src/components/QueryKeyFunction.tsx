@@ -1,20 +1,20 @@
-import React from 'react'
-
 import { createFunctionParams, URLPath } from '@kubb/core'
 import { Function } from '@kubb/react-template'
 import { getASTParams, useOperation, useSchemas } from '@kubb/swagger'
+
+import type { ReactNode } from 'react'
 
 type Props = {
   name: string
   // generics: string[]
   // returnType: string
   // comments: string[]
-  // children?: React.ReactNode
+  // children?: ReactNode
 
   // props QueryKey
 }
 
-function QueryKeyFunctionBase({ name }: Props): React.ReactNode {
+function QueryKeyFunctionBase({ name }: Props): ReactNode {
   const schemas = useSchemas()
   const operation = useOperation()
   const path = new URLPath(operation.path)
@@ -47,7 +47,7 @@ function QueryKeyFunctionBase({ name }: Props): React.ReactNode {
   )
 }
 
-function QueryKeyFunctionVue({ name }: Props): React.ReactNode {
+function QueryKeyFunctionVue({ name }: Props): ReactNode {
   const schemas = useSchemas()
   const operation = useOperation()
   const path = new URLPath(operation.path)
