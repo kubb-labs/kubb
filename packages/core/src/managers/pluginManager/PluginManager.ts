@@ -53,16 +53,14 @@ type Events = {
 
 export class PluginManager {
   public plugins: KubbPlugin[]
-
   public readonly fileManager: FileManager
+  public readonly eventEmitter: EventEmitter<Events> = new EventEmitter()
 
+  public readonly queue: Queue
+
+  public readonly executed: Executer[] = []
+  public readonly logger: Logger
   private readonly core: KubbPlugin<CorePluginOptions>
-
-  public queue: Queue
-
-  public executed: Executer[] = []
-  public logger: Logger
-  private eventEmitter: EventEmitter<Events> = new EventEmitter()
 
   constructor(config: KubbConfig, options: Options) {
     // TODO use logger for all warnings/errors
