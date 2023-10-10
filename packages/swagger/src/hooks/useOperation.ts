@@ -1,12 +1,10 @@
-import { useContext } from 'react'
+import { useApp } from '@kubb/react-template'
 
-import { AppContext } from '@kubb/react-template'
-
-import type { AppContextProps } from '@kubb/react-template'
 import type { Operation } from '@kubb/swagger'
 import type { AppMeta } from '../types.ts'
 
 export function useOperation(): Operation {
-  const context = useContext(AppContext) as AppContextProps<AppMeta>
-  return context.meta.operation
+  const { meta } = useApp<AppMeta>()
+
+  return meta.operation
 }

@@ -28,9 +28,6 @@ export class QueryBuilder extends OasBuilder<Config> {
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
 
-    console.log('schemas.queryParams?.name:' + schemas.queryParams?.name)
-    console.log('schemas.pathParams:')
-    console.log(schemas.pathParams)
     const params = createFunctionParams([
       ...getASTParams(schemas.pathParams, { typed: true }),
       {
@@ -51,8 +48,6 @@ export class QueryBuilder extends OasBuilder<Config> {
         default: '{}',
       },
     ])
-
-    console.log(params)
 
     codes.push(`
 export function ${name} <
@@ -167,10 +162,16 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${query
 
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
 
-    const mutationGenerics = ['ResponseConfig<TData>', 'TError', 'string | null', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
+    const mutationGenerics = ['ResponseConfig<TData>', 'TError', 'string | null', schemas.request?.name ? `TVariables` : 'never'].filter(Boolean)
 
     const params = createFunctionParams([
       ...getASTParams(schemas.pathParams, { typed: true }),
+      {
+        name: 'params',
+        type: schemas.queryParams?.name,
+        enabled: !!schemas.queryParams?.name,
+        required: false,
+      },
       {
         name: 'headers',
         type: schemas.headerParams?.name,

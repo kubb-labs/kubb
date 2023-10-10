@@ -18,14 +18,16 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options?: {
-    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string>
+    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, never>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    shouldFetch?: boolean
   },
-): SWRMutationResponse<ResponseConfig<TData>, TError, string> {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, never> {
+  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  return useSWRMutation<ResponseConfig<TData>, TError, string>(
-    `/pet/${petId}`,
+  const url = shouldFetch ? `/pet/${petId}` : null
+  return useSWRMutation<ResponseConfig<TData>, TError, string | null, never>(
+    url,
     (url) => {
       return client<TData, TError>({
         method: 'post',

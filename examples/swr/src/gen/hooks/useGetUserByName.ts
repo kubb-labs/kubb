@@ -3,8 +3,8 @@ import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '@kubb/swagger-client/client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400 } from '../models/GetUserByName'
 
-export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400  >(
-  username?: GetUserByNamePathParams['username'],
+export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
+  username: GetUserByNamePathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, TError> {
   return {
@@ -24,8 +24,8 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
  * @link /user/:username
  */
 
-export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400  >(
-  username?: GetUserByNamePathParams['username'],
+export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
+  username: GetUserByNamePathParams['username'],
   options?: {
     query?: SWRConfiguration<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>

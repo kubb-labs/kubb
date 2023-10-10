@@ -10,11 +10,7 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400 
  * @link /pet
  */
 
-export function useUpdatePet<
-  TData = UpdatePetMutationResponse,
-  TError = UpdatePet400    ,
-  TVariables = UpdatePetMutationRequest,
->(options?: {
+export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdatePet400, TVariables = UpdatePetMutationRequest>(options?: {
   mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
   client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
   shouldFetch?: boolean

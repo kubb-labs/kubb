@@ -33,7 +33,7 @@ export function resolve({ operation, name, tag, pluginName, resolveName, resolve
     throw new Error('name or operation should be set')
   }
 
-  const resolvedName = resolveName({ name: name || (operation?.getOperationId() as string), pluginName })
+  const resolvedName = name ? name : resolveName({ name: operation?.getOperationId() as string, pluginName })
 
   if (!resolvedName) {
     throw new Error(`Name ${name || operation?.getOperationId()} should be defined`)

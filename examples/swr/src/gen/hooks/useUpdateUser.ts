@@ -11,7 +11,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  */
 
 export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unknown, TVariables = UpdateUserMutationRequest>(
-  username?: UpdateUserPathParams['username'],
+  username: UpdateUserPathParams['username'],
   options?: {
     mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
     client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>

@@ -40,6 +40,7 @@ export class OperationGenerator extends Generator<Options> {
       operation,
       resolveName,
       resolvePath,
+      pluginName,
     })
   }
 
