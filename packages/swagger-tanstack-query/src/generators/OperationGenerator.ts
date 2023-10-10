@@ -1,6 +1,6 @@
 import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
-import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
+import { resolve as resolveSwaggerTypescript, pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
 import { pluginName } from '../plugin.ts'
@@ -60,24 +60,11 @@ export class OperationGenerator extends Generator<Options> {
   resolveType(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })
-
-    if (!name) {
-      throw new Error('Name should be defined')
-    }
-
-    const fileName = `${name}.ts`
-    const filePath = resolvePath({ fileName, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
-
-    if (!filePath) {
-      throw new Error('Filepath should be defined')
-    }
-
-    return {
-      name,
-      fileName,
-      filePath,
-    }
+    return resolveSwaggerTypescript({
+      operation,
+      resolveName,
+      resolvePath,
+    })
   }
 
   resolveError(operation: Operation, statusCode: number): Resolver {
@@ -85,26 +72,12 @@ export class OperationGenerator extends Generator<Options> {
 
     const name = resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
 
-    if (!name) {
-      throw new Error('Name should be defined')
-    }
-
-    const fileName = `${name}.ts`
-    const filePath = resolvePath({
-      fileName,
-      options: { tag: operation.getTags()[0]?.name },
-      pluginName: swaggerTypescriptPluginName,
-    })
-
-    if (!filePath) {
-      throw new Error('Filepath should be defined')
-    }
-
-    return {
+    return resolveSwaggerTypescript({
       name,
-      fileName,
-      filePath,
-    }
+      operation,
+      resolveName,
+      resolvePath,
+    })
   }
 
   resolveErrors(items: Array<{ operation: Operation; statusCode: number }>): Resolver[] {

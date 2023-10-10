@@ -43,6 +43,7 @@ export function resolve({ operation, name, tag, pluginName, resolveName, resolve
   const filePath = resolvePath({
     fileName,
     options: { pluginName, tag: tag || operation?.getTags()[0]?.name },
+    pluginName,
   })
 
   if (!filePath) {

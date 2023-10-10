@@ -1,5 +1,5 @@
 import { escape, getRelativePath, URLPath } from '@kubb/core'
-import { OperationGenerator as Generator } from '@kubb/swagger'
+import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
@@ -24,25 +24,12 @@ export class OperationGenerator extends Generator<Options> {
 
     const name = resolveName({ name: output.replace('.ts', ''), pluginName })
 
-    if (!name) {
-      throw new Error('Name should be defined')
-    }
-
-    const fileName = `${name}.ts`
-    const filePath = resolvePath({
-      fileName,
+    return resolve({
+      name,
+      resolveName,
+      resolvePath,
       pluginName,
     })
-
-    if (!filePath) {
-      throw new Error('Filepath should be defined')
-    }
-
-    return {
-      name,
-      fileName,
-      filePath,
-    }
   }
 
   resolveResponse(operation: Operation): Resolver {

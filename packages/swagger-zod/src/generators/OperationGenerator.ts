@@ -1,5 +1,5 @@
 import { getRelativePath } from '@kubb/core'
-import { OperationGenerator as Generator } from '@kubb/swagger'
+import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 
 import { ZodBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
@@ -21,24 +21,12 @@ export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = resolveName({ name: operation.getOperationId(), pluginName })
-
-    if (!name) {
-      throw new Error('Name should be defined')
-    }
-
-    const fileName = `${name}.ts`
-    const filePath = resolvePath({ fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
-
-    if (!filePath) {
-      throw new Error('Filepath should be defined')
-    }
-
-    return {
-      name,
-      fileName,
-      filePath,
-    }
+    return resolve({
+      operation,
+      resolveName,
+      resolvePath,
+      pluginName,
+    })
   }
 
   async all(): Promise<File | null> {

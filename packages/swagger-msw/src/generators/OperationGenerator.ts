@@ -1,6 +1,6 @@
 import { getRelativePath } from '@kubb/core'
-import { OperationGenerator as Generator } from '@kubb/swagger'
-import { pluginName as swaggerFakerPluginName } from '@kubb/swagger-faker'
+import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
+import { resolve as resolveSwaggerFaker, pluginName as swaggerFakerPluginName } from '@kubb/swagger-faker'
 
 import { MSWBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
@@ -22,47 +22,22 @@ export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = resolveName({ name: operation.getOperationId(), pluginName })
-
-    if (!name) {
-      throw new Error('Name should be defined')
-    }
-
-    const fileName = `${name}.ts`
-    const filePath = resolvePath({ fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
-
-    if (!filePath) {
-      throw new Error('Filepath should be defined')
-    }
-
-    return {
-      name,
-      fileName,
-      filePath,
-    }
+    return resolve({
+      operation,
+      resolveName,
+      resolvePath,
+      pluginName,
+    })
   }
 
   resolveFaker(operation: Operation): Resolver | null {
     const { resolvePath, resolveName } = this.options
 
-    const name = resolveName({ name: operation.getOperationId(), pluginName: swaggerFakerPluginName })
-
-    if (!name) {
-      throw new Error('Name should be defined')
-    }
-
-    const fileName = `${name}.ts`
-    const filePath = resolvePath({ fileName, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerFakerPluginName })
-
-    if (!filePath) {
-      throw new Error('Filepath should be defined')
-    }
-
-    return {
-      name,
-      fileName,
-      filePath,
-    }
+    return resolveSwaggerFaker({
+      operation,
+      resolveName,
+      resolvePath,
+    })
   }
 
   async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File<FileMeta> | null> {
@@ -185,7 +160,6 @@ export class OperationGenerator extends Generator<Options> {
     const msw = this.resolve(operation)
     const faker = this.resolveFaker(operation)
     const responseName = resolveName({ name: schemas.response.name, pluginName: swaggerFakerPluginName })
-    const requestName = schemas.request ? resolveName({ name: schemas.request.name, pluginName: swaggerFakerPluginName }) : undefined
 
     const fileResolver: FileResolver = (name, ref) => {
       // Used when a react-query type(request, response, params) has an import of a global type
