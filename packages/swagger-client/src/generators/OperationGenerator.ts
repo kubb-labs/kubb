@@ -1,6 +1,6 @@
 import { getRelativePath, URLPath } from '@kubb/core'
-import { OperationGenerator as Generator } from '@kubb/swagger'
-import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
+import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
+import { resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
 
 import { ClientBuilder } from '../builders/ClientBuilder.tsx'
 import { pluginName } from '../plugin.ts'
@@ -25,50 +25,22 @@ export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = resolveName({ name: operation.getOperationId(), pluginName })
-
-    if (!name) {
-      throw new Error('Name should be defined')
-    }
-
-    const fileName = `${name}.ts`
-    const filePath = resolvePath({
-      fileName,
-      options: { tag: operation.getTags()[0]?.name },
+    return resolve({
+      operation,
+      resolveName,
+      resolvePath,
+      pluginName,
     })
-
-    if (!filePath) {
-      throw new Error('Filepath should be defined')
-    }
-
-    return {
-      name,
-      fileName,
-      filePath,
-    }
   }
 
   resolveType(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })
-
-    if (!name) {
-      throw new Error('Name should be defined')
-    }
-
-    const fileName = `${name}.ts`
-    const filePath = resolvePath({ fileName, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
-
-    if (!filePath) {
-      throw new Error('Filepath should be defined')
-    }
-
-    return {
-      name,
-      fileName,
-      filePath,
-    }
+    return resolveSwaggerTypescript({
+      operation,
+      resolveName,
+      resolvePath,
+    })
   }
 
   async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File<FileMeta> | null> {

@@ -8,7 +8,7 @@ import type { GetSchemasProps } from './utils/getSchemas'
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type ContentType = 'application/json' | (string & {})
 
-export type ResolvePathOptions = { tag?: string }
+export type ResolvePathOptions = { pluginName?: string; tag?: string }
 
 export type API = {
   getOas: () => Promise<Oas>
