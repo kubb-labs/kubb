@@ -12,6 +12,20 @@
       "../core/globals.d.ts",
       "../config/ts-config/reset.d.ts",
     ],
+    "paths": {
+      "@kubb/eslint-config": [
+        "../config/eslint-config/src/index.ts"
+      ],
+      "@kubb/tsup-config": [
+        "../config/tsup-config/src/index.ts"
+      ],
+      "@kubb/ts-config": [
+        "../config/ts-config/src/index.ts"
+      ],
+      "@kubb/core": [
+        "../core/src/index.ts"
+      ]
+    }
   },
   "include": [
     "src/**/*",
