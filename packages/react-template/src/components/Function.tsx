@@ -32,11 +32,11 @@ export function Function({ name, export: canExport, async, generics, params, ret
       {async && <Text>async </Text>}
       <Text>function {name}</Text>
       {generics && (
-        <Text>
-          {'<'}
-          {generics.join(',')}
-          {'>'}
-        </Text>
+        <>
+          <Text>{'<'}</Text>
+          <Text>{generics.join(',').trim()}</Text>
+          <Text>{'>'}</Text>
+        </>
       )}
       <Text>({params})</Text>
       {returnType && !async && <Text>: {returnType}</Text>}
@@ -83,11 +83,11 @@ export function ArrowFunction({
       <Text>const {name} = </Text>
       {async && <Text>async </Text>}
       {generics && (
-        <Text>
-          {'<'}
-          {generics.join(',')}
-          {'>'}
-        </Text>
+        <>
+          <Text>{'<'}</Text>
+          <Text>{generics.join(',').trim()}</Text>
+          <Text>{'>'}</Text>
+        </>
       )}
       <Text>({params})</Text>
       {returnType && !async && <Text>: {returnType}</Text>}
