@@ -1,9 +1,7 @@
-import { squashExportNodes } from './squashExportNodes.ts'
-import { squashImportNodes } from './squashImportNodes.ts'
-import { squashTextNodes } from './squashTextNodes.ts'
+import { squashExportNodes, squashImportNodes, squashTextNodes } from './utils/index.ts'
 
 import type { Export, Import } from '@kubb/core'
-import type { DOMElement } from './dom.ts'
+import type { DOMElement } from '../types.ts'
 
 type Result = {
   output: string

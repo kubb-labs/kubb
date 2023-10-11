@@ -3,10 +3,9 @@
 import createReconciler from 'react-reconciler'
 import { DefaultEventPriority } from 'react-reconciler/constants.js'
 
-import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './dom.ts'
+import { appendChildNode, createNode, createTextNode, insertBeforeNode, removeChildNode, setAttribute, setTextNodeValue } from './client/dom.ts'
 
-import type { DOMElement, DOMNodeAttribute, TextNode } from './dom.ts'
-import type { ElementNames } from './types.ts'
+import type { DOMElement, DOMNodeAttribute, ElementNames, TextNode } from './types.ts'
 
 type AnyObject = Record<string, unknown>
 
@@ -216,3 +215,5 @@ export const reconciler = createReconciler<
     removeChildNode(node, removeNode)
   },
 })
+
+export type { FiberRoot } from 'react-reconciler'

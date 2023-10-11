@@ -3,20 +3,48 @@ import { optionsCJS, optionsESM } from '@kubb/tsup-config'
 import { defineConfig } from 'tsup'
 
 export default defineConfig([
-  { ...optionsCJS },
-  { ...optionsESM },
+  {
+    ...optionsESM,
+    entry: ['./src/jsx-runtime.ts'],
+    name: 'react',
+    banner: {},
+  },
   {
     ...optionsCJS,
     entry: ['./src/jsx-runtime.ts'],
-    outDir: 'dist/react',
     name: 'react',
     banner: {},
   },
   {
     ...optionsESM,
-    entry: ['./src/jsx-runtime.ts'],
-    outDir: 'dist/react',
-    name: 'react',
+    entry: ['./src/client/index.ts'],
+    outDir: 'dist/client',
+    name: 'client',
     banner: {},
+  },
+  {
+    ...optionsCJS,
+    entry: ['./src/client/index.ts'],
+    outDir: 'dist/client',
+    name: 'client',
+    banner: {},
+  },
+  {
+    ...optionsCJS,
+    // esbuildOptions: (options) => {
+    //   options.alias = {
+    //     ...options.alias,
+    //     'react/jsx-runtime': '@kubb/react-template/jsx-runtime',
+    //   }
+    // },
+  },
+  {
+    ...optionsESM,
+    // esbuildOptions: (options) => {
+    //   options.alias = {
+    //     ...options.alias,
+    //     'react/jsx-runtime': '@kubb/react-template/jsx-runtime',
+    //   }
+    // },
   },
 ])

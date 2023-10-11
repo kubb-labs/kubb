@@ -1,13 +1,6 @@
-export * from './render.ts'
 export * from './types.ts'
-export * from './instances.ts'
-export * from './ReactTemplate.tsx'
-export * from './reconciler.ts'
-export * from './dom.ts'
-export * from './renderer.ts'
-export * from './squashTextNodes.ts'
-export * from './squashImportNodes.ts'
-export * from './squashExportNodes.ts'
 
 export * from './components/index.ts'
 export * from './hooks/index.ts'
+
+export * from './client/index.ts'

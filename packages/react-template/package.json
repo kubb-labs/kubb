@@ -26,10 +26,16 @@
     },
     "./package.json": "./package.json",
     "./jsx-runtime": {
-      "import": "./dist/react/jsx-runtime.js",
-      "module": "./dist/react/jsx-runtime.js",
-      "require": "./dist/react/jsx-runtime.cjs",
-      "default": "./dist/react/jsx-runtime.cjs"
+      "import": "./dist/jsx-runtime.js",
+      "module": "./dist/jsx-runtime.js",
+      "require": "./dist/jsx-runtime.cjs",
+      "default": "./dist/jsx-runtime.cjs"
+    },
+    "./client": {
+      "import": "./dist/client/index.js",
+      "module": "./dist/client/index.js",
+      "require": "./dist/client/index.cjs",
+      "default": "./dist/client/index.js"
     },
     "./globals": {
       "types": "./globals.d.ts"
@@ -42,7 +48,10 @@
   "typesVersions": {
     "*": {
       "jsx-runtime": [
-        "./dist/react/jsx-runtime.d.ts"
+        "./dist/jsx-runtime.d.ts"
+      ],
+      "client": [
+        "./dist/client/index.d.ts"
       ]
     }
   },

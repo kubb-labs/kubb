@@ -67,7 +67,10 @@
       ],
       "@kubb/react-template/jsx-runtime": [
         "../react-template/src/jsx-runtime.ts"
-      ]
+      ],
+      "@kubb/react-template/client": [
+        "../react-template/src/client/index.ts"
+      ],
     }
   },
   "include": [
