@@ -25,6 +25,12 @@
       "default": "./dist/index.cjs"
     },
     "./package.json": "./package.json",
+    "./jsx-runtime": {
+      "import": "./dist/react/jsx-runtime.js",
+      "module": "./dist/react/jsx-runtime.js",
+      "require": "./dist/react/jsx-runtime.cjs",
+      "default": "./dist/react/jsx-runtime.cjs"
+    },
     "./globals": {
       "types": "./globals.d.ts"
     },
@@ -34,7 +40,11 @@
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "typesVersions": {
-    "*": {}
+    "*": {
+      "jsx-runtime": [
+        "./dist/react/jsx-runtime.d.ts"
+      ]
+    }
   },
   "files": [
     "dist",
@@ -51,6 +61,7 @@
     "lint-fix": "bun run lint --quiet --fix",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag canary",
+    "release:beta": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag beta",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
@@ -58,9 +69,7 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/ts-codegen": "workspace:*",
-    "auto-bind": "^4.0.0",
-    "react": "^18.2.0",
-    "react-reconciler": "^0.29.0"
+    "auto-bind": "^4.0.0"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
@@ -70,6 +79,7 @@
     "@types/react": "^18.2.28",
     "@types/react-reconciler": "^0.28.5",
     "react": "^18.2.0",
+    "react-reconciler": "^0.29.0",
     "eslint": "^8.51.0",
     "tsup": "^7.2.0"
   },

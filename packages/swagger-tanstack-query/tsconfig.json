@@ -7,6 +7,7 @@
     // "outDir": "./dist",
     // "tsBuildInfoFile": "./build/.tsbuildinfo"
     // add paths also here because when set with `base.json` it will use the `./dist` folder instead of `./src`.
+    "jsxImportSource": "@kubb/react-template",
     "types": [
       "vitest/globals",
       "bun-types",

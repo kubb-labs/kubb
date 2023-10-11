@@ -72,22 +72,22 @@
     "lint-fix": "bun run lint --quiet --fix",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag canary",
+    "release:beta": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag beta",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/react-template": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/ts-codegen": "workspace:*",
-    "change-case": "^4.1.2",
-    "react": "^18.2.0"
+    "change-case": "^4.1.2"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
+    "@kubb/react-template": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.2.28",
     "axios": "^1.5.1",
@@ -96,7 +96,8 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
-    "axios": "^1.4.0"
+    "axios": "^1.4.0",
+    "@kubb/react-template": "workspace:*"
   },
   "peerDependenciesMeta": {
     "axios": {

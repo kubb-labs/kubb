@@ -32,7 +32,8 @@
     "./package.json",
     "./tsup.config.ts",
     "./vitest.config.ts",
-    "@kubb/ts-config/reset"
+    "@kubb/ts-config/reset",
+    "src/jsx-runtime.ts"
   ],
   "exclude": [
     "**/node_modules",
