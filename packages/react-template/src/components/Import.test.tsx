@@ -1,4 +1,4 @@
-import { render } from '../render.ts'
+import { createRoot } from '../client/createRoot.ts'
 import { Import } from './Import.tsx'
 
 describe('<Import/>', () => {
@@ -6,14 +6,18 @@ describe('<Import/>', () => {
     const Component = () => {
       return <Import name="React" path="react" print />
     }
-    const { output } = render(<Component />)
-    expect(output).toMatch('import React from "react"')
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toMatch('import React from "react"')
   })
   test('render Import without print', () => {
     const Component = () => {
       return <Import name="React" path="react" />
     }
-    const { imports } = render(<Component />)
-    expect(imports).toStrictEqual([{ isTypeOnly: undefined, name: 'React', path: 'react' }])
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.imports).toStrictEqual([{ isTypeOnly: undefined, name: 'React', path: 'react' }])
   })
 })

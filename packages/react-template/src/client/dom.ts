@@ -1,44 +1,4 @@
-import type { ElementNames } from './types.ts'
-
-export type OutputTransformer = (s: string, index: number) => string
-
-type Node = {
-  parentNode: DOMElement | undefined
-  internal_static?: boolean
-}
-
-export type TextName = '#text'
-
-export type NodeNames = ElementNames | TextName
-
-export type DOMElement = {
-  nodeName: ElementNames
-  attributes: Record<string, DOMNodeAttribute>
-  childNodes: DOMNode[]
-  internal_transform?: OutputTransformer
-
-  // Internal properties
-  isStaticDirty?: boolean
-  staticNode?: DOMElement
-  onComputeLayout?: () => void
-  onRender?: () => void
-  onImmediateRender?: () => void
-} & Node
-
-export type TextNode = {
-  nodeName: TextName
-  nodeValue: string
-} & Node
-
-export type DOMNode<T = { nodeName: NodeNames }> = T extends {
-  nodeName: infer U
-}
-  ? U extends '#text'
-    ? TextNode
-    : DOMElement
-  : never
-
-export type DOMNodeAttribute = boolean | string | number
+import type { DOMElement, DOMNode, DOMNodeAttribute, ElementNames, TextNode } from '../types.ts'
 
 export const createNode = (nodeName: ElementNames): DOMElement => {
   const node: DOMElement = {

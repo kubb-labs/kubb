@@ -1,7 +1,7 @@
 import type { Import } from '@kubb/core'
 import type React from 'react'
-import type { Import as ImportComponent } from './components/Import.ts'
-import type { DOMElement } from './dom.ts'
+import type { Import as ImportComponent } from '../../components/Import.tsx'
+import type { DOMElement } from '../../types.ts'
 
 export function squashImportNodes(node: DOMElement): Import[] {
   const imports: Import[] = []

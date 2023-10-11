@@ -1,5 +1,5 @@
 import { format } from '../../mocks/format.ts'
-import { render } from '../render.ts'
+import { createRoot } from '../client/createRoot.ts'
 import { Function } from './Function.tsx'
 
 describe('<Function/>', () => {
@@ -11,9 +11,10 @@ describe('<Function/>', () => {
         </Function>
       )
     }
-    const { output } = render(<Component />)
+    const root = createRoot()
+    root.render(<Component />)
 
-    expect(await format(output)).toMatch(
+    expect(await format(root.output)).toMatch(
       await format(`
         export async function getData() {
             return 2;
@@ -31,9 +32,10 @@ describe('<Function/>', () => {
         </Function.Arrow>
       )
     }
-    const { output } = render(<Component />)
+    const root = createRoot()
+    root.render(<Component />)
 
-    expect(await format(output)).toMatch(
+    expect(await format(root.output)).toMatch(
       await format(`
       export const getData = async () => {
         return 2;
@@ -50,9 +52,10 @@ describe('<Function/>', () => {
         </Function>
       )
     }
-    const { output } = render(<Component />)
+    const root = createRoot()
+    root.render(<Component />)
 
-    expect(await format(output)).toMatch(
+    expect(await format(root.output)).toMatch(
       await format(`
       export async function getData<TData>(): Promise<number> {
           return 2;
@@ -70,9 +73,10 @@ describe('<Function/>', () => {
         </Function.Arrow>
       )
     }
-    const { output } = render(<Component />)
+    const root = createRoot()
+    root.render(<Component />)
 
-    expect(await format(output)).toMatch(
+    expect(await format(root.output)).toMatch(
       await format(`
       export const getData = async <TData>(): Promise<number> => {
         return 2;
@@ -90,9 +94,10 @@ describe('<Function/>', () => {
         </Function.Arrow>
       )
     }
-    const { output } = render(<Component />)
+    const root = createRoot()
+    root.render(<Component />)
 
-    expect(await format(output)).toMatch(await format(`export const getData = async <TData>(): Promise<number> => 2;`))
+    expect(await format(root.output)).toMatch(await format(`export const getData = async <TData>(): Promise<number> => 2;`))
   })
   // test('render Function ServerComponent(beta)', async () => {
   //   const Component = async () => {

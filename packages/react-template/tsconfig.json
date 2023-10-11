@@ -24,7 +24,16 @@
       ],
       "@kubb/core": [
         "../core/src/index.ts"
-      ]
+      ],
+      "@kubb/react-template/": [
+        "./src/index.ts"
+      ],
+      "@kubb/react-template/jsx-runtime": [
+        "./src/jsx-runtime.ts"
+      ],
+      "@kubb/react-template/client": [
+        "./src/client/index.ts"
+      ],
     }
   },
   "include": [

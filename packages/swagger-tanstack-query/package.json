@@ -33,7 +33,7 @@
     "./package.json": "./package.json",
     "./*": "./*"
   },
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
@@ -47,28 +47,31 @@
     "lint-fix": "bun run lint --quiet --fix",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag canary",
+    "release:alpha": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag alpha",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/react-template": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/ts-codegen": "workspace:*",
-    "change-case": "^4.1.2",
-    "react": "^18.2.0"
+    "change-case": "^4.1.2"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
+    "@kubb/react-template": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.2.28",
     "eslint": "^8.51.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "@kubb/react-template": "workspace:*"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

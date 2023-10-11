@@ -1,30 +1,28 @@
 /* eslint-disable @typescript-eslint/unbound-method */
+import crypto from 'node:crypto'
 import process from 'node:process'
 
 import { throttle } from '@kubb/core'
 
 import autoBind from 'auto-bind'
 
-import { App } from './components/App.tsx'
-import * as dom from './dom.ts'
-import { instances } from './instances.ts'
-import { reconciler } from './reconciler.ts'
+import { App } from '../components/App.tsx'
+import { reconciler } from '../reconciler.ts'
 import { renderer } from './renderer.ts'
 
 import type { Export, Import } from '@kubb/core'
 import type { ReactNode } from 'react'
-import type { FiberRoot } from 'react-reconciler'
-import type { AppContextProps } from './components/AppContext.tsx'
+import type { AppContextProps } from '../components/AppContext.tsx'
+import type { FiberRoot } from '../reconciler.ts'
+import type { DOMElement } from '../types.ts'
 
 const noop = () => {}
 
-export type ReactTemplateOptions<Context = AppContextProps> = {
-  id: string
+export type ReactTemplateOptions = {
   debug: boolean
-  context: Context
 }
 
-export class ReactTemplate {
+export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   private readonly options: ReactTemplateOptions
   // Ignore last render after unmounting a tree to prevent empty output before exit
   private isUnmounted: boolean
@@ -32,13 +30,14 @@ export class ReactTemplate {
   private lastImports: Import[] = []
   private lastExports: Export[] = []
   private readonly container: FiberRoot
-  private readonly rootNode: dom.DOMElement
+  private readonly rootNode: DOMElement
+  public readonly id = crypto.randomUUID()
 
-  constructor(options: ReactTemplateOptions) {
+  constructor(rootNode: DOMElement, options: ReactTemplateOptions = { debug: false }) {
     autoBind(this)
 
     this.options = options
-    this.rootNode = dom.createNode('kubb-root')
+    this.rootNode = rootNode
 
     this.rootNode.onRender = options.debug ? this.onRender : throttle(this.onRender, 32)[0]
 
@@ -107,12 +106,15 @@ export class ReactTemplate {
     this.lastExports = exports
   }
 
-  render(node: ReactNode): void {
-    const { meta } = this.options.context
+  render(node: ReactNode, context?: Context): void {
+    if (context) {
+      const tree = <App meta={context.meta}>{node}</App>
 
-    const tree = <App meta={meta}>{node}</App>
+      reconciler.updateContainer(tree, this.container, null, noop)
+      return
+    }
 
-    reconciler.updateContainer(tree, this.container, null, noop)
+    reconciler.updateContainer(node, this.container, null, noop)
   }
 
   unmount(error?: Error | number | null): void {
@@ -126,7 +128,6 @@ export class ReactTemplate {
     this.isUnmounted = true
 
     reconciler.updateContainer(null, this.container, null, noop)
-    instances.delete(this.options.id)
 
     if (error instanceof Error) {
       this.rejectExitPromise(error)
@@ -134,6 +135,4 @@ export class ReactTemplate {
       this.resolveExitPromise()
     }
   }
-
-  clear(): void {}
 }

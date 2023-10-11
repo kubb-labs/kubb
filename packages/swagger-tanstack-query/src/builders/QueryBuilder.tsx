@@ -1,6 +1,6 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { combineCodes, createFunctionParams, createJSDocBlockText, URLPath } from '@kubb/core'
-import { render } from '@kubb/react-template'
+import { createRoot } from '@kubb/react-template'
 import { getASTParams, getComments, getParams, OasBuilder } from '@kubb/swagger'
 
 import { camelCase, pascalCase } from 'change-case'
@@ -48,11 +48,12 @@ export class QueryBuilder extends OasBuilder<Config> {
         </>
       )
     }
-    const { output, imports } = render<AppContextProps<AppMeta>>(<Component />, { context: { meta: { pluginManager, schemas, operation } } })
+    const root = createRoot<AppContextProps<AppMeta>>()
+    root.render(<Component />, { meta: { pluginManager, schemas, operation } })
 
-    codes.push(output)
+    codes.push(root.output)
 
-    return { code: combineCodes(codes), name, imports }
+    return { code: combineCodes(codes), name, imports: root.imports }
   }
 
   private get queryOptions(): QueryResult {

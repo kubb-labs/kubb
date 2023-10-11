@@ -1,6 +1,6 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { combineCodes, createFunctionParams, URLPath } from '@kubb/core'
-import { Import as ImportTemplate, render } from '@kubb/react-template'
+import { createRoot, Import as ImportTemplate } from '@kubb/react-template'
 import { getASTParams, getComments, OasBuilder } from '@kubb/swagger'
 
 import { ClientFunction } from '../components/index.ts'
@@ -85,11 +85,12 @@ export class ClientBuilder extends OasBuilder<Config> {
         </>
       )
     }
-    const { output, imports } = render<AppContextProps<AppMeta>>(<Component />, { context: { meta: { pluginManager } } })
+    const root = createRoot<AppContextProps<AppMeta>>()
+    root.render(<Component />, { meta: { pluginManager } })
 
-    codes.push(output)
+    codes.push(root.output)
 
-    return { code: combineCodes(codes), name, imports }
+    return { code: combineCodes(codes), name, imports: root.imports }
   }
 
   configure(config: Config): this {

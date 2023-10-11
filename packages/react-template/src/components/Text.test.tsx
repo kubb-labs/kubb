@@ -1,4 +1,4 @@
-import { render } from '../render.ts'
+import { createRoot } from '../client/createRoot.ts'
 import { Text } from './Text.tsx'
 
 describe('<Text/>', () => {
@@ -6,7 +6,9 @@ describe('<Text/>', () => {
     const Component = () => {
       return <Text>hallo</Text>
     }
-    const { output } = render(<Component />)
-    expect(output).toBe('hallo')
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toBe('hallo')
   })
 })
