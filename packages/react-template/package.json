@@ -70,7 +70,7 @@
     "lint-fix": "bun run lint --quiet --fix",
     "release": "pnpm publish --no-git-check",
     "release:canary": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag canary",
-    "release:beta": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag beta",
+    "release:alpha": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag alpha",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"

@@ -51,9 +51,9 @@ jobs:
           env:
              CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-        - name: Release beta
+        - name: Release alpha
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          run: bun run release:beta --concurrency=1
+          run: bun run release:alpha --concurrency=1
