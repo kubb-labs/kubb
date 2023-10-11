@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.11.0](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.10.4...@kubb/cli-v1.11.0) (2023-10-11)
+
+
+### ✨ Features
+
+* use of `jsxImportSource` for a custom react-runtime being used by `@kubb/react-template` ([db8f351](https://github.com/kubb-project/kubb/commit/db8f3519ffa8dc2ede5309f0c4c8acb30bc6757e))
+
+
+### 🐞 Bug Fixes
+
+* remove `@swc/core` dependency(decrease of the bundle size) ([2dfc28f](https://github.com/kubb-project/kubb/commit/2dfc28f7959af550abd807fa38d1989e3603be7c))
+* upgrade `oas` + custom patch for `typesVersions` ([e9e26ae](https://github.com/kubb-project/kubb/commit/e9e26ae204a2eb3b6dc1e3a391c17a5d9d64f86c))
+
 ## [1.10.4](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.10.3...@kubb/cli-v1.10.4) (2023-10-10)
 
 

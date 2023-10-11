@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.11.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.10.4...@kubb/swagger-v1.11.0) (2023-10-11)
+
+
+### 🐞 Bug Fixes
+
+* upgrade `oas` + custom patch for `typesVersions` ([e9e26ae](https://github.com/kubb-project/kubb/commit/e9e26ae204a2eb3b6dc1e3a391c17a5d9d64f86c))
+
+
+### ✨ Features
+
+* use of `createRoot` and `client` subPackage ([d2e7b45](https://github.com/kubb-project/kubb/commit/d2e7b4596bbdba1e1dacbcd3df6b38a3d6fde467))
+* use of `jsxImportSource` for a custom react-runtime being used by `@kubb/react-template` ([db8f351](https://github.com/kubb-project/kubb/commit/db8f3519ffa8dc2ede5309f0c4c8acb30bc6757e))
+
 ## [1.10.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.10.3...@kubb/swagger-v1.10.4) (2023-10-10)
 
 
