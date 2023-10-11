@@ -7,8 +7,7 @@ import { pluginName } from '../plugin.ts'
 
 import type { File, OptionalPath, PluginContext, PluginManager } from '@kubb/core'
 import type { ContentType, HttpMethod, Oas, Operation, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
-import type { Options as PluginOptions } from '../types'
-import type { FileMeta } from '../types.ts'
+import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
   pluginManager: PluginManager
@@ -67,7 +66,8 @@ export class OperationGenerator extends Generator<Options> {
     const groupedByOperationId: Record<string, { path: string; method: HttpMethod }> = {}
 
     Object.keys(paths).forEach((path) => {
-      Object.keys(paths[path]).forEach((method) => {
+      const methods = paths[path] || []
+      Object.keys(methods).forEach((method) => {
         const operation = oas.operation(path, method as HttpMethod)
         if (operation) {
           groupedByOperationId[operation.getOperationId()] = {

@@ -1,4 +1,4 @@
-import { useIndent } from '../hooks/useIndent'
+import { useIndent } from '../hooks/useIndent.ts'
 
 import type { ReactNode } from 'react'
 

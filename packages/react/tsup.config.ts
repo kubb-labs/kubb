@@ -11,6 +11,7 @@ export default defineConfig([
   },
   {
     ...optionsCJS,
+    dts: false,
     entry: ['./src/jsx-runtime.ts'],
     name: 'react',
     banner: {},
@@ -24,14 +25,13 @@ export default defineConfig([
   },
   {
     ...optionsCJS,
+    dts: false,
     entry: ['./src/client/index.ts'],
     outDir: 'dist/client',
     name: 'client',
     banner: {},
   },
-  {
-    ...optionsCJS,
-  },
+  { ...optionsCJS, dts: false },
   {
     ...optionsESM,
   },

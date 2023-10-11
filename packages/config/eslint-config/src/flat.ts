@@ -38,8 +38,8 @@ import vitestGlobalsPlugin from 'eslint-plugin-vitest-globals'
  */
 import globals from 'globals'
 
-import { ignores } from './ignores'
-import { rules } from './rules'
+import { ignores } from './ignores.ts'
+import { rules } from './rules.ts'
 
 import type { Linter } from 'eslint'
 
@@ -61,8 +61,8 @@ export const config: Linter.FlatConfig = {
     ...prettier.rules,
     // @ts-ignore
     ...tsPlugin.configs['eslint-recommended'].overrides[0].rules,
-    ...tsPlugin.configs['recommended'].rules,
-    ...tsPlugin.configs['recommended-requiring-type-checking'].rules,
+    ...tsPlugin.configs['recommended']?.rules,
+    ...tsPlugin.configs['recommended-requiring-type-checking']?.rules,
     ...rules,
   },
   plugins: {

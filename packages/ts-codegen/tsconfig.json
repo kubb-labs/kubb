@@ -5,11 +5,15 @@
     // "rootDir": "./",
     // "outDir": "./dist",
     // "tsBuildInfoFile": "./build/.tsbuildinfo"
+    "paths": {
+      "@kubb/tsup-config": [
+        "../config/tsup-config/src/index.ts"
+      ],
+    }
   },
   "include": [
     "src/**/*",
     "./package.json",
-    "./tsup.config.ts",
     "./vitest.config.ts",
     "@kubb/ts-config/reset"
   ],

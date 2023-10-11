@@ -22,18 +22,20 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "module": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
     "./client": {
+      "types": "./dist/client.d.ts",
       "import": "./dist/client.js",
       "module": "./dist/client.js",
       "require": "./dist/client.cjs",
       "default": "./dist/client.cjs"
     },
     "./ts-client": {
+      "types": "./client.ts",
       "import": "./client.ts",
       "require": "./client.ts",
       "default": "./client.ts"
@@ -47,16 +49,6 @@
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "client": [
-        "./dist/client.d.ts"
-      ],
-      "ts-client": [
-        "./dist/client.d.ts"
-      ]
-    }
-  },
   "files": [
     "dist",
     "client.ts",

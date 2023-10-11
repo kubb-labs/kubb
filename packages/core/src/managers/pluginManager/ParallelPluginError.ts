@@ -1,5 +1,5 @@
 import type { PluginError } from './PluginError.ts'
-import type { PluginManager } from './PluginManager'
+import type { PluginManager } from './PluginManager.ts'
 
 export class ParallelPluginError extends Error {
   public errors: PluginError[] = []

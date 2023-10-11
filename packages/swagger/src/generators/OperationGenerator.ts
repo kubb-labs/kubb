@@ -235,7 +235,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     const paths = oas.getPaths()
     const filterdPaths = Object.keys(paths).reduce(
       (acc, path) => {
-        const methods = Object.keys(paths[path]) as HttpMethod[]
+        const methods = Object.keys(paths[path]!) as HttpMethod[]
 
         methods.forEach((method) => {
           const operation = oas.operation(path, method)
@@ -243,13 +243,13 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
             const isSkipped = this.isSkipped(operation, method)
 
             if (!isSkipped) {
-              if (!acc.path) {
-                acc.path = {} as typeof acc.path
+              if (!acc[path]) {
+                acc[path] = {} as (typeof acc)['path']
               }
               acc[path] = {
                 ...acc[path],
-                [method]: paths[path][method],
-              }
+                [method]: paths[path]![method],
+              } as (typeof acc)['path']
             }
           }
         })
@@ -261,7 +261,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
 
     const promises = Object.keys(filterdPaths).reduce(
       (acc, path) => {
-        const methods = Object.keys(filterdPaths[path]) as HttpMethod[]
+        const methods = Object.keys(filterdPaths[path]!) as HttpMethod[]
 
         methods.forEach((method) => {
           const operation = oas.operation(path, method)

@@ -201,6 +201,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           .map((item) => {
             return this.getBaseTypeFromSchema(item)[0]
           })
+          .filter(Boolean)
           .filter((item) => {
             return item && item.keyword !== zodKeywords.any
           }),
@@ -222,6 +223,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           .map((item) => {
             return this.getBaseTypeFromSchema(item)[0]
           })
+          .filter(Boolean)
           .filter((item) => {
             return item && item.keyword !== zodKeywords.any
           }),
@@ -242,6 +244,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           .map((item) => {
             return this.getBaseTypeFromSchema(item)[0]
           })
+          .filter(Boolean)
           .filter((item) => {
             return item && item.keyword !== zodKeywords.any
           }),
@@ -303,10 +306,12 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       return [
         {
           keyword: zodKeywords.tuple,
-          args: prefixItems.map((item) => {
-            // no baseType so we can fall back on an union when using enum
-            return this.getBaseTypeFromSchema(item, undefined)[0]
-          }),
+          args: prefixItems
+            .map((item) => {
+              // no baseType so we can fall back on an union when using enum
+              return this.getBaseTypeFromSchema(item, undefined)[0]
+            })
+            .filter(Boolean),
         },
       ]
     }

@@ -1,6 +1,6 @@
 import { createFunctionParams } from '@kubb/core'
 
-import { isParameterObject } from './isParameterObject'
+import { isParameterObject } from './isParameterObject.ts'
 
 import type { OperationSchema } from '../types.ts'
 

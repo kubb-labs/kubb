@@ -6,12 +6,13 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "module": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
     "./flat": {
+      "types": "./dist/flat.d.ts",
       "import": "./dist/flat.js",
       "module": "./dist/flat.js",
       "require": "./dist/flat.cjs",
@@ -23,16 +24,6 @@
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "index": [
-        "./dist/index.d.ts"
-      ],
-      "flat": [
-        "./dist/flat.d.ts"
-      ]
-    }
-  },
   "files": [
     "dist",
     "schemas",

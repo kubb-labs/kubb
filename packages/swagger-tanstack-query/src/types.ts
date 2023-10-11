@@ -88,7 +88,7 @@ export type FrameworkImports = {
 
 export type FileMeta = {
   pluginName?: string
-  tag: string
+  tag?: string
 }
 
 export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', Options, false, undefined, ResolvePathOptions>

@@ -7,8 +7,7 @@ import { pluginName } from '../plugin.ts'
 
 import type { File, OptionalPath, PluginContext, PluginManager } from '@kubb/core'
 import type { ContentType, Oas, Operation, OperationSchema, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
-import type { Options as PluginOptions } from '../types'
-import type { FileMeta, Framework, FrameworkImports } from '../types.ts'
+import type { FileMeta, Framework, FrameworkImports, Options as PluginOptions } from '../types.ts'
 
 type Options = {
   pluginManager: PluginManager

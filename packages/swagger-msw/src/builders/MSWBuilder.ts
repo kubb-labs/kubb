@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes } from '@kubb/core'
+import { combineCodes, URLPath } from '@kubb/core'
 import { OasBuilder } from '@kubb/swagger'
-
-import { URLPath } from '../../../core/src/utils/URLPath'
 
 import type { PluginContext } from '@kubb/core'
 import type { Operation } from '@kubb/swagger'

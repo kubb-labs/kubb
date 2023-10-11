@@ -39,7 +39,7 @@ export class TreeNode<T = unknown> {
 
     if (this.children?.length) {
       for (let i = 0, { length } = this.children, target: TreeNode<T> | null = null; i < length; i++) {
-        target = this.children[i].find(data)
+        target = this.children[i]!.find(data)
         if (target) {
           return target
         }
@@ -60,7 +60,7 @@ export class TreeNode<T = unknown> {
     if (this.children) {
       for (let i = 0, { length } = this.children; i < length; i++) {
         // eslint-disable-next-line prefer-spread
-        leaves.push.apply(leaves, this.children[i].leaves)
+        leaves.push.apply(leaves, this.children[i]!.leaves)
       }
     }
     return leaves
@@ -84,7 +84,7 @@ export class TreeNode<T = unknown> {
     // do the same for all children
     if (this.children) {
       for (let i = 0, { length } = this.children; i < length; i++) {
-        this.children[i].forEach(callback)
+        this.children[i]!.forEach(callback)
       }
     }
 

@@ -81,12 +81,15 @@ export function combineFiles(files: Array<File | null>): File[] {
 
     if (prevIndex !== -1) {
       const prev = acc[prevIndex]
-      acc[prevIndex] = {
-        ...curr,
-        source: prev.source && curr.source ? `${prev.source}\n${curr.source}` : '',
-        imports: [...(prev.imports || []), ...(curr.imports || [])],
-        exports: [...(prev.exports || []), ...(curr.exports || [])],
-        env: { ...(prev.env || {}), ...(curr.env || {}) },
+
+      if (prev) {
+        acc[prevIndex] = {
+          ...curr,
+          source: prev.source && curr.source ? `${prev.source}\n${curr.source}` : '',
+          imports: [...(prev.imports || []), ...(curr.imports || [])],
+          exports: [...(prev.exports || []), ...(curr.exports || [])],
+          env: { ...(prev.env || {}), ...(curr.env || {}) },
+        }
       }
     } else {
       acc.push(curr)

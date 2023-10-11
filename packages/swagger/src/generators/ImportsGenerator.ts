@@ -57,7 +57,8 @@ export class ImportsGenerator extends Generator<Options> {
     // add imports based on $ref
     const importMeta = [...new Set(Object.keys(refs))]
       .map(($ref: string) => {
-        const { propertyName, originalName } = refs[$ref]
+        const ref = refs[$ref]!
+        const { propertyName, originalName } = ref
 
         const exists = imports.some((item) => item.name.toLowerCase() === originalName.toLowerCase())
 
@@ -65,7 +66,7 @@ export class ImportsGenerator extends Generator<Options> {
           return undefined
         }
 
-        const path = this.options.fileResolver?.(propertyName, refs[$ref]) || `./${propertyName}`
+        const path = this.options.fileResolver?.(propertyName, ref) || `./${propertyName}`
 
         // TODO weird hacky fix
         if (path === './' || path === '.') {
