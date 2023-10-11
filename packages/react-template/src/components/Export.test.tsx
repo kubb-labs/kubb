@@ -1,4 +1,4 @@
-import { render } from '../render.ts'
+import { createRoot } from '../client/createRoot.ts'
 import { Export } from './Export.tsx'
 
 describe('<Export/>', () => {
@@ -6,8 +6,10 @@ describe('<Export/>', () => {
     const Component = () => {
       return <Export path="kubb" />
     }
-    const { exports } = render(<Component />)
-    expect(exports).toStrictEqual([
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.exports).toStrictEqual([
       {
         asAlias: undefined,
         isTypeOnly: undefined,
@@ -20,8 +22,10 @@ describe('<Export/>', () => {
     const Component = () => {
       return <Export path="kubb" print />
     }
-    const { output, exports } = render(<Component />)
-    expect(output).toMatch('export * from "kubb"')
-    expect(exports).toStrictEqual([])
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toMatch('export * from "kubb"')
+    expect(root.exports).toStrictEqual([])
   })
 })

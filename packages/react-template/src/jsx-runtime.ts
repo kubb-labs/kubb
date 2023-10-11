@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import * as ReactJSXRuntime from 'react/jsx-runtime'
+import ReactJSXRuntime from 'react/jsx-runtime'
 
 import type { Export, Import } from '@kubb/core'
 import type { Key, ReactNode } from 'react'
