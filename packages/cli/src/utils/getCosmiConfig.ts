@@ -15,7 +15,6 @@ const tsLoader = (configFile: string) => {
     // Register TypeScript compiler instance
     registerer = tsNode.register({
       compilerOptions: { module: 'commonjs' },
-      swc: true,
       typeCheck: false,
     })
 
