@@ -64,6 +64,9 @@
       ],
       "@kubb/react-template": [
         "../react-template/src/index.ts"
+      ],
+      "@kubb/react-template/jsx-runtime": [
+        "../react-template/src/jsx-runtime.ts"
       ]
     }
   },
