@@ -31,11 +31,13 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetBy
   options?: {
     query?: SWRConfiguration<ResponseConfig<TData>, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    shouldFetch?: boolean
   },
 ): SWRResponse<ResponseConfig<TData>, TError> {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  const query = useSWR<ResponseConfig<TData>, TError, string>(`/pet/${petId}`, {
+  const url = shouldFetch ? `/pet/${petId}` : null
+  const query = useSWR<ResponseConfig<TData>, TError, string | null>(url, {
     ...getPetByIdQueryOptions<TData, TError>(petId, clientOptions),
     ...queryOptions,
   })

@@ -1,6 +1,6 @@
 import { getComments } from './getComments.ts'
 
-import type { Operation } from 'oas'
+import type Operation from 'oas/operation'
 
 describe('getComments', () => {
   test('if comments get added to the result', () => {

@@ -10,7 +10,7 @@ import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFileP
  */
 
 export function useUploadFile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
-  petId?: UploadFilePathParams['petId'],
+  petId: UploadFilePathParams['petId'],
   params?: UploadFileQueryParams,
   options?: {
     mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>

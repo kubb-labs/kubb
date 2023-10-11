@@ -1,4 +1,4 @@
-import type { PluginCache } from '../types'
+import type { PluginCache } from '../types.ts'
 
 export interface Cache<TStore extends object = object> {
   delete(id: keyof TStore): boolean

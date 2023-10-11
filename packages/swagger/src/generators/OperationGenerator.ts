@@ -2,17 +2,15 @@
 import { combineFiles, Generator, Warning } from '@kubb/core'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
-import { utils } from 'oas'
+import { findSchemaDefinition } from 'oas/utils'
 
 import { isReference } from '../utils/isReference.ts'
 
 import type { File } from '@kubb/core'
-import type { Operation } from 'oas'
-import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/dist/rmoas.types.ts'
+import type Operation from 'oas/operation'
+import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { ContentType, Oas, OperationSchemas, Resolver, SkipBy } from '../types.ts'
-
-const { findSchemaDefinition } = utils
 
 type Options = {
   oas: Oas
@@ -237,7 +235,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     const paths = oas.getPaths()
     const filterdPaths = Object.keys(paths).reduce(
       (acc, path) => {
-        const methods = Object.keys(paths[path]) as HttpMethod[]
+        const methods = Object.keys(paths[path]!) as HttpMethod[]
 
         methods.forEach((method) => {
           const operation = oas.operation(path, method)
@@ -245,13 +243,13 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
             const isSkipped = this.isSkipped(operation, method)
 
             if (!isSkipped) {
-              if (!acc.path) {
-                acc.path = {} as typeof acc.path
+              if (!acc[path]) {
+                acc[path] = {} as (typeof acc)['path']
               }
               acc[path] = {
                 ...acc[path],
-                [method]: paths[path][method],
-              }
+                [method]: paths[path]![method],
+              } as (typeof acc)['path']
             }
           }
         })
@@ -263,7 +261,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
 
     const promises = Object.keys(filterdPaths).reduce(
       (acc, path) => {
-        const methods = Object.keys(filterdPaths[path]) as HttpMethod[]
+        const methods = Object.keys(filterdPaths[path]!) as HttpMethod[]
 
         methods.forEach((method) => {
           const operation = oas.operation(path, method)

@@ -1,44 +1,81 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Default",
+  "display": "Base",
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext", 
-    "moduleResolution": "node",
+    /* Base Options: */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    "verbatimModuleSyntax": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    /* Strictness */
     "strict": true,
+    "noUncheckedIndexedAccess": true,
+    /* If transpiling with TypeScript: */
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
+    "outDir": "dist",
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react-jsx",
     "declaration": true,
-    "declarationMap": false,
+    "declarationMap": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "experimentalDecorators": true,
-    "skipLibCheck": true,
     "baseUrl": ".",
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "allowJs": true,
     "types": [
       "vitest/globals",
       "bun-types"
     ],
     "paths": {
-      "@kubb/cli":["packages/cli"],
-      "@kubb/eslint-config":["packages/config/eslint-config"],
-      "@kubb/ts-config":["packages/config/ts-config"],
-      "@kubb/tsup-config":["packages/config/tsup-config"],
-      "@kubb/core":["packages/core"],
-      "@kubb/swagger": ["packages/swagger"],
-      "@kubb/swagger-client": ["packages/swagger-client"],
-      "@kubb/swagger-faker": ["packages/swagger-faker"],
-      "@kubb/swagger-msw": ["packages/swagger-msw"],
-      "@kubb/swagger-tanstack-query": ["packages/swagger-tanstack-query"],
-      "@kubb/swagger-ts": ["packages/swagger-ts"],
-      "@kubb/swagger-zod": ["packages/swagger-zod"],
-      "@kubb/swagger-zodios": ["packages/swagger-zodios"],
-      "@kubb/ts-codegen": ["packages/ts-codegen"],
-      "@kubb/react-template": ["packages/react-template"]
+      "@kubb/cli": [
+        "packages/cli/src"
+      ],
+      "@kubb/eslint-config": [
+        "packages/config/eslint-config/src"
+      ],
+      "@kubb/ts-config": [
+        "packages/config/ts-config/src"
+      ],
+      "@kubb/tsup-config": [
+        "packages/config/tsup-config/src"
+      ],
+      "@kubb/core": [
+        "packages/core/src"
+      ],
+      "@kubb/swagger": [
+        "packages/swagger/src"
+      ],
+      "@kubb/swagger-client": [
+        "packages/swagger-client/src"
+      ],
+      "@kubb/swagger-faker": [
+        "packages/swagger-faker/src"
+      ],
+      "@kubb/swagger-msw": [
+        "packages/swagger-msw/src"
+      ],
+      "@kubb/swagger-tanstack-query": [
+        "packages/swagger-tanstack-query/src"
+      ],
+      "@kubb/swagger-ts": [
+        "packages/swagger-ts/src"
+      ],
+      "@kubb/swagger-zod": [
+        "packages/swagger-zod/src"
+      ],
+      "@kubb/swagger-zodios": [
+        "packages/swagger-zodios/src"
+      ],
+      "@kubb/ts-codegen": [
+        "packages/ts-codegen/src"
+      ],
+      "@kubb/react": [
+        "packages/react/src"
+      ]
     }
   },
   "exclude": [

@@ -25,14 +25,15 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "module": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
     "./package.json": "./package.json",
     "./*": "./*"
   },
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
@@ -42,6 +43,7 @@
   ],
   "scripts": {
     "build": "tsup",
+    "clean": "npx rimraf ./dist",
     "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
     "lint-fix": "bun run lint --quiet --fix",
     "release": "pnpm publish --no-git-check",
@@ -61,11 +63,16 @@
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
+    "@kubb/react": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
+    "@types/react": "^18.2.28",
     "eslint": "^8.51.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "@kubb/react": "workspace:*"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

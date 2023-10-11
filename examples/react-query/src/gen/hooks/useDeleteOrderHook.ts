@@ -2,7 +2,7 @@ import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-quer
 import { useMutation } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400 } from '../models/DeleteOrder'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
 
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
@@ -10,7 +10,7 @@ import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400
  * @link /store/order/:orderId
  */
 
-export function useDeleteOrderHook<TData = DeleteOrderMutationResponse, TError = DeleteOrder400>(
+export function useDeleteOrderHook<TData = DeleteOrderMutationResponse, TError = DeleteOrder400 | DeleteOrder404>(
   orderId: DeleteOrderPathParams['orderId'],
   options: {
     mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>

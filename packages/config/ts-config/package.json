@@ -4,7 +4,8 @@
   "private": true,
   "files": [
     "reset.d.ts",
-    "base.json"
+    "base.json",
+    "bun.json"
   ],
   "devDependencies": {
     "typescript": "^5.2.2"

@@ -2,7 +2,7 @@ import pathParser from 'node:path'
 
 import { createLogger, LogLevel, SummaryError, Warning } from '@kubb/core'
 
-import cac from 'cac'
+import { cac } from 'cac'
 import pc from 'picocolors'
 
 import { version } from '../package.json'

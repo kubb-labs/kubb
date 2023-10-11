@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import ts from 'typescript'
 
-import type { ArrayTwoOrMore } from './types'
+import type { ArrayTwoOrMore } from './types.ts'
 
 const { factory } = ts
 

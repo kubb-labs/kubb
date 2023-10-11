@@ -7,7 +7,11 @@ export function renderTemplate<TData extends Record<string, unknown> = Record<st
 
   return (
     matches?.reduce((prev, curr) => {
-      const value = data[curr.split(/{{|}}/).filter(Boolean)[0].trim()]
+      const index = curr.split(/{{|}}/).filter(Boolean)[0]?.trim()
+      if (index === undefined) {
+        return prev
+      }
+      const value = data[index]
 
       if (value === undefined) {
         return prev

@@ -19,14 +19,15 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "module": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
     "./package.json": "./package.json",
     "./*": "./*"
   },
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "typesVersions": {

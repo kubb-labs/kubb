@@ -62,6 +62,10 @@ export class Queue {
     return this.workerCount > 0 || this.queue.length > 0
   }
 
+  get count(): number {
+    return this.workerCount
+  }
+
   private work(): void {
     if (this.workerCount >= this.maxParallel) {
       return

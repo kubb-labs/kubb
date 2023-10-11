@@ -18,8 +18,8 @@
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module":"dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
     "kubb": "bin/kubb.js"
@@ -44,7 +44,6 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@swc/core": "1.3.82",
     "cac": "^6.7.14",
     "chokidar": "^3.5.3",
     "cosmiconfig": "^8.3.6",
@@ -59,7 +58,7 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/node": "^20.8.3",
+    "@types/node": "^20.8.4",
     "source-map-support": "^0.5.21",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"

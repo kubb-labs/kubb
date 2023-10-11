@@ -12,6 +12,6 @@
   "packages/swagger-zodios": "1.10.4",
   "packages/swagger-faker": "1.10.4",
   "packages/swagger-msw": "1.10.4",
-  "packages/react-template": "1.10.4",
+  "packages/react": "1.10.4",
   ".": "1.10.4"
 }

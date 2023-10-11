@@ -1,16 +1,16 @@
 import { getRelativePath, URLPath } from '@kubb/core'
-import { OperationGenerator as Generator } from '@kubb/swagger'
-import { pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
+import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
+import { resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
 
 import { ClientBuilder } from '../builders/ClientBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
-import type { File, OptionalPath, PluginContext } from '@kubb/core'
-import type { ContentType, HttpMethod, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
-import type { Options as PluginOptions } from '../types'
-import type { FileMeta, ResolvePathOptions } from '../types.ts'
+import type { File, OptionalPath, PluginContext, PluginManager } from '@kubb/core'
+import type { ContentType, HttpMethod, Oas, Operation, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
+import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
+  pluginManager: PluginManager
   clientPath?: OptionalPath
   dataReturnType: PluginOptions['dataReturnType']
   oas: Oas
@@ -24,50 +24,22 @@ export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = resolveName({ name: operation.getOperationId(), pluginName })
-
-    if (!name) {
-      throw new Error('Name should be defined')
-    }
-
-    const fileName = `${name}.ts`
-    const filePath = resolvePath({
-      fileName,
-      options: { tag: operation.getTags()[0]?.name },
+    return resolve({
+      operation,
+      resolveName,
+      resolvePath,
+      pluginName,
     })
-
-    if (!filePath) {
-      throw new Error('Filepath should be defined')
-    }
-
-    return {
-      name,
-      fileName,
-      filePath,
-    }
   }
 
   resolveType(operation: Operation): Resolver {
     const { resolvePath, resolveName } = this.options
 
-    const name = resolveName({ name: operation.getOperationId(), pluginName: swaggerTypescriptPluginName })
-
-    if (!name) {
-      throw new Error('Name should be defined')
-    }
-
-    const fileName = `${name}.ts`
-    const filePath = resolvePath({ fileName, options: { tag: operation.getTags()[0]?.name }, pluginName: swaggerTypescriptPluginName })
-
-    if (!filePath) {
-      throw new Error('Filepath should be defined')
-    }
-
-    return {
-      name,
-      fileName,
-      filePath,
-    }
+    return resolveSwaggerTypescript({
+      operation,
+      resolveName,
+      resolvePath,
+    })
   }
 
   async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File<FileMeta> | null> {
@@ -94,7 +66,8 @@ export class OperationGenerator extends Generator<Options> {
     const groupedByOperationId: Record<string, { path: string; method: HttpMethod }> = {}
 
     Object.keys(paths).forEach((path) => {
-      Object.keys(paths[path]).forEach((method) => {
+      const methods = paths[path] || []
+      Object.keys(methods).forEach((method) => {
         const operation = oas.operation(path, method as HttpMethod)
         if (operation) {
           groupedByOperationId[operation.getOperationId()] = {
@@ -116,12 +89,13 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, dataReturnType } = this.options
+    const { pluginManager, oas, clientPath, dataReturnType } = this.options
 
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
     const clientBuilder = new ClientBuilder(oas).configure({
+      pluginManager,
       name: controller.name,
       operation,
       schemas,
@@ -149,12 +123,13 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, dataReturnType } = this.options
+    const { pluginManager, oas, clientPath, dataReturnType } = this.options
 
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
     const clientBuilder = new ClientBuilder(oas).configure({
+      pluginManager,
       name: controller.name,
       operation,
       schemas,

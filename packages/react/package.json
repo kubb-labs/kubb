@@ -1,0 +1,96 @@
+{
+  "name": "@kubb/react",
+  "version": "1.10.4",
+  "description": "Generator react",
+  "keywords": [
+    "typescript",
+    "plugins",
+    "kubb",
+    "codegen"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kubb-project/kubb.git",
+    "directory": "packages/react"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json",
+    "./jsx-runtime": {
+      "types": "./dist/jsx-runtime.d.ts",
+      "import": "./dist/jsx-runtime.js",
+      "module": "./dist/jsx-runtime.js",
+      "require": "./dist/jsx-runtime.cjs",
+      "default": "./dist/jsx-runtime.cjs"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "import": "./dist/client/index.js",
+      "module": "./dist/client/index.js",
+      "require": "./dist/client/index.cjs",
+      "default": "./dist/client/index.cjs"
+    },
+    "./globals": {
+      "types": "./globals.d.ts"
+    },
+    "./*": "./*"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "schemas",
+    "*.d.ts",
+    "*.d.cts",
+    "!/**/**.test.**",
+    "!/**/__tests__/**"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "npx rimraf ./dist",
+    "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
+    "lint-fix": "bun run lint --quiet --fix",
+    "release": "pnpm publish --no-git-check",
+    "release:canary": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag canary",
+    "release:alpha": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag alpha",
+    "start": "tsup --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/core": "workspace:*",
+    "@kubb/ts-codegen": "workspace:*",
+    "auto-bind": "^4.0.0"
+  },
+  "devDependencies": {
+    "@kubb/eslint-config": "workspace:*",
+    "@kubb/ts-codegen": "workspace:*",
+    "@kubb/ts-config": "workspace:*",
+    "@kubb/tsup-config": "workspace:*",
+    "@types/react": "^18.2.28",
+    "@types/react-reconciler": "^0.28.5",
+    "react": "^18.2.0",
+    "react-reconciler": "^0.29.0",
+    "eslint": "^8.51.0",
+    "tsup": "^7.2.0"
+  },
+  "packageManager": "pnpm@8.3.0",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8.3.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

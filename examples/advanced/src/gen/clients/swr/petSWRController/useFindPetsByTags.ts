@@ -10,8 +10,8 @@ import type {
 } from '../../../models/ts/petController/FindPetsByTags'
 
 export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
+  headers?: FindPetsByTagsHeaderParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<ResponseConfig<TData>, TError> {
   return {
@@ -35,17 +35,19 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
  */
 
 export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
+  headers?: FindPetsByTagsHeaderParams,
   options?: {
     query?: SWRConfiguration<ResponseConfig<TData>, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    shouldFetch?: boolean
   },
 ): SWRResponse<ResponseConfig<TData>, TError> {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  const query = useSWR<ResponseConfig<TData>, TError, string>(`/pet/findByTags`, {
-    ...findPetsByTagsQueryOptions<TData, TError>(headers, params, clientOptions),
+  const url = shouldFetch ? `/pet/findByTags` : null
+  const query = useSWR<ResponseConfig<TData>, TError, string | null>(url, {
+    ...findPetsByTagsQueryOptions<TData, TError>(params, headers, clientOptions),
     ...queryOptions,
   })
 

@@ -1,5 +1,0 @@
-export * from './Text.tsx'
-export * from './App.tsx'
-export * from './Function.tsx'
-export * from './Import.tsx'
-export * from './Export.tsx'

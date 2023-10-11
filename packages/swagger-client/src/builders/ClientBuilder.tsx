@@ -1,15 +1,17 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { combineCodes, createFunctionParams, URLPath } from '@kubb/core'
-import { Import as ImportTemplate, render } from '@kubb/react-template'
-import { getComments, getDataParams, OasBuilder } from '@kubb/swagger'
+import { createRoot, Import as ImportTemplate } from '@kubb/react'
+import { getASTParams, getComments, OasBuilder } from '@kubb/swagger'
 
 import { ClientFunction } from '../components/index.ts'
 
-import type { Import } from '@kubb/core'
+import type { Import, PluginManager } from '@kubb/core'
+import type { AppContextProps } from '@kubb/react'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
-import type { Options as PluginOptions } from '../types'
+import type { AppMeta, Options as PluginOptions } from '../types.ts'
 
 type Config = {
+  pluginManager: PluginManager
   dataReturnType: PluginOptions['dataReturnType']
   operation: Operation
   schemas: OperationSchemas
@@ -21,16 +23,21 @@ type ClientResult = { code: string; name: string; imports: Import[] }
 
 export class ClientBuilder extends OasBuilder<Config> {
   private get client(): ClientResult {
-    const { name, operation, schemas, clientPath, dataReturnType } = this.config
+    const { pluginManager, name, operation, schemas, clientPath, dataReturnType } = this.config
     const codes: string[] = []
 
     const comments = getComments(operation)
     const method = operation.method
 
-    const generics = [`TData = ${schemas.response.name}`, schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined].filter(Boolean)
-    const clientGenerics = ['TData', schemas.request?.name ? 'TVariables' : undefined].filter(Boolean)
+    // TODO use of new Class for creating params
+    const generics = createFunctionParams([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TVariables', enabled: !!schemas.request?.name, default: schemas.request?.name },
+    ])
+    const clientGenerics = createFunctionParams([{ type: 'TData' }, { type: 'TVariables', enabled: !!schemas.request?.name }])
+
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true }),
+      ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'data',
         type: 'TVariables',
@@ -67,9 +74,9 @@ export class ClientBuilder extends OasBuilder<Config> {
             clientGenerics={clientGenerics}
             dataReturnType={dataReturnType}
             params={params}
-            returnType={dataReturnType === 'data' ? `ResponseConfig<${clientGenerics[0]}>["data"]` : `ResponseConfig<${clientGenerics[0]}>`}
+            returnType={dataReturnType === 'data' ? `ResponseConfig<TData>["data"]` : `ResponseConfig<TData>`}
             method={method}
-            url={new URLPath(operation.path).template}
+            path={new URLPath(operation.path)}
             withParams={!!schemas.queryParams?.name}
             withData={!!schemas.request?.name}
             withHeaders={!!schemas.headerParams?.name}
@@ -78,11 +85,12 @@ export class ClientBuilder extends OasBuilder<Config> {
         </>
       )
     }
-    const { output, imports } = render(<Component />)
+    const root = createRoot<AppContextProps<AppMeta>>()
+    root.render(<Component />, { meta: { pluginManager } })
 
-    codes.push(output)
+    codes.push(root.output)
 
-    return { code: combineCodes(codes), name, imports }
+    return { code: combineCodes(codes), name, imports: root.imports }
   }
 
   configure(config: Config): this {

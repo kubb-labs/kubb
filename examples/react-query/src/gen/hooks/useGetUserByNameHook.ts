@@ -1,11 +1,11 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions } from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400 } from '../models/GetUserByName'
+import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: `/user/${username}`, params: { username: username } }] as const
 
-export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
+export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
   username: GetUserByNamePathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
@@ -29,7 +29,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
  * @link /user/:username
  */
 
-export function useGetUserByNameHook<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
+export function useGetUserByNameHook<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
   username: GetUserByNamePathParams['username'],
   options: {
     query?: UseQueryOptions<TData, TError>
@@ -44,7 +44,7 @@ export function useGetUserByNameHook<TData = GetUserByNameQueryResponse, TError 
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey as QueryKey
 
   return query
 }

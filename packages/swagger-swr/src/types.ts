@@ -1,5 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { SkipBy } from '@kubb/swagger'
+import type { ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -58,9 +58,7 @@ export type Options = {
 
 export type FileMeta = {
   pluginName?: string
-  tag: string
+  tag?: string
 }
-
-export type ResolvePathOptions = { tag?: string }
 
 export type PluginOptions = PluginFactoryOptions<'swagger-swr', Options, false, undefined, ResolvePathOptions>

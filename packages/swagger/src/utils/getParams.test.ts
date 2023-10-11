@@ -8,7 +8,7 @@ describe('getParams', () => {
         schema: {
           properties: undefined,
         },
-      }),
+      }).toString(),
     ).toBe('')
   })
   test('if operation returns a string with parameters', () => {
@@ -25,7 +25,7 @@ describe('getParams', () => {
             },
           },
         },
-      }),
+      }).toString(),
     ).toBe('name, age')
   })
 
@@ -46,7 +46,7 @@ describe('getParams', () => {
           },
         },
         { typed: true },
-      ),
+      ).toString(),
     ).toBe('name: Pet["name"], age: Pet["age"]')
   })
 })

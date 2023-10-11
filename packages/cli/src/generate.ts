@@ -37,28 +37,34 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
     spinner.start(`Executing hooks`)
   }
 
-  const executers: Promise<Executer>[] = commands.map(async (command) => {
-    const oraWritable = new OraWritable(spinner, command)
-    const abortController = new AbortController()
-    const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
+  const executers: Promise<Executer | null>[] = commands
+    .map(async (command) => {
+      const oraWritable = new OraWritable(spinner, command)
+      const abortController = new AbortController()
+      const [cmd, ..._args] = [...parseArgsStringToArgv(command)]
 
-    // wait for 100ms to be sure that all open files are close(fs)
-    await timeout(100)
+      if (!cmd) {
+        return null
+      }
 
-    spinner.start(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
+      // wait for 100ms to be sure that all open files are close(fs)
+      await timeout(100)
 
-    const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable as Writable)
-    spinner.suffixText = ''
+      spinner.start(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
 
-    if (logLevel === LogLevel.silent) {
-      spinner.succeed(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
+      const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable as Writable)
+      spinner.suffixText = ''
 
-      console.log(subProcess.stdout)
-    }
+      if (logLevel === LogLevel.silent) {
+        spinner.succeed(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
 
-    oraWritable.destroy()
-    return { subProcess, abort: abortController.abort.bind(abortController) }
-  })
+        console.log(subProcess.stdout)
+      }
+
+      oraWritable.destroy()
+      return { subProcess, abort: abortController.abort.bind(abortController) }
+    })
+    .filter(Boolean)
 
   // wait for 100ms to be sure that all open files are close(fs)
   await timeout(100)
@@ -77,7 +83,7 @@ export default async function generate({ input, config, CLIOptions, logger }: Ge
     const { performance, PerformanceObserver } = await import('node:perf_hooks')
 
     const performanceOpserver = new PerformanceObserver((items) => {
-      const message = `${items.getEntries()[0].duration.toFixed(0)}ms`
+      const message = `${items.getEntries()[0]?.duration.toFixed(0)}ms`
 
       spinner.suffixText = pc.yellow(message)
 

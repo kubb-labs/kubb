@@ -18,7 +18,7 @@
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
@@ -49,7 +49,7 @@
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/node": "^20.8.3",
+    "@types/node": "^20.8.4",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   },

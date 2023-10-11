@@ -6,31 +6,24 @@
   "type": "module",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "module": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
     "./flat": {
+      "types": "./dist/flat.d.ts",
       "import": "./dist/flat.js",
       "module": "./dist/flat.js",
+      "require": "./dist/flat.cjs",
       "default": "./dist/flat.cjs"
     },
     "./package.json": "./package.json",
     "./*": "./*"
   },
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "index": [
-        "./dist/index.d.ts"
-      ],
-      "flat": [
-        "./dist/flat.d.ts"
-      ]
-    }
-  },
   "files": [
     "dist",
     "schemas",
@@ -50,9 +43,9 @@
   },
   "dependencies": {
     "@eslint/js": "^8.51.0",
-    "@types/eslint": "~8.44.3",
-    "@typescript-eslint/eslint-plugin": "^6.7.4",
-    "@typescript-eslint/parser": "~6.7.4",
+    "@types/eslint": "~8.44.4",
+    "@typescript-eslint/eslint-plugin": "^6.7.5",
+    "@typescript-eslint/parser": "~6.7.5",
     "eslint-config-prettier": "~9.0.0",
     "eslint-config-turbo": "~1.10.15",
     "eslint-formatter-pretty": "^5.0.0",
@@ -67,7 +60,7 @@
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "eslint": "~8.50.0",
+    "eslint": "^8.51.0",
     "tsup": "^7.2.0",
     "typescript": "~5.2.2"
   },

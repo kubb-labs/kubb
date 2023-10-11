@@ -1,11 +1,11 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { combineCodes, createFunctionParams, createJSDocBlockText, URLPath } from '@kubb/core'
-import { getComments, getDataParams, OasBuilder } from '@kubb/swagger'
+import { getASTParams, getComments, OasBuilder } from '@kubb/swagger'
 
 import { camelCase } from 'change-case'
 
 import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
-import type { Options as PluginOptions } from '../types'
+import type { Options as PluginOptions } from '../types.ts'
 
 type Config = {
   dataReturnType: PluginOptions['dataReturnType']
@@ -24,19 +24,12 @@ export class QueryBuilder extends OasBuilder<Config> {
 
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
 
-    const generics = [
-      `TData = ${schemas.response.name}`,
-      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
-    ]
+    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
 
-    console.log('schemas.queryParams?.name:' + schemas.queryParams?.name)
-    console.log('schemas.pathParams:')
-    console.log(schemas.pathParams)
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true })
-        .map(param => ({ ...param, required: false })),
+      ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
         type: schemas.queryParams?.name,
@@ -55,8 +48,6 @@ export class QueryBuilder extends OasBuilder<Config> {
         default: '{}',
       },
     ])
-
-    console.log(params)
 
     codes.push(`
 export function ${name} <
@@ -90,15 +81,11 @@ export function ${name} <
 
     const comments = getComments(operation)
 
-    const generics = [
-      `TData = ${schemas.response.name}`,
-      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
-    ]
+    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true })
-        .map(param => ({ ...param, required: false })),
+      ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
         type: schemas.queryParams?.name,
@@ -124,8 +111,7 @@ export function ${name} <
     ])
 
     const queryParams = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: false })
-        .map(param => ({ ...param, required: false })),
+      ...getASTParams(schemas.pathParams, { typed: false }),
       {
         name: 'params',
         enabled: !!schemas.queryParams?.name,
@@ -174,22 +160,12 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${query
       schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined,
     ].filter(Boolean)
 
-    const clientGenerics = [
-      'TData',
-      'TError',
-      schemas.request?.name ? `TVariables` : undefined,
-    ].filter(Boolean)
+    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
 
-    const mutationGenerics = [
-      'ResponseConfig<TData>',
-      'TError',
-      'string | null',
-      schemas.request?.name ? `TVariables` : undefined,
-    ].filter(Boolean)
+    const mutationGenerics = ['ResponseConfig<TData>', 'TError', 'string | null', schemas.request?.name ? `TVariables` : 'never'].filter(Boolean)
 
     const params = createFunctionParams([
-      ...getDataParams(schemas.pathParams, { typed: true })
-        .map(param => ({ ...param, required: false })),
+      ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
         type: schemas.queryParams?.name,

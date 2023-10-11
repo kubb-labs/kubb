@@ -3,8 +3,8 @@ import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '@kubb/swagger-client/client'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400 } from '../models/GetPetById'
 
-export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400  >(
-  petId?: GetPetByIdPathParams['petId'],
+export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400>(
+  petId: GetPetByIdPathParams['petId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<TData, TError> {
   return {
@@ -25,8 +25,8 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
  * @link /pet/:petId
  */
 
-export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400  >(
-  petId?: GetPetByIdPathParams['petId'],
+export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400>(
+  petId: GetPetByIdPathParams['petId'],
   options?: {
     query?: SWRConfiguration<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
