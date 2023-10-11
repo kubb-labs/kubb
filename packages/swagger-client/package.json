@@ -44,7 +44,7 @@
       "types": "./globals.d.ts"
     }
   },
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "typesVersions": {

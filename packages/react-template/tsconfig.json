@@ -29,7 +29,7 @@
         "./src/index.ts"
       ],
       "@kubb/react-template/jsx-runtime": [
-        "src/jsx-runtime.ts"
+        "./src/jsx-runtime.ts"
       ],
       "@kubb/react-template/client": [
         "./src/client/index.ts"

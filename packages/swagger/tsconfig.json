@@ -64,7 +64,7 @@
         "../react-template/src/index.ts"
       ],
       "@kubb/react-template/jsx-runtime": [
-        "../react-template/src/react/jsx-runtime.ts"
+        "../react-template/src/jsx-runtime.ts"
       ],
       "@kubb/react-template/client": [
         "../react-template/src/client/index.ts"
