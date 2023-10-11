@@ -75,22 +75,22 @@ export class OperationGenerator extends Generator<Options> {
     Object.keys(paths).forEach((path) => {
       const operations = paths[path]
 
-      if (operations.get) {
+      if (operations?.get) {
         addOperationToHandler(operations.get)
       }
 
-      if (operations.post) {
+      if (operations?.post) {
         addOperationToHandler(operations.post)
       }
-      if (operations.patch) {
+      if (operations?.patch) {
         addOperationToHandler(operations.patch)
       }
 
-      if (operations.put) {
+      if (operations?.put) {
         addOperationToHandler(operations.put)
       }
 
-      if (operations.delete) {
+      if (operations?.delete) {
         addOperationToHandler(operations.delete)
       }
     })

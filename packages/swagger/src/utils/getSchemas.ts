@@ -31,7 +31,7 @@ export function getSchemas({
 
     Object.entries(responses).forEach(([name, response]: [string, OpenAPIV3.ResponseObject]) => {
       if (response.content && !schemas[name]) {
-        const firstContentType = Object.keys(response.content)[0]
+        const firstContentType = Object.keys(response.content)[0] || 'application/json'
         schemas[name] = response.content?.[contentType || firstContentType]?.schema as OpenAPIV3.SchemaObject
       }
     })
@@ -40,7 +40,7 @@ export function getSchemas({
   if (includes.includes('requestBodies')) {
     Object.entries(requestBodies).forEach(([name, request]: [string, OpenAPIV3.RequestBodyObject]) => {
       if (request.content && !schemas[name]) {
-        const firstContentType = Object.keys(request.content)[0]
+        const firstContentType = Object.keys(request.content)[0] || 'application/json'
         schemas[name] = request.content?.[contentType || firstContentType]?.schema as OpenAPIV3.SchemaObject
       }
     })

@@ -9,8 +9,7 @@ import { OperationGenerator } from './generators/OperationGenerator.ts'
 
 import type { File, OptionalPath } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
-import type { FileMeta } from './types'
-import type { PluginOptions } from './types.ts'
+import type { FileMeta, PluginOptions } from './types.ts'
 
 export const pluginName: PluginOptions['name'] = 'swagger-client' as const
 

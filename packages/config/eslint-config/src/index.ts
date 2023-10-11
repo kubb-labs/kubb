@@ -1,7 +1,7 @@
 import globals from 'globals'
 
-import { ignores } from './ignores'
-import { rules } from './rules'
+import { ignores } from './ignores.ts'
+import { rules } from './rules.ts'
 
 import type { Linter } from 'eslint'
 
@@ -72,6 +72,6 @@ const config: Linter.Config = {
   },
 }
 
-export * from './ignores'
+export * from './ignores.ts'
 
 export default config

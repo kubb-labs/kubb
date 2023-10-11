@@ -18,6 +18,8 @@ type Options = {
   output: string
 }
 
+const methods: HttpMethod[] = ['get', 'post', 'patch', 'put', 'delete']
+
 export class OperationGenerator extends Generator<Options> {
   resolve(): Resolver {
     const { resolvePath, output, resolveName } = this.options
@@ -233,14 +235,15 @@ export class OperationGenerator extends Generator<Options> {
     }
     const definitions = Object.keys(paths).reduce((acc, path) => {
       const operations = paths[path]
-      const methods: HttpMethod[] = ['get', 'post', 'patch', 'put', 'delete']
 
-      methods.forEach((method) => {
-        // use isSkipped to also exclude operations(skipby in our Zod plugin).
-        if (operations[method] && !this.isSkipped(operations[method]!, method)) {
-          acc.push(mapOperationToZodios(operations[method]!))
-        }
-      })
+      if (operations) {
+        methods.forEach((method) => {
+          // use isSkipped to also exclude operations(skipby in our Zod plugin).
+          if (operations[method] && !this.isSkipped(operations[method]!, method)) {
+            acc.push(mapOperationToZodios(operations[method]!))
+          }
+        })
+      }
 
       return acc
     }, [] as string[])

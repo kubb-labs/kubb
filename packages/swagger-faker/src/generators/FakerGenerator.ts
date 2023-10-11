@@ -1,8 +1,7 @@
-import { getUniqueName, SchemaGenerator } from '@kubb/core'
+import { createJSDocBlockText, getUniqueName, SchemaGenerator } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
-import { createJSDocBlockText } from '../../../core/src/utils/jsdoc'
 import { fakerKeywords, fakerParser } from '../parsers/index.ts'
 import { pluginName } from '../plugin.ts'
 
@@ -170,6 +169,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
           .map((item) => {
             return this.getBaseTypeFromSchema(item)[0]
           })
+          .filter(Boolean)
           .filter((item) => {
             return item && item.keyword !== fakerKeywords.any
           }),
@@ -191,6 +191,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
           .map((item) => {
             return this.getBaseTypeFromSchema(item)[0]
           })
+          .filter(Boolean)
           .filter((item) => {
             return item && item.keyword !== fakerKeywords.any
           }),
@@ -211,6 +212,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
           .map((item) => {
             return this.getBaseTypeFromSchema(item)[0]
           })
+          .filter(Boolean)
           .filter((item) => {
             return item && item.keyword !== fakerKeywords.any
           }),

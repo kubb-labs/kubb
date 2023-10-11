@@ -8,7 +8,7 @@ import { ClientFunction } from '../components/index.ts'
 import type { Import, PluginManager } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
-import type { AppMeta, Options as PluginOptions } from '../types'
+import type { AppMeta, Options as PluginOptions } from '../types.ts'
 
 type Config = {
   pluginManager: PluginManager

@@ -1,4 +1,4 @@
-import type { PluginManager } from './PluginManager'
+import type { PluginManager } from './PluginManager.ts'
 
 export class PluginError extends Error {
   public pluginManager: PluginManager

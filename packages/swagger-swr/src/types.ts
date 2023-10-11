@@ -58,7 +58,7 @@ export type Options = {
 
 export type FileMeta = {
   pluginName?: string
-  tag: string
+  tag?: string
 }
 
 export type PluginOptions = PluginFactoryOptions<'swagger-swr', Options, false, undefined, ResolvePathOptions>

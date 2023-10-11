@@ -16,7 +16,7 @@ const SLASHES = new Set(['/', '\\'])
  * @returns {string} The normalized directory.
  */
 export function normalizeDirectory(directory: string): string {
-  if (!SLASHES.has(directory[directory.length - 1])) {
+  if (!SLASHES.has(directory[directory.length - 1]!)) {
     return `${directory}/`
   }
 

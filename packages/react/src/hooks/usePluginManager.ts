@@ -1,4 +1,4 @@
-import { useApp } from './useApp'
+import { useApp } from './useApp.ts'
 
 import type { AppMeta, PluginManager } from '@kubb/core'
 

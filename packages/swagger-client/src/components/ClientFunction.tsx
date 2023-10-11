@@ -3,7 +3,7 @@ import { createIndent, Function } from '@kubb/react'
 import type { URLPath } from '@kubb/core'
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { Options as PluginOptions } from '../types'
+import type { Options as PluginOptions } from '../types.ts'
 
 type Props = {
   name: string

@@ -10,16 +10,13 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleDetection": "force",
-
     /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
-
     /* If NOT transpiling with TypeScript: */
     "moduleResolution": "Bundler",
     "module": "ESNext",
     "noEmit": true,
-
     "strictNullChecks": true,
     "jsx": "react-jsx",
     "declaration": true,
@@ -32,21 +29,51 @@
       "bun-types"
     ],
     "paths": {
-      "@kubb/cli":["packages/cli"],
-      "@kubb/eslint-config":["packages/config/eslint-config"],
-      "@kubb/ts-config":["packages/config/ts-config"],
-      "@kubb/tsup-config":["packages/config/tsup-config"],
-      "@kubb/core":["packages/core"],
-      "@kubb/swagger": ["packages/swagger"],
-      "@kubb/swagger-client": ["packages/swagger-client"],
-      "@kubb/swagger-faker": ["packages/swagger-faker"],
-      "@kubb/swagger-msw": ["packages/swagger-msw"],
-      "@kubb/swagger-tanstack-query": ["packages/swagger-tanstack-query"],
-      "@kubb/swagger-ts": ["packages/swagger-ts"],
-      "@kubb/swagger-zod": ["packages/swagger-zod"],
-      "@kubb/swagger-zodios": ["packages/swagger-zodios"],
-      "@kubb/ts-codegen": ["packages/ts-codegen"],
-      "@kubb/react": ["packages/react"]
+      "@kubb/cli": [
+        "packages/cli"
+      ],
+      "@kubb/eslint-config": [
+        "packages/config/eslint-config"
+      ],
+      "@kubb/ts-config": [
+        "packages/config/ts-config"
+      ],
+      "@kubb/tsup-config": [
+        "packages/config/tsup-config"
+      ],
+      "@kubb/core": [
+        "packages/core"
+      ],
+      "@kubb/swagger": [
+        "packages/swagger"
+      ],
+      "@kubb/swagger-client": [
+        "packages/swagger-client"
+      ],
+      "@kubb/swagger-faker": [
+        "packages/swagger-faker"
+      ],
+      "@kubb/swagger-msw": [
+        "packages/swagger-msw"
+      ],
+      "@kubb/swagger-tanstack-query": [
+        "packages/swagger-tanstack-query"
+      ],
+      "@kubb/swagger-ts": [
+        "packages/swagger-ts"
+      ],
+      "@kubb/swagger-zod": [
+        "packages/swagger-zod"
+      ],
+      "@kubb/swagger-zodios": [
+        "packages/swagger-zodios"
+      ],
+      "@kubb/ts-codegen": [
+        "packages/ts-codegen"
+      ],
+      "@kubb/react": [
+        "packages/react"
+      ]
     }
   },
   "exclude": [

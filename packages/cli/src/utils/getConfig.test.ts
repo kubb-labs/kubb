@@ -91,7 +91,7 @@ describe('getConfig', () => {
       {},
     )
 
-    expect(kubbUserConfig.plugins?.[0].name).toEqual(createSwagger({}).name)
+    expect(kubbUserConfig.plugins?.[0]?.name).toEqual(createSwagger({}).name)
   })
 
   test('return object when config is set with defineConfig and plugins is an object', async () => {
@@ -115,6 +115,6 @@ describe('getConfig', () => {
       {},
     )
 
-    expect(kubbUserConfig.plugins?.[0].name).toEqual(createSwagger({}).name)
+    expect(kubbUserConfig.plugins?.[0]?.name).toEqual(createSwagger({}).name)
   })
 })

@@ -7,8 +7,7 @@ import { pluginName } from '../plugin.ts'
 
 import type { File, OptionalPath, PluginContext } from '@kubb/core'
 import type { ContentType, Oas, Operation, OperationSchema, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
-import type { Options as PluginOptions } from '../types'
-import type { FileMeta } from '../types.ts'
+import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
   clientPath?: OptionalPath

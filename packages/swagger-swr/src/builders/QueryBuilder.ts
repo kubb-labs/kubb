@@ -5,7 +5,7 @@ import { getASTParams, getComments, OasBuilder } from '@kubb/swagger'
 import { camelCase } from 'change-case'
 
 import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
-import type { Options as PluginOptions } from '../types'
+import type { Options as PluginOptions } from '../types.ts'
 
 type Config = {
   dataReturnType: PluginOptions['dataReturnType']
