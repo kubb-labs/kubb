@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Base",
+  "display": "Bun",
   "compilerOptions": {
     /* Base Options: */
     "esModuleInterop": true,
@@ -15,18 +15,15 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
 
-
-    /* If transpiling with TypeScript: */
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
-    "outDir": "dist",
-    "sourceMap": true,
+    /* If NOT transpiling with TypeScript: */
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "noEmit": true,
 
     "strictNullChecks": true,
     "jsx": "react-jsx",
     "declaration": true,
     "declarationMap": true,
-    "noEmit": true,
     "allowImportingTsExtensions": true,
     "experimentalDecorators": true,
     "baseUrl": ".",
