@@ -1,0 +1,59 @@
+name: create-version
+
+on:
+  workflow_dispatch:
+  
+jobs:
+  build:
+      name: Build and Test
+      timeout-minutes: 15
+      runs-on: ubuntu-latest
+ 
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 2
+ 
+        - uses: pnpm/action-setup@v2.2.4
+          with:
+            version: 8
+ 
+        - name: Setup Node.js environment
+          uses: actions/setup-node@v3
+          with:
+            node-version: 18
+            cache: 'pnpm'
+            registry-url: 'https://registry.npmjs.org'
+
+        - name: Install bun
+          uses: oven-sh/setup-bun@v1
+ 
+        - name: Install dependencies
+          run: pnpm install --prefer-offline
+
+        - uses: dtinth/setup-github-actions-caching-for-turbo@v1
+          with:
+           # Set the prefix for the cache keys.
+            cache-prefix: kubb_
+          
+        - name: Build
+          run: bun run build --concurrency=1
+
+        - name: Typecheck
+          run: bun run typecheck --concurrency=1
+
+        - name: Test
+          run: bun run test
+
+        - name: Upload coverage reports to Codecov
+          uses: codecov/codecov-action@v3
+          env:
+             CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+        - name: Release beta
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          run: bun run release:beta --concurrency=1
