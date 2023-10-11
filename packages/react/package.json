@@ -1,7 +1,7 @@
 {
-  "name": "@kubb/react-template",
+  "name": "@kubb/react",
   "version": "1.10.4",
-  "description": "Generator react-template",
+  "description": "Generator react",
   "keywords": [
     "typescript",
     "plugins",
@@ -11,7 +11,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-project/kubb.git",
-    "directory": "packages/react-template"
+    "directory": "packages/react"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",

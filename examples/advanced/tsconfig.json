@@ -22,7 +22,7 @@
       "../../packages/core/globals.d.ts",
       "../../packages/swagger-client/globals.d.ts",
       "../../packages/config/ts-config/reset.d.ts",
-      "../../packages/react-template/globals.d.ts"
+      "../../packages/react/globals.d.ts"
     ],
     "paths": {
       "@kubb/cli": [
@@ -76,8 +76,8 @@
       "@kubb/ts-codegen": [
         "../../packages/ts-codegen/src/index.ts"
       ],
-      "@kubb/react-template": [
-        "../../packages/react-template/src/index.ts"
+      "@kubb/react": [
+        "../../packages/react/src/index.ts"
       ]
     }
   },

@@ -1,10 +1,10 @@
 ---
 layout: doc
 
-title: \@kubb/react-template
+title: \@kubb/react
 outline: deep
 ---
-# @kubb/react-template <Badge type="warning" text="under construction" />
+# @kubb/react <Badge type="warning" text="under construction" />
 
 Use React to create templates/variants for any plugin.
 
@@ -16,19 +16,19 @@ Use React to create templates/variants for any plugin.
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>] 
-bun add @kubb/react-template
+bun add @kubb/react
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>] 
-pnpm add @kubb/react-template
+pnpm add @kubb/react
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>] 
-npm install @kubb/react-template
+npm install @kubb/react
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>] 
-yarn add @kubb/react-template
+yarn add @kubb/react
 ```
 
 :::

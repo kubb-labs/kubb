@@ -954,7 +954,7 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2
 
-  packages/react-template:
+  packages/react:
     dependencies:
       '@kubb/core':
         specifier: workspace:*
@@ -1018,9 +1018,9 @@ importers:
       '@kubb/eslint-config':
         specifier: workspace:*
         version: link:../config/eslint-config
-      '@kubb/react-template':
+      '@kubb/react':
         specifier: workspace:*
-        version: link:../react-template
+        version: link:../react
       '@kubb/ts-config':
         specifier: workspace:*
         version: link:../config/ts-config
@@ -1067,9 +1067,9 @@ importers:
       '@kubb/eslint-config':
         specifier: workspace:*
         version: link:../config/eslint-config
-      '@kubb/react-template':
+      '@kubb/react':
         specifier: workspace:*
-        version: link:../react-template
+        version: link:../react
       '@kubb/ts-config':
         specifier: workspace:*
         version: link:../config/ts-config
@@ -1233,9 +1233,9 @@ importers:
       '@kubb/eslint-config':
         specifier: workspace:*
         version: link:../config/eslint-config
-      '@kubb/react-template':
+      '@kubb/react':
         specifier: workspace:*
-        version: link:../react-template
+        version: link:../react
       '@kubb/ts-config':
         specifier: workspace:*
         version: link:../config/ts-config

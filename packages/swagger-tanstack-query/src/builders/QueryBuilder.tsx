@@ -1,6 +1,6 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { combineCodes, createFunctionParams, createJSDocBlockText, URLPath } from '@kubb/core'
-import { createRoot } from '@kubb/react-template'
+import { createRoot } from '@kubb/react'
 import { getASTParams, getComments, getParams, OasBuilder } from '@kubb/swagger'
 
 import { camelCase, pascalCase } from 'change-case'
@@ -8,7 +8,7 @@ import { camelCase, pascalCase } from 'change-case'
 import { QueryKeyFunction } from '../components/index.ts'
 
 import type { Import, PluginManager } from '@kubb/core'
-import type { AppContextProps } from '@kubb/react-template'
+import type { AppContextProps } from '@kubb/react'
 import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { AppMeta, Framework, FrameworkImports, Options as PluginOptions } from '../types.ts'
 

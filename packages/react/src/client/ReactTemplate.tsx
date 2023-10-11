@@ -70,8 +70,8 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
         bundleType: 0,
         // Reporting React DOM's version, not Kubb's
         // See https://github.com/facebook/react/issues/16666#issuecomment-532639905
-        version: '16.13.1',
-        rendererPackageName: '@kubb/react-template',
+        version: '18.0.2',
+        rendererPackageName: '@kubb/react',
       })
     }
   }

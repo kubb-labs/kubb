@@ -3,7 +3,7 @@ import { ReactTemplate } from './ReactTemplate.tsx'
 
 import type { AppContextProps } from '../components/AppContext.tsx'
 import type { DOMElement } from '../types.ts'
-import type { RootType } from './types'
+import type { RootType } from './types.ts'
 
 const instances = new Map<string, ReactTemplate>()
 

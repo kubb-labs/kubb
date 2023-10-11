@@ -62,8 +62,8 @@
       "@kubb/ts-codegen": [
         "../../packages/ts-codegen/src/index.ts"
       ],
-      "@kubb/react-template": [
-        "../../packages/react-template/src/index.ts"
+      "@kubb/react": [
+        "../../packages/react/src/index.ts"
       ]
     }
   },

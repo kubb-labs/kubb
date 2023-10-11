@@ -31,20 +31,8 @@ export default defineConfig([
   },
   {
     ...optionsCJS,
-    // esbuildOptions: (options) => {
-    //   options.alias = {
-    //     ...options.alias,
-    //     'react/jsx-runtime': '@kubb/react-template/jsx-runtime',
-    //   }
-    // },
   },
   {
     ...optionsESM,
-    // esbuildOptions: (options) => {
-    //   options.alias = {
-    //     ...options.alias,
-    //     'react/jsx-runtime': '@kubb/react-template/jsx-runtime',
-    //   }
-    // },
   },
 ])

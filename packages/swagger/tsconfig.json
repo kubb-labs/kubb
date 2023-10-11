@@ -12,7 +12,7 @@
       "bun-types",
       "../core/globals.d.ts",
       "../config/ts-config/reset.d.ts",
-      "../react-template/globals.d.ts"
+      "../react/globals.d.ts"
     ],
     "paths": {
       "@kubb/cli": [
@@ -60,14 +60,14 @@
       "@kubb/ts-codegen": [
         "../ts-codegen/src/index.ts"
       ],
-      "@kubb/react-template": [
-        "../react-template/src/index.ts"
+      "@kubb/react": [
+        "../react/src/index.ts"
       ],
-      "@kubb/react-template/jsx-runtime": [
-        "../react-template/src/jsx-runtime.ts"
+      "@kubb/react/jsx-runtime": [
+        "../react/src/jsx-runtime.ts"
       ],
-      "@kubb/react-template/client": [
-        "../react-template/src/client/index.ts"
+      "@kubb/react/client": [
+        "../react/src/client/index.ts"
       ]
     }
   },

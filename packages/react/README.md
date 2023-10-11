@@ -1,10 +1,10 @@
 <div align="center">
 
   <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-  <h1>@kubb/react-template</h1>
+  <h1>@kubb/react</h1>
   
   <p>
-   React template
+   React
   </p>  
   <img src="https://raw.githubusercontent.com/kubb-project/kubb/main/assets/banner.png" alt="logo"  height="auto" />
 
@@ -30,15 +30,15 @@
 </div>
 <!-- Badges -->
 
-[npm-version-src]: https://img.shields.io/npm/v/@kubb/react-template?flat&colorA=18181B&colorB=f58517
-[npm-version-href]: https://npmjs.com/package/@kubb/react-template
-[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/react-template?flat&colorA=18181B&colorB=f58517
-[npm-downloads-href]: https://npmjs.com/package/@kubb/react-template
+[npm-version-src]: https://img.shields.io/npm/v/@kubb/react?flat&colorA=18181B&colorB=f58517
+[npm-version-href]: https://npmjs.com/package/@kubb/react
+[npm-downloads-src]: https://img.shields.io/npm/dm/@kubb/react?flat&colorA=18181B&colorB=f58517
+[npm-downloads-href]: https://npmjs.com/package/@kubb/react
 [license-src]: https://img.shields.io/github/license/kubb-project/kubb.svg?flat&colorA=18181B&colorB=f58517
 [license-href]: https://github.com/kubb-project/kubb/blob/main/LICENSE
 [build-src]: https://img.shields.io/github/actions/workflow/status/kubb-project/kubb/ci.yaml?style=flat&colorA=18181B&colorB=f58517
-[build-href]: https://www.npmjs.com/package/@kubb/react-template
-[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/react-template?style=flat&colorA=18181B&colorB=f58517
-[minified-href]: https://www.npmjs.com/package/@kubb/react-template
+[build-href]: https://www.npmjs.com/package/@kubb/react
+[minified-src]: https://img.shields.io/bundlephobia/min/@kubb/react?style=flat&colorA=18181B&colorB=f58517
+[minified-href]: https://www.npmjs.com/package/@kubb/react
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-project/kubb?style=flat&colorA=18181B&colorB=f58517
-[coverage-href]: https://www.npmjs.com/package/@kubb/react-template
+[coverage-href]: https://www.npmjs.com/package/@kubb/react

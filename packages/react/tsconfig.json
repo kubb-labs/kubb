@@ -25,13 +25,13 @@
       "@kubb/core": [
         "../core/src/index.ts"
       ],
-      "@kubb/react-template/": [
+      "@kubb/react": [
         "./src/index.ts"
       ],
-      "@kubb/react-template/jsx-runtime": [
+      "@kubb/react/jsx-runtime": [
         "./src/jsx-runtime.ts"
       ],
-      "@kubb/react-template/client": [
+      "@kubb/react/client": [
         "./src/client/index.ts"
       ],
     }

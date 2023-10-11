@@ -12,7 +12,7 @@
       "bun-types",
       "./globals",
       "../config/ts-config/reset.d.ts",
-      "../react-template/globals.d.ts"
+      "../react/globals.d.ts"
     ],
     "paths": {
       "@kubb/cli": [
