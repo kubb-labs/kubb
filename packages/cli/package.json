@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "1.10.4",
+  "version": "1.11.0",
   "description": "Generator cli",
   "keywords": [
     "typescript",
@@ -19,7 +19,7 @@
   "sideEffects": false,
   "type": "module",
   "main": "dist/index.cjs",
-  "module":"dist/index.js",
+  "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
     "kubb": "bin/kubb.js"
