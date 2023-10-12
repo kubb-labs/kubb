@@ -1,11 +1,13 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createFunctionParams, URLPath } from '@kubb/core'
+import { combineCodes, createFunctionParams, getRelativePath, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
-import { getASTParams, getComments, OasBuilder } from '@kubb/swagger'
+import { getASTParams, getComments, OasBuilder, useResolve, useSchemas } from '@kubb/swagger'
+import { useResolve as useResolveType } from '@kubb/swagger-ts'
 
 import { ClientFunction } from '../components/index.ts'
+import { pluginName } from '../plugin.ts'
 
-import type { Import, PluginManager } from '@kubb/core'
+import type { File as FileType, Import, OptionalPath, PluginManager } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
 import type { AppMeta, Options as PluginOptions } from '../types.ts'
@@ -15,15 +17,14 @@ type Config = {
   dataReturnType: PluginOptions['dataReturnType']
   operation: Operation
   schemas: OperationSchemas
-  name: string
-  clientPath: string
+  clientPath?: OptionalPath
 }
 
-type ClientResult = { code: string; name: string; imports: Import[] }
+type ClientResult = { code: string; file?: FileType; imports: Import[] }
 
 export class ClientBuilder extends OasBuilder<Config> {
   private get client(): ClientResult {
-    const { pluginManager, name, operation, schemas, clientPath, dataReturnType } = this.config
+    const { pluginManager, operation, schemas, clientPath, dataReturnType } = this.config
     const codes: string[] = []
 
     const comments = getComments(operation)
@@ -64,13 +65,26 @@ export class ClientBuilder extends OasBuilder<Config> {
     ])
 
     const Component = () => {
+      const schemas = useSchemas()
+      const file = useResolve({ pluginName })
+      const fileType = useResolveType()
+
+      const resolvedClientPath = clientPath ? getRelativePath(file.filePath, clientPath) : '@kubb/swagger-client/client'
+
       return (
-        <File fileName="test" path="root">
-          <File.Import name={'client'} path={clientPath} />
-          <File.Import name={['ResponseConfig']} path={clientPath} isTypeOnly />
+        <File fileName={file.fileName} path={file.filePath}>
+          <File.Import name={'client'} path={resolvedClientPath} />
+          <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
+          <File.Import
+            name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
+              Boolean,
+            )}
+            path={getRelativePath(file.filePath, fileType.filePath)}
+            isTypeOnly
+          />
           <File.Source>
             <ClientFunction
-              name={name}
+              name={file.name}
               generics={generics}
               clientGenerics={clientGenerics}
               dataReturnType={dataReturnType}
@@ -88,11 +102,13 @@ export class ClientBuilder extends OasBuilder<Config> {
       )
     }
     const root = createRoot<AppContextProps<AppMeta>>()
-    root.render(<Component />, { meta: { pluginManager } })
+    root.render(<Component />, { meta: { pluginManager, schemas, operation } })
+
+    // console.log('__File being used:\n', root.file, '__\n')
 
     codes.push(root.output)
 
-    return { code: combineCodes(codes), name, imports: root.imports }
+    return { code: combineCodes(codes), file: root.file, imports: root.imports }
   }
 
   configure(config: Config): this {
@@ -105,7 +121,15 @@ export class ClientBuilder extends OasBuilder<Config> {
     return this.client.code
   }
 
-  imports(): Import[] {
+  get source(): string {
+    return this.client.code
+  }
+
+  get file(): FileType | undefined {
+    return this.client.file
+  }
+
+  get imports(): Import[] {
     return this.client.imports
   }
 }

@@ -4,6 +4,7 @@ import { definePlugin } from '../../plugin.ts'
 import { EventEmitter } from '../../utils/EventEmitter.ts'
 import { isPromise, isPromiseRejectedResult } from '../../utils/isPromise.ts'
 import { Queue } from '../../utils/Queue.ts'
+import { transformReservedWord } from '../../utils/transformers/transformReservedWord.ts'
 import { FileManager } from '../fileManager/FileManager.ts'
 import { ParallelPluginError } from './ParallelPluginError.ts'
 import { PluginError } from './PluginError.ts'
@@ -111,18 +112,20 @@ export class PluginManager {
 
   resolveName = (params: ResolveNameParams): string => {
     if (params.pluginName) {
-      return (
+      const name =
         this.hookForPluginSync({
           pluginName: params.pluginName,
           hookName: 'resolveName',
           parameters: [params.name],
         }) || params.name
-      )
+      return transformReservedWord(name)
     }
-    return this.hookFirstSync({
+    const name = this.hookFirstSync({
       hookName: 'resolveName',
       parameters: [params.name],
     }).result
+
+    return transformReservedWord(name)
   }
 
   on<TEventName extends keyof Events & string>(eventName: TEventName, handler: (...eventArg: Events[TEventName]) => void): void {

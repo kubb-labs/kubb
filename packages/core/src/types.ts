@@ -8,8 +8,6 @@ import type { Logger } from './utils/logger.ts'
  */
 export interface Register {}
 
-export type PossiblePromise<T> = Promise<T> | T
-
 /**
  * Config used in `kubb.config.js`
  *
@@ -284,3 +282,10 @@ export const LogLevel = {
 export type LogLevel = keyof typeof LogLevel
 
 export type AppMeta = { pluginManager: PluginManager }
+
+export type Prettify<T> = {
+  [K in keyof T]: T[K]
+  // eslint-disable-next-line @typescript-eslint/ban-types
+} & {}
+
+export type PossiblePromise<T> = Promise<T> | T

@@ -1,5 +1,5 @@
-import type { AppMeta as CoreAppMeta, PluginFactoryOptions } from '@kubb/core'
-import type { ResolvePathOptions, SkipBy } from '@kubb/swagger'
+import type { PluginFactoryOptions } from '@kubb/core'
+import type { ResolvePathOptions, SkipBy, AppMeta as SwaggerAppMeta } from '@kubb/swagger'
 import type { CreateAxiosDefaults } from 'axios'
 
 /**
@@ -85,4 +85,4 @@ export type FileMeta = {
 
 export type PluginOptions = PluginFactoryOptions<'swagger-client', Options, false, undefined, ResolvePathOptions>
 
-export type AppMeta = CoreAppMeta
+export type AppMeta = SwaggerAppMeta

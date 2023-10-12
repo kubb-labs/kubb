@@ -1,6 +1,5 @@
-import { getRelativePath, URLPath } from '@kubb/core'
+import { URLPath } from '@kubb/core'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
-import { resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
 
 import { ClientBuilder } from '../builders/ClientBuilder.tsx'
 import { pluginName } from '../plugin.ts'
@@ -29,16 +28,6 @@ export class OperationGenerator extends Generator<Options> {
       resolveName,
       resolvePath,
       pluginName,
-    })
-  }
-
-  resolveType(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
-
-    return resolveSwaggerTypescript({
-      operation,
-      resolveName,
-      resolvePath,
     })
   }
 
@@ -91,30 +80,23 @@ export class OperationGenerator extends Generator<Options> {
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { pluginManager, oas, clientPath, dataReturnType } = this.options
 
-    const controller = this.resolve(operation)
-    const type = this.resolveType(operation)
-
     const clientBuilder = new ClientBuilder(oas).configure({
       pluginManager,
-      name: controller.name,
       operation,
       schemas,
       dataReturnType,
-      clientPath: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
+      clientPath,
     })
 
+    if (!clientBuilder.file) {
+      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
+    }
+
     return {
-      path: controller.filePath,
-      fileName: controller.fileName,
-      source: clientBuilder.print(),
-      imports: [
-        ...clientBuilder.imports(),
-        {
-          name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(Boolean),
-          path: getRelativePath(controller.filePath, type.filePath),
-          isTypeOnly: true,
-        },
-      ],
+      path: clientBuilder.file.path,
+      fileName: clientBuilder.file.fileName,
+      source: clientBuilder.source,
+      imports: clientBuilder.imports,
       meta: {
         pluginName,
         tag: operation.getTags()[0]?.name,
@@ -125,30 +107,23 @@ export class OperationGenerator extends Generator<Options> {
   async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
     const { pluginManager, oas, clientPath, dataReturnType } = this.options
 
-    const controller = this.resolve(operation)
-    const type = this.resolveType(operation)
-
     const clientBuilder = new ClientBuilder(oas).configure({
       pluginManager,
-      name: controller.name,
       operation,
       schemas,
       dataReturnType,
-      clientPath: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
+      clientPath,
     })
 
+    if (!clientBuilder.file) {
+      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
+    }
+
     return {
-      path: controller.filePath,
-      fileName: controller.fileName,
-      source: clientBuilder.print(),
-      imports: [
-        ...clientBuilder.imports(),
-        {
-          name: [schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(Boolean),
-          path: getRelativePath(controller.filePath, type.filePath),
-          isTypeOnly: true,
-        },
-      ],
+      path: clientBuilder.file.path,
+      fileName: clientBuilder.file.fileName,
+      source: clientBuilder.source,
+      imports: clientBuilder.imports,
       meta: {
         pluginName,
         tag: operation.getTags()[0]?.name,

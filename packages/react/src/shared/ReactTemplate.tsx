@@ -111,10 +111,18 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
     this.lastFile = file
     this.lastExports = exports
   }
+  onError(error: Error): void {
+    // TODO use of `@kubb/core` logger
+    console.error(error)
+  }
 
   render(node: ReactNode, context?: Context): void {
     if (context) {
-      const tree = <App meta={context.meta}>{node}</App>
+      const tree = (
+        <App meta={context.meta} onError={this.onError}>
+          {node}
+        </App>
+      )
 
       reconciler.updateContainer(tree, this.container, null, noop)
       return
