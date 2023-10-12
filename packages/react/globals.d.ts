@@ -9,7 +9,7 @@ declare global {
 		// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 		interface IntrinsicElements {
 			'kubb-text': Kubb.Components.Text
-      'kubb-fun': Kubb.Components.Text
+      'kubb-file': Kubb.Components.File
       'kubb-import': Kubb.Components.Import
       'kubb-export': Kubb.Components.Export
 		}
@@ -22,7 +22,16 @@ declare module Kubb {
       children?: ReactNode;
       key?: Key;
       style?: Styles;
-    };
+    }
+
+    type File = {
+      children?: ReactNode;
+      key?: Key;
+      fileName: string
+      path: string
+      env?: NodeJS.ProcessEnv
+    }
+
     type Import = Import & {
       print?: boolean
     }

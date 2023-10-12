@@ -16,6 +16,15 @@ declare global {
         children?: ReactNode
         key?: Key
       }
+
+      'kubb-file': {
+        children?: ReactNode
+        key?: Key
+        fileName: string
+        path: string
+        env?: NodeJS.ProcessEnv
+      }
+
       'kubb-import': Import & {
         print?: boolean
       }

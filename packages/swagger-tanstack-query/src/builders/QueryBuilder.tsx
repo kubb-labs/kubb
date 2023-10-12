@@ -42,11 +42,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const FrameworkComponent = QueryKeyFunction[framework]
 
     const Component = () => {
-      return (
-        <>
-          <FrameworkComponent name={name} />
-        </>
-      )
+      return <FrameworkComponent name={name} />
     }
     const root = createRoot<AppContextProps<AppMeta>>()
     root.render(<Component />, { meta: { pluginManager, schemas, operation } })

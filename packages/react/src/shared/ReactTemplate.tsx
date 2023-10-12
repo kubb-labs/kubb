@@ -10,7 +10,7 @@ import { App } from '../components/App.tsx'
 import { reconciler } from '../reconciler.ts'
 import { renderer } from './renderer.ts'
 
-import type { Export, Import } from '@kubb/core'
+import type { Export, File, Import } from '@kubb/core'
 import type { ReactNode } from 'react'
 import type { AppContextProps } from '../components/AppContext.tsx'
 import type { FiberRoot } from '../reconciler.ts'
@@ -29,6 +29,7 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   private lastOutput: string
   private lastImports: Import[] = []
   private lastExports: Export[] = []
+  private lastFile?: File
   private readonly container: FiberRoot
   private readonly rootNode: DOMElement
   public readonly id = crypto.randomUUID()
@@ -86,6 +87,10 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
     return this.lastExports
   }
 
+  get file(): File | undefined {
+    return this.lastFile
+  }
+
   resized = (): void => {
     this.onRender()
   }
@@ -99,10 +104,11 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
       return
     }
 
-    const { output, imports, exports } = renderer(this.rootNode)
+    const { output, file, imports, exports } = renderer(this.rootNode)
 
     this.lastOutput = output
     this.lastImports = imports
+    this.lastFile = file
     this.lastExports = exports
   }
 

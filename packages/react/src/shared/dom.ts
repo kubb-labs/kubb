@@ -69,3 +69,5 @@ export const setTextNodeValue = (node: TextNode, text: string): void => {
 
   node.nodeValue = text
 }
+
+export const nodeNames: ElementNames[] = ['kubb-export', 'kubb-file', 'kubb-import', 'kubb-text']

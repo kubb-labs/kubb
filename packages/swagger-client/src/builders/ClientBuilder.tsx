@@ -1,6 +1,6 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { combineCodes, createFunctionParams, URLPath } from '@kubb/core'
-import { createRoot, Import as ImportTemplate } from '@kubb/react'
+import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, OasBuilder } from '@kubb/swagger'
 
 import { ClientFunction } from '../components/index.ts'
@@ -65,24 +65,26 @@ export class ClientBuilder extends OasBuilder<Config> {
 
     const Component = () => {
       return (
-        <>
-          <ImportTemplate name={'client'} path={clientPath} />
-          <ImportTemplate name={['ResponseConfig']} path={clientPath} isTypeOnly />
-          <ClientFunction
-            name={name}
-            generics={generics}
-            clientGenerics={clientGenerics}
-            dataReturnType={dataReturnType}
-            params={params}
-            returnType={dataReturnType === 'data' ? `ResponseConfig<TData>["data"]` : `ResponseConfig<TData>`}
-            method={method}
-            path={new URLPath(operation.path)}
-            withParams={!!schemas.queryParams?.name}
-            withData={!!schemas.request?.name}
-            withHeaders={!!schemas.headerParams?.name}
-            comments={comments}
-          />
-        </>
+        <File fileName="test" path="root">
+          <File.Import name={'client'} path={clientPath} />
+          <File.Import name={['ResponseConfig']} path={clientPath} isTypeOnly />
+          <File.Source>
+            <ClientFunction
+              name={name}
+              generics={generics}
+              clientGenerics={clientGenerics}
+              dataReturnType={dataReturnType}
+              params={params}
+              returnType={dataReturnType === 'data' ? `ResponseConfig<TData>["data"]` : `ResponseConfig<TData>`}
+              method={method}
+              path={new URLPath(operation.path)}
+              withParams={!!schemas.queryParams?.name}
+              withData={!!schemas.request?.name}
+              withHeaders={!!schemas.headerParams?.name}
+              comments={comments}
+            />
+          </File.Source>
+        </File>
       )
     }
     const root = createRoot<AppContextProps<AppMeta>>()
