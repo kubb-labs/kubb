@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { createExportDeclaration, createImportDeclaration, print } from '@kubb/ts-codegen'
+import { createExportDeclaration, createImportDeclaration, print } from '@kubb/parser'
 
 import isEqual from 'lodash.isequal'
 

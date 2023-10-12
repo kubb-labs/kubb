@@ -1,5 +1,4 @@
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
-import { isReference } from '@kubb/swagger'
 import {
   appendJSDocToNode,
   createEnumDeclaration,
@@ -10,7 +9,8 @@ import {
   createTypeAliasDeclaration,
   createUnionDeclaration,
   modifiers,
-} from '@kubb/ts-codegen'
+} from '@kubb/parser'
+import { isReference } from '@kubb/swagger'
 
 import { camelCase } from 'change-case'
 import ts from 'typescript'
@@ -19,8 +19,8 @@ import { pluginName } from '../plugin.ts'
 import { keywordTypeNodes } from '../utils/index.ts'
 
 import type { PluginContext } from '@kubb/core'
+import type { ArrayTwoOrMore } from '@kubb/parser'
 import type { OpenAPIV3, Refs } from '@kubb/swagger'
-import type { ArrayTwoOrMore } from '@kubb/ts-codegen'
 import type { Options as CaseOptions } from 'change-case'
 
 const { factory } = ts

@@ -1,7 +1,7 @@
 import pathParser from 'node:path'
 
+import { print } from '@kubb/parser'
 import { oasPathParser } from '@kubb/swagger'
-import { print } from '@kubb/ts-codegen'
 
 import { format } from '../../mocks/format.ts'
 import { TypeGenerator } from './TypeGenerator.ts'

@@ -1,7 +1,7 @@
 {
-  "name": "@kubb/ts-codegen",
+  "name": "@kubb/parser",
   "version": "1.11.0",
-  "description": "Generator ts-codegen",
+  "description": "Generator parser",
   "keywords": [
     "typescript",
     "plugins",
@@ -11,7 +11,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kubb-project/kubb.git",
-    "directory": "packages/ts-codegen"
+    "directory": "packages/parser"
   },
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",

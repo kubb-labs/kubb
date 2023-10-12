@@ -21,6 +21,6 @@
   // "references": [
   //   { "path": "../swagger" },
   //   { "path": "../core" },
-  //   { "path": "../ts-codegen" }
+  //   { "path": "../parser" }
   // ]
 }

@@ -17,7 +17,8 @@ export default defineConfig({
       '@kubb/swagger-ts': 'packages/swagger-ts/src/index.ts',
       '@kubb/swagger-zod': 'packages/swagger-zod/src/index.ts',
       '@kubb/swagger-zodios': 'packages/swagger-zodios/src/index.ts',
-      '@kubb/ts-codegen': 'packages/ts-codegen/src/index.ts',
+      '@kubb/parser': 'packages/parser/src/index.ts',
+      '@kubb/react': 'packages/react/src/index.ts',
     },
     coverage: {
       exclude: [

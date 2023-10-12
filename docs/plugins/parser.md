@@ -1,10 +1,10 @@
 ---
 layout: doc
 
-title: \@kubb/ts-codegen
+title: \@kubb/parser
 outline: deep
 ---
-# @kubb/ts-codegen
+# @kubb/parser
 
 This library contains the building blocks that can be used to create TypeScript code. It's all based on TypeScript AST(a API of the TypeScript team to create different nodes).
 
@@ -21,19 +21,19 @@ This library contains also the logic to `print` the nodes(convert AST to string)
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>] 
-bun add @kubb/ts-codegen
+bun add @kubb/parser
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>] 
-pnpm add @kubb/ts-codegen
+pnpm add @kubb/parser
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>] 
-npm install @kubb/ts-codegen
+npm install @kubb/parser
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>] 
-yarn add @kubb/ts-codegen
+yarn add @kubb/parser
 ```
 
 :::

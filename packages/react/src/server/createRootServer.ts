@@ -6,7 +6,7 @@ import type { RootType } from './types.ts'
 
 const instances = new Map<string, ReactTemplate>()
 
-export function createRoot<Context extends AppContextProps = AppContextProps>(container?: DOMElement): RootType<Context> {
+export function createRootServer<Context extends AppContextProps = AppContextProps>(container?: DOMElement): RootType<Context> {
   if (!container) {
     container = createNode('kubb-root')
   }
@@ -15,15 +15,14 @@ export function createRoot<Context extends AppContextProps = AppContextProps>(co
   instances.set(instance.id, instance)
 
   return {
-    render(children, context?: Context) {
-      return instance.render(children, context)
+    renderToString(children, context?: Context) {
+      instance.render(children, context)
+
+      return instance.output
     },
     unmount() {
       instance.unmount()
       instances.delete(instance.id)
-    },
-    get output() {
-      return instance.output
     },
     get imports() {
       return instance.imports

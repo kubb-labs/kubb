@@ -68,8 +68,8 @@
       "@kubb/swagger-zodios": [
         "packages/swagger-zodios"
       ],
-      "@kubb/ts-codegen": [
-        "packages/ts-codegen"
+      "@kubb/parser": [
+        "packages/parser"
       ],
       "@kubb/react": [
         "packages/react"

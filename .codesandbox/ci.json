@@ -1,6 +1,34 @@
 {
-  "packages": ["packages/cli", "packages/core", "packages/swagger", "packages/swagger-client", "packages/swagger-faker", "packages/swagger-msw","packages/swagger-swr", "packages/swagger-tanstack-query", "packages/swagger-ts", "packages/swagger-zod", "packages/swagger-zodios", "packages/ts-codegen", "packages/react"],
-  "sandboxes": ["/examples/advanced", "/examples/faker", "/examples/msw", "/examples/react-query", "/examples/typescript", "/examples/simple-single", "/examples/solid-query", "/examples/svelte-query", "/examples/swr", "/examples/vue-query", "/examples/zod", "/examples/zodios", "/examples/client"],
+  "packages": [
+    "packages/cli",
+    "packages/core",
+    "packages/swagger",
+    "packages/swagger-client",
+    "packages/swagger-faker",
+    "packages/swagger-msw",
+    "packages/swagger-swr",
+    "packages/swagger-tanstack-query",
+    "packages/swagger-ts",
+    "packages/swagger-zod",
+    "packages/swagger-zodios",
+    "packages/parser",
+    "packages/react"
+  ],
+  "sandboxes": [
+    "/examples/advanced",
+    "/examples/faker",
+    "/examples/msw",
+    "/examples/react-query",
+    "/examples/typescript",
+    "/examples/simple-single",
+    "/examples/solid-query",
+    "/examples/svelte-query",
+    "/examples/swr",
+    "/examples/vue-query",
+    "/examples/zod",
+    "/examples/zodios",
+    "/examples/client"
+  ],
   "node": "18",
   "installCommand": "install:csb"
 }

@@ -54,9 +54,9 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@kubb/parser": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "@kubb/ts-codegen": "workspace:*",
     "change-case": "^4.1.2"
   },
   "devDependencies": {

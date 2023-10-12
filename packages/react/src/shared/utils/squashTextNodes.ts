@@ -1,4 +1,4 @@
-import { createExportDeclaration, createImportDeclaration, print } from '@kubb/ts-codegen'
+import { createExportDeclaration, createImportDeclaration, print } from '@kubb/parser'
 
 import type { Export as ExportComponent } from '../../components/Export.tsx'
 import type { Import as ImportComponent } from '../../components/Import.tsx'

@@ -2,17 +2,55 @@
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "separate-pull-requests": false,
   "changelog-sections": [
-    { "type": "feat", "section": "✨ Features" },
-    { "type": "feature", "section": "✨ Features" },
-    { "type": "fix", "section": "🐞 Bug Fixes" },
-    { "type": "perf", "section": "🚀 Performance Improvements" },
-    { "type": "revert", "section": "Reverts" },
-    { "type": "docs", "section": "📚 Documentation" },
-    { "type": "style", "section": "Styles", "hidden": true },
-    { "type": "chore", "section": "📦 Miscellaneous Chores", "hidden": true },
-    { "type": "refactor", "section": "Code Refactoring", "hidden": true },
-    { "type": "test", "section": "Tests", "hidden": true },
-    { "type": "ci", "section": "Continuous Integration", "hidden": true }
+    {
+      "type": "feat",
+      "section": "✨ Features"
+    },
+    {
+      "type": "feature",
+      "section": "✨ Features"
+    },
+    {
+      "type": "fix",
+      "section": "🐞 Bug Fixes"
+    },
+    {
+      "type": "perf",
+      "section": "🚀 Performance Improvements"
+    },
+    {
+      "type": "revert",
+      "section": "Reverts"
+    },
+    {
+      "type": "docs",
+      "section": "📚 Documentation"
+    },
+    {
+      "type": "style",
+      "section": "Styles",
+      "hidden": true
+    },
+    {
+      "type": "chore",
+      "section": "📦 Miscellaneous Chores",
+      "hidden": true
+    },
+    {
+      "type": "refactor",
+      "section": "Code Refactoring",
+      "hidden": true
+    },
+    {
+      "type": "test",
+      "section": "Tests",
+      "hidden": true
+    },
+    {
+      "type": "ci",
+      "section": "Continuous Integration",
+      "hidden": true
+    }
   ],
   "packages": {
     ".": {
@@ -51,8 +89,8 @@
       "draft": false,
       "prerelease": false
     },
-    "packages/ts-codegen": {
-      "component": "@kubb/ts-codegen",
+    "packages/parser": {
+      "component": "@kubb/parser",
       "changelog-path": "CHANGELOG.md",
       "release-type": "node",
       "bump-minor-pre-major": false,
@@ -159,7 +197,7 @@
         "kubb",
         "@kubb/core",
         "@kubb/cli",
-        "@kubb/ts-codegen",
+        "@kubb/parser",
         "@kubb/react",
         "@kubb/swagger",
         "@kubb/swagger-ts",

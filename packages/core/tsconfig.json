@@ -63,8 +63,8 @@
       "@kubb/swagger-zodios": [
         "../swagger-zodios/src/index.ts"
       ],
-      "@kubb/ts-codegen": [
-        "../ts-codegen/src/index.ts"
+      "@kubb/parser": [
+        "../parser/src/index.ts"
       ],
       "@kubb/react": [
         "../react/src/index.ts"
@@ -89,6 +89,6 @@
     "**/types/**",
   ],
   // "references": [
-  //   { "path": "../ts-codegen" }
+  //   { "path": "../parser" }
   // ]
 }

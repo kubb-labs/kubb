@@ -28,16 +28,20 @@
     "./jsx-runtime": {
       "types": "./dist/jsx-runtime.d.ts",
       "import": "./dist/jsx-runtime.js",
-      "module": "./dist/jsx-runtime.js",
       "require": "./dist/jsx-runtime.cjs",
       "default": "./dist/jsx-runtime.cjs"
     },
     "./client": {
       "types": "./dist/client/index.d.ts",
       "import": "./dist/client/index.js",
-      "module": "./dist/client/index.js",
       "require": "./dist/client/index.cjs",
       "default": "./dist/client/index.cjs"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js",
+      "require": "./dist/server/index.cjs",
+      "default": "./dist/server/index.cjs"
     },
     "./globals": {
       "types": "./globals.d.ts"
@@ -69,19 +73,19 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/ts-codegen": "workspace:*",
+    "@kubb/parser": "workspace:*",
     "auto-bind": "^4.0.0"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
-    "@kubb/ts-codegen": "workspace:*",
+    "@kubb/parser": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.2.28",
     "@types/react-reconciler": "^0.28.5",
+    "eslint": "^8.51.0",
     "react": "^18.2.0",
     "react-reconciler": "^0.29.0",
-    "eslint": "^8.51.0",
     "tsup": "^7.2.0"
   },
   "packageManager": "pnpm@8.3.0",

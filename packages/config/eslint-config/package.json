@@ -14,7 +14,6 @@
     "./flat": {
       "types": "./dist/flat.d.ts",
       "import": "./dist/flat.js",
-      "module": "./dist/flat.js",
       "require": "./dist/flat.cjs",
       "default": "./dist/flat.cjs"
     },

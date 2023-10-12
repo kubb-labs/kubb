@@ -163,8 +163,8 @@ export default defineConfig({
             link: '/plugins/cli',
           },
           {
-            text: '@kubb/ts-codegen',
-            link: '/plugins/ts-codegen',
+            text: '@kubb/parser',
+            link: '/plugins/parser',
           },
           {
             text: '@kubb/react <span class="beta">under construction</span>',

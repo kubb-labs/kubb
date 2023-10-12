@@ -30,7 +30,6 @@
     "./client": {
       "types": "./dist/client.d.ts",
       "import": "./dist/client.js",
-      "module": "./dist/client.js",
       "require": "./dist/client.cjs",
       "default": "./dist/client.cjs"
     },
@@ -71,15 +70,15 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "@kubb/parser": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "@kubb/ts-codegen": "workspace:*",
     "change-case": "^4.1.2"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
-    "@kubb/ts-config": "workspace:*",
     "@kubb/react": "workspace:*",
+    "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.2.28",
     "axios": "^1.5.1",

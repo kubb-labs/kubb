@@ -28,8 +28,8 @@ importers:
         specifier: ^0.34.6
         version: 0.34.6(vitest@0.34.6)
       bun-types:
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.0.6
+        version: 1.0.6
       prettier:
         specifier: ^3.0.3
         version: 3.0.3
@@ -58,8 +58,8 @@ importers:
         specifier: workspace:*
         version: link:../packages/core
       '@vercel/analytics':
-        specifier: ^1.1.0
-        version: 1.1.0
+        specifier: ^1.1.1
+        version: 1.1.1
       sitemap:
         specifier: ^7.1.1
         version: 7.1.1
@@ -122,8 +122,8 @@ importers:
         specifier: ^4.36.1
         version: 4.36.1(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^4.36.2
-        version: 4.36.2(vue@3.3.4)
+        specifier: ^4.37.0
+        version: 4.37.0(vue@3.3.4)
       '@zodios/core':
         specifier: ^10.9.6
         version: 10.9.6(axios@1.5.1)(zod@3.22.4)
@@ -213,8 +213,8 @@ importers:
         specifier: ^4.36.1
         version: 4.36.1(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^4.36.2
-        version: 4.36.2(vue@3.3.4)
+        specifier: ^4.37.0
+        version: 4.37.0(vue@3.3.4)
       '@zodios/core':
         specifier: ^10.9.6
         version: 10.9.6(axios@1.5.1)(zod@3.22.4)
@@ -623,8 +623,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
-        specifier: ^4.36.2
-        version: 4.36.2(vue@3.3.4)
+        specifier: ^4.37.0
+        version: 4.37.0(vue@3.3.4)
       axios:
         specifier: ^1.5.1
         version: 1.5.1
@@ -864,9 +864,9 @@ importers:
 
   packages/core:
     dependencies:
-      '@kubb/ts-codegen':
+      '@kubb/parser':
         specifier: workspace:*
-        version: link:../ts-codegen
+        version: link:../parser
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
@@ -951,14 +951,36 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2
 
+  packages/parser:
+    dependencies:
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
+    devDependencies:
+      '@kubb/eslint-config':
+        specifier: workspace:*
+        version: link:../config/eslint-config
+      '@kubb/ts-config':
+        specifier: workspace:*
+        version: link:../config/ts-config
+      '@kubb/tsup-config':
+        specifier: workspace:*
+        version: link:../config/tsup-config
+      eslint:
+        specifier: ^8.51.0
+        version: 8.51.0
+      tsup:
+        specifier: ^7.2.0
+        version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
+
   packages/react:
     dependencies:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/ts-codegen':
+      '@kubb/parser':
         specifier: workspace:*
-        version: link:../ts-codegen
+        version: link:../parser
       auto-bind:
         specifier: ^4.0.0
         version: 4.0.0
@@ -1048,15 +1070,15 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/parser':
+        specifier: workspace:*
+        version: link:../parser
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      '@kubb/ts-codegen':
-        specifier: workspace:*
-        version: link:../ts-codegen
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
@@ -1094,15 +1116,15 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/parser':
+        specifier: workspace:*
+        version: link:../parser
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      '@kubb/ts-codegen':
-        specifier: workspace:*
-        version: link:../ts-codegen
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
@@ -1131,6 +1153,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/parser':
+        specifier: workspace:*
+        version: link:../parser
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
@@ -1140,9 +1165,6 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      '@kubb/ts-codegen':
-        specifier: workspace:*
-        version: link:../ts-codegen
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
@@ -1171,6 +1193,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/parser':
+        specifier: workspace:*
+        version: link:../parser
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
@@ -1180,9 +1205,6 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      '@kubb/ts-codegen':
-        specifier: workspace:*
-        version: link:../ts-codegen
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
@@ -1211,6 +1233,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/parser':
+        specifier: workspace:*
+        version: link:../parser
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
@@ -1220,9 +1245,6 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      '@kubb/ts-codegen':
-        specifier: workspace:*
-        version: link:../ts-codegen
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
@@ -1257,12 +1279,12 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/parser':
+        specifier: workspace:*
+        version: link:../parser
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
-      '@kubb/ts-codegen':
-        specifier: workspace:*
-        version: link:../ts-codegen
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
@@ -1291,12 +1313,12 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/parser':
+        specifier: workspace:*
+        version: link:../parser
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
-      '@kubb/ts-codegen':
-        specifier: workspace:*
-        version: link:../ts-codegen
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
@@ -1325,15 +1347,15 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/parser':
+        specifier: workspace:*
+        version: link:../parser
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
       '@kubb/swagger-zod':
         specifier: workspace:*
         version: link:../swagger-zod
-      '@kubb/ts-codegen':
-        specifier: workspace:*
-        version: link:../ts-codegen
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
@@ -1356,28 +1378,6 @@ importers:
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
-
-  packages/ts-codegen:
-    dependencies:
-      typescript:
-        specifier: ^5.2.2
-        version: 5.2.2
-    devDependencies:
-      '@kubb/eslint-config':
-        specifier: workspace:*
-        version: link:../config/eslint-config
-      '@kubb/ts-config':
-        specifier: workspace:*
-        version: link:../config/ts-config
-      '@kubb/tsup-config':
-        specifier: workspace:*
-        version: link:../config/tsup-config
-      eslint:
-        specifier: ^8.51.0
-        version: 8.51.0
-      tsup:
-        specifier: ^7.2.0
-        version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
 
 packages:
 
@@ -2576,8 +2576,8 @@ packages:
       svelte: 3.59.2
     dev: false
 
-  /@tanstack/vue-query@4.36.2(vue@3.3.4):
-    resolution: {integrity: sha512-zZjP1q7Fe+tmvZeJeQ9v56VQ4VgyafdjjCRaYxLNHDBlXB+fpqP4kWhUfTKQEDHSAyzrtX8Bk789jg/yUPyIKQ==}
+  /@tanstack/vue-query@4.37.0(vue@3.3.4):
+    resolution: {integrity: sha512-ZZvlEuXzCwM9QYS1GCf9FTo1XycBxPSvjJbIHXTU2iZuUla02EzTO7R9QOnML6FRQRzD3n5Eyn2v6zbhCHS/qA==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.5.0 || ^3.0.0
@@ -3046,8 +3046,8 @@ packages:
       eslint-visitor-keys: 3.4.3
     dev: false
 
-  /@vercel/analytics@1.1.0:
-    resolution: {integrity: sha512-k5ePYZPxitxxD1eJenPUUuH3qK+EtaA9OVD3oO0BRbyT/LarmZF0qdkptRSidip1arQxsTEIWvHbTuj1oksl+Q==}
+  /@vercel/analytics@1.1.1:
+    resolution: {integrity: sha512-+NqgNmSabg3IFfxYhrWCfB/H+RCUOCR5ExRudNG2+pcRehq628DJB5e1u1xqwpLtn4pAYii4D98w7kofORAGQA==}
     dependencies:
       server-only: 0.0.1
     dev: false
@@ -3681,8 +3681,8 @@ packages:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  /bun-types@1.0.4:
-    resolution: {integrity: sha512-MIXp8MXPqzjjDrBs2fNzODFgFB+Mkl/OdTsPjYaefRoBt+Bk8VEJc3S1bbs6pvBi/wCpPf/ZSmzfIyZ5w4gAMg==}
+  /bun-types@1.0.6:
+    resolution: {integrity: sha512-5QwynfXiRCRxPW3ZnC0Dv+sHHmctP4SHIuzsRKOWYO0HF/qUpsxQVexoviaxpmwDsF1hoVDDFdc4xUuafOzx1g==}
     dev: true
 
   /bundle-require@4.0.1(esbuild@0.18.11):

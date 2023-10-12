@@ -34,7 +34,7 @@
     "@tanstack/react-query": "^4.36.1",
     "@tanstack/solid-query": "^4.36.1",
     "@tanstack/svelte-query": "^4.36.1",
-    "@tanstack/vue-query": "^4.36.2",
+    "@tanstack/vue-query": "^4.37.0",
     "@zodios/core": "^10.9.6",
     "axios": "^1.5.1",
     "msw": "^1.3.2",

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { combineCodes, nameSorter } from '@kubb/core'
+import { createImportDeclaration, print } from '@kubb/parser'
 import { ImportsGenerator, OasBuilder } from '@kubb/swagger'
-import { createImportDeclaration, print } from '@kubb/ts-codegen'
 
 import { FakerGenerator } from '../generators/index.ts'
 

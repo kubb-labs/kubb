@@ -59,8 +59,8 @@
       "@kubb/swagger-zodios": [
         "../../packages/swagger-zodios/src/index.ts"
       ],
-      "@kubb/ts-codegen": [
-        "../../packages/ts-codegen/src/index.ts"
+      "@kubb/parser": [
+        "../../packages/parser/src/index.ts"
       ]
     }
   },
