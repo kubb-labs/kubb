@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.11.0...@kubb/swagger-client-v1.11.1) (2023-10-12)
+
+
+### 🐞 Bug Fixes
+
+* include `@kubb/react` for legacy `yarn install` ([237ade7](https://github.com/kubb-project/kubb/commit/237ade716b5b6ffc12ddcf4f50106ae7cdd7dc0a))
+
 ## [1.11.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.10.4...@kubb/swagger-client-v1.11.0) (2023-10-11)
 
 
