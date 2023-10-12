@@ -10,7 +10,7 @@ import { App } from '../components/App.tsx'
 import { reconciler } from '../reconciler.ts'
 import { renderer } from './renderer.ts'
 
-import type { Export, File, Import } from '@kubb/core'
+import type { Export, File, Import, Logger } from '@kubb/core'
 import type { ReactNode } from 'react'
 import type { AppContextProps } from '../components/AppContext.tsx'
 import type { FiberRoot } from '../reconciler.ts'
@@ -19,7 +19,8 @@ import type { DOMElement } from '../types.ts'
 const noop = () => {}
 
 export type ReactTemplateOptions = {
-  debug: boolean
+  logger?: Logger
+  debug?: boolean
 }
 
 export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
@@ -111,15 +112,12 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
     this.lastFile = file
     this.lastExports = exports
   }
-  onError(error: Error): void {
-    // TODO use of `@kubb/core` logger
-    console.error(error)
-  }
+  onError(_error: Error): void {}
 
   render(node: ReactNode, context?: Context): void {
     if (context) {
       const tree = (
-        <App meta={context.meta} onError={this.onError}>
+        <App logger={this.options.logger} meta={context.meta} onError={this.onError}>
           {node}
         </App>
       )

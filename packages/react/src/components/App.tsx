@@ -2,15 +2,17 @@ import { Component } from 'react'
 
 import { AppContext } from './AppContext.tsx'
 
+import type { Logger } from '@kubb/core'
 import type { ReactNode } from 'react'
 
 type Props<Meta extends Record<string, unknown> = Record<string, unknown>> = {
   onError: (error: Error) => void
   meta: Meta
+  logger?: Logger
   children?: ReactNode
 }
 
-class ErrorBoundary extends Component<{ onError: Props['onError']; children: ReactNode }> {
+class ErrorBoundary extends Component<{ onError: Props['onError']; logger?: Logger; children: ReactNode }> {
   state = { hasError: false }
 
   static getDerivedStateFromError(_error: Error) {
@@ -19,6 +21,7 @@ class ErrorBoundary extends Component<{ onError: Props['onError']; children: Rea
 
   componentDidCatch(error: Error) {
     this.props.onError(error)
+    this.props.logger?.error(error?.message)
   }
 
   render() {
@@ -29,9 +32,9 @@ class ErrorBoundary extends Component<{ onError: Props['onError']; children: Rea
   }
 }
 
-export function App<Meta extends Record<string, unknown> = Record<string, unknown>>({ onError, meta, children }: Props<Meta>): ReactNode {
+export function App<Meta extends Record<string, unknown> = Record<string, unknown>>({ onError, logger, meta, children }: Props<Meta>): ReactNode {
   return (
-    <ErrorBoundary onError={onError}>
+    <ErrorBoundary logger={logger} onError={onError}>
       <AppContext.Provider value={{ meta }}>{children}</AppContext.Provider>
     </ErrorBoundary>
   )
