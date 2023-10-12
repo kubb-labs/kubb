@@ -1021,6 +1021,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../react
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
@@ -1037,9 +1040,6 @@ importers:
       '@kubb/eslint-config':
         specifier: workspace:*
         version: link:../config/eslint-config
-      '@kubb/react':
-        specifier: workspace:*
-        version: link:../react
       '@kubb/ts-config':
         specifier: workspace:*
         version: link:../config/ts-config
@@ -1073,6 +1073,9 @@ importers:
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../react
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
@@ -1086,9 +1089,6 @@ importers:
       '@kubb/eslint-config':
         specifier: workspace:*
         version: link:../config/eslint-config
-      '@kubb/react':
-        specifier: workspace:*
-        version: link:../react
       '@kubb/ts-config':
         specifier: workspace:*
         version: link:../config/ts-config
@@ -1236,6 +1236,9 @@ importers:
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../react
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
@@ -1252,9 +1255,6 @@ importers:
       '@kubb/eslint-config':
         specifier: workspace:*
         version: link:../config/eslint-config
-      '@kubb/react':
-        specifier: workspace:*
-        version: link:../react
       '@kubb/ts-config':
         specifier: workspace:*
         version: link:../config/ts-config
