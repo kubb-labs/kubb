@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.3](https://github.com/kubb-project/kubb/compare/kubb-v1.11.2...kubb-v1.11.3) (2023-10-13)
+
+
+### 🐞 Bug Fixes
+
+* remove `auto-bind` ([1cda7ef](https://github.com/kubb-project/kubb/commit/1cda7ef9181eea2d20299cd778c8c362cb807673))
+
 ## [1.11.2](https://github.com/kubb-project/kubb/compare/kubb-v1.11.1...kubb-v1.11.2) (2023-10-13)
 
 

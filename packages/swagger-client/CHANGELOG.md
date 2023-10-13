@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.11.2...@kubb/swagger-client-v1.11.3) (2023-10-13)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/swagger-client:** Synchronize undefined versions
+
 ## [1.11.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.11.1...@kubb/swagger-client-v1.11.2) (2023-10-13)
 
 
