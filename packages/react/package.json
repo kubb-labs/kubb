@@ -69,8 +69,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/parser": "workspace:*",
-    "auto-bind": "^4.0.0"
+    "@kubb/parser": "workspace:*"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",

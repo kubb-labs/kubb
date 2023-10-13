@@ -29,8 +29,20 @@ export default defineConfig([
     name: 'client',
     banner: {},
   },
-  { ...optionsCJS },
   {
     ...optionsESM,
+    entry: ['./src/server/index.ts'],
+    outDir: 'dist/server',
+    name: 'server',
+    banner: {},
   },
+  {
+    ...optionsCJS,
+    entry: ['./src/server/index.ts'],
+    outDir: 'dist/server',
+    name: 'server',
+    banner: {},
+  },
+  optionsCJS,
+  optionsESM,
 ])
