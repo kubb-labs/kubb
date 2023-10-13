@@ -25,6 +25,13 @@ declare global {
         env?: NodeJS.ProcessEnv
       }
 
+      'kubb-source': {
+        children?: ReactNode
+        key?: Key
+        path?: string
+        print?: boolean
+      }
+
       'kubb-import': Import & {
         print?: boolean
       }

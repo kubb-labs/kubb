@@ -1,6 +1,5 @@
 import { Export } from './Export.tsx'
 import { Import } from './Import.tsx'
-import { Text } from './Text.tsx'
 
 import type { ReactNode } from 'react'
 
@@ -31,8 +30,18 @@ export function File({ fileName, path, env, children }: Props): ReactNode {
   )
 }
 
-function FileSource({ children }: { children?: ReactNode }): ReactNode {
-  return children
+type FileSourceProps = {
+  print?: boolean
+  path?: string
+  children?: ReactNode
+}
+
+function FileSource({ path, print, children }: FileSourceProps): ReactNode {
+  return (
+    <kubb-source path={path} print={print}>
+      {children}
+    </kubb-source>
+  )
 }
 
 File.Export = Export

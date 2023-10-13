@@ -39,9 +39,6 @@
       "require": "./dist/server/index.cjs",
       "default": "./dist/server/index.cjs"
     },
-    "./globals": {
-      "types": "./globals.d.ts"
-    },
     "./*": "./*"
   },
   "main": "dist/index.cjs",
