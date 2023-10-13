@@ -1,5 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createFunctionParams, getRelativePath, URLPath } from '@kubb/core'
+import { createFunctionParams, getRelativePath, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, OasBuilder, useResolve, useSchemas } from '@kubb/swagger'
 import { useResolve as useResolveType } from '@kubb/swagger-ts'
@@ -7,8 +7,8 @@ import { useResolve as useResolveType } from '@kubb/swagger-ts'
 import { ClientFunction } from '../components/index.ts'
 import { pluginName } from '../plugin.ts'
 
-import type { File as FileType, Import, OptionalPath, PluginManager } from '@kubb/core'
-import type { AppContextProps } from '@kubb/react'
+import type { OptionalPath, PluginManager } from '@kubb/core'
+import type { AppContextProps, RootType } from '@kubb/react'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
 import type { AppMeta, Options as PluginOptions } from '../types.ts'
 
@@ -20,12 +20,11 @@ type Config = {
   clientPath?: OptionalPath
 }
 
-type ClientResult = { code: string; file?: FileType; imports: Import[] }
+type ClientResult = { Component: React.ElementType }
 
 export class ClientBuilder extends OasBuilder<Config> {
   private get client(): ClientResult {
-    const { pluginManager, operation, schemas, clientPath, dataReturnType } = this.config
-    const codes: string[] = []
+    const { operation, schemas, clientPath, dataReturnType } = this.config
 
     const comments = getComments(operation)
     const method = operation.method
@@ -101,14 +100,8 @@ export class ClientBuilder extends OasBuilder<Config> {
         </File>
       )
     }
-    const root = createRoot<AppContextProps<AppMeta>>()
-    root.render(<Component />, { meta: { pluginManager, schemas, operation } })
 
-    // console.log('__File being used:\n', root.file, '__\n')
-
-    codes.push(root.output)
-
-    return { code: combineCodes(codes), file: root.file, imports: root.imports }
+    return { Component }
   }
 
   configure(config: Config): this {
@@ -118,18 +111,17 @@ export class ClientBuilder extends OasBuilder<Config> {
   }
 
   print(): string {
-    return this.client.code
+    return this.render().output
   }
 
-  get source(): string {
-    return this.client.code
-  }
+  render(): RootType<AppContextProps<AppMeta>> {
+    const { pluginManager, operation, schemas } = this.config
+    const { Component } = this.client
 
-  get file(): FileType | undefined {
-    return this.client.file
-  }
+    const root = createRoot<AppContextProps<AppMeta>>()
 
-  get imports(): Import[] {
-    return this.client.imports
+    root.render(<Component />, { meta: { pluginManager, schemas, operation } })
+
+    return root
   }
 }

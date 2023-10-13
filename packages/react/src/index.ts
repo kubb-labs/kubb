@@ -5,4 +5,5 @@ export * from './hooks/index.ts'
 
 export * from './shared/index.ts'
 
-export { createRoot } from './client/createRoot.ts'
+export { createRoot } from './client/index.ts'
+export type { RootType } from './client/index.ts'

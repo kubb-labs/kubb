@@ -87,16 +87,17 @@ export class OperationGenerator extends Generator<Options> {
       dataReturnType,
       clientPath,
     })
+    const file = clientBuilder.render().file
 
-    if (!clientBuilder.file) {
+    if (!file) {
       throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
     }
 
     return {
-      path: clientBuilder.file.path,
-      fileName: clientBuilder.file.fileName,
-      source: clientBuilder.source,
-      imports: clientBuilder.imports,
+      path: file.path,
+      fileName: file.fileName,
+      source: file.source,
+      imports: file.imports,
       meta: {
         pluginName,
         tag: operation.getTags()[0]?.name,
@@ -114,16 +115,17 @@ export class OperationGenerator extends Generator<Options> {
       dataReturnType,
       clientPath,
     })
+    const file = clientBuilder.render().file
 
-    if (!clientBuilder.file) {
+    if (!file) {
       throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
     }
 
     return {
-      path: clientBuilder.file.path,
-      fileName: clientBuilder.file.fileName,
-      source: clientBuilder.source,
-      imports: clientBuilder.imports,
+      path: file.path,
+      fileName: file.fileName,
+      source: file.source,
+      imports: file.imports,
       meta: {
         pluginName,
         tag: operation.getTags()[0]?.name,
