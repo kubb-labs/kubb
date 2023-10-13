@@ -1,7 +1,7 @@
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { orderBy } from 'natural-orderby'
 
-type FunctionParamsAST =
+export type FunctionParamsAST =
   | {
       name?: string
       type?: string
