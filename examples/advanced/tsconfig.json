@@ -54,12 +54,6 @@
       "@kubb/swagger-faker": [
         "../../packages/swagger-faker/src/index.ts"
       ],
-      "@kubb/swagger-msw": [
-        "../../packages/swagger-msw/src/index.ts"
-      ],
-      "@kubb/swagger-swr": [
-        "../../packages/swagger-swr/src/index.ts"
-      ],
       "@kubb/swagger-tanstack-query": [
         "../../packages/swagger-tanstack-query/src/index.ts"
       ],

@@ -1193,6 +1193,9 @@ importers:
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../react
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger

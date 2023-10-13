@@ -1,5 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { createFunctionParams, getRelativePath, URLPath } from '@kubb/core'
+import { FunctionParams, getRelativePath, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, OasBuilder, useResolve, useSchemas } from '@kubb/swagger'
 import { useResolve as useResolveType } from '@kubb/swagger-ts'
@@ -29,14 +29,18 @@ export class ClientBuilder extends OasBuilder<Config> {
     const comments = getComments(operation)
     const method = operation.method
 
-    // TODO use of new Class for creating params
-    const generics = createFunctionParams([
-      { type: 'TData', default: schemas.response.name },
-      { type: 'TVariables', enabled: !!schemas.request?.name, default: schemas.request?.name },
-    ])
-    const clientGenerics = createFunctionParams([{ type: 'TData' }, { type: 'TVariables', enabled: !!schemas.request?.name }])
+    const generics = new FunctionParams()
+    const clientGenerics = new FunctionParams()
+    const params = new FunctionParams()
 
-    const params = createFunctionParams([
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TVariables', default: schemas.request?.name, enabled: !!schemas.request?.name },
+    ])
+
+    clientGenerics.add([{ type: 'TData' }, { type: 'TVariables', enabled: !!schemas.request?.name }])
+
+    params.add([
       ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'data',
@@ -70,10 +74,10 @@ export class ClientBuilder extends OasBuilder<Config> {
       return (
         <ClientFunction
           name={file.name}
-          generics={generics}
-          clientGenerics={clientGenerics}
+          generics={generics.toString()}
+          clientGenerics={clientGenerics.toString()}
           dataReturnType={dataReturnType}
-          params={params}
+          params={params.toString()}
           returnType={dataReturnType === 'data' ? `ResponseConfig<TData>["data"]` : `ResponseConfig<TData>`}
           method={method}
           path={new URLPath(operation.path)}

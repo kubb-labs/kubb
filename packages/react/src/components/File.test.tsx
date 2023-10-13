@@ -18,7 +18,57 @@ describe('<File/>', () => {
     expect(root.output).toStrictEqual('')
   })
 
-  test.todo('render File with Import and Export')
+  test('render File with Import and Export', () => {
+    const Component = () => {
+      return (
+        <File fileName="fileName" path="path">
+          <File.Import name={'React'} path="react" />
+          <File.Export asAlias path="./index.ts" />
+        </File>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.exports).toStrictEqual([
+      {
+        asAlias: true,
+        isTypeOnly: undefined,
+        name: undefined,
+        path: './index.ts',
+      },
+    ])
+
+    expect(root.imports).toStrictEqual([
+      {
+        isTypeOnly: undefined,
+        name: 'React',
+        path: 'react',
+      },
+    ])
+  })
+
+  test('render File with Import and Export and print imports/exports', async () => {
+    const Component = () => {
+      return (
+        <File fileName="fileName" path="path">
+          <File.Import name={'React'} path="react" print />
+          <File.Export asAlias path="./index.ts" print />
+        </File>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    console.log(root.output, root.imports)
+
+    expect(await format(root.output)).toStrictEqual(
+      await format(`
+import React from 'react'
+export * from './index.ts'
+  `),
+    )
+  })
 
   test('render File with source', () => {
     const Component = () => {

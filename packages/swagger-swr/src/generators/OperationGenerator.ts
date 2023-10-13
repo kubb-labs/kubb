@@ -2,14 +2,15 @@ import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { resolve as resolveSwaggerTypescript, pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
-import { QueryBuilder } from '../builders/QueryBuilder.ts'
+import { QueryBuilder } from '../builders/QueryBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
-import type { File, OptionalPath, PluginContext } from '@kubb/core'
+import type { File, OptionalPath, PluginContext, PluginManager } from '@kubb/core'
 import type { ContentType, Oas, Operation, OperationSchema, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
 import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
+  pluginManager: PluginManager
   clientPath?: OptionalPath
   dataReturnType: PluginOptions['dataReturnType']
   oas: Oas
@@ -73,7 +74,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, dataReturnType } = this.options
+    const { pluginManager, oas, clientPath, dataReturnType } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -84,13 +85,20 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const source = new QueryBuilder(oas).configure({ name: hook.name, errors, operation, schemas, dataReturnType }).print('query')
+    const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, name: hook.name, errors, operation, schemas, dataReturnType })
+
+    const file = queryBuilder.render('query', hook.name).file
+
+    if (!file) {
+      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
+    }
 
     return {
-      path: hook.filePath,
-      fileName: hook.fileName,
-      source,
+      path: file.path,
+      fileName: file.fileName,
+      source: file.source,
       imports: [
+        ...(file.imports || []),
         {
           name: 'useSWR',
           path: 'swr',
@@ -129,7 +137,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { oas, clientPath, dataReturnType } = this.options
+    const { pluginManager, oas, clientPath, dataReturnType } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -140,13 +148,20 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const source = new QueryBuilder(oas).configure({ name: hook.name, errors, operation, schemas, dataReturnType }).print('mutation')
+    const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, name: hook.name, errors, operation, schemas, dataReturnType })
+
+    const file = queryBuilder.render('mutation', hook.name).file
+
+    if (!file) {
+      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
+    }
 
     return {
-      path: hook.filePath,
-      fileName: hook.fileName,
-      source,
+      path: file.path,
+      fileName: file.fileName,
+      source: file.source,
       imports: [
+        ...(file.imports || []),
         {
           name: 'useSWRMutation',
           path: 'swr/mutation',

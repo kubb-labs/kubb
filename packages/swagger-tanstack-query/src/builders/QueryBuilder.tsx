@@ -1,5 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createFunctionParams, createJSDocBlockText, URLPath } from '@kubb/core'
+import { combineCodes, createFunctionParams, createJSDocBlockText, FunctionParams, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@kubb/swagger'
 
@@ -57,7 +57,13 @@ export class QueryBuilder extends OasBuilder<Config> {
       override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
     }).toString()
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const generics = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+    ])
+
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const paramsData = [
@@ -108,7 +114,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     }
 
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
+export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
   const queryKey = ${queryKey};
   
   return {
@@ -142,7 +148,13 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
     }).toString()
     const comments = getComments(operation)
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const generics = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+    ])
+
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
@@ -202,7 +214,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.query.UseQueryResult}<${queryGenerics.join(', ')}> & { queryKey: QueryKey } {
+export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.query.UseQueryResult}<${queryGenerics.join(', ')}> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
   const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
   
@@ -233,7 +245,13 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
       override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
     }).toString()
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const generics = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+    ])
+
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const paramsData = [
@@ -283,7 +301,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
     }
 
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}> {
+export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}> {
   const queryKey = ${queryKey};
 
   return {
@@ -325,7 +343,13 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
     }).toString()
     const comments = getComments(operation)
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const generics = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+    ])
+
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const params = createFunctionParams([
@@ -385,7 +409,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.query.UseInfiniteQueryResult}<${queryGenerics.join(
+export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.query.UseInfiniteQueryResult}<${queryGenerics.join(
       ', ',
     )}> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
@@ -414,11 +438,14 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
     const comments = getComments(operation)
     const method = operation.method
 
-    const generics = [
-      `TData = ${schemas.response.name}`,
-      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
-      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined,
-    ].filter(Boolean)
+    const generics = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+      { type: 'TVariables', default: schemas.request?.name, enabled: !!schemas.request?.name },
+    ])
+
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : 'void', framework === 'vue' ? 'unknown' : undefined].filter(Boolean)
     const mutationGenerics = [
       'ResponseConfig<TData>',
@@ -469,7 +496,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.mutate.UseMutationResult}<${mutationGenerics.join(', ')}> {
+export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.mutate.UseMutationResult}<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
   
   return ${frameworkImports.mutate.useMutation}<${mutationGenerics.join(', ')}>({

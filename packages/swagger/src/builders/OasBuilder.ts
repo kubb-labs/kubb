@@ -19,13 +19,13 @@ export abstract class OasBuilder<TConfig extends object = object> {
     return this
   }
 
-  add(item: OperationSchema | OperationSchema[] | undefined): OasBuilder {
+  add(item: OperationSchema | Array<OperationSchema | undefined> | undefined): OasBuilder {
     if (!item) {
       return this
     }
 
     if (Array.isArray(item)) {
-      item.forEach((it) => this.items.push(it))
+      item.filter(Boolean).forEach((it) => this.items.push(it))
       return this
     }
     this.items.push(item)

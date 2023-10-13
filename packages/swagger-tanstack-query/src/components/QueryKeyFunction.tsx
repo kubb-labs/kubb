@@ -1,4 +1,4 @@
-import { createFunctionParams, URLPath } from '@kubb/core'
+import { FunctionParams, URLPath } from '@kubb/core'
 import { Function } from '@kubb/react'
 import { getASTParams, useOperation, useSchemas } from '@kubb/swagger'
 
@@ -18,9 +18,10 @@ function QueryKeyFunctionBase({ name }: Props): ReactNode {
   const schemas = useSchemas()
   const operation = useOperation()
   const path = new URLPath(operation.path)
+  const params = new FunctionParams()
   const withParams = !!schemas.queryParams?.name
 
-  const params = createFunctionParams([
+  params.add([
     ...getASTParams(schemas.pathParams, {
       typed: true,
     }),
@@ -41,7 +42,7 @@ function QueryKeyFunctionBase({ name }: Props): ReactNode {
   ].filter(Boolean)
 
   return (
-    <Function.Arrow name={name} export params={params} singleLine>
+    <Function.Arrow name={name} export params={params.toString()} singleLine>
       {`[${result.join(',')}] as const;`}
     </Function.Arrow>
   )
@@ -51,9 +52,10 @@ function QueryKeyFunctionVue({ name }: Props): ReactNode {
   const schemas = useSchemas()
   const operation = useOperation()
   const path = new URLPath(operation.path)
+  const params = new FunctionParams()
   const withParams = !!schemas.queryParams?.name
 
-  const params = createFunctionParams([
+  params.add([
     ...getASTParams(schemas.pathParams, {
       typed: true,
       override: (item) => ({ ...item, type: `MaybeRef<${item.type}>` }),
@@ -76,7 +78,7 @@ function QueryKeyFunctionVue({ name }: Props): ReactNode {
   ].filter(Boolean)
 
   return (
-    <Function.Arrow name={name} export params={params} singleLine>
+    <Function.Arrow name={name} export params={params.toString()} singleLine>
       {`[${result.join(',')}] as const;`}
     </Function.Arrow>
   )
