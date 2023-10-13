@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.2](https://github.com/kubb-project/kubb/compare/kubb-v1.11.1...kubb-v1.11.2) (2023-10-13)
+
+
+### 🐞 Bug Fixes
+
+* remove of `types` exports field ([1c07fd7](https://github.com/kubb-project/kubb/commit/1c07fd72424db47e3a717d99ea5019bb7744f3c0))
+
 ## [1.11.1](https://github.com/kubb-project/kubb/compare/kubb-v1.11.0...kubb-v1.11.1) (2023-10-12)
 
 
