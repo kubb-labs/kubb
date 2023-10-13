@@ -4,7 +4,6 @@ import client from '@kubb/swagger-client/client'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: `/store/order/${orderId}`, params: { orderId: orderId } }] as const
-
 export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: Partial<Parameters<typeof client>[0]> = {},

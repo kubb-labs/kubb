@@ -7,7 +7,6 @@ import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400
 
 export const getOrderByIdQueryKey = (orderId: MaybeRef<GetOrderByIdPathParams['orderId']>) =>
   [{ url: `/store/order/${unref(orderId)}`, params: { orderId: orderId } }] as const
-
 export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
   refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>,
   options: Partial<Parameters<typeof client>[0]> = {},

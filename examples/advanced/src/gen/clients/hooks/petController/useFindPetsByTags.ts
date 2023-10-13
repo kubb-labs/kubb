@@ -10,7 +10,6 @@ import type {
 } from '../../../models/ts/petController/FindPetsByTags'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
-
 export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,

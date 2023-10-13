@@ -35,5 +35,5 @@ export abstract class OasBuilder<TConfig extends object = object> {
 
   abstract configure(config: TConfig): this
 
-  abstract print(name?: string): string
+  abstract print(type?: string, ...rest: unknown[]): string
 }

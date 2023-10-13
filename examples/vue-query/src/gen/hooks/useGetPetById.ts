@@ -6,7 +6,6 @@ import client from '@kubb/swagger-client/client'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400 } from '../models/GetPetById'
 
 export const getPetByIdQueryKey = (petId: MaybeRef<GetPetByIdPathParams['petId']>) => [{ url: `/pet/${unref(petId)}`, params: { petId: petId } }] as const
-
 export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400>(
   refPetId: MaybeRef<GetPetByIdPathParams['petId']>,
   options: Partial<Parameters<typeof client>[0]> = {},

@@ -252,6 +252,9 @@ export class OperationGenerator extends Generator<Options> {
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
+    // TODO remove getName
+    const imports = this.getFrameworkSpecificImports(framework)
+    const name = imports.getName(operation)
 
     let errors: Resolver[] = []
     const frameworkImports = this.getFrameworkSpecificImports(framework)
@@ -262,12 +265,18 @@ export class OperationGenerator extends Generator<Options> {
 
     const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, errors, framework, frameworkImports, operation, schemas, infinite, dataReturnType })
 
+    const file = queryBuilder.render('query', name).file
+
+    if (!file) {
+      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
+    }
+
     return {
-      path: hook.filePath,
-      fileName: hook.fileName,
-      source: queryBuilder.print('query'),
+      path: file.path,
+      fileName: file.fileName,
+      source: file.source,
       imports: [
-        ...queryBuilder.imports(),
+        ...(file.imports || []),
         ...this.getQueryImports('query'),
         {
           name: 'client',
@@ -302,6 +311,9 @@ export class OperationGenerator extends Generator<Options> {
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
+    // TODO remove getName
+    const imports = this.getFrameworkSpecificImports(framework)
+    const name = imports.getName(operation)
 
     let errors: Resolver[] = []
     const frameworkImports = this.getFrameworkSpecificImports(framework)
@@ -312,12 +324,18 @@ export class OperationGenerator extends Generator<Options> {
 
     const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, errors, framework, frameworkImports, operation, schemas, dataReturnType })
 
+    const file = queryBuilder.render('mutation', name).file
+
+    if (!file) {
+      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
+    }
+
     return {
-      path: hook.filePath,
-      fileName: hook.fileName,
-      source: queryBuilder.print('mutation'),
+      path: file.path,
+      fileName: file.fileName,
+      source: file.source,
       imports: [
-        ...queryBuilder.imports(),
+        ...(file.imports || []),
         ...this.getQueryImports('mutate'),
         {
           name: 'client',

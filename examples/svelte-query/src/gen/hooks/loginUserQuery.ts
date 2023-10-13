@@ -4,7 +4,6 @@ import client from '@kubb/swagger-client/client'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
-
 export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
