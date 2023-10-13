@@ -79,8 +79,7 @@
     "src/**/*",
     "./package.json",
     "./tsup.config.ts",
-    "./vitest.config.ts",
-    "@kubb/ts-config/reset"
+    "./vitest.config.ts"
   ],
   "exclude": [
     "**/node_modules",

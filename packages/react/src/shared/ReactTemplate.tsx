@@ -4,8 +4,6 @@ import process from 'node:process'
 
 import { throttle } from '@kubb/core'
 
-import autoBind from 'auto-bind'
-
 import { App } from '../components/App.tsx'
 import { reconciler } from '../reconciler.ts'
 import { renderer } from './renderer.ts'
@@ -36,7 +34,7 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   public readonly id = crypto.randomUUID()
 
   constructor(rootNode: DOMElement, options: ReactTemplateOptions = { debug: false }) {
-    autoBind(this)
+    // autoBind(this)
 
     this.options = options
     this.rootNode = rootNode

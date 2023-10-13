@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger",
-  "version": "1.11.0",
+  "version": "1.11.2",
   "description": "Generator swagger",
   "keywords": [
     "typescript",
@@ -21,7 +21,6 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
@@ -52,11 +51,11 @@
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "@kubb/core": "workspace:*",
+    "@kubb/react": "workspace:*",
     "change-case": "^4.1.2",
     "oas": "^23.0.0",
     "oas-normalize": "^11.0.1",
-    "swagger2openapi": "^7.0.8",
-    "@kubb/react": "workspace:*"
+    "swagger2openapi": "^7.0.8"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",

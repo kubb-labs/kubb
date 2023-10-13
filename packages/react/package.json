@@ -1,6 +1,6 @@
 {
   "name": "@kubb/react",
-  "version": "1.11.0",
+  "version": "1.11.2",
   "description": "Generator react",
   "keywords": [
     "typescript",
@@ -19,26 +19,22 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
     "./package.json": "./package.json",
     "./jsx-runtime": {
-      "types": "./dist/jsx-runtime.d.ts",
       "import": "./dist/jsx-runtime.js",
       "require": "./dist/jsx-runtime.cjs",
       "default": "./dist/jsx-runtime.cjs"
     },
     "./client": {
-      "types": "./dist/client/index.d.ts",
       "import": "./dist/client/index.js",
       "require": "./dist/client/index.cjs",
       "default": "./dist/client/index.cjs"
     },
     "./server": {
-      "types": "./dist/server/index.d.ts",
       "import": "./dist/server/index.js",
       "require": "./dist/server/index.cjs",
       "default": "./dist/server/index.cjs"
@@ -73,8 +69,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "@kubb/parser": "workspace:*",
-    "auto-bind": "^4.0.0"
+    "@kubb/parser": "workspace:*"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",

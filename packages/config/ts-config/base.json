@@ -32,49 +32,49 @@
     ],
     "paths": {
       "@kubb/cli": [
-        "packages/cli/src"
+        "packages/cli"
       ],
       "@kubb/eslint-config": [
-        "packages/config/eslint-config/src"
+        "packages/config/eslint-config"
       ],
       "@kubb/ts-config": [
-        "packages/config/ts-config/src"
+        "packages/config/ts-config"
       ],
       "@kubb/tsup-config": [
-        "packages/config/tsup-config/src"
+        "packages/config/tsup-config"
       ],
       "@kubb/core": [
-        "packages/core/src"
+        "packages/core"
       ],
       "@kubb/swagger": [
-        "packages/swagger/src"
+        "packages/swagger"
       ],
       "@kubb/swagger-client": [
-        "packages/swagger-client/src"
+        "packages/swagger-client"
       ],
       "@kubb/swagger-faker": [
-        "packages/swagger-faker/src"
+        "packages/swagger-faker"
       ],
       "@kubb/swagger-msw": [
-        "packages/swagger-msw/src"
+        "packages/swagger-msw"
       ],
       "@kubb/swagger-tanstack-query": [
-        "packages/swagger-tanstack-query/src"
+        "packages/swagger-tanstack-query"
       ],
       "@kubb/swagger-ts": [
-        "packages/swagger-ts/src"
+        "packages/swagger-ts"
       ],
       "@kubb/swagger-zod": [
-        "packages/swagger-zod/src"
+        "packages/swagger-zod"
       ],
       "@kubb/swagger-zodios": [
-        "packages/swagger-zodios/src"
+        "packages/swagger-zodios"
       ],
       "@kubb/parser": [
-        "packages/parser/src"
+        "packages/parser"
       ],
       "@kubb/react": [
-        "packages/react/src"
+        "packages/react"
       ]
     }
   },

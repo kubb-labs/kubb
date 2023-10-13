@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-tanstack-query",
-  "version": "1.11.0",
+  "version": "1.11.2",
   "description": "Generator swagger-tanstack-query",
   "keywords": [
     "typescript",
@@ -25,7 +25,6 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
@@ -56,11 +55,11 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/parser": "workspace:*",
+    "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "change-case": "^4.1.2",
-    "@kubb/react": "workspace:*"
+    "change-case": "^4.1.2"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",

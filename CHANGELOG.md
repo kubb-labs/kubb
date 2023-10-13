@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.11.2](https://github.com/kubb-project/kubb/compare/kubb-v1.11.1...kubb-v1.11.2) (2023-10-13)
+
+
+### 🐞 Bug Fixes
+
+* remove of `types` exports field ([1c07fd7](https://github.com/kubb-project/kubb/commit/1c07fd72424db47e3a717d99ea5019bb7744f3c0))
+
+## [1.11.1](https://github.com/kubb-project/kubb/compare/kubb-v1.11.0...kubb-v1.11.1) (2023-10-12)
+
+
+### 🐞 Bug Fixes
+
+* include `@kubb/react` for legacy `yarn install` ([237ade7](https://github.com/kubb-project/kubb/commit/237ade716b5b6ffc12ddcf4f50106ae7cdd7dc0a))
+
 ## [1.11.0](https://github.com/kubb-project/kubb/compare/kubb-v1.10.4...kubb-v1.11.0) (2023-10-11)
 
 

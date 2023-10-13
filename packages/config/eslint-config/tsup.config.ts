@@ -1,13 +1,12 @@
 import { defineConfig } from 'tsup'
 
-import { optionsCJS, optionsESM } from '../tsup-config/src'
+import { optionsCJS, optionsESM } from '../tsup-config/src/index.ts'
 
 export default defineConfig([
-  { ...optionsCJS, dts: false },
+  { ...optionsCJS },
   optionsESM,
   {
     ...optionsCJS,
-    dts: false,
     entry: ['src/flat.ts'],
     name: 'flat',
   },
