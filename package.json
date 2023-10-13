@@ -47,10 +47,10 @@
     "upgrade": "npx taze -r -w --exclude pnpm"
   },
   "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "^4.1.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
-    "@types/node": "^20.8.4",
+    "@types/node": "^20.8.5",
     "@vitest/coverage-v8": "^0.34.6",
     "@vitest/ui": "^0.34.6",
     "bun-types": "^1.0.6",
