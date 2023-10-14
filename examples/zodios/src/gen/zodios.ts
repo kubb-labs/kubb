@@ -1,6 +1,12 @@
 import { makeApi, Zodios } from '@zodios/core'
-import { addPetMutationResponseSchema, addPet405Schema } from './zod/addPetSchema'
-import { updatePetMutationResponseSchema, updatePet400Schema, updatePet404Schema, updatePet405Schema } from './zod/updatePetSchema'
+import { addPetMutationResponseSchema, addPetMutationRequestSchema, addPet405Schema } from './zod/addPetSchema'
+import {
+  updatePetMutationResponseSchema,
+  updatePetMutationRequestSchema,
+  updatePet400Schema,
+  updatePet404Schema,
+  updatePet405Schema,
+} from './zod/updatePetSchema'
 import { findPetsByStatusQueryResponseSchema, findPetsByStatusQueryParamsSchema, findPetsByStatus400Schema } from './zod/findPetsByStatusSchema'
 import { findPetsByTagsQueryResponseSchema, findPetsByTagsQueryParamsSchema, findPetsByTags400Schema } from './zod/findPetsByTagsSchema'
 import { getPetByIdQueryResponseSchema, getPetByIdPathParamsSchema, getPetById400Schema, getPetById404Schema } from './zod/getPetByIdSchema'
@@ -10,19 +16,19 @@ import {
   updatePetWithFormQueryParamsSchema,
   updatePetWithForm405Schema,
 } from './zod/updatePetWithFormSchema'
-import { deletePetMutationResponseSchema, deletePetPathParamsSchema, deletePet400Schema } from './zod/deletePetSchema'
+import { deletePetMutationResponseSchema, deletePetPathParamsSchema, deletePetHeaderParamsSchema, deletePet400Schema } from './zod/deletePetSchema'
 import { uploadFileMutationResponseSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from './zod/uploadFileSchema'
 import { getInventoryQueryResponseSchema } from './zod/getInventorySchema'
-import { placeOrderMutationResponseSchema, placeOrder405Schema } from './zod/placeOrderSchema'
-import { placeOrderPatchMutationResponseSchema, placeOrderPatch405Schema } from './zod/placeOrderPatchSchema'
+import { placeOrderMutationResponseSchema, placeOrderMutationRequestSchema, placeOrder405Schema } from './zod/placeOrderSchema'
+import { placeOrderPatchMutationResponseSchema, placeOrderPatchMutationRequestSchema, placeOrderPatch405Schema } from './zod/placeOrderPatchSchema'
 import { getOrderByIdQueryResponseSchema, getOrderByIdPathParamsSchema, getOrderById400Schema, getOrderById404Schema } from './zod/getOrderByIdSchema'
 import { deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema, deleteOrder400Schema, deleteOrder404Schema } from './zod/deleteOrderSchema'
-import { createUserMutationResponseSchema } from './zod/createUserSchema'
+import { createUserMutationResponseSchema, createUserMutationRequestSchema } from './zod/createUserSchema'
 import { createUsersWithListInputMutationResponseSchema } from './zod/createUsersWithListInputSchema'
 import { loginUserQueryResponseSchema, loginUserQueryParamsSchema, loginUser400Schema } from './zod/loginUserSchema'
 import { logoutUserQueryResponseSchema } from './zod/logoutUserSchema'
 import { getUserByNameQueryResponseSchema, getUserByNamePathParamsSchema, getUserByName400Schema, getUserByName404Schema } from './zod/getUserByNameSchema'
-import { updateUserMutationResponseSchema, updateUserPathParamsSchema } from './zod/updateUserSchema'
+import { updateUserMutationResponseSchema, updateUserPathParamsSchema, updateUserMutationRequestSchema } from './zod/updateUserSchema'
 import { deleteUserMutationResponseSchema, deleteUserPathParamsSchema, deleteUser400Schema, deleteUser404Schema } from './zod/deleteUserSchema'
 
 const endpoints = makeApi([
@@ -31,7 +37,44 @@ const endpoints = makeApi([
     path: '/pet',
     description: `Add a new pet to the store`,
     requestFormat: 'json',
-    parameters: [],
+    parameters: [
+      {
+        name: 'id',
+        description: ``,
+        type: 'Body',
+        schema: addPetMutationRequestSchema.schema.shape['id'],
+      },
+      {
+        name: 'name',
+        description: ``,
+        type: 'Body',
+        schema: addPetMutationRequestSchema.schema.shape['name'],
+      },
+      {
+        name: 'category',
+        description: ``,
+        type: 'Body',
+        schema: addPetMutationRequestSchema.schema.shape['category'],
+      },
+      {
+        name: 'photoUrls',
+        description: ``,
+        type: 'Body',
+        schema: addPetMutationRequestSchema.schema.shape['photoUrls'],
+      },
+      {
+        name: 'tags',
+        description: ``,
+        type: 'Body',
+        schema: addPetMutationRequestSchema.schema.shape['tags'],
+      },
+      {
+        name: 'status',
+        description: `pet status in the store`,
+        type: 'Body',
+        schema: addPetMutationRequestSchema.schema.shape['status'],
+      },
+    ],
     response: addPetMutationResponseSchema,
     errors: [
       {
@@ -46,7 +89,44 @@ const endpoints = makeApi([
     path: '/pet',
     description: `Update an existing pet by Id`,
     requestFormat: 'json',
-    parameters: [],
+    parameters: [
+      {
+        name: 'id',
+        description: ``,
+        type: 'Body',
+        schema: updatePetMutationRequestSchema.schema.shape['id'],
+      },
+      {
+        name: 'name',
+        description: ``,
+        type: 'Body',
+        schema: updatePetMutationRequestSchema.schema.shape['name'],
+      },
+      {
+        name: 'category',
+        description: ``,
+        type: 'Body',
+        schema: updatePetMutationRequestSchema.schema.shape['category'],
+      },
+      {
+        name: 'photoUrls',
+        description: ``,
+        type: 'Body',
+        schema: updatePetMutationRequestSchema.schema.shape['photoUrls'],
+      },
+      {
+        name: 'tags',
+        description: ``,
+        type: 'Body',
+        schema: updatePetMutationRequestSchema.schema.shape['tags'],
+      },
+      {
+        name: 'status',
+        description: `pet status in the store`,
+        type: 'Body',
+        schema: updatePetMutationRequestSchema.schema.shape['status'],
+      },
+    ],
     response: updatePetMutationResponseSchema,
     errors: [
       {
@@ -73,10 +153,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'FindPetsByStatusQueryParams',
-        description: ``,
+        name: 'status',
+        description: `Status values that need to be considered for filter`,
         type: 'Query',
-        schema: findPetsByStatusQueryParamsSchema,
+        schema: findPetsByStatusQueryParamsSchema.shape['status'],
       },
     ],
     response: findPetsByStatusQueryResponseSchema,
@@ -95,10 +175,22 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'FindPetsByTagsQueryParams',
-        description: ``,
+        name: 'tags',
+        description: `Tags to filter by`,
         type: 'Query',
-        schema: findPetsByTagsQueryParamsSchema,
+        schema: findPetsByTagsQueryParamsSchema.shape['tags'],
+      },
+      {
+        name: 'page',
+        description: `to request with required page number or pagination`,
+        type: 'Query',
+        schema: findPetsByTagsQueryParamsSchema.shape['page'],
+      },
+      {
+        name: 'pageSize',
+        description: `to request with required page size`,
+        type: 'Query',
+        schema: findPetsByTagsQueryParamsSchema.shape['pageSize'],
       },
     ],
     response: findPetsByTagsQueryResponseSchema,
@@ -117,10 +209,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'GetPetByIdPathParams',
-        description: ``,
+        name: 'petId',
+        description: `ID of pet to return`,
         type: 'Path',
-        schema: getPetByIdPathParamsSchema,
+        schema: getPetByIdPathParamsSchema.shape['petId'],
       },
     ],
     response: getPetByIdQueryResponseSchema,
@@ -144,16 +236,22 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'UpdatePetWithFormPathParams',
-        description: ``,
+        name: 'petId',
+        description: `ID of pet that needs to be updated`,
         type: 'Path',
-        schema: updatePetWithFormPathParamsSchema,
+        schema: updatePetWithFormPathParamsSchema.shape['petId'],
       },
       {
-        name: 'UpdatePetWithFormQueryParams',
-        description: ``,
+        name: 'name',
+        description: `Name of pet that needs to be updated`,
         type: 'Query',
-        schema: updatePetWithFormQueryParamsSchema,
+        schema: updatePetWithFormQueryParamsSchema.shape['name'],
+      },
+      {
+        name: 'status',
+        description: `Status of pet that needs to be updated`,
+        type: 'Query',
+        schema: updatePetWithFormQueryParamsSchema.shape['status'],
       },
     ],
     response: updatePetWithFormMutationResponseSchema,
@@ -172,10 +270,16 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'DeletePetPathParams',
-        description: ``,
+        name: 'petId',
+        description: `Pet id to delete`,
         type: 'Path',
-        schema: deletePetPathParamsSchema,
+        schema: deletePetPathParamsSchema.shape['petId'],
+      },
+      {
+        name: 'api_key',
+        description: ``,
+        type: 'Header',
+        schema: deletePetHeaderParamsSchema.shape['api_key'],
       },
     ],
     response: deletePetMutationResponseSchema,
@@ -194,16 +298,16 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'UploadFilePathParams',
-        description: ``,
+        name: 'petId',
+        description: `ID of pet to update`,
         type: 'Path',
-        schema: uploadFilePathParamsSchema,
+        schema: uploadFilePathParamsSchema.shape['petId'],
       },
       {
-        name: 'UploadFileQueryParams',
-        description: ``,
+        name: 'additionalMetadata',
+        description: `Additional Metadata`,
         type: 'Query',
-        schema: uploadFileQueryParamsSchema,
+        schema: uploadFileQueryParamsSchema.shape['additionalMetadata'],
       },
     ],
     response: uploadFileMutationResponseSchema,
@@ -223,7 +327,50 @@ const endpoints = makeApi([
     path: '/store/order',
     description: `Place a new order in the store`,
     requestFormat: 'json',
-    parameters: [],
+    parameters: [
+      {
+        name: 'id',
+        description: ``,
+        type: 'Body',
+        schema: placeOrderMutationRequestSchema.schema.shape['id'],
+      },
+      {
+        name: 'petId',
+        description: ``,
+        type: 'Body',
+        schema: placeOrderMutationRequestSchema.schema.shape['petId'],
+      },
+      {
+        name: 'quantity',
+        description: ``,
+        type: 'Body',
+        schema: placeOrderMutationRequestSchema.schema.shape['quantity'],
+      },
+      {
+        name: 'shipDate',
+        description: ``,
+        type: 'Body',
+        schema: placeOrderMutationRequestSchema.schema.shape['shipDate'],
+      },
+      {
+        name: 'status',
+        description: `Order Status`,
+        type: 'Body',
+        schema: placeOrderMutationRequestSchema.schema.shape['status'],
+      },
+      {
+        name: 'http_status',
+        description: `HTTP Status`,
+        type: 'Body',
+        schema: placeOrderMutationRequestSchema.schema.shape['http_status'],
+      },
+      {
+        name: 'complete',
+        description: ``,
+        type: 'Body',
+        schema: placeOrderMutationRequestSchema.schema.shape['complete'],
+      },
+    ],
     response: placeOrderMutationResponseSchema,
     errors: [
       {
@@ -238,7 +385,50 @@ const endpoints = makeApi([
     path: '/store/order',
     description: `Place a new order in the store with patch`,
     requestFormat: 'json',
-    parameters: [],
+    parameters: [
+      {
+        name: 'id',
+        description: ``,
+        type: 'Body',
+        schema: placeOrderPatchMutationRequestSchema.schema.shape['id'],
+      },
+      {
+        name: 'petId',
+        description: ``,
+        type: 'Body',
+        schema: placeOrderPatchMutationRequestSchema.schema.shape['petId'],
+      },
+      {
+        name: 'quantity',
+        description: ``,
+        type: 'Body',
+        schema: placeOrderPatchMutationRequestSchema.schema.shape['quantity'],
+      },
+      {
+        name: 'shipDate',
+        description: ``,
+        type: 'Body',
+        schema: placeOrderPatchMutationRequestSchema.schema.shape['shipDate'],
+      },
+      {
+        name: 'status',
+        description: `Order Status`,
+        type: 'Body',
+        schema: placeOrderPatchMutationRequestSchema.schema.shape['status'],
+      },
+      {
+        name: 'http_status',
+        description: `HTTP Status`,
+        type: 'Body',
+        schema: placeOrderPatchMutationRequestSchema.schema.shape['http_status'],
+      },
+      {
+        name: 'complete',
+        description: ``,
+        type: 'Body',
+        schema: placeOrderPatchMutationRequestSchema.schema.shape['complete'],
+      },
+    ],
     response: placeOrderPatchMutationResponseSchema,
     errors: [
       {
@@ -255,10 +445,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'GetOrderByIdPathParams',
-        description: ``,
+        name: 'orderId',
+        description: `ID of order that needs to be fetched`,
         type: 'Path',
-        schema: getOrderByIdPathParamsSchema,
+        schema: getOrderByIdPathParamsSchema.shape['orderId'],
       },
     ],
     response: getOrderByIdQueryResponseSchema,
@@ -282,10 +472,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'DeleteOrderPathParams',
-        description: ``,
+        name: 'orderId',
+        description: `ID of the order that needs to be deleted`,
         type: 'Path',
-        schema: deleteOrderPathParamsSchema,
+        schema: deleteOrderPathParamsSchema.shape['orderId'],
       },
     ],
     response: deleteOrderMutationResponseSchema,
@@ -307,7 +497,56 @@ const endpoints = makeApi([
     path: '/user',
     description: `This can only be done by the logged in user.`,
     requestFormat: 'json',
-    parameters: [],
+    parameters: [
+      {
+        name: 'id',
+        description: ``,
+        type: 'Body',
+        schema: createUserMutationRequestSchema.schema.shape['id'],
+      },
+      {
+        name: 'username',
+        description: ``,
+        type: 'Body',
+        schema: createUserMutationRequestSchema.schema.shape['username'],
+      },
+      {
+        name: 'firstName',
+        description: ``,
+        type: 'Body',
+        schema: createUserMutationRequestSchema.schema.shape['firstName'],
+      },
+      {
+        name: 'lastName',
+        description: ``,
+        type: 'Body',
+        schema: createUserMutationRequestSchema.schema.shape['lastName'],
+      },
+      {
+        name: 'email',
+        description: ``,
+        type: 'Body',
+        schema: createUserMutationRequestSchema.schema.shape['email'],
+      },
+      {
+        name: 'password',
+        description: ``,
+        type: 'Body',
+        schema: createUserMutationRequestSchema.schema.shape['password'],
+      },
+      {
+        name: 'phone',
+        description: ``,
+        type: 'Body',
+        schema: createUserMutationRequestSchema.schema.shape['phone'],
+      },
+      {
+        name: 'userStatus',
+        description: `User Status`,
+        type: 'Body',
+        schema: createUserMutationRequestSchema.schema.shape['userStatus'],
+      },
+    ],
     response: createUserMutationResponseSchema,
     errors: [],
   },
@@ -327,10 +566,16 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'LoginUserQueryParams',
-        description: ``,
+        name: 'username',
+        description: `The user name for login`,
         type: 'Query',
-        schema: loginUserQueryParamsSchema,
+        schema: loginUserQueryParamsSchema.shape['username'],
+      },
+      {
+        name: 'password',
+        description: `The password for login in clear text`,
+        type: 'Query',
+        schema: loginUserQueryParamsSchema.shape['password'],
       },
     ],
     response: loginUserQueryResponseSchema,
@@ -358,10 +603,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'GetUserByNamePathParams',
-        description: ``,
+        name: 'username',
+        description: `The name that needs to be fetched. Use user1 for testing. `,
         type: 'Path',
-        schema: getUserByNamePathParamsSchema,
+        schema: getUserByNamePathParamsSchema.shape['username'],
       },
     ],
     response: getUserByNameQueryResponseSchema,
@@ -385,10 +630,58 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'UpdateUserPathParams',
-        description: ``,
+        name: 'username',
+        description: `name that need to be deleted`,
         type: 'Path',
-        schema: updateUserPathParamsSchema,
+        schema: updateUserPathParamsSchema.shape['username'],
+      },
+      {
+        name: 'id',
+        description: ``,
+        type: 'Body',
+        schema: updateUserMutationRequestSchema.schema.shape['id'],
+      },
+      {
+        name: 'username',
+        description: ``,
+        type: 'Body',
+        schema: updateUserMutationRequestSchema.schema.shape['username'],
+      },
+      {
+        name: 'firstName',
+        description: ``,
+        type: 'Body',
+        schema: updateUserMutationRequestSchema.schema.shape['firstName'],
+      },
+      {
+        name: 'lastName',
+        description: ``,
+        type: 'Body',
+        schema: updateUserMutationRequestSchema.schema.shape['lastName'],
+      },
+      {
+        name: 'email',
+        description: ``,
+        type: 'Body',
+        schema: updateUserMutationRequestSchema.schema.shape['email'],
+      },
+      {
+        name: 'password',
+        description: ``,
+        type: 'Body',
+        schema: updateUserMutationRequestSchema.schema.shape['password'],
+      },
+      {
+        name: 'phone',
+        description: ``,
+        type: 'Body',
+        schema: updateUserMutationRequestSchema.schema.shape['phone'],
+      },
+      {
+        name: 'userStatus',
+        description: `User Status`,
+        type: 'Body',
+        schema: updateUserMutationRequestSchema.schema.shape['userStatus'],
       },
     ],
     response: updateUserMutationResponseSchema,
@@ -401,10 +694,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'DeleteUserPathParams',
-        description: ``,
+        name: 'username',
+        description: `The name that needs to be deleted`,
         type: 'Path',
-        schema: deleteUserPathParamsSchema,
+        schema: deleteUserPathParamsSchema.shape['username'],
       },
     ],
     response: deleteUserMutationResponseSchema,

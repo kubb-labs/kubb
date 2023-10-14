@@ -69,8 +69,9 @@ export type OperationSchema = {
    */
   operationName?: string
   description?: string
-  schema: OpenAPIV3.SchemaObject
+  schema: OpenAPIV3.SchemaObject & { $ref?: OpenAPIV3.ReferenceObject['$ref'] }
   statusCode?: number
+  keys?: string[]
 }
 
 export type OperationSchemas = {
