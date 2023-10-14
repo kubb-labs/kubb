@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.3](https://github.com/kubb-project/kubb/compare/kubb-v1.11.2...kubb-v1.11.3) (2023-10-14)
+
+
+### 🐞 Bug Fixes
+
+* correct parameters schema for `Zodios`(use of .shape and .schema.shape) ([b162622](https://github.com/kubb-project/kubb/commit/b162622ac30a2f2f74a8e98a20c8630a52073ca7))
+* remove `auto-bind` ([1cda7ef](https://github.com/kubb-project/kubb/commit/1cda7ef9181eea2d20299cd778c8c362cb807673))
+
 ## [1.11.2](https://github.com/kubb-project/kubb/compare/kubb-v1.11.1...kubb-v1.11.2) (2023-10-13)
 
 
