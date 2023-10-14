@@ -78,7 +78,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
         const path = this.resolvePath({
-          fileName: `${name}.json`,
+          baseName: `${name}.json`,
           pluginName,
         })
 

@@ -40,10 +40,10 @@ export class OperationGenerator extends Generator<Options> {
 
     const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ fileName: zod.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = resolvePath({ baseName: zod.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = resolvePath({
-        fileName: `${name}.ts`,
+        baseName: `${name}.ts`,
         pluginName,
       })
 
@@ -60,8 +60,8 @@ export class OperationGenerator extends Generator<Options> {
       .print()
 
     return {
-      path: zod.filePath,
-      baseName: zod.fileName,
+      path: zod.path,
+      baseName: zod.baseName,
       source,
       imports: [
         {
@@ -83,10 +83,10 @@ export class OperationGenerator extends Generator<Options> {
 
     const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ fileName: zod.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = resolvePath({ baseName: zod.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = resolvePath({
-        fileName: `${name}.ts`,
+        baseName: `${name}.ts`,
         pluginName,
       })
 
@@ -104,8 +104,8 @@ export class OperationGenerator extends Generator<Options> {
       .print()
 
     return {
-      path: zod.filePath,
-      baseName: zod.fileName,
+      path: zod.path,
+      baseName: zod.baseName,
       source,
       imports: [
         {

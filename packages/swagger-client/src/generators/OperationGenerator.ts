@@ -42,7 +42,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const controllerId = `${controllerName}.ts` as const
     const controllerFilePath = resolvePath({
-      fileName: controllerId,
+      baseName: controllerId,
     })
 
     if (!controllerFilePath) {

@@ -42,7 +42,7 @@ export class OperationGenerator extends Generator<Options> {
     const name = resolveName({ name: schemas.response.name, pluginName: swaggerZodPluginName })
     const fileName: KubbFile.BaseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = resolvePath({
-      fileName,
+      baseName: fileName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -53,8 +53,8 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       name,
-      fileName,
-      filePath,
+      baseName: fileName,
+      path: filePath,
     }
   }
 
@@ -70,7 +70,7 @@ export class OperationGenerator extends Generator<Options> {
     const name = resolveName({ name: schemas.request.name, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
-      fileName,
+      baseName: fileName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -81,8 +81,8 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       name,
-      fileName,
-      filePath,
+      baseName: fileName,
+      path: filePath,
     }
   }
 
@@ -97,7 +97,7 @@ export class OperationGenerator extends Generator<Options> {
     const name = resolveName({ name: schemas.headerParams.name, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
-      fileName,
+      baseName: fileName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -108,8 +108,8 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       name,
-      fileName,
-      filePath,
+      baseName: fileName,
+      path: filePath,
     }
   }
 
@@ -124,7 +124,7 @@ export class OperationGenerator extends Generator<Options> {
     const name = resolveName({ name: schemas.pathParams.name, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
-      fileName,
+      baseName: fileName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -135,8 +135,8 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       name,
-      fileName,
-      filePath,
+      baseName: fileName,
+      path: filePath,
     }
   }
 
@@ -152,7 +152,7 @@ export class OperationGenerator extends Generator<Options> {
     const name = resolveName({ name: schemas.queryParams.name, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
-      fileName,
+      baseName: fileName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -163,8 +163,8 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       name,
-      fileName,
-      filePath,
+      baseName: fileName,
+      path: filePath,
     }
   }
 
@@ -174,7 +174,7 @@ export class OperationGenerator extends Generator<Options> {
     const name = resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
-      fileName,
+      baseName: fileName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -185,8 +185,8 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       name,
-      fileName,
-      filePath,
+      baseName: fileName,
+      path: filePath,
     }
   }
 
@@ -209,7 +209,7 @@ export class OperationGenerator extends Generator<Options> {
 
       imports.push({
         name: [response.name],
-        path: getRelativePath(zodios.filePath, response.filePath),
+        path: getRelativePath(zodios.path, response.path),
       })
 
       if (schemas.pathParams) {
@@ -217,7 +217,7 @@ export class OperationGenerator extends Generator<Options> {
 
         imports.push({
           name: [pathParams.name],
-          path: getRelativePath(zodios.filePath, pathParams.filePath),
+          path: getRelativePath(zodios.path, pathParams.path),
         })
 
         schemas.pathParams.keys?.forEach((key) => {
@@ -240,7 +240,7 @@ export class OperationGenerator extends Generator<Options> {
 
         imports.push({
           name: [queryParams.name],
-          path: getRelativePath(zodios.filePath, queryParams.filePath),
+          path: getRelativePath(zodios.path, queryParams.path),
         })
 
         schemas.queryParams.keys?.forEach((key) => {
@@ -263,7 +263,7 @@ export class OperationGenerator extends Generator<Options> {
 
         imports.push({
           name: [requestBody.name],
-          path: getRelativePath(zodios.filePath, requestBody.filePath),
+          path: getRelativePath(zodios.path, requestBody.path),
         })
         schemas.request.keys?.forEach((key) => {
           const schema = schemas.request?.schema?.properties?.[key] as OpenAPIV3.SchemaObject
@@ -285,7 +285,7 @@ export class OperationGenerator extends Generator<Options> {
 
         imports.push({
           name: [headerParams.name],
-          path: getRelativePath(zodios.filePath, headerParams.filePath),
+          path: getRelativePath(zodios.path, headerParams.path),
         })
 
         schemas.headerParams.keys?.forEach((key) => {
@@ -309,11 +309,11 @@ export class OperationGenerator extends Generator<Options> {
             return
           }
 
-          const { filePath, name } = this.resolveError(operation, errorOperationSchema.statusCode)
+          const { path: filePath, name } = this.resolveError(operation, errorOperationSchema.statusCode)
 
           imports.push({
             name: [name],
-            path: getRelativePath(zodios.filePath, filePath),
+            path: getRelativePath(zodios.path, filePath),
           })
 
           if (errorOperationSchema.statusCode) {
@@ -370,8 +370,8 @@ export class OperationGenerator extends Generator<Options> {
     `)
 
     return {
-      path: zodios.filePath,
-      baseName: zodios.fileName,
+      path: zodios.path,
+      baseName: zodios.baseName,
       source: sources.join('\n'),
       imports,
     }

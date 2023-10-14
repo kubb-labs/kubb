@@ -113,17 +113,17 @@ export class ClientBuilder extends OasBuilder<Config> {
       const file = useResolve({ pluginName })
       const fileType = useResolveType()
 
-      const resolvedClientPath = clientPath ? getRelativePath(file.filePath, clientPath) : '@kubb/swagger-client/client'
+      const resolvedClientPath = clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
 
       return (
-        <File baseName={file.fileName} path={file.filePath}>
+        <File baseName={file.baseName} path={file.path}>
           <File.Import name={'client'} path={resolvedClientPath} />
           <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
           <File.Import
             name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
               Boolean,
             )}
-            path={getRelativePath(file.filePath, fileType.filePath)}
+            path={getRelativePath(file.path, fileType.path)}
             isTypeOnly
           />
           <File.Source>

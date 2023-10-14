@@ -43,10 +43,10 @@ export class OperationGenerator extends Generator<Options> {
 
     const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ fileName: type.fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = resolvePath({ baseName: type.baseName, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = resolvePath({
-        fileName: `${name}.ts`,
+        baseName: `${name}.ts`,
         pluginName,
       })
 
@@ -63,8 +63,8 @@ export class OperationGenerator extends Generator<Options> {
       .print()
 
     return {
-      path: type.filePath,
-      baseName: type.fileName,
+      path: type.path,
+      baseName: type.baseName,
       source,
       meta: {
         pluginName,
@@ -80,10 +80,10 @@ export class OperationGenerator extends Generator<Options> {
 
     const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ fileName: type.fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = resolvePath({ baseName: type.baseName, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = resolvePath({
-        fileName: `${name}.ts`,
+        baseName: `${name}.ts`,
         pluginName,
       })
 
@@ -101,8 +101,8 @@ export class OperationGenerator extends Generator<Options> {
       .print()
 
     return {
-      path: type.filePath,
-      baseName: type.fileName,
+      path: type.path,
+      baseName: type.baseName,
       source,
       meta: {
         pluginName,

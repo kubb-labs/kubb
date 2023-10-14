@@ -229,7 +229,7 @@ export type ResolvePathParams<TOptions = Record<string, unknown>> = {
    * If not defined it will fall back on the resolvePath of the core plugin.
    */
   pluginName?: string
-  fileName: string
+  baseName: string
   directory?: string | undefined
   /**
    * Options to be passed to 'resolvePath' 3th parameter

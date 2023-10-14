@@ -100,12 +100,12 @@ export class PluginManager {
       return this.hookForPluginSync({
         pluginName: params.pluginName,
         hookName: 'resolvePath',
-        parameters: [params.fileName, params.directory, params.options],
+        parameters: [params.baseName, params.directory, params.options],
       })
     }
     return this.hookFirstSync({
       hookName: 'resolvePath',
-      parameters: [params.fileName, params.directory, params.options],
+      parameters: [params.baseName, params.directory, params.options],
     }).result
   }
 

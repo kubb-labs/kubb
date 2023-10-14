@@ -539,7 +539,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
       const file = useResolve({ name, pluginName })
 
       return (
-        <File baseName={file.fileName} path={file.filePath}>
+        <File baseName={file.baseName} path={file.path}>
           <File.Source>
             <QueryKey />
             {this.queryOptions.code}
@@ -554,7 +554,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
       const file = useResolve({ name, pluginName })
 
       return (
-        <File baseName={file.fileName} path={file.filePath}>
+        <File baseName={file.baseName} path={file.path}>
           <File.Source>
             <QueryKey />
             {this.queryOptions.code}
@@ -573,7 +573,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
       const file = useResolve({ name, pluginName })
 
       return (
-        <File baseName={file.fileName} path={file.filePath}>
+        <File baseName={file.baseName} path={file.path}>
           <File.Source>{this.mutation.code}</File.Source>
         </File>
       )

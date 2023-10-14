@@ -39,21 +39,20 @@ export function resolve({ operation, name, tag, pluginName, resolveName, resolve
     throw new Error(`Name ${name || operation?.getOperationId()} should be defined`)
   }
 
-  const fileName = `${resolvedName}.ts` as const
-  const filePath = resolvePath({
-    fileName,
+  const baseName = `${resolvedName}.ts` as const
+  const path = resolvePath({
+    baseName,
     options: { pluginName, tag: tag || operation?.getTags()[0]?.name },
     pluginName,
   })
 
-  if (!filePath) {
+  if (!path) {
     throw new Error('Filepath should be defined')
   }
 
   return {
-    //TODO remove name and just use fileName
     name: resolvedName,
-    fileName,
-    filePath,
+    baseName,
+    path,
   }
 }

@@ -74,11 +74,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           resolveName: (params) => this.resolveName({ pluginName, ...params }),
           fileResolver: (name, ref) => {
             const resolvedTypeId = this.resolvePath({
-              fileName: `${name}.ts`,
+              baseName: `${name}.ts`,
               pluginName: ref.pluginName || pluginName,
             })
 
-            const root = this.resolvePath({ fileName: ref.pluginName ? `${name}.ts` : ``, pluginName })
+            const root = this.resolvePath({ baseName: ref.pluginName ? `${name}.ts` : ``, pluginName })
 
             return getRelativePath(root, resolvedTypeId)
           },
@@ -95,7 +95,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
 
         const mapFolderSchema = async ([name]: [string, OpenAPIV3.SchemaObject]) => {
-          const path = this.resolvePath({ fileName: `${this.resolveName({ name, pluginName })}.ts`, pluginName })
+          const path = this.resolvePath({ baseName: `${this.resolveName({ name, pluginName })}.ts`, pluginName })
 
           if (!path) {
             return null
@@ -138,7 +138,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         }
 
         Object.entries(schemas).map(mapFileSchema)
-        const path = this.resolvePath({ fileName: '', pluginName })
+        const path = this.resolvePath({ baseName: '', pluginName })
         if (!path) {
           return
         }

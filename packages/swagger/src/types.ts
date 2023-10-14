@@ -54,10 +54,12 @@ export type { OpenAPIV3 } from 'openapi-types'
 export type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
 
 export type Resolver = {
+  /**
+   * Original name or name resolved by `resolveName({ name: operation?.getOperationId() as string, pluginName })`
+   */
   name: string
-  // TODO rename
-  fileName: KubbFile.BaseName
-  filePath: KubbFile.Path
+  baseName: KubbFile.BaseName
+  path: KubbFile.Path
 }
 
 export type OperationSchema = {

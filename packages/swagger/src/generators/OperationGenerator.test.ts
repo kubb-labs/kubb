@@ -7,8 +7,8 @@ import type { Operation, Resolver } from '../types.ts'
 class DummyOperationGenerator extends OperationGenerator {
   resolve(_operation: Operation): Resolver {
     return {
-      fileName: 'fileName.ts',
-      filePath: 'models/fileName/ts',
+      baseName: 'fileName.ts',
+      path: 'models/fileName/ts',
       name: 'fileName',
     }
   }

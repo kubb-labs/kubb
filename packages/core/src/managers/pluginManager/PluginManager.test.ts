@@ -155,14 +155,14 @@ describe('PluginManager', () => {
 
   test('resolvePath without `pluginName`', () => {
     const path = pluginManager.resolvePath({
-      fileName: 'fileName',
+      baseName: 'fileName',
     })
 
     expect(path).toBe('pluginA/gen')
   })
   test('resolvePath with `pluginName`', () => {
     const path = pluginManager.resolvePath({
-      fileName: 'fileNameB',
+      baseName: 'fileNameB',
       pluginName: 'pluginB',
     })
 

@@ -41,10 +41,10 @@ export class OperationGenerator extends Generator<Options> {
 
     const fileResolver: FileResolver = (name, ref) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ fileName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = resolvePath({ baseName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = resolvePath({
-        fileName: `${name}.ts`,
+        baseName: `${name}.ts`,
         pluginName: ref.pluginName || pluginName,
         options: ref.pluginName ? { tag: operation.getTags()[0]?.name } : undefined,
       })
@@ -62,8 +62,8 @@ export class OperationGenerator extends Generator<Options> {
       .print()
 
     return {
-      path: faker.filePath,
-      baseName: faker.fileName,
+      path: faker.path,
+      baseName: faker.baseName,
       source,
       imports: [
         {
@@ -85,10 +85,10 @@ export class OperationGenerator extends Generator<Options> {
 
     const fileResolver: FileResolver = (name, ref) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ fileName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = resolvePath({ baseName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = resolvePath({
-        fileName: `${name}.ts`,
+        baseName: `${name}.ts`,
         pluginName: ref.pluginName || pluginName,
         options: ref.pluginName ? { tag: operation.getTags()[0]?.name } : undefined,
       })
@@ -107,8 +107,8 @@ export class OperationGenerator extends Generator<Options> {
       .print()
 
     return {
-      path: faker.filePath,
-      baseName: faker.fileName,
+      path: faker.path,
+      baseName: faker.baseName,
       source,
       imports: [
         {
