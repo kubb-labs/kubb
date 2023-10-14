@@ -5,17 +5,17 @@ import { resolve as resolveSwaggerFaker, pluginName as swaggerFakerPluginName } 
 import { MSWBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
 
-import type { File, Import, PathMode, PluginContext } from '@kubb/core'
-import type { ContentType, FileResolver, HttpMethod, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
+import type { File, Import, PluginContext, PluginManager } from '@kubb/core'
+import type { ContentType, HttpMethod, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
 import type { FileMeta } from '../types.ts'
 
 type Options = {
+  pluginManager: PluginManager
   oas: Oas
   skipBy?: SkipBy[]
   contentType?: ContentType
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
-  mode: PathMode
 }
 
 export class OperationGenerator extends Generator<Options> {
@@ -106,47 +106,23 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { resolvePath, mode, resolveName, oas } = this.options
-
-    const msw = this.resolve(operation)
-    const faker = this.resolveFaker(operation)
+    const { pluginManager, resolveName, oas } = this.options
 
     const responseName = resolveName({ name: schemas.response.name, pluginName: swaggerFakerPluginName })
 
-    const fileResolver: FileResolver = (name, ref) => {
-      // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ fileName: msw.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
-      // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = resolvePath({
-        fileName: `${name}.ts`,
-        pluginName: ref.pluginName || pluginName,
-        options: ref.pluginName ? { tag: operation.getTags()[0]?.name } : undefined,
-      })
+    const mswBuilder = new MSWBuilder(oas).configure({ pluginManager, schemas, responseName, operation })
 
-      return getRelativePath(root, resolvedTypeId)
+    const file = mswBuilder.render().file
+
+    if (!file) {
+      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
     }
 
-    const source = new MSWBuilder(oas)
-      .add(schemas.response)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, responseName, operation, resolveName })
-      .print()
-
     return {
-      path: msw.filePath,
-      fileName: msw.fileName,
-      source,
-      imports: [
-        {
-          name: ['rest'],
-          path: 'msw',
-        },
-        faker
-          ? {
-              name: [responseName],
-              path: getRelativePath(msw.filePath, faker.filePath),
-            }
-          : undefined,
-      ].filter(Boolean),
+      path: file.path,
+      fileName: file.fileName,
+      source: file.source,
+      imports: file.imports,
       meta: {
         pluginName,
         tag: operation.getTags()[0]?.name,
@@ -155,52 +131,28 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { resolvePath, mode, resolveName, oas } = this.options
+    const { pluginManager, resolveName, oas } = this.options
 
-    const msw = this.resolve(operation)
-    const faker = this.resolveFaker(operation)
     const responseName = resolveName({ name: schemas.response.name, pluginName: swaggerFakerPluginName })
 
-    const fileResolver: FileResolver = (name, ref) => {
-      // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ fileName: msw.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
-      // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = resolvePath({
-        fileName: `${name}.ts`,
-        pluginName: ref.pluginName || pluginName,
-        options: ref.pluginName ? { tag: operation.getTags()[0]?.name } : undefined,
-      })
+    const mswBuilder = new MSWBuilder(oas).configure({
+      pluginManager,
+      schemas,
+      responseName,
+      operation,
+    })
 
-      return getRelativePath(root, resolvedTypeId)
+    const file = mswBuilder.render().file
+
+    if (!file) {
+      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
     }
 
-    const source = new MSWBuilder(oas)
-      .add(schemas.response)
-      .configure({
-        fileResolver: mode === 'file' ? undefined : fileResolver,
-        withJSDocs: true,
-        responseName,
-        resolveName,
-        operation,
-      })
-      .print()
-
     return {
-      path: msw.filePath,
-      fileName: msw.fileName,
-      source,
-      imports: [
-        {
-          name: ['rest'],
-          path: 'msw',
-        },
-        faker
-          ? {
-              name: [responseName].filter(Boolean),
-              path: getRelativePath(msw.filePath, faker.filePath),
-            }
-          : undefined,
-      ].filter(Boolean),
+      path: file.path,
+      fileName: file.fileName,
+      source: file.source,
+      imports: file.imports,
       meta: {
         pluginName,
         tag: operation.getTags()[0]?.name,

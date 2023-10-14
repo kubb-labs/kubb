@@ -51,6 +51,7 @@ export function resolve({ operation, name, tag, pluginName, resolveName, resolve
   }
 
   return {
+    //TODO remove name and just use fileName
     name: resolvedName,
     fileName,
     filePath,

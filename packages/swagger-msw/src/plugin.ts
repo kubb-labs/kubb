@@ -66,14 +66,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const oas = await swaggerPlugin.api.getOas()
 
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
-      const mode = getPathMode(pathParser.resolve(root, output))
-
       const operationGenerator = new OperationGenerator({
+        pluginManager: this.pluginManager,
         contentType: swaggerPlugin.api.contentType,
         oas,
         skipBy,
-        mode,
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),
       })

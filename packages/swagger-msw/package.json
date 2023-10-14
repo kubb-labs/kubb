@@ -55,6 +55,7 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/parser": "workspace:*",
+    "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-faker": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
@@ -67,6 +68,9 @@
     "eslint": "^8.51.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "@kubb/react": "workspace:*"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {
