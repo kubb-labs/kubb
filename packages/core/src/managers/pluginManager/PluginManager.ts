@@ -14,7 +14,6 @@ import type { CorePluginOptions } from '../../plugin.ts'
 import type {
   KubbConfig,
   KubbPlugin,
-  OptionalPath,
   PluginContext,
   PluginLifecycle,
   PluginLifecycleHooks,
@@ -24,7 +23,7 @@ import type {
 } from '../../types.ts'
 import type { Logger } from '../../utils/logger.ts'
 import type { QueueJob } from '../../utils/Queue.ts'
-import type { ResolvedFile } from '../fileManager/types.ts'
+import type { KubbFile } from '../fileManager/types.ts'
 import type { Argument0, Executer, ParseResult, SafeParseResult, Strategy } from './types.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
@@ -44,7 +43,7 @@ const hookNames: {
 }
 export const hooks = Object.keys(hookNames) as [PluginLifecycleHooks]
 
-type Options = { debug?: boolean; task: QueueJob<ResolvedFile>; logger: Logger }
+type Options = { debug?: boolean; task: QueueJob<KubbFile.ResolvedFile>; logger: Logger }
 
 type Events = {
   execute: [executer: Executer]
@@ -96,7 +95,7 @@ export class PluginManager {
     }, [] as KubbPlugin[])
   }
 
-  resolvePath = (params: ResolvePathParams): OptionalPath => {
+  resolvePath = (params: ResolvePathParams): KubbFile.OptionalPath => {
     if (params.pluginName) {
       return this.hookForPluginSync({
         pluginName: params.pluginName,

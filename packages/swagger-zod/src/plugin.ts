@@ -8,7 +8,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { ZodBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
 
-import type { File } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type { OpenAPIV3, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
@@ -101,7 +101,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
           return this.addFile({
             path,
-            fileName: `${this.resolveName({ name, pluginName })}.ts`,
+            baseName: `${this.resolveName({ name, pluginName })}.ts`,
             source: builder.print(name),
             imports: [
               {
@@ -142,7 +142,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         await this.addFile({
           path,
-          fileName: `${this.resolveName({ name: output, pluginName })}.ts`,
+          baseName: `${this.resolveName({ name: output, pluginName })}.ts`,
           source: builder.print(),
           imports: [
             {
@@ -176,7 +176,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 
       if (groupBy?.type === 'tag') {
-        const filteredFiles = this.fileManager.files.filter((file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag) as File<FileMeta>[]
+        const filteredFiles = this.fileManager.files.filter(
+          (file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag,
+        ) as KubbFile.File<FileMeta>[]
         const rootFiles = filteredFiles
           .map((file) => {
             const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
@@ -188,7 +190,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
             if (name) {
               return {
-                fileName: 'index.ts',
+                baseName: 'index.ts' as const,
                 path: pathParser.resolve(root, output, 'index.ts'),
                 source: '',
                 exports: [{ path, asAlias: true, name }],

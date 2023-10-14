@@ -1,4 +1,4 @@
-import type { Export, File, Import } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type { ReactNode } from 'react'
 
 export type RootType<T = unknown> = {
@@ -7,13 +7,5 @@ export type RootType<T = unknown> = {
   /**
    * Custom for Kubb
    */
-  imports: Import[]
-  /**
-   * Custom for Kubb
-   */
-  exports: Export[]
-  /**
-   * Custom for Kubb
-   */
-  file?: File
+  file?: KubbFile.File
 }

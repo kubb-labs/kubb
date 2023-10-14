@@ -3,30 +3,28 @@ import crypto from 'node:crypto'
 import { read, write } from '../../utils/index.ts'
 import { extensions } from './utils.ts'
 
-import type { Path } from '../../types.ts'
 import type { Queue, QueueJob } from '../../utils/index.ts'
-import type { CacheItem, File, ResolvedFile, UUID } from './types.ts'
-import type { Extension } from './utils.ts'
+import type { CacheItem, KubbFile } from './types.ts'
 
 export class FileManager {
-  private cache: Map<Path, CacheItem[]> = new Map()
+  private cache: Map<KubbFile.Path, CacheItem[]> = new Map()
 
-  private task?: QueueJob<ResolvedFile>
+  private task?: QueueJob<KubbFile.ResolvedFile>
 
   private queue?: Queue
 
-  constructor(options?: { queue?: Queue; task?: QueueJob<ResolvedFile> }) {
+  constructor(options?: { queue?: Queue; task?: QueueJob<KubbFile.ResolvedFile> }) {
     if (options) {
       this.task = options.task
       this.queue = options.queue
     }
   }
-  get extensions(): Extension[] {
+  get extensions(): Array<KubbFile.Extname> {
     return extensions
   }
 
-  get files(): File[] {
-    const files: File[] = []
+  get files(): Array<KubbFile.File> {
+    const files: Array<KubbFile.File> = []
     this.cache.forEach((item) => {
       files.push(...item.flat(1))
     })
@@ -37,9 +35,9 @@ export class FileManager {
     return this.queue?.hasJobs ?? false
   }
 
-  async add(file: File): Promise<ResolvedFile> {
+  async add(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
     const controller = new AbortController()
-    const resolvedFile: ResolvedFile = { id: crypto.randomUUID(), ...file }
+    const resolvedFile: KubbFile.ResolvedFile = { id: crypto.randomUUID(), ...file }
 
     this.cache.set(resolvedFile.path, [{ cancel: () => controller.abort(), ...resolvedFile }])
 
@@ -59,7 +57,7 @@ export class FileManager {
     return resolvedFile
   }
 
-  addOrAppend(file: File): Promise<ResolvedFile> {
+  addOrAppend(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
     // if (!file.path.endsWith(file.fileName)) {
     //   console.warn(`Path ${file.path}(file.path) should end with the fileName ${file.fileName}(file.filename)`)
     // }
@@ -81,14 +79,14 @@ export class FileManager {
     return this.add(file)
   }
 
-  private append(path: Path, file: ResolvedFile): void {
+  private append(path: KubbFile.Path, file: KubbFile.ResolvedFile): void {
     const previousFiles = this.cache.get(path) || []
 
     this.cache.set(path, [...previousFiles, file])
   }
 
-  getCacheByUUID(UUID: UUID): File | undefined {
-    let cache: File | undefined
+  getCacheByUUID(UUID: KubbFile.UUID): KubbFile.File | undefined {
+    let cache: KubbFile.File | undefined
 
     this.cache.forEach((files) => {
       cache = files.find((item) => item.id === UUID)
@@ -96,11 +94,11 @@ export class FileManager {
     return cache
   }
 
-  get(path: Path): File[] | undefined {
+  get(path: KubbFile.Path): Array<KubbFile.File> | undefined {
     return this.cache.get(path)
   }
 
-  remove(path: Path): void {
+  remove(path: KubbFile.Path): void {
     const cacheItem = this.get(path)
     if (!cacheItem) {
       return

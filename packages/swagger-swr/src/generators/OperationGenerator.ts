@@ -5,13 +5,13 @@ import { resolve as resolveSwaggerTypescript, pluginName as swaggerTypescriptPlu
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
-import type { File, OptionalPath, PluginContext, PluginManager } from '@kubb/core'
+import type { KubbFile, PluginContext, PluginManager } from '@kubb/core'
 import type { ContentType, Oas, Operation, OperationSchema, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
 import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
   pluginManager: PluginManager
-  clientPath?: OptionalPath
+  clientPath?: KubbFile.OptionalPath
   dataReturnType: PluginOptions['dataReturnType']
   oas: Oas
   contentType?: ContentType
@@ -69,11 +69,11 @@ export class OperationGenerator extends Generator<Options> {
       .filter(Boolean)
   }
 
-  async all(): Promise<File | null> {
+  async all(): Promise<KubbFile.File | null> {
     return null
   }
 
-  async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     const { pluginManager, oas, clientPath, dataReturnType } = this.options
 
     const hook = this.resolve(operation)
@@ -95,7 +95,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       path: file.path,
-      fileName: file.fileName,
+      baseName: file.baseName,
       source: file.source,
       imports: [
         ...(file.imports || []),
@@ -136,7 +136,7 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     const { pluginManager, oas, clientPath, dataReturnType } = this.options
 
     const hook = this.resolve(operation)
@@ -158,7 +158,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       path: file.path,
-      fileName: file.fileName,
+      baseName: file.baseName,
       source: file.source,
       imports: [
         ...(file.imports || []),
@@ -200,13 +200,13 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async put(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
-  async patch(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async patch(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
-  async delete(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async delete(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
 }

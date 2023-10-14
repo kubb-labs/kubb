@@ -7,7 +7,7 @@ import { useResolve as useResolveType } from '@kubb/swagger-ts'
 import { ClientFunction } from '../components/index.ts'
 import { pluginName } from '../plugin.ts'
 
-import type { OptionalPath, PluginManager } from '@kubb/core'
+import type { KubbFile, PluginManager } from '@kubb/core'
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
 import type { AppMeta, Options as PluginOptions } from '../types.ts'
@@ -17,7 +17,7 @@ type Config = {
   dataReturnType: PluginOptions['dataReturnType']
   operation: Operation
   schemas: OperationSchemas
-  clientPath?: OptionalPath
+  clientPath?: KubbFile.OptionalPath
 }
 
 type ClientResult = { Component: React.ElementType }
@@ -116,7 +116,7 @@ export class ClientBuilder extends OasBuilder<Config> {
       const resolvedClientPath = clientPath ? getRelativePath(file.filePath, clientPath) : '@kubb/swagger-client/client'
 
       return (
-        <File fileName={file.fileName} path={file.filePath}>
+        <File baseName={file.fileName} path={file.filePath}>
           <File.Import name={'client'} path={resolvedClientPath} />
           <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
           <File.Import

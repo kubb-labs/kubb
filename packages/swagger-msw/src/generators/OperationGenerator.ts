@@ -5,7 +5,7 @@ import { resolve as resolveSwaggerFaker, pluginName as swaggerFakerPluginName } 
 import { MSWBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
 
-import type { File, Import, PluginContext, PluginManager } from '@kubb/core'
+import type { KubbFile, PluginContext, PluginManager } from '@kubb/core'
 import type { ContentType, HttpMethod, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
 import type { FileMeta } from '../types.ts'
 
@@ -40,7 +40,7 @@ export class OperationGenerator extends Generator<Options> {
     })
   }
 
-  async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File<FileMeta> | null> {
+  async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<KubbFile.File<FileMeta> | null> {
     const { resolvePath, resolveName } = this.options
 
     const controllerFileName = `handlers.ts`
@@ -54,7 +54,7 @@ export class OperationGenerator extends Generator<Options> {
     // end controller setup
 
     const sources: string[] = []
-    const imports: Import[] = []
+    const imports: KubbFile.Import[] = []
     const handlers: string[] = []
 
     const addOperationToHandler = (operation: Operation) => {
@@ -99,13 +99,13 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       path: controllerFilePath,
-      fileName: controllerFileName,
+      baseName: controllerFileName,
       source: sources.join('\n'),
       imports: imports.filter(Boolean),
     }
   }
 
-  async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     const { pluginManager, resolveName, oas } = this.options
 
     const responseName = resolveName({ name: schemas.response.name, pluginName: swaggerFakerPluginName })
@@ -120,7 +120,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       path: file.path,
-      fileName: file.fileName,
+      baseName: file.baseName,
       source: file.source,
       imports: file.imports,
       meta: {
@@ -130,7 +130,7 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     const { pluginManager, resolveName, oas } = this.options
 
     const responseName = resolveName({ name: schemas.response.name, pluginName: swaggerFakerPluginName })
@@ -150,7 +150,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       path: file.path,
-      fileName: file.fileName,
+      baseName: file.baseName,
       source: file.source,
       imports: file.imports,
       meta: {
@@ -160,13 +160,13 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async put(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
-  async patch(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async patch(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
-  async delete(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async delete(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
 }

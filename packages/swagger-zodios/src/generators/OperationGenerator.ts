@@ -6,7 +6,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { pluginName } from '../plugin.ts'
 
-import type { File, PluginContext } from '@kubb/core'
+import type { KubbFile, PluginContext } from '@kubb/core'
 import type { ContentType, HttpMethod, Oas, OpenAPIV3, Operation, Resolver, SkipBy } from '@kubb/swagger'
 
 type Options = {
@@ -40,7 +40,7 @@ export class OperationGenerator extends Generator<Options> {
     const schemas = this.getSchemas(operation)
 
     const name = resolveName({ name: schemas.response.name, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
+    const fileName: KubbFile.BaseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
@@ -68,7 +68,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const name = resolveName({ name: schemas.request.name, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
@@ -95,7 +95,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const name = resolveName({ name: schemas.headerParams.name, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
@@ -122,7 +122,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const name = resolveName({ name: schemas.pathParams.name, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
@@ -150,7 +150,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const name = resolveName({ name: schemas.queryParams.name, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
@@ -172,7 +172,7 @@ export class OperationGenerator extends Generator<Options> {
     const { resolvePath, resolveName } = this.options
 
     const name = resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
       fileName,
       options: { tag: operation.getTags()[0]?.name },
@@ -190,8 +190,8 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async all(paths: Record<string, Record<HttpMethod, Operation | undefined>>): Promise<File | null> {
-    const imports: File['imports'] = [
+  async all(paths: Record<string, Record<HttpMethod, Operation | undefined>>): Promise<KubbFile.File | null> {
+    const imports: Array<KubbFile.Import> = [
       {
         name: ['makeApi', 'Zodios'],
         path: '@zodios/core',
@@ -371,28 +371,28 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       path: zodios.filePath,
-      fileName: zodios.fileName,
+      baseName: zodios.fileName,
       source: sources.join('\n'),
       imports,
     }
   }
 
-  async get(): Promise<File | null> {
+  async get(): Promise<KubbFile.File | null> {
     return null
   }
 
-  async post(): Promise<File | null> {
+  async post(): Promise<KubbFile.File | null> {
     return null
   }
-  async patch(): Promise<File | null> {
-    return null
-  }
-
-  async put(): Promise<File | null> {
+  async patch(): Promise<KubbFile.File | null> {
     return null
   }
 
-  async delete(): Promise<File | null> {
+  async put(): Promise<KubbFile.File | null> {
+    return null
+  }
+
+  async delete(): Promise<KubbFile.File | null> {
     return null
   }
 }

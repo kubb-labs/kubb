@@ -1,16 +1,17 @@
 import { Export } from './Export.tsx'
 import { Import } from './Import.tsx'
 
+import type { KubbFile } from '@kubb/core'
 import type { ReactNode } from 'react'
 
 type BaseProps =
   | {
-      fileName?: never
-      path?: never
+      baseName?: never
+      path?: KubbFile.Path
     }
   | {
-      fileName: string
-      path: string
+      baseName: KubbFile.BaseName
+      path: KubbFile.Path
     }
 
 type Props = BaseProps & {
@@ -18,13 +19,13 @@ type Props = BaseProps & {
   children?: ReactNode
 }
 
-export function File({ fileName, path, env, children }: Props): ReactNode {
-  if (!fileName || !path) {
+export function File({ baseName, path, env, children }: Props): ReactNode {
+  if (!baseName || !path) {
     return children
   }
 
   return (
-    <kubb-file fileName={fileName} path={path} env={env}>
+    <kubb-file baseName={baseName} path={path} env={env}>
       {children}
     </kubb-file>
   )

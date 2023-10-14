@@ -1,10 +1,10 @@
-import type { File } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type React from 'react'
 import type { File as FileComponent } from '../../components/File.tsx'
 import type { DOMElement } from '../../types.ts'
 
-export function getFile(node: DOMElement): File | undefined {
-  let file: File | undefined
+export function getFile(node: DOMElement): KubbFile.File | undefined {
+  let file: KubbFile.File | undefined
 
   for (let index = 0; index < node.childNodes.length; index++) {
     const childNode = node.childNodes[index]
@@ -16,9 +16,9 @@ export function getFile(node: DOMElement): File | undefined {
     if (childNode.nodeName === 'kubb-file') {
       const attributes = childNode.attributes as React.ComponentProps<typeof FileComponent>
 
-      if (attributes.fileName && attributes.path) {
+      if (attributes.baseName && attributes.path) {
         file = {
-          fileName: attributes.fileName,
+          baseName: attributes.baseName,
           path: attributes.path,
           source: '',
           env: attributes.env,

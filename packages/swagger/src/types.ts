@@ -1,4 +1,4 @@
-import type { AppMeta as AppCoreMeta, Path, PluginFactoryOptions } from '@kubb/core'
+import type { AppMeta as AppCoreMeta, KubbFile, PluginFactoryOptions } from '@kubb/core'
 import type Oas from 'oas'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
@@ -55,8 +55,9 @@ export type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
 
 export type Resolver = {
   name: string
-  fileName: string
-  filePath: Path
+  // TODO rename
+  fileName: KubbFile.BaseName
+  filePath: KubbFile.Path
 }
 
 export type OperationSchema = {

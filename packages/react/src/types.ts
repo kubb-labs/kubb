@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import type { Export, Import } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type { Key, ReactNode } from 'react'
 
 type ReactElementNames = 'br'
@@ -15,7 +15,7 @@ declare global {
       'kubb-file': {
         children?: ReactNode
         key?: Key
-        fileName: string
+        baseName: string
         path: string
         env?: NodeJS.ProcessEnv
       }
@@ -27,10 +27,10 @@ declare global {
         print?: boolean
       }
 
-      'kubb-import': Import & {
+      'kubb-import': KubbFile.Import & {
         print?: boolean
       }
-      'kubb-export': Export & {
+      'kubb-export': KubbFile.Export & {
         print?: boolean
       }
     }

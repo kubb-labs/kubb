@@ -30,12 +30,6 @@ export function createRootServer<Context extends AppContextProps = AppContextPro
       instance.unmount()
       instances.delete(instance.id)
     },
-    get imports() {
-      return instance.imports
-    },
-    get exports() {
-      return instance.exports
-    },
     get file() {
       return instance.file
     },

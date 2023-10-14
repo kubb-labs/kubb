@@ -7,7 +7,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/OperationGenerator.ts'
 
-import type { File, OptionalPath } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
@@ -82,7 +82,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 
       if (groupBy?.type === 'tag') {
-        const filteredFiles = this.fileManager.files.filter((file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag) as File<FileMeta>[]
+        const filteredFiles = this.fileManager.files.filter(
+          (file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag,
+        ) as KubbFile.File<FileMeta>[]
         const rootFiles = filteredFiles
           .map((file) => {
             const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
@@ -91,7 +93,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
             if (name) {
               return {
-                fileName: 'index.ts',
+                baseName: 'index.ts' as const,
                 path: pathParser.resolve(this.config.root, this.config.output.path, output, 'index.ts'),
                 source: '',
                 exports: [{ path, asAlias: true, name }],
@@ -110,7 +112,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const clientPath = pathParser.resolve(root, 'client.ts')
 
       if (clientPath) {
-        const originalClientPath: OptionalPath = options.client
+        const originalClientPath: KubbFile.OptionalPath = options.client
           ? pathParser.resolve(this.config.root, options.client)
           : getLocation('@kubb/swagger-client/ts-client', process.cwd())
 
@@ -123,7 +125,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         const baseURL = await swaggerPlugin.api.getBaseURL()
 
         await this.addFile({
-          fileName: 'client.ts',
+          baseName: 'client.ts',
           path: clientPath,
           source: await read(originalClientPath),
           env: {

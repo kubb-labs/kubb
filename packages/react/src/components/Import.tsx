@@ -1,7 +1,7 @@
-import type { Import as ImportFileType } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type { ReactNode } from 'react'
 
-type Props = ImportFileType & {
+type Props = KubbFile.Import & {
   print?: boolean
 }
 

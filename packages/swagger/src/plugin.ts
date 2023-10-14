@@ -88,7 +88,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         await this.addFile({
           path,
-          fileName: `${name}.json`,
+          baseName: `${name}.json`,
           source: JSON.stringify(schema),
           meta: {
             pluginName,

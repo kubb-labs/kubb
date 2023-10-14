@@ -1,12 +1,7 @@
-import type { File, FileManager } from './managers/fileManager/index.ts'
-import type { PluginManager } from './managers/index.ts'
+import type { FileManager } from './managers/fileManager/index.ts'
+import type { KubbFile, PluginManager } from './managers/index.ts'
 import type { Cache } from './utils/cache.ts'
 import type { Logger } from './utils/logger.ts'
-
-/**
- * @deprecated
- */
-export interface Register {}
 
 /**
  * Config used in `kubb.config.js`
@@ -28,7 +23,7 @@ export type KubbUserConfig = Omit<KubbConfig, 'root' | 'plugins'> & {
    * Example: ['@kubb/swagger', { output: false }]
    * Or: createSwagger({ output: false })
    */
-  plugins?: KubbPlugin[] | KubbJSONPlugins[] | KubbObjectPlugins
+  plugins?: Array<KubbPlugin> | Array<KubbJSONPlugins> | KubbObjectPlugins
 }
 
 /**
@@ -68,7 +63,7 @@ export type KubbConfig = {
    * The plugin/package can forsee some options that you need to pass through.
    * Sometimes a plugin is depended on another plugin, if that's the case you will get an error back from the plugin you installed.
    */
-  plugins?: KubbPlugin[]
+  plugins?: Array<KubbPlugin>
   /**
    * Hooks that will be called when a specific action is triggered in Kubb.
    */
@@ -77,7 +72,7 @@ export type KubbConfig = {
      * Hook that will be triggerend at the end of all executions.
      * Useful for running Prettier or ESLint to use your own linting structure.
      */
-    done?: string | string[]
+    done?: string | Array<string>
   }
 }
 
@@ -194,7 +189,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @type hookFirst
    * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
    */
-  resolvePath: (this: PluginContext, fileName: string, directory?: string, options?: TOptions['resolvePathOptions']) => OptionalPath
+  resolvePath: (this: PluginContext, fileName: string, directory?: string, options?: TOptions['resolvePathOptions']) => KubbFile.OptionalPath
   /**
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.
@@ -206,17 +201,17 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Makes it possible to run async logic to override the path defined previously by `resolvePath`.
    * @type hookFirst
    */
-  load: (this: Omit<PluginContext, 'addFile'>, path: Path) => PossiblePromise<TransformResult | null>
+  load: (this: Omit<PluginContext, 'addFile'>, path: KubbFile.Path) => PossiblePromise<TransformResult | null>
   /**
    * Transform the source-code.
    * @type hookReduceArg0
    */
-  transform: (this: Omit<PluginContext, 'addFile'>, source: string, path: Path) => PossiblePromise<TransformResult>
+  transform: (this: Omit<PluginContext, 'addFile'>, source: string, path: KubbFile.Path) => PossiblePromise<TransformResult>
   /**
    * Write the result to the file-system based on the id(defined by `resolvePath` or changed by `load`).
    * @type hookParallel
    */
-  writeFile: (this: Omit<PluginContext, 'addFile'>, source: string | undefined, path: Path) => PossiblePromise<void>
+  writeFile: (this: Omit<PluginContext, 'addFile'>, source: string | undefined, path: KubbFile.Path) => PossiblePromise<void>
   /**
    * End of the plugin lifecycle.
    * @type hookParallel
@@ -256,8 +251,8 @@ export type PluginContext<TOptions = Record<string, unknown>> = {
   cache: Cache<PluginCache>
   fileManager: FileManager
   pluginManager: PluginManager
-  addFile: (...file: File[]) => Promise<File[]>
-  resolvePath: (params: ResolvePathParams<TOptions>) => OptionalPath
+  addFile: (...file: Array<KubbFile.File>) => Promise<Array<KubbFile.File>>
+  resolvePath: (params: ResolvePathParams<TOptions>) => KubbFile.OptionalPath
   resolveName: (params: ResolveNameParams) => string
   logger: Logger
   plugins: KubbPlugin[]
@@ -265,13 +260,6 @@ export type PluginContext<TOptions = Record<string, unknown>> = {
 
 // null will mean clear the watcher for this key
 export type TransformResult = string | null
-
-/**
- * @description Computing the name of a file or directory together with its position in relation to other directories traced back in a line to the root
- */
-export type Path = string
-export type OptionalPath = Path | null | undefined
-export type FileName = string | null | undefined
 
 export const LogLevel = {
   silent: 'silent',
@@ -282,6 +270,8 @@ export const LogLevel = {
 export type LogLevel = keyof typeof LogLevel
 
 export type AppMeta = { pluginManager: PluginManager }
+
+// generic types
 
 export type Prettify<T> = {
   [K in keyof T]: T[K]

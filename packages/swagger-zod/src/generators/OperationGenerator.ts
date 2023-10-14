@@ -4,7 +4,7 @@ import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { ZodBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
 
-import type { File, PathMode, PluginContext } from '@kubb/core'
+import type { KubbFile, PluginContext } from '@kubb/core'
 import type { ContentType, FileResolver, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
 import type { FileMeta } from '../types.ts'
 
@@ -14,7 +14,7 @@ type Options = {
   skipBy?: SkipBy[]
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
-  mode: PathMode
+  mode: KubbFile.Mode
 }
 
 export class OperationGenerator extends Generator<Options> {
@@ -29,11 +29,11 @@ export class OperationGenerator extends Generator<Options> {
     })
   }
 
-  async all(): Promise<File | null> {
+  async all(): Promise<KubbFile.File | null> {
     return null
   }
 
-  async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     const { resolvePath, mode, resolveName, oas } = this.options
 
     const zod = this.resolve(operation)
@@ -61,7 +61,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       path: zod.filePath,
-      fileName: zod.fileName,
+      baseName: zod.fileName,
       source,
       imports: [
         {
@@ -76,7 +76,7 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     const { resolvePath, mode, resolveName, oas } = this.options
 
     const zod = this.resolve(operation)
@@ -105,7 +105,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       path: zod.filePath,
-      fileName: zod.fileName,
+      baseName: zod.fileName,
       source,
       imports: [
         {
@@ -120,13 +120,13 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async put(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
-  async patch(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async patch(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
-  async delete(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async delete(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
 }

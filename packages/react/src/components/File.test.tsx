@@ -10,7 +10,7 @@ describe('<File/>', () => {
 
   test('render File', () => {
     const Component = () => {
-      return <File fileName="fileName" path="path" />
+      return <File baseName="test.ts" path="path" />
     }
     const root = createRoot()
     root.render(<Component />)
@@ -21,7 +21,7 @@ describe('<File/>', () => {
   test('render File with Import and Export', () => {
     const Component = () => {
       return (
-        <File fileName="fileName" path="path">
+        <File baseName="test.ts" path="path">
           <File.Import name={'React'} path="react" />
           <File.Export asAlias path="./index.ts" />
         </File>
@@ -30,7 +30,7 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.exports).toStrictEqual([
+    expect(root.file?.exports).toStrictEqual([
       {
         asAlias: true,
         isTypeOnly: undefined,
@@ -39,7 +39,7 @@ describe('<File/>', () => {
       },
     ])
 
-    expect(root.imports).toStrictEqual([
+    expect(root.file?.imports).toStrictEqual([
       {
         isTypeOnly: undefined,
         name: 'React',
@@ -51,7 +51,7 @@ describe('<File/>', () => {
   test('render File with Import and Export and print imports/exports', async () => {
     const Component = () => {
       return (
-        <File fileName="fileName" path="path">
+        <File baseName="test.ts" path="path">
           <File.Import name={'React'} path="react" print />
           <File.Export asAlias path="./index.ts" print />
         </File>
@@ -59,8 +59,6 @@ describe('<File/>', () => {
     }
     const root = createRoot()
     root.render(<Component />)
-
-    console.log(root.output, root.imports)
 
     expect(await format(root.output)).toStrictEqual(
       await format(`
@@ -73,7 +71,7 @@ export * from './index.ts'
   test('render File with source', () => {
     const Component = () => {
       return (
-        <File fileName="fileName" path="path">
+        <File baseName="test.ts" path="path">
           <File.Source>test</File.Source>
         </File>
       )
@@ -86,7 +84,7 @@ export * from './index.ts'
   test('render File with source and path, print', async () => {
     const Component = () => {
       return (
-        <File fileName="fileName" path="path">
+        <File baseName="test.ts" path="path">
           <File.Source path={pathParser.resolve(mocksPath, './test.ts')} print></File.Source>
         </File>
       )

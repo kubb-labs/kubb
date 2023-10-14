@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import ReactJSXRuntime from 'react/jsx-runtime'
 
-import type { Export, Import } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type { Key, ReactNode } from 'react'
 
 /// <reference no-default-lib="true" />
@@ -20,7 +20,7 @@ declare global {
       'kubb-file': {
         children?: ReactNode
         key?: Key
-        fileName: string
+        baseName: string
         path: string
         env?: NodeJS.ProcessEnv
       }
@@ -32,10 +32,10 @@ declare global {
         print?: boolean
       }
 
-      'kubb-import': Import & {
+      'kubb-import': KubbFile.Import & {
         print?: boolean
       }
-      'kubb-export': Export & {
+      'kubb-export': KubbFile.Export & {
         print?: boolean
       }
     }

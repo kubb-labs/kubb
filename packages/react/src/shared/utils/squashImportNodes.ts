@@ -1,12 +1,12 @@
 import { nodeNames } from '../dom.ts'
 
-import type { Import } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type React from 'react'
 import type { Import as ImportComponent } from '../../components/Import.tsx'
 import type { DOMElement } from '../../types.ts'
 
-export function squashImportNodes(node: DOMElement): Import[] {
-  let imports: Import[] = []
+export function squashImportNodes(node: DOMElement): Array<KubbFile.Import> {
+  let imports: Array<KubbFile.Import> = []
 
   for (let index = 0; index < node.childNodes.length; index++) {
     const childNode = node.childNodes[index]

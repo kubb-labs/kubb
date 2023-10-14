@@ -39,7 +39,7 @@ export function resolve({ operation, name, tag, pluginName, resolveName, resolve
     throw new Error(`Name ${name || operation?.getOperationId()} should be defined`)
   }
 
-  const fileName = `${resolvedName}.ts`
+  const fileName = `${resolvedName}.ts` as const
   const filePath = resolvePath({
     fileName,
     options: { pluginName, tag: tag || operation?.getTags()[0]?.name },

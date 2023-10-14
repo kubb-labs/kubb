@@ -62,7 +62,7 @@ export class MSWBuilder extends OasBuilder<Config> {
       const faker = useResolveFaker()
 
       return (
-        <File fileName={file.fileName} path={file.filePath}>
+        <File baseName={file.fileName} path={file.filePath}>
           <File.Import name={['rest']} path={'msw'} />
 
           {faker && responseName && <File.Import name={[responseName]} path={getRelativePath(file.filePath, faker.filePath)} />}

@@ -103,7 +103,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
           return this.addFile({
             path,
-            fileName: `${this.resolveName({ name, pluginName })}.ts`,
+            baseName: `${this.resolveName({ name, pluginName })}.ts`,
             source: builder.print(name),
             meta: {
               pluginName,
@@ -140,7 +140,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         await this.addFile({
           path,
-          fileName: `${this.resolveName({ name: output, pluginName })}.ts`,
+          baseName: `${this.resolveName({ name: output, pluginName })}.ts`,
           source: builder.print(),
           meta: {
             pluginName,

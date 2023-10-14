@@ -3,12 +3,12 @@ import path from 'node:path'
 import { format } from '../../../mocks/format.ts'
 import { combineFiles, createFileSource, getIndexes } from './utils.ts'
 
-import type { File } from './types.ts'
+import type { KubbFile } from './types.ts'
 
 describe('FileManager utils', () => {
   test('if getFileSource is returning code with imports', async () => {
     const code = createFileSource({
-      fileName: 'test.ts',
+      baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets;',
       imports: [
@@ -20,7 +20,7 @@ describe('FileManager utils', () => {
       ],
     })
     const codeWithDefaultImport = createFileSource({
-      fileName: 'test.ts',
+      baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets | Cat; const test = [client, React];',
       imports: [
@@ -40,7 +40,7 @@ describe('FileManager utils', () => {
       ],
     })
     const codeWithDefaultImportOrder = createFileSource({
-      fileName: 'test.ts',
+      baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets | Cat;\nconst test = [client, React];',
       imports: [
@@ -101,7 +101,7 @@ describe('FileManager utils', () => {
 
   test('if getFileSource is returning code with imports and default import', async () => {
     const code = createFileSource({
-      fileName: 'test.ts',
+      baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets;',
       imports: [
@@ -125,12 +125,12 @@ describe('FileManager utils', () => {
     const combined = combineFiles([
       {
         path: path.resolve('./src/models/file1.ts'),
-        fileName: 'file1.ts',
+        baseName: 'file1.ts',
         source: 'export const test = 2;',
       },
       {
         path: path.resolve('./src/models/file1.ts'),
-        fileName: 'file2.ts',
+        baseName: 'file2.ts',
         source: 'export const test2 = 3;',
       },
     ])
@@ -148,9 +148,9 @@ export const test2 = 3;`,
   })
 
   test('if getFileSource is returning code with exports and exports as', async () => {
-    const fileImport: File = {
+    const fileImport: KubbFile.File = {
       path: path.resolve('./src/models/file1.ts'),
-      fileName: 'file1.ts',
+      baseName: 'file1.ts',
       source: `export const test = 2;
       type Test = Pets | Lily | Dog;`,
       imports: [
@@ -172,9 +172,9 @@ export const test2 = 3;`,
       ],
     }
 
-    const fileExport: File = {
+    const fileExport: KubbFile.File = {
       path: path.resolve('./src/models/file1.ts'),
-      fileName: 'file1.ts',
+      baseName: 'file1.ts',
       source: '',
       exports: [
         {
@@ -214,11 +214,11 @@ export const test2 = 3;`,
   })
 
   test('if combineFiles is combining `exports`, `imports` and `source` for the same file', () => {
-    const importFiles: Array<File | null> = [
+    const importFiles: Array<KubbFile.File | null> = [
       null,
       {
         path: path.resolve('./src/models/file1.ts'),
-        fileName: 'file1.ts',
+        baseName: 'file1.ts',
         source: 'export const test = 2;',
         imports: [
           {
@@ -233,7 +233,7 @@ export const test2 = 3;`,
       },
       {
         path: path.resolve('./src/models/file1.ts'),
-        fileName: 'file2.ts',
+        baseName: 'file2.ts',
         source: 'export const test2 = 3;',
         imports: [
           {
@@ -245,11 +245,11 @@ export const test2 = 3;`,
       },
     ]
 
-    const exportFiles: Array<File | null> = [
+    const exportFiles: Array<KubbFile.File | null> = [
       null,
       {
         path: path.resolve('./src/models/file1.ts'),
-        fileName: 'file1.ts',
+        baseName: 'file1.ts',
         source: 'export const test = 2;',
         exports: [
           {
@@ -261,7 +261,7 @@ export const test2 = 3;`,
       },
       {
         path: path.resolve('./src/models/file1.ts'),
-        fileName: 'file2.ts',
+        baseName: 'file2.ts',
         source: 'export const test2 = 3;',
         exports: [
           {
@@ -276,7 +276,7 @@ export const test2 = 3;`,
     expect(combineFiles(importFiles)).toEqual([
       {
         path: path.resolve('./src/models/file1.ts'),
-        fileName: 'file2.ts',
+        baseName: 'file2.ts',
         source: 'export const test = 2;\nexport const test2 = 3;',
         imports: [
           {
@@ -323,13 +323,13 @@ export const test2 = 3;`,
     const rootPath = path.resolve(__dirname, '../../../mocks/treeNode')
     const files = getIndexes(rootPath)
 
-    expect(files?.every((file) => file.fileName === 'index.ts')).toBeTruthy()
+    expect(files?.every((file) => file.baseName === 'index.ts')).toBeTruthy()
   })
 
   test('if getFileSource is setting `process.env` based on `env` object', async () => {
-    const fileImport: File = {
+    const fileImport: KubbFile.File = {
       path: path.resolve('./src/models/file1.ts'),
-      fileName: 'file1.ts',
+      baseName: 'file1.ts',
       source: 'export const hello = process.env.HELLO;',
       imports: [
         {
@@ -343,9 +343,9 @@ export const test2 = 3;`,
       },
     }
 
-    const fileImportAdvanced: File = {
+    const fileImportAdvanced: KubbFile.File = {
       path: path.resolve('./src/models/file1.ts'),
-      fileName: 'file1.ts',
+      baseName: 'file1.ts',
       source: 'export const hello = process.env["HELLO"]; type Test = Pets;',
       imports: [
         {
@@ -359,9 +359,9 @@ export const test2 = 3;`,
       },
     }
 
-    const fileImportDeclareModule: File = {
+    const fileImportDeclareModule: KubbFile.File = {
       path: path.resolve('./src/models/file1.ts'),
-      fileName: 'file1.ts',
+      baseName: 'file1.ts',
       source: `
       declare const TEST: string;
 

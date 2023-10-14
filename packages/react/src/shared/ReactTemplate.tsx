@@ -8,7 +8,7 @@ import { App } from '../components/App.tsx'
 import { reconciler } from '../reconciler.ts'
 import { renderer } from './renderer.ts'
 
-import type { Export, File, Import, Logger } from '@kubb/core'
+import type { KubbFile, Logger } from '@kubb/core'
 import type { ReactNode } from 'react'
 import type { AppContextProps } from '../components/AppContext.tsx'
 import type { FiberRoot } from '../reconciler.ts'
@@ -26,9 +26,7 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   // Ignore last render after unmounting a tree to prevent empty output before exit
   private isUnmounted: boolean
   private lastOutput: string
-  private lastImports: Import[] = []
-  private lastExports: Export[] = []
-  private lastFile?: File
+  private lastFile?: KubbFile.File
   private readonly container: FiberRoot
   private readonly rootNode: DOMElement
   public readonly id = crypto.randomUUID()
@@ -79,14 +77,8 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   get output(): string {
     return this.lastOutput
   }
-  get imports(): Import[] {
-    return this.lastImports
-  }
-  get exports(): Export[] {
-    return this.lastExports
-  }
 
-  get file(): File | undefined {
+  get file(): KubbFile.File | undefined {
     return this.lastFile
   }
 
@@ -106,9 +98,7 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
     const { output, file, imports, exports } = renderer(this.rootNode)
 
     this.lastOutput = output
-    this.lastImports = imports
     this.lastFile = file
-    this.lastExports = exports
   }
   onError(_error: Error): void {}
 

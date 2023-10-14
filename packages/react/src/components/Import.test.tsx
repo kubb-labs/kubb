@@ -18,6 +18,6 @@ describe('<Import/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.imports).toStrictEqual([{ isTypeOnly: undefined, name: 'React', path: 'react' }])
+    expect(root.file?.imports).toStrictEqual([{ isTypeOnly: undefined, name: 'React', path: 'react' }])
   })
 })
