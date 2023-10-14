@@ -138,7 +138,7 @@ describe('FileManager utils', () => {
     expect(combined).toMatchObject([
       {
         path: path.resolve('./src/models/file1.ts'),
-        fileName: 'file2.ts',
+        baseName: 'file2.ts',
         imports: [],
         exports: [],
         source: `export const test = 2;
@@ -300,7 +300,7 @@ export const test2 = 3;`,
     expect(combineFiles(exportFiles)).toMatchObject([
       {
         path: path.resolve('./src/models/file1.ts'),
-        fileName: 'file2.ts',
+        baseName: 'file2.ts',
         source: 'export const test = 2;\nexport const test2 = 3;',
         imports: [],
         exports: [

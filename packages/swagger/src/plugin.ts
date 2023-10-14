@@ -51,14 +51,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         contentType,
       }
     },
-    resolvePath(fileName) {
+    resolvePath(baseName) {
       if (output === false) {
         return undefined
       }
 
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 
-      return pathParser.resolve(root, output, fileName)
+      return pathParser.resolve(root, output, baseName)
     },
     async writeFile(source, path) {
       if (!path.endsWith('.json') || !source) {

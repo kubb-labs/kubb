@@ -58,8 +58,8 @@ export class FileManager {
   }
 
   addOrAppend(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
-    // if (!file.path.endsWith(file.fileName)) {
-    //   console.warn(`Path ${file.path}(file.path) should end with the fileName ${file.fileName}(file.filename)`)
+    // if (!file.path.endsWith(file.baseName)) {
+    //   console.warn(`Path ${file.path}(file.path) should end with the baseName ${file.baseName}(file.filename)`)
     // }
 
     const previousCaches = this.cache.get(file.path)

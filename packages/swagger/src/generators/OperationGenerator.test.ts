@@ -7,9 +7,9 @@ import type { Operation, Resolver } from '../types.ts'
 class DummyOperationGenerator extends OperationGenerator {
   resolve(_operation: Operation): Resolver {
     return {
-      baseName: 'fileName.ts',
-      path: 'models/fileName/ts',
-      name: 'fileName',
+      baseName: 'baseName.ts',
+      path: 'models/baseName/ts/baseName.ts',
+      name: 'baseName',
     }
   }
 
@@ -105,7 +105,7 @@ describe('abstract class OperationGenerator', () => {
 
     expect(files).toMatchObject([
       {
-        fileName: 'showPetById.ts',
+        baseName: 'showPetById.ts',
         path: 'showPetById.ts',
         source: '',
       },
@@ -133,7 +133,7 @@ describe('abstract class OperationGenerator', () => {
 
     expect(files).toMatchObject([
       {
-        fileName: 'listPets.ts',
+        baseName: 'listPets.ts',
         path: 'listPets.ts',
         source: '',
       },

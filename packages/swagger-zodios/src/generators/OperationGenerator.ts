@@ -40,9 +40,9 @@ export class OperationGenerator extends Generator<Options> {
     const schemas = this.getSchemas(operation)
 
     const name = resolveName({ name: schemas.response.name, pluginName: swaggerZodPluginName })
-    const fileName: KubbFile.BaseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
+    const baseName: KubbFile.BaseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = resolvePath({
-      baseName: fileName,
+      baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -53,7 +53,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       name,
-      baseName: fileName,
+      baseName: baseName,
       path: filePath,
     }
   }
@@ -68,9 +68,9 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const name = resolveName({ name: schemas.request.name, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
+    const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
-      baseName: fileName,
+      baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -81,7 +81,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       name,
-      baseName: fileName,
+      baseName: baseName,
       path: filePath,
     }
   }
@@ -95,9 +95,9 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const name = resolveName({ name: schemas.headerParams.name, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
+    const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
-      baseName: fileName,
+      baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -108,7 +108,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       name,
-      baseName: fileName,
+      baseName: baseName,
       path: filePath,
     }
   }
@@ -122,9 +122,9 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const name = resolveName({ name: schemas.pathParams.name, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
+    const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
-      baseName: fileName,
+      baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -135,7 +135,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       name,
-      baseName: fileName,
+      baseName: baseName,
       path: filePath,
     }
   }
@@ -150,9 +150,9 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const name = resolveName({ name: schemas.queryParams.name, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
+    const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
-      baseName: fileName,
+      baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -163,7 +163,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       name,
-      baseName: fileName,
+      baseName: baseName,
       path: filePath,
     }
   }
@@ -172,9 +172,9 @@ export class OperationGenerator extends Generator<Options> {
     const { resolvePath, resolveName } = this.options
 
     const name = resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerZodPluginName })
-    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
+    const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = resolvePath({
-      baseName: fileName,
+      baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
     })
@@ -185,7 +185,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       name,
-      baseName: fileName,
+      baseName: baseName,
       path: filePath,
     }
   }

@@ -321,7 +321,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
   abstract all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<KubbFile.File | null>
 
   /**
-   * Call resolveType and get back the name, filePath and fileName
+   * Call resolveType and get back the name, filePath and baseName
    */
   abstract resolve(operation: Operation): Resolver
 }

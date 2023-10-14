@@ -184,12 +184,12 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    */
   buildStart: (this: PluginContext, kubbConfig: KubbConfig) => PossiblePromise<void>
   /**
-   * Resolve to a Path based on a fileName(example: `./Pet.ts`) and directory(example: `./models`).
+   * Resolve to a Path based on a baseName(example: `./Pet.ts`) and directory(example: `./models`).
    * Options can als be included.
    * @type hookFirst
    * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
    */
-  resolvePath: (this: PluginContext, fileName: string, directory?: string, options?: TOptions['resolvePathOptions']) => KubbFile.OptionalPath
+  resolvePath: (this: PluginContext, baseName: string, directory?: string, options?: TOptions['resolvePathOptions']) => KubbFile.OptionalPath
   /**
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.

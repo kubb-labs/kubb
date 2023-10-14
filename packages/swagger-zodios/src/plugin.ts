@@ -27,10 +27,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return true
     },
-    resolvePath(fileName, _directory) {
+    resolvePath(baseName, _directory) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 
-      return pathParser.resolve(root, fileName)
+      return pathParser.resolve(root, baseName)
     },
     resolveName(name) {
       return camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })

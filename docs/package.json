@@ -26,7 +26,7 @@
     "vue": "^3.3.4"
   },
   "devDependencies": {
-    "@types/node": "^20.8.5"
+    "@types/node": "^20.8.6"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {
