@@ -110,11 +110,11 @@ export class OperationGenerator extends Generator<Options> {
         },
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientPath ? getRelativePath(hook.path, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: ['ResponseConfig'],
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientPath ? getRelativePath(hook.path, clientPath) : '@kubb/swagger-client/client',
           isTypeOnly: true,
         },
         {
@@ -125,7 +125,7 @@ export class OperationGenerator extends Generator<Options> {
             schemas.headerParams?.name,
             ...errors.map((error) => error.name),
           ].filter(Boolean),
-          path: getRelativePath(hook.filePath, type.filePath),
+          path: getRelativePath(hook.path, type.path),
           isTypeOnly: true,
         },
       ],
@@ -173,11 +173,11 @@ export class OperationGenerator extends Generator<Options> {
         },
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientPath ? getRelativePath(hook.path, clientPath) : '@kubb/swagger-client/client',
         },
         {
           name: ['ResponseConfig'],
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientPath ? getRelativePath(hook.path, clientPath) : '@kubb/swagger-client/client',
           isTypeOnly: true,
         },
         {
@@ -189,7 +189,7 @@ export class OperationGenerator extends Generator<Options> {
             schemas.headerParams?.name,
             ...errors.map((error) => error.name),
           ].filter(Boolean),
-          path: getRelativePath(hook.filePath, type.filePath),
+          path: getRelativePath(hook.path, type.path),
           isTypeOnly: true,
         },
       ],

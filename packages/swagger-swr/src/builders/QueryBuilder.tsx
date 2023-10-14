@@ -259,7 +259,7 @@ export function ${name} <
       const file = useResolve({ name, pluginName })
 
       return (
-        <File baseName={file.fileName} path={file.filePath}>
+        <File baseName={file.baseName} path={file.path}>
           <File.Source>
             {this.queryOptions.code}
             <br />
@@ -273,7 +273,7 @@ export function ${name} <
       const file = useResolve({ name, pluginName })
 
       return (
-        <File baseName={file.fileName} path={file.filePath}>
+        <File baseName={file.baseName} path={file.path}>
           <File.Source>{this.mutation.code}</File.Source>
         </File>
       )

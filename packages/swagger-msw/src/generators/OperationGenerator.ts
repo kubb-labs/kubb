@@ -45,7 +45,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const controllerFileName = `handlers.ts`
     const controllerFilePath = resolvePath({
-      fileName: controllerFileName,
+      baseName: controllerFileName,
     })
 
     if (!controllerFilePath) {
@@ -67,7 +67,7 @@ export class OperationGenerator extends Generator<Options> {
 
         imports.push({
           name: [name],
-          path: getRelativePath(controllerFilePath, msw.filePath),
+          path: getRelativePath(controllerFilePath, msw.path),
         })
       }
     }
