@@ -7,7 +7,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { pluginName } from '../plugin.ts'
 
 import type { File, PluginContext } from '@kubb/core'
-import type { ContentType, HttpMethod, Oas, Operation, Resolver, SkipBy } from '@kubb/swagger'
+import type { ContentType, HttpMethod, Oas, OpenAPIV3, Operation, Resolver, SkipBy } from '@kubb/swagger'
 
 type Options = {
   oas: Oas
@@ -40,6 +40,61 @@ export class OperationGenerator extends Generator<Options> {
     const schemas = this.getSchemas(operation)
 
     const name = resolveName({ name: schemas.response.name, pluginName: swaggerZodPluginName })
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
+    const filePath = resolvePath({
+      fileName,
+      options: { tag: operation.getTags()[0]?.name },
+      pluginName: swaggerZodPluginName,
+    })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
+  resolveRequest(operation: Operation): Resolver {
+    const { resolvePath, resolveName } = this.options
+
+    const schemas = this.getSchemas(operation)
+
+    if (!schemas.request?.name) {
+      throw new Error('schemas.request should be defined')
+    }
+
+    const name = resolveName({ name: schemas.request.name, pluginName: swaggerZodPluginName })
+    const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
+    const filePath = resolvePath({
+      fileName,
+      options: { tag: operation.getTags()[0]?.name },
+      pluginName: swaggerZodPluginName,
+    })
+
+    if (!filePath || !name) {
+      throw new Error('Filepath should be defined')
+    }
+
+    return {
+      name,
+      fileName,
+      filePath,
+    }
+  }
+
+  resolveHeaderParams(operation: Operation): Resolver {
+    const { resolvePath, resolveName } = this.options
+
+    const schemas = this.getSchemas(operation)
+    if (!schemas.headerParams?.name) {
+      throw new Error('schemas.pathParams should be defined')
+    }
+
+    const name = resolveName({ name: schemas.headerParams.name, pluginName: swaggerZodPluginName })
     const fileName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = resolvePath({
       fileName,
@@ -165,14 +220,19 @@ export class OperationGenerator extends Generator<Options> {
           path: getRelativePath(zodios.filePath, pathParams.filePath),
         })
 
-        parameters.push(`
+        schemas.pathParams.keys?.forEach((key) => {
+          const schema = schemas.pathParams?.schema?.properties?.[key] as OpenAPIV3.SchemaObject
+          const zodSchema = schemas.pathParams?.schema?.$ref ? `${pathParams.name}.schema.shape['${key}']` : `${pathParams.name}.shape['${key}']`
+
+          parameters.push(`
           {
-            name: "${schemas.pathParams.name}",
-            description: \`${escape(schemas.pathParams.description)}\`,
+            name: "${key}",
+            description: \`${escape(schema?.description)}\`,
             type: "Path",
-            schema: ${pathParams.name}
+            schema: ${zodSchema}
           }
         `)
+        })
       }
 
       if (schemas.queryParams) {
@@ -183,15 +243,66 @@ export class OperationGenerator extends Generator<Options> {
           path: getRelativePath(zodios.filePath, queryParams.filePath),
         })
 
-        parameters.push(`
+        schemas.queryParams.keys?.forEach((key) => {
+          const schema = schemas.queryParams?.schema?.properties?.[key] as OpenAPIV3.SchemaObject
+          const zodSchema = schemas.queryParams?.schema?.$ref ? `${queryParams.name}.schema.shape['${key}']` : `${queryParams.name}.shape['${key}']`
+
+          parameters.push(`
           {
-            name: "${schemas.queryParams.name}",
-            description: \`${escape(schemas.queryParams.description)}\`,
+            name: "${key}",
+            description: \`${escape(schema?.description)}\`,
             type: "Query",
-            schema: ${queryParams.name}
+            schema: ${zodSchema}
           }
         `)
+        })
       }
+
+      if (schemas.request) {
+        const requestBody = this.resolveRequest(operation)
+
+        imports.push({
+          name: [requestBody.name],
+          path: getRelativePath(zodios.filePath, requestBody.filePath),
+        })
+        schemas.request.keys?.forEach((key) => {
+          const schema = schemas.request?.schema?.properties?.[key] as OpenAPIV3.SchemaObject
+          const zodSchema = schemas.request?.schema?.$ref ? `${requestBody.name}.schema.shape['${key}']` : `${requestBody.name}.shape['${key}']`
+
+          parameters.push(`
+          {
+            name: "${key}",
+            description: \`${escape(schema?.description)}\`,
+            type: "Body",
+            schema: ${zodSchema}
+          }
+        `)
+        })
+      }
+
+      if (schemas.headerParams) {
+        const headerParams = this.resolveHeaderParams(operation)
+
+        imports.push({
+          name: [headerParams.name],
+          path: getRelativePath(zodios.filePath, headerParams.filePath),
+        })
+
+        schemas.headerParams.keys?.forEach((key) => {
+          const schema = schemas.headerParams?.schema?.properties?.[key] as OpenAPIV3.SchemaObject
+          const zodSchema = schemas.headerParams?.schema?.$ref ? `${headerParams.name}.schema.shape['${key}']` : `${headerParams.name}.shape['${key}']`
+
+          parameters.push(`
+          {
+            name: "${key}",
+            description: \`${escape(schema?.description)}\`,
+            type: "Header",
+            schema: ${zodSchema}
+          }
+        `)
+        })
+      }
+
       if (schemas.errors) {
         schemas.errors.forEach((errorOperationSchema) => {
           if (!errorOperationSchema.statusCode) {
