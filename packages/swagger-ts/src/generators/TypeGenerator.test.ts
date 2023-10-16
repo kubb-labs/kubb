@@ -95,6 +95,34 @@ describe('TypeGenerator simple', () => {
     )
   })
 
+  test('generate type for nullable fields', async () => {
+    const generator = new TypeGenerator({
+      withJSDocs: false,
+      resolveName: ({name}) => name,
+      enumType: 'asConst',
+      dateType: 'string',
+      optionalType: 'questionToken',
+    })
+
+    const schema: OpenAPIV3.SchemaObject = {
+      type: 'object',
+      properties: {
+        foo: {
+          type: 'string',
+          nullable: true
+        }
+      }
+    }
+
+    const node = generator.build({schema, baseName: 'Test'})
+    const output = print(node, undefined)
+    expect(await format(output)).toMatch(await format(`
+      export type Test = {
+        foo?: string | null
+      }
+    `))
+  })
+
   test('generate type for Pets', async () => {
     const oas = await oasPathParser(path)
     const generator = new TypeGenerator({

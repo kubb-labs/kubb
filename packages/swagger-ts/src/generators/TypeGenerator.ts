@@ -112,7 +112,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, name?: string): ts.TypeNode | null {
+  private getTypeFromSchema(schema?: OpenAPIV3.SchemaObject, name?: string): ts.TypeNode | null {
     const type = this.getBaseTypeFromSchema(schema, name)
 
     if (!type) {
