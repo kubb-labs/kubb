@@ -1,4 +1,16 @@
 # Changelog
+## [1.12.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.11.5...@kubb/swagger-ts-v1.12.0) (2023-10-16)
+
+
+### ✨ Features
+
+* **swagger-ts:** support nullable types ([5a4f7cf](https://github.com/kubb-project/kubb/commit/5a4f7cf2e9faa063dc2844c98cf738098ce62ebe))
+
+
+### 🐞 Bug Fixes
+
+* nonnullable for generated types ([0c676e4](https://github.com/kubb-project/kubb/commit/0c676e4ec3735e3f41e6e3bed45dc4bbbcc89a00))
+
 ## [1.11.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.11.4...@kubb/swagger-ts-v1.11.5) (2023-10-16)
 
 
