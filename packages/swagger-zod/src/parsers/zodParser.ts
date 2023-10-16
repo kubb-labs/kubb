@@ -26,6 +26,7 @@ export const zodKeywords = {
   max: 'max',
   optional: 'optional',
   catchall: 'catchall',
+  readOnly: 'readOnly',
 
   // custom ones
   ref: 'ref',
@@ -62,6 +63,7 @@ export const zodKeywordMapper: Record<ZodKeyword, string> = {
   max: '.max',
   optional: '.optional',
   catchall: '.catchall',
+  readOnly: '.readonly',
 
   // custom ones
   ref: 'ref',
@@ -119,6 +121,7 @@ type ZodMetaEmail = { keyword: typeof zodKeywords.email }
 type ZodMetaUuid = { keyword: typeof zodKeywords.uuid }
 
 type ZodMetaUrl = { keyword: typeof zodKeywords.url }
+type ZodMetaReadOnly = { keyword: typeof zodKeywords.readOnly }
 
 export type ZodMeta =
   | ZodMetaAny
@@ -149,6 +152,7 @@ export type ZodMeta =
   | ZodMetaUuid
   | ZodMetaLiteral
   | ZodMetaUrl
+  | ZodMetaReadOnly
 
 /**
  *

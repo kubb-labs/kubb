@@ -141,6 +141,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         questionToken: ['questionToken', 'questionTokenAndUndefined'].includes(optionalType) && !isRequired,
         name,
         type: type as ts.TypeNode,
+        readOnly: schema.readOnly,
       })
       if (this.options.withJSDocs) {
         return appendJSDocToNode({
