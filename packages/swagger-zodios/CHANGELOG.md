@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.11.3...@kubb/swagger-zodios-v1.11.4) (2023-10-16)
+
+
+### 🐞 Bug Fixes
+
+* multiple body parameters in endpoint ([67e9be8](https://github.com/kubb-project/kubb/commit/67e9be81c58eb07490f1c6042a8c0bc9be81640b))
+
 ## [1.11.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.11.2...@kubb/swagger-zodios-v1.11.3) (2023-10-14)
 
 
