@@ -1,7 +1,33 @@
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { orderBy } from 'natural-orderby'
 
-import type { FunctionParamsAST } from './createFunctionParams.ts'
+export type FunctionParamsAST =
+  | {
+      name?: string
+      type?: string
+      /**
+       * @default true
+       */
+      required?: boolean
+      /**
+       * @default true
+       */
+      enabled?: boolean
+      default?: string
+    }
+  | {
+      name?: never
+      type: string
+      /**
+       * @default true
+       */
+      required?: boolean
+      /**
+       * @default true
+       */
+      enabled?: boolean
+      default?: string
+    }
 
 export class FunctionParams {
   public type?: 'generics' | 'typed'

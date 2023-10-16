@@ -1,5 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createFunctionParams, createJSDocBlockText, FunctionParams, URLPath } from '@kubb/core'
+import { combineCodes, createJSDocBlockText, FunctionParams, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@kubb/swagger'
 
@@ -58,6 +58,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     }).toString()
 
     const generics = new FunctionParams()
+    const params = new FunctionParams()
 
     generics.add([
       { type: 'TData', default: schemas.response.name },
@@ -92,7 +93,7 @@ export class QueryBuilder extends OasBuilder<Config> {
         default: '{}',
       },
     ]
-    const params = createFunctionParams(paramsData)
+    params.add(paramsData)
 
     const unrefs =
       framework === 'vue'
@@ -114,7 +115,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     }
 
     codes.push(`
-export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
   const queryKey = ${queryKey};
   
   return {
@@ -149,6 +150,8 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
     const comments = getComments(operation)
 
     const generics = new FunctionParams()
+    const params = new FunctionParams()
+    const queryParams = new FunctionParams()
 
     generics.add([
       { type: 'TData', default: schemas.response.name },
@@ -157,7 +160,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
 
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
-    const params = createFunctionParams([
+    params.add([
       ...getASTParams(schemas.pathParams, {
         typed: true,
         override:
@@ -190,7 +193,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
     const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
       schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
     })`
-    const queryParams = createFunctionParams([
+    queryParams.add([
       ...getASTParams(schemas.pathParams, {
         typed: false,
         override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
@@ -210,11 +213,13 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
         required: false,
       },
     ])
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams})`
+    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.query.UseQueryResult}<${queryGenerics.join(', ')}> & { queryKey: QueryKey } {
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryResult}<${queryGenerics.join(
+      ', ',
+    )}> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
   const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
   
@@ -246,6 +251,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
     }).toString()
 
     const generics = new FunctionParams()
+    const params = new FunctionParams()
 
     generics.add([
       { type: 'TData', default: schemas.response.name },
@@ -280,7 +286,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
         default: '{}',
       },
     ]
-    const params = createFunctionParams(paramsData)
+    params.add(paramsData)
 
     const unrefs =
       framework === 'vue'
@@ -301,7 +307,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
     }
 
     codes.push(`
-export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}> {
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}> {
   const queryKey = ${queryKey};
 
   return {
@@ -344,6 +350,8 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
     const comments = getComments(operation)
 
     const generics = new FunctionParams()
+    const params = new FunctionParams()
+    const queryParams = new FunctionParams()
 
     generics.add([
       { type: 'TData', default: schemas.response.name },
@@ -352,7 +360,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
 
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
-    const params = createFunctionParams([
+    params.add([
       ...getASTParams(schemas.pathParams, {
         typed: true,
         override:
@@ -385,7 +393,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
     const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
       schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
     })`
-    const queryParams = createFunctionParams([
+    queryParams.add([
       ...getASTParams(schemas.pathParams, {
         typed: false,
         override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
@@ -405,11 +413,11 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
         required: false,
       },
     ])
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams})`
+    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.query.UseInfiniteQueryResult}<${queryGenerics.join(
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryResult}<${queryGenerics.join(
       ', ',
     )}> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
@@ -439,6 +447,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
     const method = operation.method
 
     const generics = new FunctionParams()
+    const params = new FunctionParams()
 
     generics.add([
       { type: 'TData', default: schemas.response.name },
@@ -482,7 +491,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
         default: '{}',
       },
     ]
-    const params = createFunctionParams(paramsData)
+    params.add(paramsData)
 
     const unrefs =
       framework === 'vue'
@@ -496,7 +505,7 @@ export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.toString()}>(${params}): ${frameworkImports.mutate.UseMutationResult}<${mutationGenerics.join(', ')}> {
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.mutate.UseMutationResult}<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
   
   return ${frameworkImports.mutate.useMutation}<${mutationGenerics.join(', ')}>({

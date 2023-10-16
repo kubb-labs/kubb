@@ -1,5 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createFunctionParams, createJSDocBlockText, FunctionParams, URLPath } from '@kubb/core'
+import { combineCodes, createJSDocBlockText, FunctionParams, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, OasBuilder, useResolve } from '@kubb/swagger'
 
@@ -31,6 +31,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
 
     const generics = new FunctionParams()
+    const params = new FunctionParams()
 
     generics.add([
       { type: 'TData', default: schemas.response.name },
@@ -40,7 +41,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
 
-    const params = createFunctionParams([
+    params.add([
       ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
@@ -65,7 +66,7 @@ export class QueryBuilder extends OasBuilder<Config> {
 export function ${name} <
   ${generics.toString()}
 >(
-  ${params}
+  ${params.toString()}
 ): SWRConfiguration<${queryGenerics.join(', ')}> {
   return {
     fetcher: () => {
@@ -94,6 +95,8 @@ export function ${name} <
     const comments = getComments(operation)
 
     const generics = new FunctionParams()
+    const params = new FunctionParams()
+    const queryParams = new FunctionParams()
 
     generics.add([
       { type: 'TData', default: schemas.response.name },
@@ -102,7 +105,7 @@ export function ${name} <
 
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
-    const params = createFunctionParams([
+    params.add([
       ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
@@ -128,7 +131,7 @@ export function ${name} <
       },
     ])
 
-    const queryParams = createFunctionParams([
+    queryParams.add([
       ...getASTParams(schemas.pathParams, { typed: false }),
       {
         name: 'params',
@@ -145,11 +148,11 @@ export function ${name} <
         required: false,
       },
     ])
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams})`
+    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.toString()}>(${params}): SWRResponse<${queryGenerics.join(', ')}> {
+export function ${name} <${generics.toString()}>(${params.toString()}): SWRResponse<${queryGenerics.join(', ')}> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
   
   const url = shouldFetch ? ${new URLPath(operation.path).template} : null;
@@ -173,6 +176,7 @@ export function ${name} <${generics.toString()}>(${params}): SWRResponse<${query
     const method = operation.method
 
     const generics = new FunctionParams()
+    const params = new FunctionParams()
 
     generics.add([
       { type: 'TData', default: schemas.response.name },
@@ -184,7 +188,7 @@ export function ${name} <${generics.toString()}>(${params}): SWRResponse<${query
 
     const mutationGenerics = ['ResponseConfig<TData>', 'TError', 'string | null', schemas.request?.name ? `TVariables` : 'never'].filter(Boolean)
 
-    const params = createFunctionParams([
+    params.add([
       ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
@@ -215,7 +219,7 @@ export function ${name} <${generics.toString()}>(${params}): SWRResponse<${query
 export function ${name} <
   ${generics.toString()}
 >(
-  ${params}
+  ${params.toString()}
 ): SWRMutationResponse<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
   
