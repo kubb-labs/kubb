@@ -18,9 +18,9 @@ export type UpdatePet405 = any | null
 /**
  * @description Update an existent pet in the store
  */
-export type UpdatePetMutationRequest = Pet
+export type UpdatePetMutationRequest = Omit<Pet, 'id'>
 
 /**
  * @description Successful operation
  */
-export type UpdatePetMutationResponse = Pet
+export type UpdatePetMutationResponse = Omit<Pet, 'name'>

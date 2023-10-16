@@ -110,11 +110,27 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
 
     if (isReference(schema)) {
       const responseSchema = findSchemaDefinition(schema?.$ref, operation.api) as OpenAPIV3.ResponseObject
+      const contentTypeSchema = responseSchema.content?.[contentType]?.schema as OpenAPIV3.SchemaObject
 
-      return responseSchema.content?.[contentType]?.schema as OpenAPIV3.SchemaObject
+      if (isReference(contentTypeSchema)) {
+        return {
+          ...findSchemaDefinition(contentTypeSchema?.$ref, operation.api),
+          $ref: contentTypeSchema.$ref,
+        } as OpenAPIV3.SchemaObject
+      }
+
+      return contentTypeSchema
+    }
+    const responseJSONSchema = operation.getResponseAsJSONSchema(responseStatusCode)?.at(0)?.schema as OpenAPIV3.SchemaObject
+
+    if (isReference(responseJSONSchema)) {
+      return {
+        ...findSchemaDefinition(responseJSONSchema?.$ref, operation.api),
+        $ref: responseJSONSchema.$ref,
+      } as OpenAPIV3.SchemaObject
     }
 
-    return operation.getResponseAsJSONSchema(responseStatusCode)?.at(0)?.schema as OpenAPIV3.SchemaObject
+    return responseJSONSchema
   }
 
   private getRequestSchema(operation: Operation): OpenAPIV3.SchemaObject | null {
@@ -180,6 +196,12 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
             operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
             schema: requestSchema,
             keys: requestSchema.properties ? Object.keys(requestSchema.properties) : undefined,
+            keysToOmit: requestSchema.properties
+              ? Object.keys(requestSchema.properties).filter((key) => {
+                  const item = requestSchema.properties![key] as OpenAPIV3.SchemaObject
+                  return item?.readOnly
+                })
+              : undefined,
           }
         : undefined,
       response: {
@@ -192,6 +214,12 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
         schema: responseSchema,
         statusCode: 200,
         keys: responseSchema?.properties ? Object.keys(responseSchema.properties) : undefined,
+        keysToOmit: responseSchema?.properties
+          ? Object.keys(responseSchema.properties).filter((key) => {
+              const item = responseSchema.properties![key] as OpenAPIV3.SchemaObject
+              return item?.writeOnly
+            })
+          : undefined,
       },
       errors: operation
         .getResponseStatusCodes()

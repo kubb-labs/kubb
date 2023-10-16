@@ -12,7 +12,7 @@ export type Pet = {
    * @type integer | undefined int64
    * @example 10
    */
-  id?: number
+  readonly id?: number
   /**
    * @type string
    * @example doggie

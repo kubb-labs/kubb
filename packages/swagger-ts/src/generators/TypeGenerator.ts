@@ -4,6 +4,7 @@ import {
   createEnumDeclaration,
   createIndexSignature,
   createIntersectionDeclaration,
+  createOmitDeclaration,
   createPropertySignature,
   createTupleDeclaration,
   createTypeAliasDeclaration,
@@ -60,7 +61,17 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     return this
   }
 
-  build({ schema, baseName, description }: { schema: OpenAPIV3.SchemaObject; baseName: string; description?: string }): ts.Node[] {
+  build({
+    schema,
+    baseName,
+    description,
+    keysToOmit,
+  }: {
+    schema: OpenAPIV3.SchemaObject
+    baseName: string
+    description?: string
+    keysToOmit?: string[]
+  }): ts.Node[] {
     const nodes: ts.Node[] = []
     const type = this.getTypeFromSchema(schema, baseName)
 
@@ -71,7 +82,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     const node = createTypeAliasDeclaration({
       modifiers: [modifiers.export],
       name: this.options.resolveName({ name: baseName, pluginName }) || baseName,
-      type,
+      type: keysToOmit?.length ? createOmitDeclaration({ keys: keysToOmit, type }) : type,
     })
 
     if (description) {
@@ -141,6 +152,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         questionToken: ['questionToken', 'questionTokenAndUndefined'].includes(optionalType) && !isRequired,
         name,
         type: type as ts.TypeNode,
+        readOnly: schema.readOnly,
       })
       if (this.options.withJSDocs) {
         return appendJSDocToNode({

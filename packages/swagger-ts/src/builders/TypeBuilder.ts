@@ -56,7 +56,12 @@ export class TypeBuilder extends OasBuilder<Config> {
           dateType: this.config.dateType,
           optionalType: this.config.optionalType,
         })
-        const sources = generator.build({ schema: operationSchema.schema, baseName: operationSchema.name, description: operationSchema.description })
+        const sources = generator.build({
+          schema: operationSchema.schema,
+          baseName: operationSchema.name,
+          description: operationSchema.description,
+          keysToOmit: operationSchema.keysToOmit,
+        })
 
         return {
           import: {

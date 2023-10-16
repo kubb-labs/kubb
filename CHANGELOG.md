@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.11.5](https://github.com/kubb-project/kubb/compare/kubb-v1.11.4...kubb-v1.11.5) (2023-10-16)
+
+
+### 🐞 Bug Fixes
+
+* omit request/response based on readOnly/writeOnly ([d8341ef](https://github.com/kubb-project/kubb/commit/d8341efa712b8f7727563b99e7762684ff529685))
+* readonly support for Zod and TypeScript ([a6e7557](https://github.com/kubb-project/kubb/commit/a6e75578b8038b5a7b29dc160bef8e481d2cc1ab))
+
+## [1.11.4](https://github.com/kubb-project/kubb/compare/kubb-v1.11.3...kubb-v1.11.4) (2023-10-16)
+
+
+### 🐞 Bug Fixes
+
+* multiple body parameters in endpoint ([67e9be8](https://github.com/kubb-project/kubb/commit/67e9be81c58eb07490f1c6042a8c0bc9be81640b))
+
 ## [1.11.3](https://github.com/kubb-project/kubb/compare/kubb-v1.11.2...kubb-v1.11.3) (2023-10-14)
 
 

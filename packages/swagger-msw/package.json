@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-msw",
-  "version": "1.11.3",
+  "version": "1.11.5",
   "description": "Generator swagger-msw",
   "keywords": [
     "faker",

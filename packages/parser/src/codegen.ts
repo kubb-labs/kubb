@@ -112,17 +112,24 @@ export function createUnionDeclaration({ nodes, withParentheses }: { nodes: Arra
 }
 
 export function createPropertySignature({
-  modifiers,
+  readOnly,
+  modifiers = [],
   name,
   questionToken,
   type,
 }: {
+  readOnly?: boolean
   modifiers?: Array<ts.Modifier>
   name: ts.PropertyName | string
   questionToken?: ts.QuestionToken | boolean
   type?: ts.TypeNode
 }) {
-  return factory.createPropertySignature(modifiers, propertyName(name), createQuestionToken(questionToken), type)
+  return factory.createPropertySignature(
+    [...modifiers, readOnly ? factory.createToken(ts.SyntaxKind.ReadonlyKeyword) : undefined].filter(Boolean) as Array<ts.Modifier>,
+    propertyName(name),
+    createQuestionToken(questionToken),
+    type,
+  )
 }
 
 export function createParameterSignature(
@@ -383,4 +390,19 @@ export function createEnumDeclaration({
       ),
     ),
   ]
+}
+
+export function createOmitDeclaration({ keys, type }: { keys: Array<string> | string; type: ts.TypeNode }) {
+  if (Array.isArray(keys)) {
+    return factory.createTypeReferenceNode(factory.createIdentifier('Omit'), [
+      type,
+      factory.createUnionTypeNode(
+        keys.map((key) => {
+          return factory.createLiteralTypeNode(factory.createStringLiteral(key))
+        }),
+      ),
+    ])
+  }
+
+  return factory.createTypeReferenceNode(factory.createIdentifier('Omit'), [type, factory.createLiteralTypeNode(factory.createStringLiteral(keys))])
 }

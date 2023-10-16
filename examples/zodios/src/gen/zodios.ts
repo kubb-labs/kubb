@@ -17,14 +17,19 @@ import {
   updatePetWithForm405Schema,
 } from './zod/updatePetWithFormSchema'
 import { deletePetMutationResponseSchema, deletePetPathParamsSchema, deletePetHeaderParamsSchema, deletePet400Schema } from './zod/deletePetSchema'
-import { uploadFileMutationResponseSchema, uploadFilePathParamsSchema, uploadFileQueryParamsSchema } from './zod/uploadFileSchema'
+import {
+  uploadFileMutationResponseSchema,
+  uploadFilePathParamsSchema,
+  uploadFileQueryParamsSchema,
+  uploadFileMutationRequestSchema,
+} from './zod/uploadFileSchema'
 import { getInventoryQueryResponseSchema } from './zod/getInventorySchema'
 import { placeOrderMutationResponseSchema, placeOrderMutationRequestSchema, placeOrder405Schema } from './zod/placeOrderSchema'
 import { placeOrderPatchMutationResponseSchema, placeOrderPatchMutationRequestSchema, placeOrderPatch405Schema } from './zod/placeOrderPatchSchema'
 import { getOrderByIdQueryResponseSchema, getOrderByIdPathParamsSchema, getOrderById400Schema, getOrderById404Schema } from './zod/getOrderByIdSchema'
 import { deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema, deleteOrder400Schema, deleteOrder404Schema } from './zod/deleteOrderSchema'
 import { createUserMutationResponseSchema, createUserMutationRequestSchema } from './zod/createUserSchema'
-import { createUsersWithListInputMutationResponseSchema } from './zod/createUsersWithListInputSchema'
+import { createUsersWithListInputMutationResponseSchema, createUsersWithListInputMutationRequestSchema } from './zod/createUsersWithListInputSchema'
 import { loginUserQueryResponseSchema, loginUserQueryParamsSchema, loginUser400Schema } from './zod/loginUserSchema'
 import { logoutUserQueryResponseSchema } from './zod/logoutUserSchema'
 import { getUserByNameQueryResponseSchema, getUserByNamePathParamsSchema, getUserByName400Schema, getUserByName404Schema } from './zod/getUserByNameSchema'
@@ -39,40 +44,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'id',
-        description: ``,
+        name: 'AddPetMutationRequest',
+        description: `Create a new pet in the store`,
         type: 'Body',
-        schema: addPetMutationRequestSchema.schema.shape['id'],
-      },
-      {
-        name: 'name',
-        description: ``,
-        type: 'Body',
-        schema: addPetMutationRequestSchema.schema.shape['name'],
-      },
-      {
-        name: 'category',
-        description: ``,
-        type: 'Body',
-        schema: addPetMutationRequestSchema.schema.shape['category'],
-      },
-      {
-        name: 'photoUrls',
-        description: ``,
-        type: 'Body',
-        schema: addPetMutationRequestSchema.schema.shape['photoUrls'],
-      },
-      {
-        name: 'tags',
-        description: ``,
-        type: 'Body',
-        schema: addPetMutationRequestSchema.schema.shape['tags'],
-      },
-      {
-        name: 'status',
-        description: `pet status in the store`,
-        type: 'Body',
-        schema: addPetMutationRequestSchema.schema.shape['status'],
+        schema: addPetMutationRequestSchema,
       },
     ],
     response: addPetMutationResponseSchema,
@@ -91,40 +66,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'id',
-        description: ``,
+        name: 'UpdatePetMutationRequest',
+        description: `Update an existent pet in the store`,
         type: 'Body',
-        schema: updatePetMutationRequestSchema.schema.shape['id'],
-      },
-      {
-        name: 'name',
-        description: ``,
-        type: 'Body',
-        schema: updatePetMutationRequestSchema.schema.shape['name'],
-      },
-      {
-        name: 'category',
-        description: ``,
-        type: 'Body',
-        schema: updatePetMutationRequestSchema.schema.shape['category'],
-      },
-      {
-        name: 'photoUrls',
-        description: ``,
-        type: 'Body',
-        schema: updatePetMutationRequestSchema.schema.shape['photoUrls'],
-      },
-      {
-        name: 'tags',
-        description: ``,
-        type: 'Body',
-        schema: updatePetMutationRequestSchema.schema.shape['tags'],
-      },
-      {
-        name: 'status',
-        description: `pet status in the store`,
-        type: 'Body',
-        schema: updatePetMutationRequestSchema.schema.shape['status'],
+        schema: updatePetMutationRequestSchema,
       },
     ],
     response: updatePetMutationResponseSchema,
@@ -309,6 +254,12 @@ const endpoints = makeApi([
         type: 'Query',
         schema: uploadFileQueryParamsSchema.shape['additionalMetadata'],
       },
+      {
+        name: 'UploadFileMutationRequest',
+        description: ``,
+        type: 'Body',
+        schema: uploadFileMutationRequestSchema,
+      },
     ],
     response: uploadFileMutationResponseSchema,
     errors: [],
@@ -329,46 +280,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'id',
+        name: 'PlaceOrderMutationRequest',
         description: ``,
         type: 'Body',
-        schema: placeOrderMutationRequestSchema.schema.shape['id'],
-      },
-      {
-        name: 'petId',
-        description: ``,
-        type: 'Body',
-        schema: placeOrderMutationRequestSchema.schema.shape['petId'],
-      },
-      {
-        name: 'quantity',
-        description: ``,
-        type: 'Body',
-        schema: placeOrderMutationRequestSchema.schema.shape['quantity'],
-      },
-      {
-        name: 'shipDate',
-        description: ``,
-        type: 'Body',
-        schema: placeOrderMutationRequestSchema.schema.shape['shipDate'],
-      },
-      {
-        name: 'status',
-        description: `Order Status`,
-        type: 'Body',
-        schema: placeOrderMutationRequestSchema.schema.shape['status'],
-      },
-      {
-        name: 'http_status',
-        description: `HTTP Status`,
-        type: 'Body',
-        schema: placeOrderMutationRequestSchema.schema.shape['http_status'],
-      },
-      {
-        name: 'complete',
-        description: ``,
-        type: 'Body',
-        schema: placeOrderMutationRequestSchema.schema.shape['complete'],
+        schema: placeOrderMutationRequestSchema,
       },
     ],
     response: placeOrderMutationResponseSchema,
@@ -387,46 +302,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'id',
+        name: 'PlaceOrderPatchMutationRequest',
         description: ``,
         type: 'Body',
-        schema: placeOrderPatchMutationRequestSchema.schema.shape['id'],
-      },
-      {
-        name: 'petId',
-        description: ``,
-        type: 'Body',
-        schema: placeOrderPatchMutationRequestSchema.schema.shape['petId'],
-      },
-      {
-        name: 'quantity',
-        description: ``,
-        type: 'Body',
-        schema: placeOrderPatchMutationRequestSchema.schema.shape['quantity'],
-      },
-      {
-        name: 'shipDate',
-        description: ``,
-        type: 'Body',
-        schema: placeOrderPatchMutationRequestSchema.schema.shape['shipDate'],
-      },
-      {
-        name: 'status',
-        description: `Order Status`,
-        type: 'Body',
-        schema: placeOrderPatchMutationRequestSchema.schema.shape['status'],
-      },
-      {
-        name: 'http_status',
-        description: `HTTP Status`,
-        type: 'Body',
-        schema: placeOrderPatchMutationRequestSchema.schema.shape['http_status'],
-      },
-      {
-        name: 'complete',
-        description: ``,
-        type: 'Body',
-        schema: placeOrderPatchMutationRequestSchema.schema.shape['complete'],
+        schema: placeOrderPatchMutationRequestSchema,
       },
     ],
     response: placeOrderPatchMutationResponseSchema,
@@ -499,52 +378,10 @@ const endpoints = makeApi([
     requestFormat: 'json',
     parameters: [
       {
-        name: 'id',
-        description: ``,
+        name: 'CreateUserMutationRequest',
+        description: `Created user object`,
         type: 'Body',
-        schema: createUserMutationRequestSchema.schema.shape['id'],
-      },
-      {
-        name: 'username',
-        description: ``,
-        type: 'Body',
-        schema: createUserMutationRequestSchema.schema.shape['username'],
-      },
-      {
-        name: 'firstName',
-        description: ``,
-        type: 'Body',
-        schema: createUserMutationRequestSchema.schema.shape['firstName'],
-      },
-      {
-        name: 'lastName',
-        description: ``,
-        type: 'Body',
-        schema: createUserMutationRequestSchema.schema.shape['lastName'],
-      },
-      {
-        name: 'email',
-        description: ``,
-        type: 'Body',
-        schema: createUserMutationRequestSchema.schema.shape['email'],
-      },
-      {
-        name: 'password',
-        description: ``,
-        type: 'Body',
-        schema: createUserMutationRequestSchema.schema.shape['password'],
-      },
-      {
-        name: 'phone',
-        description: ``,
-        type: 'Body',
-        schema: createUserMutationRequestSchema.schema.shape['phone'],
-      },
-      {
-        name: 'userStatus',
-        description: `User Status`,
-        type: 'Body',
-        schema: createUserMutationRequestSchema.schema.shape['userStatus'],
+        schema: createUserMutationRequestSchema,
       },
     ],
     response: createUserMutationResponseSchema,
@@ -555,7 +392,14 @@ const endpoints = makeApi([
     path: '/user/createWithList',
     description: `Creates list of users with given input array`,
     requestFormat: 'json',
-    parameters: [],
+    parameters: [
+      {
+        name: 'CreateUsersWithListInputMutationRequest',
+        description: ``,
+        type: 'Body',
+        schema: createUsersWithListInputMutationRequestSchema,
+      },
+    ],
     response: createUsersWithListInputMutationResponseSchema,
     errors: [],
   },
@@ -636,52 +480,10 @@ const endpoints = makeApi([
         schema: updateUserPathParamsSchema.shape['username'],
       },
       {
-        name: 'id',
-        description: ``,
+        name: 'UpdateUserMutationRequest',
+        description: `Update an existent user in the store`,
         type: 'Body',
-        schema: updateUserMutationRequestSchema.schema.shape['id'],
-      },
-      {
-        name: 'username',
-        description: ``,
-        type: 'Body',
-        schema: updateUserMutationRequestSchema.schema.shape['username'],
-      },
-      {
-        name: 'firstName',
-        description: ``,
-        type: 'Body',
-        schema: updateUserMutationRequestSchema.schema.shape['firstName'],
-      },
-      {
-        name: 'lastName',
-        description: ``,
-        type: 'Body',
-        schema: updateUserMutationRequestSchema.schema.shape['lastName'],
-      },
-      {
-        name: 'email',
-        description: ``,
-        type: 'Body',
-        schema: updateUserMutationRequestSchema.schema.shape['email'],
-      },
-      {
-        name: 'password',
-        description: ``,
-        type: 'Body',
-        schema: updateUserMutationRequestSchema.schema.shape['password'],
-      },
-      {
-        name: 'phone',
-        description: ``,
-        type: 'Body',
-        schema: updateUserMutationRequestSchema.schema.shape['phone'],
-      },
-      {
-        name: 'userStatus',
-        description: `User Status`,
-        type: 'Body',
-        schema: updateUserMutationRequestSchema.schema.shape['userStatus'],
+        schema: updateUserMutationRequestSchema,
       },
     ],
     response: updateUserMutationResponseSchema,

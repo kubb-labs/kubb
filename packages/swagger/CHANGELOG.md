@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.11.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.11.4...@kubb/swagger-v1.11.5) (2023-10-16)
+
+
+### 🐞 Bug Fixes
+
+* omit request/response based on readOnly/writeOnly ([d8341ef](https://github.com/kubb-project/kubb/commit/d8341efa712b8f7727563b99e7762684ff529685))
+
+## [1.11.4](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.11.3...@kubb/swagger-v1.11.4) (2023-10-16)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/swagger:** Synchronize undefined versions
+
 ## [1.11.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.11.2...@kubb/swagger-v1.11.3) (2023-10-14)
 
 

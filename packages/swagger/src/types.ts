@@ -75,15 +75,16 @@ export type OperationSchema = {
   schema: OpenAPIV3.SchemaObject & { $ref?: OpenAPIV3.ReferenceObject['$ref'] }
   statusCode?: number
   keys?: string[]
+  keysToOmit?: string[]
 }
 
 export type OperationSchemas = {
-  pathParams?: OperationSchema
-  queryParams?: OperationSchema
-  headerParams?: OperationSchema
+  pathParams?: OperationSchema & { keysToOmit?: never }
+  queryParams?: OperationSchema & { keysToOmit?: never }
+  headerParams?: OperationSchema & { keysToOmit?: never }
   request?: OperationSchema
   response: OperationSchema
-  errors?: OperationSchema[]
+  errors?: Array<OperationSchema>
 }
 
 type SkipByTag = {

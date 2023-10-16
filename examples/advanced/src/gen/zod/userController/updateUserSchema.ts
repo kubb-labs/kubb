@@ -12,4 +12,4 @@ export const updateUserPathParamsSchema = z.object({ username: z.string().descri
 /**
  * @description Update an existent user in the store
  */
-export const updateUserMutationRequestSchema = z.lazy(() => userSchema)
+export const updateUserMutationRequestSchema = z.lazy(() => userSchema).schema
