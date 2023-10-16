@@ -265,19 +265,15 @@ export class OperationGenerator extends Generator<Options> {
           name: [requestBody.name],
           path: getRelativePath(zodios.filePath, requestBody.filePath),
         })
-        schemas.request.keys?.forEach((key) => {
-          const schema = schemas.request?.schema?.properties?.[key] as OpenAPIV3.SchemaObject
-          const zodSchema = schemas.request?.schema?.$ref ? `${requestBody.name}.schema.shape['${key}']` : `${requestBody.name}.shape['${key}']`
 
-          parameters.push(`
-          {
-            name: "${key}",
-            description: \`${escape(schema?.description)}\`,
-            type: "Body",
-            schema: ${zodSchema}
-          }
+        parameters.push(`
+        {
+          name: "${schemas.request.name}",
+          description: \`${escape(schemas.request.description)}\`,
+          type: "Body",
+          schema: ${requestBody.name}
+        }
         `)
-        })
       }
 
       if (schemas.headerParams) {
