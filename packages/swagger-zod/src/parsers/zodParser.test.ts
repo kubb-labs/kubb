@@ -63,7 +63,7 @@ const input = [
       keyword: 'ref',
       args: 'Pet',
     }),
-    expected: 'z.lazy(() => Pet)',
+    expected: 'z.lazy(() => Pet).schema',
   },
   {
     input: parseZodMeta({
@@ -100,7 +100,7 @@ const input = [
       keyword: 'array',
       args: [{ keyword: 'ref', args: 'Pet' }],
     }),
-    expected: 'z.array(z.lazy(() => Pet))',
+    expected: 'z.array(z.lazy(() => Pet).schema)',
   },
 
   {
@@ -137,7 +137,7 @@ const input = [
       keyword: 'catchall',
       args: [{ keyword: 'ref', args: 'Pet' }],
     }),
-    expected: '.catchall(z.lazy(() => Pet))',
+    expected: '.catchall(z.lazy(() => Pet).schema)',
   },
 
   {

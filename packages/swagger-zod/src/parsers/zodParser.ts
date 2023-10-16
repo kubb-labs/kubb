@@ -232,7 +232,7 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
   // custom type
   if (keyword === zodKeywords.ref) {
     // use of z.lazy because we need to import from files x or we use the type as a self reference
-    return `${mapper.lazy}(() => ${args as string})`
+    return `${mapper.lazy}(() => ${args as string}).schema`
   }
 
   if (keyword === zodKeywords.default && args === undefined) {
@@ -246,9 +246,14 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
   return '""'
 }
 
-export function zodParser(items: ZodMeta[], options: { mapper?: Record<ZodKeyword, string>; name: string }): string {
+export function zodParser(items: ZodMeta[], options: { keysToOmit?: string[]; mapper?: Record<ZodKeyword, string>; name: string }): string {
   if (!items.length) {
     return `export const ${options.name} = '';`
+  }
+
+  if (options.keysToOmit?.length) {
+    const omitText = `.omit({ ${options.keysToOmit.map((key) => `${key}: true`).join(',')} })`
+    return `export const ${options.name} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')}${omitText};`
   }
 
   return `export const ${options.name} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')};`

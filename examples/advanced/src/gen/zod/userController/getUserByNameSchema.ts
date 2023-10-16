@@ -16,4 +16,4 @@ export const getUserByNamePathParamsSchema = z.object({ username: z.string().des
 /**
  * @description successful operation
  */
-export const getUserByNameQueryResponseSchema = z.lazy(() => userSchema)
+export const getUserByNameQueryResponseSchema = z.lazy(() => userSchema).schema
