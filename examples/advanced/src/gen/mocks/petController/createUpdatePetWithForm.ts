@@ -9,18 +9,18 @@ import { UpdatePetWithFormQueryParams } from '../../models/ts/petController/Upda
  * @description Invalid input
  */
 
-export function createUpdatePetWithForm405(): UpdatePetWithForm405 {
+export function createUpdatePetWithForm405(): NonNullable<UpdatePetWithForm405> {
   return undefined
 }
 
-export function createUpdatePetWithFormMutationResponse(): UpdatePetWithFormMutationResponse {
+export function createUpdatePetWithFormMutationResponse(): NonNullable<UpdatePetWithFormMutationResponse> {
   return undefined
 }
 
-export function createUpdatePetWithFormPathParams(): UpdatePetWithFormPathParams {
+export function createUpdatePetWithFormPathParams(): NonNullable<UpdatePetWithFormPathParams> {
   return { petId: faker.number.float({}) }
 }
 
-export function createUpdatePetWithFormQueryParams(): UpdatePetWithFormQueryParams {
+export function createUpdatePetWithFormQueryParams(): NonNullable<UpdatePetWithFormQueryParams> {
   return { name: faker.string.alpha(), status: faker.string.alpha() }
 }

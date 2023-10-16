@@ -9,11 +9,11 @@ import { FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus'
  * @description Invalid status value
  */
 
-export function createFindPetsByStatus400(): FindPetsByStatus400 {
+export function createFindPetsByStatus400(): NonNullable<FindPetsByStatus400> {
   return undefined
 }
 
-export function createFindPetsByStatusQueryParams(): FindPetsByStatusQueryParams {
+export function createFindPetsByStatusQueryParams(): NonNullable<FindPetsByStatusQueryParams> {
   return { status: faker.helpers.arrayElement<any>([`available`, `pending`, `sold`]) }
 }
 
@@ -21,6 +21,6 @@ export function createFindPetsByStatusQueryParams(): FindPetsByStatusQueryParams
  * @description successful operation
  */
 
-export function createFindPetsByStatusQueryResponse(): FindPetsByStatusQueryResponse {
+export function createFindPetsByStatusQueryResponse(): NonNullable<FindPetsByStatusQueryResponse> {
   return faker.helpers.arrayElements([createPet()]) as any
 }

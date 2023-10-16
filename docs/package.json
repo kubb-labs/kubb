@@ -22,7 +22,7 @@
     "@kubb/core": "workspace:*",
     "@vercel/analytics": "^1.1.1",
     "sitemap": "^7.1.1",
-    "vitepress": "1.0.0-rc.21",
+    "vitepress": "1.0.0-rc.22",
     "vue": "^3.3.4"
   },
   "devDependencies": {

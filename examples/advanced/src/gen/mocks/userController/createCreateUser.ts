@@ -3,7 +3,7 @@ import { CreateUserMutationResponse } from '../../models/ts/userController/Creat
 import { CreateUserError } from '../../models/ts/userController/CreateUser'
 import { CreateUserMutationRequest } from '../../models/ts/userController/CreateUser'
 
-export function createCreateUserMutationResponse(): CreateUserMutationResponse {
+export function createCreateUserMutationResponse(): NonNullable<CreateUserMutationResponse> {
   return undefined
 }
 
@@ -11,7 +11,7 @@ export function createCreateUserMutationResponse(): CreateUserMutationResponse {
  * @description successful operation
  */
 
-export function createCreateUserError(): CreateUserError {
+export function createCreateUserError(): NonNullable<CreateUserError> {
   return createUser()
 }
 
@@ -19,6 +19,6 @@ export function createCreateUserError(): CreateUserError {
  * @description Created user object
  */
 
-export function createCreateUserMutationRequest(): CreateUserMutationRequest {
+export function createCreateUserMutationRequest(): NonNullable<CreateUserMutationRequest> {
   return createUser()
 }

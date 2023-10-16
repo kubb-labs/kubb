@@ -9,11 +9,11 @@ import { CreateUsersWithListInputMutationResponse } from '../../models/ts/userCo
  * @description successful operation
  */
 
-export function createCreateUsersWithListInputError(): CreateUsersWithListInputError {
+export function createCreateUsersWithListInputError(): NonNullable<CreateUsersWithListInputError> {
   return undefined
 }
 
-export function createCreateUsersWithListInputMutationRequest(): CreateUsersWithListInputMutationRequest {
+export function createCreateUsersWithListInputMutationRequest(): NonNullable<CreateUsersWithListInputMutationRequest> {
   return faker.helpers.arrayElements([createUser()]) as any
 }
 
@@ -21,6 +21,6 @@ export function createCreateUsersWithListInputMutationRequest(): CreateUsersWith
  * @description Successful operation
  */
 
-export function createCreateUsersWithListInputMutationResponse(): CreateUsersWithListInputMutationResponse {
+export function createCreateUsersWithListInputMutationResponse(): NonNullable<CreateUsersWithListInputMutationResponse> {
   return createUser()
 }

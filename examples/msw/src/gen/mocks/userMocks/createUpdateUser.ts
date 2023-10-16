@@ -10,15 +10,15 @@ import { UpdateUserMutationRequest } from '../../models/UpdateUser'
  * @description successful operation
  */
 
-export function createUpdateUserError(): UpdateUserError {
+export function createUpdateUserError(): NonNullable<UpdateUserError> {
   return undefined
 }
 
-export function createUpdateUserMutationResponse(): UpdateUserMutationResponse {
+export function createUpdateUserMutationResponse(): NonNullable<UpdateUserMutationResponse> {
   return undefined
 }
 
-export function createUpdateUserPathParams(): UpdateUserPathParams {
+export function createUpdateUserPathParams(): NonNullable<UpdateUserPathParams> {
   return { username: faker.string.alpha() }
 }
 
@@ -26,6 +26,6 @@ export function createUpdateUserPathParams(): UpdateUserPathParams {
  * @description Update an existent user in the store
  */
 
-export function createUpdateUserMutationRequest(): UpdateUserMutationRequest {
+export function createUpdateUserMutationRequest(): NonNullable<UpdateUserMutationRequest> {
   return createUser()
 }
