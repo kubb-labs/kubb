@@ -30,7 +30,17 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     return this
   }
 
-  build({ schema, baseName, description }: { schema: OpenAPIV3.SchemaObject; baseName: string; description?: string }): string[] {
+  build({
+    schema,
+    baseName,
+    description,
+    keysToOmit,
+  }: {
+    schema: OpenAPIV3.SchemaObject
+    baseName: string
+    description?: string
+    keysToOmit?: string[]
+  }): string[] {
     const texts: string[] = []
     const zodInput = this.getTypeFromSchema(schema, baseName)
     if (description) {
@@ -40,7 +50,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
        */`)
     }
 
-    const zodOutput = zodParser(zodInput, { name: this.options.resolveName({ name: baseName, pluginName }) || baseName })
+    const zodOutput = zodParser(zodInput, { keysToOmit, name: this.options.resolveName({ name: baseName, pluginName }) || baseName })
 
     texts.push(zodOutput)
 
