@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.5](https://github.com/kubb-project/kubb/compare/@kubb/parser-v1.11.4...@kubb/parser-v1.11.5) (2023-10-16)
+
+
+### 🐞 Bug Fixes
+
+* omit request/response based on readOnly/writeOnly ([d8341ef](https://github.com/kubb-project/kubb/commit/d8341efa712b8f7727563b99e7762684ff529685))
+* readonly support for Zod and TypeScript ([a6e7557](https://github.com/kubb-project/kubb/commit/a6e75578b8038b5a7b29dc160bef8e481d2cc1ab))
+
 ## [1.11.4](https://github.com/kubb-project/kubb/compare/@kubb/parser-v1.11.3...@kubb/parser-v1.11.4) (2023-10-16)
 
 

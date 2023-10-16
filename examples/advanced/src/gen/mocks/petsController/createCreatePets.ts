@@ -13,27 +13,27 @@ import { CreatePetsError } from '../../models/ts/petsController/CreatePets'
  * @description Null response
  */
 
-export function createCreatePets201(): CreatePets201 {
+export function createCreatePets201(): NonNullable<CreatePets201> {
   return undefined
 }
 
-export function createCreatePetsHeaderParams(): CreatePetsHeaderParams {
+export function createCreatePetsHeaderParams(): NonNullable<CreatePetsHeaderParams> {
   return { 'X-EXAMPLE': faker.helpers.arrayElement<any>([`ONE`, `TWO`, `THREE`]) }
 }
 
-export function createCreatePetsMutationRequest(): CreatePetsMutationRequest {
+export function createCreatePetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
   return { name: faker.string.alpha(), tag: faker.string.alpha() }
 }
 
-export function createCreatePetsMutationResponse(): CreatePetsMutationResponse {
+export function createCreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
   return undefined
 }
 
-export function createCreatePetsPathParams(): CreatePetsPathParams {
+export function createCreatePetsPathParams(): NonNullable<CreatePetsPathParams> {
   return { uuid: faker.string.alpha() }
 }
 
-export function createCreatePetsQueryParams(): CreatePetsQueryParams {
+export function createCreatePetsQueryParams(): NonNullable<CreatePetsQueryParams> {
   return { offset: faker.number.float({}) }
 }
 
@@ -41,6 +41,6 @@ export function createCreatePetsQueryParams(): CreatePetsQueryParams {
  * @description unexpected error
  */
 
-export function createCreatePetsError(): CreatePetsError {
+export function createCreatePetsError(): NonNullable<CreatePetsError> {
   return createPetNotFound()
 }

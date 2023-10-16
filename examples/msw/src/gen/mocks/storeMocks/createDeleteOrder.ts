@@ -9,7 +9,7 @@ import { DeleteOrderPathParams } from '../../models/DeleteOrder'
  * @description Invalid ID supplied
  */
 
-export function createDeleteOrder400(): DeleteOrder400 {
+export function createDeleteOrder400(): NonNullable<DeleteOrder400> {
   return undefined
 }
 
@@ -17,14 +17,14 @@ export function createDeleteOrder400(): DeleteOrder400 {
  * @description Order not found
  */
 
-export function createDeleteOrder404(): DeleteOrder404 {
+export function createDeleteOrder404(): NonNullable<DeleteOrder404> {
   return undefined
 }
 
-export function createDeleteOrderMutationResponse(): DeleteOrderMutationResponse {
+export function createDeleteOrderMutationResponse(): NonNullable<DeleteOrderMutationResponse> {
   return undefined
 }
 
-export function createDeleteOrderPathParams(): DeleteOrderPathParams {
+export function createDeleteOrderPathParams(): NonNullable<DeleteOrderPathParams> {
   return { orderId: faker.number.float({}) }
 }

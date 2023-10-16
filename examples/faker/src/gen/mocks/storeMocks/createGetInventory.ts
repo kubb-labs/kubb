@@ -4,6 +4,6 @@ import { GetInventoryQueryResponse } from '../../models/GetInventory'
  * @description successful operation
  */
 
-export function createGetInventoryQueryResponse(): GetInventoryQueryResponse {
+export function createGetInventoryQueryResponse(): NonNullable<GetInventoryQueryResponse> {
   return {}
 }

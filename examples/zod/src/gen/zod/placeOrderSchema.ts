@@ -6,9 +6,9 @@ import { orderSchema } from './orderSchema'
  * @description Invalid input
  */
 export const placeOrder405Schema = z.any()
-export const placeOrderMutationRequestSchema = z.lazy(() => orderSchema)
+export const placeOrderMutationRequestSchema = z.lazy(() => orderSchema).schema
 
 /**
  * @description successful operation
  */
-export const placeOrderMutationResponseSchema = z.lazy(() => orderSchema)
+export const placeOrderMutationResponseSchema = z.lazy(() => orderSchema).schema

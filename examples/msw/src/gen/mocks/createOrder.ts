@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 
 import { Order } from '../models/Order'
 
-export function createOrder(): Order {
+export function createOrder(): NonNullable<Order> {
   return {
     id: faker.number.float({}),
     petId: faker.number.float({}),

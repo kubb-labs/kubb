@@ -8,11 +8,11 @@ import { LoginUserQueryResponse } from '../../models/LoginUser'
  * @description Invalid username/password supplied
  */
 
-export function createLoginUser400(): LoginUser400 {
+export function createLoginUser400(): NonNullable<LoginUser400> {
   return undefined
 }
 
-export function createLoginUserQueryParams(): LoginUserQueryParams {
+export function createLoginUserQueryParams(): NonNullable<LoginUserQueryParams> {
   return { username: faker.string.alpha(), password: faker.internet.password() }
 }
 
@@ -20,6 +20,6 @@ export function createLoginUserQueryParams(): LoginUserQueryParams {
  * @description successful operation
  */
 
-export function createLoginUserQueryResponse(): LoginUserQueryResponse {
+export function createLoginUserQueryResponse(): NonNullable<LoginUserQueryResponse> {
   return faker.string.alpha()
 }

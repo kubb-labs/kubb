@@ -20,4 +20,4 @@ export type AddPetMutationRequest = AddPetRequest
 /**
  * @description Successful operation
  */
-export type AddPetMutationResponse = Pet
+export type AddPetMutationResponse = Omit<NonNullable<Pet>, 'name'>

@@ -831,9 +831,11 @@ components:
           type: integer
           format: int64
           example: 10
+          readOnly: true
         name:
           type: string
           example: doggie
+          writeOnly: true
         category:
           $ref: "#/components/schemas/Category"
         photoUrls:

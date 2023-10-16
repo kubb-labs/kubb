@@ -5,10 +5,10 @@ import { LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUs
  * @description successful operation
  */
 
-export function createLogoutUserError(): LogoutUserError {
+export function createLogoutUserError(): NonNullable<LogoutUserError> {
   return undefined
 }
 
-export function createLogoutUserQueryResponse(): LogoutUserQueryResponse {
+export function createLogoutUserQueryResponse(): NonNullable<LogoutUserQueryResponse> {
   return undefined
 }
