@@ -98,7 +98,7 @@ describe('TypeGenerator simple', () => {
   test('generate type for nullable fields', async () => {
     const generator = new TypeGenerator({
       withJSDocs: false,
-      resolveName: ({name}) => name,
+      resolveName: ({ name }) => name,
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
@@ -109,18 +109,20 @@ describe('TypeGenerator simple', () => {
       properties: {
         foo: {
           type: 'string',
-          nullable: true
-        }
-      }
+          nullable: true,
+        },
+      },
     }
 
-    const node = generator.build({schema, baseName: 'Test'})
+    const node = generator.build({ schema, baseName: 'Test' })
     const output = print(node, undefined)
-    expect(await format(output)).toMatch(await format(`
+    expect(await format(output)).toMatch(
+      await format(`
       export type Test = {
         foo?: string | null
       }
-    `))
+    `),
+    )
   })
 
   test('generate type for Pets', async () => {

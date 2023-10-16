@@ -45,7 +45,7 @@ export namespace KubbFile {
   > = {
     /**
      * Name to be used to dynamicly create the baseName(based on input.path)
-     * Based on Unix basename
+     * Based on UNIX basename
      * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
      */
     baseName: TBaseName
