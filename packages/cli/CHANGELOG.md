@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.6](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.11.5...@kubb/cli-v1.11.6) (2023-10-16)
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.11.6 ([70826b2](https://github.com/kubb-project/kubb/commit/70826b2d52d970b16a7f00a8c63f95354699df7c))
+
 ## [1.11.5](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.11.4...@kubb/cli-v1.11.5) (2023-10-16)
 
 
