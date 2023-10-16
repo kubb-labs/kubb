@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.5](https://github.com/kubb-project/kubb/compare/kubb-v1.11.4...kubb-v1.11.5) (2023-10-16)
+
+
+### 🐞 Bug Fixes
+
+* readonly support for Zod and TypeScript ([a6e7557](https://github.com/kubb-project/kubb/commit/a6e75578b8038b5a7b29dc160bef8e481d2cc1ab))
+
 ## [1.11.4](https://github.com/kubb-project/kubb/compare/kubb-v1.11.3...kubb-v1.11.4) (2023-10-16)
 
 
