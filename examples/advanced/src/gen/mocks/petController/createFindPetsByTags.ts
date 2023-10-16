@@ -10,15 +10,15 @@ import { FindPetsByTagsQueryResponse } from '../../models/ts/petController/FindP
  * @description Invalid tag value
  */
 
-export function createFindPetsByTags400(): FindPetsByTags400 {
+export function createFindPetsByTags400(): NonNullable<FindPetsByTags400> {
   return undefined
 }
 
-export function createFindPetsByTagsHeaderParams(): FindPetsByTagsHeaderParams {
+export function createFindPetsByTagsHeaderParams(): NonNullable<FindPetsByTagsHeaderParams> {
   return { 'X-EXAMPLE': faker.helpers.arrayElement<any>([`ONE`, `TWO`, `THREE`]) }
 }
 
-export function createFindPetsByTagsQueryParams(): FindPetsByTagsQueryParams {
+export function createFindPetsByTagsQueryParams(): NonNullable<FindPetsByTagsQueryParams> {
   return { tags: faker.helpers.arrayElements([faker.string.alpha()]) as any, page: faker.string.alpha(), pageSize: faker.string.alpha() }
 }
 
@@ -26,6 +26,6 @@ export function createFindPetsByTagsQueryParams(): FindPetsByTagsQueryParams {
  * @description successful operation
  */
 
-export function createFindPetsByTagsQueryResponse(): FindPetsByTagsQueryResponse {
+export function createFindPetsByTagsQueryResponse(): NonNullable<FindPetsByTagsQueryResponse> {
   return faker.helpers.arrayElements([createPet()]) as any
 }

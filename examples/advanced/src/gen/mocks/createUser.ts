@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 
 import { User } from '../models/ts/User'
 
-export function createUser(): User {
+export function createUser(): NonNullable<User> {
   return {
     id: faker.number.float({}),
     username: faker.string.alpha(),

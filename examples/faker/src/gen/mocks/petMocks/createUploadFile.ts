@@ -6,15 +6,15 @@ import { UploadFilePathParams } from '../../models/UploadFile'
 import { UploadFileQueryParams } from '../../models/UploadFile'
 import { UploadFileMutationResponse } from '../../models/UploadFile'
 
-export function createUploadFileMutationRequest(): UploadFileMutationRequest {
+export function createUploadFileMutationRequest(): NonNullable<UploadFileMutationRequest> {
   return faker.string.alpha()
 }
 
-export function createUploadFilePathParams(): UploadFilePathParams {
+export function createUploadFilePathParams(): NonNullable<UploadFilePathParams> {
   return { petId: faker.number.float({}) }
 }
 
-export function createUploadFileQueryParams(): UploadFileQueryParams {
+export function createUploadFileQueryParams(): NonNullable<UploadFileQueryParams> {
   return { additionalMetadata: faker.string.alpha() }
 }
 
@@ -22,6 +22,6 @@ export function createUploadFileQueryParams(): UploadFileQueryParams {
  * @description successful operation
  */
 
-export function createUploadFileMutationResponse(): UploadFileMutationResponse {
+export function createUploadFileMutationResponse(): NonNullable<UploadFileMutationResponse> {
   return createApiResponse()
 }

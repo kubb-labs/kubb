@@ -4,7 +4,7 @@ import { createCategory } from './createCategory'
 import { createTag } from './createTag'
 import { Pet } from '../models/Pet'
 
-export function createPet(): Pet {
+export function createPet(): NonNullable<Pet> {
   return {
     id: faker.number.float({}),
     name: faker.string.alpha(),

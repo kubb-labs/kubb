@@ -392,10 +392,12 @@ export function createEnumDeclaration({
   ]
 }
 
-export function createOmitDeclaration({ keys, type }: { keys: Array<string> | string; type: ts.TypeNode }) {
+export function createOmitDeclaration({ keys, type, nonNullable }: { keys: Array<string> | string; type: ts.TypeNode; nonNullable?: boolean }) {
+  const node = nonNullable ? factory.createTypeReferenceNode(factory.createIdentifier('NonNullable'), [type]) : type
+
   if (Array.isArray(keys)) {
     return factory.createTypeReferenceNode(factory.createIdentifier('Omit'), [
-      type,
+      node,
       factory.createUnionTypeNode(
         keys.map((key) => {
           return factory.createLiteralTypeNode(factory.createStringLiteral(key))
@@ -404,5 +406,5 @@ export function createOmitDeclaration({ keys, type }: { keys: Array<string> | st
     ])
   }
 
-  return factory.createTypeReferenceNode(factory.createIdentifier('Omit'), [type, factory.createLiteralTypeNode(factory.createStringLiteral(keys))])
+  return factory.createTypeReferenceNode(factory.createIdentifier('Omit'), [node, factory.createLiteralTypeNode(factory.createStringLiteral(keys))])
 }

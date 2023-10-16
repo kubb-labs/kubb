@@ -7,7 +7,7 @@ import { AddPetMutationResponse } from '../../models/AddPet'
  * @description Invalid input
  */
 
-export function createAddPet405(): AddPet405 {
+export function createAddPet405(): NonNullable<AddPet405> {
   return undefined
 }
 
@@ -15,7 +15,7 @@ export function createAddPet405(): AddPet405 {
  * @description Create a new pet in the store
  */
 
-export function createAddPetMutationRequest(): AddPetMutationRequest {
+export function createAddPetMutationRequest(): NonNullable<AddPetMutationRequest> {
   return createPet()
 }
 
@@ -23,6 +23,6 @@ export function createAddPetMutationRequest(): AddPetMutationRequest {
  * @description Successful operation
  */
 
-export function createAddPetMutationResponse(): AddPetMutationResponse {
+export function createAddPetMutationResponse(): NonNullable<AddPetMutationResponse> {
   return createPet()
 }
