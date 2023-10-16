@@ -115,13 +115,13 @@ export class PluginManager {
         this.hookForPluginSync({
           pluginName: params.pluginName,
           hookName: 'resolveName',
-          parameters: [params.name],
+          parameters: [params.name, params.type],
         }) || params.name
       return transformReservedWord(name)
     }
     const name = this.hookFirstSync({
       hookName: 'resolveName',
-      parameters: [params.name],
+      parameters: [params.name, params.type],
     }).result
 
     return transformReservedWord(name)

@@ -196,7 +196,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @type hookFirst
    * @example ('pet') => 'Pet'
    */
-  resolveName: (this: PluginContext, name: string) => string
+  resolveName: (this: PluginContext, name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   /**
    * Makes it possible to run async logic to override the path defined previously by `resolvePath`.
    * @type hookFirst
@@ -244,6 +244,7 @@ export type ResolveNameParams = {
    * If not defined it will fall back on the resolvePath of the core plugin.
    */
   pluginName?: string
+  type?: 'file' | 'function'
 }
 
 export type PluginContext<TOptions = Record<string, unknown>> = {

@@ -1,4 +1,4 @@
-import type { PluginContext } from '@kubb/core'
+import type { PluginContext, ResolveNameParams } from '@kubb/core'
 import type { Resolver } from '@kubb/swagger'
 import type { Operation, ResolvePathOptions } from '../types.ts'
 
@@ -26,14 +26,15 @@ export type ResolveProps = (PropsWithOperation | PropsWithoutOperation) & {
   tag?: string
   resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
   resolveName: PluginContext['resolveName']
+  type?: ResolveNameParams['type']
 }
 
-export function resolve({ operation, name, tag, pluginName, resolveName, resolvePath }: ResolveProps): Resolver {
+export function resolve({ operation, name, tag, type, pluginName, resolveName, resolvePath }: ResolveProps): Resolver {
   if (!name && !operation?.getOperationId()) {
     throw new Error('name or operation should be set')
   }
 
-  const resolvedName = name ? name : resolveName({ name: operation?.getOperationId() as string, pluginName })
+  const resolvedName = name ? name : resolveName({ name: operation?.getOperationId() as string, type, pluginName })
 
   if (!resolvedName) {
     throw new Error(`Name ${name || operation?.getOperationId()} should be defined`)
@@ -42,8 +43,8 @@ export function resolve({ operation, name, tag, pluginName, resolveName, resolve
   const baseName = `${resolvedName}.ts` as const
   const path = resolvePath({
     baseName,
-    options: { pluginName, tag: tag || operation?.getTags()[0]?.name },
     pluginName,
+    options: { pluginName, type, tag: tag || operation?.getTags()[0]?.name },
   })
 
   if (!path) {

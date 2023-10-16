@@ -545,7 +545,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const ComponentQuery = () => {
-      const file = useResolve({ name, pluginName })
+      const file = useResolve({ name, pluginName, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>
@@ -560,7 +560,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     }
 
     const ComponentQueryInfinite = () => {
-      const file = useResolve({ name, pluginName })
+      const file = useResolve({ name, pluginName, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>
@@ -579,7 +579,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     }
 
     const ComponentMutation = () => {
-      const file = useResolve({ name, pluginName })
+      const file = useResolve({ name, pluginName, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>

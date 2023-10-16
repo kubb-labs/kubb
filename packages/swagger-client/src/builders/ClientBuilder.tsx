@@ -1,7 +1,7 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { FunctionParams, getRelativePath, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
-import { getASTParams, getComments, OasBuilder, useResolve, useSchemas } from '@kubb/swagger'
+import { getASTParams, getComments, OasBuilder, useResolve, useResolveName, useSchemas } from '@kubb/swagger'
 import { useResolve as useResolveType } from '@kubb/swagger-ts'
 
 import { ClientFunction } from '../components/index.ts'
@@ -69,11 +69,11 @@ export class ClientBuilder extends OasBuilder<Config> {
 
     const Component = () => {
       const schemas = useSchemas()
-      const file = useResolve({ pluginName })
+      const name = useResolveName({ pluginName, type: 'function' })
 
       return (
         <ClientFunction
-          name={file.name}
+          name={name}
           generics={generics.toString()}
           clientGenerics={clientGenerics.toString()}
           dataReturnType={dataReturnType}
@@ -110,8 +110,8 @@ export class ClientBuilder extends OasBuilder<Config> {
 
     const Component = () => {
       const schemas = useSchemas()
-      const file = useResolve({ pluginName })
-      const fileType = useResolveType()
+      const file = useResolve({ pluginName, type: 'file' })
+      const fileType = useResolveType({ type: 'file' })
 
       const resolvedClientPath = clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
 

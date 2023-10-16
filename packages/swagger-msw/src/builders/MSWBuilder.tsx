@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { getRelativePath, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
-import { OasBuilder, useResolve } from '@kubb/swagger'
+import { OasBuilder, useResolve, useResolveName } from '@kubb/swagger'
 import { useResolve as useResolveFaker } from '@kubb/swagger-faker'
 
 import { pluginName } from '../plugin.ts'
@@ -31,11 +31,11 @@ export class MSWBuilder extends OasBuilder<Config> {
     const { responseName, operation } = this.config
 
     const Component = () => {
-      const file = useResolve({ pluginName })
+      const name = useResolveName({ pluginName, type: 'function' })
 
       return (
         <>{`
-    export const ${file.name} = rest.${operation.method}('*${URLPath.toURLPath(operation.path)}', function handler(req, res, ctx) {
+    export const ${name} = rest.${operation.method}('*${URLPath.toURLPath(operation.path)}', function handler(req, res, ctx) {
       return res(
         ctx.json(${responseName}()),
       );
@@ -58,8 +58,8 @@ export class MSWBuilder extends OasBuilder<Config> {
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const Component = () => {
-      const file = useResolve({ pluginName })
-      const faker = useResolveFaker()
+      const file = useResolve({ pluginName, type: 'file' })
+      const faker = useResolveFaker({ type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>

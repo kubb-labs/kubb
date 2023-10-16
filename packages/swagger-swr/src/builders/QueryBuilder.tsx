@@ -260,7 +260,7 @@ export function ${name} <
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const ComponentQuery = () => {
-      const file = useResolve({ name, pluginName })
+      const file = useResolve({ name, pluginName, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>
@@ -274,7 +274,7 @@ export function ${name} <
     }
 
     const ComponentMutation = () => {
-      const file = useResolve({ name, pluginName })
+      const file = useResolve({ name, pluginName, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>
