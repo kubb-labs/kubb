@@ -1,4 +1,11 @@
 # Changelog
+## [1.11.6](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.11.5...@kubb/swagger-ts-v1.11.6) (2023-10-16)
+
+
+### 🐞 Bug Fixes
+
+* nonnullable for generated types ([0c676e4](https://github.com/kubb-project/kubb/commit/0c676e4ec3735e3f41e6e3bed45dc4bbbcc89a00))
+
 ## [1.11.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-ts-v1.11.4...@kubb/swagger-ts-v1.11.5) (2023-10-16)
 
 
