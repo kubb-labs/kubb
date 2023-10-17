@@ -32,7 +32,7 @@ export type Options = {
   client?: string
   /**
    * Path to the client import path that will be used to do the API calls.
-   * It will be used as `import { client } from '{{clientImportPath}}'`.
+   * It will be used as `import client from '${clientImportPath}'`.
    * It allow both relative and absolute path.
    * the path will be applied as is, so relative path shoule be based on the file being generated.
    * @default '@kubb/swagger-client/client'
