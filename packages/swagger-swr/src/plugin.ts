@@ -62,6 +62,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const operationGenerator = new OperationGenerator({
         contentType: swaggerPlugin.api.contentType,
         dataReturnType,
+        clientImportPath: options.clientImportPath,
         clientPath,
         oas,
         skipBy,

@@ -12,6 +12,7 @@ import type { FileMeta, Options as PluginOptions } from '../types.ts'
 type Options = {
   pluginManager: PluginManager
   clientPath?: OptionalPath
+  clientImportPath?: OptionalPath
   dataReturnType: PluginOptions['dataReturnType']
   oas: Oas
   contentType?: ContentType
@@ -94,13 +95,19 @@ export class OperationGenerator extends Generator<Options> {
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
+    const clientImportPath = this.options.clientImportPath
+      ? this.options.clientImportPath
+      : clientPath
+        ? getRelativePath(controller.filePath, clientPath)
+        : '@kubb/swagger-client/client'
+
     const clientBuilder = new ClientBuilder(oas).configure({
       pluginManager,
       name: controller.name,
       operation,
       schemas,
       dataReturnType,
-      clientPath: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
+      clientPath: clientImportPath,
     })
 
     return {
@@ -128,13 +135,19 @@ export class OperationGenerator extends Generator<Options> {
     const controller = this.resolve(operation)
     const type = this.resolveType(operation)
 
+    const clientImportPath = this.options.clientImportPath
+      ? this.options.clientImportPath
+      : clientPath
+        ? getRelativePath(controller.filePath, clientPath)
+        : '@kubb/swagger-client/client'
+
     const clientBuilder = new ClientBuilder(oas).configure({
       pluginManager,
       name: controller.name,
       operation,
       schemas,
       dataReturnType,
-      clientPath: clientPath ? getRelativePath(controller.filePath, clientPath) : '@kubb/swagger-client/client',
+      clientPath: clientImportPath,
     })
 
     return {

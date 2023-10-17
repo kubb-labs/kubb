@@ -13,6 +13,7 @@ type Options = {
   pluginManager: PluginManager
   framework: Framework
   clientPath?: OptionalPath
+  clientImportPath?: OptionalPath
   dataReturnType: PluginOptions['dataReturnType']
   oas: Oas
   contentType?: ContentType
@@ -261,6 +262,11 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, errors, framework, frameworkImports, operation, schemas, infinite, dataReturnType })
+    const clientImportPath = this.options.clientImportPath
+      ? this.options.clientImportPath
+      : clientPath
+        ? getRelativePath(hook.filePath, clientPath)
+        : '@kubb/swagger-client/client'
 
     return {
       path: hook.filePath,
@@ -271,11 +277,11 @@ export class OperationGenerator extends Generator<Options> {
         ...this.getQueryImports('query'),
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientImportPath,
         },
         {
           name: ['ResponseConfig'],
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientImportPath,
           isTypeOnly: true,
         },
         {
@@ -311,6 +317,11 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, errors, framework, frameworkImports, operation, schemas, dataReturnType })
+    const clientImportPath = this.options.clientImportPath
+      ? this.options.clientImportPath
+      : clientPath
+        ? getRelativePath(hook.filePath, clientPath)
+        : '@kubb/swagger-client/client'
 
     return {
       path: hook.filePath,
@@ -321,11 +332,11 @@ export class OperationGenerator extends Generator<Options> {
         ...this.getQueryImports('mutate'),
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientImportPath,
         },
         {
           name: ['ResponseConfig'],
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientImportPath,
           isTypeOnly: true,
         },
         {
