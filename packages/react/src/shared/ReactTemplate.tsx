@@ -22,34 +22,34 @@ export type ReactTemplateOptions = {
 }
 
 export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
-  private readonly options: ReactTemplateOptions
+  readonly #options: ReactTemplateOptions
   // Ignore last render after unmounting a tree to prevent empty output before exit
-  private isUnmounted: boolean
-  private lastOutput: string
-  private lastFile?: KubbFile.File
-  private readonly container: FiberRoot
-  private readonly rootNode: DOMElement
+  #isUnmounted: boolean
+  #lastOutput: string
+  #lastFile?: KubbFile.File
+  readonly #container: FiberRoot
+  readonly #rootNode: DOMElement
   public readonly id = crypto.randomUUID()
 
   constructor(rootNode: DOMElement, options: ReactTemplateOptions = { debug: false }) {
     // autoBind(this)
 
-    this.options = options
-    this.rootNode = rootNode
+    this.#options = options
+    this.#rootNode = rootNode
 
-    this.rootNode.onRender = options.debug ? this.onRender : throttle(this.onRender, 32)[0]
+    this.#rootNode.onRender = options.debug ? this.onRender : throttle(this.onRender, 32)[0]
 
-    this.rootNode.onImmediateRender = this.onRender
+    this.#rootNode.onImmediateRender = this.onRender
 
     // Ignore last render after unmounting a tree to prevent empty output before exit
-    this.isUnmounted = false
+    this.#isUnmounted = false
 
     // Store last output to only rerender when needed
-    this.lastOutput = ''
+    this.#lastOutput = ''
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    this.container = reconciler.createContainer(
-      this.rootNode,
+    this.#container = reconciler.createContainer(
+      this.#rootNode,
       // Legacy mode
       0,
       null,
@@ -75,11 +75,11 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   }
 
   get output(): string {
-    return this.lastOutput
+    return this.#lastOutput
   }
 
   get file(): KubbFile.File | undefined {
-    return this.lastFile
+    return this.#lastFile
   }
 
   resized = (): void => {
@@ -91,43 +91,43 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   unsubscribeExit: () => void = () => {}
 
   onRender: () => void = () => {
-    if (this.isUnmounted) {
+    if (this.#isUnmounted) {
       return
     }
 
-    const { output, file, imports, exports } = renderer(this.rootNode)
+    const { output, file, imports, exports } = renderer(this.#rootNode)
 
-    this.lastOutput = output
-    this.lastFile = file
+    this.#lastOutput = output
+    this.#lastFile = file
   }
   onError(_error: Error): void {}
 
   render(node: ReactNode, context?: Context): void {
     if (context) {
       const tree = (
-        <App logger={this.options.logger} meta={context.meta} onError={this.onError}>
+        <App logger={this.#options.logger} meta={context.meta} onError={this.onError}>
           {node}
         </App>
       )
 
-      reconciler.updateContainer(tree, this.container, null, noop)
+      reconciler.updateContainer(tree, this.#container, null, noop)
       return
     }
 
-    reconciler.updateContainer(node, this.container, null, noop)
+    reconciler.updateContainer(node, this.#container, null, noop)
   }
 
   unmount(error?: Error | number | null): void {
-    if (this.isUnmounted) {
+    if (this.#isUnmounted) {
       return
     }
 
     this.onRender()
     this.unsubscribeExit()
 
-    this.isUnmounted = true
+    this.#isUnmounted = true
 
-    reconciler.updateContainer(null, this.container, null, noop)
+    reconciler.updateContainer(null, this.#container, null, noop)
 
     if (error instanceof Error) {
       this.rejectExitPromise(error)

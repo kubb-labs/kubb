@@ -52,15 +52,15 @@ type Events = {
 }
 
 export class PluginManager {
-  public plugins: KubbPlugin[]
-  public readonly fileManager: FileManager
-  public readonly eventEmitter: EventEmitter<Events> = new EventEmitter()
+  plugins: KubbPlugin[]
+  readonly fileManager: FileManager
+  readonly eventEmitter: EventEmitter<Events> = new EventEmitter()
 
-  public readonly queue: Queue
+  readonly queue: Queue
 
-  public readonly executed: Executer[] = []
-  public readonly logger: Logger
-  private readonly core: KubbPlugin<CorePluginOptions>
+  readonly executed: Executer[] = []
+  readonly logger: Logger
+  readonly #core: KubbPlugin<CorePluginOptions>
 
   constructor(config: KubbConfig, options: Options) {
     // TODO use logger for all warnings/errors
@@ -75,17 +75,17 @@ export class PluginManager {
       fileManager: this.fileManager,
       resolvePath: this.resolvePath.bind(this),
       resolveName: this.resolveName.bind(this),
-      getPlugins: this.getSortedPlugins.bind(this),
+      getPlugins: this.#getSortedPlugins.bind(this),
     }) as KubbPlugin<CorePluginOptions> & {
       api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api']
     }
 
-    this.core = pluginParser(core, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
+    this.#core = pluginParser(core, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
 
-    this.plugins = [this.core, ...(config.plugins || [])].reduce((prev, plugin) => {
+    this.plugins = [this.#core, ...(config.plugins || [])].reduce((prev, plugin) => {
       // TODO HACK to be sure that this is equal to the `core.api` logic.
 
-      const convertedApi = pluginParser(plugin, this.core?.api)
+      const convertedApi = pluginParser(plugin, this.#core?.api)
 
       if (convertedApi) {
         return [...prev, convertedApi]
@@ -146,7 +146,7 @@ export class PluginManager {
   }): Promise<ReturnType<ParseResult<H>> | null> | null {
     const plugin = this.getPlugin(hookName, pluginName)
 
-    return this.execute({
+    return this.#execute({
       strategy: 'hookFirst',
       hookName,
       parameters,
@@ -165,7 +165,7 @@ export class PluginManager {
   }): ReturnType<ParseResult<H>> | null {
     const plugin = this.getPlugin(hookName, pluginName)
 
-    return this.executeSync({
+    return this.#executeSync({
       strategy: 'hookFirst',
       hookName,
       parameters,
@@ -188,7 +188,7 @@ export class PluginManager {
   }): Promise<SafeParseResult<H>> {
     let promise: Promise<SafeParseResult<H>> = Promise.resolve(null as unknown as SafeParseResult<H>)
 
-    for (const plugin of this.getSortedPlugins()) {
+    for (const plugin of this.#getSortedPlugins()) {
       if (skipped && skipped.has(plugin)) {
         continue
       }
@@ -196,7 +196,7 @@ export class PluginManager {
         if (parseResult?.result != null) {
           return parseResult
         }
-        const value = await this.execute<H>({
+        const value = await this.#execute<H>({
           strategy: 'hookFirst',
           hookName,
           parameters,
@@ -228,13 +228,13 @@ export class PluginManager {
   }): SafeParseResult<H> {
     let parseResult: SafeParseResult<H> = null as unknown as SafeParseResult<H>
 
-    for (const plugin of this.getSortedPlugins()) {
+    for (const plugin of this.#getSortedPlugins()) {
       if (skipped && skipped.has(plugin)) {
         continue
       }
 
       parseResult = {
-        result: this.executeSync<H>({
+        result: this.#executeSync<H>({
           strategy: 'hookFirst',
           hookName,
           parameters,
@@ -263,7 +263,7 @@ export class PluginManager {
   }): Promise<Awaited<TOuput>[]> {
     const parallelPromises: Promise<TOuput>[] = []
 
-    for (const plugin of this.getSortedPlugins()) {
+    for (const plugin of this.#getSortedPlugins()) {
       // TODO implement sequential with `buildStart` as an object({ sequential: boolean; handler: PluginContext["buildStart"] })
       // if ((plugin[hookName] as { sequential?: boolean })?.sequential) {
       //   await Promise.all(parallelPromises)
@@ -275,7 +275,7 @@ export class PluginManager {
       //     plugin,
       //   })
       // }
-      const promise: Promise<TOuput> | null = this.execute({ strategy: 'hookParallel', hookName, parameters, plugin })
+      const promise: Promise<TOuput> | null = this.#execute({ strategy: 'hookParallel', hookName, parameters, plugin })
 
       if (promise) {
         parallelPromises.push(promise)
@@ -316,10 +316,10 @@ export class PluginManager {
     const [argument0, ...rest] = parameters
 
     let promise: Promise<Argument0<H>> = Promise.resolve(argument0)
-    for (const plugin of this.getSortedPlugins()) {
+    for (const plugin of this.#getSortedPlugins()) {
       promise = promise
         .then((arg0) => {
-          const value = this.execute({
+          const value = this.#execute({
             strategy: 'hookReduceArg0',
             hookName,
             parameters: [arg0, ...rest] as Parameters<PluginLifecycle[H]>,
@@ -327,7 +327,7 @@ export class PluginManager {
           })
           return value
         })
-        .then((result) => reduce.call(this.core.api, argument0, result as ReturnType<ParseResult<H>>, plugin)) as Promise<Argument0<H>>
+        .then((result) => reduce.call(this.#core.api, argument0, result as ReturnType<ParseResult<H>>, plugin)) as Promise<Argument0<H>>
     }
     return promise
   }
@@ -337,9 +337,9 @@ export class PluginManager {
    */
   hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: Parameters<PluginLifecycle[H]> }): Promise<void> {
     let promise: Promise<void | null> = Promise.resolve()
-    for (const plugin of this.getSortedPlugins()) {
+    for (const plugin of this.#getSortedPlugins()) {
       promise = promise.then(() =>
-        this.execute({
+        this.#execute({
           strategy: 'hookSeq',
           hookName,
           parameters,
@@ -350,7 +350,7 @@ export class PluginManager {
     return promise.then(noReturn)
   }
 
-  private getSortedPlugins(hookName?: keyof PluginLifecycle): KubbPlugin[] {
+  #getSortedPlugins(hookName?: keyof PluginLifecycle): KubbPlugin[] {
     const plugins = [...this.plugins].filter((plugin) => plugin.name !== 'core')
 
     if (hookName) {
@@ -367,12 +367,12 @@ export class PluginManager {
     if (!pluginByPluginName) {
       // fallback on the core plugin when there is no match
 
-      return this.core
+      return this.#core
     }
     return pluginByPluginName
   }
 
-  private addExecutedToCallStack(executer: Executer | undefined) {
+  #addExecutedToCallStack(executer: Executer | undefined) {
     if (executer) {
       this.eventEmitter.emit('execute', executer)
       this.executed.push(executer)
@@ -386,7 +386,7 @@ export class PluginManager {
    * @param plugin The actual pluginObject to run.
    */
   // Implementation signature
-  private execute<H extends PluginLifecycleHooks, TResult = void>({
+  #execute<H extends PluginLifecycleHooks, TResult = void>({
     strategy,
     hookName,
     parameters,
@@ -409,7 +409,7 @@ export class PluginManager {
     const task = Promise.resolve()
       .then(() => {
         if (typeof hook === 'function') {
-          const possiblePromiseResult = (hook as Function).apply(this.core.api, parameters) as TResult
+          const possiblePromiseResult = (hook as Function).apply(this.#core.api, parameters) as TResult
 
           if (isPromise(possiblePromiseResult)) {
             return Promise.resolve(possiblePromiseResult)
@@ -425,12 +425,12 @@ export class PluginManager {
         return result
       })
       .catch((e: Error) => {
-        this.catcher<H>(e, plugin, hookName)
+        this.#catcher<H>(e, plugin, hookName)
 
         return null as TResult
       })
       .finally(() => {
-        this.addExecutedToCallStack({
+        this.#addExecutedToCallStack({
           parameters,
           output,
           strategy,
@@ -449,7 +449,7 @@ export class PluginManager {
    * @param plugin The acutal plugin
    * @param replaceContext When passed, the plugin context can be overridden.
    */
-  private executeSync<H extends PluginLifecycleHooks>({
+  #executeSync<H extends PluginLifecycleHooks>({
     strategy,
     hookName,
     parameters,
@@ -471,7 +471,7 @@ export class PluginManager {
 
     try {
       if (typeof hook === 'function') {
-        const fn = (hook as Function).apply(this.core.api, parameters) as ReturnType<ParseResult<H>>
+        const fn = (hook as Function).apply(this.#core.api, parameters) as ReturnType<ParseResult<H>>
 
         output = fn
         return fn
@@ -480,11 +480,11 @@ export class PluginManager {
       output = hook
       return hook
     } catch (e) {
-      this.catcher<H>(e as Error, plugin, hookName)
+      this.#catcher<H>(e as Error, plugin, hookName)
 
       return null as ReturnType<ParseResult<H>>
     } finally {
-      this.addExecutedToCallStack({
+      this.#addExecutedToCallStack({
         parameters,
         output,
         strategy,
@@ -494,7 +494,7 @@ export class PluginManager {
     }
   }
 
-  private catcher<H extends PluginLifecycleHooks>(e: Error, plugin: KubbPlugin, hookName: H) {
+  #catcher<H extends PluginLifecycleHooks>(e: Error, plugin: KubbPlugin, hookName: H) {
     const text = `${e.message} (plugin: ${plugin.name}, hook: ${hookName})\n`
     const pluginError = new PluginError(text, { cause: e, pluginManager: this })
 

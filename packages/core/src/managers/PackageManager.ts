@@ -7,16 +7,16 @@ type PackageJSON = {
 }
 
 export class PackageManager {
-  private cwd: string
+  #cwd: string
   constructor(workspace = process.cwd()) {
-    this.cwd = workspace
+    this.#cwd = workspace
 
     return this
   }
 
   async getPackageJSON(): Promise<PackageJSON | undefined> {
     const pkgPath = await findUp(['package.json'], {
-      cwd: this.cwd,
+      cwd: this.#cwd,
     })
     if (!pkgPath) {
       return undefined
@@ -27,7 +27,7 @@ export class PackageManager {
 
   getPackageJSONSync(): PackageJSON | undefined {
     const pkgPath = findUpSync(['package.json'], {
-      cwd: this.cwd,
+      cwd: this.#cwd,
     })
     if (!pkgPath) {
       return undefined

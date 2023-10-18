@@ -69,7 +69,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const mode = getPathMode(pathParser.resolve(root, output))
 
       if (mode === 'directory') {
-        const builder = await new TypeBuilder(oas).configure({
+        const builder = await new TypeBuilder({
           resolveName: (params) => this.resolveName({ pluginName, ...params }),
           fileResolver: (name) => {
             const resolvedTypeId = this.resolvePath({
@@ -85,7 +85,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           enumType,
           dateType,
           optionalType,
-        })
+        }).configure()
         Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
           return builder.add({
@@ -118,13 +118,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (mode === 'file') {
         // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
-        const builder = new TypeBuilder(oas).configure({
+        const builder = new TypeBuilder({
           resolveName: (params) => this.resolveName({ pluginName, ...params }),
           withJSDocs: true,
           enumType,
           dateType,
           optionalType,
-        })
+        }).configure()
         Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
           return builder.add({
@@ -148,16 +148,20 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
       }
 
-      const operationGenerator = new OperationGenerator({
-        oas,
-        pluginManager: this.pluginManager,
-        contentType: swaggerPlugin.api.contentType,
-        skipBy,
-        mode,
-        enumType,
-        dateType,
-        optionalType,
-      })
+      const operationGenerator = new OperationGenerator(
+        {
+          mode,
+          enumType,
+          dateType,
+          optionalType,
+        },
+        {
+          oas,
+          pluginManager: this.pluginManager,
+          contentType: swaggerPlugin.api.contentType,
+          skipBy,
+        },
+      )
 
       const files = await operationGenerator.build()
       await this.addFile(...files)

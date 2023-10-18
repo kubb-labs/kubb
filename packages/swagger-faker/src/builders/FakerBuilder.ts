@@ -10,7 +10,7 @@ import type { FileResolver, ImportMeta, Refs } from '@kubb/swagger'
 
 type Generated = { import: { refs: Refs; name: string }; sources: string[]; imports?: ImportMeta[] }
 
-type Config = {
+type Options = {
   fileResolver?: FileResolver
   resolveName: PluginContext['resolveName']
   withJSDocs?: boolean
@@ -29,12 +29,14 @@ function refsSorter(a: Generated, b: Generated) {
   return 0
 }
 
-export class FakerBuilder extends OasBuilder<Config> {
-  configure(config: Config) {
-    this.config = config
+export class FakerBuilder extends OasBuilder<Options, never> {
+  configure(options?: Options) {
+    if (options) {
+      this.options = options
+    }
 
-    if (this.config.fileResolver) {
-      this.config.withImports = true
+    if (this.options.fileResolver) {
+      this.options.withImports = true
     }
 
     return this
@@ -48,10 +50,10 @@ export class FakerBuilder extends OasBuilder<Config> {
       .sort(nameSorter)
       .map((operationSchema) => {
         const generator = new FakerGenerator({
-          withJSDocs: this.config.withJSDocs,
-          resolveName: this.config.resolveName,
-          fileResolver: this.config.fileResolver,
-          dateType: this.config.dateType,
+          withJSDocs: this.options.withJSDocs,
+          resolveName: this.options.resolveName,
+          fileResolver: this.options.fileResolver,
+          dateType: this.options.dateType,
         })
         const sources = generator.build({
           schema: operationSchema.schema,
@@ -75,8 +77,8 @@ export class FakerBuilder extends OasBuilder<Config> {
       codes.push(...item.sources)
     })
 
-    if (this.config.withImports) {
-      const importsGenerator = new ImportsGenerator({ fileResolver: this.config.fileResolver })
+    if (this.options.withImports) {
+      const importsGenerator = new ImportsGenerator({ fileResolver: this.options.fileResolver })
 
       importsGenerator.add(generated.flatMap((item) => item.imports))
       const importMeta = importsGenerator.build(generated.map((item) => item.import))

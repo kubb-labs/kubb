@@ -56,7 +56,7 @@ describe('abstract class OperationGenerator', () => {
       input: { path: 'packages/swagger/mocks/petStore.yaml' },
     })
 
-    const og = new DummyOperationGenerator({ oas, contentType: undefined, pluginManager: undefined as unknown as PluginManager, skipBy: [] })
+    const og = new DummyOperationGenerator({}, { oas, contentType: undefined, pluginManager: undefined as unknown as PluginManager, skipBy: [] })
 
     expect(og.getSchemas(oas.operation('/pets', 'get')).pathParams).toBeUndefined()
     expect(og.getSchemas(oas.operation('/pets', 'get')).queryParams).toBeDefined()
@@ -69,17 +69,20 @@ describe('abstract class OperationGenerator', () => {
       input: { path: 'packages/swagger/mocks/petStore.yaml' },
     })
 
-    const og = new DummyOperationGenerator({
-      oas,
-      contentType: undefined,
-      pluginManager: undefined as unknown as PluginManager,
-      skipBy: [
-        {
-          type: 'tag',
-          pattern: 'pets',
-        },
-      ],
-    })
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        skipBy: [
+          {
+            type: 'tag',
+            pattern: 'pets',
+          },
+        ],
+        pluginManager: undefined as unknown as PluginManager,
+        contentType: undefined,
+      },
+    )
 
     const files = await og.build()
 
@@ -93,17 +96,20 @@ describe('abstract class OperationGenerator', () => {
       input: { path: 'packages/swagger/mocks/petStore.yaml' },
     })
 
-    const og = new DummyOperationGenerator({
-      oas,
-      contentType: undefined,
-      pluginManager: undefined as unknown as PluginManager,
-      skipBy: [
-        {
-          type: 'operationId',
-          pattern: 'listPets',
-        },
-      ],
-    })
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        skipBy: [
+          {
+            type: 'operationId',
+            pattern: 'listPets',
+          },
+        ],
+        pluginManager: undefined as unknown as PluginManager,
+        contentType: undefined,
+      },
+    )
 
     const files = await og.build()
 
@@ -123,17 +129,20 @@ describe('abstract class OperationGenerator', () => {
       input: { path: 'packages/swagger/mocks/petStore.yaml' },
     })
 
-    const og = new DummyOperationGenerator({
-      oas,
-      contentType: undefined,
-      pluginManager: undefined as unknown as PluginManager,
-      skipBy: [
-        {
-          type: 'path',
-          pattern: '/pets/{petId}',
-        },
-      ],
-    })
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        skipBy: [
+          {
+            type: 'path',
+            pattern: '/pets/{petId}',
+          },
+        ],
+        pluginManager: undefined as unknown as PluginManager,
+        contentType: undefined,
+      },
+    )
 
     const files = await og.build()
 
@@ -153,17 +162,20 @@ describe('abstract class OperationGenerator', () => {
       input: { path: 'packages/swagger/mocks/petStore.yaml' },
     })
 
-    const og = new DummyOperationGenerator({
-      oas,
-      contentType: undefined,
-      pluginManager: undefined as unknown as PluginManager,
-      skipBy: [
-        {
-          type: 'method',
-          pattern: 'get',
-        },
-      ],
-    })
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        skipBy: [
+          {
+            type: 'method',
+            pattern: 'get',
+          },
+        ],
+        pluginManager: undefined as unknown as PluginManager,
+        contentType: undefined,
+      },
+    )
 
     const files = await og.build()
 
@@ -177,21 +189,24 @@ describe('abstract class OperationGenerator', () => {
       input: { path: 'packages/swagger/mocks/petStore.yaml' },
     })
 
-    const og = new DummyOperationGenerator({
-      oas,
-      contentType: undefined,
-      pluginManager: undefined as unknown as PluginManager,
-      skipBy: [
-        {
-          type: 'path',
-          pattern: '/pets/{petId}',
-        },
-        {
-          type: 'operationId',
-          pattern: 'listPets',
-        },
-      ],
-    })
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        skipBy: [
+          {
+            type: 'path',
+            pattern: '/pets/{petId}',
+          },
+          {
+            type: 'operationId',
+            pattern: 'listPets',
+          },
+        ],
+        pluginManager: undefined as unknown as PluginManager,
+        contentType: undefined,
+      },
+    )
 
     const files = await og.build()
 

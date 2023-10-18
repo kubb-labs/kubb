@@ -18,16 +18,16 @@ type QueueItem = {
 } & Required<RunOptions>
 
 export class Queue {
-  private queue: QueueItem[] = []
+  #queue: QueueItem[] = []
 
-  private workerCount = 0
+  #workerCount = 0
 
-  private maxParallel: number
-  private debug = false
+  #maxParallel: number
+  #debug = false
 
   constructor(maxParallel: number, debug = false) {
-    this.maxParallel = maxParallel
-    this.debug = debug
+    this.#maxParallel = maxParallel
+    this.#debug = debug
   }
 
   run<T>(job: QueueJob<T>, options: RunOptions = { controller: new AbortController(), name: crypto.randomUUID(), description: '' }): Promise<T> {
@@ -35,13 +35,13 @@ export class Queue {
       const item = { reject, resolve, job, name: options.name, description: options.description || options.name } as QueueItem
 
       options.controller?.signal.addEventListener('abort', () => {
-        this.queue = this.queue.filter((queueItem) => queueItem.name === item.name)
+        this.#queue = this.#queue.filter((queueItem) => queueItem.name === item.name)
 
         reject('Aborted')
       })
 
-      this.queue.push(item)
-      this.work()
+      this.#queue.push(item)
+      this.#work()
     })
   }
 
@@ -50,32 +50,32 @@ export class Queue {
       const item = { reject, resolve, job, name: options.name, description: options.description || options.name } as QueueItem
 
       options.controller?.signal.addEventListener('abort', () => {
-        this.queue = this.queue.filter((queueItem) => queueItem.name === item.name)
+        this.#queue = this.#queue.filter((queueItem) => queueItem.name === item.name)
       })
 
-      this.queue.push(item)
-      this.work()
+      this.#queue.push(item)
+      this.#work()
     })
   }
 
   get hasJobs(): boolean {
-    return this.workerCount > 0 || this.queue.length > 0
+    return this.#workerCount > 0 || this.#queue.length > 0
   }
 
   get count(): number {
-    return this.workerCount
+    return this.#workerCount
   }
 
-  private work(): void {
-    if (this.workerCount >= this.maxParallel) {
+  #work(): void {
+    if (this.#workerCount >= this.#maxParallel) {
       return
     }
-    this.workerCount++
+    this.#workerCount++
 
     let entry: QueueItem | undefined
-    while ((entry = this.queue.shift())) {
+    while ((entry = this.#queue.shift())) {
       const { reject, resolve, job, name, description } = entry
-      if (this.debug) {
+      if (this.#debug) {
         performance.mark(name + '_start')
       }
 
@@ -83,7 +83,7 @@ export class Queue {
         .then((result) => {
           resolve(result)
 
-          if (this.debug) {
+          if (this.#debug) {
             performance.mark(name + '_stop')
             performance.measure(description, name + '_start', name + '_stop')
           }
@@ -91,6 +91,6 @@ export class Queue {
         .catch((err) => reject(err))
     }
 
-    this.workerCount--
+    this.#workerCount--
   }
 }

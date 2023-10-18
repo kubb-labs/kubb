@@ -59,16 +59,20 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
       const clientPath = pathParser.resolve(root, 'client.ts')
 
-      const operationGenerator = new OperationGenerator({
-        oas,
-        pluginManager: this.pluginManager,
-        contentType: swaggerPlugin.api.contentType,
-        dataReturnType,
-        clientPath,
-        clientImportPath,
-        pathParamsType,
-        skipBy,
-      })
+      const operationGenerator = new OperationGenerator(
+        {
+          dataReturnType,
+          clientPath,
+          clientImportPath,
+          pathParamsType,
+        },
+        {
+          oas,
+          pluginManager: this.pluginManager,
+          contentType: swaggerPlugin.api.contentType,
+          skipBy,
+        },
+      )
 
       const files = await operationGenerator.build()
 

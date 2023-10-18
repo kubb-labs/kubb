@@ -10,7 +10,7 @@ import type { FileResolver, Refs } from '@kubb/swagger'
 import type ts from 'typescript'
 
 type Generated = { import: { refs: Refs; name: string }; sources: ts.Node[] }
-type Config = {
+type Options = {
   resolveName: PluginContext['resolveName']
   fileResolver?: FileResolver
   withJSDocs?: boolean
@@ -31,12 +31,14 @@ function refsSorter(a: Generated, b: Generated) {
   return 0
 }
 
-export class TypeBuilder extends OasBuilder<Config> {
-  configure(config: Config) {
-    this.config = config
+export class TypeBuilder extends OasBuilder<Options, never> {
+  configure(options?: Options) {
+    if (options) {
+      this.options = options
+    }
 
-    if (this.config.fileResolver) {
-      this.config.withImports = true
+    if (this.options.fileResolver) {
+      this.options.withImports = true
     }
 
     return this
@@ -50,11 +52,11 @@ export class TypeBuilder extends OasBuilder<Config> {
       .sort(nameSorter)
       .map((operationSchema) => {
         const generator = new TypeGenerator({
-          withJSDocs: this.config.withJSDocs,
-          resolveName: this.config.resolveName,
-          enumType: this.config.enumType,
-          dateType: this.config.dateType,
-          optionalType: this.config.optionalType,
+          withJSDocs: this.options.withJSDocs,
+          resolveName: this.options.resolveName,
+          enumType: this.options.enumType,
+          dateType: this.options.dateType,
+          optionalType: this.options.optionalType,
         })
         const sources = generator.build({
           schema: operationSchema.schema,
@@ -77,8 +79,8 @@ export class TypeBuilder extends OasBuilder<Config> {
       codes.push(print(item.sources))
     })
 
-    if (this.config.withImports) {
-      const importsGenerator = new ImportsGenerator({ fileResolver: this.config.fileResolver })
+    if (this.options.withImports) {
+      const importsGenerator = new ImportsGenerator({ fileResolver: this.options.fileResolver })
       const importMeta = importsGenerator.build(generated.map((item) => item.import))
 
       if (importMeta) {

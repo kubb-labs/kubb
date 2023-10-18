@@ -11,16 +11,20 @@ describe('OperationGenerator', () => {
 
   it('[GET] should generate code based on a operation and optionalType `questionToken`', async () => {
     const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
-    const og = await new OperationGenerator({
-      oas,
-      skipBy: [],
-      contentType: undefined,
-      pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
-      enumType: 'asConst',
-      mode: 'directory',
-      dateType: 'string',
-      optionalType: 'questionToken',
-    })
+    const og = await new OperationGenerator(
+      {
+        enumType: 'asConst',
+        mode: 'directory',
+        dateType: 'string',
+        optionalType: 'questionToken',
+      },
+      {
+        oas,
+        skipBy: [],
+        pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
+        contentType: undefined,
+      },
+    )
     const operation = oas.operation('/pets', 'get')
 
     const get = await og.get(operation, og.getSchemas(operation))
@@ -79,16 +83,20 @@ describe('OperationGenerator', () => {
 
   it('[POST] should generate code based on a operation', async () => {
     const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
-    const og = await new OperationGenerator({
-      oas,
-      skipBy: [],
-      contentType: undefined,
-      pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
-      enumType: 'asConst',
-      mode: 'directory',
-      dateType: 'string',
-      optionalType: 'questionToken',
-    })
+    const og = await new OperationGenerator(
+      {
+        enumType: 'asConst',
+        mode: 'directory',
+        dateType: 'string',
+        optionalType: 'questionToken',
+      },
+      {
+        oas,
+        skipBy: [],
+        pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
+        contentType: undefined,
+      },
+    )
     const operation = oas.operation('/pets', 'post')
 
     const post = await og.post(operation, og.getSchemas(operation))

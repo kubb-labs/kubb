@@ -9,7 +9,7 @@ import type { FileResolver, Refs } from '@kubb/swagger'
 
 type Generated = { import: { refs: Refs; name: string }; sources: string[] }
 
-type Config = {
+type Options = {
   fileResolver?: FileResolver
   resolveName: PluginContext['resolveName']
   withJSDocs?: boolean
@@ -27,13 +27,15 @@ function refsSorter(a: Generated, b: Generated) {
   return 0
 }
 
-export class ZodBuilder extends OasBuilder<Config> {
+export class ZodBuilder extends OasBuilder<Options, never> {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  configure(config: Config) {
-    this.config = config
+  configure(options?: Options) {
+    if (options) {
+      this.options = options
+    }
 
-    if (this.config.fileResolver) {
-      this.config.withImports = true
+    if (this.options.fileResolver) {
+      this.options.withImports = true
     }
 
     return this
@@ -46,7 +48,7 @@ export class ZodBuilder extends OasBuilder<Config> {
       .filter((operationSchema) => (name ? operationSchema.name === name : true))
       .sort(nameSorter)
       .map((operationSchema) => {
-        const generator = new ZodGenerator({ withJSDocs: this.config.withJSDocs, resolveName: this.config.resolveName })
+        const generator = new ZodGenerator({ withJSDocs: this.options.withJSDocs, resolveName: this.options.resolveName })
         const sources = generator.build({
           schema: operationSchema.schema,
           baseName: operationSchema.name,
@@ -67,8 +69,8 @@ export class ZodBuilder extends OasBuilder<Config> {
       codes.push(...item.sources)
     })
 
-    if (this.config.withImports) {
-      const importsGenerator = new ImportsGenerator({ fileResolver: this.config.fileResolver })
+    if (this.options.withImports) {
+      const importsGenerator = new ImportsGenerator({ fileResolver: this.options.fileResolver })
       const importMeta = importsGenerator.build(generated.map((item) => item.import))
 
       if (importMeta) {

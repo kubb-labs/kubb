@@ -22,7 +22,8 @@ type Options = {
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
-    const { pluginManager, framework } = this.options
+    const { framework } = this.options
+    const { pluginManager } = this.context
 
     const imports = this.getFrameworkSpecificImports(framework)
     const name = imports.getName(operation)
@@ -37,7 +38,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveType(operation: Operation): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     return resolveSwaggerTypescript({
       operation,
@@ -47,7 +48,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveError(operation: Operation, statusCode: number): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
 
@@ -71,7 +72,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   getFrameworkSpecificImports(framework: Options['framework']): FrameworkImports {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
 
@@ -249,7 +250,8 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, oas, clientPath, framework, infinite, dataReturnType } = this.options
+    const { clientPath, framework, infinite, dataReturnType } = this.options
+    const { pluginManager, oas } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -264,7 +266,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, errors, framework, frameworkImports, operation, schemas, infinite, dataReturnType })
+    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, infinite, dataReturnType }, { oas, pluginManager, operation, schemas })
     const clientImportPath = this.options.clientImportPath
       ? this.options.clientImportPath
       : clientPath
@@ -313,7 +315,8 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, oas, clientPath, framework, dataReturnType } = this.options
+    const { clientPath, framework, dataReturnType } = this.options
+    const { pluginManager, oas } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -328,7 +331,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, errors, framework, frameworkImports, operation, schemas, dataReturnType })
+    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, dataReturnType }, { oas, pluginManager, operation, schemas })
     const clientImportPath = this.options.clientImportPath
       ? this.options.clientImportPath
       : clientPath

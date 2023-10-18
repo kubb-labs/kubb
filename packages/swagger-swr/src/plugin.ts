@@ -59,15 +59,19 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const clientPath: KubbFile.OptionalPath = options.client ? pathParser.resolve(this.config.root, options.client) : undefined
 
-      const operationGenerator = new OperationGenerator({
-        oas,
-        pluginManager: this.pluginManager,
-        contentType: swaggerPlugin.api.contentType,
-        dataReturnType,
-        clientImportPath: options.clientImportPath,
-        clientPath,
-        skipBy,
-      })
+      const operationGenerator = new OperationGenerator(
+        {
+          dataReturnType,
+          clientImportPath: options.clientImportPath,
+          clientPath,
+        },
+        {
+          oas,
+          pluginManager: this.pluginManager,
+          contentType: swaggerPlugin.api.contentType,
+          skipBy,
+        },
+      )
 
       const files = await operationGenerator.build()
       await this.addFile(...files)

@@ -17,7 +17,7 @@ type Options = {
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     const name = pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginName })
 
@@ -31,7 +31,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveType(operation: Operation): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     return resolveSwaggerTypescript({
       operation,
@@ -41,7 +41,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveError(operation: Operation, statusCode: number): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
 
@@ -69,7 +69,8 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, oas, clientPath, dataReturnType } = this.options
+    const { clientPath, dataReturnType } = this.options
+    const { pluginManager, oas } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -85,7 +86,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, name: hook.name, errors, operation, schemas, dataReturnType })
+    const queryBuilder = new QueryBuilder({ name: hook.name, errors, dataReturnType }, { oas, pluginManager, operation, schemas })
 
     const file = queryBuilder.render('query', hook.name).file
 
@@ -137,7 +138,8 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, oas, clientPath, dataReturnType } = this.options
+    const { clientPath, dataReturnType } = this.options
+    const { pluginManager, oas } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -153,7 +155,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder(oas).configure({ pluginManager, name: hook.name, errors, operation, schemas, dataReturnType })
+    const queryBuilder = new QueryBuilder({ name: hook.name, errors, dataReturnType }, { oas, pluginManager, operation, schemas })
 
     const file = queryBuilder.render('mutation', hook.name).file
 

@@ -39,13 +39,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const [swaggerPlugin, swaggerZodPlugin] = pluginsOptions
       const oas = await swaggerPlugin.api.getOas()
 
-      const operationGenerator = new OperationGenerator({
-        oas,
-        pluginManager: this.pluginManager,
-        contentType: swaggerPlugin.api.contentType,
-        skipBy: swaggerZodPlugin.options.skipBy,
-        output,
-      })
+      const operationGenerator = new OperationGenerator(
+        {
+          output,
+        },
+        {
+          oas,
+          pluginManager: this.pluginManager,
+          contentType: swaggerPlugin.api.contentType,
+          skipBy: swaggerZodPlugin.options.skipBy,
+        },
+      )
 
       const files = await operationGenerator.build()
       await this.addFile(...files)

@@ -17,7 +17,8 @@ const methods: HttpMethod[] = ['get', 'post', 'patch', 'put', 'delete']
 
 export class OperationGenerator extends Generator<Options> {
   resolve(): Resolver {
-    const { pluginManager, output } = this.options
+    const { output } = this.options
+    const { pluginManager } = this.context
 
     const name = pluginManager.resolveName({ name: output.replace('.ts', ''), pluginName })
 
@@ -30,7 +31,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveResponse(operation: Operation): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     const schemas = this.getSchemas(operation)
 
@@ -54,7 +55,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveRequest(operation: Operation): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     const schemas = this.getSchemas(operation)
 
@@ -82,7 +83,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveHeaderParams(operation: Operation): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     const schemas = this.getSchemas(operation)
     if (!schemas.headerParams?.name) {
@@ -109,7 +110,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolvePathParams(operation: Operation): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     const schemas = this.getSchemas(operation)
     if (!schemas.pathParams?.name) {
@@ -136,7 +137,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveQueryParams(operation: Operation): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     const schemas = this.getSchemas(operation)
 
@@ -164,7 +165,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveError(operation: Operation, statusCode: number): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerZodPluginName })
     const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const

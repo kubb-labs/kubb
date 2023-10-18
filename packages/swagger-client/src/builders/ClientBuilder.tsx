@@ -7,26 +7,22 @@ import { useResolve as useResolveType } from '@kubb/swagger-ts'
 import { ClientFunction } from '../components/index.ts'
 import { pluginName } from '../plugin.ts'
 
-import type { PluginManager } from '@kubb/core'
 import type { AppContextProps, RootType } from '@kubb/react'
-import type { Operation, OperationSchemas } from '@kubb/swagger'
 import type { AppMeta, Options as PluginOptions } from '../types.ts'
 
-type Config = {
-  pluginManager: PluginManager
+type Options = {
   dataReturnType: PluginOptions['dataReturnType']
   pathParamsType: PluginOptions['pathParamsType']
-  operation: Operation
-  schemas: OperationSchemas
   clientPath?: PluginOptions['client']
   clientImportPath?: PluginOptions['clientImportPath']
 }
 
 type ClientResult = { Component: React.ElementType }
 
-export class ClientBuilder extends OasBuilder<Config> {
-  private get client(): ClientResult {
-    const { operation, schemas, dataReturnType, pathParamsType } = this.config
+export class ClientBuilder extends OasBuilder<Options> {
+  get client(): ClientResult {
+    const { operation, schemas } = this.context
+    const { dataReturnType, pathParamsType } = this.options
 
     const comments = getComments(operation)
     const method = operation.method
@@ -94,18 +90,13 @@ export class ClientBuilder extends OasBuilder<Config> {
     return { Component }
   }
 
-  configure(config: Config): this {
-    this.config = config
-
-    return this
-  }
-
   print(): string {
     return this.render().output
   }
 
   render(): RootType<AppContextProps<AppMeta>> {
-    const { pluginManager, clientPath, clientImportPath, operation, schemas } = this.config
+    const { pluginManager, operation, schemas } = this.context
+    const { clientPath, clientImportPath } = this.options
     const { Component: ClientQuery } = this.client
 
     const root = createRoot<AppContextProps<AppMeta>>()

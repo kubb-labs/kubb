@@ -14,7 +14,7 @@ type Options = {}
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     return resolve({
       operation,
@@ -25,7 +25,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveFaker(operation: Operation): Resolver | null {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     return resolveSwaggerFaker({
       operation,
@@ -35,7 +35,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     const controllerFileName = `handlers.ts`
     const controllerFilePath = pluginManager.resolvePath({
@@ -101,11 +101,11 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, oas } = this.options
+    const { pluginManager, oas } = this.context
 
     const responseName = pluginManager.resolveName({ name: schemas.response.name, pluginName: swaggerFakerPluginName })
 
-    const mswBuilder = new MSWBuilder(oas).configure({ pluginManager, schemas, responseName, operation })
+    const mswBuilder = new MSWBuilder({ responseName }, { oas, pluginManager, schemas, operation })
 
     const file = mswBuilder.render().file
 
@@ -126,16 +126,16 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, oas } = this.options
+    const { pluginManager, oas } = this.context
 
     const responseName = pluginManager.resolveName({ name: schemas.response.name, pluginName: swaggerFakerPluginName })
 
-    const mswBuilder = new MSWBuilder(oas).configure({
-      pluginManager,
-      schemas,
-      responseName,
-      operation,
-    })
+    const mswBuilder = new MSWBuilder(
+      {
+        responseName,
+      },
+      { oas, pluginManager, schemas, operation },
+    )
 
     const file = mswBuilder.render().file
 

@@ -8,35 +8,32 @@ import { camelCase, pascalCase } from 'change-case'
 import { QueryKeyFunction } from '../components/index.ts'
 import { pluginName } from '../plugin.ts'
 
-import type { PluginManager } from '@kubb/core'
 import type { AppContextProps, RootType } from '@kubb/react'
-import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
+import type { Resolver } from '@kubb/swagger'
 import type { AppMeta, Framework, FrameworkImports, Options as PluginOptions } from '../types.ts'
 
-type BaseConfig = {
-  pluginManager: PluginManager
+type BaseOptions = {
   dataReturnType: PluginOptions['dataReturnType']
-  operation: Operation
-  schemas: OperationSchemas
   framework: Framework
   frameworkImports: FrameworkImports
   errors: Resolver[]
 }
 
-type QueryConfig = BaseConfig & {
+type QueryOptions = BaseOptions & {
   infinite?: {
     queryParam?: string
   }
 }
 
-type MutationConfig = BaseConfig
-type Config = QueryConfig | MutationConfig
+type MutationOptions = BaseOptions
+type Options = QueryOptions | MutationOptions
 
 type QueryResult = { code: string; name: string }
 
-export class QueryBuilder extends OasBuilder<Config> {
-  private get queryKey(): { name: string; Component: React.ElementType } {
-    const { operation, framework } = this.config
+export class QueryBuilder extends OasBuilder<Options> {
+  get queryKey(): { name: string; Component: React.ElementType } {
+    const { framework } = this.options
+    const { operation } = this.context
 
     const name = camelCase(`${operation.getOperationId()}QueryKey`)
     const FrameworkComponent = QueryKeyFunction[framework]
@@ -46,8 +43,10 @@ export class QueryBuilder extends OasBuilder<Config> {
     return { name, Component }
   }
 
-  private get queryOptions(): QueryResult {
-    const { operation, schemas, framework, frameworkImports, errors, dataReturnType } = this.config
+  get queryOptions(): QueryResult {
+    const { framework, frameworkImports, errors, dataReturnType } = this.options
+    const { operation, schemas } = this.context
+
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
@@ -161,8 +160,10 @@ export class QueryBuilder extends OasBuilder<Config> {
     return { code: combineCodes(codes), name }
   }
 
-  private get query(): QueryResult {
-    const { framework, frameworkImports, errors, operation, schemas, dataReturnType } = this.config
+  get query(): QueryResult {
+    const { framework, frameworkImports, errors, dataReturnType } = this.options
+    const { operation, schemas } = this.context
+
     const codes: string[] = []
 
     const queryKeyName = this.queryKey.name
@@ -262,8 +263,10 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
   }
 
   //infinite
-  private get queryOptionsInfinite(): QueryResult {
-    const { framework, frameworkImports, errors, operation, schemas, infinite: { queryParam = 'id' } = {}, dataReturnType } = this.config as QueryConfig
+  get queryOptionsInfinite(): QueryResult {
+    const { framework, frameworkImports, errors, infinite: { queryParam = 'id' } = {}, dataReturnType } = this.options as QueryOptions
+    const { operation, schemas } = this.context
+
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryOptionsInfinite`)
@@ -361,8 +364,10 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     return { code: combineCodes(codes), name }
   }
 
-  private get queryInfinite(): QueryResult {
-    const { framework, frameworkImports, errors, operation, schemas, dataReturnType } = this.config
+  get queryInfinite(): QueryResult {
+    const { framework, frameworkImports, errors, dataReturnType } = this.options
+    const { operation, schemas } = this.context
+
     const codes: string[] = []
 
     const queryKeyName = this.queryKey.name
@@ -461,8 +466,10 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     return { code: combineCodes(codes), name }
   }
 
-  private get mutation(): QueryResult {
-    const { framework, frameworkImports, errors, operation, schemas } = this.config as MutationConfig
+  get mutation(): QueryResult {
+    const { framework, frameworkImports, errors } = this.options as MutationOptions
+    const { operation, schemas } = this.context
+
     const codes: string[] = []
 
     const name = frameworkImports.getName(operation)
@@ -552,18 +559,14 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     return { code: combineCodes(codes), name }
   }
 
-  configure(config: Config): this {
-    this.config = config
-
-    return this
-  }
-
   print(type: 'query' | 'mutation', name: string): string {
     return this.render(type, name).output
   }
 
   render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<AppMeta>> {
-    const { pluginManager, operation, schemas, infinite } = this.config as QueryConfig
+    const { infinite } = this.options as QueryOptions
+    const { pluginManager, operation, schemas } = this.context
+
     const { Component: QueryKey } = this.queryKey
 
     const root = createRoot<AppContextProps<AppMeta>>()

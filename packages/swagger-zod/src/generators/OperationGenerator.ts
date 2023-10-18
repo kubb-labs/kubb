@@ -14,7 +14,7 @@ type Options = {
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
-    const { pluginManager } = this.options
+    const { pluginManager } = this.context
 
     return resolve({
       operation,
@@ -29,7 +29,8 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, mode, oas } = this.options
+    const { mode } = this.options
+    const { pluginManager } = this.context
 
     const zod = this.resolve(operation)
 
@@ -45,13 +46,13 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(root, resolvedTypeId)
     }
 
-    const source = new ZodBuilder(oas)
+    const source = new ZodBuilder({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName: pluginManager.resolveName })
       .add(schemas.pathParams)
       .add(schemas.queryParams)
       .add(schemas.headerParams)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName: pluginManager.resolveName })
+      .configure()
       .print()
 
     return {
@@ -72,7 +73,8 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { mode, pluginManager, oas } = this.options
+    const { mode } = this.options
+    const { pluginManager } = this.context
 
     const zod = this.resolve(operation)
 
@@ -88,14 +90,14 @@ export class OperationGenerator extends Generator<Options> {
       return getRelativePath(root, resolvedTypeId)
     }
 
-    const source = new ZodBuilder(oas)
+    const source = new ZodBuilder({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName: pluginManager.resolveName })
       .add(schemas.pathParams)
       .add(schemas.queryParams)
       .add(schemas.headerParams)
       .add(schemas.request)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName: pluginManager.resolveName })
+      .configure()
       .print()
 
     return {

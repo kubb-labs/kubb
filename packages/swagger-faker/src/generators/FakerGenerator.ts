@@ -47,7 +47,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
     operationName?: string
   }): string[] {
     const texts: string[] = []
-    const fakerInput = this.getTypeFromSchema(schema, baseName)
+    const fakerInput = this.#getTypeFromSchema(schema, baseName)
     if (description) {
       texts.push(createJSDocBlockText({ comments: [`@description ${description}`] }))
     }
@@ -82,8 +82,8 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  private getTypeFromSchema(schema: OpenAPIV3.SchemaObject, baseName?: string): FakerMeta[] {
-    const validationFunctions = this.getBaseTypeFromSchema(schema, baseName)
+  #getTypeFromSchema(schema: OpenAPIV3.SchemaObject, baseName?: string): FakerMeta[] {
+    const validationFunctions = this.#getBaseTypeFromSchema(schema, baseName)
     if (validationFunctions) {
       return validationFunctions
     }
@@ -94,7 +94,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
   /**
    * Recursively creates a type literal with the given props.
    */
-  private getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, _baseName?: string): FakerMeta[] {
+  #getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, _baseName?: string): FakerMeta[] {
     const properties = baseSchema?.properties || {}
     const additionalProperties = baseSchema?.additionalProperties
 
@@ -104,7 +104,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
         const schema = properties[name] as OpenAPIV3.SchemaObject
 
-        validationFunctions.push(...this.getTypeFromSchema(schema, name))
+        validationFunctions.push(...this.#getTypeFromSchema(schema, name))
 
         return {
           [name]: validationFunctions,
@@ -116,7 +116,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
     if (additionalProperties) {
       const addionalValidationFunctions: FakerMeta[] =
-        additionalProperties === true ? [{ keyword: fakerKeywords.any }] : this.getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
+        additionalProperties === true ? [{ keyword: fakerKeywords.any }] : this.#getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
 
       members.push({ keyword: fakerKeywords.catchall, args: addionalValidationFunctions })
     }
@@ -127,7 +127,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
-  private getRefAlias(obj: OpenAPIV3.ReferenceObject, baseName?: string): FakerMeta[] {
+  #getRefAlias(obj: OpenAPIV3.ReferenceObject, baseName?: string): FakerMeta[] {
     const { $ref } = obj
     let ref = this.refs[$ref]
 
@@ -150,13 +150,13 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  private getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): FakerMeta[] {
+  #getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): FakerMeta[] {
     if (!schema) {
       return [{ keyword: fakerKeywords.any }]
     }
 
     if (isReference(schema)) {
-      return this.getRefAlias(schema, baseName)
+      return this.#getRefAlias(schema, baseName)
     }
 
     if (schema.oneOf) {
@@ -167,7 +167,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
         keyword: fakerKeywords.union,
         args: schema.oneOf
           .map((item) => {
-            return this.getBaseTypeFromSchema(item)[0]
+            return this.#getBaseTypeFromSchema(item)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -175,7 +175,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
           }),
       }
       if (schemaWithoutOneOf.properties && union.args) {
-        return [{ ...union, args: [...this.getBaseTypeFromSchema(schemaWithoutOneOf, baseName), ...union.args] }]
+        return [{ ...union, args: [...this.#getBaseTypeFromSchema(schemaWithoutOneOf, baseName), ...union.args] }]
       }
 
       return [union]
@@ -189,7 +189,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
         keyword: fakerKeywords.union,
         args: schema.anyOf
           .map((item) => {
-            return this.getBaseTypeFromSchema(item)[0]
+            return this.#getBaseTypeFromSchema(item)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -197,7 +197,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
           }),
       }
       if (schemaWithouAnyOf.properties && union.args) {
-        return [{ ...union, args: [...this.getBaseTypeFromSchema(schemaWithouAnyOf, baseName), ...union.args] }]
+        return [{ ...union, args: [...this.#getBaseTypeFromSchema(schemaWithouAnyOf, baseName), ...union.args] }]
       }
 
       return [union]
@@ -210,7 +210,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
         keyword: fakerKeywords.and,
         args: schema.allOf
           .map((item) => {
-            return this.getBaseTypeFromSchema(item)[0]
+            return this.#getBaseTypeFromSchema(item)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -219,7 +219,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       }
 
       if (schemaWithoutAllOf.properties && and.args) {
-        return [{ ...and, args: [...this.getBaseTypeFromSchema(schemaWithoutAllOf, baseName), ...and.args] }]
+        return [{ ...and, args: [...this.#getBaseTypeFromSchema(schemaWithoutAllOf, baseName), ...and.args] }]
       }
 
       return [and]
@@ -254,7 +254,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
     if ('items' in schema) {
       // items -> array
-      return [{ keyword: fakerKeywords.array, args: this.getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName) }]
+      return [{ keyword: fakerKeywords.array, args: this.#getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName) }]
     }
 
     if ('prefixItems' in schema) {
@@ -266,7 +266,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
           args: prefixItems
             .map((item) => {
               // no baseType so we can fall back on an union when using enum
-              return this.getBaseTypeFromSchema(item, undefined)?.[0]
+              return this.#getBaseTypeFromSchema(item, undefined)?.[0]
             })
             .filter(Boolean),
         },
@@ -275,7 +275,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      return this.getTypeFromProperties(schema, baseName)
+      return this.#getTypeFromProperties(schema, baseName)
     }
 
     if (schema.type) {
@@ -284,7 +284,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
         const [type] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
         return [
-          ...this.getBaseTypeFromSchema(
+          ...this.#getBaseTypeFromSchema(
             {
               ...schema,
               type,

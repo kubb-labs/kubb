@@ -17,7 +17,7 @@ type Options = {
 
 export class OperationGenerator extends Generator<Options> {
   async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, oas } = this.options
+    const { pluginManager, oas } = this.context
 
     const controllerName = pluginManager.resolveName({ name: 'operations', pluginName })
 
@@ -63,17 +63,18 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, oas, clientPath, clientImportPath, dataReturnType, pathParamsType } = this.options
+    const { clientPath, clientImportPath, dataReturnType, pathParamsType } = this.options
+    const { pluginManager, oas } = this.context
 
-    const clientBuilder = new ClientBuilder(oas).configure({
-      pluginManager,
-      operation,
-      schemas,
-      dataReturnType,
-      clientPath,
-      clientImportPath,
-      pathParamsType,
-    })
+    const clientBuilder = new ClientBuilder(
+      {
+        dataReturnType,
+        clientPath,
+        clientImportPath,
+        pathParamsType,
+      },
+      { oas, pluginManager, operation, schemas },
+    )
     const file = clientBuilder.render().file
 
     if (!file) {
@@ -93,17 +94,18 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, oas, clientPath, clientImportPath, dataReturnType, pathParamsType } = this.options
+    const { clientPath, clientImportPath, dataReturnType, pathParamsType } = this.options
+    const { pluginManager, oas } = this.context
 
-    const clientBuilder = new ClientBuilder(oas).configure({
-      pluginManager,
-      operation,
-      schemas,
-      dataReturnType,
-      clientPath,
-      clientImportPath,
-      pathParamsType,
-    })
+    const clientBuilder = new ClientBuilder(
+      {
+        dataReturnType,
+        clientPath,
+        clientImportPath,
+        pathParamsType,
+      },
+      { oas, pluginManager, operation, schemas },
+    )
     const file = clientBuilder.render().file
 
     if (!file) {

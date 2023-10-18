@@ -1,25 +1,50 @@
+import type { PluginManager } from '@kubb/core'
 import type { Ref } from '../generators/ImportsGenerator.ts'
-import type { Oas, OperationSchema } from '../types.ts'
+import type { Oas, Operation, OperationSchema, OperationSchemas } from '../types.ts'
 
 export type FileResolver = (name: string, ref: Ref) => string | null | undefined
+
+type Context = {
+  oas: Oas
+  pluginManager: PluginManager
+  operation: Operation
+  schemas: OperationSchemas
+}
 
 /**
  * Abstract class that contains the building blocks for creating an type/zod builder
  */
-export abstract class OasBuilder<TConfig extends object = object> {
-  public oas: Oas
+export abstract class OasBuilder<TOptions = unknown, TContext = Context> {
+  #options: TOptions = {} as TOptions
+  #context: TContext = {} as TContext
 
-  public items: OperationSchema[] = []
+  items: OperationSchema[] = []
 
-  public config: TConfig = {} as TConfig
+  constructor(options?: TOptions, context?: TContext) {
+    if (context) {
+      this.#context = context
+    }
 
-  constructor(oas: Oas) {
-    this.oas = oas
+    if (options) {
+      this.#options = options
+    }
 
     return this
   }
 
-  add(item: OperationSchema | Array<OperationSchema | undefined> | undefined): OasBuilder {
+  get options(): TOptions {
+    return this.#options
+  }
+
+  get context(): TContext {
+    return this.#context
+  }
+
+  set options(options: TOptions) {
+    this.#options = { ...this.#options, ...options }
+  }
+
+  add(item: OperationSchema | Array<OperationSchema | undefined> | undefined): this {
     if (!item) {
       return this
     }
@@ -33,7 +58,5 @@ export abstract class OasBuilder<TConfig extends object = object> {
     return this
   }
 
-  abstract configure(config: TConfig): this
-
-  abstract print(type?: string, ...rest: unknown[]): string
+  abstract print(...rest: unknown[]): string
 }

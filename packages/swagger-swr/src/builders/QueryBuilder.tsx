@@ -7,25 +7,22 @@ import { camelCase } from 'change-case'
 
 import { pluginName } from '../plugin.ts'
 
-import type { PluginManager } from '@kubb/core'
 import type { AppContextProps, RootType } from '@kubb/react'
-import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
+import type { Resolver } from '@kubb/swagger'
 import type { AppMeta, Options as PluginOptions } from '../types.ts'
 
-type Config = {
-  pluginManager: PluginManager
+type Options = {
   dataReturnType: PluginOptions['dataReturnType']
-  operation: Operation
-  schemas: OperationSchemas
   errors: Resolver[]
   name: string
 }
 
 type QueryResult = { code: string; name: string }
 
-export class QueryBuilder extends OasBuilder<Config> {
-  private get queryOptions(): QueryResult {
-    const { operation, schemas, errors, dataReturnType } = this.config
+export class QueryBuilder extends OasBuilder<Options> {
+  get queryOptions(): QueryResult {
+    const { errors, dataReturnType } = this.options
+    const { operation, schemas } = this.context
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
@@ -86,8 +83,9 @@ export function ${name} <
     return { code: combineCodes(codes), name }
   }
 
-  private get query(): QueryResult {
-    const { name, errors, operation, schemas, dataReturnType } = this.config
+  get query(): QueryResult {
+    const { name, errors, dataReturnType } = this.options
+    const { operation, schemas } = this.context
     const codes: string[] = []
 
     const queryOptionsName = this.queryOptions.name
@@ -168,8 +166,9 @@ export function ${name} <${generics.toString()}>(${params.toString()}): SWRRespo
     return { code: combineCodes(codes), name }
   }
 
-  private get mutation(): QueryResult {
-    const { name, errors, operation, schemas } = this.config
+  get mutation(): QueryResult {
+    const { name, errors } = this.options
+    const { operation, schemas } = this.context
     const codes: string[] = []
 
     const comments = getComments(operation)
@@ -244,18 +243,12 @@ export function ${name} <
     return { code: combineCodes(codes), name }
   }
 
-  configure(config: Config): this {
-    this.config = config
-
-    return this
-  }
-
   print(type: 'query' | 'mutation', name: string): string {
     return this.render(type, name).output
   }
 
   render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<AppMeta>> {
-    const { pluginManager, operation, schemas } = this.config
+    const { pluginManager, operation, schemas } = this.context
 
     const root = createRoot<AppContextProps<AppMeta>>()
 

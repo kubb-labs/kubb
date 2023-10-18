@@ -12,21 +12,21 @@ import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } fr
 import type { OpenAPIV3 } from 'openapi-types'
 import type { ContentType, Oas, OperationSchemas, SkipBy } from '../types.ts'
 
-type Options = {
+type Context = {
   oas: Oas
   skipBy: Array<SkipBy> | undefined
   contentType: ContentType | undefined
   pluginManager: PluginManager
 }
 
-export abstract class OperationGenerator<TOptions = unknown> extends Generator<Options & TOptions> {
+export abstract class OperationGenerator<TOptions = unknown> extends Generator<TOptions, Context> {
   /**
    *
    * Validate an operation to see if used with camelCase we don't overwrite other files
    * DRAFT version
    */
   validate(operation: Operation): void {
-    const { oas } = this.options
+    const { oas } = this.context
     const schemas = oas.getDefinition().components?.schemas || {}
 
     const foundSchemaKey = Object.keys(schemas).find(
@@ -39,7 +39,7 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<O
   }
 
   isSkipped(operation: Operation, method: HttpMethod): boolean {
-    const { skipBy = [] } = this.options
+    const { skipBy = [] } = this.context
     let skip = false
 
     skipBy.forEach(({ pattern, type }) => {
@@ -63,8 +63,8 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<O
     return skip
   }
 
-  private getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): OpenAPIV3.SchemaObject | null {
-    const contentType = this.options.contentType || operation.getContentType()
+  #getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): OpenAPIV3.SchemaObject | null {
+    const contentType = this.context.contentType || operation.getContentType()
     const params = operation
       .getParameters()
       .map((item) => {
@@ -104,8 +104,8 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<O
     )
   }
 
-  private getResponseSchema(operation: Operation, statusCode?: string | number): OpenAPIV3.SchemaObject {
-    const contentType = this.options.contentType || operation.getContentType()
+  #getResponseSchema(operation: Operation, statusCode?: string | number): OpenAPIV3.SchemaObject {
+    const contentType = this.context.contentType || operation.getContentType()
     const responseStatusCode = statusCode || (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
     const schema = operation.schema.responses?.[responseStatusCode] as OpenAPIV3.ReferenceObject
 
@@ -134,8 +134,8 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<O
     return responseJSONSchema
   }
 
-  private getRequestSchema(operation: Operation): OpenAPIV3.SchemaObject | null {
-    const contentType = this.options.contentType || operation.getContentType()
+  #getRequestSchema(operation: Operation): OpenAPIV3.SchemaObject | null {
+    const contentType = this.context.contentType || operation.getContentType()
     const schema = operation.hasRequestBody()
       ? ((operation.getRequestBody() as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject) ||
         ((operation.getRequestBody(contentType) as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject)
@@ -155,12 +155,12 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<O
     return schema
   }
 
-  public getSchemas(operation: Operation): OperationSchemas {
-    const pathParamsSchema = this.getParametersSchema(operation, 'path')
-    const queryParamsSchema = this.getParametersSchema(operation, 'query')
-    const headerParamsSchema = this.getParametersSchema(operation, 'header')
-    const requestSchema = this.getRequestSchema(operation)
-    const responseSchema = this.getResponseSchema(operation)
+  getSchemas(operation: Operation): OperationSchemas {
+    const pathParamsSchema = this.#getParametersSchema(operation, 'path')
+    const queryParamsSchema = this.#getParametersSchema(operation, 'query')
+    const headerParamsSchema = this.#getParametersSchema(operation, 'header')
+    const requestSchema = this.#getRequestSchema(operation)
+    const responseSchema = this.#getResponseSchema(operation)
 
     return {
       pathParams: pathParamsSchema
@@ -231,7 +231,7 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<O
             name = 'error'
           }
 
-          const schema = this.getResponseSchema(operation, statusCode)
+          const schema = this.#getResponseSchema(operation, statusCode)
 
           return {
             name: pascalCase(`${operation.getOperationId()} ${name}`, { delimiter: '', transform: pascalCaseTransformMerge }),
@@ -247,7 +247,7 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<O
     }
   }
 
-  private get methods() {
+  get #methods() {
     return {
       get: this.get,
       post: this.post,
@@ -267,7 +267,7 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<O
   }
 
   async build(): Promise<Array<KubbFile.File>> {
-    const { oas } = this.options
+    const { oas } = this.context
 
     const paths = oas.getPaths()
     const filterdPaths = Object.keys(paths).reduce(
@@ -276,7 +276,7 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<O
 
         methods.forEach((method) => {
           const operation = oas.operation(path, method)
-          if (operation && this.methods[method]) {
+          if (operation && this.#methods[method]) {
             const isSkipped = this.isSkipped(operation, method)
 
             if (!isSkipped) {
@@ -302,7 +302,7 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<O
 
         methods.forEach((method) => {
           const operation = oas.operation(path, method)
-          const promise = this.methods[method].call(this, operation, this.getSchemas(operation))
+          const promise = this.#methods[method].call(this, operation, this.getSchemas(operation))
           if (promise) {
             acc.push(promise)
           }
