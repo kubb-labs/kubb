@@ -34,6 +34,8 @@ export default defineConfig({
 :::
 
 ## input
+You can use `input.path` or `input.data` depending on the needs you have.
+
 ### path
 Path to be used as the input. Can be an absolute path, or a path relative from the defined root option.
 
@@ -48,6 +50,29 @@ import { defineConfig } from '@kubb/core'
 export default defineConfig({
   input: {
     path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  }
+})
+```
+
+### data
+String or object containing the data that you would normally import.
+
+Type: `string | unknown` <br/>
+Required: `true`
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+
+import petStore from "./petStore.yaml"
+
+export default defineConfig({
+  input: {
+    data: petStore,
   },
   output: {
     path: './src/gen',
