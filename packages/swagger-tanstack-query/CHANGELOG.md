@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.12.0...@kubb/swagger-tanstack-query-v1.13.0) (2023-10-18)
+
+
+### ✨ Features
+
+* `[@tanstack-query](https://github.com/tanstack-query)` v5 support ([c7d31dd](https://github.com/kubb-project/kubb/commit/c7d31dd11bb8c42d441101069d5d6b0e81db68c0))
+
 ## [1.12.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.11.6...@kubb/swagger-tanstack-query-v1.12.0) (2023-10-18)
 
 

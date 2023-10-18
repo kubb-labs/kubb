@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.13.0](https://github.com/kubb-project/kubb/compare/kubb-v1.12.0...kubb-v1.13.0) (2023-10-18)
+
+
+### 📚 Documentation
+
+* react-query v5 example ([7d9d428](https://github.com/kubb-project/kubb/commit/7d9d428ba2195fff47da5cf2dc0c98c651fc824c))
+
+
+### ✨ Features
+
+* `[@tanstack-query](https://github.com/tanstack-query)` v5 support ([c7d31dd](https://github.com/kubb-project/kubb/commit/c7d31dd11bb8c42d441101069d5d6b0e81db68c0))
+* `input.data` for oasParser ([feb56f4](https://github.com/kubb-project/kubb/commit/feb56f49f4b12215d5c948c3508d058fb5eb42c1))
+* PackageManager to retreive a version in the package.json of the user ([220cd63](https://github.com/kubb-project/kubb/commit/220cd631f95e24e622c6579849a53b3cedd95b50))
+
 ## [1.12.0](https://github.com/kubb-project/kubb/compare/kubb-v1.11.6...kubb-v1.12.0) (2023-10-18)
 
 

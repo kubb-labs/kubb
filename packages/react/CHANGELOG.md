@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/kubb-project/kubb/compare/@kubb/react-v1.12.0...@kubb/react-v1.13.0) (2023-10-18)
+
+
+### ✨ Features
+
+* PackageManager to retreive a version in the package.json of the user ([220cd63](https://github.com/kubb-project/kubb/commit/220cd631f95e24e622c6579849a53b3cedd95b50))
+
 ## [1.12.0](https://github.com/kubb-project/kubb/compare/@kubb/react-v1.11.6...@kubb/react-v1.12.0) (2023-10-18)
 
 
