@@ -33,16 +33,18 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   const { config, logLevel, logger = createLogger() } = options
 
   try {
-    if (!URLPath.isURL(config.input.path)) {
+    if ('path' in config.input && !URLPath.isURL(config.input.path)) {
       await read(config.input.path)
     }
   } catch (e) {
-    throw new Error(
-      'Cannot read file/URL defined in `input.path` or set with `kubb generate PATH` in the CLI of your Kubb config ' + pc.dim(config.input.path),
-      {
-        cause: e,
-      },
-    )
+    if ('path' in config.input) {
+      throw new Error(
+        'Cannot read file/URL defined in `input.path` or set with `kubb generate PATH` in the CLI of your Kubb config ' + pc.dim(config.input.path),
+        {
+          cause: e,
+        },
+      )
+    }
   }
 
   if (config.output.clean) {

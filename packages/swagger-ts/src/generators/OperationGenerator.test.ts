@@ -3,7 +3,7 @@ import { oasParser } from '@kubb/swagger'
 import { format } from '../../mocks/format.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
-import type { PluginContext } from '@kubb/core'
+import type { PluginContext, PluginManager } from '@kubb/core'
 
 describe('OperationGenerator', () => {
   const resolvePath = () => './pets.ts'
@@ -13,8 +13,9 @@ describe('OperationGenerator', () => {
     const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
     const og = await new OperationGenerator({
       oas,
-      resolvePath,
-      resolveName,
+      skipBy: [],
+      contentType: undefined,
+      pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
       enumType: 'asConst',
       mode: 'directory',
       dateType: 'string',
@@ -80,8 +81,9 @@ describe('OperationGenerator', () => {
     const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
     const og = await new OperationGenerator({
       oas,
-      resolvePath,
-      resolveName,
+      skipBy: [],
+      contentType: undefined,
+      pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
       enumType: 'asConst',
       mode: 'directory',
       dateType: 'string',

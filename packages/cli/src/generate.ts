@@ -96,7 +96,7 @@ export default async function generate({ input, config, CLIOptions, logger }: Ge
   try {
     const { root: _root, ...userConfig } = config
     const logLevel = CLIOptions.logLevel ?? LogLevel.silent
-    const inputPath = input ?? userConfig.input.path
+    const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
     spinner.start(`🚀 Building ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
 
@@ -104,10 +104,12 @@ export default async function generate({ input, config, CLIOptions, logger }: Ge
       config: {
         root: process.cwd(),
         ...userConfig,
-        input: {
-          ...userConfig.input,
-          path: inputPath,
-        },
+        input: inputPath
+          ? {
+              ...userConfig.input,
+              path: inputPath,
+            }
+          : userConfig.input,
         output: {
           write: true,
           ...userConfig.output,

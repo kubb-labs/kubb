@@ -157,12 +157,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       const operationGenerator = new OperationGenerator({
-        contentType: swaggerPlugin.api.contentType,
         oas,
+        pluginManager: this.pluginManager,
+        contentType: swaggerPlugin.api.contentType,
         skipBy,
         mode,
-        resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
-        resolveName: (params) => this.resolveName({ pluginName, ...params }),
       })
 
       const files = await operationGenerator.build()

@@ -6,19 +6,20 @@ import { findSchemaDefinition } from 'oas/utils'
 
 import { isReference } from '../utils/isReference.ts'
 
-import type { KubbFile } from '@kubb/core'
+import type { KubbFile, PluginManager } from '@kubb/core'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
-import type { ContentType, Oas, OperationSchemas, Resolver, SkipBy } from '../types.ts'
+import type { ContentType, Oas, OperationSchemas, SkipBy } from '../types.ts'
 
 type Options = {
   oas: Oas
-  skipBy?: SkipBy[]
-  contentType?: ContentType
+  skipBy: Array<SkipBy> | undefined
+  contentType: ContentType | undefined
+  pluginManager: PluginManager
 }
 
-export abstract class OperationGenerator<TOptions extends Options = Options> extends Generator<TOptions> {
+export abstract class OperationGenerator<TOptions = unknown> extends Generator<Options & TOptions> {
   /**
    *
    * Validate an operation to see if used with camelCase we don't overwrite other files
@@ -347,9 +348,4 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
    * Combination of GET, POST, PATCH, PUT, DELETE
    */
   abstract all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<KubbFile.File | null>
-
-  /**
-   * Call resolveType and get back the name, filePath and baseName
-   */
-  abstract resolve(operation: Operation): Resolver
 }

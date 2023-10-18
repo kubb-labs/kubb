@@ -5,57 +5,51 @@ import { resolve as resolveSwaggerTypescript, pluginName as swaggerTypescriptPlu
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
-import type { KubbFile, PluginContext, PluginManager } from '@kubb/core'
-import type { ContentType, Oas, Operation, OperationSchema, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
+import type { KubbFile } from '@kubb/core'
+import type { Operation, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
-  pluginManager: PluginManager
-  clientPath?: KubbFile.OptionalPath
-  clientImportPath?: KubbFile.OptionalPath
-  dataReturnType: PluginOptions['dataReturnType']
-  oas: Oas
-  contentType?: ContentType
-  skipBy?: SkipBy[]
-  resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
-  resolveName: PluginContext['resolveName']
+  clientPath?: NonNullable<PluginOptions['client']>
+  clientImportPath?: NonNullable<PluginOptions['clientImportPath']>
+  dataReturnType: NonNullable<PluginOptions['dataReturnType']>
 }
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
-    const name = resolveName({ name: `use ${operation.getOperationId()}`, pluginName })
+    const name = pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginName })
 
     return resolve({
       name,
       operation,
-      resolveName,
-      resolvePath,
+      resolveName: pluginManager.resolveName,
+      resolvePath: pluginManager.resolvePath,
       pluginName,
     })
   }
 
   resolveType(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
     return resolveSwaggerTypescript({
       operation,
-      resolveName,
-      resolvePath,
+      resolveName: pluginManager.resolveName,
+      resolvePath: pluginManager.resolvePath,
     })
   }
 
   resolveError(operation: Operation, statusCode: number): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
-    const name = resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
+    const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
 
     return resolveSwaggerTypescript({
       name,
       operation,
-      resolveName,
-      resolvePath,
+      resolveName: pluginManager.resolveName,
+      resolvePath: pluginManager.resolvePath,
     })
   }
 

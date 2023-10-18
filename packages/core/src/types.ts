@@ -36,13 +36,20 @@ export type KubbConfig = {
    * @default process.cwd()
    */
   root: string
-  input: {
-    /**
-     * Path to be used as the input. Can be an absolute path, or a path relative from
-     * the defined root option.
-     */
-    path: string
-  }
+  input:
+    | {
+        /**
+         * Path to be used as the input. Can be an absolute path, or a path relative from
+         * the defined root option.
+         */
+        path: string
+      }
+    | {
+        /**
+         * String or object containing the data that you would normally import.
+         */
+        data: string | unknown
+      }
   output: {
     /**
      * Path to be used to export all generated files. Can be an absolute path, or a path relative based of the defined root option.

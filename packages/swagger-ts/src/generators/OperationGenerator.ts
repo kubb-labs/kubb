@@ -4,30 +4,25 @@ import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { TypeBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
 
-import type { KubbFile, PluginContext } from '@kubb/core'
-import type { ContentType, FileResolver, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
-import type { FileMeta } from '../types.ts'
+import type { KubbFile } from '@kubb/core'
+import type { FileResolver, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
+import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
-  oas: Oas
-  contentType?: ContentType
-  skipBy?: SkipBy[]
-  resolvePath: PluginContext['resolvePath']
-  resolveName: PluginContext['resolveName']
   mode: KubbFile.Mode
-  enumType: 'enum' | 'asConst' | 'asPascalConst'
-  dateType: 'string' | 'date'
-  optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
+  enumType: NonNullable<PluginOptions['enumType']>
+  dateType: NonNullable<PluginOptions['dateType']>
+  optionalType: NonNullable<PluginOptions['optionalType']>
 }
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
     return resolve({
       operation,
-      resolveName,
-      resolvePath,
+      resolveName: pluginManager.resolveName,
+      resolvePath: pluginManager.resolvePath,
       pluginName,
     })
   }
@@ -37,15 +32,15 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { resolvePath, mode, resolveName, oas, enumType, dateType, optionalType } = this.options
+    const { pluginManager, mode, oas, enumType, dateType, optionalType } = this.options
 
     const type = this.resolve(operation)
 
     const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ baseName: type.baseName, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = pluginManager.resolvePath({ baseName: type.baseName, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = resolvePath({
+      const resolvedTypeId = pluginManager.resolvePath({
         baseName: `${name}.ts`,
         pluginName,
       })
@@ -59,7 +54,14 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.headerParams)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName, enumType, optionalType, dateType })
+      .configure({
+        fileResolver: mode === 'file' ? undefined : fileResolver,
+        withJSDocs: true,
+        resolveName: pluginManager.resolveName,
+        enumType,
+        optionalType,
+        dateType,
+      })
       .print()
 
     return {
@@ -74,15 +76,15 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { resolvePath, mode, resolveName, oas, enumType, dateType, optionalType } = this.options
+    const { pluginManager, mode, oas, enumType, dateType, optionalType } = this.options
 
     const type = this.resolve(operation)
 
     const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ baseName: type.baseName, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = pluginManager.resolvePath({ baseName: type.baseName, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = resolvePath({
+      const resolvedTypeId = pluginManager.resolvePath({
         baseName: `${name}.ts`,
         pluginName,
       })
@@ -97,7 +99,14 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.request)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName, enumType, optionalType, dateType })
+      .configure({
+        fileResolver: mode === 'file' ? undefined : fileResolver,
+        withJSDocs: true,
+        resolveName: pluginManager.resolveName,
+        enumType,
+        optionalType,
+        dateType,
+      })
       .print()
 
     return {

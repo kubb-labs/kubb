@@ -251,6 +251,10 @@ export default defineConfig({
                 link: '/examples/tanstack-query/react-query',
               },
               {
+                text: 'React-Query v5 <span class="new">new</span>',
+                link: '/examples/tanstack-query/react-query-v5',
+              },
+              {
                 text: 'Vue-Query',
                 link: '/examples/tanstack-query/vue-query',
               },

@@ -14,7 +14,7 @@ import type { FileMeta, PluginOptions } from './types.ts'
 export const pluginName: PluginOptions['name'] = 'swagger-client' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'clients', groupBy, skipBy = [], transformers = {}, dataReturnType = 'data', pathParamsType = 'inline' } = options
+  const { output = 'clients', groupBy, skipBy = [], transformers = {}, clientImportPath, dataReturnType = 'data', pathParamsType = 'inline' } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [SwaggerPluginOptions]
 
@@ -60,16 +60,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const clientPath = pathParser.resolve(root, 'client.ts')
 
       const operationGenerator = new OperationGenerator({
+        oas,
         pluginManager: this.pluginManager,
         contentType: swaggerPlugin.api.contentType,
         dataReturnType,
         clientPath,
-        clientImportPath: options.clientImportPath,
+        clientImportPath,
         pathParamsType,
-        oas,
         skipBy,
-        resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
-        resolveName: (params) => this.resolveName({ pluginName, ...params }),
       })
 
       const files = await operationGenerator.build()

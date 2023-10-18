@@ -1,7 +1,7 @@
 import { oasParser } from '../parsers/oasParser.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
-import type { KubbFile } from '@kubb/core'
+import type { KubbFile, PluginManager } from '@kubb/core'
 import type { Operation, Resolver } from '../types.ts'
 
 class DummyOperationGenerator extends OperationGenerator {
@@ -56,7 +56,7 @@ describe('abstract class OperationGenerator', () => {
       input: { path: 'packages/swagger/mocks/petStore.yaml' },
     })
 
-    const og = new DummyOperationGenerator({ oas })
+    const og = new DummyOperationGenerator({ oas, contentType: undefined, pluginManager: undefined as unknown as PluginManager, skipBy: [] })
 
     expect(og.getSchemas(oas.operation('/pets', 'get')).pathParams).toBeUndefined()
     expect(og.getSchemas(oas.operation('/pets', 'get')).queryParams).toBeDefined()
@@ -71,6 +71,8 @@ describe('abstract class OperationGenerator', () => {
 
     const og = new DummyOperationGenerator({
       oas,
+      contentType: undefined,
+      pluginManager: undefined as unknown as PluginManager,
       skipBy: [
         {
           type: 'tag',
@@ -93,6 +95,8 @@ describe('abstract class OperationGenerator', () => {
 
     const og = new DummyOperationGenerator({
       oas,
+      contentType: undefined,
+      pluginManager: undefined as unknown as PluginManager,
       skipBy: [
         {
           type: 'operationId',
@@ -121,6 +125,8 @@ describe('abstract class OperationGenerator', () => {
 
     const og = new DummyOperationGenerator({
       oas,
+      contentType: undefined,
+      pluginManager: undefined as unknown as PluginManager,
       skipBy: [
         {
           type: 'path',
@@ -149,6 +155,8 @@ describe('abstract class OperationGenerator', () => {
 
     const og = new DummyOperationGenerator({
       oas,
+      contentType: undefined,
+      pluginManager: undefined as unknown as PluginManager,
       skipBy: [
         {
           type: 'method',
@@ -171,6 +179,8 @@ describe('abstract class OperationGenerator', () => {
 
     const og = new DummyOperationGenerator({
       oas,
+      contentType: undefined,
+      pluginManager: undefined as unknown as PluginManager,
       skipBy: [
         {
           type: 'path',

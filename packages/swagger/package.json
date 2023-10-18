@@ -53,6 +53,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/react": "workspace:*",
     "change-case": "^4.1.2",
+    "js-yaml": "^4.1.0",
     "oas": "23.0.0",
     "oas-normalize": "^11.0.1",
     "swagger2openapi": "^7.0.8"
@@ -61,6 +62,7 @@
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
+    "@types/js-yaml": "^4.0.8",
     "@types/react": "^18.2.28",
     "@types/swagger2openapi": "^7.0.2",
     "eslint": "^8.51.0",
