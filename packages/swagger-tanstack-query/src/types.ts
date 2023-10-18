@@ -93,6 +93,10 @@ export type FrameworkImports = {
     UseQueryResult: string
     UseQueryOptions: string
     QueryOptions: string
+    /*
+     * v5
+     */
+    queryOptions?: string
     //infinite
     UseInfiniteQueryOptions: string
     UseInfiniteQueryResult: string

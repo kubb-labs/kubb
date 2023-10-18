@@ -19,6 +19,7 @@
     "/examples/faker",
     "/examples/msw",
     "/examples/react-query",
+    "/examples/react-query-v5",
     "/examples/typescript",
     "/examples/simple-single",
     "/examples/solid-query",

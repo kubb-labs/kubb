@@ -1,4 +1,4 @@
-import { getRelativePath } from '@kubb/core'
+import { getRelativePath, PackageManager } from '@kubb/core'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { resolve as resolveSwaggerTypescript, pluginName as swaggerTypescriptPluginName } from '@kubb/swagger-ts'
 
@@ -81,6 +81,8 @@ export class OperationGenerator extends Generator<Options> {
   getFrameworkSpecificImports(framework: Options['framework']): FrameworkImports {
     const { resolveName } = this.options
 
+    const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
+
     if (framework === 'svelte') {
       return {
         getName: (operation) => resolveName({ name: `${operation.getOperationId()} query` }),
@@ -90,6 +92,7 @@ export class OperationGenerator extends Generator<Options> {
           UseQueryResult: 'CreateQueryResult',
           UseQueryOptions: 'CreateQueryOptions',
           QueryOptions: 'CreateQueryOptions',
+          queryOptions: isV5 ? 'queryOptions' : undefined,
           UseInfiniteQueryOptions: 'CreateInfiniteQueryOptions',
           UseInfiniteQueryResult: 'CreateInfiniteQueryResult',
           useInfiniteQuery: 'createInfiniteQuery',
@@ -111,6 +114,7 @@ export class OperationGenerator extends Generator<Options> {
           UseQueryResult: 'CreateQueryResult',
           UseQueryOptions: 'CreateQueryOptions',
           QueryOptions: 'CreateQueryOptions',
+          queryOptions: isV5 ? 'queryOptions' : undefined,
           UseInfiniteQueryOptions: 'CreateInfiniteQueryOptions',
           UseInfiniteQueryResult: 'CreateInfiniteQueryResult',
           useInfiniteQuery: 'createInfiniteQuery',
@@ -132,6 +136,7 @@ export class OperationGenerator extends Generator<Options> {
           UseQueryResult: 'UseQueryReturnType',
           UseQueryOptions: 'UseQueryOptions',
           QueryOptions: 'QueryOptions',
+          queryOptions: isV5 ? 'queryOptions' : undefined,
           UseInfiniteQueryOptions: 'UseInfiniteQueryOptions',
           UseInfiniteQueryResult: 'UseInfiniteQueryReturnType',
           useInfiniteQuery: 'useInfiniteQuery',
@@ -152,6 +157,7 @@ export class OperationGenerator extends Generator<Options> {
         UseQueryResult: 'UseQueryResult',
         UseQueryOptions: 'UseQueryOptions',
         QueryOptions: 'QueryOptions',
+        queryOptions: isV5 ? 'queryOptions' : undefined,
         UseInfiniteQueryOptions: 'UseInfiniteQueryOptions',
         UseInfiniteQueryResult: 'UseInfiniteQueryResult',
         useInfiniteQuery: 'useInfiniteQuery',
@@ -168,7 +174,7 @@ export class OperationGenerator extends Generator<Options> {
     const { framework } = this.options
 
     if (framework === 'svelte') {
-      const values = Object.values(this.getFrameworkSpecificImports('svelte')[type])
+      const values = Object.values(this.getFrameworkSpecificImports('svelte')[type]).filter(Boolean)
 
       return [
         {
@@ -184,7 +190,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     if (framework === 'solid') {
-      const values = Object.values(this.getFrameworkSpecificImports('solid')[type])
+      const values = Object.values(this.getFrameworkSpecificImports('solid')[type]).filter(Boolean)
 
       return [
         {
@@ -200,7 +206,9 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     if (framework === 'vue') {
-      const values = Object.values(this.getFrameworkSpecificImports('vue')[type]).filter((item) => item !== 'VueMutationObserverOptions')
+      const values = Object.values(this.getFrameworkSpecificImports('vue')[type])
+        .filter(Boolean)
+        .filter((item) => item !== 'VueMutationObserverOptions')
 
       return [
         {
@@ -229,7 +237,7 @@ export class OperationGenerator extends Generator<Options> {
       ]
     }
 
-    const values = Object.values(this.getFrameworkSpecificImports('react')[type])
+    const values = Object.values(this.getFrameworkSpecificImports('react')[type]).filter(Boolean)
 
     return [
       {
