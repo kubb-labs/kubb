@@ -54,7 +54,7 @@ export async function oasParser(config: KubbConfig, options: OasOptions = {}): P
     }
 
     try {
-      const api: string = yaml.load(config.input.data) as string
+      const api: string = yaml.load(config.input.data as string) as string
 
       return oasPathParser(api, options)
     } catch (e) {

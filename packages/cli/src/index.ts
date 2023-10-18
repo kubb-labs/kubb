@@ -48,17 +48,15 @@ async function generateAction(input: string, CLIOptions: CLIOptions) {
   const result = await getCosmiConfig(moduleName, CLIOptions.config)
   spinner.succeed(`💾 Config loaded(${pc.dim(pathParser.relative(process.cwd(), result.filepath))})`)
 
-  if (CLIOptions.watch) {
-    const config = await getConfig(result, CLIOptions)
+  const config = await getConfig(result, CLIOptions)
 
+  if (CLIOptions.watch && 'path' in config.input) {
     return startWatcher([input || config.input.path], async (paths) => {
       await generate({ config, CLIOptions, logger })
       spinner.spinner = 'simpleDotsScrolling'
       spinner.start(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
     })
   }
-
-  const config = await getConfig(result, CLIOptions)
 
   await generate({ input, config, CLIOptions, logger })
 }
