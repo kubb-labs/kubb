@@ -53,7 +53,7 @@
     "@kubb/core": "workspace:*",
     "@kubb/react": "workspace:*",
     "change-case": "^4.1.2",
-    "oas": "^23.0.0",
+    "oas": "23.0.0",
     "oas-normalize": "^11.0.1",
     "swagger2openapi": "^7.0.8"
   },

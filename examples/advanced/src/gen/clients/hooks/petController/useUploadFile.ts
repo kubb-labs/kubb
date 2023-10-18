@@ -1,7 +1,7 @@
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
-import client from '../../../../client'
-import type { ResponseConfig } from '../../../../client'
+import client from '../../../../tanstack-query-client.ts'
+import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,

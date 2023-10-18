@@ -25,7 +25,7 @@
     "build": "turbo run build --filter=./packages/*",
     "build:examples": "turbo run build --filter=./examples/*",
     "clean": "turbo run clean",
-    "format": "prettier --write . && bun run format:pack",
+    "format": "prettier --write .",
     "format:pack": "npx sort-package-json package.json packages/**/**/package.json examples/*/package.json docs/package.json e2e/package.json",
     "generate": "turbo run generate --continue && bun run format",
     "graph": "npx nx graph ",
