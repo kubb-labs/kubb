@@ -11,6 +11,7 @@ import type { FileMeta, Options as PluginOptions } from '../types.ts'
 type Options = {
   pluginManager: PluginManager
   clientPath?: KubbFile.OptionalPath
+  clientImportPath?: KubbFile.OptionalPath
   dataReturnType: PluginOptions['dataReturnType']
   oas: Oas
   contentType?: ContentType
@@ -48,7 +49,6 @@ export class OperationGenerator extends Generator<Options> {
     if (!controllerFilePath) {
       return null
     }
-    // end controller setup
 
     const sources: string[] = []
 
@@ -78,7 +78,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, oas, clientPath, dataReturnType } = this.options
+    const { pluginManager, oas, clientPath, clientImportPath, dataReturnType } = this.options
 
     const clientBuilder = new ClientBuilder(oas).configure({
       pluginManager,
@@ -86,6 +86,7 @@ export class OperationGenerator extends Generator<Options> {
       schemas,
       dataReturnType,
       clientPath,
+      clientImportPath,
     })
     const file = clientBuilder.render().file
 
@@ -106,7 +107,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, oas, clientPath, dataReturnType } = this.options
+    const { pluginManager, oas, clientPath, clientImportPath, dataReturnType } = this.options
 
     const clientBuilder = new ClientBuilder(oas).configure({
       pluginManager,
@@ -114,6 +115,7 @@ export class OperationGenerator extends Generator<Options> {
       schemas,
       dataReturnType,
       clientPath,
+      clientImportPath,
     })
     const file = clientBuilder.render().file
 

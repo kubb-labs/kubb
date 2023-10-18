@@ -127,8 +127,7 @@ export default defineConfig(() => {
       }),
       createSwaggerClient({ 
         output: './clients/axios', // [!code ++]
-        // copy paste of @kubb/swagger-client/client 
-        client: './src/client.ts' // [!code ++]
+        clientImportPath: '@kubb/swagger-client/client' // [!code ++]
       })
     ],
   }

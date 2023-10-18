@@ -63,6 +63,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         pluginManager: this.pluginManager,
         contentType: swaggerPlugin.api.contentType,
         dataReturnType,
+        clientImportPath: options.clientImportPath,
         clientPath,
         oas,
         skipBy,

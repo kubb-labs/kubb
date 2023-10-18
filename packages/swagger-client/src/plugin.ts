@@ -64,6 +64,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         contentType: swaggerPlugin.api.contentType,
         dataReturnType,
         clientPath,
+        clientImportPath: options.clientImportPath,
         oas,
         skipBy,
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),

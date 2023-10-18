@@ -62,12 +62,23 @@ Name to be used for the `export * as {{exportAs}} from './`
 Type: `string` <br/>
 Default: `"{{tag}}SWRHooks"`
 
-### client
+### client <Badge type="danger" text="deprecated" />
 Path to the client that will be used to do the API calls.
 Relative to the root
 
 Type: `string` <br/>
-Default: `"@kubb/swagger-client/ts-client"`
+Default: `"@kubb/swagger-client/client"`
+
+Deprecated. Use `clientImportPath` instead. It will be skipped if `clientImportPath` is provided.
+
+### clientImportPath
+Path to the client import path that will be used to do the API calls.
+It will be used as `import client from '${clientImportPath}'`.
+It allow both relative and absolute path. the path will be applied as is,
+so relative path shoule be based on the file being generated.
+
+Type: `string` <br/>
+Default: `"@kubb/swagger-client/client"`
 
 ### dataReturnType <Badge type="warning" text="experimental" />
 ReturnType that needs to be used when calling client().

@@ -18,6 +18,7 @@ type Config = {
   operation: Operation
   schemas: OperationSchemas
   clientPath?: KubbFile.OptionalPath
+  clientImportPath?: KubbFile.OptionalPath
 }
 
 type ClientResult = { Component: React.ElementType }
@@ -103,7 +104,7 @@ export class ClientBuilder extends OasBuilder<Config> {
   }
 
   render(): RootType<AppContextProps<AppMeta>> {
-    const { pluginManager, clientPath, operation, schemas } = this.config
+    const { pluginManager, clientPath, clientImportPath, operation, schemas } = this.config
     const { Component: ClientQuery } = this.client
 
     const root = createRoot<AppContextProps<AppMeta>>()
@@ -113,7 +114,7 @@ export class ClientBuilder extends OasBuilder<Config> {
       const file = useResolve({ pluginName, type: 'file' })
       const fileType = useResolveType({ type: 'file' })
 
-      const resolvedClientPath = clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
+      const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
 
       return (
         <File baseName={file.baseName} path={file.path}>
