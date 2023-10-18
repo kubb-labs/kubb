@@ -16,12 +16,12 @@ export function getASTParams(
   if (asObject) {
     return [
       {
-        name: `{ ${getASTParams(operationSchema, { typed: true })
+        name: `{ ${getASTParams(operationSchema)
           .map((item) => item.name)
           .join(', ')} }`,
         type: operationSchema?.name,
         enabled: !!operationSchema?.name,
-        required: !!operationSchema?.schema.required?.length,
+        required: true,
       },
     ]
   }
@@ -41,9 +41,9 @@ type GetParamsResult = {
 // TODO convert to class together with `createFunctionParams` and `getASTParams`
 export function getParams(
   operationSchema: OperationSchema | undefined,
-  { typed = false, override }: { typed?: boolean; override?: (data: FunctionParamsAST) => FunctionParamsAST } = {},
+  { typed = false, override, asObject = false }: { typed?: boolean; asObject?: boolean; override?: (data: FunctionParamsAST) => FunctionParamsAST } = {},
 ): GetParamsResult {
-  const ast = getASTParams(operationSchema, { typed, override })
+  const ast = getASTParams(operationSchema, { typed, override, asObject })
   const functionParams = new FunctionParams()
   functionParams.add(ast)
 
