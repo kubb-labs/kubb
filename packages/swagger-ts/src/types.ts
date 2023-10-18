@@ -1,5 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { ResolvePathOptions, SkipBy } from '@kubb/swagger'
+import type { OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -25,7 +25,8 @@ export type Options = {
      */
     output?: string
   }
-  skipBy?: SkipBy[]
+  skipBy?: Array<SkipBy>
+  overrideBy?: Array<OverrideBy<Options>>
   /**
    * Choose to use `enum` or `as const` for enums
    * @default 'asConst'

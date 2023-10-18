@@ -68,8 +68,8 @@ export class OperationGenerator extends Generator<Options> {
     return null
   }
 
-  async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { clientPath, dataReturnType } = this.options
+  async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
+    const { clientPath, dataReturnType } = { ...this.options, ...options }
     const { pluginManager, oas } = this.context
 
     const hook = this.resolve(operation)
@@ -137,8 +137,8 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { clientPath, dataReturnType } = this.options
+  async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
+    const { clientPath, dataReturnType } = { ...this.options, ...options }
     const { pluginManager, oas } = this.context
 
     const hook = this.resolve(operation)
@@ -207,13 +207,13 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async put(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    return this.post(operation, schemas)
+  async put(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
+    return this.post(operation, schemas, options)
   }
-  async patch(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    return this.post(operation, schemas)
+  async patch(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
+    return this.post(operation, schemas, options)
   }
-  async delete(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    return this.post(operation, schemas)
+  async delete(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
+    return this.post(operation, schemas, options)
   }
 }

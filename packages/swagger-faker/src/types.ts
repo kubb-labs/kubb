@@ -1,5 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { ResolvePathOptions, SkipBy } from '@kubb/swagger'
+import type { OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -30,7 +30,8 @@ export type Options = {
      */
     exportAs?: string
   }
-  skipBy?: SkipBy[]
+  skipBy?: Array<SkipBy>
+  overrideBy?: Array<OverrideBy<Options>>
   transformers?: {
     /**
      * Override the name of the faker data that is getting generated, this will also override the name of the file.

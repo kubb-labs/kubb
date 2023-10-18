@@ -67,7 +67,7 @@ export function findPetsByStatusQueryOptionsInfinite<TData = FindPetsByStatusQue
         ...options,
         params: {
           ...params,
-          ['id']: pageParam,
+          ['test']: pageParam,
           ...(options.params || {}),
         },
       }).then((res) => res)

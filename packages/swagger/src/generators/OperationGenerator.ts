@@ -10,16 +10,17 @@ import type { KubbFile, PluginManager } from '@kubb/core'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
-import type { ContentType, Oas, OperationSchemas, SkipBy } from '../types.ts'
+import type { ContentType, Oas, OperationSchemas, OverrideBy, SkipBy } from '../types.ts'
 
-type Context = {
+type Context<TOptions> = {
   oas: Oas
   skipBy: Array<SkipBy> | undefined
+  overrideBy?: Array<OverrideBy<TOptions>> | undefined
   contentType: ContentType | undefined
   pluginManager: PluginManager
 }
 
-export abstract class OperationGenerator<TOptions = unknown> extends Generator<TOptions, Context> {
+export abstract class OperationGenerator<TOptions = unknown> extends Generator<TOptions, Context<TOptions>> {
   /**
    *
    * Validate an operation to see if used with camelCase we don't overwrite other files
@@ -36,6 +37,32 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
     if (foundSchemaKey) {
       throw new Warning(`OperationId '${operation.getOperationId()}' has the same name used as in schemas '${foundSchemaKey}' when using CamelCase`)
     }
+  }
+
+  #getOptions(operation: Operation, method: HttpMethod): Partial<TOptions> {
+    const { overrideBy = [] } = this.context
+
+    return (
+      overrideBy.find(({ pattern, type }) => {
+        if (type === 'tag') {
+          return !!operation.getTags()[0]?.name.match(pattern)
+        }
+
+        if (type === 'operationId') {
+          return !!operation.getOperationId().match(pattern)
+        }
+
+        if (type === 'path') {
+          return !!operation.path.match(pattern)
+        }
+
+        if (type === 'method') {
+          return !!method.match(pattern)
+        }
+
+        return false
+      })?.options || {}
+    )
   }
 
   isSkipped(operation: Operation, method: HttpMethod): boolean {
@@ -302,7 +329,9 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
 
         methods.forEach((method) => {
           const operation = oas.operation(path, method)
-          const promise = this.#methods[method].call(this, operation, this.getSchemas(operation))
+          const options = this.#getOptions(operation, method)
+
+          const promise = this.#methods[method].call(this, operation, this.getSchemas(operation), { ...this.options, ...options })
           if (promise) {
             acc.push(promise)
           }
@@ -323,26 +352,26 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
   /**
    * GET
    */
-  abstract get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File | null>
+  abstract get(operation: Operation, schemas: OperationSchemas, options: TOptions): Promise<KubbFile.File | null>
 
   /**
    * POST
    */
-  abstract post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File | null>
+  abstract post(operation: Operation, schemas: OperationSchemas, options: TOptions): Promise<KubbFile.File | null>
   /**
    * PATCH
    */
-  abstract patch(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File | null>
+  abstract patch(operation: Operation, schemas: OperationSchemas, options: TOptions): Promise<KubbFile.File | null>
 
   /**
    * PUT
    */
-  abstract put(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File | null>
+  abstract put(operation: Operation, schemas: OperationSchemas, options: TOptions): Promise<KubbFile.File | null>
 
   /**
    * DELETE
    */
-  abstract delete(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File | null>
+  abstract delete(operation: Operation, schemas: OperationSchemas, options: TOptions): Promise<KubbFile.File | null>
 
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE

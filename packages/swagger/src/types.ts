@@ -87,26 +87,28 @@ export type OperationSchemas = {
   errors?: Array<OperationSchema>
 }
 
-type SkipByTag = {
+type ByTag = {
   type: 'tag'
   pattern: string | RegExp
 }
 
-type SkipByOperationId = {
+type ByOperationId = {
   type: 'operationId'
   pattern: string | RegExp
 }
 
-type SkipByPath = {
+type ByPath = {
   type: 'path'
   pattern: string | RegExp
 }
 
-type SkipByMethod = {
+type ByMethod = {
   type: 'method'
   pattern: HttpMethod | RegExp
 }
 
-export type SkipBy = SkipByTag | SkipByOperationId | SkipByPath | SkipByMethod
+export type SkipBy = ByTag | ByOperationId | ByPath | ByMethod
+
+export type OverrideBy<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & { options: Partial<TOptions> }
 
 export type AppMeta = AppCoreMeta & { schemas: OperationSchemas; operation: Operation }

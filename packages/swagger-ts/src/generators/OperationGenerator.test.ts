@@ -27,7 +27,7 @@ describe('OperationGenerator', () => {
     )
     const operation = oas.operation('/pets', 'get')
 
-    const get = await og.get(operation, og.getSchemas(operation))
+    const get = await og.get(operation, og.getSchemas(operation), {} as typeof og.options)
 
     expect(format(get?.source)).toEqual(
       format(`
@@ -52,7 +52,7 @@ describe('OperationGenerator', () => {
 
     const operationShowById = oas.operation('/pets/{petId}', 'get')
 
-    const getShowById = await og.get(operationShowById, og.getSchemas(operationShowById))
+    const getShowById = await og.get(operationShowById, og.getSchemas(operationShowById), {} as typeof og.options)
 
     expect(format(getShowById?.source)).toEqual(
       format(`
@@ -99,7 +99,7 @@ describe('OperationGenerator', () => {
     )
     const operation = oas.operation('/pets', 'post')
 
-    const post = await og.post(operation, og.getSchemas(operation))
+    const post = await og.post(operation, og.getSchemas(operation), {} as typeof og.options)
 
     expect(format(post?.source)).toEqual(
       format(`

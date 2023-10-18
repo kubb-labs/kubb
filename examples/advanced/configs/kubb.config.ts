@@ -43,6 +43,17 @@ export default defineConfig(async () => {
               pattern: 'store',
             },
           ],
+          overrideBy: [
+            {
+              type: 'tag',
+              pattern: 'pet',
+              options: {
+                infinite: {
+                  queryParam: 'test',
+                },
+              },
+            },
+          ],
           groupBy: { type: 'tag' },
           clientImportPath: '../../../../tanstack-query-client.ts',
           infinite: {},
