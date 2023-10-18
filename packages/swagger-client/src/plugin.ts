@@ -60,15 +60,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const clientPath = pathParser.resolve(root, 'client.ts')
 
       const operationGenerator = new OperationGenerator({
+        oas,
         pluginManager: this.pluginManager,
         contentType: swaggerPlugin.api.contentType,
         dataReturnType,
         clientPath,
         clientImportPath: options.clientImportPath,
-        oas,
         skipBy,
-        resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
-        resolveName: (params) => this.resolveName({ pluginName, ...params }),
       })
 
       const files = await operationGenerator.build()

@@ -1,49 +1,33 @@
 import { URLPath } from '@kubb/core'
-import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
+import { OperationGenerator as Generator } from '@kubb/swagger'
 
 import { ClientBuilder } from '../builders/ClientBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
-import type { KubbFile, PluginContext, PluginManager } from '@kubb/core'
-import type { ContentType, HttpMethod, Oas, Operation, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
+import type { KubbFile } from '@kubb/core'
+import type { HttpMethod, Operation, OperationSchemas } from '@kubb/swagger'
 import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
-  pluginManager: PluginManager
-  clientPath?: KubbFile.OptionalPath
-  clientImportPath?: KubbFile.OptionalPath
-  dataReturnType: PluginOptions['dataReturnType']
-  oas: Oas
-  contentType?: ContentType
-  skipBy: SkipBy[]
-  resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
-  resolveName: PluginContext['resolveName']
+  clientPath?: PluginOptions['client']
+  clientImportPath?: PluginOptions['clientImportPath']
+  dataReturnType: NonNullable<PluginOptions['dataReturnType']>
 }
 
 export class OperationGenerator extends Generator<Options> {
-  resolve(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
-
-    return resolve({
-      operation,
-      resolveName,
-      resolvePath,
-      pluginName,
-    })
-  }
-
   async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<KubbFile.File<FileMeta> | null> {
-    const { resolvePath, resolveName, oas } = this.options
+    const { pluginManager, oas } = this.options
 
-    const controllerName = resolveName({ name: 'operations' })
+    const controllerName = pluginManager.resolveName({ name: 'operations', pluginName })
 
     if (!controllerName) {
       throw new Error('controllerName should be defined')
     }
 
     const controllerId = `${controllerName}.ts` as const
-    const controllerFilePath = resolvePath({
+    const controllerFilePath = pluginManager.resolvePath({
       baseName: controllerId,
+      pluginName,
     })
 
     if (!controllerFilePath) {

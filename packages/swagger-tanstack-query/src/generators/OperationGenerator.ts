@@ -5,32 +5,24 @@ import { resolve as resolveSwaggerTypescript, pluginName as swaggerTypescriptPlu
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
-import type { KubbFile, PluginContext, PluginManager } from '@kubb/core'
-import type { ContentType, Oas, Operation, OperationSchema, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
-import type { FileMeta, Framework, FrameworkImports, Options as PluginOptions } from '../types.ts'
+import type { KubbFile } from '@kubb/core'
+import type { Operation, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
+import type { FileMeta, FrameworkImports, Options as PluginOptions } from '../types.ts'
 
 type Options = {
-  pluginManager: PluginManager
-  framework: Framework
-  clientPath?: KubbFile.OptionalPath
-  clientImportPath?: KubbFile.OptionalPath
-  dataReturnType: PluginOptions['dataReturnType']
-  oas: Oas
-  contentType?: ContentType
-  skipBy: SkipBy[]
-  resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
-  resolveName: PluginContext['resolveName']
+  framework: NonNullable<PluginOptions['framework']>
+  clientPath?: PluginOptions['client']
+  clientImportPath?: PluginOptions['clientImportPath']
+  dataReturnType: NonNullable<PluginOptions['dataReturnType']>
   /**
    * Only used of infinite
    */
-  infinite?: {
-    queryParam?: string
-  }
+  infinite?: PluginOptions['infinite']
 }
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
-    const { resolvePath, resolveName, framework } = this.options
+    const { pluginManager, framework } = this.options
 
     const imports = this.getFrameworkSpecificImports(framework)
     const name = imports.getName(operation)
@@ -38,32 +30,32 @@ export class OperationGenerator extends Generator<Options> {
     return resolve({
       name,
       operation,
-      resolveName,
-      resolvePath,
+      resolveName: pluginManager.resolveName,
+      resolvePath: pluginManager.resolvePath,
       pluginName,
     })
   }
 
   resolveType(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
     return resolveSwaggerTypescript({
       operation,
-      resolveName,
-      resolvePath,
+      resolveName: pluginManager.resolveName,
+      resolvePath: pluginManager.resolvePath,
     })
   }
 
   resolveError(operation: Operation, statusCode: number): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
-    const name = resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
+    const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
 
     return resolveSwaggerTypescript({
       name,
       operation,
-      resolveName,
-      resolvePath,
+      resolveName: pluginManager.resolveName,
+      resolvePath: pluginManager.resolvePath,
     })
   }
 
@@ -79,13 +71,13 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   getFrameworkSpecificImports(framework: Options['framework']): FrameworkImports {
-    const { resolveName } = this.options
+    const { pluginManager } = this.options
 
     const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
 
     if (framework === 'svelte') {
       return {
-        getName: (operation) => resolveName({ name: `${operation.getOperationId()} query` }),
+        getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginName }),
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
@@ -107,7 +99,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'solid') {
       return {
-        getName: (operation) => resolveName({ name: `${operation.getOperationId()} query` }),
+        getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginName }),
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
@@ -129,7 +121,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'vue') {
       return {
-        getName: (operation) => resolveName({ name: `use ${operation.getOperationId()}` }),
+        getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginName }),
         query: {
           useQuery: 'useQuery',
           QueryKey: 'QueryKey',
@@ -150,7 +142,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     return {
-      getName: (operation) => resolveName({ name: `use ${operation.getOperationId()}` }),
+      getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginName }),
       query: {
         useQuery: 'useQuery',
         QueryKey: 'QueryKey',

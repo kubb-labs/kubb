@@ -4,28 +4,23 @@ import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { FakerBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
 
-import type { KubbFile, PluginContext } from '@kubb/core'
-import type { ContentType, FileResolver, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
-import type { FileMeta } from '../types.ts'
+import type { KubbFile } from '@kubb/core'
+import type { FileResolver, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
+import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
-  oas: Oas
-  skipBy?: SkipBy[]
-  contentType?: ContentType
-  resolvePath: PluginContext['resolvePath']
-  resolveName: PluginContext['resolveName']
   mode: KubbFile.Mode
-  dateType: 'string' | 'date'
+  dateType: NonNullable<PluginOptions['dateType']>
 }
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
     return resolve({
       operation,
-      resolveName,
-      resolvePath,
+      resolveName: pluginManager.resolveName,
+      resolvePath: pluginManager.resolvePath,
       pluginName,
     })
   }
@@ -35,15 +30,15 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { resolvePath, mode, resolveName, oas, dateType } = this.options
+    const { mode, oas, dateType, pluginManager } = this.options
 
     const faker = this.resolve(operation)
 
     const fileResolver: FileResolver = (name, ref) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ baseName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = pluginManager.resolvePath({ baseName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = resolvePath({
+      const resolvedTypeId = pluginManager.resolvePath({
         baseName: `${name}.ts`,
         pluginName: ref.pluginName || pluginName,
         options: ref.pluginName ? { tag: operation.getTags()[0]?.name } : undefined,
@@ -58,7 +53,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.headerParams)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, dateType, resolveName })
+      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, dateType, resolveName: pluginManager.resolveName })
       .print()
 
     return {
@@ -79,15 +74,15 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
-    const { resolvePath, mode, resolveName, oas, dateType } = this.options
+    const { pluginManager, mode, oas, dateType } = this.options
 
     const faker = this.resolve(operation)
 
     const fileResolver: FileResolver = (name, ref) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ baseName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = pluginManager.resolvePath({ baseName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
-      const resolvedTypeId = resolvePath({
+      const resolvedTypeId = pluginManager.resolvePath({
         baseName: `${name}.ts`,
         pluginName: ref.pluginName || pluginName,
         options: ref.pluginName ? { tag: operation.getTags()[0]?.name } : undefined,
@@ -103,7 +98,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.request)
       .add(schemas.response)
       .add(schemas.errors)
-      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName, dateType })
+      .configure({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName: pluginManager.resolveName, dateType })
       .print()
 
     return {

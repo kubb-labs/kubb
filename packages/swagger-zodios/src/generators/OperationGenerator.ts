@@ -6,15 +6,10 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { pluginName } from '../plugin.ts'
 
-import type { KubbFile, PluginContext } from '@kubb/core'
-import type { ContentType, HttpMethod, Oas, OpenAPIV3, Operation, Resolver, SkipBy } from '@kubb/swagger'
+import type { KubbFile } from '@kubb/core'
+import type { HttpMethod, OpenAPIV3, Operation, Resolver } from '@kubb/swagger'
 
 type Options = {
-  oas: Oas
-  skipBy?: SkipBy[]
-  contentType?: ContentType
-  resolvePath: PluginContext['resolvePath']
-  resolveName: PluginContext['resolveName']
   output: string
 }
 
@@ -22,26 +17,26 @@ const methods: HttpMethod[] = ['get', 'post', 'patch', 'put', 'delete']
 
 export class OperationGenerator extends Generator<Options> {
   resolve(): Resolver {
-    const { resolvePath, output, resolveName } = this.options
+    const { pluginManager, output } = this.options
 
-    const name = resolveName({ name: output.replace('.ts', ''), pluginName })
+    const name = pluginManager.resolveName({ name: output.replace('.ts', ''), pluginName })
 
     return resolve({
       name,
-      resolveName,
-      resolvePath,
+      resolveName: pluginManager.resolveName,
+      resolvePath: pluginManager.resolvePath,
       pluginName,
     })
   }
 
   resolveResponse(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
     const schemas = this.getSchemas(operation)
 
-    const name = resolveName({ name: schemas.response.name, pluginName: swaggerZodPluginName })
+    const name = pluginManager.resolveName({ name: schemas.response.name, pluginName: swaggerZodPluginName })
     const baseName: KubbFile.BaseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
-    const filePath = resolvePath({
+    const filePath = pluginManager.resolvePath({
       baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
@@ -59,7 +54,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveRequest(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
     const schemas = this.getSchemas(operation)
 
@@ -67,9 +62,9 @@ export class OperationGenerator extends Generator<Options> {
       throw new Error('schemas.request should be defined')
     }
 
-    const name = resolveName({ name: schemas.request.name, pluginName: swaggerZodPluginName })
+    const name = pluginManager.resolveName({ name: schemas.request.name, pluginName: swaggerZodPluginName })
     const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
-    const filePath = resolvePath({
+    const filePath = pluginManager.resolvePath({
       baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
@@ -87,16 +82,16 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveHeaderParams(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
     const schemas = this.getSchemas(operation)
     if (!schemas.headerParams?.name) {
       throw new Error('schemas.pathParams should be defined')
     }
 
-    const name = resolveName({ name: schemas.headerParams.name, pluginName: swaggerZodPluginName })
+    const name = pluginManager.resolveName({ name: schemas.headerParams.name, pluginName: swaggerZodPluginName })
     const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
-    const filePath = resolvePath({
+    const filePath = pluginManager.resolvePath({
       baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
@@ -114,16 +109,16 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolvePathParams(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
     const schemas = this.getSchemas(operation)
     if (!schemas.pathParams?.name) {
       throw new Error('schemas.pathParams should be defined')
     }
 
-    const name = resolveName({ name: schemas.pathParams.name, pluginName: swaggerZodPluginName })
+    const name = pluginManager.resolveName({ name: schemas.pathParams.name, pluginName: swaggerZodPluginName })
     const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
-    const filePath = resolvePath({
+    const filePath = pluginManager.resolvePath({
       baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
@@ -141,7 +136,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveQueryParams(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
     const schemas = this.getSchemas(operation)
 
@@ -149,9 +144,9 @@ export class OperationGenerator extends Generator<Options> {
       throw new Error('schemas.queryParams should be defined')
     }
 
-    const name = resolveName({ name: schemas.queryParams.name, pluginName: swaggerZodPluginName })
+    const name = pluginManager.resolveName({ name: schemas.queryParams.name, pluginName: swaggerZodPluginName })
     const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
-    const filePath = resolvePath({
+    const filePath = pluginManager.resolvePath({
       baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,
@@ -169,11 +164,11 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   resolveError(operation: Operation, statusCode: number): Resolver {
-    const { resolvePath, resolveName } = this.options
+    const { pluginManager } = this.options
 
-    const name = resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerZodPluginName })
+    const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerZodPluginName })
     const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
-    const filePath = resolvePath({
+    const filePath = pluginManager.resolvePath({
       baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
       pluginName: swaggerZodPluginName,

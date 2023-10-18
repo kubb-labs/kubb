@@ -45,7 +45,7 @@ export function useFindPetsByStatusHook<TData = FindPetsByStatusQueryResponse, T
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey
+  query.queryKey = queryKey as QueryKey
 
   return query
 }
