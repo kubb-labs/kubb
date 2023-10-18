@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.12.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.11.6...@kubb/swagger-tanstack-query-v1.12.0) (2023-10-18)
+
+
+### ✨ Features
+
+* **client,swr,tanstack-query:** add clientImportPath option ([f3b3b30](https://github.com/kubb-project/kubb/commit/f3b3b30501fe48a19071fe37b082d3646b81b5c8))
+* type for `resolveName` ([53f9893](https://github.com/kubb-project/kubb/commit/53f98933e4b1ffe834622207768257d524f1f725))
+
+
+### 🐞 Bug Fixes
+
+* docs about wrong Badge usage, wrong import line example ([15c0cd3](https://github.com/kubb-project/kubb/commit/15c0cd34f54629292d30c57e162dad4467f8b9c8))
+
 ## [1.11.6](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.11.5...@kubb/swagger-tanstack-query-v1.11.6) (2023-10-16)
 
 
