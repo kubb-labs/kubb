@@ -3,6 +3,7 @@ import pathParser from 'node:path'
 import { URLPath } from '@kubb/core'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
+import yaml from 'js-yaml'
 import Oas from 'oas'
 import OASNormalize from 'oas-normalize'
 import swagger2openapi from 'swagger2openapi'
@@ -31,7 +32,7 @@ function convertSwagger2ToOpenApi(document: OASDocument): Promise<OASDocument> {
   })
 }
 
-export async function oasPathParser(pathOrApi: string, { validate }: OasOptions = {}): Promise<oas> {
+export async function oasPathParser(pathOrApi: string | OASDocument, { validate }: OasOptions = {}): Promise<oas> {
   if (validate) {
     await new OASNormalize(pathOrApi, { enablePaths: true, colorizeErrors: true }).validate()
   }
@@ -46,12 +47,28 @@ export async function oasPathParser(pathOrApi: string, { validate }: OasOptions 
 }
 
 export async function oasParser(config: KubbConfig, options: OasOptions = {}): Promise<oas> {
-  let pathOrApi = ''
-  if (URLPath.isURL(config.input.path)) {
-    pathOrApi = config.input.path
-  } else {
-    pathOrApi = pathParser.resolve(config.root, config.input.path)
+  if ('data' in config.input) {
+    if (typeof config.input.data === 'object') {
+      const api: OASDocument = JSON.parse(JSON.stringify(config.input.data)) as OASDocument
+      return oasPathParser(api, options)
+    }
+
+    try {
+      const api: string = yaml.load(config.input.data) as string
+
+      return oasPathParser(api, options)
+    } catch (e) {
+      /* empty */
+    }
+
+    const api: OASDocument = JSON.parse(JSON.stringify(config.input.data)) as OASDocument
+
+    return oasPathParser(api, options)
   }
 
-  return oasPathParser(pathOrApi, options)
+  if (URLPath.isURL(config.input.path)) {
+    return oasPathParser(config.input.path, options)
+  }
+
+  return oasPathParser(pathParser.resolve(config.root, config.input.path), options)
 }

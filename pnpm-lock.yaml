@@ -1039,6 +1039,9 @@ importers:
       change-case:
         specifier: ^4.1.2
         version: 4.1.2
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.0
       oas:
         specifier: 23.0.0
         version: 23.0.0(patch_hash=zkrs6khqk5xc2j2iahyj5oo6rm)
@@ -1058,6 +1061,9 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup-config
+      '@types/js-yaml':
+        specifier: ^4.0.8
+        version: 4.0.8
       '@types/react':
         specifier: ^18.2.28
         version: 18.2.28
@@ -2564,6 +2570,10 @@ packages:
 
   /@types/js-levenshtein@1.1.1:
     resolution: {integrity: sha512-qC4bCqYGy1y/NP7dDVr7KJarn+PbX1nSpwA7JXdu0HxT3QYjO8MJ+cntENtHFVy2dRAyBV23OZ6MxsW1AM1L8g==}
+
+  /@types/js-yaml@4.0.8:
+    resolution: {integrity: sha512-m6jnPk1VhlYRiLFm3f8X9Uep761f+CK8mHyS65LutH2OhmBF0BeMEjHgg05usH8PLZMWWc/BUR9RPmkvpWnyRA==}
+    dev: true
 
   /@types/json-schema@7.0.12:
     resolution: {integrity: sha512-Hr5Jfhc9eYOQNPYO5WLDq/n4jqijdHNlDXjuAQkkt+mWdQR+XJToOHrsD4cPaMXpn6KO7y2+wM8AZEs8VpBLVA==}
