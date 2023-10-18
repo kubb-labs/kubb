@@ -66,6 +66,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         framework,
         skipBy,
         clientPath,
+        clientImportPath: options.clientImportPath,
         oas,
         resolvePath: (params) => this.resolvePath({ pluginName, ...params }),
         resolveName: (params) => this.resolveName({ pluginName, ...params }),

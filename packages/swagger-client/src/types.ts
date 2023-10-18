@@ -54,10 +54,19 @@ export type Options = {
   skipBy?: SkipBy[]
   /**
    * Path to the client that will be used to do the API calls.
-   * Relative to the root
-   * @default '@kubb/swagger-client/ts-client'
+   * Relative to the root.
+   * @default '@kubb/swagger-client/client'
+   * @deprecated Use `clientImportPath` instead. It will be skipped if `clientImportPath` is provided.
    */
   client?: string
+  /**
+   * Path to the client import path that will be used to do the API calls.
+   * It will be used as `import client from '${clientImportPath}'`.
+   * It allow both relative and absolute path.
+   * the path will be applied as is, so relative path shoule be based on the file being generated.
+   * @default '@kubb/swagger-client/client'
+   */
+  clientImportPath?: string
   /**
    * Experimental
    *

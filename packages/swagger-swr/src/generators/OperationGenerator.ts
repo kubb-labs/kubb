@@ -11,6 +11,7 @@ import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
   clientPath?: OptionalPath
+  clientImportPath?: OptionalPath
   dataReturnType: PluginOptions['dataReturnType']
   oas: Oas
   contentType?: ContentType
@@ -77,6 +78,11 @@ export class OperationGenerator extends Generator<Options> {
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
+    const clientImportPath = this.options.clientImportPath
+      ? this.options.clientImportPath
+      : clientPath
+        ? getRelativePath(hook.filePath, clientPath)
+        : '@kubb/swagger-client/client'
 
     let errors: Resolver[] = []
 
@@ -102,11 +108,11 @@ export class OperationGenerator extends Generator<Options> {
         },
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientImportPath,
         },
         {
           name: ['ResponseConfig'],
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientImportPath,
           isTypeOnly: true,
         },
         {
@@ -133,6 +139,11 @@ export class OperationGenerator extends Generator<Options> {
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
+    const clientImportPath = this.options.clientImportPath
+      ? this.options.clientImportPath
+      : clientPath
+        ? getRelativePath(hook.filePath, clientPath)
+        : '@kubb/swagger-client/client'
 
     let errors: Resolver[] = []
 
@@ -158,11 +169,11 @@ export class OperationGenerator extends Generator<Options> {
         },
         {
           name: 'client',
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientImportPath,
         },
         {
           name: ['ResponseConfig'],
-          path: clientPath ? getRelativePath(hook.filePath, clientPath) : '@kubb/swagger-client/client',
+          path: clientImportPath,
           isTypeOnly: true,
         },
         {
