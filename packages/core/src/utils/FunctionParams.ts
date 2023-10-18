@@ -64,8 +64,8 @@ export class FunctionParams {
 
           return acc
         }
-
-        const parameterName = camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
+        // TODO check whey we still need the camelcase here
+        const parameterName = name.startsWith('{') ? name : camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
 
         if (type) {
           if (required) {
