@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.12.0...@kubb/cli-v1.13.0) (2023-10-18)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/cli:** Synchronize undefined versions
+
 ## [1.12.0](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.11.6...@kubb/cli-v1.12.0) (2023-10-18)
 
 

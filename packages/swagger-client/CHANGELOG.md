@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.12.0...@kubb/swagger-client-v1.13.0) (2023-10-18)
+
+
+### ✨ Features
+
+* `pathParamsType` to override behaviour when calling a generated get/post/put function ([12624c4](https://github.com/kubb-project/kubb/commit/12624c4e426b417e50e5f19665fd1b529b3d0b6a))
+
 ## [1.12.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-client-v1.11.6...@kubb/swagger-client-v1.12.0) (2023-10-18)
 
 
