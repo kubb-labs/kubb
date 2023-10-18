@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-msw-v1.11.6...@kubb/swagger-msw-v1.12.0) (2023-10-18)
+
+
+### ✨ Features
+
+* type for `resolveName` ([53f9893](https://github.com/kubb-project/kubb/commit/53f98933e4b1ffe834622207768257d524f1f725))
+
 ## [1.11.6](https://github.com/kubb-project/kubb/compare/@kubb/swagger-msw-v1.11.5...@kubb/swagger-msw-v1.11.6) (2023-10-16)
 
 
