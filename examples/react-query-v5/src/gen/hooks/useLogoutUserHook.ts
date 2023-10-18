@@ -1,5 +1,5 @@
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
@@ -9,7 +9,7 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
 ): UseQueryOptions<TData, TError> {
   const queryKey = logoutUserQueryKey()
 
-  return {
+  return queryOptions({
     queryKey,
     queryFn: () => {
       return client<TData, TError>({
@@ -19,7 +19,7 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
         ...options,
       }).then((res) => res.data)
     },
-  }
+  })
 }
 
 /**

@@ -1,5 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createJSDocBlockText, FunctionParams, URLPath } from '@kubb/core'
+import { combineCodes, createJSDocBlockText, FunctionParams, PackageManager, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@kubb/swagger'
 
@@ -51,6 +51,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
+    const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
     const queryKeyName = this.queryKey.name
 
     const pathParams = getParams(schemas.pathParams, {
@@ -114,25 +115,48 @@ export class QueryBuilder extends OasBuilder<Config> {
       queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'refParams' : ''})`
     }
 
-    codes.push(`
-export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
-  const queryKey = ${queryKey};
-  
-  return {
-    queryKey,
-    queryFn: () => {
-      ${unrefs}
-      return client<${clientGenerics.join(', ')}>({
-        method: "get",
-        url: ${new URLPath(operation.path).template},
-        ${schemas.queryParams?.name ? 'params,' : ''}
-        ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
-        ...options,
-      }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
-    },
-  };
-};
-`)
+    if (isV5) {
+      codes.push(`
+      export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
+        const queryKey = ${queryKey};
+        
+        return queryOptions({
+          queryKey,
+          queryFn: () => {
+            ${unrefs}
+            return client<${clientGenerics.join(', ')}>({
+              method: "get",
+              url: ${new URLPath(operation.path).template},
+              ${schemas.queryParams?.name ? 'params,' : ''}
+              ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+              ...options,
+            }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
+          },
+        });
+      };
+      `)
+    } else {
+      // v4
+      codes.push(`
+      export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
+        const queryKey = ${queryKey};
+        
+        return {
+          queryKey,
+          queryFn: () => {
+            ${unrefs}
+            return client<${clientGenerics.join(', ')}>({
+              method: "get",
+              url: ${new URLPath(operation.path).template},
+              ${schemas.queryParams?.name ? 'params,' : ''}
+              ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+              ...options,
+            }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
+          },
+        };
+      };
+      `)
+    }
 
     return { code: combineCodes(codes), name }
   }

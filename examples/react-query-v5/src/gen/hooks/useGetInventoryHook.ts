@@ -1,5 +1,5 @@
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
@@ -9,7 +9,7 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
 ): UseQueryOptions<TData, TError> {
   const queryKey = getInventoryQueryKey()
 
-  return {
+  return queryOptions({
     queryKey,
     queryFn: () => {
       return client<TData, TError>({
@@ -19,7 +19,7 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
         ...options,
       }).then((res) => res.data)
     },
-  }
+  })
 }
 
 /**

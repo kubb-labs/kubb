@@ -1,5 +1,5 @@
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 
@@ -10,7 +10,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
 ): UseQueryOptions<TData, TError> {
   const queryKey = getOrderByIdQueryKey(orderId)
 
-  return {
+  return queryOptions({
     queryKey,
     queryFn: () => {
       return client<TData, TError>({
@@ -20,7 +20,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
         ...options,
       }).then((res) => res.data)
     },
-  }
+  })
 }
 
 /**

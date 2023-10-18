@@ -1,5 +1,5 @@
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 
@@ -10,7 +10,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
 ): UseQueryOptions<TData, TError> {
   const queryKey = findPetsByTagsQueryKey(params)
 
-  return {
+  return queryOptions({
     queryKey,
     queryFn: () => {
       return client<TData, TError>({
@@ -21,7 +21,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
         ...options,
       }).then((res) => res.data)
     },
-  }
+  })
 }
 
 /**

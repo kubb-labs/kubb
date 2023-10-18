@@ -1,5 +1,5 @@
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
 
@@ -10,7 +10,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
 ): UseQueryOptions<TData, TError> {
   const queryKey = getPetByIdQueryKey(petId)
 
-  return {
+  return queryOptions({
     queryKey,
     queryFn: () => {
       return client<TData, TError>({
@@ -20,7 +20,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
         ...options,
       }).then((res) => res.data)
     },
-  }
+  })
 }
 
 /**

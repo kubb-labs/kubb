@@ -1,5 +1,5 @@
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 
@@ -10,7 +10,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
 ): UseQueryOptions<TData, TError> {
   const queryKey = getUserByNameQueryKey(username)
 
-  return {
+  return queryOptions({
     queryKey,
     queryFn: () => {
       return client<TData, TError>({
@@ -20,7 +20,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
         ...options,
       }).then((res) => res.data)
     },
-  }
+  })
 }
 
 /**
