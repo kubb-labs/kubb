@@ -8,7 +8,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @link /user/:username
  */
 export async function updateUser<TData = UpdateUserMutationResponse, TVariables = UpdateUserMutationRequest>(
-  username: UpdateUserPathParams['username'],
+  { username }: UpdateUserPathParams,
   data?: TVariables,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<TData>> {

@@ -79,6 +79,18 @@ export type Options = {
    * @private
    */
   dataReturnType?: 'data' | 'full'
+  /**
+   * Experimental
+   *
+   * How to pass your pathParams.
+   *
+   * `object` will return the pathParams as an object.
+   *
+   * `inline` will return the pathParams as comma separated params.
+   * @default `'inline'`
+   * @private
+   */
+  pathParamsType?: 'object' | 'inline'
   transformers?: {
     /**
      * Override the name of the client that is getting generated, this will also override the name of the file.

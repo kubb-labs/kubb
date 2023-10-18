@@ -77,6 +77,7 @@ export default defineConfig(async () => {
           groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' },
           clientImportPath: '../../../../axios-client.ts',
           dataReturnType: 'full',
+          pathParamsType: 'object',
         },
       ],
       [
