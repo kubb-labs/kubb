@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.13.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.12.0...@kubb/swagger-v1.13.0) (2023-10-18)
+
+
+### ✨ Features
+
+* `input.data` for oasParser ([feb56f4](https://github.com/kubb-project/kubb/commit/feb56f49f4b12215d5c948c3508d058fb5eb42c1))
+* `pathParamsType` to override behaviour when calling a generated get/post/put function ([12624c4](https://github.com/kubb-project/kubb/commit/12624c4e426b417e50e5f19665fd1b529b3d0b6a))
+
 ## [1.12.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.11.6...@kubb/swagger-v1.12.0) (2023-10-18)
 
 
