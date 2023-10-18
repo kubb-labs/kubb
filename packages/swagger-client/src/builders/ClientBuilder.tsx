@@ -15,6 +15,7 @@ import type { AppMeta, Options as PluginOptions } from '../types.ts'
 type Config = {
   pluginManager: PluginManager
   dataReturnType: PluginOptions['dataReturnType']
+  pathParamsType: PluginOptions['pathParamsType']
   operation: Operation
   schemas: OperationSchemas
   clientPath?: KubbFile.OptionalPath
@@ -25,7 +26,7 @@ type ClientResult = { Component: React.ElementType }
 
 export class ClientBuilder extends OasBuilder<Config> {
   private get client(): ClientResult {
-    const { operation, schemas, dataReturnType } = this.config
+    const { operation, schemas, dataReturnType, pathParamsType } = this.config
 
     const comments = getComments(operation)
     const method = operation.method
@@ -42,7 +43,7 @@ export class ClientBuilder extends OasBuilder<Config> {
     clientGenerics.add([{ type: 'TData' }, { type: 'TVariables', enabled: !!schemas.request?.name }])
 
     params.add([
-      ...getASTParams(schemas.pathParams, { typed: true }),
+      ...getASTParams(schemas.pathParams, { typed: true, asObject: pathParamsType === 'object' }),
       {
         name: 'data',
         type: 'TVariables',

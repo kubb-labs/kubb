@@ -84,8 +84,17 @@ Default: `"@kubb/swagger-client/client"`
 ### dataReturnType <Badge type="warning" text="experimental" />
 ReturnType that needs to be used when calling client().
 
-`Data` will return ResponseConfig[data]. <br/>
-`Full` will return ResponseConfig.
+`data` will return ResponseConfig[data]. <br/>
+`full` will return ResponseConfig.
+
+Type: `string` <br/>
+Default: `"data"`
+
+### pathParamsType <Badge type="warning" text="experimental" />
+How to pass your pathParams.
+
+`object` will return the pathParams as an object. <br/>
+`inline` will return the pathParams as comma separated params.
 
 Type: `string` <br/>
 Default: `"data"`

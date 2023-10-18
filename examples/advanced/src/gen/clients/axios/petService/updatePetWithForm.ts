@@ -11,7 +11,7 @@ import type {
  * @link /pet/:petId
  */
 export async function updatePetWithForm<TData = UpdatePetWithFormMutationResponse>(
-  petId: UpdatePetWithFormPathParams['petId'],
+  { petId }: UpdatePetWithFormPathParams,
   params?: UpdatePetWithFormQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<TData>> {

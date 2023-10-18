@@ -65,16 +65,14 @@ export class FunctionParams {
           return acc
         }
 
-        const parameterName = camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
-
         if (type) {
           if (required) {
-            acc.push(`${parameterName}: ${type}${rest.default ? ` = ${rest.default}` : ''}`)
+            acc.push(`${name}: ${type}${rest.default ? ` = ${rest.default}` : ''}`)
           } else {
-            acc.push(`${parameterName}?: ${type}`)
+            acc.push(`${name}?: ${type}`)
           }
         } else {
-          acc.push(`${parameterName}`)
+          acc.push(`${name}`)
         }
 
         return acc
