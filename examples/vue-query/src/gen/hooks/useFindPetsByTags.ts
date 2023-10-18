@@ -6,7 +6,6 @@ import client from '@kubb/swagger-client/client'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 
 export const findPetsByTagsQueryKey = (params?: MaybeRef<FindPetsByTagsQueryParams>) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
-
 export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
   refParams?: MaybeRef<FindPetsByTagsQueryParams>,
   options: Partial<Parameters<typeof client>[0]> = {},

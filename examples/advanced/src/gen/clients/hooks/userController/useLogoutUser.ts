@@ -1,11 +1,10 @@
 import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import client from '../../../../client'
-import type { ResponseConfig } from '../../../../client'
+import client from '../../../../tanstack-query-client.ts'
+import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 
 export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const
-
 export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<ResponseConfig<TData>, TError> {

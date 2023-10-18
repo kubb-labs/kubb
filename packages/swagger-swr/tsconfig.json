@@ -7,12 +7,12 @@
     // "outDir": "./dist",
     // "tsBuildInfoFile": "./build/.tsbuildinfo"
     // add paths also here because when set with `base.json` it will use the `./dist` folder instead of `./src`.
+    "jsxImportSource": "@kubb/react",
     "types": [
       "vitest/globals",
       "bun-types",
       "../core/globals.d.ts",
-      "../config/ts-config/reset.d.ts",
-      "../react/globals.d.ts"
+      "../config/ts-config/reset.d.ts"
     ],
     "paths": {
       "@kubb/cli": [
@@ -68,7 +68,7 @@
       ],
       "@kubb/react/client": [
         "../react/src/client/index.ts"
-      ]
+      ],
     }
   },
   "include": [

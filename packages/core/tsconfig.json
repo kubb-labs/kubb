@@ -11,12 +11,11 @@
       "vitest/globals",
       "bun-types",
       "./globals",
-      "../config/ts-config/reset.d.ts",
-      "../react/globals.d.ts"
+      "../config/ts-config/reset.d.ts"
     ],
     "paths": {
-      "@kubb/cli": [
-        "../cli/src/index.ts"
+      "@kubb/core": [
+        "../core/src/index.ts"
       ],
       "@kubb/eslint-config": [
         "../config/eslint-config/src/index.ts"
@@ -26,54 +25,6 @@
       ],
       "@kubb/ts-config": [
         "../config/ts-config/src/index.ts"
-      ],
-      "@kubb/core": [
-        "../core/src/index.ts"
-      ],
-      "@kubb/swagger": [
-        "../swagger/src/index.ts"
-      ],
-      "@kubb/swagger-client": [
-        "../swagger-client/src/index.ts"
-      ],
-      "@kubb/swagger-client/client": [
-        "../swagger-client/client.ts"
-      ],
-      "@kubb/swagger-client/ts-client": [
-        "../swagger-client/client.ts"
-      ],
-      "@kubb/swagger-faker": [
-        "../swagger-faker/src/index.ts"
-      ],
-      "@kubb/swagger-msw": [
-        "../swagger-msw/src/index.ts"
-      ],
-      "@kubb/swagger-tanstack-query": [
-        "../swagger-tanstack-query/src/index.ts"
-      ],
-      "@kubb/swagger-ts": [
-        "../swagger-ts/src/index.ts"
-      ],
-      "@kubb/swagger-zod": [
-        "../swagger-zod/src/index.ts"
-      ],
-      "@kubb/swagger-swr": [
-        "../swagger-swr/src/index.ts"
-      ],
-      "@kubb/swagger-zodios": [
-        "../swagger-zodios/src/index.ts"
-      ],
-      "@kubb/parser": [
-        "../parser/src/index.ts"
-      ],
-      "@kubb/react": [
-        "../react/src/index.ts"
-      ],
-      "@kubb/react/jsx-runtime": [
-        "../react/src/jsx-runtime.ts"
-      ],
-      "@kubb/react/client": [
-        "../react/src/client/index.ts"
       ]
     }
   },

@@ -130,7 +130,8 @@ export const reconciler = createReconciler<
   },
   createTextInstance(text, _root, hostContext) {
     if (!hostContext.isInsideText) {
-      throw new Error(`[react] Text string "${text}" must be rendered inside <Text> component`)
+      // TODO check if needed
+      // throw new Error(`[react] Text string "${text}" must be rendered inside <Text> component`)
     }
 
     return createTextNode(text)

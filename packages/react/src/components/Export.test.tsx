@@ -8,15 +8,6 @@ describe('<Export/>', () => {
     }
     const root = createRoot()
     root.render(<Component />)
-
-    expect(root.exports).toStrictEqual([
-      {
-        asAlias: undefined,
-        isTypeOnly: undefined,
-        name: undefined,
-        path: 'kubb',
-      },
-    ])
   })
   test('render Export with print', () => {
     const Component = () => {
@@ -26,6 +17,5 @@ describe('<Export/>', () => {
     root.render(<Component />)
 
     expect(root.output).toMatch('export * from "kubb"')
-    expect(root.exports).toStrictEqual([])
   })
 })

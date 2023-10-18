@@ -51,14 +51,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         contentType,
       }
     },
-    resolvePath(fileName) {
+    resolvePath(baseName) {
       if (output === false) {
         return undefined
       }
 
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 
-      return pathParser.resolve(root, output, fileName)
+      return pathParser.resolve(root, output, baseName)
     },
     async writeFile(source, path) {
       if (!path.endsWith('.json') || !source) {
@@ -78,7 +78,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
         const path = this.resolvePath({
-          fileName: `${name}.json`,
+          baseName: `${name}.json`,
           pluginName,
         })
 
@@ -88,7 +88,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         await this.addFile({
           path,
-          fileName: `${name}.json`,
+          baseName: `${name}.json`,
           source: JSON.stringify(schema),
           meta: {
             pluginName,

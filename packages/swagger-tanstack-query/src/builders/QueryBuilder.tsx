@@ -1,14 +1,15 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createFunctionParams, createJSDocBlockText, URLPath } from '@kubb/core'
-import { createRoot } from '@kubb/react'
-import { getASTParams, getComments, getParams, OasBuilder } from '@kubb/swagger'
+import { combineCodes, createJSDocBlockText, FunctionParams, URLPath } from '@kubb/core'
+import { createRoot, File } from '@kubb/react'
+import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@kubb/swagger'
 
 import { camelCase, pascalCase } from 'change-case'
 
 import { QueryKeyFunction } from '../components/index.ts'
+import { pluginName } from '../plugin.ts'
 
-import type { Import, PluginManager } from '@kubb/core'
-import type { AppContextProps } from '@kubb/react'
+import type { PluginManager } from '@kubb/core'
+import type { AppContextProps, RootType } from '@kubb/react'
 import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { AppMeta, Framework, FrameworkImports, Options as PluginOptions } from '../types.ts'
 
@@ -31,29 +32,18 @@ type QueryConfig = BaseConfig & {
 type MutationConfig = BaseConfig
 type Config = QueryConfig | MutationConfig
 
-type QueryResult = { code: string; name: string; imports: Import[] }
+type QueryResult = { code: string; name: string }
 
 export class QueryBuilder extends OasBuilder<Config> {
-  private get queryKey(): QueryResult {
-    const { pluginManager, operation, schemas, framework } = this.config
-    const codes: string[] = []
+  private get queryKey(): { name: string; Component: React.ElementType } {
+    const { operation, framework } = this.config
 
     const name = camelCase(`${operation.getOperationId()}QueryKey`)
     const FrameworkComponent = QueryKeyFunction[framework]
 
-    const Component = () => {
-      return (
-        <>
-          <FrameworkComponent name={name} />
-        </>
-      )
-    }
-    const root = createRoot<AppContextProps<AppMeta>>()
-    root.render(<Component />, { meta: { pluginManager, schemas, operation } })
+    const Component = () => <FrameworkComponent name={name} />
 
-    codes.push(root.output)
-
-    return { code: combineCodes(codes), name, imports: root.imports }
+    return { name, Component }
   }
 
   private get queryOptions(): QueryResult {
@@ -67,7 +57,14 @@ export class QueryBuilder extends OasBuilder<Config> {
       override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
     }).toString()
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const generics = new FunctionParams()
+    const params = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+    ])
+
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const paramsData = [
@@ -96,7 +93,7 @@ export class QueryBuilder extends OasBuilder<Config> {
         default: '{}',
       },
     ]
-    const params = createFunctionParams(paramsData)
+    params.add(paramsData)
 
     const unrefs =
       framework === 'vue'
@@ -118,7 +115,7 @@ export class QueryBuilder extends OasBuilder<Config> {
     }
 
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
   const queryKey = ${queryKey};
   
   return {
@@ -137,7 +134,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
 };
 `)
 
-    return { code: combineCodes(codes), name, imports: [] }
+    return { code: combineCodes(codes), name }
   }
 
   private get query(): QueryResult {
@@ -152,10 +149,18 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
     }).toString()
     const comments = getComments(operation)
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const generics = new FunctionParams()
+    const params = new FunctionParams()
+    const queryParams = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+    ])
+
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
-    const params = createFunctionParams([
+    params.add([
       ...getASTParams(schemas.pathParams, {
         typed: true,
         override:
@@ -188,7 +193,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
     const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
       schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
     })`
-    const queryParams = createFunctionParams([
+    queryParams.add([
       ...getASTParams(schemas.pathParams, {
         typed: false,
         override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
@@ -208,11 +213,13 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
         required: false,
       },
     ])
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams})`
+    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.query.UseQueryResult}<${queryGenerics.join(', ')}> & { queryKey: QueryKey } {
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryResult}<${queryGenerics.join(
+      ', ',
+    )}> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
   const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
   
@@ -227,7 +234,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
 };
 `)
 
-    return { code: combineCodes(codes), name, imports: [] }
+    return { code: combineCodes(codes), name }
   }
 
   //infinite
@@ -243,7 +250,14 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
       override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
     }).toString()
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const generics = new FunctionParams()
+    const params = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+    ])
+
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
     const paramsData = [
@@ -272,7 +286,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
         default: '{}',
       },
     ]
-    const params = createFunctionParams(paramsData)
+    params.add(paramsData)
 
     const unrefs =
       framework === 'vue'
@@ -293,7 +307,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
     }
 
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}> {
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}> {
   const queryKey = ${queryKey};
 
   return {
@@ -320,7 +334,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
 };
   `)
 
-    return { code: combineCodes(codes), name, imports: [] }
+    return { code: combineCodes(codes), name }
   }
 
   private get queryInfinite(): QueryResult {
@@ -335,10 +349,18 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
     }).toString()
     const comments = getComments(operation)
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const generics = new FunctionParams()
+    const params = new FunctionParams()
+    const queryParams = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+    ])
+
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
-    const params = createFunctionParams([
+    params.add([
       ...getASTParams(schemas.pathParams, {
         typed: true,
         override:
@@ -371,7 +393,7 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
     const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
       schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
     })`
-    const queryParams = createFunctionParams([
+    queryParams.add([
       ...getASTParams(schemas.pathParams, {
         typed: false,
         override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
@@ -391,11 +413,11 @@ export function ${name} <${generics.join(', ')}>(${params}): ${frameworkImports.
         required: false,
       },
     ])
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams})`
+    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.query.UseInfiniteQueryResult}<${queryGenerics.join(
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryResult}<${queryGenerics.join(
       ', ',
     )}> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
@@ -412,7 +434,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
 };
 `)
 
-    return { code: combineCodes(codes), name, imports: [] }
+    return { code: combineCodes(codes), name }
   }
 
   private get mutation(): QueryResult {
@@ -424,11 +446,15 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
     const comments = getComments(operation)
     const method = operation.method
 
-    const generics = [
-      `TData = ${schemas.response.name}`,
-      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
-      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined,
-    ].filter(Boolean)
+    const generics = new FunctionParams()
+    const params = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+      { type: 'TVariables', default: schemas.request?.name, enabled: !!schemas.request?.name },
+    ])
+
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : 'void', framework === 'vue' ? 'unknown' : undefined].filter(Boolean)
     const mutationGenerics = [
       'ResponseConfig<TData>',
@@ -465,7 +491,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
         default: '{}',
       },
     ]
-    const params = createFunctionParams(paramsData)
+    params.add(paramsData)
 
     const unrefs =
       framework === 'vue'
@@ -479,7 +505,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.q
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.mutate.UseMutationResult}<${mutationGenerics.join(', ')}> {
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.mutate.UseMutationResult}<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
   
   return ${frameworkImports.mutate.useMutation}<${mutationGenerics.join(', ')}>({
@@ -499,7 +525,7 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.m
 };
 `)
 
-    return { code: combineCodes(codes), name, imports: [] }
+    return { code: combineCodes(codes), name }
   }
 
   configure(config: Config): this {
@@ -508,38 +534,71 @@ export function ${name} <${generics.join(',')}>(${params}): ${frameworkImports.m
     return this
   }
 
-  print(type: 'query' | 'mutation'): string {
-    const { infinite } = this.config as QueryConfig
-
-    const codes: string[] = []
-
-    //query
-    const { code: queryKey } = this.queryKey
-    const { code: queryOptions } = this.queryOptions
-    const { code: query } = this.query
-
-    const { code: queryOptionsInfinite } = this.queryOptionsInfinite
-    const { code: queryInfinite } = this.queryInfinite
-
-    //mutate
-
-    const { code: mutation } = this.mutation
-
-    if (type === 'query') {
-      codes.push(queryKey, queryOptions, query)
-      if (infinite) {
-        codes.push(queryOptionsInfinite, queryInfinite)
-      }
-    }
-
-    if (type === 'mutation') {
-      codes.push(mutation)
-    }
-
-    return codes.join('\n')
+  print(type: 'query' | 'mutation', name: string): string {
+    return this.render(type, name).output
   }
 
-  imports(): Import[] {
-    return [...this.queryKey.imports]
+  render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<AppMeta>> {
+    const { pluginManager, operation, schemas, infinite } = this.config as QueryConfig
+    const { Component: QueryKey } = this.queryKey
+
+    const root = createRoot<AppContextProps<AppMeta>>()
+
+    const ComponentQuery = () => {
+      const file = useResolve({ name, pluginName, type: 'file' })
+
+      return (
+        <File baseName={file.baseName} path={file.path}>
+          <File.Source>
+            <QueryKey />
+            {this.queryOptions.code}
+            <br />
+            {this.query.code}
+          </File.Source>
+        </File>
+      )
+    }
+
+    const ComponentQueryInfinite = () => {
+      const file = useResolve({ name, pluginName, type: 'file' })
+
+      return (
+        <File baseName={file.baseName} path={file.path}>
+          <File.Source>
+            <QueryKey />
+            {this.queryOptions.code}
+            <br />
+            {this.query.code}
+            <br />
+            {this.queryOptionsInfinite.code}
+            <br />
+            {this.queryInfinite.code}
+          </File.Source>
+        </File>
+      )
+    }
+
+    const ComponentMutation = () => {
+      const file = useResolve({ name, pluginName, type: 'file' })
+
+      return (
+        <File baseName={file.baseName} path={file.path}>
+          <File.Source>{this.mutation.code}</File.Source>
+        </File>
+      )
+    }
+
+    if (type === 'query') {
+      if (infinite) {
+        root.render(<ComponentQueryInfinite />, { meta: { pluginManager, schemas, operation } })
+      } else {
+        root.render(<ComponentQuery />, { meta: { pluginManager, schemas, operation } })
+      }
+    }
+    if (type === 'mutation') {
+      root.render(<ComponentMutation />, { meta: { pluginManager, schemas, operation } })
+    }
+
+    return root
   }
 }

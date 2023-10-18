@@ -1,7 +1,7 @@
 import { build } from './build.ts'
 import { createPlugin } from './plugin.ts'
 
-import type { File } from './managers/fileManager/types.ts'
+import type { KubbFile } from './managers/fileManager/types.ts'
 import type { KubbConfig } from './types.ts'
 
 describe('build', () => {
@@ -15,9 +15,9 @@ describe('build', () => {
     load: vi.fn(),
   } as const
 
-  const file: File = {
+  const file: KubbFile.File = {
     path: 'hello/world.json',
-    fileName: `world.json`,
+    baseName: `world.json`,
     source: "export const hello = 'world';",
   }
   const plugin = createPlugin(() => {

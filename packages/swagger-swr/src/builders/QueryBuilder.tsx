@@ -1,13 +1,19 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createFunctionParams, createJSDocBlockText, URLPath } from '@kubb/core'
-import { getASTParams, getComments, OasBuilder } from '@kubb/swagger'
+import { combineCodes, createJSDocBlockText, FunctionParams, URLPath } from '@kubb/core'
+import { createRoot, File } from '@kubb/react'
+import { getASTParams, getComments, OasBuilder, useResolve } from '@kubb/swagger'
 
 import { camelCase } from 'change-case'
 
+import { pluginName } from '../plugin.ts'
+
+import type { PluginManager } from '@kubb/core'
+import type { AppContextProps, RootType } from '@kubb/react'
 import type { Operation, OperationSchemas, Resolver } from '@kubb/swagger'
-import type { Options as PluginOptions } from '../types.ts'
+import type { AppMeta, Options as PluginOptions } from '../types.ts'
 
 type Config = {
+  pluginManager: PluginManager
   dataReturnType: PluginOptions['dataReturnType']
   operation: Operation
   schemas: OperationSchemas
@@ -24,11 +30,18 @@ export class QueryBuilder extends OasBuilder<Config> {
 
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const generics = new FunctionParams()
+    const params = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+    ])
+
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
 
-    const params = createFunctionParams([
+    params.add([
       ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
@@ -51,9 +64,9 @@ export class QueryBuilder extends OasBuilder<Config> {
 
     codes.push(`
 export function ${name} <
-  ${generics.join(', ')}
+  ${generics.toString()}
 >(
-  ${params}
+  ${params.toString()}
 ): SWRConfiguration<${queryGenerics.join(', ')}> {
   return {
     fetcher: () => {
@@ -81,10 +94,18 @@ export function ${name} <
 
     const comments = getComments(operation)
 
-    const generics = [`TData = ${schemas.response.name}`, `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`]
+    const generics = new FunctionParams()
+    const params = new FunctionParams()
+    const queryParams = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+    ])
+
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
-    const params = createFunctionParams([
+    params.add([
       ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
@@ -110,7 +131,7 @@ export function ${name} <
       },
     ])
 
-    const queryParams = createFunctionParams([
+    queryParams.add([
       ...getASTParams(schemas.pathParams, { typed: false }),
       {
         name: 'params',
@@ -127,11 +148,11 @@ export function ${name} <
         required: false,
       },
     ])
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams})`
+    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${queryGenerics.join(', ')}> {
+export function ${name} <${generics.toString()}>(${params.toString()}): SWRResponse<${queryGenerics.join(', ')}> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
   
   const url = shouldFetch ? ${new URLPath(operation.path).template} : null;
@@ -154,17 +175,20 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${query
     const comments = getComments(operation)
     const method = operation.method
 
-    const generics = [
-      `TData = ${schemas.response.name}`,
-      `TError = ${errors.map((error) => error.name).join(' | ') || 'unknown'}`,
-      schemas.request?.name ? `TVariables = ${schemas.request?.name}` : undefined,
-    ].filter(Boolean)
+    const generics = new FunctionParams()
+    const params = new FunctionParams()
+
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+      { type: 'TVariables', default: schemas.request?.name, enabled: !!schemas.request?.name },
+    ])
 
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
 
     const mutationGenerics = ['ResponseConfig<TData>', 'TError', 'string | null', schemas.request?.name ? `TVariables` : 'never'].filter(Boolean)
 
-    const params = createFunctionParams([
+    params.add([
       ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
@@ -193,9 +217,9 @@ export function ${name} <${generics.join(', ')}>(${params}): SWRResponse<${query
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
 export function ${name} <
-  ${generics.join(', ')}
+  ${generics.toString()}
 >(
-  ${params}
+  ${params.toString()}
 ): SWRMutationResponse<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
   
@@ -226,25 +250,46 @@ export function ${name} <
     return this
   }
 
-  print(type: 'query' | 'mutation'): string {
-    const codes: string[] = []
+  print(type: 'query' | 'mutation', name: string): string {
+    return this.render(type, name).output
+  }
 
-    //query
-    const { code: queryOptions } = this.queryOptions
-    const { code: query } = this.query
+  render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<AppMeta>> {
+    const { pluginManager, operation, schemas } = this.config
 
-    //mutate
+    const root = createRoot<AppContextProps<AppMeta>>()
 
-    const { code: mutation } = this.mutation
+    const ComponentQuery = () => {
+      const file = useResolve({ name, pluginName, type: 'file' })
+
+      return (
+        <File baseName={file.baseName} path={file.path}>
+          <File.Source>
+            {this.queryOptions.code}
+            <br />
+            {this.query.code}
+          </File.Source>
+        </File>
+      )
+    }
+
+    const ComponentMutation = () => {
+      const file = useResolve({ name, pluginName, type: 'file' })
+
+      return (
+        <File baseName={file.baseName} path={file.path}>
+          <File.Source>{this.mutation.code}</File.Source>
+        </File>
+      )
+    }
 
     if (type === 'query') {
-      codes.push(queryOptions, query)
+      root.render(<ComponentQuery />, { meta: { pluginManager, schemas, operation } })
     }
-
     if (type === 'mutation') {
-      codes.push(mutation)
+      root.render(<ComponentMutation />, { meta: { pluginManager, schemas, operation } })
     }
 
-    return codes.join('\n')
+    return root
   }
 }

@@ -6,7 +6,7 @@ import { LogLevel } from './types.ts'
 import { clean, createLogger, randomPicoColour, read, URLPath } from './utils/index.ts'
 import { isPromise } from './utils/isPromise.ts'
 
-import type { File, ResolvedFile } from './managers/fileManager/index.ts'
+import type { KubbFile } from './managers/fileManager/index.ts'
 import type { BuildOutput, KubbPlugin, PluginContext, TransformResult } from './types.ts'
 import type { Logger, QueueJob } from './utils/index.ts'
 
@@ -49,7 +49,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     await clean(config.output.path)
   }
 
-  const queueTask = async (file: File) => {
+  const queueTask = async (file: KubbFile.File) => {
     const { path } = file
 
     let code: string | null = createFileSource(file)
@@ -81,7 +81,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     }
   }
 
-  const pluginManager = new PluginManager(config, { debug: logLevel === LogLevel.debug, logger, task: queueTask as QueueJob<ResolvedFile> })
+  const pluginManager = new PluginManager(config, { debug: logLevel === LogLevel.debug, logger, task: queueTask as QueueJob<KubbFile.ResolvedFile> })
   const { plugins, fileManager } = pluginManager
 
   pluginManager.on('execute', (executer) => {

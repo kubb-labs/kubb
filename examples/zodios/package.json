@@ -37,8 +37,8 @@
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
-    "@types/cors": "^2.8.14",
-    "@types/express": "^4.17.19",
+    "@types/cors": "^2.8.15",
+    "@types/express": "^4.17.20",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   },

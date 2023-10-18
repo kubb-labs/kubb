@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { createPluginCache, transformReservedWord } from './utils/index.ts'
+import { createPluginCache } from './utils/index.ts'
 
 import type { FileManager } from './managers/fileManager/FileManager.ts'
 import type { PluginManager } from './managers/pluginManager/PluginManager.ts'
@@ -73,18 +73,14 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
           )
         },
         resolvePath,
-        resolveName: (params) => {
-          const name = resolveName(params)
-
-          return transformReservedWord(name)
-        },
+        resolveName,
         cache: createPluginCache(),
       }
     },
-    resolvePath(fileName) {
+    resolvePath(baseName) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 
-      return pathParser.resolve(root, fileName)
+      return pathParser.resolve(root, baseName)
     },
     resolveName(name) {
       return name

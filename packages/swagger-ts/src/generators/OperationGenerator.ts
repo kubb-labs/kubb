@@ -4,7 +4,7 @@ import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { TypeBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
 
-import type { File, PathMode, PluginContext } from '@kubb/core'
+import type { KubbFile, PluginContext } from '@kubb/core'
 import type { ContentType, FileResolver, Oas, Operation, OperationSchemas, Resolver, SkipBy } from '@kubb/swagger'
 import type { FileMeta } from '../types.ts'
 
@@ -14,7 +14,7 @@ type Options = {
   skipBy?: SkipBy[]
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
-  mode: PathMode
+  mode: KubbFile.Mode
   enumType: 'enum' | 'asConst' | 'asPascalConst'
   dateType: 'string' | 'date'
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
@@ -32,21 +32,21 @@ export class OperationGenerator extends Generator<Options> {
     })
   }
 
-  async all(): Promise<File | null> {
+  async all(): Promise<KubbFile.File | null> {
     return null
   }
 
-  async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     const { resolvePath, mode, resolveName, oas, enumType, dateType, optionalType } = this.options
 
     const type = this.resolve(operation)
 
     const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ fileName: type.fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = resolvePath({ baseName: type.baseName, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = resolvePath({
-        fileName: `${name}.ts`,
+        baseName: `${name}.ts`,
         pluginName,
       })
 
@@ -63,8 +63,8 @@ export class OperationGenerator extends Generator<Options> {
       .print()
 
     return {
-      path: type.filePath,
-      fileName: type.fileName,
+      path: type.path,
+      baseName: type.baseName,
       source,
       meta: {
         pluginName,
@@ -73,17 +73,17 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     const { resolvePath, mode, resolveName, oas, enumType, dateType, optionalType } = this.options
 
     const type = this.resolve(operation)
 
     const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = resolvePath({ fileName: type.fileName, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = resolvePath({ baseName: type.baseName, pluginName, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = resolvePath({
-        fileName: `${name}.ts`,
+        baseName: `${name}.ts`,
         pluginName,
       })
 
@@ -101,8 +101,8 @@ export class OperationGenerator extends Generator<Options> {
       .print()
 
     return {
-      path: type.filePath,
-      fileName: type.fileName,
+      path: type.path,
+      baseName: type.baseName,
       source,
       meta: {
         pluginName,
@@ -111,13 +111,13 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async put(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
-  async patch(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async patch(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
-  async delete(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async delete(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
 }

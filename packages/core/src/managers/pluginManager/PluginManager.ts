@@ -4,6 +4,7 @@ import { definePlugin } from '../../plugin.ts'
 import { EventEmitter } from '../../utils/EventEmitter.ts'
 import { isPromise, isPromiseRejectedResult } from '../../utils/isPromise.ts'
 import { Queue } from '../../utils/Queue.ts'
+import { transformReservedWord } from '../../utils/transformers/transformReservedWord.ts'
 import { FileManager } from '../fileManager/FileManager.ts'
 import { ParallelPluginError } from './ParallelPluginError.ts'
 import { PluginError } from './PluginError.ts'
@@ -13,7 +14,6 @@ import type { CorePluginOptions } from '../../plugin.ts'
 import type {
   KubbConfig,
   KubbPlugin,
-  OptionalPath,
   PluginContext,
   PluginLifecycle,
   PluginLifecycleHooks,
@@ -23,7 +23,7 @@ import type {
 } from '../../types.ts'
 import type { Logger } from '../../utils/logger.ts'
 import type { QueueJob } from '../../utils/Queue.ts'
-import type { ResolvedFile } from '../fileManager/types.ts'
+import type { KubbFile } from '../fileManager/types.ts'
 import type { Argument0, Executer, ParseResult, SafeParseResult, Strategy } from './types.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
@@ -43,7 +43,7 @@ const hookNames: {
 }
 export const hooks = Object.keys(hookNames) as [PluginLifecycleHooks]
 
-type Options = { debug?: boolean; task: QueueJob<ResolvedFile>; logger: Logger }
+type Options = { debug?: boolean; task: QueueJob<KubbFile.ResolvedFile>; logger: Logger }
 
 type Events = {
   execute: [executer: Executer]
@@ -95,34 +95,36 @@ export class PluginManager {
     }, [] as KubbPlugin[])
   }
 
-  resolvePath = (params: ResolvePathParams): OptionalPath => {
+  resolvePath = (params: ResolvePathParams): KubbFile.OptionalPath => {
     if (params.pluginName) {
       return this.hookForPluginSync({
         pluginName: params.pluginName,
         hookName: 'resolvePath',
-        parameters: [params.fileName, params.directory, params.options],
+        parameters: [params.baseName, params.directory, params.options],
       })
     }
     return this.hookFirstSync({
       hookName: 'resolvePath',
-      parameters: [params.fileName, params.directory, params.options],
+      parameters: [params.baseName, params.directory, params.options],
     }).result
   }
 
   resolveName = (params: ResolveNameParams): string => {
     if (params.pluginName) {
-      return (
+      const name =
         this.hookForPluginSync({
           pluginName: params.pluginName,
           hookName: 'resolveName',
-          parameters: [params.name],
+          parameters: [params.name, params.type],
         }) || params.name
-      )
+      return transformReservedWord(name)
     }
-    return this.hookFirstSync({
+    const name = this.hookFirstSync({
       hookName: 'resolveName',
-      parameters: [params.name],
+      parameters: [params.name, params.type],
     }).result
+
+    return transformReservedWord(name)
   }
 
   on<TEventName extends keyof Events & string>(eventName: TEventName, handler: (...eventArg: Events[TEventName]) => void): void {

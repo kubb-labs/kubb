@@ -1,47 +1,47 @@
 import { oasParser } from '../parsers/oasParser.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
-import type { File } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type { Operation, Resolver } from '../types.ts'
 
 class DummyOperationGenerator extends OperationGenerator {
   resolve(_operation: Operation): Resolver {
     return {
-      fileName: 'fileName.ts',
-      filePath: 'models/fileName/ts',
-      name: 'fileName',
+      baseName: 'baseName.ts',
+      path: 'models/baseName/ts/baseName.ts',
+      name: 'baseName',
     }
   }
 
-  all(): Promise<File | null> {
+  all(): Promise<KubbFile.File | null> {
     return Promise.resolve(null)
   }
 
-  get(operation: Operation): Promise<File | null> {
+  get(operation: Operation): Promise<KubbFile.File | null> {
     return new Promise((resolve) => {
-      const fileName = `${operation.getOperationId()}.ts`
-      resolve({ fileName, path: fileName, source: '' })
+      const baseName: `${string}.ts` = `${operation.getOperationId()}.ts`
+      resolve({ baseName, path: baseName, source: '' })
     })
   }
 
-  post(_operation: Operation): Promise<File | null> {
+  post(_operation: Operation): Promise<KubbFile.File | null> {
     return new Promise((resolve) => {
       resolve(null)
     })
   }
-  patch(_operation: Operation): Promise<File | null> {
-    return new Promise((resolve) => {
-      resolve(null)
-    })
-  }
-
-  put(_operation: Operation): Promise<File | null> {
+  patch(_operation: Operation): Promise<KubbFile.File | null> {
     return new Promise((resolve) => {
       resolve(null)
     })
   }
 
-  delete(_operation: Operation): Promise<File | null> {
+  put(_operation: Operation): Promise<KubbFile.File | null> {
+    return new Promise((resolve) => {
+      resolve(null)
+    })
+  }
+
+  delete(_operation: Operation): Promise<KubbFile.File | null> {
     return new Promise((resolve) => {
       resolve(null)
     })
@@ -105,7 +105,7 @@ describe('abstract class OperationGenerator', () => {
 
     expect(files).toMatchObject([
       {
-        fileName: 'showPetById.ts',
+        baseName: 'showPetById.ts',
         path: 'showPetById.ts',
         source: '',
       },
@@ -133,7 +133,7 @@ describe('abstract class OperationGenerator', () => {
 
     expect(files).toMatchObject([
       {
-        fileName: 'listPets.ts',
+        baseName: 'listPets.ts',
         path: 'listPets.ts',
         source: '',
       },

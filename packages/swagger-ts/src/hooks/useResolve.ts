@@ -1,13 +1,11 @@
-import { useOperation } from '@kubb/swagger'
+import { useResolve as useResolveSwagger } from '@kubb/swagger'
 
-import { resolve } from '../utils/resolve.ts'
+import { pluginName } from '../plugin.ts'
 
-import type { Resolver } from '@kubb/swagger'
+import type { Resolver, UseResolveProps } from '@kubb/swagger'
 
-type Props = Omit<Parameters<typeof resolve>[0], 'operation'>
+type Props = UseResolveProps & { pluginName?: never }
 
-export function useResolve(props: Props): Resolver {
-  const operation = useOperation()
-
-  return resolve({ operation, ...props })
+export function useResolve(props: Props = {}): Resolver {
+  return useResolveSwagger({ pluginName, ...props })
 }

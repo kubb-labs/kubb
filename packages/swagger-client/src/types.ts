@@ -1,5 +1,5 @@
-import type { AppMeta as CoreAppMeta, PluginFactoryOptions } from '@kubb/core'
-import type { ResolvePathOptions, SkipBy } from '@kubb/swagger'
+import type { PluginFactoryOptions } from '@kubb/core'
+import type { ResolvePathOptions, SkipBy, AppMeta as SwaggerAppMeta } from '@kubb/swagger'
 import type { CreateAxiosDefaults } from 'axios'
 
 /**
@@ -63,7 +63,7 @@ export type Options = {
    * Path to the client import path that will be used to do the API calls.
    * It will be used as `import client from '${clientImportPath}'`.
    * It allow both relative and absolute path.
-   * the path will be applied as is, so relative path shoule be based on the file being generated.
+   * the path will be applied as is, so relative path should be based on the file being generated.
    * @default '@kubb/swagger-client/client'
    */
   clientImportPath?: string
@@ -94,4 +94,4 @@ export type FileMeta = {
 
 export type PluginOptions = PluginFactoryOptions<'swagger-client', Options, false, undefined, ResolvePathOptions>
 
-export type AppMeta = CoreAppMeta
+export type AppMeta = SwaggerAppMeta

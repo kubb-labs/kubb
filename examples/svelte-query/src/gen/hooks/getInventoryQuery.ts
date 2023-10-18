@@ -4,7 +4,6 @@ import client from '@kubb/swagger-client/client'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
 export const getInventoryQueryKey = () => [{ url: `/store/inventory` }] as const
-
 export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TError = unknown>(
   options: Partial<Parameters<typeof client>[0]> = {},
 ): CreateQueryOptions<TData, TError> {

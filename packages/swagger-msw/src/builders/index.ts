@@ -1,1 +1,1 @@
-export * from './MSWBuilder.ts'
+export * from './MSWBuilder.tsx'

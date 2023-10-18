@@ -1,1 +1,1 @@
-export * from './QueryBuilder.ts'
+export * from './QueryBuilder.tsx'

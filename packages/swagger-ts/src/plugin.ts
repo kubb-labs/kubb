@@ -27,7 +27,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return true
     },
-    resolvePath(fileName, directory, options) {
+    resolvePath(baseName, directory, options) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
       const mode = getPathMode(pathParser.resolve(root, output))
 
@@ -42,10 +42,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (options?.tag && groupBy?.type === 'tag') {
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
-        return pathParser.resolve(root, renderTemplate(template, { tag }), fileName)
+        return pathParser.resolve(root, renderTemplate(template, { tag }), baseName)
       }
 
-      return pathParser.resolve(root, output, fileName)
+      return pathParser.resolve(root, output, baseName)
     },
     resolveName(name) {
       const resolvedName = pascalCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: pascalCaseTransformMerge })
@@ -73,11 +73,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           resolveName: (params) => this.resolveName({ pluginName, ...params }),
           fileResolver: (name) => {
             const resolvedTypeId = this.resolvePath({
-              fileName: `${name}.ts`,
+              baseName: `${name}.ts`,
               pluginName,
             })
 
-            const root = this.resolvePath({ fileName: ``, pluginName })
+            const root = this.resolvePath({ baseName: ``, pluginName })
 
             return getRelativePath(root, resolvedTypeId)
           },
@@ -95,7 +95,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
 
         const mapFolderSchema = async ([name]: [string, OpenAPIV3.SchemaObject]) => {
-          const path = this.resolvePath({ fileName: `${this.resolveName({ name, pluginName })}.ts`, pluginName })
+          const path = this.resolvePath({ baseName: `${this.resolveName({ name, pluginName })}.ts`, pluginName })
 
           if (!path) {
             return null
@@ -103,7 +103,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
           return this.addFile({
             path,
-            fileName: `${this.resolveName({ name, pluginName })}.ts`,
+            baseName: `${this.resolveName({ name, pluginName })}.ts`,
             source: builder.print(name),
             meta: {
               pluginName,
@@ -133,14 +133,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           })
         })
 
-        const path = this.resolvePath({ fileName: '', pluginName })
+        const path = this.resolvePath({ baseName: '', pluginName })
         if (!path) {
           return
         }
 
         await this.addFile({
           path,
-          fileName: `${this.resolveName({ name: output, pluginName })}.ts`,
+          baseName: `${this.resolveName({ name: output, pluginName })}.ts`,
           source: builder.print(),
           meta: {
             pluginName,

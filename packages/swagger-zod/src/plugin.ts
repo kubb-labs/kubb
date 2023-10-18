@@ -8,7 +8,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { ZodBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
 
-import type { File } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type { OpenAPIV3, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
@@ -28,7 +28,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return true
     },
-    resolvePath(fileName, directory, options) {
+    resolvePath(baseName, directory, options) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
       const mode = getPathMode(pathParser.resolve(root, output))
 
@@ -43,10 +43,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (options?.tag && groupBy?.type === 'tag') {
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
-        return pathParser.resolve(root, renderTemplate(template, { tag }), fileName)
+        return pathParser.resolve(root, renderTemplate(template, { tag }), baseName)
       }
 
-      return pathParser.resolve(root, output, fileName)
+      return pathParser.resolve(root, output, baseName)
     },
     resolveName(name) {
       const resolvedName = camelCase(`${name}Schema`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
@@ -73,11 +73,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           resolveName: (params) => this.resolveName({ pluginName, ...params }),
           fileResolver: (name) => {
             const resolvedTypeId = this.resolvePath({
-              fileName: `${name}.ts`,
+              baseName: `${name}.ts`,
               pluginName,
             })
 
-            const root = this.resolvePath({ fileName: ``, pluginName })
+            const root = this.resolvePath({ baseName: ``, pluginName })
 
             return getRelativePath(root, resolvedTypeId)
           },
@@ -93,7 +93,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
 
         const mapFolderSchema = async ([name]: [string, OpenAPIV3.SchemaObject]) => {
-          const path = this.resolvePath({ fileName: `${this.resolveName({ name, pluginName })}.ts`, pluginName })
+          const path = this.resolvePath({ baseName: `${this.resolveName({ name, pluginName })}.ts`, pluginName })
 
           if (!path) {
             return null
@@ -101,7 +101,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
           return this.addFile({
             path,
-            fileName: `${this.resolveName({ name, pluginName })}.ts`,
+            baseName: `${this.resolveName({ name, pluginName })}.ts`,
             source: builder.print(name),
             imports: [
               {
@@ -135,14 +135,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         }
 
         Object.entries(schemas).map(mapFileSchema)
-        const path = this.resolvePath({ fileName: '', pluginName })
+        const path = this.resolvePath({ baseName: '', pluginName })
         if (!path) {
           return
         }
 
         await this.addFile({
           path,
-          fileName: `${this.resolveName({ name: output, pluginName })}.ts`,
+          baseName: `${this.resolveName({ name: output, pluginName })}.ts`,
           source: builder.print(),
           imports: [
             {
@@ -176,7 +176,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 
       if (groupBy?.type === 'tag') {
-        const filteredFiles = this.fileManager.files.filter((file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag) as File<FileMeta>[]
+        const filteredFiles = this.fileManager.files.filter(
+          (file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag,
+        ) as KubbFile.File<FileMeta>[]
         const rootFiles = filteredFiles
           .map((file) => {
             const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
@@ -188,7 +190,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
             if (name) {
               return {
-                fileName: 'index.ts',
+                baseName: 'index.ts' as const,
                 path: pathParser.resolve(root, output, 'index.ts'),
                 source: '',
                 exports: [{ path, asAlias: true, name }],

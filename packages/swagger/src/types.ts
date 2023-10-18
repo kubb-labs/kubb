@@ -1,4 +1,4 @@
-import type { AppMeta as AppCoreMeta, Path, PluginFactoryOptions } from '@kubb/core'
+import type { AppMeta as AppCoreMeta, KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type Oas from 'oas'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
@@ -8,7 +8,7 @@ import type { GetSchemasProps } from './utils/getSchemas.ts'
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type ContentType = 'application/json' | (string & {})
 
-export type ResolvePathOptions = { pluginName?: string; tag?: string }
+export type ResolvePathOptions = { pluginName?: string; tag?: string; type?: ResolveNameParams['type'] }
 
 export type API = {
   getOas: () => Promise<Oas>
@@ -54,9 +54,12 @@ export type { OpenAPIV3 } from 'openapi-types'
 export type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
 
 export type Resolver = {
+  /**
+   * Original name or name resolved by `resolveName({ name: operation?.getOperationId() as string, pluginName })`
+   */
   name: string
-  fileName: string
-  filePath: Path
+  baseName: KubbFile.BaseName
+  path: KubbFile.Path
 }
 
 export type OperationSchema = {

@@ -1,60 +1,77 @@
-import type { Path } from '@kubb/core'
+/* eslint-disable @typescript-eslint/no-namespace */
 
-export type Import = {
-  name: string | string[]
-  path: string
-  isTypeOnly?: boolean
-}
+type BasePath<T extends string = string> = `${T}/`
 
-export type Export = {
-  name?: string | string[]
-  path: string
-  isTypeOnly?: boolean
-  asAlias?: boolean
-}
-
-export type UUID = string
-export type Source = string
-
-export type File<
-  Meta extends {
-    pluginName?: string
-  } = {
-    pluginName?: string
-  },
-> = {
-  /**
-   * Name to be used to dynamicly create the fileName(based on input.path)
-   */
-  fileName: string
-  /**
-   * Path will be full qualified path to a specified file
-   */
-  path: Path
-  source: Source
-  imports?: Import[]
-  exports?: Export[]
-  /**
-   * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists
-   * @default `false`
-   */
-  override?: boolean
-  meta?: Meta
-  /**
-   * This will override `process.env[key]` inside the `source`, see `getFileSource`.
-   */
-  env?: NodeJS.ProcessEnv
-}
-
-export type ResolvedFile = File & {
-  /**
-   * crypto.randomUUID()
-   */
-  id: UUID
-}
-
-export type CacheItem = ResolvedFile & {
+export type CacheItem = KubbFile.ResolvedFile & {
   cancel?: () => void
 }
 
-export type Status = 'new' | 'success' | 'removed'
+export namespace KubbFile {
+  export type Import = {
+    name: string | Array<string>
+    path: string
+    isTypeOnly?: boolean
+  }
+
+  export type Export = {
+    name?: string | Array<string>
+    path: string
+    isTypeOnly?: boolean
+    asAlias?: boolean
+  }
+
+  export type UUID = string
+  export type Source = string
+
+  export type Extname = '.ts' | '.js' | '.tsx' | `.${string}`
+
+  export type Mode = 'file' | 'directory'
+
+  export type BaseName = `${string}${Extname}`
+
+  export type Path = string
+
+  export type AdvancedPath<T extends BaseName = BaseName> = `${BasePath}${T}`
+
+  export type OptionalPath = Path | undefined | null
+
+  export type File<
+    TMeta extends {
+      pluginName?: string
+    } = {
+      pluginName?: string
+    },
+    TBaseName extends BaseName = BaseName,
+  > = {
+    /**
+     * Name to be used to dynamicly create the baseName(based on input.path)
+     * Based on UNIX basename
+     * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
+     */
+    baseName: TBaseName
+    /**
+     * Path will be full qualified path to a specified file
+     */
+    path: AdvancedPath<TBaseName> | Path
+    source: Source
+    imports?: Import[]
+    exports?: Export[]
+    /**
+     * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists
+     * @default `false`
+     */
+    override?: boolean
+    meta?: TMeta
+    /**
+     * This will override `process.env[key]` inside the `source`, see `getFileSource`.
+     */
+    env?: NodeJS.ProcessEnv
+  }
+
+  export type ResolvedFile = KubbFile.File & {
+    /**
+     * crypto.randomUUID()
+     */
+    id: UUID
+  }
+}

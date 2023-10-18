@@ -1,7 +1,7 @@
-import type { Export as ExportFileType } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type { ReactNode } from 'react'
 
-type Props = ExportFileType & {
+type Props = KubbFile.Export & {
   print?: boolean
 }
 

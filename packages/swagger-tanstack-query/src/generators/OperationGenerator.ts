@@ -5,15 +5,15 @@ import { resolve as resolveSwaggerTypescript, pluginName as swaggerTypescriptPlu
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
-import type { File, OptionalPath, PluginContext, PluginManager } from '@kubb/core'
+import type { KubbFile, PluginContext, PluginManager } from '@kubb/core'
 import type { ContentType, Oas, Operation, OperationSchema, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
 import type { FileMeta, Framework, FrameworkImports, Options as PluginOptions } from '../types.ts'
 
 type Options = {
   pluginManager: PluginManager
   framework: Framework
-  clientPath?: OptionalPath
-  clientImportPath?: OptionalPath
+  clientPath?: KubbFile.OptionalPath
+  clientImportPath?: KubbFile.OptionalPath
   dataReturnType: PluginOptions['dataReturnType']
   oas: Oas
   contentType?: ContentType
@@ -164,7 +164,7 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  getQueryImports(type: 'query' | 'mutate'): Required<File>['imports'] {
+  getQueryImports(type: 'query' | 'mutate'): Array<KubbFile.Import> {
     const { framework } = this.options
 
     if (framework === 'svelte') {
@@ -244,15 +244,18 @@ export class OperationGenerator extends Generator<Options> {
     ]
   }
 
-  async all(): Promise<File | null> {
+  async all(): Promise<KubbFile.File | null> {
     return null
   }
 
-  async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     const { pluginManager, oas, clientPath, framework, infinite, dataReturnType } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
+    // TODO remove getName
+    const imports = this.getFrameworkSpecificImports(framework)
+    const name = imports.getName(operation)
 
     let errors: Resolver[] = []
     const frameworkImports = this.getFrameworkSpecificImports(framework)
@@ -265,15 +268,21 @@ export class OperationGenerator extends Generator<Options> {
     const clientImportPath = this.options.clientImportPath
       ? this.options.clientImportPath
       : clientPath
-        ? getRelativePath(hook.filePath, clientPath)
-        : '@kubb/swagger-client/client'
+      ? getRelativePath(hook.path, clientPath)
+      : '@kubb/swagger-client/client'
+
+    const file = queryBuilder.render('query', name).file
+
+    if (!file) {
+      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
+    }
 
     return {
-      path: hook.filePath,
-      fileName: hook.fileName,
-      source: queryBuilder.print('query'),
+      path: file.path,
+      baseName: file.baseName,
+      source: file.source,
       imports: [
-        ...queryBuilder.imports(),
+        ...(file.imports || []),
         ...this.getQueryImports('query'),
         {
           name: 'client',
@@ -292,7 +301,7 @@ export class OperationGenerator extends Generator<Options> {
             schemas.headerParams?.name,
             ...errors.map((error) => error.name),
           ].filter(Boolean),
-          path: getRelativePath(hook.filePath, type.filePath),
+          path: getRelativePath(hook.path, type.path),
           isTypeOnly: true,
         },
       ],
@@ -303,11 +312,14 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     const { pluginManager, oas, clientPath, framework, dataReturnType } = this.options
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
+    // TODO remove getName
+    const imports = this.getFrameworkSpecificImports(framework)
+    const name = imports.getName(operation)
 
     let errors: Resolver[] = []
     const frameworkImports = this.getFrameworkSpecificImports(framework)
@@ -320,15 +332,21 @@ export class OperationGenerator extends Generator<Options> {
     const clientImportPath = this.options.clientImportPath
       ? this.options.clientImportPath
       : clientPath
-        ? getRelativePath(hook.filePath, clientPath)
-        : '@kubb/swagger-client/client'
+      ? getRelativePath(hook.path, clientPath)
+      : '@kubb/swagger-client/client'
+
+    const file = queryBuilder.render('mutation', name).file
+
+    if (!file) {
+      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
+    }
 
     return {
-      path: hook.filePath,
-      fileName: hook.fileName,
-      source: queryBuilder.print('mutation'),
+      path: file.path,
+      baseName: file.baseName,
+      source: file.source,
       imports: [
-        ...queryBuilder.imports(),
+        ...(file.imports || []),
         ...this.getQueryImports('mutate'),
         {
           name: 'client',
@@ -348,7 +366,7 @@ export class OperationGenerator extends Generator<Options> {
             schemas.headerParams?.name,
             ...errors.map((error) => error.name),
           ].filter(Boolean),
-          path: getRelativePath(hook.filePath, type.filePath),
+          path: getRelativePath(hook.path, type.path),
           isTypeOnly: true,
         },
       ],
@@ -359,13 +377,13 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async put(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
-  async patch(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async patch(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
-  async delete(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async delete(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
 }

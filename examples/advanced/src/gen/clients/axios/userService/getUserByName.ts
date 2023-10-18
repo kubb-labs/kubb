@@ -1,5 +1,5 @@
-import client from '../../../client'
-import type { ResponseConfig } from '../../../client'
+import client from '../../../../axios-client.ts'
+import type { ResponseConfig } from '../../../../axios-client.ts'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../../models/ts/userController/GetUserByName'
 
 /**

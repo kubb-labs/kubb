@@ -6,7 +6,7 @@ import { findSchemaDefinition } from 'oas/utils'
 
 import { isReference } from '../utils/isReference.ts'
 
-import type { File } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
@@ -265,7 +265,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
     } as const
   }
 
-  async build(): Promise<File[]> {
+  async build(): Promise<Array<KubbFile.File>> {
     const { oas } = this.options
 
     const paths = oas.getPaths()
@@ -309,7 +309,7 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
 
         return acc
       },
-      [] as Promise<File | null>[],
+      [] as Promise<KubbFile.File | null>[],
     )
 
     promises.push(this.all(filterdPaths))
@@ -322,34 +322,34 @@ export abstract class OperationGenerator<TOptions extends Options = Options> ext
   /**
    * GET
    */
-  abstract get(operation: Operation, schemas: OperationSchemas): Promise<File | null>
+  abstract get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File | null>
 
   /**
    * POST
    */
-  abstract post(operation: Operation, schemas: OperationSchemas): Promise<File | null>
+  abstract post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File | null>
   /**
    * PATCH
    */
-  abstract patch(operation: Operation, schemas: OperationSchemas): Promise<File | null>
+  abstract patch(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File | null>
 
   /**
    * PUT
    */
-  abstract put(operation: Operation, schemas: OperationSchemas): Promise<File | null>
+  abstract put(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File | null>
 
   /**
    * DELETE
    */
-  abstract delete(operation: Operation, schemas: OperationSchemas): Promise<File | null>
+  abstract delete(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File | null>
 
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE
    */
-  abstract all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File | null>
+  abstract all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<KubbFile.File | null>
 
   /**
-   * Call resolveType and get back the name, filePath and fileName
+   * Call resolveType and get back the name, filePath and baseName
    */
   abstract resolve(operation: Operation): Resolver
 }

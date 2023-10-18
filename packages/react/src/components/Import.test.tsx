@@ -11,13 +11,4 @@ describe('<Import/>', () => {
 
     expect(root.output).toMatch('import React from "react"')
   })
-  test('render Import without print', () => {
-    const Component = () => {
-      return <Import name="React" path="react" />
-    }
-    const root = createRoot()
-    root.render(<Component />)
-
-    expect(root.imports).toStrictEqual([{ isTypeOnly: undefined, name: 'React', path: 'react' }])
-  })
 })

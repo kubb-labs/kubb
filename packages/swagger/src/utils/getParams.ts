@@ -1,10 +1,9 @@
-import { createFunctionParams } from '@kubb/core'
+import { FunctionParams } from '@kubb/core'
 
 import { isParameterObject } from './isParameterObject.ts'
 
+import type { FunctionParamsAST } from '@kubb/core'
 import type { OperationSchema } from '../types.ts'
-
-type FunctionParamsAST = Parameters<typeof createFunctionParams>[0][number]
 
 export function getASTParams(
   operationSchema: OperationSchema | undefined,
@@ -31,10 +30,11 @@ export function getParams(
   { typed = false, override }: { typed?: boolean; override?: (data: FunctionParamsAST) => FunctionParamsAST } = {},
 ): GetParamsResult {
   const ast = getASTParams(operationSchema, { typed, override })
-  const text = ast.length ? createFunctionParams(ast) : ''
+  const functionParams = new FunctionParams()
+  functionParams.add(ast)
 
   return {
     ast,
-    toString: () => text,
+    toString: () => functionParams.toString(),
   }
 }

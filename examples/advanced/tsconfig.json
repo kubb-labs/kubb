@@ -21,8 +21,7 @@
       "bun-types",
       "../../packages/core/globals.d.ts",
       "../../packages/swagger-client/globals.d.ts",
-      "../../packages/config/ts-config/reset.d.ts",
-      "../../packages/react/globals.d.ts"
+      "../../packages/config/ts-config/reset.d.ts"
     ],
     "paths": {
       "@kubb/cli": [
@@ -54,12 +53,6 @@
       ],
       "@kubb/swagger-faker": [
         "../../packages/swagger-faker/src/index.ts"
-      ],
-      "@kubb/swagger-msw": [
-        "../../packages/swagger-msw/src/index.ts"
-      ],
-      "@kubb/swagger-swr": [
-        "../../packages/swagger-swr/src/index.ts"
       ],
       "@kubb/swagger-tanstack-query": [
         "../../packages/swagger-tanstack-query/src/index.ts"

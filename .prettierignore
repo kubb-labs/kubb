@@ -29,6 +29,7 @@ es
 artifacts
 coverage
 *.tgz
+mocks
 
 ## custom ones
 # /e2e

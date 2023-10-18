@@ -1,6 +1,43 @@
+/* eslint-disable @typescript-eslint/no-namespace */
+import type { KubbFile } from '@kubb/core'
+import type { Key, ReactNode } from 'react'
+
 type ReactElementNames = 'br'
 
-export type ElementNames = ReactElementNames | 'kubb-text' | 'kubb-import' | 'kubb-export' | 'kubb-root' | 'kubb-app'
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'kubb-text': {
+        children?: ReactNode
+        key?: Key
+      }
+
+      'kubb-file': {
+        children?: ReactNode
+        key?: Key
+        baseName: string
+        path: string
+        env?: NodeJS.ProcessEnv
+      }
+
+      'kubb-source': {
+        children?: ReactNode
+        key?: Key
+        path?: string
+        print?: boolean
+      }
+
+      'kubb-import': KubbFile.Import & {
+        print?: boolean
+      }
+      'kubb-export': KubbFile.Export & {
+        print?: boolean
+      }
+    }
+  }
+}
+
+export type ElementNames = ReactElementNames | 'kubb-text' | 'kubb-file' | 'kubb-source' | 'kubb-import' | 'kubb-export' | 'kubb-root' | 'kubb-app'
 
 export type Node = {
   parentNode: DOMElement | undefined

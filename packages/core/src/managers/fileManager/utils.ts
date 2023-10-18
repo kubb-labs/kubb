@@ -6,20 +6,19 @@ import isEqual from 'lodash.isequal'
 
 import { TreeNode } from '../../utils/index.ts'
 
-import type { Path } from '../../types.ts'
-import type { PathMode, TreeNodeOptions } from '../../utils/index.ts'
-import type { Export, File, Import } from './types.ts'
+import type { TreeNodeOptions } from '../../utils/index.ts'
+import type { KubbFile } from './types.ts'
 
-type TreeNodeData = { type: PathMode; path: Path; name: string }
+type TreeNodeData = { type: KubbFile.Mode; path: KubbFile.Path; name: string }
 
-export function getIndexes(root: string, options: TreeNodeOptions = {}): File[] | null {
+export function getIndexes(root: string, options: TreeNodeOptions = {}): Array<KubbFile.File> | null {
   const tree = TreeNode.build<TreeNodeData>(root, { extensions: /\.ts/, ...options })
 
   if (!tree) {
     return null
   }
 
-  const fileReducer = (files: File[], currentTree: typeof tree) => {
+  const fileReducer = (files: Array<KubbFile.File>, currentTree: typeof tree) => {
     if (!currentTree.children) {
       return []
     }
@@ -45,7 +44,7 @@ export function getIndexes(root: string, options: TreeNodeOptions = {}): File[] 
 
       files.push({
         path,
-        fileName: 'index.ts',
+        baseName: 'index.ts',
         source: '',
         exports,
       })
@@ -56,7 +55,7 @@ export function getIndexes(root: string, options: TreeNodeOptions = {}): File[] 
 
         files.push({
           path,
-          fileName: 'index.ts',
+          baseName: 'index.ts',
           source: '',
           exports: [{ path: importPath }],
         })
@@ -75,8 +74,8 @@ export function getIndexes(root: string, options: TreeNodeOptions = {}): File[] 
   return files
 }
 
-export function combineFiles(files: Array<File | null>): File[] {
-  return files.filter(Boolean).reduce((acc, curr: File) => {
+export function combineFiles(files: Array<KubbFile.File | null>): Array<KubbFile.File> {
+  return files.filter(Boolean).reduce((acc, curr: KubbFile.File) => {
     const prevIndex = acc.findIndex((item) => item.path === curr.path)
 
     if (prevIndex !== -1) {
@@ -96,19 +95,19 @@ export function combineFiles(files: Array<File | null>): File[] {
     }
 
     return acc
-  }, [] as File[])
+  }, [] as Array<KubbFile.File>)
 }
 /**
  * Support for js, ts and tsx(React)
  */
-export type Extension = '.ts' | '.js' | '.tsx'
-export const extensions: Array<Extension> = ['.js', '.ts', '.tsx']
 
-export function isExtensionAllowed(fileName: string): boolean {
-  return extensions.some((extension) => fileName.endsWith(extension))
+export const extensions: Array<KubbFile.Extname> = ['.js', '.ts', '.tsx']
+
+export function isExtensionAllowed(baseName: string): boolean {
+  return extensions.some((extension) => baseName.endsWith(extension))
 }
 
-export function combineExports(exports: Export[]): Export[] {
+export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.Export> {
   return exports.reduce((prev, curr) => {
     const name = curr.name
     const prevByPath = prev.findLast((imp) => imp.path === curr.path)
@@ -137,10 +136,10 @@ export function combineExports(exports: Export[]): Export[] {
     }
 
     return [...prev, curr]
-  }, [] as Export[])
+  }, [] as Array<KubbFile.Export>)
 }
 
-export function combineImports(imports: Import[], exports: Export[], source: string): Import[] {
+export function combineImports(imports: Array<KubbFile.Import>, exports: Array<KubbFile.Export>, source: string): Array<KubbFile.Import> {
   return imports.reduce((prev, curr) => {
     let name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
 
@@ -181,13 +180,13 @@ export function combineImports(imports: Import[], exports: Export[], source: str
     }
 
     return [...prev, curr]
-  }, [] as Import[])
+  }, [] as Array<KubbFile.Import>)
 }
 
-export function createFileSource(file: File): string {
+export function createFileSource(file: KubbFile.File): string {
   let { source } = file
 
-  if (!isExtensionAllowed(file.fileName)) {
+  if (!isExtensionAllowed(file.baseName)) {
     return file.source
   }
 

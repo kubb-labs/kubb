@@ -1,17 +1,23 @@
 import { createNode, ReactTemplate } from '../shared/index.ts'
 
+import type { Logger } from '@kubb/core'
 import type { AppContextProps } from '../components/AppContext.tsx'
 import type { DOMElement } from '../types.ts'
 import type { RootType } from './types.ts'
 
 const instances = new Map<string, ReactTemplate>()
 
-export function createRootServer<Context extends AppContextProps = AppContextProps>(container?: DOMElement): RootType<Context> {
+type Props = {
+  container?: DOMElement
+  logger?: Logger
+}
+
+export function createRootServer<Context extends AppContextProps = AppContextProps>({ container, logger }: Props): RootType<Context> {
   if (!container) {
     container = createNode('kubb-root')
   }
 
-  const instance = new ReactTemplate<Context>(container)
+  const instance = new ReactTemplate<Context>(container, { logger })
   instances.set(instance.id, instance)
 
   return {
@@ -24,11 +30,8 @@ export function createRootServer<Context extends AppContextProps = AppContextPro
       instance.unmount()
       instances.delete(instance.id)
     },
-    get imports() {
-      return instance.imports
-    },
-    get exports() {
-      return instance.exports
+    get file() {
+      return instance.file
     },
   }
 }

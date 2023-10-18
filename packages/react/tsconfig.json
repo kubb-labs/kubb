@@ -8,7 +8,6 @@
     "types": [
       "vitest/globals",
       "bun-types",
-      "./globals",
       "../core/globals.d.ts",
       "../config/ts-config/reset.d.ts",
     ],

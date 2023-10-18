@@ -37,10 +37,7 @@
       "default": "./client.ts"
     },
     "./package.json": "./package.json",
-    "./*": "./*",
-    "./globals": {
-      "types": "./globals.d.ts"
-    }
+    "./*": "./*"
   },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -75,7 +72,6 @@
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
-    "@kubb/react": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.2.28",

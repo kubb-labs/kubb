@@ -7,7 +7,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/index.ts'
 
-import type { File, OptionalPath } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
@@ -27,7 +27,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return true
     },
-    resolvePath(fileName, directory, options) {
+    resolvePath(baseName, directory, options) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
       const mode = getPathMode(pathParser.resolve(root, output))
 
@@ -42,10 +42,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (options?.tag && groupBy?.type === 'tag') {
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
-        return pathParser.resolve(root, renderTemplate(template, { tag }), fileName)
+        return pathParser.resolve(root, renderTemplate(template, { tag }), baseName)
       }
 
-      return pathParser.resolve(root, output, fileName)
+      return pathParser.resolve(root, output, baseName)
     },
     resolveName(name) {
       const resolvedName = camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
@@ -57,9 +57,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const oas = await swaggerPlugin.api.getOas()
 
-      const clientPath: OptionalPath = options.client ? pathParser.resolve(this.config.root, options.client) : undefined
+      const clientPath: KubbFile.OptionalPath = options.client ? pathParser.resolve(this.config.root, options.client) : undefined
 
       const operationGenerator = new OperationGenerator({
+        pluginManager: this.pluginManager,
         contentType: swaggerPlugin.api.contentType,
         dataReturnType,
         clientImportPath: options.clientImportPath,
@@ -81,7 +82,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 
       if (groupBy?.type === 'tag') {
-        const filteredFiles = this.fileManager.files.filter((file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag) as File<FileMeta>[]
+        const filteredFiles = this.fileManager.files.filter(
+          (file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag,
+        ) as KubbFile.File<FileMeta>[]
         const rootFiles = filteredFiles
           .map((file) => {
             const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
@@ -93,7 +96,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
             if (name) {
               return {
-                fileName: 'index.ts',
+                baseName: 'index.ts' as const,
                 path: pathParser.resolve(this.config.root, this.config.output.path, 'index.ts'),
                 source: '',
                 exports: [{ path, asAlias: true, name }],

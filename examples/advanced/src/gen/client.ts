@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import type { AxiosError, AxiosHeaders, AxiosResponse, AxiosRequestConfig } from 'axios'
+import type { AxiosError, AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios'
 
 /**
  * Subset of AxiosRequestConfig
@@ -30,7 +30,7 @@ export const axiosInstance = axios.create({
 })
 
 export const axiosClient = async <TData, TError = unknown, TVariables = unknown>(config: RequestConfig<TVariables>): Promise<ResponseConfig<TData>> => {
-  const promise = axiosInstance.request<TVariables, ResponseConfig<TData>>({ ...config }).catch((e: AxiosError<TError>) => {
+  const promise = axiosInstance.request<TData, ResponseConfig<TData>>({ ...config }).catch((e: AxiosError<TError>) => {
     throw e
   })
 

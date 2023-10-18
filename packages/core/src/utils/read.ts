@@ -3,6 +3,8 @@ import pathParser from 'node:path'
 import fs from 'fs-extra'
 import { switcher } from 'js-runtime'
 
+import type { KubbFile } from '../managers/fileManager/types.ts'
+
 function slash(path: string, platform: 'windows' | 'mac' | 'linux' = 'linux') {
   const isWindowsPath = /^\\\\\?\\/.test(path)
 
@@ -33,9 +35,7 @@ export function getRelativePath(rootDir?: string | null, filePath?: string | nul
   return `./${path.replace(pathParser.basename(path), pathParser.basename(path, pathParser.extname(filePath)))}`
 }
 
-export type PathMode = 'file' | 'directory'
-
-export function getPathMode(path: string | undefined | null): PathMode {
+export function getPathMode(path: string | undefined | null): KubbFile.Mode {
   if (!path) {
     return 'directory'
   }
@@ -56,6 +56,22 @@ const reader = switcher(
   'node',
 )
 
+const syncReader = switcher(
+  {
+    node: (path: string) => {
+      return fs.readFileSync(path, { encoding: 'utf8' })
+    },
+    bun: () => {
+      throw new Error('Bun cannot read sync')
+    },
+  },
+  'node',
+)
+
 export async function read(path: string): Promise<string> {
   return reader(path)
+}
+
+export function readSync(path: string): string {
+  return syncReader(path)
 }

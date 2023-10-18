@@ -1,5 +1,5 @@
-import client from '../../../client'
-import type { ResponseConfig } from '../../../client'
+import client from '../../../../axios-client.ts'
+import type { ResponseConfig } from '../../../../axios-client.ts'
 import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../models/ts/userController/LoginUser'
 
 /**

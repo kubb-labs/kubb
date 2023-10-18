@@ -1,18 +1,17 @@
-import { getRelativePath, URLPath } from '@kubb/core'
+import { URLPath } from '@kubb/core'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
-import { resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
 
 import { ClientBuilder } from '../builders/ClientBuilder.tsx'
 import { pluginName } from '../plugin.ts'
 
-import type { File, OptionalPath, PluginContext, PluginManager } from '@kubb/core'
+import type { KubbFile, PluginContext, PluginManager } from '@kubb/core'
 import type { ContentType, HttpMethod, Oas, Operation, OperationSchemas, ResolvePathOptions, Resolver, SkipBy } from '@kubb/swagger'
 import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
   pluginManager: PluginManager
-  clientPath?: OptionalPath
-  clientImportPath?: OptionalPath
+  clientPath?: KubbFile.OptionalPath
+  clientImportPath?: KubbFile.OptionalPath
   dataReturnType: PluginOptions['dataReturnType']
   oas: Oas
   contentType?: ContentType
@@ -33,17 +32,7 @@ export class OperationGenerator extends Generator<Options> {
     })
   }
 
-  resolveType(operation: Operation): Resolver {
-    const { resolvePath, resolveName } = this.options
-
-    return resolveSwaggerTypescript({
-      operation,
-      resolveName,
-      resolvePath,
-    })
-  }
-
-  async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<File<FileMeta> | null> {
+  async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<KubbFile.File<FileMeta> | null> {
     const { resolvePath, resolveName, oas } = this.options
 
     const controllerName = resolveName({ name: 'operations' })
@@ -52,15 +41,14 @@ export class OperationGenerator extends Generator<Options> {
       throw new Error('controllerName should be defined')
     }
 
-    const controllerId = `${controllerName}.ts`
+    const controllerId = `${controllerName}.ts` as const
     const controllerFilePath = resolvePath({
-      fileName: controllerId,
+      baseName: controllerId,
     })
 
     if (!controllerFilePath) {
       return null
     }
-    // end controller setup
 
     const sources: string[] = []
 
@@ -83,45 +71,34 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       path: controllerFilePath,
-      fileName: controllerId,
+      baseName: controllerId,
       source: sources.join('\n'),
       imports: [],
     }
   }
 
-  async get(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { pluginManager, oas, clientPath, dataReturnType } = this.options
-
-    const controller = this.resolve(operation)
-    const type = this.resolveType(operation)
-
-    const clientImportPath = this.options.clientImportPath
-      ? this.options.clientImportPath
-      : clientPath
-        ? getRelativePath(controller.filePath, clientPath)
-        : '@kubb/swagger-client/client'
+  async get(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
+    const { pluginManager, oas, clientPath, clientImportPath, dataReturnType } = this.options
 
     const clientBuilder = new ClientBuilder(oas).configure({
       pluginManager,
-      name: controller.name,
       operation,
       schemas,
       dataReturnType,
-      clientPath: clientImportPath,
+      clientPath,
+      clientImportPath,
     })
+    const file = clientBuilder.render().file
+
+    if (!file) {
+      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
+    }
 
     return {
-      path: controller.filePath,
-      fileName: controller.fileName,
-      source: clientBuilder.print(),
-      imports: [
-        ...clientBuilder.imports(),
-        {
-          name: [schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(Boolean),
-          path: getRelativePath(controller.filePath, type.filePath),
-          isTypeOnly: true,
-        },
-      ],
+      path: file.path,
+      baseName: file.baseName,
+      source: file.source,
+      imports: file.imports,
       meta: {
         pluginName,
         tag: operation.getTags()[0]?.name,
@@ -129,39 +106,28 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async post(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
-    const { pluginManager, oas, clientPath, dataReturnType } = this.options
-
-    const controller = this.resolve(operation)
-    const type = this.resolveType(operation)
-
-    const clientImportPath = this.options.clientImportPath
-      ? this.options.clientImportPath
-      : clientPath
-        ? getRelativePath(controller.filePath, clientPath)
-        : '@kubb/swagger-client/client'
+  async post(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
+    const { pluginManager, oas, clientPath, clientImportPath, dataReturnType } = this.options
 
     const clientBuilder = new ClientBuilder(oas).configure({
       pluginManager,
-      name: controller.name,
       operation,
       schemas,
       dataReturnType,
-      clientPath: clientImportPath,
+      clientPath,
+      clientImportPath,
     })
+    const file = clientBuilder.render().file
+
+    if (!file) {
+      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
+    }
 
     return {
-      path: controller.filePath,
-      fileName: controller.fileName,
-      source: clientBuilder.print(),
-      imports: [
-        ...clientBuilder.imports(),
-        {
-          name: [schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(Boolean),
-          path: getRelativePath(controller.filePath, type.filePath),
-          isTypeOnly: true,
-        },
-      ],
+      path: file.path,
+      baseName: file.baseName,
+      source: file.source,
+      imports: file.imports,
       meta: {
         pluginName,
         tag: operation.getTags()[0]?.name,
@@ -169,13 +135,13 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async put(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async put(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
-  async patch(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async patch(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
-  async delete(operation: Operation, schemas: OperationSchemas): Promise<File<FileMeta> | null> {
+  async delete(operation: Operation, schemas: OperationSchemas): Promise<KubbFile.File<FileMeta> | null> {
     return this.post(operation, schemas)
   }
 }

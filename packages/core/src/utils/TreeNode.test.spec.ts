@@ -2,10 +2,9 @@ import path from 'node:path'
 
 import { TreeNode } from './TreeNode.js'
 
-import type { Path } from '../types.js'
-import type { PathMode } from './read.js'
+import type { KubbFile } from '../managers/index.ts'
 
-type TreeNodeData = { type: PathMode; path: Path; name: string }
+type TreeNodeData = { type: KubbFile.Mode; path: KubbFile.Path; name: string }
 
 describe('TreeNode', () => {
   const rootPath = path.resolve(__dirname, '../../mocks/treeNode')

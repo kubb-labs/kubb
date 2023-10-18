@@ -1,12 +1,14 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createFunctionParams, URLPath } from '@kubb/core'
-import { createRoot, Import as ImportTemplate } from '@kubb/react'
-import { getASTParams, getComments, OasBuilder } from '@kubb/swagger'
+import { FunctionParams, getRelativePath, URLPath } from '@kubb/core'
+import { createRoot, File } from '@kubb/react'
+import { getASTParams, getComments, OasBuilder, useResolve, useResolveName, useSchemas } from '@kubb/swagger'
+import { useResolve as useResolveType } from '@kubb/swagger-ts'
 
 import { ClientFunction } from '../components/index.ts'
+import { pluginName } from '../plugin.ts'
 
-import type { Import, PluginManager } from '@kubb/core'
-import type { AppContextProps } from '@kubb/react'
+import type { KubbFile, PluginManager } from '@kubb/core'
+import type { AppContextProps, RootType } from '@kubb/react'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
 import type { AppMeta, Options as PluginOptions } from '../types.ts'
 
@@ -15,28 +17,31 @@ type Config = {
   dataReturnType: PluginOptions['dataReturnType']
   operation: Operation
   schemas: OperationSchemas
-  name: string
-  clientPath: string
+  clientPath?: KubbFile.OptionalPath
+  clientImportPath?: KubbFile.OptionalPath
 }
 
-type ClientResult = { code: string; name: string; imports: Import[] }
+type ClientResult = { Component: React.ElementType }
 
 export class ClientBuilder extends OasBuilder<Config> {
   private get client(): ClientResult {
-    const { pluginManager, name, operation, schemas, clientPath, dataReturnType } = this.config
-    const codes: string[] = []
+    const { operation, schemas, dataReturnType } = this.config
 
     const comments = getComments(operation)
     const method = operation.method
 
-    // TODO use of new Class for creating params
-    const generics = createFunctionParams([
-      { type: 'TData', default: schemas.response.name },
-      { type: 'TVariables', enabled: !!schemas.request?.name, default: schemas.request?.name },
-    ])
-    const clientGenerics = createFunctionParams([{ type: 'TData' }, { type: 'TVariables', enabled: !!schemas.request?.name }])
+    const generics = new FunctionParams()
+    const clientGenerics = new FunctionParams()
+    const params = new FunctionParams()
 
-    const params = createFunctionParams([
+    generics.add([
+      { type: 'TData', default: schemas.response.name },
+      { type: 'TVariables', default: schemas.request?.name, enabled: !!schemas.request?.name },
+    ])
+
+    clientGenerics.add([{ type: 'TData' }, { type: 'TVariables', enabled: !!schemas.request?.name }])
+
+    params.add([
       ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'data',
@@ -64,33 +69,28 @@ export class ClientBuilder extends OasBuilder<Config> {
     ])
 
     const Component = () => {
+      const schemas = useSchemas()
+      const name = useResolveName({ pluginName, type: 'function' })
+
       return (
-        <>
-          <ImportTemplate name={'client'} path={clientPath} />
-          <ImportTemplate name={['ResponseConfig']} path={clientPath} isTypeOnly />
-          <ClientFunction
-            name={name}
-            generics={generics}
-            clientGenerics={clientGenerics}
-            dataReturnType={dataReturnType}
-            params={params}
-            returnType={dataReturnType === 'data' ? `ResponseConfig<TData>["data"]` : `ResponseConfig<TData>`}
-            method={method}
-            path={new URLPath(operation.path)}
-            withParams={!!schemas.queryParams?.name}
-            withData={!!schemas.request?.name}
-            withHeaders={!!schemas.headerParams?.name}
-            comments={comments}
-          />
-        </>
+        <ClientFunction
+          name={name}
+          generics={generics.toString()}
+          clientGenerics={clientGenerics.toString()}
+          dataReturnType={dataReturnType}
+          params={params.toString()}
+          returnType={dataReturnType === 'data' ? `ResponseConfig<TData>["data"]` : `ResponseConfig<TData>`}
+          method={method}
+          path={new URLPath(operation.path)}
+          withParams={!!schemas.queryParams?.name}
+          withData={!!schemas.request?.name}
+          withHeaders={!!schemas.headerParams?.name}
+          comments={comments}
+        />
       )
     }
-    const root = createRoot<AppContextProps<AppMeta>>()
-    root.render(<Component />, { meta: { pluginManager } })
 
-    codes.push(root.output)
-
-    return { code: combineCodes(codes), name, imports: root.imports }
+    return { Component }
   }
 
   configure(config: Config): this {
@@ -100,10 +100,42 @@ export class ClientBuilder extends OasBuilder<Config> {
   }
 
   print(): string {
-    return this.client.code
+    return this.render().output
   }
 
-  imports(): Import[] {
-    return this.client.imports
+  render(): RootType<AppContextProps<AppMeta>> {
+    const { pluginManager, clientPath, clientImportPath, operation, schemas } = this.config
+    const { Component: ClientQuery } = this.client
+
+    const root = createRoot<AppContextProps<AppMeta>>()
+
+    const Component = () => {
+      const schemas = useSchemas()
+      const file = useResolve({ pluginName, type: 'file' })
+      const fileType = useResolveType({ type: 'file' })
+
+      const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
+
+      return (
+        <File baseName={file.baseName} path={file.path}>
+          <File.Import name={'client'} path={resolvedClientPath} />
+          <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
+          <File.Import
+            name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
+              Boolean,
+            )}
+            path={getRelativePath(file.path, fileType.path)}
+            isTypeOnly
+          />
+          <File.Source>
+            <ClientQuery />
+          </File.Source>
+        </File>
+      )
+    }
+
+    root.render(<Component />, { meta: { pluginManager, schemas, operation } })
+
+    return root
   }
 }

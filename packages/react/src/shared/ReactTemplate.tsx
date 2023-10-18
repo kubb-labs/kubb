@@ -8,7 +8,7 @@ import { App } from '../components/App.tsx'
 import { reconciler } from '../reconciler.ts'
 import { renderer } from './renderer.ts'
 
-import type { Export, Import } from '@kubb/core'
+import type { KubbFile, Logger } from '@kubb/core'
 import type { ReactNode } from 'react'
 import type { AppContextProps } from '../components/AppContext.tsx'
 import type { FiberRoot } from '../reconciler.ts'
@@ -17,7 +17,8 @@ import type { DOMElement } from '../types.ts'
 const noop = () => {}
 
 export type ReactTemplateOptions = {
-  debug: boolean
+  logger?: Logger
+  debug?: boolean
 }
 
 export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
@@ -25,8 +26,7 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   // Ignore last render after unmounting a tree to prevent empty output before exit
   private isUnmounted: boolean
   private lastOutput: string
-  private lastImports: Import[] = []
-  private lastExports: Export[] = []
+  private lastFile?: KubbFile.File
   private readonly container: FiberRoot
   private readonly rootNode: DOMElement
   public readonly id = crypto.randomUUID()
@@ -77,11 +77,9 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   get output(): string {
     return this.lastOutput
   }
-  get imports(): Import[] {
-    return this.lastImports
-  }
-  get exports(): Export[] {
-    return this.lastExports
+
+  get file(): KubbFile.File | undefined {
+    return this.lastFile
   }
 
   resized = (): void => {
@@ -97,16 +95,20 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
       return
     }
 
-    const { output, imports, exports } = renderer(this.rootNode)
+    const { output, file, imports, exports } = renderer(this.rootNode)
 
     this.lastOutput = output
-    this.lastImports = imports
-    this.lastExports = exports
+    this.lastFile = file
   }
+  onError(_error: Error): void {}
 
   render(node: ReactNode, context?: Context): void {
     if (context) {
-      const tree = <App meta={context.meta}>{node}</App>
+      const tree = (
+        <App logger={this.options.logger} meta={context.meta} onError={this.onError}>
+          {node}
+        </App>
+      )
 
       reconciler.updateContainer(tree, this.container, null, noop)
       return
