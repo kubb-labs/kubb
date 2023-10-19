@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.1](https://github.com/kubb-project/kubb/compare/kubb-v1.13.0...kubb-v1.13.1) (2023-10-19)
+
+
+### 📚 Documentation
+
+* escape curly braces ([0690e47](https://github.com/kubb-project/kubb/commit/0690e47421c32e251969f4809bf14ad83202bb44))
+
 ## [1.13.0](https://github.com/kubb-project/kubb/compare/kubb-v1.12.0...kubb-v1.13.0) (2023-10-18)
 
 
