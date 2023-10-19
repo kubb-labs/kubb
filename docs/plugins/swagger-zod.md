@@ -50,19 +50,26 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+::: v-pre
 Relative path to save the grouped Zod schemas.
-`\{\{tag\}\}` will be replaced by the current tagName.
+`{{tag}}` will be replaced by the current tagName.
+:::
 
+::: v-pre
 Type: `string` <br/>
-Example: `zod/\{\{tag\}\}Controller` => `zod/PetController` <br/>
-Default: `${output}/\{\{tag\}\}Controller`
+Example: `zod/{{tag}}Controller` => `zod/PetController` <br/>
+Default: `${output}/{{tag}}Controller`
+:::
 
 #### exportAs
-Name to be used for the `export * as \{\{exportAs\}\} from './`
+::: v-pre
+Name to be used for the `export * as {{exportAs}} from './`
+:::
 
+::: v-pre
 Type: `string` <br/>
-Default: `"\{\{tag\}\}Schemas"`
-
+Default: `"{{tag}}Schemas"`
+:::
 
 ### skipBy
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.

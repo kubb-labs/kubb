@@ -49,12 +49,16 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+::: v-pre
 Relative path to save the grouped TypeScript Types.
-`\{\{tag\}\}` will be replaced by the current tagName.
+`{{tag}}` will be replaced by the current tagName.
+:::
 
+::: v-pre
 Type: `string` <br/>
-Example: `models/\{\{tag\}\}Controller` => `models/PetController` <br/>
-Default: `${output}/\{\{tag\}\}Controller`
+Example: `models/{{tag}}Controller` => `models/PetController` <br/>
+Default: `${output}/{{tag}}Controller`
+:::
 
 ### enumType
 Choose to use `enum` or `as const` for enums. <br/>

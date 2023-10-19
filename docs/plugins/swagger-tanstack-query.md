@@ -55,18 +55,26 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+::: v-pre
 Relative path to save the grouped @tanstack/query hooks.
-`\{\{tag\}\}` will be replaced by the current tagName.
+`{{tag}}` will be replaced by the current tagName.
+:::
 
+::: v-pre
 Type: `string` <br/>
-Example: `hooks/\{\{tag\}\}Controller` => `hooks/PetController` <br/>
-Default: `${output}/\{\{tag\}\}Controller`
+Example: `hooks/{{tag}}Controller` => `hooks/PetController` <br/>
+Default: `${output}/{{tag}}Controller`
+:::
 
 #### exportAs
-Name to be used for the `export * as \{\{exportAs\}\} from './`
+::: v-pre
+Name to be used for the `export * as {{exportAs}} from './`
+:::
 
+::: v-pre
 Type: `string` <br/>
-Default: `"\{\{tag\}\}Hooks"`
+Default: `"{{tag}}Hooks"`
+:::
 
 ### client <Badge type="danger" text="deprecated" />
 Path to the client that will be used to do the API calls.

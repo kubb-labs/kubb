@@ -50,18 +50,26 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+::: v-pre
 Relative path to save the grouped clients.
-`\{\{tag\}\}` will be replaced by the current tagName.
+`{{tag}}` will be replaced by the current tagName.
+:::
 
+::: v-pre
 Type: `string` <br/>
-Example: `clients/\{\{tag\}\}Controller` => `clients/PetController` <br/>
-Default: `${output}/\{\{tag\}\}Controller`
+Example: `clients/{{tag}}Controller` => `clients/PetController` <br/>
+Default: `${output}/{{tag}}Controller`
+:::
 
 #### exportAs
-Name to be used for the `export * as \{\{exportAs\}\} from './`
+::: v-pre
+Name to be used for the `export * as {{exportAs}} from './`
+:::
 
+::: v-pre
 Type: `string` <br/>
-Default: `"\{\{tag\}\}Service"`
+Default: `"{{tag}}Service"`
+:::
 
 ### client <Badge type="danger" text="deprecated" />
 Path to the client that will be used to do the API calls.

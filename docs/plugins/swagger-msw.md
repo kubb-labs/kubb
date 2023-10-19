@@ -51,18 +51,24 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+::: v-pre
 Relative path to save the grouped MSW mocks.
-`\{\{tag\}\}` will be replaced by the current tagName.
+`{{tag}}` will be replaced by the current tagName.
+:::
 
+::: v-pre
 Type: `string` <br/>
-Example: `mocks/\{\{tag\}\}Controller` => `mocks/PetController` <br/>
-Default: `${output}/\{\{tag\}\}Controller`
+Example: `mocks/{{tag}}Controller` => `mocks/PetController` <br/>
+Default: `${output}/{{tag}}Controller`
+:::
 
 #### exportAs
-Name to be used for the `export * as \{\{exportAs\}\} from './`
+Name to be used for the `export * as {{exportAs}} from './`
 
+::: v-pre
 Type: `string` <br/>
-Default: `"\{\{tag\}\}Handlers"`
+Default: `"{{tag}}Handlers"`
+:::
 
 ### skipBy
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
