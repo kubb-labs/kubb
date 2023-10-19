@@ -12,19 +12,19 @@ With the Swagger Zod plugin you can use [Zod](https://zod.dev/) to validate your
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>] 
+```shell [bun <img src="/feature/bun.svg"/>]
 bun add @kubb/swagger-zod
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>] 
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
 pnpm add @kubb/swagger-zod
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>] 
+```shell [npm <img src="/feature/npm.svg"/>]
 npm install @kubb/swagger-zod
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>] 
+```shell [yarn <img src="/feature/yarn.svg"/>]
 yarn add @kubb/swagger-zod
 ```
 
@@ -51,17 +51,17 @@ Required: `true`
 
 #### output
 Relative path to save the grouped Zod schemas.
-`{{tag}}` will be replaced by the current tagName.
+`\{\{tag\}\}` will be replaced by the current tagName.
 
 Type: `string` <br/>
-Example: `zod/{{tag}}Controller` => `zod/PetController` <br/>
-Default: `${output}/{{tag}}Controller`
+Example: `zod/\{\{tag\}\}Controller` => `zod/PetController` <br/>
+Default: `${output}/\{\{tag\}\}Controller`
 
 #### exportAs
-Name to be used for the `export * as {{exportAs}} from './`
+Name to be used for the `export * as \{\{exportAs\}\} from './`
 
 Type: `string` <br/>
-Default: `"{{tag}}Schemas"`
+Default: `"\{\{tag\}\}Schemas"`
 
 
 ### skipBy

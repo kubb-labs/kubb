@@ -12,19 +12,19 @@ With the Swagger Faker plugin you can use [Faker](https://fakerjs.dev/) to creat
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>] 
+```shell [bun <img src="/feature/bun.svg"/>]
 bun add @kubb/swagger-faker
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>] 
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
 pnpm add @kubb/swagger-faker
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>] 
+```shell [npm <img src="/feature/npm.svg"/>]
 npm install @kubb/swagger-faker
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>] 
+```shell [yarn <img src="/feature/yarn.svg"/>]
 yarn add @kubb/swagger-faker
 ```
 
@@ -52,17 +52,17 @@ Required: `true`
 
 #### output
 Relative path to save the grouped Faker mocks.
-`{{tag}}` will be replaced by the current tagName.
+`\{\{tag\}\}` will be replaced by the current tagName.
 
 Type: `string` <br/>
-Example: `mocks/{{tag}}Controller` => `mocks/PetController` <br/>
-Default: `${output}/{{tag}}Controller`
+Example: `mocks/\{\{tag\}\}Controller` => `mocks/PetController` <br/>
+Default: `${output}/\{\{tag\}\}Controller`
 
 #### exportAs
-Name to be used for the `export * as {{exportAs}} from './`
+Name to be used for the `export * as \{\{exportAs\}\} from './`
 
 Type: `string` <br/>
-Default: `"{{tag}}Mocks"`
+Default: `"\{\{tag\}\}Mocks"`
 
 ### skipBy
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
