@@ -30,14 +30,14 @@
     "@kubb/swagger-zod": "workspace:*",
     "@tanstack/vue-query": "^4.37.0",
     "axios": "^1.5.1",
-    "vue": "^3.3.4"
+    "vue": "^3.3.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.4.0",
     "msw": "^1.3.2",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2",
-    "vite": "^4.4.11"
+    "vite": "^4.5.0"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {
