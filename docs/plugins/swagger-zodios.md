@@ -41,7 +41,7 @@ Output should be a file(ending with .ts or .js).
 ::: info
 
 Type: `string` <br/>
-Default: `"zodios.ts"`
+Default: `'zodios.ts'`
 
 ::: code-group
 

@@ -13,19 +13,19 @@ With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks bas
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-msw
+bun add @kubb/swagger-msw @kubb/swagger-ts @kubb/swagger-faker @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-msw
+pnpm add @kubb/swagger-msw @kubb/swagger-ts @kubb/swagger-faker @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-msw
+npm install @kubb/swagger-msw @kubb/swagger-ts @kubb/swagger-faker @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-msw
+yarn add @kubb/swagger-msw @kubb/swagger-ts @kubb/swagger-faker @kubb/swagger
 ```
 
 :::
@@ -38,8 +38,39 @@ yarn add @kubb/swagger-msw
 Relative path to save the MSW mocks.
 When output is a file it will save all models inside that file else it will create a file per schema item.
 
+::: info
+
 Type: `string` <br/>
 Default: `'mocks'`
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerMsw from '@kubb/swagger-msw'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerFaker({ }),
+    createSwaggerMsw(
+      { 
+        output: './mocks'
+      }
+    )
+  ]
+})
+```
+
+:::
 
 ### groupBy
 Group the MSW mocks based on the provided name.
@@ -59,7 +90,7 @@ Relative path to save the grouped MSW mocks.
 ::: v-pre
 Type: `string` <br/>
 Example: `mocks/{{tag}}Controller` => `mocks/PetController` <br/>
-Default: `${output}/{{tag}}Controller`
+Default: `'${output}/{{tag}}Controller'`
 :::
 
 #### exportAs
@@ -67,24 +98,138 @@ Name to be used for the `export * as {{exportAs}} from './`
 
 ::: v-pre
 Type: `string` <br/>
-Default: `"{{tag}}Handlers"`
+Default: `'{{tag}}Handlers'`
+:::
+
+::: info
+
+::: code-group
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerMsw from '@kubb/swagger-msw'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerFaker({ }),
+    createSwaggerMsw(
+      { 
+        output: './mocks',
+        groupBy: { type: 'tag', output: './mocks/{{tag}}Handlers' }, 
+      }
+    )
+  ]
+})
+```
+
 :::
 
 ### skipBy
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
 
+::: info type
+```typescript [SkipBy]
+export type SkipBy = {
+  type: 'tag' | 'operationId' | 'path' | 'method' ; 
+  pattern: string | RegExp 
+}
+```
+
+::: 
+
+::: info
+
 Type: `Array<SkipBy>` <br/>
 
-#### [0]
-Type: `{ type: 'tag' | 'operationId' | 'path' | 'method' ; pattern: string | RegExp }` <br/>
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerMsw from '@kubb/swagger-msw'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerFaker({ }),
+    createSwaggerMsw(
+      { 
+        skipBy: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+      }
+    )
+  ]
+})
+```
+:::
+
 
 ### transformers
 
 #### name
 Override the name of the MSW data that is getting generated, this will also override the name of the file.
 
+::: info
+
 Type: `(name: string) => string` <br/>
 
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerMsw from '@kubb/swagger-msw'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerFaker({ }),
+    createSwaggerMsw(
+      { 
+        output: './mocks',
+        transformers: {
+          name: (name) => {
+            return `${name}Client`
+          },
+        },
+      }
+    )
+  ]
+})
+```
+:::
 
 
 ## Depended
