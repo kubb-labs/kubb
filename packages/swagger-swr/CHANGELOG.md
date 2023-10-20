@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.14.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.13.0...@kubb/swagger-swr-v1.14.0) (2023-10-20)
+
+
+### ✨ Features
+
+* `overrideBy` to specify different options per `operationId | tag | path | method` ([ebb3db1](https://github.com/kubb-project/kubb/commit/ebb3db14c3796ea5211a49ccded5544ee54ad66c))
+
+
+### 📚 Documentation
+
+* better docs with examples ([fb42958](https://github.com/kubb-project/kubb/commit/fb429588f213a0ec7973fd64aa24eea17529747a))
+
 ## [1.13.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.12.0...@kubb/swagger-swr-v1.13.0) (2023-10-18)
 
 
