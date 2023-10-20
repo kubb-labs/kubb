@@ -28,50 +28,50 @@ features:
       src: ./feature/typescript.svg
       height: 24
     title: TypeScript
-    details: Out-of-box <a href="https://www.typescriptlang.org/">TypeScript</a> (with JSDoc) support.
+    details: Out-of-box <a href="https://www.typescriptlang.org/">TypeScript</a> (with JSDoc) support. <div class="learn-more"><a href="/plugins/swagger-ts">Learn more</a></div>
   - icon: 
       src: ./feature/tanstack.svg
       height: 24
     title: Tanstack Query
-    details: Creates hooks for all supported <a href="https://tanstack.com/query/latest">Tanstack-Query</a> frameworks (React, Solid, Svelte, Vue).
+    details: Creates hooks for all supported <a href="https://tanstack.com/query/latest">Tanstack-Query</a> frameworks (React, Solid, Svelte, Vue).  <div class="learn-more"><a href="/plugins/swagger-tanstack-query">Learn more</a></div>
   - icon: 
       dark: ./feature/swr-dark.svg
       light: ./feature/swr-light.svg
       height: 24
     title: SWR
-    details: Creates React Hooks for Data Fetching with <a href="https://swr.vercel.app/">SWR</a>.
+    details: Creates React Hooks for Data Fetching with <a href="https://swr.vercel.app/">SWR</a>. <div class="learn-more"><a href="/plugins/swagger-swr">Learn more</a></div>
   - icon: 
       src: ./feature/axios.svg
     title: Axios
-    details: <a href="https://axios-http.com/">Promise based HTTP calls</a> with a custom Client to set baseURL, headers, ... options.
+    details: <a href="https://axios-http.com/">Promise based HTTP calls</a> with a custom Client to set baseURL, headers, ... options. <div class="learn-more"><a href="/plugins/swagger-client/">Learn more</a></div>
   - icon: 
       src: ./feature/msw.svg
     title: MSW <span class="new">new</span>
-    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on faker data.
+    details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on faker data. <div class="learn-more"><a href="/plugins/swagger-msw">Learn more</a></div>
   - icon: 
       src: ./feature/zod.svg
       height: 24
     title: Zod
-    details: Validates your data with the power of <a href="https://zod.dev/">Zod</a> schemas.
+    details: Validates your data with the power of <a href="https://zod.dev/">Zod</a> schemas. <div class="learn-more"><a href="/plugins/swagger-zod">Learn more</a></div>
   - icon: 
       src: ./feature/zodios.svg
     title: Zodios
-    details: <a href="https://www.zodios.org"/>End-to-end typesafe REST API toolbox</a> created based on our <a href="https://zod.dev/">Zod</a> plugin.
+    details: <a href="https://www.zodios.org"/>End-to-end typesafe REST API toolbox</a> created based on our <a href="https://zod.dev/">Zod</a> plugin. <div class="learn-more"><a href="/plugins/swagger-zodios">Learn more</a></div>
   - icon: 
       src: https://fakerjs.dev/logo.svg
     title: Faker <span class="new">new</span>
-    details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data that can be used to create fake API calls.
+    details: Use of <a href="https://fakerjs.dev/">Fake.js</a> to create mock data that can be used to create fake API calls. <div class="learn-more"><a href="/plugins/swagger-faker">Learn more</a></div>
   - icon: 
       src: ./feature/json.svg
     title: JSON Schemas
-    details: Reuse the JSON schemas that are created inside your Swagger/OpenAPI file.
+    details: Reuse the JSON schemas that are created inside your Swagger/OpenAPI file. <div class="learn-more"><a href="/plugins/swagger">Learn more</a></div>
   - icon: 
       src: ./feature/cli.svg
     title: CLI support
-    details: Log and see what is happening with the <span class="code">Kubb</span> CLI command.
+    details: Log and see what is happening with the <span class="code">Kubb</span> CLI command. <div class="learn-more"><a href="/plugins/cli">Learn more</a></div>
   - icon: 
       dark: ./feature/plugins-dark.svg
       light: ./feature/plugins-light.svg
     title: Extensible with plugins
-    details: Create your own plugin or fork and change one of the default plugins with your own flavour without the need of forking the full project.
+    details: Create your own plugin or fork and change one of the default plugins with your own flavour without the need of forking the full project. <div class="learn-more"><a href="/plugins/introduction">Learn more</a></div>
 ---

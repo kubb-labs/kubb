@@ -6,7 +6,7 @@ outline: deep
 ---
 
 
-# @kubb/swagger-tanstack-query
+# @kubb/swagger-tanstack-query <a href="https://paka.dev/npm/@kubb/swaggger-tanstack-query@latest/api">🦙</a>
 
 With the Swagger Tanstack Query plugin you can create: 
 - [react-query](https://tanstack.com/query/latest/docs/react) hooks based on an operation in the Swagger file.

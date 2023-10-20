@@ -27,7 +27,7 @@ export type KubbUserConfig = Omit<KubbConfig, 'root' | 'plugins'> & {
 }
 
 /**
- * Global/internal config used through out the full generation.
+ * @private
  */
 export type KubbConfig = {
   /**
@@ -39,28 +39,29 @@ export type KubbConfig = {
   input:
     | {
         /**
-         * Path to be used as the input. Can be an absolute path, or a path relative from
-         * the defined root option.
+         * Path to be used as the input. This can be an absolute path or a path relative to the `root`.
          */
         path: string
       }
     | {
         /**
-         * String or object containing the data that you would normally import.
+         * `string` or `object` containing the data.
          */
         data: string | unknown
       }
   output: {
     /**
-     * Path to be used to export all generated files. Can be an absolute path, or a path relative based of the defined root option.
+     * Path to be used to export all generated files.
+     * This can be an absolute path, or a path relative based of the defined `root` option.
      */
     path: string
     /**
-     * Remove previous generated files and folders.
+     * Clean output directory before each build.
      */
     clean?: boolean
     /**
-     * Enabled or disable the writing to the filesystem. This is being used for the playground.
+     * Write files to the fileSystem
+     * This is being used for the playground.
      * @default true
      */
     write?: boolean
@@ -76,8 +77,8 @@ export type KubbConfig = {
    */
   hooks?: {
     /**
-     * Hook that will be triggerend at the end of all executions.
-     * Useful for running Prettier or ESLint to use your own linting structure.
+     * Hook that will be triggered at the end of all executions.
+     * Useful for running Prettier or ESLint to format/lint your code.
      */
     done?: string | Array<string>
   }

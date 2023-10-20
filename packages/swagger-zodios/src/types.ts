@@ -7,7 +7,7 @@ export type API = {
 export type Options = {
   /**
    * Relative path to save the Zodios instance.
-   * When output is a file it will save all models inside that file else it will create a file per schema item.
+   * Output should be a file(ending with .ts or .js).
    * @default 'zodios.ts'
    */
   output?: string

@@ -39,7 +39,7 @@ export type Options = {
    */
   serverIndex?: number
   /**
-   * Override ContentType to be used for requests and responses.
+   * Override ContentType that will be used for requests and responses.
    */
   contentType?: ContentType
 }

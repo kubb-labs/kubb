@@ -4,7 +4,7 @@ layout: doc
 title: \@kubb/swagger-swr
 outline: deep
 ---
-# @kubb/swagger-swr
+# @kubb/swagger-swr <a href="https://paka.dev/npm/@kubb/swagger-swr@latest/api">🦙</a>
 
 With the Swagger SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on an operation in the Swagger file.
 

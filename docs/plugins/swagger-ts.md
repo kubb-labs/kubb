@@ -4,7 +4,7 @@ layout: doc
 title: \@kubb/swagger-ts
 outline: deep
 ---
-# @kubb/swagger-ts
+# @kubb/swagger-ts <a href="https://paka.dev/npm/@kubb/swagger-ts@latest/api">🦙</a>
 
 With the Swagger TypeScript plugin you can create [TypeScript](https://www.typescriptlang.org/) types based on a Swagger file.
 
@@ -33,11 +33,13 @@ yarn add @kubb/swagger-ts
 ## Options
 
 ### output
-Relative path to save the TypeScript types.
+Relative path to save the TypeScript types. <br/>
 When output is a file it will save all models inside that file else it will create a file per schema item.
 
+::: info
 Type: `string` <br/>
-Default: `"models"`
+Default: `"types"`
+:::
 
 ### groupBy
 Group the TypeScript types based on the provided name.

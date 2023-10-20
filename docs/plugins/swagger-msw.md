@@ -4,7 +4,7 @@ layout: doc
 title: \@kubb/swagger-msw
 outline: deep
 ---
-# @kubb/swagger-msw
+# @kubb/swagger-msw <a href="https://paka.dev/npm/@kubb/swagger-mws@latest/api">🦙</a>
 
 With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks based on a Swagger file.
 

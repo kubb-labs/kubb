@@ -57,8 +57,9 @@ export default defineConfig({
   markdown: {
     theme: {
       light: 'github-light',
-      dark: 'github-dark',
+      dark: 'nord',
     },
+    lineNumbers: true,
   },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -163,14 +164,6 @@ export default defineConfig({
             link: '/plugins/cli',
           },
           {
-            text: '@kubb/parser',
-            link: '/plugins/parser',
-          },
-          {
-            text: '@kubb/react <span class="beta">under construction</span>',
-            link: '/plugins/react',
-          },
-          {
             text: 'Swagger plugins',
             collapsed: false,
             items: [
@@ -216,6 +209,20 @@ export default defineConfig({
               {
                 text: '@kubb/swagger-msw <span class="new">new</span>',
                 link: '/plugins/swagger-msw',
+              },
+            ],
+          },
+          {
+            text: 'Internal plugins',
+            collapsed: false,
+            items: [
+              {
+                text: '@kubb/parser',
+                link: '/plugins/parser',
+              },
+              {
+                text: '@kubb/react <span class="beta">under construction</span>',
+                link: '/plugins/react',
               },
             ],
           },

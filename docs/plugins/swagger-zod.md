@@ -4,7 +4,7 @@ layout: doc
 title: \@kubb/swagger-zod
 outline: deep
 ---
-# @kubb/swagger-zod
+# @kubb/swagger-zod <a href="https://paka.dev/npm/@kubb/swagger-zod@latest/api">🦙</a>
 
 With the Swagger Zod plugin you can use [Zod](https://zod.dev/) to validate your schema's based on a Swagger file.
 

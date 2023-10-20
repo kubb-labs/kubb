@@ -4,7 +4,7 @@ layout: doc
 title: \@kubb/swagger-faker
 outline: deep
 ---
-# @kubb/swagger-faker
+# @kubb/swagger-faker <a href="https://paka.dev/npm/@kubb/swagger-faker@latest/api">🦙</a>
 
 With the Swagger Faker plugin you can use [Faker](https://fakerjs.dev/) to create mocks based on a Swagger file.
 

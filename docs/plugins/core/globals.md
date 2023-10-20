@@ -14,22 +14,13 @@ See [packages/core/src/globals.d.ts](https://github.com/kubb-project/kubb/blob/m
 
 ::: code-group
 
-```typescript [packages/core/globals.d.ts]
-declare module Kubb {
-  type Plugins = KubbObjectPlugins
-  type OptionsPlugins = {[K in keyof KubbObjectPlugins]: KubbObjectPlugins[K]["options"]}
-  
-  type OptionsOfPlugin<K extends keyof KubbObjectPlugins>=  KubbObjectPlugins[K]["options"]
-  
-  type Plugin = keyof KubbObjectPlugins
-}
-```
+<<< @/../packages/core/globals.d.ts
 
 :::
 
 ### TypeScript
 
-To get TypeScript support for `NodeJS.ProcessEnv`(with already the `process.env` type being set), add `@kubb/core/globals` to your tsconfig.json:
+To get TypeScript support for Kubb, add `@kubb/core/globals` to your tsconfig.json:
 
 ::: code-group
 

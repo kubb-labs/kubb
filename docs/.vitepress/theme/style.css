@@ -15,7 +15,10 @@
   --vp-c-brand-dark: #854811;
   --vp-c-brand-darker: #854811;
   --vp-c-brand-dimm: rgba(100, 108, 255, 0.08);
+  --vp-c-brand-1: var(--vp-c-brand);
+  --vp-badge-tip-text: var(--vp-c-indigo-1);
 }
+
 
 /**
  * Component: Button
@@ -86,6 +89,11 @@
   --docsearch-primary-color: var(--vp-c-brand) !important;
 }
 
+.details {
+  padding-bottom: 2rem;
+  position: relative;
+}
+
 .details a {
   color: var(--vp-c-brand);
 }
@@ -125,6 +133,10 @@
   background-color: var(--vp-c-mute);
   transition: color 0.5s, background-color 0.5s;
 }
+.learn-more {
+  position: absolute;
+  bottom: 0;
+}
 
 .item .VPFeature {
   transition: transform 0.25s ease 0s, filter 0.25s ease 0s, box-shadow 0.25s ease 0s;
@@ -140,6 +152,10 @@
 .vp-code-group .tabs label {
   display: flex;
   align-items: baseline;
+}
+
+.vp-doc h1 a {
+  text-decoration: none;
 }
 
 .vp-code-group .tabs img {

@@ -5,7 +5,7 @@ export type Options = {
   /**
    * Relative path to save the TypeScript types.
    * When output is a file it will save all models inside that file else it will create a file per schema item.
-   * @default 'models'
+   * @default 'types'
    */
   output?: string
   /**
