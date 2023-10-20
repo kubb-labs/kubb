@@ -4,7 +4,7 @@ layout: doc
 title: \@kubb/swagger-swr
 outline: deep
 ---
-# @kubb/swagger-swr
+# @kubb/swagger-swr <a href="https://paka.dev/npm/@kubb/swagger-swr@latest/api">🦙</a>
 
 With the Swagger SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on an operation in the Swagger file.
 
@@ -13,19 +13,19 @@ With the Swagger SWR plugin you can create [SWR hooks](https://swr.vercel.app/) 
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-swr
+bun add @kubb/swagger-swr @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-swr
+pnpm add @kubb/swagger-swr @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-swr
+npm install @kubb/swagger-swr @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-swr
+yarn add @kubb/swagger-swr @kubb/swagger-ts @kubb/swagger
 ```
 
 :::
@@ -36,8 +36,38 @@ yarn add @kubb/swagger-swr
 ### output
 Output to save the SWR hooks.
 
+::: info
+
 Type: `string` <br/>
-Default: `"hooks"`
+Default: `'hooks'`
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerSwr from '@kubb/swagger-swr'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerSwr(
+      { 
+        output: './hooks'
+      }
+    )
+  ]
+})
+```
+
+:::
+
 
 ### groupBy
 Group the SWR hooks based on the provided name.
@@ -57,7 +87,7 @@ Relative path to save the grouped SWR hooks.
 ::: v-pre
 Type: `string` <br/>
 Example: `hooks/{{tag}}Controller` => `hooks/PetController` <br/>
-Default: `${output}/{{tag}}Controller`
+Default: `'${output}/{{tag}}Controller'`
 :::
 
 #### exportAs
@@ -67,50 +97,327 @@ Name to be used for the `export * as {{exportAs}} from './`
 
 ::: v-pre
 Type: `string` <br/>
-Default: `"{{tag}}SWRHooks"`
+Default: `'{{tag}}SWRHooks'`
+:::
+
+::: info
+
+::: code-group
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerMsw from '@kubb/swagger-msw'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerSwr(
+      { 
+        output: './hooks',
+        groupBy: { type: 'tag', output: './hooks/{{tag}}Controller' }, 
+      }
+    )
+  ]
+})
+```
+
 :::
 
 ### client <Badge type="danger" text="deprecated" />
-Path to the client that will be used to do the API calls.
+Path to the client that will be used to do the API calls.<br/>
 Relative to the root
 
+::: info
+
 Type: `string` <br/>
-Default: `"@kubb/swagger-client/client"`
+Default: `'@kubb/swagger-client/client'`
 
 Deprecated. Use `clientImportPath` instead. It will be skipped if `clientImportPath` is provided.
+:::
 
 ### clientImportPath
-Path to the client import path that will be used to do the API calls.
-It will be used as `import client from '${clientImportPath}'`.
+Path to the client import path that will be used to do the API calls.<br/>
+It will be used as `import client from '${clientImportPath}'`.<br/>
 It allow both relative and absolute path. the path will be applied as is,
 so relative path shoule be based on the file being generated.
 
+::: info
+
 Type: `string` <br/>
-Default: `"@kubb/swagger-client/client"`
+Default: `'@kubb/swagger-client/client'`
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerSwr from '@kubb/swagger-swr'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerSwr(
+      { 
+        clientImportPath: '../../client.ts'
+      }
+    )
+  ]
+})
+```
+:::
+
 
 ### dataReturnType <Badge type="warning" text="experimental" />
 ReturnType that needs to be used when calling client().
 
-`Data` will return ResponseConfig[data]. <br/>
-`Full` will return ResponseConfig.
+`'data'` will return ResponseConfig[data]. <br/>
+`'full'` will return ResponseConfig.
 
-Type: `string` <br/>
-Default: `"data"`
+::: info type
+
+::: code-group
+
+```typescript ['data']
+export async function getPetById<TData>(
+  petId: GetPetByIdPathParams,
+): Promise<ResponseConfig<TData>["data"]> {
+  ...
+}
+```
+
+```typescript ['full']
+export async function getPetById<TData>(
+  petId: GetPetByIdPathParams,
+): Promise<ResponseConfig<TData>> {
+  ...
+}
+```
+:::
+
+Type: `'data' | 'full'` <br/>
+Default: `'data'`
+
+::: code-group
+
+```typescript ['data']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerSwr from '@kubb/swagger-swr'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerSwr(
+      { 
+        dataReturnType: 'data'
+      }
+    )
+  ]
+})
+```
+
+```typescript ['full']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerSwr from '@kubb/swagger-swr'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerSwr(
+      { 
+        dataReturnType: 'full'
+      }
+    )
+  ]
+})
+```
+
+:::
+
 
 ### skipBy
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
 
+::: info type
+```typescript [SkipBy]
+export type SkipBy = {
+  type: 'tag' | 'operationId' | 'path' | 'method' ; 
+  pattern: string | RegExp 
+}
+```
+
+::: 
+
+::: info
+
 Type: `Array<SkipBy>` <br/>
 
-#### [0]
-Type: `{ type: 'tag' | 'operationId' | 'path' | 'method' ; pattern: string | RegExp }` <br/>
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerSwr from '@kubb/swagger-swr'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerSwr(
+      { 
+        skipBy: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+      }
+    )
+  ]
+})
+```
+:::
+
+
+### overrideBy
+Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
+
+::: info type
+```typescript [OverrideBy]
+export type OverrideBy = {
+  type: 'tag' | 'operationId' | 'path' | 'method' ; 
+  pattern: string | RegExp 
+  options: PluginOptions
+}
+```
+::: 
+
+::: info
+
+Type: `Array<OverrideBy>` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerClient from '@kubb/swagger-client'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerClient(
+      { 
+        overrideBy: [
+          {
+            type: 'tag',
+            pattern: 'pet',
+            options: {
+              output: './custom',
+            },
+          },
+        ],
+      }
+    )
+  ]
+})
+```
+:::
+
+
+
 
 ### transformers
 
 #### name
 Override the name of the hook that is getting generated, this will also override the name of the file.
 
+::: info
+
 Type: `(name: string) => string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerSwr from '@kubb/swagger-swr'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerSwr(
+      { 
+        output: './hooks',
+        transformers: {
+          name: (name) => {
+            return `${name}Hook`
+          },
+        },
+      }
+    )
+  ]
+})
+```
+:::
+
 
 
 ## Depended

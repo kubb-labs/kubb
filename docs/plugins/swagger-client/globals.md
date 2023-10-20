@@ -15,24 +15,9 @@ outline: deep
 See [reference/fileManager#getenveource](/reference/fileManager#getenveource) for more information about how this works in the background.
 
 ::: code-group
+<<< @/../packages/swagger-client/src/types.ts{12-15}
 
-```typescript [packages/swagger-client/src/types.ts]
-export type Environments = {
-  AXIOS_BASE?: CreateAxiosDefaults['baseURL']
-  AXIOS_HEADERS?: CreateAxiosDefaults['headers']
-}
-```
-:::
-
-::: code-group
-
-```typescript [packages/swagger-client/globals.d.ts]
-type Environments = import('./src/types.ts').Environments
-
-declare namespace NodeJS {
-  export interface ProcessEnv extends Partial<Record<keyof Environments, string>> {}
-}
-```
+<<< @/../packages/swagger-client/globals.d.ts{22-24}
 
 :::
 
@@ -59,33 +44,8 @@ To get TypeScript support for `NodeJS.ProcessEnv`(with already the `process.env`
 
 ::: code-group
 
-```typescript [packages/core/src/managers/fileManager/types.ts]
-export type File = {
-  /**
-   * Name to be used to dynamicly create the fileName(based on input.path)
-   */
-  fileName: string
-  /**
-   * Path will be full qualified path to a specified file
-   */
-  path: string
-  source: string
-  imports?: Import[]
-  exports?: Export[]
-  /**
-   * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists
-   * @default `false`
-   */
-  override?: boolean
-  meta?: {
-    pluginName?: string
-  }
-  /**
-   * This will override `process.env[key]` inside the `source`, see `getFileSource`.
-   */
-  env?: NodeJS.ProcessEnv
-}
-```
+<<< @/../packages/core/src/managers/fileManager/types.ts{38-69}
+
 :::
 
 ## Notes

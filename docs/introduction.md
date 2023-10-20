@@ -34,9 +34,7 @@ Main features ✨:
 - Plugins system based on Rollup, esbuild,
 - CLI support.
 
-## Installation
-
-<Badge type="tip" :text="version" /> 
+## Installation <Badge type="tip" :text="version" /> 
 You can install Kubb via [NPM](https://www.npmjs.com/).
 
 ::: code-group
@@ -59,7 +57,7 @@ yarn add @kubb/cli @kubb/core
 
 :::
 
-<Badge type="warning" text="canary" /> 
+### <Badge type="warning" text="canary" /> 
 Kubb also publishes a canary version on every commit to the main branch. <br/>
 To install the canary version:
 

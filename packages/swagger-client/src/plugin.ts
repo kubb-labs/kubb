@@ -14,7 +14,16 @@ import type { FileMeta, PluginOptions } from './types.ts'
 export const pluginName: PluginOptions['name'] = 'swagger-client' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'clients', groupBy, skipBy = [], transformers = {}, clientImportPath, dataReturnType = 'data', pathParamsType = 'inline' } = options
+  const {
+    output = 'clients',
+    groupBy,
+    skipBy = [],
+    overrideBy = [],
+    transformers = {},
+    clientImportPath,
+    dataReturnType = 'data',
+    pathParamsType = 'inline',
+  } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [SwaggerPluginOptions]
 
@@ -71,6 +80,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           pluginManager: this.pluginManager,
           contentType: swaggerPlugin.api.contentType,
           skipBy,
+          overrideBy,
         },
       )
 

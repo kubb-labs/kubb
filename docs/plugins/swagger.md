@@ -5,7 +5,7 @@ title: \@kubb/swagger
 outline: deep
 ---
 
-# @kubb/swagger
+# @kubb/swagger <a href="https://paka.dev/npm/@kubb/swagger@latest/api">🦙</a>
 
 With the Swagger plugin you can create JSON schema's out of a Swagger file. 
 Inside this package you can also use some utils to create your own Swagger plugin. 
@@ -49,29 +49,89 @@ yarn add @kubb/swagger
 ## Options
 ### validate
 Validate your input(see kubb.config) based on @apidevtools/swagger-parser
-
+::: info 
 Type: `boolean` <br/>
 Default: `true`
 
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ validate: true })
+  ]
+})
+```
+:::
 
 ### output
-Relative path to save the JSON models.
+Relative path to save the JSON models.<br/>
 False will not generate the schema JSON's.
 
+::: info
 Type: `string | false` <br/>
-Default: `"schemas"`
+Default: `'schemas'`
+
+::: code-group
+
+```typescript [output string]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: "./json" })
+  ]
+})
+```
+
+```typescript [output false]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false })
+  ]
+})
+```
+
+:::
 
 ### serverIndex
 Which server to use from the array of `servers.url[serverIndex]`
 
 For example `0` will return `http://petstore.swagger.io/api` and `1` will return `http://localhost:3000`
 
-### contentType
-Override ContentType to be used for requests and responses.
+::: info
 
-Type: `string` <br/>
+Type: `number` <br/>
+Default: `0`
 
-```yaml
+::: code-group
+
+```yaml [OpenAPI]
 openapi: 3.0.3
 info:
   title: Swagger Example
@@ -84,8 +144,74 @@ servers:
 - url: http://petstore.swagger.io/api
 - url: http://localhost:3000
 ```
-Type: `string | false` <br/>
-Default: `0`
+
+```typescript [serverIndex 0]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ serverIndex: 0 }) // use of `http://petstore.swagger.io/api`
+  ]
+})
+```
+
+```typescript [serverIndex 1]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ serverIndex: 1 }) // use of `http://localhost:3000`
+  ]
+})
+```
+
+:::
+
+### contentType
+Override ContentType that wil be used for requests and responses.
+
+::: info type
+```typescript
+export type ContentType = 'application/json' | (string & {})
+```
+:::
+
+::: info
+Type: `ContentType` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ contentType: "application/json" })
+  ]
+})
+```
+:::
 
 
 ## Depended

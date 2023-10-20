@@ -14,7 +14,7 @@ import type { FileMeta, PluginOptions } from './types.ts'
 export const pluginName: PluginOptions['name'] = 'swagger-swr' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy, skipBy = [], transformers = {}, dataReturnType = 'data' } = options
+  const { output = 'hooks', groupBy, skipBy = [], overrideBy = [], transformers = {}, dataReturnType = 'data' } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}SWRController`
   let pluginsOptions: [SwaggerPluginOptions]
 
@@ -70,6 +70,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           pluginManager: this.pluginManager,
           contentType: swaggerPlugin.api.contentType,
           skipBy,
+          overrideBy,
         },
       )
 

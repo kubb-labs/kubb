@@ -12,8 +12,9 @@ By setting the following options you can override the default behaviour of Kubb 
 ## root
 Project root directory. Can be an absolute path, or a path relative from the location of the config file itself.
 
+::: info 
 Type: `string` <br/>
-Default: `process.cwd()`
+Default: `process.cwd()` <br/>
 
 ::: code-group
 
@@ -30,15 +31,16 @@ export default defineConfig({
   }
 })
 ```
-
 :::
 
 ## input
 You can use `input.path` or `input.data` depending on the needs you have.
 
 ### path
-Path to be used as the input. Can be an absolute path, or a path relative from the defined root option.
+Define your Swagger/OpenAPI file.<br/>
+This can be an absolute path or a path relative to the `root`.
 
+::: info 
 Type: `string` <br/>
 Required: `true`
 
@@ -56,10 +58,12 @@ export default defineConfig({
   }
 })
 ```
+:::
 
 ### data
-String or object containing the data that you would normally import.
+`string` or `object` containing your Swagger/OpenAPI
 
+::: info 
 Type: `string | unknown` <br/>
 Required: `true`
 
@@ -79,13 +83,14 @@ export default defineConfig({
   }
 })
 ```
-
 :::
 
 ## output
 ### path
-Path to be used to export all generated files. Can be an absolute path, or a path relative from the defined root option.
+Path to be used to export all generated files.<br/>
+This can be an absolute path, or a path relative from the defined `root` option.
 
+::: info 
 Type: `string` <br/>
 Required: `true`
 
@@ -103,11 +108,12 @@ export default defineConfig({
   }
 })
 ```
-
 :::
 
 ### clean
-Remove previous generated files and folders.
+Clean output directory before each build.
+
+::: info 
 Type: `boolean` <br/>
 
 ::: code-group
@@ -125,12 +131,12 @@ export default defineConfig({
   },
 })
 ```
-
 :::
 
 ### write
-Enabled or disable the writing to the filesystem.
+Write files to the fileSystem.
 
+::: info 
 Type: `boolean` <br/>
 Default: `true`
 
@@ -150,7 +156,6 @@ export default defineConfig({
   },
 })
 ```
-
 :::
 
 ## plugins
@@ -160,6 +165,7 @@ Sometimes a plugin is depended on another plugin, if that's the case you will ge
 ### plugins[index]
 
 #### TypeScript
+::: info 
 
 Type: `Plugin` <br/>
 
@@ -179,16 +185,16 @@ export default defineConfig({
   plugins: [createSwagger({ })],
 })
 ```
-
 :::
 
 #### JSON
-When using JSON the structure will be a little bit different. 
-Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/plugins/) make it possible to use plugins with extra options.
-```
-[NAME PLUGIN, {...options}]
-```
+When using JSON, the structure will be a little bit different. 
+Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/plugins/) makes it possible to use plugins with extra options.
 
+```
+[PLUGIN, {...options}]
+```
+::: info 
 ::: code-group
 
 ```json [kubb.json]
@@ -212,16 +218,16 @@ Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/pl
   ]
 }
 ```
-
 :::
 
 ## hooks
 Hooks that will be called when a specific action is triggered in Kubb.
 
 ### done
-Hook that will be triggerend at the end of all executions.
-Useful for running Prettier or ESLint after all files has been created.
+Hook that will be triggered at the end of Kubb's generation.<br/>
+Useful for running Prettier or ESLint to format/lint your code.
 
+::: info 
 Type: `string | string[]` <br/>
 
 ::: code-group
@@ -242,4 +248,19 @@ export default defineConfig({
 })
 ```
 
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig({
+  hooks: {
+    done: "npx prettier --write ."
+  },
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+})
+```
 :::

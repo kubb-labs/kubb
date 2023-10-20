@@ -5,7 +5,7 @@ title: \@kubb/core
 outline: deep
 ---
 
-# @kubb/core
+# @kubb/core <a href="https://paka.dev/npm/@kubb/core@latest/api">🦙</a>
 
 The core contains the building blocks for all plugins.
 

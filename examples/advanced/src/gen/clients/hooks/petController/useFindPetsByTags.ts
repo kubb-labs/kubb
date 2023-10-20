@@ -75,7 +75,7 @@ export function findPetsByTagsQueryOptionsInfinite<TData = FindPetsByTagsQueryRe
         ...options,
         params: {
           ...params,
-          ['id']: pageParam,
+          ['test']: pageParam,
           ...(options.params || {}),
         },
       }).then((res) => res)

@@ -5,12 +5,11 @@ import type { Pet } from '../Pet'
  */
 export type FindPetsByStatus400 = any | null
 
-export const FindPetsByStatusQueryParamsStatus = {
-  available: 'available',
-  pending: 'pending',
-  sold: 'sold',
-} as const
-export type FindPetsByStatusQueryParamsStatus = (typeof FindPetsByStatusQueryParamsStatus)[keyof typeof FindPetsByStatusQueryParamsStatus]
+export enum FindPetsByStatusQueryParamsStatus {
+  'available' = 'available',
+  'pending' = 'pending',
+  'sold' = 'sold',
+}
 export type FindPetsByStatusQueryParams = {
   /**
    * @description Status values that need to be considered for filter

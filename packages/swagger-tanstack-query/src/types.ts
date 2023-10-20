@@ -1,5 +1,14 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { Operation, ResolvePathOptions, SkipBy, AppMeta as SwaggerAppMeta } from '@kubb/swagger'
+import type { Operation, OverrideBy, ResolvePathOptions, SkipBy, AppMeta as SwaggerAppMeta } from '@kubb/swagger'
+
+type Infinite = {
+  /**
+   * Specify the params key used for `pageParam`.
+   * Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`
+   * @default `'id'`
+   */
+  queryParam?: string
+}
 
 export type Options = {
   /**
@@ -62,19 +71,22 @@ export type Options = {
    */
   dataReturnType?: 'data' | 'full'
   /**
+   * Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
+   */
+  skipBy?: Array<SkipBy>
+  /**
+   * Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
+   */
+  overrideBy?: Array<OverrideBy<Options>>
+  /**
    * Framework to be generated for
    * @default 'react'
    */
-  skipBy?: SkipBy[]
   framework?: Framework
-  infinite?: {
-    /**
-     * Specify the params key used for `pageParam`.
-     * Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`
-     * @default `'id'`
-     */
-    queryParam?: string
-  }
+  /**
+   * When set, an infiniteQuery hooks will be added.
+   */
+  infinite?: Infinite
   transformers?: {
     /**
      * Override the name of the hook that is getting generated, this will also override the name of the file.

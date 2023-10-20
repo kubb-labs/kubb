@@ -1,5 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { ResolvePathOptions, SkipBy, AppMeta as SwaggerAppMeta } from '@kubb/swagger'
+import type { OverrideBy, ResolvePathOptions, SkipBy, AppMeta as SwaggerAppMeta } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -29,7 +29,14 @@ export type Options = {
      */
     exportAs?: string
   }
-  skipBy?: SkipBy[]
+  /**
+   * Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
+   */
+  skipBy?: Array<SkipBy>
+  /**
+   * Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
+   */
+  overrideBy?: Array<OverrideBy<Options>>
   /**
    * Path to the client that will be used to do the API calls.
    * Relative to the root.

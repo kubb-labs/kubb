@@ -13,7 +13,7 @@ Kubb is configured with a configuation file (preferably with `kubb.config.js`).
 ::: tip
 When using a `import` statement you need to set `"type": "module"` in your `package.json`.
 
-You can also rename your file to `kubb.config.mjs` to use the module way of importing files in Node.
+You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cjs for CJS.
 :::
 
 ### DefineConfig
@@ -54,7 +54,7 @@ export default defineConfig({
 
 #### Conditional config
 
-If the config needs to be conditionally determined based on CLI options flags, it can export as a function instead.
+If the config needs to be conditionally determined based on CLI options flags, it can be exported as a function instead.<br/>
 Here you can choose between returning the config options synchronously or asynchronously.
 
 ``` typescript
@@ -141,7 +141,7 @@ You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packa
 
 ```json [kubb.json]
   {
-    "$schema": "@kubb/core/schemas/config.json",
+    "$schema": "@kubb/core/schemas.json",
     "root": ".",
     "input": {
       "path": "./petStore.yaml"
@@ -163,7 +163,7 @@ You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packa
 
 ```json [kubb.json]
   {
-    "$schema": "@kubb/core/schemas/config.json",
+    "$schema": "@kubb/core/schemas.json",
     "root": ".",
     "input": {
       "path": "./petStore.yaml"

@@ -1,11 +1,11 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { ResolvePathOptions, SkipBy } from '@kubb/swagger'
+import type { OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
 export type Options = {
   /**
    * Relative path to save the TypeScript types.
    * When output is a file it will save all models inside that file else it will create a file per schema item.
-   * @default 'models'
+   * @default 'types'
    */
   output?: string
   /**
@@ -25,7 +25,14 @@ export type Options = {
      */
     output?: string
   }
-  skipBy?: SkipBy[]
+  /**
+   * Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
+   */
+  skipBy?: Array<SkipBy>
+  /**
+   * Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
+   */
+  overrideBy?: Array<OverrideBy<Options>>
   /**
    * Choose to use `enum` or `as const` for enums
    * @default 'asConst'

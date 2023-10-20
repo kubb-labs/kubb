@@ -4,7 +4,7 @@ layout: doc
 title: \@kubb/cli
 outline: deep
 ---
-# @kubb/cli
+# @kubb/cli <a href="https://paka.dev/npm/@kubb/cli@latest/api">🦙</a>
 
 ## Installation
 
@@ -55,9 +55,10 @@ Options:
   -v, --version  Display version number
 ```
 
-## Generate(alias `generate`)
-
-! `kubb generate` and `kubb` is the same
+## Generate
+::: warning
+`kubb generate` and `kubb` are the same.
+:::
 
 ```mdx
 kubb/1.2.1
@@ -81,56 +82,58 @@ kubb petStore.yaml
 ### Options
 
 #### --config (-c)
-
+::: info
 Path to the Kubb config.
 
 ```sh
-kubb -c kubb.config.ts
+kubb --config kubb.config.ts
 ```
+:::
 
 #### --log-level (-l)
-
-Type of the logging(overrides the one in `kubb.config.js`)
+::: info
+Type of the logging(overrides the one in `kubb.config.js`).
 
 `silent` will hide all information that is not relevant
 
 `info` will show all information possible(not related to the PluginManager)
 
 `debug` will show all information possible(related to the PluginManager), handy for seeing logs
- 
 
 ```sh
 kubb --log-level info
 ```
+:::
 
 #### --watch (-w)
 
 Watch mode based on the input file.
-
+::: info
 ```sh
-kubb -w
+kubb --watch
 ```
+:::
 
 #### --version (-v)
 
-Output the version number
-
+Output the version number.
+::: info
 ```sh
-kubb -v
+kubb --version
 ```
+:::
 
 #### --help (-h)
 
-Display help for command
-
+Display the help.
+::: info
 ```sh
-kubb -h
+kubb --help
 ```
-
+:::
 
 ## Init
 Create a starting `package.json` with dependencies needed to get started with generating files.
-
 ```mdx
 kubb/1.2.1
 
@@ -140,6 +143,7 @@ Usage:
 Options:
   -h, --help  Display this message
 ```
+
 
 ## Depended
 

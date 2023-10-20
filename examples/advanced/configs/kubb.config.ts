@@ -31,6 +31,15 @@ export default defineConfig(async () => {
           },
           enumType: 'asPascalConst',
           dateType: 'date',
+          overrideBy: [
+            {
+              type: 'operationId',
+              pattern: 'findPetsByStatus',
+              options: {
+                enumType: 'enum',
+              },
+            },
+          ],
         },
       ],
       [
@@ -41,6 +50,17 @@ export default defineConfig(async () => {
             {
               type: 'tag',
               pattern: 'store',
+            },
+          ],
+          overrideBy: [
+            {
+              type: 'tag',
+              pattern: 'pet',
+              options: {
+                infinite: {
+                  queryParam: 'test',
+                },
+              },
             },
           ],
           groupBy: { type: 'tag' },
