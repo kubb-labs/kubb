@@ -20,10 +20,12 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     skipBy = [],
     overrideBy = [],
     transformers = {},
+    client,
     clientImportPath,
     dataReturnType = 'data',
     pathParamsType = 'inline',
   } = options
+
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [SwaggerPluginOptions]
 
@@ -66,7 +68,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const oas = await swaggerPlugin.api.getOas()
       const root = pathParser.resolve(this.config.root, this.config.output.path)
-      const clientPath = pathParser.resolve(root, 'client.ts')
+      const clientPath = client ? pathParser.resolve(root, 'client.ts') : undefined
 
       const operationGenerator = new OperationGenerator(
         {
@@ -122,10 +124,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         await this.addFile(...rootFiles)
       }
 
-      // copy `client.ts`
-      const clientPath = pathParser.resolve(root, 'client.ts')
-
-      if (clientPath) {
+      // Copy `client.ts` file only when the 'client' option is provided.
+      if (client) {
+        const clientPath = pathParser.resolve(root, 'client.ts')
         const originalClientPath: KubbFile.OptionalPath = options.client
           ? pathParser.resolve(this.config.root, options.client)
           : getLocation('@kubb/swagger-client/ts-client', process.cwd())
