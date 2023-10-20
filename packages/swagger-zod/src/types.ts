@@ -31,6 +31,9 @@ export type Options = {
     exportAs?: string
   }
   skipBy?: Array<SkipBy>
+  /**
+   * Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
+   */
   overrideBy?: Array<OverrideBy<Options>>
   transformers?: {
     /**

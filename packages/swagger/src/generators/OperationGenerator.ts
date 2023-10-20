@@ -18,6 +18,7 @@ type Context<TOptions> = {
   overrideBy?: Array<OverrideBy<TOptions>> | undefined
   contentType: ContentType | undefined
   pluginManager: PluginManager
+  mode?: KubbFile.Mode
 }
 
 export abstract class OperationGenerator<TOptions = unknown> extends Generator<TOptions, Context<TOptions>> {
@@ -330,6 +331,10 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
         methods.forEach((method) => {
           const operation = oas.operation(path, method)
           const options = this.#getOptions(operation, method)
+
+          if ('enumType' in options) {
+            console.log(options.enumType, options, this.options)
+          }
 
           const promise = this.#methods[method].call(this, operation, this.getSchemas(operation), { ...this.options, ...options })
           if (promise) {

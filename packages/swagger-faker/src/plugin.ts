@@ -16,7 +16,7 @@ import type { FileMeta, PluginOptions } from './types.ts'
 export const pluginName: PluginOptions['name'] = 'swagger-faker' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'mocks', groupBy, skipBy = [], transformers = {}, dateType = 'string' } = options
+  const { output = 'mocks', groupBy, skipBy = [], overrideBy = [], transformers = {}, dateType = 'string' } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [SwaggerPluginOptions]
 
@@ -169,6 +169,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           pluginManager: this.pluginManager,
           contentType: swaggerPlugin.api.contentType,
           skipBy,
+          overrideBy,
         },
       )
 

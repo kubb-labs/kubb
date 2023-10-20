@@ -178,6 +178,61 @@ export default defineConfig({
 ```
 :::
 
+
+### overrideBy
+Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
+
+::: info type
+```typescript [OverrideBy]
+export type OverrideBy = {
+  type: 'tag' | 'operationId' | 'path' | 'method' ; 
+  pattern: string | RegExp 
+  options: PluginOptions
+}
+```
+::: 
+
+::: info
+
+Type: `Array<OverrideBy>` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerZod from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerZod(
+      { 
+        overrideBy: [
+          {
+            type: 'tag',
+            pattern: 'pet',
+            options: {
+              output: './custom',
+            },
+          },
+        ],
+      }
+    )
+  ]
+})
+```
+:::
+
+
+
 ### transformers
 
 #### name

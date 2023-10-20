@@ -69,7 +69,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { clientPath, dataReturnType } = { ...this.options, ...options }
+    const { clientPath, dataReturnType } = options
     const { pluginManager, oas } = this.context
 
     const hook = this.resolve(operation)
@@ -138,7 +138,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { clientPath, dataReturnType } = { ...this.options, ...options }
+    const { clientPath, dataReturnType } = options
     const { pluginManager, oas } = this.context
 
     const hook = this.resolve(operation)

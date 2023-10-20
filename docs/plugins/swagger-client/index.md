@@ -127,7 +127,7 @@ export default defineConfig({
 :::
 
 ### client <Badge type="danger" text="deprecated" />
-Path to the client that will be used to do the API calls.
+Path to the client that will be used to do the API calls.<br/>
 Relative to the root
 
 ::: info
@@ -397,6 +397,58 @@ export default defineConfig({
 ```
 :::
 
+### overrideBy
+Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
+
+::: info type
+```typescript [OverrideBy]
+export type OverrideBy = {
+  type: 'tag' | 'operationId' | 'path' | 'method' ; 
+  pattern: string | RegExp 
+  options: PluginOptions
+}
+```
+::: 
+
+::: info
+
+Type: `Array<OverrideBy>` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerClient from '@kubb/swagger-client'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerClient(
+      { 
+        overrideBy: [
+          {
+            type: 'tag',
+            pattern: 'pet',
+            options: {
+              output: './custom',
+            },
+          },
+        ],
+      }
+    )
+  ]
+})
+```
+:::
 
 
 ### transformers

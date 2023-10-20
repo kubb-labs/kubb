@@ -14,7 +14,16 @@ import type { PluginOptions } from './types.ts'
 export const pluginName: PluginOptions['name'] = 'swagger-ts' as const
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'types', groupBy, skipBy = [], enumType = 'asConst', dateType = 'string', optionalType = 'questionToken', transformers = {} } = options
+  const {
+    output = 'types',
+    groupBy,
+    skipBy = [],
+    overrideBy = [],
+    enumType = 'asConst',
+    dateType = 'string',
+    optionalType = 'questionToken',
+    transformers = {},
+  } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [SwaggerPluginOptions]
 
@@ -160,6 +169,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           pluginManager: this.pluginManager,
           contentType: swaggerPlugin.api.contentType,
           skipBy,
+          overrideBy,
         },
       )
 

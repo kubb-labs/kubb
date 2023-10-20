@@ -8,9 +8,8 @@ import type { KubbFile } from '@kubb/core'
 import type { FileResolver, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { FileMeta } from '../types.ts'
 
-type Options = {
-  mode: KubbFile.Mode
-}
+// eslint-disable-next-line @typescript-eslint/ban-types
+type Options = {}
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
@@ -28,9 +27,8 @@ export class OperationGenerator extends Generator<Options> {
     return null
   }
 
-  async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { mode } = { ...this.options, ...options }
-    const { pluginManager } = this.context
+  async get(operation: Operation, schemas: OperationSchemas, _options: Options): Promise<KubbFile.File<FileMeta> | null> {
+    const { pluginManager, mode } = this.context
 
     const zod = this.resolve(operation)
 
@@ -72,9 +70,8 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { mode } = { ...this.options, ...options }
-    const { pluginManager } = this.context
+  async post(operation: Operation, schemas: OperationSchemas, _options: Options): Promise<KubbFile.File<FileMeta> | null> {
+    const { pluginManager, mode } = this.context
 
     const zod = this.resolve(operation)
 

@@ -131,7 +131,7 @@ Default: `0`
 
 ::: code-group
 
-```yaml [openAPI]
+```yaml [OpenAPI]
 openapi: 3.0.3
 info:
   title: Swagger Example

@@ -8,6 +8,8 @@ outline: deep
 
 # @kubb/swagger-tanstack-query <a href="https://paka.dev/npm/@kubb/swaggger-tanstack-query@latest/api">🦙</a>
 
+
+
 With the Swagger Tanstack Query plugin you can create:
 - [react-query](https://tanstack.com/query/latest/docs/react) hooks based on an operation in the Swagger file.
 - [solid-query](https://tanstack.com/query/latest/docs/solid) primitives based on an operation in the Swagger file.
@@ -19,19 +21,19 @@ With the Swagger Tanstack Query plugin you can create:
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-tanstack-query
+bun add @kubb/swagger-tanstack-query @kubb/swagger-ts  @kubb swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-tanstack-query
+pnpm add @kubb/swagger-tanstack-query @kubb/swagger-ts  @kubb swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-tanstack-query
+npm install @kubb/swagger-tanstack-query @kubb/swagger-ts  @kubb swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-tanstack-query
+yarn add @kubb/swagger-tanstack-query @kubb/swagger-ts  @kubb swagger
 ```
 
 :::
@@ -40,13 +42,38 @@ yarn add @kubb/swagger-tanstack-query
 
 
 ### output
-Output to save the @tanstack/query hooks.
-
+Output to save the [Tanstack Query](https://tanstack.com/query) hooks.
+::: info
 Type: `string` <br/>
-Default: `"hooks"`
+Default: `'hooks'`
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerTanstackQuery({ output: './hooks' })
+  ]
+})
+```
+
+:::
 
 ### groupBy
-Group the @tanstack/query hooks based on the provided name.
+Group the [Tanstack Query](https://tanstack.com/query) hooks based on the provided name.
 
 #### type
 Tag will group based on the operation tag inside the Swagger file.
@@ -56,14 +83,14 @@ Required: `true`
 
 #### output
 ::: v-pre
-Relative path to save the grouped @tanstack/query hooks.
+Relative path to save the grouped [Tanstack Query](https://tanstack.com/query) hooks.
 `{{tag}}` will be replaced by the current tagName.
 :::
 
 ::: v-pre
 Type: `string` <br/>
 Example: `hooks/{{tag}}Controller` => `hooks/PetController` <br/>
-Default: `${output}/{{tag}}Controller`
+Default: `'${output}/{{tag}}Controller'`
 :::
 
 #### exportAs
@@ -73,81 +100,447 @@ Name to be used for the `export * as {{exportAs}} from './`
 
 ::: v-pre
 Type: `string` <br/>
-Default: `"{{tag}}Hooks"`
+Default: `'{{tag}}Hooks'`
+:::
+
+::: info
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerTanstackQuery(
+      { 
+        output: './hooks', 
+        groupBy: { type: 'tag', output: './hooks/{{tag}}Hooks' }, 
+      }
+    )
+  ]
+})
+```
+
 :::
 
 ### client <Badge type="danger" text="deprecated" />
 Path to the client that will be used to do the API calls.
 Relative to the root
 
+::: info
+
 Type: `string` <br/>
-Default: `"@kubb/swagger-client/client"`
+Default: `'@kubb/swagger-client/client'`
 
 Deprecated. Use `clientImportPath` instead. It will be skipped if `clientImportPath` is provided.
 
+:::
+
 ### clientImportPath
-Path to the client import path that will be used to do the API calls.
-It will be used as `import client from '${clientImportPath}'`.
+Path to the client import path that will be used to do the API calls.<br/>
+It will be used as `import client from '${clientImportPath}'`.<br/>
 It allow both relative and absolute path. the path will be applied as is,
 so relative path shoule be based on the file being generated.
 
+::: info
 Type: `string` <br/>
-Default: `"@kubb/swagger-client/client"`
+Default: `'@kubb/swagger-client/client'`
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerTanstackQuery(
+      { 
+        clientImportPath: '../../client.ts'
+      }
+    )
+  ]
+})
+```
+:::
 
 ### dataReturnType <Badge type="warning" text="experimental" />
 ReturnType that needs to be used when calling client().
 
-`Data` will return ResponseConfig[data]. <br/>
-`Full` will return ResponseConfig.
+`'data'` will return ResponseConfig[data]. <br/>
+`'full'` will return ResponseConfig.
 
-Type: `string` <br/>
-Default: `"data"`
+::: info type
+
+::: code-group
+
+```typescript ['data']
+export async function getPetById<TData>(
+  petId: GetPetByIdPathParams,
+): Promise<ResponseConfig<TData>["data"]> {
+  ...
+}
+```
+
+```typescript ['full']
+export async function getPetById<TData>(
+  petId: GetPetByIdPathParams,
+): Promise<ResponseConfig<TData>> {
+  ...
+}
+```
+:::
+
+::: info
+
+Type: `'data' | 'full'` <br/>
+Default: `'data'`
+
+::: code-group
+
+```typescript ['data']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerTanstackQuery(
+      { 
+        dataReturnType: 'data'
+      }
+    )
+  ]
+})
+```
+
+```typescript ['full']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerTanstackQuery(
+      { 
+        dataReturnType: 'full'
+      }
+    )
+  ]
+})
+```
+
+:::
 
 ### framework
 Framework to be generated for.
 
-Type: `'react' | 'solid' | 'svelte' | 'vue'` <br/>
-Default: `"react"`
+::: info
 
-### infinite
-When set, an infiniteQuery is getting created, example:
-```typescript
-{
-    output: './clients/hooks',
-    skipBy: [
-      {
-        type: 'tag',
-        pattern: 'store',
-      },
-    ],
-    groupBy: { type: 'tag' },
-    client: './src/client.ts',
-    infinite: {}
+Type: `'react' | 'solid' | 'svelte' | 'vue'` <br/>
+Default: `'react'`
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
   },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerTanstackQuery(
+      { 
+        framework: 'solid'
+      }
+    )
+  ]
+})
 ```
 
+:::
+
+### infinite
+When set, an infiniteQuery hooks will be added.
+
+::: info type
+
+::: code-group
+
+```typescript [Infinite]
+type Infinite ={
+  /**
+   * Specify the params key used for `pageParam`.
+   * Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`
+   * @default `'id'`
+   */
+  queryParam?: string
+}
+```
+
+:::
+
+::: info
+Type: `Infinite` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerTanstackQuery({ infinite: { } })
+  ]
+})
+```
+
+:::
+
+
 #### queryParam
-Specify the params key used for `pageParam`.
+Specify the params key used for `pageParam`.<br/>
 Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`.
 
+::: info
 Type: `string` <br/>
-Default: `"id"`
+Default: `'id'`
 
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerTanstackQuery({ 
+      infinite: { 
+        queryParam: 'next_page'
+      } 
+    })
+  ]
+})
+```
+
+:::
 
 ### skipBy
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
 
+::: info type
+```typescript [SkipBy]
+export type SkipBy = {
+  type: 'tag' | 'operationId' | 'path' | 'method' ; 
+  pattern: string | RegExp 
+}
+```
+::: 
+
+::: info
+
 Type: `Array<SkipBy>` <br/>
 
-#### [0]
-Type: `{ type: 'tag' | 'operationId' | 'path' | 'method' ; pattern: string | RegExp }` <br/>
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerTanstackQuery(
+      { 
+        skipBy: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+      }
+    )
+  ]
+})
+```
+:::
+
+
+### overrideBy
+Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
+
+::: info type
+```typescript [OverrideBy]
+export type OverrideBy = {
+  type: 'tag' | 'operationId' | 'path' | 'method' ; 
+  pattern: string | RegExp 
+  options: PluginOptions
+}
+```
+::: 
+
+::: info
+
+Type: `Array<OverrideBy>` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerTanstackQuery(
+      { 
+        overrideBy: [
+          {
+            type: 'tag',
+            pattern: 'pet',
+            options: {
+              output: './custom',
+            },
+          },
+        ],
+      }
+    )
+  ]
+})
+```
+:::
+
 
 ### transformers
 
 #### name
 Override the name of the hook that is getting generated, this will also override the name of the file.
 
+::: info
+
 Type: `(name: string) => string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerTanstackQuery(
+      { 
+        transformers: {
+          name: (name) => {
+            return `${name}Hook`
+          },
+        },
+      }
+    )
+  ]
+})
+```
+
+:::
+
 
 
 ## Depended

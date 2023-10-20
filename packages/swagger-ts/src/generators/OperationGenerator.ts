@@ -32,7 +32,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { mode, enumType, dateType, optionalType } = { ...this.options, ...options }
+    const { mode, enumType, dateType, optionalType } = options
     const { pluginManager } = this.context
 
     const type = this.resolve(operation)
@@ -77,7 +77,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { mode, enumType, dateType, optionalType } = { ...this.options, ...options }
+    const { mode, enumType, dateType, optionalType } = options
     const { pluginManager } = this.context
 
     const type = this.resolve(operation)

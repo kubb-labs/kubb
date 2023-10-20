@@ -25,7 +25,13 @@ export type Options = {
      */
     output?: string
   }
+  /**
+   * Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
+   */
   skipBy?: Array<SkipBy>
+  /**
+   * Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
+   */
   overrideBy?: Array<OverrideBy<Options>>
   /**
    * Choose to use `enum` or `as const` for enums
