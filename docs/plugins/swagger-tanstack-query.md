@@ -8,7 +8,7 @@ outline: deep
 
 # @kubb/swagger-tanstack-query <a href="https://paka.dev/npm/@kubb/swaggger-tanstack-query@latest/api">🦙</a>
 
-With the Swagger Tanstack Query plugin you can create: 
+With the Swagger Tanstack Query plugin you can create:
 - [react-query](https://tanstack.com/query/latest/docs/react) hooks based on an operation in the Swagger file.
 - [solid-query](https://tanstack.com/query/latest/docs/solid) primitives based on an operation in the Swagger file.
 - [svelte-query](https://tanstack.com/query/latest/docs/svelte) primitives based on an operation in the Swagger file.
@@ -18,19 +18,19 @@ With the Swagger Tanstack Query plugin you can create:
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>] 
+```shell [bun <img src="/feature/bun.svg"/>]
 bun add @kubb/swagger-tanstack-query
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>] 
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
 pnpm add @kubb/swagger-tanstack-query
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>] 
+```shell [npm <img src="/feature/npm.svg"/>]
 npm install @kubb/swagger-tanstack-query
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>] 
+```shell [yarn <img src="/feature/yarn.svg"/>]
 yarn add @kubb/swagger-tanstack-query
 ```
 
@@ -55,18 +55,26 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+::: v-pre
 Relative path to save the grouped @tanstack/query hooks.
 `{{tag}}` will be replaced by the current tagName.
+:::
 
+::: v-pre
 Type: `string` <br/>
 Example: `hooks/{{tag}}Controller` => `hooks/PetController` <br/>
 Default: `${output}/{{tag}}Controller`
+:::
 
 #### exportAs
+::: v-pre
 Name to be used for the `export * as {{exportAs}} from './`
+:::
 
+::: v-pre
 Type: `string` <br/>
 Default: `"{{tag}}Hooks"`
+:::
 
 ### client <Badge type="danger" text="deprecated" />
 Path to the client that will be used to do the API calls.
@@ -102,7 +110,7 @@ Type: `'react' | 'solid' | 'svelte' | 'vue'` <br/>
 Default: `"react"`
 
 ### infinite
-When set, an infiniteQuery is getting created, example: 
+When set, an infiniteQuery is getting created, example:
 ```typescript
 {
     output: './clients/hooks',

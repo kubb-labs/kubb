@@ -12,19 +12,19 @@ With the Swagger TypeScript plugin you can create [TypeScript](https://www.types
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>] 
+```shell [bun <img src="/feature/bun.svg"/>]
 bun add @kubb/swagger-ts
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>] 
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
 pnpm add @kubb/swagger-ts
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>] 
+```shell [npm <img src="/feature/npm.svg"/>]
 npm install @kubb/swagger-ts
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>] 
+```shell [yarn <img src="/feature/yarn.svg"/>]
 yarn add @kubb/swagger-ts
 ```
 
@@ -51,12 +51,16 @@ Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+::: v-pre
 Relative path to save the grouped TypeScript Types.
 `{{tag}}` will be replaced by the current tagName.
+:::
 
+::: v-pre
 Type: `string` <br/>
 Example: `models/{{tag}}Controller` => `models/PetController` <br/>
 Default: `${output}/{{tag}}Controller`
+:::
 
 ### enumType
 Choose to use `enum` or `as const` for enums. <br/>
@@ -76,7 +80,7 @@ date: string
 ```
 
 ```typescript ['date']
-date: Date 
+date: Date
 ```
 :::
 
