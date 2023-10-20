@@ -39,7 +39,7 @@ Relative path to save the MSW mocks.
 When output is a file it will save all models inside that file else it will create a file per schema item.
 
 Type: `string` <br/>
-Default: `"mocks"`
+Default: `'mocks'`
 
 ### groupBy
 Group the MSW mocks based on the provided name.

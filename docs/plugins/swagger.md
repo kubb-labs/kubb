@@ -79,7 +79,7 @@ False will not generate the schema JSON's.
 
 ::: info
 Type: `string | false` <br/>
-Default: `"schemas"`
+Default: `'schemas'`
 
 ::: code-group
 
@@ -184,12 +184,14 @@ export default defineConfig({
 ### contentType
 Override ContentType that wil be used for requests and responses.
 
-::: info
+::: info type
 ```typescript
 export type ContentType = 'application/json' | (string & {})
 ```
-Type: `ContentType` <br/>
+:::
 
+::: info
+Type: `ContentType` <br/>
 
 ::: code-group
 

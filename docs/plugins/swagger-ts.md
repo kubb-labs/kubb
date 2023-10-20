@@ -13,19 +13,19 @@ With the Swagger TypeScript plugin you can create [TypeScript](https://www.types
 ::: code-group
 
 ```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/swagger-ts
+bun add @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/swagger-ts
+pnpm add @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/swagger-ts
+npm install @kubb/swagger-ts @kubb/swagger
 ```
 
 ```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/swagger-ts
+yarn add @kubb/swagger-ts @kubb/swagger
 ```
 
 :::
@@ -38,7 +38,29 @@ When output is a file it will save all models inside that file else it will crea
 
 ::: info
 Type: `string` <br/>
-Default: `"types"`
+Default: `'types'`
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ output: './models' })
+  ]
+})
+```
+
 :::
 
 ### groupBy
@@ -59,7 +81,34 @@ Relative path to save the grouped TypeScript Types.
 ::: v-pre
 Type: `string` <br/>
 Example: `models/{{tag}}Controller` => `models/PetController` <br/>
-Default: `${output}/{{tag}}Controller`
+Default: `'${output}/{{tag}}Controller'`
+:::
+
+::: info
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ 
+      output: './types', 
+      groupBy: { type: 'tag', output: './types/{{tag}}Controller' }, 
+    }),
+  ]
+})
+```
 :::
 
 ### enumType
@@ -67,11 +116,108 @@ Choose to use `enum` or `as const` for enums. <br/>
 `asConst` will use camelCase for the naming. <br/>
 `asPascalConst` will use PascalCase for the naming.
 
+::: info Type
+
+::: code-group
+
+```typescript ['enum']
+enum PetType {
+  Dog = 'dog',
+  Cat = 'cat'
+}
+```
+
+```typescript ['asConst']
+const petType = {
+  Dog: 'dog',
+  Cat: cat'
+} as const
+```
+
+```typescript ['asPascalConst']
+const PetType = {
+  Dog: 'dog',
+  Cat: 'cat'
+} as const
+```
+:::
+
+::: info 
+
 Type: `'enum' | 'asConst' | 'asPascalConst'` <br/>
 Default: `'asConst'`
 
+::: code-group
+
+```typescript ['enum']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ 
+      enumType: 'enum'
+    }),
+  ]
+})
+```
+
+```typescript ['asConst']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ 
+      enumType: 'asConst'
+    }),
+  ]
+})
+```
+
+```typescript ['asPascalConst']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ 
+      enumType: 'asPascalConst'
+    }),
+  ]
+})
+```
+
+:::
+
 ### dateType
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
+
+::: info type
 
 ::: code-group
 
@@ -84,11 +230,61 @@ date: Date
 ```
 :::
 
+::: info
+
 Type: `'string' | 'date'` <br/>
 Default: `'string'`
 
+
+```typescript ['string']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ 
+      dateType: 'string'
+    }),
+  ]
+})
+```
+
+
+```typescript ['date']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ 
+      dateType: 'date'
+    }),
+  ]
+})
+```
+
+:::
+
 ### optionalType
 Choose what to use as mode for an optional value.<br/>
+
+::: info type
 
 ::: code-group
 
@@ -105,23 +301,165 @@ type?: string | undefined`
 ```
 :::
 
+::: info
+
 Type: `'questionToken' | 'undefined' | 'questionTokenAndUndefined'` <br/>
 Default: `'questionToken'`
+
+::: code-group
+
+```typescript ['questionToken']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ 
+      optionalType: 'questionToken'
+    }),
+  ]
+})
+```
+
+```typescript ['undefined']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ 
+      optionalType: 'undefined'
+    }),
+  ]
+})
+```
+
+```typescript ['questionTokenAndUndefined']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ 
+      optionalType: 'questionTokenAndUndefined'
+    }),
+  ]
+})
+```
+
+:::
 
 ### skipBy
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
 
+::: info type
+```typescript [SkipBy]
+export type SkipBy = {
+  type: 'tag' | 'operationId' | 'path' | 'method' ; 
+  pattern: string | RegExp 
+}
+```
+
+::: 
+
+::: info
+
 Type: `Array<SkipBy>` <br/>
 
-#### [0]
-Type: `{ type: 'tag' | 'operationId' | 'path' | 'method' ; pattern: string | RegExp }` <br/>
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS(
+      { 
+        skipBy: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+      }
+    )
+  ]
+})
+```
+:::
 
 ### transformers
 
 #### name
 Override the name of the TypeScript type that is getting generated, this will also override the name of the file.
 
+::: info
+
 Type: `(name: string) => string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS(
+      { 
+        transformers: {
+          name: (name) => {
+            return `${name}Client`
+          },
+        },
+      }
+    )
+  ]
+})
+```
+
+:::
 
 
 ## Depended

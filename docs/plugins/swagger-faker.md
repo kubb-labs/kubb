@@ -39,7 +39,7 @@ Relative path to save the Faker mocks.
 When output is a file it will save all models inside that file else it will create a file per schema item.
 
 Type: `string` <br/>
-Default: `"mocks"`
+Default: `'mocks'`
 
 ### groupBy
 Group the Faker mocks based on the provided name.
@@ -67,7 +67,7 @@ Name to be used for the `export * as {{exportAs}} from './`
 
 ::: v-pre
 Type: `string` <br/>
-Default: `"{{tag}}Mocks"`
+Default: `'{{tag}}Mocks'`
 :::
 
 ### skipBy

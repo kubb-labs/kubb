@@ -36,7 +36,7 @@ yarn add @kubb/swagger-client @kubb/swagger-ts @kubb/swagger
 Output to save the clients.
 ::: info
 Type: `string` <br/>
-Default: `"clients"`
+Default: `'clients'`
 
 ::: code-group
 
@@ -91,8 +91,10 @@ Name to be used for the `export * as {{exportAs}} from './`
 
 ::: v-pre
 Type: `string` <br/>
-Default: `"{{tag}}Service"`
+Default: `'{{tag}}Service'`
 :::
+
+::: info
 
 ::: code-group
 
@@ -131,7 +133,7 @@ Relative to the root
 ::: info
 
 Type: `string` <br/>
-Default: `"@kubb/swagger-client/client"`
+Default: `'@kubb/swagger-client/client'`
 
 Deprecated. Use `clientImportPath` instead. It will be skipped if `clientImportPath` is provided.
 :::
@@ -144,7 +146,7 @@ so relative path shoule be based on the file being generated.
 
 ::: info
 Type: `string` <br/>
-Default: `"@kubb/swagger-client/client"`
+Default: `'@kubb/swagger-client/client'`
 
 ::: code-group
 
@@ -177,50 +179,38 @@ export default defineConfig({
 ### dataReturnType <Badge type="warning" text="experimental" />
 ReturnType that needs to be used when calling client().
 
-`data` will return ResponseConfig[data]. <br/>
-`full` will return ResponseConfig.
+`'data'` will return ResponseConfig[data]. <br/>
+`'full'` will return ResponseConfig.
 
-::: info
-
-Type: `'data' | 'full'` <br/>
-Default: `"data"`
+::: info type
 
 ::: code-group
 
-```typescript [full]
-import { defineConfig } from '@kubb/swagger'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
-import createSwaggerClient from '@kubb/swagger-client'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({ }),
-    createSwaggerClient(
-      { 
-        dataReturnType: 'full'
-      }
-    )
-  ]
-})
+```typescript ['data']
+export async function getPetById<TData>(
+  petId: GetPetByIdPathParams,
+): Promise<ResponseConfig<TData>["data"]> {
+  ...
+}
 ```
 
-```typescript [full output]
+```typescript ['full']
 export async function getPetById<TData>(
   petId: GetPetByIdPathParams,
 ): Promise<ResponseConfig<TData>> {
   ...
 }
 ```
+:::
 
-```typescript [data]
+::: info
+
+Type: `'data' | 'full'` <br/>
+Default: `'data'`
+
+::: code-group
+
+```typescript ['data']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
@@ -245,29 +235,7 @@ export default defineConfig({
 })
 ```
 
-```typescript [data output]
-export async function getPetById<TData>(
-  petId: GetPetByIdPathParams,
-): Promise<ResponseConfig<TData>["data"]> {
-  ...
-}
-```
-:::
-
-### pathParamsType <Badge type="warning" text="experimental" />
-How to pass your pathParams.
-
-`object` will return the pathParams as an object. <br/>
-`inline` will return the pathParams as comma separated params.
-
-::: info
-
-Type: `'object' | 'inline'` <br/>
-Default: `"data"`
-
-::: code-group
-
-```typescript [object]
+```typescript ['full']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
@@ -285,14 +253,26 @@ export default defineConfig({
     createSwaggerTS({ }),
     createSwaggerClient(
       { 
-        pathParamsType: 'object'
+        dataReturnType: 'full'
       }
     )
   ]
 })
 ```
 
-```typescript [object output]
+:::
+
+### pathParamsType <Badge type="warning" text="experimental" />
+How to pass your pathParams.
+
+`'object'` will return the pathParams as an object. <br/>
+`'inline'` will return the pathParams as comma separated params.
+
+::: info type
+
+::: code-group
+
+```typescript ['object']
 export async function getPetById<TData>(
   { petId }: GetPetByIdPathParams,
 ): Promise<ResponseConfig<TData>> {
@@ -300,7 +280,24 @@ export async function getPetById<TData>(
 }
 ```
 
-```typescript [inline]
+```typescript ['inline']
+export async function getPetById<TData>(
+  petId: GetPetByIdPathParams,
+): Promise<ResponseConfig<TData>> {
+  ...
+}
+```
+
+::: 
+
+::: info
+
+Type: `'object' | 'inline'` <br/>
+Default: `'data'`
+
+::: code-group
+
+```typescript ['object']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
@@ -325,25 +322,46 @@ export default defineConfig({
 })
 ```
 
-```typescript [inline output]
-export async function getPetById<TData>(
-  petId: GetPetByIdPathParams,
-): Promise<ResponseConfig<TData>> {
-  ...
-}
+```typescript ['inline']
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerClient from '@kubb/swagger-client'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({ }),
+    createSwaggerClient(
+      { 
+        pathParamsType: 'inline'
+      }
+    )
+  ]
+})
 ```
 :::
 
 ### skipBy
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
 
-::: info
+::: info type
 ```typescript [SkipBy]
 export type SkipBy = {
   type: 'tag' | 'operationId' | 'path' | 'method' ; 
   pattern: string | RegExp 
 }
 ```
+::: 
+
+::: info
+
 Type: `Array<SkipBy>` <br/>
 
 ::: code-group
