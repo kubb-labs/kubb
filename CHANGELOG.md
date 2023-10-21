@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.14.1](https://github.com/kubb-project/kubb/compare/kubb-v1.14.0...kubb-v1.14.1) (2023-10-21)
+
+
+### 🐞 Bug Fixes
+
+* better types for plugin `api` ([a4303b7](https://github.com/kubb-project/kubb/commit/a4303b7b102d871f514649f2edb4fb9058d6564d))
+* better types for PluginFactoryOptions and `KubbPlugin` ([3fb7bdd](https://github.com/kubb-project/kubb/commit/3fb7bdd7b612373c55597705037eab9fdc8202ee))
+* use of `fileManager.addIndexes` and `URLPath` without static functions ([9bc291d](https://github.com/kubb-project/kubb/commit/9bc291d5b9126b1d3f26803e6a1c54a3b008f634))
+
 ## [1.14.0](https://github.com/kubb-project/kubb/compare/kubb-v1.13.0...kubb-v1.14.0) (2023-10-20)
 
 
