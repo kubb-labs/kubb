@@ -66,7 +66,7 @@ export async function oasParser(config: KubbConfig, options: OasOptions = {}): P
     return oasPathParser(api, options)
   }
 
-  if (URLPath.isURL(config.input.path)) {
+  if (new URLPath(config.input.path).isURL) {
     return oasPathParser(config.input.path, options)
   }
 

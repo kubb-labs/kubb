@@ -1,9 +1,9 @@
 import crypto from 'node:crypto'
 
 import { read, write } from '../../utils/index.ts'
-import { extensions } from './utils.ts'
+import { extensions, getIndexes } from './utils.ts'
 
-import type { Queue, QueueJob } from '../../utils/index.ts'
+import type { Queue, QueueJob, TreeNodeOptions } from '../../utils/index.ts'
 import type { CacheItem, KubbFile } from './types.ts'
 
 export class FileManager {
@@ -57,7 +57,7 @@ export class FileManager {
     return resolvedFile
   }
 
-  addOrAppend(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
+  async addOrAppend(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
     // if (!file.path.endsWith(file.baseName)) {
     //   console.warn(`Path ${file.path}(file.path) should end with the baseName ${file.baseName}(file.filename)`)
     // }
@@ -77,6 +77,24 @@ export class FileManager {
       })
     }
     return this.add(file)
+  }
+
+  async addIndexes(root: KubbFile.Path, extName: KubbFile.Extname = '.ts', options: TreeNodeOptions = {}): Promise<Array<KubbFile.File> | undefined> {
+    const files = await getIndexes(root, extName, options)
+
+    if (!files) {
+      return undefined
+    }
+
+    return Promise.all(
+      files.map((file) => {
+        if (file.override) {
+          return this.add(file)
+        }
+
+        return this.addOrAppend(file)
+      }),
+    )
   }
 
   #append(path: KubbFile.Path, file: KubbFile.ResolvedFile): void {

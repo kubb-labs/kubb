@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { createPlugin, getDependedPlugins, getIndexes, getPathMode, getRelativePath, renderTemplate, timeout } from '@kubb/core'
+import { createPlugin, getDependedPlugins, getPathMode, getRelativePath, renderTemplate, timeout } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
@@ -186,11 +186,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       const root = pathParser.resolve(this.config.root, this.config.output.path)
-      const files = await getIndexes(root, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
 
-      if (files) {
-        await this.addFile(...files)
-      }
+      await this.fileManager.addIndexes(root, '.ts')
     },
   }
 })

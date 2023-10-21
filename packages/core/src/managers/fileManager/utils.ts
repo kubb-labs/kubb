@@ -11,8 +11,18 @@ import type { KubbFile } from './types.ts'
 
 type TreeNodeData = { type: KubbFile.Mode; path: KubbFile.Path; name: string }
 
-export function getIndexes(root: string, options: TreeNodeOptions = {}): Array<KubbFile.File> | null {
-  const tree = TreeNode.build<TreeNodeData>(root, { extensions: /\.ts/, ...options })
+export function getIndexes(root: string, extName?: KubbFile.Extname, options: TreeNodeOptions = {}): Array<KubbFile.File> | null {
+  const extMapper: Record<KubbFile.Extname, TreeNodeOptions> = {
+    '.ts': {
+      extensions: /\.ts/,
+      exclude: [/schemas/, /json/],
+    },
+    '.json': {
+      extensions: /\.json/,
+      exclude: [],
+    },
+  }
+  const tree = TreeNode.build<TreeNodeData>(root, { ...(extMapper[extName as keyof typeof extMapper] || {}), ...options })
 
   if (!tree) {
     return null

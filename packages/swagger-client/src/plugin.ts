@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { createPlugin, getDependedPlugins, getIndexes, getLocation, getPathMode, getRelativePath, read, renderTemplate } from '@kubb/core'
+import { createPlugin, getDependedPlugins, getPathMode, getRelativePath, PackageManager, read, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
@@ -126,10 +126,12 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       // Copy `client.ts` file only when the 'client' option is provided.
       if (client) {
+        const packageManager = new PackageManager(process.cwd())
+
         const clientPath = pathParser.resolve(root, 'client.ts')
         const originalClientPath: KubbFile.OptionalPath = options.client
           ? pathParser.resolve(this.config.root, options.client)
-          : getLocation('@kubb/swagger-client/ts-client', process.cwd())
+          : packageManager.getLocation('@kubb/swagger-client/ts-client')
 
         if (!originalClientPath) {
           throw new Error(
@@ -150,11 +152,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
       }
 
-      const files = await getIndexes(root, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
-
-      if (files) {
-        await this.addFile(...files)
-      }
+      await this.fileManager.addIndexes(root, '.ts')
     },
   }
 })

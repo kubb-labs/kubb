@@ -25,7 +25,7 @@ export class MSWBuilder extends OasBuilder<Options> {
       return (
         <>
           {`
-    export const ${name} = rest.${operation.method}('*${URLPath.toURLPath(operation.path)}', function handler(req, res, ctx) {
+    export const ${name} = rest.${operation.method}('*${new URLPath(operation.path).toURLPath()}', function handler(req, res, ctx) {
       return res(
         ctx.json(${responseName}()),
       );

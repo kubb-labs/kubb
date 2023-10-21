@@ -1,3 +1,7 @@
+import mod from 'node:module'
+import os from 'node:os'
+import { pathToFileURL } from 'node:url'
+
 import { findUp, findUpSync } from 'find-up'
 import { coerce, satisfies } from 'semver'
 
@@ -7,11 +11,60 @@ type PackageJSON = {
 }
 
 export class PackageManager {
-  #cwd: string
-  constructor(workspace = process.cwd()) {
-    this.#cwd = workspace
+  #cwd?: string
+  #SLASHES = new Set(['/', '\\'])
+  constructor(workspace?: string) {
+    if (workspace) {
+      this.#cwd = workspace
+    }
 
     return this
+  }
+
+  set workspace(workspace: string) {
+    this.#cwd = workspace
+  }
+
+  get workspace(): string | undefined {
+    return this.#cwd
+  }
+
+  normalizeDirectory(directory: string): string {
+    if (!this.#SLASHES.has(directory[directory.length - 1]!)) {
+      return `${directory}/`
+    }
+
+    return directory
+  }
+
+  getLocation(path: string): string {
+    let location = path
+
+    if (this.#cwd) {
+      const require = mod.createRequire(this.normalizeDirectory(this.#cwd))
+      location = require.resolve(path)
+    }
+
+    return location
+  }
+
+  async import(path: string): Promise<any | undefined> {
+    try {
+      let location = this.getLocation(path)
+
+      if (os.platform() == 'win32') {
+        location = pathToFileURL(location).href
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const module = await import(location)
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
+      return module?.default ?? module
+    } catch (e) {
+      console.log(e)
+      return undefined
+    }
   }
 
   async getPackageJSON(): Promise<PackageJSON | undefined> {

@@ -32,7 +32,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   const { config, logLevel, logger = createLogger() } = options
 
   try {
-    if ('path' in config.input && !URLPath.isURL(config.input.path)) {
+    if ('path' in config.input && !new URLPath(config.input.path).isURL) {
       await read(config.input.path)
     }
   } catch (e) {

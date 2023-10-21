@@ -23,7 +23,7 @@ export namespace KubbFile {
   export type UUID = string
   export type Source = string
 
-  export type Extname = '.ts' | '.js' | '.tsx' | `.${string}`
+  export type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
 
   export type Mode = 'file' | 'directory'
 

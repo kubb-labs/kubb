@@ -16,6 +16,8 @@ export class URLPath {
 
   constructor(path: string) {
     this.path = path
+
+    return this
   }
 
   /**
@@ -25,8 +27,16 @@ export class URLPath {
   get URL(): string {
     return this.toURLPath()
   }
-  get isUrl(): boolean {
-    return URLPath.isURL(this.path)
+  get isURL(): boolean {
+    try {
+      const url = new URL(this.path)
+      if (url?.href) {
+        return true
+      }
+    } catch (error) {
+      return false
+    }
+    return false
   }
 
   /**
@@ -38,7 +48,6 @@ export class URLPath {
   get template(): string {
     return this.toTemplateString()
   }
-
   get object(): URLObject | string {
     return this.toObject()
   }
@@ -46,8 +55,20 @@ export class URLPath {
     return this.getParams()
   }
 
-  toObject(options: ObjectOptions = {}): URLObject | string {
-    return URLPath.toObject(this.path, options)
+  toObject({ type = 'path', replacer, stringify }: ObjectOptions = {}): URLObject | string {
+    const object = {
+      url: type === 'path' ? this.toURLPath() : this.toTemplateString(replacer),
+      params: this.getParams(),
+    }
+
+    if (stringify) {
+      if (type !== 'template') {
+        throw new Error('Type should be `template` when using stringiyf')
+      }
+      return JSON.stringify(object).replaceAll("'", '').replaceAll(`"`, '')
+    }
+
+    return object
   }
 
   /**
@@ -57,18 +78,9 @@ export class URLPath {
    * @example /account/userID => `/account/${userId}`
    */
   toTemplateString(replacer?: (pathParam: string) => string): string {
-    return URLPath.toTemplateString(this.path, replacer)
-  }
-  /**
-   * Convert Swagger path to template literals/ template strings(camelcase)
-   * @example /pet/{petId} => `/pet/${petId}`
-   * @example /account/monetary-accountID => `/account/${monetaryAccountId}`
-   * @example /account/userID => `/account/${userId}`
-   */
-  static toTemplateString(path: string, replacer?: (pathParam: string) => string): string {
     const regex = /{(\w|-)*}/g
-    const found = path.match(regex)
-    let newPath = path.replaceAll('{', '${')
+    const found = this.path.match(regex)
+    let newPath = this.path.replaceAll('{', '${')
 
     if (found) {
       newPath = found.reduce((prev, curr) => {
@@ -78,19 +90,15 @@ export class URLPath {
         const replacement = `\${${pathParam}}`
 
         return prev.replace(curr, replacement)
-      }, path)
+      }, this.path)
     }
 
     return `\`${newPath}\``
   }
 
   getParams(replacer?: (pathParam: string) => string): Record<string, string> | undefined {
-    return URLPath.getParams(this.path, replacer)
-  }
-
-  static getParams(path: string, replacer?: (pathParam: string) => string): Record<string, string> | undefined {
     const regex = /{(\w|-)*}/g
-    const found = path.match(regex)
+    const found = this.path.match(regex)
 
     if (!found) {
       return undefined
@@ -105,7 +113,7 @@ export class URLPath {
         : camelCase(item, { delimiter: '', transform: camelCaseTransformMerge })
 
       params[pathParam] = pathParam
-    }, path)
+    }, this.path)
 
     return params
   }
@@ -115,38 +123,6 @@ export class URLPath {
    * @example /pet/{petId} => /pet/:petId
    */
   toURLPath(): string {
-    return URLPath.toURLPath(this.path)
-  }
-
-  static toURLPath(path: string): string {
-    return path.replaceAll('{', ':').replaceAll('}', '')
-  }
-
-  static toObject(path: string, { type = 'path', replacer, stringify }: ObjectOptions = {}): URLObject | string {
-    const object = {
-      url: type === 'path' ? URLPath.toURLPath(path) : URLPath.toTemplateString(path, replacer),
-      params: URLPath.getParams(path),
-    }
-
-    if (stringify) {
-      if (type !== 'template') {
-        throw new Error('Type should be `template` when using stringiyf')
-      }
-      return JSON.stringify(object).replaceAll("'", '').replaceAll(`"`, '')
-    }
-
-    return object
-  }
-
-  static isURL(path: string): boolean {
-    try {
-      const url = new URL(path)
-      if (url?.href) {
-        return true
-      }
-    } catch (error) {
-      return false
-    }
-    return false
+    return this.path.replaceAll('{', ':').replaceAll('}', '')
   }
 }
