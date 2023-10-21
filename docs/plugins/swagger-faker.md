@@ -4,6 +4,7 @@ layout: doc
 title: \@kubb/swagger-faker
 outline: deep
 ---
+
 # @kubb/swagger-faker <a href="https://paka.dev/npm/@kubb/swagger-faker@latest/api">🦙</a>
 
 With the Swagger Faker plugin you can use [Faker](https://fakerjs.dev/) to create mocks based on a Swagger file.
@@ -30,11 +31,10 @@ yarn add @kubb/swagger-faker @kubb/swagger-ts @kubb/swagger
 
 :::
 
-
 ## Options
 
-
 ### output
+
 Relative path to save the Faker mocks.
 When output is a file it will save all models inside that file else it will create a file per schema item.
 
@@ -47,8 +47,8 @@ Default: `'mocks'`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -59,28 +59,31 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerFaker(
-      { 
-        output: './mocks'
-      }
-    )
-  ]
+      {
+        output: './mocks',
+      },
+    ),
+  ],
 })
 ```
 
 :::
 
 ### groupBy
+
 Group the Faker mocks based on the provided name.
 
 #### type
+
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+
 ::: v-pre
 Relative path to save the grouped Faker mocks.
 `{{tag}}` will be replaced by the current tagName.
@@ -93,6 +96,7 @@ Default: `${output}/{{tag}}Controller`
 :::
 
 #### exportAs
+
 Name to be used for the `export * as {{exportAs}} from './`
 
 ::: v-pre
@@ -103,11 +107,12 @@ Default: `'{{tag}}Mocks'`
 ::: info
 
 ::: code-group
+
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -118,31 +123,33 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerFaker(
-      { 
+      {
         output: './mocks',
-        groupBy: { type: 'tag', output: './mocks/{{tag}}Mocks' }, 
-      }
-    )
-  ]
+        groupBy: { type: 'tag', output: './mocks/{{tag}}Mocks' },
+      },
+    ),
+  ],
 })
 ```
 
 :::
 
 ### skipBy
+
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
 
 ::: info type
+
 ```typescript [SkipBy]
 export type SkipBy = {
-  type: 'tag' | 'operationId' | 'path' | 'method' ; 
-  pattern: string | RegExp 
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
 }
 ```
 
-::: 
+:::
 
 ::: info
 
@@ -153,8 +160,8 @@ Type: `Array<SkipBy>` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -165,35 +172,38 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerFaker(
-      { 
+      {
         skipBy: [
           {
             type: 'tag',
             pattern: 'store',
           },
         ],
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
+
 :::
 
-
 ### overrideBy
+
 Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
 
 ::: info type
+
 ```typescript [OverrideBy]
 export type OverrideBy = {
-  type: 'tag' | 'operationId' | 'path' | 'method' ; 
-  pattern: string | RegExp 
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
   options: PluginOptions
 }
 ```
-::: 
+
+:::
 
 ::: info
 
@@ -204,8 +214,8 @@ Type: `Array<OverrideBy>` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -216,9 +226,9 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerFaker(
-      { 
+      {
         overrideBy: [
           {
             type: 'tag',
@@ -228,17 +238,18 @@ export default defineConfig({
             },
           },
         ],
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
-:::
 
+:::
 
 ### transformers
 
 #### name
+
 Override the name of the faker data that is getting generated, this will also override the name of the file.
 
 ::: info
@@ -250,8 +261,8 @@ Type: `(name: string) => string` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -262,24 +273,25 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerFaker(
-      { 
+      {
         output: './mocks',
         transformers: {
           name: (name) => {
             return `${name}Mock`
           },
         },
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
+
 :::
 
-
 ### dateType
+
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
 ::: info type
@@ -293,6 +305,7 @@ date: string
 ```typescript ['date']
 date: Date
 ```
+
 :::
 
 ::: info
@@ -306,8 +319,8 @@ Default: `'string'`
 ```typescript ['string']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -318,21 +331,21 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerFaker(
-      { 
-        dateType: 'string'
-      }
-    )
-  ]
+      {
+        dateType: 'string',
+      },
+    ),
+  ],
 })
 ```
 
 ```typescript ['date']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -343,13 +356,13 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerFaker(
-      { 
-        dateType: 'date'
-      }
-    )
-  ]
+      {
+        dateType: 'date',
+      },
+    ),
+  ],
 })
 ```
 

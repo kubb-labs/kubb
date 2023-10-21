@@ -4,6 +4,7 @@ layout: doc
 title: Globals.d.ts
 outline: deep
 ---
+
 # Globals.d.ts
 
 ## Features
@@ -33,6 +34,7 @@ To get TypeScript support for Kubb, add `@kubb/core/globals` to your tsconfig.js
   }
 }
 ```
+
 :::
 
 ### Usage
@@ -40,23 +42,23 @@ To get TypeScript support for Kubb, add `@kubb/core/globals` to your tsconfig.js
 ::: code-group
 
 ```typescript [Kubb.OptionsOfPlugin]
-export type SwaggerPluginOptions = Kubb.OptionsOfPlugin<"@kubb/swagger">
-              // ^? SwaggerPluginOptions = { validate? boolean | undefined; output?: string | false | undefined...}
+export type SwaggerPluginOptions = Kubb.OptionsOfPlugin<'@kubb/swagger'>
+// ^? SwaggerPluginOptions = { validate? boolean | undefined; output?: string | false | undefined...}
 ```
 
 ```typescript [Kubb.Plugins name]
-export type SwaggerName = Kubb.Plugins["@kubb/swagger"]["name"]
-              // ^? "swagger"
+export type SwaggerName = Kubb.Plugins['@kubb/swagger']['name']
+// ^? "swagger"
 ```
 
 ```typescript [Kubb.Plugins options]
-export type SwaggerPluginOptions = Kubb.Plugins["@kubb/swagger"]["options"]
-              // ^? SwaggerPluginOptions = { validate? boolean | undefined; output?: string | false | undefined...}
+export type SwaggerPluginOptions = Kubb.Plugins['@kubb/swagger']['options']
+// ^? SwaggerPluginOptions = { validate? boolean | undefined; output?: string | false | undefined...}
 ```
 
 ```typescript [Kubb.OptionsPlugins]
-export type SwaggerPluginOptions = Kubb.OptionsPlugins["@kubb/swagger"]["options"]
-              // ^? SwaggerPluginOptions = { validate? boolean | undefined; output?: string | false | undefined...}
+export type SwaggerPluginOptions = Kubb.OptionsPlugins['@kubb/swagger']['options']
+// ^? SwaggerPluginOptions = { validate? boolean | undefined; output?: string | false | undefined...}
 ```
 
 :::

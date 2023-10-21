@@ -1,23 +1,23 @@
 <div align="center">
 
-  <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-  <h1>@kubb/core</h1>
-  
-  <p>
+<!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
+<h1>@kubb/core</h1>
+
+<p>
    Core utils for other packages.
-  </p>  
+  </p>
   <img src="https://raw.githubusercontent.com/kubb-project/kubb/main/assets/banner.png" alt="logo"  height="auto" />
 
-  [![npm version][npm-version-src]][npm-version-href]
-  [![npm downloads][npm-downloads-src]][npm-downloads-href]
-  [![Coverage][coverage-src]][coverage-href]
-  [![License][license-src]][license-href]
-  
-  <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-  <!-- ALL-CONTRIBUTORS-BADGE:END -->
-  </p>
-   
-  <h4>
+[![npm version][npm-version-src]][npm-version-href]
+[![npm downloads][npm-downloads-src]][npm-downloads-href]
+[![Coverage][coverage-src]][coverage-href]
+[![License][license-src]][license-href]
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+</p>
+
+<h4>
     <a href="https://codesandbox.io/s/github/kubb-project/kubb/tree/main/examples/typescript" target="_blank">View Demo</a>
     <span> · </span>
       <a href="https://kubb.dev/" target="_blank">Documentation</a>
@@ -27,7 +27,6 @@
       <a href="https://github.com/kubb-project/kubb/issues/" target="_blank">Request Feature</a>
   </h4>
 </div>
-
 
 <!-- Badges -->
 

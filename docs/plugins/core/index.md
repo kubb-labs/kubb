@@ -10,6 +10,7 @@ outline: deep
 The core contains the building blocks for all plugins.
 
 ## Features
+
 - Read and write to the file-system(Windows, Mac and Linux support).
 - Format code/source with [Prettier](https://prettier.io/).
 - Types needed to create a plugin and the types needed for the lifecycle/pluginManager.
@@ -27,19 +28,19 @@ The core contains the building blocks for all plugins.
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>] 
+```shell [bun <img src="/feature/bun.svg"/>]
 bun add @kubb/core
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>] 
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
 pnpm add @kubb/core
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>] 
+```shell [npm <img src="/feature/npm.svg"/>]
 npm install @kubb/core
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>] 
+```shell [yarn <img src="/feature/yarn.svg"/>]
 yarn add @kubb/core
 ```
 
@@ -50,8 +51,8 @@ yarn add @kubb/core
 ### Simple example
 
 ```typescript
-import { build } from "@kubb/core"
-import type { File } from "@kubb/core"
+import { build } from '@kubb/core'
+import type { File } from '@kubb/core'
 
 const files: File[] = await build({ config })
 ```
@@ -59,12 +60,12 @@ const files: File[] = await build({ config })
 ### Advanced example
 
 ```typescript
-import { build } from "@kubb/core"
+import { build } from '@kubb/core'
 import type { BuildOptions, File } from '@kubb/core'
 
 const spinner = ora({
-  color: "blue",
-  text: pc.blue("Generating files")
+  color: 'blue',
+  text: pc.blue('Generating files'),
 }).start()
 
 const logger: BuildOptions['logger'] = {
@@ -87,5 +88,5 @@ const files: File[] = await build({
 })
 ```
 
-Start the build process based on a defined config(see [UserConfig](https://github.com/kubb-project/kubb/blob/main/packages/core/src/config.ts) type). 
+Start the build process based on a defined config(see [UserConfig](https://github.com/kubb-project/kubb/blob/main/packages/core/src/config.ts) type).
 This will trigger the different plugins and their created lifecycle methods.

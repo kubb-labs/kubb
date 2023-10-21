@@ -4,6 +4,7 @@ layout: doc
 title: \@kubb/swagger-msw
 outline: deep
 ---
+
 # @kubb/swagger-msw <a href="https://paka.dev/npm/@kubb/swagger-mws@latest/api">🦙</a>
 
 With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks based on a Swagger file.
@@ -30,11 +31,10 @@ yarn add @kubb/swagger-msw @kubb/swagger-ts @kubb/swagger-faker @kubb/swagger
 
 :::
 
-
 ## Options
 
-
 ### output
+
 Relative path to save the MSW mocks.
 When output is a file it will save all models inside that file else it will create a file per schema item.
 
@@ -46,9 +46,9 @@ Default: `'mocks'`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -59,29 +59,32 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
-    createSwaggerFaker({ }),
+    createSwaggerTS({}),
+    createSwaggerFaker({}),
     createSwaggerMsw(
-      { 
-        output: './mocks'
-      }
-    )
-  ]
+      {
+        output: './mocks',
+      },
+    ),
+  ],
 })
 ```
 
 :::
 
 ### groupBy
+
 Group the MSW mocks based on the provided name.
 
 #### type
+
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+
 ::: v-pre
 Relative path to save the grouped MSW mocks.
 `{{tag}}` will be replaced by the current tagName.
@@ -94,6 +97,7 @@ Default: `'${output}/{{tag}}Controller'`
 :::
 
 #### exportAs
+
 Name to be used for the `export * as {{exportAs}} from './`
 
 ::: v-pre
@@ -104,12 +108,13 @@ Default: `'{{tag}}Handlers'`
 ::: info
 
 ::: code-group
+
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -120,32 +125,34 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
-    createSwaggerFaker({ }),
+    createSwaggerTS({}),
+    createSwaggerFaker({}),
     createSwaggerMsw(
-      { 
+      {
         output: './mocks',
-        groupBy: { type: 'tag', output: './mocks/{{tag}}Handlers' }, 
-      }
-    )
-  ]
+        groupBy: { type: 'tag', output: './mocks/{{tag}}Handlers' },
+      },
+    ),
+  ],
 })
 ```
 
 :::
 
 ### skipBy
+
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
 
 ::: info type
+
 ```typescript [SkipBy]
 export type SkipBy = {
-  type: 'tag' | 'operationId' | 'path' | 'method' ; 
-  pattern: string | RegExp 
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
 }
 ```
 
-::: 
+:::
 
 ::: info
 
@@ -156,9 +163,9 @@ Type: `Array<SkipBy>` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -169,36 +176,39 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
-    createSwaggerFaker({ }),
+    createSwaggerTS({}),
+    createSwaggerFaker({}),
     createSwaggerMsw(
-      { 
+      {
         skipBy: [
           {
             type: 'tag',
             pattern: 'store',
           },
         ],
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
+
 :::
 
-
 ### overrideBy
+
 Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
 
 ::: info type
+
 ```typescript [OverrideBy]
 export type OverrideBy = {
-  type: 'tag' | 'operationId' | 'path' | 'method' ; 
-  pattern: string | RegExp 
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
   options: PluginOptions
 }
 ```
-::: 
+
+:::
 
 ::: info
 
@@ -209,9 +219,9 @@ Type: `Array<OverrideBy>` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -222,10 +232,10 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
-    createSwaggerFaker({ }),
+    createSwaggerTS({}),
+    createSwaggerFaker({}),
     createSwaggerMsw(
-      { 
+      {
         overrideBy: [
           {
             type: 'tag',
@@ -235,17 +245,18 @@ export default defineConfig({
             },
           },
         ],
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
-:::
 
+:::
 
 ### transformers
 
 #### name
+
 Override the name of the MSW data that is getting generated, this will also override the name of the file.
 
 ::: info
@@ -257,9 +268,9 @@ Type: `(name: string) => string` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -270,23 +281,23 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
-    createSwaggerFaker({ }),
+    createSwaggerTS({}),
+    createSwaggerFaker({}),
     createSwaggerMsw(
-      { 
+      {
         output: './mocks',
         transformers: {
           name: (name) => {
             return `${name}Client`
           },
         },
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
-:::
 
+:::
 
 ## Depended
 

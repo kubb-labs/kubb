@@ -4,6 +4,7 @@ layout: doc
 title: \@kubb/parser
 outline: deep
 ---
+
 # @kubb/parser <a href="https://paka.dev/npm/@kubb/parser@latest/api">🦙</a>
 
 This library contains the building blocks that can be used to create TypeScript code. It's all based on TypeScript AST(an API of the TypeScript team to create AST nodes).
@@ -20,19 +21,19 @@ This library contains also the logic to `print` the nodes(convert AST to string)
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>] 
+```shell [bun <img src="/feature/bun.svg"/>]
 bun add @kubb/parser
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>] 
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
 pnpm add @kubb/parser
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>] 
+```shell [npm <img src="/feature/npm.svg"/>]
 npm install @kubb/parser
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>] 
+```shell [yarn <img src="/feature/yarn.svg"/>]
 yarn add @kubb/parser
 ```
 

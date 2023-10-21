@@ -4,6 +4,7 @@ layout: doc
 title: \@kubb/swagger-swr
 outline: deep
 ---
+
 # @kubb/swagger-swr <a href="https://paka.dev/npm/@kubb/swagger-swr@latest/api">🦙</a>
 
 With the Swagger SWR plugin you can create [SWR hooks](https://swr.vercel.app/) based on an operation in the Swagger file.
@@ -32,8 +33,8 @@ yarn add @kubb/swagger-swr @kubb/swagger-ts @kubb/swagger
 
 ## Options
 
-
 ### output
+
 Output to save the SWR hooks.
 
 ::: info
@@ -44,8 +45,8 @@ Default: `'hooks'`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerSwr from '@kubb/swagger-swr'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -56,29 +57,31 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerSwr(
-      { 
-        output: './hooks'
-      }
-    )
-  ]
+      {
+        output: './hooks',
+      },
+    ),
+  ],
 })
 ```
 
 :::
 
-
 ### groupBy
+
 Group the SWR hooks based on the provided name.
 
 #### type
+
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+
 ::: v-pre
 Relative path to save the grouped SWR hooks.
 `{{tag}}` will be replaced by the current tagName.
@@ -91,6 +94,7 @@ Default: `'${output}/{{tag}}Controller'`
 :::
 
 #### exportAs
+
 ::: v-pre
 Name to be used for the `export * as {{exportAs}} from './`
 :::
@@ -103,12 +107,13 @@ Default: `'{{tag}}SWRHooks'`
 ::: info
 
 ::: code-group
+
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -119,20 +124,21 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerSwr(
-      { 
+      {
         output: './hooks',
-        groupBy: { type: 'tag', output: './hooks/{{tag}}Controller' }, 
-      }
-    )
-  ]
+        groupBy: { type: 'tag', output: './hooks/{{tag}}Controller' },
+      },
+    ),
+  ],
 })
 ```
 
 :::
 
 ### client <Badge type="danger" text="deprecated" />
+
 Path to the client that will be used to do the API calls.<br/>
 Relative to the root
 
@@ -145,6 +151,7 @@ Deprecated. Use `clientImportPath` instead. It will be skipped if `clientImportP
 :::
 
 ### clientImportPath
+
 Path to the client import path that will be used to do the API calls.<br/>
 It will be used as `import client from '${clientImportPath}'`.<br/>
 It allow both relative and absolute path. the path will be applied as is,
@@ -160,8 +167,8 @@ Default: `'@kubb/swagger-client/client'`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerSwr from '@kubb/swagger-swr'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -172,19 +179,20 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerSwr(
-      { 
-        clientImportPath: '../../client.ts'
-      }
-    )
-  ]
+      {
+        clientImportPath: '../../client.ts',
+      },
+    ),
+  ],
 })
 ```
+
 :::
 
-
 ### dataReturnType <Badge type="warning" text="experimental" />
+
 ReturnType that needs to be used when calling client().
 
 `'data'` will return ResponseConfig[data]. <br/>
@@ -209,6 +217,7 @@ export async function getPetById<TData>(
   ...
 }
 ```
+
 :::
 
 Type: `'data' | 'full'` <br/>
@@ -219,8 +228,8 @@ Default: `'data'`
 ```typescript ['data']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerSwr from '@kubb/swagger-swr'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -231,21 +240,21 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerSwr(
-      { 
-        dataReturnType: 'data'
-      }
-    )
-  ]
+      {
+        dataReturnType: 'data',
+      },
+    ),
+  ],
 })
 ```
 
 ```typescript ['full']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerSwr from '@kubb/swagger-swr'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -256,31 +265,32 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerSwr(
-      { 
-        dataReturnType: 'full'
-      }
-    )
-  ]
+      {
+        dataReturnType: 'full',
+      },
+    ),
+  ],
 })
 ```
 
 :::
 
-
 ### skipBy
+
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
 
 ::: info type
+
 ```typescript [SkipBy]
 export type SkipBy = {
-  type: 'tag' | 'operationId' | 'path' | 'method' ; 
-  pattern: string | RegExp 
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
 }
 ```
 
-::: 
+:::
 
 ::: info
 
@@ -291,8 +301,8 @@ Type: `Array<SkipBy>` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerSwr from '@kubb/swagger-swr'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -303,35 +313,38 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerSwr(
-      { 
+      {
         skipBy: [
           {
             type: 'tag',
             pattern: 'store',
           },
         ],
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
+
 :::
 
-
 ### overrideBy
+
 Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
 
 ::: info type
+
 ```typescript [OverrideBy]
 export type OverrideBy = {
-  type: 'tag' | 'operationId' | 'path' | 'method' ; 
-  pattern: string | RegExp 
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
   options: PluginOptions
 }
 ```
-::: 
+
+:::
 
 ::: info
 
@@ -342,8 +355,8 @@ Type: `Array<OverrideBy>` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerClient from '@kubb/swagger-client'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -354,9 +367,9 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerClient(
-      { 
+      {
         overrideBy: [
           {
             type: 'tag',
@@ -366,19 +379,18 @@ export default defineConfig({
             },
           },
         ],
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
+
 :::
-
-
-
 
 ### transformers
 
 #### name
+
 Override the name of the hook that is getting generated, this will also override the name of the file.
 
 ::: info
@@ -390,8 +402,8 @@ Type: `(name: string) => string` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerSwr from '@kubb/swagger-swr'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -402,23 +414,22 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerSwr(
-      { 
+      {
         output: './hooks',
         transformers: {
           name: (name) => {
             return `${name}Hook`
           },
         },
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
+
 :::
-
-
 
 ## Depended
 

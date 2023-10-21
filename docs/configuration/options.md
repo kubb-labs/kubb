@@ -4,15 +4,17 @@ layout: doc
 title: Options
 outline: deep
 ---
+
 # Options
 
 This page is a reference to the different options you can use for configuring your Kubb config.
 By setting the following options you can override the default behaviour of Kubb and even extend it with your own plugins.
 
 ## root
+
 Project root directory. Can be an absolute path, or a path relative from the location of the config file itself.
 
-::: info 
+::: info
 Type: `string` <br/>
 Default: `process.cwd()` <br/>
 
@@ -28,19 +30,22 @@ export default defineConfig({
   },
   output: {
     path: './src/gen',
-  }
+  },
 })
 ```
+
 :::
 
 ## input
+
 You can use `input.path` or `input.data` depending on the needs you have.
 
 ### path
+
 Define your Swagger/OpenAPI file.<br/>
 This can be an absolute path or a path relative to the `root`.
 
-::: info 
+::: info
 Type: `string` <br/>
 Required: `true`
 
@@ -55,15 +60,17 @@ export default defineConfig({
   },
   output: {
     path: './src/gen',
-  }
+  },
 })
 ```
+
 :::
 
 ### data
+
 `string` or `object` containing your Swagger/OpenAPI
 
-::: info 
+::: info
 Type: `string | unknown` <br/>
 Required: `true`
 
@@ -72,7 +79,7 @@ Required: `true`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/core'
 
-import petStore from "./petStore.yaml"
+import petStore from './petStore.yaml'
 
 export default defineConfig({
   input: {
@@ -80,17 +87,20 @@ export default defineConfig({
   },
   output: {
     path: './src/gen',
-  }
+  },
 })
 ```
+
 :::
 
 ## output
+
 ### path
+
 Path to be used to export all generated files.<br/>
 This can be an absolute path, or a path relative from the defined `root` option.
 
-::: info 
+::: info
 Type: `string` <br/>
 Required: `true`
 
@@ -105,15 +115,17 @@ export default defineConfig({
   },
   output: {
     path: './src/gen',
-  }
+  },
 })
 ```
+
 :::
 
 ### clean
+
 Clean output directory before each build.
 
-::: info 
+::: info
 Type: `boolean` <br/>
 
 ::: code-group
@@ -127,16 +139,18 @@ export default defineConfig({
   },
   output: {
     path: './src/gen',
-    clean: true
+    clean: true,
   },
 })
 ```
+
 :::
 
 ### write
+
 Write files to the fileSystem.
 
-::: info 
+::: info
 Type: `boolean` <br/>
 Default: `true`
 
@@ -152,20 +166,23 @@ export default defineConfig({
   output: {
     path: './src/gen',
     clean: true,
-    write: true
+    write: true,
   },
 })
 ```
+
 :::
 
 ## plugins
+
 Array of Kubb plugins to use. The plugin/package can have some extra options defined by the plugin.
 Sometimes a plugin is depended on another plugin, if that's the case you will get an error back from the plugin you installed.([see validate](/reference/pluginManager#1-validate))
 
 ### plugins[index]
 
 #### TypeScript
-::: info 
+
+::: info
 
 Type: `Plugin` <br/>
 
@@ -182,19 +199,22 @@ export default defineConfig({
   output: {
     path: './src/gen',
   },
-  plugins: [createSwagger({ })],
+  plugins: [createSwagger({})],
 })
 ```
+
 :::
 
 #### JSON
-When using JSON, the structure will be a little bit different. 
+
+When using JSON, the structure will be a little bit different.
 Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/plugins/) makes it possible to use plugins with extra options.
 
 ```
 [PLUGIN, {...options}]
 ```
-::: info 
+
+::: info
 ::: code-group
 
 ```json [kubb.json]
@@ -211,23 +231,26 @@ Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/pl
     [
       "@kubb/swagger",
       {
-       "output": "schemas", 
-       "validate" :true
+        "output": "schemas",
+        "validate": true
       }
     ]
   ]
 }
 ```
+
 :::
 
 ## hooks
+
 Hooks that will be called when a specific action is triggered in Kubb.
 
 ### done
+
 Hook that will be triggered at the end of Kubb's generation.<br/>
 Useful for running Prettier or ESLint to format/lint your code.
 
-::: info 
+::: info
 Type: `string | string[]` <br/>
 
 ::: code-group
@@ -237,7 +260,7 @@ import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
   hooks: {
-    done: ["npx prettier --write ."]
+    done: ['npx prettier --write .'],
   },
   input: {
     path: './petStore.yaml',
@@ -253,7 +276,7 @@ import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
   hooks: {
-    done: "npx prettier --write ."
+    done: 'npx prettier --write .',
   },
   input: {
     path: './petStore.yaml',
@@ -263,4 +286,5 @@ export default defineConfig({
   },
 })
 ```
+
 :::

@@ -26,15 +26,16 @@
   "json": {
     "trailingCommas": "never"
   },
+  "markdown": {},
   "excludes": [
     "**/node_modules",
     "**/*-lock.json",
     "**/*-lock.yaml",
     // TODO remove when dprint supports sorting groups(and remove Prettier)
     "**/packages/**/src/**",
-    ".*/**",
-    "*.md",
-    "*.yaml",
+    // ".*/**",
+    "**/.next",
+    "CHANGELOG.md",
     "**/dist",
     "**/coverage",
     "**/public"

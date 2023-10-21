@@ -4,6 +4,7 @@ layout: doc
 title: \@kubb/swagger-client
 outline: deep
 ---
+
 # @kubb/swagger-client <a href="https://paka.dev/npm/@kubb/swagger-client@latest/api">🦙</a>
 
 With the Swagger client plugin you can create [Axios](https://axios-http.com/docs/intro) API calls.
@@ -12,27 +13,28 @@ With the Swagger client plugin you can create [Axios](https://axios-http.com/doc
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>] 
+```shell [bun <img src="/feature/bun.svg"/>]
 bun add @kubb/swagger-client @kubb/swagger-ts @kubb/swagger
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>] 
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
 pnpm add @kubb/swagger-client @kubb/swagger-ts @kubb/swagger
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>] 
+```shell [npm <img src="/feature/npm.svg"/>]
 npm install @kubb/swagger-client @kubb/swagger-ts @kubb/swagger
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>] 
+```shell [yarn <img src="/feature/yarn.svg"/>]
 yarn add @kubb/swagger-client @kubb/swagger-ts @kubb/swagger
 ```
-:::
 
+:::
 
 ## Options
 
 ### output
+
 Output to save the clients.
 ::: info
 Type: `string` <br/>
@@ -43,8 +45,8 @@ Default: `'clients'`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerClient from '@kubb/swagger-client'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -55,24 +57,27 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
-    createSwaggerClient({ output: './axios' })
-  ]
+    createSwaggerTS({}),
+    createSwaggerClient({ output: './axios' }),
+  ],
 })
 ```
 
 :::
 
 ### groupBy
+
 Group the clients based on the provided name.
 
 #### type
+
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+
 ::: v-pre
 Relative path to save the grouped clients.
 `{{tag}}` will be replaced by the current tagName.
@@ -85,6 +90,7 @@ Default: `${output}/{{tag}}Controller`
 :::
 
 #### exportAs
+
 ::: v-pre
 Name to be used for the `export * as {{exportAs}} from './`
 :::
@@ -101,8 +107,8 @@ Default: `'{{tag}}Service'`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerClient from '@kubb/swagger-client'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -113,20 +119,21 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerClient(
-      { 
-        output: './clients/axios', 
-        groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' }, 
-      }
-    )
-  ]
+      {
+        output: './clients/axios',
+        groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' },
+      },
+    ),
+  ],
 })
 ```
 
 :::
 
 ### client <Badge type="danger" text="deprecated" />
+
 Path to the client that will be used to do the API calls.<br/>
 Relative to the root
 
@@ -139,6 +146,7 @@ Deprecated. Use `clientImportPath` instead. It will be skipped if `clientImportP
 :::
 
 ### clientImportPath
+
 Path to the client import path that will be used to do the API calls.<br/>
 It will be used as `import client from '${clientImportPath}'`.<br/>
 It allow both relative and absolute path. the path will be applied as is,
@@ -153,8 +161,8 @@ Default: `'@kubb/swagger-client/client'`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerClient from '@kubb/swagger-client'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -165,18 +173,20 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerClient(
-      { 
-        clientImportPath: '../../client.ts'
-      }
-    )
-  ]
+      {
+        clientImportPath: '../../client.ts',
+      },
+    ),
+  ],
 })
 ```
+
 :::
 
 ### dataReturnType <Badge type="warning" text="experimental" />
+
 ReturnType that needs to be used when calling client().
 
 `'data'` will return ResponseConfig[data]. <br/>
@@ -201,6 +211,7 @@ export async function getPetById<TData>(
   ...
 }
 ```
+
 :::
 
 ::: info
@@ -213,8 +224,8 @@ Default: `'data'`
 ```typescript ['data']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerClient from '@kubb/swagger-client'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -225,21 +236,21 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerClient(
-      { 
-        dataReturnType: 'data'
-      }
-    )
-  ]
+      {
+        dataReturnType: 'data',
+      },
+    ),
+  ],
 })
 ```
 
 ```typescript ['full']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerClient from '@kubb/swagger-client'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -250,19 +261,20 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerClient(
-      { 
-        dataReturnType: 'full'
-      }
-    )
-  ]
+      {
+        dataReturnType: 'full',
+      },
+    ),
+  ],
 })
 ```
 
 :::
 
 ### pathParamsType <Badge type="warning" text="experimental" />
+
 How to pass your pathParams.
 
 `'object'` will return the pathParams as an object. <br/>
@@ -288,7 +300,7 @@ export async function getPetById<TData>(
 }
 ```
 
-::: 
+:::
 
 ::: info
 
@@ -300,8 +312,8 @@ Default: `'data'`
 ```typescript ['object']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerClient from '@kubb/swagger-client'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -312,21 +324,21 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerClient(
-      { 
-        pathParamsType: 'object'
-      }
-    )
-  ]
+      {
+        pathParamsType: 'object',
+      },
+    ),
+  ],
 })
 ```
 
 ```typescript ['inline']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerClient from '@kubb/swagger-client'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -337,28 +349,32 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerClient(
-      { 
-        pathParamsType: 'inline'
-      }
-    )
-  ]
+      {
+        pathParamsType: 'inline',
+      },
+    ),
+  ],
 })
 ```
+
 :::
 
 ### skipBy
+
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
 
 ::: info type
+
 ```typescript [SkipBy]
 export type SkipBy = {
-  type: 'tag' | 'operationId' | 'path' | 'method' ; 
-  pattern: string | RegExp 
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
 }
 ```
-::: 
+
+:::
 
 ::: info
 
@@ -369,8 +385,8 @@ Type: `Array<SkipBy>` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerClient from '@kubb/swagger-client'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -381,34 +397,38 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerClient(
-      { 
+      {
         skipBy: [
           {
             type: 'tag',
             pattern: 'store',
           },
         ],
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
+
 :::
 
 ### overrideBy
+
 Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
 
 ::: info type
+
 ```typescript [OverrideBy]
 export type OverrideBy = {
-  type: 'tag' | 'operationId' | 'path' | 'method' ; 
-  pattern: string | RegExp 
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
   options: PluginOptions
 }
 ```
-::: 
+
+:::
 
 ::: info
 
@@ -419,8 +439,8 @@ Type: `Array<OverrideBy>` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerClient from '@kubb/swagger-client'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -431,9 +451,9 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerClient(
-      { 
+      {
         overrideBy: [
           {
             type: 'tag',
@@ -443,17 +463,18 @@ export default defineConfig({
             },
           },
         ],
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
-:::
 
+:::
 
 ### transformers
 
 #### name
+
 Override the name of the client that is getting generated, this will also override the name of the file.
 
 ::: info
@@ -465,8 +486,8 @@ Type: `(name: string) => string` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerClient from '@kubb/swagger-client'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -477,17 +498,17 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerClient(
-      { 
+      {
         transformers: {
           name: (name) => {
             return `${name}Client`
           },
         },
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
 

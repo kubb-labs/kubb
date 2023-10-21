@@ -7,8 +7,8 @@ outline: deep
 
 # @kubb/swagger <a href="https://paka.dev/npm/@kubb/swagger@latest/api">🦙</a>
 
-With the Swagger plugin you can create JSON schema's out of a Swagger file. 
-Inside this package you can also use some utils to create your own Swagger plugin. 
+With the Swagger plugin you can create JSON schema's out of a Swagger file.
+Inside this package you can also use some utils to create your own Swagger plugin.
 We already provide a [react-query plugin](/plugins/swagger-tanstack-query) but if you want to create a plugin for SWR you can use this package to get the core utils.(check if a schema is v2 or v3, validate the schema, generate a OAS object, ...).
 
 <hr/>
@@ -16,40 +16,40 @@ We already provide a [react-query plugin](/plugins/swagger-tanstack-query) but i
 We are using [Oas](https://github.com/readmeio/oas) to convert a YAML/JSON to an Oas class(see `oasParser`) that will contain a lot of extra logic(read the $ref, get all the operations, get all models, ...).
 
 The Swagger plugin also contains some classes and functions that can be used in your own plugin that needs Swagger:
-- For example we have [`getReference`](https://github.com/kubb-project/kubb/blob/main/packages/swagger/src/utils/getReference.ts
-) that will return the ref based on the spec. 
 
-- Next to that we also have the class [`OperationGenerator`](https://github.com/kubb-project/kubb/blob/main/packages/swagger/src/generators/OperationGenerator.ts
-). This class contains the building blocks of getting the request, response, params, .... 
-<br/>Just call `this.getSchemas` and you will retreive an object contains all the info you need to setup a TypeScript type, React-Query hook, ....
+- For example we have [`getReference`](https://github.com/kubb-project/kubb/blob/main/packages/swagger/src/utils/getReference.ts) that will return the ref based on the spec.
+
+- Next to that we also have the class [`OperationGenerator`](https://github.com/kubb-project/kubb/blob/main/packages/swagger/src/generators/OperationGenerator.ts). This class contains the building blocks of getting the request, response, params, ....
+  <br/>Just call `this.getSchemas` and you will retreive an object contains all the info you need to setup a TypeScript type, React-Query hook, ....
 
 ## Installation
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>] 
+```shell [bun <img src="/feature/bun.svg"/>]
 bun add @kubb/swagger
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>] 
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
 pnpm add @kubb/swagger
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>] 
+```shell [npm <img src="/feature/npm.svg"/>]
 npm install @kubb/swagger
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>] 
+```shell [yarn <img src="/feature/yarn.svg"/>]
 yarn add @kubb/swagger
 ```
 
 :::
 
-
 ## Options
+
 ### validate
+
 Validate your input(see kubb.config) based on @apidevtools/swagger-parser
-::: info 
+::: info
 Type: `boolean` <br/>
 Default: `true`
 
@@ -67,13 +67,15 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ validate: true })
-  ]
+    createSwagger({ validate: true }),
+  ],
 })
 ```
+
 :::
 
 ### output
+
 Relative path to save the JSON models.<br/>
 False will not generate the schema JSON's.
 
@@ -95,8 +97,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: "./json" })
-  ]
+    createSwagger({ output: './json' }),
+  ],
 })
 ```
 
@@ -112,14 +114,15 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false })
-  ]
+    createSwagger({ output: false }),
+  ],
 })
 ```
 
 :::
 
 ### serverIndex
+
 Which server to use from the array of `servers.url[serverIndex]`
 
 For example `0` will return `http://petstore.swagger.io/api` and `1` will return `http://localhost:3000`
@@ -157,8 +160,8 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ serverIndex: 0 }) // use of `http://petstore.swagger.io/api`
-  ]
+    createSwagger({ serverIndex: 0 }), // use of `http://petstore.swagger.io/api`
+  ],
 })
 ```
 
@@ -174,20 +177,23 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ serverIndex: 1 }) // use of `http://localhost:3000`
-  ]
+    createSwagger({ serverIndex: 1 }), // use of `http://localhost:3000`
+  ],
 })
 ```
 
 :::
 
 ### contentType
+
 Override ContentType that wil be used for requests and responses.
 
 ::: info type
+
 ```typescript
 export type ContentType = 'application/json' | (string & {})
 ```
+
 :::
 
 ::: info
@@ -207,12 +213,12 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ contentType: "application/json" })
-  ]
+    createSwagger({ contentType: 'application/json' }),
+  ],
 })
 ```
-:::
 
+:::
 
 ## Depended
 

@@ -5,12 +5,10 @@ title: \@kubb/swagger-tanstack-query
 outline: deep
 ---
 
-
 # @kubb/swagger-tanstack-query <a href="https://paka.dev/npm/@kubb/swaggger-tanstack-query@latest/api">🦙</a>
 
-
-
 With the Swagger Tanstack Query plugin you can create:
+
 - [react-query](https://tanstack.com/query/latest/docs/react) hooks based on an operation in the Swagger file.
 - [solid-query](https://tanstack.com/query/latest/docs/solid) primitives based on an operation in the Swagger file.
 - [svelte-query](https://tanstack.com/query/latest/docs/svelte) primitives based on an operation in the Swagger file.
@@ -40,8 +38,8 @@ yarn add @kubb/swagger-tanstack-query @kubb/swagger-ts  @kubb swagger
 
 ## Options
 
-
 ### output
+
 Output to save the [Tanstack Query](https://tanstack.com/query) hooks.
 ::: info
 Type: `string` <br/>
@@ -52,8 +50,8 @@ Default: `'hooks'`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -64,24 +62,27 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
-    createSwaggerTanstackQuery({ output: './hooks' })
-  ]
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({ output: './hooks' }),
+  ],
 })
 ```
 
 :::
 
 ### groupBy
+
 Group the [Tanstack Query](https://tanstack.com/query) hooks based on the provided name.
 
 #### type
+
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+
 ::: v-pre
 Relative path to save the grouped [Tanstack Query](https://tanstack.com/query) hooks.
 `{{tag}}` will be replaced by the current tagName.
@@ -94,6 +95,7 @@ Default: `'${output}/{{tag}}Controller'`
 :::
 
 #### exportAs
+
 ::: v-pre
 Name to be used for the `export * as {{exportAs}} from './`
 :::
@@ -110,8 +112,8 @@ Default: `'{{tag}}Hooks'`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -122,20 +124,21 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerTanstackQuery(
-      { 
-        output: './hooks', 
-        groupBy: { type: 'tag', output: './hooks/{{tag}}Hooks' }, 
-      }
-    )
-  ]
+      {
+        output: './hooks',
+        groupBy: { type: 'tag', output: './hooks/{{tag}}Hooks' },
+      },
+    ),
+  ],
 })
 ```
 
 :::
 
 ### client <Badge type="danger" text="deprecated" />
+
 Path to the client that will be used to do the API calls.
 Relative to the root
 
@@ -149,6 +152,7 @@ Deprecated. Use `clientImportPath` instead. It will be skipped if `clientImportP
 :::
 
 ### clientImportPath
+
 Path to the client import path that will be used to do the API calls.<br/>
 It will be used as `import client from '${clientImportPath}'`.<br/>
 It allow both relative and absolute path. the path will be applied as is,
@@ -163,8 +167,8 @@ Default: `'@kubb/swagger-client/client'`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -175,18 +179,20 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerTanstackQuery(
-      { 
-        clientImportPath: '../../client.ts'
-      }
-    )
-  ]
+      {
+        clientImportPath: '../../client.ts',
+      },
+    ),
+  ],
 })
 ```
+
 :::
 
 ### dataReturnType <Badge type="warning" text="experimental" />
+
 ReturnType that needs to be used when calling client().
 
 `'data'` will return ResponseConfig[data]. <br/>
@@ -211,6 +217,7 @@ export async function getPetById<TData>(
   ...
 }
 ```
+
 :::
 
 ::: info
@@ -223,8 +230,8 @@ Default: `'data'`
 ```typescript ['data']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -235,21 +242,21 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerTanstackQuery(
-      { 
-        dataReturnType: 'data'
-      }
-    )
-  ]
+      {
+        dataReturnType: 'data',
+      },
+    ),
+  ],
 })
 ```
 
 ```typescript ['full']
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -260,19 +267,20 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerTanstackQuery(
-      { 
-        dataReturnType: 'full'
-      }
-    )
-  ]
+      {
+        dataReturnType: 'full',
+      },
+    ),
+  ],
 })
 ```
 
 :::
 
 ### framework
+
 Framework to be generated for.
 
 ::: info
@@ -285,8 +293,8 @@ Default: `'react'`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -297,19 +305,20 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerTanstackQuery(
-      { 
-        framework: 'solid'
-      }
-    )
-  ]
+      {
+        framework: 'solid',
+      },
+    ),
+  ],
 })
 ```
 
 :::
 
 ### infinite
+
 When set, an infiniteQuery hooks will be added.
 
 ::: info type
@@ -317,7 +326,7 @@ When set, an infiniteQuery hooks will be added.
 ::: code-group
 
 ```typescript [Infinite]
-type Infinite ={
+type Infinite = {
   /**
    * Specify the params key used for `pageParam`.
    * Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`
@@ -337,8 +346,8 @@ Type: `Infinite` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -349,16 +358,16 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
-    createSwaggerTanstackQuery({ infinite: { } })
-  ]
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({ infinite: {} }),
+  ],
 })
 ```
 
 :::
 
-
 #### queryParam
+
 Specify the params key used for `pageParam`.<br/>
 Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`.
 
@@ -371,8 +380,8 @@ Default: `'id'`
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -383,29 +392,32 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
-    createSwaggerTanstackQuery({ 
-      infinite: { 
-        queryParam: 'next_page'
-      } 
-    })
-  ]
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({
+      infinite: {
+        queryParam: 'next_page',
+      },
+    }),
+  ],
 })
 ```
 
 :::
 
 ### skipBy
+
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
 
 ::: info type
+
 ```typescript [SkipBy]
 export type SkipBy = {
-  type: 'tag' | 'operationId' | 'path' | 'method' ; 
-  pattern: string | RegExp 
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
 }
 ```
-::: 
+
+:::
 
 ::: info
 
@@ -416,8 +428,8 @@ Type: `Array<SkipBy>` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -428,35 +440,38 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerTanstackQuery(
-      { 
+      {
         skipBy: [
           {
             type: 'tag',
             pattern: 'store',
           },
         ],
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
+
 :::
 
-
 ### overrideBy
+
 Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
 
 ::: info type
+
 ```typescript [OverrideBy]
 export type OverrideBy = {
-  type: 'tag' | 'operationId' | 'path' | 'method' ; 
-  pattern: string | RegExp 
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
   options: PluginOptions
 }
 ```
-::: 
+
+:::
 
 ::: info
 
@@ -467,8 +482,8 @@ Type: `Array<OverrideBy>` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -479,9 +494,9 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerTanstackQuery(
-      { 
+      {
         overrideBy: [
           {
             type: 'tag',
@@ -491,17 +506,18 @@ export default defineConfig({
             },
           },
         ],
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
-:::
 
+:::
 
 ### transformers
 
 #### name
+
 Override the name of the hook that is getting generated, this will also override the name of the file.
 
 ::: info
@@ -513,8 +529,8 @@ Type: `(name: string) => string` <br/>
 ```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   input: {
@@ -525,23 +541,21 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ }),
+    createSwaggerTS({}),
     createSwaggerTanstackQuery(
-      { 
+      {
         transformers: {
           name: (name) => {
             return `${name}Hook`
           },
         },
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
 
 :::
-
-
 
 ## Depended
 

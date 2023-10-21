@@ -4,32 +4,33 @@ layout: doc
 title: \@kubb/react
 outline: deep
 ---
+
 # @kubb/react <a href="https://paka.dev/npm/@kubb/react@latest/api">🦙</a><Badge type="warning" text="under construction" />
 
 Use React to create templates/variants for any plugin.
 
 <hr/>
 
-
 ## Installation
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>] 
+```shell [bun <img src="/feature/bun.svg"/>]
 bun add @kubb/react
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>] 
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
 pnpm add @kubb/react
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>] 
+```shell [npm <img src="/feature/npm.svg"/>]
 npm install @kubb/react
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>] 
+```shell [yarn <img src="/feature/yarn.svg"/>]
 yarn add @kubb/react
 ```
+
 :::
 
 ### Configure `tsconfig.json`
@@ -44,8 +45,8 @@ yarn add @kubb/react
   }
 }
 ```
-:::
 
+:::
 
 ## Examples
 
@@ -72,11 +73,10 @@ return root
 ::: code-group
 
 ```typescript [root.output]
-export const test = 2;
+export const test = 2
 ```
 
 :::
-
 
 ### Text with indent
 
@@ -101,11 +101,13 @@ return root
 ::: code-group
 
 ```typescript [root.output]
-    export const test = 2;
+export const test = 2
 ```
+
 :::
 
 ### Function
+
 ```tsx [input]
 import { createRoot, Function } from '@kubb/react'
 
@@ -125,14 +127,14 @@ return root
 ```
 
 ::: code-group
+
 ```typescript [root.output]
 export async function getData() {
-  return 2;
-};
+  return 2
+}
 ```
 
 :::
-
 
 ### File
 
@@ -153,6 +155,7 @@ root.render(<Component />)
 
 return root
 ```
+
 ::: code-group
 
 ```typescript [root.output]
