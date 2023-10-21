@@ -2,7 +2,7 @@ import { getUniqueName, jsStringEscape, SchemaGenerator } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
 
 import { zodKeywords, zodParser } from '../parsers/index.ts'
-import { pluginName } from '../plugin.ts'
+import { pluginKey } from '../plugin.ts'
 
 import type { PluginContext } from '@kubb/core'
 import type { OpenAPIV3, Refs } from '@kubb/swagger'
@@ -22,7 +22,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   aliases: ts.TypeAliasDeclaration[] = []
 
   // Keep track of already used type aliases
-  usedAliasNames: Record<string, number> = {}
+  #usedAliasNames: Record<string, number> = {}
 
   constructor(options: Options = { withJSDocs: true, resolveName: ({ name }) => name }) {
     super(options)
@@ -50,7 +50,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
        */`)
     }
 
-    const zodOutput = zodParser(zodInput, { keysToOmit, name: this.options.resolveName({ name: baseName, pluginName }) || baseName })
+    const zodOutput = zodParser(zodInput, { keysToOmit, name: this.options.resolveName({ name: baseName, pluginKey }) || baseName })
 
     texts.push(zodOutput)
 
@@ -174,7 +174,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
-  #getRefAlias(obj: OpenAPIV3.ReferenceObject, baseName?: string): ZodMeta[] {
+  #getRefAlias(obj: OpenAPIV3.ReferenceObject, _baseName?: string): ZodMeta[] {
     const { $ref } = obj
     let ref = this.refs[$ref]
 
@@ -182,8 +182,8 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       return [{ keyword: zodKeywords.ref, args: ref.propertyName }]
     }
 
-    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames)
-    const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
+    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
+    const propertyName = this.options.resolveName({ name: originalName, pluginKey }) || originalName
 
     ref = this.refs[$ref] = {
       propertyName,

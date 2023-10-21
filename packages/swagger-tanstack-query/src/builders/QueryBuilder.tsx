@@ -6,7 +6,7 @@ import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@k
 import { camelCase, pascalCase } from 'change-case'
 
 import { QueryKeyFunction } from '../components/index.ts'
-import { pluginName } from '../plugin.ts'
+import { pluginKey } from '../plugin.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
@@ -116,7 +116,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       codes.push(`
       export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
         const queryKey = ${queryKey};
-        
+
         return queryOptions({
           queryKey,
           queryFn: () => {
@@ -137,7 +137,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       codes.push(`
       export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
         const queryKey = ${queryKey};
-        
+
         return {
           queryKey,
           queryFn: () => {
@@ -204,7 +204,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       },
       {
         name: 'options',
-        type: `{ 
+        type: `{
           query?: ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
         }`,
@@ -246,7 +246,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     }> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
   const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
-  
+
   const query = ${frameworkImports.query.useQuery}<${queryGenerics.join(', ')}>({
     ...${queryOptions},
     ...queryOptions
@@ -407,7 +407,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
       },
       {
         name: 'options',
-        type: `{ 
+        type: `{
           query?: ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
         }`,
@@ -449,7 +449,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     }> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
   const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
-  
+
   const query = ${frameworkImports.query.useInfiniteQuery}<${queryGenerics.join(', ')}>({
     ...${queryOptions},
     ...queryOptions
@@ -534,7 +534,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     codes.push(`
 export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.mutate.UseMutationResult}<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
-  
+
   return ${frameworkImports.mutate.useMutation}<${mutationGenerics.join(', ')}>({
     mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
       ${unrefs}
@@ -568,7 +568,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const ComponentQuery = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
+      const file = useResolve({ name, pluginKey, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>
@@ -583,7 +583,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     }
 
     const ComponentQueryInfinite = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
+      const file = useResolve({ name, pluginKey, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>
@@ -602,7 +602,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     }
 
     const ComponentMutation = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
+      const file = useResolve({ name, pluginKey, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>

@@ -126,6 +126,6 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', Options, false, undefined, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', 'controller', Options, false, never, ResolvePathOptions>
 
 export type AppMeta = SwaggerAppMeta

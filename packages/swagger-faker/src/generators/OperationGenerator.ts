@@ -2,7 +2,7 @@ import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 
 import { FakerBuilder } from '../builders/index.ts'
-import { pluginName } from '../plugin.ts'
+import { pluginKey, pluginName } from '../plugin.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { FileResolver, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
@@ -21,7 +21,7 @@ export class OperationGenerator extends Generator<Options> {
       operation,
       resolveName: pluginManager.resolveName,
       resolvePath: pluginManager.resolvePath,
-      pluginName,
+      pluginKey,
     })
   }
 
@@ -37,11 +37,11 @@ export class OperationGenerator extends Generator<Options> {
 
     const fileResolver: FileResolver = (name, ref) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = pluginManager.resolvePath({ baseName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = pluginManager.resolvePath({ baseName: faker.name, pluginKey, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = pluginManager.resolvePath({
         baseName: `${name}.ts`,
-        pluginName: ref.pluginName || pluginName,
+        pluginKey: ['schema', ref.pluginName || pluginName],
         options: ref.pluginName ? { tag: operation.getTags()[0]?.name } : undefined,
       })
 
@@ -87,11 +87,11 @@ export class OperationGenerator extends Generator<Options> {
 
     const fileResolver: FileResolver = (name, ref) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = pluginManager.resolvePath({ baseName: faker.name, pluginName, options: { tag: operation.getTags()[0]?.name } })
+      const root = pluginManager.resolvePath({ baseName: faker.name, pluginKey, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = pluginManager.resolvePath({
         baseName: `${name}.ts`,
-        pluginName: ref.pluginName || pluginName,
+        pluginKey: ['schema', ref.pluginName || pluginName],
         options: ref.pluginName ? { tag: operation.getTags()[0]?.name } : undefined,
       })
 

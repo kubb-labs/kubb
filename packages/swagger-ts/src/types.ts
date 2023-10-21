@@ -26,6 +26,10 @@ export type Options = {
     output?: string
   }
   /**
+   * Name to be used for the `export * as {{exportAs}} from './`
+   */
+  exportAs?: string
+  /**
    * Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
    */
   skipBy?: Array<SkipBy>
@@ -64,4 +68,4 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-ts', Options, false, unknown, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-ts', 'schema', Options, false, never, ResolvePathOptions>

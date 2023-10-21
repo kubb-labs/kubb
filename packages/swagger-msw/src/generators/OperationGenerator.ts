@@ -1,9 +1,9 @@
 import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
-import { pluginName as swaggerFakerPluginName, resolve as resolveSwaggerFaker } from '@kubb/swagger-faker'
+import { pluginKey as swaggerFakerPluginKey, resolve as resolveSwaggerFaker } from '@kubb/swagger-faker'
 
 import { MSWBuilder } from '../builders/index.ts'
-import { pluginName } from '../plugin.ts'
+import { pluginKey, pluginName } from '../plugin.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { HttpMethod, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
@@ -20,7 +20,7 @@ export class OperationGenerator extends Generator<Options> {
       operation,
       resolveName: pluginManager.resolveName,
       resolvePath: pluginManager.resolvePath,
-      pluginName,
+      pluginKey,
     })
   }
 
@@ -40,7 +40,7 @@ export class OperationGenerator extends Generator<Options> {
     const controllerFileName = `handlers.ts`
     const controllerFilePath = pluginManager.resolvePath({
       baseName: controllerFileName,
-      pluginName,
+      pluginKey,
     })
 
     if (!controllerFilePath) {
@@ -54,7 +54,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const addOperationToHandler = (operation: Operation) => {
       if (operation) {
-        const name = pluginManager.resolveName({ name: `${operation.getOperationId()}`, pluginName })
+        const name = pluginManager.resolveName({ name: `${operation.getOperationId()}`, pluginKey })
 
         const msw = this.resolve(operation)
 
@@ -103,7 +103,7 @@ export class OperationGenerator extends Generator<Options> {
   async get(operation: Operation, schemas: OperationSchemas, _options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { pluginManager, oas } = this.context
 
-    const responseName = pluginManager.resolveName({ name: schemas.response.name, pluginName: swaggerFakerPluginName })
+    const responseName = pluginManager.resolveName({ name: schemas.response.name, pluginKey: swaggerFakerPluginKey })
 
     const mswBuilder = new MSWBuilder({ responseName }, { oas, pluginManager, schemas, operation })
 
@@ -128,7 +128,7 @@ export class OperationGenerator extends Generator<Options> {
   async post(operation: Operation, schemas: OperationSchemas, _options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { pluginManager, oas } = this.context
 
-    const responseName = pluginManager.resolveName({ name: schemas.response.name, pluginName: swaggerFakerPluginName })
+    const responseName = pluginManager.resolveName({ name: schemas.response.name, pluginKey: swaggerFakerPluginKey })
 
     const mswBuilder = new MSWBuilder(
       {

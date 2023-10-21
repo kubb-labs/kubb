@@ -17,13 +17,6 @@ export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptio
       throw new Error('Not implemented')
     }
 
-    // default transform
-    if (!plugin.transform) {
-      plugin.transform = function transform(code) {
-        return code
-      }
-    }
-
     return plugin
   }
 }
@@ -36,13 +29,14 @@ type Options = {
   resolveName: PluginContext['resolveName']
   logger: PluginContext['logger']
   getPlugins: () => KubbPlugin[]
-  plugin: KubbPlugin
+  plugin: PluginContext['plugin']
 }
 
 // not publicly exported
-export type CorePluginOptions = PluginFactoryOptions<'core', Options, false, PluginContext>
+export type CorePluginOptions = PluginFactoryOptions<'core', 'controller', Options, false, PluginContext>
 
-export const pluginName: CorePluginOptions['name'] = 'core' as const
+export const pluginName = 'core' satisfies CorePluginOptions['name']
+export const pluginKey = ['controller', pluginName] satisfies CorePluginOptions['key']
 
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
   const { fileManager, pluginManager, resolvePath, resolveName, logger } = options
@@ -50,6 +44,8 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
   return {
     name: pluginName,
     options,
+    key: ['controller', 'core'],
+    kind: 'controller',
     api() {
       // TODO watch out, typing is incorrect, `this` will be `null` with that core is normally the `this`
       return {
@@ -58,6 +54,9 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
         },
         get plugins() {
           return options.getPlugins()
+        },
+        get plugin() {
+          return options.plugin
         },
         logger,
         fileManager,

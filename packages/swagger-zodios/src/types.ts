@@ -1,9 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
 
-export type API = {
-  resolveId: (baseName: string, directory: string | undefined) => string | null
-}
-
 export type Options = {
   /**
    * Relative path to save the Zodios instance.
@@ -18,4 +14,4 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-zodios', Options, false, API>
+export type PluginOptions = PluginFactoryOptions<'swagger-zodios', 'controller', Options, false, never>

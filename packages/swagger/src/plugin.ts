@@ -9,8 +9,8 @@ import type { KubbConfig, Logger } from '@kubb/core'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { Oas, PluginOptions } from './types.ts'
 
-export const pluginName: PluginOptions['name'] = 'swagger' as const
-
+export const pluginName = 'swagger' satisfies PluginOptions['name']
+export const pluginKey = ['schema', pluginName] satisfies PluginOptions['key']
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'schemas', validate = true, serverIndex = 0, contentType } = options
 
@@ -79,7 +79,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
         const path = this.resolvePath({
           baseName: `${name}.json`,
-          pluginName,
+          pluginKey,
         })
 
         if (!path) {

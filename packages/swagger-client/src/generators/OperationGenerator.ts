@@ -2,7 +2,7 @@ import { URLPath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 
 import { ClientBuilder } from '../builders/ClientBuilder.tsx'
-import { pluginName } from '../plugin.ts'
+import { pluginKey, pluginName } from '../plugin.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { HttpMethod, Operation, OperationSchemas } from '@kubb/swagger'
@@ -19,7 +19,7 @@ export class OperationGenerator extends Generator<Options> {
   async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<KubbFile.File<FileMeta> | null> {
     const { pluginManager, oas } = this.context
 
-    const controllerName = pluginManager.resolveName({ name: 'operations', pluginName })
+    const controllerName = pluginManager.resolveName({ name: 'operations', pluginKey })
 
     if (!controllerName) {
       throw new Error('controllerName should be defined')
@@ -28,7 +28,7 @@ export class OperationGenerator extends Generator<Options> {
     const controllerId = `${controllerName}.ts` as const
     const controllerFilePath = pluginManager.resolvePath({
       baseName: controllerId,
-      pluginName,
+      pluginKey,
     })
 
     if (!controllerFilePath) {

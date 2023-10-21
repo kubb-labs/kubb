@@ -1,9 +1,9 @@
 import { createJSDocBlockText, getUniqueName, SchemaGenerator } from '@kubb/core'
 import { isReference } from '@kubb/swagger'
-import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
+import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
 import { fakerKeywords, fakerParser } from '../parsers/index.ts'
-import { pluginName } from '../plugin.ts'
+import { pluginKey } from '../plugin.ts'
 
 import type { PluginContext } from '@kubb/core'
 import type { FileResolver, ImportMeta, OpenAPIV3, Refs } from '@kubb/swagger'
@@ -27,7 +27,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
   aliases: ts.TypeAliasDeclaration[] = []
 
   // Keep track of already used type aliases
-  usedAliasNames: Record<string, number> = {}
+  #usedAliasNames: Record<string, number> = {}
 
   constructor(options: Options = { withJSDocs: true, dateType: 'string', resolveName: ({ name }) => name }) {
     super(options)
@@ -52,8 +52,8 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       texts.push(createJSDocBlockText({ comments: [`@description ${description}`] }))
     }
 
-    const name = this.options.resolveName({ name: baseName, pluginName }) || baseName
-    const typeName = this.options.resolveName({ name: baseName, pluginName: swaggerTypeScriptPluginName })
+    const name = this.options.resolveName({ name: baseName, pluginKey }) || baseName
+    const typeName = this.options.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey })
 
     const fakerOutput = fakerParser(fakerInput, {
       name,
@@ -64,7 +64,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       const ref = {
         propertyName: typeName,
         originalName: baseName,
-        pluginName: swaggerTypeScriptPluginName,
+        pluginName: swaggerTypeScriptPluginKey.at(1),
       }
       this.imports.push({
         ref,
@@ -128,7 +128,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
-  #getRefAlias(obj: OpenAPIV3.ReferenceObject, baseName?: string): FakerMeta[] {
+  #getRefAlias(obj: OpenAPIV3.ReferenceObject, _baseName?: string): FakerMeta[] {
     const { $ref } = obj
     let ref = this.refs[$ref]
 
@@ -136,8 +136,8 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       return [{ keyword: fakerKeywords.ref, args: ref.propertyName }]
     }
 
-    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames)
-    const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
+    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
+    const propertyName = this.options.resolveName({ name: originalName, pluginKey }) || originalName
 
     ref = this.refs[$ref] = {
       propertyName,

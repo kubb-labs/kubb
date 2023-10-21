@@ -15,7 +15,6 @@ import type {
   KubbConfig,
   KubbPlugin,
   KubbUserPlugin,
-  PluginContext,
   PluginLifecycle,
   PluginLifecycleHooks,
   PossiblePromise,
@@ -25,7 +24,7 @@ import type {
 import type { Logger } from '../../utils/logger.ts'
 import type { QueueJob } from '../../utils/Queue.ts'
 import type { KubbFile } from '../fileManager/types.ts'
-import type {Argument0, Executer, ParseResult, PluginParameter, RequiredPluginLifecycle, SafeParseResult, Strategy } from './types.ts'
+import type { Argument0, Executer, ParseResult, PluginParameter, RequiredPluginLifecycle, SafeParseResult, Strategy } from './types.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
@@ -77,13 +76,11 @@ export class PluginManager {
       resolvePath: this.resolvePath.bind(this),
       resolveName: this.resolveName.bind(this),
       getPlugins: this.#getSortedPlugins.bind(this),
-      plugin: undefined as unknown as KubbPlugin
-    }) as KubbPlugin<CorePluginOptions> & {
-      api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api'];
-      plugin?: undefined
-    }
+      // see #execute where we override with `.call the this with the correct plugin
+      plugin: undefined as unknown as KubbPlugin,
+    })
 
-    this.#core = pluginParser(core, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
+    this.#core = pluginParser<KubbUserPlugin<CorePluginOptions>>(core, core.api.call(null as any))
 
     this.plugins = [this.#core, ...(config.plugins || [])].reduce((prev, plugin) => {
       // TODO HACK to be sure that this is equal to the `core.api` logic.
@@ -96,12 +93,22 @@ export class PluginManager {
   }
 
   resolvePath = (params: ResolvePathParams): KubbFile.OptionalPath => {
-    if (params.pluginName) {
-      return this.hookForPluginSync({
-        pluginName: params.pluginName,
+    if (params.pluginKey) {
+      const paths = this.hookForPluginSync({
+        pluginKey: params.pluginKey,
         hookName: 'resolvePath',
         parameters: [params.baseName, params.directory, params.options],
       })
+
+      if (paths && paths?.length > 1) {
+        throw new Error(
+          `Cannot return a path where the 'pluginKey' ${params.pluginKey ? JSON.stringify(params.pluginKey) : '"'} is not unique enough\n\nPaths: ${
+            JSON.stringify(paths)
+          }`,
+        )
+      }
+
+      return paths?.at(0)
     }
     return this.hookFirstSync({
       hookName: 'resolvePath',
@@ -110,13 +117,22 @@ export class PluginManager {
   }
 
   resolveName = (params: ResolveNameParams): string => {
-    if (params.pluginName) {
-      const name = this.hookForPluginSync({
-        pluginName: params.pluginName,
+    if (params.pluginKey) {
+      const names = this.hookForPluginSync({
+        pluginKey: params.pluginKey,
         hookName: 'resolveName',
         parameters: [params.name, params.type],
       })
-      return transformReservedWord(name || params.name)
+
+      if (names && names?.length > 1) {
+        throw new Error(
+          `Cannot return a name where the 'pluginKey' ${params.pluginKey ? JSON.stringify(params.pluginKey) : '"'} is not unique enough\n\nNames: ${
+            JSON.stringify(names)
+          }`,
+        )
+      }
+
+      return transformReservedWord(names?.at(0) || params.name)
     }
     const name = this.hookFirstSync({
       hookName: 'resolveName',
@@ -134,41 +150,47 @@ export class PluginManager {
    * Run only hook for a specific plugin name
    */
   hookForPlugin<H extends PluginLifecycleHooks>({
-    pluginName,
+    pluginKey,
     hookName,
     parameters,
   }: {
-    pluginName: string
+    pluginKey: KubbPlugin['key']
     hookName: H
     parameters: PluginParameter<H>
-  }): Promise<ReturnType<ParseResult<H>> | null> | null {
-    const plugin = this.getPlugin(hookName, pluginName)
+  }): Promise<Array<ReturnType<ParseResult<H>> | null>> | null {
+    const plugins = this.getPluginsByKey(hookName, pluginKey)
 
-    return this.#execute({
-      strategy: 'hookFirst',
-      hookName,
-      parameters,
-      plugin,
-    })
+    const promises = plugins.map(plugin => {
+      return this.#execute<H>({
+        strategy: 'hookFirst',
+        hookName,
+        parameters,
+        plugin,
+      })
+    }).filter(Boolean)
+
+    return Promise.all(promises)
   }
 
   hookForPluginSync<H extends PluginLifecycleHooks>({
-    pluginName,
+    pluginKey,
     hookName,
     parameters,
   }: {
-    pluginName: string
+    pluginKey: KubbPlugin['key']
     hookName: H
     parameters: PluginParameter<H>
-  }): ReturnType<ParseResult<H>> | null {
-    const plugin = this.getPlugin(hookName, pluginName)
+  }): Array<ReturnType<ParseResult<H>>> | null {
+    const plugins = this.getPluginsByKey(hookName, pluginKey)
 
-    return this.#executeSync({
-      strategy: 'hookFirst',
-      hookName,
-      parameters,
-      plugin,
-    })
+    return plugins.map(plugin => {
+      return this.#executeSync<H>({
+        strategy: 'hookFirst',
+        hookName,
+        parameters,
+        plugin,
+      })
+    }).filter(Boolean)
   }
 
   /**
@@ -272,7 +294,7 @@ export class PluginManager {
       //     plugin,
       //   })
       // }
-      const promise: Promise<TOuput> | null = this.#execute({ strategy: 'hookParallel', hookName, parameters, plugin })
+      const promise: Promise<TOuput> | null = this.#execute({ strategy: 'hookParallel', hookName, parameters, plugin }) as Promise<TOuput>
 
       if (promise) {
         parallelPromises.push(promise)
@@ -356,14 +378,29 @@ export class PluginManager {
     return plugins
   }
 
-  public getPlugin(hookName: keyof PluginLifecycle, pluginName: string): KubbPlugin {
+  getPluginsByKey(hookName: keyof PluginLifecycle, pluginKey: KubbPlugin['key']): KubbPlugin[] {
     const plugins = [...this.plugins]
 
-    const pluginByPluginName = plugins.find((item) => item.name === pluginName && item[hookName])
+    const [searchKind, searchPluginName, searchIdentifier] = pluginKey
+
+    const pluginByPluginName = plugins.filter(item => item[hookName]).filter((item) => {
+      const [kind, name, identifier] = item.key
+
+      const identifierCheck = identifier?.toString() === searchIdentifier?.toString()
+      const kindCheck = kind === searchKind
+      const nameCheck = name === searchPluginName
+
+      if (searchIdentifier) {
+        return identifierCheck && kindCheck && nameCheck
+      }
+
+      return kindCheck && nameCheck
+    })
+
     if (!pluginByPluginName) {
       // fallback on the core plugin when there is no match
 
-      return this.#core
+      return [plugins.find(plugin => plugin.name === 'core')!]
     }
     return pluginByPluginName
   }
@@ -382,7 +419,7 @@ export class PluginManager {
    * @param plugin The actual pluginObject to run.
    */
   // Implementation signature
-  #execute<H extends PluginLifecycleHooks, TResult = void>({
+  #execute<H extends PluginLifecycleHooks>({
     strategy,
     hookName,
     parameters,
@@ -392,7 +429,7 @@ export class PluginManager {
     hookName: H
     parameters: unknown[] | undefined
     plugin: KubbPlugin
-  }): Promise<TResult> | null {
+  }): Promise<ReturnType<ParseResult<H>> | null> | null {
     const hook = plugin[hookName]
     let output: unknown
 
@@ -405,7 +442,7 @@ export class PluginManager {
     const task = Promise.resolve()
       .then(() => {
         if (typeof hook === 'function') {
-          const possiblePromiseResult = (hook as Function).apply({ ...this.#core.api, plugin }, parameters) as TResult
+          const possiblePromiseResult = (hook as Function).apply({ ...this.#core.api, plugin }, parameters) as Promise<ReturnType<ParseResult<H>>>
 
           if (isPromise(possiblePromiseResult)) {
             return Promise.resolve(possiblePromiseResult)
@@ -423,7 +460,7 @@ export class PluginManager {
       .catch((e: Error) => {
         this.#catcher<H>(e, plugin, hookName)
 
-        return null as TResult
+        return null
       })
       .finally(() => {
         this.#addExecutedToCallStack({
@@ -467,7 +504,7 @@ export class PluginManager {
 
     try {
       if (typeof hook === 'function') {
-        const fn = (hook as Function).apply(this.#core.api, parameters) as ReturnType<ParseResult<H>>
+        const fn = (hook as Function).apply({ ...this.#core.api, plugin }, parameters) as ReturnType<ParseResult<H>>
 
         output = fn
         return fn
@@ -478,7 +515,7 @@ export class PluginManager {
     } catch (e) {
       this.#catcher<H>(e as Error, plugin, hookName)
 
-      return null as ReturnType<ParseResult<H>>
+      return null
     } finally {
       this.#addExecutedToCallStack({
         parameters,

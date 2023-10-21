@@ -11,7 +11,19 @@ import type { KubbFile } from './types.ts'
 
 type TreeNodeData = { type: KubbFile.Mode; path: KubbFile.Path; name: string }
 
-export function getIndexes(root: string, extName?: KubbFile.Extname, options: TreeNodeOptions = {}): Array<KubbFile.File> | null {
+export type IndexesOptions = {
+  treeNode?: TreeNodeOptions
+  isTypeOnly?: boolean
+  filter?: (file: KubbFile.File) => boolean
+  map?: (file: KubbFile.File) => KubbFile.File
+  includeExt?: boolean
+}
+
+export function getIndexes(
+  root: string,
+  extName?: KubbFile.Extname,
+  { treeNode = {}, isTypeOnly, filter, map, includeExt }: IndexesOptions = {},
+): Array<KubbFile.File> | null {
   const extMapper: Record<KubbFile.Extname, TreeNodeOptions> = {
     '.ts': {
       extensions: /\.ts/,
@@ -22,7 +34,7 @@ export function getIndexes(root: string, extName?: KubbFile.Extname, options: Tr
       exclude: [],
     },
   }
-  const tree = TreeNode.build<TreeNodeData>(root, { ...(extMapper[extName as keyof typeof extMapper] || {}), ...options })
+  const tree = TreeNode.build<TreeNodeData>(root, { ...(extMapper[extName as keyof typeof extMapper] || {}), ...treeNode })
 
   if (!tree) {
     return null
@@ -34,8 +46,8 @@ export function getIndexes(root: string, extName?: KubbFile.Extname, options: Tr
     }
 
     if (currentTree.children?.length > 1) {
-      const path = pathParser.resolve(currentTree.data.path, 'index.ts')
-      const exports = currentTree.children
+      const path: KubbFile.Path = pathParser.resolve(currentTree.data.path, 'index.ts')
+      const exports: KubbFile.Export[] = currentTree.children
         .map((file) => {
           if (!file) {
             return undefined
@@ -48,7 +60,10 @@ export function getIndexes(root: string, extName?: KubbFile.Extname, options: Tr
             return undefined
           }
 
-          return { path: importPath }
+          return {
+            path: includeExt ? file.data.type === 'directory' ? `${importPath}/index${extName}` : `${importPath}${extName}` : importPath,
+            isTypeOnly,
+          } as KubbFile.Export
         })
         .filter(Boolean)
 
@@ -67,7 +82,10 @@ export function getIndexes(root: string, extName?: KubbFile.Extname, options: Tr
           path,
           baseName: 'index.ts',
           source: '',
-          exports: [{ path: importPath }],
+          exports: [{
+            path: includeExt ? child.data.type === 'directory' ? `${importPath}/index${extName}` : `${importPath}${extName}` : importPath,
+            isTypeOnly,
+          }],
         })
       })
     }
@@ -81,7 +99,9 @@ export function getIndexes(root: string, extName?: KubbFile.Extname, options: Tr
 
   const files = fileReducer([], tree)
 
-  return files
+  const filteredFiles = filter ? files.filter(filter) : files
+
+  return map ? filteredFiles.map(map) : filteredFiles
 }
 
 export function combineFiles(files: Array<KubbFile.File | null>): Array<KubbFile.File> {

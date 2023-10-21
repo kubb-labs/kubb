@@ -8,22 +8,24 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/index.ts'
 
+import type { KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions as SwaggerZodPluginOptions } from '@kubb/swagger-zod'
 import type { PluginOptions } from './types.ts'
 
-export const pluginName: PluginOptions['name'] = 'swagger-zodios' as const
+export const pluginName = 'swagger-zodios' satisfies PluginOptions['name']
+export const pluginKey = ['controller', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'zodios.ts' } = options
-  let pluginsOptions: [SwaggerPluginOptions, SwaggerZodPluginOptions]
+  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>, KubbPlugin<SwaggerZodPluginOptions>]
 
   return {
     name: pluginName,
     options,
     kind: 'controller',
     validate(plugins) {
-      pluginsOptions = getDependedPlugins<[SwaggerPluginOptions, SwaggerZodPluginOptions]>(plugins, [swaggerPluginName, swaggerZodPluginName])
+      pluginsOptions = getDependedPlugins<SwaggerPluginOptions, SwaggerZodPluginOptions>(plugins, [swaggerPluginName, swaggerZodPluginName])
 
       return true
     },
@@ -46,6 +48,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         {
           oas,
           pluginManager: this.pluginManager,
+          plugin: this.plugin,
           contentType: swaggerPlugin.api.contentType,
           skipBy: swaggerZodPlugin.options.skipBy,
         },

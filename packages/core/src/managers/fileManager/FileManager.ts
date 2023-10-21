@@ -3,8 +3,9 @@ import crypto from 'node:crypto'
 import { read, write } from '../../utils/index.ts'
 import { extensions, getIndexes } from './utils.ts'
 
-import type { Queue, QueueJob, TreeNodeOptions } from '../../utils/index.ts'
+import type { Queue, QueueJob } from '../../utils/index.ts'
 import type { CacheItem, KubbFile } from './types.ts'
+import type { IndexesOptions } from './utils.ts'
 
 export class FileManager {
   #cache: Map<KubbFile.Path, CacheItem[]> = new Map()
@@ -81,7 +82,7 @@ export class FileManager {
     return this.add(file)
   }
 
-  async addIndexes(root: KubbFile.Path, extName: KubbFile.Extname = '.ts', options: TreeNodeOptions = {}): Promise<Array<KubbFile.File> | undefined> {
+  async addIndexes(root: KubbFile.Path, extName: KubbFile.Extname = '.ts', options: IndexesOptions = {}): Promise<Array<KubbFile.File> | undefined> {
     const files = await getIndexes(root, extName, options)
 
     if (!files) {

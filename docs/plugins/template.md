@@ -19,7 +19,7 @@ $ git clone https://github.com/kubb-project/plugin-template.git
 import pathParser from 'node:path'
 
 import { createPlugin, getPathMode, validatePlugins, writeIndexes } from '@kubb/core'
-import { pluginName as swaggerPluginName } from '@kubb/swagger'
+import { pluginKey as swaggerPluginKey } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
@@ -27,7 +27,8 @@ import type { File } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
-export const pluginName: PluginOptions['name'] = 'plugin-demo' as const
+export const pluginName = 'plugin-demo' satisfies PluginOptions['name']
+export const pluginKey = ['controller', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'demo' } = options

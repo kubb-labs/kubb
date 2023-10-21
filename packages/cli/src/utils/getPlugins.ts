@@ -2,7 +2,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
-import { importModule } from '@kubb/core'
+import { PackageManager } from '@kubb/core'
 
 import type { KubbJSONPlugins, KubbObjectPlugin, KubbUserConfig } from '@kubb/core'
 
@@ -17,7 +17,9 @@ function isObjectPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugins[])
 }
 
 async function importPlugin(name: string, options: object): Promise<KubbUserConfig['plugins']> {
-  const importedPlugin: any = process.env.NODE_ENV === 'test' ? await import(name) : await importModule(name, process.cwd())
+  const packageManager = new PackageManager(process.cwd())
+
+  const importedPlugin: any = process.env.NODE_ENV === 'test' ? await import(name) : await packageManager.import(name, process.cwd())
 
   // eslint-disable-next-line
   return importedPlugin?.default ? importedPlugin.default(options) : importedPlugin(options)

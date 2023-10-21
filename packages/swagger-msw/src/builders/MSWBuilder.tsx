@@ -3,7 +3,7 @@ import { createRoot, File } from '@kubb/react'
 import { OasBuilder, useResolve, useResolveName } from '@kubb/swagger'
 import { useResolve as useResolveFaker } from '@kubb/swagger-faker'
 
-import { pluginName } from '../plugin.ts'
+import { pluginKey } from '../plugin.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { AppMeta } from '../types.ts'
@@ -20,7 +20,7 @@ export class MSWBuilder extends OasBuilder<Options> {
     const { operation } = this.context
 
     const Component = () => {
-      const name = useResolveName({ pluginName, type: 'function' })
+      const name = useResolveName({ pluginKey, type: 'function' })
 
       return (
         <>
@@ -51,7 +51,7 @@ export class MSWBuilder extends OasBuilder<Options> {
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const Component = () => {
-      const file = useResolve({ pluginName, type: 'file' })
+      const file = useResolve({ pluginKey, type: 'file' })
       const faker = useResolveFaker({ type: 'file' })
 
       return (

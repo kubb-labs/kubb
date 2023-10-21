@@ -5,7 +5,7 @@ import { getASTParams, getComments, OasBuilder, useResolve, useResolveName, useS
 import { useResolve as useResolveType } from '@kubb/swagger-ts'
 
 import { ClientFunction } from '../components/index.ts'
-import { pluginName } from '../plugin.ts'
+import { pluginKey } from '../plugin.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { AppMeta, Options as PluginOptions } from '../types.ts'
@@ -67,7 +67,7 @@ export class ClientBuilder extends OasBuilder<Options> {
 
     const Component = () => {
       const schemas = useSchemas()
-      const name = useResolveName({ pluginName, type: 'function' })
+      const name = useResolveName({ pluginKey, type: 'function' })
 
       return (
         <ClientFunction
@@ -103,7 +103,7 @@ export class ClientBuilder extends OasBuilder<Options> {
 
     const Component = () => {
       const schemas = useSchemas()
-      const file = useResolve({ pluginName, type: 'file' })
+      const file = useResolve({ pluginKey, type: 'file' })
       const fileType = useResolveType({ type: 'file' })
 
       const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'

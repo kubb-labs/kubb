@@ -70,7 +70,7 @@ describe('FileManager utils', () => {
     import type { Pets } from './Pets'
 
     export type Pet = Pets
-    
+
    `),
     )
 
@@ -82,7 +82,7 @@ describe('FileManager utils', () => {
 
     export type Pet = Pets | Cat
     const test = [client, React]
-    
+
    `),
     )
 
@@ -117,7 +117,7 @@ describe('FileManager utils', () => {
     import type Pets from './Pets'
 
     export type Pet = Pets
-    
+
    `),
     )
   })
@@ -200,7 +200,7 @@ export const test2 = 3;`,
       await format(`
       import type { Pets, Lily } from "./Pets";
       import type Dog from "./Dog";
-      
+
       export const test = 2;
       type Test = Pets | Lily | Dog;`),
     )
@@ -405,4 +405,6 @@ export const test2 = 3;`,
     `),
     )
   })
+  test.todo('if getIndexes can return an export with `exportAs` and/or `isTypeOnly`')
+  test.todo('if getIndexes can return an export with `includeExt`')
 })

@@ -23,7 +23,7 @@ export type KubbUserConfig = Omit<KubbConfig, 'root' | 'plugins'> & {
    * Example: ['@kubb/swagger', { output: false }]
    * Or: createSwagger({ output: false })
    */
-  plugins?: Array<KubbPlugin> | Array<KubbJSONPlugins> | KubbObjectPlugins
+  plugins?: Array<KubbUserPlugin> | Array<KubbJSONPlugins> | KubbObjectPlugins
 }
 
 type InputPath = {
@@ -128,13 +128,57 @@ export type KubbObjectPlugins = {
   [K in keyof Kubb.OptionsPlugins]: Kubb.OptionsPlugins[K] | object
 }
 
+export type GetPluginFactoryOptions<TPlugin extends KubbUserPlugin> = TPlugin extends KubbUserPlugin<infer X> ? X : never
+
 export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
   & {
     /**
      * Unique name used for the plugin
      * @example @kubb/typescript
      */
-    name: PluginFactoryOptions['name']
+    name: TOptions['name']
+    /**
+     * Internal key used when a developer uses more than one of the same plugin
+     * @private
+     */
+    key?: TOptions['key']
+    /**
+     * Options set for a specific plugin(see kubb.config.js), passthrough of options.
+     */
+    options: TOptions['options'] extends never ? undefined : TOptions['options']
+  }
+  & Partial<PluginLifecycle<TOptions>>
+  & (TOptions['api'] extends never ? {
+      api?: never
+    }
+    : {
+      api: (this: Omit<PluginContext, 'addFile'>) => TOptions['api']
+    })
+  & (TOptions['kind'] extends never ? {
+      kind?: never
+    }
+    : {
+      /**
+       * Kind/type for the plugin
+       * Type 'schema' can be used for JSON schema's, TypeScript types, ...
+       * Type 'controller' can be used to create generate API calls, React-Query hooks, Axios controllers, ...
+       * @default undefined
+       */
+      kind: TOptions['kind']
+    })
+
+export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
+  & {
+    /**
+     * Unique name used for the plugin
+     * @example @kubb/typescript
+     */
+    name: TOptions['name']
+    /**
+     * Internal key used when a developer uses more than one of the same plugin
+     * @private
+     */
+    key: TOptions['key']
     /**
      * Options set for a specific plugin(see kubb.config.js), passthrough of options.
      */
@@ -146,62 +190,34 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
      * @default undefined
      */
     kind?: KubbPluginKind
+    /**
+     * Define an api that can be used by other plugins, see `PluginManager' where we convert from `KubbUserPlugin` to `KubbPlugin`(used when calling `createPlugin`).
+     */
   }
-  & Partial<PluginLifecycle<TOptions>>
-  & (TOptions['api'] extends never
-  ? {
-     api?:never
+  & PluginLifecycle<TOptions>
+  & (TOptions['api'] extends never ? {
+      api?: never
     }
-  :  {
-    api: (this: Omit<PluginContext, 'addFile'>) => TOptions['api']
-  }
-  )
-
-
-export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
-  /**
-   * Unique name used for the plugin
-   * @example @kubb/typescript
-   */
-  name: PluginFactoryOptions['name']
-  /*
-  Internal key used when a developer uses more than one of the same plugin
-    */
-  key: [kind: KubbPluginKind | undefined, name: PluginFactoryOptions['name'], identifier: string]
-  /**
-   * Options set for a specific plugin(see kubb.config.js), passthrough of options.
-   */
-  options: TOptions['options'] extends never ? undefined : TOptions['options']
-  /**
-   * Kind/type for the plugin
-   * Type 'schema' can be used for JSON schema's, TypeScript types, ...
-   * Type 'controller' can be used to create generate API calls, React-Query hooks, Axios controllers, ...
-   * @default undefined
-   */
-  kind?: KubbPluginKind
-  /**
-   * Define an api that can be used by other plugins, see `PluginManager' where we convert from `KubbUserPlugin` to `KubbPlugin`(used when calling `createPlugin`).
-   */
-} & PluginLifecycle<TOptions>
-& (TOptions['api'] extends never
-? {
-   api?:never
-  }
-:  {
-  api: TOptions['api']
-}
-)
+    : {
+      api: TOptions['api']
+    })
 
 // use of type objects
 
 export type PluginFactoryOptions<
   Name = string,
+  Kind extends KubbPluginKind = KubbPluginKind | never,
   Options = unknown | never,
   Nested extends boolean = false,
   API = unknown | never,
   resolvePathOptions = Record<string, unknown>,
 > = {
   name: Name
+  kind: Kind
+  /**
+   * Same like `QueryKey` in `@tanstack/react-query`
+   */
+  key: [kind: Kind | undefined, name: Name, identifier?: string | number]
   options: Options
   nested: Nested
   api: API
@@ -213,7 +229,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Valdiate all plugins to see if their depended plugins are installed and configured.
    * @type hookParallel
    */
-  validate?: (this: Omit<PluginContext, 'addFile'>, plugins: NonNullable<KubbConfig["plugins"]>) => PossiblePromise<true>
+  validate?: (this: Omit<PluginContext, 'addFile'>, plugins: NonNullable<KubbConfig['plugins']>) => PossiblePromise<true>
   /**
    * Start of the lifecycle of a plugin.
    * @type hookParallel
@@ -260,11 +276,7 @@ export type PluginLifecycleHooks = keyof PluginLifecycle
 export type PluginCache = Record<string, [number, unknown]>
 
 export type ResolvePathParams<TOptions = Record<string, unknown>> = {
-  /**
-   * When set, resolvePath will only call resolvePath of the name of the plugin set here.
-   * If not defined it will fall back on the resolvePath of the core plugin.
-   */
-  pluginName?: string
+  pluginKey?: KubbPlugin['key']
   baseName: string
   directory?: string | undefined
   /**
@@ -275,11 +287,7 @@ export type ResolvePathParams<TOptions = Record<string, unknown>> = {
 
 export type ResolveNameParams = {
   name: string
-  /**
-   * When set, resolvePath will only call resolvePath of the name of the plugin set here.
-   * If not defined it will fall back on the resolvePath of the core plugin.
-   */
-  pluginName?: string
+  pluginKey?: KubbPlugin['key']
   type?: 'file' | 'function'
 }
 
@@ -292,7 +300,14 @@ export type PluginContext<TOptions = Record<string, unknown>> = {
   resolvePath: (params: ResolvePathParams<TOptions>) => KubbFile.OptionalPath
   resolveName: (params: ResolveNameParams) => string
   logger: Logger
+  /**
+   * All plugins
+   */
   plugins: KubbPlugin[]
+  /**
+   * Current plugin
+   */
+  plugin: KubbPlugin
 }
 
 // null will mean clear the watcher for this key

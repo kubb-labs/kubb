@@ -8,10 +8,12 @@ import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerg
 import { TypeBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
 
+import type { KubbPlugin } from '@kubb/core'
 import type { OpenAPIV3, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
-export const pluginName: PluginOptions['name'] = 'swagger-ts' as const
+export const pluginName = 'swagger-ts' satisfies PluginOptions['name']
+export const pluginKey = ['schema', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
@@ -23,16 +25,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     dateType = 'string',
     optionalType = 'questionToken',
     transformers = {},
+    exportAs,
   } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
-  let pluginsOptions: [SwaggerPluginOptions]
+  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
     options,
     kind: 'schema',
     validate(plugins) {
-      pluginsOptions = getDependedPlugins<[SwaggerPluginOptions]>(plugins, [swaggerPluginName])
+      pluginsOptions = getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
 
       return true
     },
@@ -79,14 +82,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (mode === 'directory') {
         const builder = await new TypeBuilder({
-          resolveName: (params) => this.resolveName({ pluginName, ...params }),
+          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           fileResolver: (name) => {
             const resolvedTypeId = this.resolvePath({
               baseName: `${name}.ts`,
-              pluginName,
+              pluginKey: this.plugin.key,
             })
 
-            const root = this.resolvePath({ baseName: ``, pluginName })
+            const root = this.resolvePath({ baseName: ``, pluginKey: this.plugin.key })
 
             return getRelativePath(root, resolvedTypeId)
           },
@@ -104,7 +107,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
 
         const mapFolderSchema = async ([name]: [string, OpenAPIV3.SchemaObject]) => {
-          const path = this.resolvePath({ baseName: `${this.resolveName({ name, pluginName })}.ts`, pluginName })
+          const path = this.resolvePath({ baseName: `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts`, pluginKey: this.plugin.key })
 
           if (!path) {
             return null
@@ -112,10 +115,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
           return this.addFile({
             path,
-            baseName: `${this.resolveName({ name, pluginName })}.ts`,
+            baseName: `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts`,
             source: builder.print(name),
             meta: {
-              pluginName,
+              pluginName: this.plugin.name,
             },
           })
         }
@@ -128,7 +131,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (mode === 'file') {
         // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
         const builder = new TypeBuilder({
-          resolveName: (params) => this.resolveName({ pluginName, ...params }),
+          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           withJSDocs: true,
           enumType,
           dateType,
@@ -142,17 +145,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           })
         })
 
-        const path = this.resolvePath({ baseName: '', pluginName })
+        const path = this.resolvePath({ baseName: '', pluginKey: this.plugin.key })
         if (!path) {
           return
         }
 
         await this.addFile({
           path,
-          baseName: `${this.resolveName({ name: output, pluginName })}.ts`,
+          baseName: `${this.resolveName({ name: output, pluginKey: this.plugin.key })}.ts`,
           source: builder.print(),
           meta: {
-            pluginName,
+            pluginName: this.plugin.name,
           },
         })
       }
@@ -167,6 +170,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         {
           oas,
           pluginManager: this.pluginManager,
+          plugin: this.plugin,
           contentType: swaggerPlugin.api.contentType,
           skipBy,
           overrideBy,
@@ -187,7 +191,31 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const root = pathParser.resolve(this.config.root, this.config.output.path)
 
-      await this.fileManager.addIndexes(root, '.ts')
+      await this.fileManager.addIndexes(root, '.ts', {
+        map: (file) => {
+          if (file.baseName === 'index.ts') {
+            return {
+              ...file,
+              exports: file.exports?.filter(item => {
+                return item.path.endsWith(output)
+              }).map(item => {
+                if (item.path.endsWith(output) && exportAs) {
+                  return {
+                    ...item,
+                    name: exportAs,
+                    asAlias: !!exportAs,
+                  }
+                }
+                return item
+              }),
+            }
+          }
+
+          return file
+        },
+        isTypeOnly: true,
+        includeExt: true,
+      })
     },
   }
 })

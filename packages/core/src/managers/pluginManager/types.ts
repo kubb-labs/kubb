@@ -1,6 +1,6 @@
 import type { KubbPlugin, PluginLifecycle, PluginLifecycleHooks } from '../../types.ts'
 
-export type RequiredPluginLifecycle =Required<PluginLifecycle>
+export type RequiredPluginLifecycle = Required<PluginLifecycle>
 
 /**
  * Get the type of the first argument in a function.

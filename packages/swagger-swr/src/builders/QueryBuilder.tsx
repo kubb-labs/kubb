@@ -5,7 +5,7 @@ import { getASTParams, getComments, OasBuilder, useResolve } from '@kubb/swagger
 
 import { camelCase } from 'change-case'
 
-import { pluginName } from '../plugin.ts'
+import { pluginKey } from '../plugin.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
@@ -120,7 +120,7 @@ export function ${name} <
       {
         name: 'options',
         required: false,
-        type: `{ 
+        type: `{
           query?: SWRConfiguration<${queryGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
           shouldFetch?: boolean,
@@ -152,7 +152,7 @@ export function ${name} <
     codes.push(`
 export function ${name} <${generics.toString()}>(${params.toString()}): SWRResponse<${queryGenerics.join(', ')}> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
-  
+
   const url = shouldFetch ? ${new URLPath(operation.path).template} : null;
   const query = useSWR<${queryGenerics.join(', ')}, string | null>(url, {
     ...${queryOptions},
@@ -221,7 +221,7 @@ export function ${name} <
   ${params.toString()}
 ): SWRMutationResponse<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
-  
+
   const url = shouldFetch ? ${new URLPath(operation.path).template} : null;
   return useSWRMutation<${mutationGenerics.join(', ')}>(
     url,
@@ -253,7 +253,7 @@ export function ${name} <
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const ComponentQuery = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
+      const file = useResolve({ name, pluginKey, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>
@@ -267,7 +267,7 @@ export function ${name} <
     }
 
     const ComponentMutation = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
+      const file = useResolve({ name, pluginKey, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>

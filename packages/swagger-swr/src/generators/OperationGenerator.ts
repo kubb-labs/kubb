@@ -1,9 +1,9 @@
 import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
-import { pluginName as swaggerTypescriptPluginName, resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
+import { pluginKey as swaggerTypescriptPluginKey, resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
 
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
-import { pluginName } from '../plugin.ts'
+import { pluginKey, pluginName } from '../plugin.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { Operation, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
@@ -19,14 +19,14 @@ export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
     const { pluginManager } = this.context
 
-    const name = pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginName })
+    const name = pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey })
 
     return resolve({
       name,
       operation,
       resolveName: pluginManager.resolveName,
       resolvePath: pluginManager.resolvePath,
-      pluginName,
+      pluginKey,
     })
   }
 
@@ -43,7 +43,7 @@ export class OperationGenerator extends Generator<Options> {
   resolveError(operation: Operation, statusCode: number): Resolver {
     const { pluginManager } = this.context
 
-    const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
+    const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginKey: swaggerTypescriptPluginKey })
 
     return resolveSwaggerTypescript({
       name,

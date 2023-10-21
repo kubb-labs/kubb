@@ -7,11 +7,12 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/OperationGenerator.ts'
 
-import type { KubbFile } from '@kubb/core'
+import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
-export const pluginName: PluginOptions['name'] = 'swagger-client' as const
+export const pluginName = 'swagger-client' satisfies PluginOptions['name']
+export const pluginKey = ['controller', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
@@ -27,14 +28,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   } = options
 
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
-  let pluginsOptions: [SwaggerPluginOptions]
+  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
     options,
     kind: 'controller',
     validate(plugins) {
-      pluginsOptions = getDependedPlugins<[SwaggerPluginOptions]>(plugins, [swaggerPluginName])
+      pluginsOptions = getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
 
       return true
     },
@@ -80,6 +81,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         {
           oas,
           pluginManager: this.pluginManager,
+          plugin: this.plugin,
           contentType: swaggerPlugin.api.contentType,
           skipBy,
           overrideBy,
@@ -105,7 +107,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           .map((file) => {
             const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
             const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
-            const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Service', { tag }), pluginName })
+            const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Service', { tag }), pluginKey })
 
             if (name) {
               return {

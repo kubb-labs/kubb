@@ -1,3 +1,4 @@
+import type { KubbPlugin } from '@kubb/core'
 import type { AppMeta as AppCoreMeta, KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type Oas from 'oas'
 import type Operation from 'oas/operation'
@@ -8,7 +9,7 @@ import type { GetSchemasProps } from './utils/getSchemas.ts'
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type ContentType = 'application/json' | (string & {})
 
-export type ResolvePathOptions = { pluginName?: string; tag?: string; type?: ResolveNameParams['type'] }
+export type ResolvePathOptions = { pluginKey?: KubbPlugin['key']; tag?: string; type?: ResolveNameParams['type'] }
 
 export type API = {
   getOas: () => Promise<Oas>
@@ -44,7 +45,7 @@ export type Options = {
   contentType?: ContentType
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger', Options, false, API>
+export type PluginOptions = PluginFactoryOptions<'swagger', 'schema', Options, false, API>
 
 export type { default as Oas } from 'oas'
 export type { default as Operation } from 'oas/operation'

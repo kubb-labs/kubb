@@ -6,8 +6,7 @@
         "^build"
       ],
       "outputs": [
-        "dist/**",
-        ".next/**"
+        "dist/**"
       ]
     },
     "clean": {
@@ -39,15 +38,17 @@
       "cache": false
     },
     "lint-fix": {
-      "outputs": [],
+      "outputs": [
+        "src/**"
+      ],
       "cache": false,
       "outputMode": "new-only"
     },
     "typecheck": {
-      "dependsOn": [
-        "build"
+      "dependsOn": [],
+      "outputs": [
+        "dist/**"
       ],
-      "outputs": [],
       "cache": false
     },
     "release": {
@@ -69,10 +70,9 @@
       "outputs": []
     },
     "generate": {
-      "dependsOn": [
-        "build"
-      ],
+      "dependsOn": [],
       "outputs": [
+        // "dist/**",
         "gen/**",
         "src/gen/**"
       ],

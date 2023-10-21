@@ -51,6 +51,6 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-msw', Options, false, unknown, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-msw', 'schema', Options, false, never, ResolvePathOptions>
 
 export type AppMeta = SwaggerAppMeta
