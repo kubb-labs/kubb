@@ -33,6 +33,8 @@ yarn add @kubb/react
 
 :::
 
+<hr/>
+
 ### Configure `tsconfig.json`
 
 ::: code-group
