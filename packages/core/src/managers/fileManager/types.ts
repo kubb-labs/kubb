@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
+import type { KubbPlugin } from '../../types.ts'
+
 type BasePath<T extends string = string> = `${T}/`
 
 export type CacheItem = KubbFile.ResolvedFile & {
@@ -37,9 +39,9 @@ export namespace KubbFile {
 
   export type File<
     TMeta extends {
-      pluginName?: string
+      pluginKey?: KubbPlugin['key']
     } = {
-      pluginName?: string
+      pluginKey?: KubbPlugin['key']
     },
     TBaseName extends BaseName = BaseName,
   > = {

@@ -4,8 +4,6 @@ import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import { pluginKey } from '../plugin.ts'
-
 import type { KubbFile } from '@kubb/core'
 import type { HttpMethod, OpenAPIV3, Operation, Resolver } from '@kubb/swagger'
 
@@ -18,15 +16,15 @@ const methods: HttpMethod[] = ['get', 'post', 'patch', 'put', 'delete']
 export class OperationGenerator extends Generator<Options> {
   resolve(): Resolver {
     const { output } = this.options
-    const { pluginManager } = this.context
+    const { pluginManager, plugin } = this.context
 
-    const name = pluginManager.resolveName({ name: output.replace('.ts', ''), pluginKey })
+    const name = pluginManager.resolveName({ name: output.replace('.ts', ''), pluginKey: plugin.key })
 
     return resolve({
       name,
       resolveName: pluginManager.resolveName,
       resolvePath: pluginManager.resolvePath,
-      pluginKey,
+      pluginKey: plugin.key,
     })
   }
 

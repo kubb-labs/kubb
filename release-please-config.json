@@ -60,7 +60,7 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": false,
-      "skip-github-release": true
+      "skip-github-release": false
     },
     "packages/kubb": {
       "component": "kubb",

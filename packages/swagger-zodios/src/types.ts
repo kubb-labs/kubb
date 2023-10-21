@@ -1,3 +1,4 @@
+import type { KubbPlugin } from '@kubb/core'
 import type { PluginFactoryOptions } from '@kubb/core'
 
 export type Options = {
@@ -10,7 +11,7 @@ export type Options = {
 }
 
 export type FileMeta = {
-  pluginName?: string
+  pluginKey?: KubbPlugin['key']
   tag?: string
 }
 

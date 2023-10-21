@@ -2,7 +2,6 @@ import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 
 import { ZodBuilder } from '../builders/index.ts'
-import { pluginKey, pluginName } from '../plugin.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { FileResolver, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
@@ -13,13 +12,13 @@ type Options = {}
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
-    const { pluginManager } = this.context
+    const { pluginManager, plugin } = this.context
 
     return resolve({
       operation,
       resolveName: pluginManager.resolveName,
       resolvePath: pluginManager.resolvePath,
-      pluginKey,
+      pluginKey: plugin.key,
     })
   }
 
@@ -28,17 +27,17 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas, _options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, mode } = this.context
+    const { pluginManager, mode, plugin } = this.context
 
     const zod = this.resolve(operation)
 
     const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = pluginManager.resolvePath({ baseName: zod.name, pluginKey, options: { tag: operation.getTags()[0]?.name } })
+      const root = pluginManager.resolvePath({ baseName: zod.name, pluginKey: plugin.key, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = pluginManager.resolvePath({
         baseName: `${name}.ts`,
-        pluginKey,
+        pluginKey: plugin.key,
       })
 
       return getRelativePath(root, resolvedTypeId)
@@ -64,24 +63,24 @@ export class OperationGenerator extends Generator<Options> {
         },
       ],
       meta: {
-        pluginName,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }
   }
 
   async post(operation: Operation, schemas: OperationSchemas, _options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, mode } = this.context
+    const { pluginManager, mode, plugin } = this.context
 
     const zod = this.resolve(operation)
 
     const fileResolver: FileResolver = (name) => {
       // Used when a react-query type(request, response, params) has an import of a global type
-      const root = pluginManager.resolvePath({ baseName: zod.name, pluginKey, options: { tag: operation.getTags()[0]?.name } })
+      const root = pluginManager.resolvePath({ baseName: zod.name, pluginKey: plugin.key, options: { tag: operation.getTags()[0]?.name } })
       // refs import, will always been created with the SwaggerTS plugin, our global type
       const resolvedTypeId = pluginManager.resolvePath({
         baseName: `${name}.ts`,
-        pluginKey,
+        pluginKey: plugin.key,
       })
 
       return getRelativePath(root, resolvedTypeId)
@@ -108,7 +107,7 @@ export class OperationGenerator extends Generator<Options> {
         },
       ],
       meta: {
-        pluginName,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }

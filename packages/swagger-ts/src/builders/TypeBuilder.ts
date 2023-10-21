@@ -11,6 +11,8 @@ import type ts from 'typescript'
 
 type Generated = { import: { refs: Refs; name: string }; sources: ts.Node[] }
 type Options = {
+  usedEnumNames: Record<string, number>
+
   resolveName: PluginContext['resolveName']
   fileResolver?: FileResolver
   withJSDocs?: boolean
@@ -52,6 +54,7 @@ export class TypeBuilder extends OasBuilder<Options, never> {
       .sort(nameSorter)
       .map((operationSchema) => {
         const generator = new TypeGenerator({
+          usedEnumNames: this.options.usedEnumNames,
           withJSDocs: this.options.withJSDocs,
           resolveName: this.options.resolveName,
           enumType: this.options.enumType,

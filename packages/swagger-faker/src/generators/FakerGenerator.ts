@@ -64,7 +64,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
       const ref = {
         propertyName: typeName,
         originalName: baseName,
-        pluginName: swaggerTypeScriptPluginKey.at(1),
+        pluginKey: swaggerTypeScriptPluginKey,
       }
       this.imports.push({
         ref,

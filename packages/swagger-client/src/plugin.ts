@@ -12,7 +12,7 @@ import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-client' satisfies PluginOptions['name']
-export const pluginKey = ['controller', pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
@@ -101,7 +101,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (groupBy?.type === 'tag') {
         const filteredFiles = this.fileManager.files.filter(
-          (file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag,
+          (file) => file.meta?.pluginKey?.[1] === pluginName && (file.meta as FileMeta)?.tag,
         ) as KubbFile.File<FileMeta>[]
         const rootFiles = filteredFiles
           .map((file) => {
@@ -116,7 +116,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
                 source: '',
                 exports: [{ path, asAlias: true, name }],
                 meta: {
-                  pluginName,
+                  pluginKey: this.plugin.key,
                 },
               }
             }

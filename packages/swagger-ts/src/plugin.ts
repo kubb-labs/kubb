@@ -13,7 +13,7 @@ import type { OpenAPIV3, PluginOptions as SwaggerPluginOptions } from '@kubb/swa
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-ts' satisfies PluginOptions['name']
-export const pluginKey = ['schema', pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
@@ -79,9 +79,12 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const schemas = await swaggerPlugin.api.getSchemas()
       const root = pathParser.resolve(this.config.root, this.config.output.path)
       const mode = getPathMode(pathParser.resolve(root, output))
+      // keep the used enumnames between TypeBuilder and OperationGenerator per plugin(pluginKey)
+      const usedEnumNames = {}
 
       if (mode === 'directory') {
         const builder = await new TypeBuilder({
+          usedEnumNames,
           resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           fileResolver: (name) => {
             const resolvedTypeId = this.resolvePath({
@@ -118,7 +121,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             baseName: `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts`,
             source: builder.print(name),
             meta: {
-              pluginName: this.plugin.name,
+              pluginKey: this.plugin.key,
             },
           })
         }
@@ -131,6 +134,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (mode === 'file') {
         // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
         const builder = new TypeBuilder({
+          usedEnumNames,
           resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           withJSDocs: true,
           enumType,
@@ -155,7 +159,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           baseName: `${this.resolveName({ name: output, pluginKey: this.plugin.key })}.ts`,
           source: builder.print(),
           meta: {
-            pluginName: this.plugin.name,
+            pluginKey: this.plugin.key,
           },
         })
       }
@@ -166,6 +170,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           enumType,
           dateType,
           optionalType,
+          usedEnumNames,
         },
         {
           oas,

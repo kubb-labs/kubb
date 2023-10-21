@@ -1,4 +1,4 @@
-import type { PluginFactoryOptions } from '@kubb/core'
+import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, Operation, OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
 type Infinite = {
@@ -122,7 +122,7 @@ export type FrameworkImports = {
 }
 
 export type FileMeta = {
-  pluginName?: string
+  pluginKey?: KubbPlugin['key']
   tag?: string
 }
 

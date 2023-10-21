@@ -14,7 +14,7 @@ import type { OpenAPIV3, PluginOptions as SwaggerPluginOptions } from '@kubb/swa
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-faker' satisfies PluginOptions['name']
-export const pluginKey = ['schema', pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'mocks', groupBy, skipBy = [], overrideBy = [], transformers = {}, dateType = 'string' } = options
@@ -72,14 +72,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (mode === 'directory') {
         const builder = await new FakerBuilder({
-          resolveName: (params) => this.resolveName({ pluginKey, ...params }),
+          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           fileResolver: (name, ref) => {
             const resolvedTypeId = this.resolvePath({
               baseName: `${name}.ts`,
-              pluginKey: ['schema', ref.pluginName || pluginName],
+              pluginKey: ref.pluginKey || this.plugin.key,
             })
 
-            const root = this.resolvePath({ baseName: ref.pluginName ? `${name}.ts` : ``, pluginKey })
+            const root = this.resolvePath({ baseName: ref.pluginKey ? `${name}.ts` : ``, pluginKey: this.plugin.key })
 
             return getRelativePath(root, resolvedTypeId)
           },
@@ -113,7 +113,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
               },
             ],
             meta: {
-              pluginName,
+              pluginKey: this.plugin.key,
             },
           })
         }
@@ -155,7 +155,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             },
           ],
           meta: {
-            pluginName,
+            pluginKey: this.plugin.key,
           },
         })
       }
@@ -187,7 +187,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (groupBy?.type === 'tag') {
         const filteredFiles = this.fileManager.files.filter(
-          (file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag,
+          (file) => file.meta?.pluginKey?.[1] === pluginName && (file.meta as FileMeta)?.tag,
         ) as KubbFile.File<FileMeta>[]
         const rootFiles = filteredFiles
           .map((file) => {
@@ -205,7 +205,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
                 source: '',
                 exports: [{ path, asAlias: true, name }],
                 meta: {
-                  pluginName,
+                  pluginKey: this.plugin.key,
                 },
               } as KubbFile.File
             }

@@ -27,13 +27,13 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
   const failedPlugins = config.plugins?.filter((plugin) => !buildStartPlugins.includes(plugin.name))?.map((plugin) => plugin.name)
   const pluginsCount = config.plugins?.length || 0
   const files = pluginManager.fileManager.files.sort((a, b) => {
-    if (!a.meta?.pluginName || !b.meta?.pluginName) {
+    if (!a.meta?.pluginKey?.[1] || !b.meta?.pluginKey?.[1]) {
       return 0
     }
-    if (a.meta?.pluginName.length < b.meta?.pluginName.length) {
+    if (a.meta?.pluginKey?.[1]?.length < b.meta?.pluginKey?.[1]?.length) {
       return 1
     }
-    if (a.meta?.pluginName.length > b.meta?.pluginName.length) {
+    if (a.meta?.pluginKey?.[1]?.length > b.meta?.pluginKey?.[1]?.length) {
       return -1
     }
     return 0
@@ -51,7 +51,7 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
 
   if (logLevel === LogLevel.debug) {
     logs.push(pc.bold('\nGenerated files:\n'))
-    logs.push(files.map((file) => `${randomPicoColour(file.meta?.pluginName)} ${file.path}`).join('\n'))
+    logs.push(files.map((file) => `${randomPicoColour(JSON.stringify(file.meta?.pluginKey))} ${file.path}`).join('\n'))
   }
 
   logs.push(

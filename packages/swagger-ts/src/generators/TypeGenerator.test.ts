@@ -14,6 +14,7 @@ describe('TypeGenerator simple', () => {
   test('generate type for Pet with optionalType `questionToken`', async () => {
     const oas = await oasPathParser(path)
     const generator = new TypeGenerator({
+      usedEnumNames: {},
       withJSDocs: false,
       resolveName: ({ name }) => name,
       enumType: 'asConst',
@@ -42,6 +43,7 @@ describe('TypeGenerator simple', () => {
   test('generate type for Pet with optionalType `undefined`', async () => {
     const oas = await oasPathParser(path)
     const generator = new TypeGenerator({
+      usedEnumNames: {},
       withJSDocs: false,
       resolveName: ({ name }) => name,
       enumType: 'asConst',
@@ -70,6 +72,7 @@ describe('TypeGenerator simple', () => {
   test('generate type for Pet with optionalType `questionTokenAndUndefined`', async () => {
     const oas = await oasPathParser(path)
     const generator = new TypeGenerator({
+      usedEnumNames: {},
       withJSDocs: false,
       resolveName: ({ name }) => name,
       enumType: 'asConst',
@@ -97,6 +100,7 @@ describe('TypeGenerator simple', () => {
 
   test('generate type for nullable fields', async () => {
     const generator = new TypeGenerator({
+      usedEnumNames: {},
       withJSDocs: false,
       resolveName: ({ name }) => name,
       enumType: 'asConst',
@@ -128,6 +132,7 @@ describe('TypeGenerator simple', () => {
   test('generate type for Pets', async () => {
     const oas = await oasPathParser(path)
     const generator = new TypeGenerator({
+      usedEnumNames: {},
       withJSDocs: false,
       resolveName: ({ name }) => name,
       enumType: 'asConst',
@@ -160,6 +165,7 @@ describe('TypeGenerator with refs', () => {
   test('generate type for Pets', async () => {
     const oas = await oasPathParser(path)
     const generator = new TypeGenerator({
+      usedEnumNames: {},
       withJSDocs: false,
       resolveName: ({ name }) => name,
       enumType: 'asConst',

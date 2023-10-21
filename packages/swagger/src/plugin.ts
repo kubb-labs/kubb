@@ -10,7 +10,8 @@ import type { OpenAPIV3 } from 'openapi-types'
 import type { Oas, PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger' satisfies PluginOptions['name']
-export const pluginKey = ['schema', pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
+
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'schemas', validate = true, serverIndex = 0, contentType } = options
 
@@ -79,7 +80,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
         const path = this.resolvePath({
           baseName: `${name}.json`,
-          pluginKey,
+          pluginKey: this.plugin.key,
         })
 
         if (!path) {
@@ -91,7 +92,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           baseName: `${name}.json`,
           source: JSON.stringify(schema),
           meta: {
-            pluginName,
+            pluginKey: this.plugin.key,
           },
         })
       }

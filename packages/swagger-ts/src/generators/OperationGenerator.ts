@@ -8,6 +8,8 @@ import type { FileResolver, Operation, OperationSchemas, Resolver } from '@kubb/
 import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
+  usedEnumNames: Record<string, number>
+
   mode: KubbFile.Mode
   enumType: NonNullable<PluginOptions['enumType']>
   dateType: NonNullable<PluginOptions['dateType']>
@@ -31,7 +33,7 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { mode, enumType, dateType, optionalType } = options
+    const { mode, enumType, dateType, optionalType, usedEnumNames } = options
     const { pluginManager, plugin } = this.context
 
     const type = this.resolve(operation)
@@ -49,6 +51,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const source = new TypeBuilder({
+      usedEnumNames,
       fileResolver: mode === 'file' ? undefined : fileResolver,
       withJSDocs: true,
       resolveName: (params) => pluginManager.resolveName({ ...params, pluginKey: plugin?.key }),
@@ -69,14 +72,14 @@ export class OperationGenerator extends Generator<Options> {
       baseName: type.baseName,
       source,
       meta: {
-        pluginName: plugin?.name,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }
   }
 
   async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { mode, enumType, dateType, optionalType } = options
+    const { mode, enumType, dateType, optionalType, usedEnumNames } = options
     const { pluginManager, plugin } = this.context
 
     const type = this.resolve(operation)
@@ -94,6 +97,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     const source = new TypeBuilder({
+      usedEnumNames,
       fileResolver: mode === 'file' ? undefined : fileResolver,
       withJSDocs: true,
       resolveName: (params) => pluginManager.resolveName({ ...params, pluginKey: plugin?.key }),
@@ -115,7 +119,7 @@ export class OperationGenerator extends Generator<Options> {
       baseName: type.baseName,
       source,
       meta: {
-        pluginName: plugin?.name,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }

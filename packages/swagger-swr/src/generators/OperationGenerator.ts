@@ -3,7 +3,6 @@ import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { pluginKey as swaggerTypescriptPluginKey, resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
 
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
-import { pluginKey, pluginName } from '../plugin.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { Operation, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
@@ -17,16 +16,16 @@ type Options = {
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
-    const { pluginManager } = this.context
+    const { pluginManager, plugin } = this.context
 
-    const name = pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey })
+    const name = pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey: plugin.key })
 
     return resolve({
       name,
       operation,
       resolveName: pluginManager.resolveName,
       resolvePath: pluginManager.resolvePath,
-      pluginKey,
+      pluginKey: plugin.key,
     })
   }
 
@@ -70,7 +69,7 @@ export class OperationGenerator extends Generator<Options> {
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { clientPath, dataReturnType } = options
-    const { pluginManager, oas } = this.context
+    const { pluginManager, oas, plugin } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -131,7 +130,7 @@ export class OperationGenerator extends Generator<Options> {
         },
       ],
       meta: {
-        pluginName,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }
@@ -139,7 +138,7 @@ export class OperationGenerator extends Generator<Options> {
 
   async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { clientPath, dataReturnType } = options
-    const { pluginManager, oas } = this.context
+    const { pluginManager, oas, plugin } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -201,7 +200,7 @@ export class OperationGenerator extends Generator<Options> {
         },
       ],
       meta: {
-        pluginName,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }

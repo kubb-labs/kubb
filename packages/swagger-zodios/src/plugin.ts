@@ -14,7 +14,7 @@ import type { PluginOptions as SwaggerZodPluginOptions } from '@kubb/swagger-zod
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-zodios' satisfies PluginOptions['name']
-export const pluginKey = ['controller', pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'zodios.ts' } = options

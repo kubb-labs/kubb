@@ -73,10 +73,10 @@
       "dependsOn": [],
       "outputs": [
         // "dist/**",
-        "gen/**",
-        "src/gen/**"
+        // "gen/**",
+        // "src/gen/**"
       ],
-      "outputMode": "new-only"
+      "cache": false
     }
   }
 }

@@ -28,6 +28,8 @@ const { factory } = ts
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
 type Options = {
+  usedEnumNames: Record<string, number>
+
   withJSDocs?: boolean
   resolveName: PluginContext['resolveName']
   enumType: 'enum' | 'asConst' | 'asPascalConst'
@@ -35,9 +37,6 @@ type Options = {
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
 }
 export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.Node[]> {
-  // Collect the types of all referenced schemas so we can export them later
-  #usedEnumNames: Record<string, number> = {}
-
   refs: Refs = {}
 
   extraNodes: ts.Node[] = []
@@ -53,7 +52,14 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   }
 
   constructor(
-    options: Options = { withJSDocs: true, resolveName: ({ name }) => name, enumType: 'asConst', dateType: 'string', optionalType: 'questionToken' },
+    options: Options = {
+      usedEnumNames: {},
+      withJSDocs: true,
+      resolveName: ({ name }) => name,
+      enumType: 'asConst',
+      dateType: 'string',
+      optionalType: 'questionToken',
+    },
   ) {
     super(options)
 
@@ -288,7 +294,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
      * Enum will be defined outside the baseType(hints the baseName check)
      */
     if (schema.enum && baseName) {
-      const enumName = getUniqueName(baseName, this.#usedEnumNames)
+      const enumName = getUniqueName(baseName, this.options.usedEnumNames)
 
       let enums: [key: string, value: string | number][] = [...new Set(schema.enum)].map((key) => [key, key])
 

@@ -11,7 +11,7 @@ export function pluginParser<TPlugin extends KubbUserPlugin>(
 ): KubbPlugin<GetPluginFactoryOptions<TPlugin>> {
   setUniqueName(plugin.name, usedPluginNames)
 
-  const key = [plugin.kind, plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [
+  const key = plugin.key || [plugin.kind, plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [
     typeof plugin.kind,
     typeof plugin.name,
     string,

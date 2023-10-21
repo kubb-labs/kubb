@@ -3,7 +3,6 @@ import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { pluginKey as swaggerTypescriptPluginKey, resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
 
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
-import { pluginKey, pluginName } from '../plugin.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { Operation, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
@@ -23,7 +22,7 @@ type Options = {
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
     const { framework } = this.options
-    const { pluginManager } = this.context
+    const { pluginManager, plugin } = this.context
 
     const imports = this.getFrameworkSpecificImports(framework)
     const name = imports.getName(operation)
@@ -33,7 +32,7 @@ export class OperationGenerator extends Generator<Options> {
       operation,
       resolveName: pluginManager.resolveName,
       resolvePath: pluginManager.resolvePath,
-      pluginKey,
+      pluginKey: plugin.key,
     })
   }
 
@@ -72,13 +71,13 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   getFrameworkSpecificImports(framework: Options['framework']): FrameworkImports {
-    const { pluginManager } = this.context
+    const { pluginManager, plugin } = this.context
 
     const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
 
     if (framework === 'svelte') {
       return {
-        getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginKey }),
+        getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginKey: plugin.key }),
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
@@ -100,7 +99,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'solid') {
       return {
-        getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginKey }),
+        getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginKey: plugin.key }),
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
@@ -122,7 +121,7 @@ export class OperationGenerator extends Generator<Options> {
 
     if (framework === 'vue') {
       return {
-        getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey }),
+        getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey: plugin.key }),
         query: {
           useQuery: 'useQuery',
           QueryKey: 'QueryKey',
@@ -143,7 +142,7 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     return {
-      getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey }),
+      getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey: plugin.key }),
       query: {
         useQuery: 'useQuery',
         QueryKey: 'QueryKey',
@@ -251,7 +250,7 @@ export class OperationGenerator extends Generator<Options> {
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { clientPath, framework, infinite, dataReturnType } = options
-    const { pluginManager, oas } = this.context
+    const { pluginManager, oas, plugin } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -308,7 +307,7 @@ export class OperationGenerator extends Generator<Options> {
         },
       ],
       meta: {
-        pluginName,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }
@@ -316,7 +315,7 @@ export class OperationGenerator extends Generator<Options> {
 
   async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { clientPath, framework, dataReturnType } = options
-    const { pluginManager, oas } = this.context
+    const { pluginManager, oas, plugin } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -374,7 +373,7 @@ export class OperationGenerator extends Generator<Options> {
         },
       ],
       meta: {
-        pluginName,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }

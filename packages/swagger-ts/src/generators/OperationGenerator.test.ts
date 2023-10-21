@@ -18,6 +18,7 @@ describe('OperationGenerator', () => {
         mode: 'directory',
         dateType: 'string',
         optionalType: 'questionToken',
+        usedEnumNames: {},
       },
       {
         oas,
@@ -91,6 +92,7 @@ describe('OperationGenerator', () => {
         mode: 'directory',
         dateType: 'string',
         optionalType: 'questionToken',
+        usedEnumNames: {},
       },
       {
         oas,
