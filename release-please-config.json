@@ -69,7 +69,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/core": {
       "component": "@kubb/core",
@@ -78,7 +79,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/cli": {
       "component": "@kubb/cli",
@@ -87,7 +89,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/parser": {
       "component": "@kubb/parser",
@@ -96,7 +99,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/swagger": {
       "component": "@kubb/swagger",
@@ -105,7 +109,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/swagger-ts": {
       "component": "@kubb/swagger-ts",
@@ -114,7 +119,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/swagger-client": {
       "component": "@kubb/swagger-client",
@@ -123,7 +129,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/swagger-tanstack-query": {
       "component": "@kubb/swagger-tanstack-query",
@@ -132,7 +139,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/swagger-faker": {
       "component": "@kubb/swagger-faker",
@@ -141,7 +149,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/swagger-msw": {
       "component": "@kubb/swagger-msw",
@@ -150,7 +159,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/swagger-zod": {
       "component": "@kubb/swagger-zod",
@@ -159,7 +169,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/swagger-zodios": {
       "component": "@kubb/swagger-zodios",
@@ -168,7 +179,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/swagger-swr": {
       "component": "@kubb/swagger-swr",
@@ -177,7 +189,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     },
     "packages/react": {
       "component": "@kubb/react",
@@ -186,7 +199,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false
+      "prerelease": false,
+      "skip-github-release": true
     }
   },
   "plugins": [
