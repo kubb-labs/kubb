@@ -2,7 +2,7 @@ import { build } from './build.ts'
 import { createPlugin } from './plugin.ts'
 
 import type { KubbFile } from './managers/fileManager/types.ts'
-import type { KubbConfig } from './types.ts'
+import type { KubbConfig, KubbPlugin } from './types.ts'
 
 describe('build', () => {
   const pluginMocks = {
@@ -23,6 +23,10 @@ describe('build', () => {
   const plugin = createPlugin(() => {
     return {
       name: 'plugin',
+      options: undefined as unknown,
+      api: undefined as never,
+      kind: 'schema',
+      key: ['schema', 'plugin'],
       async buildStart(...params) {
         pluginMocks.buildStart(...params)
 
@@ -61,7 +65,7 @@ describe('build', () => {
       path: './src/gen',
       clean: true,
     },
-    plugins: [plugin({})],
+    plugins: [plugin({})] as KubbPlugin[],
   } satisfies KubbConfig
 
   afterEach(() => {

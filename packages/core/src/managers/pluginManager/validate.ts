@@ -2,8 +2,6 @@ import type { KubbPlugin, PluginFactoryOptions } from '../../types.ts'
 
 export class ValidationPluginError extends Error {}
 
-// export function getDependedPlugins<T1 extends PluginFactoryOptions>(plugins:Array<KubbPlugin>, dependedPluginNames: string | string[]): [KubbPlugin<T1>]
-// export function getDependedPlugins<T1 extends PluginFactoryOptions, T2 extends PluginFactoryOptions>(plugins:Array<KubbPlugin>, dependedPluginNames: string | string[]): [KubbPlugin<T1>, KubbPlugin<T2>]
 export function getDependedPlugins<
   T1 extends PluginFactoryOptions,
   T2 extends PluginFactoryOptions = never,

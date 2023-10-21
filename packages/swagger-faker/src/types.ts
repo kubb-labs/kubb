@@ -56,4 +56,4 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-faker', Options, false, unknown, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-faker', Options, false, never, ResolvePathOptions>

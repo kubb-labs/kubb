@@ -48,4 +48,4 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-zod', Options, false, undefined, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-zod', Options, false, never, ResolvePathOptions>

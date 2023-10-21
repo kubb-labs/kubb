@@ -64,4 +64,4 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-ts', Options, false, unknown, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-ts', Options, false, never, ResolvePathOptions>

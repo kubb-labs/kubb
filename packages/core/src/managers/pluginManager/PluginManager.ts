@@ -25,7 +25,7 @@ import type {
 import type { Logger } from '../../utils/logger.ts'
 import type { QueueJob } from '../../utils/Queue.ts'
 import type { KubbFile } from '../fileManager/types.ts'
-import type {Argument0, Executer, ParseResult, PluginParameter, RequiredPluginLifecycle, SafeParseResult, Strategy } from './types.ts'
+import type { Argument0, Executer, ParseResult, PluginParameter, RequiredPluginLifecycle, SafeParseResult, Strategy } from './types.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
@@ -77,9 +77,9 @@ export class PluginManager {
       resolvePath: this.resolvePath.bind(this),
       resolveName: this.resolveName.bind(this),
       getPlugins: this.#getSortedPlugins.bind(this),
-      plugin: undefined as unknown as KubbPlugin
+      plugin: undefined as unknown as KubbPlugin,
     }) as KubbPlugin<CorePluginOptions> & {
-      api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api'];
+      api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api']
       plugin?: undefined
     }
 

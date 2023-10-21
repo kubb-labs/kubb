@@ -148,49 +148,46 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
     kind?: KubbPluginKind
   }
   & Partial<PluginLifecycle<TOptions>>
-  & (TOptions['api'] extends never
-  ? {
-     api?:never
+  & (TOptions['api'] extends never ? {
+      api?: never
     }
-  :  {
-    api: (this: Omit<PluginContext, 'addFile'>) => TOptions['api']
-  }
-  )
+    : {
+      api: (this: Omit<PluginContext, 'addFile'>) => TOptions['api']
+    })
 
-
-export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
-  /**
-   * Unique name used for the plugin
-   * @example @kubb/typescript
-   */
-  name: PluginFactoryOptions['name']
-  /*
+export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
+  & {
+    /**
+     * Unique name used for the plugin
+     * @example @kubb/typescript
+     */
+    name: PluginFactoryOptions['name']
+    /*
   Internal key used when a developer uses more than one of the same plugin
     */
-  key: [kind: KubbPluginKind | undefined, name: PluginFactoryOptions['name'], identifier: string]
-  /**
-   * Options set for a specific plugin(see kubb.config.js), passthrough of options.
-   */
-  options: TOptions['options'] extends never ? undefined : TOptions['options']
-  /**
-   * Kind/type for the plugin
-   * Type 'schema' can be used for JSON schema's, TypeScript types, ...
-   * Type 'controller' can be used to create generate API calls, React-Query hooks, Axios controllers, ...
-   * @default undefined
-   */
-  kind?: KubbPluginKind
-  /**
-   * Define an api that can be used by other plugins, see `PluginManager' where we convert from `KubbUserPlugin` to `KubbPlugin`(used when calling `createPlugin`).
-   */
-} & PluginLifecycle<TOptions>
-& (TOptions['api'] extends never
-? {
-   api?:never
+    key?: [kind: KubbPluginKind | undefined, name: PluginFactoryOptions['name'], identifier: string]
+    /**
+     * Options set for a specific plugin(see kubb.config.js), passthrough of options.
+     */
+    options: TOptions['options'] extends never ? undefined : TOptions['options']
+    /**
+     * Kind/type for the plugin
+     * Type 'schema' can be used for JSON schema's, TypeScript types, ...
+     * Type 'controller' can be used to create generate API calls, React-Query hooks, Axios controllers, ...
+     * @default undefined
+     */
+    kind?: KubbPluginKind
+    /**
+     * Define an api that can be used by other plugins, see `PluginManager' where we convert from `KubbUserPlugin` to `KubbPlugin`(used when calling `createPlugin`).
+     */
   }
-:  {
-  api: TOptions['api']
-}
-)
+  & PluginLifecycle<TOptions>
+  & (TOptions['api'] extends never ? {
+      api?: never
+    }
+    : {
+      api: TOptions['api']
+    })
 
 // use of type objects
 
@@ -213,7 +210,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Valdiate all plugins to see if their depended plugins are installed and configured.
    * @type hookParallel
    */
-  validate?: (this: Omit<PluginContext, 'addFile'>, plugins: NonNullable<KubbConfig["plugins"]>) => PossiblePromise<true>
+  validate?: (this: Omit<PluginContext, 'addFile'>, plugins: NonNullable<KubbConfig['plugins']>) => PossiblePromise<true>
   /**
    * Start of the lifecycle of a plugin.
    * @type hookParallel

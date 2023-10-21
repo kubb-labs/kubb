@@ -8,7 +8,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { ZodBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
 
-import type { KubbFile } from '@kubb/core'
+import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { OpenAPIV3, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
@@ -17,14 +17,14 @@ export const pluginName: PluginOptions['name'] = 'swagger-zod' as const
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'zod', groupBy, skipBy = [], overrideBy = [], transformers = {} } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
-  let pluginsOptions: [SwaggerPluginOptions]
+  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
     options,
     kind: 'schema',
     validate(plugins) {
-      pluginsOptions = getDependedPlugins<[SwaggerPluginOptions]>(plugins, [swaggerPluginName])
+      pluginsOptions = getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
 
       return true
     },

@@ -3,7 +3,7 @@ import { createPlugin } from '../../plugin.ts'
 import { createLogger } from '../../utils/logger.ts'
 import { hooks, PluginManager } from './PluginManager.ts'
 
-import type { KubbConfig, TransformResult } from '../../types.ts'
+import type { KubbConfig, KubbPlugin, TransformResult } from '../../types.ts'
 
 describe('PluginManager', () => {
   const pluginAMocks = {
@@ -19,6 +19,10 @@ describe('PluginManager', () => {
   const pluginA = createPlugin(() => {
     return {
       name: 'pluginA',
+      options: undefined as unknown,
+      api: undefined as never,
+      kind: 'schema',
+      key: ['schema', 'pluginA'],
       buildStart() {
         pluginAMocks.buildStart()
       },
@@ -41,6 +45,10 @@ describe('PluginManager', () => {
   const pluginB = createPlugin(() => {
     return {
       name: 'pluginB',
+      options: undefined as unknown,
+      api: undefined as never,
+      kind: 'schema',
+      key: ['schema', 'pluginB', 1],
       buildStart() {
         pluginBMocks.buildStart()
       },
@@ -69,7 +77,7 @@ describe('PluginManager', () => {
       path: './src/gen',
       clean: true,
     },
-    plugins: [pluginA({}), pluginB({})],
+    plugins: [pluginA({}), pluginB({})] as KubbPlugin[],
   } satisfies KubbConfig
   const queueTaskMock = vi.fn()
   const pluginManager = new PluginManager(config, {

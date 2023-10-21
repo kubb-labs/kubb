@@ -32,7 +32,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     options,
     kind: 'schema',
     validate(plugins) {
-      pluginsOptions = getDependedPlugins<[SwaggerPluginOptions]>(plugins, [swaggerPluginName])
+      pluginsOptions = getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
 
       return true
     },

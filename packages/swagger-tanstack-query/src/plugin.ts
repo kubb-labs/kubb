@@ -7,7 +7,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/index.ts'
 
-import type { KubbFile } from '@kubb/core'
+import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
@@ -16,14 +16,14 @@ export const pluginName: PluginOptions['name'] = 'swagger-tanstack-query' as con
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'hooks', groupBy, skipBy = [], overrideBy = [], framework = 'react', infinite, transformers = {}, dataReturnType = 'data' } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
-  let pluginsOptions: [SwaggerPluginOptions]
+  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
     options,
     kind: 'controller',
     validate(plugins) {
-      pluginsOptions = getDependedPlugins<[SwaggerPluginOptions]>(plugins, [swaggerPluginName])
+      pluginsOptions = getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
 
       return true
     },
