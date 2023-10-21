@@ -200,10 +200,12 @@ export class PluginManager {
           plugin,
         })
 
-        return Promise.resolve({
-          plugin,
-          result: value,
-        } as typeof parseResult)
+        return Promise.resolve(
+          {
+            plugin,
+            result: value,
+          } as typeof parseResult,
+        )
       })
     }
 

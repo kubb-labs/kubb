@@ -106,9 +106,9 @@ export default async function generate({ input, config, CLIOptions, logger }: Ge
         ...userConfig,
         input: inputPath
           ? {
-              ...userConfig.input,
-              path: inputPath,
-            }
+            ...userConfig.input,
+            path: inputPath,
+          }
           : userConfig.input,
         output: {
           write: true,

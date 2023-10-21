@@ -70,10 +70,9 @@ export class QueryBuilder extends OasBuilder<Options> {
     const paramsData = [
       ...getASTParams(schemas.pathParams, {
         typed: true,
-        override:
-          framework === 'vue'
-            ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
-            : undefined,
+        override: framework === 'vue'
+          ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
+          : undefined,
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
@@ -95,15 +94,14 @@ export class QueryBuilder extends OasBuilder<Options> {
     ]
     params.add(paramsData)
 
-    const unrefs =
-      framework === 'vue'
-        ? paramsData
-            .filter((item) => item.type?.startsWith('MaybeRef<'))
-            .map((item) => {
-              return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
-            })
-            .join('\n')
-        : ''
+    const unrefs = framework === 'vue'
+      ? paramsData
+        .filter((item) => item.type?.startsWith('MaybeRef<'))
+        .map((item) => {
+          return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
+        })
+        .join('\n')
+      : ''
 
     let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
 
@@ -188,10 +186,9 @@ export class QueryBuilder extends OasBuilder<Options> {
     params.add([
       ...getASTParams(schemas.pathParams, {
         typed: true,
-        override:
-          framework === 'vue'
-            ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
-            : undefined,
+        override: framework === 'vue'
+          ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
+          : undefined,
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
@@ -242,9 +239,11 @@ export class QueryBuilder extends OasBuilder<Options> {
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryResult}<${queryGenerics.join(
-      ', ',
-    )}> & { queryKey: QueryKey } {
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryResult}<${
+      queryGenerics.join(
+        ', ',
+      )
+    }> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
   const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
   
@@ -290,10 +289,9 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     const paramsData = [
       ...getASTParams(schemas.pathParams, {
         typed: true,
-        override:
-          framework === 'vue'
-            ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
-            : undefined,
+        override: framework === 'vue'
+          ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
+          : undefined,
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
@@ -315,15 +313,14 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     ]
     params.add(paramsData)
 
-    const unrefs =
-      framework === 'vue'
-        ? paramsData
-            .filter((item) => item.type?.startsWith('MaybeRef<'))
-            .map((item) => {
-              return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
-            })
-            .join('\n')
-        : ''
+    const unrefs = framework === 'vue'
+      ? paramsData
+        .filter((item) => item.type?.startsWith('MaybeRef<'))
+        .map((item) => {
+          return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
+        })
+        .join('\n')
+      : ''
     let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
 
     if (framework === 'solid') {
@@ -347,14 +344,14 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
         ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
         ...options,
         ${
-          schemas.queryParams?.name
-            ? `params: {
+      schemas.queryParams?.name
+        ? `params: {
           ...params,
           ['${queryParam}']: pageParam,
           ...(options.params || {}),
         }`
-            : ''
-        }
+        : ''
+    }
       }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
     },
   };
@@ -392,10 +389,9 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     params.add([
       ...getASTParams(schemas.pathParams, {
         typed: true,
-        override:
-          framework === 'vue'
-            ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
-            : undefined,
+        override: framework === 'vue'
+          ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
+          : undefined,
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
@@ -446,9 +442,11 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryResult}<${queryGenerics.join(
-      ', ',
-    )}> & { queryKey: QueryKey } {
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryResult}<${
+      queryGenerics.join(
+        ', ',
+      )
+    }> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
   const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
   
@@ -496,10 +494,9 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     const paramsData = [
       ...getASTParams(schemas.pathParams, {
         typed: true,
-        override:
-          framework === 'vue'
-            ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
-            : undefined,
+        override: framework === 'vue'
+          ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
+          : undefined,
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
@@ -524,15 +521,14 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     ]
     params.add(paramsData)
 
-    const unrefs =
-      framework === 'vue'
-        ? paramsData
-            .filter((item) => item.type?.startsWith('MaybeRef<'))
-            .map((item) => {
-              return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
-            })
-            .join('\n')
-        : ''
+    const unrefs = framework === 'vue'
+      ? paramsData
+        .filter((item) => item.type?.startsWith('MaybeRef<'))
+        .map((item) => {
+          return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
+        })
+        .join('\n')
+      : ''
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`

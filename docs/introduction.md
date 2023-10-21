@@ -31,7 +31,6 @@ The problem is that most of them are good at one _thing_: generating TypeScript 
 
 Swagger/OpenAPI has been used a lot as a contract between frontend and backend teams, this was the same for the last couple of projects I did. Every project is different so it always came down in choosing one of the provided <a href="https://tools.openapis.org/categories/code-generators.html">code generators</a> or the default one of <a href="https://swagger.io/tools/swagger-codegen/">Swagger</a>. But that wasn't enough for my needs 🙁.
 
-
 Main features ✨:
 
 - Every generated client(React-Query, MSW, Zod, ...) is contained in it's own package.

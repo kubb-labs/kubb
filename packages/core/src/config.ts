@@ -1,6 +1,5 @@
 import type { CLIOptions, KubbUserConfig, PossiblePromise } from './types.ts'
 
-// dprint-ignore
 /**
  * Type helper to make it easier to use kubb.config.js
  * accepts a direct {@link KubbConfig} object, or a function that returns it.
@@ -10,9 +9,9 @@ export function defineConfig(
   options:
     | PossiblePromise<KubbUserConfig>
     | ((
-        /** The options derived from the CLI flags */
-        cliOptions: CLIOptions,
-      ) => PossiblePromise<KubbUserConfig>),
+      /** The options derived from the CLI flags */
+      cliOptions: CLIOptions,
+    ) => PossiblePromise<KubbUserConfig>),
 ): typeof options {
   return options
 }

@@ -18,3 +18,11 @@ export function Text({ indentSize = 0, children }: Props): ReactNode {
     </kubb-text>
   )
 }
+
+function Space({ indentSize = 1 }: Omit<Props, 'children'>): ReactNode {
+  const indentBefore = useIndent({ size: indentSize })
+
+  return <kubb-text>{indentBefore}</kubb-text>
+}
+
+Text.Space = Space

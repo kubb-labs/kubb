@@ -137,7 +137,7 @@ enum PetType {
 ```typescript ['asConst']
 const petType = {
   Dog: 'dog',
-  Cat:'cat'
+  Cat: 'cat',
 } as const
 ```
 

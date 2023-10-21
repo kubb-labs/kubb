@@ -22,7 +22,7 @@ describe('read', () => {
   })
 
   test('read filePath', async () => {
-    const text = `export const hallo = 'world';`
+    const text = `export const hallo = 'world'`
 
     await write(text, filePath)
 

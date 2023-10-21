@@ -1,5 +1,1 @@
-// dprint-ignore
-export const uniqueIdFactory =
-  (counter: number) =>
-  (str = ''): string =>
-    `${str}${++counter}`
+export const uniqueIdFactory = (counter: number) => (str = ''): string => `${str}${++counter}`

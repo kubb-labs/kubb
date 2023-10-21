@@ -183,10 +183,12 @@ export function parseFakerMeta(item: FakerMeta, mapper: Record<FakerKeyword, str
       .map((item) => {
         const name = item[0]
         const schema = item[1] as FakerMeta[]
-        return `"${name}": ${schema
-          .sort(fakerKeywordSorter)
-          .map((item) => parseFakerMeta(item, mapper))
-          .join('')}`
+        return `"${name}": ${
+          schema
+            .sort(fakerKeywordSorter)
+            .map((item) => parseFakerMeta(item, mapper))
+            .join('')
+        }`
       })
       .join(',')
 

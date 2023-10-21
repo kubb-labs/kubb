@@ -161,8 +161,9 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     members.push({ keyword: zodKeywords.object, args: objectMembers })
 
     if (additionalProperties) {
-      const addionalValidationFunctions: ZodMeta[] =
-        additionalProperties === true ? [{ keyword: zodKeywords.any }] : this.#getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
+      const addionalValidationFunctions: ZodMeta[] = additionalProperties === true
+        ? [{ keyword: zodKeywords.any }]
+        : this.#getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
 
       members.push({ keyword: zodKeywords.catchall, args: addionalValidationFunctions })
     }

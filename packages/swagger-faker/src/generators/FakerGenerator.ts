@@ -115,8 +115,9 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
     const members: FakerMeta[] = []
 
     if (additionalProperties) {
-      const addionalValidationFunctions: FakerMeta[] =
-        additionalProperties === true ? [{ keyword: fakerKeywords.any }] : this.#getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
+      const addionalValidationFunctions: FakerMeta[] = additionalProperties === true
+        ? [{ keyword: fakerKeywords.any }]
+        : this.#getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
 
       members.push({ keyword: fakerKeywords.catchall, args: addionalValidationFunctions })
     }

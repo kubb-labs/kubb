@@ -4,6 +4,7 @@
 *.html
 *.json
 *.yaml
+*.yml
 *.mdx
 *.css
 *.sass
@@ -45,6 +46,7 @@ coverage
 **/examples
 # dprint does the formating
 *.json
-
 # dprint does the formating
 *.config.*
+# dprint does the formating
+**/packages/**/src/**
