@@ -1,7 +1,7 @@
-import type { QueryKey, CreateQueryResult, CreateQueryOptions } from '@tanstack/solid-query'
-import { createQuery } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
+import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
+import { createQuery } from '@tanstack/solid-query'
+import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
 export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(

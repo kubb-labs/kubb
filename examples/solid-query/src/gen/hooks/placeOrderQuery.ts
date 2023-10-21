@@ -1,8 +1,8 @@
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
-import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
+import { createMutation } from '@tanstack/solid-query'
+import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../models/PlaceOrder'
 
 /**
  * @description Place a new order in the store

@@ -14,11 +14,13 @@ export function getASTParams(
   }
 
   if (asObject) {
+    const nameText = getASTParams(operationSchema)
+      .map((item) => item.name)
+      .join(', ')
+
     return [
       {
-        name: `{ ${getASTParams(operationSchema)
-          .map((item) => item.name)
-          .join(', ')} }`,
+        name: `{ ${nameText} }`,
         type: operationSchema?.name,
         enabled: !!operationSchema?.name,
         required: true,

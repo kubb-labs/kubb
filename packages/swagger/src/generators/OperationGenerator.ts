@@ -23,7 +23,6 @@ type Context<TOptions> = {
 
 export abstract class OperationGenerator<TOptions = unknown> extends Generator<TOptions, Context<TOptions>> {
   /**
-   *
    * Validate an operation to see if used with camelCase we don't overwrite other files
    * DRAFT version
    */
@@ -163,11 +162,14 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
   }
 
   #getRequestSchema(operation: Operation): OpenAPIV3.SchemaObject | null {
+    if (!operation.hasRequestBody()) {
+      return null
+    }
+
     const contentType = this.context.contentType || operation.getContentType()
-    const schema = operation.hasRequestBody()
-      ? ((operation.getRequestBody() as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject) ||
-        ((operation.getRequestBody(contentType) as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject)
-      : undefined
+    const requestBody = operation.getRequestBody() as MediaTypeObject
+    const requestBodyContentType = operation.getRequestBody(contentType) as MediaTypeObject
+    const schema = (requestBody?.schema || requestBodyContentType?.schema) as OpenAPIV3.SchemaObject
 
     if (!schema) {
       return null

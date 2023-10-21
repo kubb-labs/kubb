@@ -76,6 +76,6 @@
   "exclude": [
     "**/node_modules",
     "**/types/**",
-    "**/mocks/**",
+    "**/mocks/**"
   ]
 }

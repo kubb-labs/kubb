@@ -1,7 +1,7 @@
+import client from '@kubb/swagger-client/client'
 import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import client from '@kubb/swagger-client/client'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400 } from '../models/GetUserByName'
+import type { GetUserByName400, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName'
 
 export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   username: GetUserByNamePathParams['username'],

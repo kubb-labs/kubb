@@ -1,7 +1,7 @@
+import client from '@kubb/swagger-client/client'
 import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import client from '@kubb/swagger-client/client'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400 } from '../models/GetPetById'
+import type { GetPetById400, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById'
 
 export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400>(
   petId: GetPetByIdPathParams['petId'],

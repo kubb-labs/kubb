@@ -1,7 +1,7 @@
-import type { QueryKey, CreateQueryResult, CreateQueryOptions } from '@tanstack/svelte-query'
-import { createQuery } from '@tanstack/svelte-query'
 import client from '@kubb/swagger-client/client'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
+import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/svelte-query'
+import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus'
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: `/pet/findByStatus` }, ...(params ? [params] : [])] as const
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(

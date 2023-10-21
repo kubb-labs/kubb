@@ -1,12 +1,12 @@
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
-import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
+import { createMutation } from '@tanstack/solid-query'
 import type {
+  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm'
 
 /**

@@ -109,7 +109,7 @@ export type FrameworkImports = {
      * v5
      */
     queryOptions?: string
-    //infinite
+    // infinite
     UseInfiniteQueryOptions: string
     UseInfiniteQueryResult: string
     useInfiniteQuery: string

@@ -1,9 +1,9 @@
-import { createPet } from '../createPet'
 import { UpdatePet400 } from '../../models/UpdatePet'
 import { UpdatePet404 } from '../../models/UpdatePet'
 import { UpdatePet405 } from '../../models/UpdatePet'
 import { UpdatePetMutationRequest } from '../../models/UpdatePet'
 import { UpdatePetMutationResponse } from '../../models/UpdatePet'
+import { createPet } from '../createPet'
 
 /**
  * @description Invalid ID supplied

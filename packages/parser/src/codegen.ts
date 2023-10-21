@@ -67,7 +67,6 @@ export function createIntersectionDeclaration({
 }
 
 /**
- *
  * Minimum nodes length of 2
  * @example `string & number`
  */
@@ -89,7 +88,6 @@ export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Arra
   return node
 }
 /**
- *
  * Minimum nodes length of 2
  * @example `string | number`
  */
@@ -216,7 +214,6 @@ export function createTypeAliasDeclaration({
 /**
  * In { propertyName: string; name?: string } is `name` being used to make the type more unique when multiple same names are used.
  * @example `import { Pet as Cat } from './Pet'`
- *
  */
 export function createImportDeclaration({
   name,

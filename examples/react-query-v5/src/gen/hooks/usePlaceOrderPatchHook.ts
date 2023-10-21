@@ -1,8 +1,8 @@
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
-import { useMutation } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../models/PlaceOrderPatch'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
+import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../models/PlaceOrderPatch'
 
 /**
  * @description Place a new order in the store with patch

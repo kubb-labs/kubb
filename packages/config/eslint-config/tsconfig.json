@@ -9,7 +9,7 @@
     "paths": {
       "@kubb/tsup-config": [
         "../tsup-config/src/index.ts"
-      ],
+      ]
     }
   },
   "include": [
@@ -20,7 +20,7 @@
   "exclude": [
     "**/node_modules",
     "**/types/**"
-  ],
+  ]
   // "references": [
   // ]
 }

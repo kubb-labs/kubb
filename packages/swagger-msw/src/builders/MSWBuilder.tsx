@@ -23,13 +23,15 @@ export class MSWBuilder extends OasBuilder<Options> {
       const name = useResolveName({ pluginName, type: 'function' })
 
       return (
-        <>{`
+        <>
+          {`
     export const ${name} = rest.${operation.method}('*${URLPath.toURLPath(operation.path)}', function handler(req, res, ctx) {
       return res(
         ctx.json(${responseName}()),
       );
     });
-    `}</>
+    `}
+        </>
       )
     }
 

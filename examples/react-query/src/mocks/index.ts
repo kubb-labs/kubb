@@ -1,4 +1,4 @@
-import { setupWorker, rest } from 'msw'
+import { rest, setupWorker } from 'msw'
 
 export const worker = setupWorker(
   rest.get('/pet/findByStatus', (req, res, ctx) => {

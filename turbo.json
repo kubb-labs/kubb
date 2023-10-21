@@ -50,21 +50,15 @@
       "cache": false
     },
     "release": {
-      "dependsOn": [
-     
-      ],
+      "dependsOn": [],
       "outputs": []
     },
     "release:canary": {
-      "dependsOn": [
-     
-      ],
+      "dependsOn": [],
       "outputs": []
     },
     "release:alpha": {
-      "dependsOn": [
-     
-      ],
+      "dependsOn": [],
       "outputs": []
     },
     "generate": {

@@ -26,6 +26,22 @@ export type KubbUserConfig = Omit<KubbConfig, 'root' | 'plugins'> & {
   plugins?: Array<KubbPlugin> | Array<KubbJSONPlugins> | KubbObjectPlugins
 }
 
+type InputPath = {
+  /**
+   * Path to be used as the input. This can be an absolute path or a path relative to the `root`.
+   */
+  path: string
+}
+
+type InputData = {
+  /**
+   * `string` or `object` containing the data.
+   */
+  data: string | unknown
+}
+
+type Input = InputPath | InputData
+
 /**
  * @private
  */
@@ -36,19 +52,7 @@ export type KubbConfig = {
    * @default process.cwd()
    */
   root: string
-  input:
-    | {
-        /**
-         * Path to be used as the input. This can be an absolute path or a path relative to the `root`.
-         */
-        path: string
-      }
-    | {
-        /**
-         * `string` or `object` containing the data.
-         */
-        data: string | unknown
-      }
+  input: Input
   output: {
     /**
      * Path to be used to export all generated files.

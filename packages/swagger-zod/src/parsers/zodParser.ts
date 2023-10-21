@@ -155,7 +155,6 @@ export type ZodMeta =
   | ZodMetaReadOnly
 
 /**
- *
  * @link based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
  */
 

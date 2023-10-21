@@ -1,7 +1,7 @@
-import type { QueryKey, CreateQueryResult, CreateQueryOptions } from '@tanstack/svelte-query'
-import { createQuery } from '@tanstack/svelte-query'
 import client from '@kubb/swagger-client/client'
-import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400 } from '../models/GetOrderById'
+import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/svelte-query'
+import type { GetOrderById400, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: `/store/order/${orderId}`, params: { orderId: orderId } }] as const
 export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(

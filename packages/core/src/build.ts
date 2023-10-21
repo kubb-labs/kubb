@@ -23,7 +23,6 @@ async function transformReducer(
   this: PluginContext,
   _previousCode: string,
   result: TransformResult | Promise<TransformResult>,
-
   _plugin: KubbPlugin,
 ): Promise<string | null> {
   return result

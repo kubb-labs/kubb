@@ -62,7 +62,7 @@
       ],
       "@kubb/parser": [
         "../../packages/parser/src/index.ts"
-      ],
+      ]
     }
   },
   "include": [

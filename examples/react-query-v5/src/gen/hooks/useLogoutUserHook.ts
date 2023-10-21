@@ -1,6 +1,6 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import { useQuery, queryOptions } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
+import type { QueryKey, QueryOptions, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
 export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const

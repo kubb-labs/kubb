@@ -1,15 +1,15 @@
-import fs from "node:fs";
+import fs from 'node:fs'
 
 const pkgJsonPaths = [
-  "package.json",
-];
+  'package.json',
+]
 try {
   for (const pkgJsonPath of pkgJsonPaths) {
-    const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, "utf-8"));
-    const oldVersion = "workspace:*";
-    const newVersion = "latest";
+    const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf-8'))
+    const oldVersion = 'workspace:*'
+    const newVersion = 'latest'
 
-    const content = JSON.stringify(pkg, null, "\t") + "\n";
+    const content = JSON.stringify(pkg, null, '\t') + '\n'
     const newContent = content
       // @ts-ignore
       .replaceAll(
@@ -17,9 +17,9 @@ try {
         `"${newVersion}"`,
       )
 
-    fs.writeFileSync(pkgJsonPath, newContent);
+    fs.writeFileSync(pkgJsonPath, newContent)
   }
 } catch (error) {
-  console.error(error);
-  process.exit(1);
+  console.error(error)
+  process.exit(1)
 }

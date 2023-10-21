@@ -1,11 +1,11 @@
+import client from '@kubb/swagger-client/client'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
-import { useMutation } from '@tanstack/vue-query'
-import client from '@kubb/swagger-client/client'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400 } from '../models/DeleteOrder'
+import type { DeleteOrder400, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../models/DeleteOrder'
 
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors

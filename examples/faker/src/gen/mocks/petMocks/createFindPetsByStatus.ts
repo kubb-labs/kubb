@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker'
 
-import { createPet } from '../createPet'
 import { FindPetsByStatus400 } from '../../models/FindPetsByStatus'
 import { FindPetsByStatusQueryParams } from '../../models/FindPetsByStatus'
 import { FindPetsByStatusQueryResponse } from '../../models/FindPetsByStatus'
+import { createPet } from '../createPet'
 
 /**
  * @description Invalid status value

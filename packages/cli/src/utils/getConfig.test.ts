@@ -114,7 +114,6 @@ describe('getConfig', () => {
       },
       {},
     )
-
     expect(kubbUserConfig.plugins?.[0]?.name).toEqual(createSwagger({}).name)
   })
 })

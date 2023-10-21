@@ -1,6 +1,6 @@
+import client from '@kubb/swagger-client/client'
 import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import client from '@kubb/swagger-client/client'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
 export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(

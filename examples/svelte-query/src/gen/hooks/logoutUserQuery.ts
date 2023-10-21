@@ -1,6 +1,6 @@
-import type { QueryKey, CreateQueryResult, CreateQueryOptions } from '@tanstack/svelte-query'
-import { createQuery } from '@tanstack/svelte-query'
 import client from '@kubb/swagger-client/client'
+import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/svelte-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
 export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const

@@ -1,6 +1,6 @@
-import type { QueryKey, CreateQueryResult, CreateQueryOptions } from '@tanstack/svelte-query'
-import { createQuery } from '@tanstack/svelte-query'
 import client from '@kubb/swagger-client/client'
+import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/svelte-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
 export const getInventoryQueryKey = () => [{ url: `/store/inventory` }] as const

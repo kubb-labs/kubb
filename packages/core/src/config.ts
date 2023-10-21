@@ -1,5 +1,6 @@
 import type { CLIOptions, KubbUserConfig, PossiblePromise } from './types.ts'
 
+// dprint-ignore
 /**
  * Type helper to make it easier to use kubb.config.js
  * accepts a direct {@link KubbConfig} object, or a function that returns it.

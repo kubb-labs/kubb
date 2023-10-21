@@ -12,8 +12,8 @@
     [
       "@kubb/swagger",
       {
-        "output": "schemas", 
-        "validate" :true
+        "output": "schemas",
+        "validate": true
       }
     ],
     [

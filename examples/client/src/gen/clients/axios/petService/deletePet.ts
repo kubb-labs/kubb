@@ -1,6 +1,6 @@
 import client from '../../../client'
 import type { ResponseConfig } from '../../../client'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams } from '../../../models/ts/petController/DeletePet'
+import type { DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../../models/ts/petController/DeletePet'
 
 /**
  * @description delete a pet

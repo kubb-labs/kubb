@@ -187,7 +187,7 @@ describe('parseZod', () => {
   // })
 
   test('parsing each input', () => {
-    //TODO replace by test.each when Bun has support for test.each
+    // TODO replace by test.each when Bun has support for test.each
     input.forEach((item) => {
       expect(item.input).toBe(item.expected)
     })

@@ -1,8 +1,8 @@
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
-import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400 } from '../models/DeleteOrder'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
+import { createMutation } from '@tanstack/solid-query'
+import type { DeleteOrder400, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../models/DeleteOrder'
 
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors

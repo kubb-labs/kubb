@@ -1,6 +1,6 @@
-import type { QueryKey, UseQueryReturnType, UseQueryOptions } from '@tanstack/vue-query'
-import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
+import type { QueryKey, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
 export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const

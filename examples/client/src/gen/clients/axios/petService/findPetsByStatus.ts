@@ -1,6 +1,6 @@
 import client from '../../../client'
 import type { ResponseConfig } from '../../../client'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams } from '../../../models/ts/petController/FindPetsByStatus'
+import type { FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus'
 
 /**
  * @description Multiple status values can be provided with comma separated strings

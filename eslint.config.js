@@ -7,7 +7,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-//configs
+// configs
 import { configs as kubbConfigs } from '@kubb/eslint-config/flat'
 
 /** @type {import("eslint").Linter.FlatConfig[]} */

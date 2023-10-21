@@ -1,8 +1,8 @@
-import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
-import { useMutation } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
+import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 
 /**

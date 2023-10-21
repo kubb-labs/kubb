@@ -262,7 +262,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     return { code: combineCodes(codes), name }
   }
 
-  //infinite
+  // infinite
   get queryOptionsInfinite(): QueryResult {
     const { framework, frameworkImports, errors, infinite: { queryParam = 'id' } = {}, dataReturnType } = this.options as QueryOptions
     const { operation, schemas } = this.context
