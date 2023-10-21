@@ -1,6 +1,8 @@
 import client from '@kubb/swagger-client/client'
-import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/svelte-query'
+
 import { createQuery } from '@tanstack/svelte-query'
+
+import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/svelte-query'
 import type { GetUserByName400, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: `/user/${username}`, params: { username: username } }] as const

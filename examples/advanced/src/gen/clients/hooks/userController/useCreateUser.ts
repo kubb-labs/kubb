@@ -10,12 +10,10 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
  * @link /user
  */
 
-export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(options: {
+  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<ResponseConfig<TData>, TError, TVariables>({

@@ -1,6 +1,8 @@
 import client from '@kubb/swagger-client/client'
-import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
+
 import { createQuery } from '@tanstack/solid-query'
+
+import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 import type { GetPetById400, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById'
 
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: `/pet/${petId}`, params: { petId: petId } }] as const

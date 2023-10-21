@@ -2,9 +2,12 @@ import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../swr-client.ts'
 import type { ResponseConfig } from '../../../../swr-client.ts'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../../models/ts/userController/LoginUser'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
 
-export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
+export function loginUserQueryOptions<
+  TData = LoginUserQueryResponse,
+  TError = LoginUser400,
+>(
   params?: LoginUserQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<ResponseConfig<TData>, TError> {
@@ -17,7 +20,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
         params,
 
         ...options,
-      }).then((res) => res)
+      }).then(res => res)
     },
   }
 }
@@ -27,14 +30,11 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
  * @link /user/login
  */
 
-export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params?: LoginUserQueryParams,
-  options?: {
-    query?: SWRConfiguration<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-    shouldFetch?: boolean
-  },
-): SWRResponse<ResponseConfig<TData>, TError> {
+export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(params?: LoginUserQueryParams, options?: {
+  query?: SWRConfiguration<ResponseConfig<TData>, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+  shouldFetch?: boolean
+}): SWRResponse<ResponseConfig<TData>, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
   const url = shouldFetch ? `/user/login` : null

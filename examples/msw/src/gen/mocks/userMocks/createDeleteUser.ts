@@ -26,5 +26,5 @@ export function createDeleteUserMutationResponse(): NonNullable<DeleteUserMutati
 }
 
 export function createDeleteUserPathParams(): NonNullable<DeleteUserPathParams> {
-  return { username: faker.string.alpha() }
+  return { 'username': faker.string.alpha() }
 }

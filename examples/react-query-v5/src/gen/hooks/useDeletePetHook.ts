@@ -1,8 +1,8 @@
-import client from '@kubb/swagger-client/client'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
-import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../models/DeletePet'
+import client from '@kubb/swagger-client/client'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
 
 /**
  * @description delete a pet

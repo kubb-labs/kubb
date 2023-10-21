@@ -17,11 +17,13 @@ export function useCreateUsersWithListInput<
   TData = CreateUsersWithListInputMutationResponse,
   TError = unknown,
   TVariables = CreateUsersWithListInputMutationRequest,
->(options?: {
-  mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
-  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  shouldFetch?: boolean
-}): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
+>(
+  options?: {
+    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
+    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+    shouldFetch?: boolean
+  },
+): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
   const url = shouldFetch ? `/user/createWithList` : null

@@ -1,8 +1,8 @@
-import type { QueryKey, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../tanstack-query-client.ts'
 import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../../../models/ts/petController/FindPetsByStatus'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: `/pet/findByStatus` }, ...(params ? [params] : [])] as const
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
@@ -20,7 +20,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
         params,
 
         ...options,
-      }).then((res) => res)
+      }).then(res => res)
     },
   }
 }
@@ -31,13 +31,10 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
  * @link /pet/findByStatus
  */
 
-export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
-  options: {
-    query?: UseQueryOptions<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
+export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(params?: FindPetsByStatusQueryParams, options: {
+  query?: UseQueryOptions<ResponseConfig<TData>, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
 
@@ -70,7 +67,7 @@ export function findPetsByStatusQueryOptionsInfinite<TData = FindPetsByStatusQue
           ['test']: pageParam,
           ...(options.params || {}),
         },
-      }).then((res) => res)
+      }).then(res => res)
     },
   }
 }

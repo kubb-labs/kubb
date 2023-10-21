@@ -1,72 +1,72 @@
+import type { UseMutationOptions, UseMutationResult, QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { QueryKey, QueryOptions, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
 import type {
-  AddPet405,
-  AddPetMutationRequest,
-  AddPetMutationResponse,
-  CreateUserMutationRequest,
-  CreateUserMutationResponse,
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
-  DeleteOrder400,
-  DeleteOrder404,
-  DeleteOrderMutationResponse,
-  DeleteOrderPathParams,
-  DeletePet400,
-  DeletePetHeaderParams,
-  DeletePetMutationResponse,
-  DeletePetPathParams,
-  DeleteUser400,
-  DeleteUser404,
-  DeleteUserMutationResponse,
-  DeleteUserPathParams,
-  FindPetsByStatus400,
-  FindPetsByStatusQueryParams,
-  FindPetsByStatusQueryResponse,
-  FindPetsByTags400,
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsQueryResponse,
-  GetInventoryQueryResponse,
-  GetOrderById400,
-  GetOrderById404,
-  GetOrderByIdPathParams,
-  GetOrderByIdQueryResponse,
-  GetPetById400,
-  GetPetById404,
-  GetPetByIdPathParams,
-  GetPetByIdQueryResponse,
-  GetUserByName400,
-  GetUserByName404,
-  GetUserByNamePathParams,
-  GetUserByNameQueryResponse,
-  LoginUser400,
-  LoginUserQueryParams,
-  LoginUserQueryResponse,
-  LogoutUserQueryResponse,
-  PlaceOrder405,
-  PlaceOrderMutationRequest,
-  PlaceOrderMutationResponse,
-  PlaceOrderPatch405,
-  PlaceOrderPatchMutationRequest,
-  PlaceOrderPatchMutationResponse,
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
   UpdatePet400,
   UpdatePet404,
   UpdatePet405,
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
-  UpdatePetWithForm405,
+  AddPetMutationRequest,
+  AddPetMutationResponse,
+  AddPet405,
+  FindPetsByStatusQueryResponse,
+  FindPetsByStatusQueryParams,
+  FindPetsByStatus400,
+  FindPetsByTagsQueryResponse,
+  FindPetsByTagsQueryParams,
+  FindPetsByTags400,
+  GetPetByIdQueryResponse,
+  GetPetByIdPathParams,
+  GetPetById400,
+  GetPetById404,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
-  UpdateUserMutationRequest,
-  UpdateUserMutationResponse,
-  UpdateUserPathParams,
+  UpdatePetWithForm405,
+  DeletePetMutationResponse,
+  DeletePetPathParams,
+  DeletePetHeaderParams,
+  DeletePet400,
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
   UploadFileQueryParams,
+  GetInventoryQueryResponse,
+  PlaceOrderMutationRequest,
+  PlaceOrderMutationResponse,
+  PlaceOrder405,
+  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchMutationResponse,
+  PlaceOrderPatch405,
+  GetOrderByIdQueryResponse,
+  GetOrderByIdPathParams,
+  GetOrderById400,
+  GetOrderById404,
+  DeleteOrderMutationResponse,
+  DeleteOrderPathParams,
+  DeleteOrder400,
+  DeleteOrder404,
+  CreateUserMutationRequest,
+  CreateUserMutationResponse,
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
+  LoginUserQueryResponse,
+  LoginUserQueryParams,
+  LoginUser400,
+  LogoutUserQueryResponse,
+  GetUserByNameQueryResponse,
+  GetUserByNamePathParams,
+  GetUserByName400,
+  GetUserByName404,
+  UpdateUserMutationRequest,
+  UpdateUserMutationResponse,
+  UpdateUserPathParams,
+  DeleteUserMutationResponse,
+  DeleteUserPathParams,
+  DeleteUser400,
+  DeleteUser404,
 } from './models'
 
 /**
@@ -103,12 +103,10 @@ export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdateP
  * @link /pet
  */
 
-export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TVariables = AddPetMutationRequest>(
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TVariables = AddPetMutationRequest>(options: {
+  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<ResponseConfig<TData>, TError, TVariables>({
@@ -141,7 +139,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
         params,
 
         ...options,
-      }).then((res) => res.data)
+      }).then(res => res.data)
     },
   }
 }
@@ -152,13 +150,10 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
  * @link /pet/findByStatus
  */
 
-export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
-  options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(params?: FindPetsByStatusQueryParams, options: {
+  query?: UseQueryOptions<TData, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
 
@@ -188,7 +183,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
         params,
 
         ...options,
-      }).then((res) => res.data)
+      }).then(res => res.data)
     },
   }
 }
@@ -199,13 +194,10 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
  * @link /pet/findByTags
  */
 
-export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  params?: FindPetsByTagsQueryParams,
-  options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(params?: FindPetsByTagsQueryParams, options: {
+  query?: UseQueryOptions<TData, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
 
@@ -234,7 +226,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
         url: `/pet/${petId}`,
 
         ...options,
-      }).then((res) => res.data)
+      }).then(res => res.data)
     },
   }
 }
@@ -245,13 +237,10 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
  * @link /pet/:petId
  */
 
-export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
-  petId: GetPetByIdPathParams['petId'],
-  options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(petId: GetPetByIdPathParams['petId'], options: {
+  query?: UseQueryOptions<TData, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
 
@@ -369,7 +358,7 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
         url: `/store/inventory`,
 
         ...options,
-      }).then((res) => res.data)
+      }).then(res => res.data)
     },
   }
 }
@@ -380,12 +369,10 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
  * @link /store/inventory
  */
 
-export function useGetInventory<TData = GetInventoryQueryResponse, TError = unknown>(
-  options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useGetInventory<TData = GetInventoryQueryResponse, TError = unknown>(options: {
+  query?: UseQueryOptions<TData, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
 
@@ -405,12 +392,10 @@ export function useGetInventory<TData = GetInventoryQueryResponse, TError = unkn
  * @link /store/order
  */
 
-export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(options: {
+  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<ResponseConfig<TData>, TError, TVariables>({
@@ -433,12 +418,10 @@ export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = Place
  * @link /store/order
  */
 
-export function usePlaceOrderPatch<TData = PlaceOrderPatchMutationResponse, TError = PlaceOrderPatch405, TVariables = PlaceOrderPatchMutationRequest>(
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function usePlaceOrderPatch<TData = PlaceOrderPatchMutationResponse, TError = PlaceOrderPatch405, TVariables = PlaceOrderPatchMutationRequest>(options: {
+  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<ResponseConfig<TData>, TError, TVariables>({
@@ -470,7 +453,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
         url: `/store/order/${orderId}`,
 
         ...options,
-      }).then((res) => res.data)
+      }).then(res => res.data)
     },
   }
 }
@@ -535,12 +518,10 @@ export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = Del
  * @link /user
  */
 
-export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(options: {
+  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<ResponseConfig<TData>, TError, TVariables>({
@@ -567,12 +548,10 @@ export function useCreateUsersWithListInput<
   TData = CreateUsersWithListInputMutationResponse,
   TError = unknown,
   TVariables = CreateUsersWithListInputMutationRequest,
->(
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+>(options: {
+  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<ResponseConfig<TData>, TError, TVariables>({
@@ -605,7 +584,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
         params,
 
         ...options,
-      }).then((res) => res.data)
+      }).then(res => res.data)
     },
   }
 }
@@ -615,13 +594,10 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
  * @link /user/login
  */
 
-export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params?: LoginUserQueryParams,
-  options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(params?: LoginUserQueryParams, options: {
+  query?: UseQueryOptions<TData, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 
@@ -649,7 +625,7 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
         url: `/user/logout`,
 
         ...options,
-      }).then((res) => res.data)
+      }).then(res => res.data)
     },
   }
 }
@@ -659,12 +635,10 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
  * @link /user/logout
  */
 
-export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>(
-  options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>(options: {
+  query?: UseQueryOptions<TData, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
 
@@ -693,7 +667,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
         url: `/user/${username}`,
 
         ...options,
-      }).then((res) => res.data)
+      }).then(res => res.data)
     },
   }
 }
@@ -758,13 +732,10 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
  * @link /user/:username
  */
 
-export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400 | DeleteUser404>(
-  username: DeleteUserPathParams['username'],
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
-    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, void> {
+export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400 | DeleteUser404>(username: DeleteUserPathParams['username'], options: {
+  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
+  client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
+} = {}): UseMutationResult<ResponseConfig<TData>, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<ResponseConfig<TData>, TError, void>({

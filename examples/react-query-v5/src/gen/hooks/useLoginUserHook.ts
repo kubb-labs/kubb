@@ -1,7 +1,7 @@
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
+import { useQuery, queryOptions } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
-import type { QueryKey, QueryOptions, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
-import { queryOptions, useQuery } from '@tanstack/react-query'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
 export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
@@ -19,7 +19,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
         params,
 
         ...options,
-      }).then((res) => res.data)
+      }).then(res => res.data)
     },
   })
 }
@@ -29,13 +29,10 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
  * @link /user/login
  */
 
-export function useLoginUserHook<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params?: LoginUserQueryParams,
-  options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useLoginUserHook<TData = LoginUserQueryResponse, TError = LoginUser400>(params?: LoginUserQueryParams, options: {
+  query?: UseQueryOptions<TData, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 

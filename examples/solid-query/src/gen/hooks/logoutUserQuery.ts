@@ -1,6 +1,8 @@
 import client from '@kubb/swagger-client/client'
-import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
+
 import { createQuery } from '@tanstack/solid-query'
+
+import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
 export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const

@@ -1,9 +1,11 @@
 import client from '@kubb/swagger-client/client'
+
+import { useMutation } from '@tanstack/vue-query'
+import { unref } from 'vue'
+
 import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
-import { useMutation } from '@tanstack/vue-query'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
-import { unref } from 'vue'
 import type { MaybeRef } from 'vue'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
 

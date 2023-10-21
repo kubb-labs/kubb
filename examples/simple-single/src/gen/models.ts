@@ -50,9 +50,9 @@ export type Category = {
 }
 
 export const orderStatus = {
-  placed: 'placed',
-  approved: 'approved',
-  delivered: 'delivered',
+  'placed': 'placed',
+  'approved': 'approved',
+  'delivered': 'delivered',
 } as const
 export type OrderStatus = (typeof orderStatus)[keyof typeof orderStatus]
 export const orderHttpStatus = {
@@ -185,9 +185,9 @@ export type Customer = {
 export type UserArray = User[]
 
 export const addPetRequestStatus = {
-  available: 'available',
-  pending: 'pending',
-  sold: 'sold',
+  'available': 'available',
+  'pending': 'pending',
+  'sold': 'sold',
 } as const
 export type AddPetRequestStatus = (typeof addPetRequestStatus)[keyof typeof addPetRequestStatus]
 export type AddPetRequest = {
@@ -218,9 +218,9 @@ export type AddPetRequest = {
 }
 
 export const petStatus = {
-  available: 'available',
-  pending: 'pending',
-  sold: 'sold',
+  'available': 'available',
+  'pending': 'pending',
+  'sold': 'sold',
 } as const
 export type PetStatus = (typeof petStatus)[keyof typeof petStatus]
 export type Pet = {
@@ -302,9 +302,9 @@ export type AddPetMutationResponse = Pet
 export type FindPetsByStatus400 = any | null
 
 export const findPetsByStatusQueryParamsStatus = {
-  available: 'available',
-  pending: 'pending',
-  sold: 'sold',
+  'available': 'available',
+  'pending': 'pending',
+  'sold': 'sold',
 } as const
 export type FindPetsByStatusQueryParamsStatus = (typeof findPetsByStatusQueryParamsStatus)[keyof typeof findPetsByStatusQueryParamsStatus]
 export type FindPetsByStatusQueryParams = {

@@ -2,9 +2,9 @@ import type { Category } from './Category'
 import type { Tag } from './Tag'
 
 export const AddPetRequestStatus = {
-  available: 'available',
-  pending: 'pending',
-  sold: 'sold',
+  'available': 'available',
+  'pending': 'pending',
+  'sold': 'sold',
 } as const
 export type AddPetRequestStatus = (typeof AddPetRequestStatus)[keyof typeof AddPetRequestStatus]
 export type AddPetRequest = {

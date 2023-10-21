@@ -1,6 +1,8 @@
 import client from '@kubb/swagger-client/client'
-import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
+
 import { createQuery } from '@tanstack/solid-query'
+
+import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const

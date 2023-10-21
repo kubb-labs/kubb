@@ -4,7 +4,10 @@ import client from '../../../../swr-client.ts'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 
-export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(
+export function logoutUserQueryOptions<
+  TData = LogoutUserQueryResponse,
+  TError = unknown,
+>(
   options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<ResponseConfig<TData>, TError> {
   return {
@@ -14,7 +17,7 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
         url: `/user/logout`,
 
         ...options,
-      }).then((res) => res)
+      }).then(res => res)
     },
   }
 }

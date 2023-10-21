@@ -1,7 +1,7 @@
+import { createUser } from '../createUser'
 import { CreateUserMutationResponse } from '../../models/CreateUser'
 import { CreateUserError } from '../../models/CreateUser'
 import { CreateUserMutationRequest } from '../../models/CreateUser'
-import { createUser } from '../createUser'
 
 export function createCreateUserMutationResponse(): NonNullable<CreateUserMutationResponse> {
   return undefined

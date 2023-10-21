@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker'
 
+import { createPet } from '../createPet'
 import { FindPetsByTags400 } from '../../models/FindPetsByTags'
 import { FindPetsByTagsQueryParams } from '../../models/FindPetsByTags'
 import { FindPetsByTagsQueryResponse } from '../../models/FindPetsByTags'
-import { createPet } from '../createPet'
 
 /**
  * @description Invalid tag value
@@ -14,7 +14,7 @@ export function createFindPetsByTags400(): NonNullable<FindPetsByTags400> {
 }
 
 export function createFindPetsByTagsQueryParams(): NonNullable<FindPetsByTagsQueryParams> {
-  return { tags: faker.helpers.arrayElements([faker.string.alpha()]) as any, page: faker.string.alpha(), pageSize: faker.string.alpha() }
+  return { 'tags': faker.helpers.arrayElements([faker.string.alpha()]) as any, 'page': faker.string.alpha(), 'pageSize': faker.string.alpha() }
 }
 
 /**

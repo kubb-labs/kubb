@@ -1,7 +1,9 @@
 import client from '@kubb/swagger-client/client'
-import type { QueryKey, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
+
 import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
+
+import type { QueryKey, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 import type { GetUserByName400, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName'
 

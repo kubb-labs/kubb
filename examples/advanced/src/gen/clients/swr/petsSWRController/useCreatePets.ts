@@ -3,12 +3,12 @@ import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation
 import client from '../../../../swr-client.ts'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type {
-  CreatePets201,
-  CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
+  CreatePetsHeaderParams,
+  CreatePets201,
 } from '../../../models/ts/petsController/CreatePets'
 
 /**
@@ -16,7 +16,11 @@ import type {
  * @link /pets/:uuid
  */
 
-export function useCreatePets<TData = CreatePetsMutationResponse, TError = CreatePets201, TVariables = CreatePetsMutationRequest>(
+export function useCreatePets<
+  TData = CreatePetsMutationResponse,
+  TError = CreatePets201,
+  TVariables = CreatePetsMutationRequest,
+>(
   uuid: CreatePetsPathParams['uuid'],
   params?: CreatePetsQueryParams,
   headers?: CreatePetsHeaderParams,

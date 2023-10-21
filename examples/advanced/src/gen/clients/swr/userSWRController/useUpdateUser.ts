@@ -10,7 +10,11 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @link /user/:username
  */
 
-export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unknown, TVariables = UpdateUserMutationRequest>(
+export function useUpdateUser<
+  TData = UpdateUserMutationResponse,
+  TError = unknown,
+  TVariables = UpdateUserMutationRequest,
+>(
   username: UpdateUserPathParams['username'],
   options?: {
     mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>

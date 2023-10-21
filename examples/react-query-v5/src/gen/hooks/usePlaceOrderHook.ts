@@ -1,8 +1,8 @@
-import client from '@kubb/swagger-client/client'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
-import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../models/PlaceOrder'
+import client from '@kubb/swagger-client/client'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
 
 /**
  * @description Place a new order in the store
@@ -10,12 +10,10 @@ import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationRespon
  * @link /store/order
  */
 
-export function usePlaceOrderHook<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function usePlaceOrderHook<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(options: {
+  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<ResponseConfig<TData>, TError, TVariables>({

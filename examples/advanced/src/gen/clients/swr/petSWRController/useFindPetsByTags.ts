@@ -3,13 +3,16 @@ import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../swr-client.ts'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type {
-  FindPetsByTags400,
-  FindPetsByTagsHeaderParams,
-  FindPetsByTagsQueryParams,
   FindPetsByTagsQueryResponse,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags'
 
-export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
+export function findPetsByTagsQueryOptions<
+  TData = FindPetsByTagsQueryResponse,
+  TError = FindPetsByTags400,
+>(
   params?: FindPetsByTagsQueryParams,
   headers?: FindPetsByTagsHeaderParams,
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -23,7 +26,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
         params,
         headers: { ...headers, ...options.headers },
         ...options,
-      }).then((res) => res)
+      }).then(res => res)
     },
   }
 }

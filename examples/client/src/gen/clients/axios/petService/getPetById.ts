@@ -1,6 +1,6 @@
 import client from '../../../client'
 import type { ResponseConfig } from '../../../client'
-import type { GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../models/ts/petController/GetPetById'
 
 /**
  * @description Returns a single pet

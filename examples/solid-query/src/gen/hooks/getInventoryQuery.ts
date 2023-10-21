@@ -1,6 +1,8 @@
 import client from '@kubb/swagger-client/client'
-import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
+
 import { createQuery } from '@tanstack/solid-query'
+
+import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
 export const getInventoryQueryKey = () => [{ url: `/store/inventory` }] as const

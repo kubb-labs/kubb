@@ -2,7 +2,7 @@ import useSWRMutation from 'swr/mutation'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../swr-client.ts'
 import type { ResponseConfig } from '../../../../swr-client.ts'
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet'
 
 /**
  * @description Add a new pet to the store
@@ -10,11 +10,17 @@ import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '.
  * @link /pet
  */
 
-export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TVariables = AddPetMutationRequest>(options?: {
-  mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
-  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  shouldFetch?: boolean
-}): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
+export function useAddPet<
+  TData = AddPetMutationResponse,
+  TError = AddPet405,
+  TVariables = AddPetMutationRequest,
+>(
+  options?: {
+    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
+    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+    shouldFetch?: boolean
+  },
+): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
   const url = shouldFetch ? `/pet` : null

@@ -17,12 +17,10 @@ export function useCreateUsersWithListInput<
   TData = CreateUsersWithListInputMutationResponse,
   TError = unknown,
   TVariables = CreateUsersWithListInputMutationRequest,
->(
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+>(options: {
+  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<ResponseConfig<TData>, TError, TVariables>({

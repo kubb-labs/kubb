@@ -1,5 +1,7 @@
 import client from '@kubb/swagger-client/client'
+
 import useSWR from 'swr'
+
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser'
 

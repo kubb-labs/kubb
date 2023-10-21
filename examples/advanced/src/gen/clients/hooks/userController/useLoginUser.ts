@@ -1,8 +1,8 @@
-import type { QueryKey, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../tanstack-query-client.ts'
 import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../../../models/ts/userController/LoginUser'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
 export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
@@ -20,7 +20,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
         params,
 
         ...options,
-      }).then((res) => res)
+      }).then(res => res)
     },
   }
 }
@@ -30,13 +30,10 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
  * @link /user/login
  */
 
-export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params?: LoginUserQueryParams,
-  options: {
-    query?: UseQueryOptions<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
+export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(params?: LoginUserQueryParams, options: {
+  query?: UseQueryOptions<ResponseConfig<TData>, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 
@@ -69,7 +66,7 @@ export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TE
           ['id']: pageParam,
           ...(options.params || {}),
         },
-      }).then((res) => res)
+      }).then(res => res)
     },
   }
 }
@@ -79,13 +76,10 @@ export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TE
  * @link /user/login
  */
 
-export function useLoginUserInfinite<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params?: LoginUserQueryParams,
-  options: {
-    query?: UseInfiniteQueryOptions<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseInfiniteQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
+export function useLoginUserInfinite<TData = LoginUserQueryResponse, TError = LoginUser400>(params?: LoginUserQueryParams, options: {
+  query?: UseInfiniteQueryOptions<ResponseConfig<TData>, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseInfiniteQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
 

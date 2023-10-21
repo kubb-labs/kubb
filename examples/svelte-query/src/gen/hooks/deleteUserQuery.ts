@@ -1,7 +1,9 @@
 import client from '@kubb/swagger-client/client'
+
+import { createMutation } from '@tanstack/svelte-query'
+
 import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
-import { createMutation } from '@tanstack/svelte-query'
 import type { DeleteUser400, DeleteUserMutationResponse, DeleteUserPathParams } from '../models/DeleteUser'
 
 /**

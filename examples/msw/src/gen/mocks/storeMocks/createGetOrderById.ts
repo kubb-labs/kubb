@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker'
 
+import { createOrder } from '../createOrder'
 import { GetOrderById400 } from '../../models/GetOrderById'
 import { GetOrderById404 } from '../../models/GetOrderById'
 import { GetOrderByIdPathParams } from '../../models/GetOrderById'
 import { GetOrderByIdQueryResponse } from '../../models/GetOrderById'
-import { createOrder } from '../createOrder'
 
 /**
  * @description Invalid ID supplied
@@ -23,7 +23,7 @@ export function createGetOrderById404(): NonNullable<GetOrderById404> {
 }
 
 export function createGetOrderByIdPathParams(): NonNullable<GetOrderByIdPathParams> {
-  return { orderId: faker.number.float({}) }
+  return { 'orderId': faker.number.float({}) }
 }
 
 /**

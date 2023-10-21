@@ -26,5 +26,5 @@ export function createDeleteOrderMutationResponse(): NonNullable<DeleteOrderMuta
 }
 
 export function createDeleteOrderPathParams(): NonNullable<DeleteOrderPathParams> {
-  return { orderId: faker.number.float({}) }
+  return { 'orderId': faker.number.float({}) }
 }

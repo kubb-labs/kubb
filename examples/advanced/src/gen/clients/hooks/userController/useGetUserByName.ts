@@ -1,8 +1,8 @@
-import type { QueryKey, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../tanstack-query-client.ts'
 import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../../models/ts/userController/GetUserByName'
+import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: `/user/${username}`, params: { username: username } }] as const
 export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
@@ -19,7 +19,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
         url: `/user/${username}`,
 
         ...options,
-      }).then((res) => res)
+      }).then(res => res)
     },
   }
 }
@@ -63,7 +63,7 @@ export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResp
         url: `/user/${username}`,
 
         ...options,
-      }).then((res) => res)
+      }).then(res => res)
     },
   }
 }

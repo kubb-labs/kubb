@@ -1,8 +1,8 @@
-import type { QueryKey, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../tanstack-query-client.ts'
 import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
 
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: `/pet/${petId}`, params: { petId: petId } }] as const
 export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
@@ -19,7 +19,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
         url: `/pet/${petId}`,
 
         ...options,
-      }).then((res) => res)
+      }).then(res => res)
     },
   }
 }
@@ -30,13 +30,10 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
  * @link /pet/:petId
  */
 
-export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
-  petId: GetPetByIdPathParams['petId'],
-  options: {
-    query?: UseQueryOptions<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
+export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(petId: GetPetByIdPathParams['petId'], options: {
+  query?: UseQueryOptions<ResponseConfig<TData>, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
 
@@ -64,7 +61,7 @@ export function getPetByIdQueryOptionsInfinite<TData = GetPetByIdQueryResponse, 
         url: `/pet/${petId}`,
 
         ...options,
-      }).then((res) => res)
+      }).then(res => res)
     },
   }
 }
@@ -75,13 +72,10 @@ export function getPetByIdQueryOptionsInfinite<TData = GetPetByIdQueryResponse, 
  * @link /pet/:petId
  */
 
-export function useGetPetByIdInfinite<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
-  petId: GetPetByIdPathParams['petId'],
-  options: {
-    query?: UseInfiniteQueryOptions<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseInfiniteQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
+export function useGetPetByIdInfinite<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(petId: GetPetByIdPathParams['petId'], options: {
+  query?: UseInfiniteQueryOptions<ResponseConfig<TData>, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseInfiniteQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
 

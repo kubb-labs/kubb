@@ -1,4 +1,5 @@
 import { makeApi, Zodios } from '@zodios/core'
+
 import { addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './zod/addPetSchema'
 import { createUserMutationRequestSchema, createUserMutationResponseSchema } from './zod/createUserSchema'
 import { createUsersWithListInputMutationRequestSchema, createUsersWithListInputMutationResponseSchema } from './zod/createUsersWithListInputSchema'

@@ -2,9 +2,12 @@ import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../swr-client.ts'
 import type { ResponseConfig } from '../../../../swr-client.ts'
-import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
 
-export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
+export function getPetByIdQueryOptions<
+  TData = GetPetByIdQueryResponse,
+  TError = GetPetById400 | GetPetById404,
+>(
   petId: GetPetByIdPathParams['petId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): SWRConfiguration<ResponseConfig<TData>, TError> {
@@ -15,7 +18,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
         url: `/pet/${petId}`,
 
         ...options,
-      }).then((res) => res)
+      }).then(res => res)
     },
   }
 }
@@ -26,14 +29,11 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
  * @link /pet/:petId
  */
 
-export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
-  petId: GetPetByIdPathParams['petId'],
-  options?: {
-    query?: SWRConfiguration<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-    shouldFetch?: boolean
-  },
-): SWRResponse<ResponseConfig<TData>, TError> {
+export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(petId: GetPetByIdPathParams['petId'], options?: {
+  query?: SWRConfiguration<ResponseConfig<TData>, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+  shouldFetch?: boolean
+}): SWRResponse<ResponseConfig<TData>, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
   const url = shouldFetch ? `/pet/${petId}` : null

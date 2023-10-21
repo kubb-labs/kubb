@@ -1,6 +1,8 @@
 import client from '@kubb/swagger-client/client'
-import type { QueryKey, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
+
 import { useQuery } from '@tanstack/vue-query'
+
+import type { QueryKey, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
 export const getInventoryQueryKey = () => [{ url: `/store/inventory` }] as const

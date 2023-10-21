@@ -10,11 +10,17 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../.
  * @link /user
  */
 
-export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(options?: {
-  mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
-  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  shouldFetch?: boolean
-}): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
+export function useCreateUser<
+  TData = CreateUserMutationResponse,
+  TError = unknown,
+  TVariables = CreateUserMutationRequest,
+>(
+  options?: {
+    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
+    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+    shouldFetch?: boolean
+  },
+): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
   const url = shouldFetch ? `/user` : null

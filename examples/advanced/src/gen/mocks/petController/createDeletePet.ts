@@ -14,7 +14,7 @@ export function createDeletePet400(): NonNullable<DeletePet400> {
 }
 
 export function createDeletePetHeaderParams(): NonNullable<DeletePetHeaderParams> {
-  return { api_key: faker.string.alpha() }
+  return { 'api_key': faker.string.alpha() }
 }
 
 export function createDeletePetMutationResponse(): NonNullable<DeletePetMutationResponse> {
@@ -22,5 +22,5 @@ export function createDeletePetMutationResponse(): NonNullable<DeletePetMutation
 }
 
 export function createDeletePetPathParams(): NonNullable<DeletePetPathParams> {
-  return { petId: faker.number.float({}) }
+  return { 'petId': faker.number.float({}) }
 }

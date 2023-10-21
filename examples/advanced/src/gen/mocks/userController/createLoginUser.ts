@@ -13,7 +13,7 @@ export function createLoginUser400(): NonNullable<LoginUser400> {
 }
 
 export function createLoginUserQueryParams(): NonNullable<LoginUserQueryParams> {
-  return { username: faker.string.alpha(), password: faker.internet.password() }
+  return { 'username': faker.string.alpha(), 'password': faker.internet.password() }
 }
 
 /**

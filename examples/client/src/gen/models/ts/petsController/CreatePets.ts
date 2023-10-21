@@ -6,9 +6,9 @@ import type { PetNotFound } from '../PetNotFound'
 export type CreatePets201 = any | null
 
 export const CreatePetsHeaderParamsXExample = {
-  ONE: 'ONE',
-  TWO: 'TWO',
-  THREE: 'THREE',
+  'ONE': 'ONE',
+  'TWO': 'TWO',
+  'THREE': 'THREE',
 } as const
 export type CreatePetsHeaderParamsXExample = (typeof CreatePetsHeaderParamsXExample)[keyof typeof CreatePetsHeaderParamsXExample]
 export type CreatePetsHeaderParams = {

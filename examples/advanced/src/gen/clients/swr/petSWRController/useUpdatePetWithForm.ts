@@ -3,10 +3,10 @@ import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation
 import client from '../../../../swr-client.ts'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type {
-  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm'
 
 /**
@@ -14,7 +14,10 @@ import type {
  * @link /pet/:petId
  */
 
-export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
+export function useUpdatePetWithForm<
+  TData = UpdatePetWithFormMutationResponse,
+  TError = UpdatePetWithForm405,
+>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options?: {

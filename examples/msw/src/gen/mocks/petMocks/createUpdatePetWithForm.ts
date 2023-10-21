@@ -18,9 +18,9 @@ export function createUpdatePetWithFormMutationResponse(): NonNullable<UpdatePet
 }
 
 export function createUpdatePetWithFormPathParams(): NonNullable<UpdatePetWithFormPathParams> {
-  return { petId: faker.number.float({}) }
+  return { 'petId': faker.number.float({}) }
 }
 
 export function createUpdatePetWithFormQueryParams(): NonNullable<UpdatePetWithFormQueryParams> {
-  return { name: faker.string.alpha(), status: faker.string.alpha() }
+  return { 'name': faker.string.alpha(), 'status': faker.string.alpha() }
 }

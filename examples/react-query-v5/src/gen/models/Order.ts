@@ -1,7 +1,7 @@
 export const orderStatus = {
-  placed: 'placed',
-  approved: 'approved',
-  delivered: 'delivered',
+  'placed': 'placed',
+  'approved': 'approved',
+  'delivered': 'delivered',
 } as const
 export type OrderStatus = (typeof orderStatus)[keyof typeof orderStatus]
 export const orderHttpStatus = {
