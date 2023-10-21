@@ -36,6 +36,7 @@ type Options = {
   resolveName: PluginContext['resolveName']
   logger: PluginContext['logger']
   getPlugins: () => KubbPlugin[]
+  plugin: KubbPlugin
 }
 
 // not publicly exported

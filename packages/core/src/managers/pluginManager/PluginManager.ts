@@ -11,11 +11,21 @@ import { PluginError } from './PluginError.ts'
 import { pluginParser } from './pluginParser.ts'
 
 import type { CorePluginOptions } from '../../plugin.ts'
-import type {KubbConfig, KubbPlugin, KubbUserPlugin,PluginContext, PluginLifecycle, PluginLifecycleHooks, PossiblePromise, ResolveNameParams, ResolvePathParams} from '../../types.ts';
+import type {
+  KubbConfig,
+  KubbPlugin,
+  KubbUserPlugin,
+  PluginContext,
+  PluginLifecycle,
+  PluginLifecycleHooks,
+  PossiblePromise,
+  ResolveNameParams,
+  ResolvePathParams,
+} from '../../types.ts'
 import type { Logger } from '../../utils/logger.ts'
 import type { QueueJob } from '../../utils/Queue.ts'
 import type { KubbFile } from '../fileManager/types.ts'
-import type { Argument0, Executer, ParseResult, SafeParseResult, Strategy } from './types.ts'
+import type {Argument0, Executer, ParseResult, PluginParameter, RequiredPluginLifecycle, SafeParseResult, Strategy } from './types.ts'
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
 
@@ -67,25 +77,22 @@ export class PluginManager {
       resolvePath: this.resolvePath.bind(this),
       resolveName: this.resolveName.bind(this),
       getPlugins: this.#getSortedPlugins.bind(this),
+      plugin: undefined as unknown as KubbPlugin
     }) as KubbPlugin<CorePluginOptions> & {
-      api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api']
+      api: (this: Omit<PluginContext, 'addFile'>) => CorePluginOptions['api'];
+      plugin?: undefined
     }
 
     this.#core = pluginParser(core, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
 
     this.plugins = [this.#core, ...(config.plugins || [])].reduce((prev, plugin) => {
       // TODO HACK to be sure that this is equal to the `core.api` logic.
-
       const convertedApi = pluginParser(plugin as KubbUserPlugin, this.#core?.api)
 
-      if (convertedApi) {
-        return [...prev, convertedApi]
-      }
-
-      return [...prev, plugin]
+      return [...prev, convertedApi]
     }, [] as KubbPlugin[])
 
-  return this
+    return this
   }
 
   resolvePath = (params: ResolvePathParams): KubbFile.OptionalPath => {
@@ -133,7 +140,7 @@ export class PluginManager {
   }: {
     pluginName: string
     hookName: H
-    parameters: Parameters<PluginLifecycle[H]>
+    parameters: PluginParameter<H>
   }): Promise<ReturnType<ParseResult<H>> | null> | null {
     const plugin = this.getPlugin(hookName, pluginName)
 
@@ -152,7 +159,7 @@ export class PluginManager {
   }: {
     pluginName: string
     hookName: H
-    parameters: Parameters<PluginLifecycle[H]>
+    parameters: PluginParameter<H>
   }): ReturnType<ParseResult<H>> | null {
     const plugin = this.getPlugin(hookName, pluginName)
 
@@ -173,7 +180,7 @@ export class PluginManager {
     skipped,
   }: {
     hookName: H
-    parameters: Parameters<PluginLifecycle[H]>
+    parameters: PluginParameter<H>
     skipped?: ReadonlySet<KubbPlugin> | null
   }): Promise<SafeParseResult<H>> {
     let promise: Promise<SafeParseResult<H>> = Promise.resolve(null as unknown as SafeParseResult<H>)
@@ -214,7 +221,7 @@ export class PluginManager {
     skipped,
   }: {
     hookName: H
-    parameters: Parameters<PluginLifecycle[H]>
+    parameters: PluginParameter<H>
     skipped?: ReadonlySet<KubbPlugin> | null
   }): SafeParseResult<H> {
     let parseResult: SafeParseResult<H> = null as unknown as SafeParseResult<H>
@@ -249,7 +256,7 @@ export class PluginManager {
     parameters,
   }: {
     hookName: H
-    parameters?: Parameters<PluginLifecycle[H]> | undefined
+    parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
   }): Promise<Awaited<TOuput>[]> {
     const parallelPromises: Promise<TOuput>[] = []
 
@@ -299,7 +306,7 @@ export class PluginManager {
     reduce,
   }: {
     hookName: H
-    parameters: Parameters<PluginLifecycle[H]>
+    parameters: PluginParameter<H>
     reduce: (reduction: Argument0<H>, result: ReturnType<ParseResult<H>>, plugin: KubbPlugin) => PossiblePromise<Argument0<H> | null>
   }): Promise<Argument0<H>> {
     const [argument0, ...rest] = parameters
@@ -311,7 +318,7 @@ export class PluginManager {
           const value = this.#execute({
             strategy: 'hookReduceArg0',
             hookName,
-            parameters: [arg0, ...rest] as Parameters<PluginLifecycle[H]>,
+            parameters: [arg0, ...rest] as PluginParameter<H>,
             plugin,
           })
           return value
@@ -324,7 +331,7 @@ export class PluginManager {
   /**
    * Chains plugins
    */
-  hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: Parameters<PluginLifecycle[H]> }): Promise<void> {
+  hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
     let promise: Promise<void | null> = Promise.resolve()
     for (const plugin of this.#getSortedPlugins()) {
       promise = promise.then(() => {
@@ -341,7 +348,6 @@ export class PluginManager {
 
   #getSortedPlugins(hookName?: keyof PluginLifecycle): KubbPlugin[] {
     const plugins = [...this.plugins].filter((plugin) => plugin.name !== 'core')
-
 
     if (hookName) {
       return plugins.filter((item) => item[hookName])
@@ -399,7 +405,7 @@ export class PluginManager {
     const task = Promise.resolve()
       .then(() => {
         if (typeof hook === 'function') {
-          const possiblePromiseResult = (hook as Function).apply(this.#core.api, parameters) as TResult
+          const possiblePromiseResult = (hook as Function).apply({ ...this.#core.api, plugin }, parameters) as TResult
 
           if (isPromise(possiblePromiseResult)) {
             return Promise.resolve(possiblePromiseResult)
@@ -447,7 +453,7 @@ export class PluginManager {
   }: {
     strategy: Strategy
     hookName: H
-    parameters: Parameters<PluginLifecycle[H]>
+    parameters: PluginParameter<H>
     plugin: KubbPlugin
   }): ReturnType<ParseResult<H>> | null {
     const hook = plugin[hookName]
