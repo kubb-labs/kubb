@@ -18,8 +18,8 @@ $ git clone https://github.com/kubb-project/plugin-template.git
 ```typescript
 import pathParser from 'node:path'
 
-import { createPlugin, getPathMode, validatePlugins, writeIndexes } from '@kubb/core'
-import { pluginKey as swaggerPluginKey } from '@kubb/swagger'
+import { createPlugin, getPathMode, validatePlugins, writeIndexes, KubbPlugin } from '@kubb/core'
+import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
@@ -32,14 +32,14 @@ export const pluginKey = ['controller', pluginName] satisfies PluginOptions['key
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'demo' } = options
-  let pluginsOptions: [SwaggerPluginOptions]
+  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
     options,
     kind: 'controller',
     validate(plugins) {
-      pluginsOptions = getDependedPlugins<[SwaggerPluginOptions]>(plugins, [swaggerPluginName])
+      pluginsOptions = getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
 
       return true
     },
