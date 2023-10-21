@@ -1,5 +1,6 @@
 import { defineConfig } from '@kubb/core'
 
+// TODO check why some options are undefined
 export type SwaggerPluginOptions = Kubb.OptionsPlugins
 
 export default defineConfig(async () => {

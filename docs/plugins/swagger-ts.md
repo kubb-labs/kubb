@@ -137,7 +137,7 @@ enum PetType {
 ```typescript ['asConst']
 const petType = {
   Dog: 'dog',
-  Cat: cat'
+  Cat:'cat'
 } as const
 ```
 
@@ -306,7 +306,7 @@ type: string | undefined
 ```
 
 ```typescript ['questionTokenAndUndefined']
-type?: string | undefined`
+type?: string | undefined
 ```
 
 :::
