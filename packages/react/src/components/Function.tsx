@@ -26,9 +26,22 @@ export function Function({ name, export: canExport, async, generics, params, ret
           <br />
         </>
       )}
-      {canExport && <Text>export </Text>}
-      {async && <Text>async </Text>}
-      <Text>function {name}</Text>
+      {canExport && (
+        <Text>
+          export
+          <Text.Space />
+        </Text>
+      )}
+      {async && (
+        <Text>
+          async
+          <Text.Space />
+        </Text>
+      )}
+      <Text>
+        function {name}
+        <Text.Space />
+      </Text>
       {generics && (
         <>
           <Text>{'<'}</Text>
@@ -67,9 +80,21 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
           <br />
         </>
       )}
-      {canExport && <Text>export </Text>}
-      <Text>const {name} = </Text>
-      {async && <Text>async </Text>}
+      {canExport && (
+        <Text>
+          export
+          <Text.Space />
+        </Text>
+      )}
+      <Text>
+        const {name} =<Text.Space />
+      </Text>
+      {async && (
+        <Text>
+          async
+          <Text.Space />
+        </Text>
+      )}
       {generics && (
         <>
           <Text>{'<'}</Text>

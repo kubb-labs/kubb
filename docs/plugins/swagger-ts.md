@@ -4,6 +4,7 @@ layout: doc
 title: \@kubb/swagger-ts
 outline: deep
 ---
+
 # @kubb/swagger-ts <a href="https://paka.dev/npm/@kubb/swagger-ts@latest/api">🦙</a>
 
 With the Swagger TypeScript plugin you can create [TypeScript](https://www.typescriptlang.org/) types based on a Swagger file.
@@ -33,6 +34,7 @@ yarn add @kubb/swagger-ts @kubb/swagger
 ## Options
 
 ### output
+
 Relative path to save the TypeScript types. <br/>
 When output is a file it will save all models inside that file else it will create a file per schema item.
 
@@ -56,23 +58,26 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ output: './models' })
-  ]
+    createSwaggerTS({ output: './models' }),
+  ],
 })
 ```
 
 :::
 
 ### groupBy
+
 Group the TypeScript types based on the provided name.
 
 #### type
+
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
 #### output
+
 ::: v-pre
 Relative path to save the grouped TypeScript Types.
 `{{tag}}` will be replaced by the current tagName.
@@ -102,16 +107,18 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ 
-      output: './types', 
-      groupBy: { type: 'tag', output: './types/{{tag}}Controller' }, 
+    createSwaggerTS({
+      output: './types',
+      groupBy: { type: 'tag', output: './types/{{tag}}Controller' },
     }),
-  ]
+  ],
 })
 ```
+
 :::
 
 ### enumType
+
 Choose to use `enum` or `as const` for enums. <br/>
 `asConst` will use camelCase for the naming. <br/>
 `asPascalConst` will use PascalCase for the naming.
@@ -123,26 +130,27 @@ Choose to use `enum` or `as const` for enums. <br/>
 ```typescript ['enum']
 enum PetType {
   Dog = 'dog',
-  Cat = 'cat'
+  Cat = 'cat',
 }
 ```
 
 ```typescript ['asConst']
 const petType = {
   Dog: 'dog',
-  Cat: cat'
+  Cat: 'cat',
 } as const
 ```
 
 ```typescript ['asPascalConst']
 const PetType = {
   Dog: 'dog',
-  Cat: 'cat'
+  Cat: 'cat',
 } as const
 ```
+
 :::
 
-::: info 
+::: info
 
 Type: `'enum' | 'asConst' | 'asPascalConst'` <br/>
 Default: `'asConst'`
@@ -163,10 +171,10 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ 
-      enumType: 'enum'
+    createSwaggerTS({
+      enumType: 'enum',
     }),
-  ]
+  ],
 })
 ```
 
@@ -184,10 +192,10 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ 
-      enumType: 'asConst'
+    createSwaggerTS({
+      enumType: 'asConst',
     }),
-  ]
+  ],
 })
 ```
 
@@ -205,16 +213,17 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ 
-      enumType: 'asPascalConst'
+    createSwaggerTS({
+      enumType: 'asPascalConst',
     }),
-  ]
+  ],
 })
 ```
 
 :::
 
 ### dateType
+
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 
 ::: info type
@@ -228,13 +237,13 @@ date: string
 ```typescript ['date']
 date: Date
 ```
+
 :::
 
 ::: info
 
 Type: `'string' | 'date'` <br/>
 Default: `'string'`
-
 
 ```typescript ['string']
 import { defineConfig } from '@kubb/swagger'
@@ -250,13 +259,12 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ 
-      dateType: 'string'
+    createSwaggerTS({
+      dateType: 'string',
     }),
-  ]
+  ],
 })
 ```
-
 
 ```typescript ['date']
 import { defineConfig } from '@kubb/swagger'
@@ -272,16 +280,17 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ 
-      dateType: 'date'
+    createSwaggerTS({
+      dateType: 'date',
     }),
-  ]
+  ],
 })
 ```
 
 :::
 
 ### optionalType
+
 Choose what to use as mode for an optional value.<br/>
 
 ::: info type
@@ -297,8 +306,9 @@ type: string | undefined
 ```
 
 ```typescript ['questionTokenAndUndefined']
-type?: string | undefined`
+type?: string | undefined
 ```
+
 :::
 
 ::: info
@@ -322,10 +332,10 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ 
-      optionalType: 'questionToken'
+    createSwaggerTS({
+      optionalType: 'questionToken',
     }),
-  ]
+  ],
 })
 ```
 
@@ -343,10 +353,10 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ 
-      optionalType: 'undefined'
+    createSwaggerTS({
+      optionalType: 'undefined',
     }),
-  ]
+  ],
 })
 ```
 
@@ -364,27 +374,29 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ 
-      optionalType: 'questionTokenAndUndefined'
+    createSwaggerTS({
+      optionalType: 'questionTokenAndUndefined',
     }),
-  ]
+  ],
 })
 ```
 
 :::
 
 ### skipBy
+
 Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
 
 ::: info type
+
 ```typescript [SkipBy]
 export type SkipBy = {
-  type: 'tag' | 'operationId' | 'path' | 'method' ; 
-  pattern: string | RegExp 
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
 }
 ```
 
-::: 
+:::
 
 ::: info
 
@@ -407,33 +419,36 @@ export default defineConfig({
   plugins: [
     createSwagger({ output: false }),
     createSwaggerTS(
-      { 
+      {
         skipBy: [
           {
             type: 'tag',
             pattern: 'store',
           },
         ],
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
+
 :::
 
-
 ### overrideBy
+
 Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
 
 ::: info type
+
 ```typescript [OverrideBy]
 export type OverrideBy = {
-  type: 'tag' | 'operationId' | 'path' | 'method' ; 
-  pattern: string | RegExp 
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
   options: PluginOptions
 }
 ```
-::: 
+
+:::
 
 ::: info
 
@@ -456,7 +471,7 @@ export default defineConfig({
   plugins: [
     createSwagger({ output: false }),
     createSwaggerTS(
-      { 
+      {
         overrideBy: [
           {
             type: 'tag',
@@ -466,17 +481,18 @@ export default defineConfig({
             },
           },
         ],
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
-:::
 
+:::
 
 ### transformers
 
 #### name
+
 Override the name of the TypeScript type that is getting generated, this will also override the name of the file.
 
 ::: info
@@ -500,20 +516,19 @@ export default defineConfig({
   plugins: [
     createSwagger({ output: false }),
     createSwaggerTS(
-      { 
+      {
         transformers: {
           name: (name) => {
             return `${name}Client`
           },
         },
-      }
-    )
-  ]
+      },
+    ),
+  ],
 })
 ```
 
 :::
-
 
 ## Depended
 

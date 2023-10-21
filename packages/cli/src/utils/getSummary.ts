@@ -40,10 +40,9 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
   })
 
   const meta = {
-    plugins:
-      status === 'success'
-        ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
-        : `${pc.red(`${failedPlugins?.length ?? 1} failed`)}, ${pluginsCount} total`,
+    plugins: status === 'success'
+      ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
+      : `${pc.red(`${failedPlugins?.length ?? 1} failed`)}, ${pluginsCount} total`,
     pluginsFailed: status === 'failed' ? failedPlugins?.map((name) => randomPicoColour(name))?.join(', ') : undefined,
     filesCreated: files.length,
     time: pc.yellow(`${elapsedSeconds}s`),

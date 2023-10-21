@@ -4,14 +4,14 @@
 *.html
 *.json
 *.yaml
+*.yml
 *.mdx
 *.css
 *.sass
 *.scss
 *.vue
 *.MD
-**/*.d.ts
-*.d.ts
+*.jsonc
 *rc.js
 *rc
 public
@@ -29,9 +29,24 @@ es
 artifacts
 coverage
 *.tgz
-mocks
 
 ## custom ones
 # /e2e
 .next
 !src
+# dprint does the formating
+**/gen
+# dprint does the formating
+**/configs
+# dprint does the formating
+**/docs
+# dprint does the formating
+**/e2e
+# dprint does the formating
+**/examples
+# dprint does the formating
+*.json
+# dprint does the formating
+*.config.*
+# dprint does the formating
+**/packages/**/src/**

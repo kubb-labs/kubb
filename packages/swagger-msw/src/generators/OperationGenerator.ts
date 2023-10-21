@@ -1,6 +1,6 @@
 import { getRelativePath } from '@kubb/core'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
-import { resolve as resolveSwaggerFaker, pluginName as swaggerFakerPluginName } from '@kubb/swagger-faker'
+import { pluginName as swaggerFakerPluginName, resolve as resolveSwaggerFaker } from '@kubb/swagger-faker'
 
 import { MSWBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'

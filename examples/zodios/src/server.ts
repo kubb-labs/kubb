@@ -1,6 +1,6 @@
+import { zodiosContext } from '@zodios/express'
 import cors from 'cors'
 import express from 'express'
-import { zodiosContext } from '@zodios/express'
 import z from 'zod'
 
 import { api } from './gen/zodios.ts'

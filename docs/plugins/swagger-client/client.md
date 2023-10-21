@@ -35,9 +35,9 @@ export default defineConfig(() => {
     },
     plugins: [
       createSwagger({ output: false }),
-      createSwaggerClient({ 
-        output: './clients/axios' // [!code ++]
-      })
+      createSwaggerClient({
+        output: './clients/axios', // [!code ++]
+      }),
     ],
   }
 })
@@ -78,14 +78,15 @@ export default axiosClient
 ```
 
 ```typescript [./src/gen/clients/axios/addPet.ts]
-import client from './client' // [!code ++]
 import type { AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/AddPet' // [!code ++]
+import client from './client' // [!code ++]
 
 /** // [!code ++]
  * @description Add a new pet to the store // [!code ++]
  * @summary Add a new pet to the store // [!code ++]
  * @link /pet // [!code ++]
- */ // [!code ++]
+ */
+// [!code ++]
 export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutationRequest>(data: TVariables) { // [!code ++]
   return client<TData, TVariables>({ // [!code ++]
     method: 'post', // [!code ++]
@@ -122,13 +123,13 @@ export default defineConfig(() => {
       clean: true,
     },
     plugins: [
-      createSwagger({ 
-        output: false 
+      createSwagger({
+        output: false,
       }),
-      createSwaggerClient({ 
+      createSwaggerClient({
         output: './clients/axios', // [!code ++]
-        clientImportPath: '@kubb/swagger-client/client' // [!code ++]
-      })
+        clientImportPath: '@kubb/swagger-client/client', // [!code ++]
+      }),
     ],
   }
 })
@@ -169,8 +170,8 @@ export default axiosClient
 ```
 
 ```typescript [./src/gen/clients/axios/addPet.ts]
-import client from './client' // [!code ++]
 import type { AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/AddPet' // [!code ++]
+import client from './client' // [!code ++]
 
 /** // [!code ++]
  * @description Add a new pet to the store // [!code ++]
@@ -185,6 +186,7 @@ export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutati
   }) // [!code ++]
 } // [!code ++]
 ```
+
 :::
 
 ## Usage
@@ -226,7 +228,6 @@ export const axiosClient = async <TData, TError = unknown, TVariables = unknown>
 
 export default axiosClient
 ```
-
 
 ### Default `client` with `declare const`
 
@@ -270,4 +271,5 @@ export default axiosClient
 ```
 
 ## Links
+
 - [plugins/core/fileManager#getenveource](/plugins/core/fileManager#getenveource)

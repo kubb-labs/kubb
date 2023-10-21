@@ -4,7 +4,7 @@ type Props = {
 }
 // TODO move to @kubb/core
 export function createIndent(size: number): string {
-  return Array.from({ length: size }).join(' ')
+  return Array.from({ length: size + 1 }).join(' ')
 }
 
 export function useIndent({ size, children }: Props): React.ReactNode {

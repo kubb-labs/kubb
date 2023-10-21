@@ -1,7 +1,7 @@
 # See https://git-scm.com/docs/gitignore for more about ignoring files.
 
 # editors
-.vscode
+#.vscode
 
 # dependencies
 node_modules

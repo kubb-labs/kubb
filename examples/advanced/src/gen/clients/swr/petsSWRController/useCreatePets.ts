@@ -3,12 +3,12 @@ import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation
 import client from '../../../../swr-client.ts'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type {
+  CreatePets201,
+  CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsHeaderParams,
-  CreatePets201,
 } from '../../../models/ts/petsController/CreatePets'
 
 /**

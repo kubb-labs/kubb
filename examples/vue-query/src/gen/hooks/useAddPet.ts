@@ -1,9 +1,9 @@
-import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
-import { useMutation } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
+import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet'
 
 /**
  * @description Add a new pet to the store

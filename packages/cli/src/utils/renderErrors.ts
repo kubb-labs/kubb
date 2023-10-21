@@ -8,7 +8,7 @@ import PrettyError from 'pretty-error'
 
 export const prettyError = new PrettyError()
   .skipPackage('commander')
-  .skip(function (traceLine: any) {
+  .skip(function callback(traceLine: any) {
     // exclude renderErrors.ts
     const pattern = new RegExp('renderErrors')
 
@@ -46,7 +46,7 @@ export function renderErrors(error: Error | undefined, { prefixText, logLevel = 
   if (logLevel === LogLevel.silent) {
     // skip when no debug is set
     prettyError.skipNodeFiles()
-    prettyError.skip(function () {
+    prettyError.skip(function skip() {
       return true
     } as PrettyError.Callback)
 

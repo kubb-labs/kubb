@@ -69,7 +69,7 @@
       ],
       "@kubb/react/client": [
         "../react/src/client/index.ts"
-      ],
+      ]
     }
   },
   "include": [
@@ -82,7 +82,7 @@
   "exclude": [
     "**/node_modules",
     "**/types/**"
-  ],
+  ]
   // "references": [
   //   { "path": "../core" },
   //   { "path": "../swagger" },

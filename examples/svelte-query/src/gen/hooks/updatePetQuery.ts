@@ -1,8 +1,8 @@
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
-import { createMutation } from '@tanstack/svelte-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400 } from '../models/UpdatePet'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
+import { createMutation } from '@tanstack/svelte-query'
+import type { UpdatePet400, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../models/UpdatePet'
 
 /**
  * @description Update an existing pet by Id

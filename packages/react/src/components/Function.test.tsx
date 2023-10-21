@@ -19,7 +19,7 @@ describe('<Function/>', () => {
         export async function getData() {
             return 2;
         };
-        
+
        `),
     )
   })
@@ -40,7 +40,7 @@ describe('<Function/>', () => {
       export const getData = async () => {
         return 2;
       };
-        
+
        `),
     )
   })
@@ -60,7 +60,7 @@ describe('<Function/>', () => {
       export async function getData<TData>(): Promise<number> {
           return 2;
       };
-        
+
        `),
     )
   })
@@ -81,7 +81,7 @@ describe('<Function/>', () => {
       export const getData = async <TData>(): Promise<number> => {
         return 2;
       };
-        
+
        `),
     )
   })

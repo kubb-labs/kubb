@@ -1,8 +1,8 @@
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
-import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400 } from '../models/DeleteUser'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
+import { createMutation } from '@tanstack/solid-query'
+import type { DeleteUser400, DeleteUserMutationResponse, DeleteUserPathParams } from '../models/DeleteUser'
 
 /**
  * @description This can only be done by the logged in user.

@@ -12,6 +12,7 @@ The easiest way to get started with creating your own Kubb plugin is to use our 
 ```shell
 $ git clone https://github.com/kubb-project/plugin-template.git
 ```
+
 ### Code snippet
 
 ```typescript

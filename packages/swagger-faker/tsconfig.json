@@ -79,7 +79,7 @@
   "exclude": [
     "**/node_modules",
     "**/types/**"
-  ],
+  ]
   // "references": [
   //   { "path": "../core" },
   //   { "path": "../swagger" },

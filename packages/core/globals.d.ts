@@ -26,9 +26,9 @@ ___ validate: true
 */
 declare module Kubb {
   type Plugins = _Register
-  type OptionsPlugins = {[K in keyof KubbObjectPlugins]: KubbObjectPlugins[K]["options"]}
-  
-  type OptionsOfPlugin<K extends keyof KubbObjectPlugins>=  KubbObjectPlugins[K]["options"]
-  
+  type OptionsPlugins = { [K in keyof KubbObjectPlugins]: KubbObjectPlugins[K]['options'] }
+
+  type OptionsOfPlugin<K extends keyof KubbObjectPlugins> = KubbObjectPlugins[K]['options']
+
   type Plugin = keyof KubbObjectPlugins
 }

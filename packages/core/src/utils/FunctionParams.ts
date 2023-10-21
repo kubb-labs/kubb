@@ -1,34 +1,35 @@
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { orderBy } from 'natural-orderby'
 
-export type FunctionParamsAST =
-  | {
-      name?: string
-      type?: string
-      /**
-       * @default true
-       */
-      required?: boolean
-      /**
-       * @default true
-       */
-      enabled?: boolean
-      default?: string
-    }
-  | {
-      name?: never
-      type: string
-      /**
-       * @default true
-       */
-      required?: boolean
-      /**
-       * @default true
-       */
-      enabled?: boolean
-      default?: string
-    }
+type FunctionParamsASTWithoutType = {
+  name?: string
+  type?: string
+  /**
+   * @default true
+   */
+  required?: boolean
+  /**
+   * @default true
+   */
+  enabled?: boolean
+  default?: string
+}
 
+type FunctionParamsASTWithType = {
+  name?: never
+  type: string
+  /**
+   * @default true
+   */
+  required?: boolean
+  /**
+   * @default true
+   */
+  enabled?: boolean
+  default?: string
+}
+
+export type FunctionParamsAST = FunctionParamsASTWithoutType | FunctionParamsASTWithType
 export class FunctionParams {
   public type?: 'generics' | 'typed'
   public items: FunctionParamsAST[] = []

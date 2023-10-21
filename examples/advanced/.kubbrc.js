@@ -1,13 +1,13 @@
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerClient from '@kubb/swagger-client'
-import createSwaggerMsw from '@kubb/swagger-msw'
 import createSwaggerFaker from '@kubb/swagger-faker'
-import createSwaggerZodios from '@kubb/swagger-zodios'
-import createSwaggerZod from '@kubb/swagger-zod'
+import createSwaggerMsw from '@kubb/swagger-msw'
 import createSwaggerSWR from '@kubb/swagger-swr'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerZod from '@kubb/swagger-zod'
+import createSwaggerZodios from '@kubb/swagger-zodios'
 
 export default defineConfig({
   root: '.',
@@ -22,7 +22,7 @@ export default defineConfig({
     // done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
   },
   plugins: [
-    createSwagger({ output: false , validate: true}),
+    createSwagger({ output: false, validate: true }),
     createSwaggerTS({
       output: 'models/ts',
       groupBy: {
@@ -98,6 +98,6 @@ export default defineConfig({
         },
       ],
       groupBy: { type: 'tag' },
-    })
+    }),
   ],
 })

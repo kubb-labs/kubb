@@ -11,7 +11,7 @@
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
   "scripts": {
-    "build": "tsup && vite build",
+    "build": "tsup",
     "clean": "npx rimraf ./dist",
     "generate": "kubb generate",
     "start": "tsup --watch",

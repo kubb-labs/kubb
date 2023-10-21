@@ -1,0 +1,49 @@
+{
+  "lineWidth": 160,
+  "indentWidth": 2,
+  "newLineKind": "lf",
+  "useTabs": false,
+  "typescript": {
+    "associations": [
+      "**/*.{js,mjs,cjs,ts,tsx}"
+    ],
+    "quoteStyle": "preferSingle",
+    "trailingCommas": "onlyMultiLine",
+    "objectPattern.trailingCommas": "onlyMultiLine",
+    "objectExpression.trailingCommas": "onlyMultiLine",
+    "arrayPattern.trailingCommas": "onlyMultiLine",
+    "parameters.trailingCommas": "onlyMultiLine",
+    "arguments.trailingCommas": "onlyMultiLine",
+    // [{},{},]
+    "arrayExpression.trailingCommas": "onlyMultiLine",
+    "typeParameters.trailingCommas": "onlyMultiLine",
+    "semiColons": "asi",
+    "binaryExpression.linePerExpression": true,
+    "jsx.quoteStyle": "preferDouble",
+    "preferSingleLine": false,
+    // https://github.com/lydell/eslint-plugin-simple-import-sort/tree/main?tab=readme-ov-file#how-do-i-use-this-with-dprint
+    "importDeclaration.sortNamedImports": "maintain",
+    "module.sortImportDeclarations": "maintain",
+    "module.sortExportDeclarations": "maintain"
+  },
+  "json": {
+    "trailingCommas": "never"
+  },
+  "markdown": {},
+  "excludes": [
+    "**/node_modules",
+    "**/*-lock.json",
+    "**/*-lock.yaml",
+    "**/.next",
+    "**/dist",
+    "**/coverage",
+    "**/public",
+    "CHANGELOG.md"
+  ],
+  "plugins": [
+    // You may specify any urls or file paths here that you wish.
+    "https://plugins.dprint.dev/typescript-0.88.2.wasm",
+    "https://plugins.dprint.dev/json-0.18.0.wasm",
+    "https://plugins.dprint.dev/markdown-0.16.2.wasm"
+  ]
+}

@@ -47,11 +47,9 @@ export type Options = {
 export type PluginOptions = PluginFactoryOptions<'swagger', Options, false, API>
 
 export type { default as Oas } from 'oas'
-
 export type { default as Operation } from 'oas/operation'
-
-export type { OpenAPIV3 } from 'openapi-types'
 export type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
+export type { OpenAPIV3 } from 'openapi-types'
 
 export type Resolver = {
   /**

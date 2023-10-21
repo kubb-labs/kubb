@@ -1,8 +1,8 @@
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
-import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
+import { createMutation } from '@tanstack/solid-query'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet'
 
 /**
  * @description Add a new pet to the store

@@ -1,5 +1,5 @@
 import type { PluginFactoryOptions } from '@kubb/core'
-import type { Operation, OverrideBy, ResolvePathOptions, SkipBy, AppMeta as SwaggerAppMeta } from '@kubb/swagger'
+import type { AppMeta as SwaggerAppMeta, Operation, OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
 type Infinite = {
   /**
@@ -109,7 +109,7 @@ export type FrameworkImports = {
      * v5
      */
     queryOptions?: string
-    //infinite
+    // infinite
     UseInfiniteQueryOptions: string
     UseInfiniteQueryResult: string
     useInfiniteQuery: string

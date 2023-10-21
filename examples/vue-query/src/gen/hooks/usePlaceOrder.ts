@@ -1,9 +1,9 @@
-import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
-import { useMutation } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
+import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
+import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../models/PlaceOrder'
 
 /**
  * @description Place a new order in the store

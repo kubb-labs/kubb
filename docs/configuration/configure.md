@@ -6,6 +6,7 @@ outline: deep
 ---
 
 # Configuring Kubb
+
 Kubb is configured with a configuation file (preferably with `kubb.config.js`).
 
 ## TypeScript/JavaScript
@@ -25,9 +26,9 @@ export const defineConfig = (
   options:
     | MaybePromise<KubbUserConfig>
     | ((
-        /** The options derived from the CLI flags */
-        cliOptions: CLIOptions
-      ) => MaybePromise<KubbUserConfig>)
+      /** The options derived from the CLI flags */
+      cliOptions: CLIOptions,
+    ) => MaybePromise<KubbUserConfig>),
 ) => options
 ```
 
@@ -57,7 +58,7 @@ export default defineConfig({
 If the config needs to be conditionally determined based on CLI options flags, it can be exported as a function instead.<br/>
 Here you can choose between returning the config options synchronously or asynchronously.
 
-``` typescript
+```typescript
 // CLI options flags
 export type CLIOptions = {
   /**
@@ -106,6 +107,7 @@ export default defineConfig(async ({ config, debug, watch }) => {
   }
 })
 ```
+
 :::
 
 ### Example with a plugin
@@ -125,10 +127,11 @@ export default defineConfig(async () => {
     output: {
       path: './src/gen',
     },
-    plugins: [createSwagger({ "output": "schemas", "validate": true })],
+    plugins: [createSwagger({ 'output': 'schemas', 'validate': true })],
   }
 })
 ```
+
 :::
 
 ## JSON
@@ -140,19 +143,20 @@ You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packa
 ::: code-group
 
 ```json [kubb.json]
-  {
-    "$schema": "@kubb/core/schemas.json",
-    "root": ".",
-    "input": {
-      "path": "./petStore.yaml"
-    },
-    "output": {
-      "path": "./src/gen"
-    },
-    "logLevel": "info",
-    "plugins": ["@kubb/swagger", { "output": "schemas", "validate": true }]
-  } 
+{
+  "$schema": "@kubb/core/schemas.json",
+  "root": ".",
+  "input": {
+    "path": "./petStore.yaml"
+  },
+  "output": {
+    "path": "./src/gen"
+  },
+  "logLevel": "info",
+  "plugins": ["@kubb/swagger", { "output": "schemas", "validate": true }]
+}
 ```
+
 :::
 
 ## Object
@@ -162,21 +166,22 @@ You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packa
 ::: code-group
 
 ```json [kubb.json]
-  {
-    "$schema": "@kubb/core/schemas.json",
-    "root": ".",
-    "input": {
-      "path": "./petStore.yaml"
-    },
-    "output": {
-      "path": "./src/gen"
-    },
-    "logLevel": "info",
-    "plugins": {
-      "@kubb/swagger": { "output": "schemas", "validate": true }
-    }
-  } 
+{
+  "$schema": "@kubb/core/schemas.json",
+  "root": ".",
+  "input": {
+    "path": "./petStore.yaml"
+  },
+  "output": {
+    "path": "./src/gen"
+  },
+  "logLevel": "info",
+  "plugins": {
+    "@kubb/swagger": { "output": "schemas", "validate": true }
+  }
+}
 ```
+
 :::
 
 ## YAML
@@ -186,15 +191,15 @@ You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packa
 ::: code-group
 
 ```yaml [.kubbrc]
-  root: .
-  input:
-    path: ./petStore.yaml
-  output:
-    path: ./src/gen
-  plugins:
-    - '@kubb/swagger'
-    - output: schemas
-      validate: true
+root: .
+input:
+  path: ./petStore.yaml
+output:
+  path: ./src/gen
+plugins:
+  - '@kubb/swagger'
+  - output: schemas
+    validate: true
 ```
 
 :::

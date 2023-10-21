@@ -111,13 +111,12 @@ export class PluginManager {
 
   resolveName = (params: ResolveNameParams): string => {
     if (params.pluginName) {
-      const name =
-        this.hookForPluginSync({
-          pluginName: params.pluginName,
-          hookName: 'resolveName',
-          parameters: [params.name, params.type],
-        }) || params.name
-      return transformReservedWord(name)
+      const name = this.hookForPluginSync({
+        pluginName: params.pluginName,
+        hookName: 'resolveName',
+        parameters: [params.name, params.type],
+      })
+      return transformReservedWord(name || params.name)
     }
     const name = this.hookFirstSync({
       hookName: 'resolveName',
@@ -132,7 +131,6 @@ export class PluginManager {
   }
 
   /**
-   *
    * Run only hook for a specific plugin name
    */
   hookForPlugin<H extends PluginLifecycleHooks>({
@@ -174,7 +172,6 @@ export class PluginManager {
   }
 
   /**
-   *
    * Chains, first non-null result stops and returns
    */
   hookFirst<H extends PluginLifecycleHooks>({
@@ -203,10 +200,12 @@ export class PluginManager {
           plugin,
         })
 
-        return Promise.resolve({
-          plugin,
-          result: value,
-        } as typeof parseResult)
+        return Promise.resolve(
+          {
+            plugin,
+            result: value,
+          } as typeof parseResult,
+        )
       })
     }
 
@@ -214,7 +213,6 @@ export class PluginManager {
   }
 
   /**
-   *
    * Chains, first non-null result stops and returns
    */
   hookFirstSync<H extends PluginLifecycleHooks>({
@@ -251,7 +249,6 @@ export class PluginManager {
   }
 
   /**
-   *
    * Parallel, runs all plugins
    */
   async hookParallel<H extends PluginLifecycleHooks, TOuput = void>({
@@ -301,7 +298,6 @@ export class PluginManager {
   }
 
   /**
-   *
    * Chains, reduces returned value, handling the reduced value as the first hook argument
    */
   hookReduceArg0<H extends PluginLifecycleHooks>({
@@ -338,14 +334,14 @@ export class PluginManager {
   hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: Parameters<PluginLifecycle[H]> }): Promise<void> {
     let promise: Promise<void | null> = Promise.resolve()
     for (const plugin of this.#getSortedPlugins()) {
-      promise = promise.then(() =>
+      promise = promise.then(() => {
         this.#execute({
           strategy: 'hookSeq',
           hookName,
           parameters,
           plugin,
-        }),
-      )
+        })
+      })
     }
     return promise.then(noReturn)
   }

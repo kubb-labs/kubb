@@ -4,25 +4,26 @@ layout: doc
 title: \@kubb/cli
 outline: deep
 ---
+
 # @kubb/cli <a href="https://paka.dev/npm/@kubb/cli@latest/api">🦙</a>
 
 ## Installation
 
 ::: code-group
 
-```shell [bun <img src="/feature/bun.svg"/>] 
+```shell [bun <img src="/feature/bun.svg"/>]
 bun add @kubb/cli
 ```
 
-```shell [pnpm <img src="/feature/pnpm.svg"/>] 
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
 pnpm add @kubb/cli
 ```
 
-```shell [npm <img src="/feature/npm.svg"/>] 
+```shell [npm <img src="/feature/npm.svg"/>]
 npm install @kubb/cli
 ```
 
-```shell [yarn <img src="/feature/yarn.svg"/>] 
+```shell [yarn <img src="/feature/yarn.svg"/>]
 yarn add @kubb/cli
 ```
 
@@ -56,6 +57,7 @@ Options:
 ```
 
 ## Generate
+
 ::: warning
 `kubb generate` and `kubb` are the same.
 :::
@@ -82,15 +84,18 @@ kubb petStore.yaml
 ### Options
 
 #### --config (-c)
+
 ::: info
 Path to the Kubb config.
 
 ```sh
 kubb --config kubb.config.ts
 ```
+
 :::
 
 #### --log-level (-l)
+
 ::: info
 Type of the logging(overrides the one in `kubb.config.js`).
 
@@ -103,37 +108,46 @@ Type of the logging(overrides the one in `kubb.config.js`).
 ```sh
 kubb --log-level info
 ```
+
 :::
 
 #### --watch (-w)
 
 Watch mode based on the input file.
 ::: info
+
 ```sh
 kubb --watch
 ```
+
 :::
 
 #### --version (-v)
 
 Output the version number.
 ::: info
+
 ```sh
 kubb --version
 ```
+
 :::
 
 #### --help (-h)
 
 Display the help.
 ::: info
+
 ```sh
 kubb --help
 ```
+
 :::
 
 ## Init
+
 Create a starting `package.json` with dependencies needed to get started with generating files.
+
 ```mdx
 kubb/1.2.1
 
@@ -143,7 +157,6 @@ Usage:
 Options:
   -h, --help  Display this message
 ```
-
 
 ## Depended
 

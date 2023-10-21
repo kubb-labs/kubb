@@ -155,7 +155,6 @@ export type ZodMeta =
   | ZodMetaReadOnly
 
 /**
- *
  * @link based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
  */
 
@@ -200,11 +199,13 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
   }
 
   if (keyword === zodKeywords.and && Array.isArray(args)) {
-    return `${args
-      .map((item) => parseZodMeta(item as ZodMeta, mapper))
-      .filter(Boolean)
-      .map((item, index) => (index === 0 ? item : `${value}(${item})`))
-      .join('')}`
+    return `${
+      args
+        .map((item) => parseZodMeta(item as ZodMeta, mapper))
+        .filter(Boolean)
+        .map((item, index) => (index === 0 ? item : `${value}(${item})`))
+        .join('')
+    }`
   }
 
   if (keyword === zodKeywords.object) {
@@ -219,10 +220,12 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
       .map((item) => {
         const name = item[0]
         const schema = item[1] as ZodMeta[]
-        return `"${name}": ${schema
-          .sort(zodKeywordSorter)
-          .map((item) => parseZodMeta(item, mapper))
-          .join('')}`
+        return `"${name}": ${
+          schema
+            .sort(zodKeywordSorter)
+            .map((item) => parseZodMeta(item, mapper))
+            .join('')
+        }`
       })
       .join(',')
 

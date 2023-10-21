@@ -3,7 +3,7 @@ title: React-Query v5 PetStore
 aside: false
 ---
 
-<iframe 
+<iframe
   src="https://codesandbox.io/embed/github/kubb-project/kubb/tree/main/examples/react-query-v5s?fontsize=14&module=%2Fsrc%2Fgen%2Fmodels%2FPerson.ts&theme=dark&view=editor"
   :style="{
     width: '100%',

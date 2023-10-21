@@ -37,8 +37,8 @@
   ],
   "exclude": [
     "**/node_modules",
-    "**/types/**",
-  ],
+    "**/types/**"
+  ]
   // "references": [
   //   { "path": "../parser" }
   // ]

@@ -1,8 +1,8 @@
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
-import { createMutation } from '@tanstack/svelte-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
+import { createMutation } from '@tanstack/svelte-query'
+import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../models/DeletePet'
 
 /**
  * @description delete a pet

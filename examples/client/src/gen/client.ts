@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import type { AxiosError, AxiosHeaders, AxiosResponse, AxiosRequestConfig } from 'axios'
+import type { AxiosError, AxiosHeaders, AxiosRequestConfig, AxiosResponse } from 'axios'
 
 /**
  * Subset of AxiosRequestConfig

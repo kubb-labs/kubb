@@ -1,7 +1,7 @@
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
 import createSwaggerSWR from '@kubb/swagger-swr'
+import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
   root: '.',

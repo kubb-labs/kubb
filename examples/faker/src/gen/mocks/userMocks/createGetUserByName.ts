@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker'
 
-import { createUser } from '../createUser'
 import { GetUserByName400 } from '../../models/GetUserByName'
 import { GetUserByName404 } from '../../models/GetUserByName'
 import { GetUserByNamePathParams } from '../../models/GetUserByName'
 import { GetUserByNameQueryResponse } from '../../models/GetUserByName'
+import { createUser } from '../createUser'
 
 /**
  * @description Invalid username supplied

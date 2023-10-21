@@ -32,8 +32,7 @@
       "dependsOn": [],
       "outputs": [
         "coverage/**"
-      ],
-      "cache": false
+      ]
     },
     "lint": {
       "outputs": [],
@@ -45,31 +44,33 @@
       "outputMode": "new-only"
     },
     "typecheck": {
-      "dependsOn": [],
+      "dependsOn": [
+        "build"
+      ],
       "outputs": [],
       "cache": false
     },
     "release": {
       "dependsOn": [
-     
+        "build"
       ],
       "outputs": []
     },
     "release:canary": {
       "dependsOn": [
-     
+        "build"
       ],
       "outputs": []
     },
     "release:alpha": {
       "dependsOn": [
-     
+        "build"
       ],
       "outputs": []
     },
     "generate": {
       "dependsOn": [
-        "^build"
+        "build"
       ],
       "outputs": [
         "gen/**",

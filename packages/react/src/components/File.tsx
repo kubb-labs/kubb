@@ -4,15 +4,17 @@ import { Import } from './Import.tsx'
 import type { KubbFile } from '@kubb/core'
 import type { ReactNode } from 'react'
 
-type BaseProps =
-  | {
-      baseName?: never
-      path?: KubbFile.Path
-    }
-  | {
-      baseName: KubbFile.BaseName
-      path: KubbFile.Path
-    }
+type BasePropsWithBaseName = {
+  baseName: KubbFile.BaseName
+  path: KubbFile.Path
+}
+
+type BasePropsWithoutBaseName = {
+  baseName?: never
+  path?: KubbFile.Path
+}
+
+type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 
 type Props = BaseProps & {
   env?: NodeJS.ProcessEnv

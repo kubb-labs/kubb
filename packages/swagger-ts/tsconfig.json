@@ -81,7 +81,7 @@
     "**/node_modules",
     "**/types/**",
     ".sink.d.ts'"
-  ],
+  ]
   // "references": [
   //   { "path": "../core" },
   //   { "path": "../swagger" },

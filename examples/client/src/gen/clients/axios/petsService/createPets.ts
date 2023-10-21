@@ -1,11 +1,11 @@
 import client from '../../../client'
 import type { ResponseConfig } from '../../../client'
 import type {
+  CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
-  CreatePetsHeaderParams,
 } from '../../../models/ts/petsController/CreatePets'
 
 /**

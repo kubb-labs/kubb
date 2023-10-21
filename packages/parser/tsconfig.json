@@ -8,7 +8,7 @@
     "paths": {
       "@kubb/tsup-config": [
         "../config/tsup-config/src/index.ts"
-      ],
+      ]
     }
   },
   "include": [

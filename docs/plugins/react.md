@@ -4,10 +4,12 @@ layout: doc
 title: \@kubb/react
 outline: deep
 ---
+
 # @kubb/react <a href="https://paka.dev/npm/@kubb/react@latest/api">🦙</a><Badge type="warning" text="under construction" />
 
 Use React to create templates/variants for any plugin.
 
+<hr/>
 
 ## Installation
 
@@ -28,6 +30,7 @@ npm install @kubb/react
 ```shell [yarn <img src="/feature/yarn.svg"/>]
 yarn add @kubb/react
 ```
+
 :::
 
 <hr/>
@@ -44,8 +47,8 @@ yarn add @kubb/react
   }
 }
 ```
-:::
 
+:::
 
 ## Examples
 
@@ -72,11 +75,10 @@ return root
 ::: code-group
 
 ```typescript [root.output]
-export const test = 2;
+export const test = 2
 ```
 
 :::
-
 
 ### Text with indent
 
@@ -101,11 +103,13 @@ return root
 ::: code-group
 
 ```typescript [root.output]
-    export const test = 2;
+export const test = 2
 ```
+
 :::
 
 ### Function
+
 ```tsx [input]
 import { createRoot, Function } from '@kubb/react'
 
@@ -125,14 +129,14 @@ return root
 ```
 
 ::: code-group
+
 ```typescript [root.output]
 export async function getData() {
-  return 2;
-};
+  return 2
+}
 ```
 
 :::
-
 
 ### File
 
@@ -153,6 +157,7 @@ root.render(<Component />)
 
 return root
 ```
+
 ::: code-group
 
 ```typescript [root.output]

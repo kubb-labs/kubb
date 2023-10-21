@@ -40,7 +40,7 @@
   "exclude": [
     "**/node_modules",
     "**/types/**"
-  ],
+  ]
   // "references": [
   //   { "path": "../swagger" },
   //   { "path": "../core" },

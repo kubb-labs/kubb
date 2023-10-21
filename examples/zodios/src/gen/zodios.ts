@@ -1,40 +1,40 @@
 import { makeApi, Zodios } from '@zodios/core'
-import { addPetMutationResponseSchema, addPetMutationRequestSchema, addPet405Schema } from './zod/addPetSchema'
+import { addPet405Schema, addPetMutationRequestSchema, addPetMutationResponseSchema } from './zod/addPetSchema'
+import { createUserMutationRequestSchema, createUserMutationResponseSchema } from './zod/createUserSchema'
+import { createUsersWithListInputMutationRequestSchema, createUsersWithListInputMutationResponseSchema } from './zod/createUsersWithListInputSchema'
+import { deleteOrder400Schema, deleteOrder404Schema, deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema } from './zod/deleteOrderSchema'
+import { deletePet400Schema, deletePetHeaderParamsSchema, deletePetMutationResponseSchema, deletePetPathParamsSchema } from './zod/deletePetSchema'
+import { deleteUser400Schema, deleteUser404Schema, deleteUserMutationResponseSchema, deleteUserPathParamsSchema } from './zod/deleteUserSchema'
+import { findPetsByStatus400Schema, findPetsByStatusQueryParamsSchema, findPetsByStatusQueryResponseSchema } from './zod/findPetsByStatusSchema'
+import { findPetsByTags400Schema, findPetsByTagsQueryParamsSchema, findPetsByTagsQueryResponseSchema } from './zod/findPetsByTagsSchema'
+import { getInventoryQueryResponseSchema } from './zod/getInventorySchema'
+import { getOrderById400Schema, getOrderById404Schema, getOrderByIdPathParamsSchema, getOrderByIdQueryResponseSchema } from './zod/getOrderByIdSchema'
+import { getPetById400Schema, getPetById404Schema, getPetByIdPathParamsSchema, getPetByIdQueryResponseSchema } from './zod/getPetByIdSchema'
+import { getUserByName400Schema, getUserByName404Schema, getUserByNamePathParamsSchema, getUserByNameQueryResponseSchema } from './zod/getUserByNameSchema'
+import { loginUser400Schema, loginUserQueryParamsSchema, loginUserQueryResponseSchema } from './zod/loginUserSchema'
+import { logoutUserQueryResponseSchema } from './zod/logoutUserSchema'
+import { placeOrderPatch405Schema, placeOrderPatchMutationRequestSchema, placeOrderPatchMutationResponseSchema } from './zod/placeOrderPatchSchema'
+import { placeOrder405Schema, placeOrderMutationRequestSchema, placeOrderMutationResponseSchema } from './zod/placeOrderSchema'
 import {
-  updatePetMutationResponseSchema,
-  updatePetMutationRequestSchema,
   updatePet400Schema,
   updatePet404Schema,
   updatePet405Schema,
+  updatePetMutationRequestSchema,
+  updatePetMutationResponseSchema,
 } from './zod/updatePetSchema'
-import { findPetsByStatusQueryResponseSchema, findPetsByStatusQueryParamsSchema, findPetsByStatus400Schema } from './zod/findPetsByStatusSchema'
-import { findPetsByTagsQueryResponseSchema, findPetsByTagsQueryParamsSchema, findPetsByTags400Schema } from './zod/findPetsByTagsSchema'
-import { getPetByIdQueryResponseSchema, getPetByIdPathParamsSchema, getPetById400Schema, getPetById404Schema } from './zod/getPetByIdSchema'
 import {
+  updatePetWithForm405Schema,
   updatePetWithFormMutationResponseSchema,
   updatePetWithFormPathParamsSchema,
   updatePetWithFormQueryParamsSchema,
-  updatePetWithForm405Schema,
 } from './zod/updatePetWithFormSchema'
-import { deletePetMutationResponseSchema, deletePetPathParamsSchema, deletePetHeaderParamsSchema, deletePet400Schema } from './zod/deletePetSchema'
+import { updateUserMutationRequestSchema, updateUserMutationResponseSchema, updateUserPathParamsSchema } from './zod/updateUserSchema'
 import {
+  uploadFileMutationRequestSchema,
   uploadFileMutationResponseSchema,
   uploadFilePathParamsSchema,
   uploadFileQueryParamsSchema,
-  uploadFileMutationRequestSchema,
 } from './zod/uploadFileSchema'
-import { getInventoryQueryResponseSchema } from './zod/getInventorySchema'
-import { placeOrderMutationResponseSchema, placeOrderMutationRequestSchema, placeOrder405Schema } from './zod/placeOrderSchema'
-import { placeOrderPatchMutationResponseSchema, placeOrderPatchMutationRequestSchema, placeOrderPatch405Schema } from './zod/placeOrderPatchSchema'
-import { getOrderByIdQueryResponseSchema, getOrderByIdPathParamsSchema, getOrderById400Schema, getOrderById404Schema } from './zod/getOrderByIdSchema'
-import { deleteOrderMutationResponseSchema, deleteOrderPathParamsSchema, deleteOrder400Schema, deleteOrder404Schema } from './zod/deleteOrderSchema'
-import { createUserMutationResponseSchema, createUserMutationRequestSchema } from './zod/createUserSchema'
-import { createUsersWithListInputMutationResponseSchema, createUsersWithListInputMutationRequestSchema } from './zod/createUsersWithListInputSchema'
-import { loginUserQueryResponseSchema, loginUserQueryParamsSchema, loginUser400Schema } from './zod/loginUserSchema'
-import { logoutUserQueryResponseSchema } from './zod/logoutUserSchema'
-import { getUserByNameQueryResponseSchema, getUserByNamePathParamsSchema, getUserByName400Schema, getUserByName404Schema } from './zod/getUserByNameSchema'
-import { updateUserMutationResponseSchema, updateUserPathParamsSchema, updateUserMutationRequestSchema } from './zod/updateUserSchema'
-import { deleteUserMutationResponseSchema, deleteUserPathParamsSchema, deleteUser400Schema, deleteUser404Schema } from './zod/deleteUserSchema'
 
 const endpoints = makeApi([
   {

@@ -17,15 +17,15 @@ import prettier from 'eslint-config-prettier'
 /**
  * Recommended plugins ESM
  */
-
 // @ts-ignore
 import eslintPluginRecommended from 'eslint-plugin-eslint-plugin/configs/recommended'
 /**
  * Plugins
  */
-
 // @ts-ignore
 import importPlugin from 'eslint-plugin-import'
+// @ts-ignore
+import simpleImportSortPlugin from 'eslint-plugin-simple-import-sort'
 // @ts-ignore
 import turboPlugin from 'eslint-plugin-turbo'
 // @ts-ignore
@@ -73,6 +73,7 @@ export const config: Linter.FlatConfig = {
     'unused-imports': unusedImportsPlugin,
     import: importPlugin,
     turbo: turboPlugin,
+    'simple-import-sort': simpleImportSortPlugin,
   },
   languageOptions: {
     ecmaVersion: 'latest',

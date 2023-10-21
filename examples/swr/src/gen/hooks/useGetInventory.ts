@@ -1,6 +1,6 @@
+import client from '@kubb/swagger-client/client'
 import useSWR from 'swr'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import client from '@kubb/swagger-client/client'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
 export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TError = unknown>(

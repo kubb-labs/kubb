@@ -2,23 +2,12 @@
 
 const moduleName = 'kubb'
 
-/** @type { PrettierConfig & Record<string,unknown> } */
-const config = {
-  overrides: [
-    {
-      files: ['**/*.{js,mjs,cjs}'],
-      options: {
-        parser: 'meriyah',
-      },
-    },
-  ],
-  tabWidth: 2,
-  printWidth: 160,
-  parser: 'typescript',
-  singleQuote: true,
-  semi: false,
-  bracketSameLine: false,
-  endOfLine: 'auto',
+/**
+ * @deprecated
+ * @type { PrettierConfig & Record<string,unknown> }
+ * Needs dependency `@ianvs/prettier-plugin-sort-imports`
+ */
+const configWithImportSort = {
   plugins: ['@ianvs/prettier-plugin-sort-imports'],
   // `@ianvs/prettier-plugin-sort-imports` plugin's options
   importOrderParserPlugins: ['typescript', 'jsx', 'decorators-legacy'],
@@ -37,6 +26,27 @@ const config = {
     '<TYPES>',
     '<TYPES>^[.]',
   ],
+}
+
+/** @type { PrettierConfig & Record<string,unknown> } */
+const config = {
+  overrides: [
+    {
+      files: ['**/*.{js,mjs,cjs}'],
+      options: {
+        parser: 'meriyah',
+      },
+    },
+  ],
+  tabWidth: 2,
+  useTabs: false,
+  printWidth: 160,
+  trailingComma: 'all',
+  parser: 'typescript',
+  singleQuote: true,
+  semi: false,
+  bracketSameLine: false,
+  endOfLine: 'lf',
 }
 
 module.exports = config

@@ -2,9 +2,9 @@ import pc from 'picocolors'
 
 import { createFileSource } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
-import { LogLevel } from './types.ts'
 import { clean, createLogger, randomPicoColour, read, URLPath } from './utils/index.ts'
 import { isPromise } from './utils/isPromise.ts'
+import { LogLevel } from './types.ts'
 
 import type { KubbFile } from './managers/fileManager/index.ts'
 import type { BuildOutput, KubbPlugin, PluginContext, TransformResult } from './types.ts'
@@ -23,7 +23,6 @@ async function transformReducer(
   this: PluginContext,
   _previousCode: string,
   result: TransformResult | Promise<TransformResult>,
-
   _plugin: KubbPlugin,
 ): Promise<string | null> {
   return result

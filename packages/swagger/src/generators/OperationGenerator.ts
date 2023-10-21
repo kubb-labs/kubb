@@ -23,7 +23,6 @@ type Context<TOptions> = {
 
 export abstract class OperationGenerator<TOptions = unknown> extends Generator<TOptions, Context<TOptions>> {
   /**
-   *
    * Validate an operation to see if used with camelCase we don't overwrite other files
    * DRAFT version
    */
@@ -163,11 +162,14 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
   }
 
   #getRequestSchema(operation: Operation): OpenAPIV3.SchemaObject | null {
+    if (!operation.hasRequestBody()) {
+      return null
+    }
+
     const contentType = this.context.contentType || operation.getContentType()
-    const schema = operation.hasRequestBody()
-      ? ((operation.getRequestBody() as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject) ||
-        ((operation.getRequestBody(contentType) as MediaTypeObject)?.schema as OpenAPIV3.SchemaObject)
-      : undefined
+    const requestBody = operation.getRequestBody() as MediaTypeObject
+    const requestBodyContentType = operation.getRequestBody(contentType) as MediaTypeObject
+    const schema = (requestBody?.schema || requestBodyContentType?.schema) as OpenAPIV3.SchemaObject
 
     if (!schema) {
       return null
@@ -193,45 +195,45 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
     return {
       pathParams: pathParamsSchema
         ? {
-            name: pascalCase(`${operation.getOperationId()} PathParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            schema: pathParamsSchema,
-            keys: pathParamsSchema.properties ? Object.keys(pathParamsSchema.properties) : undefined,
-          }
+          name: pascalCase(`${operation.getOperationId()} PathParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          schema: pathParamsSchema,
+          keys: pathParamsSchema.properties ? Object.keys(pathParamsSchema.properties) : undefined,
+        }
         : undefined,
       queryParams: queryParamsSchema
         ? {
-            name: pascalCase(`${operation.getOperationId()} QueryParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            schema: queryParamsSchema,
-            keys: queryParamsSchema.properties ? Object.keys(queryParamsSchema.properties) : [],
-          }
+          name: pascalCase(`${operation.getOperationId()} QueryParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          schema: queryParamsSchema,
+          keys: queryParamsSchema.properties ? Object.keys(queryParamsSchema.properties) : [],
+        }
         : undefined,
       headerParams: headerParamsSchema
         ? {
-            name: pascalCase(`${operation.getOperationId()} HeaderParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            schema: headerParamsSchema,
-            keys: headerParamsSchema.properties ? Object.keys(headerParamsSchema.properties) : undefined,
-          }
+          name: pascalCase(`${operation.getOperationId()} HeaderParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          schema: headerParamsSchema,
+          keys: headerParamsSchema.properties ? Object.keys(headerParamsSchema.properties) : undefined,
+        }
         : undefined,
       request: requestSchema
         ? {
-            name: pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`, {
-              delimiter: '',
-              transform: pascalCaseTransformMerge,
-            }),
-            description: (operation.schema.requestBody as RequestBodyObject)?.description,
-            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            schema: requestSchema,
-            keys: requestSchema.properties ? Object.keys(requestSchema.properties) : undefined,
-            keysToOmit: requestSchema.properties
-              ? Object.keys(requestSchema.properties).filter((key) => {
-                  const item = requestSchema.properties![key] as OpenAPIV3.SchemaObject
-                  return item?.readOnly
-                })
-              : undefined,
-          }
+          name: pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`, {
+            delimiter: '',
+            transform: pascalCaseTransformMerge,
+          }),
+          description: (operation.schema.requestBody as RequestBodyObject)?.description,
+          operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          schema: requestSchema,
+          keys: requestSchema.properties ? Object.keys(requestSchema.properties) : undefined,
+          keysToOmit: requestSchema.properties
+            ? Object.keys(requestSchema.properties).filter((key) => {
+              const item = requestSchema.properties![key] as OpenAPIV3.SchemaObject
+              return item?.readOnly
+            })
+            : undefined,
+        }
         : undefined,
       response: {
         name: pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`, {
@@ -245,9 +247,9 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
         keys: responseSchema?.properties ? Object.keys(responseSchema.properties) : undefined,
         keysToOmit: responseSchema?.properties
           ? Object.keys(responseSchema.properties).filter((key) => {
-              const item = responseSchema.properties![key] as OpenAPIV3.SchemaObject
-              return item?.writeOnly
-            })
+            const item = responseSchema.properties![key] as OpenAPIV3.SchemaObject
+            return item?.writeOnly
+          })
           : undefined,
       },
       errors: operation
@@ -263,9 +265,8 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
 
           return {
             name: pascalCase(`${operation.getOperationId()} ${name}`, { delimiter: '', transform: pascalCaseTransformMerge }),
-            description:
-              operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description ||
-              (operation.getResponseByStatusCode(statusCode) as OpenAPIV3.ResponseObject)?.description,
+            description: operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description
+              || (operation.getResponseByStatusCode(statusCode) as OpenAPIV3.ResponseObject)?.description,
             schema,
             operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
             statusCode: name === 'error' ? undefined : Number(statusCode),

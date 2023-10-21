@@ -1,9 +1,9 @@
-import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
-import { useMutation } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400 } from '../models/UpdatePet'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
+import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
+import type { UpdatePet400, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../models/UpdatePet'
 
 /**
  * @description Update an existing pet by Id
