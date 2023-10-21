@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.13.0...@kubb/swagger-zodios-v1.14.0) (2023-10-20)
+
+
+### 📚 Documentation
+
+* update docs with examples ([9087387](https://github.com/kubb-project/kubb/commit/908738795b2c1a3612dbc556b957f41c62465dc2))
+
 ## [1.13.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.12.0...@kubb/swagger-zodios-v1.13.0) (2023-10-18)
 
 
