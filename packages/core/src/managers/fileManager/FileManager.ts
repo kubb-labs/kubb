@@ -18,6 +18,8 @@ export class FileManager {
       this.#task = options.task
       this.#queue = options.queue
     }
+
+    return this
   }
   get extensions(): Array<KubbFile.Extname> {
     return extensions

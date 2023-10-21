@@ -11,16 +11,7 @@ import { PluginError } from './PluginError.ts'
 import { pluginParser } from './pluginParser.ts'
 
 import type { CorePluginOptions } from '../../plugin.ts'
-import type {
-  KubbConfig,
-  KubbPlugin,
-  PluginContext,
-  PluginLifecycle,
-  PluginLifecycleHooks,
-  PossiblePromise,
-  ResolveNameParams,
-  ResolvePathParams,
-} from '../../types.ts'
+import type {KubbConfig, KubbPlugin, KubbUserPlugin,PluginContext, PluginLifecycle, PluginLifecycleHooks, PossiblePromise, ResolveNameParams, ResolvePathParams} from '../../types.ts';
 import type { Logger } from '../../utils/logger.ts'
 import type { QueueJob } from '../../utils/Queue.ts'
 import type { KubbFile } from '../fileManager/types.ts'
@@ -85,7 +76,7 @@ export class PluginManager {
     this.plugins = [this.#core, ...(config.plugins || [])].reduce((prev, plugin) => {
       // TODO HACK to be sure that this is equal to the `core.api` logic.
 
-      const convertedApi = pluginParser(plugin, this.#core?.api)
+      const convertedApi = pluginParser(plugin as KubbUserPlugin, this.#core?.api)
 
       if (convertedApi) {
         return [...prev, convertedApi]
@@ -93,6 +84,8 @@ export class PluginManager {
 
       return [...prev, plugin]
     }, [] as KubbPlugin[])
+
+  return this
   }
 
   resolvePath = (params: ResolvePathParams): KubbFile.OptionalPath => {
@@ -348,6 +341,7 @@ export class PluginManager {
 
   #getSortedPlugins(hookName?: keyof PluginLifecycle): KubbPlugin[] {
     const plugins = [...this.plugins].filter((plugin) => plugin.name !== 'core')
+
 
     if (hookName) {
       return plugins.filter((item) => item[hookName])

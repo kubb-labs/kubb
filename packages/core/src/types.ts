@@ -137,7 +137,7 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
   /**
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */
-  options?: TOptions['options']
+  options: TOptions['options'] extends never? undefined: TOptions['options']
   /**
    * Kind/type for the plugin
    * Type 'schema' can be used for JSON schema's, TypeScript types, ...
@@ -157,10 +157,14 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
    * @example @kubb/typescript
    */
   name: PluginFactoryOptions['name']
+  /*
+  Internal key used when a developer uses more than one of the same plugin
+    */
+  key: [KubbPluginKind | undefined,PluginFactoryOptions['name'], string]
   /**
    * Options set for a specific plugin(see kubb.config.js), passthrough of options.
    */
-  options?: TOptions['options']
+  options: TOptions['options'] extends never? undefined: TOptions['options']
   /**
    * Kind/type for the plugin
    * Type 'schema' can be used for JSON schema's, TypeScript types, ...
@@ -171,12 +175,12 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
   /**
    * Define an api that can be used by other plugins, see `PluginManager' where we convert from `KubbUserPlugin` to `KubbPlugin`(used when calling `createPlugin`).
    */
-  api?: TOptions['api']
+  api: TOptions['api'] extends  never? undefined:  TOptions['api']
 } & Partial<PluginLifecycle<TOptions>>
 
 // use of type objects
 
-export type PluginFactoryOptions<Name = string, Options = unknown, Nested extends boolean = false, API = any, resolvePathOptions = Record<string, unknown>> = {
+export type PluginFactoryOptions<Name = string, Options = unknown| never, Nested extends boolean = false, API  = unknown| never, resolvePathOptions = Record<string, unknown>> = {
   name: Name
   options: Options
   nested: Nested
