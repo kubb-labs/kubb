@@ -23,7 +23,7 @@ const config: Linter.Config = {
     'plugin:@typescript-eslint/stylistic-type-checked',
     'plugin:react/recommended',
   ],
-  plugins: ['@typescript-eslint', 'vitest', 'vitest-globals', 'unused-imports', 'import', 'turbo'],
+  plugins: ['@typescript-eslint', 'vitest', 'vitest-globals', 'unused-imports', 'import', 'simple-import-sort', 'turbo'],
   rules,
   overrides: [
     {

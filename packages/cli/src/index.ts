@@ -6,9 +6,9 @@ import { cac } from 'cac'
 import pc from 'picocolors'
 
 import { version } from '../package.json'
+import { getConfig, getCosmiConfig, renderErrors, spinner, startWatcher } from './utils/index.ts'
 import generate from './generate.ts'
 import init from './init.ts'
-import { getConfig, getCosmiConfig, renderErrors, spinner, startWatcher } from './utils/index.ts'
 
 import type { CLIOptions } from '@kubb/core'
 

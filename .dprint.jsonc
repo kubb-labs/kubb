@@ -21,7 +21,9 @@
     "binaryExpression.linePerExpression": true,
     "jsx.quoteStyle": "preferDouble",
     "preferSingleLine": false,
-    "preferHanging": true
+    "preferHanging": true,
+    // https://github.com/lydell/eslint-plugin-simple-import-sort/tree/main?tab=readme-ov-file#how-do-i-use-this-with-dprint
+    "module.sortImportDeclarations": "maintain"
   },
   "json": {
     "trailingCommas": "never"

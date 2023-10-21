@@ -8,9 +8,9 @@ import { getSummary } from './utils/getSummary.ts'
 import { OraWritable } from './utils/OraWritable.ts'
 import { spinner } from './utils/spinner.ts'
 
+import type { Writable } from 'node:stream'
 import type { CLIOptions, KubbConfig, Logger } from '@kubb/core'
 import type { ExecaReturnValue } from 'execa'
-import type { Writable } from 'node:stream'
 
 type GenerateProps = {
   input?: string
