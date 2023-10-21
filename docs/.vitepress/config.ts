@@ -83,7 +83,11 @@ export default defineConfig({
             link: 'https://github.com/kubb-project/kubb/releases',
           },
           {
-            text: 'Contributing',
+            text: 'Sponsor Kubb',
+            link: 'https://github.com/sponsors/stijnvanhulle/',
+          },
+          {
+            text: 'Contribute Kubb',
             link: '/contributing',
           },
           {
