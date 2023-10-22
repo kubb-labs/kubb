@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser",
-  "version": "1.14.1",
+  "version": "1.11.6",
   "description": "Generator parser",
   "keywords": [
     "typescript",
