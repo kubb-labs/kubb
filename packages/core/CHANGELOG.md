@@ -1,5 +1,85 @@
 # Changelog
 
+## [1.14.2](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.14.1...@kubb/core-v1.14.2) (2023-10-22)
+
+
+### ✨ Features
+
+* &lt;File.Source/&gt; with path and print to read external file ([4bf2d9a](https://github.com/kubb-project/kubb/commit/4bf2d9a1e3023ef90be3fb28b25554d70f844ea1))
+* `ClientFunction` with React for creating an axios get/post/put call ([7ef6819](https://github.com/kubb-project/kubb/commit/7ef68198c85888d76bf2949d9cc99993c1dd7fc7))
+* `input.data` for oasParser ([feb56f4](https://github.com/kubb-project/kubb/commit/feb56f49f4b12215d5c948c3508d058fb5eb42c1))
+* `optionalType` for `swagger-ts` ([ae204ea](https://github.com/kubb-project/kubb/commit/ae204ea5bd02a7817c281bcd14fbf729e4d48eb3))
+* `pathParamsType` to override behaviour when calling a generated get/post/put function ([12624c4](https://github.com/kubb-project/kubb/commit/12624c4e426b417e50e5f19665fd1b529b3d0b6a))
+* `QueryKeyFunction` to render queryKey with React(`@kubb/react-template`) ([0157491](https://github.com/kubb-project/kubb/commit/0157491d2007cb6e64578871f4478f1787684ed6))
+* `useResolve` with pluginManager(resolvePath and resolveName) ([78b1c1c](https://github.com/kubb-project/kubb/commit/78b1c1c9f850f9e256107e839b0eaa902e9e8c66))
+* ✨ `swagger-form` FormGenerator and FormParser ([6424e5f](https://github.com/kubb-project/kubb/commit/6424e5f48960a24313e4ce2c115fd58af3cde814))
+* ✨ skipBy to exclude `tags`, `names`, `paths`, ... out of the generation ([44be77b](https://github.com/kubb-project/kubb/commit/44be77bb8748ae0188481716ef19dc6a39f1e538))
+* PackageManager to retreive a version in the package.json of the user ([220cd63](https://github.com/kubb-project/kubb/commit/220cd631f95e24e622c6579849a53b3cedd95b50))
+* support for `bun` with read/write ([4c4283b](https://github.com/kubb-project/kubb/commit/4c4283bb92995d369c65ba8087f81771ffb36086))
+* type for `resolveName` ([53f9893](https://github.com/kubb-project/kubb/commit/53f98933e4b1ffe834622207768257d524f1f725))
+* use of `createRoot` and `client` subPackage ([d2e7b45](https://github.com/kubb-project/kubb/commit/d2e7b4596bbdba1e1dacbcd3df6b38a3d6fde467))
+* use of `jsxImportSource` for a custom react-runtime being used by `@kubb/react-template` ([db8f351](https://github.com/kubb-project/kubb/commit/db8f3519ffa8dc2ede5309f0c4c8acb30bc6757e))
+
+
+### 📚 Documentation
+
+* add tip for `module` import ([5b7e24a](https://github.com/kubb-project/kubb/commit/5b7e24a7171e644d35e6f9a49fc2e6543868ba64))
+* better docs with examples ([fb42958](https://github.com/kubb-project/kubb/commit/fb429588f213a0ec7973fd64aa24eea17529747a))
+* react-hook-form + data-driven-forms example ([df538f9](https://github.com/kubb-project/kubb/commit/df538f95763976c2fe544c761b13288b62b182ef))
+* readme update + typo's ([a1bb145](https://github.com/kubb-project/kubb/commit/a1bb14550c7d6d73832da612275ef66f65d32a02))
+* swagger-msw plugin ([b8f14c1](https://github.com/kubb-project/kubb/commit/b8f14c1690bc66160936c92144a2e2b0ce227d88))
+* update docs ([a246bb1](https://github.com/kubb-project/kubb/commit/a246bb1171a95ba9d639468c5f8214573bd33513))
+* update docs with examples ([9087387](https://github.com/kubb-project/kubb/commit/908738795b2c1a3612dbc556b957f41c62465dc2))
+* use of vitepress ([346a3b7](https://github.com/kubb-project/kubb/commit/346a3b7099e7019c04750bad8fe1fa9dc66c3c97))
+
+
+### 🐞 Bug Fixes
+
+* `eventEmitter` public for `PluginManager` ([c3d340f](https://github.com/kubb-project/kubb/commit/c3d340f3d613b88cd4dd655f786446776975466e))
+* anyOf support(same result as oneOf) ([70f5d47](https://github.com/kubb-project/kubb/commit/70f5d47a93a1eebfaef50c18f9b0fbc4c17cc6ff))
+* better types for plugin `api` ([a4303b7](https://github.com/kubb-project/kubb/commit/a4303b7b102d871f514649f2edb4fb9058d6564d))
+* better types for PluginFactoryOptions and `KubbPlugin` ([3fb7bdd](https://github.com/kubb-project/kubb/commit/3fb7bdd7b612373c55597705037eab9fdc8202ee))
+* getParams refactor for generics ([3b01f51](https://github.com/kubb-project/kubb/commit/3b01f51b2e9fdf891a23f655eba5680be6dcb76e))
+* logging naming ([9ed216f](https://github.com/kubb-project/kubb/commit/9ed216f1ffb05089a2071818855dc03000e78608))
+* make `vue` work with refs ([d243087](https://github.com/kubb-project/kubb/commit/d2430871401ab23fc3b3af1823be3538819fdba1))
+* proper escape Regex(Escape all characters not included in SingleStringCharacters and DoubleStringCharacters) ([4b43cc1](https://github.com/kubb-project/kubb/commit/4b43cc169de5173eec8a760148fb4ab33d2a4eab))
+* queryKey with `{url, params}` object ([186e05d](https://github.com/kubb-project/kubb/commit/186e05d5c310766c8579fd840ce3dc6bb6f14bb5))
+* remove `@swc/core` dependency(decrease of the bundle size) ([2dfc28f](https://github.com/kubb-project/kubb/commit/2dfc28f7959af550abd807fa38d1989e3603be7c))
+* remove of `types` exports field ([1c07fd7](https://github.com/kubb-project/kubb/commit/1c07fd72424db47e3a717d99ea5019bb7744f3c0))
+* remove out unused imports ([14f7c48](https://github.com/kubb-project/kubb/commit/14f7c488963b5d0659f00c38983dc5c14209b4d0))
+* remove rimraf + use of correct order for params ([03180e3](https://github.com/kubb-project/kubb/commit/03180e3d33c5dd96bb101be691ae56a2edd3f0b9))
+* ResponseConfig for mutation ([4c48ff6](https://github.com/kubb-project/kubb/commit/4c48ff694ff5df1091aad3290420b3a85234bf1c))
+* spacing TS ([4218c1b](https://github.com/kubb-project/kubb/commit/4218c1b59bbd0f2189cf2a0f88da089ed0cb086d))
+* types fix `exports` based on `https://arethetypeswrong.github.io/` ([f942def](https://github.com/kubb-project/kubb/commit/f942defb40584fdfddc94852bf751a6acf10476a))
+* uniqueId per plugin ([b170dd8](https://github.com/kubb-project/kubb/commit/b170dd80433852c7c7dfe462c737c8abd11f8d6d))
+* upgrade `oas` + custom patch for `typesVersions` ([e9e26ae](https://github.com/kubb-project/kubb/commit/e9e26ae204a2eb3b6dc1e3a391c17a5d9d64f86c))
+* upgrade js-runtime ([4c1379d](https://github.com/kubb-project/kubb/commit/4c1379dad889cd244f5d3e0bd3178b08a34eb981))
+* upgrade oas(es support) and overall packages ([c5b1f4e](https://github.com/kubb-project/kubb/commit/c5b1f4e0f6e4fc880df94f8a02d9a0b9b81053ff))
+* use of `fileManager.addIndexes` and `URLPath` without static functions ([9bc291d](https://github.com/kubb-project/kubb/commit/9bc291d5b9126b1d3f26803e6a1c54a3b008f634))
+* use of `FunctionParams` ([9ca29c1](https://github.com/kubb-project/kubb/commit/9ca29c10ba410d6c7e67d3106395c6b38d960511))
+* use of pluginsOptions and small cleanup ([15d50a5](https://github.com/kubb-project/kubb/commit/15d50a5d56f1ca8b44ef70be56fefc489eaf6d93))
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.10.4 ([e2607b3](https://github.com/kubb-project/kubb/commit/e2607b3499ea9c810b508456b4e0ad5841a27347))
+* release 1.11.6 ([70826b2](https://github.com/kubb-project/kubb/commit/70826b2d52d970b16a7f00a8c63f95354699df7c))
+* release 1.14.2 ([91e61ac](https://github.com/kubb-project/kubb/commit/91e61acde1c3824c40f291e1142363eaa95fb1cf))
+* release 1.4.0 ([fc0de82](https://github.com/kubb-project/kubb/commit/fc0de826f94c2ff933dd2cefe26168ea6fcf8c3b))
+* release 1.4.0 ([b1d4561](https://github.com/kubb-project/kubb/commit/b1d456179bc4415168142939b4be64b225a4870f))
+* release 1.4.1 ([9805506](https://github.com/kubb-project/kubb/commit/98055065a6931b96dc1038890eb56ebb0342818f))
+* release 1.5.2 ([2f49c97](https://github.com/kubb-project/kubb/commit/2f49c97863b3dcee1a6158d97a5ca66848d52261))
+* release 1.8.0 ([218b7f0](https://github.com/kubb-project/kubb/commit/218b7f0e8ec1cbc8b6db504ec6e06d8dbeb1109e))
+
+## [1.14.1](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.14.0...@kubb/core-v1.14.1) (2023-10-21)
+
+
+### 🐞 Bug Fixes
+
+* better types for plugin `api` ([a4303b7](https://github.com/kubb-project/kubb/commit/a4303b7b102d871f514649f2edb4fb9058d6564d))
+* better types for PluginFactoryOptions and `KubbPlugin` ([3fb7bdd](https://github.com/kubb-project/kubb/commit/3fb7bdd7b612373c55597705037eab9fdc8202ee))
+* use of `fileManager.addIndexes` and `URLPath` without static functions ([9bc291d](https://github.com/kubb-project/kubb/commit/9bc291d5b9126b1d3f26803e6a1c54a3b008f634))
+
 ## [1.14.0](https://github.com/kubb-project/kubb/compare/@kubb/core-v1.13.0...@kubb/core-v1.14.0) (2023-10-20)
 
 
