@@ -20,9 +20,9 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
   const logs: string[] = []
   const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrstart))
 
-  const buildStartPlugins = [
-    ...new Set(pluginManager.executed.filter((item) => item.hookName === 'buildStart' && item.plugin.name !== 'core').map((item) => item.plugin.name)),
-  ]
+  const buildStartPlugins = pluginManager.executed.filter((item) => item.hookName === 'buildStart' && item.plugin.name !== 'core').map((item) =>
+    item.plugin.name
+  )
 
   const failedPlugins = config.plugins?.filter((plugin) => !buildStartPlugins.includes(plugin.name))?.map((plugin) => plugin.name)
   const pluginsCount = config.plugins?.length || 0

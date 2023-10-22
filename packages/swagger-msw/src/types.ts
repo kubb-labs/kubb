@@ -54,3 +54,9 @@ export type FileMeta = {
 export type PluginOptions = PluginFactoryOptions<'swagger-msw', 'schema', Options, false, never, ResolvePathOptions>
 
 export type AppMeta = SwaggerAppMeta
+
+declare module '@kubb/core' {
+  export interface _Register {
+    ['@kubb/swagger-msw']: PluginOptions
+  }
+}

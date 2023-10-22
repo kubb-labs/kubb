@@ -76,7 +76,8 @@
         // "gen/**",
         // "src/gen/**"
       ],
-      "cache": false
+      "cache": false,
+      "outputMode": "errors-only"
     }
   }
 }

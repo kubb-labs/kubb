@@ -1,4 +1,4 @@
-import { build, LogLevel, ParallelPluginError, PluginError, SummaryError, timeout } from '@kubb/core'
+import { build, LogLevel, ParallelPluginError, PluginError, SummaryError } from '@kubb/core'
 
 import { execa } from 'execa'
 import pc from 'picocolors'
@@ -47,9 +47,6 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
         return null
       }
 
-      // wait for 100ms to be sure that all open files are close(fs)
-      await timeout(100)
-
       spinner.start(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
 
       const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable as Writable)
@@ -65,9 +62,6 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
       return { subProcess, abort: abortController.abort.bind(abortController) }
     })
     .filter(Boolean)
-
-  // wait for 100ms to be sure that all open files are close(fs)
-  await timeout(100)
 
   await Promise.all(executers)
 

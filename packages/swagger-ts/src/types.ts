@@ -69,3 +69,9 @@ export type FileMeta = {
 }
 
 export type PluginOptions = PluginFactoryOptions<'swagger-ts', 'schema', Options, false, never, ResolvePathOptions>
+
+declare module '@kubb/core' {
+  export interface _Register {
+    ['@kubb/swagger-ts']: PluginOptions
+  }
+}
