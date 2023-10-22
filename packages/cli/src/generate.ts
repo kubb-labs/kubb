@@ -1,4 +1,4 @@
-import { build, LogLevel, ParallelPluginError, PluginError, SummaryError } from '@kubb/core'
+import { build, createLogger, LogLevel, ParallelPluginError, PluginError, SummaryError } from '@kubb/core'
 
 import { execa } from 'execa'
 import pc from 'picocolors'
@@ -9,14 +9,13 @@ import { OraWritable } from './utils/OraWritable.ts'
 import { spinner } from './utils/spinner.ts'
 
 import type { Writable } from 'node:stream'
-import type { CLIOptions, KubbConfig, Logger } from '@kubb/core'
+import type { CLIOptions, KubbConfig } from '@kubb/core'
 import type { ExecaReturnValue } from 'execa'
 
 type GenerateProps = {
   input?: string
   config: KubbConfig
   CLIOptions: CLIOptions
-  logger: Logger
 }
 
 type ExecutingHooksProps = {
@@ -70,7 +69,9 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
   }
 }
 
-export default async function generate({ input, config, CLIOptions, logger }: GenerateProps): Promise<void> {
+export default async function generate({ input, config, CLIOptions }: GenerateProps): Promise<void> {
+  const logger = createLogger(CLIOptions.logLevel || LogLevel.silent, spinner)
+
   const hrstart = process.hrtime()
 
   if (CLIOptions.logLevel === LogLevel.debug) {
@@ -89,7 +90,7 @@ export default async function generate({ input, config, CLIOptions, logger }: Ge
 
   try {
     const { root: _root, ...userConfig } = config
-    const logLevel = CLIOptions.logLevel ?? LogLevel.silent
+    const logLevel = logger.logLevel
     const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
     spinner.start(`🚀 Building ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)

@@ -7,6 +7,7 @@ import { isPromise } from './utils/isPromise.ts'
 import { LogLevel } from './types.ts'
 
 import type { KubbFile } from './managers/fileManager/index.ts'
+import type { PluginParameter } from './managers/pluginManager/types.ts'
 import type { BuildOutput, KubbPlugin, PluginContext, TransformResult } from './types.ts'
 import type { Logger, QueueJob } from './utils/index.ts'
 
@@ -16,7 +17,6 @@ type BuildOptions = {
    * @default Logger without the spinner
    */
   logger?: Logger
-  logLevel?: LogLevel
 }
 
 async function transformReducer(
@@ -29,7 +29,7 @@ async function transformReducer(
 }
 
 export async function build(options: BuildOptions): Promise<BuildOutput> {
-  const { config, logLevel, logger = createLogger(options.logLevel || 'silent') } = options
+  const { config, logger = createLogger(LogLevel.silent) } = options
 
   try {
     if ('path' in config.input && !new URLPath(config.input.path).isURL) {
@@ -74,10 +74,6 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
       })
 
       if (config.output.write || config.output.write === undefined) {
-        if (logger.logLevel === 'debug') {
-          logger.info(`Writing file ${file.path} { ${JSON.stringify(file.meta, undefined, 2)} }\nwith source\n\n${transformedCode}`)
-        }
-
         if (file.meta?.pluginKey) {
           // run only for pluginKey defined in the meta of the file
           return pluginManager.hookForPlugin({
@@ -95,20 +91,40 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     }
   }
 
-  const pluginManager = new PluginManager(config, { debug: logLevel === LogLevel.debug, logger, task: queueTask as QueueJob<KubbFile.ResolvedFile> })
+  const pluginManager = new PluginManager(config, { logger, task: queueTask as QueueJob<KubbFile.ResolvedFile>, writeTimeout: 0 })
   const { plugins, fileManager } = pluginManager
 
   pluginManager.on('execute', (executer) => {
+    const { hookName, parameters, plugin } = executer
+
+    if (hookName === 'writeFile' && logger.spinner) {
+      const [code] = parameters as PluginParameter<'writeFile'>
+
+      if (logger.logLevel === LogLevel.info) {
+        logger.spinner.start(`💾 Writing`)
+      }
+
+      if (logger.logLevel === 'debug') {
+        logger.info(`PluginKey ${pc.dim(JSON.stringify(plugin.key))} \nwith source\n\n${code}`)
+      }
+    }
+  })
+
+  pluginManager.on('executed', (executer) => {
     const { hookName, plugin, output, parameters } = executer
     const messsage = `${randomPicoColour(plugin.name)} Executing ${hookName}`
 
-    if (logLevel === LogLevel.info) {
-      if (logger.spinner) {
+    if (logger.logLevel === LogLevel.info && logger.spinner) {
+      if (hookName === 'writeFile') {
+        const [_code, path] = parameters as PluginParameter<'writeFile'>
+
+        logger.spinner.suffixText = pc.dim(path)
+      } else {
         logger.spinner.suffixText = messsage
       }
     }
 
-    if (logLevel === LogLevel.debug) {
+    if (logger.logLevel === LogLevel.debug) {
       logger.info(messsage)
       const logs = [
         parameters && `${pc.bgWhite(`Parameters`)} ${randomPicoColour(plugin.name)} ${hookName}`,
@@ -116,6 +132,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
         output && `${pc.bgWhite('Output')} ${randomPicoColour(plugin.name)} ${hookName}`,
         output,
       ].filter(Boolean)
+
       console.log(logs.join('\n'))
     }
   })
@@ -131,6 +148,11 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   })
 
   await pluginManager.hookParallel({ hookName: 'buildEnd' })
+
+  if (!fileManager.isExecuting && logger.spinner) {
+    logger.spinner.suffixText = ''
+    logger.spinner.succeed(`💾 Writing completed`)
+  }
 
   return { files: fileManager.files.map((file) => ({ ...file, source: createFileSource(file) })), pluginManager }
 }

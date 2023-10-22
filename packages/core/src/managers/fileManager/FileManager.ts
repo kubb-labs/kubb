@@ -14,18 +14,31 @@ type AddIndexesProps = {
   meta?: KubbFile.File['meta']
 }
 
+type Options = {
+  queue?: Queue
+  task?: QueueJob<KubbFile.ResolvedFile>
+  /**
+   * Timeout between writes
+   */
+  timeout?: number
+}
+
 export class FileManager {
   #cache: Map<KubbFile.Path, CacheItem[]> = new Map()
 
   #task?: QueueJob<KubbFile.ResolvedFile>
   #isWriting = false
-
+  /**
+   * Timeout between writes
+   */
+  #timeout: number = 0
   #queue?: Queue
 
-  constructor(options?: { queue?: Queue; task?: QueueJob<KubbFile.ResolvedFile> }) {
+  constructor(options?: Options) {
     if (options) {
       this.#task = options.task
       this.#queue = options.queue
+      this.#timeout = options.timeout || 0
     }
 
     return this
@@ -43,7 +56,7 @@ export class FileManager {
     return files
   }
   get isExecuting(): boolean {
-    return this.#queue?.hasJobs ?? false
+    return this.#queue?.hasJobs ?? this.#isWriting ?? false
   }
 
   async add(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
@@ -65,10 +78,6 @@ export class FileManager {
   }
 
   async addOrAppend(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
-    // if (!file.path.endsWith(file.baseName)) {
-    //   console.warn(`Path ${file.path}(file.path) should end with the baseName ${file.baseName}(file.filename)`)
-    // }
-
     const previousCaches = this.#cache.get(file.path)
     const previousCache = previousCaches ? previousCaches.at(previousCaches.length - 1) : undefined
 
@@ -93,7 +102,7 @@ export class FileManager {
       return undefined
     }
 
-    const result = await Promise.all(
+    return await Promise.all(
       files.map((file) => {
         return this.addOrAppend({
           ...file,
@@ -101,10 +110,6 @@ export class FileManager {
         })
       }),
     )
-
-    // console.log({result: JSON.stringify(result, undefined,2)})
-
-    return result
   }
 
   #append(path: KubbFile.Path, file: KubbFile.ResolvedFile): void {
@@ -145,7 +150,7 @@ export class FileManager {
       return text
     }
 
-    await timeout(0)
+    await timeout(this.#timeout)
 
     return this.write(...params)
   }

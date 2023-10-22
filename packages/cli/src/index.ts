@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { createLogger, LogLevel, SummaryError, Warning } from '@kubb/core'
+import { LogLevel, SummaryError, Warning } from '@kubb/core'
 
 import { cac } from 'cac'
 import pc from 'picocolors'
@@ -43,22 +43,21 @@ function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
 }
 
 async function generateAction(input: string, CLIOptions: CLIOptions) {
-  spinner.start('💾 Loading config')
+  spinner.start('🔍 Loading config')
   const result = await getCosmiConfig(moduleName, CLIOptions.config)
-  spinner.succeed(`💾 Config loaded(${pc.dim(pathParser.relative(process.cwd(), result.filepath))})`)
+  spinner.succeed(`🔍 Config loaded(${pc.dim(pathParser.relative(process.cwd(), result.filepath))})`)
 
   const config = await getConfig(result, CLIOptions)
-  const logger = createLogger(CLIOptions.logLevel || 'silent', spinner)
 
   if (CLIOptions.watch && 'path' in config.input) {
     return startWatcher([input || config.input.path], async (paths) => {
-      await generate({ config, CLIOptions, logger })
+      await generate({ config, CLIOptions })
       spinner.spinner = 'simpleDotsScrolling'
       spinner.start(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
     })
   }
 
-  await generate({ input, config, CLIOptions, logger })
+  await generate({ input, config, CLIOptions })
 }
 
 export default async function runCLI(argv?: string[]): Promise<void> {

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-unsafe-argument */
 
 import { definePlugin } from '../../plugin.ts'
+import { LogLevel } from '../../types.ts'
 import { EventEmitter } from '../../utils/EventEmitter.ts'
 import { isPromise, isPromiseRejectedResult } from '../../utils/isPromise.ts'
 import { Queue } from '../../utils/Queue.ts'
@@ -43,7 +44,18 @@ const hookNames: {
 }
 export const hooks = Object.keys(hookNames) as [PluginLifecycleHooks]
 
-type Options = { debug?: boolean; task: QueueJob<KubbFile.ResolvedFile>; logger: Logger }
+type Options = {
+  logger: Logger
+
+  /**
+   * Task for the FileManager
+   */
+  task: QueueJob<KubbFile.ResolvedFile>
+  /**
+   * Timeout between writes in the FileManager
+   */
+  writeTimeout?: number
+}
 
 type Events = {
   execute: [executer: Executer]
@@ -67,8 +79,8 @@ export class PluginManager {
   constructor(config: KubbConfig, options: Options) {
     // TODO use logger for all warnings/errors
     this.logger = options.logger
-    this.queue = new Queue(100, options.debug)
-    this.fileManager = new FileManager({ task: options.task, queue: this.queue })
+    this.queue = new Queue(100, this.logger.logLevel === LogLevel.debug)
+    this.fileManager = new FileManager({ task: options.task, queue: this.queue, timeout: options.writeTimeout })
 
     const core = definePlugin({
       config,
@@ -428,7 +440,7 @@ export class PluginManager {
 
   #addExecutedToCallStack(executer: Executer | undefined) {
     if (executer) {
-      this.eventEmitter.emit('execute', executer)
+      this.eventEmitter.emit('executed', executer)
       this.executed.push(executer)
     }
   }
