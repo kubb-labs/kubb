@@ -126,7 +126,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (mode === 'file') {
         // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
         const builder = new FakerBuilder({
-          resolveName: (params) => this.resolveName({ pluginKey, ...params }),
+          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           withJSDocs: true,
           dateType,
         }).configure()
@@ -139,14 +139,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         }
 
         Object.entries(schemas).map(mapFileSchema)
-        const path = this.resolvePath({ baseName: '', pluginKey })
+        const path = this.resolvePath({ baseName: '', pluginKey: this.plugin.key })
         if (!path) {
           return
         }
 
         await this.addFile({
           path,
-          baseName: `${this.resolveName({ name: output, pluginKey })}.ts`,
+          baseName: `${this.resolveName({ name: output, pluginKey: this.plugin.key })}.ts`,
           source: builder.print(),
           imports: [
             {
@@ -200,14 +200,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
             if (name) {
               return {
-                baseName: 'index.ts',
+                baseName: 'index.ts' as const,
                 path: pathParser.resolve(root, output, 'index.ts'),
                 source: '',
                 exports: [{ path, asAlias: true, name }],
                 meta: {
                   pluginKey: this.plugin.key,
                 },
-              } as KubbFile.File
+              }
             }
           })
           .filter(Boolean)

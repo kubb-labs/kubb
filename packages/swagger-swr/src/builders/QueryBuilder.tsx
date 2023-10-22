@@ -5,8 +5,6 @@ import { getASTParams, getComments, OasBuilder, useResolve } from '@kubb/swagger
 
 import { camelCase } from 'change-case'
 
-import { pluginKey } from '../plugin.ts'
-
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
 import type { AppMeta, Options as PluginOptions } from '../types.ts'
@@ -248,12 +246,12 @@ export function ${name} <
   }
 
   render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<AppMeta>> {
-    const { pluginManager, operation, schemas } = this.context
+    const { pluginManager, operation, schemas, plugin } = this.context
 
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const ComponentQuery = () => {
-      const file = useResolve({ name, pluginKey, type: 'file' })
+      const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>
@@ -267,7 +265,7 @@ export function ${name} <
     }
 
     const ComponentMutation = () => {
-      const file = useResolve({ name, pluginKey, type: 'file' })
+      const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>

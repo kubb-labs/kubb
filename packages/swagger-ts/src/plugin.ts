@@ -198,28 +198,22 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       await this.fileManager.addIndexes(root, '.ts', {
         map: (file) => {
-          if (file.baseName === 'index.ts') {
-            return {
-              ...file,
-              exports: file.exports?.filter(item => {
-                return item.path.endsWith(output)
-              }).map(item => {
-                if (item.path.endsWith(output) && exportAs) {
-                  return {
-                    ...item,
-                    name: exportAs,
-                    asAlias: !!exportAs,
-                  }
+          return {
+            ...file,
+            exports: file.exports?.map(item => {
+              if (exportAs) {
+                return {
+                  ...item,
+                  name: exportAs,
+                  asAlias: !!exportAs,
                 }
-                return item
-              }),
-            }
+              }
+              return item
+            }),
           }
-
-          return file
         },
+        output,
         isTypeOnly: true,
-        includeExt: true,
       })
     },
   }

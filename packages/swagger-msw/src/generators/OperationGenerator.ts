@@ -104,7 +104,7 @@ export class OperationGenerator extends Generator<Options> {
 
     const responseName = pluginManager.resolveName({ name: schemas.response.name, pluginKey: swaggerFakerPluginKey })
 
-    const mswBuilder = new MSWBuilder({ responseName }, { oas, pluginManager, schemas, operation })
+    const mswBuilder = new MSWBuilder({ responseName }, { oas, pluginManager, plugin, schemas, operation })
 
     const file = mswBuilder.render().file
 
@@ -133,7 +133,7 @@ export class OperationGenerator extends Generator<Options> {
       {
         responseName,
       },
-      { oas, pluginManager, schemas, operation },
+      { oas, pluginManager, plugin, schemas, operation },
     )
 
     const file = mswBuilder.render().file

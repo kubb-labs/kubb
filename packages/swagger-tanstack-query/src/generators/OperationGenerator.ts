@@ -265,7 +265,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, infinite, dataReturnType }, { oas, pluginManager, operation, schemas })
+    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, infinite, dataReturnType }, { oas, plugin, pluginManager, operation, schemas })
     const clientImportPath = this.options.clientImportPath
       ? this.options.clientImportPath
       : clientPath
@@ -330,7 +330,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, dataReturnType }, { oas, pluginManager, operation, schemas })
+    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, dataReturnType }, { oas, plugin, pluginManager, operation, schemas })
     const clientImportPath = this.options.clientImportPath
       ? this.options.clientImportPath
       : clientPath

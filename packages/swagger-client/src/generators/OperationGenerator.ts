@@ -72,7 +72,7 @@ export class OperationGenerator extends Generator<Options> {
         clientImportPath,
         pathParamsType,
       },
-      { oas, pluginManager, operation, schemas },
+      { oas, pluginManager, plugin, operation, schemas },
     )
     const file = clientBuilder.render().file
 
@@ -103,7 +103,7 @@ export class OperationGenerator extends Generator<Options> {
         clientImportPath,
         pathParamsType,
       },
-      { oas, pluginManager, operation, schemas },
+      { oas, pluginManager, plugin, operation, schemas },
     )
     const file = clientBuilder.render().file
 

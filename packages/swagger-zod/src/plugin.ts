@@ -71,14 +71,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (mode === 'directory') {
         const builder = await new ZodBuilder({
-          resolveName: (params) => this.resolveName({ pluginKey, ...params }),
+          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           fileResolver: (name) => {
             const resolvedTypeId = this.resolvePath({
               baseName: `${name}.ts`,
-              pluginKey,
+              pluginKey: this.plugin.key,
             })
 
-            const root = this.resolvePath({ baseName: ``, pluginKey })
+            const root = this.resolvePath({ baseName: ``, pluginKey: this.plugin.key })
 
             return getRelativePath(root, resolvedTypeId)
           },
@@ -94,7 +94,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
 
         const mapFolderSchema = async ([name]: [string, OpenAPIV3.SchemaObject]) => {
-          const path = this.resolvePath({ baseName: `${this.resolveName({ name, pluginKey })}.ts`, pluginKey })
+          const path = this.resolvePath({ baseName: `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts`, pluginKey: this.plugin.key })
 
           if (!path) {
             return null
@@ -102,7 +102,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
           return this.addFile({
             path,
-            baseName: `${this.resolveName({ name, pluginKey })}.ts`,
+            baseName: `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts`,
             source: builder.print(name),
             imports: [
               {
@@ -124,7 +124,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (mode === 'file') {
         // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
         const builder = new ZodBuilder({
-          resolveName: (params) => this.resolveName({ pluginKey, ...params }),
+          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           withJSDocs: true,
         }).configure()
         const mapFileSchema = ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
@@ -136,14 +136,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         }
 
         Object.entries(schemas).map(mapFileSchema)
-        const path = this.resolvePath({ baseName: '', pluginKey })
+        const path = this.resolvePath({ baseName: '', pluginKey: this.plugin.key })
         if (!path) {
           return
         }
 
         await this.addFile({
           path,
-          baseName: `${this.resolveName({ name: output, pluginKey })}.ts`,
+          baseName: `${this.resolveName({ name: output, pluginKey: this.plugin.key })}.ts`,
           source: builder.print(),
           imports: [
             {

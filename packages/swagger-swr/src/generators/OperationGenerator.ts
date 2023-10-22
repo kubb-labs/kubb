@@ -85,7 +85,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder({ name: hook.name, errors, dataReturnType }, { oas, pluginManager, operation, schemas })
+    const queryBuilder = new QueryBuilder({ name: hook.name, errors, dataReturnType }, { oas, pluginManager, plugin, operation, schemas })
 
     const file = queryBuilder.render('query', hook.name).file
 
@@ -154,7 +154,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder({ name: hook.name, errors, dataReturnType }, { oas, pluginManager, operation, schemas })
+    const queryBuilder = new QueryBuilder({ name: hook.name, errors, dataReturnType }, { oas, pluginManager, plugin, operation, schemas })
 
     const file = queryBuilder.render('mutation', hook.name).file
 

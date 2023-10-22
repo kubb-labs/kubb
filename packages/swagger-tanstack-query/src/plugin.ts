@@ -114,7 +114,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         await this.addFile(...rootFiles)
       }
 
-      await this.fileManager.addIndexes(root, '.ts')
+      await this.fileManager.addIndexes(root, '.ts', {
+        output,
+      })
     },
   }
 })

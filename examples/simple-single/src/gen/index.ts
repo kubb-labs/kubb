@@ -1,3 +1,2 @@
-export type * from './models.ts'
+export type * from './models'
 export * from './hooks'
-export * from './models'
