@@ -129,3 +129,9 @@ export type FileMeta = {
 export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', 'controller', Options, false, never, ResolvePathOptions>
 
 export type AppMeta = SwaggerAppMeta
+
+declare module '@kubb/core' {
+  export interface _Register {
+    ['@kubb/swagger-tanstack-query']: PluginOptions
+  }
+}

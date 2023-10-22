@@ -13,7 +13,6 @@ import init from './init.ts'
 import type { CLIOptions } from '@kubb/core'
 
 const moduleName = 'kubb'
-const logger = createLogger(spinner)
 
 function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
   const originalError = e as Error
@@ -49,6 +48,7 @@ async function generateAction(input: string, CLIOptions: CLIOptions) {
   spinner.succeed(`💾 Config loaded(${pc.dim(pathParser.relative(process.cwd(), result.filepath))})`)
 
   const config = await getConfig(result, CLIOptions)
+  const logger = createLogger(CLIOptions.logLevel || 'silent', spinner)
 
   if (CLIOptions.watch && 'path' in config.input) {
     return startWatcher([input || config.input.path], async (paths) => {

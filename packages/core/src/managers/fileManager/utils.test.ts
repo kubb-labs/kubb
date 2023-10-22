@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { format } from '../../../mocks/format.ts'
-import { combineFiles, createFileSource, getIndexes } from './utils.ts'
+import { combineExports, combineFiles, combineImports, createFileSource, getIndexes } from './utils.ts'
 
 import type { KubbFile } from './types.ts'
 
@@ -77,8 +77,8 @@ describe('FileManager utils', () => {
     expect(await format(codeWithDefaultImport)).toMatch(
       await format(`
     import client from './Pets'
-    import type { Pets, Cat } from './Pets'
     import React from './React'
+    import type { Pets, Cat } from './Pets'
 
     export type Pet = Pets | Cat
     const test = [client, React]
@@ -88,9 +88,9 @@ describe('FileManager utils', () => {
 
     expect(await format(codeWithDefaultImportOrder)).toMatch(
       await format(`
-    import type { Pets, Cat } from './Pets'
     import client from './Pets'
     import React from './React'
+    import type { Pets, Cat } from './Pets'
 
     export type Pet = Pets | Cat
     const test = [client, React]
@@ -405,6 +405,80 @@ export const test2 = 3;`,
     `),
     )
   })
+
+  test('if combineExports is filtering out duplicated exports', () => {
+    const exports: Array<KubbFile.Export> = [
+      {
+        path: './models',
+        name: undefined,
+        isTypeOnly: true,
+      },
+      {
+        path: './models',
+        isTypeOnly: false,
+      },
+      {
+        path: './models',
+        isTypeOnly: false,
+        asAlias: true,
+        name: 'test',
+      },
+    ]
+
+    expect(combineExports(exports)).toEqual([
+      exports[2],
+      exports[0],
+    ])
+  })
+
+  test('if combineImports is filtering out duplicated imports', () => {
+    const imports: Array<KubbFile.Import> = [
+      {
+        path: './models',
+        name: 'models',
+        isTypeOnly: true,
+      },
+      {
+        path: './models',
+        name: ['Config'],
+        isTypeOnly: true,
+      },
+      {
+        path: './models',
+        name: 'models',
+        isTypeOnly: false,
+      },
+    ]
+
+    expect(combineImports(imports, [], 'const test = models; type Test = Config;')).toEqual([
+      imports[0],
+      imports[1],
+    ])
+
+    const importsWithoutSource: Array<KubbFile.Import> = [
+      {
+        path: './models',
+        name: 'models',
+        isTypeOnly: true,
+      },
+      {
+        path: './models',
+        name: ['Config'],
+        isTypeOnly: true,
+      },
+      {
+        path: './models',
+        name: 'models',
+        isTypeOnly: false,
+      },
+    ]
+
+    expect(combineImports(importsWithoutSource, [])).toEqual([
+      imports[0],
+      imports[1],
+    ])
+  })
+
   test.todo('if getIndexes can return an export with `exportAs` and/or `isTypeOnly`')
   test.todo('if getIndexes can return an export with `includeExt`')
 })

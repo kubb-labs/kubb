@@ -1,11 +1,18 @@
 import crypto from 'node:crypto'
 
-import { read, write } from '../../utils/index.ts'
+import { read, timeout, write } from '../../utils/index.ts'
 import { extensions, getIndexes } from './utils.ts'
 
 import type { Queue, QueueJob } from '../../utils/index.ts'
 import type { CacheItem, KubbFile } from './types.ts'
 import type { IndexesOptions } from './utils.ts'
+
+type AddIndexesProps = {
+  root: KubbFile.Path
+  extName?: KubbFile.Extname
+  options?: IndexesOptions
+  meta?: KubbFile.File['meta']
+}
 
 export class FileManager {
   #cache: Map<KubbFile.Path, CacheItem[]> = new Map()
@@ -48,6 +55,8 @@ export class FileManager {
       try {
         await this.#queue.run(
           async () => {
+            // be sure that files are closed by the OS
+            await timeout(100)
             return this.#task?.(resolvedFile)
           },
           { controller },
@@ -82,8 +91,8 @@ export class FileManager {
     return this.add(file)
   }
 
-  async addIndexes(root: KubbFile.Path, extName: KubbFile.Extname = '.ts', options: IndexesOptions = {}): Promise<Array<KubbFile.File> | undefined> {
-    const files = await getIndexes(root, extName, options)
+  async addIndexes({ root, extName = '.ts', meta, options = {} }: AddIndexesProps): Promise<Array<KubbFile.File> | undefined> {
+    const files = getIndexes(root, extName, options)
 
     if (!files) {
       return undefined
@@ -91,11 +100,10 @@ export class FileManager {
 
     return Promise.all(
       files.map((file) => {
-        if (file.override) {
-          return this.add(file)
-        }
-
-        return this.addOrAppend(file)
+        return this.addOrAppend({
+          ...file,
+          meta: meta ? meta : file.meta,
+        })
       }),
     )
   }

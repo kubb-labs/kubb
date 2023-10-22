@@ -6,6 +6,7 @@
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react-jsx",
+    "jsxImportSource": "@kubb/react",
     "declaration": true,
     "outDir": "es",
     "experimentalDecorators": true,
@@ -16,6 +17,13 @@
     "allowJs": true,
     "allowImportingTsExtensions": true,
     "noEmit": true,
+    "types": [
+      "vitest/globals",
+      "bun-types",
+      "../../packages/core/globals.d.ts",
+      "../../packages/swagger-client/globals.d.ts",
+      "../../packages/config/ts-config/reset.d.ts"
+    ],
     "paths": {
       "@kubb/cli": [
         "../../packages/cli/src/index.ts"
@@ -56,16 +64,26 @@
       "@kubb/swagger-zod": [
         "../../packages/swagger-zod/src/index.ts"
       ],
+      "@kubb/swagger-swr": [
+        "../../packages/swagger-swr/src/index.ts"
+      ],
       "@kubb/swagger-zodios": [
         "../../packages/swagger-zodios/src/index.ts"
       ],
       "@kubb/parser": [
         "../../packages/parser/src/index.ts"
+      ],
+      "@kubb/react": [
+        "../../packages/react/src/index.ts"
+      ],
+      "@kubb/react/jsx-runtime": [
+        "../../packages/react/src/jsx-runtime.ts"
       ]
     }
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "kubb.config.js"
   ],
   "exclude": [
     "**/node_modules",

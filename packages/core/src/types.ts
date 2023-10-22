@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-types */
+
+import type { OptionsPlugins, PluginUnion } from './index.ts'
 import type { FileManager } from './managers/fileManager/index.ts'
 import type { KubbFile, PluginManager } from './managers/index.ts'
 import type { Cache } from './utils/cache.ts'
@@ -23,7 +26,7 @@ export type KubbUserConfig = Omit<KubbConfig, 'root' | 'plugins'> & {
    * Example: ['@kubb/swagger', { output: false }]
    * Or: createSwagger({ output: false })
    */
-  plugins?: Array<KubbUserPlugin> | Array<KubbJSONPlugins> | KubbObjectPlugins
+  plugins?: Array<Omit<KubbUserPlugin, 'api'> | KubbUnionPlugins> | KubbObjectPlugins
 }
 
 type InputPath = {
@@ -120,12 +123,11 @@ export type BuildOutput = {
 
 export type KubbPluginKind = 'schema' | 'controller'
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type KubbJSONPlugins = [plugin: keyof Kubb.OptionsPlugins | (string & {}), options: Kubb.OptionsPlugins[keyof Kubb.OptionsPlugins]]
+export type KubbUnionPlugins = PluginUnion
 
-export type KubbObjectPlugin = keyof Kubb.OptionsPlugins
+export type KubbObjectPlugin = keyof OptionsPlugins
 export type KubbObjectPlugins = {
-  [K in keyof Kubb.OptionsPlugins]: Kubb.OptionsPlugins[K] | object
+  [K in keyof OptionsPlugins]?: OptionsPlugins[K] | object
 }
 
 export type GetPluginFactoryOptions<TPlugin extends KubbUserPlugin> = TPlugin extends KubbUserPlugin<infer X> ? X : never
@@ -329,7 +331,21 @@ export type Prettify<T> =
   & {
     [K in keyof T]: T[K]
   }
-  // eslint-disable-next-line @typescript-eslint/ban-types
   & {}
 
 export type PossiblePromise<T> = Promise<T> | T
+
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
+type LastOf<T> = UnionToIntersection<T extends any ? () => T : never> extends () => infer R ? R : never
+
+// TS4.0+
+type Push<T extends any[], V> = [...T, V]
+
+// TS4.1+
+type TuplifyUnion<T, L = LastOf<T>, N = [T] extends [never] ? true : false> = true extends N ? [] : Push<TuplifyUnion<Exclude<T, L>>, L>
+
+export type ObjValueTuple<T, KS extends any[] = TuplifyUnion<keyof T>, R extends any[] = []> = KS extends [infer K, ...infer KT]
+  ? ObjValueTuple<T, KT, [...R, [name: K & keyof T, options: T[K & keyof T]]]>
+  : R
+
+export type TupleToUnion<T> = T extends Array<infer ITEMS> ? ITEMS : never

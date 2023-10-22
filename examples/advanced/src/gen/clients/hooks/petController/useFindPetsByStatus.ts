@@ -1,6 +1,6 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../tanstack-query-client.ts'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
 

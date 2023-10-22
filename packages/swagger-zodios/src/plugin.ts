@@ -37,6 +37,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     resolveName(name) {
       return camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
     },
+    async writeFile(source, path) {
+      if (!path.endsWith('.ts') || !source) {
+        return
+      }
+
+      await this.fileManager.write(source, path)
+    },
     async buildStart() {
       const [swaggerPlugin, swaggerZodPlugin] = pluginsOptions
       const oas = await swaggerPlugin.api.getOas()

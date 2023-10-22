@@ -2,13 +2,15 @@ import { setUniqueName } from '../../utils/uniqueName.ts'
 
 import type { CorePluginOptions } from '../../plugin.ts'
 import type { GetPluginFactoryOptions, KubbPlugin, KubbUserPlugin } from '../../types.ts'
-
-const usedPluginNames: Record<string, number> = {}
+import type { PluginManager } from './PluginManager.ts'
 
 export function pluginParser<TPlugin extends KubbUserPlugin>(
   plugin: TPlugin,
+  pluginManager: PluginManager,
   context: CorePluginOptions['api'] | undefined,
 ): KubbPlugin<GetPluginFactoryOptions<TPlugin>> {
+  const usedPluginNames = pluginManager.usedPluginNames
+
   setUniqueName(plugin.name, usedPluginNames)
 
   const key = plugin.key || [plugin.kind, plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [
@@ -16,6 +18,10 @@ export function pluginParser<TPlugin extends KubbUserPlugin>(
     typeof plugin.name,
     string,
   ]
+
+  if (plugin.name !== 'core' && usedPluginNames[plugin.name]! >= 2) {
+    pluginManager.logger.warn('Using multiple of the same plugin is an experimental feature')
+  }
 
   // default transform
   if (!plugin.transform) {

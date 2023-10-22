@@ -1,6 +1,6 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '../../../../tanstack-query-client.ts'
+import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 
