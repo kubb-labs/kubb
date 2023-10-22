@@ -1,5 +1,4 @@
-import type { KubbPlugin } from '@kubb/core'
-import type { PluginFactoryOptions } from '@kubb/core'
+import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
 
 export type Options = {
   /**
@@ -16,3 +15,9 @@ export type FileMeta = {
 }
 
 export type PluginOptions = PluginFactoryOptions<'swagger-zodios', 'controller', Options, false, never>
+
+declare module '@kubb/core' {
+  export interface _Register {
+    ['@kubb/swagger-zodios']: PluginOptions
+  }
+}

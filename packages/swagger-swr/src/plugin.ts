@@ -79,6 +79,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const files = await operationGenerator.build()
       await this.addFile(...files)
     },
+    async writeFile(source, path) {
+      if (!path.endsWith('.ts') || !source) {
+        return
+      }
+
+      await this.fileManager.write(source, path)
+    },
     async buildEnd() {
       if (this.config.output.write === false) {
         return
@@ -116,7 +123,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         await this.addFile(...rootFiles)
       }
 
-      await this.fileManager.addIndexes(root, '.ts')
+      await this.fileManager.addIndexes({ root, extName: '.ts', meta: { pluginKey: this.plugin.key } })
     },
   }
 })

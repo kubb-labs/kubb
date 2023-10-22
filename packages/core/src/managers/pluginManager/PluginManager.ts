@@ -62,6 +62,8 @@ export class PluginManager {
   readonly logger: Logger
   readonly #core: KubbPlugin<CorePluginOptions>
 
+  usedPluginNames: Record<string, number> = {}
+
   constructor(config: KubbConfig, options: Options) {
     // TODO use logger for all warnings/errors
     this.logger = options.logger
@@ -80,11 +82,12 @@ export class PluginManager {
       plugin: undefined as unknown as KubbPlugin,
     })
 
-    this.#core = pluginParser<KubbUserPlugin<CorePluginOptions>>(core, core.api.call(null as any))
+    // call core.api.call with empty context so we can transform `api()` to `api: {}`
+    this.#core = pluginParser<KubbUserPlugin<CorePluginOptions>>(core, this, core.api.call(null as any))
 
     this.plugins = [this.#core, ...(config.plugins || [])].reduce((prev, plugin) => {
       // TODO HACK to be sure that this is equal to the `core.api` logic.
-      const convertedApi = pluginParser(plugin as KubbUserPlugin, this.#core?.api)
+      const convertedApi = pluginParser(plugin as KubbUserPlugin, this, this.#core.api)
 
       return [...prev, convertedApi]
     }, [] as KubbPlugin[])
@@ -103,7 +106,7 @@ export class PluginManager {
       if (paths && paths?.length > 1) {
         throw new Error(
           `Cannot return a path where the 'pluginKey' ${params.pluginKey ? JSON.stringify(params.pluginKey) : '"'} is not unique enough\n\nPaths: ${
-            JSON.stringify(paths)
+            JSON.stringify(paths, undefined, 2)
           }`,
         )
       }
@@ -127,7 +130,7 @@ export class PluginManager {
       if (names && names?.length > 1) {
         throw new Error(
           `Cannot return a name where the 'pluginKey' ${params.pluginKey ? JSON.stringify(params.pluginKey) : '"'} is not unique enough\n\nNames: ${
-            JSON.stringify(names)
+            JSON.stringify(names, undefined, 2)
           }`,
         )
       }
@@ -372,6 +375,13 @@ export class PluginManager {
     const plugins = [...this.plugins].filter((plugin) => plugin.name !== 'core')
 
     if (hookName) {
+      if (this.logger.logLevel === 'info') {
+        const containsHookName = plugins.some((item) => item[hookName])
+        if (!containsHookName) {
+          this.logger.warn(`No hook ${hookName} found`)
+        }
+      }
+
       return plugins.filter((item) => item[hookName])
     }
 
@@ -383,7 +393,7 @@ export class PluginManager {
 
     const [searchKind, searchPluginName, searchIdentifier] = pluginKey
 
-    const pluginByPluginName = plugins.filter(item => item[hookName]).filter((item) => {
+    const pluginByPluginName = plugins.filter(plugin => plugin[hookName]).filter((item) => {
       const [kind, name, identifier] = item.key
 
       const identifierCheck = identifier?.toString() === searchIdentifier?.toString()
@@ -397,11 +407,22 @@ export class PluginManager {
       return kindCheck && nameCheck
     })
 
-    if (!pluginByPluginName) {
+    if (!pluginByPluginName?.length) {
       // fallback on the core plugin when there is no match
 
-      return [plugins.find(plugin => plugin.name === 'core')!]
+      const corePlugin = plugins.find(plugin => plugin.name === 'core' && plugin[hookName])
+
+      if (this.logger.logLevel === 'info') {
+        if (corePlugin) {
+          this.logger.warn(`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`)
+        } else {
+          this.logger.warn(`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`)
+        }
+      }
+
+      return corePlugin ? [corePlugin] : []
     }
+
     return pluginByPluginName
   }
 

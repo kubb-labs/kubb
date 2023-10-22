@@ -111,3 +111,9 @@ export type SkipBy = ByTag | ByOperationId | ByPath | ByMethod
 export type OverrideBy<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & { options: Partial<TOptions> }
 
 export type AppMeta = AppCoreMeta & { schemas: OperationSchemas; operation: Operation }
+
+declare module '@kubb/core' {
+  export interface _Register {
+    ['@kubb/swagger']: PluginOptions
+  }
+}

@@ -2,7 +2,7 @@ import pc from 'picocolors'
 
 import { createFileSource } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
-import { clean, createLogger, randomPicoColour, read, URLPath } from './utils/index.ts'
+import { clean, createLogger, randomPicoColour, read, timeout, URLPath } from './utils/index.ts'
 import { isPromise } from './utils/isPromise.ts'
 import { LogLevel } from './types.ts'
 
@@ -29,7 +29,7 @@ async function transformReducer(
 }
 
 export async function build(options: BuildOptions): Promise<BuildOutput> {
-  const { config, logLevel, logger = createLogger() } = options
+  const { config, logLevel, logger = createLogger(options.logLevel || 'silent') } = options
 
   try {
     if ('path' in config.input && !new URLPath(config.input.path).isURL) {
@@ -74,7 +74,20 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
       })
 
       if (config.output.write || config.output.write === undefined) {
-        await pluginManager.hookParallel({
+        if (logger.logLevel === 'debug') {
+          logger.info(`Writing file ${file.path} { ${JSON.stringify(file.meta, undefined, 2)} } with source\n\n${transformedCode}`)
+        }
+
+        if (file.meta?.pluginKey) {
+          // run only for pluginKey defined in the meta of the file
+          return pluginManager.hookForPlugin({
+            pluginKey: file.meta?.pluginKey,
+            hookName: 'writeFile',
+            parameters: [transformedCode, path],
+          })
+        }
+
+        await pluginManager.hookFirst({
           hookName: 'writeFile',
           parameters: [transformedCode, path],
         })

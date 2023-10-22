@@ -3,6 +3,7 @@ import pathParser from 'node:path'
 import { createExportDeclaration, createImportDeclaration, print } from '@kubb/parser'
 
 import isEqual from 'lodash.isequal'
+import { orderBy } from 'natural-orderby'
 
 import { TreeNode } from '../../utils/index.ts'
 
@@ -145,9 +146,16 @@ export function isExtensionAllowed(baseName: string): boolean {
 }
 
 export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.Export> {
-  return exports.reduce((prev, curr) => {
+  const combinedExports = orderBy(exports, [(v) => !v.isTypeOnly], ['asc']).reduce((prev, curr) => {
     const name = curr.name
     const prevByPath = prev.findLast((imp) => imp.path === curr.path)
+    const prevByPathAndIsTypeOnly = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly)
+
+    if (prevByPathAndIsTypeOnly) {
+      // we already have an export that has the same path but uses `isTypeOnly` (export type ...)
+      return prev
+    }
+
     const uniquePrev = prev.findLast(
       (imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly && imp.asAlias === curr.asAlias,
     )
@@ -174,14 +182,20 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
 
     return [...prev, curr]
   }, [] as Array<KubbFile.Export>)
+
+  return orderBy(combinedExports, [(v) => !v.isTypeOnly, (v) => v.asAlias], ['desc', 'desc'])
 }
 
-export function combineImports(imports: Array<KubbFile.Import>, exports: Array<KubbFile.Export>, source: string): Array<KubbFile.Import> {
-  return imports.reduce((prev, curr) => {
+export function combineImports(imports: Array<KubbFile.Import>, exports: Array<KubbFile.Export>, source?: string): Array<KubbFile.Import> {
+  const combinedImports = orderBy(imports, [(v) => !v.isTypeOnly], ['asc']).reduce((prev, curr) => {
     let name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
 
     const hasImportInSource = (importName: string) => {
-      const checker = (name?: string) => name && !!source.includes(`${name}`)
+      if (!source) {
+        return true
+      }
+
+      const checker = (name?: string) => name && !!source.includes(name)
       return checker(importName) || exports.some(({ name }) => (Array.isArray(name) ? name.some(checker) : checker(name)))
     }
 
@@ -191,6 +205,12 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
 
     const prevByPath = prev.findLast((imp) => imp.path === curr.path && imp.isTypeOnly === curr.isTypeOnly)
     const uniquePrev = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly)
+    const prevByPathNameAndIsTypeOnly = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly)
+
+    if (prevByPathNameAndIsTypeOnly) {
+      // we already have an export that has the same path but uses `isTypeOnly` (import type ...)
+      return prev
+    }
 
     if (uniquePrev || (Array.isArray(name) && !name.length)) {
       return prev
@@ -218,36 +238,22 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
 
     return [...prev, curr]
   }, [] as Array<KubbFile.Import>)
+
+  return orderBy(combinedImports, [(v) => !v.isTypeOnly], ['desc'])
 }
 
 export function createFileSource(file: KubbFile.File): string {
-  let { source } = file
-
   if (!isExtensionAllowed(file.baseName)) {
     return file.source
   }
 
   const exports = file.exports ? combineExports(file.exports) : []
-  const imports = file.imports ? combineImports(file.imports, exports, source) : []
+  const imports = file.imports ? combineImports(file.imports, exports, file.source) : []
 
   const importNodes = imports.map((item) => createImportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly }))
-  const importSource = print(importNodes)
-
   const exportNodes = exports.map((item) => createExportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly, asAlias: item.asAlias }))
-  const exportSource = print(exportNodes)
 
-  // need to after `combineImports`
-  source = getEnvSource(file.source, file.env)
-
-  if (importSource) {
-    source = `${importSource}\n${source}`
-  }
-
-  if (exportSource) {
-    source = `${exportSource}\n${source}`
-  }
-
-  return source
+  return [print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')
 }
 
 type SearchAndReplaceOptions = {

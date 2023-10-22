@@ -64,6 +64,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return transformers?.name?.(resolvedName) || resolvedName
     },
+    async writeFile(source, path) {
+      if (!path.endsWith('.ts') || !source) {
+        return
+      }
+
+      await this.fileManager.write(source, path)
+    },
     async buildStart() {
       const [swaggerPlugin] = pluginsOptions
 
@@ -154,7 +161,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
       }
 
-      await this.fileManager.addIndexes(root, '.ts')
+      await this.fileManager.addIndexes({ root, extName: '.ts', meta: { pluginKey: this.plugin.key } })
     },
   }
 })
