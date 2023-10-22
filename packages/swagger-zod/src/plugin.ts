@@ -59,7 +59,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return
       }
 
-      await this.fileManager.write(source, path)
+      return this.fileManager.write(source, path)
     },
     async buildStart() {
       const [swaggerPlugin] = pluginsOptions

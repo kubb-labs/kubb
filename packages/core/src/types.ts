@@ -265,7 +265,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Write the result to the file-system based on the id(defined by `resolvePath` or changed by `load`).
    * @type hookParallel
    */
-  writeFile?: (this: Omit<PluginContext, 'addFile'>, source: string | undefined, path: KubbFile.Path) => PossiblePromise<void>
+  writeFile?: (this: Omit<PluginContext, 'addFile'>, source: string | undefined, path: KubbFile.Path) => PossiblePromise<string | void>
   /**
    * End of the plugin lifecycle.
    * @type hookParallel

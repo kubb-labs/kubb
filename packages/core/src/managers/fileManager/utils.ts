@@ -105,7 +105,7 @@ export function getIndexes(
     return files
   }
 
-  const files = fileReducer([], tree)
+  const files = fileReducer([], tree).reverse()
 
   const filteredFiles = filter ? files.filter(filter) : files
 

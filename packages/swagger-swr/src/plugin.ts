@@ -84,7 +84,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return
       }
 
-      await this.fileManager.write(source, path)
+      return this.fileManager.write(source, path)
     },
     async buildEnd() {
       if (this.config.output.write === false) {

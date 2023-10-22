@@ -2,7 +2,7 @@ import pc from 'picocolors'
 
 import { createFileSource } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
-import { clean, createLogger, randomPicoColour, read, timeout, URLPath } from './utils/index.ts'
+import { clean, createLogger, randomPicoColour, read, URLPath } from './utils/index.ts'
 import { isPromise } from './utils/isPromise.ts'
 import { LogLevel } from './types.ts'
 
@@ -75,7 +75,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 
       if (config.output.write || config.output.write === undefined) {
         if (logger.logLevel === 'debug') {
-          logger.info(`Writing file ${file.path} { ${JSON.stringify(file.meta, undefined, 2)} } with source\n\n${transformedCode}`)
+          logger.info(`Writing file ${file.path} { ${JSON.stringify(file.meta, undefined, 2)} }\nwith source\n\n${transformedCode}`)
         }
 
         if (file.meta?.pluginKey) {
@@ -87,7 +87,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
           })
         }
 
-        await pluginManager.hookFirst({
+        return pluginManager.hookFirst({
           hookName: 'writeFile',
           parameters: [transformedCode, path],
         })

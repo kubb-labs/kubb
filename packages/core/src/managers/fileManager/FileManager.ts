@@ -18,6 +18,7 @@ export class FileManager {
   #cache: Map<KubbFile.Path, CacheItem[]> = new Map()
 
   #task?: QueueJob<KubbFile.ResolvedFile>
+  #isWriting = false
 
   #queue?: Queue
 
@@ -52,18 +53,12 @@ export class FileManager {
     this.#cache.set(resolvedFile.path, [{ cancel: () => controller.abort(), ...resolvedFile }])
 
     if (this.#queue) {
-      try {
-        await this.#queue.run(
-          async () => {
-            // be sure that files are closed by the OS
-            await timeout(100)
-            return this.#task?.(resolvedFile)
-          },
-          { controller },
-        )
-      } catch {
-        return resolvedFile
-      }
+      await this.#queue.run(
+        async () => {
+          return this.#task?.(resolvedFile)
+        },
+        { controller },
+      )
     }
 
     return resolvedFile
@@ -98,7 +93,7 @@ export class FileManager {
       return undefined
     }
 
-    return Promise.all(
+    const result = await Promise.all(
       files.map((file) => {
         return this.addOrAppend({
           ...file,
@@ -106,6 +101,10 @@ export class FileManager {
         })
       }),
     )
+
+    // console.log({result: JSON.stringify(result, undefined,2)})
+
+    return result
   }
 
   #append(path: KubbFile.Path, file: KubbFile.ResolvedFile): void {
@@ -136,23 +135,22 @@ export class FileManager {
     this.#cache.delete(path)
   }
 
-  async write(...params: Parameters<typeof write>): Promise<void> {
-    if (this.#queue) {
-      return this.#queue.run(async () => {
-        return write(...params)
-      })
+  async write(...params: Parameters<typeof write>): Promise<string | undefined> {
+    if (!this.#isWriting) {
+      this.#isWriting = true
+
+      const text = await write(...params)
+
+      this.#isWriting = false
+      return text
     }
 
-    return write(...params)
+    await timeout(0)
+
+    return this.write(...params)
   }
 
   async read(...params: Parameters<typeof read>): Promise<string> {
-    if (this.#queue) {
-      return this.#queue.run(async () => {
-        return read(...params)
-      })
-    }
-
     return read(...params)
   }
 }
