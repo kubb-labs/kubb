@@ -51,7 +51,7 @@
     "eslint-plugin-react": "~7.33.2",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-unused-imports": "~3.0.0",
-    "eslint-plugin-vitest": "~0.3.6",
+    "eslint-plugin-vitest": "~0.3.8",
     "eslint-plugin-vitest-globals": "~1.4.0",
     "globals": "^13.23.0"
   },
