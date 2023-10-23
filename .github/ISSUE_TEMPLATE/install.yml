@@ -8,7 +8,6 @@ body:
     attributes:
       value: |
         Thank you for submitting a bug report. It helps make `Kubb` better.
-
   - type: input
     attributes:
       label: What platform is your computer?
