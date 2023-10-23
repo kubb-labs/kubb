@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.14.3](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.14.0...@kubb/cli-v1.14.3) (2023-10-23)
+
+
+### 🐞 Bug Fixes
+
+* replace 'importModule' by 'PackageManager' ([f66065a](https://github.com/kubb-project/kubb/commit/f66065af900041eae6c26f301abaeef25d69157b))
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.14.2 ([91e61ac](https://github.com/kubb-project/kubb/commit/91e61acde1c3824c40f291e1142363eaa95fb1cf))
+* release 1.14.3 ([695f324](https://github.com/kubb-project/kubb/commit/695f3242d61ac13f4284f3bdf529a3bc0e353244))
+
 ## [1.14.0](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.13.0...@kubb/cli-v1.14.0) (2023-10-20)
 
 

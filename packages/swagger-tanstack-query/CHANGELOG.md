@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.14.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.14.0...@kubb/swagger-tanstack-query-v1.14.3) (2023-10-23)
+
+
+### 🐞 Bug Fixes
+
+* add `as QueryKey` cast for `@tanstack/react-query` v5 ([67a3073](https://github.com/kubb-project/kubb/commit/67a30731713b2f1a047f0cd72f728db752322305))
+* use of `fileManager.addIndexes` and `URLPath` without static functions ([9bc291d](https://github.com/kubb-project/kubb/commit/9bc291d5b9126b1d3f26803e6a1c54a3b008f634))
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.14.2 ([91e61ac](https://github.com/kubb-project/kubb/commit/91e61acde1c3824c40f291e1142363eaa95fb1cf))
+* release 1.14.3 ([695f324](https://github.com/kubb-project/kubb/commit/695f3242d61ac13f4284f3bdf529a3bc0e353244))
+
 ## [1.14.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.13.0...@kubb/swagger-tanstack-query-v1.14.0) (2023-10-20)
 
 
