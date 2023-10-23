@@ -1,3 +1,4 @@
+export { executeStrategies } from './executeStrategies.ts'
 export * from './ParallelPluginError.ts'
 export * from './PluginError.ts'
 export * from './PluginManager.ts'

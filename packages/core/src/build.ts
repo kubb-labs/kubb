@@ -4,6 +4,7 @@ import { createFileSource } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
 import { clean, createLogger, randomPicoColour, read, URLPath } from './utils/index.ts'
 import { isPromise } from './utils/isPromise.ts'
+import { isInputPath } from './config.ts'
 import { LogLevel } from './types.ts'
 
 import type { KubbFile } from './managers/fileManager/index.ts'
@@ -29,14 +30,14 @@ async function transformReducer(
 }
 
 export async function build(options: BuildOptions): Promise<BuildOutput> {
-  const { config, logger = createLogger(LogLevel.silent) } = options
+  const { config, logger = createLogger({ logLevel: LogLevel.silent }) } = options
 
   try {
-    if ('path' in config.input && !new URLPath(config.input.path).isURL) {
+    if (isInputPath(config) && !new URLPath(config.input.path).isURL) {
       await read(config.input.path)
     }
   } catch (e) {
-    if ('path' in config.input) {
+    if (isInputPath(config)) {
       throw new Error(
         'Cannot read file/URL defined in `input.path` or set with `kubb generate PATH` in the CLI of your Kubb config ' + pc.dim(config.input.path),
         {

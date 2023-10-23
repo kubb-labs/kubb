@@ -40,6 +40,7 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
   })
 
   const meta = {
+    name: config.name,
     plugins: status === 'success'
       ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
       : `${pc.red(`${failedPlugins?.length ?? 1} failed`)}, ${pluginsCount} total`,
@@ -57,8 +58,9 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
   logs.push(
     [
       [`\n`, true],
+      [`     ${pc.bold('Name:')}      ${meta.name}`, !!meta.name],
       [`  ${pc.bold('Plugins:')}      ${meta.plugins}`, true],
-      [`   ${pc.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
+      [`    ${pc.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
       [`${pc.bold('Generated:')}      ${meta.filesCreated} files`, true],
       [`     ${pc.bold('Time:')}      ${meta.time}`, true],
       [`   ${pc.bold('Output:')}      ${meta.output}`, true],

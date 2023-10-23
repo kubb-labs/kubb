@@ -1,6 +1,6 @@
 import pathParser from 'node:path'
 
-import { LogLevel, SummaryError, Warning } from '@kubb/core'
+import { executeStrategies, isInputPath, LogLevel, SummaryError, Warning } from '@kubb/core'
 
 import { cac } from 'cac'
 import pc from 'picocolors'
@@ -49,12 +49,29 @@ async function generateAction(input: string, CLIOptions: CLIOptions) {
 
   const config = await getConfig(result, CLIOptions)
 
-  if (CLIOptions.watch && 'path' in config.input) {
-    return startWatcher([input || config.input.path], async (paths) => {
-      await generate({ config, CLIOptions })
-      spinner.spinner = 'simpleDotsScrolling'
-      spinner.start(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
-    })
+  if (CLIOptions.watch) {
+    if (Array.isArray(config)) {
+      throw new Error('Cannot use watcher with multiple KubbConfigs(array)')
+    }
+
+    if (isInputPath(config)) {
+      return startWatcher([input || config.input.path], async (paths) => {
+        await generate({ config, CLIOptions })
+        spinner.spinner = 'simpleDotsScrolling'
+        spinner.start(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
+      })
+    }
+  }
+
+  if (Array.isArray(config)) {
+    const promises = config.map(item => () => generate({ input, config: item, CLIOptions }))
+
+    await executeStrategies.hookSeq(promises)
+
+    // await generate({ input, config: config[0]!, CLIOptions })
+    // await generate({ input, config: config[1]!, CLIOptions })
+
+    return
   }
 
   await generate({ input, config, CLIOptions })

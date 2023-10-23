@@ -7,6 +7,7 @@ import { isPromise, isPromiseRejectedResult } from '../../utils/isPromise.ts'
 import { Queue } from '../../utils/Queue.ts'
 import { transformReservedWord } from '../../utils/transformers/transformReservedWord.ts'
 import { FileManager } from '../fileManager/FileManager.ts'
+import { executeStrategies } from './executeStrategies.ts'
 import { ParallelPluginError } from './ParallelPluginError.ts'
 import { PluginError } from './PluginError.ts'
 import { pluginParser } from './pluginParser.ts'
@@ -369,18 +370,17 @@ export class PluginManager {
    * Chains plugins
    */
   hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
-    let promise: Promise<void | null> = Promise.resolve()
-    for (const plugin of this.#getSortedPlugins()) {
-      promise = promise.then(() => {
+    const promises = this.#getSortedPlugins().map(plugin => {
+      return () =>
         this.#execute({
           strategy: 'hookSeq',
           hookName,
           parameters,
           plugin,
         })
-      })
-    }
-    return promise.then(noReturn)
+    })
+
+    return executeStrategies.hookSeq(promises)
   }
 
   #getSortedPlugins(hookName?: keyof PluginLifecycle): KubbPlugin[] {
@@ -402,7 +402,6 @@ export class PluginManager {
 
   getPluginsByKey(hookName: keyof PluginLifecycle, pluginKey: KubbPlugin['key']): KubbPlugin[] {
     const plugins = [...this.plugins]
-
     const [searchKind, searchPluginName, searchIdentifier] = pluginKey
 
     const pluginByPluginName = plugins.filter(plugin => plugin[hookName]).filter((item) => {
@@ -569,5 +568,3 @@ export class PluginManager {
     throw pluginError
   }
 }
-
-function noReturn() {}

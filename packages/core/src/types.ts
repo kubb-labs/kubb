@@ -29,14 +29,14 @@ export type KubbUserConfig = Omit<KubbConfig, 'root' | 'plugins'> & {
   plugins?: Array<Omit<KubbUserPlugin, 'api'> | KubbUnionPlugins> | KubbObjectPlugins
 }
 
-type InputPath = {
+export type InputPath = {
   /**
    * Path to be used as the input. This can be an absolute path or a path relative to the `root`.
    */
   path: string
 }
 
-type InputData = {
+export type InputData = {
   /**
    * `string` or `object` containing the data.
    */
@@ -48,14 +48,18 @@ type Input = InputPath | InputData
 /**
  * @private
  */
-export type KubbConfig = {
+export type KubbConfig<TInput = Input> = {
+  /**
+   * Optional config name to show in CLI output
+   */
+  name?: string
   /**
    * Project root directory. Can be an absolute path, or a path relative from
    * the location of the config file itself.
    * @default process.cwd()
    */
   root: string
-  input: Input
+  input: TInput
   output: {
     /**
      * Path to be used to export all generated files.
@@ -334,6 +338,8 @@ export type Prettify<T> =
   & {}
 
 export type PossiblePromise<T> = Promise<T> | T
+
+export type PromiseFunc<T, T2 = never> = () => T2 extends never ? Promise<T> : Promise<T> | T2
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
 type LastOf<T> = UnionToIntersection<T extends any ? () => T : never> extends () => infer R ? R : never

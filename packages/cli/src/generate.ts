@@ -1,4 +1,5 @@
 import { build, createLogger, LogLevel, ParallelPluginError, PluginError, SummaryError } from '@kubb/core'
+import { randomPicoColour } from '@kubb/core'
 
 import { execa } from 'execa'
 import pc from 'picocolors'
@@ -70,7 +71,11 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
 }
 
 export default async function generate({ input, config, CLIOptions }: GenerateProps): Promise<void> {
-  const logger = createLogger(CLIOptions.logLevel || LogLevel.silent, spinner)
+  const logger = createLogger({ logLevel: CLIOptions.logLevel || LogLevel.silent, name: config.name, spinner })
+
+  if (config.name) {
+    spinner.prefixText = randomPicoColour(config.name)
+  }
 
   const hrstart = process.hrtime()
 
@@ -113,10 +118,10 @@ export default async function generate({ input, config, CLIOptions }: GeneratePr
       logger,
     })
 
+    await executeHooks({ hooks: config.hooks, logLevel })
+
     spinner.suffixText = ''
     spinner.succeed(`🚀 Build completed ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
-
-    await executeHooks({ hooks: config.hooks, logLevel })
 
     const summary = getSummary({ pluginManager: output.pluginManager, config, status: 'success', hrstart, logLevel: CLIOptions.logLevel })
     console.log(summary.join(''))

@@ -18,7 +18,7 @@ describe('ParallelPluginError', () => {
   }
   const queueTaskMock = vi.fn()
   const pluginManager = new PluginManager(config, {
-    logger: createLogger('silent'),
+    logger: createLogger({ logLevel: 'silent' }),
     task: queueTaskMock,
   })
 
