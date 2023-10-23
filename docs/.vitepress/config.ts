@@ -278,6 +278,10 @@ export default defineConfig({
                 link: '/examples/tanstack-query/vue-query',
               },
               {
+                text: 'Vue-Query v5 <span class="new">new</span>',
+                link: '/examples/tanstack-query/vue-query-v5',
+              },
+              {
                 text: 'Svelte-Query',
                 link: '/examples/tanstack-query/svelte-query',
               },

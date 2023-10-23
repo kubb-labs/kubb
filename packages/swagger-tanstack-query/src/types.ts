@@ -138,8 +138,13 @@ export type FrameworkImports = {
   mutate: {
     useMutation: string
     UseMutationOptions: string
+    /**
+     * v5 only
+     */
+    MutationObserverOptions?: string
     UseMutationResult: string
   }
+  isV5: boolean
 }
 
 export type FileMeta = {

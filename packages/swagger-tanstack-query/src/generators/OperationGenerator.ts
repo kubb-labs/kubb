@@ -74,10 +74,11 @@ export class OperationGenerator extends Generator<Options> {
   getFrameworkSpecificImports(framework: Options['framework']): FrameworkImports {
     const { pluginManager } = this.context
 
-    const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
-
     if (framework === 'svelte') {
+      const isV5 = new PackageManager().isValidSync('@tanstack/svelte-query', '>=5')
+
       return {
+        isV5,
         getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginName }),
         query: {
           useQuery: 'createQuery',
@@ -85,6 +86,7 @@ export class OperationGenerator extends Generator<Options> {
           UseQueryResult: 'CreateQueryResult',
           UseQueryOptions: 'CreateQueryOptions',
           queryOptions: isV5 ? 'queryOptions' : undefined,
+          QueryObserverOptions: isV5 ? 'QueryObserverOptions' : undefined,
           UseInfiniteQueryOptions: 'CreateInfiniteQueryOptions',
           InfiniteQueryObserverOptions: isV5 ? 'InfiniteQueryObserverOptions' : undefined,
           infiniteQueryOptions: isV5 ? 'infiniteQueryOptions' : undefined,
@@ -95,13 +97,17 @@ export class OperationGenerator extends Generator<Options> {
         mutate: {
           useMutation: 'createMutation',
           UseMutationOptions: 'CreateMutationOptions',
+          MutationObserverOptions: 'MutationObserverOptions',
           UseMutationResult: 'CreateMutationResult',
         },
       }
     }
 
     if (framework === 'solid') {
+      const isV5 = new PackageManager().isValidSync('@tanstack/solid-query', '>=5')
+
       return {
+        isV5,
         getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginName }),
         query: {
           useQuery: 'createQuery',
@@ -109,6 +115,7 @@ export class OperationGenerator extends Generator<Options> {
           UseQueryResult: 'CreateQueryResult',
           UseQueryOptions: 'CreateQueryOptions',
           queryOptions: isV5 ? 'queryOptions' : undefined,
+          QueryObserverOptions: isV5 ? 'QueryObserverOptions' : undefined,
           UseInfiniteQueryOptions: 'CreateInfiniteQueryOptions',
           InfiniteQueryObserverOptions: isV5 ? 'InfiniteQueryObserverOptions' : undefined,
           infiniteQueryOptions: isV5 ? 'infiniteQueryOptions' : undefined,
@@ -119,20 +126,24 @@ export class OperationGenerator extends Generator<Options> {
         mutate: {
           useMutation: 'createMutation',
           UseMutationOptions: 'CreateMutationOptions',
+          MutationObserverOptions: 'MutationObserverOptions',
           UseMutationResult: 'CreateMutationResult',
         },
       }
     }
 
     if (framework === 'vue') {
+      const isV5 = new PackageManager().isValidSync('@tanstack/vue-query', '>=5')
+
       return {
+        isV5,
         getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginName }),
         query: {
           useQuery: 'useQuery',
           QueryKey: 'QueryKey',
           UseQueryResult: 'UseQueryReturnType',
           UseQueryOptions: 'UseQueryOptions',
-          queryOptions: isV5 ? 'queryOptions' : undefined,
+          QueryObserverOptions: isV5 ? 'QueryObserverOptions' : undefined,
           UseInfiniteQueryOptions: 'UseInfiniteQueryOptions',
           InfiniteQueryObserverOptions: isV5 ? 'InfiniteQueryObserverOptions' : undefined,
           infiniteQueryOptions: isV5 ? 'infiniteQueryOptions' : undefined,
@@ -142,13 +153,17 @@ export class OperationGenerator extends Generator<Options> {
         },
         mutate: {
           useMutation: 'useMutation',
-          UseMutationOptions: 'VueMutationObserverOptions',
+          UseMutationOptions: isV5 ? 'MutationObserverOptions' : 'VueMutationObserverOptions',
+          MutationObserverOptions: 'MutationObserverOptions',
           UseMutationResult: 'UseMutationReturnType',
         },
       }
     }
 
+    const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
+
     return {
+      isV5,
       getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginName }),
       query: {
         useQuery: 'useQuery',
@@ -167,6 +182,7 @@ export class OperationGenerator extends Generator<Options> {
       mutate: {
         useMutation: 'useMutation',
         UseMutationOptions: 'UseMutationOptions',
+        MutationObserverOptions: 'MutationObserverOptions',
         UseMutationResult: 'UseMutationResult',
       },
     }
@@ -208,12 +224,14 @@ export class OperationGenerator extends Generator<Options> {
     }
 
     if (framework === 'vue') {
+      const isV5 = this.getFrameworkSpecificImports('vue').isV5
+
       const values = Object.values(this.getFrameworkSpecificImports('vue')[type])
         .filter(Boolean)
         .filter((item) => item !== 'VueMutationObserverOptions')
 
       return [
-        {
+        isV5 ? undefined : {
           name: ['VueMutationObserverOptions'],
           path: '@tanstack/vue-query/build/lib/useMutation',
           isTypeOnly: true,
@@ -236,7 +254,7 @@ export class OperationGenerator extends Generator<Options> {
           name: values.filter((item) => !/[A-Z]/.test(item.charAt(0))),
           path: '@tanstack/vue-query',
         },
-      ]
+      ].filter(Boolean)
     }
 
     const values = Object.values(this.getFrameworkSpecificImports('react')[type]).filter(Boolean)
