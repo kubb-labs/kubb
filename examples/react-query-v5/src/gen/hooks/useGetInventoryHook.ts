@@ -10,7 +10,7 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
   const queryKey = getInventoryQueryKey()
 
   return queryOptions({
-    queryKey,
+    queryKey: queryKey as QueryKey,
     queryFn: () => {
       return client<TData, TError>({
         method: 'get',

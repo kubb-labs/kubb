@@ -11,7 +11,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
   const queryKey = loginUserQueryKey(params)
 
   return queryOptions({
-    queryKey,
+    queryKey: queryKey as QueryKey,
     queryFn: () => {
       return client<TData, TError>({
         method: 'get',

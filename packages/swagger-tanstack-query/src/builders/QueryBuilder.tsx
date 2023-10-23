@@ -111,13 +111,14 @@ export class QueryBuilder extends OasBuilder<Options> {
       queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'refParams' : ''})`
     }
 
-    if (isV5) {
+    // import { queryOptions } from "@tanstack/react-query" only exists for the React framework
+    if (isV5 && framework === 'react') {
       codes.push(`
       export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
         const queryKey = ${queryKey};
 
         return queryOptions({
-          queryKey,
+          queryKey: queryKey as QueryKey,
           queryFn: () => {
             ${unrefs}
             return client<${clientGenerics.join(', ')}>({

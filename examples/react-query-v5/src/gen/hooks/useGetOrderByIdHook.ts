@@ -11,7 +11,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
   const queryKey = getOrderByIdQueryKey(orderId)
 
   return queryOptions({
-    queryKey,
+    queryKey: queryKey as QueryKey,
     queryFn: () => {
       return client<TData, TError>({
         method: 'get',
