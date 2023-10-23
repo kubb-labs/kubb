@@ -239,6 +239,29 @@ Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/pl
 }
 ```
 
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    [
+      '@kubb/swagger',
+      {
+        output: 'schemas',
+        validate: true,
+      },
+    ],
+  ],
+})
+```
+
 :::
 
 ## hooks

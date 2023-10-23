@@ -127,7 +127,14 @@ export default defineConfig(async () => {
     output: {
       path: './src/gen',
     },
-    plugins: [createSwagger({ 'output': 'schemas', 'validate': true })],
+    plugins: [
+      createSwagger(
+        {
+          'output': 'schemas',
+          'validate': true,
+        },
+      ),
+    ],
   }
 })
 ```
@@ -153,15 +160,21 @@ You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packa
     "path": "./src/gen"
   },
   "logLevel": "info",
-  "plugins": ["@kubb/swagger", { "output": "schemas", "validate": true }]
+  "plugins": [
+    [
+      "@kubb/swagger",
+      {
+        "output": "schemas",
+        "validate": true
+      }
+    ]
+  ]
 }
 ```
 
 :::
 
-## Object
-
-### Example with a plugin
+<Badge type="warning" text="experimental" /> Since version `1.15.x` we also support using multiple of the same plugin.
 
 ::: code-group
 
@@ -176,9 +189,22 @@ You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packa
     "path": "./src/gen"
   },
   "logLevel": "info",
-  "plugins": {
-    "@kubb/swagger": { "output": "schemas", "validate": true }
-  }
+  "plugins": [
+    [
+      "@kubb/swagger",
+      {
+        "output": "schemas",
+        "validate": true
+      }
+    ],
+    [
+      "@kubb/swagger",
+      {
+        "output": "schemas2",
+        "validate": true
+      }
+    ]
+  ]
 }
 ```
 
