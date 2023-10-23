@@ -22,7 +22,6 @@ With the Swagger Tanstack Query plugin you can create:
 - [svelte-query](https://tanstack.com/query/latest/docs/svelte) primitives based on an operation in the Swagger file.
 - [vue-query](https://tanstack.com/query/latest/docs/vue) hooks based on an operation in the Swagger file.
 
-
 ## Installation
 
 ::: code-group

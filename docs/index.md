@@ -46,7 +46,7 @@ features:
     details: <a href="https://axios-http.com/">Promise based HTTP calls</a> with a custom Client to set baseURL, headers, ... options. <div class="learn-more"><a href="/plugins/swagger-client/">Learn more</a></div>
   - icon:
       src: ./feature/msw.svg
-    title: MSW
+    title: MSW <span class="new">v2 support</span>
     details: Use of <a href="https://mswjs.io/">MSW</a> to create API mocks based on faker data. <div class="learn-more"><a href="/plugins/swagger-msw">Learn more</a></div>
   - icon:
       src: ./feature/zod.svg

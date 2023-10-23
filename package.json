@@ -29,7 +29,7 @@
     "format:dprint": "dprint fmt",
     "format:pack": "npx sort-package-json package.json packages/**/**/package.json examples/*/package.json docs/package.json e2e/package.json",
     "format:prettier": "prettier --config ./configs/prettier.config.cjs --write .",
-    "generate": "turbo run generate --continue",
+    "generate": "turbo run generate --filter=./examples/* --continue",
     "graph": "npx nx graph ",
     "install:csb": "corepack enable && pnpm install --frozen-lockfile",
     "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty ./packages/*",

@@ -7,6 +7,14 @@ outline: deep
 
 # @kubb/swagger-msw <a href="https://paka.dev/npm/@kubb/swagger-mws@latest/api">🦙</a>
 
+::: tip
+<img src="https://pbs.twimg.com/media/F9HHE4jXkAA_zm7?format=jpg&name=medium" style="max-width: 30vw"/><br/>
+MSW v2 is fully supported, see [Migrating to MSW 2.0.0](https://mswjs.io/docs/migrations/1.x-to-2.x).<br/>
+
+Just install v2 in your project and `Kubb` will check the `package.json` to see if you are using v1 or v2.
+
+:::
+
 With the MSW plugin you can use [MSW](https://mswjs.io/) to create API mocks based on a Swagger file.
 
 ## Installation
