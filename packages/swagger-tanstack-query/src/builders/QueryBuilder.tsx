@@ -118,7 +118,7 @@ export class QueryBuilder extends OasBuilder<Options> {
         const queryKey = ${queryKey};
         
         return queryOptions({
-          queryKey,
+          queryKey: queryKey as QueryKey,
           queryFn: () => {
             ${unrefs}
             return client<${clientGenerics.join(', ')}>({
