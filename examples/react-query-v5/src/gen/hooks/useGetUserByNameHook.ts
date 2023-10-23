@@ -11,7 +11,7 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
   const queryKey = getUserByNameQueryKey(username)
 
   return queryOptions({
-    queryKey,
+    queryKey: queryKey as QueryKey,
     queryFn: () => {
       return client<TData, TError>({
         method: 'get',
