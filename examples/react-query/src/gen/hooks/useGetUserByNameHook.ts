@@ -1,5 +1,5 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 
@@ -42,6 +42,50 @@ export function useGetUserByNameHook<TData = GetUserByNameQueryResponse, TError 
     ...getUserByNameQueryOptions<TData, TError>(username, clientOptions),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
+
+  query.queryKey = queryKey as QueryKey
+
+  return query
+}
+
+export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+  username: GetUserByNamePathParams['username'],
+  options: Partial<Parameters<typeof client>[0]> = {},
+): UseInfiniteQueryOptions<TData, TError> {
+  const queryKey = getUserByNameQueryKey(username)
+
+  return {
+    queryKey,
+    queryFn: ({ pageParam }) => {
+      return client<TData, TError>({
+        method: 'get',
+        url: `/user/${username}`,
+
+        ...options,
+      }).then(res => res.data)
+    },
+  }
+}
+
+/**
+ * @summary Get user by user name
+ * @link /user/:username
+ */
+
+export function useGetUserByNameHookInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+  username: GetUserByNamePathParams['username'],
+  options: {
+    query?: UseInfiniteQueryOptions<TData, TError>
+    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+  } = {},
+): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
+
+  const query = useInfiniteQuery<TData, TError>({
+    ...getUserByNameQueryOptionsInfinite<TData, TError>(username, clientOptions),
+    ...queryOptions,
+  }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey as QueryKey
 

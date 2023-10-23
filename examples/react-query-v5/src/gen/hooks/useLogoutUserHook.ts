@@ -1,5 +1,14 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import { useQuery, queryOptions } from '@tanstack/react-query'
+import type {
+  QueryKey,
+  UseQueryResult,
+  UseQueryOptions,
+  QueryObserverOptions,
+  UseInfiniteQueryOptions,
+  InfiniteQueryObserverOptions,
+  UseInfiniteQueryResult,
+  InfiniteData,
+} from '@tanstack/react-query'
+import { useQuery, queryOptions, infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
@@ -9,7 +18,7 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
 ): UseQueryOptions<TData, TError> {
   const queryKey = logoutUserQueryKey()
 
-  return queryOptions({
+  return queryOptions<TData, TError>({
     queryKey: queryKey as QueryKey,
     queryFn: () => {
       return client<TData, TError>({
@@ -28,7 +37,7 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
  */
 
 export function useLogoutUserHook<TData = LogoutUserQueryResponse, TError = unknown>(options: {
-  query?: UseQueryOptions<TData, TError>
+  query?: QueryObserverOptions<TData, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>
 } = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -38,6 +47,54 @@ export function useLogoutUserHook<TData = LogoutUserQueryResponse, TError = unkn
     ...logoutUserQueryOptions<TData, TError>(clientOptions),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
+
+  query.queryKey = queryKey as QueryKey
+
+  return query
+}
+
+export function logoutUserQueryOptionsInfinite<
+  TData = LogoutUserQueryResponse,
+  TError = unknown,
+  TInfiniteDate = InfiniteData<LogoutUserQueryResponse extends [] ? LogoutUserQueryResponse[number] : LogoutUserQueryResponse>,
+>(options: Partial<Parameters<typeof client>[0]> = {}): UseInfiniteQueryOptions<TData, TError, TInfiniteDate> {
+  const queryKey = logoutUserQueryKey()
+
+  return infiniteQueryOptions<TData, TError, TInfiniteDate>({
+    queryKey,
+    queryFn: ({ pageParam }) => {
+      return client<TData, TError>({
+        method: 'get',
+        url: `/user/logout`,
+
+        ...options,
+      }).then(res => res.data)
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage['id'],
+  })
+}
+
+/**
+ * @summary Logs out current logged in user session
+ * @link /user/logout
+ */
+
+export function useLogoutUserHookInfinite<
+  TData = LogoutUserQueryResponse,
+  TError = unknown,
+  TInfiniteDate = InfiniteData<LogoutUserQueryResponse extends [] ? LogoutUserQueryResponse[number] : LogoutUserQueryResponse>,
+>(options: {
+  query?: InfiniteQueryObserverOptions<TData, TError, TInfiniteDate>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
+
+  const query = useInfiniteQuery<TData, TError, TInfiniteDate>({
+    ...logoutUserQueryOptionsInfinite<TData, TError, TInfiniteDate>(clientOptions),
+    ...queryOptions,
+  }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey as QueryKey
 

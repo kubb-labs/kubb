@@ -8,6 +8,10 @@ type Infinite = {
    * @default `'id'`
    */
   queryParam?: string
+  /**
+   * For v5
+   */
+  initialPageParam?: number
 }
 
 export type Options = {
@@ -104,13 +108,30 @@ export type FrameworkImports = {
     QueryKey: string
     UseQueryResult: string
     UseQueryOptions: string
-    QueryOptions: string
-    /*
-     * v5
+    /**
+     * v5 only
      */
     queryOptions?: string
-    // infinite
+    /**
+     * v5 only
+     */
+    QueryObserverOptions?: string
+    /**
+     * Infinte
+     */
     UseInfiniteQueryOptions: string
+    /**
+     * v5 only
+     */
+    InfiniteQueryObserverOptions?: string
+    /**
+     * v5 only
+     */
+    infiniteQueryOptions?: string
+    /**
+     * v5 only
+     */
+    InfiniteData?: string
     UseInfiniteQueryResult: string
     useInfiniteQuery: string
   }

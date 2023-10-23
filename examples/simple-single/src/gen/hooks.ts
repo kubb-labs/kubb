@@ -1,4 +1,4 @@
-import type { UseMutationOptions, UseMutationResult, QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, QueryKey, UseQueryResult, UseQueryOptions } from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'

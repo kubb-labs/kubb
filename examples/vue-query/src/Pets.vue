@@ -17,8 +17,8 @@ export default defineComponent({
         status: props.status as FindPetsByStatusQueryParams["status"]
       }
     })
-    
-    const petsQuery = useFindPetsByStatus(params)
+
+    const petsQuery = useFindPetsByStatus(params, {query: {enabled: true}})
     const pets = computed(() => unref(petsQuery?.data));
 
     return {

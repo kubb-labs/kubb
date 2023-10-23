@@ -20,9 +20,7 @@ type BaseOptions = {
 }
 
 type QueryOptions = BaseOptions & {
-  infinite?: {
-    queryParam?: string
-  }
+  infinite?: PluginOptions['infinite']
 }
 
 type MutationOptions = BaseOptions
@@ -112,13 +110,12 @@ export class QueryBuilder extends OasBuilder<Options> {
       queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'refParams' : ''})`
     }
 
-    // import { queryOptions } from "@tanstack/react-query" only exists for the React framework
-    if (isV5 && framework === 'react') {
+    if (isV5) {
       codes.push(`
       export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
         const queryKey = ${queryKey};
 
-        return queryOptions({
+        return ${frameworkImports.query.queryOptions}<${queryGenerics.join(', ')}>({
           queryKey: queryKey as QueryKey,
           queryFn: () => {
             ${unrefs}
@@ -168,6 +165,7 @@ export class QueryBuilder extends OasBuilder<Options> {
     const queryKeyName = this.queryKey.name
     const queryOptionsName = this.queryOptions.name
     const name = frameworkImports.getName(operation)
+    const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
     const pathParams = getParams(schemas.pathParams, {
       override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
     }).toString()
@@ -206,7 +204,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       {
         name: 'options',
         type: `{
-          query?: ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}>,
+          query?: ${isV5 ? frameworkImports.query.QueryObserverOptions : frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
         }`,
         default: '{}',
@@ -264,12 +262,13 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
   // infinite
   get queryOptionsInfinite(): QueryResult {
-    const { framework, frameworkImports, errors, infinite: { queryParam = 'id' } = {}, dataReturnType } = this.options as QueryOptions
+    const { framework, frameworkImports, errors, infinite: { queryParam = 'id', initialPageParam = 0 } = {}, dataReturnType } = this.options as QueryOptions
     const { operation, schemas } = this.context
 
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryOptionsInfinite`)
+    const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
 
     const queryKeyName = this.queryKey.name
 
@@ -283,10 +282,20 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     generics.add([
       { type: 'TData', default: schemas.response.name },
       { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+      {
+        type: 'TInfiniteDate',
+        // TODO move extends [] to it's own kubb type
+        default: `${frameworkImports.query.InfiniteData}<${schemas.response.name} extends [] ? ${schemas.response.name}[number] : ${schemas.response.name}>`,
+        enabled: isV5 && !!frameworkImports.query.InfiniteData,
+      },
     ])
 
     const clientGenerics = ['TData', 'TError']
-    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
+    const queryGenerics = [
+      dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>',
+      'TError',
+      isV5 && !!frameworkImports.query.InfiniteData ? 'TInfiniteDate' : undefined,
+    ].filter(Boolean)
     const paramsData = [
       ...getASTParams(schemas.pathParams, {
         typed: true,
@@ -331,33 +340,70 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
       queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'refParams' : ''})`
     }
 
-    codes.push(`
-export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}> {
-  const queryKey = ${queryKey};
+    if (isV5) {
+      if (initialPageParam === undefined) {
+        // TODO check if really needed
+        throw new Error('When using `@tanstack-query` and infinite you need to set `initialPageParam`')
+      }
 
-  return {
-    queryKey,
-    queryFn: ({ pageParam }) => {
-      ${unrefs}
-      return client<${clientGenerics.join(', ')}>({
-        method: "get",
-        url: ${new URLPath(operation.path).template},
-        ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
-        ...options,
-        ${
-      schemas.queryParams?.name
-        ? `params: {
-          ...params,
-          ['${queryParam}']: pageParam,
-          ...(options.params || {}),
-        }`
-        : ''
+      codes.push(`
+      export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}> {
+        const queryKey = ${queryKey};
+
+        return ${frameworkImports.query.infiniteQueryOptions}<${queryGenerics.join(', ')}>({
+          queryKey,
+          queryFn: ({ pageParam }) => {
+            ${unrefs}
+            return client<${clientGenerics.join(', ')}>({
+              method: "get",
+              url: ${new URLPath(operation.path).template},
+              ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+              ...options,
+              ${
+        schemas.queryParams?.name
+          ? `params: {
+                ...params,
+                ['${queryParam}']: pageParam,
+                ...(options.params || {}),
+              }`
+          : ''
+      }
+            }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
+          },
+          initialPageParam: ${initialPageParam},
+          getNextPageParam: (lastPage) => lastPage['${queryParam}'],
+        });
+      };
+      `)
+    } else {
+      codes.push(`
+      export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}> {
+        const queryKey = ${queryKey};
+
+        return {
+          queryKey,
+          queryFn: ({ pageParam }) => {
+            ${unrefs}
+            return client<${clientGenerics.join(', ')}>({
+              method: "get",
+              url: ${new URLPath(operation.path).template},
+              ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+              ...options,
+              ${
+        schemas.queryParams?.name
+          ? `params: {
+                ...params,
+                ['${queryParam}']: pageParam,
+                ...(options.params || {}),
+              }`
+          : ''
+      }
+            }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
+          },
+        };
+      };
+      `)
     }
-      }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
-    },
-  };
-};
-  `)
 
     return { code: combineCodes(codes), name }
   }
@@ -371,6 +417,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     const queryKeyName = this.queryKey.name
     const queryOptionsName = this.queryOptionsInfinite.name // changed
     const name = `${frameworkImports.getName(operation)}Infinite`
+    const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
     const pathParams = getParams(schemas.pathParams, {
       override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
     }).toString()
@@ -383,10 +430,27 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     generics.add([
       { type: 'TData', default: schemas.response.name },
       { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+      {
+        type: 'TInfiniteDate',
+        // TODO move extends [] to it's own kubb type
+        default: `${frameworkImports.query.InfiniteData}<${schemas.response.name} extends [] ? ${schemas.response.name}[number] : ${schemas.response.name}>`,
+        enabled: isV5 && !!frameworkImports.query.InfiniteData,
+      },
     ])
 
     const clientGenerics = ['TData', 'TError']
-    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
+    const queryGenerics = [
+      dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>',
+      'TError',
+      isV5 && !!frameworkImports.query.InfiniteData ? 'TInfiniteDate' : undefined,
+    ].filter(Boolean)
+
+    const queryResultGenerics = [
+      dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>',
+      'TError',
+    ]
+    const queryOptionsGenerics = ['TData', 'TError', isV5 && !!frameworkImports.query.InfiniteData ? 'TInfiniteDate' : undefined].filter(Boolean)
+
     params.add([
       ...getASTParams(schemas.pathParams, {
         typed: true,
@@ -409,7 +473,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
       {
         name: 'options',
         type: `{
-          query?: ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}>,
+          query?: ${isV5 ? frameworkImports.query.InfiniteQueryObserverOptions : frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
         }`,
         default: '{}',
@@ -439,12 +503,13 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
         required: false,
       },
     ])
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
+    const queryOptions = `${queryOptionsName}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`
 
     codes.push(createJSDocBlockText({ comments }))
+
     codes.push(`
 export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryResult}<${
-      queryGenerics.join(
+      queryResultGenerics.join(
         ', ',
       )
     }> & { queryKey: QueryKey } {
@@ -454,7 +519,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
   const query = ${frameworkImports.query.useInfiniteQuery}<${queryGenerics.join(', ')}>({
     ...${queryOptions},
     ...queryOptions
-  }) as ${frameworkImports.query.UseInfiniteQueryResult}<${queryGenerics.join(', ')}> & { queryKey: QueryKey };
+  }) as ${frameworkImports.query.UseInfiniteQueryResult}<${queryResultGenerics.join(', ')}> & { queryKey: QueryKey };
 
   query.queryKey = queryKey as QueryKey;
 
@@ -466,7 +531,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
   }
 
   get mutation(): QueryResult {
-    const { framework, frameworkImports, errors } = this.options as MutationOptions
+    const { framework, frameworkImports, errors, dataReturnType } = this.options as MutationOptions
     const { operation, schemas } = this.context
 
     const codes: string[] = []

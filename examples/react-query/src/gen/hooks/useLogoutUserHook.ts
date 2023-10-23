@@ -1,5 +1,5 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
+import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
@@ -38,6 +38,46 @@ export function useLogoutUserHook<TData = LogoutUserQueryResponse, TError = unkn
     ...logoutUserQueryOptions<TData, TError>(clientOptions),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
+
+  query.queryKey = queryKey as QueryKey
+
+  return query
+}
+
+export function logoutUserQueryOptionsInfinite<TData = LogoutUserQueryResponse, TError = unknown>(
+  options: Partial<Parameters<typeof client>[0]> = {},
+): UseInfiniteQueryOptions<TData, TError> {
+  const queryKey = logoutUserQueryKey()
+
+  return {
+    queryKey,
+    queryFn: ({ pageParam }) => {
+      return client<TData, TError>({
+        method: 'get',
+        url: `/user/logout`,
+
+        ...options,
+      }).then(res => res.data)
+    },
+  }
+}
+
+/**
+ * @summary Logs out current logged in user session
+ * @link /user/logout
+ */
+
+export function useLogoutUserHookInfinite<TData = LogoutUserQueryResponse, TError = unknown>(options: {
+  query?: UseInfiniteQueryOptions<TData, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
+
+  const query = useInfiniteQuery<TData, TError>({
+    ...logoutUserQueryOptionsInfinite<TData, TError>(clientOptions),
+    ...queryOptions,
+  }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
   query.queryKey = queryKey as QueryKey
 
