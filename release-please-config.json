@@ -1,7 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "separate-pull-requests": false,
-  "last-release-sha": "499cb4c8a175a1d4113be8a6ce474e3b80c904a5",
   "commit-search-depth": 50,
   "release-search-depth": 50,
   "changelog-sections": [
@@ -63,7 +62,7 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": false,
-      "skip-github-release": true
+      "skip-github-release": false
     },
     "packages/kubb": {
       "component": "kubb",
