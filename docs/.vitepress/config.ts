@@ -199,7 +199,7 @@ export default defineConfig({
                 link: '/plugins/swagger-zodios',
               },
               {
-                text: '@kubb/swagger-tanstack-query',
+                text: '@kubb/swagger-tanstack-query <span class="new">v5 support</span>',
                 link: '/plugins/swagger-tanstack-query',
               },
               {
