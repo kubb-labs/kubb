@@ -1,59 +1,5 @@
 # Changelog
 
-## [1.14.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.14.1...@kubb/swagger-zodios-v1.14.2) (2023-10-22)
-
-
-### ✨ Features
-
-* &lt;File.Source/&gt; with path and print to read external file ([4bf2d9a](https://github.com/kubb-project/kubb/commit/4bf2d9a1e3023ef90be3fb28b25554d70f844ea1))
-* `ClientFunction` with React for creating an axios get/post/put call ([7ef6819](https://github.com/kubb-project/kubb/commit/7ef68198c85888d76bf2949d9cc99993c1dd7fc7))
-* `contentType` to override default `application/json` ([c5d50ce](https://github.com/kubb-project/kubb/commit/c5d50ce666806fe1f34684de1d542f3ac92e53fc))
-* ✨ skipBy to exclude `tags`, `names`, `paths`, ... out of the generation ([44be77b](https://github.com/kubb-project/kubb/commit/44be77bb8748ae0188481716ef19dc6a39f1e538))
-* use of `jsxImportSource` for a custom react-runtime being used by `@kubb/react-template` ([db8f351](https://github.com/kubb-project/kubb/commit/db8f3519ffa8dc2ede5309f0c4c8acb30bc6757e))
-* use of a tranformer function to override the name of the hook/type/client ([f405183](https://github.com/kubb-project/kubb/commit/f405183b198e47e732873108956f639d94d94937))
-
-
-### 🐞 Bug Fixes
-
-* correct parameters schema for `Zodios`(use of .shape and .schema.shape) ([b162622](https://github.com/kubb-project/kubb/commit/b162622ac30a2f2f74a8e98a20c8630a52073ca7))
-* multiple body parameters in endpoint ([67e9be8](https://github.com/kubb-project/kubb/commit/67e9be81c58eb07490f1c6042a8c0bc9be81640b))
-* proper escape Regex(Escape all characters not included in SingleStringCharacters and DoubleStringCharacters) ([4b43cc1](https://github.com/kubb-project/kubb/commit/4b43cc169de5173eec8a760148fb4ab33d2a4eab))
-* remove of `types` exports field ([1c07fd7](https://github.com/kubb-project/kubb/commit/1c07fd72424db47e3a717d99ea5019bb7744f3c0))
-* remove rimraf + use of correct order for params ([03180e3](https://github.com/kubb-project/kubb/commit/03180e3d33c5dd96bb101be691ae56a2edd3f0b9))
-* revert `patch` refactor ([f3596e9](https://github.com/kubb-project/kubb/commit/f3596e9fd782f30fdaabd292c173778d1f34c32c))
-* skipBy improvements ([b6fd85e](https://github.com/kubb-project/kubb/commit/b6fd85eac66b3a6ecbd7d8099f374a37b17937a8))
-* support for PATCH ([c326d7c](https://github.com/kubb-project/kubb/commit/c326d7cafaa2ddf258579f889f061bbdf51a96fd))
-* types fix `exports` based on `https://arethetypeswrong.github.io/` ([f942def](https://github.com/kubb-project/kubb/commit/f942defb40584fdfddc94852bf751a6acf10476a))
-* upgrade `oas` + custom patch for `typesVersions` ([e9e26ae](https://github.com/kubb-project/kubb/commit/e9e26ae204a2eb3b6dc1e3a391c17a5d9d64f86c))
-* use of pluginsOptions and small cleanup ([15d50a5](https://github.com/kubb-project/kubb/commit/15d50a5d56f1ca8b44ef70be56fefc489eaf6d93))
-
-
-### 📚 Documentation
-
-* add tip for `module` import ([5b7e24a](https://github.com/kubb-project/kubb/commit/5b7e24a7171e644d35e6f9a49fc2e6543868ba64))
-* readme update + typo's ([a1bb145](https://github.com/kubb-project/kubb/commit/a1bb14550c7d6d73832da612275ef66f65d32a02))
-* swagger-msw plugin ([b8f14c1](https://github.com/kubb-project/kubb/commit/b8f14c1690bc66160936c92144a2e2b0ce227d88))
-* update docs with examples ([9087387](https://github.com/kubb-project/kubb/commit/908738795b2c1a3612dbc556b957f41c62465dc2))
-
-
-### 📦 Miscellaneous Chores
-
-* release 1.10.4 ([e2607b3](https://github.com/kubb-project/kubb/commit/e2607b3499ea9c810b508456b4e0ad5841a27347))
-* release 1.11.6 ([70826b2](https://github.com/kubb-project/kubb/commit/70826b2d52d970b16a7f00a8c63f95354699df7c))
-* release 1.14.2 ([91e61ac](https://github.com/kubb-project/kubb/commit/91e61acde1c3824c40f291e1142363eaa95fb1cf))
-* release 1.4.0 ([fc0de82](https://github.com/kubb-project/kubb/commit/fc0de826f94c2ff933dd2cefe26168ea6fcf8c3b))
-* release 1.4.0 ([b1d4561](https://github.com/kubb-project/kubb/commit/b1d456179bc4415168142939b4be64b225a4870f))
-* release 1.4.1 ([9805506](https://github.com/kubb-project/kubb/commit/98055065a6931b96dc1038890eb56ebb0342818f))
-* release 1.5.2 ([2f49c97](https://github.com/kubb-project/kubb/commit/2f49c97863b3dcee1a6158d97a5ca66848d52261))
-* release 1.8.0 ([218b7f0](https://github.com/kubb-project/kubb/commit/218b7f0e8ec1cbc8b6db504ec6e06d8dbeb1109e))
-
-## [1.14.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.14.0...@kubb/swagger-zodios-v1.14.1) (2023-10-21)
-
-
-### 📦 Miscellaneous Chores
-
-* **@kubb/swagger-zodios:** Synchronize undefined versions
-
 ## [1.14.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zodios-v1.13.0...@kubb/swagger-zodios-v1.14.0) (2023-10-20)
 
 
