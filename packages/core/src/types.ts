@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
-
 import type { OptionsPlugins, PluginUnion } from './index.ts'
 import type { FileManager } from './managers/fileManager/index.ts'
 import type { KubbFile, PluginManager } from './managers/index.ts'
@@ -26,7 +24,7 @@ export type KubbUserConfig = Omit<KubbConfig, 'root' | 'plugins'> & {
    * Example: ['@kubb/swagger', { output: false }]
    * Or: createSwagger({ output: false })
    */
-  plugins?: Array<Omit<KubbUserPlugin, 'api'> | KubbUnionPlugins> | KubbObjectPlugins
+  plugins?: Array<Omit<KubbUserPlugin, 'api'> | KubbUnionPlugins | [name: string, options: object]>
 }
 
 export type InputPath = {
@@ -130,9 +128,6 @@ export type KubbPluginKind = 'schema' | 'controller'
 export type KubbUnionPlugins = PluginUnion
 
 export type KubbObjectPlugin = keyof OptionsPlugins
-export type KubbObjectPlugins = {
-  [K in keyof OptionsPlugins]?: OptionsPlugins[K] | object
-}
 
 export type GetPluginFactoryOptions<TPlugin extends KubbUserPlugin> = TPlugin extends KubbUserPlugin<infer X> ? X : never
 
@@ -335,6 +330,7 @@ export type Prettify<T> =
   & {
     [K in keyof T]: T[K]
   }
+  // eslint-disable-next-line @typescript-eslint/ban-types
   & {}
 
 export type PossiblePromise<T> = Promise<T> | T
