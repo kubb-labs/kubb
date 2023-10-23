@@ -20,7 +20,7 @@ export default defineConfig(async () => {
     },
     plugins: [
       ['@kubb/swagger', { output: 'schemass', validate: true }],
-      ['@kubb/swagger', { output: 'schemas2', validate: true ,}],
+      ['@kubb/swagger', { output: 'schemas2', validate: true }],
       [
         '@kubb/swagger-ts',
         {

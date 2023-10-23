@@ -207,11 +207,11 @@ export default defineConfig({
                 link: '/plugins/swagger-swr',
               },
               {
-                text: '@kubb/swagger-faker <span class="new">new</span>',
+                text: '@kubb/swagger-faker',
                 link: '/plugins/swagger-faker',
               },
               {
-                text: '@kubb/swagger-msw <span class="new">new</span>',
+                text: '@kubb/swagger-msw',
                 link: '/plugins/swagger-msw',
               },
             ],
