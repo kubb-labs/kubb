@@ -11,7 +11,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
   const queryKey = findPetsByTagsQueryKey(params)
 
   return queryOptions({
-    queryKey,
+    queryKey: queryKey as QueryKey,
     queryFn: () => {
       return client<TData, TError>({
         method: 'get',

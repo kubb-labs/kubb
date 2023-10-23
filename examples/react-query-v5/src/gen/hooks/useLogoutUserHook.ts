@@ -10,7 +10,7 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
   const queryKey = logoutUserQueryKey()
 
   return queryOptions({
-    queryKey,
+    queryKey: queryKey as QueryKey,
     queryFn: () => {
       return client<TData, TError>({
         method: 'get',

@@ -11,7 +11,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
   const queryKey = findPetsByStatusQueryKey(params)
 
   return queryOptions({
-    queryKey,
+    queryKey: queryKey as QueryKey,
     queryFn: () => {
       return client<TData, TError>({
         method: 'get',
