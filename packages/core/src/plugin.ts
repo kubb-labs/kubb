@@ -24,7 +24,7 @@ type Options = {
   resolveName: PluginContext['resolveName']
   logger: PluginContext['logger']
   getPlugins: () => KubbPlugin[]
-  plugin: PluginContext['plugin']
+  plugin?: PluginContext['plugin']
 }
 
 // not publicly exported
@@ -42,7 +42,6 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
     key: ['controller', 'core'],
     kind: 'controller',
     api() {
-      // TODO watch out, typing is incorrect, `this` will be `null` with that core is normally the `this`
       return {
         get config() {
           return options.config
@@ -51,7 +50,8 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
           return options.getPlugins()
         },
         get plugin() {
-          return options.plugin
+          // see pluginManger.#execute where we override with `.call` the this with the correct plugin
+          return options.plugin as NonNullable<Options['plugin']>
         },
         logger,
         fileManager,

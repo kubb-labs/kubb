@@ -1,4 +1,5 @@
-import { createIndent, Function } from '@kubb/react'
+import { createIndent } from '@kubb/core'
+import { Function } from '@kubb/react'
 
 import type { URLPath } from '@kubb/core'
 import type { HttpMethod } from '@kubb/swagger'

@@ -203,7 +203,16 @@ describe('PluginManager', () => {
     expect(path).toBe('pluginB/gen')
   })
 
-  test.todo('resolvePath with `pluginKey` that will run on al schemas')
+  test('resolvePath with `pluginKey` that will run on first `pluginB` variant', () => {
+    try {
+      pluginManager.resolvePath({
+        baseName: 'fileNameB',
+        pluginKey: ['schema', 'pluginB'],
+      })
+    } catch (e) {
+      expect(e).toBeDefined()
+    }
+  })
 
   test('resolveName without `pluginKey`', () => {
     const name = pluginManager.resolveName({

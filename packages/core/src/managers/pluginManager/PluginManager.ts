@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-unsafe-argument */
 
-import { definePlugin } from '../../plugin.ts'
+import { definePlugin as defineCorePlugin } from '../../plugin.ts'
 import { LogLevel } from '../../types.ts'
 import { EventEmitter } from '../../utils/EventEmitter.ts'
 import { isPromise, isPromiseRejectedResult } from '../../utils/isPromise.ts'
@@ -82,8 +82,9 @@ export class PluginManager {
     this.logger = options.logger
     this.queue = new Queue(100, this.logger.logLevel === LogLevel.debug)
     this.fileManager = new FileManager({ task: options.task, queue: this.queue, timeout: options.writeTimeout })
+    const plugins = config.plugins || []
 
-    const core = definePlugin({
+    const core = defineCorePlugin({
       config,
       logger: this.logger,
       pluginManager: this,
@@ -91,19 +92,14 @@ export class PluginManager {
       resolvePath: this.resolvePath.bind(this),
       resolveName: this.resolveName.bind(this),
       getPlugins: this.#getSortedPlugins.bind(this),
-      // see #execute where we override with `.call the this with the correct plugin
-      plugin: undefined as unknown as KubbPlugin,
     })
 
     // call core.api.call with empty context so we can transform `api()` to `api: {}`
-    this.#core = pluginParser<KubbUserPlugin<CorePluginOptions>>(core, this, core.api.call(null as any))
+    this.#core = pluginParser(core as unknown as KubbUserPlugin, this as any, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
 
-    this.plugins = [this.#core, ...(config.plugins || [])].reduce((prev, plugin) => {
-      // TODO HACK to be sure that this is equal to the `core.api` logic.
-      const convertedApi = pluginParser(plugin as KubbUserPlugin, this, this.#core.api)
-
-      return [...prev, convertedApi]
-    }, [] as KubbPlugin[])
+    this.plugins = [this.#core, ...plugins].map((plugin) => {
+      return pluginParser(plugin as KubbUserPlugin, this, this.#core.api)
+    })
 
     return this
   }

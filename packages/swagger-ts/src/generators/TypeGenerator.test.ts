@@ -156,7 +156,6 @@ describe('TypeGenerator simple', () => {
     `),
     )
   })
-  test.todo('generate type for Pets and Pet')
 })
 
 describe('TypeGenerator with refs', () => {
@@ -185,6 +184,4 @@ describe('TypeGenerator with refs', () => {
     `),
     )
   })
-
-  test.todo('generate type for Pets and Pet')
 })

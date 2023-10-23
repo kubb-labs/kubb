@@ -158,7 +158,7 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
       api?: never
     }
     : {
-      api: (this: Omit<PluginContext, 'addFile'>) => TOptions['api']
+      api: (this: TOptions['name'] extends 'core' ? null : Omit<PluginContext, 'addFile'>) => TOptions['api']
     })
   & (TOptions['kind'] extends never ? {
       kind?: never

@@ -1,30 +1,17 @@
 import { combineCodes, nameSorter } from '@kubb/core'
 import { createImportDeclaration, print } from '@kubb/parser'
-import { ImportsGenerator, OasBuilder } from '@kubb/swagger'
+import { ImportsGenerator, OasBuilder, refsSorter } from '@kubb/swagger'
 
 import { ZodGenerator } from '../generators/index.ts'
 
 import type { PluginContext } from '@kubb/core'
-import type { FileResolver, Refs } from '@kubb/swagger'
-
-type Generated = { import: { refs: Refs; name: string }; sources: string[] }
+import type { FileResolver } from '@kubb/swagger'
 
 type Options = {
   fileResolver?: FileResolver
   resolveName: PluginContext['resolveName']
   withJSDocs?: boolean
   withImports?: boolean
-}
-
-// TODO create another function that sort based on the refs(first the ones without refs)
-function refsSorter(a: Generated, b: Generated) {
-  if (Object.keys(a.import.refs)?.length < Object.keys(b.import.refs)?.length) {
-    return -1
-  }
-  if (Object.keys(a.import.refs)?.length > Object.keys(b.import.refs)?.length) {
-    return 1
-  }
-  return 0
 }
 
 export class ZodBuilder extends OasBuilder<Options, never> {
