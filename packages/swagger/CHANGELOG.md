@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.14.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.14.0...@kubb/swagger-v1.14.2) (2023-10-23)
+
+
+### 🐞 Bug Fixes
+
+* use of `fileManager.addIndexes` and `URLPath` without static functions ([9bc291d](https://github.com/kubb-project/kubb/commit/9bc291d5b9126b1d3f26803e6a1c54a3b008f634))
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.14.2 ([91e61ac](https://github.com/kubb-project/kubb/commit/91e61acde1c3824c40f291e1142363eaa95fb1cf))
+
 ## [1.14.0](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.13.0...@kubb/swagger-v1.14.0) (2023-10-20)
 
 

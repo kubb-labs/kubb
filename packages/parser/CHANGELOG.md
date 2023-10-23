@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.2](https://github.com/kubb-project/kubb/compare/@kubb/parser-v1.14.0...@kubb/parser-v1.14.2) (2023-10-23)
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.14.2 ([91e61ac](https://github.com/kubb-project/kubb/commit/91e61acde1c3824c40f291e1142363eaa95fb1cf))
+
 ## [1.14.0](https://github.com/kubb-project/kubb/compare/@kubb/parser-v1.13.0...@kubb/parser-v1.14.0) (2023-10-20)
 
 
