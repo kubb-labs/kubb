@@ -18,6 +18,13 @@
 * update docs with examples ([9087387](https://github.com/kubb-project/kubb/commit/908738795b2c1a3612dbc556b957f41c62465dc2))
 * update README.md [skip ci] ([6fd9e5a](https://github.com/kubb-project/kubb/commit/6fd9e5a9d93674d47901769c1e52ada6255c325e))
 
+## [1.14.3](https://github.com/kubb-project/kubb/compare/kubb-v1.14.3...kubb-v1.14.3) (2023-10-23)
+
+
+### 📦 Miscellaneous Chores
+
+* **kubb:** Synchronize undefined versions
+
 ## [1.14.3](https://github.com/kubb-project/kubb/compare/kubb-v1.14.0...kubb-v1.14.3) (2023-10-23)
 
 
