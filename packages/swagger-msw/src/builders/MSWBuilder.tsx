@@ -1,4 +1,4 @@
-import { getRelativePath, URLPath } from '@kubb/core'
+import { getRelativePath, PackageManager, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { OasBuilder, useResolve, useResolveName } from '@kubb/swagger'
 import { useResolve as useResolveFaker } from '@kubb/swagger-faker'
@@ -17,8 +17,26 @@ export class MSWBuilder extends OasBuilder<Options> {
     const { responseName } = this.options
     const { operation, plugin } = this.context
 
+    const isV2 = new PackageManager().isValidSync('msw', '>=2')
+
     const Component = () => {
       const name = useResolveName({ pluginKey: plugin.key, type: 'function' })
+
+      if (isV2) {
+        return (
+          <>
+            {`
+      export const ${name} = http.${operation.method}('*${new URLPath(operation.path).toURLPath()}', function handler(info) {
+        return new Response(JSON.stringify(${responseName}()), {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      });
+      `}
+          </>
+        )
+      }
 
       return (
         <>
@@ -48,13 +66,16 @@ export class MSWBuilder extends OasBuilder<Options> {
 
     const root = createRoot<AppContextProps<AppMeta>>()
 
+    const isV2 = new PackageManager().isValidSync('msw', '>=2')
+
     const Component = () => {
       const file = useResolve({ pluginKey: plugin.key, type: 'file' })
       const faker = useResolveFaker({ type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>
-          <File.Import name={['rest']} path={'msw'} />
+          {!isV2 && <File.Import name={['rest']} path={'msw'} />}
+          {isV2 && <File.Import name={['http']} path={'msw'} />}
 
           {faker && responseName && <File.Import name={[responseName]} path={getRelativePath(file.path, faker.path)} />}
           <File.Source>

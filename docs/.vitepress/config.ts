@@ -223,7 +223,7 @@ export default defineConfig({
                 link: '/plugins/swagger-faker',
               },
               {
-                text: '@kubb/swagger-msw',
+                text: '@kubb/swagger-msw <span class="new">v2 support</span>',
                 link: '/plugins/swagger-msw',
               },
             ],
