@@ -117,6 +117,10 @@ export default defineConfig({
             link: '/introduction',
           },
           {
+            text: 'Installation',
+            link: '/installation',
+          },
+          {
             text: 'Comparison <span class="beta">under construction</span>',
             link: '/comparison',
           },
