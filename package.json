@@ -30,7 +30,7 @@
     "format:fix": "dprint fmt --incremental=false",
     "format:pack": "npx sort-package-json package.json packages/**/**/package.json examples/*/package.json docs/package.json e2e/package.json",
     "format:prettier": "prettier --config ./configs/prettier.config.cjs --write .",
-    "generate": "turbo run generate --filter=./examples/* --continue && generate:lint",
+    "generate": "turbo run generate --filter=./examples/* --continue && bun run generate:lint",
     "generate:lint": "ESLINT_USE_FLAT_CONFIG=true eslint --fix --format pretty ./examples/* && bun run lint:case && bun run format",
     "graph": "npx nx graph ",
     "install:csb": "corepack enable && pnpm install --frozen-lockfile",
