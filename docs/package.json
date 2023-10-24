@@ -14,7 +14,7 @@
   "main": "index.js",
   "scripts": {
     "build": "vitepress build",
-    "dev": "vitepress dev",
+    "dev": "vitepress dev --port=3000 --cors --open",
     "preview": "vitepress preview",
     "serve": "vitepress serve"
   },
@@ -22,7 +22,7 @@
     "@kubb/core": "workspace:*",
     "@vercel/analytics": "^1.1.1",
     "sitemap": "^7.1.1",
-    "vitepress": "1.0.0-rc.23",
+    "vitepress": "^1.0.0-rc.24",
     "vue": "^3.3.6"
   },
   "devDependencies": {

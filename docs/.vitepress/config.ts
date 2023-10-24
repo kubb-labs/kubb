@@ -81,10 +81,12 @@ export default defineConfig({
           {
             text: 'Releases',
             link: 'https://github.com/kubb-project/kubb/releases',
+            target: '_blank',
           },
           {
             text: 'Sponsor Kubb',
             link: 'https://github.com/sponsors/stijnvanhulle/',
+            target: '_blank',
           },
           {
             text: 'Contribute Kubb',
@@ -95,6 +97,12 @@ export default defineConfig({
             link: '/about',
           },
         ],
+      },
+      {
+        text:
+          `<iframe src="https://github.com/sponsors/stijnvanhulle/button" title="Sponsor stijnvanhulle" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
+      `,
+        link: '',
       },
     ],
     editLink: {
@@ -107,6 +115,10 @@ export default defineConfig({
           {
             text: 'Introduction',
             link: '/introduction',
+          },
+          {
+            text: 'Installation',
+            link: '/installation',
           },
           {
             text: 'Comparison <span class="beta">under construction</span>',
@@ -313,7 +325,7 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/kubb-project/kubb' },
       { icon: 'discord', link: 'https://discord.gg/shfBFeczrm' },
-      { icon: 'twitter', link: 'https://twitter.com/kubbproject' },
+      { icon: 'x', link: 'https://twitter.com/kubbproject' },
     ],
     footer: {
       message: 'Released under the MIT License.',
