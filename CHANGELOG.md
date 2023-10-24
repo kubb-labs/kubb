@@ -18,6 +18,14 @@
 * update docs with examples ([9087387](https://github.com/kubb-project/kubb/commit/908738795b2c1a3612dbc556b957f41c62465dc2))
 * update README.md [skip ci] ([6fd9e5a](https://github.com/kubb-project/kubb/commit/6fd9e5a9d93674d47901769c1e52ada6255c325e))
 
+## [1.14.4](https://github.com/kubb-project/kubb/compare/kubb-v1.14.3...kubb-v1.14.4) (2023-10-24)
+
+
+### 📚 Documentation
+
+* add installation page with environments for node and typescript ([2aef090](https://github.com/kubb-project/kubb/commit/2aef090477d529b04c868f595cb5796f6a51b39a))
+* add sponsor ([1d5c31a](https://github.com/kubb-project/kubb/commit/1d5c31a63bbec5ae1eede9f597421b3f3e345e56))
+
 ## [1.14.3](https://github.com/kubb-project/kubb/compare/kubb-v1.14.0...kubb-v1.14.3) (2023-10-23)
 
 
