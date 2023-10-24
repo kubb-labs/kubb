@@ -9,30 +9,35 @@ export type KubbQueryFactory<
   TPathParams = unknown,
   TQueryParams = unknown,
   TResponse = TData,
-  TOptions extends { dataReturnType: 'data' | 'full'; type: 'query' | 'mutation' } = { dataReturnType: 'data'; type: 'query' },
+  TOptions extends {
+    dataReturnType: 'data' | 'full'
+    type: 'query' | 'mutation'
+  } = {
+    dataReturnType: 'data'
+    type: 'query'
+  },
 > = {
   data: TData
   error: TError
   request: TRequest
   pathParams: TPathParams
   queryParams: TQueryParams
-  // generated types, client will be already in the import
-  // @ts-ignore
-  response: TOptions extends { dataReturnType: 'full' } ? Awaited<ReturnType<typeof client<TData, TError, TRequest>>> : TResponse
-  client: {
-    // generated types, client will be already in the import
-    // @ts-ignore
-    paramaters: Partial<Parameters<typeof client<TData, TError, TRequest>>[0]>
-
-    // generated types, client will be already in the import
-    // @ts-ignore
-    return: Awaited<ReturnType<typeof client<TData, TError, TRequest>>>
+  response: TOptions extends {
+    dataReturnType: 'full'
   }
-} & (TOptions extends { type: 'mutation' } ? { _type: 'mutation' } : { _type: 'query' })
-/**
- * examples/advanced/src/gen/clients/hooks/petController/useFindPetsByStatus.ts
- * @example
- * type FindPetsByStatus = KubbQueryFactory<FindPetsByStatusQueryResponse,FindPetsByStatus400, never, FindPetsByStatusQueryParams,FindPetsByStatusQueryParams,FindPetsByStatusQueryResponse,{dataReturnType: "data"}>
-
-    ^?
-*/
+    ? Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>
+    : Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>['data']
+  unionResponse: Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>> | Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>['data']
+  client: {
+    paramaters: Partial<Parameters<typeof client<TResponse, TError, TRequest>>[0]>
+    return: Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>
+  }
+} & (TOptions extends {
+  type: 'mutation'
+}
+  ? {
+      _type: 'mutation'
+    }
+  : {
+      _type: 'query'
+    })

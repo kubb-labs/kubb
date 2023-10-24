@@ -2,6 +2,8 @@ import { FunctionParams, URLPath } from '@kubb/core'
 import { Function } from '@kubb/react'
 import { getASTParams, useOperation, useSchemas } from '@kubb/swagger'
 
+import { capitalCase } from 'change-case'
+
 import type { ReactNode } from 'react'
 
 type Props = {
@@ -42,9 +44,13 @@ function QueryKeyFunctionBase({ name }: Props): ReactNode {
   ].filter(Boolean)
 
   return (
-    <Function.Arrow name={name} export params={params.toString()} singleLine>
-      {`[${result.join(',')}] as const;`}
-    </Function.Arrow>
+    <>
+      <Function.Arrow name={name} export params={params.toString()} singleLine>
+        {`[${result.join(',')}] as const;`}
+      </Function.Arrow>
+
+      {`export type ${capitalCase(name)} = ReturnType<typeof ${name}>`}
+    </>
   )
 }
 
