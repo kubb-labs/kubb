@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, nameSorter } from '@kubb/core'
+import { nameSorter, transformers } from '@kubb/core'
 import { createImportDeclaration, print } from '@kubb/parser'
 import { ImportsGenerator, OasBuilder, refsSorter } from '@kubb/swagger'
 
@@ -83,6 +83,6 @@ export class FakerBuilder extends OasBuilder<Options, never> {
       }
     }
 
-    return combineCodes(codes)
+    return transformers.combineCodes(codes)
   }
 }

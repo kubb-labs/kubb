@@ -1,4 +1,12 @@
-export * from './combineCodes.ts'
-export * from './escape.ts'
-export * from './indent.ts'
-export * from './transformReservedWord.ts'
+import { combineCodes } from './combineCodes.ts'
+import { escape, jsStringEscape } from './escape.ts'
+import { createIndent } from './indent.ts'
+import { transformReservedWord } from './transformReservedWord.ts'
+
+export const transformers = {
+  combineCodes,
+  escape,
+  jsStringEscape,
+  createIndent,
+  transformReservedWord,
+} as const

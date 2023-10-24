@@ -2,8 +2,8 @@ import { build } from './build.ts'
 
 import type { ObjValueTuple, TupleToUnion } from './types.ts'
 
-export * from './build.ts'
-export * from './config.ts'
+export { build } from './build.ts'
+export { defineConfig, isInputPath } from './config.ts'
 export * from './generators/index.ts'
 export * from './managers/index.ts'
 // dprint-ignore

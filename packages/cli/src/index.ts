@@ -1,4 +1,4 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
 import { executeStrategies, isInputPath, LogLevel, SummaryError, Warning } from '@kubb/core'
 
@@ -7,8 +7,8 @@ import pc from 'picocolors'
 
 import { version } from '../package.json'
 import { getConfig, getCosmiConfig, renderErrors, spinner, startWatcher } from './utils/index.ts'
-import generate from './generate.ts'
-import init from './init.ts'
+import { generate } from './generate.ts'
+import { init } from './init.ts'
 
 import type { CLIOptions } from '@kubb/core'
 
@@ -45,7 +45,7 @@ function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
 async function generateAction(input: string, CLIOptions: CLIOptions) {
   spinner.start('🔍 Loading config')
   const result = await getCosmiConfig(moduleName, CLIOptions.config)
-  spinner.succeed(`🔍 Config loaded(${pc.dim(pathParser.relative(process.cwd(), result.filepath))})`)
+  spinner.succeed(`🔍 Config loaded(${pc.dim(path.relative(process.cwd(), result.filepath))})`)
 
   const config = await getConfig(result, CLIOptions)
 
@@ -64,7 +64,7 @@ async function generateAction(input: string, CLIOptions: CLIOptions) {
   }
 
   if (Array.isArray(config)) {
-    const promises = config.map(item => () => generate({ input, config: item, CLIOptions }))
+    const promises = config.map((item) => () => generate({ input, config: item, CLIOptions }))
 
     await executeStrategies.hookSeq(promises)
 
@@ -77,7 +77,7 @@ async function generateAction(input: string, CLIOptions: CLIOptions) {
   await generate({ input, config, CLIOptions })
 }
 
-export default async function runCLI(argv?: string[]): Promise<void> {
+export async function run(argv?: string[]): Promise<void> {
   const program = cac(moduleName)
 
   program.command('[input]', 'Path of the input file(overrides the one in `kubb.config.js`)').action(generateAction)
@@ -105,3 +105,5 @@ export default async function runCLI(argv?: string[]): Promise<void> {
     programCatcher(e, program.options)
   }
 }
+
+export default run

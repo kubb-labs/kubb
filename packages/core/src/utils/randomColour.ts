@@ -3,7 +3,7 @@ import seedrandom from 'seedrandom'
 
 import type { Formatter } from 'picocolors/types.ts'
 
-export const defaultColours = ['black', 'blue', 'darkBlue', 'cyan', 'gray', 'green', 'darkGreen', 'magenta', 'red', 'darkRed', 'yellow', 'darkYellow'] as const
+const defaultColours = ['black', 'blue', 'darkBlue', 'cyan', 'gray', 'green', 'darkGreen', 'magenta', 'red', 'darkRed', 'yellow', 'darkYellow'] as const
 
 export function randomColour(text?: string, colours = defaultColours): string {
   if (!text) {

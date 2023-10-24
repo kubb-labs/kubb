@@ -1,14 +1,12 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
-import { createPluginCache } from './utils/index.ts'
+import { createPluginCache } from './utils/cache.ts'
 
 import type { FileManager } from './managers/fileManager/FileManager.ts'
 import type { PluginManager } from './managers/pluginManager/PluginManager.ts'
 import type { KubbPlugin, KubbUserPlugin, PluginContext, PluginFactoryOptions } from './types.ts'
 
-type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (
-  options: T['options'],
-) => KubbUserPlugin<T>
+type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (options: T['options']) => KubbUserPlugin<T>
 
 export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptions>(factory: KubbPluginFactory<T>) {
   return (options: T['options']): ReturnType<KubbPluginFactory<T>> => {
@@ -73,9 +71,9 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
       }
     },
     resolvePath(baseName) {
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const root = path.resolve(this.config.root, this.config.output.path)
 
-      return pathParser.resolve(root, baseName)
+      return path.resolve(root, baseName)
     },
     resolveName(name) {
       return name

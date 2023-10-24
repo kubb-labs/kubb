@@ -1,4 +1,5 @@
 import client from '../../../../axios-client.ts'
+
 import type { ResponseConfig } from '../../../../axios-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 

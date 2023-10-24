@@ -420,10 +420,7 @@ export const test2 = 3;`,
       },
     ]
 
-    expect(combineExports(exports)).toEqual([
-      exports[2],
-      exports[0],
-    ])
+    expect(combineExports(exports)).toEqual([exports[2], exports[0]])
   })
 
   test('if combineImports is filtering out duplicated imports', () => {
@@ -445,10 +442,7 @@ export const test2 = 3;`,
       },
     ]
 
-    expect(combineImports(imports, [], 'const test = models; type Test = Config;')).toEqual([
-      imports[0],
-      imports[1],
-    ])
+    expect(combineImports(imports, [], 'const test = models; type Test = Config;')).toEqual([imports[0], imports[1]])
 
     const importsWithoutSource: Array<KubbFile.Import> = [
       {
@@ -468,10 +462,7 @@ export const test2 = 3;`,
       },
     ]
 
-    expect(combineImports(importsWithoutSource, [])).toEqual([
-      imports[0],
-      imports[1],
-    ])
+    expect(combineImports(importsWithoutSource, [])).toEqual([imports[0], imports[1]])
   })
 
   test(`if getIndexes returns 'index.ts' files`, () => {
@@ -495,7 +486,7 @@ export const test2 = 3;`,
       map: (file) => {
         return {
           ...file,
-          exports: file.exports?.map(item => {
+          exports: file.exports?.map((item) => {
             if (exportAs) {
               return {
                 ...item,

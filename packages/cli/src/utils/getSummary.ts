@@ -1,4 +1,4 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
 import { LogLevel, randomPicoColour } from '@kubb/core'
 
@@ -20,9 +20,9 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
   const logs: string[] = []
   const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrstart))
 
-  const buildStartPlugins = pluginManager.executed.filter((item) => item.hookName === 'buildStart' && item.plugin.name !== 'core').map((item) =>
-    item.plugin.name
-  )
+  const buildStartPlugins = pluginManager.executed
+    .filter((item) => item.hookName === 'buildStart' && item.plugin.name !== 'core')
+    .map((item) => item.plugin.name)
 
   const failedPlugins = config.plugins?.filter((plugin) => !buildStartPlugins.includes(plugin.name))?.map((plugin) => plugin.name)
   const pluginsCount = config.plugins?.length || 0
@@ -47,7 +47,7 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
     pluginsFailed: status === 'failed' ? failedPlugins?.map((name) => randomPicoColour(name))?.join(', ') : undefined,
     filesCreated: files.length,
     time: pc.yellow(`${elapsedSeconds}s`),
-    output: pathParser.resolve(config.root, config.output.path),
+    output: path.resolve(config.root, config.output.path),
   } as const
 
   if (logLevel === LogLevel.debug) {

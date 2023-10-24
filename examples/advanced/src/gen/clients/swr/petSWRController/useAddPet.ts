@@ -1,8 +1,10 @@
 import useSWRMutation from 'swr/mutation'
+
 import client from '../../../../swr-client.ts'
+
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { ResponseConfig } from '../../../../swr-client.ts'
-import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../../../models/ts/petController/AddPet'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet'
 
 /**
  * @description Add a new pet to the store

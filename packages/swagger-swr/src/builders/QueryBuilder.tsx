@@ -1,5 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createJSDocBlockText, FunctionParams, URLPath } from '@kubb/core'
+import { createJSDocBlockText, FunctionParams, transformers, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, OasBuilder, useResolve } from '@kubb/swagger'
 
@@ -78,7 +78,7 @@ export function ${name} <
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   get query(): QueryResult {
@@ -161,7 +161,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): SWRRespo
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   get mutation(): QueryResult {
@@ -238,7 +238,7 @@ export function ${name} <
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   print(type: 'query' | 'mutation', name: string): string {

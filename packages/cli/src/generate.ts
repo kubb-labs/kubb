@@ -70,7 +70,7 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
   }
 }
 
-export default async function generate({ input, config, CLIOptions }: GenerateProps): Promise<void> {
+export async function generate({ input, config, CLIOptions }: GenerateProps): Promise<void> {
   const logger = createLogger({ logLevel: CLIOptions.logLevel || LogLevel.silent, name: config.name, spinner })
 
   if (config.name) {

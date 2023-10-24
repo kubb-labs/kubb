@@ -1,7 +1,9 @@
 import crypto from 'node:crypto'
+import { extname } from 'node:path'
 
 import { read, timeout, write } from '../../utils/index.ts'
-import { extensions, getIndexes } from './utils.ts'
+import { combineFiles } from './utils.ts'
+import { createFileSource, extensions, getIndexes } from './utils.ts'
 
 import type { Queue, QueueJob } from '../../utils/index.ts'
 import type { CacheItem, KubbFile } from './types.ts'
@@ -112,12 +114,6 @@ export class FileManager {
     )
   }
 
-  #append(path: KubbFile.Path, file: KubbFile.ResolvedFile): void {
-    const previousFiles = this.#cache.get(path) || []
-
-    this.#cache.set(path, [...previousFiles, file])
-  }
-
   getCacheByUUID(UUID: KubbFile.UUID): KubbFile.File | undefined {
     let cache: KubbFile.File | undefined
 
@@ -157,5 +153,20 @@ export class FileManager {
 
   async read(...params: Parameters<typeof read>): Promise<string> {
     return read(...params)
+  }
+
+  // statics
+
+  static getSource(file: KubbFile.File): string {
+    return createFileSource(file)
+  }
+  static combineFiles(files: Array<KubbFile.File | null>): Array<KubbFile.File> {
+    return combineFiles(files)
+  }
+  static getMode(path: string | undefined | null): KubbFile.Mode {
+    if (!path) {
+      return 'directory'
+    }
+    return extname(path) ? 'file' : 'directory'
   }
 }

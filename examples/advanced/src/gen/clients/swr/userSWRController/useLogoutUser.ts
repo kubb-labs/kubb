@@ -1,5 +1,7 @@
 import useSWR from 'swr'
+
 import client from '../../../../swr-client.ts'
+
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'

@@ -4,7 +4,7 @@
  * @example `ESLINT_USE_FLAT_CONFIG=true eslint`
  */
 
-import path from 'node:path'
+import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 // configs
@@ -19,7 +19,7 @@ export default [
     languageOptions: {
       parserOptions: {
         ecmaVersion: 'latest',
-        tsconfigRootDir: path.dirname(fileURLToPath(import.meta.url)),
+        tsconfigRootDir: dirname(fileURLToPath(import.meta.url)),
         project: ['./examples/*/tsconfig.json', './packages/*/tsconfig.json', './packages/config/*/tsconfig.json'],
       },
     },

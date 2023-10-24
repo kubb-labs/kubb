@@ -1,9 +1,7 @@
-import pathParser from 'node:path'
+import { basename, extname, relative } from 'node:path'
 
 import fs from 'fs-extra'
 import { switcher } from 'js-runtime'
-
-import type { KubbFile } from '../managers/fileManager/types.ts'
 
 function slash(path: string, platform: 'windows' | 'mac' | 'linux' = 'linux') {
   const isWindowsPath = /^\\\\\?\\/.test(path)
@@ -22,24 +20,17 @@ export function getRelativePath(rootDir?: string | null, filePath?: string | nul
     throw new Error(`Root and file should be filled in when retrieving the relativePath, ${rootDir || ''} ${filePath || ''}`)
   }
 
-  const relativePath = pathParser.relative(rootDir, filePath)
+  const relativePath = relative(rootDir, filePath)
 
   // On Windows, paths are separated with a "\"
   // However, web browsers use "/" no matter the platform
-  const path = slash(relativePath, platform)
+  const slashedPath = slash(relativePath, platform)
 
-  if (path.startsWith('../')) {
-    return path.replace(pathParser.basename(path), pathParser.basename(path, pathParser.extname(filePath)))
+  if (slashedPath.startsWith('../')) {
+    return slashedPath.replace(basename(slashedPath), basename(slashedPath, extname(filePath)))
   }
 
-  return `./${path.replace(pathParser.basename(path), pathParser.basename(path, pathParser.extname(filePath)))}`
-}
-
-export function getPathMode(path: string | undefined | null): KubbFile.Mode {
-  if (!path) {
-    return 'directory'
-  }
-  return pathParser.extname(path) ? 'file' : 'directory'
+  return `./${slashedPath.replace(basename(slashedPath), basename(slashedPath, extname(filePath)))}`
 }
 
 const reader = switcher(

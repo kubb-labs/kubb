@@ -1,5 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createJSDocBlockText, FunctionParams, PackageManager, URLPath } from '@kubb/core'
+import { createJSDocBlockText, FunctionParams, PackageManager, transformers, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@kubb/swagger'
 
@@ -155,7 +155,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       `)
     }
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   get query(): QueryResult {
@@ -258,7 +258,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   // infinite
@@ -358,7 +358,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 };
   `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   get queryInfinite(): QueryResult {
@@ -461,7 +461,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   get mutation(): QueryResult {
@@ -552,7 +552,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   print(type: 'query' | 'mutation', name: string): string {

@@ -5,7 +5,7 @@ try {
   })
 } catch (err) {}
 
-import('../dist/index.js').then(({ default: runCLI }) => {
+import('../dist/index.js').then(({ run }) => {
   process.title = 'Kubb'
-  runCLI(process.argv)
+  run(process.argv)
 })

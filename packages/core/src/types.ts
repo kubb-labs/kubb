@@ -1,6 +1,6 @@
 import type { OptionsPlugins, PluginUnion } from './index.ts'
-import type { FileManager } from './managers/fileManager/index.ts'
-import type { KubbFile, PluginManager } from './managers/index.ts'
+import type { FileManager, KubbFile } from './managers/fileManager/index.ts'
+import type { PluginManager } from './managers/pluginManager/index.ts'
 import type { Cache } from './utils/cache.ts'
 import type { Logger } from './utils/logger.ts'
 

@@ -172,14 +172,16 @@ export class PluginManager {
   }): Promise<Array<ReturnType<ParseResult<H>> | null>> | null {
     const plugins = this.getPluginsByKey(hookName, pluginKey)
 
-    const promises = plugins.map(plugin => {
-      return this.#execute<H>({
-        strategy: 'hookFirst',
-        hookName,
-        parameters,
-        plugin,
+    const promises = plugins
+      .map((plugin) => {
+        return this.#execute<H>({
+          strategy: 'hookFirst',
+          hookName,
+          parameters,
+          plugin,
+        })
       })
-    }).filter(Boolean)
+      .filter(Boolean)
 
     return Promise.all(promises)
   }
@@ -195,14 +197,16 @@ export class PluginManager {
   }): Array<ReturnType<ParseResult<H>>> | null {
     const plugins = this.getPluginsByKey(hookName, pluginKey)
 
-    return plugins.map(plugin => {
-      return this.#executeSync<H>({
-        strategy: 'hookFirst',
-        hookName,
-        parameters,
-        plugin,
+    return plugins
+      .map((plugin) => {
+        return this.#executeSync<H>({
+          strategy: 'hookFirst',
+          hookName,
+          parameters,
+          plugin,
+        })
       })
-    }).filter(Boolean)
+      .filter(Boolean)
   }
 
   /**
@@ -366,7 +370,7 @@ export class PluginManager {
    * Chains plugins
    */
   hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
-    const promises = this.#getSortedPlugins().map(plugin => {
+    const promises = this.#getSortedPlugins().map((plugin) => {
       return () =>
         this.#execute({
           strategy: 'hookSeq',
@@ -400,24 +404,26 @@ export class PluginManager {
     const plugins = [...this.plugins]
     const [searchKind, searchPluginName, searchIdentifier] = pluginKey
 
-    const pluginByPluginName = plugins.filter(plugin => plugin[hookName]).filter((item) => {
-      const [kind, name, identifier] = item.key
+    const pluginByPluginName = plugins
+      .filter((plugin) => plugin[hookName])
+      .filter((item) => {
+        const [kind, name, identifier] = item.key
 
-      const identifierCheck = identifier?.toString() === searchIdentifier?.toString()
-      const kindCheck = kind === searchKind
-      const nameCheck = name === searchPluginName
+        const identifierCheck = identifier?.toString() === searchIdentifier?.toString()
+        const kindCheck = kind === searchKind
+        const nameCheck = name === searchPluginName
 
-      if (searchIdentifier) {
-        return identifierCheck && kindCheck && nameCheck
-      }
+        if (searchIdentifier) {
+          return identifierCheck && kindCheck && nameCheck
+        }
 
-      return kindCheck && nameCheck
-    })
+        return kindCheck && nameCheck
+      })
 
     if (!pluginByPluginName?.length) {
       // fallback on the core plugin when there is no match
 
-      const corePlugin = plugins.find(plugin => plugin.name === 'core' && plugin[hookName])
+      const corePlugin = plugins.find((plugin) => plugin.name === 'core' && plugin[hookName])
 
       if (this.logger.logLevel === 'info') {
         if (corePlugin) {

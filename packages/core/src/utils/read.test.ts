@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { clean } from './clean.ts'
-import { getPathMode, getRelativePath, read } from './read.ts'
+import { getRelativePath, read } from './read.ts'
 import { write } from './write.ts'
 
 describe('read', () => {
@@ -12,13 +12,6 @@ describe('read', () => {
   afterEach(async () => {
     await clean(filePath)
     await clean(folderPath)
-  })
-
-  test('if getPathMode returns correct PathMode(file or directory)', () => {
-    expect(getPathMode(filePath)).toBe('file')
-    expect(getPathMode(folderPath)).toBe('directory')
-    expect(getPathMode(undefined)).toBe('directory')
-    expect(getPathMode(null)).toBe('directory')
   })
 
   test('read filePath', async () => {
