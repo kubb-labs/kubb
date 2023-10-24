@@ -2,7 +2,7 @@
   "name": "kubb",
   "version": "1.14.3",
   "private": true,
-  "description": "Kubb monorepo",
+  "description": "Kubb's monorepo",
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-project/kubb.git"
