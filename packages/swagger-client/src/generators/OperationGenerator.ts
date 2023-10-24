@@ -2,7 +2,6 @@ import { URLPath } from '@kubb/core'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 
 import { ClientBuilder } from '../builders/ClientBuilder.tsx'
-import { pluginName } from '../plugin.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { HttpMethod, Operation, OperationSchemas } from '@kubb/swagger'
@@ -17,9 +16,9 @@ type Options = {
 
 export class OperationGenerator extends Generator<Options> {
   async all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, oas } = this.context
+    const { pluginManager, oas, plugin } = this.context
 
-    const controllerName = pluginManager.resolveName({ name: 'operations', pluginName })
+    const controllerName = pluginManager.resolveName({ name: 'operations', pluginKey: plugin.key })
 
     if (!controllerName) {
       throw new Error('controllerName should be defined')
@@ -28,7 +27,7 @@ export class OperationGenerator extends Generator<Options> {
     const controllerId = `${controllerName}.ts` as const
     const controllerFilePath = pluginManager.resolvePath({
       baseName: controllerId,
-      pluginName,
+      pluginKey: plugin.key,
     })
 
     if (!controllerFilePath) {
@@ -64,7 +63,7 @@ export class OperationGenerator extends Generator<Options> {
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { clientPath, clientImportPath, dataReturnType, pathParamsType } = options
-    const { pluginManager, oas } = this.context
+    const { pluginManager, oas, plugin } = this.context
 
     const clientBuilder = new ClientBuilder(
       {
@@ -73,7 +72,7 @@ export class OperationGenerator extends Generator<Options> {
         clientImportPath,
         pathParamsType,
       },
-      { oas, pluginManager, operation, schemas },
+      { oas, pluginManager, plugin, operation, schemas },
     )
     const file = clientBuilder.render().file
 
@@ -87,7 +86,7 @@ export class OperationGenerator extends Generator<Options> {
       source: file.source,
       imports: file.imports,
       meta: {
-        pluginName,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }
@@ -95,7 +94,7 @@ export class OperationGenerator extends Generator<Options> {
 
   async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { clientPath, clientImportPath, dataReturnType, pathParamsType } = options
-    const { pluginManager, oas } = this.context
+    const { pluginManager, oas, plugin } = this.context
 
     const clientBuilder = new ClientBuilder(
       {
@@ -104,7 +103,7 @@ export class OperationGenerator extends Generator<Options> {
         clientImportPath,
         pathParamsType,
       },
-      { oas, pluginManager, operation, schemas },
+      { oas, pluginManager, plugin, operation, schemas },
     )
     const file = clientBuilder.render().file
 
@@ -118,7 +117,7 @@ export class OperationGenerator extends Generator<Options> {
       source: file.source,
       imports: file.imports,
       meta: {
-        pluginName,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }

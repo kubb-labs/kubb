@@ -68,6 +68,32 @@ describe('PluginManager', () => {
     }
   })
 
+  const pluginBBis = createPlugin(() => {
+    return {
+      name: 'pluginB',
+      options: undefined as unknown,
+      api: undefined as never,
+      kind: 'schema',
+      key: ['schema', 'pluginB', 2],
+      buildStart() {
+        pluginBMocks.buildStart()
+      },
+      resolvePath() {
+        pluginBMocks.resolvePath()
+
+        return 'pluginBBis/gen'
+      },
+      resolveName() {
+        return 'pluginBBisName'
+      },
+      transform(code) {
+        pluginBMocks.transform()
+
+        return `${code} pluginBBis`
+      },
+    }
+  })
+
   const config = {
     root: '.',
     input: {
@@ -77,11 +103,11 @@ describe('PluginManager', () => {
       path: './src/gen',
       clean: true,
     },
-    plugins: [pluginA({}), pluginB({})] as KubbPlugin[],
+    plugins: [pluginA({}), pluginB({}), pluginBBis({})] as KubbPlugin[],
   } satisfies KubbConfig
   const queueTaskMock = vi.fn()
   const pluginManager = new PluginManager(config, {
-    logger: createLogger(),
+    logger: createLogger({ logLevel: 'silent' }),
     task: queueTaskMock,
   })
 
@@ -90,7 +116,7 @@ describe('PluginManager', () => {
     expect(pluginManager.fileManager).toBeDefined()
     expect(pluginManager.plugins.length).toBe(config.plugins.length + 1)
     expect(hooks).toStrictEqual(['validate', 'buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'])
-    expect(pluginManager.getPlugin('buildStart', 'pluginB')?.name).toBe('pluginB')
+    expect(pluginManager.getPluginsByKey('buildStart', ['schema', 'pluginB'])?.[0]?.name).toBe('pluginB')
   })
 
   test('hookFirst', async () => {
@@ -141,7 +167,7 @@ describe('PluginManager', () => {
       reduce: transformReducerMocks,
     })
 
-    expect(transformReducerMocks).toHaveBeenCalledTimes(2)
+    expect(transformReducerMocks).toHaveBeenCalledTimes(3)
     // expect(transformReducerMocks).toHaveBeenNthCalledWith(1, 'code', 'code pluginA', expect.anything())
     expect(transformReducerMocks.mock.calls[0]).toEqual(['code', 'code pluginA', expect.anything()])
     // expect(transformReducerMocks).toHaveBeenNthCalledWith(2, 'code', 'code pluginA pluginB', expect.anything())
@@ -161,23 +187,34 @@ describe('PluginManager', () => {
     expect(pluginBMocks.transform).toHaveBeenCalled()
   })
 
-  test('resolvePath without `pluginName`', () => {
+  test('resolvePath without `pluginKey`', () => {
     const path = pluginManager.resolvePath({
       baseName: 'baseName',
     })
 
     expect(path).toBe('pluginA/gen')
   })
-  test('resolvePath with `pluginName`', () => {
+  test('resolvePath with `pluginKey`', () => {
     const path = pluginManager.resolvePath({
       baseName: 'fileNameB',
-      pluginName: 'pluginB',
+      pluginKey: ['schema', 'pluginB', 1],
     })
 
     expect(path).toBe('pluginB/gen')
   })
 
-  test('resolveName without `pluginName`', () => {
+  test('resolvePath with `pluginKey` that will run on first `pluginB` variant', () => {
+    try {
+      pluginManager.resolvePath({
+        baseName: 'fileNameB',
+        pluginKey: ['schema', 'pluginB'],
+      })
+    } catch (e) {
+      expect(e).toBeDefined()
+    }
+  })
+
+  test('resolveName without `pluginKey`', () => {
     const name = pluginManager.resolveName({
       name: 'name',
     })
@@ -185,7 +222,7 @@ describe('PluginManager', () => {
     // pluginA does not have `resolveName` so taking the first plugin that returns a name
     expect(name).toBe('pluginBName')
   })
-  test('resolveName with `pluginName`', () => {
+  test('resolveName with `pluginKey`', () => {
     const hooksFirstSyncMock = vi.fn(pluginManager.hookFirstSync)
     const hookForPluginSyncMock = vi.fn(pluginManager.hookForPluginSync)
 
@@ -194,7 +231,7 @@ describe('PluginManager', () => {
 
     const name = pluginManager.resolveName({
       name: 'nameB',
-      pluginName: 'pluginB',
+      pluginKey: ['schema', 'pluginB', '1'],
     })
 
     expect(name).toBe('pluginBName')
@@ -203,7 +240,7 @@ describe('PluginManager', () => {
 
   test('hookForPlugin', async () => {
     await pluginManager.hookForPlugin({
-      pluginName: 'pluginB',
+      pluginKey: ['schema', 'pluginB'],
       hookName: 'resolvePath',
       parameters: ['path'],
     })

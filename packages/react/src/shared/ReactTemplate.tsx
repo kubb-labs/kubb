@@ -95,7 +95,7 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
       return
     }
 
-    const { output, file, imports, exports } = renderer(this.#rootNode)
+    const { output, file } = renderer(this.#rootNode)
 
     this.#lastOutput = output
     this.#lastFile = file

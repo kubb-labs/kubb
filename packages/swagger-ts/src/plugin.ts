@@ -1,6 +1,6 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
-import { createPlugin, getDependedPlugins, getPathMode, getRelativePath, renderTemplate, timeout } from '@kubb/core'
+import { createPlugin, FileManager, getDependedPlugins, getRelativePath, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
@@ -8,10 +8,12 @@ import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerg
 import { TypeBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
 
+import type { KubbPlugin } from '@kubb/core'
 import type { OpenAPIV3, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
-export const pluginName: PluginOptions['name'] = 'swagger-ts' as const
+export const pluginName = 'swagger-ts' satisfies PluginOptions['name']
+export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
@@ -23,9 +25,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     dateType = 'string',
     optionalType = 'questionToken',
     transformers = {},
+    exportAs,
   } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
-  let pluginsOptions: [SwaggerPluginOptions]
+  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
@@ -37,36 +40,36 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return true
     },
     resolvePath(baseName, directory, options) {
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
-      const mode = getPathMode(pathParser.resolve(root, output))
+      const root = path.resolve(this.config.root, this.config.output.path)
+      const mode = FileManager.getMode(path.resolve(root, output))
 
       if (mode === 'file') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
-        return pathParser.resolve(root, output)
+        return path.resolve(root, output)
       }
 
       if (options?.tag && groupBy?.type === 'tag') {
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
-        return pathParser.resolve(root, renderTemplate(template, { tag }), baseName)
+        return path.resolve(root, renderTemplate(template, { tag }), baseName)
       }
 
-      return pathParser.resolve(root, output, baseName)
+      return path.resolve(root, output, baseName)
     },
     resolveName(name) {
       const resolvedName = pascalCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: pascalCaseTransformMerge })
 
       return transformers?.name?.(resolvedName) || resolvedName
     },
-    async writeFile(source, path) {
-      if (!path.endsWith('.ts') || !source) {
+    async writeFile(source, writePath) {
+      if (!writePath.endsWith('.ts') || !source) {
         return
       }
 
-      await this.fileManager.write(source, path)
+      return this.fileManager.write(source, writePath)
     },
     async buildStart() {
       const [swaggerPlugin] = pluginsOptions
@@ -74,19 +77,22 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const oas = await swaggerPlugin.api.getOas()
 
       const schemas = await swaggerPlugin.api.getSchemas()
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
-      const mode = getPathMode(pathParser.resolve(root, output))
+      const root = path.resolve(this.config.root, this.config.output.path)
+      const mode = FileManager.getMode(path.resolve(root, output))
+      // keep the used enumnames between TypeBuilder and OperationGenerator per plugin(pluginKey)
+      const usedEnumNames = {}
 
       if (mode === 'directory') {
         const builder = await new TypeBuilder({
-          resolveName: (params) => this.resolveName({ pluginName, ...params }),
+          usedEnumNames,
+          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           fileResolver: (name) => {
             const resolvedTypeId = this.resolvePath({
               baseName: `${name}.ts`,
-              pluginName,
+              pluginKey: this.plugin.key,
             })
 
-            const root = this.resolvePath({ baseName: ``, pluginName })
+            const root = this.resolvePath({ baseName: ``, pluginKey: this.plugin.key })
 
             return getRelativePath(root, resolvedTypeId)
           },
@@ -104,18 +110,18 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
 
         const mapFolderSchema = async ([name]: [string, OpenAPIV3.SchemaObject]) => {
-          const path = this.resolvePath({ baseName: `${this.resolveName({ name, pluginName })}.ts`, pluginName })
+          const resolvedPath = this.resolvePath({ baseName: `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts`, pluginKey: this.plugin.key })
 
-          if (!path) {
+          if (!resolvedPath) {
             return null
           }
 
           return this.addFile({
-            path,
-            baseName: `${this.resolveName({ name, pluginName })}.ts`,
+            path: resolvedPath,
+            baseName: `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts`,
             source: builder.print(name),
             meta: {
-              pluginName,
+              pluginKey: this.plugin.key,
             },
           })
         }
@@ -128,7 +134,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (mode === 'file') {
         // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
         const builder = new TypeBuilder({
-          resolveName: (params) => this.resolveName({ pluginName, ...params }),
+          usedEnumNames,
+          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           withJSDocs: true,
           enumType,
           dateType,
@@ -142,17 +149,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           })
         })
 
-        const path = this.resolvePath({ baseName: '', pluginName })
-        if (!path) {
+        const resolvedPath = this.resolvePath({ baseName: '', pluginKey: this.plugin.key })
+        if (!resolvedPath) {
           return
         }
 
         await this.addFile({
-          path,
-          baseName: `${this.resolveName({ name: output, pluginName })}.ts`,
+          path: resolvedPath,
+          baseName: `${this.resolveName({ name: output, pluginKey: this.plugin.key })}.ts`,
           source: builder.print(),
           meta: {
-            pluginName,
+            pluginKey: this.plugin.key,
           },
         })
       }
@@ -163,10 +170,12 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           enumType,
           dateType,
           optionalType,
+          usedEnumNames,
         },
         {
           oas,
           pluginManager: this.pluginManager,
+          plugin: this.plugin,
           contentType: swaggerPlugin.api.contentType,
           skipBy,
           overrideBy,
@@ -181,13 +190,32 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return
       }
 
-      while (this.fileManager.isExecuting) {
-        await timeout(100)
-      }
+      const root = path.resolve(this.config.root, this.config.output.path)
 
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
-
-      await this.fileManager.addIndexes(root, '.ts')
+      await this.fileManager.addIndexes({
+        root,
+        extName: '.ts',
+        meta: { pluginKey: this.plugin.key },
+        options: {
+          map: (file) => {
+            return {
+              ...file,
+              exports: file.exports?.map((item) => {
+                if (exportAs) {
+                  return {
+                    ...item,
+                    name: exportAs,
+                    asAlias: !!exportAs,
+                  }
+                }
+                return item
+              }),
+            }
+          },
+          output,
+          isTypeOnly: true,
+        },
+      })
     },
   }
 })

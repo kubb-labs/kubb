@@ -1,10 +1,12 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
-import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
+
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+
+import type { QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
+import type { GetOrderById400, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById'
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: `/store/order/${orderId}`, params: { orderId: orderId } }] as const
-export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
+export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
@@ -29,13 +31,10 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
  * @link /store/order/:orderId
  */
 
-export function useGetOrderByIdHook<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
-  orderId: GetOrderByIdPathParams['orderId'],
-  options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useGetOrderByIdHook<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(orderId: GetOrderByIdPathParams['orderId'], options: {
+  query?: UseQueryOptions<TData, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
 
@@ -44,12 +43,12 @@ export function useGetOrderByIdHook<TData = GetOrderByIdQueryResponse, TError = 
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
 
-export function getOrderByIdQueryOptionsInfinite<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
+export function getOrderByIdQueryOptionsInfinite<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
@@ -74,13 +73,10 @@ export function getOrderByIdQueryOptionsInfinite<TData = GetOrderByIdQueryRespon
  * @link /store/order/:orderId
  */
 
-export function useGetOrderByIdHookInfinite<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
-  orderId: GetOrderByIdPathParams['orderId'],
-  options: {
-    query?: UseInfiniteQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useGetOrderByIdHookInfinite<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(orderId: GetOrderByIdPathParams['orderId'], options: {
+  query?: UseInfiniteQueryOptions<TData, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
 
@@ -89,7 +85,7 @@ export function useGetOrderByIdHookInfinite<TData = GetOrderByIdQueryResponse, T
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

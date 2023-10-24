@@ -1,22 +1,46 @@
 import crypto from 'node:crypto'
+import { extname } from 'node:path'
 
-import { read, write } from '../../utils/index.ts'
-import { extensions, getIndexes } from './utils.ts'
+import { read, timeout, write } from '../../utils/index.ts'
+import { combineFiles } from './utils.ts'
+import { createFileSource, extensions, getIndexes } from './utils.ts'
 
-import type { Queue, QueueJob, TreeNodeOptions } from '../../utils/index.ts'
+import type { Queue, QueueJob } from '../../utils/index.ts'
 import type { CacheItem, KubbFile } from './types.ts'
+import type { IndexesOptions } from './utils.ts'
+
+type AddIndexesProps = {
+  root: KubbFile.Path
+  extName?: KubbFile.Extname
+  options?: IndexesOptions
+  meta?: KubbFile.File['meta']
+}
+
+type Options = {
+  queue?: Queue
+  task?: QueueJob<KubbFile.ResolvedFile>
+  /**
+   * Timeout between writes
+   */
+  timeout?: number
+}
 
 export class FileManager {
   #cache: Map<KubbFile.Path, CacheItem[]> = new Map()
 
   #task?: QueueJob<KubbFile.ResolvedFile>
-
+  #isWriting = false
+  /**
+   * Timeout between writes
+   */
+  #timeout: number = 0
   #queue?: Queue
 
-  constructor(options?: { queue?: Queue; task?: QueueJob<KubbFile.ResolvedFile> }) {
+  constructor(options?: Options) {
     if (options) {
       this.#task = options.task
       this.#queue = options.queue
+      this.#timeout = options.timeout || 0
     }
 
     return this
@@ -34,7 +58,7 @@ export class FileManager {
     return files
   }
   get isExecuting(): boolean {
-    return this.#queue?.hasJobs ?? false
+    return this.#queue?.hasJobs ?? this.#isWriting ?? false
   }
 
   async add(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
@@ -44,26 +68,18 @@ export class FileManager {
     this.#cache.set(resolvedFile.path, [{ cancel: () => controller.abort(), ...resolvedFile }])
 
     if (this.#queue) {
-      try {
-        await this.#queue.run(
-          async () => {
-            return this.#task?.(resolvedFile)
-          },
-          { controller },
-        )
-      } catch {
-        return resolvedFile
-      }
+      await this.#queue.run(
+        async () => {
+          return this.#task?.(resolvedFile)
+        },
+        { controller },
+      )
     }
 
     return resolvedFile
   }
 
   async addOrAppend(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
-    // if (!file.path.endsWith(file.baseName)) {
-    //   console.warn(`Path ${file.path}(file.path) should end with the baseName ${file.baseName}(file.filename)`)
-    // }
-
     const previousCaches = this.#cache.get(file.path)
     const previousCache = previousCaches ? previousCaches.at(previousCaches.length - 1) : undefined
 
@@ -81,28 +97,21 @@ export class FileManager {
     return this.add(file)
   }
 
-  async addIndexes(root: KubbFile.Path, extName: KubbFile.Extname = '.ts', options: TreeNodeOptions = {}): Promise<Array<KubbFile.File> | undefined> {
-    const files = await getIndexes(root, extName, options)
+  async addIndexes({ root, extName = '.ts', meta, options = {} }: AddIndexesProps): Promise<Array<KubbFile.File> | undefined> {
+    const files = getIndexes(root, extName, options)
 
     if (!files) {
       return undefined
     }
 
-    return Promise.all(
+    return await Promise.all(
       files.map((file) => {
-        if (file.override) {
-          return this.add(file)
-        }
-
-        return this.addOrAppend(file)
+        return this.addOrAppend({
+          ...file,
+          meta: meta ? meta : file.meta,
+        })
       }),
     )
-  }
-
-  #append(path: KubbFile.Path, file: KubbFile.ResolvedFile): void {
-    const previousFiles = this.#cache.get(path) || []
-
-    this.#cache.set(path, [...previousFiles, file])
   }
 
   getCacheByUUID(UUID: KubbFile.UUID): KubbFile.File | undefined {
@@ -127,23 +136,37 @@ export class FileManager {
     this.#cache.delete(path)
   }
 
-  async write(...params: Parameters<typeof write>): Promise<void> {
-    if (this.#queue) {
-      return this.#queue.run(async () => {
-        return write(...params)
-      })
+  async write(...params: Parameters<typeof write>): Promise<string | undefined> {
+    if (!this.#isWriting) {
+      this.#isWriting = true
+
+      const text = await write(...params)
+
+      this.#isWriting = false
+      return text
     }
 
-    return write(...params)
+    await timeout(this.#timeout)
+
+    return this.write(...params)
   }
 
   async read(...params: Parameters<typeof read>): Promise<string> {
-    if (this.#queue) {
-      return this.#queue.run(async () => {
-        return read(...params)
-      })
-    }
-
     return read(...params)
+  }
+
+  // statics
+
+  static getSource(file: KubbFile.File): string {
+    return createFileSource(file)
+  }
+  static combineFiles(files: Array<KubbFile.File | null>): Array<KubbFile.File> {
+    return combineFiles(files)
+  }
+  static getMode(path: string | undefined | null): KubbFile.Mode {
+    if (!path) {
+      return 'directory'
+    }
+    return extname(path) ? 'file' : 'directory'
   }
 }

@@ -1,30 +1,16 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
-import { createPluginCache } from './utils/index.ts'
+import { createPluginCache } from './utils/cache.ts'
 
 import type { FileManager } from './managers/fileManager/FileManager.ts'
 import type { PluginManager } from './managers/pluginManager/PluginManager.ts'
 import type { KubbPlugin, KubbUserPlugin, PluginContext, PluginFactoryOptions } from './types.ts'
 
-type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (
-  options: T['options'],
-) => T['nested'] extends true ? Array<KubbUserPlugin<T>> : KubbUserPlugin<T>
+type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (options: T['options']) => KubbUserPlugin<T>
 
 export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptions>(factory: KubbPluginFactory<T>) {
   return (options: T['options']): ReturnType<KubbPluginFactory<T>> => {
-    const plugin = factory(options)
-    if (Array.isArray(plugin)) {
-      throw new Error('Not implemented')
-    }
-
-    // default transform
-    if (!plugin.transform) {
-      plugin.transform = function transform(code) {
-        return code
-      }
-    }
-
-    return plugin
+    return factory(options)
   }
 }
 
@@ -36,13 +22,14 @@ type Options = {
   resolveName: PluginContext['resolveName']
   logger: PluginContext['logger']
   getPlugins: () => KubbPlugin[]
-  plugin: KubbPlugin
+  plugin?: PluginContext['plugin']
 }
 
 // not publicly exported
-export type CorePluginOptions = PluginFactoryOptions<'core', Options, false, PluginContext>
+export type CorePluginOptions = PluginFactoryOptions<'core', 'controller', Options, false, PluginContext>
 
-export const pluginName: CorePluginOptions['name'] = 'core' as const
+export const pluginName = 'core' satisfies CorePluginOptions['name']
+export const pluginKey: CorePluginOptions['key'] = ['controller', pluginName] satisfies CorePluginOptions['key']
 
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
   const { fileManager, pluginManager, resolvePath, resolveName, logger } = options
@@ -50,14 +37,19 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
   return {
     name: pluginName,
     options,
+    key: ['controller', 'core'],
+    kind: 'controller',
     api() {
-      // TODO watch out, typing is incorrect, `this` will be `null` with that core is normally the `this`
       return {
         get config() {
           return options.config
         },
         get plugins() {
           return options.getPlugins()
+        },
+        get plugin() {
+          // see pluginManger.#execute where we override with `.call` the this with the correct plugin
+          return options.plugin as NonNullable<Options['plugin']>
         },
         logger,
         fileManager,
@@ -79,9 +71,9 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
       }
     },
     resolvePath(baseName) {
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const root = path.resolve(this.config.root, this.config.output.path)
 
-      return pathParser.resolve(root, baseName)
+      return path.resolve(root, baseName)
     },
     resolveName(name) {
       return name

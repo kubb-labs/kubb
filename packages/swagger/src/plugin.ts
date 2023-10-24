@@ -1,4 +1,4 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
 import { createPlugin } from '@kubb/core'
 
@@ -9,7 +9,8 @@ import type { KubbConfig, Logger } from '@kubb/core'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { Oas, PluginOptions } from './types.ts'
 
-export const pluginName: PluginOptions['name'] = 'swagger' as const
+export const pluginName = 'swagger' satisfies PluginOptions['name']
+export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'schemas', validate = true, serverIndex = 0, contentType } = options
@@ -56,16 +57,16 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return undefined
       }
 
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const root = path.resolve(this.config.root, this.config.output.path)
 
-      return pathParser.resolve(root, output, baseName)
+      return path.resolve(root, output, baseName)
     },
-    async writeFile(source, path) {
-      if (!path.endsWith('.json') || !source) {
+    async writeFile(source, writePath) {
+      if (!writePath.endsWith('.json') || !source) {
         return
       }
 
-      await this.fileManager.write(source, path)
+      return this.fileManager.write(source, writePath)
     },
     async buildStart() {
       if (output === false) {
@@ -77,21 +78,21 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const schemas = getSchemas({ oas, contentType })
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
-        const path = this.resolvePath({
+        const resolvedPath = this.resolvePath({
           baseName: `${name}.json`,
-          pluginName,
+          pluginKey: this.plugin.key,
         })
 
-        if (!path) {
+        if (!resolvedPath) {
           return
         }
 
         await this.addFile({
-          path,
+          path: resolvedPath,
           baseName: `${name}.json`,
           source: JSON.stringify(schema),
           meta: {
-            pluginName,
+            pluginKey: this.plugin.key,
           },
         })
       }

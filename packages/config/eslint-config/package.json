@@ -41,7 +41,7 @@
   "dependencies": {
     "@eslint/js": "^8.52.0",
     "@types/eslint": "~8.44.6",
-    "@typescript-eslint/eslint-plugin": "^6.8.0",
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "~6.7.5",
     "eslint-config-prettier": "~9.0.0",
     "eslint-config-turbo": "~1.10.16",
@@ -51,7 +51,7 @@
     "eslint-plugin-react": "~7.33.2",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-unused-imports": "~3.0.0",
-    "eslint-plugin-vitest": "~0.3.3",
+    "eslint-plugin-vitest": "~0.3.8",
     "eslint-plugin-vitest-globals": "~1.4.0",
     "globals": "^13.23.0"
   },

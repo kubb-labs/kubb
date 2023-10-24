@@ -1,72 +1,67 @@
-import type { UseMutationOptions, UseMutationResult, QueryKey, UseQueryResult, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
+
+import { useMutation, useQuery } from '@tanstack/react-query'
+
 import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { QueryKey, UseMutationOptions, UseMutationResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
 import type {
-  UpdatePetMutationRequest,
-  UpdatePetMutationResponse,
-  UpdatePet400,
-  UpdatePet404,
-  UpdatePet405,
+  AddPet405,
   AddPetMutationRequest,
   AddPetMutationResponse,
-  AddPet405,
-  FindPetsByStatusQueryResponse,
-  FindPetsByStatusQueryParams,
-  FindPetsByStatus400,
-  FindPetsByTagsQueryResponse,
-  FindPetsByTagsQueryParams,
-  FindPetsByTags400,
-  GetPetByIdQueryResponse,
-  GetPetByIdPathParams,
-  GetPetById400,
-  GetPetById404,
-  UpdatePetWithFormMutationResponse,
-  UpdatePetWithFormPathParams,
-  UpdatePetWithFormQueryParams,
-  UpdatePetWithForm405,
-  DeletePetMutationResponse,
-  DeletePetPathParams,
-  DeletePetHeaderParams,
-  DeletePet400,
-  UploadFileMutationRequest,
-  UploadFileMutationResponse,
-  UploadFilePathParams,
-  UploadFileQueryParams,
-  GetInventoryQueryResponse,
-  PlaceOrderMutationRequest,
-  PlaceOrderMutationResponse,
-  PlaceOrder405,
-  PlaceOrderPatchMutationRequest,
-  PlaceOrderPatchMutationResponse,
-  PlaceOrderPatch405,
-  GetOrderByIdQueryResponse,
-  GetOrderByIdPathParams,
-  GetOrderById400,
-  GetOrderById404,
-  DeleteOrderMutationResponse,
-  DeleteOrderPathParams,
-  DeleteOrder400,
-  DeleteOrder404,
   CreateUserMutationRequest,
   CreateUserMutationResponse,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
-  LoginUserQueryResponse,
-  LoginUserQueryParams,
-  LoginUser400,
-  LogoutUserQueryResponse,
-  GetUserByNameQueryResponse,
-  GetUserByNamePathParams,
+  DeleteOrder400,
+  DeleteOrderMutationResponse,
+  DeleteOrderPathParams,
+  DeletePet400,
+  DeletePetHeaderParams,
+  DeletePetMutationResponse,
+  DeletePetPathParams,
+  DeleteUser400,
+  DeleteUserMutationResponse,
+  DeleteUserPathParams,
+  FindPetsByStatus400,
+  FindPetsByStatusQueryParams,
+  FindPetsByStatusQueryResponse,
+  FindPetsByTags400,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsQueryResponse,
+  GetInventoryQueryResponse,
+  GetOrderById400,
+  GetOrderByIdPathParams,
+  GetOrderByIdQueryResponse,
+  GetPetById400,
+  GetPetByIdPathParams,
+  GetPetByIdQueryResponse,
   GetUserByName400,
-  GetUserByName404,
+  GetUserByNamePathParams,
+  GetUserByNameQueryResponse,
+  LoginUser400,
+  LoginUserQueryParams,
+  LoginUserQueryResponse,
+  LogoutUserQueryResponse,
+  PlaceOrder405,
+  PlaceOrderMutationRequest,
+  PlaceOrderMutationResponse,
+  PlaceOrderPatch405,
+  PlaceOrderPatchMutationRequest,
+  PlaceOrderPatchMutationResponse,
+  UpdatePet400,
+  UpdatePetMutationRequest,
+  UpdatePetMutationResponse,
+  UpdatePetWithForm405,
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
   UpdateUserMutationRequest,
   UpdateUserMutationResponse,
   UpdateUserPathParams,
-  DeleteUserMutationResponse,
-  DeleteUserPathParams,
-  DeleteUser400,
-  DeleteUser404,
+  UploadFileMutationRequest,
+  UploadFileMutationResponse,
+  UploadFilePathParams,
+  UploadFileQueryParams,
 } from './models'
 
 /**
@@ -75,12 +70,10 @@ import type {
  * @link /pet
  */
 
-export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdatePet400 | UpdatePet404 | UpdatePet405, TVariables = UpdatePetMutationRequest>(
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdatePet400, TVariables = UpdatePetMutationRequest>(options: {
+  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
+  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<ResponseConfig<TData>, TError, TVariables>({
@@ -162,7 +155,7 @@ export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TErro
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
@@ -206,13 +199,13 @@ export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = 
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
 
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: `/pet/${petId}`, params: { petId: petId } }] as const
-export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
+export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400>(
   petId: GetPetByIdPathParams['petId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
@@ -237,7 +230,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
  * @link /pet/:petId
  */
 
-export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(petId: GetPetByIdPathParams['petId'], options: {
+export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400>(petId: GetPetByIdPathParams['petId'], options: {
   query?: UseQueryOptions<TData, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>
 } = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -249,7 +242,7 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetBy
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
@@ -381,7 +374,7 @@ export function useGetInventory<TData = GetInventoryQueryResponse, TError = unkn
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
@@ -439,7 +432,7 @@ export function usePlaceOrderPatch<TData = PlaceOrderPatchMutationResponse, TErr
 }
 
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: `/store/order/${orderId}`, params: { orderId: orderId } }] as const
-export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
+export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
@@ -464,13 +457,10 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
  * @link /store/order/:orderId
  */
 
-export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
-  orderId: GetOrderByIdPathParams['orderId'],
-  options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(orderId: GetOrderByIdPathParams['orderId'], options: {
+  query?: UseQueryOptions<TData, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
 
@@ -479,7 +469,7 @@ export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetO
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
@@ -490,13 +480,10 @@ export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetO
  * @link /store/order/:orderId
  */
 
-export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = DeleteOrder400 | DeleteOrder404>(
-  orderId: DeleteOrderPathParams['orderId'],
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
-    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, void> {
+export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = DeleteOrder400>(orderId: DeleteOrderPathParams['orderId'], options: {
+  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
+  client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
+} = {}): UseMutationResult<ResponseConfig<TData>, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return useMutation<ResponseConfig<TData>, TError, void>({
@@ -606,7 +593,7 @@ export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser4
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
@@ -647,13 +634,13 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
 
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: `/user/${username}`, params: { username: username } }] as const
-export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   username: GetUserByNamePathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
@@ -677,13 +664,10 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
  * @link /user/:username
  */
 
-export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
-  username: GetUserByNamePathParams['username'],
-  options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(username: GetUserByNamePathParams['username'], options: {
+  query?: UseQueryOptions<TData, TError>
+  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
 
@@ -692,7 +676,7 @@ export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = Ge
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
@@ -732,7 +716,7 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
  * @link /user/:username
  */
 
-export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400 | DeleteUser404>(username: DeleteUserPathParams['username'], options: {
+export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400>(username: DeleteUserPathParams['username'], options: {
   mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
   client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
 } = {}): UseMutationResult<ResponseConfig<TData>, TError, void> {

@@ -1,4 +1,4 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
 import { print } from '@kubb/parser'
 import { oasPathParser } from '@kubb/swagger'
@@ -9,11 +9,12 @@ import { TypeGenerator } from './TypeGenerator.ts'
 import type { OpenAPIV3 } from '@kubb/swagger'
 
 describe('TypeGenerator simple', () => {
-  const path = pathParser.resolve(__dirname, '../../mocks/petStore.yaml')
+  const petStorePath = path.resolve(__dirname, '../../mocks/petStore.yaml')
 
   test('generate type for Pet with optionalType `questionToken`', async () => {
-    const oas = await oasPathParser(path)
+    const oas = await oasPathParser(petStorePath)
     const generator = new TypeGenerator({
+      usedEnumNames: {},
       withJSDocs: false,
       resolveName: ({ name }) => name,
       enumType: 'asConst',
@@ -40,8 +41,9 @@ describe('TypeGenerator simple', () => {
   })
 
   test('generate type for Pet with optionalType `undefined`', async () => {
-    const oas = await oasPathParser(path)
+    const oas = await oasPathParser(petStorePath)
     const generator = new TypeGenerator({
+      usedEnumNames: {},
       withJSDocs: false,
       resolveName: ({ name }) => name,
       enumType: 'asConst',
@@ -68,8 +70,9 @@ describe('TypeGenerator simple', () => {
   })
 
   test('generate type for Pet with optionalType `questionTokenAndUndefined`', async () => {
-    const oas = await oasPathParser(path)
+    const oas = await oasPathParser(petStorePath)
     const generator = new TypeGenerator({
+      usedEnumNames: {},
       withJSDocs: false,
       resolveName: ({ name }) => name,
       enumType: 'asConst',
@@ -97,6 +100,7 @@ describe('TypeGenerator simple', () => {
 
   test('generate type for nullable fields', async () => {
     const generator = new TypeGenerator({
+      usedEnumNames: {},
       withJSDocs: false,
       resolveName: ({ name }) => name,
       enumType: 'asConst',
@@ -126,8 +130,9 @@ describe('TypeGenerator simple', () => {
   })
 
   test('generate type for Pets', async () => {
-    const oas = await oasPathParser(path)
+    const oas = await oasPathParser(petStorePath)
     const generator = new TypeGenerator({
+      usedEnumNames: {},
       withJSDocs: false,
       resolveName: ({ name }) => name,
       enumType: 'asConst',
@@ -151,15 +156,15 @@ describe('TypeGenerator simple', () => {
     `),
     )
   })
-  test.todo('generate type for Pets and Pet')
 })
 
 describe('TypeGenerator with refs', () => {
-  const path = pathParser.resolve(__dirname, '../../mocks/petStoreRef.yaml')
+  const petStoreRefPath = path.resolve(__dirname, '../../mocks/petStoreRef.yaml')
 
   test('generate type for Pets', async () => {
-    const oas = await oasPathParser(path)
+    const oas = await oasPathParser(petStoreRefPath)
     const generator = new TypeGenerator({
+      usedEnumNames: {},
       withJSDocs: false,
       resolveName: ({ name }) => name,
       enumType: 'asConst',
@@ -179,6 +184,4 @@ describe('TypeGenerator with refs', () => {
     `),
     )
   })
-
-  test.todo('generate type for Pets and Pet')
 })

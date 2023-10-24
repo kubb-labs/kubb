@@ -4,6 +4,7 @@ import { format } from '../../mocks/format.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
 import type { PluginContext, PluginManager } from '@kubb/core'
+import type { KubbPlugin } from '@kubb/core'
 
 describe('OperationGenerator', () => {
   const resolvePath = () => './pets.ts'
@@ -17,11 +18,13 @@ describe('OperationGenerator', () => {
         mode: 'directory',
         dateType: 'string',
         optionalType: 'questionToken',
+        usedEnumNames: {},
       },
       {
         oas,
         skipBy: [],
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )
@@ -37,12 +40,12 @@ describe('OperationGenerator', () => {
         */
         limit?: string;
     };
-    
+
     /**
     * @description unexpected error
     */
     export type ListPetsError = Error;
-    
+
     /**
     * @description A paged array of pets
     */
@@ -66,17 +69,17 @@ describe('OperationGenerator', () => {
         */
         testId: string;
     };
-    
+
     /**
     * @description unexpected error
     */
     export type ShowPetByIdError = Error;
-    
+
     /**
     * @description Expected response to a valid request
     */
     export type ShowPetByIdQueryResponse = Pet;
-    
+
     `),
     )
   })
@@ -89,11 +92,13 @@ describe('OperationGenerator', () => {
         mode: 'directory',
         dateType: 'string',
         optionalType: 'questionToken',
+        usedEnumNames: {},
       },
       {
         oas,
         skipBy: [],
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )
@@ -107,7 +112,7 @@ describe('OperationGenerator', () => {
        * @description Null response
        */
        export type CreatePets201 = any | null;
-       
+
        export type CreatePetsMutationRequest = {
            /**
            * @type string
@@ -118,9 +123,9 @@ describe('OperationGenerator', () => {
            */
            tag: string;
        };
-       
+
        export type CreatePetsMutationResponse = any | null;
-       
+
        /**
        * @description unexpected error
        */

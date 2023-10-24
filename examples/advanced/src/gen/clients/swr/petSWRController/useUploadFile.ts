@@ -1,6 +1,8 @@
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+
 import client from '../../../../swr-client.ts'
+
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type {
   UploadFileMutationRequest,

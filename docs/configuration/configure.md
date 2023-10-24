@@ -110,7 +110,7 @@ export default defineConfig(async ({ config, debug, watch }) => {
 
 :::
 
-### Example with a plugin
+### Single
 
 ::: code-group
 
@@ -127,7 +127,95 @@ export default defineConfig(async () => {
     output: {
       path: './src/gen',
     },
-    plugins: [createSwagger({ 'output': 'schemas', 'validate': true })],
+    plugins: [
+      createSwagger(
+        {
+          'output': 'schemas',
+          'validate': true,
+        },
+      ),
+    ],
+  }
+})
+```
+
+:::
+
+### Multiple <Badge type="warning" text="experimental" />
+
+Since version `1.15.x` we also support using multiple of the same plugin.
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig(async () => {
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+    plugins: [
+      createSwagger(
+        {
+          'output': 'schemas',
+          'validate': true,
+        },
+      ),
+      createSwagger(
+        {
+          'output': 'schemas2',
+          'validate': true,
+        },
+      ),
+    ],
+  }
+})
+```
+
+:::
+
+### Multiple JSON <Badge type="warning" text="experimental" />
+
+Since version `1.15.x` we also support using multiple of the same plugin.
+
+When using JSON, the structure will be a little bit different.
+Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/plugins/) makes it possible to use plugins with extra options.
+
+```
+[pluginName: string, options: PluginOptions]
+```
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig(async () => {
+  return {
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+    plugins: [
+      ['@kubb/swagger', {
+        'output': 'schemas',
+        'validate': true,
+      }],
+      ['@kubb/swagger', {
+        'output': 'schemas2',
+        'validate': true,
+      }],
+    ],
   }
 })
 ```
@@ -136,9 +224,16 @@ export default defineConfig(async () => {
 
 ## JSON
 
-You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packages/core/schema.json) to be sure you are using the correct configs.
+You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packages/core/schema.json) to be sure you are using the correct configs.<br/>
 
-### Example with a plugin
+When using JSON, the structure will be a little bit different.
+Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/plugins/) makes it possible to use plugins with extra options.
+
+```
+[pluginName: string, options: PluginOptions]
+```
+
+### Single
 
 ::: code-group
 
@@ -153,15 +248,23 @@ You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packa
     "path": "./src/gen"
   },
   "logLevel": "info",
-  "plugins": ["@kubb/swagger", { "output": "schemas", "validate": true }]
+  "plugins": [
+    [
+      "@kubb/swagger",
+      {
+        "output": "schemas",
+        "validate": true
+      }
+    ]
+  ]
 }
 ```
 
 :::
 
-## Object
+### Multiple <Badge type="warning" text="experimental" />
 
-### Example with a plugin
+Since version `1.15.x` we also support using multiple of the same plugin.
 
 ::: code-group
 
@@ -176,15 +279,28 @@ You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packa
     "path": "./src/gen"
   },
   "logLevel": "info",
-  "plugins": {
-    "@kubb/swagger": { "output": "schemas", "validate": true }
-  }
+  "plugins": [
+    [
+      "@kubb/swagger",
+      {
+        "output": "schemas",
+        "validate": true
+      }
+    ],
+    [
+      "@kubb/swagger",
+      {
+        "output": "schemas2",
+        "validate": true
+      }
+    ]
+  ]
 }
 ```
 
 :::
 
-## YAML
+## YAML <Badge type="warning" text="experimental" />
 
 ### Example with a plugin
 

@@ -1,12 +1,14 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+
 import client from '../../../../tanstack-query-client.ts'
+
+import type { QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
 import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type {
-  FindPetsByTagsQueryResponse,
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParams,
   FindPetsByTags400,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsQueryResponse,
 } from '../../../models/ts/petController/FindPetsByTags'
 
 export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
@@ -53,7 +55,7 @@ export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = 
     ...queryOptions,
   }) as UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
@@ -105,7 +107,7 @@ export function useFindPetsByTagsInfinite<TData = FindPetsByTagsQueryResponse, T
     ...queryOptions,
   }) as UseInfiniteQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

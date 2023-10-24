@@ -1,19 +1,21 @@
+import client from '@kubb/swagger-client/client'
+
+import { infiniteQueryOptions, queryOptions, useInfiniteQuery, useQuery } from '@tanstack/react-query'
+
 import type {
+  InfiniteData,
+  InfiniteQueryObserverOptions,
   QueryKey,
-  UseQueryResult,
-  UseQueryOptions,
   QueryObserverOptions,
   UseInfiniteQueryOptions,
-  InfiniteQueryObserverOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryOptions,
+  UseQueryResult,
 } from '@tanstack/react-query'
-import { useQuery, queryOptions, infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
-import client from '@kubb/swagger-client/client'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
+import type { GetPetById400, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById'
 
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: `/pet/${petId}`, params: { petId: petId } }] as const
-export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
+export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400>(
   petId: GetPetByIdPathParams['petId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
@@ -38,7 +40,7 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
  * @link /pet/:petId
  */
 
-export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(petId: GetPetByIdPathParams['petId'], options: {
+export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TError = GetPetById400>(petId: GetPetByIdPathParams['petId'], options: {
   query?: QueryObserverOptions<TData, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>
 } = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -50,14 +52,14 @@ export function useGetPetByIdHook<TData = GetPetByIdQueryResponse, TError = GetP
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
 
 export function getPetByIdQueryOptionsInfinite<
   TData = GetPetByIdQueryResponse,
-  TError = GetPetById400 | GetPetById404,
+  TError = GetPetById400,
   TInfiniteDate = InfiniteData<GetPetByIdQueryResponse extends [] ? GetPetByIdQueryResponse[number] : GetPetByIdQueryResponse>,
 >(petId: GetPetByIdPathParams['petId'], options: Partial<Parameters<typeof client>[0]> = {}): UseInfiniteQueryOptions<TData, TError, TInfiniteDate> {
   const queryKey = getPetByIdQueryKey(petId)
@@ -85,7 +87,7 @@ export function getPetByIdQueryOptionsInfinite<
 
 export function useGetPetByIdHookInfinite<
   TData = GetPetByIdQueryResponse,
-  TError = GetPetById400 | GetPetById404,
+  TError = GetPetById400,
   TInfiniteDate = InfiniteData<GetPetByIdQueryResponse extends [] ? GetPetByIdQueryResponse[number] : GetPetByIdQueryResponse>,
 >(petId: GetPetByIdPathParams['petId'], options: {
   query?: InfiniteQueryObserverOptions<TData, TError, TInfiniteDate>
@@ -99,7 +101,7 @@ export function useGetPetByIdHookInfinite<
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

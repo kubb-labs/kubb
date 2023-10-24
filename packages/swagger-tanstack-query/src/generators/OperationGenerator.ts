@@ -1,9 +1,8 @@
 import { getRelativePath, PackageManager } from '@kubb/core'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
-import { pluginName as swaggerTypescriptPluginName, resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
+import { pluginKey as swaggerTypescriptPluginKey, resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
 
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
-import { pluginName } from '../plugin.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { Operation, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
@@ -23,7 +22,7 @@ type Options = {
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
     const { framework } = this.options
-    const { pluginManager } = this.context
+    const { pluginManager, plugin } = this.context
 
     const imports = this.getFrameworkSpecificImports(framework)
     const name = imports.getName(operation)
@@ -33,7 +32,7 @@ export class OperationGenerator extends Generator<Options> {
       operation,
       resolveName: pluginManager.resolveName,
       resolvePath: pluginManager.resolvePath,
-      pluginName,
+      pluginKey: plugin.key,
     })
   }
 
@@ -50,7 +49,7 @@ export class OperationGenerator extends Generator<Options> {
   resolveError(operation: Operation, statusCode: number): Resolver {
     const { pluginManager } = this.context
 
-    const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
+    const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginKey: swaggerTypescriptPluginKey })
 
     return resolveSwaggerTypescript({
       name,
@@ -72,14 +71,14 @@ export class OperationGenerator extends Generator<Options> {
   }
 
   getFrameworkSpecificImports(framework: Options['framework']): FrameworkImports {
-    const { pluginManager } = this.context
+    const { pluginManager, plugin } = this.context
 
     if (framework === 'svelte') {
       const isV5 = new PackageManager().isValidSync('@tanstack/svelte-query', '>=5')
 
       return {
         isV5,
-        getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginName }),
+        getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginKey: plugin.key }),
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
@@ -108,7 +107,7 @@ export class OperationGenerator extends Generator<Options> {
 
       return {
         isV5,
-        getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginName }),
+        getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginKey: plugin.key }),
         query: {
           useQuery: 'createQuery',
           QueryKey: 'QueryKey',
@@ -137,7 +136,7 @@ export class OperationGenerator extends Generator<Options> {
 
       return {
         isV5,
-        getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginName }),
+        getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey: plugin.key }),
         query: {
           useQuery: 'useQuery',
           QueryKey: 'QueryKey',
@@ -164,7 +163,7 @@ export class OperationGenerator extends Generator<Options> {
 
     return {
       isV5,
-      getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginName }),
+      getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey: plugin.key }),
       query: {
         useQuery: 'useQuery',
         QueryKey: 'QueryKey',
@@ -278,7 +277,7 @@ export class OperationGenerator extends Generator<Options> {
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { clientPath, framework, infinite, dataReturnType } = options
-    const { pluginManager, oas } = this.context
+    const { pluginManager, oas, plugin } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -293,7 +292,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, infinite, dataReturnType }, { oas, pluginManager, operation, schemas })
+    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, infinite, dataReturnType }, { oas, plugin, pluginManager, operation, schemas })
     const clientImportPath = this.options.clientImportPath
       ? this.options.clientImportPath
       : clientPath
@@ -335,7 +334,7 @@ export class OperationGenerator extends Generator<Options> {
         },
       ],
       meta: {
-        pluginName,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }
@@ -343,7 +342,7 @@ export class OperationGenerator extends Generator<Options> {
 
   async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { clientPath, framework, dataReturnType } = options
-    const { pluginManager, oas } = this.context
+    const { pluginManager, oas, plugin } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -358,7 +357,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, dataReturnType }, { oas, pluginManager, operation, schemas })
+    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, dataReturnType }, { oas, plugin, pluginManager, operation, schemas })
     const clientImportPath = this.options.clientImportPath
       ? this.options.clientImportPath
       : clientPath
@@ -401,7 +400,7 @@ export class OperationGenerator extends Generator<Options> {
         },
       ],
       meta: {
-        pluginName,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }

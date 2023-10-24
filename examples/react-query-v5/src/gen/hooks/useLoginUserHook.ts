@@ -1,16 +1,18 @@
+import client from '@kubb/swagger-client/client'
+
+import { infiniteQueryOptions, queryOptions, useInfiniteQuery, useQuery } from '@tanstack/react-query'
+
 import type {
+  InfiniteData,
+  InfiniteQueryObserverOptions,
   QueryKey,
-  UseQueryResult,
-  UseQueryOptions,
   QueryObserverOptions,
   UseInfiniteQueryOptions,
-  InfiniteQueryObserverOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryOptions,
+  UseQueryResult,
 } from '@tanstack/react-query'
-import { useQuery, queryOptions, infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
-import client from '@kubb/swagger-client/client'
-import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
+import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser'
 
 export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
 export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
@@ -50,7 +52,7 @@ export function useLoginUserHook<TData = LoginUserQueryResponse, TError = LoginU
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
@@ -103,7 +105,7 @@ export function useLoginUserHookInfinite<
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

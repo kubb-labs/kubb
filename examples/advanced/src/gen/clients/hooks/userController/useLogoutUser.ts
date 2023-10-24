@@ -1,6 +1,8 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+
 import client from '../../../../tanstack-query-client.ts'
+
+import type { QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
 import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 
@@ -40,7 +42,7 @@ export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>
     ...queryOptions,
   }) as UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
@@ -80,7 +82,7 @@ export function useLogoutUserInfinite<TData = LogoutUserQueryResponse, TError = 
     ...queryOptions,
   }) as UseInfiniteQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

@@ -1,8 +1,10 @@
 import crypto from 'node:crypto'
 import { performance } from 'node:perf_hooks'
 
+import { EventEmitter } from './EventEmitter.ts'
+
 export type QueueJob<T = unknown> = {
-  (...args: unknown[]): Promise<T> | Promise<void>
+  (...args: unknown[]): Promise<T | void>
 }
 
 type RunOptions = {
@@ -17,8 +19,14 @@ type QueueItem = {
   job: QueueJob<unknown>
 } & Required<RunOptions>
 
+type Events = {
+  jobDone: [result: unknown]
+  jobFailed: [error: Error]
+}
+
 export class Queue {
   #queue: QueueItem[] = []
+  readonly eventEmitter: EventEmitter<Events> = new EventEmitter()
 
   #workerCount = 0
 
@@ -70,17 +78,21 @@ export class Queue {
     if (this.#workerCount >= this.#maxParallel) {
       return
     }
+
     this.#workerCount++
 
     let entry: QueueItem | undefined
     while ((entry = this.#queue.shift())) {
       const { reject, resolve, job, name, description } = entry
+
       if (this.#debug) {
         performance.mark(name + '_start')
       }
 
       job()
         .then((result) => {
+          this.eventEmitter.emit('jobDone', result)
+
           resolve(result)
 
           if (this.#debug) {
@@ -88,9 +100,11 @@ export class Queue {
             performance.measure(description, name + '_start', name + '_stop')
           }
         })
-        .catch((err) => reject(err))
+        .catch((err) => {
+          this.eventEmitter.emit('jobFailed', err as Error)
+          reject(err)
+        })
     }
-
     this.#workerCount--
   }
 }

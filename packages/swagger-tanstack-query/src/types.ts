@@ -1,4 +1,4 @@
-import type { PluginFactoryOptions } from '@kubb/core'
+import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, Operation, OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
 type Infinite = {
@@ -148,10 +148,16 @@ export type FrameworkImports = {
 }
 
 export type FileMeta = {
-  pluginName?: string
+  pluginKey?: KubbPlugin['key']
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', Options, false, never, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', 'controller', Options, false, never, ResolvePathOptions>
 
 export type AppMeta = SwaggerAppMeta
+
+declare module '@kubb/core' {
+  export interface _Register {
+    ['@kubb/swagger-tanstack-query']: PluginOptions
+  }
+}

@@ -1,6 +1,6 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
-import { createPlugin, getDependedPlugins, getPathMode, getRelativePath, renderTemplate } from '@kubb/core'
+import { createPlugin, FileManager, getDependedPlugins, getRelativePath, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerFakerPluginName } from '@kubb/swagger-faker'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
@@ -13,7 +13,8 @@ import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
-export const pluginName: PluginOptions['name'] = 'swagger-msw' as const
+export const pluginName = 'swagger-msw' satisfies PluginOptions['name']
+export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'handlers', groupBy, skipBy = [], overrideBy = [], transformers = {} } = options
@@ -30,36 +31,36 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return true
     },
     resolvePath(baseName, directory, options) {
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
-      const mode = getPathMode(pathParser.resolve(root, output))
+      const root = path.resolve(this.config.root, this.config.output.path)
+      const mode = FileManager.getMode(path.resolve(root, output))
 
       if (mode === 'file') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
-        return pathParser.resolve(root, output)
+        return path.resolve(root, output)
       }
 
       if (options?.tag && groupBy?.type === 'tag') {
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
-        return pathParser.resolve(root, renderTemplate(template, { tag }), baseName)
+        return path.resolve(root, renderTemplate(template, { tag }), baseName)
       }
 
-      return pathParser.resolve(root, output, baseName)
+      return path.resolve(root, output, baseName)
     },
     resolveName(name) {
       const resolvedName = camelCase(`${name} Handler`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
 
       return transformers?.name?.(resolvedName) || resolvedName
     },
-    async writeFile(source, path) {
-      if (!path.endsWith('.ts') || !source) {
+    async writeFile(source, writePath) {
+      if (!writePath.endsWith('.ts') || !source) {
         return
       }
 
-      await this.fileManager.write(source, path)
+      return this.fileManager.write(source, writePath)
     },
     async buildStart() {
       const [swaggerPlugin] = pluginsOptions
@@ -71,6 +72,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         {
           oas,
           pluginManager: this.pluginManager,
+          plugin: this.plugin,
           contentType: swaggerPlugin.api.contentType,
           skipBy,
           overrideBy,
@@ -85,29 +87,29 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return
       }
 
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const root = path.resolve(this.config.root, this.config.output.path)
 
       if (groupBy?.type === 'tag') {
         const filteredFiles = this.fileManager.files.filter(
-          (file) => file.meta?.pluginName === pluginName && (file.meta as FileMeta)?.tag,
+          (file) => file.meta?.pluginKey?.[1] === pluginName && (file.meta as FileMeta)?.tag,
         ) as KubbFile.File<FileMeta>[]
         const rootFiles = filteredFiles
           .map((file) => {
             const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
-            const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
-            const name = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Handlers', { tag }), {
+            const tagPath = getRelativePath(path.resolve(root, output), path.resolve(root, renderTemplate(template, { tag })))
+            const tagName = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Handlers', { tag }), {
               delimiter: '',
               transform: camelCaseTransformMerge,
             })
 
-            if (name) {
+            if (tagName) {
               return {
                 baseName: 'index.ts' as const,
-                path: pathParser.resolve(root, output, 'index.ts'),
+                path: path.resolve(root, output, 'index.ts'),
                 source: '',
-                exports: [{ path, asAlias: true, name }],
+                exports: [{ path: tagPath, asAlias: true, name: tagName }],
                 meta: {
-                  pluginName,
+                  pluginKey: this.plugin.key,
                 },
               }
             }
@@ -117,7 +119,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         await this.addFile(...rootFiles)
       }
 
-      await this.fileManager.addIndexes(root, '.ts')
+      await this.fileManager.addIndexes({ root, extName: '.ts', meta: { pluginKey: this.plugin.key } })
     },
   }
 })

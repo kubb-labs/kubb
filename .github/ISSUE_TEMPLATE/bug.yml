@@ -16,12 +16,33 @@ body:
     attributes:
       label: What platform is your computer?
       description: MacOS, Windows, Linux.
+  - type: input
+    attributes:
+      label: What version of external packages are you using(`@tanstack-query`, `MSW`, `React`, `Vue`, ...)
+      description: Copy the output of your `package.json`
   - type: textarea
     attributes:
       label: What steps can reproduce the bug?
-      description: Explain the bug and provide a code snippet that can reproduce it.
+      description: |
+        Explain the bug and provide a code snippet that can reproduce it.
+         Please add a link to a minimal reproduction.
+        Note:
+        - Your bug may get fixed much faster if we can run your code and it doesn't have dependencies other than React/Solid/Vue/Svelte.
+        - To create a shareable code example for web, you can use CodeSandbox (https://codesandbox.io/s/new) or Stackblitz (https://stackblitz.com/).
+        - For TypeScript related issues only, a TypeScript Playground link might be sufficient: https://www.typescriptlang.org/play
+        - Please read these tips for providing a minimal example: https://stackoverflow.com/help/mcve
     validations:
       required: true
+  - type: dropdown
+    attributes:
+      label: How often does this bug happen?
+      description: |
+        Following the repro steps above, how easily are you able to reproduce this bug?
+      options:
+        - Every time
+        - Often
+        - Sometimes
+        - Only once
   - type: textarea
     attributes:
       label: What is the expected behavior?

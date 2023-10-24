@@ -1,15 +1,17 @@
+import client from '@kubb/swagger-client/client'
+
+import { infiniteQueryOptions, queryOptions, useInfiniteQuery, useQuery } from '@tanstack/react-query'
+
 import type {
+  InfiniteData,
+  InfiniteQueryObserverOptions,
   QueryKey,
-  UseQueryResult,
-  UseQueryOptions,
   QueryObserverOptions,
   UseInfiniteQueryOptions,
-  InfiniteQueryObserverOptions,
   UseInfiniteQueryResult,
-  InfiniteData,
+  UseQueryOptions,
+  UseQueryResult,
 } from '@tanstack/react-query'
-import { useQuery, queryOptions, infiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query'
-import client from '@kubb/swagger-client/client'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
 export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const
@@ -48,7 +50,7 @@ export function useLogoutUserHook<TData = LogoutUserQueryResponse, TError = unkn
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }
@@ -96,7 +98,7 @@ export function useLogoutUserHookInfinite<
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

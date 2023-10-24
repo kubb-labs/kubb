@@ -1,4 +1,4 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
 import { isPromiseFulfilledResult, LogLevel, write } from '@kubb/core'
 
@@ -49,7 +49,7 @@ export default defineConfig({
     clean: true,
   },
   hooks: {
-    done: 'echo "🎉 done"',
+    done: ['echo "🎉 done"'],
   },
   plugins: [createSwagger({}), createSwaggerTS({ output: 'models', enumType: 'enum' }), createSwaggerTanstackQuery({ output: './hooks' })],
 })
@@ -58,16 +58,16 @@ export default defineConfig({
   },
 }
 
-export default async function init({ preset = 'simple', logLevel = LogLevel.silent, packageManager = 'pnpm' }: InitProps): Promise<undefined> {
+export async function init({ preset = 'simple', logLevel = LogLevel.silent, packageManager = 'pnpm' }: InitProps): Promise<undefined> {
   spinner.start('📦 Initializing Kubb')
 
   const presetMeta = presets[preset]
-  const path = pathParser.resolve(process.cwd(), './kubb.config.js')
+  const configPath = path.resolve(process.cwd(), './kubb.config.js')
   const installCommand = packageManager === 'npm' ? 'install' : 'add'
 
-  spinner.start(`📀 Writing \`kubb.config.js\` ${pc.dim(path)}`)
-  await write(presetMeta['kubb.config'], path)
-  spinner.succeed(`📀 Wrote \`kubb.config.js\` ${pc.dim(path)}`)
+  spinner.start(`📀 Writing \`kubb.config.js\` ${pc.dim(configPath)}`)
+  await write(presetMeta['kubb.config'], configPath)
+  spinner.succeed(`📀 Wrote \`kubb.config.js\` ${pc.dim(configPath)}`)
 
   const results = await Promise.allSettled([
     $`npm init es6 -y`,

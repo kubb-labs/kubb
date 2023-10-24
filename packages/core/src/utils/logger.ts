@@ -1,10 +1,16 @@
 import pc from 'picocolors'
 
 import type { Ora } from 'ora'
+import type { LogLevel } from '../index.ts'
 
 export type LogType = 'error' | 'info' | 'warning'
 
 export type Logger = {
+  /**
+   * Optional config name to show in CLI output
+   */
+  name?: string
+  logLevel: LogLevel
   log: (message: string | null) => void
   error: (message: string | null) => void
   info: (message: string | null) => void
@@ -13,7 +19,13 @@ export type Logger = {
   logs: string[]
 }
 
-export function createLogger(spinner?: Ora): Logger {
+type Props = {
+  name?: string
+  logLevel: LogLevel
+  spinner?: Ora
+}
+
+export function createLogger({ logLevel, name, spinner }: Props): Logger {
   const logs: string[] = []
   const log: Logger['log'] = (message) => {
     if (message && spinner) {
@@ -43,6 +55,8 @@ export function createLogger(spinner?: Ora): Logger {
   }
 
   const logger: Logger = {
+    name,
+    logLevel,
     log,
     error,
     warn,

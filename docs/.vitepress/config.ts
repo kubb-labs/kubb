@@ -117,6 +117,10 @@ export default defineConfig({
             link: '/introduction',
           },
           {
+            text: 'Installation',
+            link: '/installation',
+          },
+          {
             text: 'Comparison <span class="beta">under construction</span>',
             link: '/comparison',
           },
@@ -207,7 +211,7 @@ export default defineConfig({
                 link: '/plugins/swagger-zodios',
               },
               {
-                text: '@kubb/swagger-tanstack-query',
+                text: '@kubb/swagger-tanstack-query <span class="new">v5 support</span>',
                 link: '/plugins/swagger-tanstack-query',
               },
               {
@@ -215,11 +219,11 @@ export default defineConfig({
                 link: '/plugins/swagger-swr',
               },
               {
-                text: '@kubb/swagger-faker <span class="new">new</span>',
+                text: '@kubb/swagger-faker',
                 link: '/plugins/swagger-faker',
               },
               {
-                text: '@kubb/swagger-msw <span class="new">new</span>',
+                text: '@kubb/swagger-msw <span class="new">v2 support</span>',
                 link: '/plugins/swagger-msw',
               },
             ],

@@ -173,45 +173,24 @@ export default defineConfig({
 
 :::
 
-## plugins
+## plugins[]
+
+```typescript
+import type { KubbUserPlugin } from '@kubb/core'
+
+type Plugins = Array<KubbUserPlugin | [name: string, options: object]>
+```
 
 Array of Kubb plugins to use. The plugin/package can have some extra options defined by the plugin.
 Sometimes a plugin is depended on another plugin, if that's the case you will get an error back from the plugin you installed.([see validate](/reference/pluginManager#1-validate))
 
-### plugins[index]
-
-#### TypeScript
-
-::: info
-
-Type: `Plugin` <br/>
-
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [createSwagger({})],
-})
-```
-
-:::
-
-#### JSON
+([see configure](/configuration/configure))
 
 When using JSON, the structure will be a little bit different.
 Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/plugins/) makes it possible to use plugins with extra options.
 
 ```
-[PLUGIN, {...options}]
+[pluginName: string, options: PluginOptions]
 ```
 
 ::: info
@@ -239,9 +218,32 @@ Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/pl
 }
 ```
 
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    [
+      '@kubb/swagger',
+      {
+        output: 'schemas',
+        validate: true,
+      },
+    ],
+  ],
+})
+```
+
 :::
 
-## hooks
+## hooks[]
 
 Hooks that will be called when a specific action is triggered in Kubb.
 

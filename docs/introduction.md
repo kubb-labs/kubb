@@ -64,30 +64,7 @@ yarn add @kubb/cli @kubb/core
 
 :::
 
-### <Badge type="warning" text="canary" />
-
-Kubb also publishes a canary version on every commit to the main branch. <br/>
-To install the canary version:
-
-::: code-group
-
-```shell [bun <img src="/feature/bun.svg"/>]
-bun add @kubb/cli@canary @kubb/core@canary
-```
-
-```shell [pnpm <img src="/feature/pnpm.svg"/>]
-pnpm add @kubb/cli@canary @kubb/core@canary
-```
-
-```shell [npm <img src="/feature/npm.svg"/>]
-npm install @kubb/cli@canary @kubb/core@canary
-```
-
-```shell [yarn <img src="/feature/yarn.svg"/>]
-yarn add @kubb/cli@canary @kubb/core@canary
-```
-
-:::
+See [Installation](/installation)
 
 ## Configuration File
 

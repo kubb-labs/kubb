@@ -1,8 +1,9 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
 import { createExportDeclaration, createImportDeclaration, print } from '@kubb/parser'
 
 import isEqual from 'lodash.isequal'
+import { orderBy } from 'natural-orderby'
 
 import { TreeNode } from '../../utils/index.ts'
 
@@ -11,7 +12,20 @@ import type { KubbFile } from './types.ts'
 
 type TreeNodeData = { type: KubbFile.Mode; path: KubbFile.Path; name: string }
 
-export function getIndexes(root: string, extName?: KubbFile.Extname, options: TreeNodeOptions = {}): Array<KubbFile.File> | null {
+export type IndexesOptions = {
+  treeNode?: TreeNodeOptions
+  isTypeOnly?: boolean
+  filter?: (file: KubbFile.File) => boolean
+  map?: (file: KubbFile.File) => KubbFile.File
+  includeExt?: boolean
+  output?: string
+}
+
+export function getIndexes(
+  root: string,
+  extName?: KubbFile.Extname,
+  { treeNode = {}, isTypeOnly, filter, map, output, includeExt }: IndexesOptions = {},
+): Array<KubbFile.File> | null {
   const extMapper: Record<KubbFile.Extname, TreeNodeOptions> = {
     '.ts': {
       extensions: /\.ts/,
@@ -22,7 +36,7 @@ export function getIndexes(root: string, extName?: KubbFile.Extname, options: Tr
       exclude: [],
     },
   }
-  const tree = TreeNode.build<TreeNodeData>(root, { ...(extMapper[extName as keyof typeof extMapper] || {}), ...options })
+  const tree = TreeNode.build<TreeNodeData>(root, { ...(extMapper[extName as keyof typeof extMapper] || {}), ...treeNode })
 
   if (!tree) {
     return null
@@ -34,40 +48,55 @@ export function getIndexes(root: string, extName?: KubbFile.Extname, options: Tr
     }
 
     if (currentTree.children?.length > 1) {
-      const path = pathParser.resolve(currentTree.data.path, 'index.ts')
-      const exports = currentTree.children
+      const indexPath: KubbFile.Path = path.resolve(currentTree.data.path, 'index.ts')
+      const exports: KubbFile.Export[] = currentTree.children
+        .filter(Boolean)
         .map((file) => {
-          if (!file) {
-            return undefined
-          }
-
           const importPath: string = file.data.type === 'directory' ? `./${file.data.name}` : `./${file.data.name.replace(/\.[^.]*$/, '')}`
 
           // TODO weird hacky fix
-          if (importPath.includes('index') && path.includes('index')) {
+          if (importPath.includes('index') && indexPath.includes('index')) {
             return undefined
           }
 
-          return { path: importPath }
+          return {
+            path: includeExt ? (file.data.type === 'directory' ? `${importPath}/index${extName}` : `${importPath}${extName}`) : importPath,
+            isTypeOnly,
+          } as KubbFile.Export
         })
         .filter(Boolean)
 
       files.push({
-        path,
+        path: indexPath,
         baseName: 'index.ts',
         source: '',
-        exports,
+        exports: output
+          ? exports?.filter((item) => {
+            return item.path.endsWith(output.replace(/\.[^.]*$/, ''))
+          })
+          : exports,
       })
     } else {
       currentTree.children?.forEach((child) => {
-        const path = pathParser.resolve(currentTree.data.path, 'index.ts')
+        const indexPath = path.resolve(currentTree.data.path, 'index.ts')
         const importPath = child.data.type === 'directory' ? `./${child.data.name}` : `./${child.data.name.replace(/\.[^.]*$/, '')}`
 
+        const exports = [
+          {
+            path: includeExt ? (child.data.type === 'directory' ? `${importPath}/index${extName}` : `${importPath}${extName}`) : importPath,
+            isTypeOnly,
+          },
+        ]
+
         files.push({
-          path,
+          path: indexPath,
           baseName: 'index.ts',
           source: '',
-          exports: [{ path: importPath }],
+          exports: output
+            ? exports?.filter((item) => {
+              return item.path.endsWith(output.replace(/\.[^.]*$/, ''))
+            })
+            : exports,
         })
       })
     }
@@ -79,9 +108,11 @@ export function getIndexes(root: string, extName?: KubbFile.Extname, options: Tr
     return files
   }
 
-  const files = fileReducer([], tree)
+  const files = fileReducer([], tree).reverse()
 
-  return files
+  const filteredFiles = filter ? files.filter(filter) : files
+
+  return map ? filteredFiles.map(map) : filteredFiles
 }
 
 export function combineFiles(files: Array<KubbFile.File | null>): Array<KubbFile.File> {
@@ -118,9 +149,16 @@ export function isExtensionAllowed(baseName: string): boolean {
 }
 
 export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.Export> {
-  return exports.reduce((prev, curr) => {
+  const combinedExports = orderBy(exports, [(v) => !v.isTypeOnly], ['asc']).reduce((prev, curr) => {
     const name = curr.name
     const prevByPath = prev.findLast((imp) => imp.path === curr.path)
+    const prevByPathAndIsTypeOnly = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly)
+
+    if (prevByPathAndIsTypeOnly) {
+      // we already have an export that has the same path but uses `isTypeOnly` (export type ...)
+      return prev
+    }
+
     const uniquePrev = prev.findLast(
       (imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly && imp.asAlias === curr.asAlias,
     )
@@ -147,14 +185,20 @@ export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.
 
     return [...prev, curr]
   }, [] as Array<KubbFile.Export>)
+
+  return orderBy(combinedExports, [(v) => !v.isTypeOnly, (v) => v.asAlias], ['desc', 'desc'])
 }
 
-export function combineImports(imports: Array<KubbFile.Import>, exports: Array<KubbFile.Export>, source: string): Array<KubbFile.Import> {
-  return imports.reduce((prev, curr) => {
+export function combineImports(imports: Array<KubbFile.Import>, exports: Array<KubbFile.Export>, source?: string): Array<KubbFile.Import> {
+  const combinedImports = orderBy(imports, [(v) => !v.isTypeOnly], ['asc']).reduce((prev, curr) => {
     let name = Array.isArray(curr.name) ? [...new Set(curr.name)] : curr.name
 
     const hasImportInSource = (importName: string) => {
-      const checker = (name?: string) => name && !!source.includes(`${name}`)
+      if (!source) {
+        return true
+      }
+
+      const checker = (name?: string) => name && !!source.includes(name)
       return checker(importName) || exports.some(({ name }) => (Array.isArray(name) ? name.some(checker) : checker(name)))
     }
 
@@ -164,6 +208,12 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
 
     const prevByPath = prev.findLast((imp) => imp.path === curr.path && imp.isTypeOnly === curr.isTypeOnly)
     const uniquePrev = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly === curr.isTypeOnly)
+    const prevByPathNameAndIsTypeOnly = prev.findLast((imp) => imp.path === curr.path && isEqual(imp.name, name) && imp.isTypeOnly)
+
+    if (prevByPathNameAndIsTypeOnly) {
+      // we already have an export that has the same path but uses `isTypeOnly` (import type ...)
+      return prev
+    }
 
     if (uniquePrev || (Array.isArray(name) && !name.length)) {
       return prev
@@ -191,36 +241,22 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
 
     return [...prev, curr]
   }, [] as Array<KubbFile.Import>)
+
+  return orderBy(combinedImports, [(v) => !v.isTypeOnly], ['desc'])
 }
 
 export function createFileSource(file: KubbFile.File): string {
-  let { source } = file
-
   if (!isExtensionAllowed(file.baseName)) {
     return file.source
   }
 
   const exports = file.exports ? combineExports(file.exports) : []
-  const imports = file.imports ? combineImports(file.imports, exports, source) : []
+  const imports = file.imports ? combineImports(file.imports, exports, file.source) : []
 
   const importNodes = imports.map((item) => createImportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly }))
-  const importSource = print(importNodes)
-
   const exportNodes = exports.map((item) => createExportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly, asAlias: item.asAlias }))
-  const exportSource = print(exportNodes)
 
-  // need to after `combineImports`
-  source = getEnvSource(file.source, file.env)
-
-  if (importSource) {
-    source = `${importSource}\n${source}`
-  }
-
-  if (exportSource) {
-    source = `${exportSource}\n${source}`
-  }
-
-  return source
+  return [print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')
 }
 
 type SearchAndReplaceOptions = {

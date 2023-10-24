@@ -17,13 +17,13 @@ export default defineConfig(async () => {
     hooks: {
       done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
     },
-    plugins: {
-      '@kubb/swagger': {
+    plugins: [
+      ['@kubb/swagger', {
         output: false,
-      },
-      '@kubb/swagger-zod': {
+      }],
+      ['@kubb/swagger-zod', {
         output: './zod',
-      },
-    },
+      }],
+    ],
   }
 })

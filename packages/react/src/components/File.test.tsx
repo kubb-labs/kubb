@@ -1,4 +1,3 @@
-import pathParser from 'node:path'
 import path from 'node:path'
 
 import { format } from '../../mocks/format.ts'
@@ -85,7 +84,7 @@ export * from './index.ts'
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
-          <File.Source path={pathParser.resolve(mocksPath, './test.ts')} print></File.Source>
+          <File.Source path={path.resolve(mocksPath, './test.ts')} print></File.Source>
         </File>
       )
     }

@@ -6,8 +6,6 @@ import tsNode from 'ts-node'
 
 import type { CosmiconfigResult } from '../types.ts'
 
-// TODO fix tsLoader for node 20 when using ESM only
-// https://github.com/TypeStrong/ts-node/issues/1997
 const tsLoader = (configFile: string) => {
   let registerer = { enabled() {} }
 

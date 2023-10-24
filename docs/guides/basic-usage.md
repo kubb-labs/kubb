@@ -44,7 +44,19 @@ export default defineConfig(async () => {
     output: {
       path: './src',
     },
-    plugins: [createSwagger({ output: false, validate: true }), createSwaggerTS({ output: 'models' })],
+    plugins: [
+      createSwagger(
+        {
+          output: false,
+          validate: true,
+        },
+      ),
+      createSwaggerTS(
+        {
+          output: 'models',
+        },
+      ),
+    ],
   }
 })
 ```

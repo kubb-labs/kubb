@@ -1,12 +1,14 @@
 import useSWR from 'swr'
-import type { SWRConfiguration, SWRResponse } from 'swr'
+
 import client from '../../../../swr-client.ts'
+
+import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type {
-  FindPetsByTagsQueryResponse,
-  FindPetsByTagsQueryParams,
-  FindPetsByTagsHeaderParams,
   FindPetsByTags400,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsQueryResponse,
 } from '../../../models/ts/petController/FindPetsByTags'
 
 export function findPetsByTagsQueryOptions<
