@@ -1,4 +1,4 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
 import { createPlugin } from '@kubb/core'
 
@@ -57,16 +57,16 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return undefined
       }
 
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const root = path.resolve(this.config.root, this.config.output.path)
 
-      return pathParser.resolve(root, output, baseName)
+      return path.resolve(root, output, baseName)
     },
-    async writeFile(source, path) {
-      if (!path.endsWith('.json') || !source) {
+    async writeFile(source, writePath) {
+      if (!writePath.endsWith('.json') || !source) {
         return
       }
 
-      return this.fileManager.write(source, path)
+      return this.fileManager.write(source, writePath)
     },
     async buildStart() {
       if (output === false) {
@@ -78,17 +78,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const schemas = getSchemas({ oas, contentType })
 
       const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
-        const path = this.resolvePath({
+        const resolvedPath = this.resolvePath({
           baseName: `${name}.json`,
           pluginKey: this.plugin.key,
         })
 
-        if (!path) {
+        if (!resolvedPath) {
           return
         }
 
         await this.addFile({
-          path,
+          path: resolvedPath,
           baseName: `${name}.json`,
           source: JSON.stringify(schema),
           meta: {

@@ -1,4 +1,5 @@
 import { http } from 'msw'
+
 import { createCreateUserMutationResponse } from '../../mocks/userMocks/createCreateUser'
 
 export const createUserHandler = http.post('*/user', function handler(info) {

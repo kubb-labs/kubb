@@ -1,2 +1,2 @@
-export * from './Generator.ts'
-export * from './SchemaGenerator.ts'
+export { Generator } from './Generator.ts'
+export { SchemaGenerator } from './SchemaGenerator.ts'

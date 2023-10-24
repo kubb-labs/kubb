@@ -1,4 +1,4 @@
-import pathParser from 'node:path'
+import { resolve } from 'node:path'
 
 import { URLPath } from '@kubb/core'
 
@@ -70,5 +70,5 @@ export async function oasParser(config: KubbConfig, options: OasOptions = {}): P
     return oasPathParser(config.input.path, options)
   }
 
-  return oasPathParser(pathParser.resolve(config.root, config.input.path), options)
+  return oasPathParser(resolve(config.root, config.input.path), options)
 }

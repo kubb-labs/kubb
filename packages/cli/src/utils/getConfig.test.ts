@@ -40,25 +40,28 @@ describe('getConfig', () => {
 
   test('return KubbConfig[] when config is set with defineConfig', async () => {
     const config: CosmiconfigResult['config'] = defineConfig(() => {
-      return [{
-        name: '1',
-        input: {
-          path: './',
+      return [
+        {
+          name: '1',
+          input: {
+            path: './',
+          },
+          output: {
+            path: './dist',
+          },
+          plugins: [],
         },
-        output: {
-          path: './dist',
+        {
+          name: '2',
+          input: {
+            path: './',
+          },
+          output: {
+            path: './dist2',
+          },
+          plugins: [],
         },
-        plugins: [],
-      }, {
-        name: '2',
-        input: {
-          path: './',
-        },
-        output: {
-          path: './dist2',
-        },
-        plugins: [],
-      }]
+      ]
     })
     const loadedConfig = await getConfig(
       {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { combineFiles, Generator, Warning } from '@kubb/core'
+import { FileManager, Generator, Warning } from '@kubb/core'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 import { findSchemaDefinition } from 'oas/utils'
@@ -353,7 +353,7 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
 
     const files = await Promise.all(promises)
 
-    return combineFiles(files)
+    return FileManager.combineFiles(files)
   }
 
   /**

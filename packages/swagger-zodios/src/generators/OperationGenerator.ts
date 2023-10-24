@@ -1,4 +1,4 @@
-import { escape, getRelativePath, URLPath } from '@kubb/core'
+import { getRelativePath, transformers, URLPath } from '@kubb/core'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
@@ -221,7 +221,7 @@ export class OperationGenerator extends Generator<Options> {
           parameters.push(`
           {
             name: "${key}",
-            description: \`${escape(schema?.description)}\`,
+            description: \`${transformers.escape(schema?.description)}\`,
             type: "Path",
             schema: ${zodSchema}
           }
@@ -244,7 +244,7 @@ export class OperationGenerator extends Generator<Options> {
           parameters.push(`
           {
             name: "${key}",
-            description: \`${escape(schema?.description)}\`,
+            description: \`${transformers.escape(schema?.description)}\`,
             type: "Query",
             schema: ${zodSchema}
           }
@@ -263,7 +263,7 @@ export class OperationGenerator extends Generator<Options> {
         parameters.push(`
         {
           name: "${schemas.request.name}",
-          description: \`${escape(schemas.request.description)}\`,
+          description: \`${transformers.escape(schemas.request.description)}\`,
           type: "Body",
           schema: ${requestBody.name}
         }
@@ -285,7 +285,7 @@ export class OperationGenerator extends Generator<Options> {
           parameters.push(`
           {
             name: "${key}",
-            description: \`${escape(schema?.description)}\`,
+            description: \`${transformers.escape(schema?.description)}\`,
             type: "Header",
             schema: ${zodSchema}
           }
@@ -310,7 +310,7 @@ export class OperationGenerator extends Generator<Options> {
             errors.push(`
               {
                 status: ${errorOperationSchema.statusCode},
-                description: \`${escape(errorOperationSchema.description)}\`,
+                description: \`${transformers.escape(errorOperationSchema.description)}\`,
                 schema: ${name}
               }
             `)
@@ -322,7 +322,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           method: "${operation.method}",
           path: "${new URLPath(operation.path).URL}",
-          description: \`${escape(operation.getDescription())}\`,
+          description: \`${transformers.escape(operation.getDescription())}\`,
           requestFormat: "json",
           parameters: [
               ${parameters.join(',')}

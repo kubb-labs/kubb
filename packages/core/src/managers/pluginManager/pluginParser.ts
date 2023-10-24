@@ -13,11 +13,7 @@ export function pluginParser<TPlugin extends KubbUserPlugin>(
 
   setUniqueName(plugin.name, usedPluginNames)
 
-  const key = plugin.key || [plugin.kind, plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [
-    typeof plugin.kind,
-    typeof plugin.name,
-    string,
-  ]
+  const key = plugin.key || ([plugin.kind, plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.kind, typeof plugin.name, string])
 
   if (plugin.name !== 'core' && usedPluginNames[plugin.name]! >= 2) {
     pluginManager.logger.warn('Using multiple of the same plugin is an experimental feature')

@@ -1,19 +1,23 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
 import { Queue } from '../../utils/Queue.ts'
 import { FileManager } from './FileManager.ts'
 
 describe('FileManager', () => {
+  const mocksPath = path.resolve(__dirname, '../../mocks')
+  const filePath = path.resolve(mocksPath, './hellowWorld.js')
+  const folderPath = path.resolve(mocksPath, './folder')
+
   test('fileManager.add also adds the files to the cache', () => {
     const fileManager = new FileManager()
     fileManager.add({
-      path: pathParser.resolve('./src/file1.ts'),
+      path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: '',
     })
 
     fileManager.add({
-      path: pathParser.resolve('./src/models/file1.ts'),
+      path: path.resolve('./src/models/file1.ts'),
       baseName: 'file1.ts',
       source: '',
     })
@@ -25,14 +29,14 @@ describe('FileManager', () => {
   test('fileManager.addOrAppend also adds the files to the cache', async () => {
     const fileManager = new FileManager()
     await fileManager.addOrAppend({
-      path: pathParser.resolve('./src/file1.ts'),
+      path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: "const file1 ='file1';",
       imports: [{ name: 'path', path: 'node:path' }],
     })
 
     const file = await fileManager.addOrAppend({
-      path: pathParser.resolve('./src/file1.ts'),
+      path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: "const file1Bis ='file1Bis';",
       imports: [{ name: 'fs', path: 'node:fs' }],
@@ -49,24 +53,24 @@ describe('FileManager', () => {
   test('if creation of graph is correct', () => {
     const fileManager = new FileManager()
     fileManager.add({
-      path: pathParser.resolve('./src/file1.ts'),
+      path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: '',
     })
     fileManager.add({
-      path: pathParser.resolve('./src/hooks/file1.ts'),
-      baseName: 'file1.ts',
-      source: '',
-    })
-
-    fileManager.add({
-      path: pathParser.resolve('./src/models/file1.ts'),
+      path: path.resolve('./src/hooks/file1.ts'),
       baseName: 'file1.ts',
       source: '',
     })
 
     fileManager.add({
-      path: pathParser.resolve('./src/models/file2.ts'),
+      path: path.resolve('./src/models/file1.ts'),
+      baseName: 'file1.ts',
+      source: '',
+    })
+
+    fileManager.add({
+      path: path.resolve('./src/models/file2.ts'),
       baseName: 'file2.ts',
       source: '',
     })
@@ -77,7 +81,7 @@ describe('FileManager', () => {
   test('fileManager.getCacheByUUID', async () => {
     const fileManager = new FileManager()
     const file = await fileManager.add({
-      path: pathParser.resolve('./src/file1.ts'),
+      path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: '',
     })
@@ -95,7 +99,7 @@ describe('FileManager', () => {
 
     const fileManager = new FileManager({ queue: new Queue(5), task: taskMock })
     await fileManager.add({
-      path: pathParser.resolve('./src/file1.ts'),
+      path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: '',
     })
@@ -108,7 +112,7 @@ describe('FileManager', () => {
 
     const fileManager = new FileManager({ queue: new Queue(5), task: taskMock })
     const file = await fileManager.add({
-      path: pathParser.resolve('./src/file1.ts'),
+      path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: '',
     })
@@ -119,5 +123,12 @@ describe('FileManager', () => {
 
     expect(expectedRemovedFile).toBeUndefined()
     expect(taskMock).toHaveBeenCalled()
+  })
+
+  test('if getMode returns correct PathMode(file or directory)', () => {
+    expect(FileManager.getMode(filePath)).toBe('file')
+    expect(FileManager.getMode(folderPath)).toBe('directory')
+    expect(FileManager.getMode(undefined)).toBe('directory')
+    expect(FileManager.getMode(null)).toBe('directory')
   })
 })

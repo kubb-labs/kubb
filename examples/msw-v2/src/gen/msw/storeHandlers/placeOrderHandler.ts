@@ -1,4 +1,5 @@
 import { http } from 'msw'
+
 import { createPlaceOrderMutationResponse } from '../../mocks/storeMocks/createPlaceOrder'
 
 export const placeOrderHandler = http.post('*/store/order', function handler(info) {

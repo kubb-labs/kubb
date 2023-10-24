@@ -57,13 +57,16 @@ describe('abstract class OperationGenerator', () => {
       input: { path: 'packages/swagger/mocks/petStore.yaml' },
     })
 
-    const og = new DummyOperationGenerator({}, {
-      oas,
-      contentType: undefined,
-      pluginManager: undefined as unknown as PluginManager,
-      plugin: {} as KubbPlugin,
-      skipBy: [],
-    })
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        contentType: undefined,
+        pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
+        skipBy: [],
+      },
+    )
 
     expect(og.getSchemas(oas.operation('/pets', 'get')).pathParams).toBeUndefined()
     expect(og.getSchemas(oas.operation('/pets', 'get')).queryParams).toBeDefined()

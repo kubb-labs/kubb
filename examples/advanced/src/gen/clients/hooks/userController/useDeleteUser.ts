@@ -1,8 +1,10 @@
 import { useMutation } from '@tanstack/react-query'
+
 import client from '../../../../tanstack-query-client.ts'
+
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser'
+import type { DeleteUser400, DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser'
 
 /**
  * @description This can only be done by the logged in user.
@@ -10,7 +12,7 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, D
  * @link /user/:username
  */
 
-export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400 | DeleteUser404>(username: DeleteUserPathParams['username'], options: {
+export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400>(username: DeleteUserPathParams['username'], options: {
   mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
   client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
 } = {}): UseMutationResult<ResponseConfig<TData>, TError, void> {

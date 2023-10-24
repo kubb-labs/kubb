@@ -1,4 +1,4 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
 import { createExportDeclaration, createImportDeclaration, print } from '@kubb/parser'
 
@@ -48,49 +48,52 @@ export function getIndexes(
     }
 
     if (currentTree.children?.length > 1) {
-      const path: KubbFile.Path = pathParser.resolve(currentTree.data.path, 'index.ts')
-      const exports: KubbFile.Export[] = currentTree.children.filter(Boolean)
+      const indexPath: KubbFile.Path = path.resolve(currentTree.data.path, 'index.ts')
+      const exports: KubbFile.Export[] = currentTree.children
+        .filter(Boolean)
         .map((file) => {
           const importPath: string = file.data.type === 'directory' ? `./${file.data.name}` : `./${file.data.name.replace(/\.[^.]*$/, '')}`
 
           // TODO weird hacky fix
-          if (importPath.includes('index') && path.includes('index')) {
+          if (importPath.includes('index') && indexPath.includes('index')) {
             return undefined
           }
 
           return {
-            path: includeExt ? file.data.type === 'directory' ? `${importPath}/index${extName}` : `${importPath}${extName}` : importPath,
+            path: includeExt ? (file.data.type === 'directory' ? `${importPath}/index${extName}` : `${importPath}${extName}`) : importPath,
             isTypeOnly,
           } as KubbFile.Export
         })
         .filter(Boolean)
 
       files.push({
-        path,
+        path: indexPath,
         baseName: 'index.ts',
         source: '',
         exports: output
-          ? exports?.filter(item => {
+          ? exports?.filter((item) => {
             return item.path.endsWith(output.replace(/\.[^.]*$/, ''))
           })
           : exports,
       })
     } else {
       currentTree.children?.forEach((child) => {
-        const path = pathParser.resolve(currentTree.data.path, 'index.ts')
+        const indexPath = path.resolve(currentTree.data.path, 'index.ts')
         const importPath = child.data.type === 'directory' ? `./${child.data.name}` : `./${child.data.name.replace(/\.[^.]*$/, '')}`
 
-        const exports = [{
-          path: includeExt ? child.data.type === 'directory' ? `${importPath}/index${extName}` : `${importPath}${extName}` : importPath,
-          isTypeOnly,
-        }]
+        const exports = [
+          {
+            path: includeExt ? (child.data.type === 'directory' ? `${importPath}/index${extName}` : `${importPath}${extName}`) : importPath,
+            isTypeOnly,
+          },
+        ]
 
         files.push({
-          path,
+          path: indexPath,
           baseName: 'index.ts',
           source: '',
           exports: output
-            ? exports?.filter(item => {
+            ? exports?.filter((item) => {
               return item.path.endsWith(output.replace(/\.[^.]*$/, ''))
             })
             : exports,

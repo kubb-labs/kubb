@@ -1,8 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
-import type { FindPetsByStatusQueryParamsStatus } from './gen'
+
 import { useFindPetsByStatusHook } from './gen'
+
+import type { FindPetsByStatusQueryParamsStatus } from './gen'
 
 const queryClient = new QueryClient()
 

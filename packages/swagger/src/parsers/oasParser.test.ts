@@ -1,4 +1,4 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
 import yaml from 'js-yaml'
 
@@ -7,8 +7,8 @@ import { oasParser, oasPathParser } from './oasParser.ts'
 import type { KubbConfig } from '@kubb/core'
 
 describe('oasParser', () => {
-  const petStoreV3 = pathParser.resolve(__dirname, '../../mocks/petStore.yaml')
-  const petStoreV2 = pathParser.resolve(__dirname, '../../mocks/petStoreV2.json')
+  const petStoreV3 = path.resolve(__dirname, '../../mocks/petStore.yaml')
+  const petStoreV2 = path.resolve(__dirname, '../../mocks/petStoreV2.json')
 
   const yamlPetStoreString = `
 openapi: '3.0.0'

@@ -1,6 +1,6 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
-import { createPlugin, getDependedPlugins, getPathMode, getRelativePath, renderTemplate } from '@kubb/core'
+import { createPlugin, FileManager, getDependedPlugins, getRelativePath, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
@@ -29,24 +29,24 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return true
     },
     resolvePath(baseName, directory, options) {
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
-      const mode = getPathMode(pathParser.resolve(root, output))
+      const root = path.resolve(this.config.root, this.config.output.path)
+      const mode = FileManager.getMode(path.resolve(root, output))
 
       if (mode === 'file') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
-        return pathParser.resolve(root, output)
+        return path.resolve(root, output)
       }
 
       if (options?.tag && groupBy?.type === 'tag') {
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
-        return pathParser.resolve(root, renderTemplate(template, { tag }), baseName)
+        return path.resolve(root, renderTemplate(template, { tag }), baseName)
       }
 
-      return pathParser.resolve(root, output, baseName)
+      return path.resolve(root, output, baseName)
     },
     resolveName(name) {
       const resolvedName = camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
@@ -57,7 +57,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const [swaggerPlugin] = pluginsOptions
 
       const oas = await swaggerPlugin.api.getOas()
-      const clientPath: KubbFile.OptionalPath = options.client ? pathParser.resolve(this.config.root, options.client) : undefined
+      const clientPath: KubbFile.OptionalPath = options.client ? path.resolve(this.config.root, options.client) : undefined
 
       const operationGenerator = new OperationGenerator(
         {
@@ -92,7 +92,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return
       }
 
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const root = path.resolve(this.config.root, this.config.output.path)
 
       if (groupBy?.type === 'tag') {
         const filteredFiles = this.fileManager.files.filter(
@@ -101,15 +101,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         const rootFiles = filteredFiles
           .map((file) => {
             const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
-            const path = getRelativePath(pathParser.resolve(root, output), pathParser.resolve(root, renderTemplate(template, { tag })))
-            const name = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Hooks', { tag }), pluginKey })
+            const tagPath = getRelativePath(path.resolve(root, output), path.resolve(root, renderTemplate(template, { tag })))
+            const tagName = this.resolveName({ name: renderTemplate(groupBy.exportAs || '{{tag}}Hooks', { tag }), pluginKey })
 
-            if (name) {
+            if (tagName) {
               return {
                 baseName: 'index.ts' as const,
-                path: pathParser.resolve(this.config.root, this.config.output.path, output, 'index.ts'),
+                path: path.resolve(this.config.root, this.config.output.path, output, 'index.ts'),
                 source: '',
-                exports: [{ path, asAlias: true, name }],
+                exports: [{ path: tagPath, asAlias: true, name: tagName }],
                 meta: {
                   pluginKey: this.plugin.key,
                 },

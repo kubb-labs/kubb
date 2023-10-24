@@ -1,4 +1,4 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
 import { createPlugin, getDependedPlugins } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
@@ -30,19 +30,19 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return true
     },
     resolvePath(baseName, _directory) {
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const root = path.resolve(this.config.root, this.config.output.path)
 
-      return pathParser.resolve(root, baseName)
+      return path.resolve(root, baseName)
     },
     resolveName(name) {
       return camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
     },
-    async writeFile(source, path) {
-      if (!path.endsWith('.ts') || !source) {
+    async writeFile(source, writePath) {
+      if (!writePath.endsWith('.ts') || !source) {
         return
       }
 
-      return this.fileManager.write(source, path)
+      return this.fileManager.write(source, writePath)
     },
     async buildStart() {
       const [swaggerPlugin, swaggerZodPlugin] = pluginsOptions

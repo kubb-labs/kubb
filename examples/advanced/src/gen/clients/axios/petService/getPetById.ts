@@ -1,6 +1,7 @@
 import client from '../../../../axios-client.ts'
+
 import type { ResponseConfig } from '../../../../axios-client.ts'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams } from '../../../models/ts/petController/GetPetById'
+import type { GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById'
 
 /**
  * @description Returns a single pet

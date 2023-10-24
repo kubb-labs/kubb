@@ -1,9 +1,8 @@
 import pc from 'picocolors'
 
-import { createFileSource } from './managers/fileManager/index.ts'
+import { FileManager } from './managers/fileManager/index.ts'
 import { PluginManager } from './managers/pluginManager/index.ts'
-import { clean, createLogger, randomPicoColour, read, URLPath } from './utils/index.ts'
-import { isPromise } from './utils/isPromise.ts'
+import { clean, createLogger, isPromise, randomPicoColour, read, URLPath } from './utils/index.ts'
 import { isInputPath } from './config.ts'
 import { LogLevel } from './types.ts'
 
@@ -54,7 +53,7 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   const queueTask = async (file: KubbFile.File) => {
     const { path } = file
 
-    let code: string | null = createFileSource(file)
+    let code: string | null = FileManager.getSource(file)
 
     const { result: loadedResult } = await pluginManager.hookFirst({
       hookName: 'load',
@@ -155,5 +154,5 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     logger.spinner.succeed(`💾 Writing completed`)
   }
 
-  return { files: fileManager.files.map((file) => ({ ...file, source: createFileSource(file) })), pluginManager }
+  return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager }
 }
