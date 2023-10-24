@@ -97,4 +97,32 @@ export * from './index.ts'
     }`),
     )
   })
+
+  test.only('render File with multiple sources', async () => {
+    const Component = () => {
+      return (
+        <File baseName="test.ts" path="path">
+          <File.Source path={path.resolve(mocksPath, './test.ts')} print></File.Source>
+          <File.Source print removeComments>
+            {`
+            // comment that should be removed
+            const test = 2;
+            `}
+          </File.Source>
+        </File>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    console.log(await format(root.output))
+
+    expect(await format(root.output)).toStrictEqual(
+      await format(`export function test() {
+      return true
+    }
+    const test = 2;
+    `),
+    )
+  })
 })

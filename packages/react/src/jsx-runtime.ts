@@ -30,6 +30,8 @@ declare global {
         key?: Key
         path?: string
         print?: boolean
+        removeComments?: boolean
+        noEmitHelpers?: boolean
       }
 
       'kubb-import': KubbFile.Import & {

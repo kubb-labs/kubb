@@ -1,11 +1,11 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { createJSDocBlockText, FunctionParams, PackageManager, transformers, URLPath } from '@kubb/core'
+import { createJSDocBlockText, FunctionParams, transformers, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@kubb/swagger'
 
 import { camelCase, pascalCase } from 'change-case'
 
-import { QueryKeyFunction } from '../components/index.ts'
+import { Helpers, QueryKeyFunction } from '../components/index.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
@@ -636,6 +636,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
       return (
         <File baseName={file.baseName} path={file.path}>
+          <Helpers />
           <File.Source>
             <QueryKey />
             {this.queryOptions.code}
@@ -652,6 +653,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
       return (
         <File baseName={file.baseName} path={file.path}>
           <File.Source>
+            <Helpers />
             <QueryKey />
             {this.queryOptions.code}
             <br />
@@ -670,6 +672,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
       return (
         <File baseName={file.baseName} path={file.path}>
+          <Helpers />
           <File.Source>{this.mutation.code}</File.Source>
         </File>
       )

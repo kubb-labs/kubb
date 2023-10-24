@@ -1,9 +1,7 @@
 import { readSync } from '@kubb/core'
 import { createExportDeclaration, createImportDeclaration, print } from '@kubb/parser'
 
-import type { Export as ExportComponent } from '../../components/Export.tsx'
 import type { File as FileComponent } from '../../components/File.tsx'
-import type { Import as ImportComponent } from '../../components/Import.tsx'
 import type { DOMElement } from '../../types.ts'
 
 // Squashing text nodes allows to combine multiple text nodes into one and write
@@ -32,21 +30,27 @@ export function squashTextNodes(node: DOMElement): string {
       }
 
       if (childNode.nodeName === 'kubb-import' && childNode.attributes.print) {
-        const attributes = childNode.attributes as React.ComponentProps<typeof ImportComponent>
+        const attributes = childNode.attributes as React.ComponentProps<typeof FileComponent.Import>
         nodeText = print(createImportDeclaration({ name: attributes.name, path: attributes.path, isTypeOnly: attributes.isTypeOnly }))
       }
 
       if (childNode.nodeName === 'kubb-export' && childNode.attributes.print) {
-        const attributes = childNode.attributes as React.ComponentProps<typeof ExportComponent>
+        const attributes = childNode.attributes as React.ComponentProps<typeof FileComponent.Export>
         nodeText = print(
           createExportDeclaration({ name: attributes.name, path: attributes.path, isTypeOnly: attributes.isTypeOnly, asAlias: attributes.asAlias }),
         )
       }
       if (childNode.nodeName === 'kubb-source' && childNode.attributes.print) {
-        const attributes = childNode.attributes as React.ComponentProps<(typeof FileComponent)['Source']>
+        const attributes = childNode.attributes as React.ComponentProps<(typeof FileComponent.Source)>
 
         if (attributes.path) {
           nodeText = readSync(attributes.path)
+        }
+
+        try {
+          nodeText = print([], { source: nodeText, removeComments: attributes.removeComments })
+        } catch (e) {
+          console.log(e)
         }
       }
 

@@ -35,13 +35,21 @@ export function File({ baseName, path, env, children }: Props): ReactNode {
 
 type FileSourceProps = {
   print?: boolean
+  /**
+   * When path is set it will copy-paste that file as a string inside the component
+   */
   path?: string
   children?: ReactNode
+  /**
+   * Removes comments
+   */
+  removeComments?: boolean
+  noEmitHelpers?: boolean
 }
 
-function FileSource({ path, print, children }: FileSourceProps): ReactNode {
+function FileSource({ path, print, removeComments, children }: FileSourceProps): ReactNode {
   return (
-    <kubb-source path={path} print={print}>
+    <kubb-source path={path} print={print} removeComments={removeComments}>
       {children}
     </kubb-source>
   )

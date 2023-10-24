@@ -2,8 +2,18 @@ import ts from 'typescript'
 
 const { factory } = ts
 
-export function print(elements: ts.Node | Array<ts.Node | undefined> | null, source = '', baseName = 'print.ts'): string {
-  const printer = ts.createPrinter({ omitTrailingSemicolon: false, newLine: ts.NewLineKind.LineFeed })
+type Options = {
+  source?: string
+  baseName?: string
+  removeComments?: boolean
+  noEmitHelpers?: boolean
+}
+
+export function print(
+  elements: ts.Node | Array<ts.Node | undefined> | null,
+  { source = '', baseName = 'print.ts', removeComments, noEmitHelpers }: Options = {},
+): string {
+  const printer = ts.createPrinter({ omitTrailingSemicolon: false, newLine: ts.NewLineKind.LineFeed, removeComments, noEmitHelpers })
   const sourceFile = ts.createSourceFile(baseName, source, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TS)
 
   let nodes: Array<ts.Node> = []

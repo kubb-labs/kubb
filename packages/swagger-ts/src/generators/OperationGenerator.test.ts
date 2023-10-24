@@ -32,13 +32,14 @@ describe('OperationGenerator', () => {
 
     const get = await og.get(operation, og.getSchemas(operation), {} as typeof og.options)
 
-    expect(format(get?.source)).toEqual(
-      format(`
+    expect(await format(get?.source)).toEqual(
+      await format(`
       export type ListPetsQueryParams = {
         /**
+        * @description How many items to return at one time (max 100)
         * @type string | undefined
         */
-        limit?: string;
+        limit: string;
     };
 
     /**
@@ -57,14 +58,16 @@ describe('OperationGenerator', () => {
 
     const getShowById = await og.get(operationShowById, og.getSchemas(operationShowById), {} as typeof og.options)
 
-    expect(format(getShowById?.source)).toEqual(
-      format(`
+    expect(await format(getShowById?.source)).toEqual(
+      await format(`
       export type ShowPetByIdPathParams = {
         /**
+        * @description The id of the pet to retrieve
         * @type string
         */
         petId: string;
         /**
+        * @description The id of the pet to retrieve
         * @type string
         */
         testId: string;
@@ -106,8 +109,8 @@ describe('OperationGenerator', () => {
 
     const post = await og.post(operation, og.getSchemas(operation), {} as typeof og.options)
 
-    expect(format(post?.source)).toEqual(
-      format(`
+    expect(await format(post?.source)).toEqual(
+      await format(`
       /**
        * @description Null response
        */
