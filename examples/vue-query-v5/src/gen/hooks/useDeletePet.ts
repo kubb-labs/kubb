@@ -13,7 +13,6 @@ import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, De
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-
 export function useDeletePet<TData = DeletePetMutationResponse, TError = DeletePet400>(
   refPetId: MaybeRef<DeletePetPathParams['petId']>,
   refHeaders?: MaybeRef<DeletePetHeaderParams>,
@@ -23,7 +22,6 @@ export function useDeletePet<TData = DeletePetMutationResponse, TError = DeleteP
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<ResponseConfig<TData>, TError, void, unknown>({
     mutationFn: () => {
       const petId = unref(refPetId)
@@ -31,7 +29,6 @@ export function useDeletePet<TData = DeletePetMutationResponse, TError = DeleteP
       return client<TData, TError, void>({
         method: 'delete',
         url: `/pet/${petId}`,
-
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
       })

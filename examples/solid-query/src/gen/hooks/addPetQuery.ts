@@ -11,7 +11,6 @@ import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '.
  * @summary Add a new pet to the store
  * @link /pet
  */
-
 export function addPetQuery<TData = AddPetMutationResponse, TError = AddPet405, TVariables = AddPetMutationRequest>(
   options: {
     mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, TVariables>
@@ -19,14 +18,12 @@ export function addPetQuery<TData = AddPetMutationResponse, TError = AddPet405, 
   } = {},
 ): CreateMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<ResponseConfig<TData>, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',
         url: `/pet`,
         data,
-
         ...clientOptions,
       })
     },

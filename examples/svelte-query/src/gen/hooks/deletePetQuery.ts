@@ -11,7 +11,6 @@ import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, De
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-
 export function deletePetQuery<TData = DeletePetMutationResponse, TError = DeletePet400>(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,
@@ -21,13 +20,11 @@ export function deletePetQuery<TData = DeletePetMutationResponse, TError = Delet
   } = {},
 ): CreateMutationResult<ResponseConfig<TData>, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<ResponseConfig<TData>, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'delete',
         url: `/pet/${petId}`,
-
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
       })

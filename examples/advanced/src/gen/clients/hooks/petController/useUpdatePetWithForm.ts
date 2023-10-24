@@ -15,7 +15,6 @@ import type {
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-
 export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
@@ -25,15 +24,12 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
   } = {},
 ): UseMutationResult<ResponseConfig<TData>, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<ResponseConfig<TData>, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'post',
         url: `/pet/${petId}`,
-
         params,
-
         ...clientOptions,
       })
     },

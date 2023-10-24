@@ -17,7 +17,6 @@ import type {
  * @summary Create a pet
  * @link /pets/:uuid
  */
-
 export function useCreatePets<TData = CreatePetsMutationResponse, TError = CreatePets201, TVariables = CreatePetsMutationRequest>(
   uuid: CreatePetsPathParams['uuid'],
   headers: CreatePetsHeaderParams,
@@ -28,7 +27,6 @@ export function useCreatePets<TData = CreatePetsMutationResponse, TError = Creat
   } = {},
 ): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<ResponseConfig<TData>, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({

@@ -11,7 +11,6 @@ import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationRespon
  * @summary Place an order for a pet
  * @link /store/order
  */
-
 export function placeOrderQuery<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(
   options: {
     mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, TVariables>
@@ -19,14 +18,12 @@ export function placeOrderQuery<TData = PlaceOrderMutationResponse, TError = Pla
   } = {},
 ): CreateMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<ResponseConfig<TData>, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',
         url: `/store/order`,
         data,
-
         ...clientOptions,
       })
     },

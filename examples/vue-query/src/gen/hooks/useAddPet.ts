@@ -12,7 +12,6 @@ import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '.
  * @summary Add a new pet to the store
  * @link /pet
  */
-
 export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TVariables = AddPetMutationRequest>(
   options: {
     mutation?: VueMutationObserverOptions<ResponseConfig<TData>, TError, TVariables, unknown>
@@ -20,14 +19,12 @@ export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TV
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',
         url: `/pet`,
         data,
-
         ...clientOptions,
       })
     },

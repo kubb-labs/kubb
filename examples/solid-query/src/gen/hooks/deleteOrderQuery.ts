@@ -11,7 +11,6 @@ import type { DeleteOrder400, DeleteOrderMutationResponse, DeleteOrderPathParams
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-
 export function deleteOrderQuery<TData = DeleteOrderMutationResponse, TError = DeleteOrder400>(
   orderId: DeleteOrderPathParams['orderId'],
   options: {
@@ -20,13 +19,11 @@ export function deleteOrderQuery<TData = DeleteOrderMutationResponse, TError = D
   } = {},
 ): CreateMutationResult<ResponseConfig<TData>, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<ResponseConfig<TData>, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'delete',
         url: `/store/order/${orderId}`,
-
         ...clientOptions,
       })
     },

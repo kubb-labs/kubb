@@ -11,14 +11,12 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = getUserByNameQueryKey(username)
-
   return {
     queryKey,
     queryFn: () => {
       return client<TData, TError>({
         method: 'get',
         url: `/user/${username}`,
-
         ...options,
       }).then(res => res.data)
     },
@@ -29,21 +27,21 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
  * @summary Get user by user name
  * @link /user/:username
  */
-
 export function useGetUserByNameHook<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(username: GetUserByNamePathParams['username'], options: {
   query?: UseQueryOptions<TData, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+} = {}): UseQueryResult<TData, TError> & {
+  queryKey: QueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
-
   const query = useQuery<TData, TError>({
     ...getUserByNameQueryOptions<TData, TError>(username, clientOptions),
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
+  }) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey
+  }
   query.queryKey = queryKey
-
   return query
 }
 
@@ -52,14 +50,12 @@ export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResp
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
   const queryKey = getUserByNameQueryKey(username)
-
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
       return client<TData, TError>({
         method: 'get',
         url: `/user/${username}`,
-
         ...options,
       }).then(res => res.data)
     },
@@ -70,23 +66,23 @@ export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResp
  * @summary Get user by user name
  * @link /user/:username
  */
-
 export function useGetUserByNameHookInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   username: GetUserByNamePathParams['username'],
   options: {
     query?: UseInfiniteQueryOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
-): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: QueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
-
   const query = useInfiniteQuery<TData, TError>({
     ...getUserByNameQueryOptionsInfinite<TData, TError>(username, clientOptions),
     ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
-
+  }) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: QueryKey
+  }
   query.queryKey = queryKey
-
   return query
 }

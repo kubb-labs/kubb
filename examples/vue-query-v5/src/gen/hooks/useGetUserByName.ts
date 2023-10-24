@@ -14,7 +14,6 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = getUserByNameQueryKey(refUsername)
-
   return {
     queryKey,
     queryFn: () => {
@@ -22,34 +21,32 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
       return client<TData, TError>({
         method: 'get',
         url: `/user/${username}`,
-
         ...options,
       }).then((res) => res.data)
     },
   }
 }
-
 /**
  * @summary Get user by user name
  * @link /user/:username
  */
-
 export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   refUsername: MaybeRef<GetUserByNamePathParams['username']>,
   options: {
     query?: QueryObserverOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
-): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
+): UseQueryReturnType<TData, TError> & {
+  queryKey: QueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(refUsername)
-
   const query = useQuery<TData, TError>({
     ...getUserByNameQueryOptions<TData, TError>(refUsername, clientOptions),
     ...queryOptions,
-  }) as UseQueryReturnType<TData, TError> & { queryKey: QueryKey }
-
+  }) as UseQueryReturnType<TData, TError> & {
+    queryKey: QueryKey
+  }
   query.queryKey = queryKey
-
   return query
 }

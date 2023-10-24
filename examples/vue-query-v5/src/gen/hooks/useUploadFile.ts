@@ -12,7 +12,6 @@ import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFileP
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-
 export function useUploadFile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
   refPetId: MaybeRef<UploadFilePathParams['petId']>,
   refParams?: MaybeRef<UploadFileQueryParams>,
@@ -22,7 +21,6 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
     mutationFn: (data) => {
       const petId = unref(refPetId)
@@ -32,7 +30,6 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
         url: `/pet/${petId}/uploadImage`,
         data,
         params,
-
         ...clientOptions,
       })
     },

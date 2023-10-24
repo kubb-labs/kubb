@@ -14,7 +14,6 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = getOrderByIdQueryKey(refOrderId)
-
   return {
     queryKey,
     queryFn: () => {
@@ -22,35 +21,33 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
       return client<TData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
-
         ...options,
       }).then((res) => res.data)
     },
   }
 }
-
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-
 export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
   refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>,
   options: {
     query?: QueryObserverOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
-): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
+): UseQueryReturnType<TData, TError> & {
+  queryKey: QueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(refOrderId)
-
   const query = useQuery<TData, TError>({
     ...getOrderByIdQueryOptions<TData, TError>(refOrderId, clientOptions),
     ...queryOptions,
-  }) as UseQueryReturnType<TData, TError> & { queryKey: QueryKey }
-
+  }) as UseQueryReturnType<TData, TError> & {
+    queryKey: QueryKey
+  }
   query.queryKey = queryKey
-
   return query
 }

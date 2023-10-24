@@ -13,7 +13,6 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = getPetByIdQueryKey(refPetId)
-
   return {
     queryKey,
     queryFn: () => {
@@ -21,35 +20,33 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
       return client<TData, TError>({
         method: 'get',
         url: `/pet/${petId}`,
-
         ...options,
       }).then((res) => res.data)
     },
   }
 }
-
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-
 export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400>(
   refPetId: MaybeRef<GetPetByIdPathParams['petId']>,
   options: {
     query?: QueryObserverOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
-): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
+): UseQueryReturnType<TData, TError> & {
+  queryKey: QueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(refPetId)
-
   const query = useQuery<TData, TError>({
     ...getPetByIdQueryOptions<TData, TError>(refPetId, clientOptions),
     ...queryOptions,
-  }) as UseQueryReturnType<TData, TError> & { queryKey: QueryKey }
-
+  }) as UseQueryReturnType<TData, TError> & {
+    queryKey: QueryKey
+  }
   query.queryKey = queryKey
-
   return query
 }

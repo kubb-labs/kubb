@@ -12,7 +12,6 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../m
  * @summary Create user
  * @link /user
  */
-
 export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(
   options: {
     mutation?: VueMutationObserverOptions<ResponseConfig<TData>, TError, TVariables, unknown>
@@ -20,14 +19,12 @@ export function useCreateUser<TData = CreateUserMutationResponse, TError = unkno
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',
         url: `/user`,
         data,
-
         ...clientOptions,
       })
     },

@@ -11,7 +11,6 @@ import type { DeleteUser400, DeleteUserMutationResponse, DeleteUserPathParams } 
  * @summary Delete user
  * @link /user/:username
  */
-
 export function deleteUserQuery<TData = DeleteUserMutationResponse, TError = DeleteUser400>(
   username: DeleteUserPathParams['username'],
   options: {
@@ -20,13 +19,11 @@ export function deleteUserQuery<TData = DeleteUserMutationResponse, TError = Del
   } = {},
 ): CreateMutationResult<ResponseConfig<TData>, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<ResponseConfig<TData>, TError, void>({
     mutationFn: () => {
       return client<TData, TError, void>({
         method: 'delete',
         url: `/user/${username}`,
-
         ...clientOptions,
       })
     },

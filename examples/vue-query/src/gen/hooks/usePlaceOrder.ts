@@ -12,7 +12,6 @@ import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationRespon
  * @summary Place an order for a pet
  * @link /store/order
  */
-
 export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(
   options: {
     mutation?: VueMutationObserverOptions<ResponseConfig<TData>, TError, TVariables, unknown>
@@ -20,14 +19,12 @@ export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = Place
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'post',
         url: `/store/order`,
         data,
-
         ...clientOptions,
       })
     },

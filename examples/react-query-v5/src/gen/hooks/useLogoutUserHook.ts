@@ -19,14 +19,12 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = logoutUserQueryKey()
-
   return queryOptions<TData, TError>({
     queryKey: queryKey as QueryKey,
     queryFn: () => {
       return client<TData, TError>({
         method: 'get',
         url: `/user/logout`,
-
         ...options,
       }).then(res => res.data)
     },
@@ -37,21 +35,21 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-
 export function useLogoutUserHook<TData = LogoutUserQueryResponse, TError = unknown>(options: {
   query?: QueryObserverOptions<TData, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+} = {}): UseQueryResult<TData, TError> & {
+  queryKey: QueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
-
   const query = useQuery<TData, TError>({
     ...logoutUserQueryOptions<TData, TError>(clientOptions),
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
+  }) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey
+  }
   query.queryKey = queryKey
-
   return query
 }
 
@@ -61,14 +59,12 @@ export function logoutUserQueryOptionsInfinite<
   TInfiniteDate = InfiniteData<LogoutUserQueryResponse extends [] ? LogoutUserQueryResponse[number] : LogoutUserQueryResponse>,
 >(options: Partial<Parameters<typeof client>[0]> = {}): UseInfiniteQueryOptions<TData, TError, TInfiniteDate> {
   const queryKey = logoutUserQueryKey()
-
   return infiniteQueryOptions<TData, TError, TInfiniteDate>({
     queryKey,
     queryFn: ({ pageParam }) => {
       return client<TData, TError>({
         method: 'get',
         url: `/user/logout`,
-
         ...options,
       }).then(res => res.data)
     },
@@ -81,7 +77,6 @@ export function logoutUserQueryOptionsInfinite<
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-
 export function useLogoutUserHookInfinite<
   TData = LogoutUserQueryResponse,
   TError = unknown,
@@ -89,16 +84,17 @@ export function useLogoutUserHookInfinite<
 >(options: {
   query?: InfiniteQueryObserverOptions<TData, TError, TInfiniteDate>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-} = {}): UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } {
+} = {}): UseInfiniteQueryResult<TData, TError> & {
+  queryKey: QueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
-
   const query = useInfiniteQuery<TData, TError, TInfiniteDate>({
     ...logoutUserQueryOptionsInfinite<TData, TError, TInfiniteDate>(clientOptions),
     ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey }
-
+  }) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: QueryKey
+  }
   query.queryKey = queryKey
-
   return query
 }

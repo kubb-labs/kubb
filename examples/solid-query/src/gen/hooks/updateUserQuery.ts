@@ -11,7 +11,6 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @summary Update user
  * @link /user/:username
  */
-
 export function updateUserQuery<TData = UpdateUserMutationResponse, TError = unknown, TVariables = UpdateUserMutationRequest>(
   username: UpdateUserPathParams['username'],
   options: {
@@ -20,14 +19,12 @@ export function updateUserQuery<TData = UpdateUserMutationResponse, TError = unk
   } = {},
 ): CreateMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<ResponseConfig<TData>, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
         method: 'put',
         url: `/user/${username}`,
         data,
-
         ...clientOptions,
       })
     },

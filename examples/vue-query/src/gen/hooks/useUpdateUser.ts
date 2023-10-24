@@ -14,7 +14,6 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @summary Update user
  * @link /user/:username
  */
-
 export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unknown, TVariables = UpdateUserMutationRequest>(
   refUsername: MaybeRef<UpdateUserPathParams['username']>,
   options: {
@@ -23,7 +22,6 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
     mutationFn: (data) => {
       const username = unref(refUsername)
@@ -31,7 +29,6 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
         method: 'put',
         url: `/user/${username}`,
         data,
-
         ...clientOptions,
       })
     },

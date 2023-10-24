@@ -18,7 +18,6 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<ResponseConfig<TData>, TError> {
   const queryKey = findPetsByTagsQueryKey(params)
-
   return {
     queryKey,
     queryFn: () => {
@@ -38,7 +37,6 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-
 export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
@@ -46,17 +44,18 @@ export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = 
     query?: UseQueryOptions<ResponseConfig<TData>, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
-): UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
+): UseQueryResult<ResponseConfig<TData>, TError> & {
+  queryKey: QueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-
   const query = useQuery<ResponseConfig<TData>, TError>({
     ...findPetsByTagsQueryOptions<TData, TError>(headers, params, clientOptions),
     ...queryOptions,
-  }) as UseQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey }
-
+  }) as UseQueryResult<ResponseConfig<TData>, TError> & {
+    queryKey: QueryKey
+  }
   query.queryKey = queryKey
-
   return query
 }
 
@@ -66,7 +65,6 @@ export function findPetsByTagsQueryOptionsInfinite<TData = FindPetsByTagsQueryRe
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<ResponseConfig<TData>, TError> {
   const queryKey = findPetsByTagsQueryKey(params)
-
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -90,7 +88,6 @@ export function findPetsByTagsQueryOptionsInfinite<TData = FindPetsByTagsQueryRe
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-
 export function useFindPetsByTagsInfinite<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
@@ -98,16 +95,17 @@ export function useFindPetsByTagsInfinite<TData = FindPetsByTagsQueryResponse, T
     query?: UseInfiniteQueryOptions<ResponseConfig<TData>, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
-): UseInfiniteQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey } {
+): UseInfiniteQueryResult<ResponseConfig<TData>, TError> & {
+  queryKey: QueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-
   const query = useInfiniteQuery<ResponseConfig<TData>, TError>({
     ...findPetsByTagsQueryOptionsInfinite<TData, TError>(headers, params, clientOptions),
     ...queryOptions,
-  }) as UseInfiniteQueryResult<ResponseConfig<TData>, TError> & { queryKey: QueryKey }
-
+  }) as UseInfiniteQueryResult<ResponseConfig<TData>, TError> & {
+    queryKey: QueryKey
+  }
   query.queryKey = queryKey
-
   return query
 }

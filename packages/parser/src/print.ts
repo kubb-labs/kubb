@@ -1,4 +1,5 @@
 import ts from 'typescript'
+
 import type { PrinterOptions } from 'typescript'
 
 const { factory } = ts

@@ -13,7 +13,6 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseQueryOptions<TData, TError> {
   const queryKey = findPetsByStatusQueryKey(refParams)
-
   return {
     queryKey,
     queryFn: () => {
@@ -22,35 +21,33 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
         method: 'get',
         url: `/pet/findByStatus`,
         params,
-
         ...options,
       }).then((res) => res.data)
     },
   }
 }
-
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
-
 export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   refParams?: MaybeRef<FindPetsByStatusQueryParams>,
   options: {
     query?: UseQueryOptions<TData, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   } = {},
-): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
+): UseQueryReturnType<TData, TError> & {
+  queryKey: QueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(refParams)
-
   const query = useQuery<TData, TError>({
     ...findPetsByStatusQueryOptions<TData, TError>(refParams, clientOptions),
     ...queryOptions,
-  }) as UseQueryReturnType<TData, TError> & { queryKey: QueryKey }
-
+  }) as UseQueryReturnType<TData, TError> & {
+    queryKey: QueryKey
+  }
   query.queryKey = queryKey as QueryKey
-
   return query
 }

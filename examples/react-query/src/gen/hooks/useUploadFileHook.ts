@@ -10,7 +10,6 @@ import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFileP
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-
 export function useUploadFileHook<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
   params?: UploadFileQueryParams,
@@ -20,7 +19,6 @@ export function useUploadFileHook<TData = UploadFileMutationResponse, TError = u
   } = {},
 ): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<ResponseConfig<TData>, TError, TVariables>({
     mutationFn: (data) => {
       return client<TData, TError, TVariables>({
@@ -28,7 +26,6 @@ export function useUploadFileHook<TData = UploadFileMutationResponse, TError = u
         url: `/pet/${petId}/uploadImage`,
         data,
         params,
-
         ...clientOptions,
       })
     },
