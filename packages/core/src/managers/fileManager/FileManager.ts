@@ -61,7 +61,15 @@ export class FileManager {
     return this.#queue?.hasJobs ?? this.#isWriting ?? false
   }
 
+  #validate(file: KubbFile.File): void {
+    if (!file.path.endsWith(file.baseName)) {
+      throw new Error(`${file.path} should end with the baseName ${file.baseName}`)
+    }
+  }
+
   async add(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
+    this.#validate(file)
+
     const controller = new AbortController()
     const resolvedFile: KubbFile.ResolvedFile = { id: crypto.randomUUID(), ...file }
 
@@ -157,10 +165,10 @@ export class FileManager {
 
   // statics
 
-  static getSource(file: KubbFile.File): string {
+  static getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
     return createFileSource(file)
   }
-  static combineFiles(files: Array<KubbFile.File | null>): Array<KubbFile.File> {
+  static combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(files: Array<KubbFile.File<TMeta> | null>): Array<KubbFile.File<TMeta>> {
     return combineFiles(files)
   }
   static getMode(path: string | undefined | null): KubbFile.Mode {

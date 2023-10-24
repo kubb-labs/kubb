@@ -5,7 +5,7 @@ import { pluginKey as swaggerTypescriptPluginKey, resolve as resolveSwaggerTypes
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
 
 import type { KubbFile } from '@kubb/core'
-import type { Operation, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
+import type { Operation, OperationMethodResult, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { FileMeta, FrameworkImports, Options as PluginOptions } from '../types.ts'
 
 type Options = {
@@ -19,7 +19,7 @@ type Options = {
   infinite?: PluginOptions['infinite']
 }
 
-export class OperationGenerator extends Generator<Options> {
+export class OperationGenerator extends Generator<Options, FileMeta> {
   resolve(operation: Operation): Resolver {
     const { framework } = this.options
     const { pluginManager, plugin } = this.context
@@ -275,7 +275,7 @@ export class OperationGenerator extends Generator<Options> {
     return null
   }
 
-  async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
+  async get(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
     const { clientPath, framework, infinite, dataReturnType } = options
     const { pluginManager, oas, plugin } = this.context
 
@@ -299,13 +299,19 @@ export class OperationGenerator extends Generator<Options> {
       ? getRelativePath(hook.path, clientPath)
       : '@kubb/swagger-client/client'
 
-    const file = queryBuilder.render('query', name).file
+    const root = queryBuilder.render('query', name)
+    const { file, files } = root
 
     if (!file) {
       throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
     }
 
-    return {
+    // TODO find a better way of finding the HelpersFile
+    const helpersFile = files.find(file => file.baseName.endsWith('types.ts'))
+
+    console.log(helpersFile)
+
+    return [helpersFile, {
       path: file.path,
       baseName: file.baseName,
       source: file.source,
@@ -337,10 +343,10 @@ export class OperationGenerator extends Generator<Options> {
         pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
-    }
+    }].filter(Boolean)
   }
 
-  async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
+  async post(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
     const { clientPath, framework, dataReturnType } = options
     const { pluginManager, oas, plugin } = this.context
 
@@ -406,13 +412,13 @@ export class OperationGenerator extends Generator<Options> {
     }
   }
 
-  async put(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
+  async put(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
     return this.post(operation, schemas, options)
   }
-  async patch(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
+  async patch(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
     return this.post(operation, schemas, options)
   }
-  async delete(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
+  async delete(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
     return this.post(operation, schemas, options)
   }
 }

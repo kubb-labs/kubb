@@ -5,7 +5,7 @@ import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@k
 
 import { camelCase, pascalCase } from 'change-case'
 
-import { Helpers, QueryKeyFunction } from '../components/index.ts'
+import { HelpersFile, QueryKeyFunction } from '../components/index.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
@@ -635,15 +635,17 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
       const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
 
       return (
-        <File baseName={file.baseName} path={file.path}>
-          <Helpers />
-          <File.Source>
-            <QueryKey />
-            {this.queryOptions.code}
-            <br />
-            {this.query.code}
-          </File.Source>
-        </File>
+        <>
+          <HelpersFile path={file.path} />
+          <File baseName={file.baseName} path={file.path}>
+            <File.Source>
+              <QueryKey />
+              {this.queryOptions.code}
+              <br />
+              {this.query.code}
+            </File.Source>
+          </File>
+        </>
       )
     }
 
@@ -651,19 +653,21 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
       const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
 
       return (
-        <File baseName={file.baseName} path={file.path}>
-          <File.Source>
-            <Helpers />
-            <QueryKey />
-            {this.queryOptions.code}
-            <br />
-            {this.query.code}
-            <br />
-            {this.queryOptionsInfinite.code}
-            <br />
-            {this.queryInfinite.code}
-          </File.Source>
-        </File>
+        <>
+          <HelpersFile path={file.path} />
+          <File baseName={file.baseName} path={file.path}>
+            <File.Source>
+              <QueryKey />
+              {this.queryOptions.code}
+              <br />
+              {this.query.code}
+              <br />
+              {this.queryOptionsInfinite.code}
+              <br />
+              {this.queryInfinite.code}
+            </File.Source>
+          </File>
+        </>
       )
     }
 
@@ -671,10 +675,12 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
       const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
 
       return (
-        <File baseName={file.baseName} path={file.path}>
-          <Helpers />
-          <File.Source>{this.mutation.code}</File.Source>
-        </File>
+        <>
+          <HelpersFile path={file.path} />
+          <File baseName={file.baseName} path={file.path}>
+            <File.Source>{this.mutation.code}</File.Source>
+          </File>
+        </>
       )
     }
 

@@ -91,14 +91,14 @@ export * from './index.ts'
     const root = createRoot()
     root.render(<Component />)
 
-    expect(format(root.output)).toStrictEqual(
-      format(`export function test() {
+    expect(await format(root.output)).toStrictEqual(
+      await format(`export function test() {
       return true
     }`),
     )
   })
 
-  test.only('render File with multiple sources', async () => {
+  test('render File with multiple sources', async () => {
     const Component = () => {
       return (
         <File baseName="test.ts" path="path">
@@ -115,13 +115,77 @@ export * from './index.ts'
     const root = createRoot()
     root.render(<Component />)
 
-    console.log(await format(root.output))
-
     expect(await format(root.output)).toStrictEqual(
       await format(`export function test() {
       return true
     }
     const test = 2;
+    `),
+    )
+  })
+
+  test('render multiple Files', async () => {
+    const Component = () => {
+      return (
+        <>
+          <File baseName="test.ts" path="./">
+            <File.Source print removeComments>
+              {`
+            const test = 1;
+            `}
+              <File.Import name="node" path="node" />
+            </File.Source>
+          </File>
+          <File baseName="test2.ts" path="./">
+            <File.Source print removeComments>
+              {`
+            const test2 = 2;
+            `}
+            </File.Source>
+          </File>
+        </>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(await format(root.output)).toStrictEqual(
+      await format(`
+      const test = 1
+      const test2 = 2
+    `),
+    )
+
+    expect(await format(root.file?.source)).toStrictEqual(
+      await format(`
+    const test = 1
+    const test2 = 2
+    `),
+    )
+
+    expect(root.file?.imports).toStrictEqual([{
+      'isTypeOnly': undefined,
+      'name': 'node',
+      'path': 'node',
+    }])
+
+    expect(root.files.length).toBe(2)
+
+    expect(await format(root.files[0]?.source)).toStrictEqual(
+      await format(`
+    const test = 1
+    `),
+    )
+
+    expect(root.files[0]?.imports).toStrictEqual([{
+      'isTypeOnly': undefined,
+      'name': 'node',
+      'path': 'node',
+    }])
+
+    expect(await format(root.files[1]?.source)).toStrictEqual(
+      await format(`
+    const test2 = 2
     `),
     )
   })

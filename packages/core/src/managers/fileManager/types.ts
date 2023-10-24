@@ -37,12 +37,12 @@ export namespace KubbFile {
 
   export type OptionalPath = Path | undefined | null
 
+  export type FileMetaBase = {
+    pluginKey?: KubbPlugin['key']
+  }
+
   export type File<
-    TMeta extends {
-      pluginKey?: KubbPlugin['key']
-    } = {
-      pluginKey?: KubbPlugin['key']
-    },
+    TMeta extends FileMetaBase = FileMetaBase,
     TBaseName extends BaseName = BaseName,
   > = {
     /**
@@ -60,6 +60,7 @@ export namespace KubbFile {
     exports?: Export[]
     /**
      * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists
+     * This will also ignore the combinefiles utils
      * @default `false`
      */
     override?: boolean

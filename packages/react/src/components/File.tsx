@@ -19,27 +19,39 @@ type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 type Props = BaseProps & {
   env?: NodeJS.ProcessEnv
   children?: ReactNode
+  override?:boolean
 }
 
-export function File({ baseName, path, env, children }: Props): ReactNode {
+export function File({ baseName, path, env, override,children }: Props): ReactNode {
   if (!baseName || !path) {
     return children
   }
 
   return (
-    <kubb-file baseName={baseName} path={path} env={env}>
+    <kubb-file baseName={baseName} path={path} env={env} override={override}>
       {children}
     </kubb-file>
   )
 }
 
-type FileSourceProps = {
-  print?: boolean
+type FileSourceUnionProps = {
   /**
    * When path is set it will copy-paste that file as a string inside the component
+   * Children will then be ignored
    */
   path?: string
+  children?: never
+} | {
+  /**
+   * When path is set it will copy-paste that file as a string inside the component
+   * Children will then be ignored
+   */
+  path?: never
   children?: ReactNode
+}
+
+type FileSourceProps = FileSourceUnionProps & {
+  print?: boolean
   /**
    * Removes comments
    */
