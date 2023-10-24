@@ -1,7 +1,9 @@
 import path from 'node:path'
 
+import { isBun } from 'js-runtime'
+
 import { format } from '../../../mocks/format.ts'
-import { combineFiles, createFileSource, getIndexes } from './utils.ts'
+import { combineExports, combineFiles, combineImports, createFileSource, getIndexes } from './utils.ts'
 
 import type { KubbFile } from './types.ts'
 
@@ -70,27 +72,27 @@ describe('FileManager utils', () => {
     import type { Pets } from './Pets'
 
     export type Pet = Pets
-    
+
    `),
     )
 
     expect(await format(codeWithDefaultImport)).toMatch(
       await format(`
     import client from './Pets'
-    import type { Pets, Cat } from './Pets'
     import React from './React'
+    import type { Pets, Cat } from './Pets'
 
     export type Pet = Pets | Cat
     const test = [client, React]
-    
+
    `),
     )
 
     expect(await format(codeWithDefaultImportOrder)).toMatch(
       await format(`
-    import type { Pets, Cat } from './Pets'
     import client from './Pets'
     import React from './React'
+    import type { Pets, Cat } from './Pets'
 
     export type Pet = Pets | Cat
     const test = [client, React]
@@ -117,7 +119,7 @@ describe('FileManager utils', () => {
     import type Pets from './Pets'
 
     export type Pet = Pets
-    
+
    `),
     )
   })
@@ -200,7 +202,7 @@ export const test2 = 3;`,
       await format(`
       import type { Pets, Lily } from "./Pets";
       import type Dog from "./Dog";
-      
+
       export const test = 2;
       type Test = Pets | Lily | Dog;`),
     )
@@ -319,13 +321,6 @@ export const test2 = 3;`,
     ])
   })
 
-  test(`if writeIndexes returns 'index.ts' files`, () => {
-    const rootPath = path.resolve(__dirname, '../../../mocks/treeNode')
-    const files = getIndexes(rootPath)
-
-    expect(files?.every((file) => file.baseName === 'index.ts')).toBeTruthy()
-  })
-
   test('if getFileSource is setting `process.env` based on `env` object', async () => {
     const fileImport: KubbFile.File = {
       path: path.resolve('./src/models/file1.ts'),
@@ -404,5 +399,141 @@ export const test2 = 3;`,
 
     `),
     )
+  })
+
+  test('if combineExports is filtering out duplicated exports', () => {
+    const exports: Array<KubbFile.Export> = [
+      {
+        path: './models',
+        name: undefined,
+        isTypeOnly: true,
+      },
+      {
+        path: './models',
+        isTypeOnly: false,
+      },
+      {
+        path: './models',
+        isTypeOnly: false,
+        asAlias: true,
+        name: 'test',
+      },
+    ]
+
+    expect(combineExports(exports)).toEqual([exports[2], exports[0]])
+  })
+
+  test('if combineImports is filtering out duplicated imports', () => {
+    const imports: Array<KubbFile.Import> = [
+      {
+        path: './models',
+        name: 'models',
+        isTypeOnly: true,
+      },
+      {
+        path: './models',
+        name: ['Config'],
+        isTypeOnly: true,
+      },
+      {
+        path: './models',
+        name: 'models',
+        isTypeOnly: false,
+      },
+    ]
+
+    expect(combineImports(imports, [], 'const test = models; type Test = Config;')).toEqual([imports[0], imports[1]])
+
+    const importsWithoutSource: Array<KubbFile.Import> = [
+      {
+        path: './models',
+        name: 'models',
+        isTypeOnly: true,
+      },
+      {
+        path: './models',
+        name: ['Config'],
+        isTypeOnly: true,
+      },
+      {
+        path: './models',
+        name: 'models',
+        isTypeOnly: false,
+      },
+    ]
+
+    expect(combineImports(importsWithoutSource, [])).toEqual([imports[0], imports[1]])
+  })
+
+  test(`if getIndexes returns 'index.ts' files`, () => {
+    const rootPath = path.resolve(__dirname, '../../../mocks/treeNode')
+    const files = getIndexes(rootPath) || []
+    const rootIndex = files[0]
+
+    expect(rootIndex).toBeDefined()
+
+    expect(files?.every((file) => file.baseName === 'index.ts')).toBeTruthy()
+
+    expect(rootIndex?.exports?.every((file) => !file.path.endsWith('.ts'))).toBeTruthy()
+  })
+
+  test('if getIndexes can return an export with `exportAs` and/or `isTypeOnly`', async () => {
+    const exportAs = 'models'
+    const rootPath = path.resolve(__dirname, '../../../mocks/treeNode')
+
+    const files = getIndexes(rootPath, '.ts', {
+      includeExt: true,
+      map: (file) => {
+        return {
+          ...file,
+          exports: file.exports?.map((item) => {
+            if (exportAs) {
+              return {
+                ...item,
+                name: exportAs,
+                asAlias: !!exportAs,
+              }
+            }
+            return item
+          }),
+        }
+      },
+    }) || []
+    const rootIndex = files[0]!
+
+    expect(rootIndex).toBeDefined()
+
+    const code = createFileSource(rootIndex)
+
+    if (isBun()) {
+      // TODO check why bun is reodering the export sort
+
+      expect(await format(code)).toMatch(
+        await format(`
+        export * as models from "./world.ts";
+        export * as models from "./hello.ts";
+
+     `),
+      )
+    } else {
+      expect(await format(code)).toMatch(
+        await format(`
+        export * as models from "./hello.ts";
+        export * as models from "./world.ts";
+
+     `),
+      )
+    }
+
+    expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()
+  })
+  test('if getIndexes can return an export with `includeExt`', () => {
+    const rootPath = path.resolve(__dirname, '../../../mocks/treeNode')
+    const files = getIndexes(rootPath, '.ts', { includeExt: true }) || []
+    const rootIndex = files[0]
+
+    expect(rootIndex).toBeDefined()
+
+    expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()
   })
 })

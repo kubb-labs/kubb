@@ -1,3 +1,2 @@
-export * from './FileManager.ts'
-export * from './types.ts'
-export * from './utils.ts'
+export { FileManager } from './FileManager.ts'
+export type { KubbFile } from './types.ts'

@@ -18,7 +18,7 @@ describe('PluginError', () => {
   }
   const queueTaskMock = vi.fn()
   const pluginManager = new PluginManager(config, {
-    logger: createLogger(),
+    logger: createLogger({ logLevel: 'silent' }),
     task: queueTaskMock,
   })
 

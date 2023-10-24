@@ -1,4 +1,5 @@
 import client from '../../../client'
+
 import type { ResponseConfig } from '../../../client'
 import type {
   UpdatePetWithFormMutationResponse,

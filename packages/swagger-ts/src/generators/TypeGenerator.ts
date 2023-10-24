@@ -16,7 +16,6 @@ import { isReference } from '@kubb/swagger'
 import { camelCase } from 'change-case'
 import ts from 'typescript'
 
-import { pluginName } from '../plugin.ts'
 import { keywordTypeNodes } from '../utils/index.ts'
 
 import type { PluginContext } from '@kubb/core'
@@ -29,6 +28,8 @@ const { factory } = ts
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
 type Options = {
+  usedEnumNames: Record<string, number>
+
   withJSDocs?: boolean
   resolveName: PluginContext['resolveName']
   enumType: 'enum' | 'asConst' | 'asPascalConst'
@@ -36,9 +37,6 @@ type Options = {
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
 }
 export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.Node[]> {
-  // Collect the types of all referenced schemas so we can export them later
-  public static usedEnumNames: Record<string, number> = {}
-
   refs: Refs = {}
 
   extraNodes: ts.Node[] = []
@@ -46,15 +44,22 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   aliases: ts.TypeAliasDeclaration[] = []
 
   // Keep track of already used type aliases
-  usedAliasNames: Record<string, number> = {}
+  #usedAliasNames: Record<string, number> = {}
 
-  caseOptions: CaseOptions = {
+  #caseOptions: CaseOptions = {
     delimiter: '',
     stripRegexp: /[^A-Z0-9$]/gi,
   }
 
   constructor(
-    options: Options = { withJSDocs: true, resolveName: ({ name }) => name, enumType: 'asConst', dateType: 'string', optionalType: 'questionToken' },
+    options: Options = {
+      usedEnumNames: {},
+      withJSDocs: true,
+      resolveName: ({ name }) => name,
+      enumType: 'asConst',
+      dateType: 'string',
+      optionalType: 'questionToken',
+    },
   ) {
     super(options)
 
@@ -81,7 +86,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     const node = createTypeAliasDeclaration({
       modifiers: [modifiers.export],
-      name: this.options.resolveName({ name: baseName, pluginName }) || baseName,
+      name: this.options.resolveName({ name: baseName }) || baseName,
       type: keysToOmit?.length ? createOmitDeclaration({ keys: keysToOmit, type, nonNullable: true }) : type,
     })
 
@@ -139,7 +144,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       const schema = properties[name] as OpenAPIV3.SchemaObject
 
       const isRequired = required && required.includes(name)
-      let type = this.#getTypeFromSchema(schema, this.options.resolveName({ name: `${baseName || ''} ${name}`, pluginName }))
+      let type = this.#getTypeFromSchema(schema, this.options.resolveName({ name: `${baseName || ''} ${name}` }))
 
       if (!type) {
         return null
@@ -183,7 +188,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
-  #getRefAlias(obj: OpenAPIV3.ReferenceObject, baseName?: string) {
+  #getRefAlias(obj: OpenAPIV3.ReferenceObject, _baseName?: string) {
     const { $ref } = obj
     let ref = this.refs[$ref]
 
@@ -191,8 +196,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return factory.createTypeReferenceNode(ref.propertyName, undefined)
     }
 
-    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.usedAliasNames)
-    const propertyName = this.options.resolveName({ name: originalName, pluginName }) || originalName
+    const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
+    const propertyName = this.options.resolveName({ name: originalName }) || originalName
 
     ref = this.refs[$ref] = {
       propertyName,
@@ -289,7 +294,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
      * Enum will be defined outside the baseType(hints the baseName check)
      */
     if (schema.enum && baseName) {
-      const enumName = getUniqueName(baseName, TypeGenerator.usedEnumNames)
+      const enumName = getUniqueName(baseName, this.options.usedEnumNames)
 
       let enums: [key: string, value: string | number][] = [...new Set(schema.enum)].map((key) => [key, key])
 
@@ -301,13 +306,13 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       this.extraNodes.push(
         ...createEnumDeclaration({
-          name: camelCase(enumName, this.caseOptions),
-          typeName: this.options.resolveName({ name: enumName, pluginName }),
+          name: camelCase(enumName, this.#caseOptions),
+          typeName: this.options.resolveName({ name: enumName }),
           enums,
           type: this.options.enumType,
         }),
       )
-      return factory.createTypeReferenceNode(this.options.resolveName({ name: enumName, pluginName }), undefined)
+      return factory.createTypeReferenceNode(this.options.resolveName({ name: enumName }), undefined)
     }
 
     if (schema.enum) {

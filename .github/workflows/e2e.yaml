@@ -12,11 +12,11 @@ on:
     #     - ubuntu-latest
     #     - macos-latest
     #     - windows-latest
-  
+
 jobs:
   build:
       name: Build and Test
-      timeout-minutes: 15
+      timeout-minutes: 30
       strategy:
         fail-fast: true
         matrix:
@@ -31,7 +31,7 @@ jobs:
             - os: ubuntu-latest
               node-version: 18
               installer: pnpm run
-          include: 
+          include:
             - os: windows-latest
               node-version: 18
               installer: pnpm run
@@ -40,7 +40,7 @@ jobs:
               installer: bun run
 
           ## comment out for support of node 19,20
-          # include: 
+          # include:
 
             # - os: windows-latest
             #   installer: pnpm run
@@ -63,30 +63,30 @@ jobs:
             #   node-version: 20
             #   installer: bun run
             #   experimental: true
-            
+
       runs-on: ${{ matrix.os }}
       continue-on-error: ${{ matrix.experimental || false }}
- 
+
       steps:
         - name: Check out code
           uses: actions/checkout@v4
           with:
             fetch-depth: 2
- 
+
         - uses: pnpm/action-setup@v2.2.4
           with:
             version: 8
- 
+
         - name: Setup Node.js(${{ matrix.node-version }}) environment
           uses: actions/setup-node@v3
           with:
             node-version: ${{ matrix.node-version }}
             cache: 'pnpm'
             registry-url: 'https://registry.npmjs.org'
- 
+
         - name: Install dependencies
           run: pnpm install --prefer-offline
-          
+
         - name: Install bun
           if: ${{ matrix.os == 'ubuntu-latest' }}
           uses: oven-sh/setup-bun@v1
@@ -106,19 +106,8 @@ jobs:
 
         - name: E2e
           working-directory: ./e2e
+          env:
+            NODE_OPTIONS: "--max_old_space_size=4096"
           run: |
-            ${{ matrix.installer }} generate ./schemas/petStore.yaml
-            ${{ matrix.installer }} generate ./schemas/twitter.json
-            ${{ matrix.installer }} generate ./schemas/twitter2.json
-            ${{ matrix.installer }} generate ./schemas/bunq.com.json
-            ${{ matrix.installer }} generate ./schemas/jokesOne.yaml
-            ${{ matrix.installer }} generate ./schemas/readme.io.yaml
-            ${{ matrix.installer }} generate ./schemas/worldtime.yaml
-            ${{ matrix.installer }} generate ./schemas/zalando.yaml
-            ${{ matrix.installer }} generate ./schemas/requestBody.yaml
-            ${{ matrix.installer }} generate ./schemas/box.json
-            ${{ matrix.installer }} generate ./schemas/digitalocean.yaml
-            ${{ matrix.installer }} generate ./schemas/allOf.json
-            ${{ matrix.installer }} generate ./schemas/anyOf.json
-            ${{ matrix.installer }} generate ./schemas/petStoreContent.json
+            ${{ matrix.installer }} generate
 

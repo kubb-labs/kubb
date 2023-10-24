@@ -1,6 +1,8 @@
-import type { QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
-import { useQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
+
+import { useQuery } from '@tanstack/react-query'
+
+import type { QueryKey, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
 export const getInventoryQueryKey = () => [{ url: `/store/inventory` }] as const
@@ -40,7 +42,7 @@ export function useGetInventoryHook<TData = GetInventoryQueryResponse, TError = 
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
 
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
 
   return query
 }

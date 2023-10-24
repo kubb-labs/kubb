@@ -7,6 +7,14 @@ outline: deep
 
 # @kubb/swagger-tanstack-query <a href="https://paka.dev/npm/@kubb/swaggger-tanstack-query@latest/api">🦙</a>
 
+::: tip
+<img src="https://raw.githubusercontent.com/TanStack/query/main/media/repo-header.png" style="max-width: 30vw"/><br/>
+Tanstack/query v5 is fully supported, see [Migrating to TanStack Query v5](https://tanstack.com/query/latest/docs/react/guides/migrating-to-v5).<br/>
+
+Just install v5 in your project and `Kubb` will check the `package.json` to see if you are using v4 or v5.
+
+:::
+
 With the Swagger Tanstack Query plugin you can create:
 
 - [react-query](https://tanstack.com/query/latest/docs/react) hooks based on an operation in the Swagger file.

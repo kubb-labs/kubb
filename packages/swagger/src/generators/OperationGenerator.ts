@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { combineFiles, Generator, Warning } from '@kubb/core'
+import { FileManager, Generator, Warning } from '@kubb/core'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 import { findSchemaDefinition } from 'oas/utils'
@@ -7,6 +7,7 @@ import { findSchemaDefinition } from 'oas/utils'
 import { isReference } from '../utils/isReference.ts'
 
 import type { KubbFile, PluginManager } from '@kubb/core'
+import type { KubbPlugin } from '@kubb/core'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
@@ -18,6 +19,10 @@ type Context<TOptions> = {
   overrideBy?: Array<OverrideBy<TOptions>> | undefined
   contentType: ContentType | undefined
   pluginManager: PluginManager
+  /**
+   * Current plugin
+   */
+  plugin: KubbPlugin
   mode?: KubbFile.Mode
 }
 
@@ -333,10 +338,6 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
           const operation = oas.operation(path, method)
           const options = this.#getOptions(operation, method)
 
-          if ('enumType' in options) {
-            console.log(options.enumType, options, this.options)
-          }
-
           const promise = this.#methods[method].call(this, operation, this.getSchemas(operation), { ...this.options, ...options })
           if (promise) {
             acc.push(promise)
@@ -352,7 +353,7 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
 
     const files = await Promise.all(promises)
 
-    return combineFiles(files)
+    return FileManager.combineFiles(files)
   }
 
   /**

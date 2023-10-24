@@ -1,4 +1,4 @@
-import type { PluginFactoryOptions } from '@kubb/core'
+import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
 export type Options = {
@@ -47,10 +47,16 @@ export type Options = {
 }
 
 export type FileMeta = {
-  pluginName?: string
+  pluginKey?: KubbPlugin['key']
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-msw', Options, false, never, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-msw', 'schema', Options, false, never, ResolvePathOptions>
 
 export type AppMeta = SwaggerAppMeta
+
+declare module '@kubb/core' {
+  export interface _Register {
+    ['@kubb/swagger-msw']: PluginOptions
+  }
+}

@@ -1,12 +1,11 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createJSDocBlockText, FunctionParams, PackageManager, URLPath } from '@kubb/core'
+import { createJSDocBlockText, FunctionParams, PackageManager, transformers, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@kubb/swagger'
 
 import { camelCase, pascalCase } from 'change-case'
 
 import { QueryKeyFunction } from '../components/index.ts'
-import { pluginName } from '../plugin.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
@@ -156,7 +155,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       `)
     }
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   get query(): QueryResult {
@@ -259,7 +258,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   // infinite
@@ -359,7 +358,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 };
   `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   get queryInfinite(): QueryResult {
@@ -462,7 +461,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   get mutation(): QueryResult {
@@ -553,7 +552,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   print(type: 'query' | 'mutation', name: string): string {
@@ -562,14 +561,14 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
   render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<AppMeta>> {
     const { infinite } = this.options as QueryOptions
-    const { pluginManager, operation, schemas } = this.context
+    const { pluginManager, operation, schemas, plugin } = this.context
 
     const { Component: QueryKey } = this.queryKey
 
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const ComponentQuery = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
+      const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>
@@ -584,7 +583,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     }
 
     const ComponentQueryInfinite = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
+      const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>
@@ -603,7 +602,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     }
 
     const ComponentMutation = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
+      const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>

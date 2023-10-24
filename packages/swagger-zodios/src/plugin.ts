@@ -1,4 +1,4 @@
-import pathParser from 'node:path'
+import path from 'node:path'
 
 import { createPlugin, getDependedPlugins } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
@@ -13,7 +13,8 @@ import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions as SwaggerZodPluginOptions } from '@kubb/swagger-zod'
 import type { PluginOptions } from './types.ts'
 
-export const pluginName: PluginOptions['name'] = 'swagger-zodios' as const
+export const pluginName = 'swagger-zodios' satisfies PluginOptions['name']
+export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'zodios.ts' } = options
@@ -29,12 +30,19 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return true
     },
     resolvePath(baseName, _directory) {
-      const root = pathParser.resolve(this.config.root, this.config.output.path)
+      const root = path.resolve(this.config.root, this.config.output.path)
 
-      return pathParser.resolve(root, baseName)
+      return path.resolve(root, baseName)
     },
     resolveName(name) {
       return camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+    },
+    async writeFile(source, writePath) {
+      if (!writePath.endsWith('.ts') || !source) {
+        return
+      }
+
+      return this.fileManager.write(source, writePath)
     },
     async buildStart() {
       const [swaggerPlugin, swaggerZodPlugin] = pluginsOptions
@@ -47,6 +55,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         {
           oas,
           pluginManager: this.pluginManager,
+          plugin: this.plugin,
           contentType: swaggerPlugin.api.contentType,
           skipBy: swaggerZodPlugin.options.skipBy,
         },

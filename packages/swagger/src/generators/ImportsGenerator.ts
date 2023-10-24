@@ -1,5 +1,6 @@
 import { Generator } from '@kubb/core'
 
+import type { KubbPlugin } from '@kubb/core'
 import type { FileResolver } from '../builders/OasBuilder.ts'
 
 /**
@@ -8,11 +9,11 @@ import type { FileResolver } from '../builders/OasBuilder.ts'
  *
  * `originalName` is the original name used(in PascalCase), only used to remove duplicates
  *
- * `pluginName` can be used to override the current plugin being used, handy when you want to import a type/schema out of another plugin
+ * `pluginKey` can be used to override the current plugin being used, handy when you want to import a type/schema out of another plugin
  * @example import a type(swagger-ts) for a mock file(swagger-faker)
  */
 
-export type Ref = { propertyName: string; originalName: string; pluginName?: string }
+export type Ref = { propertyName: string; originalName: string; pluginKey?: KubbPlugin['key'] }
 export type Refs = Record<string, Ref>
 
 type Import = { refs: Refs; name: string }

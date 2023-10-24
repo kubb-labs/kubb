@@ -1,4 +1,5 @@
-import { createIndent, Function } from '@kubb/react'
+import { transformers } from '@kubb/core'
+import { Function } from '@kubb/react'
 
 import type { URLPath } from '@kubb/core'
 import type { HttpMethod } from '@kubb/swagger'
@@ -47,14 +48,14 @@ export function ClientFunction({
     '...options',
   ].filter(Boolean)
 
-  const clientOptions = `${createIndent(4)}${clientParams.join(`,\n${createIndent(4)}`)}`
+  const clientOptions = `${transformers.createIndent(4)}${clientParams.join(`,\n${transformers.createIndent(4)}`)}`
 
   if (dataReturnType === 'full') {
     return (
       <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
         {`
   return client<${clientGenerics}>({
-  ${createIndent(4)}${clientParams.join(`,\n${createIndent(4)}`)}
+  ${transformers.createIndent(4)}${clientParams.join(`,\n${transformers.createIndent(4)}`)}
   });`}
         {children}
       </Function>

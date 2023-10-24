@@ -182,15 +182,8 @@ const input = [
 ]
 
 describe('parseZod', () => {
-  // test.each(input)('.add($a, $b)', ({ input, expected }) => {
-  //   expect(input).toBe(expected)
-  // })
-
-  test('parsing each input', () => {
-    // TODO replace by test.each when Bun has support for test.each
-    input.forEach((item) => {
-      expect(item.input).toBe(item.expected)
-    })
+  test.each(input)('.add($a, $b)', ({ input, expected }) => {
+    expect(input).toBe(expected)
   })
 
   test('empty items should return an export with an empty string as result', () => {

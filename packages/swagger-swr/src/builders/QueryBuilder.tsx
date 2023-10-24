@@ -1,11 +1,9 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createJSDocBlockText, FunctionParams, URLPath } from '@kubb/core'
+import { createJSDocBlockText, FunctionParams, transformers, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, OasBuilder, useResolve } from '@kubb/swagger'
 
 import { camelCase } from 'change-case'
-
-import { pluginName } from '../plugin.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
@@ -80,7 +78,7 @@ export function ${name} <
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   get query(): QueryResult {
@@ -120,7 +118,7 @@ export function ${name} <
       {
         name: 'options',
         required: false,
-        type: `{ 
+        type: `{
           query?: SWRConfiguration<${queryGenerics.join(', ')}>,
           client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
           shouldFetch?: boolean,
@@ -152,7 +150,7 @@ export function ${name} <
     codes.push(`
 export function ${name} <${generics.toString()}>(${params.toString()}): SWRResponse<${queryGenerics.join(', ')}> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
-  
+
   const url = shouldFetch ? ${new URLPath(operation.path).template} : null;
   const query = useSWR<${queryGenerics.join(', ')}, string | null>(url, {
     ...${queryOptions},
@@ -163,7 +161,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): SWRRespo
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   get mutation(): QueryResult {
@@ -221,7 +219,7 @@ export function ${name} <
   ${params.toString()}
 ): SWRMutationResponse<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
-  
+
   const url = shouldFetch ? ${new URLPath(operation.path).template} : null;
   return useSWRMutation<${mutationGenerics.join(', ')}>(
     url,
@@ -240,7 +238,7 @@ export function ${name} <
 };
 `)
 
-    return { code: combineCodes(codes), name }
+    return { code: transformers.combineCodes(codes), name }
   }
 
   print(type: 'query' | 'mutation', name: string): string {
@@ -248,12 +246,12 @@ export function ${name} <
   }
 
   render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<AppMeta>> {
-    const { pluginManager, operation, schemas } = this.context
+    const { pluginManager, operation, schemas, plugin } = this.context
 
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const ComponentQuery = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
+      const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>
@@ -267,7 +265,7 @@ export function ${name} <
     }
 
     const ComponentMutation = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
+      const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
 
       return (
         <File baseName={file.baseName} path={file.path}>

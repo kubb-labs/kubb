@@ -2,6 +2,7 @@ import { oasParser } from '../parsers/oasParser.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
 import type { KubbFile, PluginManager } from '@kubb/core'
+import type { KubbPlugin } from '@kubb/core'
 import type { Operation, Resolver } from '../types.ts'
 
 class DummyOperationGenerator extends OperationGenerator {
@@ -56,7 +57,16 @@ describe('abstract class OperationGenerator', () => {
       input: { path: 'packages/swagger/mocks/petStore.yaml' },
     })
 
-    const og = new DummyOperationGenerator({}, { oas, contentType: undefined, pluginManager: undefined as unknown as PluginManager, skipBy: [] })
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        contentType: undefined,
+        pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
+        skipBy: [],
+      },
+    )
 
     expect(og.getSchemas(oas.operation('/pets', 'get')).pathParams).toBeUndefined()
     expect(og.getSchemas(oas.operation('/pets', 'get')).queryParams).toBeDefined()
@@ -80,6 +90,7 @@ describe('abstract class OperationGenerator', () => {
           },
         ],
         pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )
@@ -107,6 +118,7 @@ describe('abstract class OperationGenerator', () => {
           },
         ],
         pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )
@@ -140,6 +152,7 @@ describe('abstract class OperationGenerator', () => {
           },
         ],
         pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )
@@ -173,6 +186,7 @@ describe('abstract class OperationGenerator', () => {
           },
         ],
         pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )
@@ -204,6 +218,7 @@ describe('abstract class OperationGenerator', () => {
           },
         ],
         pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )

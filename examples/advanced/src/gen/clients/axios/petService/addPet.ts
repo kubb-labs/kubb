@@ -1,4 +1,5 @@
 import client from '../../../../axios-client.ts'
+
 import type { ResponseConfig } from '../../../../axios-client.ts'
 import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet'
 
