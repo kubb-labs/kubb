@@ -119,17 +119,22 @@ export function combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.File
   files: Array<KubbFile.File<TMeta> | null>,
 ): Array<KubbFile.File<TMeta>> {
   return files.filter(Boolean).reduce((acc, file: KubbFile.File<TMeta>) => {
-    if(file.override){
-      // do not combine when override is set
-      return acc
-    }
     const prevIndex = acc.findIndex((item) => item.path === file.path)
 
     if (prevIndex === -1) {
-     return [...acc, file]
+      return [...acc, file]
     }
 
     const prev = acc[prevIndex]
+
+    if (prev && file.override) {
+      acc[prevIndex] = {
+        imports: [],
+        exports: [],
+        ...file,
+      }
+      return acc
+    }
 
     if (prev) {
       acc[prevIndex] = {

@@ -309,8 +309,6 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
     // TODO find a better way of finding the HelpersFile
     const helpersFile = files.find(file => file.baseName.endsWith('types.ts'))
 
-    console.log(helpersFile)
-
     return [helpersFile, {
       path: file.path,
       baseName: file.baseName,

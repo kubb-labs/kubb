@@ -146,7 +146,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         await this.addFile({
           path: resolvedpath,
-          baseName: `${this.resolveName({ name: output, pluginKey: this.plugin.key })}.ts`,
+          baseName: output as KubbFile.BaseName,
           source: builder.print(),
           imports: [
             {
@@ -157,6 +157,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           meta: {
             pluginKey: this.plugin.key,
           },
+          validate: false,
         })
       }
 

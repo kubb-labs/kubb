@@ -78,7 +78,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       )
 
       const files = await operationGenerator.build()
-      console.log(files.filter(file=>file.override))
+
       await this.addFile(...files)
     },
     async writeFile(source, path) {

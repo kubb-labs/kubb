@@ -23,7 +23,7 @@ declare global {
         baseName: string
         path: string
         env?: NodeJS.ProcessEnv
-        override?:boolean
+        override?: boolean
       }
 
       'kubb-source': {

@@ -19,10 +19,10 @@ type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 type Props = BaseProps & {
   env?: NodeJS.ProcessEnv
   children?: ReactNode
-  override?:boolean
+  override?: boolean
 }
 
-export function File({ baseName, path, env, override,children }: Props): ReactNode {
+export function File({ baseName, path, env, override, children }: Props): ReactNode {
   if (!baseName || !path) {
     return children
   }

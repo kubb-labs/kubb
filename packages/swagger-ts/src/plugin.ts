@@ -8,7 +8,7 @@ import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerg
 import { TypeBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
 
-import type { KubbPlugin } from '@kubb/core'
+import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { OpenAPIV3, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
@@ -156,11 +156,12 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         await this.addFile({
           path: resolvedPath,
-          baseName: `${this.resolveName({ name: output, pluginKey: this.plugin.key })}.ts`,
+          baseName: output as KubbFile.BaseName,
           source: builder.print(),
           meta: {
             pluginKey: this.plugin.key,
           },
+          validate: false,
         })
       }
 

@@ -8,15 +8,15 @@ describe('FileManager', () => {
   const filePath = path.resolve(mocksPath, './hellowWorld.js')
   const folderPath = path.resolve(mocksPath, './folder')
 
-  test('fileManager.add also adds the files to the cache', () => {
+  test('fileManager.add also adds the files to the cache', async () => {
     const fileManager = new FileManager()
-    fileManager.add({
+    await fileManager.add({
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: '',
     })
 
-    fileManager.add({
+    await fileManager.add({
       path: path.resolve('./src/models/file1.ts'),
       baseName: 'file1.ts',
       source: '',
@@ -26,21 +26,51 @@ describe('FileManager', () => {
     expect(fileManager.files.length).toBe(2)
   })
 
-  test('fileManager.addOrAppend also adds the files to the cache', async () => {
+  test('fileManager.add will return array of files or one file depending on the input', async () => {
     const fileManager = new FileManager()
-    await fileManager.addOrAppend({
+    const file = await fileManager.add({
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: "const file1 ='file1';",
       imports: [{ name: 'path', path: 'node:path' }],
     })
 
-    const file = await fileManager.addOrAppend({
+    expect(file).toBeDefined()
+    expect((file as any).length).toBeUndefined()
+
+    const file2 = await fileManager.add({
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: "const file1 ='file1';",
+      imports: [{ name: 'path', path: 'node:path' }],
+    }, {
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: "const file1 ='file1';",
+      imports: [{ name: 'path', path: 'node:path' }],
+    })
+
+    expect(file2).toBeDefined()
+    expect((file2 as any).length).toBeDefined()
+  })
+
+  test('fileManager.addOrAppend also adds the files to the cache', async () => {
+    const fileManager = new FileManager()
+    await fileManager.add({
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: "const file1 ='file1';",
+      imports: [{ name: 'path', path: 'node:path' }],
+    })
+
+    const file = await fileManager.add({
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
       source: "const file1Bis ='file1Bis';",
       imports: [{ name: 'fs', path: 'node:fs' }],
     })
+
+    expect(file).toBeDefined()
 
     expect(fileManager.files.length).toBe(1)
 

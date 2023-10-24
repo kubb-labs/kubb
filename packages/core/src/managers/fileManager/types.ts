@@ -4,9 +4,16 @@ import type { KubbPlugin } from '../../types.ts'
 
 type BasePath<T extends string = string> = `${T}/`
 
+type ArrayWithLength<T extends number, U extends any[] = []> = U['length'] extends T ? U : ArrayWithLength<T, [true, ...U]>
+type GreaterThan<T extends number, U extends number> = ArrayWithLength<U> extends [...ArrayWithLength<T>, ...infer _] ? false : true
+
 export type CacheItem = KubbFile.ResolvedFile & {
   cancel?: () => void
 }
+
+export type AddResult<T extends Array<KubbFile.File>> = Promise<
+  Awaited<GreaterThan<T['length'], 1> extends true ? Promise<KubbFile.ResolvedFile[]> : Promise<KubbFile.ResolvedFile>>
+>
 
 export namespace KubbFile {
   export type Import = {
@@ -69,6 +76,7 @@ export namespace KubbFile {
      * This will override `process.env[key]` inside the `source`, see `getFileSource`.
      */
     env?: NodeJS.ProcessEnv
+    validate?: boolean
   }
 
   export type ResolvedFile = KubbFile.File & {
