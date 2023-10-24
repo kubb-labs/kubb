@@ -795,7 +795,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
-        specifier: ^5.0.0
+        specifier: ^5.0.5
         version: 5.0.5(vue@3.3.6)
       axios:
         specifier: ^1.5.1
