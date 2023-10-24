@@ -36,5 +36,8 @@ export function createRootServer<Context extends AppContextProps = AppContextPro
     get files() {
       return instance.files
     },
+    getFile(id: string) {
+      return instance.files.find(file => file.id === id)
+    },
   }
 }

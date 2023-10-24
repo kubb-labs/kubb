@@ -10,13 +10,14 @@ export const templatesPath = path.resolve(path.dirname(url.fileURLToPath(import.
 const typesPath = path.resolve(templatesPath, './types.ts')
 
 type Props = {
+  id?: string
   path: string
 }
 
-export function HelpersFile({ path: resolvedPath }: Props): ReactNode {
+export function HelpersFile({ id, path: resolvedPath }: Props): ReactNode {
   // TODO using override for now to be sure we are not appending after every render(with the operationGenerator)
   return (
-    <File override baseName={'types.ts'} path={path.resolve(resolvedPath, '../types.ts')}>
+    <File id={id} override baseName={'types.ts'} path={path.resolve(resolvedPath, '../types.ts')}>
       <File.Source path={typesPath} print removeComments />
     </File>
   )

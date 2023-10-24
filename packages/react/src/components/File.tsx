@@ -17,21 +17,18 @@ type BasePropsWithoutBaseName = {
 type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 
 type Props = BaseProps & {
+  id?: string
   env?: NodeJS.ProcessEnv
   children?: ReactNode
   override?: boolean
 }
 
-export function File({ baseName, path, env, override, children }: Props): ReactNode {
-  if (!baseName || !path) {
-    return children
+export function File(props: Props): ReactNode {
+  if (!props.baseName || !props.path) {
+    return props.children
   }
 
-  return (
-    <kubb-file baseName={baseName} path={path} env={env} override={override}>
-      {children}
-    </kubb-file>
-  )
+  return <kubb-file {...props} />
 }
 
 type FileSourceUnionProps = {

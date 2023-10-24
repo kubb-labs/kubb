@@ -53,6 +53,11 @@ export namespace KubbFile {
     TBaseName extends BaseName = BaseName,
   > = {
     /**
+     * Unique identifier to reuse later
+     * @default crypto.randomUUID()
+     */
+    id?: string
+    /**
      * Name to be used to dynamicly create the baseName(based on input.path)
      * Based on UNIX basename
      * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
@@ -81,7 +86,7 @@ export namespace KubbFile {
 
   export type ResolvedFile = KubbFile.File & {
     /**
-     * crypto.randomUUID()
+     * @default crypto.randomUUID()
      */
     id: UUID
   }

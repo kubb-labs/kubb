@@ -300,48 +300,62 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
       : '@kubb/swagger-client/client'
 
     const root = queryBuilder.render('query', name)
-    const { file, files } = root
+    const { file, getFile } = root
 
     if (!file) {
       throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
     }
 
-    // TODO find a better way of finding the HelpersFile
-    const helpersFile = files.find(file => file.baseName.endsWith('types.ts'))
+    // TODO refactor
+    const helpersFile = getFile('types')
+    const renderedFile = getFile(name)
 
-    return [helpersFile, {
-      path: file.path,
-      baseName: file.baseName,
-      source: file.source,
-      imports: [
-        ...(file.imports || []),
-        ...this.getQueryImports('query'),
-        {
-          name: 'client',
-          path: clientImportPath,
-        },
-        {
-          name: ['ResponseConfig'],
-          path: clientImportPath,
-          isTypeOnly: true,
-        },
-        {
-          name: [
-            schemas.response.name,
-            schemas.pathParams?.name,
-            schemas.queryParams?.name,
-            schemas.headerParams?.name,
-            ...errors.map((error) => error.name),
-          ].filter(Boolean),
-          path: getRelativePath(hook.path, type.path),
-          isTypeOnly: true,
-        },
-      ],
-      meta: {
-        pluginKey: plugin.key,
-        tag: operation.getTags()[0]?.name,
-      },
-    }].filter(Boolean)
+    return [
+      helpersFile
+        ? {
+          ...helpersFile,
+          imports: [...helpersFile.imports || [], {
+            name: 'client',
+            path: clientImportPath,
+          }],
+        }
+        : undefined,
+      renderedFile
+        ? {
+          path: renderedFile.path,
+          baseName: renderedFile.baseName,
+          source: renderedFile.source,
+          imports: [
+            ...(renderedFile.imports || []),
+            ...this.getQueryImports('query'),
+            {
+              name: 'client',
+              path: clientImportPath,
+            },
+            {
+              name: ['ResponseConfig'],
+              path: clientImportPath,
+              isTypeOnly: true,
+            },
+            {
+              name: [
+                schemas.response.name,
+                schemas.pathParams?.name,
+                schemas.queryParams?.name,
+                schemas.headerParams?.name,
+                ...errors.map((error) => error.name),
+              ].filter(Boolean),
+              path: getRelativePath(hook.path, type.path),
+              isTypeOnly: true,
+            },
+          ],
+          meta: {
+            pluginKey: plugin.key,
+            tag: operation.getTags()[0]?.name,
+          },
+        }
+        : undefined,
+    ].filter(Boolean)
   }
 
   async post(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
@@ -368,46 +382,64 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
       ? getRelativePath(hook.path, clientPath)
       : '@kubb/swagger-client/client'
 
-    const file = queryBuilder.render('mutation', name).file
+    const root = queryBuilder.render('mutation', name)
+    const { file, getFile } = root
 
     if (!file) {
       throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
     }
 
-    return {
-      path: file.path,
-      baseName: file.baseName,
-      source: file.source,
-      imports: [
-        ...(file.imports || []),
-        ...this.getQueryImports('mutate'),
-        {
-          name: 'client',
-          path: clientImportPath,
-        },
-        {
-          name: ['ResponseConfig'],
-          path: clientImportPath,
-          isTypeOnly: true,
-        },
-        {
-          name: [
-            schemas.request?.name,
-            schemas.response.name,
-            schemas.pathParams?.name,
-            schemas.queryParams?.name,
-            schemas.headerParams?.name,
-            ...errors.map((error) => error.name),
-          ].filter(Boolean),
-          path: getRelativePath(hook.path, type.path),
-          isTypeOnly: true,
-        },
-      ],
-      meta: {
-        pluginKey: plugin.key,
-        tag: operation.getTags()[0]?.name,
-      },
-    }
+    // TODO refactor
+    const helpersFile = getFile('types')
+    const renderedFile = getFile(name)
+
+    return [
+      helpersFile
+        ? {
+          ...helpersFile,
+          imports: [...helpersFile.imports || [], {
+            name: 'client',
+            path: clientImportPath,
+          }],
+        }
+        : undefined,
+      renderedFile
+        ? {
+          path: renderedFile.path,
+          baseName: renderedFile.baseName,
+          source: renderedFile.source,
+          imports: [
+            ...(renderedFile.imports || []),
+            ...this.getQueryImports('mutate'),
+            {
+              name: 'client',
+              path: clientImportPath,
+            },
+            {
+              name: ['ResponseConfig'],
+              path: clientImportPath,
+              isTypeOnly: true,
+            },
+            {
+              name: [
+                schemas.request?.name,
+                schemas.response.name,
+                schemas.pathParams?.name,
+                schemas.queryParams?.name,
+                schemas.headerParams?.name,
+                ...errors.map((error) => error.name),
+              ].filter(Boolean),
+              path: getRelativePath(hook.path, type.path),
+              isTypeOnly: true,
+            },
+          ],
+          meta: {
+            pluginKey: plugin.key,
+            tag: operation.getTags()[0]?.name,
+          },
+        }
+        : undefined,
+    ].filter(Boolean)
   }
 
   async put(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {

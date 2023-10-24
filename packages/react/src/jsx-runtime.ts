@@ -18,6 +18,7 @@ declare global {
       }
 
       'kubb-file': {
+        id?: string
         children?: ReactNode
         key?: Key
         baseName: string

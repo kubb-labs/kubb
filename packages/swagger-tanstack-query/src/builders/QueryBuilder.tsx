@@ -636,8 +636,8 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
       return (
         <>
-          <HelpersFile path={file.path} />
-          <File baseName={file.baseName} path={file.path}>
+          <HelpersFile id={'types'} path={file.path} />
+          <File id={name} baseName={file.baseName} path={file.path}>
             <File.Source>
               <QueryKey />
               {this.queryOptions.code}
@@ -654,8 +654,8 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
       return (
         <>
-          <HelpersFile path={file.path} />
-          <File baseName={file.baseName} path={file.path}>
+          <HelpersFile id={'types'} path={file.path} />
+          <File id={name} baseName={file.baseName} path={file.path}>
             <File.Source>
               <QueryKey />
               {this.queryOptions.code}
@@ -676,8 +676,8 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
       return (
         <>
-          <HelpersFile path={file.path} />
-          <File baseName={file.baseName} path={file.path}>
+          <HelpersFile id={'types'} path={file.path} />
+          <File id={name} baseName={file.baseName} path={file.path}>
             <File.Source>{this.mutation.code}</File.Source>
           </File>
         </>

@@ -12,4 +12,5 @@ export type RootType<T = unknown> = {
    */
   file?: KubbFile.File
   files: KubbFile.File[]
+  getFile: (id: string) => KubbFile.File | undefined
 }

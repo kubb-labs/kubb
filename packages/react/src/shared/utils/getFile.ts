@@ -23,6 +23,7 @@ export function getFile(node: DOMElement): KubbFile.File | undefined {
 
       if (attributes.baseName && attributes.path) {
         file = {
+          id: attributes.id,
           baseName: attributes.baseName,
           path: attributes.path,
           source: '',
@@ -55,6 +56,7 @@ export function getFiles(node: DOMElement): KubbFile.File[] {
 
       if (attributes.baseName && attributes.path) {
         const file: KubbFile.File = {
+          id: attributes.id,
           baseName: attributes.baseName,
           path: attributes.path,
           source: squashSourceNodes(childNode),
