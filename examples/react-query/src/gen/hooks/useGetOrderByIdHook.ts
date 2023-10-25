@@ -1,24 +1,41 @@
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
+import type { QueryKey, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseBaseQueryOptions } from '@tanstack/react-query'
+import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
-
-import type { QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
-import type { GetOrderById400, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById'
-
+type GetOrderById = KubbQueryFactory<
+  GetOrderByIdQueryResponse,
+  GetOrderById400 | GetOrderById404,
+  never,
+  GetOrderByIdPathParams,
+  never,
+  GetOrderByIdQueryResponse,
+  {
+    dataReturnType: 'data'
+    type: 'query'
+  }
+>
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: `/store/order/${orderId}`, params: { orderId: orderId } }] as const
-export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
+export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
+export function getOrderByIdQueryOptions<
+  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
+  TError = GetOrderById['error'],
+  TData = GetOrderById['response'],
+  TQueryData = GetOrderById['response'],
+>(
   orderId: GetOrderByIdPathParams['orderId'],
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+  options: GetOrderById['client']['paramaters'] = {},
+): UseBaseQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData, GetOrderByIdQueryKey> {
   const queryKey = getOrderByIdQueryKey(orderId)
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
         ...options,
-      }).then(res => res.data)
+      }).then(res => res?.data || res)
     },
   }
 }
@@ -28,25 +45,31 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-export function useGetOrderByIdHook<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(orderId: GetOrderByIdPathParams['orderId'], options: {
-  query?: UseQueryOptions<TData, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+export function useGetOrderByIdHook<
+  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
+  TError = GetOrderById['error'],
+  TData = GetOrderById['response'],
+  TQueryData = GetOrderById['response'],
+  TQueryKey extends QueryKey = GetOrderByIdQueryKey,
+>(orderId: GetOrderByIdPathParams['orderId'], options: {
+  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  client?: GetOrderById['client']['paramaters']
 } = {}): UseQueryResult<TData, TError> & {
-  queryKey: QueryKey
+  queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
-  const query = useQuery<TData, TError>({
-    ...getOrderByIdQueryOptions<TData, TError>(orderId, clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...getOrderByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey
+    queryKey: TQueryKey
   }
-  query.queryKey = queryKey
+  query.queryKey = queryKey as TQueryKey
   return query
 }
 
-export function getOrderByIdQueryOptionsInfinite<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
+export function getOrderByIdQueryOptionsInfinite<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
@@ -68,10 +91,13 @@ export function getOrderByIdQueryOptionsInfinite<TData = GetOrderByIdQueryRespon
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-export function useGetOrderByIdHookInfinite<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(orderId: GetOrderByIdPathParams['orderId'], options: {
-  query?: UseInfiniteQueryOptions<TData, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-} = {}): UseInfiniteQueryResult<TData, TError> & {
+export function useGetOrderByIdHookInfinite<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
+  orderId: GetOrderByIdPathParams['orderId'],
+  options: {
+    query?: UseInfiniteQueryOptions<TData, TError>
+    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+  } = {},
+): UseInfiniteQueryResult<TData, TError> & {
   queryKey: QueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -82,6 +108,6 @@ export function useGetOrderByIdHookInfinite<TData = GetOrderByIdQueryResponse, T
   }) as UseInfiniteQueryResult<TData, TError> & {
     queryKey: QueryKey
   }
-  query.queryKey = queryKey
+  query.queryKey = queryKey as QueryKey
   return query
 }

@@ -1,9 +1,7 @@
-import client from '@kubb/swagger-client/client'
-
 import { useMutation } from '@tanstack/react-query'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/swagger-client/client'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
 
 /**

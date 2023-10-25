@@ -104,45 +104,85 @@ export type Framework = 'react' | 'solid' | 'svelte' | 'vue'
 export type FrameworkImports = {
   getName: (operation: Operation) => string
   query: {
+    /**
+     * @deprecated
+     */
     useQuery: string
+    /**
+     * @deprecated
+     */
     QueryKey: string
+    /**
+     * @deprecated
+     */
     UseQueryResult: string
+    /**
+     * @deprecated
+     */
     UseQueryOptions: string
     /**
      * v5 only
+     *  @deprecated
      */
     queryOptions?: string
     /**
      * v5 only
+     *  @deprecated
      */
     QueryObserverOptions?: string
     /**
      * Infinte
+     *  @deprecated
      */
     UseInfiniteQueryOptions: string
     /**
      * v5 only
+     *  @deprecated
      */
     InfiniteQueryObserverOptions?: string
     /**
      * v5 only
+     *  @deprecated
      */
     infiniteQueryOptions?: string
     /**
      * v5 only
+     *  @deprecated
      */
     InfiniteData?: string
+    /**
+     * @deprecated
+     */
     UseInfiniteQueryResult: string
+
+    /**
+     * @deprecated
+     */
     useInfiniteQuery: string
+    // types
+    Options?: string
+    Result?: string
   }
   mutate: {
+    /**
+     * @deprecated
+     */
     useMutation: string
+    /**
+     * @deprecated
+     */
     UseMutationOptions: string
     /**
      * v5 only
      */
     MutationObserverOptions?: string
+    /**
+     * @deprecated
+     */
     UseMutationResult: string
+    // types
+    Options?: string
+    Result?: string
   }
   isV5: boolean
 }

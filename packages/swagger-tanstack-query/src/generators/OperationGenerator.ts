@@ -165,7 +165,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
       isV5,
       getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey: plugin.key }),
       query: {
-        useQuery: 'useQuery',
+        useQuery: 'useQuery', // checked
         QueryKey: 'QueryKey',
         UseQueryResult: 'UseQueryResult',
         UseQueryOptions: 'UseQueryOptions',
@@ -177,12 +177,18 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
         UseInfiniteQueryResult: 'UseInfiniteQueryResult',
         useInfiniteQuery: 'useInfiniteQuery',
         InfiniteData: isV5 ? 'InfiniteData' : undefined,
+        // new types
+        Options: isV5 ? 'UseBaseQueryOptions' : 'UseBaseQueryOptions',
+        Result: isV5 ? 'UseQueryResult' : 'UseQueryResult',
       },
       mutate: {
         useMutation: 'useMutation',
         UseMutationOptions: 'UseMutationOptions',
         MutationObserverOptions: 'MutationObserverOptions',
         UseMutationResult: 'UseMutationResult',
+        // new types
+        Options: isV5 ? 'UseMutationOptions' : 'UseMutationOptions',
+        Result: isV5 ? 'UseMutationResult' : 'UseMutationResult',
       },
     }
   }

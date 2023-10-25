@@ -1,9 +1,12 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { createJSDocBlockText, FunctionParams, transformers, URLPath } from '@kubb/core'
+import path from 'node:path'
+
+import { createJSDocBlockText, FunctionParams, getRelativePath, transformers, URLPath } from '@kubb/core'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@kubb/swagger'
 
 import { camelCase, pascalCase } from 'change-case'
+import { capitalCase, capitalCaseTransform } from 'change-case'
 
 import { HelpersFile, QueryKeyFunction } from '../components/index.ts'
 
@@ -28,26 +31,51 @@ type Options = QueryOptions | MutationOptions
 type QueryResult = { code: string; name: string }
 
 export class QueryBuilder extends OasBuilder<Options> {
-  get queryKey(): { name: string; Component: React.ElementType } {
-    const { framework } = this.options
-    const { operation } = this.context
+  get queryFactoryType(): { name: string; Component: React.ElementType } {
+    const { dataReturnType, errors } = this.options
+    const { operation, schemas } = this.context
 
-    const name = camelCase(`${operation.getOperationId()}QueryKey`)
-    const FrameworkComponent = QueryKeyFunction[framework]
+    const name = pascalCase(operation.getOperationId())
 
-    const Component = () => <FrameworkComponent name={name} />
+    const generics = [
+      schemas.response.name,
+      errors.map((error) => error.name).join(' | ') || 'never',
+      'never',
+      schemas.pathParams?.name || 'never',
+      schemas.queryParams?.name || 'never',
+      schemas.response.name,
+      `{ dataReturnType: '${dataReturnType}'; type: 'query' }`,
+    ] as [data: string, error: string, request: string, pathParams: string, queryParams: string, response: string, options: string]
+
+    const Component = () => <>{`type ${name} = KubbQueryFactory<${generics.join(', ')}>`}</>
 
     return { name, Component }
   }
+  get queryKey(): { name: string; typeName: string; Component: React.ElementType } {
+    const { framework } = this.options
+    const { operation } = this.context
+
+    const factoryTypeName = this.queryFactoryType.name
+
+    const name = camelCase(`${operation.getOperationId()}QueryKey`)
+    const typeName = capitalCase(name, { delimiter: '', transform: capitalCaseTransform })
+    const FrameworkComponent = QueryKeyFunction[framework]
+
+    const Component = () => <FrameworkComponent factoryTypeName={factoryTypeName} name={name} typeName={typeName} />
+
+    return { name, typeName, Component }
+  }
 
   get queryOptions(): QueryResult {
-    const { framework, frameworkImports, errors, dataReturnType } = this.options
+    const { framework, frameworkImports } = this.options
     const { operation, schemas } = this.context
 
     const codes: string[] = []
 
     const name = camelCase(`${operation.getOperationId()}QueryOptions`)
     const queryKeyName = this.queryKey.name
+    const queryKeyTypeName = this.queryKey.typeName
+    const factoryTypeName = this.queryFactoryType.name
 
     const pathParams = getParams(schemas.pathParams, {
       override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
@@ -57,12 +85,15 @@ export class QueryBuilder extends OasBuilder<Options> {
     const params = new FunctionParams()
 
     generics.add([
-      { type: 'TData', default: schemas.response.name },
-      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+      { type: `TQueryFnData extends ${factoryTypeName}['data']`, default: `${factoryTypeName}["data"]` },
+      { type: 'TError', default: `${factoryTypeName}["error"]` },
+      { type: 'TData', default: `${factoryTypeName}["response"]` },
+      { type: 'TQueryData', default: `${factoryTypeName}["response"]` },
     ])
 
-    const clientGenerics = ['TData', 'TError']
-    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
+    const clientGenerics = ['TQueryFnData', 'TError']
+    const queryOptionsGenerics = [`${factoryTypeName}['unionResponse']`, 'TError', 'TData', 'TQueryData', queryKeyTypeName]
+
     const paramsData = [
       ...getASTParams(schemas.pathParams, {
         typed: true,
@@ -72,7 +103,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
-        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
+        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : `${factoryTypeName}['queryParams']`,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
@@ -84,7 +115,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       },
       {
         name: 'options',
-        type: 'Partial<Parameters<typeof client>[0]>',
+        type: `${factoryTypeName}['client']['paramaters']`,
         default: '{}',
       },
     ]
@@ -110,10 +141,10 @@ export class QueryBuilder extends OasBuilder<Options> {
 
     if (frameworkImports.isV5 && frameworkImports.query.queryOptions) {
       codes.push(`
-      export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
+      export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryOptionsGenerics.join(', ')}> {
         const queryKey = ${queryKey};
 
-        return ${frameworkImports.query.queryOptions}<${queryGenerics.join(', ')}>({
+        return ${frameworkImports.query.queryOptions}<${queryOptionsGenerics.join(', ')}>({
           queryKey: queryKey as QueryKey,
           queryFn: () => {
             ${unrefs}
@@ -123,7 +154,7 @@ export class QueryBuilder extends OasBuilder<Options> {
               ${schemas.queryParams?.name ? 'params,' : ''}
               ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
               ...options,
-            }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
+            }).then(res => res?.data || res);
           },
         });
       };
@@ -131,7 +162,7 @@ export class QueryBuilder extends OasBuilder<Options> {
     } else {
       // v4
       codes.push(`
-      export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
+      export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.Options}<${queryOptionsGenerics.join(', ')}> {
         const queryKey = ${queryKey};
 
         return {
@@ -144,7 +175,7 @@ export class QueryBuilder extends OasBuilder<Options> {
               ${schemas.queryParams?.name ? 'params,' : ''}
               ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
               ...options,
-            }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
+            }).then(res => res?.data || res);
           },
         };
       };
@@ -155,13 +186,16 @@ export class QueryBuilder extends OasBuilder<Options> {
   }
 
   get query(): QueryResult {
-    const { framework, frameworkImports, errors, dataReturnType } = this.options
+    const { framework, frameworkImports } = this.options
     const { operation, schemas } = this.context
 
     const codes: string[] = []
 
     const queryKeyName = this.queryKey.name
     const queryOptionsName = this.queryOptions.name
+    const queryKeyTypeName = this.queryKey.typeName
+    const factoryTypeName = this.queryFactoryType.name
+
     const name = frameworkImports.getName(operation)
     const pathParams = getParams(schemas.pathParams, {
       override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
@@ -173,12 +207,18 @@ export class QueryBuilder extends OasBuilder<Options> {
     const queryParams = new FunctionParams()
 
     generics.add([
-      { type: 'TData', default: schemas.response.name },
-      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+      { type: `TQueryFnData extends ${factoryTypeName}['data']`, default: `${factoryTypeName}["data"]` },
+      { type: 'TError', default: `${factoryTypeName}["error"]` },
+      { type: 'TData', default: `${factoryTypeName}["response"]` },
+      { type: 'TQueryData', default: `${factoryTypeName}["response"]` },
+      { type: 'TQueryKey extends QueryKey', default: queryKeyTypeName },
     ])
 
-    const clientGenerics = ['TData', 'TError']
-    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
+    const resultGenerics = ['TData', 'TError']
+    const useQueryGenerics = ['TQueryFnData', 'TError', 'TData', 'any']
+    const queryOptionsGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData']
+    const queryBaseOptionsGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData', 'TQueryKey']
+
     params.add([
       ...getASTParams(schemas.pathParams, {
         typed: true,
@@ -188,7 +228,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
-        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
+        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : `${factoryTypeName}['queryParams']`,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
@@ -201,8 +241,8 @@ export class QueryBuilder extends OasBuilder<Options> {
       {
         name: 'options',
         type: `{
-          query?: ${frameworkImports.isV5 ? frameworkImports.query.QueryObserverOptions : frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}>,
-          client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
+          query?: ${frameworkImports.query.Options}<${queryBaseOptionsGenerics.join(', ')}>,
+          client?: ${factoryTypeName}['client']['paramaters']
         }`,
         default: '{}',
       },
@@ -231,24 +271,24 @@ export class QueryBuilder extends OasBuilder<Options> {
         required: false,
       },
     ])
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
+    const queryOptions = `${queryOptionsName}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`
 
     codes.push(createJSDocBlockText({ comments }))
     codes.push(`
-export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryResult}<${
-      queryGenerics.join(
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.Result}<${
+      resultGenerics.join(
         ', ',
       )
-    }> & { queryKey: QueryKey } {
+    }> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {};
   const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
 
-  const query = ${frameworkImports.query.useQuery}<${queryGenerics.join(', ')}>({
+  const query = ${frameworkImports.query.useQuery}<${useQueryGenerics.join(', ')}>({
     ...${queryOptions},
     ...queryOptions
-  }) as ${frameworkImports.query.UseQueryResult}<${queryGenerics.join(', ')}> & { queryKey: QueryKey };
+  }) as ${frameworkImports.query.Result}<${resultGenerics.join(', ')}> & { queryKey: TQueryKey };
 
-  query.queryKey = queryKey as QueryKey;
+  query.queryKey = queryKey as TQueryKey;
 
   return query;
 };
@@ -629,6 +669,8 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
     const { Component: QueryKey } = this.queryKey
 
+    const { Component: QueryType } = this.queryFactoryType
+
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const ComponentQuery = () => {
@@ -636,9 +678,11 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
       return (
         <>
-          <HelpersFile id={'types'} path={file.path} />
+          <HelpersFile id={'types'} path={path.resolve(file.path, '../types.ts')} />
           <File id={name} baseName={file.baseName} path={file.path}>
+            <File.Import path={getRelativePath(file.path, path.resolve(file.path, '../types.ts'))} name={['KubbQueryFactory']} isTypeOnly />
             <File.Source>
+              <QueryType />
               <QueryKey />
               {this.queryOptions.code}
               <br />
@@ -654,9 +698,11 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
       return (
         <>
-          <HelpersFile id={'types'} path={file.path} />
+          <HelpersFile id={'types'} path={path.resolve(file.path, '../types.ts')} />
           <File id={name} baseName={file.baseName} path={file.path}>
+            <File.Import path={getRelativePath(file.path, path.resolve(file.path, '../types.ts'))} name={['KubbQueryFactory']} isTypeOnly />
             <File.Source>
+              <QueryType />
               <QueryKey />
               {this.queryOptions.code}
               <br />
@@ -676,8 +722,9 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
       return (
         <>
-          <HelpersFile id={'types'} path={file.path} />
+          <HelpersFile id={'types'} path={path.resolve(file.path, '../types.ts')} />
           <File id={name} baseName={file.baseName} path={file.path}>
+            <File.Import path={file.path} name={['KubbQueryFactory']} isTypeOnly />
             <File.Source>{this.mutation.code}</File.Source>
           </File>
         </>

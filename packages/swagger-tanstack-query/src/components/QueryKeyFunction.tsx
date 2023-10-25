@@ -2,12 +2,16 @@ import { FunctionParams, URLPath } from '@kubb/core'
 import { Function } from '@kubb/react'
 import { getASTParams, useOperation, useSchemas } from '@kubb/swagger'
 
-import { capitalCase } from 'change-case'
-
 import type { ReactNode } from 'react'
 
 type Props = {
   name: string
+  typeName: string
+  /**
+   * TODO add typings
+   * Created by KubbQueryFactory, see templates/types
+   */
+  factoryTypeName?: string
   // generics: string[]
   // returnType: string
   // comments: string[]
@@ -16,7 +20,7 @@ type Props = {
   // props QueryKey
 }
 
-function QueryKeyFunctionBase({ name }: Props): ReactNode {
+function QueryKeyFunctionBase({ name, typeName, factoryTypeName }: Props): ReactNode {
   const schemas = useSchemas()
   const operation = useOperation()
   const path = new URLPath(operation.path)
@@ -29,7 +33,7 @@ function QueryKeyFunctionBase({ name }: Props): ReactNode {
     }),
     {
       name: 'params',
-      type: schemas.queryParams?.name,
+      type: `${factoryTypeName}["queryParams"]`,
       enabled: !!schemas.queryParams?.name,
       required: !!schemas.queryParams?.schema.required?.length,
     },
@@ -49,7 +53,7 @@ function QueryKeyFunctionBase({ name }: Props): ReactNode {
         {`[${result.join(',')}] as const;`}
       </Function.Arrow>
 
-      {`export type ${capitalCase(name)} = ReturnType<typeof ${name}>`}
+      {`export type ${typeName} = ReturnType<typeof ${name}>`}
     </>
   )
 }

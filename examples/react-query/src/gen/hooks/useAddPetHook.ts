@@ -1,10 +1,8 @@
-import client from '@kubb/swagger-client/client'
-
 import { useMutation } from '@tanstack/react-query'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/swagger-client/client'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
 
 /**
  * @description Add a new pet to the store
