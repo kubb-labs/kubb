@@ -59,12 +59,7 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toStrictEqual(
-      await format(`
-import React from 'react'
-export * from './index.ts'
-  `),
-    )
+    expect(await format(root.output)).toMatchSnapshot()
   })
 
   test('render File with source', () => {
@@ -91,11 +86,7 @@ export * from './index.ts'
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toStrictEqual(
-      await format(`export function test() {
-      return true
-    }`),
-    )
+    expect(format(root.output)).toMatchSnapshot()
   })
 
   test('render File with multiple sources', async () => {
@@ -115,13 +106,7 @@ export * from './index.ts'
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toStrictEqual(
-      await format(`export function test() {
-      return true
-    }
-    const test = 2;
-    `),
-    )
+    expect(await format(root.output)).toMatchSnapshot()
   })
 
   test('render multiple Files', async () => {
@@ -149,19 +134,9 @@ export * from './index.ts'
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toStrictEqual(
-      await format(`
-      const test = 1
-      const test2 = 2
-    `),
-    )
+    expect(await format(root.output)).toMatchSnapshot()
 
-    expect(await format(root.file?.source)).toStrictEqual(
-      await format(`
-    const test = 1
-    const test2 = 2
-    `),
-    )
+    expect(await format(root.file?.source)).toMatchSnapshot()
 
     expect(root.file?.imports).toStrictEqual([{
       'isTypeOnly': undefined,
@@ -171,11 +146,7 @@ export * from './index.ts'
 
     expect(root.files.length).toBe(2)
 
-    expect(await format(root.files[0]?.source)).toStrictEqual(
-      await format(`
-    const test = 1
-    `),
-    )
+    expect(await format(root.files[0]?.source)).toMatchSnapshot()
 
     expect(root.files[0]?.imports).toStrictEqual([{
       'isTypeOnly': undefined,
@@ -183,10 +154,6 @@ export * from './index.ts'
       'path': 'node',
     }])
 
-    expect(await format(root.files[1]?.source)).toStrictEqual(
-      await format(`
-    const test2 = 2
-    `),
-    )
+    expect(await format(root.files[1]?.source)).toMatchSnapshot()
   })
 })

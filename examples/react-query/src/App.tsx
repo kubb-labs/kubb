@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
 
-import { findPetsByStatusQueryOptions,useFindPetsByStatusHook } from './gen'
+import { findPetsByStatusQueryOptions, useFindPetsByStatusHook } from './gen'
 
 import type { FindPetsByStatusQueryParamsStatus } from './gen'
 
@@ -11,7 +11,7 @@ const queryClient = new QueryClient()
 function Pets(): JSX.Element {
   const [status, setStatus] = useState<FindPetsByStatusQueryParamsStatus>('available')
   const { data: pets, queryKey } = useFindPetsByStatusHook({ status }, { query: { enabled: true } })
-  const {queryKey: _queryKey, initialData,} =findPetsByStatusQueryOptions()
+  const { queryKey: _queryKey, initialData } = findPetsByStatusQueryOptions()
 
   console.log(pets)
   //            ^?
@@ -19,21 +19,18 @@ function Pets(): JSX.Element {
   console.log(initialData)
   //            ^?
 
-
   console.log(queryKey)
   //            ^?
 
   console.log(_queryKey)
   //            ^?
 
-
-
-  const {data:firstPet, queryKey: firstQueryKey} = useFindPetsByStatusHook({ status: "available" }, {
+  const { data: firstPet, queryKey: firstQueryKey } = useFindPetsByStatusHook({ status: 'available' }, {
     query: {
       queryKey: ['test'] as const,
       enabled: false,
       select: (data => {
-        const res= data.at(0)
+        const res = data.at(0)
         //    ^?
         return res
       }),
@@ -45,7 +42,6 @@ function Pets(): JSX.Element {
 
   console.log(firstQueryKey)
   //            ^?
-
 
   return (
     <>

@@ -67,38 +67,9 @@ describe('FileManager utils', () => {
       ],
     })
 
-    expect(await format(code)).toMatch(
-      await format(`
-    import type { Pets } from './Pets'
-
-    export type Pet = Pets
-
-   `),
-    )
-
-    expect(await format(codeWithDefaultImport)).toMatch(
-      await format(`
-    import client from './Pets'
-    import React from './React'
-    import type { Pets, Cat } from './Pets'
-
-    export type Pet = Pets | Cat
-    const test = [client, React]
-
-   `),
-    )
-
-    expect(await format(codeWithDefaultImportOrder)).toMatch(
-      await format(`
-    import client from './Pets'
-    import React from './React'
-    import type { Pets, Cat } from './Pets'
-
-    export type Pet = Pets | Cat
-    const test = [client, React]
-
-   `),
-    )
+    expect(await format(code)).toMatchSnapshot()
+    expect(await format(codeWithDefaultImport)).toMatchSnapshot()
+    expect(await format(codeWithDefaultImportOrder)).toMatchSnapshot()
   })
 
   test('if getFileSource is returning code with imports and default import', async () => {
@@ -114,14 +85,7 @@ describe('FileManager utils', () => {
         },
       ],
     })
-    expect(await format(code)).toMatch(
-      await format(`
-    import type Pets from './Pets'
-
-    export type Pet = Pets
-
-   `),
-    )
+    expect(await format(code)).toMatchSnapshot()
   })
   test('if combineFiles is removing previous code', () => {
     const combined = combineFiles([
@@ -224,21 +188,8 @@ export const test2 = 3;`,
       ],
     }
 
-    expect(await format(createFileSource(fileImport))).toMatch(
-      await format(`
-      import type { Pets, Lily } from "./Pets";
-      import type Dog from "./Dog";
-
-      export const test = 2;
-      type Test = Pets | Lily | Dog;`),
-    )
-
-    expect(await format(createFileSource(fileExport))).toEqual(
-      await format(`
-    export type { Pets, Lily } from "./Pets";
-    export type * as Dog from "./Dog";
-    `),
-    )
+    expect(await format(createFileSource(fileImport))).toMatchSnapshot()
+    expect(await format(createFileSource(fileExport))).toMatchSnapshot()
   })
 
   test('if combineFiles is combining `exports`, `imports` and `source` for the same file', () => {
@@ -401,30 +352,9 @@ export const test2 = 3;`,
       },
     }
 
-    expect(await format(createFileSource(fileImport))).toEqual(
-      await format(`
-    export const hello = "world";
-    `),
-    )
-    expect(await format(createFileSource(fileImportAdvanced))).toEqual(
-      await format(`
-    import type { Pets } from "./Pets";
-
-    export const hello = "world";
-    type Test = Pets;
-
-    `),
-    )
-
-    expect(await format(createFileSource(fileImportDeclareModule))).toEqual(
-      await format(`
-    import type { Pets } from "./Pets";
-
-    export const hello = typeof "world" !== 'undefined' ? "world" : undefined
-    type Test = Pets;
-
-    `),
-    )
+    expect(await format(createFileSource(fileImport))).toMatchSnapshot()
+    expect(await format(createFileSource(fileImportAdvanced))).toMatchSnapshot()
+    expect(await format(createFileSource(fileImportDeclareModule))).toMatchSnapshot()
   })
 
   test('if combineExports is filtering out duplicated exports', () => {
@@ -534,21 +464,9 @@ export const test2 = 3;`,
     if (isBun()) {
       // TODO check why bun is reodering the export sort
 
-      expect(await format(code)).toMatch(
-        await format(`
-        export * as models from "./world.ts";
-        export * as models from "./hello.ts";
-
-     `),
-      )
+      expect(await format(code)).toMatchSnapshot()
     } else {
-      expect(await format(code)).toMatch(
-        await format(`
-        export * as models from "./hello.ts";
-        export * as models from "./world.ts";
-
-     `),
-      )
+      expect(await format(code)).toMatchSnapshot()
     }
 
     expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()

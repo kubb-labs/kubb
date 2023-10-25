@@ -1,0 +1,42 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OperationGenerator > [GET] should generate code based on a pathParamsType \`inline\` 1`] = `
+"/**
+ * @summary Info for a specific pet
+ * @link /pets/:pet_id
+ */
+export async function showPetById<TData = ShowPetByIdQueryResponse>(
+  petId: ShowPetByIdPathParams['pet_id'],
+  testId: ShowPetByIdPathParams['testId'],
+  options: Partial<Parameters<typeof client>[0]> = {},
+): Promise<ResponseConfig<TData>> {
+  const { data: resData } = await client<TData>({
+    method: 'get',
+    url: \`/pets/\${petId}\`,
+    ...options,
+  })
+
+  return resData
+}
+"
+`;
+
+exports[`OperationGenerator > [GET] should generate code based on a pathParamsType \`object\` 1`] = `
+"/**
+ * @summary Info for a specific pet
+ * @link /pets/:pet_id
+ */
+export async function showPetById<TData = ShowPetByIdQueryResponse>(
+  { petId, testId }: ShowPetByIdPathParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
+): Promise<ResponseConfig<TData>['data']> {
+  const { data: resData } = await client<TData>({
+    method: 'get',
+    url: \`/pets/\${petId}\`,
+    ...options,
+  })
+
+  return resData
+}
+"
+`;

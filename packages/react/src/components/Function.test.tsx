@@ -14,14 +14,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatch(
-      await format(`
-        export async function getData() {
-            return 2;
-        };
-
-       `),
-    )
+    expect(await format(root.output)).toMatchSnapshot()
   })
 
   test('render ArrowFunction', async () => {
@@ -35,14 +28,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatch(
-      await format(`
-      export const getData = async () => {
-        return 2;
-      };
-
-       `),
-    )
+    expect(await format(root.output)).toMatchSnapshot()
   })
   test('render Function Generics', async () => {
     const Component = () => {
@@ -55,14 +41,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatch(
-      await format(`
-      export async function getData<TData>(): Promise<number> {
-          return 2;
-      };
-
-       `),
-    )
+    expect(await format(root.output)).toMatchSnapshot()
   })
 
   test('render ArrowFunction Generics', async () => {
@@ -76,14 +55,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatch(
-      await format(`
-      export const getData = async <TData>(): Promise<number> => {
-        return 2;
-      };
-
-       `),
-    )
+    expect(await format(root.output)).toMatchSnapshot()
   })
 
   test('render ArrowFunction SingleLine', async () => {
@@ -97,7 +69,7 @@ describe('<Function/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toMatch(await format(`export const getData = async <TData>(): Promise<number> => 2;`))
+    expect(await format(root.output)).toMatchSnapshot()
   })
   // test('render Function ServerComponent(beta)', async () => {
   //   const Component = async () => {

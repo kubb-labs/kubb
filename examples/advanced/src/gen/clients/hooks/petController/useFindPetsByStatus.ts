@@ -70,7 +70,7 @@ export function useFindPetsByStatus<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
   const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...findPetsByStatusQueryOptions<TQueryFnData, TError, TData,TQueryData>(params, clientOptions),
+    ...findPetsByStatusQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey

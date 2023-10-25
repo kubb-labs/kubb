@@ -1,9 +1,9 @@
 import client from '@kubb/swagger-client/client'
 
-import {   useQuery  } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 
-import type {QueryKey, UseBaseQueryOptions, UseQueryResult} from '@tanstack/react-query';
-import type { FindPetsByStatus400, FindPetsByStatusQueryParams,FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus.ts';
+import type { QueryKey, UseBaseQueryOptions, UseQueryResult } from '@tanstack/react-query'
+import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus.ts'
 import type { KubbQueryFactory } from './types.ts'
 
 type FindPetsByStatus = KubbQueryFactory<
@@ -15,7 +15,6 @@ type FindPetsByStatus = KubbQueryFactory<
   FindPetsByStatusQueryResponse,
   { dataReturnType: 'data'; type: 'query' }
 >
-
 
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: `/pet/findByStatus` }, ...(params ? [params] : [])] as const
 // new type for generation
@@ -65,7 +64,7 @@ export function useFindPetsByStatusHook<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
   const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...findPetsByStatusQueryOptions<TQueryFnData, TError, TData,TQueryData>(params, clientOptions),
+    ...findPetsByStatusQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey

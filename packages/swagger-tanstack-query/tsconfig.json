@@ -80,7 +80,8 @@
   ],
   "exclude": [
     "**/node_modules",
-    "**/types/**"
+    "**/types/**",
+    "**/templates/**"
   ]
   // "references": [
   //   { "path": "../core" },

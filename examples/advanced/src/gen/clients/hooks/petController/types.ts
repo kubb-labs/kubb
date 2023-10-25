@@ -25,7 +25,7 @@ export type KubbQueryFactory<
       dataReturnType: 'full'
     } ? Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>
       : Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>['data']
-    unionResponse: Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>> | Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>["data"]
+    unionResponse: Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>> | Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>['data']
     client: {
       paramaters: Partial<Parameters<typeof client<TResponse, TError, TRequest>>[0]>
       return: Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>

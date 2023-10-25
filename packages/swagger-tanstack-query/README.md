@@ -43,16 +43,17 @@
 [coverage-src]: https://img.shields.io/codecov/c/github/kubb-project/kubb?style=flat&colorA=18181B&colorB=f58517
 [coverage-href]: https://www.npmjs.com/package/@kubb/swagger-tanstack-query
 
-
 ## options query
+
 ### v4
+
 UseBaseQueryOptions => react-query only
 UseQueryOptions => vue-query only
 CreateQueryOptions => solid-query only
 CreateQueryOptions => svelte-query only
 
-
 ### v5
+
 UseBaseQueryOptions => react-query only https://github.com/TanStack/query/blob/ce1305c27e7ac7988656d171d882a665a286cc6a/packages/react-query/src/types.ts#L18
 QueryObserverOptions => vue-query only https://github.com/TanStack/query/blob/main/packages/vue-query/src/useQuery.ts#L24
 UseQueryOptions => solid-query only
@@ -60,6 +61,7 @@ UseQueryOptions => solid-query only
 ## result query
 
 ### v4
+
 UseQueryResult => react-query only
 UseQueryReturnType => vue-query only
 CreateQueryResult => solid-query only
@@ -70,12 +72,11 @@ CreateQueryResult => svelte-query only
 UseQueryResult => react-query only
 UseQueryReturnType => vue-query only
 
-
 ## queryOptions() query
 
 ### v5
-queryOptions => react-query only
 
+queryOptions => react-query only
 
 ```typescript
 {
@@ -88,24 +89,26 @@ queryOptions => react-query only
 }
 ```
 
-
-
 ## options mutation
+
 ### v4
+
 UseMutationOptions => react-query only
 VueMutationObserverOptions => vue-query only
 
-
 ### v5
+
 UseMutationOptions => react-query only
 MutationObserverOptions => vue-query only
 
 ## result mutation
 
 ### v4
+
 UseMutationResult => react-query only
 UseMutationReturnType => vue-query only
 
 ### v5
+
 UseMutationResult => react-query only
 UseMutationReturnType => vue-query only

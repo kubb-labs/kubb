@@ -12,6 +12,7 @@ import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { ContentType, Oas, OperationSchemas, OverrideBy, SkipBy } from '../types.ts'
+import type { OperationMethodResult } from './types.ts'
 
 type Context<TOptions> = {
   oas: Oas
@@ -25,8 +26,6 @@ type Context<TOptions> = {
   plugin: KubbPlugin
   mode?: KubbFile.Mode
 }
-
-export type OperationMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
 export abstract class OperationGenerator<TOptions = unknown, TFileMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>
   extends Generator<TOptions, Context<TOptions>>
