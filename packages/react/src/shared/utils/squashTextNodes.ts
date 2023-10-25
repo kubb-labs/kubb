@@ -1,4 +1,5 @@
-import { createExportDeclaration, createImportDeclaration, print } from '@kubb/parser'
+import { print } from '@kubb/parser'
+import * as factory from '@kubb/parser/factory'
 
 import { printOrRead } from './printOrRead.ts'
 
@@ -26,13 +27,13 @@ export function squashTextNodes(node: DOMElement): string {
     const getPrintText = (text: string): string => {
       if (childNode.nodeName === 'kubb-import') {
         const attributes = childNode.attributes as React.ComponentProps<typeof File.Import>
-        return print(createImportDeclaration({ name: attributes.name, path: attributes.path, isTypeOnly: attributes.isTypeOnly }))
+        return print(factory.createImportDeclaration({ name: attributes.name, path: attributes.path, isTypeOnly: attributes.isTypeOnly }))
       }
 
       if (childNode.nodeName === 'kubb-export') {
         const attributes = childNode.attributes as React.ComponentProps<typeof File.Export>
         return print(
-          createExportDeclaration({ name: attributes.name, path: attributes.path, isTypeOnly: attributes.isTypeOnly, asAlias: attributes.asAlias }),
+          factory.createExportDeclaration({ name: attributes.name, path: attributes.path, isTypeOnly: attributes.isTypeOnly, asAlias: attributes.asAlias }),
         )
       }
       if (childNode.nodeName === 'kubb-source') {

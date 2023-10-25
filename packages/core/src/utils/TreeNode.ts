@@ -1,6 +1,6 @@
 import dirTree from 'directory-tree'
 
-import { FileManager } from '../managers/fileManager/FileManager.ts'
+import { FileManager } from '../FileManager.ts'
 
 import type { DirectoryTree, DirectoryTreeOptions } from 'directory-tree'
 

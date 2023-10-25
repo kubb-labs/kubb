@@ -1,4 +1,4 @@
-import { getRelativePath, transformers, URLPath } from '@kubb/core'
+import { getRelativePath, transformers, URLPath } from '@kubb/core/utils'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 

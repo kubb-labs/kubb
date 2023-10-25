@@ -1,4 +1,4 @@
-import { transformers } from '@kubb/core'
+import { transformers } from '@kubb/core/utils'
 
 type Props = {
   size: number

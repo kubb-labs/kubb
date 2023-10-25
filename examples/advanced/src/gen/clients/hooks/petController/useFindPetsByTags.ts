@@ -2,7 +2,7 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 import client from '../../../../tanstack-query-client.ts'
 
-import type { QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
+import type { QueryKey, UseBaseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryResult } from '@tanstack/react-query'
 import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type {
   FindPetsByTags400,
@@ -10,24 +10,35 @@ import type {
   FindPetsByTagsQueryParams,
   FindPetsByTagsQueryResponse,
 } from '../../../models/ts/petController/FindPetsByTags'
+import type { KubbQueryFactory } from './types'
 
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
-export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
+type FindPetsByTags = KubbQueryFactory<FindPetsByTagsQueryResponse, FindPetsByTags400, never, never, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse, {
+  dataReturnType: 'full'
+  type: 'query'
+}>
+export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
+export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
+export function findPetsByTagsQueryOptions<
+  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
+  TError = FindPetsByTags['error'],
+  TData = FindPetsByTags['response'],
+  TQueryData = FindPetsByTags['response'],
+>(
   headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<ResponseConfig<TData>, TError> {
+  params?: FindPetsByTags['queryParams'],
+  options: FindPetsByTags['client']['paramaters'] = {},
+): UseBaseQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsQueryKey> {
   const queryKey = findPetsByTagsQueryKey(params)
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
         headers: { ...headers, ...options.headers },
         ...options,
-      }).then(res => res)
+      }).then(res => res?.data || res)
     },
   }
 }
@@ -37,25 +48,27 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  headers: FindPetsByTagsHeaderParams,
-  params?: FindPetsByTagsQueryParams,
-  options: {
-    query?: UseQueryOptions<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<ResponseConfig<TData>, TError> & {
-  queryKey: QueryKey
+export function useFindPetsByTags<
+  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
+  TError = FindPetsByTags['error'],
+  TData = FindPetsByTags['response'],
+  TQueryData = FindPetsByTags['response'],
+  TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
+>(headers: FindPetsByTagsHeaderParams, params?: FindPetsByTags['queryParams'], options: {
+  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  client?: FindPetsByTags['client']['paramaters']
+} = {}): UseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-  const query = useQuery<ResponseConfig<TData>, TError>({
-    ...findPetsByTagsQueryOptions<TData, TError>(headers, params, clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(headers, params, clientOptions),
     ...queryOptions,
-  }) as UseQueryResult<ResponseConfig<TData>, TError> & {
-    queryKey: QueryKey
+  }) as UseQueryResult<TData, TError> & {
+    queryKey: TQueryKey
   }
-  query.queryKey = queryKey
+  query.queryKey = queryKey as TQueryKey
   return query
 }
 

@@ -1,15 +1,17 @@
-import { useMutation } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+
+import { useMutation } from '@tanstack/react-query'
+
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import type { UpdatePet400, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../models/UpdatePet'
 
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
  * @link /pet
  */
-export function useUpdatePetHook<TData = UpdatePetMutationResponse, TError = UpdatePet400 | UpdatePet404 | UpdatePet405, TVariables = UpdatePetMutationRequest>(
+export function useUpdatePetHook<TData = UpdatePetMutationResponse, TError = UpdatePet400, TVariables = UpdatePetMutationRequest>(
   options: {
     mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
     client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>

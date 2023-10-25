@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-import { LogLevel, ParallelPluginError } from '@kubb/core'
+import { ParallelPluginError } from '@kubb/core'
+import { LogLevel } from '@kubb/core/utils'
 
 import PrettyError from 'pretty-error'
 

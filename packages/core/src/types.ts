@@ -1,8 +1,8 @@
+import type { FileManager, KubbFile } from './FileManager.ts'
 import type { OptionsPlugins, PluginUnion } from './index.ts'
-import type { FileManager, KubbFile } from './managers/fileManager/index.ts'
-import type { PluginManager } from './managers/pluginManager/index.ts'
+import type { PluginManager } from './PluginManager.ts'
 import type { Cache } from './utils/cache.ts'
-import type { Logger } from './utils/logger.ts'
+import type { Logger, LogLevel } from './utils/logger.ts'
 
 /**
  * Config used in `kubb.config.js`
@@ -274,6 +274,8 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
 
 export type PluginLifecycleHooks = keyof PluginLifecycle
 
+export type PluginParameter<H extends PluginLifecycleHooks> = Parameters<Required<PluginLifecycle>[H]>
+
 export type PluginCache = Record<string, [number, unknown]>
 
 export type ResolvePathParams<TOptions = Record<string, unknown>> = {
@@ -314,14 +316,6 @@ export type PluginContext<TOptions = Record<string, unknown>> = {
 // null will mean clear the watcher for this key
 export type TransformResult = string | null
 
-export const LogLevel = {
-  silent: 'silent',
-  info: 'info',
-  debug: 'debug',
-} as const
-
-export type LogLevel = keyof typeof LogLevel
-
 export type AppMeta = { pluginManager: PluginManager }
 
 // generic types
@@ -333,9 +327,11 @@ export type Prettify<T> =
   // eslint-disable-next-line @typescript-eslint/ban-types
   & {}
 
+/**
+ * TODO move to @kubb/types
+ * @deprecated
+ */
 export type PossiblePromise<T> = Promise<T> | T
-
-export type PromiseFunc<T, T2 = never> = () => T2 extends never ? Promise<T> : Promise<T> | T2
 
 type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
 type LastOf<T> = UnionToIntersection<T extends any ? () => T : never> extends () => infer R ? R : never
@@ -345,9 +341,26 @@ type Push<T extends any[], V> = [...T, V]
 
 // TS4.1+
 type TuplifyUnion<T, L = LastOf<T>, N = [T] extends [never] ? true : false> = true extends N ? [] : Push<TuplifyUnion<Exclude<T, L>>, L>
-
+/**
+ * TODO move to @kubb/types
+ * @deprecated
+ */
 export type ObjValueTuple<T, KS extends any[] = TuplifyUnion<keyof T>, R extends any[] = []> = KS extends [infer K, ...infer KT]
   ? ObjValueTuple<T, KT, [...R, [name: K & keyof T, options: T[K & keyof T]]]>
   : R
-
+/**
+ * TODO move to @kubb/types
+ * @deprecated
+ */
 export type TupleToUnion<T> = T extends Array<infer ITEMS> ? ITEMS : never
+
+/**
+ * TODO move to @kubb/types
+ * @deprecated
+ */
+type ArrayWithLength<T extends number, U extends any[] = []> = U['length'] extends T ? U : ArrayWithLength<T, [true, ...U]>
+/**
+ * TODO move to @kubb/types
+ * @deprecated
+ */
+export type GreaterThan<T extends number, U extends number> = ArrayWithLength<U> extends [...ArrayWithLength<T>, ...infer _] ? false : true

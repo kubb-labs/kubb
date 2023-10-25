@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 
-import { URLPath } from '@kubb/core'
+import { URLPath } from '@kubb/core/utils'
 
 import SwaggerParser from '@apidevtools/swagger-parser'
 import yaml from 'js-yaml'

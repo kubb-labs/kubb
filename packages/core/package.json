@@ -23,6 +23,11 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
+    "./utils": {
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs",
+      "default": "./dist/utils.cjs"
+    },
     "./package.json": "./package.json",
     "./*": "./*",
     "./globals": {
@@ -71,7 +76,7 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.3",
     "@types/lodash.isequal": "4.5.6",
-    "@types/react": "^18.2.31",
+    "@types/react": "^18.2.32",
     "@types/seedrandom": "^3.0.7",
     "@types/semver": "^7.5.4",
     "eslint": "^8.52.0",

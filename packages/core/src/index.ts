@@ -4,12 +4,17 @@ import type { ObjValueTuple, TupleToUnion } from './types.ts'
 
 export { build } from './build.ts'
 export { defineConfig, isInputPath } from './config.ts'
-export * from './generators/index.ts'
-export * from './managers/index.ts'
+export { ParallelPluginError, PluginError, SummaryError, ValidationPluginError, Warning } from './errors.ts'
+export type { KubbFile } from './FileManager.ts'
+export { FileManager } from './FileManager.ts'
+export { Generator } from './Generator.ts'
+export { PackageManager } from './PackageManager.ts'
 // dprint-ignore
 export { createPlugin, pluginName as name, pluginName } from './plugin.ts'
+export { PluginManager } from './PluginManager.ts'
+export { isPromise, isPromiseFulfilledResult, isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
+export { SchemaGenerator } from './SchemaGenerator.ts'
 export * from './types.ts'
-export * from './utils/index.ts'
 
 export interface _Register {}
 export type Plugins = _Register

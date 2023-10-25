@@ -1,7 +1,6 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import ts from 'typescript'
-
-import type { ArrayTwoOrMore } from './types.ts'
 
 const { factory } = ts
 
@@ -46,7 +45,7 @@ export function createIntersectionDeclaration({
   nodes,
   withParentheses,
 }: {
-  nodes: ArrayTwoOrMore<ts.TypeNode>
+  nodes: Array<ts.TypeNode>
   withParentheses?: boolean
 }): ts.TypeNode | null {
   if (!nodes.length) {
@@ -54,7 +53,7 @@ export function createIntersectionDeclaration({
   }
 
   if (nodes.length === 1) {
-    return nodes[0]
+    return nodes[0] || null
   }
 
   const node = factory.createIntersectionTypeNode(nodes)
@@ -70,13 +69,13 @@ export function createIntersectionDeclaration({
  * Minimum nodes length of 2
  * @example `string & number`
  */
-export function createTupleDeclaration({ nodes, withParentheses }: { nodes: ArrayTwoOrMore<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
+export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
   if (!nodes.length) {
     return null
   }
 
   if (nodes.length === 1) {
-    return nodes[0]
+    return nodes[0] || null
   }
 
   const node = factory.createTupleTypeNode(nodes)
@@ -91,13 +90,13 @@ export function createTupleDeclaration({ nodes, withParentheses }: { nodes: Arra
  * Minimum nodes length of 2
  * @example `string | number`
  */
-export function createUnionDeclaration({ nodes, withParentheses }: { nodes: ArrayTwoOrMore<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
+export function createUnionDeclaration({ nodes, withParentheses }: { nodes: Array<ts.TypeNode>; withParentheses?: boolean }): ts.TypeNode | null {
   if (!nodes.length) {
     return null
   }
 
   if (nodes.length === 1) {
-    return nodes[0]
+    return nodes[0] || null
   }
 
   const node = factory.createUnionTypeNode(nodes)
@@ -405,3 +404,26 @@ export function createOmitDeclaration({ keys, type, nonNullable }: { keys: Array
 
   return factory.createTypeReferenceNode(factory.createIdentifier('Omit'), [node, factory.createLiteralTypeNode(factory.createStringLiteral(keys))])
 }
+
+export const keywordTypeNodes = {
+  any: factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
+  number: factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
+  integer: factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
+  object: factory.createKeywordTypeNode(ts.SyntaxKind.ObjectKeyword),
+  string: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+  boolean: factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword),
+  undefined: factory.createKeywordTypeNode(ts.SyntaxKind.UndefinedKeyword),
+  null: factory.createLiteralTypeNode(factory.createToken(ts.SyntaxKind.NullKeyword)),
+} as const
+
+export const createTypeLiteralNode = factory.createTypeLiteralNode
+
+export const createTypeReferenceNode = factory.createTypeReferenceNode
+export const createNumericLiteral = factory.createNumericLiteral
+export const createStringLiteral = factory.createStringLiteral
+
+export const createArrayTypeNode = factory.createArrayTypeNode
+
+export const createLiteralTypeNode = factory.createLiteralTypeNode
+export const createNull = factory.createNull
+export const createIdentifier = factory.createIdentifier

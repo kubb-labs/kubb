@@ -1,12 +1,14 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
+
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+
+import type { QueryKey, UseBaseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryResult } from '@tanstack/react-query'
+import type { GetOrderById400, GetOrderByIdPathParams, GetOrderByIdQueryResponse } from '../models/GetOrderById'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseBaseQueryOptions } from '@tanstack/react-query'
-import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 
 type GetOrderById = KubbQueryFactory<
   GetOrderByIdQueryResponse,
-  GetOrderById400 | GetOrderById404,
+  GetOrderById400,
   never,
   GetOrderByIdPathParams,
   never,
@@ -69,7 +71,7 @@ export function useGetOrderByIdHook<
   return query
 }
 
-export function getOrderByIdQueryOptionsInfinite<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
+export function getOrderByIdQueryOptionsInfinite<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
@@ -91,7 +93,7 @@ export function getOrderByIdQueryOptionsInfinite<TData = GetOrderByIdQueryRespon
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-export function useGetOrderByIdHookInfinite<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
+export function useGetOrderByIdHookInfinite<TData = GetOrderByIdQueryResponse, TError = GetOrderById400>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
     query?: UseInfiniteQueryOptions<TData, TError>
@@ -108,6 +110,6 @@ export function useGetOrderByIdHookInfinite<TData = GetOrderByIdQueryResponse, T
   }) as UseInfiniteQueryResult<TData, TError> & {
     queryKey: QueryKey
   }
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
   return query
 }

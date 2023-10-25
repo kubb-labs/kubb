@@ -23,7 +23,6 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "schemas",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],

@@ -1,10 +1,10 @@
-import { FunctionParams } from '@kubb/core'
+import { FunctionParams } from '@kubb/core/utils'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { isParameterObject } from './isParameterObject.ts'
 
-import type { FunctionParamsAST } from '@kubb/core'
+import type { FunctionParamsAST } from '@kubb/core/utils'
 import type { OperationSchema } from '../types.ts'
 
 export function getASTParams(

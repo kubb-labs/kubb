@@ -1,12 +1,17 @@
 import path from 'node:path'
 
-import { executeStrategies, isInputPath, LogLevel, SummaryError, Warning } from '@kubb/core'
+import { isInputPath, PromiseManager, SummaryError, Warning } from '@kubb/core'
+import { LogLevel } from '@kubb/core/utils'
 
 import { cac } from 'cac'
 import pc from 'picocolors'
 
 import { version } from '../package.json'
-import { getConfig, getCosmiConfig, renderErrors, spinner, startWatcher } from './utils/index.ts'
+import { getConfig } from './utils/getConfig.ts'
+import { getCosmiConfig } from './utils/getCosmiConfig.ts'
+import { renderErrors } from './utils/renderErrors.ts'
+import { spinner } from './utils/spinner.ts'
+import { startWatcher } from './utils/watcher.ts'
 import { generate } from './generate.ts'
 import { init } from './init.ts'
 
@@ -64,12 +69,10 @@ async function generateAction(input: string, CLIOptions: CLIOptions) {
   }
 
   if (Array.isArray(config)) {
+    const promiseManager = new PromiseManager()
     const promises = config.map((item) => () => generate({ input, config: item, CLIOptions }))
 
-    await executeStrategies.hookSeq(promises)
-
-    // await generate({ input, config: config[0]!, CLIOptions })
-    // await generate({ input, config: config[1]!, CLIOptions })
+    await promiseManager.run('seq', promises)
 
     return
   }

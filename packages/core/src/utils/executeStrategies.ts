@@ -1,4 +1,5 @@
-import type { PromiseFunc } from '../../types.ts'
+type PromiseFunc<T, T2 = never> = () => T2 extends never ? Promise<T> : Promise<T> | T2
+
 export function noReturn(): void {}
 
 type SeqOutput<TInput extends Array<PromiseFunc<TPromise, null>>, TPromise = unknown> = ReturnType<NonNullable<TInput[number]>>
@@ -22,7 +23,3 @@ export function hookSeq<TInput extends Array<PromiseFunc<TPromise, null>>, TProm
     Promise.resolve([] as any),
   ) as TOutput
 }
-
-export const executeStrategies = {
-  hookSeq,
-} as const

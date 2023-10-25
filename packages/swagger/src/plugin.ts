@@ -5,7 +5,8 @@ import { createPlugin } from '@kubb/core'
 import { oasParser } from './parsers/oasParser.ts'
 import { getSchemas } from './utils/getSchemas.ts'
 
-import type { KubbConfig, Logger } from '@kubb/core'
+import type { KubbConfig } from '@kubb/core'
+import type { Logger } from '@kubb/core/utils'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { Oas, PluginOptions } from './types.ts'
 

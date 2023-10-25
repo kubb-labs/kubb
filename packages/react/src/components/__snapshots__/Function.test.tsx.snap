@@ -32,3 +32,36 @@ exports[`<Function/> > render Function Generics 1`] = `
 }
 "
 `;
+
+exports[`<Function/> render ArrowFunction 1`] = `
+"export const getData = async () => {
+  return 2
+}
+"
+`;
+
+exports[`<Function/> render ArrowFunction Generics 1`] = `
+"export const getData = async <TData,>(): Promise<number> => {
+  return 2
+}
+"
+`;
+
+exports[`<Function/> render ArrowFunction SingleLine 1`] = `
+"export const getData = async <TData,>(): Promise<number> => 2
+"
+`;
+
+exports[`<Function/> render Function 1`] = `
+"export async function getData() {
+  return 2
+}
+"
+`;
+
+exports[`<Function/> render Function Generics 1`] = `
+"export async function getData<TData>(): Promise<number> {
+  return 2
+}
+"
+`;

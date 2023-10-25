@@ -1,4 +1,5 @@
-import { getRelativePath, PackageManager } from '@kubb/core'
+import { PackageManager } from '@kubb/core'
+import { getRelativePath } from '@kubb/core/utils'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { pluginKey as swaggerTypescriptPluginKey, resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
 

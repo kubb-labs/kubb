@@ -1,8 +1,10 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
-import type { KubbQueryFactory } from './types'
-import type { QueryKey, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseBaseQueryOptions } from '@tanstack/react-query'
+
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+
+import type { QueryKey, UseBaseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryResult } from '@tanstack/react-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
+import type { KubbQueryFactory } from './types'
 
 type GetInventory = KubbQueryFactory<GetInventoryQueryResponse, never, never, never, never, GetInventoryQueryResponse, {
   dataReturnType: 'data'
@@ -93,6 +95,6 @@ export function useGetInventoryHookInfinite<TData = GetInventoryQueryResponse, T
   }) as UseInfiniteQueryResult<TData, TError> & {
     queryKey: QueryKey
   }
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
   return query
 }

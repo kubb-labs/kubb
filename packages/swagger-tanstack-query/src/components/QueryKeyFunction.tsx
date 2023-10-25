@@ -1,4 +1,4 @@
-import { FunctionParams, URLPath } from '@kubb/core'
+import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function } from '@kubb/react'
 import { getASTParams, useOperation, useSchemas } from '@kubb/swagger'
 

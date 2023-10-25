@@ -1,15 +1,174 @@
 import path from 'node:path'
 
-import { isBun } from 'js-runtime'
+import { format } from '../mocks/format.ts'
+import { Queue } from './utils/Queue.ts'
+import { combineExports, combineImports, FileManager } from './FileManager.ts'
 
-import { format } from '../../../mocks/format.ts'
-import { combineExports, combineFiles, combineImports, createFileSource, getIndexes } from './utils.ts'
+import type { KubbFile } from './FileManager.ts'
 
-import type { KubbFile } from './types.ts'
+describe('FileManager', () => {
+  const mocksPath = path.resolve(__dirname, '../../mocks')
+  const filePath = path.resolve(mocksPath, './hellowWorld.js')
+  const folderPath = path.resolve(mocksPath, './folder')
+
+  test('fileManager.add also adds the files to the cache', async () => {
+    const fileManager = new FileManager()
+    await fileManager.add({
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: '',
+    })
+
+    await fileManager.add({
+      path: path.resolve('./src/models/file1.ts'),
+      baseName: 'file1.ts',
+      source: '',
+    })
+
+    expect(FileManager.extensions).toEqual(['.js', '.ts', '.tsx'])
+    expect(fileManager.files.length).toBe(2)
+  })
+
+  test('fileManager.add will return array of files or one file depending on the input', async () => {
+    const fileManager = new FileManager()
+    const file = await fileManager.add({
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: "const file1 ='file1';",
+      imports: [{ name: 'path', path: 'node:path' }],
+    })
+
+    expect(file).toBeDefined()
+    expect((file as any).length).toBeUndefined()
+
+    const file2 = await fileManager.add({
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: "const file1 ='file1';",
+      imports: [{ name: 'path', path: 'node:path' }],
+    }, {
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: "const file1 ='file1';",
+      imports: [{ name: 'path', path: 'node:path' }],
+    })
+
+    expect(file2).toBeDefined()
+    expect((file2 as any).length).toBeDefined()
+  })
+
+  test('fileManager.addOrAppend also adds the files to the cache', async () => {
+    const fileManager = new FileManager()
+    await fileManager.add({
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: "const file1 ='file1';",
+      imports: [{ name: 'path', path: 'node:path' }],
+    })
+
+    const file = await fileManager.add({
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: "const file1Bis ='file1Bis';",
+      imports: [{ name: 'fs', path: 'node:fs' }],
+    })
+
+    expect(file).toBeDefined()
+
+    expect(fileManager.files.length).toBe(1)
+
+    expect(file.source).toBe(`const file1 ='file1';\nconst file1Bis ='file1Bis';`)
+    expect(file.imports).toStrictEqual([
+      { name: 'path', path: 'node:path' },
+      { name: 'fs', path: 'node:fs' },
+    ])
+  })
+  test('if creation of graph is correct', () => {
+    const fileManager = new FileManager()
+    fileManager.add({
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: '',
+    })
+    fileManager.add({
+      path: path.resolve('./src/hooks/file1.ts'),
+      baseName: 'file1.ts',
+      source: '',
+    })
+
+    fileManager.add({
+      path: path.resolve('./src/models/file1.ts'),
+      baseName: 'file1.ts',
+      source: '',
+    })
+
+    fileManager.add({
+      path: path.resolve('./src/models/file2.ts'),
+      baseName: 'file2.ts',
+      source: '',
+    })
+
+    expect(fileManager.files.length).toBe(4)
+  })
+
+  test('fileManager.getCacheByUUID', async () => {
+    const fileManager = new FileManager()
+    const file = await fileManager.add({
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: '',
+    })
+
+    const resolvedFile = fileManager.getCacheByUUID(file.id)
+
+    if (resolvedFile) {
+      expect(resolvedFile).toBeDefined()
+      expect(resolvedFile.source).toBe(file.source)
+    }
+  })
+
+  test('fileManager queue', async () => {
+    const taskMock = vi.fn()
+
+    const fileManager = new FileManager({ queue: new Queue(5), task: taskMock })
+    await fileManager.add({
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: '',
+    })
+
+    expect(taskMock).toHaveBeenCalled()
+  })
+
+  test('fileManager.remove', async () => {
+    const taskMock = vi.fn()
+
+    const fileManager = new FileManager({ queue: new Queue(5), task: taskMock })
+    const file = await fileManager.add({
+      path: path.resolve('./src/file1.ts'),
+      baseName: 'file1.ts',
+      source: '',
+    })
+
+    fileManager.remove(file.path)
+
+    const expectedRemovedFile = fileManager.files.find((f) => f.path === file.path)
+
+    expect(expectedRemovedFile).toBeUndefined()
+    expect(taskMock).toHaveBeenCalled()
+  })
+
+  test('if getMode returns correct PathMode(file or directory)', () => {
+    expect(FileManager.getMode(filePath)).toBe('file')
+    expect(FileManager.getMode(folderPath)).toBe('directory')
+    expect(FileManager.getMode(undefined)).toBe('directory')
+    expect(FileManager.getMode(null)).toBe('directory')
+  })
+})
 
 describe('FileManager utils', () => {
   test('if getFileSource is returning code with imports', async () => {
-    const code = createFileSource({
+    const code = FileManager.getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets;',
@@ -21,7 +180,7 @@ describe('FileManager utils', () => {
         },
       ],
     })
-    const codeWithDefaultImport = createFileSource({
+    const codeWithDefaultImport = FileManager.getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets | Cat; const test = [client, React];',
@@ -41,7 +200,7 @@ describe('FileManager utils', () => {
         },
       ],
     })
-    const codeWithDefaultImportOrder = createFileSource({
+    const codeWithDefaultImportOrder = FileManager.getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets | Cat;\nconst test = [client, React];',
@@ -73,7 +232,7 @@ describe('FileManager utils', () => {
   })
 
   test('if getFileSource is returning code with imports and default import', async () => {
-    const code = createFileSource({
+    const code = FileManager.getSource({
       baseName: 'test.ts',
       path: 'models/ts/test.ts',
       source: 'export type Pet = Pets;',
@@ -88,7 +247,7 @@ describe('FileManager utils', () => {
     expect(await format(code)).toMatchSnapshot()
   })
   test('if combineFiles is removing previous code', () => {
-    const combined = combineFiles([
+    const combined = FileManager.combineFiles([
       {
         path: path.resolve('./src/models/file1.ts'),
         baseName: 'file1.ts',
@@ -113,7 +272,7 @@ export const test2 = 3;`,
     ])
   })
   test('if combineFiles is overriding with latest file', () => {
-    const combined = combineFiles([
+    const combined = FileManager.combineFiles([
       {
         path: path.resolve('./src/models/file1.ts'),
         baseName: 'file1.ts',
@@ -188,8 +347,8 @@ export const test2 = 3;`,
       ],
     }
 
-    expect(await format(createFileSource(fileImport))).toMatchSnapshot()
-    expect(await format(createFileSource(fileExport))).toMatchSnapshot()
+    expect(await format(FileManager.getSource(fileImport))).toMatchSnapshot()
+    expect(await format(FileManager.getSource(fileExport))).toMatchSnapshot()
   })
 
   test('if combineFiles is combining `exports`, `imports` and `source` for the same file', () => {
@@ -252,7 +411,7 @@ export const test2 = 3;`,
       },
     ]
 
-    expect(combineFiles(importFiles)).toEqual([
+    expect(FileManager.combineFiles(importFiles)).toEqual([
       {
         path: path.resolve('./src/models/file1.ts'),
         baseName: 'file2.ts',
@@ -276,7 +435,7 @@ export const test2 = 3;`,
       },
     ])
 
-    expect(combineFiles(exportFiles)).toMatchObject([
+    expect(FileManager.combineFiles(exportFiles)).toMatchObject([
       {
         path: path.resolve('./src/models/file1.ts'),
         baseName: 'file2.ts',
@@ -352,9 +511,9 @@ export const test2 = 3;`,
       },
     }
 
-    expect(await format(createFileSource(fileImport))).toMatchSnapshot()
-    expect(await format(createFileSource(fileImportAdvanced))).toMatchSnapshot()
-    expect(await format(createFileSource(fileImportDeclareModule))).toMatchSnapshot()
+    expect(await format(FileManager.getSource(fileImport))).toMatchSnapshot()
+    expect(await format(FileManager.getSource(fileImportAdvanced))).toMatchSnapshot()
+    expect(await format(FileManager.getSource(fileImportDeclareModule))).toMatchSnapshot()
   })
 
   test('if combineExports is filtering out duplicated exports', () => {
@@ -419,65 +578,5 @@ export const test2 = 3;`,
     ]
 
     expect(combineImports(importsWithoutSource, [])).toEqual([imports[0], imports[1]])
-  })
-
-  test(`if getIndexes returns 'index.ts' files`, () => {
-    const rootPath = path.resolve(__dirname, '../../../mocks/treeNode')
-    const files = getIndexes(rootPath) || []
-    const rootIndex = files[0]
-
-    expect(rootIndex).toBeDefined()
-
-    expect(files?.every((file) => file.baseName === 'index.ts')).toBeTruthy()
-
-    expect(rootIndex?.exports?.every((file) => !file.path.endsWith('.ts'))).toBeTruthy()
-  })
-
-  test('if getIndexes can return an export with `exportAs` and/or `isTypeOnly`', async () => {
-    const exportAs = 'models'
-    const rootPath = path.resolve(__dirname, '../../../mocks/treeNode')
-
-    const files = getIndexes(rootPath, '.ts', {
-      includeExt: true,
-      map: (file) => {
-        return {
-          ...file,
-          exports: file.exports?.map((item) => {
-            if (exportAs) {
-              return {
-                ...item,
-                name: exportAs,
-                asAlias: !!exportAs,
-              }
-            }
-            return item
-          }),
-        }
-      },
-    }) || []
-    const rootIndex = files[0]!
-
-    expect(rootIndex).toBeDefined()
-
-    const code = createFileSource(rootIndex)
-
-    if (isBun()) {
-      // TODO check why bun is reodering the export sort
-
-      expect(await format(code)).toMatchSnapshot()
-    } else {
-      expect(await format(code)).toMatchSnapshot()
-    }
-
-    expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()
-  })
-  test('if getIndexes can return an export with `includeExt`', () => {
-    const rootPath = path.resolve(__dirname, '../../../mocks/treeNode')
-    const files = getIndexes(rootPath, '.ts', { includeExt: true }) || []
-    const rootIndex = files[0]
-
-    expect(rootIndex).toBeDefined()
-
-    expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()
   })
 })

@@ -13,7 +13,7 @@ import {
   createQuestionToken,
   createUnionDeclaration,
   modifiers,
-} from './codegen.ts'
+} from './factory.ts'
 import { print } from './print.ts'
 
 const { factory } = ts

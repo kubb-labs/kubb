@@ -1,7 +1,7 @@
-import { transformers } from '@kubb/core'
+import { transformers } from '@kubb/core/utils'
 import { Function } from '@kubb/react'
 
-import type { URLPath } from '@kubb/core'
+import type { URLPath } from '@kubb/core/utils'
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { Options as PluginOptions } from '../types.ts'

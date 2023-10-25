@@ -1,8 +1,10 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
+
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+
+import type { QueryKey, UseBaseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryResult } from '@tanstack/react-query'
+import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseBaseQueryOptions } from '@tanstack/react-query'
-import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
 
 type FindPetsByStatus = KubbQueryFactory<
   FindPetsByStatusQueryResponse,
@@ -114,6 +116,6 @@ export function useFindPetsByStatusHookInfinite<TData = FindPetsByStatusQueryRes
   }) as UseInfiniteQueryResult<TData, TError> & {
     queryKey: QueryKey
   }
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
   return query
 }

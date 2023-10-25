@@ -23,11 +23,12 @@ export type KubbQueryFactory<
     queryParams: TQueryParams
     response: TOptions extends {
       dataReturnType: 'full'
-    } ? Awaited<ReturnType<typeof client<TData, TError, TRequest>>>
-      : TResponse
+    } ? Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>
+      : Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>['data']
+    unionResponse: Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>> | Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>['data']
     client: {
-      paramaters: Partial<Parameters<typeof client<TData, TError, TRequest>>[0]>
-      return: Awaited<ReturnType<typeof client<TData, TError, TRequest>>>
+      paramaters: Partial<Parameters<typeof client<TResponse, TError, TRequest>>[0]>
+      return: Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>
     }
   }
   & (TOptions extends {

@@ -1,15 +1,17 @@
-import { useMutation } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+
+import { useMutation } from '@tanstack/react-query'
+
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import type { DeleteUser400, DeleteUserMutationResponse, DeleteUserPathParams } from '../models/DeleteUser'
 
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
  * @link /user/:username
  */
-export function useDeleteUserHook<TData = DeleteUserMutationResponse, TError = DeleteUser400 | DeleteUser404>(
+export function useDeleteUserHook<TData = DeleteUserMutationResponse, TError = DeleteUser400>(
   username: DeleteUserPathParams['username'],
   options: {
     mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>

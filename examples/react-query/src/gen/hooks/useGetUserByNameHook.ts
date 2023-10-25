@@ -1,12 +1,14 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
+
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+
+import type { QueryKey, UseBaseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryResult } from '@tanstack/react-query'
+import type { GetUserByName400, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseBaseQueryOptions } from '@tanstack/react-query'
-import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 
 type GetUserByName = KubbQueryFactory<
   GetUserByNameQueryResponse,
-  GetUserByName400 | GetUserByName404,
+  GetUserByName400,
   never,
   GetUserByNamePathParams,
   never,
@@ -68,7 +70,7 @@ export function useGetUserByNameHook<
   return query
 }
 
-export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   username: GetUserByNamePathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): UseInfiniteQueryOptions<TData, TError> {
@@ -89,7 +91,7 @@ export function getUserByNameQueryOptionsInfinite<TData = GetUserByNameQueryResp
  * @summary Get user by user name
  * @link /user/:username
  */
-export function useGetUserByNameHookInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+export function useGetUserByNameHookInfinite<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
   username: GetUserByNamePathParams['username'],
   options: {
     query?: UseInfiniteQueryOptions<TData, TError>
@@ -106,6 +108,6 @@ export function useGetUserByNameHookInfinite<TData = GetUserByNameQueryResponse,
   }) as UseInfiniteQueryResult<TData, TError> & {
     queryKey: QueryKey
   }
-  query.queryKey = queryKey as QueryKey
+  query.queryKey = queryKey
   return query
 }

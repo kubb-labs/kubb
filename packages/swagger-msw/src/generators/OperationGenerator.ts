@@ -1,4 +1,4 @@
-import { getRelativePath } from '@kubb/core'
+import { getRelativePath } from '@kubb/core/utils'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
 import { pluginKey as swaggerFakerPluginKey, resolve as resolveSwaggerFaker } from '@kubb/swagger-faker'
 

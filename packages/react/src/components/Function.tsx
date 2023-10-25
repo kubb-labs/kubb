@@ -1,4 +1,4 @@
-import { createJSDocBlockText } from '@kubb/core'
+import { transformers } from '@kubb/core/utils'
 
 import { Text } from './Text.tsx'
 
@@ -22,7 +22,7 @@ export function Function({ name, export: canExport, async, generics, params, ret
     <>
       {JSDoc?.comments && (
         <>
-          <Text>{createJSDocBlockText({ comments: JSDoc.comments })}</Text>
+          <Text>{transformers.JSDoc.createJSDocBlockText({ comments: JSDoc.comments })}</Text>
           <br />
         </>
       )}
@@ -76,7 +76,7 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
     <>
       {JSDoc?.comments && (
         <>
-          <Text>{createJSDocBlockText({ comments: JSDoc.comments })}</Text>
+          <Text>{transformers.JSDoc.createJSDocBlockText({ comments: JSDoc.comments })}</Text>
           <br />
         </>
       )}

@@ -30,11 +30,14 @@ export function getUserByNameQueryOptions<
  * @link /user/:username
  */
 
-export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(username: GetUserByNamePathParams['username'], options?: {
-  query?: SWRConfiguration<ResponseConfig<TData>, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  shouldFetch?: boolean
-}): SWRResponse<ResponseConfig<TData>, TError> {
+export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
+  username: GetUserByNamePathParams['username'],
+  options?: {
+    query?: SWRConfiguration<ResponseConfig<TData>, TError>
+    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    shouldFetch?: boolean
+  },
+): SWRResponse<ResponseConfig<TData>, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
   const url = shouldFetch ? `/user/${username}` : null

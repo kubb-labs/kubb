@@ -47,3 +47,4 @@ test.json
 .next
 docs/.vitepress/cache/**
 docs/.vitepress/dist/**
+!__snapshots__

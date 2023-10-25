@@ -1,4 +1,4 @@
-import { URLPath } from '@kubb/core'
+import { URLPath } from '@kubb/core/utils'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 
 import { ClientBuilder } from '../builders/ClientBuilder.tsx'

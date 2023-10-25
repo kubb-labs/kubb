@@ -1,5 +1,5 @@
-import { timeout } from '../../utils/timeout.ts'
-import { executeStrategies } from './executeStrategies.ts'
+import { hookSeq } from './executeStrategies.ts'
+import { timeout } from './timeout.ts'
 
 describe('executeStrategies', () => {
   test('hookSeq', async () => {
@@ -23,8 +23,8 @@ describe('executeStrategies', () => {
         }),
     ]
 
-    expect(executeStrategies.hookSeq).toBeDefined()
-    const result = await executeStrategies.hookSeq(promises)
+    expect(hookSeq).toBeDefined()
+    const result = await hookSeq(promises)
 
     expect(result).toEqual([1, 2])
     expect(values).toEqual([1, 2])

@@ -2,23 +2,32 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 import client from '../../../../tanstack-query-client.ts'
 
-import type { QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query'
+import type { QueryKey, UseBaseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryResult } from '@tanstack/react-query'
 import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
+import type { KubbQueryFactory } from './types'
 
+type LogoutUser = KubbQueryFactory<LogoutUserQueryResponse, never, never, never, never, LogoutUserQueryResponse, {
+  dataReturnType: 'full'
+  type: 'query'
+}>
 export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const
-export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<ResponseConfig<TData>, TError> {
+export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
+export function logoutUserQueryOptions<
+  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
+  TError = LogoutUser['error'],
+  TData = LogoutUser['response'],
+  TQueryData = LogoutUser['response'],
+>(options: LogoutUser['client']['paramaters'] = {}): UseBaseQueryOptions<LogoutUser['unionResponse'], TError, TData, TQueryData, LogoutUserQueryKey> {
   const queryKey = logoutUserQueryKey()
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/logout`,
         ...options,
-      }).then(res => res)
+      }).then(res => res?.data || res)
     },
   }
 }
@@ -27,21 +36,27 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>(options: {
-  query?: UseQueryOptions<ResponseConfig<TData>, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-} = {}): UseQueryResult<ResponseConfig<TData>, TError> & {
-  queryKey: QueryKey
+export function useLogoutUser<
+  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
+  TError = LogoutUser['error'],
+  TData = LogoutUser['response'],
+  TQueryData = LogoutUser['response'],
+  TQueryKey extends QueryKey = LogoutUserQueryKey,
+>(options: {
+  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  client?: LogoutUser['client']['paramaters']
+} = {}): UseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
-  const query = useQuery<ResponseConfig<TData>, TError>({
-    ...logoutUserQueryOptions<TData, TError>(clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...logoutUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
     ...queryOptions,
-  }) as UseQueryResult<ResponseConfig<TData>, TError> & {
-    queryKey: QueryKey
+  }) as UseQueryResult<TData, TError> & {
+    queryKey: TQueryKey
   }
-  query.queryKey = queryKey
+  query.queryKey = queryKey as TQueryKey
   return query
 }
 
