@@ -6,7 +6,7 @@ import { combineFiles } from './utils.ts'
 import { createFileSource, extensions, getIndexes } from './utils.ts'
 
 import type { Queue, QueueJob } from '../../utils/index.ts'
-import type { CacheItem, KubbFile } from './types.ts'
+import type { AddResult, CacheItem, KubbFile } from './types.ts'
 import type { IndexesOptions } from './utils.ts'
 
 type AddIndexesProps = {
@@ -61,7 +61,39 @@ export class FileManager {
     return this.#queue?.hasJobs ?? this.#isWriting ?? false
   }
 
-  async add(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
+  #validate(file: KubbFile.File): void {
+    if (!file.validate) {
+      return
+    }
+
+    if (!file.path.toLowerCase().endsWith(file.baseName.toLowerCase())) {
+      throw new Error(`${file.path} should end with the baseName ${file.baseName}`)
+    }
+  }
+
+  async add<T extends Array<KubbFile.File> = Array<KubbFile.File>>(
+    ...files: T
+  ): AddResult<T> {
+    const promises = files.map((file) => {
+      this.#validate(file)
+
+      if (file.override) {
+        return this.#add(file)
+      }
+
+      return this.#addOrAppend(file)
+    })
+
+    const resolvedFiles = await Promise.all(promises)
+
+    if (files.length > 1) {
+      return resolvedFiles as unknown as AddResult<T>
+    }
+
+    return resolvedFiles[0] as unknown as AddResult<T>
+  }
+
+  async #add(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
     const controller = new AbortController()
     const resolvedFile: KubbFile.ResolvedFile = { id: crypto.randomUUID(), ...file }
 
@@ -79,14 +111,14 @@ export class FileManager {
     return resolvedFile
   }
 
-  async addOrAppend(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
+  async #addOrAppend(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
     const previousCaches = this.#cache.get(file.path)
     const previousCache = previousCaches ? previousCaches.at(previousCaches.length - 1) : undefined
 
     if (previousCache) {
       this.#cache.delete(previousCache.path)
 
-      return this.add({
+      return this.#add({
         ...file,
         source: previousCache.source && file.source ? `${previousCache.source}\n${file.source}` : '',
         imports: [...(previousCache.imports || []), ...(file.imports || [])],
@@ -94,7 +126,7 @@ export class FileManager {
         env: { ...(previousCache.env || {}), ...(file.env || {}) },
       })
     }
-    return this.add(file)
+    return this.#add(file)
   }
 
   async addIndexes({ root, extName = '.ts', meta, options = {} }: AddIndexesProps): Promise<Array<KubbFile.File> | undefined> {
@@ -106,7 +138,7 @@ export class FileManager {
 
     return await Promise.all(
       files.map((file) => {
-        return this.addOrAppend({
+        return this.#addOrAppend({
           ...file,
           meta: meta ? meta : file.meta,
         })
@@ -157,10 +189,10 @@ export class FileManager {
 
   // statics
 
-  static getSource(file: KubbFile.File): string {
+  static getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
     return createFileSource(file)
   }
-  static combineFiles(files: Array<KubbFile.File | null>): Array<KubbFile.File> {
+  static combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(files: Array<KubbFile.File<TMeta> | null>): Array<KubbFile.File<TMeta>> {
     return combineFiles(files)
   }
   static getMode(path: string | undefined | null): KubbFile.Mode {

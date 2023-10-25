@@ -87,7 +87,7 @@ describe('FileManager utils', () => {
     })
     expect(await format(code)).toMatchSnapshot()
   })
-  test('if combineFiles is removing previouscode', () => {
+  test('if combineFiles is removing previous code', () => {
     const combined = combineFiles([
       {
         path: path.resolve('./src/models/file1.ts'),
@@ -109,6 +109,32 @@ describe('FileManager utils', () => {
         exports: [],
         source: `export const test = 2;
 export const test2 = 3;`,
+      },
+    ])
+  })
+  test('if combineFiles is overriding with latest file', () => {
+    const combined = combineFiles([
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file1.ts',
+        source: 'export const test = 2;',
+      },
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file1.ts',
+        source: 'export const test2 = 3;',
+        override: true,
+      },
+    ])
+
+    expect(combined).toMatchObject([
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file1.ts',
+        imports: [],
+        exports: [],
+        source: `export const test2 = 3;`,
+        'override': true,
       },
     ])
   })
@@ -441,7 +467,6 @@ export const test2 = 3;`,
       expect(await format(code)).toMatchSnapshot()
     } else {
       expect(await format(code)).toMatchSnapshot()
-
     }
 
     expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()

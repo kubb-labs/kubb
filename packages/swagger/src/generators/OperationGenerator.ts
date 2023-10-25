@@ -12,6 +12,7 @@ import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { ContentType, Oas, OperationSchemas, OverrideBy, SkipBy } from '../types.ts'
+import type { OperationMethodResult } from './types.ts'
 
 type Context<TOptions> = {
   oas: Oas
@@ -26,9 +27,9 @@ type Context<TOptions> = {
   mode?: KubbFile.Mode
 }
 
-export type GetOperationGeneratorOptions<T extends OperationGenerator> = T extends OperationGenerator<infer X> ? X : never
-
-export abstract class OperationGenerator<TOptions = unknown> extends Generator<TOptions, Context<TOptions>> {
+export abstract class OperationGenerator<TOptions = unknown, TFileMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>
+  extends Generator<TOptions, Context<TOptions>>
+{
   /**
    * Validate an operation to see if used with camelCase we don't overwrite other files
    * DRAFT version
@@ -302,7 +303,7 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
     } as const
   }
 
-  async build(): Promise<Array<KubbFile.File>> {
+  async build(): Promise<Array<KubbFile.File<TFileMeta>>> {
     const { oas } = this.context
 
     const paths = oas.getPaths()
@@ -348,42 +349,43 @@ export abstract class OperationGenerator<TOptions = unknown> extends Generator<T
 
         return acc
       },
-      [] as Promise<KubbFile.File | null>[],
+      [] as OperationMethodResult<TFileMeta>[],
     )
 
     promises.push(this.all(filterdPaths))
 
     const files = await Promise.all(promises)
 
-    return FileManager.combineFiles(files)
+    // using .flat because operationGenerator[method] can return a array of files or just one file
+    return FileManager.combineFiles<TFileMeta>(files.flat())
   }
 
   /**
    * GET
    */
-  abstract get(operation: Operation, schemas: OperationSchemas, options: TOptions): Promise<KubbFile.File | null>
+  abstract get(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * POST
    */
-  abstract post(operation: Operation, schemas: OperationSchemas, options: TOptions): Promise<KubbFile.File | null>
+  abstract post(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
   /**
    * PATCH
    */
-  abstract patch(operation: Operation, schemas: OperationSchemas, options: TOptions): Promise<KubbFile.File | null>
+  abstract patch(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * PUT
    */
-  abstract put(operation: Operation, schemas: OperationSchemas, options: TOptions): Promise<KubbFile.File | null>
+  abstract put(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * DELETE
    */
-  abstract delete(operation: Operation, schemas: OperationSchemas, options: TOptions): Promise<KubbFile.File | null>
+  abstract delete(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE
    */
-  abstract all(paths: Record<string, Record<HttpMethod, Operation>>): Promise<KubbFile.File | null>
+  abstract all(paths: Record<string, Record<HttpMethod, Operation>>): OperationMethodResult<TFileMeta>
 }

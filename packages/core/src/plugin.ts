@@ -55,15 +55,13 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
         fileManager,
         pluginManager,
         async addFile(...files) {
-          return Promise.all(
-            files.map((file) => {
-              if (file.override) {
-                return fileManager.add(file)
-              }
+          const resolvedFiles = await fileManager.add(...files)
 
-              return fileManager.addOrAppend(file)
-            }),
-          )
+          if (!Array.isArray(resolvedFiles)) {
+            return [resolvedFiles]
+          }
+
+          return resolvedFiles
         },
         resolvePath,
         resolveName,

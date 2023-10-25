@@ -115,28 +115,39 @@ export function getIndexes(
   return map ? filteredFiles.map(map) : filteredFiles
 }
 
-export function combineFiles(files: Array<KubbFile.File | null>): Array<KubbFile.File> {
-  return files.filter(Boolean).reduce((acc, curr: KubbFile.File) => {
-    const prevIndex = acc.findIndex((item) => item.path === curr.path)
+export function combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(
+  files: Array<KubbFile.File<TMeta> | null>,
+): Array<KubbFile.File<TMeta>> {
+  return files.filter(Boolean).reduce((acc, file: KubbFile.File<TMeta>) => {
+    const prevIndex = acc.findIndex((item) => item.path === file.path)
 
-    if (prevIndex !== -1) {
-      const prev = acc[prevIndex]
+    if (prevIndex === -1) {
+      return [...acc, file]
+    }
 
-      if (prev) {
-        acc[prevIndex] = {
-          ...curr,
-          source: prev.source && curr.source ? `${prev.source}\n${curr.source}` : '',
-          imports: [...(prev.imports || []), ...(curr.imports || [])],
-          exports: [...(prev.exports || []), ...(curr.exports || [])],
-          env: { ...(prev.env || {}), ...(curr.env || {}) },
-        }
+    const prev = acc[prevIndex]
+
+    if (prev && file.override) {
+      acc[prevIndex] = {
+        imports: [],
+        exports: [],
+        ...file,
       }
-    } else {
-      acc.push(curr)
+      return acc
+    }
+
+    if (prev) {
+      acc[prevIndex] = {
+        ...file,
+        source: prev.source && file.source ? `${prev.source}\n${file.source}` : '',
+        imports: [...(prev.imports || []), ...(file.imports || [])],
+        exports: [...(prev.exports || []), ...(file.exports || [])],
+        env: { ...(prev.env || {}), ...(file.env || {}) },
+      }
     }
 
     return acc
-  }, [] as Array<KubbFile.File>)
+  }, [] as Array<KubbFile.File<TMeta>>)
 }
 /**
  * Support for js, ts and tsx(React)

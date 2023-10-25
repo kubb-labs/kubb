@@ -1,4 +1,6 @@
 export * from './getFile.ts'
+export * from './printOrRead.ts'
 export * from './squashExportNodes.ts'
 export * from './squashImportNodes.ts'
+export * from './squashSourceNodes.ts'
 export * from './squashTextNodes.ts'
