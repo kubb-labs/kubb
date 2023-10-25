@@ -3,7 +3,7 @@ import { oasParser } from '@kubb/swagger'
 import { format } from '../../mocks/format.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
-import type { PluginContext, PluginManager } from '@kubb/core'
+import type { KubbPlugin, PluginContext, PluginManager } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 
 describe('OperationGenerator', () => {
@@ -24,6 +24,7 @@ describe('OperationGenerator', () => {
         oas,
         skipBy: [],
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )
@@ -48,6 +49,7 @@ describe('OperationGenerator', () => {
         oas,
         skipBy: [],
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )

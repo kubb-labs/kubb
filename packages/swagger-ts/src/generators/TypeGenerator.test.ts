@@ -29,15 +29,7 @@ describe('TypeGenerator simple', () => {
 
     expect(output).toBeDefined()
 
-    expect(await format(output)).toMatch(
-      await format(`
-      export type Pet = {
-        id: number
-        name: string
-        tag?: string
-      }
-    `),
-    )
+    expect(await format(output)).toMatchSnapshot()
   })
 
   test('generate type for Pet with optionalType `undefined`', async () => {
@@ -58,15 +50,7 @@ describe('TypeGenerator simple', () => {
 
     expect(output).toBeDefined()
 
-    expect(await format(output)).toMatch(
-      await format(`
-      export type Pet = {
-        id: number
-        name: string
-        tag: string | undefined
-      }
-    `),
-    )
+    expect(await format(output)).toMatchSnapshot()
   })
 
   test('generate type for Pet with optionalType `questionTokenAndUndefined`', async () => {
@@ -87,15 +71,7 @@ describe('TypeGenerator simple', () => {
 
     expect(output).toBeDefined()
 
-    expect(await format(output)).toMatch(
-      await format(`
-      export type Pet = {
-        id: number
-        name: string
-        tag?: string | undefined
-      }
-    `),
-    )
+    expect(await format(output)).toMatchSnapshot()
   })
 
   test('generate type for nullable fields', async () => {
@@ -120,13 +96,7 @@ describe('TypeGenerator simple', () => {
 
     const node = generator.build({ schema, baseName: 'Test' })
     const output = print(node, undefined)
-    expect(await format(output)).toMatch(
-      await format(`
-      export type Test = {
-        foo?: string | null
-      }
-    `),
-    )
+    expect(await format(output)).toMatchSnapshot()
   })
 
   test('generate type for Pets', async () => {
@@ -146,15 +116,7 @@ describe('TypeGenerator simple', () => {
     const output = print(node, undefined)
 
     expect(output).toBeDefined()
-    expect(await format(output)).toMatch(
-      await format(`
-      export type Pets = {
-        id: number
-        name: string
-        tag?: string
-      }[]
-    `),
-    )
+    expect(await format(output)).toMatchSnapshot()
   })
 })
 
@@ -178,10 +140,6 @@ describe('TypeGenerator with refs', () => {
     const output = print(node, undefined)
 
     expect(output).toBeDefined()
-    expect(await format(output)).toMatch(
-      await format(`
-      export type Pets = Pet[]
-    `),
-    )
+    expect(await format(output)).toMatchSnapshot()
   })
 })

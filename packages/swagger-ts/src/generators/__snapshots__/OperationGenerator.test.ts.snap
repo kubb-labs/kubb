@@ -1,6 +1,25 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`OperationGenerator > [GET] should generate code based on a operation and optionalType \`questionToken\` 1`] = `Promise {}`;
+exports[`OperationGenerator > [GET] should generate code based on a operation and optionalType \`questionToken\` 1`] = `
+"export type ListPetsQueryParams = {
+  /**
+   * @description How many items to return at one time (max 100)
+   * @type string | undefined
+   */
+  limit?: string
+}
+
+/**
+ * @description unexpected error
+ */
+export type ListPetsError = Error
+
+/**
+ * @description A paged array of pets
+ */
+export type ListPetsQueryResponse = Pets
+"
+`;
 
 exports[`OperationGenerator > [GET] should generate code based on a operation and optionalType \`questionToken\` 2`] = `
 "export type ShowPetByIdPathParams = {

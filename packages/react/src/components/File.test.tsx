@@ -59,12 +59,8 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(await format(root.output)).toStrictEqual(
-      await format(`
-import React from 'react'
-export * from './index.ts'
-  `),
-    )
+    expect(await format(root.output)).toMatchSnapshot()
+
   })
 
   test('render File with source', () => {
@@ -91,10 +87,6 @@ export * from './index.ts'
     const root = createRoot()
     root.render(<Component />)
 
-    expect(format(root.output)).toStrictEqual(
-      format(`export function test() {
-      return true
-    }`),
-    )
+    expect(format(root.output)).toMatchSnapshot()
   })
 })

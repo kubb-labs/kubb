@@ -83,13 +83,7 @@ describe('codegen', () => {
           comments: ['@description description', '@example example'],
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-      /**
-        * @description description
-        * @example example */
-       `),
-    )
+    ).toMatchSnapshot()
   })
 
   test('appendJSDocToNode', async () => {
@@ -100,15 +94,7 @@ describe('codegen', () => {
           comments: ['@description description', undefined, '@example example'],
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-      /**
-        * @description description
-        * @example example 
-        */
-      const hello = 'world'; 
-      `),
-    )
+    ).toMatchSnapshot()
 
     expect(
       await formatTS(
@@ -117,12 +103,7 @@ describe('codegen', () => {
           comments: [],
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-      const hello = 'world'; 
-      
-      `),
-    )
+    ).toMatchSnapshot()
   })
 
   test('createImportDeclaration', async () => {
@@ -133,11 +114,7 @@ describe('codegen', () => {
           path: './hello.ts',
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-        import hello from './hello.ts';
-      `),
-    )
+    ).toMatchSnapshot()
 
     expect(
       await formatTS(
@@ -147,11 +124,8 @@ describe('codegen', () => {
           isTypeOnly: true,
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-      import type hello from './hello.ts';
-    `),
-    )
+    ).toMatchSnapshot()
+
 
     expect(
       await formatTS(
@@ -160,11 +134,7 @@ describe('codegen', () => {
           path: './hello.ts',
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-      import { hello } from './hello.ts';
-    `),
-    )
+    ).toMatchSnapshot()
 
     expect(
       await formatTS(
@@ -173,11 +143,7 @@ describe('codegen', () => {
           path: './hello.ts',
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-      import { hello as helloWorld } from './hello.ts';
-    `),
-    )
+    ).toMatchSnapshot()
   })
 
   test('createExportDeclaration', async () => {
@@ -187,11 +153,7 @@ describe('codegen', () => {
           path: './hello.ts',
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-        export * from './hello.ts';
-      `),
-    )
+    ).toMatchSnapshot()
 
     expect(
       await formatTS(
@@ -201,11 +163,7 @@ describe('codegen', () => {
           path: './hello.ts',
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-        export { hello, world } from './hello.ts';
-      `),
-    )
+    ).toMatchSnapshot()
 
     expect(
       await formatTS(
@@ -215,11 +173,7 @@ describe('codegen', () => {
           path: './hello.ts',
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-        export * as hello from './hello.ts';
-      `),
-    )
+    ).toMatchSnapshot()
 
     try {
       await formatTS(
@@ -247,15 +201,7 @@ describe('codegen', () => {
           ],
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-      export enum Hello {
-        'hello' = 'world',
-        'end' = 2050,
-        'survive' = true
-      }
-      `),
-    )
+    ).toMatchSnapshot()
 
     expect(
       await formatTS(
@@ -270,16 +216,7 @@ describe('codegen', () => {
           ],
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-      export const hello = {
-        'hello': 'world',
-        'end': 2050,
-        'survive': true
-      } as const
-      export type Hello = (typeof hello)[keyof typeof hello]
-      `),
-    )
+    ).toMatchSnapshot()
 
     expect(
       await formatTS(
@@ -294,15 +231,6 @@ describe('codegen', () => {
           ],
         }),
       ),
-    ).toBe(
-      await prettierFormat(`
-      export const Hello = {
-        'hello': 'world',
-        'end': 2050,
-        'survive': true
-      } as const
-      export type Hello = (typeof Hello)[keyof typeof Hello]
-      `),
-    )
+    ).toMatchSnapshot()
   })
 })
