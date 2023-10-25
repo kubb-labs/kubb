@@ -45,7 +45,7 @@ export default defineConfig(async () => {
 
 ## Advanced example <Badge type="warning" text="experimental" />
 
-Since version `1.15.x` we also support using multiple entry(OpenAPI/Swagger) files.
+Since version `2.x.x` we also support using multiple entry(OpenAPI/Swagger) files.
 
 ```bash
 kubb --config kubb.config.js

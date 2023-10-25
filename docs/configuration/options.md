@@ -10,6 +10,60 @@ outline: deep
 This page is a reference to the different options you can use for configuring your Kubb config.
 By setting the following options you can override the default behaviour of Kubb and even extend it with your own plugins.
 
+## name
+
+Optional config name to show in CLI output.
+
+::: info
+Type: `string` <br/>
+Default: `process.cwd()` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig({
+  name: 'petStore',
+  root: '.',
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+})
+```
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+
+export default defineConfig([
+  {
+    name: 'petStore',
+    root: '.',
+    input: {
+      path: './petStore.yaml',
+    },
+    output: {
+      path: './src/gen',
+    },
+  },
+  {
+    name: 'petStoreV2',
+    root: '.',
+    input: {
+      path: './petStoreV2.yaml',
+    },
+    output: {
+      path: './src/gen-v2',
+    },
+  },
+])
+```
+
+:::
+
 ## root
 
 Project root directory. Can be an absolute path, or a path relative from the location of the config file itself.

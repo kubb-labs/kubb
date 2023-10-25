@@ -73,8 +73,8 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
 export async function generate({ input, config, CLIOptions }: GenerateProps): Promise<void> {
   const logger = createLogger({ logLevel: CLIOptions.logLevel || LogLevel.silent, name: config.name, spinner })
 
-  if (config.name) {
-    spinner.prefixText = randomPicoColour(config.name)
+  if (logger.name) {
+    spinner.prefixText = randomPicoColour(logger.name)
   }
 
   const hrstart = process.hrtime()
