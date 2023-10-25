@@ -1,2 +1,3 @@
 export * from './ImportsGenerator.ts'
-export * from './OperationGenerator.ts'
+export type {GetOperationGeneratorOptions} from './OperationGenerator.ts'
+export {OperationGenerator} from './OperationGenerator.ts'

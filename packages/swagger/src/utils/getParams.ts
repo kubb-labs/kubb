@@ -1,5 +1,7 @@
 import { FunctionParams } from '@kubb/core'
 
+import { camelCase, camelCaseTransformMerge } from 'change-case'
+
 import { isParameterObject } from './isParameterObject.ts'
 
 import type { FunctionParamsAST } from '@kubb/core'
@@ -15,7 +17,7 @@ export function getASTParams(
 
   if (asObject) {
     const nameText = getASTParams(operationSchema)
-      .map((item) => item.name)
+      .map((item) =>item.name?camelCase(item.name, { delimiter: '', transform: camelCaseTransformMerge }): item.name)
       .join(', ')
 
     return [
