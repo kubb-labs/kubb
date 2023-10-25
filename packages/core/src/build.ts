@@ -12,7 +12,8 @@ import { isPromise } from './PromiseManager.ts'
 
 import type { KubbFile } from './FileManager.ts'
 import type { BuildOutput, KubbPlugin, PluginContext, PluginParameter, TransformResult } from './types.ts'
-import type { Logger, QueueJob } from './utils/index.ts'
+import type { Logger } from './utils/logger.ts'
+import type { QueueJob } from './utils/Queue.ts'
 
 type BuildOptions = {
   config: PluginContext['config']

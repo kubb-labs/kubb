@@ -1,6 +1,7 @@
 import path from 'node:path'
 
-import { createPlugin, FileManager, getRelativePath, PluginManager, renderTemplate } from '@kubb/core'
+import { createPlugin, FileManager, PluginManager } from '@kubb/core'
+import { getRelativePath, renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 

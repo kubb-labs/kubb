@@ -2,13 +2,14 @@
 import crypto from 'node:crypto'
 import process from 'node:process'
 
-import { throttle } from '@kubb/core'
+import { throttle } from '@kubb/core/utils'
 
 import { App } from '../components/App.tsx'
 import { reconciler } from '../reconciler.ts'
 import { renderer } from './renderer.ts'
 
-import type { KubbFile, Logger } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
+import type { Logger } from '@kubb/core/utils'
 import type { ReactNode } from 'react'
 import type { AppContextProps } from '../components/AppContext.tsx'
 import type { FiberRoot } from '../reconciler.ts'

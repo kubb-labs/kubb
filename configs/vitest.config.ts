@@ -8,6 +8,7 @@ export default defineConfig({
       '@kubb/cli': 'packages/cli/src/index.ts',
       '@kubb/eslint-config': 'packages/config/eslint/src/index.ts',
       '@kubb/tsup-config': 'packages/config/tsup/src/index.ts',
+      '@kubb/core/utils': 'packages/core/src/utils/index.ts',
       '@kubb/core': 'packages/core/src/index.ts',
       '@kubb/swagger': 'packages/swagger/src/index.ts',
       '@kubb/swagger-client': 'packages/swagger-client/src/index.ts',

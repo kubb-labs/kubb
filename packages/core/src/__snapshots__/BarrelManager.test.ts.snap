@@ -5,3 +5,9 @@ exports[`BarrelManager > if getIndexes can return an export with \`exportAs\` an
 export * as models from './world.ts'
 "
 `;
+
+exports[`BarrelManager if getIndexes can return an export with `exportAs` and/or `isTypeOnly` 1`] = `
+"export * as models from './world.ts'
+export * as models from './hello.ts'
+"
+`;

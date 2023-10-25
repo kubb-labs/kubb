@@ -38,6 +38,7 @@
     "**/dist",
     "**/coverage",
     "**/public",
+    "**/__snapshots__",
     "CHANGELOG.md",
     "**/mocks/hellowWorld.js"
   ],

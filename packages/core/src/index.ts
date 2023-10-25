@@ -9,12 +9,12 @@ export type { KubbFile } from './FileManager.ts'
 export { FileManager } from './FileManager.ts'
 export { Generator } from './Generator.ts'
 export { PackageManager } from './PackageManager.ts'
-export { createPlugin, pluginName, pluginName as name } from './plugin.ts'
+// dprint-ignore
+export { createPlugin, pluginName as name, pluginName } from './plugin.ts'
 export { PluginManager } from './PluginManager.ts'
 export { isPromise, isPromiseFulfilledResult, isPromiseRejectedResult, PromiseManager } from './PromiseManager.ts'
 export { SchemaGenerator } from './SchemaGenerator.ts'
 export * from './types.ts'
-export * from './utils/index.ts'
 
 export interface _Register {}
 export type Plugins = _Register

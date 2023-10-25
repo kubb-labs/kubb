@@ -16,7 +16,7 @@ import { BarrelManager } from './BarrelManager.ts'
 
 import type { BarrelManagerOptions } from './BarrelManager.ts'
 import type { GreaterThan, KubbPlugin } from './types.ts'
-import type { Queue, QueueJob } from './utils/index.ts'
+import type { Queue, QueueJob } from './utils/Queue.ts'
 
 type BasePath<T extends string = string> = `${T}/`
 

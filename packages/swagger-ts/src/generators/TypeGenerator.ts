@@ -1,4 +1,5 @@
-import { getUniqueName, SchemaGenerator } from '@kubb/core'
+import { SchemaGenerator } from '@kubb/core'
+import { getUniqueName } from '@kubb/core/utils'
 import * as factory from '@kubb/parser/factory'
 import { isReference } from '@kubb/swagger'
 

@@ -1,6 +1,7 @@
 import path from 'node:path'
 
-import { createPlugin, FileManager, getRelativePath, PackageManager, PluginManager, read, renderTemplate } from '@kubb/core'
+import { createPlugin, FileManager, PackageManager, PluginManager } from '@kubb/core'
+import { getRelativePath, read, renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'

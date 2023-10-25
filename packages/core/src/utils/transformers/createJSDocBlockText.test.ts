@@ -1,4 +1,4 @@
-import { createJSDocBlockText } from './jsdoc.ts'
+import { createJSDocBlockText } from './createJSDocBlockText.ts'
 
 describe('jsdoc', () => {
   test('comments should be converted to jsdocs', () => {

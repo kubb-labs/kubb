@@ -1,4 +1,5 @@
-import { createJSDocBlockText, getUniqueName, SchemaGenerator } from '@kubb/core'
+import { SchemaGenerator } from '@kubb/core'
+import { getUniqueName, transformers } from '@kubb/core/utils'
 import { isReference } from '@kubb/swagger'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
@@ -49,7 +50,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObj
     const texts: string[] = []
     const fakerInput = this.#getTypeFromSchema(schema, baseName)
     if (description) {
-      texts.push(createJSDocBlockText({ comments: [`@description ${description}`] }))
+      texts.push(transformers.JSDoc.createJSDocBlockText({ comments: [`@description ${description}`] }))
     }
 
     const name = this.options.resolveName({ name: baseName, pluginKey }) || baseName

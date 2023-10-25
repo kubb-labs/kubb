@@ -47,3 +47,51 @@ exports[`TypeGenerator with refs > generate type for Pets 1`] = `
 "export type Pets = Pet[]
 "
 `;
+
+exports[`TypeGenerator simple generate type for Pet with optionalType `questionToken` 1`] = `
+"export type Pet = {
+  id: number
+  name: string
+  tag?: string
+}
+"
+`;
+
+exports[`TypeGenerator simple generate type for Pet with optionalType `undefined` 1`] = `
+"export type Pet = {
+  id: number
+  name: string
+  tag: string | undefined
+}
+"
+`;
+
+exports[`TypeGenerator simple generate type for Pet with optionalType `questionTokenAndUndefined` 1`] = `
+"export type Pet = {
+  id: number
+  name: string
+  tag?: string | undefined
+}
+"
+`;
+
+exports[`TypeGenerator simple generate type for nullable fields 1`] = `
+"export type Test = {
+  foo?: string | null
+}
+"
+`;
+
+exports[`TypeGenerator simple generate type for Pets 1`] = `
+"export type Pets = {
+  id: number
+  name: string
+  tag?: string
+}[]
+"
+`;
+
+exports[`TypeGenerator with refs generate type for Pets 1`] = `
+"export type Pets = Pet[]
+"
+`;

@@ -1,5 +1,5 @@
-import { build, createLogger, LogLevel, ParallelPluginError, PluginError, SummaryError } from '@kubb/core'
-import { randomPicoColour } from '@kubb/core'
+import { build, ParallelPluginError, PluginError, SummaryError } from '@kubb/core'
+import { createLogger, LogLevel, randomPicoColour } from '@kubb/core/utils'
 
 import { execa } from 'execa'
 import pc from 'picocolors'

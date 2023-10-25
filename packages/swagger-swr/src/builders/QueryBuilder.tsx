@@ -1,5 +1,5 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { createJSDocBlockText, FunctionParams, transformers, URLPath } from '@kubb/core'
+import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, OasBuilder, useResolve } from '@kubb/swagger'
 
@@ -146,7 +146,7 @@ export function ${name} <
     ])
     const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
-    codes.push(createJSDocBlockText({ comments }))
+    codes.push(transformers.JSDoc.createJSDocBlockText({ comments }))
     codes.push(`
 export function ${name} <${generics.toString()}>(${params.toString()}): SWRResponse<${queryGenerics.join(', ')}> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
@@ -211,7 +211,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): SWRRespo
       },
     ])
 
-    codes.push(createJSDocBlockText({ comments }))
+    codes.push(transformers.JSDoc.createJSDocBlockText({ comments }))
     codes.push(`
 export function ${name} <
   ${generics.toString()}

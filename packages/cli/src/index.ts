@@ -1,6 +1,7 @@
 import path from 'node:path'
 
-import { isInputPath, LogLevel, PromiseManager, SummaryError, Warning } from '@kubb/core'
+import { isInputPath, PromiseManager, SummaryError, Warning } from '@kubb/core'
+import { LogLevel } from '@kubb/core/utils'
 
 import { cac } from 'cac'
 import pc from 'picocolors'

@@ -86,7 +86,7 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(format(root.output)).toMatchSnapshot()
+    expect(await format(root.output)).toMatchSnapshot()
   })
 
   test('render File with multiple sources', async () => {
