@@ -17,7 +17,7 @@ export function getASTParams(
 
   if (asObject) {
     const nameText = getASTParams(operationSchema)
-      .map((item) =>item.name?camelCase(item.name, { delimiter: '', transform: camelCaseTransformMerge }): item.name)
+      .map((item) => item.name ? camelCase(item.name, { delimiter: '', transform: camelCaseTransformMerge }) : item.name)
       .join(', ')
 
     return [

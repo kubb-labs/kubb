@@ -4,7 +4,7 @@ import { format } from '../../mocks/format.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
 import type { PluginContext, PluginManager } from '@kubb/core'
-import type {GetOperationGeneratorOptions} from '@kubb/swagger';
+import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 
 describe('OperationGenerator', () => {
   const resolvePath = () => './pets.ts'
@@ -13,9 +13,9 @@ describe('OperationGenerator', () => {
   test('[GET] should generate code based on a pathParamsType `inline`', async () => {
     const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-client/mocks/petStore.yaml' } })
 
-    const options: GetOperationGeneratorOptions<OperationGenerator> ={
-      dataReturnType: "data",
-      pathParamsType:"inline",
+    const options: GetOperationGeneratorOptions<OperationGenerator> = {
+      dataReturnType: 'data',
+      pathParamsType: 'inline',
     }
 
     const og = await new OperationGenerator(
@@ -37,9 +37,9 @@ describe('OperationGenerator', () => {
   test('[GET] should generate code based on a pathParamsType `object`', async () => {
     const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-client/mocks/petStore.yaml' } })
 
-    const options: GetOperationGeneratorOptions<OperationGenerator> ={
-      dataReturnType: "data",
-      pathParamsType:"object",
+    const options: GetOperationGeneratorOptions<OperationGenerator> = {
+      dataReturnType: 'data',
+      pathParamsType: 'object',
     }
 
     const og = await new OperationGenerator(

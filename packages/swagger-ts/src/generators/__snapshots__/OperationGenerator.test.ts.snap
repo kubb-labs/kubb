@@ -1,0 +1,55 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OperationGenerator > [GET] should generate code based on a operation and optionalType \`questionToken\` 1`] = `Promise {}`;
+
+exports[`OperationGenerator > [GET] should generate code based on a operation and optionalType \`questionToken\` 2`] = `
+"export type ShowPetByIdPathParams = {
+  /**
+   * @description The id of the pet to retrieve
+   * @type string
+   */
+  petId: string
+  /**
+   * @description The id of the pet to retrieve
+   * @type string
+   */
+  testId: string
+}
+
+/**
+ * @description unexpected error
+ */
+export type ShowPetByIdError = Error
+
+/**
+ * @description Expected response to a valid request
+ */
+export type ShowPetByIdQueryResponse = Pet
+"
+`;
+
+exports[`OperationGenerator > [POST] should generate code based on a operation 1`] = `
+"/**
+ * @description Null response
+ */
+export type CreatePets201 = any | null
+
+export type CreatePetsMutationRequest = {
+  /**
+   * @type string
+   */
+  name: string
+  /**
+   * @type string
+   */
+  tag: string
+}
+
+export type CreatePetsMutationResponse = any | null
+
+/**
+ * @description unexpected error
+ */
+export type CreatePetsError = Error
+"
+`;

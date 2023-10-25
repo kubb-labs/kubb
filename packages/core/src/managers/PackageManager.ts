@@ -10,12 +10,12 @@ type PackageJSON = {
   devDependencies?: Record<string, string>
 }
 
-type DependencyName =string;
+type DependencyName = string
 
-type DependencyVersion =string;
+type DependencyVersion = string
 
 export class PackageManager {
-  static #cache: Record<DependencyName,DependencyVersion>={}
+  static #cache: Record<DependencyName, DependencyVersion> = {}
 
   #cwd?: string
   #SLASHES = new Set(['/', '\\'])
@@ -95,15 +95,13 @@ export class PackageManager {
     return require(pkgPath) as PackageJSON
   }
 
-  static setVersion(dependency: DependencyName, version: DependencyVersion): void{
-    PackageManager.#cache[dependency]=version
-
+  static setVersion(dependency: DependencyName, version: DependencyVersion): void {
+    PackageManager.#cache[dependency] = version
   }
 
   async getVersion(dependency: DependencyName): Promise<DependencyVersion | undefined> {
-
-    if(PackageManager.#cache[dependency]){
-      return  PackageManager.#cache[dependency]
+    if (PackageManager.#cache[dependency]) {
+      return PackageManager.#cache[dependency]
     }
 
     const packageJSON = await this.getPackageJSON()
@@ -116,11 +114,9 @@ export class PackageManager {
   }
 
   getVersionSync(dependency: DependencyName): DependencyVersion | undefined {
-
-    if(PackageManager.#cache[dependency]){
-      return  PackageManager.#cache[dependency]
+    if (PackageManager.#cache[dependency]) {
+      return PackageManager.#cache[dependency]
     }
-
 
     const packageJSON = this.getPackageJSONSync()
 
@@ -159,6 +155,4 @@ export class PackageManager {
 
     return satisfies(semVer, version)
   }
-
-
 }
