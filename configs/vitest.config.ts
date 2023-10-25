@@ -18,6 +18,7 @@ export default defineConfig({
       '@kubb/swagger-zod': 'packages/swagger-zod/src/index.ts',
       '@kubb/swagger-zodios': 'packages/swagger-zodios/src/index.ts',
       '@kubb/parser': 'packages/parser/src/index.ts',
+      '@kubb/react/jsx-dev-runtime': "packages/react/node_modules/react/jsx-dev-runtime.js",
       '@kubb/react': 'packages/react/src/index.ts',
     },
     coverage: {

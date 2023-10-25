@@ -46,7 +46,8 @@
     "test:bun": "bun test --preload ./configs/setup.ts",
     "test:vitest": "vitest run --config ./configs/vitest.config.ts",
     "test:watch": "vitest --config ./configs/vitest.config.ts",
-    "typecheck": "turbo run typecheck --continue --filter='./packages/*' --filter='./examples/*'",
+    "typecheck": "turbo run typecheck --continue --filter='./packages/*'",
+    "typecheck:examples": "turbo run typecheck --continue --filter='./examples/*'",
     "upgrade": "npx taze -r -w --exclude pnpm"
   },
   "devDependencies": {

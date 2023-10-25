@@ -12,7 +12,7 @@ on:
     #       - ubuntu-latest
     #       - macos-latest
     #       - windows-latest
-  
+
 jobs:
   build:
       name: Build and Test
@@ -24,7 +24,7 @@ jobs:
           node-version: [18]
           experimental: [false]
           ## comment out for support of node 19,20
-          # include: 
+          # include:
           #   - os: ubuntu-latest
           #     node-version: 19
           #     experimental: true
@@ -34,17 +34,17 @@ jobs:
 
       runs-on: ${{ matrix.os || 'ubuntu-latest' }}
       continue-on-error: ${{ matrix.experimental || false }}
- 
+
       steps:
         - name: Check out code
           uses: actions/checkout@v4
           with:
             fetch-depth: 2
- 
+
         - uses: pnpm/action-setup@v2.2.4
           with:
             version: 8
- 
+
         - name: Setup Node.js(${{ matrix.node-version }}) environment
           uses: actions/setup-node@v3
           with:
@@ -54,7 +54,7 @@ jobs:
 
         - name: Install bun
           uses: oven-sh/setup-bun@v1
- 
+
         - name: Install dependencies
           run: pnpm install --prefer-offline
 
@@ -62,13 +62,16 @@ jobs:
           with:
            # Set the prefix for the cache keys.
             cache-prefix: kubb_
-          
+
         - name: Build
           run: bun run build --concurrency=1
 
         - name: Typecheck
           run: bun run typecheck --concurrency=1
-          
+
+        - name: Typecheck examples
+          run: bun run typecheck:examples --concurrency=1
+
         - name: Linting
           env:
             NODE_OPTIONS: "--max_old_space_size=4096"
