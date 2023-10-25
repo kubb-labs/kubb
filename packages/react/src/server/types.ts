@@ -5,7 +5,11 @@ export type RootType<T = unknown> = {
   renderToString(children: ReactNode, context?: T): void
   unmount(): void
   /**
-   * Custom for Kubb
+   * @deprecated
+   * Use Files instead
+   * File will include all sources combined
    */
   file?: KubbFile.File
+  files: KubbFile.File[]
+  getFile: (id: string) => KubbFile.File | undefined
 }

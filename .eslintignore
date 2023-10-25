@@ -9,3 +9,5 @@ mocks/**
 **.d.ts
 tsup.config.ts
 **/tsup.config.ts
+**/templates/**
+**/__snapshots__**/

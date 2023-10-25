@@ -1,6 +1,7 @@
 import path from 'node:path'
 
-import { createPlugin, FileManager, getDependedPlugins, getRelativePath, renderTemplate } from '@kubb/core'
+import { createPlugin, FileManager, PluginManager } from '@kubb/core'
+import { getRelativePath, renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
@@ -8,7 +9,7 @@ import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerg
 import { TypeBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
 
-import type { KubbPlugin } from '@kubb/core'
+import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { OpenAPIV3, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
@@ -35,7 +36,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     options,
     kind: 'schema',
     validate(plugins) {
-      pluginsOptions = getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
+      pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
 
       return true
     },
@@ -156,11 +157,12 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         await this.addFile({
           path: resolvedPath,
-          baseName: `${this.resolveName({ name: output, pluginKey: this.plugin.key })}.ts`,
+          baseName: output as KubbFile.BaseName,
           source: builder.print(),
           meta: {
             pluginKey: this.plugin.key,
           },
+          validate: false,
         })
       }
 

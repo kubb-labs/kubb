@@ -6,7 +6,11 @@ export type RootType<T = unknown> = {
   unmount(): void
   output: string
   /**
-   * Custom for Kubb
+   * @deprecated
+   * Use Files instead
+   * File will include all sources combined
    */
   file?: KubbFile.File
+  files: KubbFile.File[]
+  getFile: (id: string) => KubbFile.File | undefined
 }

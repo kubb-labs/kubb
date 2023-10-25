@@ -60,7 +60,6 @@ describe('<File/>', () => {
     root.render(<Component />)
 
     expect(await format(root.output)).toMatchSnapshot()
-
   })
 
   test('render File with source', () => {
@@ -87,6 +86,74 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(format(root.output)).toMatchSnapshot()
+    expect(await format(root.output)).toMatchSnapshot()
+  })
+
+  test('render File with multiple sources', async () => {
+    const Component = () => {
+      return (
+        <File baseName="test.ts" path="path">
+          <File.Source path={path.resolve(mocksPath, './test.ts')} print></File.Source>
+          <File.Source print removeComments>
+            {`
+            // comment that should be removed
+            const test = 2;
+            `}
+          </File.Source>
+        </File>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(await format(root.output)).toMatchSnapshot()
+  })
+
+  test('render multiple Files', async () => {
+    const Component = () => {
+      return (
+        <>
+          <File baseName="test.ts" path="./">
+            <File.Source print removeComments>
+              {`
+            const test = 1;
+            `}
+              <File.Import name="node" path="node" />
+            </File.Source>
+          </File>
+          <File baseName="test2.ts" path="./">
+            <File.Source print removeComments>
+              {`
+            const test2 = 2;
+            `}
+            </File.Source>
+          </File>
+        </>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(await format(root.output)).toMatchSnapshot()
+
+    expect(await format(root.file?.source)).toMatchSnapshot()
+
+    expect(root.file?.imports).toStrictEqual([{
+      'isTypeOnly': undefined,
+      'name': 'node',
+      'path': 'node',
+    }])
+
+    expect(root.files.length).toBe(2)
+
+    expect(await format(root.files[0]?.source)).toMatchSnapshot()
+
+    expect(root.files[0]?.imports).toStrictEqual([{
+      'isTypeOnly': undefined,
+      'name': 'node',
+      'path': 'node',
+    }])
+
+    expect(await format(root.files[1]?.source)).toMatchSnapshot()
   })
 })

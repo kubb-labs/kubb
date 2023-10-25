@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup'
 import { optionsCJS, optionsESM } from '../tsup-config/src/index.ts'
 
 export default defineConfig([
-  { ...optionsCJS },
+  optionsCJS,
   optionsESM,
   {
     ...optionsCJS,

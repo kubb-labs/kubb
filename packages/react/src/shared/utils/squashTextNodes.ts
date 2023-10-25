@@ -1,9 +1,9 @@
-import { readSync } from '@kubb/core'
-import { createExportDeclaration, createImportDeclaration, print } from '@kubb/parser'
+import { print } from '@kubb/parser'
+import * as factory from '@kubb/parser/factory'
 
-import type { Export as ExportComponent } from '../../components/Export.tsx'
-import type { File as FileComponent } from '../../components/File.tsx'
-import type { Import as ImportComponent } from '../../components/Import.tsx'
+import { printOrRead } from './printOrRead.ts'
+
+import type { File } from '../../components/File.tsx'
 import type { DOMElement } from '../../types.ts'
 
 // Squashing text nodes allows to combine multiple text nodes into one and write
@@ -24,6 +24,24 @@ export function squashTextNodes(node: DOMElement): string {
 
     let nodeText = ''
 
+    const getPrintText = (text: string): string => {
+      if (childNode.nodeName === 'kubb-import') {
+        const attributes = childNode.attributes as React.ComponentProps<typeof File.Import>
+        return print(factory.createImportDeclaration({ name: attributes.name, path: attributes.path, isTypeOnly: attributes.isTypeOnly }))
+      }
+
+      if (childNode.nodeName === 'kubb-export') {
+        const attributes = childNode.attributes as React.ComponentProps<typeof File.Export>
+        return print(
+          factory.createExportDeclaration({ name: attributes.name, path: attributes.path, isTypeOnly: attributes.isTypeOnly, asAlias: attributes.asAlias }),
+        )
+      }
+      if (childNode.nodeName === 'kubb-source') {
+        return printOrRead(text, childNode)
+      }
+      return text
+    }
+
     if (childNode.nodeName === '#text') {
       nodeText = childNode.nodeValue
     } else {
@@ -31,23 +49,8 @@ export function squashTextNodes(node: DOMElement): string {
         nodeText = squashTextNodes(childNode)
       }
 
-      if (childNode.nodeName === 'kubb-import' && childNode.attributes.print) {
-        const attributes = childNode.attributes as React.ComponentProps<typeof ImportComponent>
-        nodeText = print(createImportDeclaration({ name: attributes.name, path: attributes.path, isTypeOnly: attributes.isTypeOnly }))
-      }
-
-      if (childNode.nodeName === 'kubb-export' && childNode.attributes.print) {
-        const attributes = childNode.attributes as React.ComponentProps<typeof ExportComponent>
-        nodeText = print(
-          createExportDeclaration({ name: attributes.name, path: attributes.path, isTypeOnly: attributes.isTypeOnly, asAlias: attributes.asAlias }),
-        )
-      }
-      if (childNode.nodeName === 'kubb-source' && childNode.attributes.print) {
-        const attributes = childNode.attributes as React.ComponentProps<(typeof FileComponent)['Source']>
-
-        if (attributes.path) {
-          nodeText = readSync(attributes.path)
-        }
+      if (childNode.attributes.print) {
+        nodeText = getPrintText(nodeText)
       }
 
       if (childNode.nodeName === 'br') {

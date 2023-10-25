@@ -1,6 +1,7 @@
 import path from 'node:path'
 
-import { createPlugin, FileManager, getDependedPlugins, getRelativePath, renderTemplate } from '@kubb/core'
+import { createPlugin, FileManager, PluginManager } from '@kubb/core'
+import { getRelativePath, renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
@@ -26,7 +27,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     options,
     kind: 'schema',
     validate(plugins) {
-      pluginsOptions = getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName, swaggerTypeScriptPluginName])
+      pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName, swaggerTypeScriptPluginName])
 
       return true
     },
@@ -146,7 +147,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         await this.addFile({
           path: resolvedpath,
-          baseName: `${this.resolveName({ name: output, pluginKey: this.plugin.key })}.ts`,
+          baseName: output as KubbFile.BaseName,
           source: builder.print(),
           imports: [
             {
@@ -157,6 +158,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           meta: {
             pluginKey: this.plugin.key,
           },
+          validate: false,
         })
       }
 

@@ -3,10 +3,8 @@ import { optionsCJS, optionsESM } from '@kubb/tsup-config'
 import { defineConfig } from 'tsup'
 
 export default defineConfig([
-  {
-    ...optionsCJS,
-  },
-  { ...optionsESM },
+  optionsCJS,
+  optionsESM,
   {
     ...optionsCJS,
     entry: ['./client.ts'],

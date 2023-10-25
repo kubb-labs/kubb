@@ -28,6 +28,9 @@
       ],
       "@kubb/core": [
         "../core/src/index.ts"
+      ],
+      "@kubb/core/utils": [
+        "../core/src/utils/index.ts"
       ]
     }
   },

@@ -1,9 +1,14 @@
 import pc from 'picocolors'
 
 import type { Ora } from 'ora'
-import type { LogLevel } from '../index.ts'
 
-export type LogType = 'error' | 'info' | 'warning'
+export const LogLevel = {
+  silent: 'silent',
+  info: 'info',
+  debug: 'debug',
+} as const
+
+export type LogLevel = keyof typeof LogLevel
 
 export type Logger = {
   /**

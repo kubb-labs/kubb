@@ -2,13 +2,14 @@
 import crypto from 'node:crypto'
 import process from 'node:process'
 
-import { throttle } from '@kubb/core'
+import { throttle } from '@kubb/core/utils'
 
 import { App } from '../components/App.tsx'
 import { reconciler } from '../reconciler.ts'
 import { renderer } from './renderer.ts'
 
-import type { KubbFile, Logger } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
+import type { Logger } from '@kubb/core/utils'
 import type { ReactNode } from 'react'
 import type { AppContextProps } from '../components/AppContext.tsx'
 import type { FiberRoot } from '../reconciler.ts'
@@ -26,7 +27,13 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   // Ignore last render after unmounting a tree to prevent empty output before exit
   #isUnmounted: boolean
   #lastOutput: string
+  /**
+   * @deprecated
+   * Use Files instead
+   * File will include all sources combined
+   */
   #lastFile?: KubbFile.File
+  #lastFiles: KubbFile.File[] = []
   readonly #container: FiberRoot
   readonly #rootNode: DOMElement
   public readonly id = crypto.randomUUID()
@@ -82,6 +89,10 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
     return this.#lastFile
   }
 
+  get files(): KubbFile.File[] {
+    return this.#lastFiles
+  }
+
   resized = (): void => {
     this.onRender()
   }
@@ -95,10 +106,11 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
       return
     }
 
-    const { output, file } = renderer(this.#rootNode)
+    const { output, file, files } = renderer(this.#rootNode)
 
     this.#lastOutput = output
     this.#lastFile = file
+    this.#lastFiles = files
   }
   onError(_error: Error): void {}
 

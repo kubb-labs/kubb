@@ -29,6 +29,9 @@
       "@kubb/core": [
         "../core/src/index.ts"
       ],
+      "@kubb/core/utils": [
+        "../core/src/utils/index.ts"
+      ],
       "@kubb/swagger": [
         "../swagger/src/index.ts"
       ],
@@ -58,6 +61,9 @@
       ],
       "@kubb/parser": [
         "../parser/src/index.ts"
+      ],
+      "@kubb/parser/factory": [
+        "../parser/src/factory.ts"
       ],
       "@kubb/react": [
         "../react/src/index.ts"

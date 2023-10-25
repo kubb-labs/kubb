@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { createPlugin, getDependedPlugins } from '@kubb/core'
+import { createPlugin, PluginManager } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
@@ -25,7 +25,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     options,
     kind: 'controller',
     validate(plugins) {
-      pluginsOptions = getDependedPlugins<SwaggerPluginOptions, SwaggerZodPluginOptions>(plugins, [swaggerPluginName, swaggerZodPluginName])
+      pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions, SwaggerZodPluginOptions>(plugins, [swaggerPluginName, swaggerZodPluginName])
 
       return true
     },

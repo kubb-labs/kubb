@@ -1,5 +1,6 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { createJSDocBlockText, FunctionParams, PackageManager, transformers, URLPath } from '@kubb/core'
+import { PackageManager } from '@kubb/core'
+import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
 import { createRoot, File } from '@kubb/react'
 import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@kubb/swagger'
 
@@ -237,7 +238,7 @@ export class QueryBuilder extends OasBuilder<Options> {
     ])
     const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
-    codes.push(createJSDocBlockText({ comments }))
+    codes.push(transformers.JSDoc.createJSDocBlockText({ comments }))
     codes.push(`
 export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryResult}<${
       queryGenerics.join(
@@ -440,7 +441,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     ])
     const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
-    codes.push(createJSDocBlockText({ comments }))
+    codes.push(transformers.JSDoc.createJSDocBlockText({ comments }))
     codes.push(`
 export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryResult}<${
       queryGenerics.join(
@@ -530,7 +531,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
         .join('\n')
       : ''
 
-    codes.push(createJSDocBlockText({ comments }))
+    codes.push(transformers.JSDoc.createJSDocBlockText({ comments }))
     codes.push(`
 export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.mutate.UseMutationResult}<${mutationGenerics.join(', ')}> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};

@@ -1,4 +1,5 @@
-import { getRelativePath, PackageManager, URLPath } from '@kubb/core'
+import { PackageManager } from '@kubb/core'
+import { getRelativePath, URLPath } from '@kubb/core/utils'
 import { createRoot, File } from '@kubb/react'
 import { OasBuilder, useResolve, useResolveName } from '@kubb/swagger'
 import { useResolve as useResolveFaker } from '@kubb/swagger-faker'

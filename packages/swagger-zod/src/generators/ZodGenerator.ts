@@ -1,4 +1,5 @@
-import { getUniqueName, SchemaGenerator, transformers } from '@kubb/core'
+import { SchemaGenerator } from '@kubb/core'
+import { getUniqueName, transformers } from '@kubb/core/utils'
 import { isReference } from '@kubb/swagger'
 
 import { zodKeywords, zodParser } from '../parsers/index.ts'

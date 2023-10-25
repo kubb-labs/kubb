@@ -43,7 +43,7 @@ To get TypeScript support for `NodeJS.ProcessEnv`(with already the `process.env`
 
 ::: code-group
 
-<<< @/../packages/core/src/managers/fileManager/types.ts{38-69}
+<<< @/../packages/core/src/FileManager.ts{56-97}
 
 :::
 

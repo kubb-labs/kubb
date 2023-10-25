@@ -3,7 +3,7 @@ import createSwagger from '@kubb/swagger'
 
 import { getConfig } from './getConfig.ts'
 
-import type { CosmiconfigResult } from '../types.ts'
+import type { CosmiconfigResult } from './getCosmiConfig.ts'
 
 describe('getConfig', () => {
   test('return KubbConfig when config is set with defineConfig', async () => {

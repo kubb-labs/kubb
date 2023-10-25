@@ -16,14 +16,14 @@ describe('OperationGenerator', () => {
 
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
-        mode: 'directory',
-        dateType: 'string',
-        optionalType: 'questionToken',
-        usedEnumNames: {},
+      mode: 'directory',
+      dateType: 'string',
+      optionalType: 'questionToken',
+      usedEnumNames: {},
     }
 
     const og = await new OperationGenerator(
-     options,
+      options,
       {
         oas,
         skipBy: [],
@@ -49,12 +49,11 @@ describe('OperationGenerator', () => {
     const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
 
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
-
-        enumType: 'asConst',
-        mode: 'directory',
-        dateType: 'string',
-        optionalType: 'questionToken',
-        usedEnumNames: {},
+      enumType: 'asConst',
+      mode: 'directory',
+      dateType: 'string',
+      optionalType: 'questionToken',
+      usedEnumNames: {},
     }
 
     const og = await new OperationGenerator(

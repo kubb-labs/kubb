@@ -17,6 +17,9 @@
       "@kubb/core": [
         "../core/src/index.ts"
       ],
+      "@kubb/core/utils": [
+        "../core/src/utils/index.ts"
+      ],
       "@kubb/eslint-config": [
         "../config/eslint-config/src/index.ts"
       ],
