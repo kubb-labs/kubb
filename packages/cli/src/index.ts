@@ -6,7 +6,11 @@ import { cac } from 'cac'
 import pc from 'picocolors'
 
 import { version } from '../package.json'
-import { getConfig, getCosmiConfig, renderErrors, spinner, startWatcher } from './utils/index.ts'
+import { getConfig } from './utils/getConfig.ts'
+import { getCosmiConfig } from './utils/getCosmiConfig.ts'
+import { renderErrors } from './utils/renderErrors.ts'
+import { spinner } from './utils/spinner.ts'
+import { startWatcher } from './utils/watcher.ts'
 import { generate } from './generate.ts'
 import { init } from './init.ts'
 
