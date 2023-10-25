@@ -69,9 +69,3 @@ export const hello = typeof 'world' !== 'undefined' ? 'world' : undefined
 type Test = Pets
 "
 `;
-
-exports[`FileManager utils > if getIndexes can return an export with \`exportAs\` and/or \`isTypeOnly\` 1`] = `
-"export * as models from './hello.ts'
-export * as models from './world.ts'
-"
-`;

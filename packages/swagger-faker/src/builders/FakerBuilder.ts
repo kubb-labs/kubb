@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { nameSorter, transformers } from '@kubb/core'
+import { transformers } from '@kubb/core'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 import { ImportsGenerator, OasBuilder, refsSorter } from '@kubb/swagger'
@@ -35,7 +35,7 @@ export class FakerBuilder extends OasBuilder<Options, never> {
 
     const generated = this.items
       .filter((operationSchema) => (name ? operationSchema.name === name : true))
-      .sort(nameSorter)
+      .sort(transformers.nameSorter)
       .map((operationSchema) => {
         const generator = new FakerGenerator({
           withJSDocs: this.options.withJSDocs,

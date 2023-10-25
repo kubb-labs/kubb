@@ -2,8 +2,8 @@ import path from 'node:path'
 
 import { createPluginCache } from './utils/cache.ts'
 
-import type { FileManager } from './managers/fileManager/FileManager.ts'
-import type { PluginManager } from './managers/pluginManager/PluginManager.ts'
+import type { FileManager } from './FileManager.ts'
+import type { PluginManager } from './PluginManager.ts'
 import type { KubbPlugin, KubbUserPlugin, PluginContext, PluginFactoryOptions } from './types.ts'
 
 type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (options: T['options']) => KubbUserPlugin<T>

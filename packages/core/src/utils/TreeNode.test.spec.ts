@@ -1,8 +1,8 @@
 import path from 'node:path'
 
-import { TreeNode } from './TreeNode.js'
+import { TreeNode } from './TreeNode.ts'
 
-import type { KubbFile } from '../managers/index.ts'
+import type { KubbFile } from '../FileManager.ts'
 
 type TreeNodeData = { type: KubbFile.Mode; path: KubbFile.Path; name: string }
 

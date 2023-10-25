@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { createPlugin } from '../../plugin.ts'
-import { createLogger } from '../../utils/logger.ts'
-import { hooks, PluginManager } from './PluginManager.ts'
+import { createLogger } from './utils/logger.ts'
+import { createPlugin } from './plugin.ts'
+import { PluginManager } from './PluginManager.ts'
 
-import type { KubbConfig, KubbPlugin, TransformResult } from '../../types.ts'
+import type { KubbConfig, KubbPlugin, TransformResult } from './types.ts'
 
 describe('PluginManager', () => {
   const pluginAMocks = {
@@ -115,7 +115,7 @@ describe('PluginManager', () => {
     expect(pluginManager.queue).toBeDefined()
     expect(pluginManager.fileManager).toBeDefined()
     expect(pluginManager.plugins.length).toBe(config.plugins.length + 1)
-    expect(hooks).toStrictEqual(['validate', 'buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'])
+    expect(PluginManager.hooks).toStrictEqual(['validate', 'buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'])
     expect(pluginManager.getPluginsByKey('buildStart', ['schema', 'pluginB'])?.[0]?.name).toBe('pluginB')
   })
 
@@ -247,5 +247,17 @@ describe('PluginManager', () => {
 
     expect(pluginAMocks.transform).toHaveBeenCalled()
     expect(pluginBMocks.transform).toHaveBeenCalled()
+  })
+
+  test('if validatePlugins works with 2 plugins', () => {
+    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as KubbPlugin[], 'pluginA')).toBeTruthy()
+    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as KubbPlugin[], 'pluginB')).toBeTruthy()
+    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as KubbPlugin[], ['pluginA', 'pluginC']))
+      .toBeTruthy()
+    try {
+      PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as KubbPlugin[], ['pluginA', 'pluginD'])
+    } catch (e) {
+      expect(e).toBeDefined()
+    }
   })
 })

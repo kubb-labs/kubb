@@ -1,4 +1,4 @@
-import { nameSorter, transformers } from '@kubb/core'
+import { transformers } from '@kubb/core'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 import { ImportsGenerator, OasBuilder, refsSorter } from '@kubb/swagger'
@@ -34,7 +34,7 @@ export class ZodBuilder extends OasBuilder<Options, never> {
 
     const generated = this.items
       .filter((operationSchema) => (name ? operationSchema.name === name : true))
-      .sort(nameSorter)
+      .sort(transformers.nameSorter)
       .map((operationSchema) => {
         const generator = new ZodGenerator({ withJSDocs: this.options.withJSDocs, resolveName: this.options.resolveName })
         const sources = generator.build({

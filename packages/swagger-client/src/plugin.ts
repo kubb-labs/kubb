@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { createPlugin, FileManager, getDependedPlugins, getRelativePath, PackageManager, read, renderTemplate } from '@kubb/core'
+import { createPlugin, FileManager, getRelativePath, PackageManager, PluginManager, read, renderTemplate } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
@@ -35,7 +35,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     options,
     kind: 'controller',
     validate(plugins) {
-      pluginsOptions = getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
+      pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
 
       return true
     },

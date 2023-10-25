@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { executeStrategies, isInputPath, LogLevel, SummaryError, Warning } from '@kubb/core'
+import { isInputPath, LogLevel, PromiseManager, SummaryError, Warning } from '@kubb/core'
 
 import { cac } from 'cac'
 import pc from 'picocolors'
@@ -68,12 +68,10 @@ async function generateAction(input: string, CLIOptions: CLIOptions) {
   }
 
   if (Array.isArray(config)) {
+    const promiseManager = new PromiseManager()
     const promises = config.map((item) => () => generate({ input, config: item, CLIOptions }))
 
-    await executeStrategies.hookSeq(promises)
-
-    // await generate({ input, config: config[0]!, CLIOptions })
-    // await generate({ input, config: config[1]!, CLIOptions })
+    await promiseManager.run('seq', promises)
 
     return
   }

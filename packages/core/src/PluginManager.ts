@@ -1,49 +1,60 @@
 /* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-unsafe-argument */
 
-import { definePlugin as defineCorePlugin } from '../../plugin.ts'
-import { LogLevel } from '../../types.ts'
-import { EventEmitter } from '../../utils/EventEmitter.ts'
-import { isPromise, isPromiseRejectedResult } from '../../utils/isPromise.ts'
-import { Queue } from '../../utils/Queue.ts'
-import { transformReservedWord } from '../../utils/transformers/transformReservedWord.ts'
-import { FileManager } from '../fileManager/FileManager.ts'
-import { executeStrategies } from './executeStrategies.ts'
-import { ParallelPluginError } from './ParallelPluginError.ts'
-import { PluginError } from './PluginError.ts'
-import { pluginParser } from './pluginParser.ts'
+import { EventEmitter } from './utils/EventEmitter.ts'
+import { LogLevel } from './utils/logger.ts'
+import { Queue } from './utils/Queue.ts'
+import { transformReservedWord } from './utils/transformers/transformReservedWord.ts'
+import { setUniqueName } from './utils/uniqueName.ts'
+import { ParallelPluginError, PluginError, ValidationPluginError } from './errors.ts'
+import { FileManager } from './FileManager.ts'
+import { definePlugin as defineCorePlugin } from './plugin.ts'
+import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
+import { PromiseManager } from './PromiseManager.ts'
 
-import type { CorePluginOptions } from '../../plugin.ts'
+import type { KubbFile } from './FileManager.ts'
+import type { CorePluginOptions } from './plugin.ts'
 import type {
+  GetPluginFactoryOptions,
   KubbConfig,
   KubbPlugin,
   KubbUserPlugin,
+  PluginFactoryOptions,
   PluginLifecycle,
   PluginLifecycleHooks,
+  PluginParameter,
   PossiblePromise,
   ResolveNameParams,
   ResolvePathParams,
-} from '../../types.ts'
-import type { Logger } from '../../utils/logger.ts'
-import type { QueueJob } from '../../utils/Queue.ts'
-import type { KubbFile } from '../fileManager/types.ts'
-import type { Argument0, Executer, ParseResult, PluginParameter, RequiredPluginLifecycle, SafeParseResult, Strategy } from './types.ts'
+} from './types.ts'
+import type { Logger } from './utils/logger.ts'
+import type { QueueJob } from './utils/Queue.ts'
+
+type RequiredPluginLifecycle = Required<PluginLifecycle>
+
+/**
+ * Get the type of the first argument in a function.
+ * @example Arg0<(a: string, b: number) => void> -> string
+ */
+type Argument0<H extends keyof PluginLifecycle> = Parameters<RequiredPluginLifecycle[H]>[0]
+
+type Strategy = 'hookFirst' | 'hookForPlugin' | 'hookParallel' | 'hookReduceArg0' | 'hookSeq'
+
+type Executer<H extends PluginLifecycleHooks = PluginLifecycleHooks> = {
+  strategy: Strategy
+  hookName: H
+  plugin: KubbPlugin
+  parameters?: unknown[] | undefined
+  output?: unknown
+}
+
+type ParseResult<H extends PluginLifecycleHooks> = RequiredPluginLifecycle[H]
+
+type SafeParseResult<H extends PluginLifecycleHooks, Result = ReturnType<ParseResult<H>>> = {
+  result: Result
+  plugin: KubbPlugin
+}
 
 // inspired by: https://github.com/rollup/rollup/blob/master/src/utils/PluginDriver.ts#
-
-// This will make sure no input hook is omitted
-const hookNames: {
-  [P in PluginLifecycleHooks]: 1
-} = {
-  validate: 1,
-  buildStart: 1,
-  resolvePath: 1,
-  resolveName: 1,
-  load: 1,
-  transform: 1,
-  writeFile: 1,
-  buildEnd: 1,
-}
-export const hooks = Object.keys(hookNames) as [PluginLifecycleHooks]
 
 type Options = {
   logger: Logger
@@ -75,13 +86,16 @@ export class PluginManager {
   readonly logger: Logger
   readonly #core: KubbPlugin<CorePluginOptions>
 
-  usedPluginNames: Record<string, number> = {}
+  readonly #usedPluginNames: Record<string, number> = {}
+  readonly #promiseManager: PromiseManager
 
   constructor(config: KubbConfig, options: Options) {
     // TODO use logger for all warnings/errors
     this.logger = options.logger
     this.queue = new Queue(100, this.logger.logLevel === LogLevel.debug)
     this.fileManager = new FileManager({ task: options.task, queue: this.queue, timeout: options.writeTimeout })
+    this.#promiseManager = new PromiseManager()
+
     const plugins = config.plugins || []
 
     const core = defineCorePlugin({
@@ -95,10 +109,10 @@ export class PluginManager {
     })
 
     // call core.api.call with empty context so we can transform `api()` to `api: {}`
-    this.#core = pluginParser(core as unknown as KubbUserPlugin, this as any, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
+    this.#core = this.#parse(core as unknown as KubbUserPlugin, this as any, core.api.call(null as any)) as KubbPlugin<CorePluginOptions>
 
     this.plugins = [this.#core, ...plugins].map((plugin) => {
-      return pluginParser(plugin as KubbUserPlugin, this, this.#core.api)
+      return this.#parse(plugin as KubbUserPlugin, this, this.#core.api)
     })
 
     return this
@@ -380,7 +394,7 @@ export class PluginManager {
         })
     })
 
-    return executeStrategies.hookSeq(promises)
+    return this.#promiseManager.run('seq', promises)
   }
 
   #getSortedPlugins(hookName?: keyof PluginLifecycle): KubbPlugin[] {
@@ -568,5 +582,72 @@ export class PluginManager {
     this.eventEmitter.emit('error', pluginError)
 
     throw pluginError
+  }
+
+  #parse<TPlugin extends KubbUserPlugin>(
+    plugin: TPlugin,
+    pluginManager: PluginManager,
+    context: CorePluginOptions['api'] | undefined,
+  ): KubbPlugin<GetPluginFactoryOptions<TPlugin>> {
+    const usedPluginNames = pluginManager.#usedPluginNames
+
+    setUniqueName(plugin.name, usedPluginNames)
+
+    const key = plugin.key || ([plugin.kind, plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.kind, typeof plugin.name, string])
+
+    if (plugin.name !== 'core' && usedPluginNames[plugin.name]! >= 2) {
+      pluginManager.logger.warn('Using multiple of the same plugin is an experimental feature')
+    }
+
+    // default transform
+    if (!plugin.transform) {
+      plugin.transform = function transform(code) {
+        return code
+      }
+    }
+
+    if (plugin.api && typeof plugin.api === 'function') {
+      const api = (plugin.api as Function).call(context) as typeof plugin.api
+
+      return {
+        ...plugin,
+        key,
+        api,
+      } as unknown as KubbPlugin<GetPluginFactoryOptions<TPlugin>>
+    }
+
+    return {
+      ...plugin,
+      key,
+    } as unknown as KubbPlugin<GetPluginFactoryOptions<TPlugin>>
+  }
+
+  static getDependedPlugins<
+    T1 extends PluginFactoryOptions,
+    T2 extends PluginFactoryOptions = never,
+    T3 extends PluginFactoryOptions = never,
+    TOutput = T3 extends never ? T2 extends never ? [T1: KubbPlugin<T1>]
+      : [T1: KubbPlugin<T1>, T2: KubbPlugin<T2>]
+      : [T1: KubbPlugin<T1>, T2: KubbPlugin<T2>, T3: KubbPlugin<T3>],
+  >(plugins: Array<KubbPlugin>, dependedPluginNames: string | string[]): TOutput {
+    let pluginNames: string[] = []
+    if (typeof dependedPluginNames === 'string') {
+      pluginNames = [dependedPluginNames]
+    } else {
+      pluginNames = dependedPluginNames
+    }
+
+    return pluginNames.map((pluginName) => {
+      const plugin = plugins.find((plugin) => plugin.name === pluginName)
+      if (!plugin) {
+        throw new ValidationPluginError(`This plugin depends on the ${pluginName} plugin.`)
+      }
+      return plugin
+    }) as TOutput
+  }
+
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  static get hooks() {
+    return ['validate', 'buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'] as const
   }
 }
