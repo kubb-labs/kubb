@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { nameSorter, transformers } from '@kubb/core'
-import { createImportDeclaration, print } from '@kubb/parser'
+import { print } from '@kubb/parser'
+import * as factory from '@kubb/parser/factory'
 import { ImportsGenerator, OasBuilder, refsSorter } from '@kubb/swagger'
 
 import { FakerGenerator } from '../generators/index.ts'
@@ -72,7 +73,7 @@ export class FakerBuilder extends OasBuilder<Options, never> {
 
       if (importMeta) {
         const nodes = importMeta.map((item) => {
-          return createImportDeclaration({
+          return factory.createImportDeclaration({
             name: [{ propertyName: item.ref.propertyName }],
             path: item.path,
             isTypeOnly: false,

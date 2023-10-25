@@ -1,6 +1,7 @@
 import path from 'node:path'
 
-import { createExportDeclaration, createImportDeclaration, print } from '@kubb/parser'
+import { print } from '@kubb/parser'
+import * as factory from '@kubb/parser/factory'
 
 import isEqual from 'lodash.isequal'
 import { orderBy } from 'natural-orderby'
@@ -264,8 +265,10 @@ export function createFileSource(file: KubbFile.File): string {
   const exports = file.exports ? combineExports(file.exports) : []
   const imports = file.imports ? combineImports(file.imports, exports, file.source) : []
 
-  const importNodes = imports.map((item) => createImportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly }))
-  const exportNodes = exports.map((item) => createExportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly, asAlias: item.asAlias }))
+  const importNodes = imports.map((item) => factory.createImportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly }))
+  const exportNodes = exports.map((item) =>
+    factory.createExportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly, asAlias: item.asAlias })
+  )
 
   return [print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')
 }

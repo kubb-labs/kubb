@@ -46,7 +46,6 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "schemas",
     "*.d.ts",
     "*.d.cts",
     "!/**/**.test.**",

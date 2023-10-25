@@ -1,29 +1,13 @@
 import { getUniqueName, SchemaGenerator } from '@kubb/core'
-import {
-  appendJSDocToNode,
-  createEnumDeclaration,
-  createIndexSignature,
-  createIntersectionDeclaration,
-  createOmitDeclaration,
-  createPropertySignature,
-  createTupleDeclaration,
-  createTypeAliasDeclaration,
-  createUnionDeclaration,
-  modifiers,
-} from '@kubb/parser'
+import * as factory from '@kubb/parser/factory'
 import { isReference } from '@kubb/swagger'
 
 import { camelCase } from 'change-case'
-import ts from 'typescript'
-
-import { keywordTypeNodes } from '../utils/index.ts'
 
 import type { PluginContext } from '@kubb/core'
-import type { ArrayTwoOrMore } from '@kubb/parser'
 import type { OpenAPIV3, Refs } from '@kubb/swagger'
 import type { Options as CaseOptions } from 'change-case'
-
-const { factory } = ts
+import type ts from 'typescript'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
@@ -84,15 +68,15 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return this.extraNodes
     }
 
-    const node = createTypeAliasDeclaration({
-      modifiers: [modifiers.export],
+    const node = factory.createTypeAliasDeclaration({
+      modifiers: [factory.modifiers.export],
       name: this.options.resolveName({ name: baseName }) || baseName,
-      type: keysToOmit?.length ? createOmitDeclaration({ keys: keysToOmit, type, nonNullable: true }) : type,
+      type: keysToOmit?.length ? factory.createOmitDeclaration({ keys: keysToOmit, type, nonNullable: true }) : type,
     })
 
     if (description) {
       nodes.push(
-        appendJSDocToNode({
+        factory.appendJSDocToNode({
           node,
           comments: [`@description ${description}`],
         }),
@@ -128,7 +112,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return type
     }
 
-    return createUnionDeclaration({ nodes: [type, keywordTypeNodes.null] })
+    return factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.null] })
   }
 
   /**
@@ -151,16 +135,16 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       }
 
       if (!isRequired && ['undefined', 'questionTokenAndUndefined'].includes(optionalType)) {
-        type = createUnionDeclaration({ nodes: [type, keywordTypeNodes.undefined] })
+        type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] })
       }
-      const propertySignature = createPropertySignature({
+      const propertySignature = factory.createPropertySignature({
         questionToken: ['questionToken', 'questionTokenAndUndefined'].includes(optionalType) && !isRequired,
         name,
         type: type as ts.TypeNode,
         readOnly: schema.readOnly,
       })
       if (this.options.withJSDocs) {
-        return appendJSDocToNode({
+        return factory.appendJSDocToNode({
           node: propertySignature,
           comments: [
             schema.description ? `@description ${schema.description}` : undefined,
@@ -176,10 +160,10 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return propertySignature
     })
     if (additionalProperties) {
-      const type = additionalProperties === true ? keywordTypeNodes.any : this.#getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
+      const type = additionalProperties === true ? factory.keywordTypeNodes.any : this.#getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
 
       if (type) {
-        members.push(createIndexSignature(type))
+        members.push(factory.createIndexSignature(type))
       }
     }
     return factory.createTypeLiteralNode(members.filter(Boolean))
@@ -213,7 +197,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    */
   #getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): ts.TypeNode | null {
     if (!schema) {
-      return keywordTypeNodes.any
+      return factory.keywordTypeNodes.any
     }
 
     if (isReference(schema)) {
@@ -224,20 +208,20 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       // union
       const schemaWithoutOneOf = { ...schema, oneOf: undefined }
 
-      const union = createUnionDeclaration({
+      const union = factory.createUnionDeclaration({
         withParentheses: true,
         nodes: schema.oneOf
           .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
             return this.#getBaseTypeFromSchema(item)
           })
           .filter((item) => {
-            return item && item !== keywordTypeNodes.any
-          }) as ArrayTwoOrMore<ts.TypeNode>,
+            return item && item !== factory.keywordTypeNodes.any
+          }) as Array<ts.TypeNode>,
       })
 
       if (schemaWithoutOneOf.properties) {
-        return createIntersectionDeclaration({
-          nodes: [this.#getBaseTypeFromSchema(schemaWithoutOneOf, baseName), union].filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
+        return factory.createIntersectionDeclaration({
+          nodes: [this.#getBaseTypeFromSchema(schemaWithoutOneOf, baseName), union].filter(Boolean),
         })
       }
 
@@ -247,20 +231,20 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     if (schema.anyOf) {
       const schemaWithoutAnyOf = { ...schema, anyOf: undefined }
 
-      const union = createUnionDeclaration({
+      const union = factory.createUnionDeclaration({
         withParentheses: true,
         nodes: schema.anyOf
           .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
             return this.#getBaseTypeFromSchema(item)
           })
           .filter((item) => {
-            return item && item !== keywordTypeNodes.any
-          }) as ArrayTwoOrMore<ts.TypeNode>,
+            return item && item !== factory.keywordTypeNodes.any
+          }) as Array<ts.TypeNode>,
       })
 
       if (schemaWithoutAnyOf.properties) {
-        return createIntersectionDeclaration({
-          nodes: [this.#getBaseTypeFromSchema(schemaWithoutAnyOf, baseName), union].filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
+        return factory.createIntersectionDeclaration({
+          nodes: [this.#getBaseTypeFromSchema(schemaWithoutAnyOf, baseName), union].filter(Boolean),
         })
       }
 
@@ -270,20 +254,20 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       // intersection/add
       const schemaWithoutAllOf = { ...schema, allOf: undefined }
 
-      const and = createIntersectionDeclaration({
+      const and = factory.createIntersectionDeclaration({
         withParentheses: true,
         nodes: schema.allOf
           .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
             return this.#getBaseTypeFromSchema(item)
           })
           .filter((item) => {
-            return item && item !== keywordTypeNodes.any
-          }) as ArrayTwoOrMore<ts.TypeNode>,
+            return item && item !== factory.keywordTypeNodes.any
+          }) as Array<ts.TypeNode>,
       })
 
       if (schemaWithoutAllOf.properties) {
-        return createIntersectionDeclaration({
-          nodes: [this.#getBaseTypeFromSchema(schemaWithoutAllOf, baseName), and].filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
+        return factory.createIntersectionDeclaration({
+          nodes: [this.#getBaseTypeFromSchema(schemaWithoutAllOf, baseName), and].filter(Boolean),
         })
       }
 
@@ -305,7 +289,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       }
 
       this.extraNodes.push(
-        ...createEnumDeclaration({
+        ...factory.createEnumDeclaration({
           name: camelCase(enumName, this.#caseOptions),
           typeName: this.options.resolveName({ name: enumName }),
           enums,
@@ -316,10 +300,10 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     }
 
     if (schema.enum) {
-      return createUnionDeclaration({
+      return factory.createUnionDeclaration({
         nodes: schema.enum.map((name: string) => {
           return factory.createLiteralTypeNode(typeof name === 'number' ? factory.createNumericLiteral(name) : factory.createStringLiteral(`${name}`))
-        }) as unknown as ArrayTwoOrMore<ts.TypeNode>,
+        }) as unknown as Array<ts.TypeNode>,
       })
     }
 
@@ -337,11 +321,11 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     if ('prefixItems' in schema) {
       const prefixItems = schema.prefixItems as OpenAPIV3.SchemaObject[]
 
-      return createTupleDeclaration({
+      return factory.createTupleDeclaration({
         nodes: prefixItems.map((item) => {
           // no baseType so we can fall back on an union when using enum
           return this.#getBaseTypeFromSchema(item, undefined)
-        }) as ArrayTwoOrMore<ts.TypeNode>,
+        }) as Array<ts.TypeNode>,
       })
     }
 
@@ -355,7 +339,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
         const [type, nullable] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
-        return createUnionDeclaration({
+        return factory.createUnionDeclaration({
           nodes: [
             this.#getBaseTypeFromSchema(
               {
@@ -365,7 +349,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
               baseName,
             ),
             nullable ? factory.createLiteralTypeNode(factory.createNull()) : undefined,
-          ].filter(Boolean) as ArrayTwoOrMore<ts.TypeNode>,
+          ].filter(Boolean),
         })
       }
 
@@ -374,8 +358,8 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       }
 
       // string, boolean, null, number
-      if (schema.type in keywordTypeNodes) {
-        return keywordTypeNodes[schema.type as keyof typeof keywordTypeNodes]
+      if (schema.type in factory.keywordTypeNodes) {
+        return factory.keywordTypeNodes[schema.type as keyof typeof factory.keywordTypeNodes]
       }
     }
 
@@ -383,6 +367,6 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return factory.createTypeReferenceNode('Blob', [])
     }
 
-    return keywordTypeNodes.any
+    return factory.keywordTypeNodes.any
   }
 }
