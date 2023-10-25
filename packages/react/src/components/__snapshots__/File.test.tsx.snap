@@ -49,18 +49,18 @@ export * from './index.ts'
 "
 `;
 
-exports[`<File/> render File with source and path, print 1`] = `
-"export function test() {
-  return true
-}
-"
-`;
-
 exports[`<File/> render File with multiple sources 1`] = `
 "export function test() {
   return true
 }
 const test = 2
+"
+`;
+
+exports[`<File/> render File with source and path, print 1`] = `
+"export function test() {
+  return true
+}
 "
 `;
 
