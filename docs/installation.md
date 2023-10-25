@@ -29,7 +29,6 @@ import { version } from '../packages/core/package.json'
 **Kubb has a minimal support of TypeScript version 4.7**. <br/>
 If you are using an older TypeScript version, please migrate to version 4.7 or later to use Kubb. Please consider that at the moment of writing this TypeScript 4.6 is almost two years old.
 
-
 ## Latest <Badge type="tip" :text="version" />
 
 You can install Kubb via [NPM](https://www.npmjs.com/).
@@ -78,7 +77,6 @@ yarn add @kubb/cli@canary @kubb/core@canary
 ```
 
 :::
-
 
 ## Alpha <Badge type="tip" text="alpha" /> <Badge type="warning" text="experimental" />
 

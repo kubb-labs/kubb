@@ -46,4 +46,12 @@ describe('getPackageJSON', () => {
 
     expect(fn?.()).toBe('cjs-noop')
   })
+
+  test('if overriding cache with static setVersion works', async () => {
+    PackageManager.setVersion('typescript', '^4.1.1')
+    expect(await packageManager.isValid('typescript', '>=5')).toBeFalsy()
+
+    PackageManager.setVersion('typescript', '^5.1.1')
+    expect(await packageManager.isValid('typescript', '>=5')).toBeTruthy()
+  })
 })

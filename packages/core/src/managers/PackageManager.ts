@@ -10,7 +10,13 @@ type PackageJSON = {
   devDependencies?: Record<string, string>
 }
 
+type DependencyName = string
+
+type DependencyVersion = string
+
 export class PackageManager {
+  static #cache: Record<DependencyName, DependencyVersion> = {}
+
   #cwd?: string
   #SLASHES = new Set(['/', '\\'])
   constructor(workspace?: string) {
@@ -89,7 +95,15 @@ export class PackageManager {
     return require(pkgPath) as PackageJSON
   }
 
-  async getVersion(dependency: string): Promise<string | undefined> {
+  static setVersion(dependency: DependencyName, version: DependencyVersion): void {
+    PackageManager.#cache[dependency] = version
+  }
+
+  async getVersion(dependency: DependencyName): Promise<DependencyVersion | undefined> {
+    if (PackageManager.#cache[dependency]) {
+      return PackageManager.#cache[dependency]
+    }
+
     const packageJSON = await this.getPackageJSON()
 
     if (!packageJSON) {
@@ -99,7 +113,11 @@ export class PackageManager {
     return packageJSON['dependencies']?.[dependency] || packageJSON['devDependencies']?.[dependency]
   }
 
-  getVersionSync(dependency: string): string | undefined {
+  getVersionSync(dependency: DependencyName): DependencyVersion | undefined {
+    if (PackageManager.#cache[dependency]) {
+      return PackageManager.#cache[dependency]
+    }
+
     const packageJSON = this.getPackageJSONSync()
 
     if (!packageJSON) {
@@ -109,7 +127,7 @@ export class PackageManager {
     return packageJSON['dependencies']?.[dependency] || packageJSON['devDependencies']?.[dependency]
   }
 
-  async isValid(dependency: string, version: string): Promise<boolean> {
+  async isValid(dependency: DependencyName, version: DependencyVersion): Promise<boolean> {
     const packageVersion = await this.getVersion(dependency)
 
     if (!packageVersion) {
@@ -123,7 +141,7 @@ export class PackageManager {
 
     return satisfies(semVer, version)
   }
-  isValidSync(dependency: string, version: string): boolean {
+  isValidSync(dependency: DependencyName, version: DependencyVersion): boolean {
     const packageVersion = this.getVersionSync(dependency)
 
     if (!packageVersion) {

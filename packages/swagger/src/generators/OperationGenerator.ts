@@ -21,6 +21,8 @@ type Context<TOptions> = {
   mode?: KubbFile.Mode
 }
 
+export type GetOperationGeneratorOptions<T extends OperationGenerator> = T extends OperationGenerator<infer X> ? X : never
+
 export abstract class OperationGenerator<TOptions = unknown> extends Generator<TOptions, Context<TOptions>> {
   /**
    * Validate an operation to see if used with camelCase we don't overwrite other files
