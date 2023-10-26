@@ -1,11 +1,11 @@
 import { usePluginManager } from '@kubb/react'
 
 import { useOperation } from '../hooks/useOperation.ts'
-import { resolve } from '../utils/resolve.ts'
+import { resolve } from '../resolve.ts'
 
 import type { KubbFile, PluginContext, ResolveNameParams, ResolvePathParams } from '@kubb/core'
+import type { ResolveProps } from '../resolve.ts'
 import type { Resolver } from '../types.ts'
-import type { ResolveProps } from '../utils/resolve.ts'
 
 export type UseResolveProps = Omit<ResolveProps, 'operation' | 'resolvePath' | 'resolveName'> & {
   resolvePath?: PluginContext['resolvePath']

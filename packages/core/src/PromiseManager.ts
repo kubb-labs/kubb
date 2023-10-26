@@ -7,7 +7,7 @@ type PromiseFunc<T, T2 = never> = () => T2 extends never ? Promise<T> : Promise<
 type SeqOutput<TInput extends Array<PromiseFunc<TPromise, null>>, TPromise = unknown> = ReturnType<NonNullable<TInput[number]>>
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export type Options = {}
+type Options = {}
 
 type Strategy = 'seq'
 

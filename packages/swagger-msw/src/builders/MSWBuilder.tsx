@@ -1,8 +1,10 @@
 import { PackageManager } from '@kubb/core'
 import { getRelativePath, URLPath } from '@kubb/core/utils'
-import { createRoot, File } from '@kubb/react'
-import { OasBuilder, useResolve, useResolveName } from '@kubb/swagger'
-import { useResolve as useResolveFaker } from '@kubb/swagger-faker'
+import { createRoot } from '@kubb/react'
+import { File } from '@kubb/react'
+import { OasBuilder } from '@kubb/swagger'
+import { useResolve, useResolveName } from '@kubb/swagger/hooks'
+import { useResolve as useResolveFaker } from '@kubb/swagger-faker/hooks'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { AppMeta } from '../types.ts'

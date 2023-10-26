@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { print } from '@kubb/parser'
-import { oasPathParser } from '@kubb/swagger'
+import { OasManager } from '@kubb/swagger'
 
 import { format } from '../../mocks/format.ts'
 import { TypeGenerator } from './TypeGenerator.ts'
@@ -12,7 +12,7 @@ describe('TypeGenerator simple', () => {
   const petStorePath = path.resolve(__dirname, '../../mocks/petStore.yaml')
 
   test('generate type for Pet with optionalType `questionToken`', async () => {
-    const oas = await oasPathParser(petStorePath)
+    const oas = await new OasManager().parse(petStorePath)
     const generator = new TypeGenerator({
       usedEnumNames: {},
       withJSDocs: false,
@@ -33,7 +33,7 @@ describe('TypeGenerator simple', () => {
   })
 
   test('generate type for Pet with optionalType `undefined`', async () => {
-    const oas = await oasPathParser(petStorePath)
+    const oas = await new OasManager().parse(petStorePath)
     const generator = new TypeGenerator({
       usedEnumNames: {},
       withJSDocs: false,
@@ -54,7 +54,7 @@ describe('TypeGenerator simple', () => {
   })
 
   test('generate type for Pet with optionalType `questionTokenAndUndefined`', async () => {
-    const oas = await oasPathParser(petStorePath)
+    const oas = await new OasManager().parse(petStorePath)
     const generator = new TypeGenerator({
       usedEnumNames: {},
       withJSDocs: false,
@@ -100,7 +100,7 @@ describe('TypeGenerator simple', () => {
   })
 
   test('generate type for Pets', async () => {
-    const oas = await oasPathParser(petStorePath)
+    const oas = await new OasManager().parse(petStorePath)
     const generator = new TypeGenerator({
       usedEnumNames: {},
       withJSDocs: false,
@@ -124,7 +124,7 @@ describe('TypeGenerator with refs', () => {
   const petStoreRefPath = path.resolve(__dirname, '../../mocks/petStoreRef.yaml')
 
   test('generate type for Pets', async () => {
-    const oas = await oasPathParser(petStoreRefPath)
+    const oas = await new OasManager().parse(petStoreRefPath)
     const generator = new TypeGenerator({
       usedEnumNames: {},
       withJSDocs: false,

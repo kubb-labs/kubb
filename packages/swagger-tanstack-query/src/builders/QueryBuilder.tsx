@@ -2,8 +2,11 @@
 import path from 'node:path'
 
 import { FunctionParams, getRelativePath, transformers, URLPath } from '@kubb/core/utils'
-import { createRoot, File } from '@kubb/react'
-import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@kubb/swagger'
+import { createRoot } from '@kubb/react'
+import { File } from '@kubb/react'
+import { OasBuilder } from '@kubb/swagger'
+import { useResolve } from '@kubb/swagger/hooks'
+import { getASTParams, getComments, getParams } from '@kubb/swagger/utils'
 
 import { camelCase, pascalCase } from 'change-case'
 import { capitalCase, capitalCaseTransform } from 'change-case'

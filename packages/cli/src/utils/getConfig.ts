@@ -1,4 +1,4 @@
-import { isPromise } from '@kubb/core'
+import { isPromise } from '@kubb/core/utils'
 
 import { getPlugins } from './getPlugins.ts'
 

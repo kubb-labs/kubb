@@ -1,5 +1,5 @@
 import type { KubbFile } from '@kubb/core'
-import type { ReactNode } from 'react'
+import type { KubbNode } from '../types.ts'
 
 type Props = KubbFile.Import & {
   print?: boolean
@@ -10,6 +10,6 @@ type Props = KubbFile.Import & {
   root?: string
 }
 
-export function Import({ name, path, isTypeOnly, print: printImport }: Props): ReactNode {
+export function Import({ name, path, isTypeOnly, print: printImport }: Props): KubbNode {
   return <kubb-import name={name} path={path} isTypeOnly={isTypeOnly} print={printImport} />
 }

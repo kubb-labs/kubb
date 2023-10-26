@@ -1,7 +1,8 @@
 import { transformers } from '@kubb/core/utils'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
-import { ImportsGenerator, OasBuilder, refsSorter } from '@kubb/swagger'
+import { ImportsGenerator, OasBuilder } from '@kubb/swagger'
+import { refsSorter } from '@kubb/swagger/utils'
 
 import { ZodGenerator } from '../generators/index.ts'
 

@@ -2,8 +2,8 @@ import path from 'node:path'
 
 import { createPlugin } from '@kubb/core'
 
-import { oasParser } from './parsers/oasParser.ts'
 import { getSchemas } from './utils/getSchemas.ts'
+import { OasManager } from './OasManager.ts'
 
 import type { KubbConfig } from '@kubb/core'
 import type { Logger } from '@kubb/core/utils'
@@ -19,14 +19,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   const getOas = async (config: KubbConfig, logger: Logger): Promise<Oas> => {
     try {
       // needs to be in a different variable or the catch here will not work(return of a promise instead)
-      const oas = await oasParser(config, { validate })
+      const oas = await OasManager.parseFromConfig(config, { validate })
 
       return oas
     } catch (e) {
       const error = e as Error
 
       logger.warn(error?.message)
-      return oasParser(config, { validate: false })
+      return OasManager.parseFromConfig(config, { validate: false })
     }
   }
 

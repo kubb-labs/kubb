@@ -1,7 +1,7 @@
 import { Generator } from '@kubb/core'
 
 import type { KubbPlugin } from '@kubb/core'
-import type { FileResolver } from '../builders/OasBuilder.ts'
+import type { FileResolver } from './OasBuilder.ts'
 
 /**
  * `propertyName` is the ref name + resolved with the nameResolver

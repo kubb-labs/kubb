@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { isPromiseFulfilledResult } from '@kubb/core'
+import { isPromiseFulfilledResult } from '@kubb/core/utils'
 import { LogLevel, write } from '@kubb/core/utils'
 
 import { $ } from 'execa'

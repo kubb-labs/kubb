@@ -1,7 +1,10 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
-import { createRoot, File } from '@kubb/react'
-import { getASTParams, getComments, OasBuilder, useResolve } from '@kubb/swagger'
+import { createRoot } from '@kubb/react'
+import { File } from '@kubb/react'
+import { OasBuilder } from '@kubb/swagger'
+import { useResolve } from '@kubb/swagger/hooks'
+import { getASTParams, getComments } from '@kubb/swagger/utils'
 
 import { camelCase } from 'change-case'
 

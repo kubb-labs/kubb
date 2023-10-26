@@ -1,6 +1,6 @@
 import { resolve as swaggerResolve } from '@kubb/swagger'
 
-import { pluginKey } from '../plugin.ts'
+import { pluginKey } from './plugin.ts'
 
 import type { ResolveProps, Resolver } from '@kubb/swagger'
 

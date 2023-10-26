@@ -45,4 +45,32 @@ export default defineConfig([
     name: 'server',
     banner: {},
   },
+  {
+    ...optionsCJS,
+    entry: {
+      hooks: 'src/hooks/index.ts',
+    },
+    name: 'hooks',
+  },
+  {
+    ...optionsESM,
+    entry: {
+      hooks: 'src/hooks/index.ts',
+    },
+    name: 'hooks',
+  },
+  {
+    ...optionsCJS,
+    entry: {
+      components: 'src/components/index.ts',
+    },
+    name: 'components',
+  },
+  {
+    ...optionsESM,
+    entry: {
+      components: 'src/components/index.ts',
+    },
+    name: 'components',
+  },
 ])

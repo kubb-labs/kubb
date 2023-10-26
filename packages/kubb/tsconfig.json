@@ -1,34 +1,15 @@
 {
-  "extends": "@kubb/ts-config/base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    // "composite": true,
-    // "rootDir": "./",
-    // "outDir": "./dist",
-    // "tsBuildInfoFile": "./build/.tsbuildinfo"
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
-    // add paths also here because when set with `base.json` it will use the `./dist` folder instead of `./src`.
-    "types": [
-      "vitest/globals",
-      "bun-types",
-      "../core/globals.d.ts",
-      "../config/ts-config/reset.d.ts"
-    ]
+    "moduleResolution": "node"
   },
   "include": [
     "src/**/*",
-    "./mocks/*",
     "./package.json",
     "./tsup.config.ts",
     "./vitest.config.ts"
-  ],
-  "exclude": [
-    "**/node_modules",
-    "**/types/**"
   ]
-  // "references": [
-  //   { "path": "../parser" }
-  // ]
 }
