@@ -1,4 +1,4 @@
-import { oasParser } from '@kubb/swagger'
+import { OasManager } from '@kubb/swagger'
 
 import { format } from '../../mocks/format.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
@@ -12,7 +12,11 @@ describe('OperationGenerator', () => {
   const resolveName: PluginContext['resolveName'] = ({ name }) => name
 
   it('[GET] should generate code based on a operation and optionalType `questionToken`', async () => {
-    const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
+    const oas = await OasManager.parseFromConfig({
+      root: './',
+      output: { path: 'test', clean: true },
+      input: { path: 'packages/swagger-ts/mocks/petStore.yaml' },
+    })
 
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
@@ -46,7 +50,11 @@ describe('OperationGenerator', () => {
   })
 
   it('[POST] should generate code based on a operation', async () => {
-    const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
+    const oas = await OasManager.parseFromConfig({
+      root: './',
+      output: { path: 'test', clean: true },
+      input: { path: 'packages/swagger-ts/mocks/petStore.yaml' },
+    })
 
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',

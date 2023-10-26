@@ -1,6 +1,6 @@
 import { SchemaGenerator } from '@kubb/core'
 import { getUniqueName, transformers } from '@kubb/core/utils'
-import { isReference } from '@kubb/swagger'
+import { isReference } from '@kubb/swagger/utils'
 
 import { zodKeywords, zodParser } from '../parsers/index.ts'
 import { pluginKey } from '../plugin.ts'

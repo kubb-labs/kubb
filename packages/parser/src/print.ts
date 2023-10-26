@@ -23,7 +23,7 @@ export function print(
   }
 
   if (Array.isArray(elements)) {
-    nodes = elements.filter(Boolean) as ts.Node[]
+    nodes = elements.filter(Boolean)
   } else {
     nodes = [elements].filter(Boolean)
   }

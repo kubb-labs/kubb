@@ -4,15 +4,18 @@ import { FileManager, Generator, Warning } from '@kubb/core'
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 import { findSchemaDefinition } from 'oas/utils'
 
-import { isReference } from '../utils/isReference.ts'
+import { isReference } from './utils/isReference.ts'
 
 import type { KubbFile, PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
-import type { ContentType, Oas, OperationSchemas, OverrideBy, SkipBy } from '../types.ts'
-import type { OperationMethodResult } from './types.ts'
+import type { ContentType, Oas, OperationSchemas, OverrideBy, SkipBy } from './types.ts'
+
+export type GetOperationGeneratorOptions<T extends OperationGenerator> = T extends OperationGenerator<infer X> ? X : never
+
+export type OperationMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
 type Context<TOptions> = {
   oas: Oas

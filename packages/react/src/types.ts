@@ -82,3 +82,5 @@ export type DOMElement = {
 } & Node
 
 export type NodeNames = ElementNames | TextName
+
+export type KubbNode = ReactNode

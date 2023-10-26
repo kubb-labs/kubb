@@ -2,15 +2,16 @@
 import { PackageManager } from '@kubb/core'
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
 import { createRoot, File } from '@kubb/react'
-import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@kubb/swagger'
 
 import { camelCase, pascalCase } from 'change-case'
 
 import { QueryKeyFunction } from '../components/index.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
-import type { Resolver } from '@kubb/swagger'
+import { OasBuilder, type Resolver } from '@kubb/swagger'
 import type { AppMeta, Framework, FrameworkImports, Options as PluginOptions } from '../types.ts'
+import { useResolve } from '@kubb/swagger/hooks'
+import { getParams, getASTParams, getComments } from '@kubb/swagger/utils'
 
 type BaseOptions = {
   dataReturnType: PluginOptions['dataReturnType']

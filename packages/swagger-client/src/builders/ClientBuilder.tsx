@@ -1,8 +1,11 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
 import { FunctionParams, getRelativePath, URLPath } from '@kubb/core/utils'
-import { createRoot, File } from '@kubb/react'
-import { getASTParams, getComments, OasBuilder, useResolve, useResolveName, useSchemas } from '@kubb/swagger'
-import { useResolve as useResolveType } from '@kubb/swagger-ts'
+import { createRoot } from '@kubb/react'
+import { File } from '@kubb/react'
+import { OasBuilder } from '@kubb/swagger'
+import { useResolve, useResolveName, useSchemas } from '@kubb/swagger/hooks'
+import { getASTParams, getComments } from '@kubb/swagger/utils'
+import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
 
 import { ClientFunction } from '../components/index.ts'
 

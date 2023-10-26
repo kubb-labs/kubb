@@ -122,7 +122,7 @@ export function createPropertySignature({
   type?: ts.TypeNode
 }) {
   return factory.createPropertySignature(
-    [...modifiers, readOnly ? factory.createToken(ts.SyntaxKind.ReadonlyKeyword) : undefined].filter(Boolean) as Array<ts.Modifier>,
+    [...modifiers, readOnly ? factory.createToken(ts.SyntaxKind.ReadonlyKeyword) : undefined].filter(Boolean),
     propertyName(name),
     createQuestionToken(questionToken),
     type,

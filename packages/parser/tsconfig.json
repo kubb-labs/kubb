@@ -1,15 +1,13 @@
 {
-  "extends": "@kubb/ts-config/base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    // "composite": true,
-    // "rootDir": "./",
-    // "outDir": "./dist",
-    // "tsBuildInfoFile": "./build/.tsbuildinfo"
-    "paths": {
-      "@kubb/tsup-config": [
-        "../config/tsup-config/src/index.ts"
-      ]
-    }
+    "baseUrl": ".",
+    "types": [
+      "vitest/globals",
+      "bun-types",
+      "../core/globals",
+      "../config/ts-config/reset.d.ts"
+    ]
   },
   "include": [
     "src/**/*",
@@ -17,11 +15,5 @@
     "./tsup.config.ts",
     "./vitest.config.ts",
     "@kubb/ts-config/reset"
-  ],
-  "exclude": [
-    "**/node_modules",
-    "**/types/**",
-    "**/mocks/**"
-  ],
-  "references": []
+  ]
 }

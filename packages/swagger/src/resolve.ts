@@ -1,6 +1,6 @@
 import type { KubbPlugin, PluginContext, ResolveNameParams } from '@kubb/core'
 import type { Resolver } from '@kubb/swagger'
-import type { Operation, ResolvePathOptions } from '../types.ts'
+import type { Operation, ResolvePathOptions } from './types.ts'
 
 type PropsWithOperation = {
   operation: Operation

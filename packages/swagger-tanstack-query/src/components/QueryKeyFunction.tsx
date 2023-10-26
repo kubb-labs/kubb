@@ -1,6 +1,7 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function } from '@kubb/react'
-import { getASTParams, useOperation, useSchemas } from '@kubb/swagger'
+import { useOperation, useSchemas } from '@kubb/swagger/hooks'
+import { getASTParams } from '@kubb/swagger/utils'
 
 import type { ReactNode } from 'react'
 

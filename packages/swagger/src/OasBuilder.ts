@@ -1,7 +1,7 @@
 import type { PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
-import type { Ref } from '../generators/ImportsGenerator.ts'
-import type { Oas, Operation, OperationSchema, OperationSchemas } from '../types.ts'
+import type { Ref } from './ImportsGenerator.ts'
+import type { Oas, Operation, OperationSchema, OperationSchemas } from './types.ts'
 
 export type FileResolver = (name: string, ref: Ref) => string | null | undefined
 

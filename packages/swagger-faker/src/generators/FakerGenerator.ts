@@ -1,6 +1,6 @@
 import { SchemaGenerator } from '@kubb/core'
 import { getUniqueName, transformers } from '@kubb/core/utils'
-import { isReference } from '@kubb/swagger'
+import { isReference } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
 import { fakerKeywords, fakerParser } from '../parsers/index.ts'
