@@ -3,7 +3,7 @@
 exports[`TypeGenerator with discriminators > Cat.type defined as const 1`] = `
 "export type Cat = {
     id: string;
-    type: "Cat";
+    type: \\"Cat\\";
     meow?: boolean;
 };
 "
@@ -13,7 +13,7 @@ exports[`TypeGenerator with discriminators > Dog.type defined as const 1`] = `
 "export type Dog = {
     id: string;
     bark?: number;
-    type: "Dog";
+    type: \\"Dog\\";
 };
 "
 `;
