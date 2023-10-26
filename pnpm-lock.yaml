@@ -58,9 +58,6 @@ importers:
 
   docs:
     dependencies:
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../packages/core
       '@vercel/analytics':
         specifier: ^1.1.1
         version: 1.1.1
@@ -121,7 +118,7 @@ importers:
         version: 4.36.1(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/solid-query':
         specifier: ^4.36.1
-        version: 4.36.1(solid-js@1.8.3)
+        version: 4.36.1(solid-js@1.8.4)
       '@tanstack/svelte-query':
         specifier: ^4.36.1
         version: 4.36.1(svelte@3.59.2)
@@ -130,10 +127,10 @@ importers:
         version: 4.37.1(vue@3.3.7)
       '@zodios/core':
         specifier: ^10.9.6
-        version: 10.9.6(axios@1.5.1)(zod@3.22.4)
+        version: 10.9.6(axios@1.6.0)(zod@3.22.4)
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       msw:
         specifier: ^1.3.2
         version: 1.3.2(typescript@5.2.2)
@@ -141,8 +138,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       solid-js:
-        specifier: ^1.8.3
-        version: 1.8.3
+        specifier: ^1.8.4
+        version: 1.8.4
       svelte:
         specifier: ^3.59.2
         version: 3.59.2
@@ -212,7 +209,7 @@ importers:
         version: 4.36.1(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/solid-query':
         specifier: ^4.36.1
-        version: 4.36.1(solid-js@1.8.3)
+        version: 4.36.1(solid-js@1.8.4)
       '@tanstack/svelte-query':
         specifier: ^4.36.1
         version: 4.36.1(svelte@3.59.2)
@@ -221,10 +218,10 @@ importers:
         version: 4.37.1(vue@3.3.7)
       '@zodios/core':
         specifier: ^10.9.6
-        version: 10.9.6(axios@1.5.1)(zod@3.22.4)
+        version: 10.9.6(axios@1.6.0)(zod@3.22.4)
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       msw:
         specifier: ^1.3.2
         version: 1.3.2(typescript@5.2.2)
@@ -232,8 +229,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       solid-js:
-        specifier: ^1.8.3
-        version: 1.8.3
+        specifier: ^1.8.4
+        version: 1.8.4
       svelte:
         specifier: ^3.59.2
         version: 3.59.2
@@ -275,8 +272,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-ts
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
     devDependencies:
       '@kubb/ts-config':
         specifier: workspace:*
@@ -459,8 +456,8 @@ importers:
         specifier: ^4.36.1
         version: 4.36.1(@tanstack/react-query@4.36.1)(react-dom@18.2.0)(react@18.2.0)
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -472,8 +469,8 @@ importers:
         version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
     devDependencies:
       '@types/react':
-        specifier: ^18.2.32
-        version: 18.2.32
+        specifier: ^18.2.33
+        version: 18.2.33
       '@types/react-dom':
         specifier: ^18.2.14
         version: 18.2.14
@@ -517,8 +514,8 @@ importers:
         specifier: 5.0.0
         version: 5.0.0(@tanstack/react-query@5.0.5)(react-dom@18.2.0)(react@18.2.0)
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -530,8 +527,8 @@ importers:
         version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
     devDependencies:
       '@types/react':
-        specifier: ^18.2.32
-        version: 18.2.32
+        specifier: ^18.2.33
+        version: 18.2.33
       '@types/react-dom':
         specifier: ^18.2.14
         version: 18.2.14
@@ -572,8 +569,8 @@ importers:
         specifier: ^4.36.1
         version: 4.36.1(react-dom@18.2.0)(react@18.2.0)
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -606,13 +603,13 @@ importers:
         version: link:../../packages/swagger-zod
       '@tanstack/solid-query':
         specifier: ^4.36.1
-        version: 4.36.1(solid-js@1.8.3)
+        version: 4.36.1(solid-js@1.8.4)
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       solid-js:
-        specifier: ^1.8.3
-        version: 1.8.3
+        specifier: ^1.8.4
+        version: 1.8.4
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
@@ -648,8 +645,8 @@ importers:
         specifier: ^4.36.1
         version: 4.36.1(svelte@3.59.2)
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       svelte:
         specifier: ^3.59.2
         version: 3.59.2
@@ -685,8 +682,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -712,8 +709,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-ts
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       tsup:
         specifier: ^7.2.0
         version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
@@ -749,8 +746,8 @@ importers:
         specifier: ^4.37.1
         version: 4.37.1(vue@3.3.7)
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       vue:
         specifier: ^3.3.7
         version: 3.3.7(typescript@5.2.2)
@@ -795,13 +792,13 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
-        specifier: ^5.0.5
+        specifier: ^5.4.1
         version: 5.4.1(vue@3.3.7)
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       vue:
-        specifier: ^3.3.6
+        specifier: ^3.3.7
         version: 3.3.7(typescript@5.2.2)
     devDependencies:
       '@vitejs/plugin-vue':
@@ -879,13 +876,13 @@ importers:
         version: link:../../packages/swagger-zodios
       '@zodios/core':
         specifier: ^10.9.6
-        version: 10.9.6(axios@1.5.1)(zod@3.22.4)
+        version: 10.9.6(axios@1.6.0)(zod@3.22.4)
       '@zodios/express':
         specifier: ^10.6.1
         version: 10.6.1(@zodios/core@10.9.6)(express@4.18.2)(zod@3.22.4)
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -1104,8 +1101,8 @@ importers:
         specifier: 4.5.6
         version: 4.5.6
       '@types/react':
-        specifier: ^18.2.32
-        version: 18.2.32
+        specifier: ^18.2.33
+        version: 18.2.33
       '@types/seedrandom':
         specifier: ^3.0.7
         version: 3.0.7
@@ -1191,8 +1188,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/react':
-        specifier: ^18.2.32
-        version: 18.2.32
+        specifier: ^18.2.33
+        version: 18.2.33
       '@types/react-reconciler':
         specifier: ^0.28.6
         version: 0.28.6
@@ -1249,8 +1246,8 @@ importers:
         specifier: ^4.0.8
         version: 4.0.8
       '@types/react':
-        specifier: ^18.2.32
-        version: 18.2.32
+        specifier: ^18.2.33
+        version: 18.2.33
       '@types/swagger2openapi':
         specifier: ^7.0.3
         version: 7.0.3
@@ -1298,11 +1295,11 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/react':
-        specifier: ^18.2.32
-        version: 18.2.32
+        specifier: ^18.2.33
+        version: 18.2.33
       axios:
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.6.0
+        version: 1.6.0
       eslint:
         specifier: ^8.52.0
         version: 8.52.0
@@ -1470,8 +1467,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/react':
-        specifier: ^18.2.32
-        version: 18.2.32
+        specifier: ^18.2.33
+        version: 18.2.33
       eslint:
         specifier: ^8.52.0
         version: 8.52.0
@@ -2651,13 +2648,13 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/solid-query@4.36.1(solid-js@1.8.3):
+  /@tanstack/solid-query@4.36.1(solid-js@1.8.4):
     resolution: {integrity: sha512-w8L6B12AsCyF7AB2Np4fj9qsOBfrzzxyIkdsniKo9HErdXdlGLyynYaDm4EGsH9ePPcdJSUX7ELGqmXllofn/Q==}
     peerDependencies:
       solid-js: ^1.5.7
     dependencies:
       '@tanstack/query-core': 4.36.1
-      solid-js: 1.8.3
+      solid-js: 1.8.4
     dev: false
 
   /@tanstack/svelte-query@4.36.1(svelte@3.59.2):
@@ -2902,17 +2899,17 @@ packages:
   /@types/react-dom@18.2.14:
     resolution: {integrity: sha512-V835xgdSVmyQmI1KLV2BEIUgqEuinxp9O4G6g3FqO/SqLac049E53aysv0oEFD2kHfejeKU+ZqL2bcFWj9gLAQ==}
     dependencies:
-      '@types/react': 18.2.32
+      '@types/react': 18.2.33
     dev: true
 
   /@types/react-reconciler@0.28.6:
     resolution: {integrity: sha512-NlilRDg7yjtFX568NA046OiHWbz5EKM1q5FSXi2GP7WKyU+Vem4NJQcG+ZaMiWotyPiYqkIb6NKJkFuplbchAA==}
     dependencies:
-      '@types/react': 18.2.32
+      '@types/react': 18.2.33
     dev: true
 
-  /@types/react@18.2.32:
-    resolution: {integrity: sha512-F0FVIZQ1x5Gxy/VYJb7XcWvCcHR28Sjwt1dXLspdIatfPq1MVACfnBDwKe6ANLxQ64riIJooXClpUR6oxTiepg==}
+  /@types/react@18.2.33:
+    resolution: {integrity: sha512-v+I7S+hu3PIBoVkKGpSYYpiBT1ijqEzWpzQD62/jm4K74hPpSP7FF9BnKG6+fg2+62weJYkkBWDJlZt5JO/9hg==}
     dependencies:
       '@types/prop-types': 15.7.9
       '@types/scheduler': 0.16.5
@@ -3410,13 +3407,13 @@ packages:
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
     engines: {node: '>=10.0.0'}
 
-  /@zodios/core@10.9.6(axios@1.5.1)(zod@3.22.4):
+  /@zodios/core@10.9.6(axios@1.6.0)(zod@3.22.4):
     resolution: {integrity: sha512-aH4rOdb3AcezN7ws8vDgBfGboZMk2JGGzEq/DtW65MhnRxyTGRuLJRWVQ/2KxDgWvV2F5oTkAS+5pnjKbl0n+A==}
     peerDependencies:
       axios: ^0.x || ^1.0.0
       zod: ^3.x
     dependencies:
-      axios: 1.5.1
+      axios: 1.6.0
       zod: 3.22.4
     dev: false
 
@@ -3427,7 +3424,7 @@ packages:
       express: 4.x
       zod: ^3.x
     dependencies:
-      '@zodios/core': 10.9.6(axios@1.5.1)(zod@3.22.4)
+      '@zodios/core': 10.9.6(axios@1.6.0)(zod@3.22.4)
       express: 4.18.2
       zod: 3.22.4
     dev: false
@@ -3687,8 +3684,8 @@ packages:
     resolution: {integrity: sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==}
     engines: {node: '>= 0.4'}
 
-  /axios@1.5.1:
-    resolution: {integrity: sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==}
+  /axios@1.6.0:
+    resolution: {integrity: sha512-EZ1DYihju9pwVB+jg67ogm+Tmqc6JmhamRN6I4Zt8DfZu5lbcQGw3ozH9lFejSJgs/ibaef3A9PMXPLeefFGJg==}
     dependencies:
       follow-redirects: 1.15.3
       form-data: 4.0.0
@@ -6990,8 +6987,8 @@ packages:
       upper-case-first: 2.0.2
     dev: false
 
-  /seroval@0.11.6:
-    resolution: {integrity: sha512-Lhy+94CNcNza6d0vM4sQKLsaLaX39q0ELqIBc7DkdiFljI8Q387Yb+xKgLxRWXs7uuHRu/ZcJ64xfVJ0Bj4LPg==}
+  /seroval@0.12.0:
+    resolution: {integrity: sha512-5qvk9WRORhvOdHVtDv6KEKrTDbG8O9nODDdETfQcJ0u9iaZJ6mAASg/nQgPzqtuV9cqln9msE7WNmD+sJomrIw==}
     engines: {node: '>=10'}
     dev: false
 
@@ -7138,11 +7135,11 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /solid-js@1.8.3:
-    resolution: {integrity: sha512-S7ztgPI6X4tUaWmhZe3aDx0E9F6FGxXVU8NsocrPqqUbxHoFi8eTPlDMcenOlXuo2ITQ97j2URaj0StfJci4KQ==}
+  /solid-js@1.8.4:
+    resolution: {integrity: sha512-l8tZCa0nA1iyFR+yTZi4cKNktX3UfwT3FbdzDAtNwp40EtabVRf3t0EUN3C3Kokkh7c7nBx8ak/0GZV+KFVSxQ==}
     dependencies:
       csstype: 3.1.2
-      seroval: 0.11.6
+      seroval: 0.12.0
     dev: false
 
   /source-map-js@1.0.2:

@@ -143,7 +143,7 @@ export default defineConfig(async () => {
 
 ### Multiple <Badge type="warning" text="experimental" />
 
-Since version `1.15.x` we also support using multiple of the same plugin.
+Since version `2.x.x` we also support using multiple of the same plugin.
 
 ::: code-group
 
@@ -182,7 +182,7 @@ export default defineConfig(async () => {
 
 ### Multiple JSON <Badge type="warning" text="experimental" />
 
-Since version `1.15.x` we also support using multiple of the same plugin.
+Since version `2.x.x` we also support using multiple of the same plugin.
 
 When using JSON, the structure will be a little bit different.
 Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/plugins/) makes it possible to use plugins with extra options.
@@ -264,7 +264,7 @@ Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/pl
 
 ### Multiple <Badge type="warning" text="experimental" />
 
-Since version `1.15.x` we also support using multiple of the same plugin.
+Since version `2.x.x` we also support using multiple of the same plugin.
 
 ::: code-group
 
