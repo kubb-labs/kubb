@@ -1,0 +1,65 @@
+info:
+  title: Swagger Petstore
+openapi: 3.1.0
+components:
+  schemas:
+    Cat:
+      title: Cat
+      type: object
+      properties:
+        id:
+          format: uuid
+          title: Id
+          type: string
+        type:
+          const: Cat
+          title: Type
+        meow:
+          type: boolean
+          title: Meowing prevalence
+      required:
+      - id
+      - type
+    Dog:
+      title: Dog
+      type: object
+      properties:
+        id:
+          format: uuid
+          title: Id
+          type: string
+        bark:
+          type: number
+          title: Barking frequency
+        type:
+          const: Dog
+          title: Type
+      required:
+      - id
+      - type
+    Petstore:
+      title: Petstore
+      type: object
+      description: A project is an analysis project. It has a name, an id, and has
+        a dataset
+      properties:
+        id:
+          title: Id
+          type: integer
+        pets:
+          default: []
+          items:
+            discriminator:
+              mapping:
+                noop: "#/components/schemas/Cat"
+                replace: "#/components/schemas/Dog"
+              propertyName: type
+            oneOf:
+            - "$ref": "#/components/schemas/Cat"
+            - "$ref": "#/components/schemas/Dog"
+          title: Pets
+          type: array
+      required:
+      - id
+
+paths:
