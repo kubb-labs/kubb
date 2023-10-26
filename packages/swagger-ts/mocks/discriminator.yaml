@@ -51,8 +51,8 @@ components:
           items:
             discriminator:
               mapping:
-                noop: "#/components/schemas/Cat"
-                replace: "#/components/schemas/Dog"
+                Cat: "#/components/schemas/Cat"
+                Dog: "#/components/schemas/Dog"
               propertyName: type
             oneOf:
             - "$ref": "#/components/schemas/Cat"
