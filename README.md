@@ -42,6 +42,7 @@
       <td align="center" valign="top" width="14.28%"><a href="https://aluc.io/"><img src="https://avatars.githubusercontent.com/u/15520015?v=4?s=100" width="100px;" alt="Alfred"/><br /><sub><b>Alfred</b></sub></a><br /><a href="https://github.com/kubb-project/kubb/commits?author=b6pzeusbc54tvhw5jgpyw8pwz2x6gs" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/raveclassic"><img src="https://avatars.githubusercontent.com/u/1743568?v=4?s=100" width="100px;" alt="Kirill Agalakov"/><br /><sub><b>Kirill Agalakov</b></sub></a><br /><a href="https://github.com/kubb-project/kubb/commits?author=raveclassic" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://wicky.nillia.ms"><img src="https://avatars.githubusercontent.com/u/1091390?v=4?s=100" width="100px;" alt="Nick Williams"/><br /><sub><b>Nick Williams</b></sub></a><br /><a href="https://github.com/kubb-project/kubb/commits?author=WickyNilliams" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/helt"><img src="https://avatars.githubusercontent.com/u/1732112?v=4?s=100" width="100px;" alt="helt"/><br /><sub><b>helt</b></sub></a><br /><a href="https://github.com/kubb-project/kubb/commits?author=helt" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
