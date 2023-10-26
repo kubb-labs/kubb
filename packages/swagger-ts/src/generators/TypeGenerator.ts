@@ -378,6 +378,15 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return factory.createTypeReferenceNode('Blob', [])
     }
 
+    // detect assertion "const" and define the type property as a Literal
+    if("const" in schema && schema["const"] !== undefined && typeof schema["const"] === "string") {
+      console.log("Found a const with value", schema["const"]);
+      const ctln = factory.createStringLiteral(schema["const"]);
+      // return factory.createTypeLiteralNode(factory.createStringLiteral("foobar"))
+      const ctln2 = factory.createLiteralTypeNode(factory.createStringLiteral(schema["const"]))
+      return ctln2
+    }
+
     return keywordTypeNodes.any
   }
 }
