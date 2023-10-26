@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
+    "target": "ES2020",
+    /* If NOT transpiling with TypeScript: */
+    "module": "ES2020",
     "moduleResolution": "node",
     "sourceMap": true,
     "strictNullChecks": true,
