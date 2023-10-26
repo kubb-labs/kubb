@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.14.5](https://github.com/kubb-project/kubb/compare/@kubb/react-v1.14.4...@kubb/react-v1.14.5) (2023-10-26)
+
+
+### 🐞 Bug Fixes
+
+* remove `auto-bind` ([1cda7ef](https://github.com/kubb-project/kubb/commit/1cda7ef9181eea2d20299cd778c8c362cb807673))
+* remove of `types` exports field ([1c07fd7](https://github.com/kubb-project/kubb/commit/1c07fd72424db47e3a717d99ea5019bb7744f3c0))
+
+
+### ✨ Features
+
+* &lt;File.Source/&gt; with path and print to read external file ([4bf2d9a](https://github.com/kubb-project/kubb/commit/4bf2d9a1e3023ef90be3fb28b25554d70f844ea1))
+* &lt;File/&gt; component for `@kubb/react` ([78475db](https://github.com/kubb-project/kubb/commit/78475dbc0b2f977ecbfae27b682e3902f8ac8154))
+* `useResolve` with pluginManager(resolvePath and resolveName) ([78b1c1c](https://github.com/kubb-project/kubb/commit/78b1c1c9f850f9e256107e839b0eaa902e9e8c66))
+* logger for `@kubb/react` ([1a1bef5](https://github.com/kubb-project/kubb/commit/1a1bef50fd117164c73ef19054fc12fdf9f9a4ce))
+* PackageManager to retreive a version in the package.json of the user ([220cd63](https://github.com/kubb-project/kubb/commit/220cd631f95e24e622c6579849a53b3cedd95b50))
+
+
+### 📚 Documentation
+
+* better docs with examples ([fb42958](https://github.com/kubb-project/kubb/commit/fb429588f213a0ec7973fd64aa24eea17529747a))
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.10.4 ([e2607b3](https://github.com/kubb-project/kubb/commit/e2607b3499ea9c810b508456b4e0ad5841a27347))
+* release 1.11.6 ([70826b2](https://github.com/kubb-project/kubb/commit/70826b2d52d970b16a7f00a8c63f95354699df7c))
+* release 1.14.2 ([91e61ac](https://github.com/kubb-project/kubb/commit/91e61acde1c3824c40f291e1142363eaa95fb1cf))
+* release 1.14.3 ([695f324](https://github.com/kubb-project/kubb/commit/695f3242d61ac13f4284f3bdf529a3bc0e353244))
+* release 1.4.0 ([fc0de82](https://github.com/kubb-project/kubb/commit/fc0de826f94c2ff933dd2cefe26168ea6fcf8c3b))
+* release 1.4.0 ([b1d4561](https://github.com/kubb-project/kubb/commit/b1d456179bc4415168142939b4be64b225a4870f))
+* release 1.4.1 ([9805506](https://github.com/kubb-project/kubb/commit/98055065a6931b96dc1038890eb56ebb0342818f))
+* release 1.5.2 ([2f49c97](https://github.com/kubb-project/kubb/commit/2f49c97863b3dcee1a6158d97a5ca66848d52261))
+* release 1.8.0 ([218b7f0](https://github.com/kubb-project/kubb/commit/218b7f0e8ec1cbc8b6db504ec6e06d8dbeb1109e))
+
 ## [1.14.4](https://github.com/kubb-project/kubb/compare/@kubb/react-v1.14.3...@kubb/react-v1.14.4) (2023-10-25)
 
 
