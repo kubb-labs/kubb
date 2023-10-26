@@ -6,7 +6,7 @@
   "files": [
     "reset.d.ts",
     "base.json",
-    "bun.json"
+    "bundler.json"
   ],
   "devDependencies": {
     "typescript": "^5.2.2"

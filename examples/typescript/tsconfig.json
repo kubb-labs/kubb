@@ -1,16 +1,11 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "lib": [
-      "ES2020",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "target": "ES2020",
+    /* If NOT transpiling with TypeScript: */
+    "module": "ES2020",
+    "moduleResolution": "Bundler",
     "sourceMap": true,
     "strictNullChecks": true,
-    "isolatedModules": true,
     "jsx": "react-jsx",
     "declaration": true,
     "outDir": "es",
