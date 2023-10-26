@@ -15,6 +15,9 @@
       "@kubb/eslint-config": [
         "./packages/config/eslint-config/src/index.ts"
       ],
+      "@kubb/eslint-config/flat": [
+        "./packages/config/eslint-config/src/flat.ts"
+      ],
       "@kubb/tsup-config": [
         "./packages/config/tsup-config/src/index.ts"
       ],
@@ -90,10 +93,11 @@
     }
   },
   "include": [
-    "src/**/*",
+    "packages/**/*",
     "./package.json",
     "./tsup.config.ts",
-    "./vitest.config.ts"
+    "./vitest.config.ts",
+    "./eslint.config.js"
   ],
   "exclude": [
     "**/node_modules",
