@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.6](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.14.5...@kubb/cli-v1.14.6) (2023-10-27)
+
+
+### 🐞 Bug Fixes
+
+* upgrade packages ([6222f59](https://github.com/kubb-project/kubb/commit/6222f599d96ab1fa34b41720715e5004cceee56b))
+
 ## [1.14.5](https://github.com/kubb-project/kubb/compare/@kubb/cli-v1.14.4...@kubb/cli-v1.14.5) (2023-10-26)
 
 
