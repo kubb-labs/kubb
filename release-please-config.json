@@ -63,7 +63,7 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": true,
-      "prerelease-type": "beta",
+      "prerelease-type": "alpha",
       "skip-github-release": false
     },
     "packages/kubb": {
@@ -74,7 +74,7 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": true,
-      "prerelease-type": "beta",
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/core": {
@@ -85,7 +85,7 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": true,
-      "prerelease-type": "beta",
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/cli": {
@@ -96,7 +96,7 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": true,
-      "prerelease-type": "beta",
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/parser": {
@@ -107,7 +107,7 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": true,
-      "prerelease-type": "beta",
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/swagger": {
@@ -118,7 +118,7 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": true,
-      "prerelease-type": "beta",
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/swagger-ts": {
@@ -129,7 +129,7 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": true,
-      "prerelease-type": "beta",
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/swagger-client": {
@@ -140,7 +140,7 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": true,
-      "prerelease-type": "beta",
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/swagger-tanstack-query": {
@@ -151,7 +151,7 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": true,
-      "prerelease-type": "beta",
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/swagger-faker": {
@@ -162,7 +162,7 @@
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
       "prerelease": true,
-      "prerelease-type": "beta",
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/swagger-msw": {
