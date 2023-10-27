@@ -1,25 +1,42 @@
-import client from '@kubb/swagger-client/client'
-
 import { createQuery } from '@tanstack/svelte-query'
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
+import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 
-import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/svelte-query'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags'
-
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
-export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  params?: FindPetsByTagsQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): CreateQueryOptions<TData, TError> {
+type FindPetsByTags = KubbQueryFactory<
+  FindPetsByTagsQueryResponse,
+  FindPetsByTags400,
+  never,
+  never,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsQueryResponse,
+  {
+    dataReturnType: 'data'
+    type: 'query'
+  }
+>
+export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
+export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
+export function findPetsByTagsQueryOptions<
+  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
+  TError = FindPetsByTags['error'],
+  TData = FindPetsByTags['response'],
+  TQueryData = FindPetsByTags['response'],
+>(
+  params?: FindPetsByTags['queryParams'],
+  options: FindPetsByTags['client']['paramaters'] = {},
+): CreateBaseQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsQueryKey> {
   const queryKey = findPetsByTagsQueryKey(params)
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
         ...options,
-      }).then((res) => res.data)
+      }).then((res) => res?.data || res)
     },
   }
 }
@@ -28,23 +45,29 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export function findPetsByTagsQuery<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  params?: FindPetsByTagsQueryParams,
+export function findPetsByTagsQuery<
+  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
+  TError = FindPetsByTags['error'],
+  TData = FindPetsByTags['response'],
+  TQueryData = FindPetsByTags['response'],
+  TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
+>(
+  params?: FindPetsByTags['queryParams'],
   options: {
-    query?: CreateQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    client?: FindPetsByTags['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
-  queryKey: QueryKey
+  queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-  const query = createQuery<TData, TError>({
-    ...findPetsByTagsQueryOptions<TData, TError>(params, clientOptions),
+  const query = createQuery<TQueryFnData, TError, TData, any>({
+    ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
-    queryKey: QueryKey
+    queryKey: TQueryKey
   }
-  query.queryKey = queryKey
+  query.queryKey = queryKey as TQueryKey
   return query
 }

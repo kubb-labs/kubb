@@ -1,26 +1,37 @@
-import client from '@kubb/swagger-client/client'
-
 import { createMutation } from '@tanstack/svelte-query'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type {
-  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm'
 
-/**
+type UpdatePetWithForm = KubbQueryFactory<
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithForm405,
+  never,
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
+  UpdatePetWithFormMutationResponse,
+  {
+    dataReturnType: 'data'
+    type: 'mutation'
+  }
+> /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function updatePetWithFormQuery<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
+
+export function updatePetWithFormQuery<TData = UpdatePetWithForm['response'], TError = UpdatePetWithForm['error']>(
   petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithFormQueryParams,
+  params?: UpdatePetWithForm['queryParams'],
   options: {
     mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, void>
-    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
+    client?: UpdatePetWithForm['client']['paramaters']
   } = {},
 ): CreateMutationResult<ResponseConfig<TData>, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

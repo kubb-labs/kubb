@@ -1,24 +1,41 @@
-import client from '@kubb/swagger-client/client'
-
 import { createQuery } from '@tanstack/svelte-query'
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
+import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
+import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 
-import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/svelte-query'
-import type { GetUserByName400, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName'
-
+type GetUserByName = KubbQueryFactory<
+  GetUserByNameQueryResponse,
+  GetUserByName400 | GetUserByName404,
+  never,
+  GetUserByNamePathParams,
+  never,
+  GetUserByNameQueryResponse,
+  {
+    dataReturnType: 'data'
+    type: 'query'
+  }
+>
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: `/user/${username}`, params: { username: username } }] as const
-export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
+export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
+export function getUserByNameQueryOptions<
+  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
+  TError = GetUserByName['error'],
+  TData = GetUserByName['response'],
+  TQueryData = GetUserByName['response'],
+>(
   username: GetUserByNamePathParams['username'],
-  options: Partial<Parameters<typeof client>[0]> = {},
-): CreateQueryOptions<TData, TError> {
+  options: GetUserByName['client']['paramaters'] = {},
+): CreateBaseQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
   const queryKey = getUserByNameQueryKey(username)
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
-      }).then((res) => res.data)
+      }).then((res) => res?.data || res)
     },
   }
 }
@@ -26,23 +43,29 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
  * @summary Get user by user name
  * @link /user/:username
  */
-export function getUserByNameQuery<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
+export function getUserByNameQuery<
+  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
+  TError = GetUserByName['error'],
+  TData = GetUserByName['response'],
+  TQueryData = GetUserByName['response'],
+  TQueryKey extends QueryKey = GetUserByNameQueryKey,
+>(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: CreateQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    client?: GetUserByName['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
-  queryKey: QueryKey
+  queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
-  const query = createQuery<TData, TError>({
-    ...getUserByNameQueryOptions<TData, TError>(username, clientOptions),
+  const query = createQuery<TQueryFnData, TError, TData, any>({
+    ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
-    queryKey: QueryKey
+    queryKey: TQueryKey
   }
-  query.queryKey = queryKey
+  query.queryKey = queryKey as TQueryKey
   return query
 }

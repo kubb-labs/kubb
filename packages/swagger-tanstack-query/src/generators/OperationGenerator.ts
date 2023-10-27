@@ -81,26 +81,24 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
         isV5,
         getName: (operation) => pluginManager.resolveName({ name: `${operation.getOperationId()} query`, pluginKey: plugin.key }),
         query: {
-          useQuery: 'createQuery',
           QueryKey: 'QueryKey',
-          UseQueryResult: 'CreateQueryResult',
-          UseQueryOptions: 'CreateQueryOptions',
-          queryOptions: isV5 ? 'queryOptions' : undefined,
-          QueryObserverOptions: isV5 ? 'QueryObserverOptions' : undefined,
-          UseInfiniteQueryOptions: 'CreateInfiniteQueryOptions',
-          InfiniteQueryObserverOptions: isV5 ? 'InfiniteQueryObserverOptions' : undefined,
-          infiniteQueryOptions: isV5 ? 'infiniteQueryOptions' : undefined,
-          UseInfiniteQueryResult: 'CreateInfiniteQueryResult',
-          useInfiniteQuery: 'createInfiniteQuery',
-          InfiniteData: isV5 ? 'InfiniteData' : undefined,
+          // TODO check typings for v5 queryOptions
+          // queryOptions: isV5 ? 'queryOptions' : undefined,
+          hook: 'createQuery',
+          Options: isV5 ? 'CreateBaseQueryOptions' : 'CreateBaseQueryOptions',
+          Result: isV5 ? 'CreateQueryResult' : 'CreateQueryResult',
+        },
+        queryInfinite: {
+          hook: 'createInfiniteQuery',
+          Options: isV5 ? 'CreateInfiniteQueryOptions' : 'CreateInfiniteQueryOptions',
+          Result: isV5 ? 'CreateInfiniteQueryResult' : 'CreateInfiniteQueryResult',
         },
         mutate: {
-          useMutation: 'createMutation',
-          UseMutationOptions: 'CreateMutationOptions',
-          MutationObserverOptions: 'MutationObserverOptions',
-          UseMutationResult: 'CreateMutationResult',
+          hook: 'createMutation',
+          Options: isV5 ? 'CreateMutationOptions' : 'CreateMutationOptions',
+          Result: isV5 ? 'CreateMutationResult' : 'CreateMutationResult',
         },
-      } as unknown as FrameworkImports
+      }
     }
 
     if (framework === 'solid') {
@@ -182,8 +180,6 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
       },
       mutate: {
         hook: 'useMutation',
-        // UseInfiniteQueryOptions
-        // new types
         Options: isV5 ? 'UseMutationOptions' : 'UseMutationOptions',
         Result: isV5 ? 'UseMutationResult' : 'UseMutationResult',
       },

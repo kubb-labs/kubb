@@ -1,23 +1,38 @@
-import client from '@kubb/swagger-client/client'
-
 import { createQuery } from '@tanstack/svelte-query'
-
-import type { CreateQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/svelte-query'
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
+import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
+type GetInventory = KubbQueryFactory<
+  GetInventoryQueryResponse,
+  never,
+  never,
+  never,
+  never,
+  GetInventoryQueryResponse,
+  {
+    dataReturnType: 'data'
+    type: 'query'
+  }
+>
 export const getInventoryQueryKey = () => [{ url: `/store/inventory` }] as const
-export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TError = unknown>(
-  options: Partial<Parameters<typeof client>[0]> = {},
-): CreateQueryOptions<TData, TError> {
+export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
+export function getInventoryQueryOptions<
+  TQueryFnData extends GetInventory['data'] = GetInventory['data'],
+  TError = GetInventory['error'],
+  TData = GetInventory['response'],
+  TQueryData = GetInventory['response'],
+>(options: GetInventory['client']['paramaters'] = {}): CreateBaseQueryOptions<GetInventory['unionResponse'], TError, TData, TQueryData, GetInventoryQueryKey> {
   const queryKey = getInventoryQueryKey()
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/inventory`,
         ...options,
-      }).then((res) => res.data)
+      }).then((res) => res?.data || res)
     },
   }
 }
@@ -26,22 +41,28 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
  * @summary Returns pet inventories by status
  * @link /store/inventory
  */
-export function getInventoryQuery<TData = GetInventoryQueryResponse, TError = unknown>(
+export function getInventoryQuery<
+  TQueryFnData extends GetInventory['data'] = GetInventory['data'],
+  TError = GetInventory['error'],
+  TData = GetInventory['response'],
+  TQueryData = GetInventory['response'],
+  TQueryKey extends QueryKey = GetInventoryQueryKey,
+>(
   options: {
-    query?: CreateQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    client?: GetInventory['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
-  queryKey: QueryKey
+  queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
-  const query = createQuery<TData, TError>({
-    ...getInventoryQueryOptions<TData, TError>(clientOptions),
+  const query = createQuery<TQueryFnData, TError, TData, any>({
+    ...getInventoryQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
-    queryKey: QueryKey
+    queryKey: TQueryKey
   }
-  query.queryKey = queryKey
+  query.queryKey = queryKey as TQueryKey
   return query
 }
