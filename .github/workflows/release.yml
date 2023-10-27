@@ -1,8 +1,7 @@
 name: release-please
 on:
   push:
-    branches:
-      - main
+    branches: ['main', 'alpha', 'beta', 'rc']
     paths-ignore:
       - "docs/**"
       - "examples/**"
