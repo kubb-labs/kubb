@@ -1,23 +1,4 @@
 # Changelog
-
-# [1.14.0](https://github.com/kubb-project/kubb/compare/kubb-v1.13.0...kubb-v1.14.0) (2023-10-20)
-
-
-### ✨ Features
-
-* `overrideBy` to specify different options per `operationId | tag | path | method` ([ebb3db1](https://github.com/kubb-project/kubb/commit/ebb3db14c3796ea5211a49ccded5544ee54ad66c))
-
-
-### 📚 Documentation
-
-* better docs with examples ([fb42958](https://github.com/kubb-project/kubb/commit/fb429588f213a0ec7973fd64aa24eea17529747a))
-* escape curly braces ([0690e47](https://github.com/kubb-project/kubb/commit/0690e47421c32e251969f4809bf14ad83202bb44))
-* swagger-msw docs update ([562c5b1](https://github.com/kubb-project/kubb/commit/562c5b10fda5ea8e8cb2605b0942f49150c5b577))
-* update .all-contributorsrc [skip ci] ([df328ce](https://github.com/kubb-project/kubb/commit/df328ce890c8b434c9b43548e376703d3014e5be))
-* update docs ([97bbf62](https://github.com/kubb-project/kubb/commit/97bbf62331103f1c5fd8c90372e42b8a3d78dc8b))
-* update docs with examples ([9087387](https://github.com/kubb-project/kubb/commit/908738795b2c1a3612dbc556b957f41c62465dc2))
-* update README.md [skip ci] ([6fd9e5a](https://github.com/kubb-project/kubb/commit/6fd9e5a9d93674d47901769c1e52ada6255c325e))
-
 ## [1.14.6](https://github.com/kubb-project/kubb/compare/kubb-v1.14.5...kubb-v1.14.6) (2023-10-27)
 
 
@@ -56,6 +37,26 @@
 
 * release 1.14.2 ([91e61ac](https://github.com/kubb-project/kubb/commit/91e61acde1c3824c40f291e1142363eaa95fb1cf))
 * release 1.14.3 ([695f324](https://github.com/kubb-project/kubb/commit/695f3242d61ac13f4284f3bdf529a3bc0e353244))
+
+# [1.14.0](https://github.com/kubb-project/kubb/compare/kubb-v1.13.0...kubb-v1.14.0) (2023-10-20)
+
+
+### ✨ Features
+
+* `overrideBy` to specify different options per `operationId | tag | path | method` ([ebb3db1](https://github.com/kubb-project/kubb/commit/ebb3db14c3796ea5211a49ccded5544ee54ad66c))
+
+
+### 📚 Documentation
+
+* better docs with examples ([fb42958](https://github.com/kubb-project/kubb/commit/fb429588f213a0ec7973fd64aa24eea17529747a))
+* escape curly braces ([0690e47](https://github.com/kubb-project/kubb/commit/0690e47421c32e251969f4809bf14ad83202bb44))
+* swagger-msw docs update ([562c5b1](https://github.com/kubb-project/kubb/commit/562c5b10fda5ea8e8cb2605b0942f49150c5b577))
+* update .all-contributorsrc [skip ci] ([df328ce](https://github.com/kubb-project/kubb/commit/df328ce890c8b434c9b43548e376703d3014e5be))
+* update docs ([97bbf62](https://github.com/kubb-project/kubb/commit/97bbf62331103f1c5fd8c90372e42b8a3d78dc8b))
+* update docs with examples ([9087387](https://github.com/kubb-project/kubb/commit/908738795b2c1a3612dbc556b957f41c62465dc2))
+* update README.md [skip ci] ([6fd9e5a](https://github.com/kubb-project/kubb/commit/6fd9e5a9d93674d47901769c1e52ada6255c325e))
+
+
 
 ## [1.13.0](https://github.com/kubb-project/kubb/compare/kubb-v1.12.0...kubb-v1.13.0) (2023-10-18)
 
