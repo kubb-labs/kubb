@@ -21,6 +21,31 @@ export default defineComponent({
     const petsQuery = useFindPetsByStatus(params, {query: {enabled: true}})
     const pets = computed(() => unref(petsQuery?.data));
 
+
+    console.log(pets)
+    //           ^?
+
+    console.log(petsQuery.queryKey)
+    //                        ^?
+
+
+    const petsOverrideQuery = useFindPetsByStatus(params, {query: {
+      queryKey: ['test'] as const,
+      enabled: false,
+      select: (data => {
+        const res = data.at(0)
+        //    ^?
+        return res
+      }),}})
+    const petsOverride = computed(() => unref(petsOverrideQuery?.data));
+
+
+    console.log(petsOverride)
+    //           ^?
+
+    console.log(petsOverrideQuery.queryKey)
+    //                              ^?
+
     return {
       pets
     };
