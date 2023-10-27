@@ -79,6 +79,11 @@ export default defineConfig({
         text: `v${version}`,
         items: [
           {
+            text: '1.0.0',
+            link: 'https://kubb.dev',
+            target: '_blank',
+          },
+          {
             text: 'Releases',
             link: 'https://github.com/kubb-project/kubb/releases',
             target: '_blank',
