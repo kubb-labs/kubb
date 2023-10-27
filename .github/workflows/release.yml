@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Release
         uses: google-github-actions/release-please-action@v3.7.9
-        if: ${{ github.ref == 'refs/heads/main' }}
         with:
           command: manifest
           monorepo-tags: true
+          default-branch: alpha
