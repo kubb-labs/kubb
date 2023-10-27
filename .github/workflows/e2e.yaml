@@ -2,6 +2,10 @@ name: e2e
 
 on:
   pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "examples/**"
+      - "**/*.md"
   workflow_dispatch:
     # inputs:
     #   os:
