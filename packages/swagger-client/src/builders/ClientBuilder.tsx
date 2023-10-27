@@ -19,10 +19,8 @@ type Options = {
   clientImportPath?: PluginOptions['clientImportPath']
 }
 
-type ClientResult = { Component: React.ElementType }
-
 export class ClientBuilder extends OasBuilder<Options> {
-  get client(): ClientResult {
+  get client(): React.ElementType {
     const { operation, schemas, plugin } = this.context
     const { dataReturnType, pathParamsType } = this.options
 
@@ -31,7 +29,6 @@ export class ClientBuilder extends OasBuilder<Options> {
 
     const generics = new FunctionParams()
     const clientGenerics = new FunctionParams()
-    const params = new FunctionParams()
 
     generics.add([
       { type: 'TData', default: schemas.response.name },
@@ -40,36 +37,37 @@ export class ClientBuilder extends OasBuilder<Options> {
 
     clientGenerics.add([{ type: 'TData' }, { type: 'TVariables', enabled: !!schemas.request?.name }])
 
-    params.add([
-      ...getASTParams(schemas.pathParams, { typed: true, asObject: pathParamsType === 'object' }),
-      {
-        name: 'data',
-        type: 'TVariables',
-        enabled: !!schemas.request?.name,
-        required: !!schemas.request?.schema.required?.length,
-      },
-      {
-        name: 'params',
-        type: schemas.queryParams?.name,
-        enabled: !!schemas.queryParams?.name,
-        required: !!schemas.queryParams?.schema.required?.length,
-      },
-      {
-        name: 'headers',
-        type: schemas.headerParams?.name,
-        enabled: !!schemas.headerParams?.name,
-        required: !!schemas.headerParams?.schema.required?.length,
-      },
-      {
-        name: 'options',
-        type: `Partial<Parameters<typeof client>[0]>`,
-        default: '{}',
-      },
-    ])
-
     const Component = () => {
+      const params = new FunctionParams()
       const schemas = useSchemas()
       const name = useResolveName({ pluginKey: plugin.key, type: 'function' })
+
+      params.add([
+        ...getASTParams(schemas.pathParams, { typed: true, asObject: pathParamsType === 'object' }),
+        {
+          name: 'data',
+          type: 'TVariables',
+          enabled: !!schemas.request?.name,
+          required: !!schemas.request?.schema.required?.length,
+        },
+        {
+          name: 'params',
+          type: schemas.queryParams?.name,
+          enabled: !!schemas.queryParams?.name,
+          required: !!schemas.queryParams?.schema.required?.length,
+        },
+        {
+          name: 'headers',
+          type: schemas.headerParams?.name,
+          enabled: !!schemas.headerParams?.name,
+          required: !!schemas.headerParams?.schema.required?.length,
+        },
+        {
+          name: 'options',
+          type: `Partial<Parameters<typeof client>[0]>`,
+          default: '{}',
+        },
+      ])
 
       return (
         <ClientFunction
@@ -89,7 +87,7 @@ export class ClientBuilder extends OasBuilder<Options> {
       )
     }
 
-    return { Component }
+    return Component
   }
 
   print(): string {
@@ -99,7 +97,7 @@ export class ClientBuilder extends OasBuilder<Options> {
   render(): RootType<AppContextProps<AppMeta>> {
     const { pluginManager, operation, schemas, plugin } = this.context
     const { clientPath, clientImportPath } = this.options
-    const { Component: ClientQuery } = this.client
+    const ClientQuery = this.client
 
     const root = createRoot<AppContextProps<AppMeta>>()
 
@@ -118,7 +116,8 @@ export class ClientBuilder extends OasBuilder<Options> {
             name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
               Boolean,
             )}
-            path={getRelativePath(file.path, fileType.path)}
+            root={file.path}
+            path={fileType.path}
             isTypeOnly
           />
           <File.Source>

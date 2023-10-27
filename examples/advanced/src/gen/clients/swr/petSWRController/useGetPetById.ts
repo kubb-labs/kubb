@@ -1,14 +1,12 @@
 import useSWR from 'swr'
-
 import client from '../../../../swr-client.ts'
-
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { ResponseConfig } from '../../../../swr-client.ts'
-import type { GetPetById400, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../../models/ts/petController/GetPetById'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../../../models/ts/petController/GetPetById'
 
 export function getPetByIdQueryOptions<
   TData = GetPetByIdQueryResponse,
-  TError = GetPetById400,
+  TError = GetPetById400 | GetPetById404,
 >(
   petId: GetPetByIdPathParams['petId'],
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -30,8 +28,7 @@ export function getPetByIdQueryOptions<
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-
-export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400>(petId: GetPetByIdPathParams['petId'], options?: {
+export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(petId: GetPetByIdPathParams['petId'], options?: {
   query?: SWRConfiguration<ResponseConfig<TData>, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>
   shouldFetch?: boolean

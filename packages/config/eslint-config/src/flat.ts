@@ -132,6 +132,8 @@ export const configExamples: Linter.FlatConfig = {
         tsx: 'always',
       },
     ],
+    'simple-import-sort/imports': ['off'],
+    '@typescript-eslint/no-duplicate-type-constituents': ['off'],
   },
 }
 

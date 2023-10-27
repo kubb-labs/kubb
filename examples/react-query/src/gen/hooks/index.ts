@@ -1,3 +1,4 @@
+export * from './types'
 export * from './useAddPetHook'
 export * from './useCreateUserHook'
 export * from './useCreateUsersWithListInputHook'

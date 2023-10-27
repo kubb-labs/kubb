@@ -1,17 +1,14 @@
-import client from '@kubb/swagger-client/client'
-
 import useSWRMutation from 'swr/mutation'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../models/PlaceOrderPatch'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../models/PlaceOrderPatch'
 
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
  * @link /store/order
  */
-
 export function usePlaceOrderPatch<
   TData = PlaceOrderPatchMutationResponse,
   TError = PlaceOrderPatch405,

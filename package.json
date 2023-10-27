@@ -2,7 +2,7 @@
   "name": "kubb",
   "version": "1.14.4",
   "private": true,
-  "description": "Kubb monorepo",
+  "description": "Kubb's monorepo",
   "repository": {
     "type": "git",
     "url": "https://github.com/kubb-project/kubb.git"
@@ -60,7 +60,7 @@
     "bun-types": "^1.0.7",
     "dprint": "^0.41.0",
     "prettier": "^3.0.3",
-    "prettier-eslint": "^15.0.1",
+    "prettier-eslint": "^16.1.1",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.1",
     "turbo": "^1.10.16",

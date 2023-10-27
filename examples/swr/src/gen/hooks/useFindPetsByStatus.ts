@@ -1,9 +1,7 @@
-import client from '@kubb/swagger-client/client'
-
 import useSWR from 'swr'
-
+import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatusQueryResponse } from '../models/FindPetsByStatus'
+import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
 
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams,
@@ -28,7 +26,6 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
-
 export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams,
   options?: {

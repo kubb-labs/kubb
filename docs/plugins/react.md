@@ -54,7 +54,11 @@ yarn add @kubb/react
 
 ### Text
 
-```tsx [input]
+#### Input
+
+::: code-group
+
+```tsx [simple]
 import { createRoot, Text } from '@kubb/react'
 
 const root = createRoot()
@@ -69,12 +73,16 @@ const Component = () => {
 
 root.render(<Component />)
 
-return root
+return root.output
 ```
+
+:::
+
+#### Output
 
 ::: code-group
 
-```typescript [root.output]
+```typescript [simple]
 export const test = 2
 ```
 
@@ -82,7 +90,11 @@ export const test = 2
 
 ### Text with indent
 
-```tsx [input]
+#### Input
+
+::: code-group
+
+```tsx [simple]
 import { createRoot, Text } from '@kubb/react'
 
 const root = createRoot()
@@ -97,12 +109,16 @@ const Component = () => {
 
 root.render(<Component />)
 
-return root
+return root.output
 ```
+
+:::
+
+#### Output
 
 ::: code-group
 
-```typescript [root.output]
+```typescript [simple]
 export const test = 2
 ```
 
@@ -110,7 +126,11 @@ export const test = 2
 
 ### Function
 
-```tsx [input]
+#### Input
+
+::: code-group
+
+```tsx [simple]
 import { createRoot, Function } from '@kubb/react'
 
 const root = createRoot()
@@ -125,12 +145,16 @@ const Component = () => {
 
 root.render(<Component />)
 
-return root
+return root.output
 ```
+
+:::
+
+#### Output
 
 ::: code-group
 
-```typescript [root.output]
+```typescript [simple]
 export async function getData() {
   return 2
 }
@@ -140,7 +164,11 @@ export async function getData() {
 
 ### File
 
-```tsx [input]
+#### Input
+
+::: code-group
+
+```tsx [simple]
 import { createRoot, File } from '@kubb/react'
 
 const root = createRoot()
@@ -155,15 +183,159 @@ const Component = () => {
 
 root.render(<Component />)
 
-return root
+return root.output
 ```
+
+:::
+
+#### Output
 
 ::: code-group
 
-```typescript [root.output]
+```typescript [simple]
 export function test() {
   return true
 }
+```
+
+:::
+
+### File.Import
+
+#### Input
+
+::: code-group
+
+```tsx [simple]
+import { createRoot, File } from '@kubb/react'
+
+const root = createRoot()
+
+const Component = () => {
+  return <File.Import name={'React'} path="react" print />
+}
+
+root.render(<Component />)
+
+return root.output
+```
+
+```tsx [type]
+import { createRoot, File } from '@kubb/react'
+
+const root = createRoot()
+
+const Component = () => {
+  return <File.Import name={'React'} path="react" isTypeOnly print />
+}
+
+root.render(<Component />)
+
+return root.output
+```
+
+:::
+
+#### Output
+
+::: code-group
+
+```typescript [simple]
+import React from 'react'
+```
+
+```typescript [type]
+import type React from 'react'
+```
+
+:::
+
+### File.Export
+
+#### Input
+
+::: code-group
+
+```tsx [simple]
+import { createRoot, File } from '@kubb/react'
+
+const root = createRoot()
+
+const Component = () => {
+  return <File.Export path="kubb" print />
+}
+
+root.render(<Component />)
+
+return root.output
+```
+
+:::
+
+#### Output
+
+::: code-group
+
+```typescript [simple]
+export * from 'kubb'
+```
+
+:::
+
+### File.Source
+
+#### Input
+
+::: code-group
+
+```tsx [simple]
+import { createRoot, File } from '@kubb/react'
+
+const root = createRoot()
+
+const Component = () => {
+  return (
+    <File baseName="test.ts" path="path">
+      <File.Source>test</File.Source>
+    </File>
+  )
+}
+
+root.render(<Component />)
+
+return root.output
+```
+
+```tsx [from file]
+import { createRoot, File } from '@kubb/react'
+
+const root = createRoot()
+
+const Component = () => {
+  return (
+    <File baseName="test.ts" path="path">
+      <File.Source path={path.resolve(__dirname, './test.ts')} print></File.Source>
+    </File>
+  )
+}
+
+root.render(<Component />)
+
+return root.output
+```
+
+:::
+
+#### Output
+
+::: code-group
+
+```typescript [simple]
+test
+```
+
+```typescript[from file]
+export const resultFromTestDotTs = "hello world";
 ```
 
 :::

@@ -1,5 +1,4 @@
 import { http } from 'msw'
-
 import { createGetUserByNameQueryResponse } from '../../mocks/userMocks/createGetUserByName'
 
 export const getUserByNameHandler = http.get('*/user/:username', function handler(info) {

@@ -37,6 +37,7 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
+    "templates",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],

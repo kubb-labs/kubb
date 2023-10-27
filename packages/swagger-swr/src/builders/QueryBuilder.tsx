@@ -18,18 +18,23 @@ type Options = {
   name: string
 }
 
-type QueryResult = { code: string; name: string }
-
 export class QueryBuilder extends OasBuilder<Options> {
-  get queryOptions(): QueryResult {
+  get #names() {
+    const { operation } = this.context
+    const { name } = this.options
+
+    return {
+      queryOptions: camelCase(`${operation.getOperationId()}QueryOptions`),
+      query: name,
+      mutation: name,
+    } as const
+  }
+
+  get queryOptions(): React.ElementType {
     const { errors, dataReturnType } = this.options
     const { operation, schemas } = this.context
-    const codes: string[] = []
-
-    const name = camelCase(`${operation.getOperationId()}QueryOptions`)
 
     const generics = new FunctionParams()
-    const params = new FunctionParams()
 
     generics.add([
       { type: 'TData', default: schemas.response.name },
@@ -39,62 +44,67 @@ export class QueryBuilder extends OasBuilder<Options> {
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
 
-    params.add([
-      ...getASTParams(schemas.pathParams, { typed: true }),
-      {
-        name: 'params',
-        type: schemas.queryParams?.name,
-        enabled: !!schemas.queryParams?.name,
-        required: false,
-      },
-      {
-        name: 'headers',
-        type: schemas.headerParams?.name,
-        enabled: !!schemas.headerParams?.name,
-        required: false,
-      },
-      {
-        name: 'options',
-        type: `Partial<Parameters<typeof client>[0]>`,
-        default: '{}',
-      },
-    ])
+    const Component = () => {
+      const params = new FunctionParams()
 
-    codes.push(`
-export function ${name} <
-  ${generics.toString()}
->(
-  ${params.toString()}
-): SWRConfiguration<${queryGenerics.join(', ')}> {
-  return {
-    fetcher: () => {
-      return client<${clientGenerics.join(', ')}>({
-        method: "get",
-        url: ${new URLPath(operation.path).template},
-        ${schemas.request?.name ? 'data,' : ''}
-        ${schemas.queryParams?.name ? 'params,' : ''}
-        ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
-        ...options,
-      }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
-    },
-  };
-};
-`)
+      params.add([
+        ...getASTParams(schemas.pathParams, { typed: true }),
+        {
+          name: 'params',
+          type: schemas.queryParams?.name,
+          enabled: !!schemas.queryParams?.name,
+          required: false,
+        },
+        {
+          name: 'headers',
+          type: schemas.headerParams?.name,
+          enabled: !!schemas.headerParams?.name,
+          required: false,
+        },
+        {
+          name: 'options',
+          type: `Partial<Parameters<typeof client>[0]>`,
+          default: '{}',
+        },
+      ])
 
-    return { code: transformers.combineCodes(codes), name }
+      return (
+        <>
+          {`
+  export function ${this.#names.queryOptions} <
+    ${generics.toString()}
+  >(
+    ${params.toString()}
+  ): SWRConfiguration<${queryGenerics.join(', ')}> {
+    return {
+      fetcher: () => {
+        return client<${clientGenerics.join(', ')}>({
+          method: "get",
+          url: ${new URLPath(operation.path).template},
+          ${schemas.request?.name ? 'data,' : ''}
+          ${schemas.queryParams?.name ? 'params,' : ''}
+          ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+          ...options,
+        }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'})
+      },
+    }
+  }
+  `}
+        </>
+      )
+    }
+
+    return Component
   }
 
-  get query(): QueryResult {
+  get query(): React.ElementType {
     const { name, errors, dataReturnType } = this.options
     const { operation, schemas } = this.context
-    const codes: string[] = []
-
-    const queryOptionsName = this.queryOptions.name
 
     const comments = getComments(operation)
 
     const generics = new FunctionParams()
-    const params = new FunctionParams()
+
     const queryParams = new FunctionParams()
 
     generics.add([
@@ -104,31 +114,6 @@ export function ${name} <
 
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
-    params.add([
-      ...getASTParams(schemas.pathParams, { typed: true }),
-      {
-        name: 'params',
-        type: schemas.queryParams?.name,
-        enabled: !!schemas.queryParams?.name,
-        required: false,
-      },
-      {
-        name: 'headers',
-        type: schemas.headerParams?.name,
-        enabled: !!schemas.headerParams?.name,
-        required: false,
-      },
-      {
-        name: 'options',
-        required: false,
-        type: `{
-          query?: SWRConfiguration<${queryGenerics.join(', ')}>,
-          client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
-          shouldFetch?: boolean,
-        }`,
-        default: '{}',
-      },
-    ])
 
     queryParams.add([
       ...getASTParams(schemas.pathParams, { typed: false }),
@@ -147,36 +132,66 @@ export function ${name} <
         required: false,
       },
     ])
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
-    codes.push(transformers.JSDoc.createJSDocBlockText({ comments }))
-    codes.push(`
-export function ${name} <${generics.toString()}>(${params.toString()}): SWRResponse<${queryGenerics.join(', ')}> {
-  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
+    const Component = () => {
+      const params = new FunctionParams()
+      const queryOptions = `${this.#names.queryOptions}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
-  const url = shouldFetch ? ${new URLPath(operation.path).template} : null;
-  const query = useSWR<${queryGenerics.join(', ')}, string | null>(url, {
-    ...${queryOptions},
-    ...queryOptions
-  });
+      params.add([
+        ...getASTParams(schemas.pathParams, { typed: true }),
+        {
+          name: 'params',
+          type: schemas.queryParams?.name,
+          enabled: !!schemas.queryParams?.name,
+          required: false,
+        },
+        {
+          name: 'headers',
+          type: schemas.headerParams?.name,
+          enabled: !!schemas.headerParams?.name,
+          required: false,
+        },
+        {
+          name: 'options',
+          required: false,
+          type: `{
+            query?: SWRConfiguration<${queryGenerics.join(', ')}>,
+            client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
+            shouldFetch?: boolean,
+          }`,
+          default: '{}',
+        },
+      ])
 
-  return query;
-};
-`)
+      return (
+        <>
+          {transformers.JSDoc.createJSDocBlockText({ comments })}
+          {`
+    export function ${name} <${generics.toString()}>(${params.toString()}): SWRResponse<${queryGenerics.join(', ')}> {
+      const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-    return { code: transformers.combineCodes(codes), name }
+      const url = shouldFetch ? ${new URLPath(operation.path).template} : null
+      const query = useSWR<${queryGenerics.join(', ')}, string | null>(url, {
+        ...${queryOptions},
+        ...queryOptions
+      })
+
+      return query
+    }
+    `}
+        </>
+      )
+    }
+    return Component
   }
 
-  get mutation(): QueryResult {
-    const { name, errors } = this.options
+  get mutation(): React.ElementType {
+    const { errors } = this.options
     const { operation, schemas } = this.context
-    const codes: string[] = []
 
     const comments = getComments(operation)
-    const method = operation.method
 
     const generics = new FunctionParams()
-    const params = new FunctionParams()
 
     generics.add([
       { type: 'TData', default: schemas.response.name },
@@ -185,50 +200,55 @@ export function ${name} <${generics.toString()}>(${params.toString()}): SWRRespo
     ])
 
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
-
     const mutationGenerics = ['ResponseConfig<TData>', 'TError', 'string | null', schemas.request?.name ? `TVariables` : 'never'].filter(Boolean)
 
-    params.add([
-      ...getASTParams(schemas.pathParams, { typed: true }),
-      {
-        name: 'params',
-        type: schemas.queryParams?.name,
-        enabled: !!schemas.queryParams?.name,
-        required: false,
-      },
-      {
-        name: 'headers',
-        type: schemas.headerParams?.name,
-        enabled: !!schemas.headerParams?.name,
-        required: false,
-      },
-      {
-        name: 'options',
-        required: false,
-        type: `{
-          mutation?: SWRMutationConfiguration<${mutationGenerics.join(', ')}>,
-          client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
-          shouldFetch?: boolean,
-        }`,
-        default: '{}',
-      },
-    ])
+    const Component = () => {
+      const params = new FunctionParams()
+      const name = this.#names.mutation
 
-    codes.push(transformers.JSDoc.createJSDocBlockText({ comments }))
-    codes.push(`
+      params.add([
+        ...getASTParams(schemas.pathParams, { typed: true }),
+        {
+          name: 'params',
+          type: schemas.queryParams?.name,
+          enabled: !!schemas.queryParams?.name,
+          required: false,
+        },
+        {
+          name: 'headers',
+          type: schemas.headerParams?.name,
+          enabled: !!schemas.headerParams?.name,
+          required: false,
+        },
+        {
+          name: 'options',
+          required: false,
+          type: `{
+            mutation?: SWRMutationConfiguration<${mutationGenerics.join(', ')}>,
+            client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
+            shouldFetch?: boolean,
+          }`,
+          default: '{}',
+        },
+      ])
+
+      return (
+        <>
+          {transformers.JSDoc.createJSDocBlockText({ comments })}
+          {`
 export function ${name} <
   ${generics.toString()}
 >(
   ${params.toString()}
 ): SWRMutationResponse<${mutationGenerics.join(', ')}> {
-  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
+  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  const url = shouldFetch ? ${new URLPath(operation.path).template} : null;
+  const url = shouldFetch ? ${new URLPath(operation.path).template} : null
   return useSWRMutation<${mutationGenerics.join(', ')}>(
     url,
     (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
       return client<${clientGenerics.join(', ')}>({
-        method: "${method}",
+        method: "${operation.method}",
         url,
         ${schemas.request?.name ? 'data,' : ''}
         ${schemas.queryParams?.name ? 'params,' : ''}
@@ -237,11 +257,13 @@ export function ${name} <
       })
     },
     mutationOptions
-  );
-};
-`)
-
-    return { code: transformers.combineCodes(codes), name }
+  )
+}
+`}
+        </>
+      )
+    }
+    return Component
   }
 
   print(type: 'query' | 'mutation', name: string): string {
@@ -251,6 +273,11 @@ export function ${name} <
   render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<AppMeta>> {
     const { pluginManager, operation, schemas, plugin } = this.context
 
+    const QueryOptions = this.queryOptions
+    const Query = this.query
+
+    const Mutation = this.mutation
+
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const ComponentQuery = () => {
@@ -259,9 +286,9 @@ export function ${name} <
       return (
         <File baseName={file.baseName} path={file.path}>
           <File.Source>
-            {this.queryOptions.code}
+            <QueryOptions />
             <br />
-            {this.query.code}
+            <Query />
           </File.Source>
         </File>
       )
@@ -272,7 +299,9 @@ export function ${name} <
 
       return (
         <File baseName={file.baseName} path={file.path}>
-          <File.Source>{this.mutation.code}</File.Source>
+          <File.Source>
+            <Mutation />
+          </File.Source>
         </File>
       )
     }

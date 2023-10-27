@@ -1,5 +1,5 @@
 import { PackageManager } from '@kubb/core'
-import { getRelativePath, URLPath } from '@kubb/core/utils'
+import { URLPath } from '@kubb/core/utils'
 import { createRoot } from '@kubb/react'
 import { File } from '@kubb/react'
 import { OasBuilder } from '@kubb/swagger'
@@ -34,8 +34,8 @@ export class MSWBuilder extends OasBuilder<Options> {
           headers: {
             'Content-Type': 'application/json',
           },
-        });
-      });
+        })
+      })
       `}
           </>
         )
@@ -47,8 +47,8 @@ export class MSWBuilder extends OasBuilder<Options> {
     export const ${name} = rest.${operation.method}('*${new URLPath(operation.path).toURLPath()}', function handler(req, res, ctx) {
       return res(
         ctx.json(${responseName}()),
-      );
-    });
+      )
+    })
     `}
         </>
       )
@@ -80,7 +80,7 @@ export class MSWBuilder extends OasBuilder<Options> {
           {!isV2 && <File.Import name={['rest']} path={'msw'} />}
           {isV2 && <File.Import name={['http']} path={'msw'} />}
 
-          {faker && responseName && <File.Import name={[responseName]} path={getRelativePath(file.path, faker.path)} />}
+          {faker && responseName && <File.Import name={[responseName]} root={file.path} path={faker.path} />}
           <File.Source>
             <Mock />
           </File.Source>

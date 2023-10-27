@@ -1,5 +1,4 @@
 import { http } from 'msw'
-
 import { createUpdateUserMutationResponse } from '../../mocks/userMocks/createUpdateUser'
 
 export const updateUserHandler = http.put('*/user/:username', function handler(info) {

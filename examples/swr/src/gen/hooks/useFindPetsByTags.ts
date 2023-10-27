@@ -1,9 +1,7 @@
-import client from '@kubb/swagger-client/client'
-
 import useSWR from 'swr'
-
+import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse } from '../models/FindPetsByTags'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 
 export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
   params?: FindPetsByTagsQueryParams,
@@ -28,7 +26,6 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-
 export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
   params?: FindPetsByTagsQueryParams,
   options?: {

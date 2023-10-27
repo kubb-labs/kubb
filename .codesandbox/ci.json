@@ -27,6 +27,7 @@
     "/examples/svelte-query",
     "/examples/swr",
     "/examples/vue-query",
+    "/examples/vue-query-v5",
     "/examples/zod",
     "/examples/zodios",
     "/examples/client"

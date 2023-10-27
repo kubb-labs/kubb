@@ -79,6 +79,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       )
 
       const files = await operationGenerator.build()
+
       await this.addFile(...files)
     },
     async writeFile(source, path) {

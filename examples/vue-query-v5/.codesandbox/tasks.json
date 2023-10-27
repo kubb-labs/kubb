@@ -1,0 +1,35 @@
+{
+  "$schema": "https://codesandbox.io/schemas/tasks.json",
+  // These tasks will run in order when initializing your CodeSandbox project.
+  "setupTasks": [
+    {
+      "name": "Replace workspace:* by latest",
+      "command": "node ./.codesandbox/build.js"
+    },
+    {
+      "name": "Install Dependencies",
+      "command": "corepack enable && pnpm install"
+    }
+  ],
+  // These tasks can be run from CodeSandbox. Running one will open a log in the app.
+  "tasks": {
+    "dev": {
+      "name": "dev",
+      "command": "pnpm dev",
+      "runAtStart": true,
+      "preview": {
+        "port": 5173
+      }
+    },
+    "build": {
+      "name": "build",
+      "command": "pnpm build",
+      "runAtStart": false
+    },
+    "update": {
+      "name": "update",
+      "command": "pnpm update",
+      "runAtStart": false
+    }
+  }
+}

@@ -1,7 +1,5 @@
 import useSWR from 'swr'
-
 import client from '../../../../swr-client.ts'
-
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
@@ -28,7 +26,6 @@ export function logoutUserQueryOptions<
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-
 export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>(options?: {
   query?: SWRConfiguration<ResponseConfig<TData>, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>

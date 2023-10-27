@@ -1,55 +1,77 @@
-import client from '@kubb/swagger-client/client'
-
-import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
-
-import type { QueryKey, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
+import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
 import type { MaybeRef } from 'vue'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser'
+import type { QueryKey, UseQueryReturnType } from '@tanstack/vue-query'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 
-export const loginUserQueryKey = (params?: MaybeRef<LoginUserQueryParams>) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
-export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
+type LoginUser = KubbQueryFactory<
+  LoginUserQueryResponse,
+  LoginUser400,
+  never,
+  never,
+  LoginUserQueryParams,
+  LoginUserQueryResponse,
+  {
+    dataReturnType: 'data'
+    type: 'query'
+  }
+>
+export const loginUserQueryKey = (params?: MaybeRef<LoginUser['queryParams']>) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
+export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
+export function loginUserQueryOptions<
+  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
+  TError = LoginUser['error'],
+  TData = LoginUser['response'],
+  TQueryData = LoginUser['response'],
+>(
   refParams?: MaybeRef<LoginUserQueryParams>,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+  options: LoginUser['client']['paramaters'] = {},
+): VueQueryObserverOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
   const queryKey = loginUserQueryKey(refParams)
-
   return {
     queryKey,
     queryFn: () => {
       const params = unref(refParams)
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/login`,
         params,
-
         ...options,
-      }).then((res) => res.data)
+      }).then((res) => res?.data || res)
     },
   }
 }
-
 /**
  * @summary Logs user into the system
  * @link /user/login
  */
-
-export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
+export function useLoginUser<
+  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
+  TError = LoginUser['error'],
+  TData = LoginUser['response'],
+  TQueryData = LoginUser['response'],
+  TQueryKey extends QueryKey = LoginUserQueryKey,
+>(
   refParams?: MaybeRef<LoginUserQueryParams>,
   options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    query?: VueQueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+    client?: LoginUser['client']['paramaters']
   } = {},
-): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
+): UseQueryReturnType<TData, TError> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(refParams)
-
-  const query = useQuery<TData, TError>({
-    ...loginUserQueryOptions<TData, TError>(refParams, clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...loginUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(refParams, clientOptions),
+    queryKey,
     ...queryOptions,
-  }) as UseQueryReturnType<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey as QueryKey
-
+  }) as UseQueryReturnType<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
   return query
 }

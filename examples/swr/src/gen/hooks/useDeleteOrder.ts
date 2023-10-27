@@ -1,18 +1,15 @@
-import client from '@kubb/swagger-client/client'
-
 import useSWRMutation from 'swr/mutation'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { DeleteOrder400, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../models/DeleteOrder'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
 
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-
-export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = DeleteOrder400>(
+export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = DeleteOrder400 | DeleteOrder404>(
   orderId: DeleteOrderPathParams['orderId'],
   options?: {
     mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, never>

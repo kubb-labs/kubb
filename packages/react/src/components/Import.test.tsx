@@ -11,4 +11,24 @@ describe('<Import/>', () => {
 
     expect(root.output).toMatch('import React from "react"')
   })
+
+  test('render Import with print and type', () => {
+    const Component = () => {
+      return <Import name="React" path="react" isTypeOnly print />
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toMatch('import type React from "react"')
+  })
+
+  test('render Import with root', () => {
+    const Component = () => {
+      return <Import name="React" root="types" path="types/test" print />
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(root.output).toMatch('import React from "./test"')
+  })
 })
