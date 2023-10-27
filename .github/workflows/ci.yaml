@@ -65,13 +65,13 @@ jobs:
         - name: Publish
           id: publish
           continue-on-error: true
-          if: ${{ success() && github.event.inputs.tag == '' && github.ref == 'refs/heads/main' && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
+          if: ${{ success() && github.event.inputs.tag == '' && github.ref == 'refs/heads/alpha' && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             TAG: ${{ inputs.tag }}
-          run: bun run release --concurrency=1
+          run: bun run release --concurrency=1 -- -tag alpha
 
         - name: Publish ${{ inputs.tag || 'canary' }}
           continue-on-error: true
