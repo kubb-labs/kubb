@@ -143,3 +143,67 @@ describe('TypeGenerator with refs', () => {
     expect(await format(output)).toMatchSnapshot()
   })
 })
+
+describe('TypeGenerator with discriminators', () => {
+  const discriminatorPath = path.resolve(__dirname, "../../mocks/discriminator.yaml")
+
+  test('PetStore defined as array with type union', async () => {
+    const oas = await new OasManager().parse(discriminatorPath)
+
+    const generator = new TypeGenerator({
+      usedEnumNames: {},
+      withJSDocs: false,
+      resolveName: ({ name }) => name,
+      enumType: 'asConst',
+      dateType: 'string',
+      optionalType: 'questionToken',
+    })
+
+    const schemas = oas.getDefinition().components?.schemas
+    const node = generator.build({ schema: schemas?.Petstore as OpenAPIV3.SchemaObject, baseName: 'Petstore' })
+
+    const output = print(node, undefined)
+
+    expect(output).toBeDefined()
+    expect(output).toMatchSnapshot()
+  })
+
+  test('Cat.type defined as const', async () => {
+    const oas =await new OasManager().parse(discriminatorPath)
+    const generator = new TypeGenerator({
+      usedEnumNames: {},
+      withJSDocs: false,
+      resolveName: ({ name }) => name,
+      enumType: 'asConst',
+      dateType: 'string',
+      optionalType: 'questionToken',
+    })
+
+    const schemas = oas.getDefinition().components?.schemas
+    const cat = generator.build({ schema: schemas?.Cat as OpenAPIV3.SchemaObject, baseName: 'Cat' })
+
+    const cat_output = print(cat, undefined)
+    expect(cat_output).toBeDefined()
+    expect(cat_output).toMatchSnapshot()
+  })
+
+  test('Dog.type defined as const', async () => {
+    const oas = await new OasManager().parse(discriminatorPath)
+    const generator = new TypeGenerator({
+      usedEnumNames: {},
+      withJSDocs: false,
+      resolveName: ({ name }) => name,
+      enumType: 'asConst',
+      dateType: 'string',
+      optionalType: 'questionToken',
+    })
+
+    const schemas = oas.getDefinition().components?.schemas
+    const dog = generator.build({ schema: schemas?.Dog as OpenAPIV3.SchemaObject, baseName: 'Dog' })
+
+    const dog_output = print(dog, undefined)
+    expect(dog_output).toBeDefined()
+    expect(dog_output).toMatchSnapshot()
+    })
+
+})

@@ -43,6 +43,32 @@ exports[`TypeGenerator simple > generate type for nullable fields 1`] = `
 "
 `;
 
+exports[`TypeGenerator with discriminators > Cat.type defined as const 1`] = `
+"export type Cat = {
+    id: string;
+    type: \\"Cat\\";
+    meow?: boolean;
+};
+"
+`;
+
+exports[`TypeGenerator with discriminators > Dog.type defined as const 1`] = `
+"export type Dog = {
+    id: string;
+    bark?: number;
+    type: \\"Dog\\";
+};
+"
+`;
+
+exports[`TypeGenerator with discriminators > PetStore defined as array with type union 1`] = `
+"export type Petstore = {
+    id: number;
+    pets?: (Cat | Dog)[];
+};
+"
+`;
+
 exports[`TypeGenerator with refs > generate type for Pets 1`] = `
 "export type Pets = Pet[]
 "
