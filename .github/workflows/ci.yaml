@@ -1,14 +1,17 @@
 name: ci
 
 on:
-  push:
-    paths:
-      - 'packages/**'
-    branches:
-      - main
-      - 'releases/**'
-
   workflow_dispatch:
+    inputs:
+      tag:
+        description: override release tag
+        required: false
+  push:
+    branches: ['main', 'alpha', 'beta', 'rc']
+    paths-ignore:
+      - "docs/**"
+      - "examples/**"
+      - "**/*.md"
 
 jobs:
   build:
@@ -61,22 +64,24 @@ jobs:
           env:
              CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-        - name: Release
-          id: release
+        - name: Publish
+          id: publish
           continue-on-error: true
           if: ${{ success() && github.ref == 'refs/heads/main' && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            TAG: ${{ inputs.tag }}
           run: bun run release --concurrency=1
 
-        - name: Release canary
+        - name: Publish ${{ inputs.tag }}
           continue-on-error: true
-          if: steps.release.outcome == 'failure'
+          if: steps.publish.outcome == 'failure'
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            TAG: canary
           run: |
-            bun run release:canary --concurrency=1
+            bun run release:${{ inputs.tag | 'canary' }} --concurrency=1
