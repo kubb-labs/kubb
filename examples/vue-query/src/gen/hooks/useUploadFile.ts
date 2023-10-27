@@ -1,24 +1,35 @@
-import client from '@kubb/swagger-client/client'
-
-import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 import type { MaybeRef } from 'vue'
-import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
 
-/**
+type UploadFile = KubbQueryFactory<
+  UploadFileMutationResponse,
+  never,
+  never,
+  UploadFilePathParams,
+  UploadFileQueryParams,
+  UploadFileMutationResponse,
+  {
+    dataReturnType: 'data'
+    type: 'mutation'
+  }
+> /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-export function useUploadFile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
+
+export function useUploadFile<TData = UploadFile['response'], TError = UploadFile['error'], TVariables = UploadFile['request']>(
   refPetId: MaybeRef<UploadFilePathParams['petId']>,
   refParams?: MaybeRef<UploadFileQueryParams>,
   options: {
     mutation?: VueMutationObserverOptions<ResponseConfig<TData>, TError, TVariables, unknown>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+    client?: UploadFile['client']['paramaters']
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

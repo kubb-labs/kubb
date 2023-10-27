@@ -1,9 +1,7 @@
-import client from '@kubb/swagger-client/client'
-
 import useSWRMutation from 'swr/mutation'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 
 /**
@@ -11,7 +9,6 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../m
  * @summary Create user
  * @link /user
  */
-
 export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(options?: {
   mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
   client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>

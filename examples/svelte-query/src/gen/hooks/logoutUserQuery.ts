@@ -48,7 +48,7 @@ export function logoutUserQuery<
   TQueryKey extends QueryKey = LogoutUserQueryKey,
 >(
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: LogoutUser['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
@@ -58,6 +58,7 @@ export function logoutUserQuery<
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...logoutUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
+    queryKey,
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
@@ -95,7 +96,7 @@ export function logoutUserQueryInfinite<
   TQueryKey extends QueryKey = LogoutUserQueryKey,
 >(
   options: {
-    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: LogoutUser['client']['paramaters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
@@ -105,6 +106,7 @@ export function logoutUserQueryInfinite<
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
   const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...logoutUserQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(clientOptions),
+    queryKey,
     ...queryOptions,
   }) as CreateInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey

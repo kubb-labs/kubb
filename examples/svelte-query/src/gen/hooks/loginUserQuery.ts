@@ -53,7 +53,7 @@ export function loginUserQuery<
 >(
   params?: LoginUser['queryParams'],
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: LoginUser['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
@@ -63,6 +63,7 @@ export function loginUserQuery<
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...loginUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+    queryKey,
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
@@ -109,7 +110,7 @@ export function loginUserQueryInfinite<
 >(
   params?: LoginUser['queryParams'],
   options: {
-    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: LoginUser['client']['paramaters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
@@ -119,6 +120,7 @@ export function loginUserQueryInfinite<
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
   const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...loginUserQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+    queryKey,
     ...queryOptions,
   }) as CreateInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey

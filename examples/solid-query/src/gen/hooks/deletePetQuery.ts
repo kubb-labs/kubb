@@ -21,6 +21,7 @@ type DeletePet = KubbQueryFactory<
  * @summary Deletes a pet
  * @link /pet/:petId
  */
+
 export function deletePetQuery<TData = DeletePet['response'], TError = DeletePet['error']>(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,

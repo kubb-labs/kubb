@@ -1,5 +1,4 @@
 import { http } from 'msw'
-
 import { createUpdatePetWithFormMutationResponse } from '../../mocks/petMocks/createUpdatePetWithForm'
 
 export const updatePetWithFormHandler = http.post('*/pet/:petId', function handler(info) {

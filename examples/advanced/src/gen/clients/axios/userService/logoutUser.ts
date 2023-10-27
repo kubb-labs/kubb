@@ -1,5 +1,4 @@
 import client from '../../../../axios-client.ts'
-
 import type { ResponseConfig } from '../../../../axios-client.ts'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 

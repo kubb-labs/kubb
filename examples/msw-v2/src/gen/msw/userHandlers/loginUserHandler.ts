@@ -1,5 +1,4 @@
 import { http } from 'msw'
-
 import { createLoginUserQueryResponse } from '../../mocks/userMocks/createLoginUser'
 
 export const loginUserHandler = http.get('*/user/login', function handler(info) {

@@ -21,6 +21,7 @@ type DeleteUser = KubbQueryFactory<
  * @summary Delete user
  * @link /user/:username
  */
+
 export function deleteUserQuery<TData = DeleteUser['response'], TError = DeleteUser['error']>(
   username: DeleteUserPathParams['username'],
   options: {

@@ -1,10 +1,8 @@
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
-
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
-
-import type { QueryKey, UseBaseQueryOptions, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryResult } from '@tanstack/react-query'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser'
 import type { KubbQueryFactory } from './types'
+import type { QueryKey, UseBaseQueryOptions, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 
 type LoginUser = KubbQueryFactory<LoginUserQueryResponse, LoginUser400, never, never, LoginUserQueryParams, LoginUserQueryResponse, {
   dataReturnType: 'data'
@@ -34,7 +32,6 @@ export function loginUserQueryOptions<
     },
   }
 }
-
 /**
  * @summary Logs user into the system
  * @link /user/login
@@ -55,6 +52,7 @@ export function useLoginUserHook<
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...loginUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+    queryKey,
     ...queryOptions,
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
@@ -62,16 +60,20 @@ export function useLoginUserHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
-export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params?: LoginUserQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseInfiniteQueryOptions<TData, TError> {
+export function loginUserQueryOptionsInfinite<
+  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
+  TError = LoginUser['error'],
+  TData = LoginUser['response'],
+  TQueryData = LoginUser['response'],
+>(
+  params?: LoginUser['queryParams'],
+  options: LoginUser['client']['paramaters'] = {},
+): UseInfiniteQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
   const queryKey = loginUserQueryKey(params)
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/login`,
         ...options,
@@ -80,29 +82,35 @@ export function loginUserQueryOptionsInfinite<TData = LoginUserQueryResponse, TE
           ['id']: pageParam,
           ...(options.params || {}),
         },
-      }).then(res => res.data)
+      }).then(res => res?.data || res)
     },
   }
 }
-
 /**
  * @summary Logs user into the system
  * @link /user/login
  */
-export function useLoginUserHookInfinite<TData = LoginUserQueryResponse, TError = LoginUser400>(params?: LoginUserQueryParams, options: {
-  query?: UseInfiniteQueryOptions<TData, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+export function useLoginUserHookInfinite<
+  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
+  TError = LoginUser['error'],
+  TData = LoginUser['response'],
+  TQueryData = LoginUser['response'],
+  TQueryKey extends QueryKey = LoginUserQueryKey,
+>(params?: LoginUser['queryParams'], options: {
+  query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  client?: LoginUser['client']['paramaters']
 } = {}): UseInfiniteQueryResult<TData, TError> & {
-  queryKey: QueryKey
+  queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
-  const query = useInfiniteQuery<TData, TError>({
-    ...loginUserQueryOptionsInfinite<TData, TError>(params, clientOptions),
+  const query = useInfiniteQuery<TQueryFnData, TError, TData, any>({
+    ...loginUserQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+    queryKey,
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & {
-    queryKey: QueryKey
+    queryKey: TQueryKey
   }
-  query.queryKey = queryKey
+  query.queryKey = queryKey as TQueryKey
   return query
 }

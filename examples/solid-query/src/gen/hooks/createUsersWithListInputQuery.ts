@@ -21,6 +21,7 @@ type CreateUsersWithListInput = KubbQueryFactory<
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
+
 export function createUsersWithListInputQuery<
   TData = CreateUsersWithListInput['response'],
   TError = CreateUsersWithListInput['error'],

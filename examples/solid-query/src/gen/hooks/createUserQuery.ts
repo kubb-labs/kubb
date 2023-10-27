@@ -21,6 +21,7 @@ type CreateUser = KubbQueryFactory<
  * @summary Create user
  * @link /user
  */
+
 export function createUserQuery<TData = CreateUser['response'], TError = CreateUser['error'], TVariables = CreateUser['request']>(
   options: {
     mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, TVariables>

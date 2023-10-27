@@ -52,7 +52,7 @@ export function getUserByNameQuery<
 >(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: GetUserByName['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
@@ -62,6 +62,7 @@ export function getUserByNameQuery<
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
+    queryKey,
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
@@ -103,7 +104,7 @@ export function getUserByNameQueryInfinite<
 >(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: GetUserByName['client']['paramaters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
@@ -113,6 +114,7 @@ export function getUserByNameQueryInfinite<
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
   const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...getUserByNameQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
+    queryKey,
     ...queryOptions,
   }) as CreateInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey

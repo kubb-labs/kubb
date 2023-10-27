@@ -21,6 +21,7 @@ type UpdatePet = KubbQueryFactory<
  * @summary Update an existing pet
  * @link /pet
  */
+
 export function updatePetQuery<TData = UpdatePet['response'], TError = UpdatePet['error'], TVariables = UpdatePet['request']>(
   options: {
     mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, TVariables>

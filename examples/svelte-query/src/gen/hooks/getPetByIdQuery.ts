@@ -53,7 +53,7 @@ export function getPetByIdQuery<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: GetPetById['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
@@ -63,6 +63,7 @@ export function getPetByIdQuery<
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...getPetByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(petId, clientOptions),
+    queryKey,
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
@@ -105,7 +106,7 @@ export function getPetByIdQueryInfinite<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: GetPetById['client']['paramaters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
@@ -115,6 +116,7 @@ export function getPetByIdQueryInfinite<
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
   const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...getPetByIdQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(petId, clientOptions),
+    queryKey,
     ...queryOptions,
   }) as CreateInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey

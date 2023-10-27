@@ -21,6 +21,7 @@ type DeleteOrder = KubbQueryFactory<
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
+
 export function deleteOrderQuery<TData = DeleteOrder['response'], TError = DeleteOrder['error']>(
   orderId: DeleteOrderPathParams['orderId'],
   options: {

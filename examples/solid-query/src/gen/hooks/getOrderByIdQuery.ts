@@ -53,7 +53,7 @@ export function getOrderByIdQuery<
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: GetOrderById['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {

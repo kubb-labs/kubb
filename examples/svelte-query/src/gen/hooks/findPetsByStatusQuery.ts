@@ -54,7 +54,7 @@ export function findPetsByStatusQuery<
 >(
   params?: FindPetsByStatus['queryParams'],
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: FindPetsByStatus['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
@@ -64,6 +64,7 @@ export function findPetsByStatusQuery<
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...findPetsByStatusQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+    queryKey,
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
@@ -111,7 +112,7 @@ export function findPetsByStatusQueryInfinite<
 >(
   params?: FindPetsByStatus['queryParams'],
   options: {
-    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: FindPetsByStatus['client']['paramaters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
@@ -121,6 +122,7 @@ export function findPetsByStatusQueryInfinite<
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
   const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...findPetsByStatusQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+    queryKey,
     ...queryOptions,
   }) as CreateInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey

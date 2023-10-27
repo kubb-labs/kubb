@@ -21,6 +21,7 @@ type UpdateUser = KubbQueryFactory<
  * @summary Update user
  * @link /user/:username
  */
+
 export function updateUserQuery<TData = UpdateUser['response'], TError = UpdateUser['error'], TVariables = UpdateUser['request']>(
   username: UpdateUserPathParams['username'],
   options: {

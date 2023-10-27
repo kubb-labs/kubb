@@ -48,7 +48,7 @@ export function logoutUserQuery<
   TQueryKey extends QueryKey = LogoutUserQueryKey,
 >(
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: LogoutUser['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {

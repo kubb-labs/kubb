@@ -1,21 +1,32 @@
-import client from '@kubb/swagger-client/client'
-
 import { useMutation } from '@tanstack/vue-query'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { CreateUserMutationResponse } from '../models/CreateUser'
 
-/**
+type CreateUser = KubbQueryFactory<
+  CreateUserMutationResponse,
+  never,
+  never,
+  never,
+  never,
+  CreateUserMutationResponse,
+  {
+    dataReturnType: 'data'
+    type: 'mutation'
+  }
+> /**
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user
  */
-export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(
+
+export function useCreateUser<TData = CreateUser['response'], TError = CreateUser['error'], TVariables = CreateUser['request']>(
   options: {
     mutation?: VueMutationObserverOptions<ResponseConfig<TData>, TError, TVariables, unknown>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+    client?: CreateUser['client']['paramaters']
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

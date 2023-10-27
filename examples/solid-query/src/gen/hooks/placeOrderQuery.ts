@@ -21,6 +21,7 @@ type PlaceOrder = KubbQueryFactory<
  * @summary Place an order for a pet
  * @link /store/order
  */
+
 export function placeOrderQuery<TData = PlaceOrder['response'], TError = PlaceOrder['error'], TVariables = PlaceOrder['request']>(
   options: {
     mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, TVariables>

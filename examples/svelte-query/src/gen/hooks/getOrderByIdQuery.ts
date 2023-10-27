@@ -53,7 +53,7 @@ export function getOrderByIdQuery<
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: GetOrderById['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
@@ -63,6 +63,7 @@ export function getOrderByIdQuery<
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...getOrderByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
+    queryKey,
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
@@ -105,7 +106,7 @@ export function getOrderByIdQueryInfinite<
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: GetOrderById['client']['paramaters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
@@ -115,6 +116,7 @@ export function getOrderByIdQueryInfinite<
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
   const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...getOrderByIdQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
+    queryKey,
     ...queryOptions,
   }) as CreateInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey

@@ -1,7 +1,5 @@
 import useSWRMutation from 'swr/mutation'
-
 import client from '../../../../swr-client.ts'
-
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
@@ -11,7 +9,6 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @summary Update user
  * @link /user/:username
  */
-
 export function useUpdateUser<
   TData = UpdateUserMutationResponse,
   TError = unknown,

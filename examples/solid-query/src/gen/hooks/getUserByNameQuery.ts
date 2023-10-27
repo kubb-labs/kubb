@@ -52,7 +52,7 @@ export function getUserByNameQuery<
 >(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: GetUserByName['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {

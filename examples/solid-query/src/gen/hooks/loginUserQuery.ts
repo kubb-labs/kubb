@@ -53,7 +53,7 @@ export function loginUserQuery<
 >(
   params?: LoginUser['queryParams'],
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: LoginUser['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {

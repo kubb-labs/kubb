@@ -21,6 +21,7 @@ type AddPet = KubbQueryFactory<
  * @summary Add a new pet to the store
  * @link /pet
  */
+
 export function addPetQuery<TData = AddPet['response'], TError = AddPet['error'], TVariables = AddPet['request']>(
   options: {
     mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, TVariables>

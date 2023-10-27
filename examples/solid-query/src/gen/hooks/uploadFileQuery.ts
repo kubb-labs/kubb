@@ -20,6 +20,7 @@ type UploadFile = KubbQueryFactory<
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
+
 export function uploadFileQuery<TData = UploadFile['response'], TError = UploadFile['error'], TVariables = UploadFile['request']>(
   petId: UploadFilePathParams['petId'],
   params?: UploadFile['queryParams'],

@@ -1,23 +1,34 @@
-import client from '@kubb/swagger-client/client'
-
-import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { MutationObserverOptions, UseMutationReturnType } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
 import type { MaybeRef } from 'vue'
-import type { DeleteOrder400, DeleteOrderMutationResponse, DeleteOrderPathParams } from '../models/DeleteOrder'
+import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
 
-/**
+type DeleteOrder = KubbQueryFactory<
+  DeleteOrderMutationResponse,
+  DeleteOrder400 | DeleteOrder404,
+  never,
+  DeleteOrderPathParams,
+  never,
+  DeleteOrderMutationResponse,
+  {
+    dataReturnType: 'data'
+    type: 'mutation'
+  }
+> /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = DeleteOrder400>(
+
+export function useDeleteOrder<TData = DeleteOrder['response'], TError = DeleteOrder['error']>(
   refOrderId: MaybeRef<DeleteOrderPathParams['orderId']>,
   options: {
-    mutation?: MutationObserverOptions<ResponseConfig<TData>, TError, void, unknown>
-    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
+    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void, unknown>
+    client?: DeleteOrder['client']['paramaters']
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

@@ -1,22 +1,25 @@
-import client from '@kubb/swagger-client/client'
-
 import { useMutation } from '@tanstack/react-query'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
-import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../models/DeletePet'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
 
-/**
+type DeletePet = KubbQueryFactory<DeletePetMutationResponse, DeletePet400, never, DeletePetPathParams, never, DeletePetMutationResponse, {
+  dataReturnType: 'data'
+  type: 'mutation'
+}> /**
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-export function useDeletePetHook<TData = DeletePetMutationResponse, TError = DeletePet400>(
+
+export function useDeletePetHook<TData = DeletePet['response'], TError = DeletePet['error']>(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,
   options: {
     mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
-    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
+    client?: DeletePet['client']['paramaters']
   } = {},
 ): UseMutationResult<ResponseConfig<TData>, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

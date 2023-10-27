@@ -49,7 +49,7 @@ export function getInventoryQuery<
   TQueryKey extends QueryKey = GetInventoryQueryKey,
 >(
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: GetInventory['client']['paramaters']
   } = {},
 ): CreateQueryResult<TData, TError> & {

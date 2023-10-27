@@ -1,5 +1,4 @@
 import client from '../../../client'
-
 import type { ResponseConfig } from '../../../client'
 import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet'
 

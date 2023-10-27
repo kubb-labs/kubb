@@ -1,20 +1,31 @@
-import client from '@kubb/swagger-client/client'
-
 import { useMutation } from '@tanstack/vue-query'
-
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
+import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { MutationObserverOptions, UseMutationReturnType } from '@tanstack/vue-query'
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../models/AddPet'
+import type { AddPetMutationResponse, AddPet405 } from '../models/AddPet'
 
-/**
+type AddPet = KubbQueryFactory<
+  AddPetMutationResponse,
+  AddPet405,
+  never,
+  never,
+  never,
+  AddPetMutationResponse,
+  {
+    dataReturnType: 'data'
+    type: 'mutation'
+  }
+> /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet
  */
-export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TVariables = AddPetMutationRequest>(
+
+export function useAddPet<TData = AddPet['response'], TError = AddPet['error'], TVariables = AddPet['request']>(
   options: {
-    mutation?: MutationObserverOptions<ResponseConfig<TData>, TError, TVariables, unknown>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables, unknown>
+    client?: AddPet['client']['paramaters']
   } = {},
 ): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
