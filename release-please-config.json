@@ -55,12 +55,10 @@
   "packages": {
     ".": {
       "changelog-path": "CHANGELOG.md",
-      "release-type": "node",
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
-      "skip-github-release": false
+      "prerelease": false
     },
     "packages/kubb": {
       "component": "kubb",
