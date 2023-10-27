@@ -160,9 +160,6 @@ export class QueryBuilder extends OasBuilder<Options> {
 
       let queryKey = `${this.#names.queryKey}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
 
-      if (framework === 'solid') {
-        queryKey = `() => ${queryKey}`
-      }
       if (framework === 'vue') {
         queryKey = `${this.#names.queryKey}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'refParams' : ''})`
       }
@@ -391,10 +388,11 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${QueryR
             )
           }> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}
+  const queryKey = queryOptions?.queryKey ?? ${queryKey}
 
   const query = ${hookName}<${useQueryGenerics.join(', ')}>({
     ...${queryOptions},
+    ${framework === 'solid' ? 'queryKey: () => queryKey' : 'queryKey'},
     ...queryOptions
   }) as ${QueryResult}<${resultGenerics.join(', ')}> & { queryKey: TQueryKey }
 

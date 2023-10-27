@@ -14,27 +14,28 @@ export type KubbQueryFactory<
     dataReturnType: 'data'
     type: 'query'
   },
-> =
-  & {
-    data: TData
-    error: TError
-    request: TRequest
-    pathParams: TPathParams
-    queryParams: TQueryParams
-    response: TOptions extends {
-      dataReturnType: 'full'
-    } ? Awaited<ReturnType<typeof client<TData, TError, TRequest>>>
-      : TResponse
-    client: {
-      paramaters: Partial<Parameters<typeof client<TData, TError, TRequest>>[0]>
-      return: Awaited<ReturnType<typeof client<TData, TError, TRequest>>>
-    }
+> = {
+  data: TData
+  error: TError
+  request: TRequest
+  pathParams: TPathParams
+  queryParams: TQueryParams
+  response: TOptions extends {
+    dataReturnType: 'full'
   }
-  & (TOptions extends {
-    type: 'mutation'
-  } ? {
+    ? Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>
+    : Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>['data']
+  unionResponse: Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>> | Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>['data']
+  client: {
+    paramaters: Partial<Parameters<typeof client<TResponse, TError, TRequest>>[0]>
+    return: Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>
+  }
+} & (TOptions extends {
+  type: 'mutation'
+}
+  ? {
       _type: 'mutation'
     }
-    : {
+  : {
       _type: 'query'
     })

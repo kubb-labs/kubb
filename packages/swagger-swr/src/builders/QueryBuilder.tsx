@@ -23,10 +23,7 @@ export class QueryBuilder extends OasBuilder<Options> {
     const { operation } = this.context
     const { name } = this.options
 
-    const queryKey = camelCase(`${operation.getOperationId()}QueryKey`)
-
     return {
-      queryKey,
       queryOptions: camelCase(`${operation.getOperationId()}QueryOptions`),
       query: name,
       mutation: name,
@@ -138,7 +135,7 @@ export class QueryBuilder extends OasBuilder<Options> {
 
     const Component = () => {
       const params = new FunctionParams()
-      const queryOptions = `${this.#names.queryKey}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
+      const queryOptions = `${this.#names.queryOptions}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
       params.add([
         ...getASTParams(schemas.pathParams, { typed: true }),
