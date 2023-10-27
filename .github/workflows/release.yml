@@ -1,16 +1,19 @@
 name: release-please
 on:
   push:
-    branches:
-      - main
-      
+    branches: ['main', 'alpha', 'beta', 'rc']
+    paths-ignore:
+      - "docs/**"
+      - "examples/**"
+      - "**/*.md"
+
   workflow_dispatch:
 
 
 permissions:
   contents: write
   pull-requests: write
-  
+
 jobs:
   release-please:
     runs-on: ubuntu-latest

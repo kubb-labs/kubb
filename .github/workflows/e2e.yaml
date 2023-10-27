@@ -2,6 +2,10 @@ name: e2e
 
 on:
   pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "examples/**"
+      - "**/*.md"
   workflow_dispatch:
     # inputs:
     #   os:
@@ -12,7 +16,7 @@ on:
     #     - ubuntu-latest
     #     - macos-latest
     #     - windows-latest
-  
+
 jobs:
   build:
       name: Build and Test
@@ -31,7 +35,7 @@ jobs:
             - os: ubuntu-latest
               node-version: 18
               installer: pnpm run
-          include: 
+          include:
             - os: windows-latest
               node-version: 18
               installer: pnpm run
@@ -40,7 +44,7 @@ jobs:
               installer: bun run
 
           ## comment out for support of node 19,20
-          # include: 
+          # include:
 
             # - os: windows-latest
             #   installer: pnpm run
@@ -63,30 +67,30 @@ jobs:
             #   node-version: 20
             #   installer: bun run
             #   experimental: true
-            
+
       runs-on: ${{ matrix.os }}
       continue-on-error: ${{ matrix.experimental || false }}
- 
+
       steps:
         - name: Check out code
           uses: actions/checkout@v4
           with:
             fetch-depth: 2
- 
+
         - uses: pnpm/action-setup@v2.2.4
           with:
             version: 8
- 
+
         - name: Setup Node.js(${{ matrix.node-version }}) environment
           uses: actions/setup-node@v3
           with:
             node-version: ${{ matrix.node-version }}
             cache: 'pnpm'
             registry-url: 'https://registry.npmjs.org'
- 
+
         - name: Install dependencies
           run: pnpm install --prefer-offline
-          
+
         - name: Install bun
           if: ${{ matrix.os == 'ubuntu-latest' }}
           uses: oven-sh/setup-bun@v1
