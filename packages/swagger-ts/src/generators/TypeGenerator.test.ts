@@ -145,7 +145,7 @@ describe('TypeGenerator with refs', () => {
 })
 
 describe('TypeGenerator with discriminators', () => {
-  const discriminatorPath = path.resolve(__dirname, "../../mocks/discriminator.yaml")
+  const discriminatorPath = path.resolve(__dirname, '../../mocks/discriminator.yaml')
 
   test('PetStore defined as array with type union', async () => {
     const oas = await new OasManager().parse(discriminatorPath)
@@ -169,7 +169,7 @@ describe('TypeGenerator with discriminators', () => {
   })
 
   test('Cat.type defined as const', async () => {
-    const oas =await new OasManager().parse(discriminatorPath)
+    const oas = await new OasManager().parse(discriminatorPath)
     const generator = new TypeGenerator({
       usedEnumNames: {},
       withJSDocs: false,
@@ -204,6 +204,5 @@ describe('TypeGenerator with discriminators', () => {
     const dog_output = print(dog, undefined)
     expect(dog_output).toBeDefined()
     expect(dog_output).toMatchSnapshot()
-    })
-
+  })
 })
