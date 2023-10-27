@@ -18,6 +18,13 @@
 * update docs with examples ([9087387](https://github.com/kubb-project/kubb/commit/908738795b2c1a3612dbc556b957f41c62465dc2))
 * update README.md [skip ci] ([6fd9e5a](https://github.com/kubb-project/kubb/commit/6fd9e5a9d93674d47901769c1e52ada6255c325e))
 
+## [1.14.6](https://github.com/kubb-project/kubb/compare/kubb-v1.14.5...kubb-v1.14.6) (2023-10-27)
+
+
+### 🐞 Bug Fixes
+
+* upgrade packages ([6222f59](https://github.com/kubb-project/kubb/commit/6222f599d96ab1fa34b41720715e5004cceee56b))
+
 ## [1.14.5](https://github.com/kubb-project/kubb/compare/kubb-v1.14.4...kubb-v1.14.5) (2023-10-26)
 
 

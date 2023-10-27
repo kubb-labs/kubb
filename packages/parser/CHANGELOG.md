@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.6](https://github.com/kubb-project/kubb/compare/@kubb/parser-v1.14.5...@kubb/parser-v1.14.6) (2023-10-27)
+
+
+### 📦 Miscellaneous Chores
+
+* **@kubb/parser:** Synchronize undefined versions
+
 ## [1.14.5](https://github.com/kubb-project/kubb/compare/@kubb/parser-v1.14.4...@kubb/parser-v1.14.5) (2023-10-26)
 
 
