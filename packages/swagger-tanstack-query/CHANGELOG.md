@@ -1,5 +1,75 @@
 # Changelog
 
+## [1.14.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.14.5...@kubb/swagger-tanstack-query-v1.14.3) (2023-10-27)
+
+
+### ✨ Features
+
+* &lt;File.Source/&gt; with path and print to read external file ([4bf2d9a](https://github.com/kubb-project/kubb/commit/4bf2d9a1e3023ef90be3fb28b25554d70f844ea1))
+* &lt;File/&gt; component for `@kubb/react` ([78475db](https://github.com/kubb-project/kubb/commit/78475dbc0b2f977ecbfae27b682e3902f8ac8154))
+* `[@tanstack-query](https://github.com/tanstack-query)` v5 support ([c7d31dd](https://github.com/kubb-project/kubb/commit/c7d31dd11bb8c42d441101069d5d6b0e81db68c0))
+* `ClientBuilder` ([0746839](https://github.com/kubb-project/kubb/commit/07468390532db3494429c62284f8f94b4fe6e6b0))
+* `ClientFunction` with React for creating an axios get/post/put call ([7ef6819](https://github.com/kubb-project/kubb/commit/7ef68198c85888d76bf2949d9cc99993c1dd7fc7))
+* `contentType` to override default `application/json` ([c5d50ce](https://github.com/kubb-project/kubb/commit/c5d50ce666806fe1f34684de1d542f3ac92e53fc))
+* `dataReturnType` for @kubb/swagger-tanstack-query, @kubb/swagger-client and @kubb/swagger-swr ([9e5b124](https://github.com/kubb-project/kubb/commit/9e5b12451c592d17e41546e9d214cad80b6f24ca))
+* `Import` and `Export` component for the`react-template` plugin ([2c3f193](https://github.com/kubb-project/kubb/commit/2c3f193183641c43ca8c0f5c579b2668f4f7c1f5))
+* `overrideBy` to specify different options per `operationId | tag | path | method` ([ebb3db1](https://github.com/kubb-project/kubb/commit/ebb3db14c3796ea5211a49ccded5544ee54ad66c))
+* `QueryKeyFunction` to render queryKey with React(`@kubb/react-template`) ([0157491](https://github.com/kubb-project/kubb/commit/0157491d2007cb6e64578871f4478f1787684ed6))
+* `useOperation` and `useSchemas` hooks for `@kubb/swagger-tanstack-query` ([0ecb148](https://github.com/kubb-project/kubb/commit/0ecb148f1097727df7814804d6338b7e580f48bd))
+* `useResolve` with pluginManager(resolvePath and resolveName) ([78b1c1c](https://github.com/kubb-project/kubb/commit/78b1c1c9f850f9e256107e839b0eaa902e9e8c66))
+* ✨ skipBy to exclude `tags`, `names`, `paths`, ... out of the generation ([44be77b](https://github.com/kubb-project/kubb/commit/44be77bb8748ae0188481716ef19dc6a39f1e538))
+* **client,swr,tanstack-query:** add clientImportPath option ([f3b3b30](https://github.com/kubb-project/kubb/commit/f3b3b30501fe48a19071fe37b082d3646b81b5c8))
+* transformers ([20bc44d](https://github.com/kubb-project/kubb/commit/20bc44dda3771c1f632bace6a5c0c82cbdc5c632))
+* type for `resolveName` ([53f9893](https://github.com/kubb-project/kubb/commit/53f98933e4b1ffe834622207768257d524f1f725))
+* use of `createRoot` and `client` subPackage ([d2e7b45](https://github.com/kubb-project/kubb/commit/d2e7b4596bbdba1e1dacbcd3df6b38a3d6fde467))
+* use of `jsxImportSource` for a custom react-runtime being used by `@kubb/react-template` ([db8f351](https://github.com/kubb-project/kubb/commit/db8f3519ffa8dc2ede5309f0c4c8acb30bc6757e))
+* use of a tranformer function to override the name of the hook/type/client ([f405183](https://github.com/kubb-project/kubb/commit/f405183b198e47e732873108956f639d94d94937))
+
+
+### 📚 Documentation
+
+* add tip for `module` import ([5b7e24a](https://github.com/kubb-project/kubb/commit/5b7e24a7171e644d35e6f9a49fc2e6543868ba64))
+* better docs with examples ([fb42958](https://github.com/kubb-project/kubb/commit/fb429588f213a0ec7973fd64aa24eea17529747a))
+* readme update + typo's ([a1bb145](https://github.com/kubb-project/kubb/commit/a1bb14550c7d6d73832da612275ef66f65d32a02))
+* swagger-msw plugin ([b8f14c1](https://github.com/kubb-project/kubb/commit/b8f14c1690bc66160936c92144a2e2b0ce227d88))
+
+
+### 🐞 Bug Fixes
+
+* add `as QueryKey` cast for `@tanstack/react-query` v5 ([67a3073](https://github.com/kubb-project/kubb/commit/67a30731713b2f1a047f0cd72f728db752322305))
+* clientOptions to override Axios/Fetch options ([f9799e7](https://github.com/kubb-project/kubb/commit/f9799e70d9fafe64d53959792061f14f74d3ed21))
+* docs about wrong Badge usage, wrong import line example ([15c0cd3](https://github.com/kubb-project/kubb/commit/15c0cd34f54629292d30c57e162dad4467f8b9c8))
+* don't create an infiniteQuery when the `infinite` option is unset. ([ee8b799](https://github.com/kubb-project/kubb/commit/ee8b799c2e50cf2ce9c1eb28314dff7228363f4c))
+* getParams refactor for generics ([3b01f51](https://github.com/kubb-project/kubb/commit/3b01f51b2e9fdf891a23f655eba5680be6dcb76e))
+* headers ([fdc228a](https://github.com/kubb-project/kubb/commit/fdc228a848f180ef1f1307ccedcdaa74c16caa5c))
+* include `@kubb/react` for legacy `yarn install` ([237ade7](https://github.com/kubb-project/kubb/commit/237ade716b5b6ffc12ddcf4f50106ae7cdd7dc0a))
+* make `vue` work with refs ([d243087](https://github.com/kubb-project/kubb/commit/d2430871401ab23fc3b3af1823be3538819fdba1))
+* queryKey with `{url, params}` object ([186e05d](https://github.com/kubb-project/kubb/commit/186e05d5c310766c8579fd840ce3dc6bb6f14bb5))
+* refactor of `QueryBuilder` with `@kubb/react` ([998d9e2](https://github.com/kubb-project/kubb/commit/998d9e229fab3d614ccd82a23541fcd9003939fb))
+* remove of `types` exports field ([1c07fd7](https://github.com/kubb-project/kubb/commit/1c07fd72424db47e3a717d99ea5019bb7744f3c0))
+* remove rimraf + use of correct order for params ([03180e3](https://github.com/kubb-project/kubb/commit/03180e3d33c5dd96bb101be691ae56a2edd3f0b9))
+* ResponseConfig for mutation ([4c48ff6](https://github.com/kubb-project/kubb/commit/4c48ff694ff5df1091aad3290420b3a85234bf1c))
+* spacing TS ([4218c1b](https://github.com/kubb-project/kubb/commit/4218c1b59bbd0f2189cf2a0f88da089ed0cb086d))
+* support for PATCH ([c326d7c](https://github.com/kubb-project/kubb/commit/c326d7cafaa2ddf258579f889f061bbdf51a96fd))
+* support for refs in `tanstack-query-vue` ([1afc5cb](https://github.com/kubb-project/kubb/commit/1afc5cb645cfaa5959fc005365d679cd6abdbb6d))
+* types fix `exports` based on `https://arethetypeswrong.github.io/` ([f942def](https://github.com/kubb-project/kubb/commit/f942defb40584fdfddc94852bf751a6acf10476a))
+* upgrade `oas` + custom patch for `typesVersions` ([e9e26ae](https://github.com/kubb-project/kubb/commit/e9e26ae204a2eb3b6dc1e3a391c17a5d9d64f86c))
+* use of `fileManager.addIndexes` and `URLPath` without static functions ([9bc291d](https://github.com/kubb-project/kubb/commit/9bc291d5b9126b1d3f26803e6a1c54a3b008f634))
+* use of pluginsOptions and small cleanup ([15d50a5](https://github.com/kubb-project/kubb/commit/15d50a5d56f1ca8b44ef70be56fefc489eaf6d93))
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.10.4 ([e2607b3](https://github.com/kubb-project/kubb/commit/e2607b3499ea9c810b508456b4e0ad5841a27347))
+* release 1.11.6 ([70826b2](https://github.com/kubb-project/kubb/commit/70826b2d52d970b16a7f00a8c63f95354699df7c))
+* release 1.14.2 ([91e61ac](https://github.com/kubb-project/kubb/commit/91e61acde1c3824c40f291e1142363eaa95fb1cf))
+* release 1.14.3 ([695f324](https://github.com/kubb-project/kubb/commit/695f3242d61ac13f4284f3bdf529a3bc0e353244))
+* release 1.4.0 ([fc0de82](https://github.com/kubb-project/kubb/commit/fc0de826f94c2ff933dd2cefe26168ea6fcf8c3b))
+* release 1.4.0 ([b1d4561](https://github.com/kubb-project/kubb/commit/b1d456179bc4415168142939b4be64b225a4870f))
+* release 1.4.1 ([9805506](https://github.com/kubb-project/kubb/commit/98055065a6931b96dc1038890eb56ebb0342818f))
+* release 1.5.2 ([2f49c97](https://github.com/kubb-project/kubb/commit/2f49c97863b3dcee1a6158d97a5ca66848d52261))
+* release 1.8.0 ([218b7f0](https://github.com/kubb-project/kubb/commit/218b7f0e8ec1cbc8b6db504ec6e06d8dbeb1109e))
+
 ## [1.14.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.14.4...@kubb/swagger-tanstack-query-v1.14.5) (2023-10-26)
 
 
