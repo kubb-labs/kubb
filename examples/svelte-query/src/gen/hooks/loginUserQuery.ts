@@ -1,7 +1,7 @@
-import { createQuery } from '@tanstack/svelte-query'
+import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
 import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/svelte-query'
+import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult, CreateInfiniteQueryOptions, CreateInfiniteQueryResult } from '@tanstack/svelte-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 
 type LoginUser = KubbQueryFactory<
@@ -65,6 +65,62 @@ export function loginUserQuery<
     ...loginUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+export function loginUserQueryOptionsInfinite<
+  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
+  TError = LoginUser['error'],
+  TData = LoginUser['response'],
+  TQueryData = LoginUser['response'],
+>(
+  params?: LoginUser['queryParams'],
+  options: LoginUser['client']['paramaters'] = {},
+): CreateInfiniteQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
+  const queryKey = loginUserQueryKey(params)
+  return {
+    queryKey,
+    queryFn: ({ pageParam }) => {
+      return client<TQueryFnData, TError>({
+        method: 'get',
+        url: `/user/login`,
+        ...options,
+        params: {
+          ...params,
+          ['id']: pageParam,
+          ...(options.params || {}),
+        },
+      }).then((res) => res?.data || res)
+    },
+  }
+}
+/**
+ * @summary Logs user into the system
+ * @link /user/login
+ */
+export function loginUserQueryInfinite<
+  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
+  TError = LoginUser['error'],
+  TData = LoginUser['response'],
+  TQueryData = LoginUser['response'],
+  TQueryKey extends QueryKey = LoginUserQueryKey,
+>(
+  params?: LoginUser['queryParams'],
+  options: {
+    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData>
+    client?: LoginUser['client']['paramaters']
+  } = {},
+): CreateInfiniteQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
+  const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
+    ...loginUserQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+    ...queryOptions,
+  }) as CreateInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
