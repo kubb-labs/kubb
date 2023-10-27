@@ -135,25 +135,25 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
         isV5,
         getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey: plugin.key }),
         query: {
-          useQuery: 'useQuery',
           QueryKey: 'QueryKey',
-          UseQueryResult: 'UseQueryReturnType',
-          UseQueryOptions: 'UseQueryOptions',
-          QueryObserverOptions: isV5 ? 'QueryObserverOptions' : undefined,
-          UseInfiniteQueryOptions: 'UseInfiniteQueryOptions',
-          InfiniteQueryObserverOptions: isV5 ? 'InfiniteQueryObserverOptions' : undefined,
-          infiniteQueryOptions: isV5 ? 'infiniteQueryOptions' : undefined,
-          UseInfiniteQueryResult: 'UseInfiniteQueryReturnType',
-          InfiniteData: isV5 ? 'InfiniteData' : undefined,
+          // TODO check typings for v5 queryOptions
+          // queryOptions: isV5 ? 'queryOptions' : undefined,
+          // new types
+          hook: 'useQuery',
+          Options: isV5 ? 'QueryObserverOptions' : 'VueQueryObserverOptions',
+          Result: isV5 ? 'UseQueryReturnType' : 'UseQueryReturnType',
         },
-        queryInfinite: {},
+        queryInfinite: {
+          hook: 'useInfiniteQuery',
+          Options: isV5 ? 'UseInfiniteQueryOptions' : 'VueInfiniteQueryObserverOptions',
+          Result: isV5 ? 'UseInfiniteQueryReturnType' : 'UseInfiniteQueryReturnType',
+        },
         mutate: {
-          useMutation: 'useMutation',
-          UseMutationOptions: isV5 ? 'MutationObserverOptions' : 'VueMutationObserverOptions',
-          MutationObserverOptions: 'MutationObserverOptions',
-          UseMutationResult: 'UseMutationReturnType',
+          hook: 'useMutation',
+          Options: isV5 ? 'UseMutationOptions' : 'VueMutationObserverOptions',
+          Result: isV5 ? 'UseMutationReturnType' : 'UseMutationReturnType',
         },
-      } as unknown as FrameworkImports
+      }
     }
 
     const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
@@ -223,14 +223,22 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
 
       const values = Object.values(this.getFrameworkSpecificImports('vue')[type])
         .filter(Boolean)
-        .filter((item) => item !== 'VueMutationObserverOptions')
+        .filter((item) => item !== 'VueMutationObserverOptions' && item !== 'VueQueryObserverOptions' && item !== 'VueInfiniteQueryObserverOptions')
 
       return [
-        isV5 ? undefined : {
+        ...isV5 ? [] : [{
+          name: ['VueInfiniteQueryObserverOptions'],
+          path: '@tanstack/vue-query/build/lib/types',
+          isTypeOnly: true,
+        }, {
           name: ['VueMutationObserverOptions'],
           path: '@tanstack/vue-query/build/lib/useMutation',
           isTypeOnly: true,
-        },
+        }, {
+          name: ['VueQueryObserverOptions'],
+          path: '@tanstack/vue-query/build/lib/types',
+          isTypeOnly: true,
+        }],
         {
           name: ['unref'],
           path: 'vue',

@@ -59,7 +59,7 @@ function QueryKeyFunctionBase({ name, typeName, factoryTypeName }: Props): React
   )
 }
 
-function QueryKeyFunctionVue({ name }: Props): ReactNode {
+function QueryKeyFunctionVue({ name, typeName, factoryTypeName }: Props): ReactNode {
   const schemas = useSchemas()
   const operation = useOperation()
   const path = new URLPath(operation.path)
@@ -73,7 +73,7 @@ function QueryKeyFunctionVue({ name }: Props): ReactNode {
     }),
     {
       name: 'params',
-      type: schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : undefined,
+      type: schemas.queryParams?.name ? `MaybeRef<${`${factoryTypeName}["queryParams"]`}>` : undefined,
       enabled: !!schemas.queryParams?.name,
       required: !!schemas.queryParams?.schema.required?.length,
     },
@@ -89,9 +89,13 @@ function QueryKeyFunctionVue({ name }: Props): ReactNode {
   ].filter(Boolean)
 
   return (
-    <Function.Arrow name={name} export params={params.toString()} singleLine>
-      {`[${result.join(',')}] as const;`}
-    </Function.Arrow>
+    <>
+      <Function.Arrow name={name} export params={params.toString()} singleLine>
+        {`[${result.join(',')}] as const;`}
+      </Function.Arrow>
+
+      {`export type ${typeName} = ReturnType<typeof ${name}>`}
+    </>
   )
 }
 
