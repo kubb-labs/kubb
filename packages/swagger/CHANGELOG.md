@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.14.3](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.14.6...@kubb/swagger-v1.14.3) (2023-10-27)
+
+
+### ✨ Features
+
+* `input.data` for oasParser ([feb56f4](https://github.com/kubb-project/kubb/commit/feb56f49f4b12215d5c948c3508d058fb5eb42c1))
+* `overrideBy` to specify different options per `operationId | tag | path | method` ([ebb3db1](https://github.com/kubb-project/kubb/commit/ebb3db14c3796ea5211a49ccded5544ee54ad66c))
+* `pathParamsType` to override behaviour when calling a generated get/post/put function ([12624c4](https://github.com/kubb-project/kubb/commit/12624c4e426b417e50e5f19665fd1b529b3d0b6a))
+* type for `resolveName` ([53f9893](https://github.com/kubb-project/kubb/commit/53f98933e4b1ffe834622207768257d524f1f725))
+
+
+### 📚 Documentation
+
+* better docs with examples ([fb42958](https://github.com/kubb-project/kubb/commit/fb429588f213a0ec7973fd64aa24eea17529747a))
+* update docs with examples ([9087387](https://github.com/kubb-project/kubb/commit/908738795b2c1a3612dbc556b957f41c62465dc2))
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.11.6 ([70826b2](https://github.com/kubb-project/kubb/commit/70826b2d52d970b16a7f00a8c63f95354699df7c))
+* release 1.14.2 ([91e61ac](https://github.com/kubb-project/kubb/commit/91e61acde1c3824c40f291e1142363eaa95fb1cf))
+* release 1.14.3 ([695f324](https://github.com/kubb-project/kubb/commit/695f3242d61ac13f4284f3bdf529a3bc0e353244))
+
+
+### 🐞 Bug Fixes
+
+* upgrade packages ([6222f59](https://github.com/kubb-project/kubb/commit/6222f599d96ab1fa34b41720715e5004cceee56b))
+* use of `fileManager.addIndexes` and `URLPath` without static functions ([9bc291d](https://github.com/kubb-project/kubb/commit/9bc291d5b9126b1d3f26803e6a1c54a3b008f634))
+
 ## [1.14.6](https://github.com/kubb-project/kubb/compare/@kubb/swagger-v1.14.5...@kubb/swagger-v1.14.6) (2023-10-27)
 
 
