@@ -2,16 +2,10 @@ name: pr
 
 on:
   pull_request:
-  workflow_dispatch:
-    # inputs:
-    #   os:
-    #     description: Choose os
-    #     required: true
-    #     type: choice
-    #     options:
-    #       - ubuntu-latest
-    #       - macos-latest
-    #       - windows-latest
+    paths-ignore:
+      - "docs/**"
+      - "examples/**"
+      - "**/*.md"
 
 jobs:
   build:

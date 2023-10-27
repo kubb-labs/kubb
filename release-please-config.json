@@ -1,6 +1,9 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "separate-pull-requests": false,
+  "last-release-sha": "ba0b3636fe9ab5112ea6d647f6588057428ddf63",
+  "release-search-depth": 20,
+  "commit-search-depth": 100,
   "changelog-sections": [
     {
       "type": "feat",
