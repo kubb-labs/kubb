@@ -132,6 +132,7 @@ export const configExamples: Linter.FlatConfig = {
         tsx: 'always',
       },
     ],
+    'simple-import-sort/imports': ['off'],
   },
 }
 
