@@ -138,7 +138,6 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
           QueryKey: 'QueryKey',
           // TODO check typings for v5 queryOptions
           // queryOptions: isV5 ? 'queryOptions' : undefined,
-          // new types
           hook: 'useQuery',
           Options: isV5 ? 'QueryObserverOptions' : 'VueQueryObserverOptions',
           Result: isV5 ? 'UseQueryReturnType' : 'UseQueryReturnType',
@@ -167,7 +166,8 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
         // queryOptions: isV5 ? 'queryOptions' : undefined,
         // new types
         hook: 'useQuery',
-        Options: isV5 ? 'UseBaseQueryOptions' : 'UseBaseQueryOptions',
+        // TODO check if we can just use QueryObserverOptions for all v5 frameworks
+        Options: isV5 ? 'QueryObserverOptions' : 'UseBaseQueryOptions',
         Result: isV5 ? 'UseQueryResult' : 'UseQueryResult',
       },
       queryInfinite: {

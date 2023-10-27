@@ -305,6 +305,8 @@ export class QueryBuilder extends OasBuilder<Options> {
     // TODO check why we need any for v5
     const useQueryGenerics = [frameworkImports.isV5 ? 'any' : 'TQueryFnData', 'TError', 'TData', 'any']
     const queryOptionsGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData']
+    // only neeed for the options to override the useQuery options/params
+    const queryOptionsOverrideGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData', 'TQueryKey']
 
     queryParams.add([
       ...getASTParams(schemas.pathParams, {
@@ -371,7 +373,7 @@ export class QueryBuilder extends OasBuilder<Options> {
         {
           name: 'options',
           type: `{
-            query?: ${QueryOptions}<${queryOptionsGenerics.join(', ')}>,
+            query?: ${QueryOptions}<${queryOptionsOverrideGenerics.join(', ')}>,
             client?: ${this.#names.queryFactoryType}['client']['paramaters']
           }`,
           default: '{}',
