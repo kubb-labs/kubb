@@ -104,25 +104,17 @@ export type Framework = 'react' | 'solid' | 'svelte' | 'vue'
 export type FrameworkImports = {
   getName: (operation: Operation) => string
   query: {
-    /**
-     * @deprecated
-     */
-    useQuery: string
-    /**
-     * @deprecated
-     */
     QueryKey: string
     /**
      * @deprecated
      */
-    UseQueryResult: string
+    UseQueryResult?: string
     /**
      * @deprecated
      */
-    UseQueryOptions: string
+    UseQueryOptions?: string
     /**
      * v5 only
-     *  @deprecated
      */
     queryOptions?: string
     /**
@@ -134,7 +126,7 @@ export type FrameworkImports = {
      * Infinte
      *  @deprecated
      */
-    UseInfiniteQueryOptions: string
+    UseInfiniteQueryOptions?: string
     /**
      * v5 only
      *  @deprecated
@@ -153,25 +145,24 @@ export type FrameworkImports = {
     /**
      * @deprecated
      */
-    UseInfiniteQueryResult: string
+    UseInfiniteQueryResult?: string
 
-    /**
-     * @deprecated
-     */
-    useInfiniteQuery: string
     // types
+    hook?: string
     Options?: string
     Result?: string
   }
+  queryInfinite: {
+    // types
+    hook?: string
+    Options?: string
+    Result?: string
+  },
   mutate: {
     /**
      * @deprecated
      */
-    useMutation: string
-    /**
-     * @deprecated
-     */
-    UseMutationOptions: string
+    UseMutationOptions?: string
     /**
      * v5 only
      */
@@ -179,8 +170,9 @@ export type FrameworkImports = {
     /**
      * @deprecated
      */
-    UseMutationResult: string
+    UseMutationResult?: string
     // types
+    hook?: string
     Options?: string
     Result?: string
   }

@@ -2,14 +2,14 @@ import { build } from './build.ts'
 
 import type { ObjValueTuple, TupleToUnion } from './types.ts'
 
-// dprint-ignore
 export { build } from './build.ts'
 export * from './config.ts'
 export * from './errors.ts'
 export * from './FileManager.ts'
 export { Generator } from './Generator.ts'
 export { PackageManager } from './PackageManager.ts'
-export { createPlugin, pluginName as name,pluginName } from './plugin.ts'
+// dprint-ignore
+export { createPlugin, pluginName as name, pluginName } from './plugin.ts'
 export { PluginManager } from './PluginManager.ts'
 export { PromiseManager } from './PromiseManager.ts'
 export { SchemaGenerator } from './SchemaGenerator.ts'

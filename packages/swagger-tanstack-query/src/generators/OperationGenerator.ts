@@ -100,7 +100,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
           MutationObserverOptions: 'MutationObserverOptions',
           UseMutationResult: 'CreateMutationResult',
         },
-      }
+      } as unknown as FrameworkImports
     }
 
     if (framework === 'solid') {
@@ -123,13 +123,16 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
           useInfiniteQuery: 'createInfiniteQuery',
           InfiniteData: isV5 ? 'InfiniteData' : undefined,
         },
+        queryInfinite: {
+
+        },
         mutate: {
           useMutation: 'createMutation',
           UseMutationOptions: 'CreateMutationOptions',
           MutationObserverOptions: 'MutationObserverOptions',
           UseMutationResult: 'CreateMutationResult',
         },
-      }
+      } as unknown as FrameworkImports
     }
 
     if (framework === 'vue') {
@@ -148,8 +151,10 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
           InfiniteQueryObserverOptions: isV5 ? 'InfiniteQueryObserverOptions' : undefined,
           infiniteQueryOptions: isV5 ? 'infiniteQueryOptions' : undefined,
           UseInfiniteQueryResult: 'UseInfiniteQueryReturnType',
-          useInfiniteQuery: 'useInfiniteQuery',
           InfiniteData: isV5 ? 'InfiniteData' : undefined,
+        },
+        queryInfinite: {
+
         },
         mutate: {
           useMutation: 'useMutation',
@@ -157,7 +162,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
           MutationObserverOptions: 'MutationObserverOptions',
           UseMutationResult: 'UseMutationReturnType',
         },
-      }
+      } as unknown as FrameworkImports
     }
 
     const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
@@ -166,27 +171,21 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
       isV5,
       getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey: plugin.key }),
       query: {
-        useQuery: 'useQuery', // checked
         QueryKey: 'QueryKey',
-        UseQueryResult: 'UseQueryResult',
-        UseQueryOptions: 'UseQueryOptions',
-        queryOptions: isV5 ? 'queryOptions' : undefined,
-        QueryObserverOptions: isV5 ? 'QueryObserverOptions' : undefined,
-        UseInfiniteQueryOptions: 'UseInfiniteQueryOptions',
-        InfiniteQueryObserverOptions: isV5 ? 'InfiniteQueryObserverOptions' : undefined,
-        infiniteQueryOptions: isV5 ? 'infiniteQueryOptions' : undefined,
-        UseInfiniteQueryResult: 'UseInfiniteQueryResult',
-        useInfiniteQuery: 'useInfiniteQuery',
-        InfiniteData: isV5 ? 'InfiniteData' : undefined,
+        queryOptions: isV5 ? "queryOptions": undefined,
         // new types
+        hook: 'useQuery',
         Options: isV5 ? 'UseBaseQueryOptions' : 'UseBaseQueryOptions',
         Result: isV5 ? 'UseQueryResult' : 'UseQueryResult',
       },
+      queryInfinite: {
+        hook: 'useInfiniteQuery',
+        Options: isV5 ? 'UseInfiniteQueryOptions' : 'UseInfiniteQueryOptions',
+        Result: isV5 ? 'UseInfiniteQueryResult' : 'UseInfiniteQueryResult',
+      },
       mutate: {
-        useMutation: 'useMutation',
-        UseMutationOptions: 'UseMutationOptions',
-        MutationObserverOptions: 'MutationObserverOptions',
-        UseMutationResult: 'UseMutationResult',
+        hook: 'useMutation',
+       // UseInfiniteQueryOptions
         // new types
         Options: isV5 ? 'UseMutationOptions' : 'UseMutationOptions',
         Result: isV5 ? 'UseMutationResult' : 'UseMutationResult',
@@ -194,7 +193,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
     }
   }
 
-  getQueryImports(type: 'query' | 'mutate'): Array<KubbFile.Import> {
+  getQueryImports(type: 'query'| "queryInfinite" | 'mutate'): Array<KubbFile.Import> {
     const { framework } = this.options
 
     if (framework === 'svelte') {
@@ -288,12 +287,10 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
-    // TODO remove getName
-    const imports = this.getFrameworkSpecificImports(framework)
-    const name = imports.getName(operation)
+    const frameworkImports = this.getFrameworkSpecificImports(framework)
+    const name = frameworkImports.getName(operation)
 
     let errors: Resolver[] = []
-    const frameworkImports = this.getFrameworkSpecificImports(framework)
 
     if (schemas.errors) {
       errors = this.resolveErrors(operation, schemas.errors)
@@ -335,6 +332,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
           imports: [
             ...(renderedFile.imports || []),
             ...this.getQueryImports('query'),
+            ...this.getQueryImports('queryInfinite'),
             {
               name: 'client',
               path: clientImportPath,
@@ -371,12 +369,10 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
-    // TODO remove getName
-    const imports = this.getFrameworkSpecificImports(framework)
-    const name = imports.getName(operation)
+    const frameworkImports = this.getFrameworkSpecificImports(framework)
+    const name = frameworkImports.getName(operation)
 
     let errors: Resolver[] = []
-    const frameworkImports = this.getFrameworkSpecificImports(framework)
 
     if (schemas.errors) {
       errors = this.resolveErrors(operation, schemas.errors)

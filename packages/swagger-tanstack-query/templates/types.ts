@@ -7,6 +7,7 @@ export type KubbQueryFactory<
   TError = unknown,
   TRequest = unknown,
   TPathParams = unknown,
+  // TODO add headerparams
   TQueryParams = unknown,
   TResponse = TData,
   TOptions extends {
