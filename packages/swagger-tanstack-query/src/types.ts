@@ -157,7 +157,7 @@ export type FrameworkImports = {
     hook?: string
     Options?: string
     Result?: string
-  },
+  }
   mutate: {
     /**
      * @deprecated

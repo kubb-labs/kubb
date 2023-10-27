@@ -171,42 +171,41 @@ export class QueryBuilder extends OasBuilder<Options> {
         name = `${name}Infinite`
       }
 
-      if (frameworkImports.isV5) {
-        // TODO
+      if (frameworkImports.isV5 && frameworkImports.query.queryOptions) {
+        // v5 with queryOptions
         text = `
-        export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.Options}<${queryOptionsGenerics.join(', ')}> {
-          const queryKey = ${queryKey};
+       export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.Options}<${queryOptionsGenerics.join(', ')}> {
+         const queryKey = ${queryKey}
 
-          return ${frameworkImports.query.queryOptions}<${queryOptionsGenerics.join(', ')}>({
-            queryKey: queryKey as QueryKey,
-            queryFn: () => {
-              ${unrefs}
-              return client<${clientGenerics.join(', ')}>({
-                method: "get",
-                url: ${new URLPath(operation.path).template},
-                ${schemas.queryParams?.name ? 'params,' : ''}
-                ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
-                ...options,
-              }).then(res => res?.data || res);
-            },
-          });
-        };
-        `
-      } else {
-        if (infinite) {
-          const pageParamText = ` ${
-            schemas.queryParams?.name
-              ? `params: {
+         return ${frameworkImports.query.queryOptions}<${queryOptionsGenerics.join(', ')}>({
+           queryKey,
+           queryFn: () => {
+             ${unrefs}
+             return client<${clientGenerics.join(', ')}>({
+               method: "get",
+               url: ${new URLPath(operation.path).template},
+               ${schemas.queryParams?.name ? 'params,' : ''}
+               ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+               ...options,
+             }).then(res => res?.data || res)
+           },
+         })
+       }
+       `
+      } else if (!frameworkImports.isV5 && infinite) {
+        const pageParamText = ` ${
+          schemas.queryParams?.name
+            ? `params: {
                     ...params,
                     ['${queryParam}']: pageParam,
                     ...(options.params || {}),
                   }`
-              : ''
-          }`
-          // infinite v4
-          text = `
+            : ''
+        }`
+        // infinite v4
+        text = `
    export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.queryInfinite.Options}<${queryOptionsGenerics.join(', ')}> {
-     const queryKey = ${queryKey};
+     const queryKey = ${queryKey}
 
      return {
        queryKey,
@@ -218,16 +217,48 @@ export class QueryBuilder extends OasBuilder<Options> {
            ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
            ...options,
            ${pageParamText}
-         }).then(res => res?.data || res);
+         }).then(res => res?.data || res)
        },
-     };
-   };
+     }
+   }
    `
-        } else {
-          // v4
-          text = `
+      } else if (frameworkImports.isV5 && infinite) {
+        const pageParamText = ` ${
+          schemas.queryParams?.name
+            ? `params: {
+              ...params,
+              ['${queryParam}']: pageParam,
+              ...(options.params || {}),
+            }`
+            : ''
+        }`
+        // infinite v5
+        text = `
+        export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.queryInfinite.Options}<${queryOptionsGenerics.join(', ')}> {
+          const queryKey = ${queryKey}
+
+          return {
+           queryKey,
+           queryFn: ({ pageParam }) => {
+             ${unrefs}
+             return client<${clientGenerics.join(', ')}>({
+               method: "get",
+               url: ${new URLPath(operation.path).template},
+               ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+               ...options,
+               ${pageParamText}
+              }).then(res => res?.data || res)
+             },
+             initialPageParam: ${initialPageParam || 'undefined'},
+             getNextPageParam: (lastPage) => lastPage['${queryParam}'],
+            }
+          }
+          `
+      } else {
+        // v4
+        text = `
         export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.Options}<${queryOptionsGenerics.join(', ')}> {
-          const queryKey = ${queryKey};
+          const queryKey = ${queryKey}
 
           return {
             queryKey,
@@ -239,12 +270,11 @@ export class QueryBuilder extends OasBuilder<Options> {
                 ${schemas.queryParams?.name ? 'params,' : ''}
                 ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
                 ...options,
-              }).then(res => res?.data || res);
+              }).then(res => res?.data || res)
             },
-          };
-        };
-        `
+          }
         }
+        `
       }
 
       return <>{text}</>
@@ -275,10 +305,9 @@ export class QueryBuilder extends OasBuilder<Options> {
     ])
 
     const resultGenerics = ['TData', 'TError']
-    const useQueryGenerics = ['TQueryFnData', 'TError', 'TData', 'any']
+    // TODO check why we need any for v5
+    const useQueryGenerics = [frameworkImports.isV5 ? 'any' : 'TQueryFnData', 'TError', 'TData', 'any']
     const queryOptionsGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData']
-    const queryBaseOptionsGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData', 'TQueryKey']
-
 
     queryParams.add([
       ...getASTParams(schemas.pathParams, {
@@ -306,8 +335,8 @@ export class QueryBuilder extends OasBuilder<Options> {
 
       let name = this.#names.query
       let hookName = frameworkImports.query.hook
-      let QueryResult =frameworkImports.query.Result
-      let QueryOptions =frameworkImports.query.Options
+      let QueryResult = frameworkImports.query.Result
+      let QueryOptions = frameworkImports.query.Options
 
       const queryKey = `${this.#names.queryKey}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
         schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
@@ -318,10 +347,9 @@ export class QueryBuilder extends OasBuilder<Options> {
         queryOptions = `${this.#names.queryOptions}Infinite<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`
         name = `${name}Infinite`
         hookName = frameworkImports.queryInfinite.hook
-        QueryResult= frameworkImports.queryInfinite.Result
-        QueryOptions =frameworkImports.queryInfinite.Options
+        QueryResult = frameworkImports.queryInfinite.Result
+        QueryOptions = frameworkImports.queryInfinite.Options
       }
-
 
       params.add([
         ...getASTParams(schemas.pathParams, {
@@ -346,7 +374,7 @@ export class QueryBuilder extends OasBuilder<Options> {
         {
           name: 'options',
           type: `{
-            query?: ${QueryOptions}<${queryBaseOptionsGenerics.join(', ')}>,
+            query?: ${QueryOptions}<${queryOptionsGenerics.join(', ')}>,
             client?: ${this.#names.queryFactoryType}['client']['paramaters']
           }`,
           default: '{}',
@@ -362,18 +390,18 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${QueryR
               ', ',
             )
           }> & { queryKey: TQueryKey } {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {};
-  const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey}
 
   const query = ${hookName}<${useQueryGenerics.join(', ')}>({
     ...${queryOptions},
     ...queryOptions
-  }) as ${QueryResult}<${resultGenerics.join(', ')}> & { queryKey: TQueryKey };
+  }) as ${QueryResult}<${resultGenerics.join(', ')}> & { queryKey: TQueryKey }
 
-  query.queryKey = queryKey as TQueryKey;
+  query.queryKey = queryKey as TQueryKey
 
-  return query;
-};
+  return query
+}
 `}
         </>
       )
@@ -453,7 +481,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${QueryR
           {transformers.JSDoc.createJSDocBlockText({ comments })}
           {`
 export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.mutate.Result}<${resultGenerics.join(', ')}> {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
   return ${frameworkImports.mutate.hook}<${resultGenerics.join(', ')}>({
     mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
@@ -465,11 +493,11 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
         ${schemas.queryParams?.name ? 'params,' : ''}
         ${schemas.headerParams?.name ? 'headers: { ...headers, ...clientOptions.headers },' : ''}
         ...clientOptions
-      });
+      })
     },
     ...mutationOptions
-  });
-};
+  })
+}
 `}
         </>
       )

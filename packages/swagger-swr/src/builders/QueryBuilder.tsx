@@ -47,8 +47,6 @@ export class QueryBuilder extends OasBuilder<Options> {
     const clientGenerics = ['TData', 'TError']
     const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
 
-
-
     const Component = () => {
       const params = new FunctionParams()
 
@@ -90,10 +88,10 @@ export class QueryBuilder extends OasBuilder<Options> {
           ${schemas.queryParams?.name ? 'params,' : ''}
           ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
           ...options,
-        }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
+        }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'})
       },
-    };
-  };
+    }
+  }
   `}
         </>
       )
@@ -173,16 +171,16 @@ export class QueryBuilder extends OasBuilder<Options> {
           {transformers.JSDoc.createJSDocBlockText({ comments })}
           {`
     export function ${name} <${generics.toString()}>(${params.toString()}): SWRResponse<${queryGenerics.join(', ')}> {
-      const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
+      const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-      const url = shouldFetch ? ${new URLPath(operation.path).template} : null;
+      const url = shouldFetch ? ${new URLPath(operation.path).template} : null
       const query = useSWR<${queryGenerics.join(', ')}, string | null>(url, {
         ...${queryOptions},
         ...queryOptions
-      });
+      })
 
-      return query;
-    };
+      return query
+    }
     `}
         </>
       )
@@ -198,7 +196,6 @@ export class QueryBuilder extends OasBuilder<Options> {
 
     const generics = new FunctionParams()
 
-
     generics.add([
       { type: 'TData', default: schemas.response.name },
       { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
@@ -207,7 +204,6 @@ export class QueryBuilder extends OasBuilder<Options> {
 
     const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : undefined].filter(Boolean)
     const mutationGenerics = ['ResponseConfig<TData>', 'TError', 'string | null', schemas.request?.name ? `TVariables` : 'never'].filter(Boolean)
-
 
     const Component = () => {
       const params = new FunctionParams()
@@ -239,7 +235,6 @@ export class QueryBuilder extends OasBuilder<Options> {
         },
       ])
 
-
       return (
         <>
           {transformers.JSDoc.createJSDocBlockText({ comments })}
@@ -249,9 +244,9 @@ export function ${name} <
 >(
   ${params.toString()}
 ): SWRMutationResponse<${mutationGenerics.join(', ')}> {
-  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {};
+  const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-  const url = shouldFetch ? ${new URLPath(operation.path).template} : null;
+  const url = shouldFetch ? ${new URLPath(operation.path).template} : null
   return useSWRMutation<${mutationGenerics.join(', ')}>(
     url,
     (url${schemas.request?.name ? ', { arg: data }' : ''}) => {
@@ -265,8 +260,8 @@ export function ${name} <
       })
     },
     mutationOptions
-  );
-};
+  )
+}
 `}
         </>
       )

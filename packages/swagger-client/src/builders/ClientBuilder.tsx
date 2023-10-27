@@ -37,7 +37,6 @@ export class ClientBuilder extends OasBuilder<Options> {
 
     clientGenerics.add([{ type: 'TData' }, { type: 'TVariables', enabled: !!schemas.request?.name }])
 
-
     const Component = () => {
       const params = new FunctionParams()
       const schemas = useSchemas()
@@ -69,7 +68,6 @@ export class ClientBuilder extends OasBuilder<Options> {
           default: '{}',
         },
       ])
-
 
       return (
         <ClientFunction

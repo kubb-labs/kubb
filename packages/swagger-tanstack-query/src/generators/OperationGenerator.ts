@@ -123,9 +123,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
           useInfiniteQuery: 'createInfiniteQuery',
           InfiniteData: isV5 ? 'InfiniteData' : undefined,
         },
-        queryInfinite: {
-
-        },
+        queryInfinite: {},
         mutate: {
           useMutation: 'createMutation',
           UseMutationOptions: 'CreateMutationOptions',
@@ -153,9 +151,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
           UseInfiniteQueryResult: 'UseInfiniteQueryReturnType',
           InfiniteData: isV5 ? 'InfiniteData' : undefined,
         },
-        queryInfinite: {
-
-        },
+        queryInfinite: {},
         mutate: {
           useMutation: 'useMutation',
           UseMutationOptions: isV5 ? 'MutationObserverOptions' : 'VueMutationObserverOptions',
@@ -172,7 +168,8 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
       getName: (operation) => pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey: plugin.key }),
       query: {
         QueryKey: 'QueryKey',
-        queryOptions: isV5 ? "queryOptions": undefined,
+        // TODO check typings for v5 queryOptions
+        // queryOptions: isV5 ? 'queryOptions' : undefined,
         // new types
         hook: 'useQuery',
         Options: isV5 ? 'UseBaseQueryOptions' : 'UseBaseQueryOptions',
@@ -185,7 +182,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
       },
       mutate: {
         hook: 'useMutation',
-       // UseInfiniteQueryOptions
+        // UseInfiniteQueryOptions
         // new types
         Options: isV5 ? 'UseMutationOptions' : 'UseMutationOptions',
         Result: isV5 ? 'UseMutationResult' : 'UseMutationResult',
@@ -193,7 +190,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
     }
   }
 
-  getQueryImports(type: 'query'| "queryInfinite" | 'mutate'): Array<KubbFile.Import> {
+  getQueryImports(type: 'query' | 'queryInfinite' | 'mutate'): Array<KubbFile.Import> {
     const { framework } = this.options
 
     if (framework === 'svelte') {

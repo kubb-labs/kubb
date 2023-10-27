@@ -34,8 +34,8 @@ export class MSWBuilder extends OasBuilder<Options> {
           headers: {
             'Content-Type': 'application/json',
           },
-        });
-      });
+        })
+      })
       `}
           </>
         )
@@ -47,8 +47,8 @@ export class MSWBuilder extends OasBuilder<Options> {
     export const ${name} = rest.${operation.method}('*${new URLPath(operation.path).toURLPath()}', function handler(req, res, ctx) {
       return res(
         ctx.json(${responseName}()),
-      );
-    });
+      )
+    })
     `}
         </>
       )
