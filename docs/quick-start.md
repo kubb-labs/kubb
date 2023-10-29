@@ -43,7 +43,7 @@ export default defineConfig(async () => {
 
 :::
 
-## Advanced example <Badge type="warning" text="experimental" />
+## Advanced example <img src="/icons/experimental.svg"/>
 
 Since version `2.x.x` we also support using multiple entry(OpenAPI/Swagger) files.
 

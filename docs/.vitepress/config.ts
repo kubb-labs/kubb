@@ -194,11 +194,11 @@ export default defineConfig({
                 link: '/plugins/swagger-client/',
                 items: [
                   {
-                    text: 'globals.d.ts <span class="beta">beta</span>',
+                    text: 'globals.d.ts <img src="/icons/experimental.svg"/>',
                     link: '/plugins/swagger-client/globals',
                   },
                   {
-                    text: 'client <span class="beta">beta</span>',
+                    text: 'client <img src="/icons/experimental.svg"/>',
                     link: '/plugins/swagger-client/client',
                   },
                 ],

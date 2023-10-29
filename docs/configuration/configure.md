@@ -141,7 +141,7 @@ export default defineConfig(async () => {
 
 :::
 
-### Multiple <Badge type="warning" text="experimental" />
+### Multiple <img src="/icons/experimental.svg"/>
 
 Since version `2.x.x` we also support using multiple of the same plugin.
 
@@ -180,7 +180,7 @@ export default defineConfig(async () => {
 
 :::
 
-### Multiple JSON <Badge type="warning" text="experimental" />
+### Multiple JSON <img src="/icons/experimental.svg"/>
 
 Since version `2.x.x` we also support using multiple of the same plugin.
 
@@ -262,7 +262,7 @@ Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/pl
 
 :::
 
-### Multiple <Badge type="warning" text="experimental" />
+### Multiple <img src="/icons/experimental.svg"/>
 
 Since version `2.x.x` we also support using multiple of the same plugin.
 
@@ -300,7 +300,7 @@ Since version `2.x.x` we also support using multiple of the same plugin.
 
 :::
 
-## YAML <Badge type="warning" text="experimental" />
+## YAML <img src="/icons/experimental.svg"/>
 
 ### Example with a plugin
 

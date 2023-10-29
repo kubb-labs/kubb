@@ -185,7 +185,7 @@ export default defineConfig({
 
 :::
 
-### dataReturnType <Badge type="warning" text="experimental" />
+### dataReturnType <img src="/icons/experimental.svg"/>
 
 ReturnType that needs to be used when calling client().
 
@@ -273,7 +273,7 @@ export default defineConfig({
 
 :::
 
-### pathParamsType <Badge type="warning" text="experimental" />
+### pathParamsType <img src="/icons/experimental.svg"/>
 
 How to pass your pathParams.
 

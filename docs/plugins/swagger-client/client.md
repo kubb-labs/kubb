@@ -5,7 +5,7 @@ title: Client
 outline: deep
 ---
 
-# Client <Badge type="warning" text="beta" />
+# Client <img src="/icons/experimental.svg"/>
 
 ## Features
 

@@ -5,7 +5,7 @@ title: Globals.d.ts
 outline: deep
 ---
 
-# Globals.d.ts <Badge type="warning" text="beta" />
+# Globals.d.ts <img src="/icons/experimental.svg"/>
 
 ## Features
 

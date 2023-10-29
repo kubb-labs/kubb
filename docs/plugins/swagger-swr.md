@@ -191,7 +191,7 @@ export default defineConfig({
 
 :::
 
-### dataReturnType <Badge type="warning" text="experimental" />
+### dataReturnType <img src="/icons/experimental.svg"/>
 
 ReturnType that needs to be used when calling client().
 
