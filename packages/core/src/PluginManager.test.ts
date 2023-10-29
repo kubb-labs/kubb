@@ -111,6 +111,10 @@ describe('PluginManager', () => {
     task: queueTaskMock,
   })
 
+  afterEach(() => {
+    pluginBMocks.resolvePath.mockReset()
+  })
+
   test('if pluginManager can be created', () => {
     expect(pluginManager.queue).toBeDefined()
     expect(pluginManager.fileManager).toBeDefined()

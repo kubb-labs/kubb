@@ -1,34 +1,36 @@
-import { hookSeq } from './utils/executeStrategies.ts'
+import { hookFirst, hookSeq } from './utils/executeStrategies.ts'
+
+import type { Strategy, StrategySwitch } from './utils/executeStrategies.ts'
 
 type PossiblePromise<T> = Promise<T> | T
 
-type PromiseFunc<T, T2 = never> = () => T2 extends never ? Promise<T> : Promise<T> | T2
+type PromiseFunc<T = unknown, T2 = never> = () => T2 extends never ? Promise<T> : Promise<T> | T2
 
-type SeqOutput<TInput extends Array<PromiseFunc<TPromise, null>>, TPromise = unknown> = ReturnType<NonNullable<TInput[number]>>
+type Options<TState = any> = {
+  nullCheck?: (state: TState) => boolean
+}
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type Options = {}
+export class PromiseManager<TState = any> {
+  #options: Options<TState> = {}
 
-type Strategy = 'seq'
-
-export class PromiseManager {
-  #options: Options = {}
-
-  constructor(options: Options = {}) {
+  constructor(options: Options<TState> = {}) {
     this.#options = options
 
     return this
   }
 
-  run<TInput extends Array<PromiseFunc<TPromise, null>>, TPromise = unknown, TOutput = SeqOutput<TInput, TPromise>>(
-    strategy: Strategy,
+  run<TInput extends Array<PromiseFunc<TValue, null>>, TValue, TStrategy extends Strategy, TOutput = StrategySwitch<TStrategy, TInput, TValue>>(
+    strategy: TStrategy,
     promises: TInput,
   ): TOutput {
     if (strategy === 'seq') {
-      return hookSeq<TInput, TPromise, TOutput>(promises)
+      return hookSeq<TInput, TValue, TOutput>(promises)
     }
 
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    if (strategy === 'first') {
+      return hookFirst<TInput, TValue, TOutput>(promises, this.#options.nullCheck)
+    }
+
     throw new Error(`${strategy} not implemented`)
   }
 }

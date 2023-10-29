@@ -34,6 +34,11 @@ export namespace KubbFile {
     asAlias?: boolean
   }
 
+  export declare const dataTagSymbol: unique symbol
+  export type DataTag<Type, Value> = Type & {
+    [dataTagSymbol]: Value
+  }
+
   export type UUID = string
   export type Source = string
 
@@ -89,7 +94,10 @@ export namespace KubbFile {
     validate?: boolean
   }
 
-  export type ResolvedFile = KubbFile.File & {
+  export type ResolvedFile<
+    TMeta extends FileMetaBase = FileMetaBase,
+    TBaseName extends BaseName = BaseName,
+  > = KubbFile.File<TMeta, TBaseName> & {
     /**
      * @default crypto.randomUUID()
      */

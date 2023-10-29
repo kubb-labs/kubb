@@ -94,7 +94,7 @@ export class PluginManager {
     this.logger = options.logger
     this.queue = new Queue(100, this.logger.logLevel === LogLevel.debug)
     this.fileManager = new FileManager({ task: options.task, queue: this.queue, timeout: options.writeTimeout })
-    this.#promiseManager = new PromiseManager()
+    this.#promiseManager = new PromiseManager({ nullCheck: (state: SafeParseResult<'resolveName'> | null) => !!state?.result })
 
     const plugins = config.plugins || []
 
@@ -226,7 +226,7 @@ export class PluginManager {
   /**
    * Chains, first non-null result stops and returns
    */
-  hookFirst<H extends PluginLifecycleHooks>({
+  async hookFirst<H extends PluginLifecycleHooks>({
     hookName,
     parameters,
     skipped,
@@ -235,16 +235,10 @@ export class PluginManager {
     parameters: PluginParameter<H>
     skipped?: ReadonlySet<KubbPlugin> | null
   }): Promise<SafeParseResult<H>> {
-    let promise: Promise<SafeParseResult<H>> = Promise.resolve(null as unknown as SafeParseResult<H>)
-
-    for (const plugin of this.#getSortedPlugins()) {
-      if (skipped && skipped.has(plugin)) {
-        continue
-      }
-      promise = promise.then(async (parseResult) => {
-        if (parseResult?.result != null) {
-          return parseResult
-        }
+    const promises = this.#getSortedPlugins().filter(plugin => {
+      return skipped ? skipped.has(plugin) : true
+    }).map((plugin) => {
+      return async () => {
         const value = await this.#execute<H>({
           strategy: 'hookFirst',
           hookName,
@@ -256,12 +250,12 @@ export class PluginManager {
           {
             plugin,
             result: value,
-          } as typeof parseResult,
+          } as SafeParseResult<H>,
         )
-      })
-    }
+      }
+    })
 
-    return promise
+    return this.#promiseManager.run('first', promises)
   }
 
   /**
@@ -383,7 +377,7 @@ export class PluginManager {
   /**
    * Chains plugins
    */
-  hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
+  async hookSeq<H extends PluginLifecycleHooks>({ hookName, parameters }: { hookName: H; parameters?: PluginParameter<H> }): Promise<void> {
     const promises = this.#getSortedPlugins().map((plugin) => {
       return () =>
         this.#execute({

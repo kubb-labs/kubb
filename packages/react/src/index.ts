@@ -1,4 +1,4 @@
-import {transformers} from "@kubb/core/utils"
+import { transformers } from '@kubb/core/utils'
 
 export type { RootType } from './client/index.ts'
 export { createRoot } from './client/index.ts'
@@ -9,4 +9,4 @@ export * from './types.ts'
 /**
  * @deprecated use `@kubb/core/utils' import instead
  */
-export const createIndent =  transformers.createIndent
+export const createIndent = transformers.createIndent
