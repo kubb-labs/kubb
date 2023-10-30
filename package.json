@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.1-alpha.1",
   "private": true,
   "description": "Kubb's monorepo",
   "repository": {
