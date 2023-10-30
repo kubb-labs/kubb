@@ -2,6 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "separate-pull-requests": false,
   "release-search-depth": 50,
+  "last-release-sha": "d48dc2a4888b0ed77c4789ac55b649a8985214f8",
   "commit-search-depth": 100,
   "sequential-calls": true,
   "changelog-sections": [
