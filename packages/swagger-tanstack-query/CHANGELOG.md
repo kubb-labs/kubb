@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.0-alpha.2](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v2.0.0-alpha.1...@kubb/swagger-tanstack-query-v2.0.0-alpha.2) (2023-10-30)
+
+
+### 📦 Miscellaneous Chores
+
+* release 2.0.0-alpha.2 ([c0abf54](https://github.com/kubb-project/kubb/commit/c0abf54220849007e354f594267cd69086c38b07))
+
 ## [2.0.0-alpha.1](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v1.14.5...@kubb/swagger-tanstack-query-v2.0.0-alpha.1) (2023-10-27)
 
 
