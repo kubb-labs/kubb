@@ -57,12 +57,13 @@ export class QueryBuilder extends OasBuilder<Options> {
     const generics = [
       schemas.response.name,
       errors.map((error) => error.name).join(' | ') || 'never',
-      'never',
+      schemas.request?.name || 'never',
       schemas.pathParams?.name || 'never',
       schemas.queryParams?.name || 'never',
+      schemas.headerParams?.name || 'never',
       schemas.response.name,
       `{ dataReturnType: '${dataReturnType}'; type: 'query' }`,
-    ] as [data: string, error: string, request: string, pathParams: string, queryParams: string, response: string, options: string]
+    ] as [data: string, error: string, request: string, pathParams: string, queryParams: string, headerParams: string, response: string, options: string]
 
     const Component = () => <>{`type ${this.#names.queryFactoryType} = KubbQueryFactory<${generics.join(', ')}>`}</>
 
@@ -70,18 +71,19 @@ export class QueryBuilder extends OasBuilder<Options> {
   }
 
   get mutationFactoryType(): React.ElementType {
-    const { dataReturnType, errors } = this.options
+    const { errors } = this.options
     const { schemas } = this.context
 
     const generics = [
       schemas.response.name,
       errors.map((error) => error.name).join(' | ') || 'never',
-      'never',
+      schemas.request?.name || 'never',
       schemas.pathParams?.name || 'never',
       schemas.queryParams?.name || 'never',
+      schemas.headerParams?.name || 'never',
       schemas.response.name,
-      `{ dataReturnType: '${dataReturnType}'; type: 'mutation' }`,
-    ] as [data: string, error: string, request: string, pathParams: string, queryParams: string, response: string, options: string]
+      `{ dataReturnType: 'full'; type: 'mutation' }`,
+    ] as [data: string, error: string, request: string, pathParams: string, queryParams: string, headerParams: string, response: string, options: string]
 
     const Component = () => <>{`type ${this.#names.mutationFactoryType} = KubbQueryFactory<${generics.join(', ')}>`}</>
 
@@ -422,14 +424,26 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${QueryR
     generics.add([
       { type: 'TData', default: `${this.#names.mutationFactoryType}["response"]` },
       { type: 'TError', default: `${this.#names.mutationFactoryType}["error"]` },
-      { type: 'TVariables', default: `${this.#names.mutationFactoryType}["request"]`, enabled: !!schemas.request?.name },
     ])
 
-    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : 'void', framework === 'vue' ? 'unknown' : undefined].filter(Boolean)
-    const resultGenerics = [
-      'ResponseConfig<TData>',
+    const clientGenerics = [
+      `${this.#names.mutationFactoryType}["data"]`,
       'TError',
-      schemas.request?.name ? `TVariables` : 'void',
+      schemas.request?.name ? `${this.#names.mutationFactoryType}["request"]` : 'void',
+      framework === 'vue' ? 'unknown' : undefined,
+    ].filter(Boolean)
+    const resultGenerics = [
+      'TData',
+      'TError',
+      schemas.request?.name ? `${this.#names.mutationFactoryType}["request"]` : 'void',
+      framework === 'vue' ? 'unknown' : undefined,
+    ].filter(Boolean)
+
+    // only neeed for the options to override the useMutation options/params
+    const mutationOptionsOverrideGenerics = [
+      'TData',
+      'TError',
+      schemas.request?.name ? `${this.#names.mutationFactoryType}["request"]` : 'void',
       framework === 'vue' ? 'unknown' : undefined,
     ].filter(Boolean)
 
@@ -456,7 +470,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${QueryR
       {
         name: 'options',
         type: `{
-          mutation?: ${frameworkImports.mutate.Options}<${resultGenerics.join(', ')}>,
+          mutation?: ${frameworkImports.mutate.Options}<${mutationOptionsOverrideGenerics.join(', ')}>,
           client?: ${this.#names.mutationFactoryType}['client']['paramaters']
       }`,
         default: '{}',
@@ -493,7 +507,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
         ${schemas.queryParams?.name ? 'params,' : ''}
         ${schemas.headerParams?.name ? 'headers: { ...headers, ...clientOptions.headers },' : ''}
         ...clientOptions
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions
   })

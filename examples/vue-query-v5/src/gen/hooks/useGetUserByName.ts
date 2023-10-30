@@ -12,6 +12,7 @@ type GetUserByName = KubbQueryFactory<
   never,
   GetUserByNamePathParams,
   never,
+  never,
   GetUserByNameQueryResponse,
   {
     dataReturnType: 'data'

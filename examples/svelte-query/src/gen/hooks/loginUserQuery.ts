@@ -10,6 +10,7 @@ type LoginUser = KubbQueryFactory<
   never,
   never,
   LoginUserQueryParams,
+  never,
   LoginUserQueryResponse,
   {
     dataReturnType: 'data'

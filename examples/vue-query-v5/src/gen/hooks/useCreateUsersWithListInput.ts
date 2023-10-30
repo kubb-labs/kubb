@@ -2,18 +2,18 @@ import { useMutation } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
 import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 
 type CreateUsersWithListInput = KubbQueryFactory<
   CreateUsersWithListInputMutationResponse,
   never,
+  CreateUsersWithListInputMutationRequest,
   never,
   never,
   never,
   CreateUsersWithListInputMutationResponse,
   {
-    dataReturnType: 'data'
+    dataReturnType: 'full'
     type: 'mutation'
   }
 > /**
@@ -22,25 +22,21 @@ type CreateUsersWithListInput = KubbQueryFactory<
  * @link /user/createWithList
  */
 
-export function useCreateUsersWithListInput<
-  TData = CreateUsersWithListInput['response'],
-  TError = CreateUsersWithListInput['error'],
-  TVariables = CreateUsersWithListInput['request'],
->(
+export function useCreateUsersWithListInput<TData = CreateUsersWithListInput['response'], TError = CreateUsersWithListInput['error']>(
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables, unknown>
+    mutation?: UseMutationOptions<TData, TError, CreateUsersWithListInput['request'], unknown>
     client?: CreateUsersWithListInput['client']['paramaters']
   } = {},
-): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
+): UseMutationReturnType<TData, TError, CreateUsersWithListInput['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
+  return useMutation<TData, TError, CreateUsersWithListInput['request'], unknown>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<CreateUsersWithListInput['data'], TError, CreateUsersWithListInput['request']>({
         method: 'post',
         url: `/user/createWithList`,
         data,
         ...clientOptions,
-      })
+      }).then((res) => res as TData)
     },
     ...mutationOptions,
   })

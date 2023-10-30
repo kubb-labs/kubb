@@ -2,7 +2,6 @@ import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -16,9 +15,10 @@ type UpdatePetWithForm = KubbQueryFactory<
   never,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  never,
   UpdatePetWithFormMutationResponse,
   {
-    dataReturnType: 'data'
+    dataReturnType: 'full'
     type: 'mutation'
   }
 > /**
@@ -30,19 +30,19 @@ export function updatePetWithFormQuery<TData = UpdatePetWithForm['response'], TE
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithForm['queryParams'],
   options: {
-    mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, void>
+    mutation?: CreateMutationOptions<TData, TError, void>
     client?: UpdatePetWithForm['client']['paramaters']
   } = {},
-): CreateMutationResult<ResponseConfig<TData>, TError, void> {
+): CreateMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<ResponseConfig<TData>, TError, void>({
+  return createMutation<TData, TError, void>({
     mutationFn: () => {
-      return client<TData, TError, void>({
+      return client<UpdatePetWithForm['data'], TError, void>({
         method: 'post',
         url: `/pet/${petId}`,
         params,
         ...clientOptions,
-      })
+      }).then((res) => res as TData)
     },
     ...mutationOptions,
   })

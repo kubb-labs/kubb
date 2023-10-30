@@ -13,6 +13,7 @@ type FindPetsByTags = KubbQueryFactory<
   never,
   never,
   FindPetsByTagsQueryParams,
+  never,
   FindPetsByTagsQueryResponse,
   {
     dataReturnType: 'data'

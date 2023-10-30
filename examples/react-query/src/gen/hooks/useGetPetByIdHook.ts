@@ -4,7 +4,7 @@ import type { KubbQueryFactory } from './types'
 import type { QueryKey, UseBaseQueryOptions, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
 
-type GetPetById = KubbQueryFactory<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never, GetPetByIdPathParams, never, GetPetByIdQueryResponse, {
+type GetPetById = KubbQueryFactory<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never, GetPetByIdPathParams, never, never, GetPetByIdQueryResponse, {
   dataReturnType: 'data'
   type: 'query'
 }>

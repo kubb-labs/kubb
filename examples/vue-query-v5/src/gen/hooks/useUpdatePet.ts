@@ -2,18 +2,18 @@ import { useMutation } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
 import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet'
+import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet'
 
 type UpdatePet = KubbQueryFactory<
   UpdatePetMutationResponse,
   UpdatePet400 | UpdatePet404 | UpdatePet405,
+  UpdatePetMutationRequest,
   never,
   never,
   never,
   UpdatePetMutationResponse,
   {
-    dataReturnType: 'data'
+    dataReturnType: 'full'
     type: 'mutation'
   }
 > /**
@@ -22,21 +22,21 @@ type UpdatePet = KubbQueryFactory<
  * @link /pet
  */
 
-export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['error'], TVariables = UpdatePet['request']>(
+export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['error']>(
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables, unknown>
+    mutation?: UseMutationOptions<TData, TError, UpdatePet['request'], unknown>
     client?: UpdatePet['client']['paramaters']
   } = {},
-): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
+): UseMutationReturnType<TData, TError, UpdatePet['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
+  return useMutation<TData, TError, UpdatePet['request'], unknown>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<UpdatePet['data'], TError, UpdatePet['request']>({
         method: 'put',
         url: `/pet`,
         data,
         ...clientOptions,
-      })
+      }).then((res) => res as TData)
     },
     ...mutationOptions,
   })

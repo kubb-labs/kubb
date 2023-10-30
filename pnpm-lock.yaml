@@ -38,8 +38,8 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
       prettier-eslint:
-        specifier: ^16.1.1
-        version: 16.1.1
+        specifier: ^16.1.2
+        version: 16.1.2
       rimraf:
         specifier: ^5.0.5
         version: 5.0.5
@@ -396,10 +396,10 @@ importers:
         version: link:../../packages/swagger-ts
       '@mswjs/http-middleware':
         specifier: ^0.8.0
-        version: 0.8.0(headers-polyfill@3.3.0)(msw@2.0.0)
+        version: 0.8.0(headers-polyfill@3.3.0)(msw@2.0.1)
       msw:
-        specifier: ^2.0.0
-        version: 2.0.0(typescript@5.2.2)
+        specifier: ^2.0.1
+        version: 2.0.1(typescript@5.2.2)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -508,11 +508,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-ts
       '@tanstack/react-query':
-        specifier: ^5.0.5
-        version: 5.0.5(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^5.4.3
+        version: 5.4.3(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/react-query-devtools':
         specifier: 5.0.0
-        version: 5.0.0(@tanstack/react-query@5.0.5)(react-dom@18.2.0)(react@18.2.0)
+        version: 5.0.0(@tanstack/react-query@5.4.3)(react-dom@18.2.0)(react@18.2.0)
       axios:
         specifier: ^1.6.0
         version: 1.6.0
@@ -792,8 +792,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
-        specifier: ^5.4.1
-        version: 5.4.1(vue@3.3.7)
+        specifier: ^5.4.3
+        version: 5.4.3(vue@3.3.7)
       axios:
         specifier: ^1.6.0
         version: 1.6.0
@@ -2446,7 +2446,7 @@ packages:
       - supports-color
     dev: false
 
-  /@mswjs/http-middleware@0.8.0(headers-polyfill@3.3.0)(msw@2.0.0):
+  /@mswjs/http-middleware@0.8.0(headers-polyfill@3.3.0)(msw@2.0.1):
     resolution: {integrity: sha512-kNcmhWAefld5Xtpa+Ntj4nD0fPTnLnQDVOMGx77ebzbVYsBbeThQKctAohGKiPk6ZA826uS+etoJhKySgCWyHg==}
     peerDependencies:
       headers-polyfill: ^3.0.4
@@ -2454,7 +2454,7 @@ packages:
     dependencies:
       express: 4.18.2
       headers-polyfill: 3.3.0
-      msw: 2.0.0(typescript@5.2.2)
+      msw: 2.0.1(typescript@5.2.2)
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -2600,8 +2600,8 @@ packages:
     resolution: {integrity: sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==}
     dev: false
 
-  /@tanstack/query-core@5.0.5:
-    resolution: {integrity: sha512-MThCETMkHDHTnFZHp71L+SqTtD5d6XHftFCVR1xRJdWM3qGrlQ2VCXaj0SKVcyJej2e1Opa2c7iknu1llxCDNQ==}
+  /@tanstack/query-core@5.4.3:
+    resolution: {integrity: sha512-fnI9ORjcuLGm1sNrKatKIosRQUpuqcD4SV7RqRSVmj8JSicX2aoMyKryHEBpVQvf6N4PaBVgBxQomjsbsGPssQ==}
     dev: false
 
   /@tanstack/query-devtools@5.0.0:
@@ -2623,7 +2623,7 @@ packages:
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/react-query-devtools@5.0.0(@tanstack/react-query@5.0.5)(react-dom@18.2.0)(react@18.2.0):
+  /@tanstack/react-query-devtools@5.0.0(@tanstack/react-query@5.4.3)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-4yw29d89eOqUmliRKGmEOjuq2AGSM3i4jjw/YFMrErg0neVITy2bkoU3fPXZ339czlupqq0b4e20uFVtqkEqGQ==}
     peerDependencies:
       '@tanstack/react-query': ^5.0.0
@@ -2631,7 +2631,7 @@ packages:
       react-dom: ^18.0.0
     dependencies:
       '@tanstack/query-devtools': 5.0.0
-      '@tanstack/react-query': 5.0.5(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/react-query': 5.4.3(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
@@ -2654,8 +2654,8 @@ packages:
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/react-query@5.0.5(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-ZG0Q4HZ0iuI8mWiZ2/MdVYPHbrmAVhMn7+gLOkxJh6zLIgCL4luSZlohzN5Xt4MjxfxxWioO1nemwpudaTsmQg==}
+  /@tanstack/react-query@5.4.3(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-4aSOrRNa6yEmf7mws5QPTVMn8Lp7L38tFoTZ0c1ZmhIvbr8GIA0WT7X5N3yz/nuK8hUtjw9cAzBr4BPDZZ+tzA==}
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0
@@ -2666,7 +2666,7 @@ packages:
       react-native:
         optional: true
     dependencies:
-      '@tanstack/query-core': 5.0.5
+      '@tanstack/query-core': 5.4.3
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
@@ -2705,8 +2705,8 @@ packages:
       vue-demi: 0.13.11(vue@3.3.7)
     dev: false
 
-  /@tanstack/vue-query@5.4.1(vue@3.3.7):
-    resolution: {integrity: sha512-xACG5qUV1jp8t/Uk72VsCXu3UcwNdGwL4t+F+DqDl00LkDoRhjH/AWKSQc7EVKI6S8Pla4IjAvL8wLbpLtCncw==}
+  /@tanstack/vue-query@5.4.3(vue@3.3.7):
+    resolution: {integrity: sha512-mJDUrh0tDjqdFq6UPHUaxD2iGMNlhejoQnfv2d2dzdzXwCE58HETuqmmrPFD5D4trZamPlV8UoVtQh/cmkQglA==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -2715,7 +2715,7 @@ packages:
         optional: true
     dependencies:
       '@tanstack/match-sorter-utils': 8.8.4
-      '@tanstack/query-core': 5.0.5
+      '@tanstack/query-core': 5.4.3
       '@vue/devtools-api': 6.5.1
       vue: 3.3.7(typescript@5.2.2)
       vue-demi: 0.14.6(vue@3.3.7)
@@ -6216,8 +6216,8 @@ packages:
       - encoding
       - supports-color
 
-  /msw@2.0.0(typescript@5.2.2):
-    resolution: {integrity: sha512-lw9UHuzNCWoODHaThGeLLIIuzEBUQkj3fJXQnChHifMKbB2UmF2msHd4d/lnyqjAyD0XWoibdviW9wlstFPpkA==}
+  /msw@2.0.1(typescript@5.2.2):
+    resolution: {integrity: sha512-eGcoo5anJmorEkGMQ48dLFx53EJlDL00GjeJtl2dRGm6WwPpzt2fYDZ9ueJ53zMNTtrNtjH9RqbDa+nz7e9Dew==}
     engines: {node: '>=18'}
     hasBin: true
     requiresBuild: true
@@ -6759,8 +6759,8 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  /prettier-eslint@16.1.1:
-    resolution: {integrity: sha512-SbtugbH80njB9QOPqb8C+W40Rvhr6iD0wrJTxk1Zx10rkY7KdjtSwHpf/WfiI3REboaXbvIOJXGiua3maIt0Sw==}
+  /prettier-eslint@16.1.2:
+    resolution: {integrity: sha512-mGFGZQbAh11FSnwW3H1zngzQYR2QMmHO8vdfgnAuzOFhnDeUZHYtwpqQvOMOMT0k818Dr1X+J4a/sVE0r34RKQ==}
     engines: {node: '>=16.10.0'}
     dependencies:
       '@typescript-eslint/parser': 6.7.5(eslint@8.52.0)(typescript@5.2.2)

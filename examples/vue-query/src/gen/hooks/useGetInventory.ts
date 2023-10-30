@@ -11,6 +11,7 @@ type GetInventory = KubbQueryFactory<
   never,
   never,
   never,
+  never,
   GetInventoryQueryResponse,
   {
     dataReturnType: 'data'

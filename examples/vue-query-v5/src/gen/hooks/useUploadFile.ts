@@ -4,18 +4,18 @@ import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
 import type { MaybeRef } from 'vue'
 import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
+import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
 
 type UploadFile = KubbQueryFactory<
   UploadFileMutationResponse,
   never,
-  never,
+  UploadFileMutationRequest,
   UploadFilePathParams,
   UploadFileQueryParams,
+  never,
   UploadFileMutationResponse,
   {
-    dataReturnType: 'data'
+    dataReturnType: 'full'
     type: 'mutation'
   }
 > /**
@@ -23,26 +23,26 @@ type UploadFile = KubbQueryFactory<
  * @link /pet/:petId/uploadImage
  */
 
-export function useUploadFile<TData = UploadFile['response'], TError = UploadFile['error'], TVariables = UploadFile['request']>(
+export function useUploadFile<TData = UploadFile['response'], TError = UploadFile['error']>(
   refPetId: MaybeRef<UploadFilePathParams['petId']>,
   refParams?: MaybeRef<UploadFileQueryParams>,
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables, unknown>
+    mutation?: UseMutationOptions<TData, TError, UploadFile['request'], unknown>
     client?: UploadFile['client']['paramaters']
   } = {},
-): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
+): UseMutationReturnType<TData, TError, UploadFile['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
+  return useMutation<TData, TError, UploadFile['request'], unknown>({
     mutationFn: (data) => {
       const petId = unref(refPetId)
       const params = unref(refParams)
-      return client<TData, TError, TVariables>({
+      return client<UploadFile['data'], TError, UploadFile['request']>({
         method: 'post',
         url: `/pet/${petId}/uploadImage`,
         data,
         params,
         ...clientOptions,
-      })
+      }).then((res) => res as TData)
     },
     ...mutationOptions,
   })

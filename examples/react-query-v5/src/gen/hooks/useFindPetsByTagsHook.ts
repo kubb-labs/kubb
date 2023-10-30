@@ -4,10 +4,19 @@ import type { KubbQueryFactory } from './types'
 import type { QueryKey, QueryObserverOptions, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 
-type FindPetsByTags = KubbQueryFactory<FindPetsByTagsQueryResponse, FindPetsByTags400, never, never, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse, {
-  dataReturnType: 'data'
-  type: 'query'
-}>
+type FindPetsByTags = KubbQueryFactory<
+  FindPetsByTagsQueryResponse,
+  FindPetsByTags400,
+  never,
+  never,
+  FindPetsByTagsQueryParams,
+  never,
+  FindPetsByTagsQueryResponse,
+  {
+    dataReturnType: 'data'
+    type: 'query'
+  }
+>
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export function findPetsByTagsQueryOptions<

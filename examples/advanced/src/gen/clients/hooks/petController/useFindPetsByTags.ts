@@ -9,10 +9,19 @@ import type {
   FindPetsByTags400,
 } from '../../../models/ts/petController/FindPetsByTags'
 
-type FindPetsByTags = KubbQueryFactory<FindPetsByTagsQueryResponse, FindPetsByTags400, never, never, FindPetsByTagsQueryParams, FindPetsByTagsQueryResponse, {
-  dataReturnType: 'full'
-  type: 'query'
-}>
+type FindPetsByTags = KubbQueryFactory<
+  FindPetsByTagsQueryResponse,
+  FindPetsByTags400,
+  never,
+  never,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTagsQueryResponse,
+  {
+    dataReturnType: 'full'
+    type: 'query'
+  }
+>
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export function findPetsByTagsQueryOptions<

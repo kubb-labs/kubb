@@ -4,7 +4,7 @@ import type { KubbQueryFactory } from './types'
 import type { QueryKey, UseBaseQueryOptions, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
-type GetInventory = KubbQueryFactory<GetInventoryQueryResponse, never, never, never, never, GetInventoryQueryResponse, {
+type GetInventory = KubbQueryFactory<GetInventoryQueryResponse, never, never, never, never, never, GetInventoryQueryResponse, {
   dataReturnType: 'data'
   type: 'query'
 }>

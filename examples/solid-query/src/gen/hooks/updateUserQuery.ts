@@ -2,18 +2,18 @@ import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
 
 type UpdateUser = KubbQueryFactory<
   UpdateUserMutationResponse,
   never,
-  never,
+  UpdateUserMutationRequest,
   UpdateUserPathParams,
+  never,
   never,
   UpdateUserMutationResponse,
   {
-    dataReturnType: 'data'
+    dataReturnType: 'full'
     type: 'mutation'
   }
 > /**
@@ -22,22 +22,22 @@ type UpdateUser = KubbQueryFactory<
  * @link /user/:username
  */
 
-export function updateUserQuery<TData = UpdateUser['response'], TError = UpdateUser['error'], TVariables = UpdateUser['request']>(
+export function updateUserQuery<TData = UpdateUser['response'], TError = UpdateUser['error']>(
   username: UpdateUserPathParams['username'],
   options: {
-    mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, TVariables>
+    mutation?: CreateMutationOptions<TData, TError, UpdateUser['request']>
     client?: UpdateUser['client']['paramaters']
   } = {},
-): CreateMutationResult<ResponseConfig<TData>, TError, TVariables> {
+): CreateMutationResult<TData, TError, UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<ResponseConfig<TData>, TError, TVariables>({
+  return createMutation<TData, TError, UpdateUser['request']>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<UpdateUser['data'], TError, UpdateUser['request']>({
         method: 'put',
         url: `/user/${username}`,
         data,
         ...clientOptions,
-      })
+      }).then((res) => res as TData)
     },
     ...mutationOptions,
   })
