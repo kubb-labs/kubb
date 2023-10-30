@@ -7,8 +7,8 @@ export type KubbQueryFactory<
   TError = unknown,
   TRequest = unknown,
   TPathParams = unknown,
-  // TODO add headerparams
   TQueryParams = unknown,
+  THeaderParams = unknown,
   TResponse = TData,
   TOptions extends {
     dataReturnType: 'data' | 'full'
@@ -24,6 +24,7 @@ export type KubbQueryFactory<
     request: TRequest
     pathParams: TPathParams
     queryParams: TQueryParams
+    headerParams: THeaderParams
     response: TOptions extends {
       dataReturnType: 'full'
     } ? Awaited<ReturnType<typeof client<TResponse, TError, TRequest>>>
