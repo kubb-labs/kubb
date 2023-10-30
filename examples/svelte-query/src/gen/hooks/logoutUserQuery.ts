@@ -10,6 +10,7 @@ type LogoutUser = KubbQueryFactory<
   never,
   never,
   never,
+  never,
   LogoutUserQueryResponse,
   {
     dataReturnType: 'data'

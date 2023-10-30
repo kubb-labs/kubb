@@ -71,7 +71,7 @@ export class QueryBuilder extends OasBuilder<Options> {
   }
 
   get mutationFactoryType(): React.ElementType {
-    const { dataReturnType, errors } = this.options
+    const { errors } = this.options
     const { schemas } = this.context
 
     const generics = [
@@ -82,7 +82,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       schemas.queryParams?.name || 'never',
       schemas.headerParams?.name || 'never',
       schemas.response.name,
-      `{ dataReturnType: '${dataReturnType}'; type: 'mutation' }`,
+      `{ dataReturnType: 'full'; type: 'mutation' }`,
     ] as [data: string, error: string, request: string, pathParams: string, queryParams: string, headerParams: string, response: string, options: string]
 
     const Component = () => <>{`type ${this.#names.mutationFactoryType} = KubbQueryFactory<${generics.join(', ')}>`}</>
@@ -427,7 +427,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${QueryR
     ])
 
     const clientGenerics = [
-      'TData',
+      `${this.#names.mutationFactoryType}["data"]`,
       'TError',
       schemas.request?.name ? `${this.#names.mutationFactoryType}["request"]` : 'void',
       framework === 'vue' ? 'unknown' : undefined,
@@ -441,7 +441,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${QueryR
 
     // only neeed for the options to override the useMutation options/params
     const mutationOptionsOverrideGenerics = [
-      'any',
+      'TData',
       'TError',
       schemas.request?.name ? `${this.#names.mutationFactoryType}["request"]` : 'void',
       framework === 'vue' ? 'unknown' : undefined,
@@ -507,7 +507,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
         ${schemas.queryParams?.name ? 'params,' : ''}
         ${schemas.headerParams?.name ? 'headers: { ...headers, ...clientOptions.headers },' : ''}
         ...clientOptions
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions
   })

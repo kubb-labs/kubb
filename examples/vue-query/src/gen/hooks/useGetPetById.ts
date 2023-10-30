@@ -13,6 +13,7 @@ type GetPetById = KubbQueryFactory<
   never,
   GetPetByIdPathParams,
   never,
+  never,
   GetPetByIdQueryResponse,
   {
     dataReturnType: 'data'

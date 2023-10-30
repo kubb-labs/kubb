@@ -4,7 +4,6 @@ import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
 import type { MaybeRef } from 'vue'
 import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
 
 type DeleteOrder = KubbQueryFactory<
@@ -13,9 +12,10 @@ type DeleteOrder = KubbQueryFactory<
   never,
   DeleteOrderPathParams,
   never,
+  never,
   DeleteOrderMutationResponse,
   {
-    dataReturnType: 'data'
+    dataReturnType: 'full'
     type: 'mutation'
   }
 > /**
@@ -27,19 +27,19 @@ type DeleteOrder = KubbQueryFactory<
 export function useDeleteOrder<TData = DeleteOrder['response'], TError = DeleteOrder['error']>(
   refOrderId: MaybeRef<DeleteOrderPathParams['orderId']>,
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void, unknown>
+    mutation?: UseMutationOptions<TData, TError, void, unknown>
     client?: DeleteOrder['client']['paramaters']
   } = {},
-): UseMutationReturnType<ResponseConfig<TData>, TError, void, unknown> {
+): UseMutationReturnType<TData, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<ResponseConfig<TData>, TError, void, unknown>({
+  return useMutation<TData, TError, void, unknown>({
     mutationFn: () => {
       const orderId = unref(refOrderId)
-      return client<TData, TError, void>({
+      return client<DeleteOrder['data'], TError, void>({
         method: 'delete',
         url: `/store/order/${orderId}`,
         ...clientOptions,
-      })
+      }).then((res) => res as TData)
     },
     ...mutationOptions,
   })

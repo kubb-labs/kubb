@@ -5,7 +5,6 @@ import type { KubbQueryFactory } from './types'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 import type { MaybeRef } from 'vue'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
 
 type DeletePet = KubbQueryFactory<
@@ -14,9 +13,10 @@ type DeletePet = KubbQueryFactory<
   never,
   DeletePetPathParams,
   never,
+  DeletePetHeaderParams,
   DeletePetMutationResponse,
   {
-    dataReturnType: 'data'
+    dataReturnType: 'full'
     type: 'mutation'
   }
 > /**
@@ -29,21 +29,21 @@ export function useDeletePet<TData = DeletePet['response'], TError = DeletePet['
   refPetId: MaybeRef<DeletePetPathParams['petId']>,
   refHeaders?: MaybeRef<DeletePetHeaderParams>,
   options: {
-    mutation?: VueMutationObserverOptions<ResponseConfig<TData>, TError, void, unknown>
+    mutation?: VueMutationObserverOptions<TData, TError, void, unknown>
     client?: DeletePet['client']['paramaters']
   } = {},
-): UseMutationReturnType<ResponseConfig<TData>, TError, void, unknown> {
+): UseMutationReturnType<TData, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<ResponseConfig<TData>, TError, void, unknown>({
+  return useMutation<TData, TError, void, unknown>({
     mutationFn: () => {
       const petId = unref(refPetId)
       const headers = unref(refHeaders)
-      return client<TData, TError, void>({
+      return client<DeletePet['data'], TError, void>({
         method: 'delete',
         url: `/pet/${petId}`,
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
-      })
+      }).then((res) => res as TData)
     },
     ...mutationOptions,
   })

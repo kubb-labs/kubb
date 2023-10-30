@@ -4,7 +4,7 @@ import type { KubbQueryFactory } from './types'
 import type { QueryKey, UseBaseQueryOptions, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 
-type LogoutUser = KubbQueryFactory<LogoutUserQueryResponse, never, never, never, never, LogoutUserQueryResponse, {
+type LogoutUser = KubbQueryFactory<LogoutUserQueryResponse, never, never, never, never, never, LogoutUserQueryResponse, {
   dataReturnType: 'full'
   type: 'query'
 }>

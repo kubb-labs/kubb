@@ -10,6 +10,7 @@ type GetOrderById = KubbQueryFactory<
   never,
   GetOrderByIdPathParams,
   never,
+  never,
   GetOrderByIdQueryResponse,
   {
     dataReturnType: 'data'

@@ -2,18 +2,18 @@ import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet'
+import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet'
 
 type UpdatePet = KubbQueryFactory<
   UpdatePetMutationResponse,
   UpdatePet400 | UpdatePet404 | UpdatePet405,
+  UpdatePetMutationRequest,
   never,
   never,
   never,
   UpdatePetMutationResponse,
   {
-    dataReturnType: 'data'
+    dataReturnType: 'full'
     type: 'mutation'
   }
 > /**
@@ -22,21 +22,21 @@ type UpdatePet = KubbQueryFactory<
  * @link /pet
  */
 
-export function updatePetQuery<TData = UpdatePet['response'], TError = UpdatePet['error'], TVariables = UpdatePet['request']>(
+export function updatePetQuery<TData = UpdatePet['response'], TError = UpdatePet['error']>(
   options: {
-    mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, TVariables>
+    mutation?: CreateMutationOptions<TData, TError, UpdatePet['request']>
     client?: UpdatePet['client']['paramaters']
   } = {},
-): CreateMutationResult<ResponseConfig<TData>, TError, TVariables> {
+): CreateMutationResult<TData, TError, UpdatePet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<ResponseConfig<TData>, TError, TVariables>({
+  return createMutation<TData, TError, UpdatePet['request']>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<UpdatePet['data'], TError, UpdatePet['request']>({
         method: 'put',
         url: `/pet`,
         data,
         ...clientOptions,
-      })
+      }).then((res) => res as TData)
     },
     ...mutationOptions,
   })

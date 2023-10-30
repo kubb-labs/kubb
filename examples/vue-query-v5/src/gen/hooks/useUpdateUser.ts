@@ -4,18 +4,18 @@ import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
 import type { MaybeRef } from 'vue'
 import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
 
 type UpdateUser = KubbQueryFactory<
   UpdateUserMutationResponse,
   never,
-  never,
+  UpdateUserMutationRequest,
   UpdateUserPathParams,
+  never,
   never,
   UpdateUserMutationResponse,
   {
-    dataReturnType: 'data'
+    dataReturnType: 'full'
     type: 'mutation'
   }
 > /**
@@ -24,23 +24,23 @@ type UpdateUser = KubbQueryFactory<
  * @link /user/:username
  */
 
-export function useUpdateUser<TData = UpdateUser['response'], TError = UpdateUser['error'], TVariables = UpdateUser['request']>(
+export function useUpdateUser<TData = UpdateUser['response'], TError = UpdateUser['error']>(
   refUsername: MaybeRef<UpdateUserPathParams['username']>,
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables, unknown>
+    mutation?: UseMutationOptions<TData, TError, UpdateUser['request'], unknown>
     client?: UpdateUser['client']['paramaters']
   } = {},
-): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
+): UseMutationReturnType<TData, TError, UpdateUser['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
+  return useMutation<TData, TError, UpdateUser['request'], unknown>({
     mutationFn: (data) => {
       const username = unref(refUsername)
-      return client<TData, TError, TVariables>({
+      return client<UpdateUser['data'], TError, UpdateUser['request']>({
         method: 'put',
         url: `/user/${username}`,
         data,
         ...clientOptions,
-      })
+      }).then((res) => res as TData)
     },
     ...mutationOptions,
   })

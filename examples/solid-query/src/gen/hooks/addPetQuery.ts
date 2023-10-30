@@ -2,18 +2,18 @@ import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { AddPetMutationResponse, AddPet405 } from '../models/AddPet'
+import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
 
 type AddPet = KubbQueryFactory<
   AddPetMutationResponse,
   AddPet405,
+  AddPetMutationRequest,
   never,
   never,
   never,
   AddPetMutationResponse,
   {
-    dataReturnType: 'data'
+    dataReturnType: 'full'
     type: 'mutation'
   }
 > /**
@@ -22,21 +22,21 @@ type AddPet = KubbQueryFactory<
  * @link /pet
  */
 
-export function addPetQuery<TData = AddPet['response'], TError = AddPet['error'], TVariables = AddPet['request']>(
+export function addPetQuery<TData = AddPet['response'], TError = AddPet['error']>(
   options: {
-    mutation?: CreateMutationOptions<ResponseConfig<TData>, TError, TVariables>
+    mutation?: CreateMutationOptions<TData, TError, AddPet['request']>
     client?: AddPet['client']['paramaters']
   } = {},
-): CreateMutationResult<ResponseConfig<TData>, TError, TVariables> {
+): CreateMutationResult<TData, TError, AddPet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<ResponseConfig<TData>, TError, TVariables>({
+  return createMutation<TData, TError, AddPet['request']>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<AddPet['data'], TError, AddPet['request']>({
         method: 'post',
         url: `/pet`,
         data,
         ...clientOptions,
-      })
+      }).then((res) => res as TData)
     },
     ...mutationOptions,
   })

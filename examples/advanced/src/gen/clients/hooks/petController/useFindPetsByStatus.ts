@@ -10,6 +10,7 @@ type FindPetsByStatus = KubbQueryFactory<
   never,
   never,
   FindPetsByStatusQueryParams,
+  never,
   FindPetsByStatusQueryResponse,
   {
     dataReturnType: 'full'
