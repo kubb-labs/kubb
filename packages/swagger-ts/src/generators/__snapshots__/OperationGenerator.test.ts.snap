@@ -25,6 +25,12 @@ export type ShowPetByIdError = Error
  * @description Expected response to a valid request
  */
 export type ShowPetByIdQueryResponse = Pet
+
+export type showPetById = {
+  response: ShowPetByIdQueryResponse
+  pathParams: ShowPetByIdPathParams
+  errors: ShowPetByIdError
+}
 "
 `;
 
@@ -51,5 +57,11 @@ export type CreatePetsMutationResponse = any | null
  * @description unexpected error
  */
 export type CreatePetsError = Error
+
+export type createPets = {
+  response: CreatePetsMutationResponse
+  request: CreatePetsMutationRequest
+  errors: CreatePets201 | CreatePetsError
+}
 "
 `;

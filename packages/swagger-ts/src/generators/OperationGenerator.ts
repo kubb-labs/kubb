@@ -5,7 +5,7 @@ import { TypeBuilder } from '../builders/index.ts'
 import { pluginName } from '../plugin.ts'
 
 import type { KubbFile } from '@kubb/core'
-import type { FileResolver, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
+import type { FileResolver, Operation, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
 import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
@@ -29,6 +29,65 @@ export class OperationGenerator extends Generator<Options> {
 
   async all(): Promise<KubbFile.File | null> {
     return null
+  }
+
+  #getCombinedSchema(name: string, schemas: OperationSchemas): OperationSchema {
+    const properties: OperationSchema['schema']['properties'] = {
+      'response': {
+        '$ref': `#/components/schemas/${schemas.response.name}`,
+      },
+    }
+
+    if (schemas.request) {
+      properties['request'] = {
+        '$ref': `#/components/schemas/${schemas.request.name}`,
+      }
+    }
+
+    if (schemas.pathParams) {
+      properties['pathParams'] = {
+        '$ref': `#/components/schemas/${schemas.pathParams.name}`,
+      }
+    }
+
+    if (schemas.queryParams) {
+      properties['queryParams'] = {
+        '$ref': `#/components/schemas/${schemas.queryParams.name}`,
+      }
+    }
+
+    if (schemas.headerParams) {
+      properties['headerParams'] = {
+        '$ref': `#/components/schemas/${schemas.headerParams.name}`,
+      }
+    }
+
+    if (schemas.errors) {
+      properties['errors'] = {
+        'anyOf': schemas.errors.map(error => {
+          return {
+            '$ref': `#/components/schemas/${error.name}`,
+          }
+        }),
+      }
+    }
+
+    return {
+      'name': `${name}`,
+      'operationName': `${name}`,
+      'schema': {
+        'type': 'object',
+        'required': [
+          'request',
+          'response',
+          'pathParams',
+          'queryParams',
+          'headerParams',
+          'errors',
+        ],
+        'properties': properties,
+      },
+    }
   }
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
@@ -62,6 +121,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.headerParams)
       .add(schemas.response)
       .add(schemas.errors)
+      .add(this.#getCombinedSchema(type.name, schemas))
       .configure()
       .print()
 
@@ -108,6 +168,7 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.request)
       .add(schemas.response)
       .add(schemas.errors)
+      .add(this.#getCombinedSchema(type.name, schemas))
       .configure()
       .print()
 
