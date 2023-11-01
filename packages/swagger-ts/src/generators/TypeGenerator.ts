@@ -344,6 +344,28 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       // properties -> literal type
       return this.#getTypeFromProperties(schema, baseName)
     }
+    /**
+     * validate "const" property as defined in JSON-Schema-Validation
+     * 
+     * https://json-schema.org/draft/2020-12/json-schema-validation#name-const
+     * 
+     * > 6.1.3. const
+     * > The value of this keyword MAY be of any type, including null.
+     * > Use of this keyword is functionally equivalent to an "enum" (Section 6.1.2) with a single value.
+     * > An instance validates successfully against this keyword if its value is equal to the value of the keyword.
+     */
+    if('const' in schema) {
+      // const keyword takes precendence over the actual type.
+      if(schema['const']) {
+          if(typeof schema['const'] === 'string') {
+            return factory.createLiteralTypeNode(factory.createStringLiteral(schema['const']));
+          } else if(typeof schema['const'] === 'number') {
+            return factory.createLiteralTypeNode(factory.createNumericLiteral(schema['const']));
+          }
+        } else {
+          return keywordTypeNodes.null;
+        }
+    } 
 
     if (schema.type) {
       if (Array.isArray(schema.type)) {
@@ -376,11 +398,6 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.format === 'binary') {
       return factory.createTypeReferenceNode('Blob', [])
-    }
-
-    // detect assertion "const" and define the type property as a Literal
-    if("const" in schema && schema["const"] !== undefined && typeof schema["const"] === "string") {
-      return factory.createLiteralTypeNode(factory.createStringLiteral(schema["const"]));
     }
 
     return keywordTypeNodes.any

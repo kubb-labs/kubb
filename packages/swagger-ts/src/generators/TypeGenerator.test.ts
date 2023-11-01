@@ -241,4 +241,77 @@ describe('TypeGenerator with discriminators', () => {
     expect(dog_output).toMatchSnapshot()
     })
 
+    test('NullConst correctly produces "null"', async () => {
+      const oas = await oasPathParser(path)
+      const generator = new TypeGenerator({
+        withJSDocs: false,
+        resolveName: ({ name }) => name,
+        enumType: 'asConst',
+        dateType: 'string',
+        optionalType: 'questionToken',
+      })
+  
+      const schemas = oas.getDefinition().components?.schemas
+      const ast = generator.build({ schema: schemas?.NullConst as OpenAPIV3.SchemaObject, baseName: 'NullConst' })
+  
+      const ast_output = print(ast, undefined)
+      expect(ast_output).toBeDefined()
+      expect(ast_output).toMatchSnapshot()
+    })
+
+    test('StringValueConst const correctly produces "foobar"', async () => {
+      const oas = await oasPathParser(path)
+      const generator = new TypeGenerator({
+        withJSDocs: false,
+        resolveName: ({ name }) => name,
+        enumType: 'asConst',
+        dateType: 'string',
+        optionalType: 'questionToken',
+      })
+  
+      const schemas = oas.getDefinition().components?.schemas
+      const ast = generator.build({ schema: schemas?.StringValueConst as OpenAPIV3.SchemaObject, baseName: 'StringValueConst' })
+  
+      const ast_output = print(ast, undefined)
+      expect(ast_output).toBeDefined()
+      expect(ast_output).toMatchSnapshot()
+    })
+
+    test('NumberValueConst const correctly produces `42`', async () => {
+      const oas = await oasPathParser(path)
+      const generator = new TypeGenerator({
+        withJSDocs: false,
+        resolveName: ({ name }) => name,
+        enumType: 'asConst',
+        dateType: 'string',
+        optionalType: 'questionToken',
+      })
+  
+      const schemas = oas.getDefinition().components?.schemas
+      const ast = generator.build({ schema: schemas?.NumberValueConst as OpenAPIV3.SchemaObject, baseName: 'NumberValueConst' })
+  
+      const ast_output = print(ast, undefined)
+      expect(ast_output).toBeDefined()
+      expect(ast_output).toMatchSnapshot()
+    })
+    
+    test('MixedValueTypeConst correctly throws error', async () => {
+      const oas = await oasPathParser(path)
+      const generator = new TypeGenerator({
+        withJSDocs: false,
+        resolveName: ({ name }) => name,
+        enumType: 'asConst',
+        dateType: 'string',
+        optionalType: 'questionToken',
+      })
+  
+      const schemas = oas.getDefinition().components?.schemas
+      const ast = generator.build({ schema: schemas?.MixedValueTypeConst as OpenAPIV3.SchemaObject, baseName: 'MixedValueTypeConst' })
+  
+      // const ast_output = print(ast, undefined)
+      expect(generator).toThrow("TODO Decide on expected behaviour.")
+      
+      // expect(ast_output).toBeDefined()
+      // expect(ast_output).toMatchSnapshot()
+    })
 })
