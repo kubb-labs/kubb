@@ -3,6 +3,33 @@ info:
 openapi: 3.1.0
 components:
   schemas:
+    NullConst:
+      description: |
+        The value of this keyword MAY be null. 
+        Use of this keyword is functionally equivalent to an "enum" (Section 6.1.2) with a single value.
+        An instance validates successfully against this keyword if its value is equal to the value of the keyword.
+      properties:
+        withoutValue:
+          const: 
+    StringValueConst:
+      description: its value is equal to the value of the keyword
+      properties:
+        foobar:
+          const: "foobar"
+          type: string
+    NumberValueConst:
+      description: its value is equal to the value of the keyword
+      properties:
+        foobar:
+          const: 42
+          type: number
+    MixedValueTypeConst:
+      description: This probably should fail miserably
+      properties:
+        foobar:
+          const: "foobar"
+          type: number
+
     Cat:
       title: Cat
       type: object
@@ -62,4 +89,4 @@ components:
       required:
       - id
 
-paths:
+paths: {}

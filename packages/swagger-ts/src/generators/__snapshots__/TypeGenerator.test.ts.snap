@@ -18,10 +18,35 @@ exports[`TypeGenerator with discriminators > Dog.type defined as const 1`] = `
 "
 `;
 
+exports[`TypeGenerator with discriminators > MixedValueTypeConst correctly throws error 1`] = `
+# TODO define intended behaviour
+`;
+
+exports[`TypeGenerator with discriminators > NullConst correctly produces "null" 1`] = `
+"export type NullConst = {
+    withoutValue?: null;
+};
+"
+`;
+
+exports[`TypeGenerator with discriminators > NumberValueConst const correctly produces \`42\` 1`] = `
+"export type NumberValueConst = {
+    foobar?: 42;
+};
+"
+`;
+
 exports[`TypeGenerator with discriminators > PetStore defined as array with type union 1`] = `
 "export type Petstore = {
     id: number;
     pets?: (Cat | Dog)[];
+};
+"
+`;
+
+exports[`TypeGenerator with discriminators > StringValueConst const correctly produces "foobar" 1`] = `
+"export type StringValueConst = {
+    foobar?: \\"foobar\\";
 };
 "
 `;
