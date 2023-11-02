@@ -5,7 +5,7 @@ import { LogLevel } from './utils/logger.ts'
 import { Queue } from './utils/Queue.ts'
 import { transformReservedWord } from './utils/transformers/transformReservedWord.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
-import { ParallelPluginError, PluginError, ValidationPluginError } from './errors.ts'
+import { ValidationPluginError } from './errors.ts'
 import { FileManager } from './FileManager.ts'
 import { definePlugin as defineCorePlugin } from './plugin.ts'
 import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
@@ -72,7 +72,7 @@ type Options = {
 type Events = {
   execute: [executer: Executer]
   executed: [executer: Executer]
-  error: [pluginError: PluginError]
+  error: [error: Error]
 }
 
 export class PluginManager {
@@ -326,19 +326,14 @@ export class PluginManager {
     }
     const results = await Promise.allSettled(parallelPromises)
 
-    const errors = results
-      .map((result) => {
-        // needs `cause` because Warning and other errors will then not be added, only PluginError is possible here
-        if (isPromiseRejectedResult<PluginError>(result) && result.reason instanceof PluginError) {
-          return result.reason
-        }
-        return undefined
-      })
-      .filter(Boolean)
+    results
+      .forEach((result, index) => {
+        if (isPromiseRejectedResult<Error>(result)) {
+          const plugin = this.#getSortedPlugins()[index]
 
-    if (errors.length) {
-      throw new ParallelPluginError('Error', { errors, pluginManager: this })
-    }
+          this.#catcher<H>(result.reason, plugin, hookName)
+        }
+      })
 
     return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
   }
@@ -497,14 +492,6 @@ export class PluginManager {
       .then((result) => {
         output = result
 
-        return result
-      })
-      .catch((e: Error) => {
-        this.#catcher<H>(e, plugin, hookName)
-
-        return null
-      })
-      .finally(() => {
         this.#addExecutedToCallStack({
           parameters,
           output,
@@ -512,6 +499,13 @@ export class PluginManager {
           hookName,
           plugin,
         })
+
+        return result
+      })
+      .catch((e: Error) => {
+        this.#catcher<H>(e, plugin, hookName)
+
+        return null
       })
 
     return task
@@ -553,12 +547,7 @@ export class PluginManager {
       }
 
       output = hook
-      return hook
-    } catch (e) {
-      this.#catcher<H>(e as Error, plugin, hookName)
 
-      return null
-    } finally {
       this.#addExecutedToCallStack({
         parameters,
         output,
@@ -566,16 +555,20 @@ export class PluginManager {
         hookName,
         plugin,
       })
+
+      return hook
+    } catch (e) {
+      this.#catcher<H>(e as Error, plugin, hookName)
+
+      return null
     }
   }
 
-  #catcher<H extends PluginLifecycleHooks>(e: Error, plugin: KubbPlugin, hookName: H) {
-    const text = `${e.message} (plugin: ${plugin.name}, hook: ${hookName})\n`
-    const pluginError = new PluginError(text, { cause: e, pluginManager: this })
+  #catcher<H extends PluginLifecycleHooks>(e: Error, plugin?: KubbPlugin, hookName?: H) {
+    const text = `${e.message} (plugin: ${plugin?.name || 'unknown'}, hook: ${hookName || 'unknown'})\n`
 
-    this.eventEmitter.emit('error', pluginError)
-
-    throw pluginError
+    this.logger.error(text)
+    this.eventEmitter.emit('error', e)
   }
 
   #parse<TPlugin extends KubbUserPlugin>(

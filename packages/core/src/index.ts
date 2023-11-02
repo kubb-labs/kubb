@@ -2,7 +2,7 @@ import { build } from './build.ts'
 
 import type { ObjValueTuple, TupleToUnion } from './types.ts'
 
-export { build } from './build.ts'
+export { build, safeBuild } from './build.ts'
 export * from './config.ts'
 export * from './errors.ts'
 export * from './FileManager.ts'

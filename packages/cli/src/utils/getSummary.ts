@@ -24,7 +24,11 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
     .filter((item) => item.hookName === 'buildStart' && item.plugin.name !== 'core')
     .map((item) => item.plugin.name)
 
-  const failedPlugins = config.plugins?.filter((plugin) => !buildStartPlugins.includes(plugin.name))?.map((plugin) => plugin.name)
+  const buildEndPlugins = pluginManager.executed
+    .filter((item) => item.hookName === 'buildEnd' && item.plugin.name !== 'core')
+    .map((item) => item.plugin.name)
+
+  const failedPlugins = config.plugins?.filter((plugin) => !buildEndPlugins.includes(plugin.name))?.map((plugin) => plugin.name)
   const pluginsCount = config.plugins?.length || 0
   const files = pluginManager.fileManager.files.sort((a, b) => {
     if (!a.meta?.pluginKey?.[1] || !b.meta?.pluginKey?.[1]) {
@@ -60,7 +64,7 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
       [`\n`, true],
       [`     ${pc.bold('Name:')}      ${meta.name}`, !!meta.name],
       [`  ${pc.bold('Plugins:')}      ${meta.plugins}`, true],
-      [`    ${pc.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
+      [`   ${pc.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
       [`${pc.bold('Generated:')}      ${meta.filesCreated} files`, true],
       [`     ${pc.bold('Time:')}      ${meta.time}`, true],
       [`   ${pc.bold('Output:')}      ${meta.output}`, true],

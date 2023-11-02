@@ -32,7 +32,7 @@ async function transformReducer(
   return result
 }
 
-export async function build(options: BuildOptions): Promise<BuildOutput> {
+async function setup(options: BuildOptions): Promise<PluginManager> {
   const { config, logger = createLogger({ logLevel: LogLevel.silent }) } = options
 
   try {
@@ -96,7 +96,6 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   }
 
   const pluginManager = new PluginManager(config, { logger, task: queueTask as QueueJob<KubbFile.ResolvedFile>, writeTimeout: 0 })
-  const { plugins, fileManager } = pluginManager
 
   pluginManager.on('execute', (executer) => {
     const { hookName, parameters, plugin } = executer
@@ -141,14 +140,22 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
     }
   })
 
+  return pluginManager
+}
+
+export async function build(options: BuildOptions): Promise<BuildOutput> {
+  const pluginManager = await setup(options)
+
+  const { fileManager, logger } = pluginManager
+
   await pluginManager.hookParallel<'validate', true>({
     hookName: 'validate',
-    parameters: [plugins],
+    parameters: [pluginManager.plugins],
   })
 
   await pluginManager.hookParallel({
     hookName: 'buildStart',
-    parameters: [config],
+    parameters: [options.config],
   })
 
   await pluginManager.hookParallel({ hookName: 'buildEnd' })
@@ -156,6 +163,35 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
   if (!fileManager.isExecuting && logger.spinner) {
     logger.spinner.suffixText = ''
     logger.spinner.succeed(`💾 Writing completed`)
+  }
+
+  return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager }
+}
+
+export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
+  const pluginManager = await setup(options)
+
+  const { fileManager, logger } = pluginManager
+
+  try {
+    await pluginManager.hookParallel<'validate', true>({
+      hookName: 'validate',
+      parameters: [pluginManager.plugins],
+    })
+
+    await pluginManager.hookParallel({
+      hookName: 'buildStart',
+      parameters: [options.config],
+    })
+
+    await pluginManager.hookParallel({ hookName: 'buildEnd' })
+
+    if (!fileManager.isExecuting && logger.spinner) {
+      logger.spinner.suffixText = ''
+      logger.spinner.succeed(`💾 Writing completed`)
+    }
+  } catch (e) {
+    return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager, error: e as Error }
   }
 
   return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager }
