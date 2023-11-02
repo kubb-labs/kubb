@@ -1,7 +1,6 @@
 import path from 'node:path'
 
-import { isInputPath, PromiseManager, SummaryError, Warning } from '@kubb/core'
-import { LogLevel } from '@kubb/core/utils'
+import { isInputPath, PromiseManager, Warning } from '@kubb/core'
 
 import { cac } from 'cac'
 import pc from 'picocolors'
@@ -20,30 +19,15 @@ import type { CLIOptions } from '@kubb/core'
 const moduleName = 'kubb'
 
 function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
-  const originalError = e as Error
-  let error = originalError
-
-  // summaryError check
-  const summaryError = error instanceof SummaryError ? error : undefined
-
-  if (summaryError) {
-    // use the real error from summaryError and use the case of SummaryError to display a summary of plugins that failed
-    error = summaryError.cause as Error
-  }
-
-  const message = renderErrors(error, { logLevel: CLIOptions.logLevel, prefixText: pc.red(originalError?.message) })
+  const error = e as Error
+  const message = renderErrors(error, { logLevel: CLIOptions.logLevel })
 
   if (error instanceof Warning) {
     spinner.warn(pc.yellow(error.message))
     process.exit(0)
   }
 
-  if (CLIOptions.logLevel === LogLevel.silent) {
-    spinner.fail(message)
-    process.exit(1)
-  }
-
-  spinner.fail([message, ...(summaryError?.summary || [])].join('\n'))
+  spinner.fail(message)
   process.exit(1)
 }
 

@@ -119,6 +119,10 @@ export type CLIOptions = {
 export type BuildOutput = {
   files: FileManager['files']
   pluginManager: PluginManager
+  /**
+   * Only for safeBuild
+   */
+  error?: Error
 }
 
 // plugin

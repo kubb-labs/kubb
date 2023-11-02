@@ -1,4 +1,4 @@
-import { build, ParallelPluginError, PluginError, SummaryError } from '@kubb/core'
+import { safeBuild } from '@kubb/core'
 import { createLogger, LogLevel, randomPicoColour } from '@kubb/core/utils'
 
 import { execa } from 'execa'
@@ -93,45 +93,45 @@ export async function generate({ input, config, CLIOptions }: GenerateProps): Pr
     performanceOpserver.observe({ type: 'measure' })
   }
 
-  try {
-    const { root: _root, ...userConfig } = config
-    const logLevel = logger.logLevel
-    const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
+  const { root: _root, ...userConfig } = config
+  const logLevel = logger.logLevel
+  const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
-    spinner.start(`🚀 Building ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
+  spinner.start(`🚀 Building ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
 
-    const output = await build({
-      config: {
-        root: process.cwd(),
-        ...userConfig,
-        input: inputPath
-          ? {
-            ...userConfig.input,
-            path: inputPath,
-          }
-          : userConfig.input,
-        output: {
-          write: true,
-          ...userConfig.output,
-        },
+  const { pluginManager, error } = await safeBuild({
+    config: {
+      root: process.cwd(),
+      ...userConfig,
+      input: inputPath
+        ? {
+          ...userConfig.input,
+          path: inputPath,
+        }
+        : userConfig.input,
+      output: {
+        write: true,
+        ...userConfig.output,
       },
-      logger,
-    })
+    },
+    logger,
+  })
 
-    await executeHooks({ hooks: config.hooks, logLevel })
+  const summary = getSummary({ pluginManager, config, status: error ? 'failed' : 'success', hrstart, logLevel: CLIOptions.logLevel })
 
+  if (error) {
     spinner.suffixText = ''
-    spinner.succeed(`🚀 Build completed ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
+    spinner.fail(`🚀 Build failed ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
 
-    const summary = getSummary({ pluginManager: output.pluginManager, config, status: 'success', hrstart, logLevel: CLIOptions.logLevel })
     console.log(summary.join(''))
-  } catch (error) {
-    let summary: string[] = []
 
-    if (error instanceof PluginError || error instanceof ParallelPluginError) {
-      summary = getSummary({ pluginManager: error.pluginManager, config, status: 'failed', hrstart, logLevel: CLIOptions.logLevel })
-    }
-
-    throw new SummaryError('Something went wrong\n', { cause: error as Error, summary })
+    throw error
   }
+
+  await executeHooks({ hooks: config.hooks, logLevel })
+
+  spinner.suffixText = ''
+  spinner.succeed(`🚀 Build completed ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
+
+  console.log(summary.join(''))
 }
