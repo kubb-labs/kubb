@@ -21,8 +21,8 @@ export type LoginUserQueryParams = {
  */
 export type LoginUserQueryResponse = string
 
-export type LoginUser = {
-  response: LoginUserQueryResponse
-  queryParams: LoginUserQueryParams
-  errors: LoginUser400
+export namespace LoginUserQuery {
+  export type Response = LoginUserQueryResponse
+  export type QueryParams = LoginUserQueryParams
+  export type Errors = LoginUser400
 }

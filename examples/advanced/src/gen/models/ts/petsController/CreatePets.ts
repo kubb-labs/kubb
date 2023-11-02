@@ -53,11 +53,11 @@ export type CreatePetsQueryParams = {
  */
 export type CreatePetsError = PetNotFound
 
-export type CreatePets = {
-  response: CreatePetsMutationResponse
-  request: CreatePetsMutationRequest
-  pathParams: CreatePetsPathParams
-  queryParams: CreatePetsQueryParams
-  headerParams: CreatePetsHeaderParams
-  errors: CreatePets201 | CreatePetsError
+export namespace CreatePetsMutation {
+  export type Response = CreatePetsMutationResponse
+  export type Request = CreatePetsMutationRequest
+  export type PathParams = CreatePetsPathParams
+  export type QueryParams = CreatePetsQueryParams
+  export type HeaderParams = CreatePetsHeaderParams
+  export type Errors = CreatePets201 | CreatePetsError
 }

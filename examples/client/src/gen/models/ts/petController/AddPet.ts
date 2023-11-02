@@ -22,8 +22,8 @@ export type AddPetMutationRequest = AddPetRequest
  */
 export type AddPetMutationResponse = Pet
 
-export type AddPet = {
-  response: AddPetMutationResponse
-  request: AddPetMutationRequest
-  errors: AddPet405
+export namespace AddPetMutation {
+  export type Response = AddPetMutationResponse
+  export type Request = AddPetMutationRequest
+  export type Errors = AddPet405
 }

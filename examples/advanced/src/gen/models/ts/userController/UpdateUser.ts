@@ -20,9 +20,9 @@ export type UpdateUserPathParams = {
  */
 export type UpdateUserMutationRequest = User
 
-export type UpdateUser = {
-  response: UpdateUserMutationResponse
-  request: UpdateUserMutationRequest
-  pathParams: UpdateUserPathParams
-  errors: UpdateUserError
+export namespace UpdateUserMutation {
+  export type Response = UpdateUserMutationResponse
+  export type Request = UpdateUserMutationRequest
+  export type PathParams = UpdateUserPathParams
+  export type Errors = UpdateUserError
 }

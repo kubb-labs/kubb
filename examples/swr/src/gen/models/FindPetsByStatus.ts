@@ -25,8 +25,8 @@ export type FindPetsByStatusQueryParams = {
  */
 export type FindPetsByStatusQueryResponse = Pet[]
 
-export type FindPetsByStatus = {
-  response: FindPetsByStatusQueryResponse
-  queryParams: FindPetsByStatusQueryParams
-  errors: FindPetsByStatus400
+export namespace FindPetsByStatusQuery {
+  export type Response = FindPetsByStatusQueryResponse
+  export type QueryParams = FindPetsByStatusQueryParams
+  export type Errors = FindPetsByStatus400
 }

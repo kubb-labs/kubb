@@ -18,8 +18,8 @@ export type FindPetsByTagsQueryParams = {
  */
 export type FindPetsByTagsQueryResponse = Pet[]
 
-export type FindPetsByTags = {
-  response: FindPetsByTagsQueryResponse
-  queryParams: FindPetsByTagsQueryParams
-  errors: FindPetsByTags400
+export namespace FindPetsByTagsQuery {
+  export type Response = FindPetsByTagsQueryResponse
+  export type QueryParams = FindPetsByTagsQueryParams
+  export type Errors = FindPetsByTags400
 }

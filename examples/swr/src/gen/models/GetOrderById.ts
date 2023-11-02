@@ -23,8 +23,8 @@ export type GetOrderByIdPathParams = {
  */
 export type GetOrderByIdQueryResponse = Order
 
-export type GetOrderById = {
-  response: GetOrderByIdQueryResponse
-  pathParams: GetOrderByIdPathParams
-  errors: GetOrderById400 | GetOrderById404
+export namespace GetOrderByIdQuery {
+  export type Response = GetOrderByIdQueryResponse
+  export type PathParams = GetOrderByIdPathParams
+  export type Errors = GetOrderById400 | GetOrderById404
 }

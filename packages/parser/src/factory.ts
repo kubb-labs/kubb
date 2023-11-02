@@ -210,6 +210,22 @@ export function createTypeAliasDeclaration({
 }) {
   return factory.createTypeAliasDeclaration(modifiers, name, typeParameters, type)
 }
+
+export function createNamespaceDeclaration({
+  statements,
+  name,
+}: {
+  name: string
+  statements: ts.Statement[]
+}) {
+  return factory.createModuleDeclaration(
+    [factory.createToken(ts.SyntaxKind.ExportKeyword)],
+    factory.createIdentifier(name),
+    factory.createModuleBlock(statements),
+    ts.NodeFlags.Namespace,
+  )
+}
+
 /**
  * In { propertyName: string; name?: string } is `name` being used to make the type more unique when multiple same names are used.
  * @example `import { Pet as Cat } from './Pet'`

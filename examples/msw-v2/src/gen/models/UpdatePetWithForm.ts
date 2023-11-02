@@ -26,9 +26,9 @@ export type UpdatePetWithFormQueryParams = {
   status?: string
 }
 
-export type UpdatePetWithForm = {
-  response: UpdatePetWithFormMutationResponse
-  pathParams: UpdatePetWithFormPathParams
-  queryParams: UpdatePetWithFormQueryParams
-  errors: UpdatePetWithForm405
+export namespace UpdatePetWithFormMutation {
+  export type Response = UpdatePetWithFormMutationResponse
+  export type PathParams = UpdatePetWithFormPathParams
+  export type QueryParams = UpdatePetWithFormQueryParams
+  export type Errors = UpdatePetWithForm405
 }

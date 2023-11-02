@@ -23,8 +23,8 @@ export type GetUserByNamePathParams = {
  */
 export type GetUserByNameQueryResponse = User
 
-export type GetUserByName = {
-  response: GetUserByNameQueryResponse
-  pathParams: GetUserByNamePathParams
-  errors: GetUserByName400 | GetUserByName404
+export namespace GetUserByNameQuery {
+  export type Response = GetUserByNameQueryResponse
+  export type PathParams = GetUserByNamePathParams
+  export type Errors = GetUserByName400 | GetUserByName404
 }

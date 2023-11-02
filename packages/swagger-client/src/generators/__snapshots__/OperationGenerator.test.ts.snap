@@ -5,12 +5,12 @@ exports[`OperationGenerator > [GET] should generate code based on a pathParamsTy
  * @summary Info for a specific pet
  * @link /pets/:pet_id
  */
-export async function showPetById<TData = ShowPetByIdQueryResponse>(
+export async function showPetById(
   petId: ShowPetByIdPathParams['pet_id'],
   testId: ShowPetByIdPathParams['testId'],
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>> {
-  const { data: resData } = await client<TData>({
+): Promise<ResponseConfig<ShowPetByIdQueryResponse>> {
+  const { data: resData } = await client<ShowPetByIdQueryResponse>({
     method: 'get',
     url: \`/pets/\${petId}\`,
     ...options,
@@ -26,11 +26,11 @@ exports[`OperationGenerator > [GET] should generate code based on a pathParamsTy
  * @summary Info for a specific pet
  * @link /pets/:pet_id
  */
-export async function showPetById<TData = ShowPetByIdQueryResponse>(
+export async function showPetById(
   { petId, testId }: ShowPetByIdPathParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData>({
+): Promise<ResponseConfig<ShowPetByIdQueryResponse>['data']> {
+  const { data: resData } = await client<ShowPetByIdQueryResponse>({
     method: 'get',
     url: \`/pets/\${petId}\`,
     ...options,

@@ -23,8 +23,8 @@ export type GetPetByIdPathParams = {
  */
 export type GetPetByIdQueryResponse = Pet
 
-export type GetPetById = {
-  response: GetPetByIdQueryResponse
-  pathParams: GetPetByIdPathParams
-  errors: GetPetById400 | GetPetById404
+export namespace GetPetByIdQuery {
+  export type Response = GetPetByIdQueryResponse
+  export type PathParams = GetPetByIdPathParams
+  export type Errors = GetPetById400 | GetPetById404
 }

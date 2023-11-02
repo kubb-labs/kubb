@@ -1,10 +1,14 @@
 import { getRelativePath } from '@kubb/core/utils'
+import { print } from '@kubb/parser'
+import * as factory from '@kubb/parser/factory'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
+import { camelCase, pascalCase } from 'change-case'
 
 import { TypeBuilder } from '../builders/index.ts'
 
 import type { KubbFile } from '@kubb/core'
-import type { FileResolver, Operation, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
+import type { FileResolver, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
+import type ts from 'typescript'
 import type { FileMeta, Options as PluginOptions } from '../types.ts'
 
 type Options = {
@@ -32,63 +36,69 @@ export class OperationGenerator extends Generator<Options> {
     return null
   }
 
-  #getCombinedSchema(name: string, schemas: OperationSchemas): OperationSchema {
-    const properties: OperationSchema['schema']['properties'] = {
-      'response': {
-        '$ref': `#/components/schemas/${schemas.response.name}`,
-      },
+  #printCombinedSchema(name: string, operation: Operation, schemas: OperationSchemas): string {
+    const properties: Record<string, ts.TypeNode> = {
+      'response': factory.createTypeReferenceNode(
+        factory.createIdentifier(schemas.response.name),
+        undefined,
+      ),
     }
 
     if (schemas.request) {
-      properties['request'] = {
-        '$ref': `#/components/schemas/${schemas.request.name}`,
-      }
+      properties['request'] = factory.createTypeReferenceNode(
+        factory.createIdentifier(schemas.request.name),
+        undefined,
+      )
     }
 
     if (schemas.pathParams) {
-      properties['pathParams'] = {
-        '$ref': `#/components/schemas/${schemas.pathParams.name}`,
-      }
+      properties['pathParams'] = factory.createTypeReferenceNode(
+        factory.createIdentifier(schemas.pathParams.name),
+        undefined,
+      )
     }
 
     if (schemas.queryParams) {
-      properties['queryParams'] = {
-        '$ref': `#/components/schemas/${schemas.queryParams.name}`,
-      }
+      properties['queryParams'] = factory.createTypeReferenceNode(
+        factory.createIdentifier(schemas.queryParams.name),
+        undefined,
+      )
     }
 
     if (schemas.headerParams) {
-      properties['headerParams'] = {
-        '$ref': `#/components/schemas/${schemas.headerParams.name}`,
-      }
+      properties['headerParams'] = factory.createTypeReferenceNode(
+        factory.createIdentifier(schemas.headerParams.name),
+        undefined,
+      )
     }
 
     if (schemas.errors) {
-      properties['errors'] = {
-        'anyOf': schemas.errors.map(error => {
-          return {
-            '$ref': `#/components/schemas/${error.name}`,
-          }
+      properties['errors'] = factory.createUnionDeclaration({
+        nodes: schemas.errors.map(error => {
+          return factory.createTypeReferenceNode(
+            factory.createIdentifier(error.name),
+            undefined,
+          )
         }),
-      }
+      })!
     }
 
-    return {
-      'name': `${name}`,
-      'operationName': `${name}`,
-      'schema': {
-        'type': 'object',
-        'required': [
-          'request',
-          'response',
-          'pathParams',
-          'queryParams',
-          'headerParams',
-          'errors',
-        ],
-        'properties': properties,
-      },
-    }
+    const namespaceNode = factory.createNamespaceDeclaration({
+      name: operation.method === 'get' ? `${name}Query` : `${name}Mutation`,
+      statements: Object.keys(properties).map(key => {
+        const type = properties[key]
+        if (!type) {
+          return undefined
+        }
+        return factory.createTypeAliasDeclaration({
+          modifiers: [factory.modifiers.export],
+          name: pascalCase(key),
+          type,
+        })
+      }).filter(Boolean),
+    })
+
+    return print(namespaceNode)
   }
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
@@ -123,14 +133,15 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.headerParams)
       .add(schemas.response)
       .add(schemas.errors)
-      .add(this.#getCombinedSchema(type.name, schemas))
       .configure()
       .print()
+
+    const combinedSchemaSource = this.#printCombinedSchema(type.name, operation, schemas)
 
     return {
       path: type.path,
       baseName: type.baseName,
-      source,
+      source: [source, combinedSchemaSource].join('\n'),
       meta: {
         pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
@@ -171,14 +182,15 @@ export class OperationGenerator extends Generator<Options> {
       .add(schemas.request)
       .add(schemas.response)
       .add(schemas.errors)
-      .add(this.#getCombinedSchema(type.name, schemas))
       .configure()
       .print()
+
+    const combinedSchemaSource = this.#printCombinedSchema(type.name, operation, schemas)
 
     return {
       path: type.path,
       baseName: type.baseName,
-      source,
+      source: [source, combinedSchemaSource].join('\n'),
       meta: {
         pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,

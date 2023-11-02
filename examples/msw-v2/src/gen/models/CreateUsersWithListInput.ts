@@ -12,8 +12,8 @@ export type CreateUsersWithListInputMutationRequest = User[]
  */
 export type CreateUsersWithListInputMutationResponse = User
 
-export type CreateUsersWithListInput = {
-  response: CreateUsersWithListInputMutationResponse
-  request: CreateUsersWithListInputMutationRequest
-  errors: CreateUsersWithListInputError
+export namespace CreateUsersWithListInputMutation {
+  export type Response = CreateUsersWithListInputMutationResponse
+  export type Request = CreateUsersWithListInputMutationRequest
+  export type Errors = CreateUsersWithListInputError
 }

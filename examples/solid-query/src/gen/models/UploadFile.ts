@@ -23,9 +23,9 @@ export type UploadFileQueryParams = {
  */
 export type UploadFileMutationResponse = ApiResponse
 
-export type UploadFile = {
-  response: UploadFileMutationResponse
-  request: UploadFileMutationRequest
-  pathParams: UploadFilePathParams
-  queryParams: UploadFileQueryParams
+export namespace UploadFileMutation {
+  export type Response = UploadFileMutationResponse
+  export type Request = UploadFileMutationRequest
+  export type PathParams = UploadFilePathParams
+  export type QueryParams = UploadFileQueryParams
 }
