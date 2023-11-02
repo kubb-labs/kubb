@@ -20,6 +20,7 @@ declare global {
         path: string
         env?: NodeJS.ProcessEnv
         override?: boolean
+        meta?: KubbFile.File["meta"]
       }
 
       'kubb-source': {

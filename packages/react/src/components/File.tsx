@@ -16,14 +16,15 @@ type BasePropsWithoutBaseName = {
 
 type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 
-type Props = BaseProps & {
+type Props< TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = BaseProps & {
   id?: string
   env?: NodeJS.ProcessEnv
   children?: KubbNode
   override?: boolean
+  meta?: TMeta
 }
 
-export function File(props: Props): KubbNode {
+export function File< TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(props: Props<TMeta>): KubbNode {
   if (!props.baseName || !props.path) {
     return props.children
   }
