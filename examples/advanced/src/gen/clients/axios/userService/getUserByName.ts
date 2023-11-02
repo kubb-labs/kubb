@@ -6,11 +6,11 @@ import type { GetUserByNameQueryResponse, GetUserByNamePathParams } from '../../
  * @summary Get user by user name
  * @link /user/:username
  */
-export async function getUserByName<TData = GetUserByNameQueryResponse>(
+export async function getUserByName(
   { username }: GetUserByNamePathParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>> {
-  return client<TData>({
+): Promise<ResponseConfig<GetUserByNameQueryResponse>> {
+  return client<GetUserByNameQueryResponse>({
     method: 'get',
     url: `/user/${username}`,
     ...options,

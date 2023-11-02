@@ -52,3 +52,12 @@ export type CreatePetsQueryParams = {
  * @description unexpected error
  */
 export type CreatePetsError = PetNotFound
+
+export type CreatePets = {
+  response: CreatePetsMutationResponse
+  request: CreatePetsMutationRequest
+  pathParams: CreatePetsPathParams
+  queryParams: CreatePetsQueryParams
+  headerParams: CreatePetsHeaderParams
+  errors: CreatePets201 | CreatePetsError
+}

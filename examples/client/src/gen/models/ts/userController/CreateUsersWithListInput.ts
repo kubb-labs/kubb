@@ -11,3 +11,9 @@ export type CreateUsersWithListInputMutationRequest = User[]
  * @description Successful operation
  */
 export type CreateUsersWithListInputMutationResponse = User
+
+export type CreateUsersWithListInput = {
+  response: CreateUsersWithListInputMutationResponse
+  request: CreateUsersWithListInputMutationRequest
+  errors: CreateUsersWithListInputError
+}

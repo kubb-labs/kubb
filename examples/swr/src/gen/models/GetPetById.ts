@@ -22,3 +22,9 @@ export type GetPetByIdPathParams = {
  * @description successful operation
  */
 export type GetPetByIdQueryResponse = Pet
+
+export type GetPetById = {
+  response: GetPetByIdQueryResponse
+  pathParams: GetPetByIdPathParams
+  errors: GetPetById400
+}

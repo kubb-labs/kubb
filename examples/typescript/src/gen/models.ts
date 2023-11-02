@@ -271,6 +271,12 @@ export type UpdatePetMutationRequest = Pet
  */
 export type UpdatePetMutationResponse = Pet
 
+export type UpdatePet = {
+  response: UpdatePetMutationResponse
+  request: UpdatePetMutationRequest
+  errors: UpdatePet400
+}
+
 export type AddPet405 = {
   /**
    * @type integer | undefined int32
@@ -291,6 +297,12 @@ export type AddPetMutationRequest = AddPetRequest
  * @description Successful operation
  */
 export type AddPetMutationResponse = Pet
+
+export type AddPet = {
+  response: AddPetMutationResponse
+  request: AddPetMutationRequest
+  errors: AddPet405
+}
 
 /**
  * @description Invalid status value
@@ -315,6 +327,12 @@ export type FindPetsByStatusQueryParams = {
  * @description successful operation
  */
 export type FindPetsByStatusQueryResponse = Pet[]
+
+export type FindPetsByStatus = {
+  response: FindPetsByStatusQueryResponse
+  queryParams: FindPetsByStatusQueryParams
+  errors: FindPetsByStatus400
+}
 
 /**
  * @description Invalid tag value
@@ -344,6 +362,12 @@ export type FindPetsByTagsQueryParams = {
  */
 export type FindPetsByTagsQueryResponse = Pet[]
 
+export type FindPetsByTags = {
+  response: FindPetsByTagsQueryResponse
+  queryParams: FindPetsByTagsQueryParams
+  errors: FindPetsByTags400
+}
+
 /**
  * @description Invalid ID supplied
  */
@@ -366,6 +390,12 @@ export type GetPetByIdPathParams = {
  * @description successful operation
  */
 export type GetPetByIdQueryResponse = Pet
+
+export type GetPetById = {
+  response: GetPetByIdQueryResponse
+  pathParams: GetPetByIdPathParams
+  errors: GetPetById400
+}
 
 /**
  * @description Invalid input
@@ -395,6 +425,13 @@ export type UpdatePetWithFormQueryParams = {
   status?: string
 }
 
+export type UpdatePetWithForm = {
+  response: UpdatePetWithFormMutationResponse
+  pathParams: UpdatePetWithFormPathParams
+  queryParams: UpdatePetWithFormQueryParams
+  errors: UpdatePetWithForm405
+}
+
 /**
  * @description Invalid pet value
  */
@@ -415,6 +452,13 @@ export type DeletePetPathParams = {
    * @type integer int64
    */
   petId: number
+}
+
+export type DeletePet = {
+  response: DeletePetMutationResponse
+  pathParams: DeletePetPathParams
+  headerParams: DeletePetHeaderParams
+  errors: DeletePet400
 }
 
 export type UploadFileMutationRequest = string
@@ -440,11 +484,22 @@ export type UploadFileQueryParams = {
  */
 export type UploadFileMutationResponse = ApiResponse
 
+export type UploadFile = {
+  response: UploadFileMutationResponse
+  request: UploadFileMutationRequest
+  pathParams: UploadFilePathParams
+  queryParams: UploadFileQueryParams
+}
+
 /**
  * @description successful operation
  */
 export type GetInventoryQueryResponse = {
   [key: string]: number
+}
+
+export type GetInventory = {
+  response: GetInventoryQueryResponse
 }
 
 /**
@@ -459,6 +514,12 @@ export type PlaceOrderMutationRequest = Order
  */
 export type PlaceOrderMutationResponse = Order
 
+export type PlaceOrder = {
+  response: PlaceOrderMutationResponse
+  request: PlaceOrderMutationRequest
+  errors: PlaceOrder405
+}
+
 /**
  * @description Invalid input
  */
@@ -470,6 +531,12 @@ export type PlaceOrderPatchMutationRequest = Order
  * @description successful operation
  */
 export type PlaceOrderPatchMutationResponse = Order
+
+export type PlaceOrderPatch = {
+  response: PlaceOrderPatchMutationResponse
+  request: PlaceOrderPatchMutationRequest
+  errors: PlaceOrderPatch405
+}
 
 /**
  * @description Invalid ID supplied
@@ -494,6 +561,12 @@ export type GetOrderByIdPathParams = {
  */
 export type GetOrderByIdQueryResponse = Order
 
+export type GetOrderById = {
+  response: GetOrderByIdQueryResponse
+  pathParams: GetOrderByIdPathParams
+  errors: GetOrderById400
+}
+
 /**
  * @description Invalid ID supplied
  */
@@ -514,6 +587,12 @@ export type DeleteOrderPathParams = {
   orderId: number
 }
 
+export type DeleteOrder = {
+  response: DeleteOrderMutationResponse
+  pathParams: DeleteOrderPathParams
+  errors: DeleteOrder400
+}
+
 export type CreateUserMutationResponse = any | null
 
 /**
@@ -526,6 +605,12 @@ export type CreateUserError = User
  */
 export type CreateUserMutationRequest = User
 
+export type CreateUser = {
+  response: CreateUserMutationResponse
+  request: CreateUserMutationRequest
+  errors: CreateUserError
+}
+
 /**
  * @description successful operation
  */
@@ -537,6 +622,12 @@ export type CreateUsersWithListInputMutationRequest = User[]
  * @description Successful operation
  */
 export type CreateUsersWithListInputMutationResponse = User
+
+export type CreateUsersWithListInput = {
+  response: CreateUsersWithListInputMutationResponse
+  request: CreateUsersWithListInputMutationRequest
+  errors: CreateUsersWithListInputError
+}
 
 /**
  * @description Invalid username/password supplied
@@ -561,12 +652,23 @@ export type LoginUserQueryParams = {
  */
 export type LoginUserQueryResponse = string
 
+export type LoginUser = {
+  response: LoginUserQueryResponse
+  queryParams: LoginUserQueryParams
+  errors: LoginUser400
+}
+
 /**
  * @description successful operation
  */
 export type LogoutUserError = any | null
 
 export type LogoutUserQueryResponse = any | null
+
+export type LogoutUser = {
+  response: LogoutUserQueryResponse
+  errors: LogoutUserError
+}
 
 /**
  * @description Invalid username supplied
@@ -591,6 +693,12 @@ export type GetUserByNamePathParams = {
  */
 export type GetUserByNameQueryResponse = User
 
+export type GetUserByName = {
+  response: GetUserByNameQueryResponse
+  pathParams: GetUserByNamePathParams
+  errors: GetUserByName400
+}
+
 /**
  * @description successful operation
  */
@@ -611,6 +719,13 @@ export type UpdateUserPathParams = {
  */
 export type UpdateUserMutationRequest = User
 
+export type UpdateUser = {
+  response: UpdateUserMutationResponse
+  request: UpdateUserMutationRequest
+  pathParams: UpdateUserPathParams
+  errors: UpdateUserError
+}
+
 /**
  * @description Invalid username supplied
  */
@@ -629,4 +744,10 @@ export type DeleteUserPathParams = {
    * @type string
    */
   username: string
+}
+
+export type DeleteUser = {
+  response: DeleteUserMutationResponse
+  pathParams: DeleteUserPathParams
+  errors: DeleteUser400
 }

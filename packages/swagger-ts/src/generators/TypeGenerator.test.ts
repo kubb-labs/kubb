@@ -184,7 +184,7 @@ describe('TypeGenerator with refs', () => {
 })
 
 describe('TypeGenerator with discriminators', () => {
-  const path = pathParser.resolve(__dirname, "../../mocks/discriminator.yaml")
+  const path = pathParser.resolve(__dirname, '../../mocks/discriminator.yaml')
 
   test('PetStore defined as array with type union', async () => {
     const oas = await oasPathParser(path)
@@ -239,6 +239,5 @@ describe('TypeGenerator with discriminators', () => {
     const dog_output = print(dog, undefined)
     expect(dog_output).toBeDefined()
     expect(dog_output).toMatchSnapshot()
-    })
-
+  })
 })

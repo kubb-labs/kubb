@@ -23,3 +23,9 @@ export type FindPetsByStatusQueryParams = {
  * @description successful operation
  */
 export type FindPetsByStatusQueryResponse = Pet[]
+
+export type FindPetsByStatus = {
+  response: FindPetsByStatusQueryResponse
+  queryParams: FindPetsByStatusQueryParams
+  errors: FindPetsByStatus400
+}

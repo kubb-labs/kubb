@@ -22,3 +22,10 @@ export type UploadFileQueryParams = {
  * @description successful operation
  */
 export type UploadFileMutationResponse = ApiResponse
+
+export type UploadFile = {
+  response: UploadFileMutationResponse
+  request: UploadFileMutationRequest
+  pathParams: UploadFilePathParams
+  queryParams: UploadFileQueryParams
+}

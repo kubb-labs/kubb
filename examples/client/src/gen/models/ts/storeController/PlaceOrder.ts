@@ -11,3 +11,9 @@ export type PlaceOrderMutationRequest = Order
  * @description successful operation
  */
 export type PlaceOrderMutationResponse = Order
+
+export type PlaceOrder = {
+  response: PlaceOrderMutationResponse
+  request: PlaceOrderMutationRequest
+  errors: PlaceOrder405
+}

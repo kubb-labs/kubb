@@ -6,8 +6,8 @@ import type { LogoutUserQueryResponse } from '../../../models/ts/userController/
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-export async function logoutUser<TData = LogoutUserQueryResponse>(options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<TData>> {
-  return client<TData>({
+export async function logoutUser(options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<LogoutUserQueryResponse>> {
+  return client<LogoutUserQueryResponse>({
     method: 'get',
     url: `/user/logout`,
     ...options,

@@ -6,11 +6,11 @@ import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../mode
  * @summary Logs user into the system
  * @link /user/login
  */
-export async function loginUser<TData = LoginUserQueryResponse>(
+export async function loginUser(
   params?: LoginUserQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData>({
+): Promise<ResponseConfig<LoginUserQueryResponse>['data']> {
+  const { data: resData } = await client<LoginUserQueryResponse>({
     method: 'get',
     url: `/user/login`,
     params,

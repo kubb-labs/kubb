@@ -19,3 +19,10 @@ export type UpdateUserPathParams = {
  * @description Update an existent user in the store
  */
 export type UpdateUserMutationRequest = User
+
+export type UpdateUser = {
+  response: UpdateUserMutationResponse
+  request: UpdateUserMutationRequest
+  pathParams: UpdateUserPathParams
+  errors: UpdateUserError
+}

@@ -7,12 +7,12 @@ import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsBy
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-export async function findPetsByTags<TData = FindPetsByTagsQueryResponse>(
+export async function findPetsByTags(
   headers: FindPetsByTagsHeaderParams,
   params?: FindPetsByTagsQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData>({
+): Promise<ResponseConfig<FindPetsByTagsQueryResponse>['data']> {
+  const { data: resData } = await client<FindPetsByTagsQueryResponse>({
     method: 'get',
     url: `/pet/findByTags`,
     params,

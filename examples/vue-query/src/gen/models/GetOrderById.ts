@@ -22,3 +22,9 @@ export type GetOrderByIdPathParams = {
  * @description successful operation
  */
 export type GetOrderByIdQueryResponse = Order
+
+export type GetOrderById = {
+  response: GetOrderByIdQueryResponse
+  pathParams: GetOrderByIdPathParams
+  errors: GetOrderById400
+}

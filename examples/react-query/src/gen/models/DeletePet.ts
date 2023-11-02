@@ -19,3 +19,10 @@ export type DeletePetPathParams = {
    */
   petId: number
 }
+
+export type DeletePet = {
+  response: DeletePetMutationResponse
+  pathParams: DeletePetPathParams
+  headerParams: DeletePetHeaderParams
+  errors: DeletePet400
+}

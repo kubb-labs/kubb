@@ -7,11 +7,11 @@ import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../mod
  * @summary Add a new pet to the store
  * @link /pet
  */
-export async function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutationRequest>(
-  data: TVariables,
+export async function addPet(
+  data: AddPetMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>> {
-  return client<TData, TVariables>({
+): Promise<ResponseConfig<AddPetMutationResponse>> {
+  return client<AddPetMutationResponse, AddPetMutationRequest>({
     method: 'post',
     url: `/pet`,
     data,
