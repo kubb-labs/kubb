@@ -61,6 +61,7 @@ export class ImportsGenerator extends Generator<Options> {
         const ref = refs[$ref]!
         const { propertyName, originalName } = ref
 
+        // do not add import if ref is already in the same file
         const exists = imports.some((item) => item.name.toLowerCase() === originalName.toLowerCase())
 
         if (exists) {

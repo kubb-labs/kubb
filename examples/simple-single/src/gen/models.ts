@@ -275,6 +275,12 @@ export type UpdatePetMutationRequest = Pet
  */
 export type UpdatePetMutationResponse = Pet
 
+export namespace UpdatePetMutation {
+  export type Response = UpdatePetMutationResponse
+  export type Request = UpdatePetMutationRequest
+  export type Errors = UpdatePet400 | UpdatePet404 | UpdatePet405
+}
+
 export type AddPet405 = {
   /**
    * @type integer | undefined int32
@@ -295,6 +301,12 @@ export type AddPetMutationRequest = AddPetRequest
  * @description Successful operation
  */
 export type AddPetMutationResponse = Pet
+
+export namespace AddPetMutation {
+  export type Response = AddPetMutationResponse
+  export type Request = AddPetMutationRequest
+  export type Errors = AddPet405
+}
 
 /**
  * @description Invalid status value
@@ -320,6 +332,12 @@ export type FindPetsByStatusQueryParams = {
  * @description successful operation
  */
 export type FindPetsByStatusQueryResponse = Pet[]
+
+export namespace FindPetsByStatusQuery {
+  export type Response = FindPetsByStatusQueryResponse
+  export type QueryParams = FindPetsByStatusQueryParams
+  export type Errors = FindPetsByStatus400
+}
 
 /**
  * @description Invalid tag value
@@ -349,6 +367,12 @@ export type FindPetsByTagsQueryParams = {
  */
 export type FindPetsByTagsQueryResponse = Pet[]
 
+export namespace FindPetsByTagsQuery {
+  export type Response = FindPetsByTagsQueryResponse
+  export type QueryParams = FindPetsByTagsQueryParams
+  export type Errors = FindPetsByTags400
+}
+
 /**
  * @description Invalid ID supplied
  */
@@ -371,6 +395,12 @@ export type GetPetByIdPathParams = {
  * @description successful operation
  */
 export type GetPetByIdQueryResponse = Pet
+
+export namespace GetPetByIdQuery {
+  export type Response = GetPetByIdQueryResponse
+  export type PathParams = GetPetByIdPathParams
+  export type Errors = GetPetById400 | GetPetById404
+}
 
 /**
  * @description Invalid input
@@ -400,6 +430,13 @@ export type UpdatePetWithFormQueryParams = {
   status?: string
 }
 
+export namespace UpdatePetWithFormMutation {
+  export type Response = UpdatePetWithFormMutationResponse
+  export type PathParams = UpdatePetWithFormPathParams
+  export type QueryParams = UpdatePetWithFormQueryParams
+  export type Errors = UpdatePetWithForm405
+}
+
 /**
  * @description Invalid pet value
  */
@@ -420,6 +457,13 @@ export type DeletePetPathParams = {
    * @type integer int64
    */
   petId: number
+}
+
+export namespace DeletePetMutation {
+  export type Response = DeletePetMutationResponse
+  export type PathParams = DeletePetPathParams
+  export type HeaderParams = DeletePetHeaderParams
+  export type Errors = DeletePet400
 }
 
 export type UploadFileMutationRequest = string
@@ -445,11 +489,22 @@ export type UploadFileQueryParams = {
  */
 export type UploadFileMutationResponse = ApiResponse
 
+export namespace UploadFileMutation {
+  export type Response = UploadFileMutationResponse
+  export type Request = UploadFileMutationRequest
+  export type PathParams = UploadFilePathParams
+  export type QueryParams = UploadFileQueryParams
+}
+
 /**
  * @description successful operation
  */
 export type GetInventoryQueryResponse = {
   [key: string]: number
+}
+
+export namespace GetInventoryQuery {
+  export type Response = GetInventoryQueryResponse
 }
 
 /**
@@ -464,6 +519,12 @@ export type PlaceOrderMutationRequest = Order
  */
 export type PlaceOrderMutationResponse = Order
 
+export namespace PlaceOrderMutation {
+  export type Response = PlaceOrderMutationResponse
+  export type Request = PlaceOrderMutationRequest
+  export type Errors = PlaceOrder405
+}
+
 /**
  * @description Invalid input
  */
@@ -475,6 +536,12 @@ export type PlaceOrderPatchMutationRequest = Order
  * @description successful operation
  */
 export type PlaceOrderPatchMutationResponse = Order
+
+export namespace PlaceOrderPatchMutation {
+  export type Response = PlaceOrderPatchMutationResponse
+  export type Request = PlaceOrderPatchMutationRequest
+  export type Errors = PlaceOrderPatch405
+}
 
 /**
  * @description Invalid ID supplied
@@ -499,6 +566,12 @@ export type GetOrderByIdPathParams = {
  */
 export type GetOrderByIdQueryResponse = Order
 
+export namespace GetOrderByIdQuery {
+  export type Response = GetOrderByIdQueryResponse
+  export type PathParams = GetOrderByIdPathParams
+  export type Errors = GetOrderById400 | GetOrderById404
+}
+
 /**
  * @description Invalid ID supplied
  */
@@ -519,6 +592,12 @@ export type DeleteOrderPathParams = {
   orderId: number
 }
 
+export namespace DeleteOrderMutation {
+  export type Response = DeleteOrderMutationResponse
+  export type PathParams = DeleteOrderPathParams
+  export type Errors = DeleteOrder400 | DeleteOrder404
+}
+
 export type CreateUserMutationResponse = any | null
 
 /**
@@ -531,6 +610,12 @@ export type CreateUserError = User
  */
 export type CreateUserMutationRequest = User
 
+export namespace CreateUserMutation {
+  export type Response = CreateUserMutationResponse
+  export type Request = CreateUserMutationRequest
+  export type Errors = CreateUserError
+}
+
 /**
  * @description successful operation
  */
@@ -542,6 +627,12 @@ export type CreateUsersWithListInputMutationRequest = User[]
  * @description Successful operation
  */
 export type CreateUsersWithListInputMutationResponse = User
+
+export namespace CreateUsersWithListInputMutation {
+  export type Response = CreateUsersWithListInputMutationResponse
+  export type Request = CreateUsersWithListInputMutationRequest
+  export type Errors = CreateUsersWithListInputError
+}
 
 /**
  * @description Invalid username/password supplied
@@ -566,12 +657,23 @@ export type LoginUserQueryParams = {
  */
 export type LoginUserQueryResponse = string
 
+export namespace LoginUserQuery {
+  export type Response = LoginUserQueryResponse
+  export type QueryParams = LoginUserQueryParams
+  export type Errors = LoginUser400
+}
+
 /**
  * @description successful operation
  */
 export type LogoutUserError = any | null
 
 export type LogoutUserQueryResponse = any | null
+
+export namespace LogoutUserQuery {
+  export type Response = LogoutUserQueryResponse
+  export type Errors = LogoutUserError
+}
 
 /**
  * @description Invalid username supplied
@@ -596,6 +698,12 @@ export type GetUserByNamePathParams = {
  */
 export type GetUserByNameQueryResponse = User
 
+export namespace GetUserByNameQuery {
+  export type Response = GetUserByNameQueryResponse
+  export type PathParams = GetUserByNamePathParams
+  export type Errors = GetUserByName400 | GetUserByName404
+}
+
 /**
  * @description successful operation
  */
@@ -616,6 +724,13 @@ export type UpdateUserPathParams = {
  */
 export type UpdateUserMutationRequest = User
 
+export namespace UpdateUserMutation {
+  export type Response = UpdateUserMutationResponse
+  export type Request = UpdateUserMutationRequest
+  export type PathParams = UpdateUserPathParams
+  export type Errors = UpdateUserError
+}
+
 /**
  * @description Invalid username supplied
  */
@@ -634,4 +749,10 @@ export type DeleteUserPathParams = {
    * @type string
    */
   username: string
+}
+
+export namespace DeleteUserMutation {
+  export type Response = DeleteUserMutationResponse
+  export type PathParams = DeleteUserPathParams
+  export type Errors = DeleteUser400 | DeleteUser404
 }

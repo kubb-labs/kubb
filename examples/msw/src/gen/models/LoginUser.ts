@@ -20,3 +20,9 @@ export type LoginUserQueryParams = {
  * @description successful operation
  */
 export type LoginUserQueryResponse = string
+
+export namespace LoginUserQuery {
+  export type Response = LoginUserQueryResponse
+  export type QueryParams = LoginUserQueryParams
+  export type Errors = LoginUser400
+}

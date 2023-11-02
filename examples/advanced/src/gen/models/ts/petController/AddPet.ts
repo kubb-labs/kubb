@@ -21,3 +21,9 @@ export type AddPetMutationRequest = AddPetRequest
  * @description Successful operation
  */
 export type AddPetMutationResponse = Omit<NonNullable<Pet>, 'name'>
+
+export namespace AddPetMutation {
+  export type Response = AddPetMutationResponse
+  export type Request = AddPetMutationRequest
+  export type Errors = AddPet405
+}

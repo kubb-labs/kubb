@@ -7,12 +7,12 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @summary Update user
  * @link /user/:username
  */
-export async function updateUser<TData = UpdateUserMutationResponse, TVariables = UpdateUserMutationRequest>(
+export async function updateUser(
   username: UpdateUserPathParams['username'],
-  data?: TVariables,
+  data?: UpdateUserMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData, TVariables>({
+): Promise<ResponseConfig<UpdateUserMutationResponse>['data']> {
+  const { data: resData } = await client<UpdateUserMutationResponse, UpdateUserMutationRequest>({
     method: 'put',
     url: `/user/${username}`,
     data,

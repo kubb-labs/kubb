@@ -17,3 +17,9 @@ export type DeleteUserPathParams = {
    */
   username: string
 }
+
+export namespace DeleteUserMutation {
+  export type Response = DeleteUserMutationResponse
+  export type PathParams = DeleteUserPathParams
+  export type Errors = DeleteUser400 | DeleteUser404
+}

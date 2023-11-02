@@ -25,3 +25,10 @@ export type UpdatePetWithFormQueryParams = {
    */
   status?: string
 }
+
+export namespace UpdatePetWithFormMutation {
+  export type Response = UpdatePetWithFormMutationResponse
+  export type PathParams = UpdatePetWithFormPathParams
+  export type QueryParams = UpdatePetWithFormQueryParams
+  export type Errors = UpdatePetWithForm405
+}

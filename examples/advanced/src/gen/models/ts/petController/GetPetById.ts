@@ -22,3 +22,9 @@ export type GetPetByIdPathParams = {
  * @description successful operation
  */
 export type GetPetByIdQueryResponse = Omit<NonNullable<Pet>, 'name'>
+
+export namespace GetPetByIdQuery {
+  export type Response = GetPetByIdQueryResponse
+  export type PathParams = GetPetByIdPathParams
+  export type Errors = GetPetById400 | GetPetById404
+}

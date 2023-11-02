@@ -17,3 +17,9 @@ export type DeleteOrderPathParams = {
    */
   orderId: number
 }
+
+export namespace DeleteOrderMutation {
+  export type Response = DeleteOrderMutationResponse
+  export type PathParams = DeleteOrderPathParams
+  export type Errors = DeleteOrder400 | DeleteOrder404
+}

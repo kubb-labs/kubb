@@ -9,7 +9,7 @@ import type { Options as PluginOptions } from '../types.ts'
 type Props = {
   name: string
   params: string
-  generics: string
+  generics?: string
   returnType: string
   comments: string[]
   children?: ReactNode
