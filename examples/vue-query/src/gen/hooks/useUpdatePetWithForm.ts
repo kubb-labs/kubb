@@ -1,46 +1,53 @@
-import client from '@kubb/swagger-client/client'
-
-import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 import type { MaybeRef } from 'vue'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type {
-  UpdatePetWithForm405,
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
+  UpdatePetWithForm405,
 } from '../models/UpdatePetWithForm'
 
-/**
+type UpdatePetWithForm = KubbQueryFactory<
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithForm405,
+  never,
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
+  never,
+  UpdatePetWithFormMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
 
-export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
+export function useUpdatePetWithForm<TData = UpdatePetWithForm['response'], TError = UpdatePetWithForm['error']>(
   refPetId: MaybeRef<UpdatePetWithFormPathParams['petId']>,
   refParams?: MaybeRef<UpdatePetWithFormQueryParams>,
   options: {
-    mutation?: VueMutationObserverOptions<ResponseConfig<TData>, TError, void, unknown>
-    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
+    mutation?: VueMutationObserverOptions<TData, TError, void, unknown>
+    client?: UpdatePetWithForm['client']['paramaters']
   } = {},
-): UseMutationReturnType<ResponseConfig<TData>, TError, void, unknown> {
+): UseMutationReturnType<TData, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, void, unknown>({
+  return useMutation<TData, TError, void, unknown>({
     mutationFn: () => {
       const petId = unref(refPetId)
       const params = unref(refParams)
-      return client<TData, TError, void>({
+      return client<UpdatePetWithForm['data'], TError, void>({
         method: 'post',
         url: `/pet/${petId}`,
-
         params,
-
         ...clientOptions,
-      })
+      }).then((res) => res as TData)
     },
     ...mutationOptions,
   })

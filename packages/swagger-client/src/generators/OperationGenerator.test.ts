@@ -1,9 +1,9 @@
-import { oasParser } from '@kubb/swagger'
+import { OasManager } from '@kubb/swagger'
 
 import { format } from '../../mocks/format.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
-import type { PluginContext, PluginManager } from '@kubb/core'
+import type { KubbPlugin, PluginContext, PluginManager } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 
 describe('OperationGenerator', () => {
@@ -11,7 +11,11 @@ describe('OperationGenerator', () => {
   const resolveName: PluginContext['resolveName'] = ({ name }) => name
 
   test('[GET] should generate code based on a pathParamsType `inline`', async () => {
-    const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-client/mocks/petStore.yaml' } })
+    const oas = await OasManager.parseFromConfig({
+      root: './',
+      output: { path: 'test', clean: true },
+      input: { path: 'packages/swagger-client/mocks/petStore.yaml' },
+    })
 
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dataReturnType: 'data',
@@ -24,6 +28,7 @@ describe('OperationGenerator', () => {
         oas,
         skipBy: [],
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )
@@ -35,7 +40,11 @@ describe('OperationGenerator', () => {
   })
 
   test('[GET] should generate code based on a pathParamsType `object`', async () => {
-    const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-client/mocks/petStore.yaml' } })
+    const oas = await OasManager.parseFromConfig({
+      root: './',
+      output: { path: 'test', clean: true },
+      input: { path: 'packages/swagger-client/mocks/petStore.yaml' },
+    })
 
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dataReturnType: 'data',
@@ -48,6 +57,7 @@ describe('OperationGenerator', () => {
         oas,
         skipBy: [],
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )

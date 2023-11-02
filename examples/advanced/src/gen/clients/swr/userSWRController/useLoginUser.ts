@@ -1,6 +1,6 @@
 import useSWR from 'swr'
-import type { SWRConfiguration, SWRResponse } from 'swr'
 import client from '../../../../swr-client.ts'
+import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
 
@@ -29,7 +29,6 @@ export function loginUserQueryOptions<
  * @summary Logs user into the system
  * @link /user/login
  */
-
 export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(params?: LoginUserQueryParams, options?: {
   query?: SWRConfiguration<ResponseConfig<TData>, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>

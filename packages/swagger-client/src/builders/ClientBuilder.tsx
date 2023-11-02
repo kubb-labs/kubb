@@ -1,11 +1,13 @@
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { FunctionParams, getRelativePath, URLPath } from '@kubb/core'
-import { createRoot, File } from '@kubb/react'
-import { getASTParams, getComments, OasBuilder, useResolve, useResolveName, useSchemas } from '@kubb/swagger'
-import { useResolve as useResolveType } from '@kubb/swagger-ts'
+import { FunctionParams, getRelativePath, URLPath } from '@kubb/core/utils'
+import { createRoot } from '@kubb/react'
+import { File } from '@kubb/react'
+import { OasBuilder } from '@kubb/swagger'
+import { useResolve, useResolveName, useSchemas } from '@kubb/swagger/hooks'
+import { getASTParams, getComments } from '@kubb/swagger/utils'
+import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
 
 import { ClientFunction } from '../components/index.ts'
-import { pluginName } from '../plugin.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { AppMeta, Options as PluginOptions } from '../types.ts'
@@ -17,51 +19,49 @@ type Options = {
   clientImportPath?: PluginOptions['clientImportPath']
 }
 
-type ClientResult = { Component: React.ElementType }
-
 export class ClientBuilder extends OasBuilder<Options> {
-  get client(): ClientResult {
-    const { operation, schemas } = this.context
+  get client(): React.ElementType {
+    const { operation, schemas, plugin } = this.context
     const { dataReturnType, pathParamsType } = this.options
 
     const comments = getComments(operation)
     const method = operation.method
 
     const clientGenerics = new FunctionParams()
-    const params = new FunctionParams()
 
     clientGenerics.add([{ type: schemas.response.name }, { type: schemas.request?.name, enabled: !!schemas.request?.name }])
 
-    params.add([
-      ...getASTParams(schemas.pathParams, { typed: true, asObject: pathParamsType === 'object' }),
-      {
-        name: 'data',
-        type: schemas.request?.name,
-        enabled: !!schemas.request?.name,
-        required: !!schemas.request?.schema.required?.length,
-      },
-      {
-        name: 'params',
-        type: schemas.queryParams?.name,
-        enabled: !!schemas.queryParams?.name,
-        required: !!schemas.queryParams?.schema.required?.length,
-      },
-      {
-        name: 'headers',
-        type: schemas.headerParams?.name,
-        enabled: !!schemas.headerParams?.name,
-        required: !!schemas.headerParams?.schema.required?.length,
-      },
-      {
-        name: 'options',
-        type: `Partial<Parameters<typeof client>[0]>`,
-        default: '{}',
-      },
-    ])
-
     const Component = () => {
+      const params = new FunctionParams()
       const schemas = useSchemas()
-      const name = useResolveName({ pluginName, type: 'function' })
+      const name = useResolveName({ pluginKey: plugin.key, type: 'function' })
+
+      params.add([
+        ...getASTParams(schemas.pathParams, { typed: true, asObject: pathParamsType === 'object' }),
+        {
+          name: 'data',
+          type: 'TVariables',
+          enabled: !!schemas.request?.name,
+          required: !!schemas.request?.schema.required?.length,
+        },
+        {
+          name: 'params',
+          type: schemas.queryParams?.name,
+          enabled: !!schemas.queryParams?.name,
+          required: !!schemas.queryParams?.schema.required?.length,
+        },
+        {
+          name: 'headers',
+          type: schemas.headerParams?.name,
+          enabled: !!schemas.headerParams?.name,
+          required: !!schemas.headerParams?.schema.required?.length,
+        },
+        {
+          name: 'options',
+          type: `Partial<Parameters<typeof client>[0]>`,
+          default: '{}',
+        },
+      ])
 
       return (
         <ClientFunction
@@ -80,7 +80,7 @@ export class ClientBuilder extends OasBuilder<Options> {
       )
     }
 
-    return { Component }
+    return Component
   }
 
   print(): string {
@@ -88,15 +88,15 @@ export class ClientBuilder extends OasBuilder<Options> {
   }
 
   render(): RootType<AppContextProps<AppMeta>> {
-    const { pluginManager, operation, schemas } = this.context
+    const { pluginManager, operation, schemas, plugin } = this.context
     const { clientPath, clientImportPath } = this.options
-    const { Component: ClientQuery } = this.client
+    const ClientQuery = this.client
 
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const Component = () => {
       const schemas = useSchemas()
-      const file = useResolve({ pluginName, type: 'file' })
+      const file = useResolve({ pluginKey: plugin.key, type: 'file' })
       const fileType = useResolveType({ type: 'file' })
 
       const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
@@ -109,7 +109,8 @@ export class ClientBuilder extends OasBuilder<Options> {
             name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
               Boolean,
             )}
-            path={getRelativePath(file.path, fileType.path)}
+            root={file.path}
+            path={fileType.path}
             isTypeOnly
           />
           <File.Source>

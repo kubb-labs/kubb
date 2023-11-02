@@ -1,44 +1,40 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 
 import { PackageManager } from '@kubb/core'
 
-import type { KubbJSONPlugins, KubbObjectPlugin, KubbUserConfig } from '@kubb/core'
+import type { KubbUserConfig } from '@kubb/core'
 
-function isJSONPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugins[]): plugins is KubbJSONPlugins[] {
-  return !!(plugins as KubbJSONPlugins[])?.some((plugin) => {
-    return typeof plugin?.[0] === 'string'
+function isJSONPlugins(plugins: KubbUserConfig['plugins']): plugins is Array<[name: string, options: object]> {
+  return !!(plugins as Array<[name: string, options: object]>[])?.some((plugin) => {
+    return Array.isArray(plugin) && typeof plugin?.at(0) === 'string'
   })
 }
 
-function isObjectPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugins[]): plugins is KubbObjectPlugin {
+function isObjectPlugins(plugins: KubbUserConfig['plugins']): plugins is any {
   return plugins instanceof Object && !Array.isArray(plugins)
 }
 
 async function importPlugin(name: string, options: object): Promise<KubbUserConfig['plugins']> {
   const packageManager = new PackageManager(process.cwd())
 
-  const importedPlugin: any = process.env.NODE_ENV === 'test' ? await import(name) : await packageManager.import(name, process.cwd())
+  const importedPlugin: any = process.env.NODE_ENV === 'test' ? await import(name) : await packageManager.import(name)
 
   // eslint-disable-next-line
   return importedPlugin?.default ? importedPlugin.default(options) : importedPlugin(options)
 }
 
-export function getPlugins(plugins: KubbUserConfig['plugins'] | KubbJSONPlugins[] | KubbObjectPlugin[]): Promise<KubbUserConfig['plugins']> {
+export function getPlugins(plugins: KubbUserConfig['plugins']): Promise<KubbUserConfig['plugins']> {
   if (isObjectPlugins(plugins)) {
-    const promises = Object.keys(plugins).map((name) => {
-      return importPlugin(name, plugins[name as keyof typeof plugins])
-    })
-    return Promise.all(promises)
+    throw new Error('Object plugins are not supported anymore, best to use http://kubb.dev/configuration/configure#json')
   }
 
   if (isJSONPlugins(plugins)) {
-    const promises = plugins.map((plugin) => {
+    const jsonPlugins = plugins as Array<[name: string, options: object]>
+    const promises = jsonPlugins.map((plugin) => {
       const [name, options = {}] = plugin
-      return importPlugin(name, options as object)
+      return importPlugin(name, options)
     })
-    return Promise.all(promises)
+    return Promise.all(promises) as Promise<KubbUserConfig['plugins']>
   }
 
   return Promise.resolve(plugins)

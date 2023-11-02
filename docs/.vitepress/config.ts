@@ -194,11 +194,11 @@ export default defineConfig({
                 link: '/plugins/swagger-client/',
                 items: [
                   {
-                    text: 'globals.d.ts <span class="beta">beta</span>',
+                    text: 'globals.d.ts <img src="/icons/experimental.svg"/>',
                     link: '/plugins/swagger-client/globals',
                   },
                   {
-                    text: 'client <span class="beta">beta</span>',
+                    text: 'client <img src="/icons/experimental.svg"/>',
                     link: '/plugins/swagger-client/client',
                   },
                 ],
@@ -216,7 +216,7 @@ export default defineConfig({
                 link: '/plugins/swagger-zodios',
               },
               {
-                text: '@kubb/swagger-tanstack-query',
+                text: '@kubb/swagger-tanstack-query <span class="new">v5 support</span>',
                 link: '/plugins/swagger-tanstack-query',
               },
               {
@@ -224,11 +224,11 @@ export default defineConfig({
                 link: '/plugins/swagger-swr',
               },
               {
-                text: '@kubb/swagger-faker <span class="new">new</span>',
+                text: '@kubb/swagger-faker',
                 link: '/plugins/swagger-faker',
               },
               {
-                text: '@kubb/swagger-msw <span class="new">new</span>',
+                text: '@kubb/swagger-msw <span class="new">v2 support</span>',
                 link: '/plugins/swagger-msw',
               },
             ],
@@ -285,6 +285,10 @@ export default defineConfig({
               {
                 text: 'Vue-Query',
                 link: '/examples/tanstack-query/vue-query',
+              },
+              {
+                text: 'Vue-Query v5 <span class="new">new</span>',
+                link: '/examples/tanstack-query/vue-query-v5',
               },
               {
                 text: 'Svelte-Query',

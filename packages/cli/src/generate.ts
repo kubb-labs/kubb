@@ -1,4 +1,5 @@
-import { build, LogLevel, ParallelPluginError, PluginError, SummaryError, timeout } from '@kubb/core'
+import { build, ParallelPluginError, PluginError, SummaryError } from '@kubb/core'
+import { createLogger, LogLevel, randomPicoColour } from '@kubb/core/utils'
 
 import { execa } from 'execa'
 import pc from 'picocolors'
@@ -9,14 +10,13 @@ import { OraWritable } from './utils/OraWritable.ts'
 import { spinner } from './utils/spinner.ts'
 
 import type { Writable } from 'node:stream'
-import type { CLIOptions, KubbConfig, Logger } from '@kubb/core'
+import type { CLIOptions, KubbConfig } from '@kubb/core'
 import type { ExecaReturnValue } from 'execa'
 
 type GenerateProps = {
   input?: string
   config: KubbConfig
   CLIOptions: CLIOptions
-  logger: Logger
 }
 
 type ExecutingHooksProps = {
@@ -47,9 +47,6 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
         return null
       }
 
-      // wait for 100ms to be sure that all open files are close(fs)
-      await timeout(100)
-
       spinner.start(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
 
       const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable as Writable)
@@ -66,9 +63,6 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
     })
     .filter(Boolean)
 
-  // wait for 100ms to be sure that all open files are close(fs)
-  await timeout(100)
-
   await Promise.all(executers)
 
   if (logLevel === LogLevel.silent) {
@@ -76,7 +70,13 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
   }
 }
 
-export default async function generate({ input, config, CLIOptions, logger }: GenerateProps): Promise<void> {
+export async function generate({ input, config, CLIOptions }: GenerateProps): Promise<void> {
+  const logger = createLogger({ logLevel: CLIOptions.logLevel || LogLevel.silent, name: config.name, spinner })
+
+  if (logger.name) {
+    spinner.prefixText = randomPicoColour(logger.name)
+  }
+
   const hrstart = process.hrtime()
 
   if (CLIOptions.logLevel === LogLevel.debug) {
@@ -95,7 +95,7 @@ export default async function generate({ input, config, CLIOptions, logger }: Ge
 
   try {
     const { root: _root, ...userConfig } = config
-    const logLevel = CLIOptions.logLevel ?? LogLevel.silent
+    const logLevel = logger.logLevel
     const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
     spinner.start(`🚀 Building ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
@@ -118,10 +118,10 @@ export default async function generate({ input, config, CLIOptions, logger }: Ge
       logger,
     })
 
+    await executeHooks({ hooks: config.hooks, logLevel })
+
     spinner.suffixText = ''
     spinner.succeed(`🚀 Build completed ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
-
-    await executeHooks({ hooks: config.hooks, logLevel })
 
     const summary = getSummary({ pluginManager: output.pluginManager, config, status: 'success', hrstart, logLevel: CLIOptions.logLevel })
     console.log(summary.join(''))

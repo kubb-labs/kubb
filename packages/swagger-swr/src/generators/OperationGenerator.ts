@@ -1,9 +1,8 @@
-import { getRelativePath } from '@kubb/core'
+import { getRelativePath } from '@kubb/core/utils'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
-import { pluginName as swaggerTypescriptPluginName, resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
+import { pluginKey as swaggerTypescriptPluginKey, resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
 
 import { QueryBuilder } from '../builders/QueryBuilder.tsx'
-import { pluginName } from '../plugin.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { Operation, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
@@ -17,16 +16,16 @@ type Options = {
 
 export class OperationGenerator extends Generator<Options> {
   resolve(operation: Operation): Resolver {
-    const { pluginManager } = this.context
+    const { pluginManager, plugin } = this.context
 
-    const name = pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginName })
+    const name = pluginManager.resolveName({ name: `use ${operation.getOperationId()}`, pluginKey: plugin.key })
 
     return resolve({
       name,
       operation,
       resolveName: pluginManager.resolveName,
       resolvePath: pluginManager.resolvePath,
-      pluginName,
+      pluginKey: plugin.key,
     })
   }
 
@@ -43,7 +42,7 @@ export class OperationGenerator extends Generator<Options> {
   resolveError(operation: Operation, statusCode: number): Resolver {
     const { pluginManager } = this.context
 
-    const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerTypescriptPluginName })
+    const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginKey: swaggerTypescriptPluginKey })
 
     return resolveSwaggerTypescript({
       name,
@@ -70,7 +69,7 @@ export class OperationGenerator extends Generator<Options> {
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { clientPath, dataReturnType } = options
-    const { pluginManager, oas } = this.context
+    const { pluginManager, oas, plugin } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -86,7 +85,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder({ name: hook.name, errors, dataReturnType }, { oas, pluginManager, operation, schemas })
+    const queryBuilder = new QueryBuilder({ name: hook.name, errors, dataReturnType }, { oas, pluginManager, plugin, operation, schemas })
 
     const file = queryBuilder.render('query', hook.name).file
 
@@ -131,7 +130,7 @@ export class OperationGenerator extends Generator<Options> {
         },
       ],
       meta: {
-        pluginName,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }
@@ -139,7 +138,7 @@ export class OperationGenerator extends Generator<Options> {
 
   async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { clientPath, dataReturnType } = options
-    const { pluginManager, oas } = this.context
+    const { pluginManager, oas, plugin } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
@@ -155,7 +154,7 @@ export class OperationGenerator extends Generator<Options> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder({ name: hook.name, errors, dataReturnType }, { oas, pluginManager, operation, schemas })
+    const queryBuilder = new QueryBuilder({ name: hook.name, errors, dataReturnType }, { oas, pluginManager, plugin, operation, schemas })
 
     const file = queryBuilder.render('mutation', hook.name).file
 
@@ -201,7 +200,7 @@ export class OperationGenerator extends Generator<Options> {
         },
       ],
       meta: {
-        pluginName,
+        pluginKey: plugin.key,
         tag: operation.getTags()[0]?.name,
       },
     }

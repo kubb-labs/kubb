@@ -1,6 +1,6 @@
 import dirTree from 'directory-tree'
 
-import { getPathMode } from '../utils/read.ts'
+import { FileManager } from '../FileManager.ts'
 
 import type { DirectoryTree, DirectoryTreeOptions } from 'directory-tree'
 
@@ -100,10 +100,10 @@ export class TreeNode<T = unknown> {
         return null
       }
 
-      const treeNode = new TreeNode({ name: filteredTree.name, path: filteredTree.path, type: filteredTree.type || getPathMode(filteredTree.path) })
+      const treeNode = new TreeNode({ name: filteredTree.name, path: filteredTree.path, type: filteredTree.type || FileManager.getMode(filteredTree.path) })
 
       const recurse = (node: typeof treeNode, item: DirectoryTree) => {
-        const subNode = node.addChild({ name: item.name, path: item.path, type: item.type || getPathMode(item.path) })
+        const subNode = node.addChild({ name: item.name, path: item.path, type: item.type || FileManager.getMode(item.path) })
 
         if (item.children?.length) {
           item.children?.forEach((child) => {

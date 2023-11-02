@@ -1,24 +1,35 @@
 import ts from 'typescript'
 
+import type { PrinterOptions } from 'typescript'
+
 const { factory } = ts
 
-export function print(elements: ts.Node | Array<ts.Node | undefined> | null, baseName = 'print.ts'): string {
-  let nodes: Array<ts.Node | undefined> = []
+type Options = {
+  source?: string
+  baseName?: string
+} & PrinterOptions
+
+export function print(
+  elements: ts.Node | Array<ts.Node | undefined> | null,
+  { source = '', baseName = 'print.ts', removeComments, noEmitHelpers, newLine }: Options = {},
+): string {
+  const printer = ts.createPrinter({ omitTrailingSemicolon: false, newLine: newLine || ts.NewLineKind.LineFeed, removeComments, noEmitHelpers })
+  const sourceFile = ts.createSourceFile(baseName, source, ts.ScriptTarget.ESNext, true, ts.ScriptKind.TS)
+
+  let nodes: Array<ts.Node> = []
 
   if (!elements) {
     return ''
   }
+
   if (Array.isArray(elements)) {
-    nodes = elements
+    nodes = elements.filter(Boolean)
   } else {
-    nodes = [elements]
+    nodes = [elements].filter(Boolean)
   }
 
-  const nodesArray = factory.createNodeArray(nodes.filter(Boolean) as ts.Node[])
-  const sourceFile = ts.createSourceFile(baseName, '', ts.ScriptTarget.ESNext, true, ts.ScriptKind.TS)
+  const outputFile = printer.printList(ts.ListFormat.MultiLine, factory.createNodeArray(nodes), sourceFile)
+  const outputSource = printer.printFile(sourceFile)
 
-  const printer = ts.createPrinter({ omitTrailingSemicolon: false, newLine: ts.NewLineKind.LineFeed })
-  const outputFile = printer.printList(ts.ListFormat.MultiLine, nodesArray, sourceFile)
-
-  return outputFile
+  return [outputFile, outputSource].filter(Boolean).join('\n')
 }

@@ -1,35 +1,43 @@
-import client from '@kubb/swagger-client/client'
-
 import { useMutation } from '@tanstack/vue-query'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
-import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../models/PlaceOrder'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
+import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
 
-/**
+type PlaceOrder = KubbQueryFactory<
+  PlaceOrderMutationResponse,
+  PlaceOrder405,
+  PlaceOrderMutationRequest,
+  never,
+  never,
+  never,
+  PlaceOrderMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order
  */
 
-export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(
+export function usePlaceOrder<TData = PlaceOrder['response'], TError = PlaceOrder['error']>(
   options: {
-    mutation?: VueMutationObserverOptions<ResponseConfig<TData>, TError, TVariables, unknown>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+    mutation?: VueMutationObserverOptions<TData, TError, PlaceOrder['request'], unknown>
+    client?: PlaceOrder['client']['paramaters']
   } = {},
-): UseMutationReturnType<ResponseConfig<TData>, TError, TVariables, unknown> {
+): UseMutationReturnType<TData, TError, PlaceOrder['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, TVariables, unknown>({
+  return useMutation<TData, TError, PlaceOrder['request'], unknown>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<PlaceOrder['data'], TError, PlaceOrder['request']>({
         method: 'post',
         url: `/store/order`,
         data,
-
         ...clientOptions,
-      })
+      }).then((res) => res as TData)
     },
     ...mutationOptions,
   })

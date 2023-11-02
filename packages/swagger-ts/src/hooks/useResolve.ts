@@ -1,11 +1,10 @@
-import { useResolve as useResolveSwagger } from '@kubb/swagger'
+import { useResolve as useResolveSwagger } from '@kubb/swagger/hooks'
 
-import { pluginName } from '../plugin.ts'
+import { pluginKey } from '../plugin.ts'
 
-import type { Resolver, UseResolveProps } from '@kubb/swagger'
+import type { Resolver } from '@kubb/swagger'
+import type { UseResolveProps } from '@kubb/swagger/hooks'
 
-type Props = UseResolveProps & { pluginName?: never }
-
-export function useResolve(props: Props = {}): Resolver {
-  return useResolveSwagger({ pluginName, ...props })
+export function useResolve(props: UseResolveProps = {}): Resolver {
+  return useResolveSwagger({ pluginKey, ...props })
 }

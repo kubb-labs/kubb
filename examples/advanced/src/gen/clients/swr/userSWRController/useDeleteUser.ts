@@ -1,6 +1,6 @@
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../swr-client.ts'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser'
 
@@ -9,7 +9,6 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, D
  * @summary Delete user
  * @link /user/:username
  */
-
 export function useDeleteUser<
   TData = DeleteUserMutationResponse,
   TError = DeleteUser400 | DeleteUser404,

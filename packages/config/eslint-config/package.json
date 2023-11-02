@@ -23,7 +23,6 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "schemas",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
@@ -33,15 +32,15 @@
     "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
     "lint-fix": "bun run lint --quiet --fix",
     "release": "pnpm publish --no-git-check",
-    "release:alpha": "bash ../../../.github/canary.sh && pnpm publish --no-git-check -tag alpha",
-    "release:canary": "bash ../../../.github/canary.sh && pnpm publish --no-git-check -tag canary",
+    "release:canary": "bash ../../../.github/canary.sh && node ../../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
+    "release:alpha": "bash ../../../.github/canary.sh && node ../../../scripts/build.js alpha && pnpm publish --no-git-check -tag alpha",
     "start": "tsup --watch",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@eslint/js": "^8.52.0",
     "@types/eslint": "~8.44.6",
-    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
     "@typescript-eslint/parser": "~6.7.5",
     "eslint-config-prettier": "~9.0.0",
     "eslint-config-turbo": "~1.10.16",

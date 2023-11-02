@@ -1,30 +1,31 @@
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 
-/**
+type CreateUser = KubbQueryFactory<CreateUserMutationResponse, never, CreateUserMutationRequest, never, never, never, CreateUserMutationResponse, {
+  dataReturnType: 'full'
+  type: 'mutation'
+}> /**
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user
  */
 
-export function useCreateUserHook<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(options: {
-  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function useCreateUserHook<TData = CreateUser['response'], TError = CreateUser['error']>(options: {
+  mutation?: UseMutationOptions<TData, TError, CreateUser['request']>
+  client?: CreateUser['client']['paramaters']
+} = {}): UseMutationResult<TData, TError, CreateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, TVariables>({
+  return useMutation<TData, TError, CreateUser['request']>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<CreateUser['data'], TError, CreateUser['request']>({
         method: 'post',
         url: `/user`,
         data,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })

@@ -19,14 +19,13 @@
     "serve": "vitepress serve"
   },
   "dependencies": {
-    "@kubb/core": "workspace:*",
     "@vercel/analytics": "^1.1.1",
     "sitemap": "^7.1.1",
     "vitepress": "^1.0.0-rc.24",
     "vue": "^3.3.7"
   },
   "devDependencies": {
-    "@types/node": "^20.8.9"
+    "@types/node": "^20.8.10"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

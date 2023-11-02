@@ -1,16 +1,18 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, nameSorter } from '@kubb/core'
-import { createImportDeclaration, print } from '@kubb/parser'
+import { transformers } from '@kubb/core/utils'
+import { print } from '@kubb/parser'
+import * as factory from '@kubb/parser/factory'
 import { ImportsGenerator, OasBuilder } from '@kubb/swagger'
+import { refsSorter } from '@kubb/swagger/utils'
 
 import { TypeGenerator } from '../generators/TypeGenerator.ts'
 
 import type { PluginContext } from '@kubb/core'
-import type { FileResolver, Refs } from '@kubb/swagger'
-import type ts from 'typescript'
+import type { FileResolver } from '@kubb/swagger'
 
-type Generated = { import: { refs: Refs; name: string }; sources: ts.Node[] }
 type Options = {
+  usedEnumNames: Record<string, number>
+
   resolveName: PluginContext['resolveName']
   fileResolver?: FileResolver
   withJSDocs?: boolean
@@ -18,17 +20,6 @@ type Options = {
   enumType: 'enum' | 'asConst' | 'asPascalConst'
   dateType: 'string' | 'date'
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
-}
-
-// TODO create another function that sort based on the refs(first the ones without refs)
-function refsSorter(a: Generated, b: Generated) {
-  if (Object.keys(a.import.refs)?.length < Object.keys(b.import.refs)?.length) {
-    return -1
-  }
-  if (Object.keys(a.import.refs)?.length > Object.keys(b.import.refs)?.length) {
-    return 1
-  }
-  return 0
 }
 
 export class TypeBuilder extends OasBuilder<Options, never> {
@@ -49,9 +40,10 @@ export class TypeBuilder extends OasBuilder<Options, never> {
 
     const generated = this.items
       .filter((operationSchema) => (name ? operationSchema.name === name : true))
-      .sort(nameSorter)
+      .sort(transformers.nameSorter)
       .map((operationSchema) => {
         const generator = new TypeGenerator({
+          usedEnumNames: this.options.usedEnumNames,
           withJSDocs: this.options.withJSDocs,
           resolveName: this.options.resolveName,
           enumType: this.options.enumType,
@@ -85,7 +77,7 @@ export class TypeBuilder extends OasBuilder<Options, never> {
 
       if (importMeta) {
         const nodes = importMeta.map((item) => {
-          return createImportDeclaration({
+          return factory.createImportDeclaration({
             name: [{ propertyName: item.ref.propertyName }],
             path: item.path,
             isTypeOnly: true,
@@ -96,6 +88,6 @@ export class TypeBuilder extends OasBuilder<Options, never> {
       }
     }
 
-    return combineCodes(codes)
+    return transformers.combineCodes(codes)
   }
 }

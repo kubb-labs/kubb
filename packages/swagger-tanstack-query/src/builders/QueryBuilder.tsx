@@ -1,12 +1,17 @@
+/* eslint-disable react/prop-types */
 /* eslint- @typescript-eslint/explicit-module-boundary-types */
-import { combineCodes, createJSDocBlockText, FunctionParams, PackageManager, URLPath } from '@kubb/core'
+import path from 'node:path'
+
+import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
 import { createRoot, File } from '@kubb/react'
-import { getASTParams, getComments, getParams, OasBuilder, useResolve } from '@kubb/swagger'
+import { OasBuilder } from '@kubb/swagger'
+import { useResolve } from '@kubb/swagger/hooks'
+import { getASTParams, getComments, getParams } from '@kubb/swagger/utils'
 
 import { camelCase, pascalCase } from 'change-case'
+import { capitalCase, capitalCaseTransform } from 'change-case'
 
-import { QueryKeyFunction } from '../components/index.ts'
-import { pluginName } from '../plugin.ts'
+import { HelpersFile, QueryKeyFunction } from '../components/index.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
@@ -20,38 +25,83 @@ type BaseOptions = {
 }
 
 type QueryOptions = BaseOptions & {
-  infinite?: {
-    queryParam?: string
-  }
+  infinite?: PluginOptions['infinite']
 }
 
 type MutationOptions = BaseOptions
 type Options = QueryOptions | MutationOptions
 
-type QueryResult = { code: string; name: string }
-
 export class QueryBuilder extends OasBuilder<Options> {
-  get queryKey(): { name: string; Component: React.ElementType } {
-    const { framework } = this.options
+  get #names() {
     const { operation } = this.context
+    const { frameworkImports } = this.options
 
-    const name = camelCase(`${operation.getOperationId()}QueryKey`)
+    const queryKey = camelCase(`${operation.getOperationId()}QueryKey`)
+
+    return {
+      queryKey,
+      // queryKey but for types
+      QueryKey: capitalCase(queryKey, { delimiter: '', transform: capitalCaseTransform }),
+      queryFactoryType: pascalCase(operation.getOperationId()),
+      queryOptions: camelCase(`${operation.getOperationId()}QueryOptions`),
+      query: frameworkImports.getName(operation),
+      mutation: frameworkImports.getName(operation),
+      mutationFactoryType: pascalCase(operation.getOperationId()),
+    } as const
+  }
+
+  get queryFactoryType(): React.ElementType {
+    const { dataReturnType, errors } = this.options
+    const { schemas } = this.context
+
+    const generics = [
+      schemas.response.name,
+      errors.map((error) => error.name).join(' | ') || 'never',
+      schemas.request?.name || 'never',
+      schemas.pathParams?.name || 'never',
+      schemas.queryParams?.name || 'never',
+      schemas.headerParams?.name || 'never',
+      schemas.response.name,
+      `{ dataReturnType: '${dataReturnType}'; type: 'query' }`,
+    ] as [data: string, error: string, request: string, pathParams: string, queryParams: string, headerParams: string, response: string, options: string]
+
+    const Component = () => <>{`type ${this.#names.queryFactoryType} = KubbQueryFactory<${generics.join(', ')}>`}</>
+
+    return Component
+  }
+
+  get mutationFactoryType(): React.ElementType {
+    const { errors } = this.options
+    const { schemas } = this.context
+
+    const generics = [
+      schemas.response.name,
+      errors.map((error) => error.name).join(' | ') || 'never',
+      schemas.request?.name || 'never',
+      schemas.pathParams?.name || 'never',
+      schemas.queryParams?.name || 'never',
+      schemas.headerParams?.name || 'never',
+      schemas.response.name,
+      `{ dataReturnType: 'full'; type: 'mutation' }`,
+    ] as [data: string, error: string, request: string, pathParams: string, queryParams: string, headerParams: string, response: string, options: string]
+
+    const Component = () => <>{`type ${this.#names.mutationFactoryType} = KubbQueryFactory<${generics.join(', ')}>`}</>
+
+    return Component
+  }
+  get queryKey(): React.ElementType {
+    const { framework } = this.options
+
     const FrameworkComponent = QueryKeyFunction[framework]
 
-    const Component = () => <FrameworkComponent name={name} />
+    const Component = () => <FrameworkComponent factoryTypeName={this.#names.queryFactoryType} name={this.#names.queryKey} typeName={this.#names.QueryKey} />
 
-    return { name, Component }
+    return Component
   }
 
-  get queryOptions(): QueryResult {
-    const { framework, frameworkImports, errors, dataReturnType } = this.options
+  get queryOptions(): React.ElementType<{ infinite?: boolean }> {
+    const { framework, frameworkImports, infinite: { queryParam = 'id', initialPageParam = 0 } = {} } = this.options as QueryOptions
     const { operation, schemas } = this.context
-
-    const codes: string[] = []
-
-    const name = camelCase(`${operation.getOperationId()}QueryOptions`)
-    const isV5 = new PackageManager().isValidSync('@tanstack/react-query', '>=5')
-    const queryKeyName = this.queryKey.name
 
     const pathParams = getParams(schemas.pathParams, {
       override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
@@ -61,12 +111,15 @@ export class QueryBuilder extends OasBuilder<Options> {
     const params = new FunctionParams()
 
     generics.add([
-      { type: 'TData', default: schemas.response.name },
-      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+      { type: `TQueryFnData extends ${this.#names.queryFactoryType}['data']`, default: `${this.#names.queryFactoryType}["data"]` },
+      { type: 'TError', default: `${this.#names.queryFactoryType}["error"]` },
+      { type: 'TData', default: `${this.#names.queryFactoryType}["response"]` },
+      { type: 'TQueryData', default: `${this.#names.queryFactoryType}["response"]` },
     ])
 
-    const clientGenerics = ['TData', 'TError']
-    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
+    const clientGenerics = ['TQueryFnData', 'TError']
+    const queryOptionsGenerics = [`${this.#names.queryFactoryType}['unionResponse']`, 'TError', 'TData', 'TQueryData', this.#names.QueryKey]
+
     const paramsData = [
       ...getASTParams(schemas.pathParams, {
         typed: true,
@@ -76,7 +129,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
-        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
+        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : `${this.#names.queryFactoryType}['queryParams']`,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
@@ -88,7 +141,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       },
       {
         name: 'options',
-        type: 'Partial<Parameters<typeof client>[0]>',
+        type: `${this.#names.queryFactoryType}['client']['paramaters']`,
         default: '{}',
       },
     ]
@@ -103,322 +156,160 @@ export class QueryBuilder extends OasBuilder<Options> {
         .join('\n')
       : ''
 
-    let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
+    const Component: React.FC<{ infinite?: boolean }> = ({ infinite }) => {
+      let text = ''
+      let name = this.#names.queryOptions
 
-    if (framework === 'solid') {
-      queryKey = `() => ${queryKey}`
-    }
-    if (framework === 'vue') {
-      queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'refParams' : ''})`
-    }
+      let queryKey = `${this.#names.queryKey}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
 
-    // import { queryOptions } from "@tanstack/react-query" only exists for the React framework
-    if (isV5 && framework === 'react') {
-      codes.push(`
-      export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
-        const queryKey = ${queryKey};
+      if (framework === 'vue') {
+        queryKey = `${this.#names.queryKey}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'refParams' : ''})`
+      }
 
-        return queryOptions({
-          queryKey: queryKey as QueryKey,
-          queryFn: () => {
-            ${unrefs}
-            return client<${clientGenerics.join(', ')}>({
-              method: "get",
-              url: ${new URLPath(operation.path).template},
-              ${schemas.queryParams?.name ? 'params,' : ''}
-              ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
-              ...options,
-            }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
-          },
-        });
-      };
-      `)
-    } else {
-      // v4
-      codes.push(`
-      export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}> {
-        const queryKey = ${queryKey};
+      if (infinite) {
+        name = `${name}Infinite`
+      }
 
-        return {
-          queryKey,
-          queryFn: () => {
-            ${unrefs}
-            return client<${clientGenerics.join(', ')}>({
-              method: "get",
-              url: ${new URLPath(operation.path).template},
-              ${schemas.queryParams?.name ? 'params,' : ''}
-              ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
-              ...options,
-            }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
-          },
-        };
-      };
-      `)
-    }
+      if (frameworkImports.isV5 && frameworkImports.query.queryOptions) {
+        // v5 with queryOptions
+        text = `
+       export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.Options}<${queryOptionsGenerics.join(', ')}> {
+         const queryKey = ${queryKey}
 
-    return { code: combineCodes(codes), name }
-  }
-
-  get query(): QueryResult {
-    const { framework, frameworkImports, errors, dataReturnType } = this.options
-    const { operation, schemas } = this.context
-
-    const codes: string[] = []
-
-    const queryKeyName = this.queryKey.name
-    const queryOptionsName = this.queryOptions.name
-    const name = frameworkImports.getName(operation)
-    const pathParams = getParams(schemas.pathParams, {
-      override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
-    }).toString()
-    const comments = getComments(operation)
-
-    const generics = new FunctionParams()
-    const params = new FunctionParams()
-    const queryParams = new FunctionParams()
-
-    generics.add([
-      { type: 'TData', default: schemas.response.name },
-      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
-    ])
-
-    const clientGenerics = ['TData', 'TError']
-    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
-    params.add([
-      ...getASTParams(schemas.pathParams, {
-        typed: true,
-        override: framework === 'vue'
-          ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
-          : undefined,
-      }),
-      {
-        name: framework === 'vue' ? 'refParams' : 'params',
-        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
-        enabled: !!schemas.queryParams?.name,
-        required: !!schemas.queryParams?.schema.required?.length,
-      },
-      {
-        name: framework === 'vue' ? 'refHeaders' : 'headers',
-        type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
-        enabled: !!schemas.headerParams?.name,
-        required: !!schemas.headerParams?.schema.required?.length,
-      },
-      {
-        name: 'options',
-        type: `{
-          query?: ${frameworkImports.query.UseQueryOptions}<${queryGenerics.join(', ')}>,
-          client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
-        }`,
-        default: '{}',
-      },
-    ])
-
-    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
-      schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
-    })`
-    queryParams.add([
-      ...getASTParams(schemas.pathParams, {
-        typed: false,
-        override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
-      }),
-      {
-        name: framework === 'vue' ? 'refParams' : 'params',
-        enabled: !!schemas.queryParams?.name,
-        required: !!schemas.queryParams?.schema.required?.length,
-      },
-      {
-        name: framework === 'vue' ? 'refHeaders' : 'headers',
-        enabled: !!schemas.headerParams?.name,
-        required: !!schemas.headerParams?.schema.required?.length,
-      },
-      {
-        name: 'clientOptions',
-        required: false,
-      },
-    ])
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
-
-    codes.push(createJSDocBlockText({ comments }))
-    codes.push(`
-export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseQueryResult}<${
-      queryGenerics.join(
-        ', ',
-      )
-    }> & { queryKey: QueryKey } {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {};
-  const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
-
-  const query = ${frameworkImports.query.useQuery}<${queryGenerics.join(', ')}>({
-    ...${queryOptions},
-    ...queryOptions
-  }) as ${frameworkImports.query.UseQueryResult}<${queryGenerics.join(', ')}> & { queryKey: QueryKey };
-
-  query.queryKey = queryKey as QueryKey;
-
-  return query;
-};
-`)
-
-    return { code: combineCodes(codes), name }
-  }
-
-  // infinite
-  get queryOptionsInfinite(): QueryResult {
-    const { framework, frameworkImports, errors, infinite: { queryParam = 'id' } = {}, dataReturnType } = this.options as QueryOptions
-    const { operation, schemas } = this.context
-
-    const codes: string[] = []
-
-    const name = camelCase(`${operation.getOperationId()}QueryOptionsInfinite`)
-
-    const queryKeyName = this.queryKey.name
-
-    const pathParams = getParams(schemas.pathParams, {
-      override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
-    }).toString()
-
-    const generics = new FunctionParams()
-    const params = new FunctionParams()
-
-    generics.add([
-      { type: 'TData', default: schemas.response.name },
-      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
-    ])
-
-    const clientGenerics = ['TData', 'TError']
-    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
-    const paramsData = [
-      ...getASTParams(schemas.pathParams, {
-        typed: true,
-        override: framework === 'vue'
-          ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
-          : undefined,
-      }),
-      {
-        name: framework === 'vue' ? 'refParams' : 'params',
-        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
-        enabled: !!schemas.queryParams?.name,
-        required: !!schemas.queryParams?.schema.required?.length,
-      },
-      {
-        name: framework === 'vue' ? 'refHeaders' : 'headers',
-        type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
-        enabled: !!schemas.headerParams?.name,
-        required: !!schemas.headerParams?.schema.required?.length,
-      },
-      {
-        name: 'options',
-        type: 'Partial<Parameters<typeof client>[0]>',
-        default: '{}',
-      },
-    ]
-    params.add(paramsData)
-
-    const unrefs = framework === 'vue'
-      ? paramsData
-        .filter((item) => item.type?.startsWith('MaybeRef<'))
-        .map((item) => {
-          return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
-        })
-        .join('\n')
-      : ''
-    let queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'params' : ''})`
-
-    if (framework === 'solid') {
-      queryKey = `() => ${queryKey}`
-    }
-    if (framework === 'vue') {
-      queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${schemas.queryParams?.name ? 'refParams' : ''})`
-    }
-
-    codes.push(`
-export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}> {
-  const queryKey = ${queryKey};
-
-  return {
-    queryKey,
-    queryFn: ({ pageParam }) => {
-      ${unrefs}
-      return client<${clientGenerics.join(', ')}>({
-        method: "get",
-        url: ${new URLPath(operation.path).template},
-        ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
-        ...options,
-        ${
-      schemas.queryParams?.name
-        ? `params: {
-          ...params,
-          ['${queryParam}']: pageParam,
-          ...(options.params || {}),
+         return ${frameworkImports.query.queryOptions}<${queryOptionsGenerics.join(', ')}>({
+           queryKey,
+           queryFn: () => {
+             ${unrefs}
+             return client<${clientGenerics.join(', ')}>({
+               method: "get",
+               url: ${new URLPath(operation.path).template},
+               ${schemas.queryParams?.name ? 'params,' : ''}
+               ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+               ...options,
+             }).then(res => res?.data || res)
+           },
+         })
+       }
+       `
+      } else if (!frameworkImports.isV5 && infinite) {
+        const pageParamText = ` ${
+          schemas.queryParams?.name
+            ? `params: {
+                    ...params,
+                    ['${queryParam}']: pageParam,
+                    ...(options.params || {}),
+                  }`
+            : ''
         }`
-        : ''
-    }
-      }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'});
-    },
-  };
-};
-  `)
+        // infinite v4
+        text = `
+   export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.queryInfinite.Options}<${queryOptionsGenerics.join(', ')}> {
+     const queryKey = ${queryKey}
 
-    return { code: combineCodes(codes), name }
+     return {
+       queryKey,
+       queryFn: ({ pageParam }) => {
+         ${unrefs}
+         return client<${clientGenerics.join(', ')}>({
+           method: "get",
+           url: ${new URLPath(operation.path).template},
+           ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+           ...options,
+           ${pageParamText}
+         }).then(res => res?.data || res)
+       },
+     }
+   }
+   `
+      } else if (frameworkImports.isV5 && infinite) {
+        const pageParamText = ` ${
+          schemas.queryParams?.name
+            ? `params: {
+              ...params,
+              ['${queryParam}']: pageParam,
+              ...(options.params || {}),
+            }`
+            : ''
+        }`
+        // infinite v5
+        text = `
+        export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.queryInfinite.Options}<${queryOptionsGenerics.join(', ')}> {
+          const queryKey = ${queryKey}
+
+          return {
+           queryKey,
+           queryFn: ({ pageParam }) => {
+             ${unrefs}
+             return client<${clientGenerics.join(', ')}>({
+               method: "get",
+               url: ${new URLPath(operation.path).template},
+               ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+               ...options,
+               ${pageParamText}
+              }).then(res => res?.data || res)
+             },
+             initialPageParam: ${initialPageParam || 'undefined'},
+             getNextPageParam: (lastPage) => lastPage['${queryParam}'],
+            }
+          }
+          `
+      } else {
+        // v4
+        text = `
+        export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.Options}<${queryOptionsGenerics.join(', ')}> {
+          const queryKey = ${queryKey}
+
+          return {
+            queryKey,
+            queryFn: () => {
+              ${unrefs}
+              return client<${clientGenerics.join(', ')}>({
+                method: "get",
+                url: ${new URLPath(operation.path).template},
+                ${schemas.queryParams?.name ? 'params,' : ''}
+                ${schemas.headerParams?.name ? 'headers: { ...headers, ...options.headers },' : ''}
+                ...options,
+              }).then(res => res?.data || res)
+            },
+          }
+        }
+        `
+      }
+
+      return <>{text}</>
+    }
+
+    return Component
   }
 
-  get queryInfinite(): QueryResult {
-    const { framework, frameworkImports, errors, dataReturnType } = this.options
+  get query(): React.ElementType {
+    const { framework, frameworkImports } = this.options
     const { operation, schemas } = this.context
 
-    const codes: string[] = []
-
-    const queryKeyName = this.queryKey.name
-    const queryOptionsName = this.queryOptionsInfinite.name // changed
-    const name = `${frameworkImports.getName(operation)}Infinite`
     const pathParams = getParams(schemas.pathParams, {
       override: framework === 'vue' ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) : undefined,
     }).toString()
     const comments = getComments(operation)
 
     const generics = new FunctionParams()
-    const params = new FunctionParams()
+
     const queryParams = new FunctionParams()
 
     generics.add([
-      { type: 'TData', default: schemas.response.name },
-      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
+      { type: `TQueryFnData extends ${this.#names.queryFactoryType}['data']`, default: `${this.#names.queryFactoryType}["data"]` },
+      { type: 'TError', default: `${this.#names.queryFactoryType}["error"]` },
+      { type: 'TData', default: `${this.#names.queryFactoryType}["response"]` },
+      { type: 'TQueryData', default: `${this.#names.queryFactoryType}["response"]` },
+      { type: `TQueryKey extends ${frameworkImports.query.QueryKey}`, default: this.#names.QueryKey },
     ])
 
-    const clientGenerics = ['TData', 'TError']
-    const queryGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
-    params.add([
-      ...getASTParams(schemas.pathParams, {
-        typed: true,
-        override: framework === 'vue'
-          ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
-          : undefined,
-      }),
-      {
-        name: framework === 'vue' ? 'refParams' : 'params',
-        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
-        enabled: !!schemas.queryParams?.name,
-        required: !!schemas.queryParams?.schema.required?.length,
-      },
-      {
-        name: framework === 'vue' ? 'refHeaders' : 'headers',
-        type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
-        enabled: !!schemas.headerParams?.name,
-        required: !!schemas.headerParams?.schema.required?.length,
-      },
-      {
-        name: 'options',
-        type: `{
-          query?: ${frameworkImports.query.UseInfiniteQueryOptions}<${queryGenerics.join(', ')}>,
-          client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
-        }`,
-        default: '{}',
-      },
-    ])
+    const resultGenerics = ['TData', 'TError']
+    // TODO check why we need any for v5
+    const useQueryGenerics = [frameworkImports.isV5 ? 'any' : 'TQueryFnData', 'TError', 'TData', 'any']
+    const queryOptionsGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData']
+    // only neeed for the options to override the useQuery options/params
+    const queryOptionsOverrideGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData', 'TQueryKey']
 
-    const queryKey = `${queryKeyName}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
-      schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
-    })`
     queryParams.add([
       ...getASTParams(schemas.pathParams, {
         typed: false,
@@ -439,59 +330,123 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
         required: false,
       },
     ])
-    const queryOptions = `${queryOptionsName}<${clientGenerics.join(', ')}>(${queryParams.toString()})`
 
-    codes.push(createJSDocBlockText({ comments }))
-    codes.push(`
-export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.query.UseInfiniteQueryResult}<${
-      queryGenerics.join(
-        ', ',
-      )
-    }> & { queryKey: QueryKey } {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {};
-  const queryKey = queryOptions?.queryKey${framework === 'solid' ? `?.()` : ''} ?? ${queryKey};
+    const Component = ({ infinite }: { infinite?: boolean }) => {
+      const params = new FunctionParams()
 
-  const query = ${frameworkImports.query.useInfiniteQuery}<${queryGenerics.join(', ')}>({
+      let name = this.#names.query
+      let hookName = frameworkImports.query.hook
+      let QueryResult = frameworkImports.query.Result
+      let QueryOptions = frameworkImports.query.Options
+
+      const queryKey = `${this.#names.queryKey}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
+        schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
+      })`
+      let queryOptions = `${this.#names.queryOptions}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`
+
+      if (infinite) {
+        queryOptions = `${this.#names.queryOptions}Infinite<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`
+        name = `${name}Infinite`
+        hookName = frameworkImports.queryInfinite.hook
+        QueryResult = frameworkImports.queryInfinite.Result
+        QueryOptions = frameworkImports.queryInfinite.Options
+      }
+
+      params.add([
+        ...getASTParams(schemas.pathParams, {
+          typed: true,
+          override: framework === 'vue'
+            ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
+            : undefined,
+        }),
+        {
+          name: framework === 'vue' ? 'refParams' : 'params',
+          type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : `${this.#names.queryFactoryType}['queryParams']`,
+          enabled: !!schemas.queryParams?.name,
+          required: !!schemas.queryParams?.schema.required?.length,
+        },
+        // TODO add headerparams
+        {
+          name: framework === 'vue' ? 'refHeaders' : 'headers',
+          type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
+          enabled: !!schemas.headerParams?.name,
+          required: !!schemas.headerParams?.schema.required?.length,
+        },
+        {
+          name: 'options',
+          type: `{
+            query?: ${QueryOptions}<${queryOptionsOverrideGenerics.join(', ')}>,
+            client?: ${this.#names.queryFactoryType}['client']['paramaters']
+          }`,
+          default: '{}',
+        },
+      ])
+
+      return (
+        <>
+          {transformers.JSDoc.createJSDocBlockText({ comments })}
+          {`
+export function ${name} <${generics.toString()}>(${params.toString()}): ${QueryResult}<${
+            resultGenerics.join(
+              ', ',
+            )
+          }> & { queryKey: TQueryKey } {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? ${queryKey}
+
+  const query = ${hookName}<${useQueryGenerics.join(', ')}>({
     ...${queryOptions},
+    ${framework === 'solid' ? 'queryKey: () => queryKey' : 'queryKey'},
     ...queryOptions
-  }) as ${frameworkImports.query.UseInfiniteQueryResult}<${queryGenerics.join(', ')}> & { queryKey: QueryKey };
+  }) as ${QueryResult}<${resultGenerics.join(', ')}> & { queryKey: TQueryKey }
 
-  query.queryKey = queryKey as QueryKey;
+  query.queryKey = queryKey as TQueryKey
 
-  return query;
-};
-`)
+  return query
+}
+`}
+        </>
+      )
+    }
 
-    return { code: combineCodes(codes), name }
+    return Component
   }
 
-  get mutation(): QueryResult {
-    const { framework, frameworkImports, errors } = this.options as MutationOptions
+  get mutation(): React.ElementType {
+    const { framework, frameworkImports } = this.options as MutationOptions
     const { operation, schemas } = this.context
 
-    const codes: string[] = []
-
-    const name = frameworkImports.getName(operation)
-
     const comments = getComments(operation)
-    const method = operation.method
 
     const generics = new FunctionParams()
     const params = new FunctionParams()
 
     generics.add([
-      { type: 'TData', default: schemas.response.name },
-      { type: 'TError', default: errors.map((error) => error.name).join(' | ') || 'unknown' },
-      { type: 'TVariables', default: schemas.request?.name, enabled: !!schemas.request?.name },
+      { type: 'TData', default: `${this.#names.mutationFactoryType}["response"]` },
+      { type: 'TError', default: `${this.#names.mutationFactoryType}["error"]` },
     ])
 
-    const clientGenerics = ['TData', 'TError', schemas.request?.name ? `TVariables` : 'void', framework === 'vue' ? 'unknown' : undefined].filter(Boolean)
-    const mutationGenerics = [
-      'ResponseConfig<TData>',
+    const clientGenerics = [
+      `${this.#names.mutationFactoryType}["data"]`,
       'TError',
-      schemas.request?.name ? `TVariables` : 'void',
+      schemas.request?.name ? `${this.#names.mutationFactoryType}["request"]` : 'void',
       framework === 'vue' ? 'unknown' : undefined,
     ].filter(Boolean)
+    const resultGenerics = [
+      'TData',
+      'TError',
+      schemas.request?.name ? `${this.#names.mutationFactoryType}["request"]` : 'void',
+      framework === 'vue' ? 'unknown' : undefined,
+    ].filter(Boolean)
+
+    // only neeed for the options to override the useMutation options/params
+    const mutationOptionsOverrideGenerics = [
+      'TData',
+      'TError',
+      schemas.request?.name ? `${this.#names.mutationFactoryType}["request"]` : 'void',
+      framework === 'vue' ? 'unknown' : undefined,
+    ].filter(Boolean)
+
     const paramsData = [
       ...getASTParams(schemas.pathParams, {
         typed: true,
@@ -501,10 +456,11 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
       }),
       {
         name: framework === 'vue' ? 'refParams' : 'params',
-        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : schemas.queryParams?.name,
+        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : `${this.#names.mutationFactoryType}['queryParams']`,
         enabled: !!schemas.queryParams?.name,
         required: !!schemas.queryParams?.schema.required?.length,
       },
+      // TODO add headerparams
       {
         name: framework === 'vue' ? 'refHeaders' : 'headers',
         type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
@@ -514,8 +470,8 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
       {
         name: 'options',
         type: `{
-          mutation?: ${frameworkImports.mutate.UseMutationOptions}<${mutationGenerics.join(', ')}>,
-          client?: Partial<Parameters<typeof client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>>[0]>,
+          mutation?: ${frameworkImports.mutate.Options}<${mutationOptionsOverrideGenerics.join(', ')}>,
+          client?: ${this.#names.mutationFactoryType}['client']['paramaters']
       }`,
         default: '{}',
       },
@@ -531,29 +487,37 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
         .join('\n')
       : ''
 
-    codes.push(createJSDocBlockText({ comments }))
-    codes.push(`
-export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.mutate.UseMutationResult}<${mutationGenerics.join(', ')}> {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
+    const Component = () => {
+      const name = this.#names.mutation
 
-  return ${frameworkImports.mutate.useMutation}<${mutationGenerics.join(', ')}>({
+      return (
+        <>
+          {transformers.JSDoc.createJSDocBlockText({ comments })}
+          {`
+export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.mutate.Result}<${resultGenerics.join(', ')}> {
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
+  return ${frameworkImports.mutate.hook}<${resultGenerics.join(', ')}>({
     mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
       ${unrefs}
       return client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>({
-        method: "${method}",
+        method: "${operation.method}",
         url: ${new URLPath(operation.path).template},
         ${schemas.request?.name ? 'data,' : ''}
         ${schemas.queryParams?.name ? 'params,' : ''}
         ${schemas.headerParams?.name ? 'headers: { ...headers, ...clientOptions.headers },' : ''}
         ...clientOptions
-      });
+      }).then(res => res as TData)
     },
     ...mutationOptions
-  });
-};
-`)
+  })
+}
+`}
+        </>
+      )
+    }
 
-    return { code: combineCodes(codes), name }
+    return Component
   }
 
   print(type: 'query' | 'mutation', name: string): string {
@@ -562,62 +526,60 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
   render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<AppMeta>> {
     const { infinite } = this.options as QueryOptions
-    const { pluginManager, operation, schemas } = this.context
+    const { pluginManager, operation, schemas, plugin } = this.context
 
-    const { Component: QueryKey } = this.queryKey
+    const QueryKey = this.queryKey
+    const QueryType = this.queryFactoryType
+    const MutationType = this.mutationFactoryType
+    const QueryOptions = this.queryOptions
+    const Query = this.query
+
+    const Mutation = this.mutation
 
     const root = createRoot<AppContextProps<AppMeta>>()
 
     const ComponentQuery = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
+      const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
 
       return (
-        <File baseName={file.baseName} path={file.path}>
-          <File.Source>
-            <QueryKey />
-            {this.queryOptions.code}
-            <br />
-            {this.query.code}
-          </File.Source>
-        </File>
-      )
-    }
-
-    const ComponentQueryInfinite = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
-
-      return (
-        <File baseName={file.baseName} path={file.path}>
-          <File.Source>
-            <QueryKey />
-            {this.queryOptions.code}
-            <br />
-            {this.query.code}
-            <br />
-            {this.queryOptionsInfinite.code}
-            <br />
-            {this.queryInfinite.code}
-          </File.Source>
-        </File>
+        <>
+          <HelpersFile id={'types'} path={path.resolve(file.path, '../types.ts')} />
+          <File id={name} baseName={file.baseName} path={file.path}>
+            <File.Import root={file.path} path={path.resolve(file.path, '../types.ts')} name={['KubbQueryFactory']} isTypeOnly />
+            <File.Source>
+              <QueryType />
+              <QueryKey />
+              <QueryOptions infinite={false} />
+              <Query />
+              <br />
+              {infinite && <QueryOptions infinite />}
+              {infinite && <Query infinite />}
+              <br />
+            </File.Source>
+          </File>
+        </>
       )
     }
 
     const ComponentMutation = () => {
-      const file = useResolve({ name, pluginName, type: 'file' })
+      const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
 
       return (
-        <File baseName={file.baseName} path={file.path}>
-          <File.Source>{this.mutation.code}</File.Source>
-        </File>
+        <>
+          <HelpersFile id={'types'} path={path.resolve(file.path, '../types.ts')} />
+          <File id={name} baseName={file.baseName} path={file.path}>
+            <File.Import root={file.path} path={path.resolve(file.path, '../types.ts')} name={['KubbQueryFactory']} isTypeOnly />
+            <File.Source>
+              <MutationType />
+              <Mutation />
+            </File.Source>
+          </File>
+        </>
       )
     }
 
     if (type === 'query') {
-      if (infinite) {
-        root.render(<ComponentQueryInfinite />, { meta: { pluginManager, schemas, operation } })
-      } else {
-        root.render(<ComponentQuery />, { meta: { pluginManager, schemas, operation } })
-      }
+      root.render(<ComponentQuery />, { meta: { pluginManager, schemas, operation } })
     }
     if (type === 'mutation') {
       root.render(<ComponentMutation />, { meta: { pluginManager, schemas, operation } })

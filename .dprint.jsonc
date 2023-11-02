@@ -38,7 +38,9 @@
     "**/dist",
     "**/coverage",
     "**/public",
-    "CHANGELOG.md"
+    "**/__snapshots__",
+    "CHANGELOG.md",
+    "**/mocks/hellowWorld.js"
   ],
   "plugins": [
     // You may specify any urls or file paths here that you wish.

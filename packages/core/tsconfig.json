@@ -1,45 +1,18 @@
 {
-  "extends": "@kubb/ts-config/base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    // "composite": true,
-    // "rootDir": "./",
-    // "outDir": "./dist",
-    // "tsBuildInfoFile": "./build/.tsbuildinfo"
-    // add paths also here because when set with `base.json` it will use the `./dist` folder instead of `./src`.
     "types": [
       "vitest/globals",
       "bun-types",
       "./globals",
       "../config/ts-config/reset.d.ts"
-    ],
-    "paths": {
-      "@kubb/core": [
-        "../core/src/index.ts"
-      ],
-      "@kubb/eslint-config": [
-        "../config/eslint-config/src/index.ts"
-      ],
-      "@kubb/tsup-config": [
-        "../config/tsup-config/src/index.ts"
-      ],
-      "@kubb/ts-config": [
-        "../config/ts-config/src/index.ts"
-      ]
-    }
+    ]
   },
   "include": [
     "src/**/*",
-    "./mocks/*",
     "./package.json",
     "./tsup.config.ts",
     "./vitest.config.ts"
-  ],
-  "exclude": [
-    "**/node_modules",
-    "**/types/**"
   ]
-  // "references": [
-  //   { "path": "../parser" }
-  // ]
 }

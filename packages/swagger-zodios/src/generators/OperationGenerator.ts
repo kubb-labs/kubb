@@ -1,10 +1,8 @@
-import { escape, getRelativePath, URLPath } from '@kubb/core'
+import { getRelativePath, transformers, URLPath } from '@kubb/core/utils'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
-import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
+import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
-
-import { pluginName } from '../plugin.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { HttpMethod, OpenAPIV3, Operation, Resolver } from '@kubb/swagger'
@@ -18,15 +16,15 @@ const methods: HttpMethod[] = ['get', 'post', 'patch', 'put', 'delete']
 export class OperationGenerator extends Generator<Options> {
   resolve(): Resolver {
     const { output } = this.options
-    const { pluginManager } = this.context
+    const { pluginManager, plugin } = this.context
 
-    const name = pluginManager.resolveName({ name: output.replace('.ts', ''), pluginName })
+    const name = pluginManager.resolveName({ name: output.replace('.ts', ''), pluginKey: plugin.key })
 
     return resolve({
       name,
       resolveName: pluginManager.resolveName,
       resolvePath: pluginManager.resolvePath,
-      pluginName,
+      pluginKey: plugin.key,
     })
   }
 
@@ -35,12 +33,12 @@ export class OperationGenerator extends Generator<Options> {
 
     const schemas = this.getSchemas(operation)
 
-    const name = pluginManager.resolveName({ name: schemas.response.name, pluginName: swaggerZodPluginName })
+    const name = pluginManager.resolveName({ name: schemas.response.name, pluginKey: swaggerZodPluginKey })
     const baseName: KubbFile.BaseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts`
     const filePath = pluginManager.resolvePath({
       baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
-      pluginName: swaggerZodPluginName,
+      pluginKey: swaggerZodPluginKey,
     })
 
     if (!filePath || !name) {
@@ -63,12 +61,12 @@ export class OperationGenerator extends Generator<Options> {
       throw new Error('schemas.request should be defined')
     }
 
-    const name = pluginManager.resolveName({ name: schemas.request.name, pluginName: swaggerZodPluginName })
+    const name = pluginManager.resolveName({ name: schemas.request.name, pluginKey: swaggerZodPluginKey })
     const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = pluginManager.resolvePath({
       baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
-      pluginName: swaggerZodPluginName,
+      pluginKey: swaggerZodPluginKey,
     })
 
     if (!filePath || !name) {
@@ -90,12 +88,12 @@ export class OperationGenerator extends Generator<Options> {
       throw new Error('schemas.pathParams should be defined')
     }
 
-    const name = pluginManager.resolveName({ name: schemas.headerParams.name, pluginName: swaggerZodPluginName })
+    const name = pluginManager.resolveName({ name: schemas.headerParams.name, pluginKey: swaggerZodPluginKey })
     const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = pluginManager.resolvePath({
       baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
-      pluginName: swaggerZodPluginName,
+      pluginKey: swaggerZodPluginKey,
     })
 
     if (!filePath || !name) {
@@ -117,12 +115,12 @@ export class OperationGenerator extends Generator<Options> {
       throw new Error('schemas.pathParams should be defined')
     }
 
-    const name = pluginManager.resolveName({ name: schemas.pathParams.name, pluginName: swaggerZodPluginName })
+    const name = pluginManager.resolveName({ name: schemas.pathParams.name, pluginKey: swaggerZodPluginKey })
     const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = pluginManager.resolvePath({
       baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
-      pluginName: swaggerZodPluginName,
+      pluginKey: swaggerZodPluginKey,
     })
 
     if (!filePath || !name) {
@@ -145,12 +143,12 @@ export class OperationGenerator extends Generator<Options> {
       throw new Error('schemas.queryParams should be defined')
     }
 
-    const name = pluginManager.resolveName({ name: schemas.queryParams.name, pluginName: swaggerZodPluginName })
+    const name = pluginManager.resolveName({ name: schemas.queryParams.name, pluginKey: swaggerZodPluginKey })
     const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = pluginManager.resolvePath({
       baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
-      pluginName: swaggerZodPluginName,
+      pluginKey: swaggerZodPluginKey,
     })
 
     if (!filePath || !name) {
@@ -167,12 +165,12 @@ export class OperationGenerator extends Generator<Options> {
   resolveError(operation: Operation, statusCode: number): Resolver {
     const { pluginManager } = this.context
 
-    const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginName: swaggerZodPluginName })
+    const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginKey: swaggerZodPluginKey })
     const baseName = `${camelCase(`${operation.getOperationId()}Schema`, { delimiter: '', transform: camelCaseTransformMerge })}.ts` as const
     const filePath = pluginManager.resolvePath({
       baseName: baseName,
       options: { tag: operation.getTags()[0]?.name },
-      pluginName: swaggerZodPluginName,
+      pluginKey: swaggerZodPluginKey,
     })
 
     if (!filePath || !name) {
@@ -223,7 +221,7 @@ export class OperationGenerator extends Generator<Options> {
           parameters.push(`
           {
             name: "${key}",
-            description: \`${escape(schema?.description)}\`,
+            description: \`${transformers.escape(schema?.description)}\`,
             type: "Path",
             schema: ${zodSchema}
           }
@@ -246,7 +244,7 @@ export class OperationGenerator extends Generator<Options> {
           parameters.push(`
           {
             name: "${key}",
-            description: \`${escape(schema?.description)}\`,
+            description: \`${transformers.escape(schema?.description)}\`,
             type: "Query",
             schema: ${zodSchema}
           }
@@ -265,7 +263,7 @@ export class OperationGenerator extends Generator<Options> {
         parameters.push(`
         {
           name: "${schemas.request.name}",
-          description: \`${escape(schemas.request.description)}\`,
+          description: \`${transformers.escape(schemas.request.description)}\`,
           type: "Body",
           schema: ${requestBody.name}
         }
@@ -287,7 +285,7 @@ export class OperationGenerator extends Generator<Options> {
           parameters.push(`
           {
             name: "${key}",
-            description: \`${escape(schema?.description)}\`,
+            description: \`${transformers.escape(schema?.description)}\`,
             type: "Header",
             schema: ${zodSchema}
           }
@@ -312,7 +310,7 @@ export class OperationGenerator extends Generator<Options> {
             errors.push(`
               {
                 status: ${errorOperationSchema.statusCode},
-                description: \`${escape(errorOperationSchema.description)}\`,
+                description: \`${transformers.escape(errorOperationSchema.description)}\`,
                 schema: ${name}
               }
             `)
@@ -324,7 +322,7 @@ export class OperationGenerator extends Generator<Options> {
         {
           method: "${operation.method}",
           path: "${new URLPath(operation.path).URL}",
-          description: \`${escape(operation.getDescription())}\`,
+          description: \`${transformers.escape(operation.getDescription())}\`,
           requestFormat: "json",
           parameters: [
               ${parameters.join(',')}

@@ -1,55 +1,78 @@
-import client from '@kubb/swagger-client/client'
-
-import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
-
-import type { QueryKey, UseQueryOptions, UseQueryReturnType } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
+import client from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
+import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
 import type { MaybeRef } from 'vue'
-import type { GetUserByName400, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../models/GetUserByName'
+import type { QueryKey, UseQueryReturnType } from '@tanstack/vue-query'
+import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 
+type GetUserByName = KubbQueryFactory<
+  GetUserByNameQueryResponse,
+  GetUserByName400 | GetUserByName404,
+  never,
+  GetUserByNamePathParams,
+  never,
+  never,
+  GetUserByNameQueryResponse,
+  {
+    dataReturnType: 'data'
+    type: 'query'
+  }
+>
 export const getUserByNameQueryKey = (username: MaybeRef<GetUserByNamePathParams['username']>) =>
   [{ url: `/user/${unref(username)}`, params: { username: username } }] as const
-export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
+export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
+export function getUserByNameQueryOptions<
+  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
+  TError = GetUserByName['error'],
+  TData = GetUserByName['response'],
+  TQueryData = GetUserByName['response'],
+>(
   refUsername: MaybeRef<GetUserByNamePathParams['username']>,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+  options: GetUserByName['client']['paramaters'] = {},
+): VueQueryObserverOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
   const queryKey = getUserByNameQueryKey(refUsername)
-
   return {
     queryKey,
     queryFn: () => {
       const username = unref(refUsername)
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/${username}`,
-
         ...options,
-      }).then((res) => res.data)
+      }).then((res) => res?.data || res)
     },
   }
 }
-
 /**
  * @summary Get user by user name
  * @link /user/:username
  */
-
-export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400>(
+export function useGetUserByName<
+  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
+  TError = GetUserByName['error'],
+  TData = GetUserByName['response'],
+  TQueryData = GetUserByName['response'],
+  TQueryKey extends QueryKey = GetUserByNameQueryKey,
+>(
   refUsername: MaybeRef<GetUserByNamePathParams['username']>,
   options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    query?: VueQueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+    client?: GetUserByName['client']['paramaters']
   } = {},
-): UseQueryReturnType<TData, TError> & { queryKey: QueryKey } {
+): UseQueryReturnType<TData, TError> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(refUsername)
-
-  const query = useQuery<TData, TError>({
-    ...getUserByNameQueryOptions<TData, TError>(refUsername, clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(refUsername, clientOptions),
+    queryKey,
     ...queryOptions,
-  }) as UseQueryReturnType<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey as QueryKey
-
+  }) as UseQueryReturnType<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
   return query
 }

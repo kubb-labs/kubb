@@ -1,8 +1,8 @@
-import { createJSDocBlockText } from '@kubb/core'
+import { transformers } from '@kubb/core/utils'
 
 import { Text } from './Text.tsx'
 
-import type { ReactNode } from 'react'
+import type { KubbNode } from '../types.ts'
 
 type Props = {
   name: string
@@ -11,18 +11,18 @@ type Props = {
   generics?: string | string[]
   params?: string
   returnType?: string
-  children?: ReactNode
+  children?: KubbNode
   JSDoc?: {
     comments: string[]
   }
 }
 
-export function Function({ name, export: canExport, async, generics, params, returnType, JSDoc, children }: Props): ReactNode {
+export function Function({ name, export: canExport, async, generics, params, returnType, JSDoc, children }: Props): KubbNode {
   return (
     <>
       {JSDoc?.comments && (
         <>
-          <Text>{createJSDocBlockText({ comments: JSDoc.comments })}</Text>
+          <Text>{transformers.JSDoc.createJSDocBlockText({ comments: JSDoc.comments })}</Text>
           <br />
         </>
       )}
@@ -71,12 +71,12 @@ type ArrowFunctionProps = Props & {
   singleLine?: boolean
 }
 
-export function ArrowFunction({ name, export: canExport, async, generics, params, returnType, JSDoc, singleLine, children }: ArrowFunctionProps): ReactNode {
+export function ArrowFunction({ name, export: canExport, async, generics, params, returnType, JSDoc, singleLine, children }: ArrowFunctionProps): KubbNode {
   return (
     <>
       {JSDoc?.comments && (
         <>
-          <Text>{createJSDocBlockText({ comments: JSDoc.comments })}</Text>
+          <Text>{transformers.JSDoc.createJSDocBlockText({ comments: JSDoc.comments })}</Text>
           <br />
         </>
       )}

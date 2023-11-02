@@ -1,7 +1,7 @@
-import type { UseMutationOptions, UseMutationResult, QueryKey, UseQueryResult, UseQueryOptions, QueryOptions } from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { KubbQueryFactory } from './types'
+import type { UseMutationOptions, UseMutationResult, QueryKey, UseBaseQueryOptions, UseQueryResult } from '@tanstack/react-query'
 import type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
@@ -69,683 +69,901 @@ import type {
   DeleteUser404,
 } from './models'
 
-/**
+type UpdatePet = KubbQueryFactory<
+  UpdatePetMutationResponse,
+  UpdatePet400 | UpdatePet404 | UpdatePet405,
+  UpdatePetMutationRequest,
+  never,
+  never,
+  never,
+  UpdatePetMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
  * @link /pet
  */
 
-export function useUpdatePet<TData = UpdatePetMutationResponse, TError = UpdatePet400 | UpdatePet404 | UpdatePet405, TVariables = UpdatePetMutationRequest>(
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['error']>(options: {
+  mutation?: UseMutationOptions<TData, TError, UpdatePet['request']>
+  client?: UpdatePet['client']['paramaters']
+} = {}): UseMutationResult<TData, TError, UpdatePet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, TVariables>({
+  return useMutation<TData, TError, UpdatePet['request']>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<UpdatePet['data'], TError, UpdatePet['request']>({
         method: 'put',
         url: `/pet`,
         data,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })
 }
 
-/**
+type AddPet = KubbQueryFactory<AddPetMutationResponse, AddPet405, AddPetMutationRequest, never, never, never, AddPetMutationResponse, {
+  dataReturnType: 'full'
+  type: 'mutation'
+}> /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet
  */
 
-export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TVariables = AddPetMutationRequest>(options: {
-  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function useAddPet<TData = AddPet['response'], TError = AddPet['error']>(options: {
+  mutation?: UseMutationOptions<TData, TError, AddPet['request']>
+  client?: AddPet['client']['paramaters']
+} = {}): UseMutationResult<TData, TError, AddPet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, TVariables>({
+  return useMutation<TData, TError, AddPet['request']>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<AddPet['data'], TError, AddPet['request']>({
         method: 'post',
         url: `/pet`,
         data,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })
 }
 
-export const findPetsByStatusQueryKey = (params?: FindPetsByStatusQueryParams) => [{ url: `/pet/findByStatus` }, ...(params ? [params] : [])] as const
-export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+type FindPetsByStatus = KubbQueryFactory<
+  FindPetsByStatusQueryResponse,
+  FindPetsByStatus400,
+  never,
+  never,
+  FindPetsByStatusQueryParams,
+  never,
+  FindPetsByStatusQueryResponse,
+  {
+    dataReturnType: 'data'
+    type: 'query'
+  }
+>
+export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: `/pet/findByStatus` }, ...(params ? [params] : [])] as const
+export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
+export function findPetsByStatusQueryOptions<
+  TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
+  TError = FindPetsByStatus['error'],
+  TData = FindPetsByStatus['response'],
+  TQueryData = FindPetsByStatus['response'],
+>(
+  params?: FindPetsByStatus['queryParams'],
+  options: FindPetsByStatus['client']['paramaters'] = {},
+): UseBaseQueryOptions<FindPetsByStatus['unionResponse'], TError, TData, TQueryData, FindPetsByStatusQueryKey> {
   const queryKey = findPetsByStatusQueryKey(params)
-
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
         params,
-
         ...options,
-      }).then(res => res.data)
+      }).then(res => res?.data || res)
     },
   }
 }
-
 /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
-
-export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(params?: FindPetsByStatusQueryParams, options: {
-  query?: UseQueryOptions<TData, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useFindPetsByStatus<
+  TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
+  TError = FindPetsByStatus['error'],
+  TData = FindPetsByStatus['response'],
+  TQueryData = FindPetsByStatus['response'],
+  TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
+>(params?: FindPetsByStatus['queryParams'], options: {
+  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  client?: FindPetsByStatus['client']['paramaters']
+} = {}): UseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
-
-  const query = useQuery<TData, TError>({
-    ...findPetsByStatusQueryOptions<TData, TError>(params, clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...findPetsByStatusQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+    queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey as QueryKey
-
+  }) as UseQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
   return query
 }
 
-export const findPetsByTagsQueryKey = (params?: FindPetsByTagsQueryParams) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
-export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  params?: FindPetsByTagsQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+type FindPetsByTags = KubbQueryFactory<
+  FindPetsByTagsQueryResponse,
+  FindPetsByTags400,
+  never,
+  never,
+  FindPetsByTagsQueryParams,
+  never,
+  FindPetsByTagsQueryResponse,
+  {
+    dataReturnType: 'data'
+    type: 'query'
+  }
+>
+export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
+export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
+export function findPetsByTagsQueryOptions<
+  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
+  TError = FindPetsByTags['error'],
+  TData = FindPetsByTags['response'],
+  TQueryData = FindPetsByTags['response'],
+>(
+  params?: FindPetsByTags['queryParams'],
+  options: FindPetsByTags['client']['paramaters'] = {},
+): UseBaseQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsQueryKey> {
   const queryKey = findPetsByTagsQueryKey(params)
-
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
-
         ...options,
-      }).then(res => res.data)
+      }).then(res => res?.data || res)
     },
   }
 }
-
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
-
-export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(params?: FindPetsByTagsQueryParams, options: {
-  query?: UseQueryOptions<TData, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useFindPetsByTags<
+  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
+  TError = FindPetsByTags['error'],
+  TData = FindPetsByTags['response'],
+  TQueryData = FindPetsByTags['response'],
+  TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
+>(params?: FindPetsByTags['queryParams'], options: {
+  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  client?: FindPetsByTags['client']['paramaters']
+} = {}): UseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-
-  const query = useQuery<TData, TError>({
-    ...findPetsByTagsQueryOptions<TData, TError>(params, clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+    queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey as QueryKey
-
+  }) as UseQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
   return query
 }
 
+type GetPetById = KubbQueryFactory<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never, GetPetByIdPathParams, never, never, GetPetByIdQueryResponse, {
+  dataReturnType: 'data'
+  type: 'query'
+}>
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: `/pet/${petId}`, params: { petId: petId } }] as const
-export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(
+export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
+export function getPetByIdQueryOptions<
+  TQueryFnData extends GetPetById['data'] = GetPetById['data'],
+  TError = GetPetById['error'],
+  TData = GetPetById['response'],
+  TQueryData = GetPetById['response'],
+>(
   petId: GetPetByIdPathParams['petId'],
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+  options: GetPetById['client']['paramaters'] = {},
+): UseBaseQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdQueryKey> {
   const queryKey = getPetByIdQueryKey(petId)
-
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/${petId}`,
-
         ...options,
-      }).then(res => res.data)
+      }).then(res => res?.data || res)
     },
   }
 }
-
 /**
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId
  */
-
-export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(petId: GetPetByIdPathParams['petId'], options: {
-  query?: UseQueryOptions<TData, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useGetPetById<
+  TQueryFnData extends GetPetById['data'] = GetPetById['data'],
+  TError = GetPetById['error'],
+  TData = GetPetById['response'],
+  TQueryData = GetPetById['response'],
+  TQueryKey extends QueryKey = GetPetByIdQueryKey,
+>(petId: GetPetByIdPathParams['petId'], options: {
+  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  client?: GetPetById['client']['paramaters']
+} = {}): UseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
-
-  const query = useQuery<TData, TError>({
-    ...getPetByIdQueryOptions<TData, TError>(petId, clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...getPetByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(petId, clientOptions),
+    queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey as QueryKey
-
+  }) as UseQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
   return query
 }
 
-/**
+type UpdatePetWithForm = KubbQueryFactory<
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithForm405,
+  never,
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
+  never,
+  UpdatePetWithFormMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
 
-export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
+export function useUpdatePetWithForm<TData = UpdatePetWithForm['response'], TError = UpdatePetWithForm['error']>(
   petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithFormQueryParams,
+  params?: UpdatePetWithForm['queryParams'],
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
-    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
+    mutation?: UseMutationOptions<TData, TError, void>
+    client?: UpdatePetWithForm['client']['paramaters']
   } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, void> {
+): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, void>({
+  return useMutation<TData, TError, void>({
     mutationFn: () => {
-      return client<TData, TError, void>({
+      return client<UpdatePetWithForm['data'], TError, void>({
         method: 'post',
         url: `/pet/${petId}`,
-
         params,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })
 }
 
-/**
+type DeletePet = KubbQueryFactory<
+  DeletePetMutationResponse,
+  DeletePet400,
+  never,
+  DeletePetPathParams,
+  never,
+  DeletePetHeaderParams,
+  DeletePetMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId
  */
 
-export function useDeletePet<TData = DeletePetMutationResponse, TError = DeletePet400>(
+export function useDeletePet<TData = DeletePet['response'], TError = DeletePet['error']>(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
-    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
+    mutation?: UseMutationOptions<TData, TError, void>
+    client?: DeletePet['client']['paramaters']
   } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, void> {
+): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, void>({
+  return useMutation<TData, TError, void>({
     mutationFn: () => {
-      return client<TData, TError, void>({
+      return client<DeletePet['data'], TError, void>({
         method: 'delete',
         url: `/pet/${petId}`,
-
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })
 }
 
-/**
+type UploadFile = KubbQueryFactory<
+  UploadFileMutationResponse,
+  never,
+  UploadFileMutationRequest,
+  UploadFilePathParams,
+  UploadFileQueryParams,
+  never,
+  UploadFileMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
 
-export function useUploadFile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
+export function useUploadFile<TData = UploadFile['response'], TError = UploadFile['error']>(
   petId: UploadFilePathParams['petId'],
-  params?: UploadFileQueryParams,
+  params?: UploadFile['queryParams'],
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+    mutation?: UseMutationOptions<TData, TError, UploadFile['request']>
+    client?: UploadFile['client']['paramaters']
   } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+): UseMutationResult<TData, TError, UploadFile['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, TVariables>({
+  return useMutation<TData, TError, UploadFile['request']>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<UploadFile['data'], TError, UploadFile['request']>({
         method: 'post',
         url: `/pet/${petId}/uploadImage`,
         data,
         params,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })
 }
 
+type GetInventory = KubbQueryFactory<GetInventoryQueryResponse, never, never, never, never, never, GetInventoryQueryResponse, {
+  dataReturnType: 'data'
+  type: 'query'
+}>
 export const getInventoryQueryKey = () => [{ url: `/store/inventory` }] as const
-export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TError = unknown>(
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
+export function getInventoryQueryOptions<
+  TQueryFnData extends GetInventory['data'] = GetInventory['data'],
+  TError = GetInventory['error'],
+  TData = GetInventory['response'],
+  TQueryData = GetInventory['response'],
+>(options: GetInventory['client']['paramaters'] = {}): UseBaseQueryOptions<GetInventory['unionResponse'], TError, TData, TQueryData, GetInventoryQueryKey> {
   const queryKey = getInventoryQueryKey()
-
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/inventory`,
-
         ...options,
-      }).then(res => res.data)
+      }).then(res => res?.data || res)
     },
   }
 }
-
 /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
  * @link /store/inventory
  */
-
-export function useGetInventory<TData = GetInventoryQueryResponse, TError = unknown>(options: {
-  query?: UseQueryOptions<TData, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useGetInventory<
+  TQueryFnData extends GetInventory['data'] = GetInventory['data'],
+  TError = GetInventory['error'],
+  TData = GetInventory['response'],
+  TQueryData = GetInventory['response'],
+  TQueryKey extends QueryKey = GetInventoryQueryKey,
+>(options: {
+  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  client?: GetInventory['client']['paramaters']
+} = {}): UseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
-
-  const query = useQuery<TData, TError>({
-    ...getInventoryQueryOptions<TData, TError>(clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...getInventoryQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
+    queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey as QueryKey
-
+  }) as UseQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
   return query
 }
 
-/**
+type PlaceOrder = KubbQueryFactory<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest, never, never, never, PlaceOrderMutationResponse, {
+  dataReturnType: 'full'
+  type: 'mutation'
+}> /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order
  */
 
-export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = PlaceOrder405, TVariables = PlaceOrderMutationRequest>(options: {
-  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function usePlaceOrder<TData = PlaceOrder['response'], TError = PlaceOrder['error']>(options: {
+  mutation?: UseMutationOptions<TData, TError, PlaceOrder['request']>
+  client?: PlaceOrder['client']['paramaters']
+} = {}): UseMutationResult<TData, TError, PlaceOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, TVariables>({
+  return useMutation<TData, TError, PlaceOrder['request']>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<PlaceOrder['data'], TError, PlaceOrder['request']>({
         method: 'post',
         url: `/store/order`,
         data,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })
 }
 
-/**
+type PlaceOrderPatch = KubbQueryFactory<
+  PlaceOrderPatchMutationResponse,
+  PlaceOrderPatch405,
+  PlaceOrderPatchMutationRequest,
+  never,
+  never,
+  never,
+  PlaceOrderPatchMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
  * @link /store/order
  */
 
-export function usePlaceOrderPatch<TData = PlaceOrderPatchMutationResponse, TError = PlaceOrderPatch405, TVariables = PlaceOrderPatchMutationRequest>(options: {
-  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function usePlaceOrderPatch<TData = PlaceOrderPatch['response'], TError = PlaceOrderPatch['error']>(options: {
+  mutation?: UseMutationOptions<TData, TError, PlaceOrderPatch['request']>
+  client?: PlaceOrderPatch['client']['paramaters']
+} = {}): UseMutationResult<TData, TError, PlaceOrderPatch['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, TVariables>({
+  return useMutation<TData, TError, PlaceOrderPatch['request']>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<PlaceOrderPatch['data'], TError, PlaceOrderPatch['request']>({
         method: 'patch',
         url: `/store/order`,
         data,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })
 }
 
+type GetOrderById = KubbQueryFactory<
+  GetOrderByIdQueryResponse,
+  GetOrderById400 | GetOrderById404,
+  never,
+  GetOrderByIdPathParams,
+  never,
+  never,
+  GetOrderByIdQueryResponse,
+  {
+    dataReturnType: 'data'
+    type: 'query'
+  }
+>
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: `/store/order/${orderId}`, params: { orderId: orderId } }] as const
-export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
+export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
+export function getOrderByIdQueryOptions<
+  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
+  TError = GetOrderById['error'],
+  TData = GetOrderById['response'],
+  TQueryData = GetOrderById['response'],
+>(
   orderId: GetOrderByIdPathParams['orderId'],
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+  options: GetOrderById['client']['paramaters'] = {},
+): UseBaseQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData, GetOrderByIdQueryKey> {
   const queryKey = getOrderByIdQueryKey(orderId)
-
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
-
         ...options,
-      }).then(res => res.data)
+      }).then(res => res?.data || res)
     },
   }
 }
-
 /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
-
-export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetOrderById400 | GetOrderById404>(
-  orderId: GetOrderByIdPathParams['orderId'],
-  options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useGetOrderById<
+  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
+  TError = GetOrderById['error'],
+  TData = GetOrderById['response'],
+  TQueryData = GetOrderById['response'],
+  TQueryKey extends QueryKey = GetOrderByIdQueryKey,
+>(orderId: GetOrderByIdPathParams['orderId'], options: {
+  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  client?: GetOrderById['client']['paramaters']
+} = {}): UseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
-
-  const query = useQuery<TData, TError>({
-    ...getOrderByIdQueryOptions<TData, TError>(orderId, clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...getOrderByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
+    queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey as QueryKey
-
+  }) as UseQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
   return query
 }
 
-/**
+type DeleteOrder = KubbQueryFactory<
+  DeleteOrderMutationResponse,
+  DeleteOrder400 | DeleteOrder404,
+  never,
+  DeleteOrderPathParams,
+  never,
+  never,
+  DeleteOrderMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
 
-export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = DeleteOrder400 | DeleteOrder404>(
-  orderId: DeleteOrderPathParams['orderId'],
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
-    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, void> {
+export function useDeleteOrder<TData = DeleteOrder['response'], TError = DeleteOrder['error']>(orderId: DeleteOrderPathParams['orderId'], options: {
+  mutation?: UseMutationOptions<TData, TError, void>
+  client?: DeleteOrder['client']['paramaters']
+} = {}): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, void>({
+  return useMutation<TData, TError, void>({
     mutationFn: () => {
-      return client<TData, TError, void>({
+      return client<DeleteOrder['data'], TError, void>({
         method: 'delete',
         url: `/store/order/${orderId}`,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })
 }
 
-/**
+type CreateUser = KubbQueryFactory<CreateUserMutationResponse, never, CreateUserMutationRequest, never, never, never, CreateUserMutationResponse, {
+  dataReturnType: 'full'
+  type: 'mutation'
+}> /**
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user
  */
 
-export function useCreateUser<TData = CreateUserMutationResponse, TError = unknown, TVariables = CreateUserMutationRequest>(options: {
-  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function useCreateUser<TData = CreateUser['response'], TError = CreateUser['error']>(options: {
+  mutation?: UseMutationOptions<TData, TError, CreateUser['request']>
+  client?: CreateUser['client']['paramaters']
+} = {}): UseMutationResult<TData, TError, CreateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, TVariables>({
+  return useMutation<TData, TError, CreateUser['request']>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<CreateUser['data'], TError, CreateUser['request']>({
         method: 'post',
         url: `/user`,
         data,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })
 }
 
-/**
+type CreateUsersWithListInput = KubbQueryFactory<
+  CreateUsersWithListInputMutationResponse,
+  never,
+  CreateUsersWithListInputMutationRequest,
+  never,
+  never,
+  never,
+  CreateUsersWithListInputMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
 
-export function useCreateUsersWithListInput<
-  TData = CreateUsersWithListInputMutationResponse,
-  TError = unknown,
-  TVariables = CreateUsersWithListInputMutationRequest,
->(options: {
-  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-} = {}): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function useCreateUsersWithListInput<TData = CreateUsersWithListInput['response'], TError = CreateUsersWithListInput['error']>(options: {
+  mutation?: UseMutationOptions<TData, TError, CreateUsersWithListInput['request']>
+  client?: CreateUsersWithListInput['client']['paramaters']
+} = {}): UseMutationResult<TData, TError, CreateUsersWithListInput['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, TVariables>({
+  return useMutation<TData, TError, CreateUsersWithListInput['request']>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<CreateUsersWithListInput['data'], TError, CreateUsersWithListInput['request']>({
         method: 'post',
         url: `/user/createWithList`,
         data,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })
 }
 
-export const loginUserQueryKey = (params?: LoginUserQueryParams) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
-export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params?: LoginUserQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+type LoginUser = KubbQueryFactory<LoginUserQueryResponse, LoginUser400, never, never, LoginUserQueryParams, never, LoginUserQueryResponse, {
+  dataReturnType: 'data'
+  type: 'query'
+}>
+export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
+export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
+export function loginUserQueryOptions<
+  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
+  TError = LoginUser['error'],
+  TData = LoginUser['response'],
+  TQueryData = LoginUser['response'],
+>(
+  params?: LoginUser['queryParams'],
+  options: LoginUser['client']['paramaters'] = {},
+): UseBaseQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
   const queryKey = loginUserQueryKey(params)
-
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/login`,
         params,
-
         ...options,
-      }).then(res => res.data)
+      }).then(res => res?.data || res)
     },
   }
 }
-
 /**
  * @summary Logs user into the system
  * @link /user/login
  */
-
-export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(params?: LoginUserQueryParams, options: {
-  query?: UseQueryOptions<TData, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useLoginUser<
+  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
+  TError = LoginUser['error'],
+  TData = LoginUser['response'],
+  TQueryData = LoginUser['response'],
+  TQueryKey extends QueryKey = LoginUserQueryKey,
+>(params?: LoginUser['queryParams'], options: {
+  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  client?: LoginUser['client']['paramaters']
+} = {}): UseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
-
-  const query = useQuery<TData, TError>({
-    ...loginUserQueryOptions<TData, TError>(params, clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...loginUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+    queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey as QueryKey
-
+  }) as UseQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
   return query
 }
 
+type LogoutUser = KubbQueryFactory<LogoutUserQueryResponse, never, never, never, never, never, LogoutUserQueryResponse, {
+  dataReturnType: 'data'
+  type: 'query'
+}>
 export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const
-export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = unknown>(
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
+export function logoutUserQueryOptions<
+  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
+  TError = LogoutUser['error'],
+  TData = LogoutUser['response'],
+  TQueryData = LogoutUser['response'],
+>(options: LogoutUser['client']['paramaters'] = {}): UseBaseQueryOptions<LogoutUser['unionResponse'], TError, TData, TQueryData, LogoutUserQueryKey> {
   const queryKey = logoutUserQueryKey()
-
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/logout`,
-
         ...options,
-      }).then(res => res.data)
+      }).then(res => res?.data || res)
     },
   }
 }
-
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-
-export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>(options: {
-  query?: UseQueryOptions<TData, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-} = {}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useLogoutUser<
+  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
+  TError = LogoutUser['error'],
+  TData = LogoutUser['response'],
+  TQueryData = LogoutUser['response'],
+  TQueryKey extends QueryKey = LogoutUserQueryKey,
+>(options: {
+  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  client?: LogoutUser['client']['paramaters']
+} = {}): UseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
-
-  const query = useQuery<TData, TError>({
-    ...logoutUserQueryOptions<TData, TError>(clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...logoutUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
+    queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey as QueryKey
-
+  }) as UseQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
   return query
 }
 
+type GetUserByName = KubbQueryFactory<
+  GetUserByNameQueryResponse,
+  GetUserByName400 | GetUserByName404,
+  never,
+  GetUserByNamePathParams,
+  never,
+  never,
+  GetUserByNameQueryResponse,
+  {
+    dataReturnType: 'data'
+    type: 'query'
+  }
+>
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: `/user/${username}`, params: { username: username } }] as const
-export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
+export function getUserByNameQueryOptions<
+  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
+  TError = GetUserByName['error'],
+  TData = GetUserByName['response'],
+  TQueryData = GetUserByName['response'],
+>(
   username: GetUserByNamePathParams['username'],
-  options: Partial<Parameters<typeof client>[0]> = {},
-): UseQueryOptions<TData, TError> {
+  options: GetUserByName['client']['paramaters'] = {},
+): UseBaseQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
   const queryKey = getUserByNameQueryKey(username)
-
   return {
     queryKey,
     queryFn: () => {
-      return client<TData, TError>({
+      return client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/${username}`,
-
         ...options,
-      }).then(res => res.data)
+      }).then(res => res?.data || res)
     },
   }
 }
-
 /**
  * @summary Get user by user name
  * @link /user/:username
  */
-
-export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
-  username: GetUserByNamePathParams['username'],
-  options: {
-    query?: UseQueryOptions<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-  } = {},
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+export function useGetUserByName<
+  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
+  TError = GetUserByName['error'],
+  TData = GetUserByName['response'],
+  TQueryData = GetUserByName['response'],
+  TQueryKey extends QueryKey = GetUserByNameQueryKey,
+>(username: GetUserByNamePathParams['username'], options: {
+  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  client?: GetUserByName['client']['paramaters']
+} = {}): UseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
-
-  const query = useQuery<TData, TError>({
-    ...getUserByNameQueryOptions<TData, TError>(username, clientOptions),
+  const query = useQuery<TQueryFnData, TError, TData, any>({
+    ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
+    queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & { queryKey: QueryKey }
-
-  query.queryKey = queryKey as QueryKey
-
+  }) as UseQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
   return query
 }
 
-/**
+type UpdateUser = KubbQueryFactory<
+  UpdateUserMutationResponse,
+  never,
+  UpdateUserMutationRequest,
+  UpdateUserPathParams,
+  never,
+  never,
+  UpdateUserMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username
  */
 
-export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unknown, TVariables = UpdateUserMutationRequest>(
-  username: UpdateUserPathParams['username'],
-  options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, TVariables>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-  } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, TVariables> {
+export function useUpdateUser<TData = UpdateUser['response'], TError = UpdateUser['error']>(username: UpdateUserPathParams['username'], options: {
+  mutation?: UseMutationOptions<TData, TError, UpdateUser['request']>
+  client?: UpdateUser['client']['paramaters']
+} = {}): UseMutationResult<TData, TError, UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, TVariables>({
+  return useMutation<TData, TError, UpdateUser['request']>({
     mutationFn: (data) => {
-      return client<TData, TError, TVariables>({
+      return client<UpdateUser['data'], TError, UpdateUser['request']>({
         method: 'put',
         url: `/user/${username}`,
         data,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })
 }
 
-/**
+type DeleteUser = KubbQueryFactory<
+  DeleteUserMutationResponse,
+  DeleteUser400 | DeleteUser404,
+  never,
+  DeleteUserPathParams,
+  never,
+  never,
+  DeleteUserMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
  * @link /user/:username
  */
 
-export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400 | DeleteUser404>(username: DeleteUserPathParams['username'], options: {
-  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
-  client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
-} = {}): UseMutationResult<ResponseConfig<TData>, TError, void> {
+export function useDeleteUser<TData = DeleteUser['response'], TError = DeleteUser['error']>(username: DeleteUserPathParams['username'], options: {
+  mutation?: UseMutationOptions<TData, TError, void>
+  client?: DeleteUser['client']['paramaters']
+} = {}): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, void>({
+  return useMutation<TData, TError, void>({
     mutationFn: () => {
-      return client<TData, TError, void>({
+      return client<DeleteUser['data'], TError, void>({
         method: 'delete',
         url: `/user/${username}`,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })

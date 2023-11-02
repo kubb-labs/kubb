@@ -2,10 +2,11 @@
   "name": "@kubb/ts-config",
   "version": "0.1.0",
   "private": true,
+  "types": "./reset.d.ts",
   "files": [
     "reset.d.ts",
     "base.json",
-    "bun.json"
+    "bundler.json"
   ],
   "devDependencies": {
     "typescript": "^5.2.2"

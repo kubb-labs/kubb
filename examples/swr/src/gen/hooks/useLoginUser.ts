@@ -1,9 +1,7 @@
-import client from '@kubb/swagger-client/client'
-
 import useSWR from 'swr'
-
+import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from '../models/LoginUser'
+import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 
 export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
@@ -27,7 +25,6 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
  * @summary Logs user into the system
  * @link /user/login
  */
-
 export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
   options?: {

@@ -1,6 +1,5 @@
 // https://vitepress.dev/guide/custom-theme
 import { inject } from '@vercel/analytics'
-import { EnhanceAppContext } from 'vitepress/dist/client'
 import DefaultTheme from 'vitepress/theme'
 import { h } from 'vue'
 
@@ -22,7 +21,7 @@ export default {
       'home-features-after': () => h(HomePage, { allContributors: JSON.parse(allContributorsStr) }),
     })
   },
-  enhanceApp(ctx: EnhanceAppContext) {
+  enhanceApp(ctx: any) {
     DefaultTheme.enhanceApp(ctx)
   },
 }

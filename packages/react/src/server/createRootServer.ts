@@ -1,6 +1,6 @@
 import { createNode, ReactTemplate } from '../shared/index.ts'
 
-import type { Logger } from '@kubb/core'
+import type { Logger } from '@kubb/core/utils'
 import type { AppContextProps } from '../components/AppContext.tsx'
 import type { DOMElement } from '../types.ts'
 import type { RootType } from './types.ts'
@@ -32,6 +32,12 @@ export function createRootServer<Context extends AppContextProps = AppContextPro
     },
     get file() {
       return instance.file
+    },
+    get files() {
+      return instance.files
+    },
+    getFile(id: string) {
+      return instance.files.find(file => file.id === id)
     },
   }
 }

@@ -1,4 +1,4 @@
-import type { PluginFactoryOptions } from '@kubb/core'
+import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, Operation, OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
 type Infinite = {
@@ -8,6 +8,10 @@ type Infinite = {
    * @default `'id'`
    */
   queryParam?: string
+  /**
+   * For v5
+   */
+  initialPageParam?: number
 }
 
 export type Options = {
@@ -100,32 +104,92 @@ export type Framework = 'react' | 'solid' | 'svelte' | 'vue'
 export type FrameworkImports = {
   getName: (operation: Operation) => string
   query: {
-    useQuery: string
     QueryKey: string
-    UseQueryResult: string
-    UseQueryOptions: string
-    QueryOptions: string
-    /*
-     * v5
+    /**
+     * @deprecated
+     */
+    UseQueryResult?: string
+    /**
+     * @deprecated
+     */
+    UseQueryOptions?: string
+    /**
+     * v5 only
      */
     queryOptions?: string
-    // infinite
-    UseInfiniteQueryOptions: string
-    UseInfiniteQueryResult: string
-    useInfiniteQuery: string
+    /**
+     * v5 only
+     *  @deprecated
+     */
+    QueryObserverOptions?: string
+    /**
+     * Infinte
+     *  @deprecated
+     */
+    UseInfiniteQueryOptions?: string
+    /**
+     * v5 only
+     *  @deprecated
+     */
+    InfiniteQueryObserverOptions?: string
+    /**
+     * v5 only
+     *  @deprecated
+     */
+    infiniteQueryOptions?: string
+    /**
+     * v5 only
+     *  @deprecated
+     */
+    InfiniteData?: string
+    /**
+     * @deprecated
+     */
+    UseInfiniteQueryResult?: string
+
+    // types
+    hook?: string
+    Options?: string
+    Result?: string
+  }
+  queryInfinite: {
+    // types
+    hook?: string
+    Options?: string
+    Result?: string
   }
   mutate: {
-    useMutation: string
-    UseMutationOptions: string
-    UseMutationResult: string
+    /**
+     * @deprecated
+     */
+    UseMutationOptions?: string
+    /**
+     * v5 only
+     */
+    MutationObserverOptions?: string
+    /**
+     * @deprecated
+     */
+    UseMutationResult?: string
+    // types
+    hook?: string
+    Options?: string
+    Result?: string
   }
+  isV5: boolean
 }
 
 export type FileMeta = {
-  pluginName?: string
+  pluginKey?: KubbPlugin['key']
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', Options, false, never, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', 'controller', Options, false, never, ResolvePathOptions>
 
 export type AppMeta = SwaggerAppMeta
+
+declare module '@kubb/core' {
+  export interface _Register {
+    ['@kubb/swagger-tanstack-query']: PluginOptions
+  }
+}

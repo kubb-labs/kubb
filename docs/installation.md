@@ -78,7 +78,7 @@ yarn add @kubb/cli@canary @kubb/core@canary
 
 :::
 
-## Alpha <Badge type="tip" text="alpha" /> <Badge type="warning" text="experimental" />
+## Alpha <img src="/icons/experimental.svg"/> <Badge type="tip" text="alpha" />
 
 Kubb also publishes an alpha version which contains experimental features that are not production ready.
 

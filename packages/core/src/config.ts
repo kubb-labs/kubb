@@ -1,4 +1,4 @@
-import type { CLIOptions, KubbUserConfig, PossiblePromise } from './types.ts'
+import type { CLIOptions, InputPath, KubbConfig, KubbUserConfig, PossiblePromise } from './types.ts'
 
 /**
  * Type helper to make it easier to use kubb.config.js
@@ -7,11 +7,15 @@ import type { CLIOptions, KubbUserConfig, PossiblePromise } from './types.ts'
  */
 export function defineConfig(
   options:
-    | PossiblePromise<KubbUserConfig>
+    | PossiblePromise<KubbUserConfig | Array<KubbUserConfig>>
     | ((
       /** The options derived from the CLI flags */
       cliOptions: CLIOptions,
-    ) => PossiblePromise<KubbUserConfig>),
+    ) => PossiblePromise<KubbUserConfig | Array<KubbUserConfig>>),
 ): typeof options {
   return options
+}
+
+export function isInputPath(result: KubbConfig | undefined): result is KubbConfig<InputPath> {
+  return !!result && 'path' in (result as any)
 }

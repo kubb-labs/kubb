@@ -1,9 +1,7 @@
-import client from '@kubb/swagger-client/client'
-
 import useSWRMutation from 'swr/mutation'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
 
 /**
@@ -11,7 +9,6 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
  * @summary Update user
  * @link /user/:username
  */
-
 export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unknown, TVariables = UpdateUserMutationRequest>(
   username: UpdateUserPathParams['username'],
   options?: {

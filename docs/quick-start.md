@@ -43,6 +43,58 @@ export default defineConfig(async () => {
 
 :::
 
+## Advanced example <img src="/icons/experimental.svg"/>
+
+Since version `2.x.x` we also support using multiple entry(OpenAPI/Swagger) files.
+
+```bash
+kubb --config kubb.config.js
+```
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig(async () => {
+  return [
+    {
+      root: '.',
+      input: {
+        path: './petStore.yaml',
+      },
+      output: {
+        path: './src/gen',
+      },
+      plugins: [
+        createSwagger({}),
+        createSwaggerTS({}),
+        createSwaggerTanstackQuery({}),
+      ],
+    },
+    {
+      root: '.',
+      input: {
+        path: './petStore2.yaml',
+      },
+      output: {
+        path: './src/gen2',
+      },
+      plugins: [
+        createSwagger({}),
+        createSwaggerTS({}),
+        createSwaggerTanstackQuery({}),
+      ],
+    },
+  ]
+})
+```
+
+:::
+
 ## Examples with plugins
 
 ```bash
@@ -66,7 +118,11 @@ export default defineConfig(async () => {
     output: {
       path: './src/gen',
     },
-    plugins: [createSwagger({}), createSwaggerTS({}), createSwaggerTanstackQuery({})],
+    plugins: [
+      createSwagger({}),
+      createSwaggerTS({}),
+      createSwaggerTanstackQuery({}),
+    ],
   }
 })
 ```
@@ -94,9 +150,15 @@ export default defineConfig(() => {
       path: './src/gen',
     },
     plugins: [
-      ['@kubb/swagger', { output: false }],
-      ['@kubb/swagger-ts', { output: 'models/ts' }],
-      ['@kubb/swagger-tanstack-query', { output: './reactQuery' } }],
+      ['@kubb/swagger', {
+        output: false,
+      }],
+      ['@kubb/swagger-ts', {
+        output: 'models/ts',
+      }],
+      ['@kubb/swagger-tanstack-query', {
+        output: './reactQuery',
+      }],
     ],
   }
 })

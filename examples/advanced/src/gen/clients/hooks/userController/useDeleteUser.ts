@@ -1,29 +1,39 @@
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import client from '../../../../tanstack-query-client.ts'
-import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
+import type { KubbQueryFactory } from './types'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../../../models/ts/userController/DeleteUser'
 
-/**
+type DeleteUser = KubbQueryFactory<
+  DeleteUserMutationResponse,
+  DeleteUser400 | DeleteUser404,
+  never,
+  DeleteUserPathParams,
+  never,
+  never,
+  DeleteUserMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
  * @link /user/:username
  */
 
-export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400 | DeleteUser404>(username: DeleteUserPathParams['username'], options: {
-  mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
-  client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
-} = {}): UseMutationResult<ResponseConfig<TData>, TError, void> {
+export function useDeleteUser<TData = DeleteUser['response'], TError = DeleteUser['error']>(username: DeleteUserPathParams['username'], options: {
+  mutation?: UseMutationOptions<TData, TError, void>
+  client?: DeleteUser['client']['paramaters']
+} = {}): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, void>({
+  return useMutation<TData, TError, void>({
     mutationFn: () => {
-      return client<TData, TError, void>({
+      return client<DeleteUser['data'], TError, void>({
         method: 'delete',
         url: `/user/${username}`,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })

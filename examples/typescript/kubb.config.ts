@@ -17,6 +17,10 @@ export default defineConfig({
   plugins: [
     createSwagger({ validate: false }),
     createSwaggerTS({ output: 'models.ts', enumType: 'enum' }),
-    // createSwaggerTS({ output: 'models', enumType: 'enum' }),
+    createSwaggerTS({
+      output: 'modelsConst.ts',
+      enumType: 'asConst',
+      exportAs: 'modelsAsConst',
+    }),
   ],
 })

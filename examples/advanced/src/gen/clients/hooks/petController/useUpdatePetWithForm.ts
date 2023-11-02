@@ -1,7 +1,7 @@
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import client from '../../../../tanstack-query-client.ts'
-import type { ResponseConfig } from '../../../../tanstack-query-client.ts'
+import type { KubbQueryFactory } from './types'
+import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -9,31 +9,40 @@ import type {
   UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm'
 
-/**
+type UpdatePetWithForm = KubbQueryFactory<
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithForm405,
+  never,
+  UpdatePetWithFormPathParams,
+  UpdatePetWithFormQueryParams,
+  never,
+  UpdatePetWithFormMutationResponse,
+  {
+    dataReturnType: 'full'
+    type: 'mutation'
+  }
+> /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
 
-export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
+export function useUpdatePetWithForm<TData = UpdatePetWithForm['response'], TError = UpdatePetWithForm['error']>(
   petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithFormQueryParams,
+  params?: UpdatePetWithForm['queryParams'],
   options: {
-    mutation?: UseMutationOptions<ResponseConfig<TData>, TError, void>
-    client?: Partial<Parameters<typeof client<TData, TError, void>>[0]>
+    mutation?: UseMutationOptions<TData, TError, void>
+    client?: UpdatePetWithForm['client']['paramaters']
   } = {},
-): UseMutationResult<ResponseConfig<TData>, TError, void> {
+): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return useMutation<ResponseConfig<TData>, TError, void>({
+  return useMutation<TData, TError, void>({
     mutationFn: () => {
-      return client<TData, TError, void>({
+      return client<UpdatePetWithForm['data'], TError, void>({
         method: 'post',
         url: `/pet/${petId}`,
-
         params,
-
         ...clientOptions,
-      })
+      }).then(res => res as TData)
     },
     ...mutationOptions,
   })

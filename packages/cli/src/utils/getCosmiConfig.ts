@@ -4,10 +4,14 @@
 import { cosmiconfig } from 'cosmiconfig'
 import tsNode from 'ts-node'
 
-import type { CosmiconfigResult } from '../types.ts'
+import type { defineConfig, KubbUserConfig } from '@kubb/core'
 
-// TODO fix tsLoader for node 20 when using ESM only
-// https://github.com/TypeStrong/ts-node/issues/1997
+export type CosmiconfigResult = {
+  filepath: string
+  isEmpty?: boolean
+  config: ReturnType<typeof defineConfig> | KubbUserConfig
+}
+
 const tsLoader = (configFile: string) => {
   let registerer = { enabled() {} }
 

@@ -17,7 +17,19 @@
   --vp-c-brand-dimm: rgba(100, 108, 255, 0.08);
   --vp-c-brand-1: var(--vp-c-brand);
   --vp-badge-tip-text: var(--vp-c-indigo-1);
+
 }
+
+.dark {
+  --vp-c-bg: rgba(35, 39, 47, 0.6);
+  --vp-local-search-bg: rgba(35, 39, 47, 1);
+  --vp-sidebar-bg-color: rgba(35, 39, 47, 0.8);
+  --vp-c-gutter: rgba(35, 39, 47, 0.4);
+  --vp-c-bg-soft: rgba(68, 76, 91, 0.3);
+  --vp-nav-screen-bg-color: rgba(35, 39, 47, 1);
+  --vp-sidebar-bg-color: rgba(35, 39, 47, 1);
+}
+
 
 
 /**
@@ -146,7 +158,7 @@
 }
 
 .vp-code-group .tabs {
-  gap: 0.3em;
+  gap: 0.3rem;
 }
 
 .vp-code-group .tabs label {
@@ -158,9 +170,33 @@
   text-decoration: none;
 }
 
+.vp-doc h1 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.vp-doc h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.vp-doc h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
 .vp-code-group .tabs img {
   padding-left: 0.5rem;
   align-items: center;
   font-size: 15px;
   height: 15px;
+}
+
+.VPLink p.text img {
+  display: inline-block;
+  margin-left: 0.3rem;
+  height: 16px;
 }

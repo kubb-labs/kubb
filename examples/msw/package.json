@@ -17,8 +17,8 @@
     "generate:js": "kubb generate --config .kubbrc",
     "generate:json": "kubb generate --config kubb.json",
     "generate:ts": "kubb generate --config kubb.config.js",
-    "server": "bun src/server.ts",
     "start": "tsup --watch",
+    "start:server": "bun ./src/server.ts",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },

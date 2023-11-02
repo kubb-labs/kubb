@@ -1,11 +1,18 @@
-import { FunctionParams, URLPath } from '@kubb/core'
+import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function } from '@kubb/react'
-import { getASTParams, useOperation, useSchemas } from '@kubb/swagger'
+import { useOperation, useSchemas } from '@kubb/swagger/hooks'
+import { getASTParams } from '@kubb/swagger/utils'
 
 import type { ReactNode } from 'react'
 
 type Props = {
   name: string
+  typeName: string
+  /**
+   * TODO add typings
+   * Created by KubbQueryFactory, see templates/types
+   */
+  factoryTypeName?: string
   // generics: string[]
   // returnType: string
   // comments: string[]
@@ -14,7 +21,7 @@ type Props = {
   // props QueryKey
 }
 
-function QueryKeyFunctionBase({ name }: Props): ReactNode {
+function QueryKeyFunctionBase({ name, typeName, factoryTypeName }: Props): ReactNode {
   const schemas = useSchemas()
   const operation = useOperation()
   const path = new URLPath(operation.path)
@@ -27,7 +34,7 @@ function QueryKeyFunctionBase({ name }: Props): ReactNode {
     }),
     {
       name: 'params',
-      type: schemas.queryParams?.name,
+      type: `${factoryTypeName}["queryParams"]`,
       enabled: !!schemas.queryParams?.name,
       required: !!schemas.queryParams?.schema.required?.length,
     },
@@ -42,13 +49,17 @@ function QueryKeyFunctionBase({ name }: Props): ReactNode {
   ].filter(Boolean)
 
   return (
-    <Function.Arrow name={name} export params={params.toString()} singleLine>
-      {`[${result.join(',')}] as const;`}
-    </Function.Arrow>
+    <>
+      <Function.Arrow name={name} export params={params.toString()} singleLine>
+        {`[${result.join(',')}] as const;`}
+      </Function.Arrow>
+
+      {`export type ${typeName} = ReturnType<typeof ${name}>`}
+    </>
   )
 }
 
-function QueryKeyFunctionVue({ name }: Props): ReactNode {
+function QueryKeyFunctionVue({ name, typeName, factoryTypeName }: Props): ReactNode {
   const schemas = useSchemas()
   const operation = useOperation()
   const path = new URLPath(operation.path)
@@ -62,7 +73,7 @@ function QueryKeyFunctionVue({ name }: Props): ReactNode {
     }),
     {
       name: 'params',
-      type: schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : undefined,
+      type: schemas.queryParams?.name ? `MaybeRef<${`${factoryTypeName}["queryParams"]`}>` : undefined,
       enabled: !!schemas.queryParams?.name,
       required: !!schemas.queryParams?.schema.required?.length,
     },
@@ -78,9 +89,13 @@ function QueryKeyFunctionVue({ name }: Props): ReactNode {
   ].filter(Boolean)
 
   return (
-    <Function.Arrow name={name} export params={params.toString()} singleLine>
-      {`[${result.join(',')}] as const;`}
-    </Function.Arrow>
+    <>
+      <Function.Arrow name={name} export params={params.toString()} singleLine>
+        {`[${result.join(',')}] as const;`}
+      </Function.Arrow>
+
+      {`export type ${typeName} = ReturnType<typeof ${name}>`}
+    </>
   )
 }
 

@@ -1,6 +1,6 @@
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import client from '../../../../swr-client.ts'
+import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { ResponseConfig } from '../../../../swr-client.ts'
 import type {
   UpdatePetWithFormMutationResponse,
@@ -13,7 +13,6 @@ import type {
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-
 export function useUpdatePetWithForm<
   TData = UpdatePetWithFormMutationResponse,
   TError = UpdatePetWithForm405,

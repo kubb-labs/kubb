@@ -3,6 +3,7 @@
   "separate-pull-requests": false,
   "release-search-depth": 50,
   "commit-search-depth": 100,
+  "sequential-calls": true,
   "changelog-sections": [
     {
       "type": "feat",
@@ -61,7 +62,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "alpha",
       "skip-github-release": false
     },
     "packages/kubb": {
@@ -71,7 +73,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/core": {
@@ -81,7 +84,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/cli": {
@@ -91,7 +95,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/parser": {
@@ -101,7 +106,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/swagger": {
@@ -111,7 +117,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/swagger-ts": {
@@ -121,7 +128,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/swagger-client": {
@@ -131,7 +139,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/swagger-tanstack-query": {
@@ -141,7 +150,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/swagger-faker": {
@@ -151,7 +161,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "alpha",
       "skip-github-release": true
     },
     "packages/swagger-msw": {
@@ -161,7 +172,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "beta",
       "skip-github-release": true
     },
     "packages/swagger-zod": {
@@ -171,7 +183,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "beta",
       "skip-github-release": true
     },
     "packages/swagger-zodios": {
@@ -181,7 +194,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "beta",
       "skip-github-release": true
     },
     "packages/swagger-swr": {
@@ -191,7 +205,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "beta",
       "skip-github-release": true
     },
     "packages/react": {
@@ -201,7 +216,8 @@
       "bump-minor-pre-major": false,
       "bump-patch-for-minor-pre-major": false,
       "draft": false,
-      "prerelease": false,
+      "prerelease": true,
+      "prerelease-type": "beta",
       "skip-github-release": true
     }
   },

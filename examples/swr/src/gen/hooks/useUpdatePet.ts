@@ -1,20 +1,17 @@
-import client from '@kubb/swagger-client/client'
-
 import useSWRMutation from 'swr/mutation'
-
-import type { ResponseConfig } from '@kubb/swagger-client/client'
+import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { UpdatePet400, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../models/UpdatePet'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet'
 
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
  * @link /pet
  */
-
 export function useUpdatePet<
   TData = UpdatePetMutationResponse,
-  TError = UpdatePet400,
+  TError = UpdatePet400 | UpdatePet404 | UpdatePet405,
   TVariables = UpdatePetMutationRequest,
 >(options?: {
   mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>

@@ -1,8 +1,5 @@
 import { defineConfig } from '@kubb/core'
 
-// TODO check why some options are undefined
-export type SwaggerPluginOptions = Kubb.OptionsPlugins
-
 export default defineConfig(async () => {
   await setTimeout(() => {
     // wait for 1s, async behaviour
@@ -22,7 +19,8 @@ export default defineConfig(async () => {
       // done: ['npx eslint --fix ./src/gen', 'prettier --write "**/*.{ts,tsx}"', 'pnpm typecheck'],
     },
     plugins: [
-      ['@kubb/swagger', { output: false, validate: true }],
+      ['@kubb/swagger', { output: 'schemass', validate: true }],
+      ['@kubb/swagger', { output: 'schemas2', validate: true }],
       [
         '@kubb/swagger-ts',
         {

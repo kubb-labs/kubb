@@ -1,7 +1,5 @@
-import client from '@kubb/swagger-client/client'
-
 import useSWR from 'swr'
-
+import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
@@ -24,7 +22,6 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
-
 export function useLogoutUser<TData = LogoutUserQueryResponse, TError = unknown>(options?: {
   query?: SWRConfiguration<TData, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>

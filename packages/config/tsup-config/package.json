@@ -18,7 +18,6 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "schemas",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],
@@ -28,14 +27,14 @@
     "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
     "lint-fix": "bun run lint --quiet --fix",
     "release": "pnpm publish --no-git-check",
-    "release:alpha": "bash ../../../.github/canary.sh && pnpm publish --no-git-check -tag alpha",
-    "release:canary": "bash ../../../.github/canary.sh && pnpm publish --no-git-check -tag canary",
+    "release:canary": "bash ../../../.github/canary.sh && node ../../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
+    "release:alpha": "bash ../../../.github/canary.sh && node ../../../scripts/build.js alpha && pnpm publish --no-git-check -tag alpha",
     "start": "tsup --watch",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
-    "@types/node": "^20.8.9",
+    "@types/node": "^20.8.10",
     "tsup": "^7.2.0"
   },
   "peerDependencies": {

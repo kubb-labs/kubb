@@ -17,17 +17,17 @@ export default defineConfig(async () => {
     hooks: {
       done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
     },
-    plugins: {
-      '@kubb/swagger': {
+    plugins: [
+      ['@kubb/swagger', {
         output: false,
-      },
-      '@kubb/swagger-ts': {
+      }],
+      ['@kubb/swagger-ts', {
         output: 'models',
-      },
-      '@kubb/swagger-faker': {
+      }],
+      ['@kubb/swagger-faker', {
         output: './mocks',
         groupBy: { type: 'tag', output: './mocks/{{tag}}Mocks' },
-      },
-    },
+      }],
+    ],
   }
 })

@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "1.14.6",
+  "version": "2.0.0-alpha.2",
   "description": "Generator core",
   "keywords": [
     "typescript",
@@ -22,6 +22,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
+    },
+    "./utils": {
+      "import": "./dist/utils.js",
+      "require": "./dist/utils.cjs",
+      "default": "./dist/utils.cjs"
     },
     "./package.json": "./package.json",
     "./*": "./*",
@@ -46,8 +51,8 @@
     "lint": "ESLINT_USE_FLAT_CONFIG=true eslint --format pretty .",
     "lint-fix": "bun run lint --quiet --fix",
     "release": "pnpm publish --no-git-check",
-    "release:canary": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag canary",
-    "release:alpha": "bash ../../.github/canary.sh && pnpm publish --no-git-check -tag alpha",
+    "release:canary": "bash ../../.github/canary.sh && node ../../scripts/build.js canary && pnpm publish --no-git-check -tag canary",
+    "release:alpha": "bash ../../.github/canary.sh && node ../../scripts/build.js alpha && pnpm publish --no-git-check -tag alpha",
     "start": "tsup --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
@@ -71,7 +76,7 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.3",
     "@types/lodash.isequal": "4.5.6",
-    "@types/react": "^18.2.33",
+    "@types/react": "^18.2.34",
     "@types/seedrandom": "^3.0.7",
     "@types/semver": "^7.5.4",
     "eslint": "^8.52.0",

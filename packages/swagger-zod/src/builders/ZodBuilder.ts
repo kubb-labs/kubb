@@ -1,30 +1,19 @@
-import { combineCodes, nameSorter } from '@kubb/core'
-import { createImportDeclaration, print } from '@kubb/parser'
+import { transformers } from '@kubb/core/utils'
+import { print } from '@kubb/parser'
+import * as factory from '@kubb/parser/factory'
 import { ImportsGenerator, OasBuilder } from '@kubb/swagger'
+import { refsSorter } from '@kubb/swagger/utils'
 
 import { ZodGenerator } from '../generators/index.ts'
 
 import type { PluginContext } from '@kubb/core'
-import type { FileResolver, Refs } from '@kubb/swagger'
-
-type Generated = { import: { refs: Refs; name: string }; sources: string[] }
+import type { FileResolver } from '@kubb/swagger'
 
 type Options = {
   fileResolver?: FileResolver
   resolveName: PluginContext['resolveName']
   withJSDocs?: boolean
   withImports?: boolean
-}
-
-// TODO create another function that sort based on the refs(first the ones without refs)
-function refsSorter(a: Generated, b: Generated) {
-  if (Object.keys(a.import.refs)?.length < Object.keys(b.import.refs)?.length) {
-    return -1
-  }
-  if (Object.keys(a.import.refs)?.length > Object.keys(b.import.refs)?.length) {
-    return 1
-  }
-  return 0
 }
 
 export class ZodBuilder extends OasBuilder<Options, never> {
@@ -46,7 +35,7 @@ export class ZodBuilder extends OasBuilder<Options, never> {
 
     const generated = this.items
       .filter((operationSchema) => (name ? operationSchema.name === name : true))
-      .sort(nameSorter)
+      .sort(transformers.nameSorter)
       .map((operationSchema) => {
         const generator = new ZodGenerator({ withJSDocs: this.options.withJSDocs, resolveName: this.options.resolveName })
         const sources = generator.build({
@@ -75,7 +64,7 @@ export class ZodBuilder extends OasBuilder<Options, never> {
 
       if (importMeta) {
         const nodes = importMeta.map((item) => {
-          return createImportDeclaration({
+          return factory.createImportDeclaration({
             name: [{ propertyName: item.ref.propertyName }],
             path: item.path,
             isTypeOnly: false,
@@ -86,6 +75,6 @@ export class ZodBuilder extends OasBuilder<Options, never> {
       }
     }
 
-    return combineCodes(codes)
+    return transformers.combineCodes(codes)
   }
 }

@@ -1,9 +1,10 @@
-import { oasParser } from '@kubb/swagger'
+import { OasManager } from '@kubb/swagger'
 
 import { format } from '../../mocks/format.ts'
 import { OperationGenerator } from './OperationGenerator.ts'
 
 import type { PluginContext, PluginManager } from '@kubb/core'
+import type { KubbPlugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 
 describe('OperationGenerator', () => {
@@ -11,13 +12,18 @@ describe('OperationGenerator', () => {
   const resolveName: PluginContext['resolveName'] = ({ name }) => name
 
   it('[GET] should generate code based on a operation and optionalType `questionToken`', async () => {
-    const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
+    const oas = await OasManager.parseFromConfig({
+      root: './',
+      output: { path: 'test', clean: true },
+      input: { path: 'packages/swagger-ts/mocks/petStore.yaml' },
+    })
 
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
       mode: 'directory',
       dateType: 'string',
       optionalType: 'questionToken',
+      usedEnumNames: {},
     }
 
     const og = await new OperationGenerator(
@@ -26,6 +32,7 @@ describe('OperationGenerator', () => {
         oas,
         skipBy: [],
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )
@@ -33,23 +40,28 @@ describe('OperationGenerator', () => {
 
     const get = await og.get(operation, og.getSchemas(operation), options)
 
-    expect(format(get?.source)).toMatchSnapshot()
+    expect(await format(get?.source)).toMatchSnapshot()
 
     const operationShowById = oas.operation('/pets/{petId}', 'get')
 
-    const getShowById = await og.get(operationShowById, og.getSchemas(operationShowById), {} as typeof og.options)
+    const getShowById = await og.get(operationShowById, og.getSchemas(operationShowById), options)
 
     expect(await format(getShowById?.source)).toMatchSnapshot()
   })
 
   it('[POST] should generate code based on a operation', async () => {
-    const oas = await oasParser({ root: './', output: { path: 'test', clean: true }, input: { path: 'packages/swagger-ts/mocks/petStore.yaml' } })
+    const oas = await OasManager.parseFromConfig({
+      root: './',
+      output: { path: 'test', clean: true },
+      input: { path: 'packages/swagger-ts/mocks/petStore.yaml' },
+    })
 
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
       mode: 'directory',
       dateType: 'string',
       optionalType: 'questionToken',
+      usedEnumNames: {},
     }
 
     const og = await new OperationGenerator(
@@ -58,6 +70,7 @@ describe('OperationGenerator', () => {
         oas,
         skipBy: [],
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
         contentType: undefined,
       },
     )

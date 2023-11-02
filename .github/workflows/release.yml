@@ -23,3 +23,5 @@ jobs:
         with:
           command: manifest
           monorepo-tags: true
+          default-branch: alpha
+

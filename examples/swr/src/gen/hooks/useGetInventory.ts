@@ -1,7 +1,5 @@
-import client from '@kubb/swagger-client/client'
-
 import useSWR from 'swr'
-
+import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
@@ -25,7 +23,6 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
  * @summary Returns pet inventories by status
  * @link /store/inventory
  */
-
 export function useGetInventory<TData = GetInventoryQueryResponse, TError = unknown>(options?: {
   query?: SWRConfiguration<TData, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>

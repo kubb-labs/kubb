@@ -13,11 +13,13 @@ declare global {
       }
 
       'kubb-file': {
+        id?: string
         children?: ReactNode
         key?: Key
         baseName: string
         path: string
         env?: NodeJS.ProcessEnv
+        override?: boolean
       }
 
       'kubb-source': {
@@ -25,6 +27,8 @@ declare global {
         key?: Key
         path?: string
         print?: boolean
+        removeComments?: boolean
+        noEmitHelpers?: boolean
       }
 
       'kubb-import': KubbFile.Import & {
@@ -78,3 +82,5 @@ export type DOMElement = {
 } & Node
 
 export type NodeNames = ElementNames | TextName
+
+export type KubbNode = ReactNode

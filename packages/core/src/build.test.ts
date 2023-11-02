@@ -1,7 +1,7 @@
 import { build } from './build.ts'
 import { createPlugin } from './plugin.ts'
 
-import type { KubbFile } from './managers/fileManager/types.ts'
+import type { KubbFile } from './FileManager.ts'
 import type { KubbConfig, KubbPlugin } from './types.ts'
 
 describe('build', () => {
