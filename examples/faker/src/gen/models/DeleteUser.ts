@@ -21,5 +21,5 @@ export type DeleteUserPathParams = {
 export type DeleteUser = {
   response: DeleteUserMutationResponse
   pathParams: DeleteUserPathParams
-  errors: DeleteUser400
+  errors: DeleteUser400 | DeleteUser404
 }

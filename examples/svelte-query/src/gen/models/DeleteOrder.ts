@@ -21,5 +21,5 @@ export type DeleteOrderPathParams = {
 export type DeleteOrder = {
   response: DeleteOrderMutationResponse
   pathParams: DeleteOrderPathParams
-  errors: DeleteOrder400
+  errors: DeleteOrder400 | DeleteOrder404
 }

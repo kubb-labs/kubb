@@ -26,5 +26,5 @@ export type GetPetByIdQueryResponse = Pet
 export type GetPetById = {
   response: GetPetByIdQueryResponse
   pathParams: GetPetByIdPathParams
-  errors: GetPetById400
+  errors: GetPetById400 | GetPetById404
 }

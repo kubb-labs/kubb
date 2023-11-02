@@ -40,7 +40,7 @@ export class ClientBuilder extends OasBuilder<Options> {
         ...getASTParams(schemas.pathParams, { typed: true, asObject: pathParamsType === 'object' }),
         {
           name: 'data',
-          type: 'TVariables',
+          type: schemas.request?.name,
           enabled: !!schemas.request?.name,
           required: !!schemas.request?.schema.required?.length,
         },

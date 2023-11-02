@@ -79,8 +79,8 @@ export default defineConfig({
         text: `v${version}`,
         items: [
           {
-            text: '2.0.0',
-            link: 'https://alpha.kubb.dev',
+            text: '1.0.0',
+            link: 'https://kubb.dev',
             target: '_blank',
           },
           {

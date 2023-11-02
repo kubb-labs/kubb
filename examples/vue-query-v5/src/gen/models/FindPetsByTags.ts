@@ -17,3 +17,9 @@ export type FindPetsByTagsQueryParams = {
  * @description successful operation
  */
 export type FindPetsByTagsQueryResponse = Pet[]
+
+export type FindPetsByTags = {
+  response: FindPetsByTagsQueryResponse
+  queryParams: FindPetsByTagsQueryParams
+  errors: FindPetsByTags400
+}

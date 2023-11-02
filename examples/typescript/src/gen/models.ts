@@ -274,7 +274,7 @@ export type UpdatePetMutationResponse = Pet
 export type UpdatePet = {
   response: UpdatePetMutationResponse
   request: UpdatePetMutationRequest
-  errors: UpdatePet400
+  errors: UpdatePet400 | UpdatePet404 | UpdatePet405
 }
 
 export type AddPet405 = {
@@ -394,7 +394,7 @@ export type GetPetByIdQueryResponse = Pet
 export type GetPetById = {
   response: GetPetByIdQueryResponse
   pathParams: GetPetByIdPathParams
-  errors: GetPetById400
+  errors: GetPetById400 | GetPetById404
 }
 
 /**
@@ -564,7 +564,7 @@ export type GetOrderByIdQueryResponse = Order
 export type GetOrderById = {
   response: GetOrderByIdQueryResponse
   pathParams: GetOrderByIdPathParams
-  errors: GetOrderById400
+  errors: GetOrderById400 | GetOrderById404
 }
 
 /**
@@ -590,7 +590,7 @@ export type DeleteOrderPathParams = {
 export type DeleteOrder = {
   response: DeleteOrderMutationResponse
   pathParams: DeleteOrderPathParams
-  errors: DeleteOrder400
+  errors: DeleteOrder400 | DeleteOrder404
 }
 
 export type CreateUserMutationResponse = any | null
@@ -696,7 +696,7 @@ export type GetUserByNameQueryResponse = User
 export type GetUserByName = {
   response: GetUserByNameQueryResponse
   pathParams: GetUserByNamePathParams
-  errors: GetUserByName400
+  errors: GetUserByName400 | GetUserByName404
 }
 
 /**
@@ -749,5 +749,5 @@ export type DeleteUserPathParams = {
 export type DeleteUser = {
   response: DeleteUserMutationResponse
   pathParams: DeleteUserPathParams
-  errors: DeleteUser400
+  errors: DeleteUser400 | DeleteUser404
 }

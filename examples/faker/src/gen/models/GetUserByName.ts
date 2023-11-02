@@ -26,5 +26,5 @@ export type GetUserByNameQueryResponse = User
 export type GetUserByName = {
   response: GetUserByNameQueryResponse
   pathParams: GetUserByNamePathParams
-  errors: GetUserByName400
+  errors: GetUserByName400 | GetUserByName404
 }
