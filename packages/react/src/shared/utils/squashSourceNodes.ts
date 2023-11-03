@@ -25,6 +25,10 @@ export function squashSourceNodes(node: DOMElement): string {
       if (childNode.nodeName === 'kubb-source') {
         nodeText = printOrRead(nodeText, childNode)
       }
+
+      if (childNode.nodeName === 'br') {
+        nodeText = '\n'
+      }
     }
 
     text += nodeText

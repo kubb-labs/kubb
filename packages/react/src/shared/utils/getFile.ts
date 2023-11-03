@@ -29,7 +29,7 @@ export function getFile(node: DOMElement): KubbFile.File | undefined {
           source: '',
           env: attributes.env,
           override: attributes.override,
-          meta: attributes.meta
+          meta: attributes.meta,
         }
       }
     }
@@ -65,7 +65,7 @@ export function getFiles(node: DOMElement): KubbFile.File[] {
           exports: squashExportNodes(childNode),
           imports: squashImportNodes(childNode),
           override: attributes.override,
-          meta: attributes.meta
+          meta: attributes.meta,
         }
 
         files.push(file)

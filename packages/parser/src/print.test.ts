@@ -24,12 +24,20 @@ describe('print', () => {
     const test = 2;
     `
     const text = print([], { removeComments: true, source })
-    expect(await format(text)).toStrictEqual(
-      await format(
-        `
-      const test = 2;
-      `,
-      ),
-    )
+    expect(await format(text)).toMatchSnapshot()
+  })
+
+  test('keep \n', async () => {
+    const source = `
+    /**
+     * Some comments
+     */
+
+    const test = 2;
+
+    const test = 3;
+    `
+    const text = print([], { source, noEmitHelpers: false })
+    expect(await format(text)).toMatchSnapshot()
   })
 })

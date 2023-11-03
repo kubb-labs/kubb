@@ -32,3 +32,13 @@ exports[`<Function/> > render Function Generics 1`] = `
 }
 "
 `;
+
+exports[`<Function/> > render Function with comments 1`] = `
+"/**
+ * @deprecated
+ */
+export async function getData() {
+  return 2
+}
+"
+`;

@@ -52,6 +52,7 @@ describe('<File/>', () => {
       return (
         <File baseName="test.ts" path="path">
           <File.Import name={'React'} path="react" print />
+          <br />
           <File.Export asAlias path="./index.ts" print />
         </File>
       )

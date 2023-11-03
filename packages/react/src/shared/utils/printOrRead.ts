@@ -13,7 +13,7 @@ export function printOrRead(text: string, node: DOMElement): string {
       source = readSync(attributes.path)
     }
 
-    return print([], { source, removeComments: attributes.removeComments })
+    return print([], { source, removeComments: attributes.removeComments, noEmitHelpers: false })
   } catch (e) {
     console.log(e)
   }

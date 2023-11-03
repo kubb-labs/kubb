@@ -9,13 +9,12 @@ export async function showPetById(
   petId: ShowPetByIdPathParams['pet_id'],
   testId: ShowPetByIdPathParams['testId'],
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<ShowPetByIdQueryResponse>> {
+): Promise<ResponseConfig<ShowPetByIdQueryResponse>['data']> {
   const { data: resData } = await client<ShowPetByIdQueryResponse>({
     method: 'get',
     url: \`/pets/\${petId}\`,
     ...options,
   })
-
   return resData
 }
 "
@@ -35,7 +34,6 @@ export async function showPetById(
     url: \`/pets/\${petId}\`,
     ...options,
   })
-
   return resData
 }
 "

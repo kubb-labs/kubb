@@ -43,7 +43,7 @@ describe('codegen', () => {
           nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)],
         }),
       ),
-    ).toBe('string & number\n')
+    ).toMatchSnapshot()
   })
   test('createUnionDeclaration', () => {
     expect(
@@ -52,7 +52,7 @@ describe('codegen', () => {
           nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)],
         }),
       ),
-    ).toBe('string | number\n')
+    ).toMatchSnapshot()
   })
   test('createPropertySignature', () => {
     expect(
@@ -63,17 +63,15 @@ describe('codegen', () => {
           type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
         }),
       ),
-    ).toBe('const hello: string;\n')
+    ).toMatchSnapshot()
   })
 
   test('createParameter', () => {
-    expect(print(createParameterSignature('hello', { type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword) }))).toBe(`hello: string\n`)
-    expect(print(createParameterSignature('hello', { questionToken: true, type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword) }))).toBe(
-      `hello?: string\n`,
-    )
-    expect(print(createParameterSignature('hello', { questionToken: true, type: factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword) }))).toBe(
-      `hello?: boolean\n`,
-    )
+    expect(print(createParameterSignature('hello', { type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword) }))).toMatchSnapshot()
+    expect(print(createParameterSignature('hello', { questionToken: true, type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword) })))
+      .toMatchSnapshot()
+    expect(print(createParameterSignature('hello', { questionToken: true, type: factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword) })))
+      .toMatchSnapshot()
   })
 
   test('createJSDoc', async () => {

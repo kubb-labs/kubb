@@ -7,10 +7,10 @@ import { useResolve, useResolveName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
 
-import { ClientFunction } from '../components/index.ts'
+import { ClientFunction } from './components/ClientFunction.tsx'
 
 import type { AppContextProps, RootType } from '@kubb/react'
-import type { AppMeta, Options as PluginOptions } from '../types.ts'
+import type { AppMeta, FileMeta, Options as PluginOptions } from './types.ts'
 
 type Options = {
   dataReturnType: PluginOptions['dataReturnType']
@@ -102,7 +102,14 @@ export class ClientBuilder extends OasBuilder<Options> {
       const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
 
       return (
-        <File baseName={file.baseName} path={file.path}>
+        <File<FileMeta>
+          baseName={file.baseName}
+          path={file.path}
+          meta={{
+            pluginKey: plugin.key,
+            tag: operation.getTags()[0]?.name,
+          }}
+        >
           <File.Import name={'client'} path={resolvedClientPath} />
           <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
           <File.Import

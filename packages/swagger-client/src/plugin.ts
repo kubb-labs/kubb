@@ -6,7 +6,7 @@ import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import { OperationGenerator } from './generators/OperationGenerator.ts'
+import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'

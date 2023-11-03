@@ -16,7 +16,7 @@ type BasePropsWithoutBaseName = {
 
 type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 
-type Props< TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = BaseProps & {
+type Props<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = BaseProps & {
   id?: string
   env?: NodeJS.ProcessEnv
   children?: KubbNode
@@ -24,7 +24,7 @@ type Props< TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = BaseP
   meta?: TMeta
 }
 
-export function File< TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(props: Props<TMeta>): KubbNode {
+export function File<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(props: Props<TMeta>): KubbNode {
   if (!props.baseName || !props.path) {
     return props.children
   }
@@ -57,9 +57,9 @@ type FileSourceProps = FileSourceUnionProps & {
   noEmitHelpers?: boolean
 }
 
-function FileSource({ path, print, removeComments, children }: FileSourceProps): KubbNode {
+function FileSource({ path, print, removeComments, noEmitHelpers,children }: FileSourceProps): KubbNode {
   return (
-    <kubb-source path={path} print={print} removeComments={removeComments}>
+    <kubb-source path={path} print={print} removeComments={removeComments} noEmitHelpers={noEmitHelpers}>
       {children}
     </kubb-source>
   )

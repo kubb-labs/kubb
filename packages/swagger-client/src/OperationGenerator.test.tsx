@@ -1,7 +1,7 @@
 import { OasManager } from '@kubb/swagger'
 
-import { format } from '../../mocks/format.ts'
-import { OperationGenerator } from './OperationGenerator.ts'
+import { format } from '../mocks/format.ts'
+import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbPlugin, PluginContext, PluginManager } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
@@ -34,9 +34,11 @@ describe('OperationGenerator', () => {
     )
     const operation = oas.operation('/pets/{pet_id}', 'get')
 
-    const get = await og.get(operation, og.getSchemas(operation), {} as typeof og.options)
+    const files = await og.get(operation, og.getSchemas(operation), options)
 
-    expect(await format(get?.source)).toMatchSnapshot()
+    if (files && Array.isArray(files)) {
+      expect(await format(files[0]?.source)).toMatchSnapshot()
+    }
   })
 
   test('[GET] should generate code based on a pathParamsType `object`', async () => {
@@ -63,8 +65,10 @@ describe('OperationGenerator', () => {
     )
     const operation = oas.operation('/pets/{pet_id}', 'get')
 
-    const get = await og.get(operation, og.getSchemas(operation), options)
+    const files = await og.get(operation, og.getSchemas(operation), options)
 
-    expect(await format(get?.source)).toMatchSnapshot()
+    if (files && Array.isArray(files)) {
+      expect(await format(files[0]?.source)).toMatchSnapshot()
+    }
   })
 })

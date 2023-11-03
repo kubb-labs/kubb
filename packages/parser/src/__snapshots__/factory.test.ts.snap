@@ -78,9 +78,39 @@ exports[`codegen > createImportDeclaration 4`] = `
 "
 `;
 
+exports[`codegen > createIntersectionDeclaration 1`] = `
+"string & number
+"
+`;
+
 exports[`codegen > createJSDoc 1`] = `
 "/**
  * @description description
  * @example example */
+"
+`;
+
+exports[`codegen > createParameter 1`] = `
+"hello: string
+"
+`;
+
+exports[`codegen > createParameter 2`] = `
+"hello?: string
+"
+`;
+
+exports[`codegen > createParameter 3`] = `
+"hello?: boolean
+"
+`;
+
+exports[`codegen > createPropertySignature 1`] = `
+"const hello: string;
+"
+`;
+
+exports[`codegen > createUnionDeclaration 1`] = `
+"string | number
 "
 `;
