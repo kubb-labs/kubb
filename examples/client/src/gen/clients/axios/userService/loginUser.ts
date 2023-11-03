@@ -16,6 +16,5 @@ export async function loginUser(
     params,
     ...options,
   })
-
   return resData
 }

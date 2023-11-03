@@ -27,6 +27,7 @@ export function usePlaceOrderPatchHook<TData = PlaceOrderPatch['response'], TErr
   client?: PlaceOrderPatch['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, PlaceOrderPatch['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, PlaceOrderPatch['request']>({
     mutationFn: (data) => {
       return client<PlaceOrderPatch['data'], TError, PlaceOrderPatch['request']>({

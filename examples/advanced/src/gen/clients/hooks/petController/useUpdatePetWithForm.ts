@@ -35,6 +35,7 @@ export function useUpdatePetWithForm<TData = UpdatePetWithForm['response'], TErr
   } = {},
 ): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<UpdatePetWithForm['data'], TError, void>({

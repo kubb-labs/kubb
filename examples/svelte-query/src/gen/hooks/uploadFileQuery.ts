@@ -30,6 +30,7 @@ export function uploadFileQuery<TData = UploadFile['response'], TError = UploadF
   } = {},
 ): CreateMutationResult<TData, TError, UploadFile['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return createMutation<TData, TError, UploadFile['request']>({
     mutationFn: (data) => {
       return client<UploadFile['data'], TError, UploadFile['request']>({

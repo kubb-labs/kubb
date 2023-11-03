@@ -57,7 +57,7 @@ type FileSourceProps = FileSourceUnionProps & {
   noEmitHelpers?: boolean
 }
 
-function FileSource({ path, print, removeComments, noEmitHelpers,children }: FileSourceProps): KubbNode {
+function FileSource({ path, print, removeComments, noEmitHelpers, children }: FileSourceProps): KubbNode {
   return (
     <kubb-source path={path} print={print} removeComments={removeComments} noEmitHelpers={noEmitHelpers}>
       {children}

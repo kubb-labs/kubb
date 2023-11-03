@@ -31,6 +31,7 @@ export function findPetsByTagsQueryOptions<
   options: FindPetsByTags['client']['paramaters'] = {},
 ): QueryObserverOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsQueryKey> {
   const queryKey = findPetsByTagsQueryKey(refParams)
+
   return {
     queryKey,
     queryFn: () => {
@@ -66,6 +67,7 @@ export function useFindPetsByTags<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(refParams)
+
   const query = useQuery<any, TError, TData, any>({
     ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(refParams, clientOptions),
     queryKey,
@@ -73,6 +75,8 @@ export function useFindPetsByTags<
   }) as UseQueryReturnType<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

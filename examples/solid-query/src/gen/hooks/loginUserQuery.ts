@@ -29,6 +29,7 @@ export function loginUserQueryOptions<
   options: LoginUser['client']['paramaters'] = {},
 ): CreateBaseQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
   const queryKey = loginUserQueryKey(params)
+
   return {
     queryKey,
     queryFn: () => {
@@ -62,6 +63,7 @@ export function loginUserQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
+
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...loginUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     queryKey: () => queryKey,
@@ -69,6 +71,8 @@ export function loginUserQuery<
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

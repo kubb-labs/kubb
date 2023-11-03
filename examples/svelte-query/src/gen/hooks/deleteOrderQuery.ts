@@ -30,6 +30,7 @@ export function deleteOrderQuery<TData = DeleteOrder['response'], TError = Delet
   } = {},
 ): CreateMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return createMutation<TData, TError, void>({
     mutationFn: () => {
       return client<DeleteOrder['data'], TError, void>({

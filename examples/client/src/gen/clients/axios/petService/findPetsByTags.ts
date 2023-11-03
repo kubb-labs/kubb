@@ -19,6 +19,5 @@ export async function findPetsByTags(
     headers: { ...headers, ...options.headers },
     ...options,
   })
-
   return resData
 }

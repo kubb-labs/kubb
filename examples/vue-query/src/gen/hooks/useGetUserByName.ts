@@ -33,6 +33,7 @@ export function getUserByNameQueryOptions<
   options: GetUserByName['client']['paramaters'] = {},
 ): VueQueryObserverOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
   const queryKey = getUserByNameQueryKey(refUsername)
+
   return {
     queryKey,
     queryFn: () => {
@@ -66,6 +67,7 @@ export function useGetUserByName<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(refUsername)
+
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(refUsername, clientOptions),
     queryKey,
@@ -73,6 +75,8 @@ export function useGetUserByName<
   }) as UseQueryReturnType<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

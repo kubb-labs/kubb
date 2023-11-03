@@ -29,6 +29,7 @@ export function findPetsByTagsQueryOptions<
   options: FindPetsByTags['client']['paramaters'] = {},
 ): UseBaseQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsQueryKey> {
   const queryKey = findPetsByTagsQueryKey(params)
+
   return {
     queryKey,
     queryFn: () => {
@@ -60,6 +61,7 @@ export function useFindPetsByTagsHook<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
+
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     queryKey,
@@ -67,9 +69,12 @@ export function useFindPetsByTagsHook<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
+
 export function findPetsByTagsQueryOptionsInfinite<
   TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
   TError = FindPetsByTags['error'],
@@ -80,6 +85,7 @@ export function findPetsByTagsQueryOptionsInfinite<
   options: FindPetsByTags['client']['paramaters'] = {},
 ): UseInfiniteQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsQueryKey> {
   const queryKey = findPetsByTagsQueryKey(params)
+
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -115,6 +121,7 @@ export function useFindPetsByTagsHookInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
+
   const query = useInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...findPetsByTagsQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     queryKey,
@@ -122,6 +129,8 @@ export function useFindPetsByTagsHookInfinite<
   }) as UseInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

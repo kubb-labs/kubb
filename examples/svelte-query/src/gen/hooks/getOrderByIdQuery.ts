@@ -29,6 +29,7 @@ export function getOrderByIdQueryOptions<
   options: GetOrderById['client']['paramaters'] = {},
 ): CreateBaseQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData, GetOrderByIdQueryKey> {
   const queryKey = getOrderByIdQueryKey(orderId)
+
   return {
     queryKey,
     queryFn: () => {
@@ -62,6 +63,7 @@ export function getOrderByIdQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
+
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...getOrderByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
     queryKey,
@@ -69,9 +71,12 @@ export function getOrderByIdQuery<
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
+
 export function getOrderByIdQueryOptionsInfinite<
   TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
   TError = GetOrderById['error'],
@@ -82,6 +87,7 @@ export function getOrderByIdQueryOptionsInfinite<
   options: GetOrderById['client']['paramaters'] = {},
 ): CreateInfiniteQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData, GetOrderByIdQueryKey> {
   const queryKey = getOrderByIdQueryKey(orderId)
+
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -115,6 +121,7 @@ export function getOrderByIdQueryInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
+
   const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...getOrderByIdQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
     queryKey,
@@ -122,6 +129,8 @@ export function getOrderByIdQueryInfinite<
   }) as CreateInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

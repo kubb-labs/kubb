@@ -33,6 +33,7 @@ export function getOrderByIdQueryOptions<
   options: GetOrderById['client']['paramaters'] = {},
 ): VueQueryObserverOptions<GetOrderById['unionResponse'], TError, TData, TQueryData, GetOrderByIdQueryKey> {
   const queryKey = getOrderByIdQueryKey(refOrderId)
+
   return {
     queryKey,
     queryFn: () => {
@@ -67,6 +68,7 @@ export function useGetOrderById<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(refOrderId)
+
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...getOrderByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(refOrderId, clientOptions),
     queryKey,
@@ -74,6 +76,8 @@ export function useGetOrderById<
   }) as UseQueryReturnType<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

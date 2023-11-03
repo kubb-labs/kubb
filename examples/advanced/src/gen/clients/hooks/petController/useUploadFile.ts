@@ -35,6 +35,7 @@ export function useUploadFile<TData = UploadFile['response'], TError = UploadFil
   } = {},
 ): UseMutationResult<TData, TError, UploadFile['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, UploadFile['request']>({
     mutationFn: (data) => {
       return client<UploadFile['data'], TError, UploadFile['request']>({

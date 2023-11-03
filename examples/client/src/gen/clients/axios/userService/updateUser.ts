@@ -18,6 +18,5 @@ export async function updateUser(
     data,
     ...options,
   })
-
   return resData
 }

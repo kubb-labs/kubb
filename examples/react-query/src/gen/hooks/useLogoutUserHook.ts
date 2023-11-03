@@ -17,6 +17,7 @@ export function logoutUserQueryOptions<
   TQueryData = LogoutUser['response'],
 >(options: LogoutUser['client']['paramaters'] = {}): UseBaseQueryOptions<LogoutUser['unionResponse'], TError, TData, TQueryData, LogoutUserQueryKey> {
   const queryKey = logoutUserQueryKey()
+
   return {
     queryKey,
     queryFn: () => {
@@ -46,6 +47,7 @@ export function useLogoutUserHook<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
+
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...logoutUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
     queryKey,
@@ -53,9 +55,12 @@ export function useLogoutUserHook<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
+
 export function logoutUserQueryOptionsInfinite<
   TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
   TError = LogoutUser['error'],
@@ -63,6 +68,7 @@ export function logoutUserQueryOptionsInfinite<
   TQueryData = LogoutUser['response'],
 >(options: LogoutUser['client']['paramaters'] = {}): UseInfiniteQueryOptions<LogoutUser['unionResponse'], TError, TData, TQueryData, LogoutUserQueryKey> {
   const queryKey = logoutUserQueryKey()
+
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -92,6 +98,7 @@ export function useLogoutUserHookInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
+
   const query = useInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...logoutUserQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(clientOptions),
     queryKey,
@@ -99,6 +106,8 @@ export function useLogoutUserHookInfinite<
   }) as UseInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

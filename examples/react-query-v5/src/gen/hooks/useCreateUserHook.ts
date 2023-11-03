@@ -18,6 +18,7 @@ export function useCreateUserHook<TData = CreateUser['response'], TError = Creat
   client?: CreateUser['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, CreateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, CreateUser['request']>({
     mutationFn: (data) => {
       return client<CreateUser['data'], TError, CreateUser['request']>({

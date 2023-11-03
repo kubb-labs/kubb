@@ -20,6 +20,5 @@ export async function createUsersWithListInput(
     data,
     ...options,
   })
-
   return resData
 }

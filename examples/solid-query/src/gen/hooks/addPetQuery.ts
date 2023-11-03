@@ -29,6 +29,7 @@ export function addPetQuery<TData = AddPet['response'], TError = AddPet['error']
   } = {},
 ): CreateMutationResult<TData, TError, AddPet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return createMutation<TData, TError, AddPet['request']>({
     mutationFn: (data) => {
       return client<AddPet['data'], TError, AddPet['request']>({

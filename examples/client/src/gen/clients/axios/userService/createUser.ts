@@ -17,6 +17,5 @@ export async function createUser(
     data,
     ...options,
   })
-
   return resData
 }

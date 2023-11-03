@@ -32,6 +32,7 @@ export function loginUserQueryOptions<
   options: LoginUser['client']['paramaters'] = {},
 ): VueQueryObserverOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
   const queryKey = loginUserQueryKey(refParams)
+
   return {
     queryKey,
     queryFn: () => {
@@ -66,6 +67,7 @@ export function useLoginUser<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(refParams)
+
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...loginUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(refParams, clientOptions),
     queryKey,
@@ -73,6 +75,8 @@ export function useLoginUser<
   }) as UseQueryReturnType<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

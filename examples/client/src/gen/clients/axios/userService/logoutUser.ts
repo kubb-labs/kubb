@@ -12,6 +12,5 @@ export async function logoutUser(options: Partial<Parameters<typeof client>[0]> 
     url: `/user/logout`,
     ...options,
   })
-
   return resData
 }

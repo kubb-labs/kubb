@@ -29,6 +29,7 @@ export function findPetsByStatusQueryOptions<
   options: FindPetsByStatus['client']['paramaters'] = {},
 ): QueryObserverOptions<FindPetsByStatus['unionResponse'], TError, TData, TQueryData, FindPetsByStatusQueryKey> {
   const queryKey = findPetsByStatusQueryKey(params)
+
   return {
     queryKey,
     queryFn: () => {
@@ -60,6 +61,7 @@ export function useFindPetsByStatusHook<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
+
   const query = useQuery<any, TError, TData, any>({
     ...findPetsByStatusQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     queryKey,
@@ -67,9 +69,12 @@ export function useFindPetsByStatusHook<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
+
 export function findPetsByStatusQueryOptionsInfinite<
   TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
   TError = FindPetsByStatus['error'],
@@ -80,6 +85,7 @@ export function findPetsByStatusQueryOptionsInfinite<
   options: FindPetsByStatus['client']['paramaters'] = {},
 ): UseInfiniteQueryOptions<FindPetsByStatus['unionResponse'], TError, TData, TQueryData, FindPetsByStatusQueryKey> {
   const queryKey = findPetsByStatusQueryKey(params)
+
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -117,6 +123,7 @@ export function useFindPetsByStatusHookInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
+
   const query = useInfiniteQuery<any, TError, TData, any>({
     ...findPetsByStatusQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     queryKey,
@@ -124,6 +131,8 @@ export function useFindPetsByStatusHookInfinite<
   }) as UseInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

@@ -27,6 +27,7 @@ export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['
   client?: UpdatePet['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, UpdatePet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, UpdatePet['request']>({
     mutationFn: (data) => {
       return client<UpdatePet['data'], TError, UpdatePet['request']>({

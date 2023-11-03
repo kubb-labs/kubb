@@ -27,6 +27,5 @@ export async function createPets(
     headers: { ...headers, ...options.headers },
     ...options,
   })
-
   return resData
 }

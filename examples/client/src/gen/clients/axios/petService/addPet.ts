@@ -17,6 +17,5 @@ export async function addPet(
     data,
     ...options,
   })
-
   return resData
 }

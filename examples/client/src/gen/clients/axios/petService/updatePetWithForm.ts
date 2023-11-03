@@ -21,6 +21,5 @@ export async function updatePetWithForm(
     params,
     ...options,
   })
-
   return resData
 }

@@ -29,6 +29,7 @@ export function placeOrderPatchQuery<TData = PlaceOrderPatch['response'], TError
   } = {},
 ): CreateMutationResult<TData, TError, PlaceOrderPatch['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return createMutation<TData, TError, PlaceOrderPatch['request']>({
     mutationFn: (data) => {
       return client<PlaceOrderPatch['data'], TError, PlaceOrderPatch['request']>({

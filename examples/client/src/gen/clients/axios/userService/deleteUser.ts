@@ -16,6 +16,5 @@ export async function deleteUser(
     url: `/user/${username}`,
     ...options,
   })
-
   return resData
 }

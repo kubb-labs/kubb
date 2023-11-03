@@ -31,6 +31,7 @@ export function useDeletePet<TData = DeletePet['response'], TError = DeletePet['
   } = {},
 ): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<DeletePet['data'], TError, void>({

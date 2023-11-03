@@ -29,6 +29,7 @@ export function getUserByNameQueryOptions<
   options: GetUserByName['client']['paramaters'] = {},
 ): UseBaseQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
   const queryKey = getUserByNameQueryKey(username)
+
   return {
     queryKey,
     queryFn: () => {
@@ -58,6 +59,7 @@ export function useGetUserByNameHook<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
+
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
     queryKey,
@@ -65,9 +67,12 @@ export function useGetUserByNameHook<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
+
 export function getUserByNameQueryOptionsInfinite<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
   TError = GetUserByName['error'],
@@ -78,6 +83,7 @@ export function getUserByNameQueryOptionsInfinite<
   options: GetUserByName['client']['paramaters'] = {},
 ): UseInfiniteQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
   const queryKey = getUserByNameQueryKey(username)
+
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -107,6 +113,7 @@ export function useGetUserByNameHookInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
+
   const query = useInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...getUserByNameQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
     queryKey,
@@ -114,6 +121,8 @@ export function useGetUserByNameHookInfinite<
   }) as UseInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

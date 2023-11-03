@@ -18,6 +18,7 @@ export function usePlaceOrderHook<TData = PlaceOrder['response'], TError = Place
   client?: PlaceOrder['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, PlaceOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, PlaceOrder['request']>({
     mutationFn: (data) => {
       return client<PlaceOrder['data'], TError, PlaceOrder['request']>({

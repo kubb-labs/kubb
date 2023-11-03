@@ -18,6 +18,7 @@ export function useAddPet<TData = AddPet['response'], TError = AddPet['error']>(
   client?: AddPet['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, AddPet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, AddPet['request']>({
     mutationFn: (data) => {
       return client<AddPet['data'], TError, AddPet['request']>({

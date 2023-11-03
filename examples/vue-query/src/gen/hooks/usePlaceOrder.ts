@@ -30,6 +30,7 @@ export function usePlaceOrder<TData = PlaceOrder['response'], TError = PlaceOrde
   } = {},
 ): UseMutationReturnType<TData, TError, PlaceOrder['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, PlaceOrder['request'], unknown>({
     mutationFn: (data) => {
       return client<PlaceOrder['data'], TError, PlaceOrder['request']>({

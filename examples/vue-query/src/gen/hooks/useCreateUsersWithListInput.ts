@@ -30,6 +30,7 @@ export function useCreateUsersWithListInput<TData = CreateUsersWithListInput['re
   } = {},
 ): UseMutationReturnType<TData, TError, CreateUsersWithListInput['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, CreateUsersWithListInput['request'], unknown>({
     mutationFn: (data) => {
       return client<CreateUsersWithListInput['data'], TError, CreateUsersWithListInput['request']>({

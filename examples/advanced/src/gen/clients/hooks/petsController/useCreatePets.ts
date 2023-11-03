@@ -38,6 +38,7 @@ export function useCreatePets<TData = CreatePets['response'], TError = CreatePet
   } = {},
 ): UseMutationResult<TData, TError, CreatePets['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, CreatePets['request']>({
     mutationFn: (data) => {
       return client<CreatePets['data'], TError, CreatePets['request']>({

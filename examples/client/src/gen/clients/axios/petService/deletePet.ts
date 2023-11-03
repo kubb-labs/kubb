@@ -18,6 +18,5 @@ export async function deletePet(
     headers: { ...headers, ...options.headers },
     ...options,
   })
-
   return resData
 }

@@ -20,7 +20,7 @@ describe('<Function/>', () => {
   test('render Function with comments', async () => {
     const Component = () => {
       return (
-        <Function name="getData" export async JSDoc={{comments:["@deprecated"]}}>
+        <Function name="getData" export async JSDoc={{ comments: ['@deprecated'] }}>
           return 2;
         </Function>
       )

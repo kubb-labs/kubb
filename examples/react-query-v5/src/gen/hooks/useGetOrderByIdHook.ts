@@ -29,6 +29,7 @@ export function getOrderByIdQueryOptions<
   options: GetOrderById['client']['paramaters'] = {},
 ): QueryObserverOptions<GetOrderById['unionResponse'], TError, TData, TQueryData, GetOrderByIdQueryKey> {
   const queryKey = getOrderByIdQueryKey(orderId)
+
   return {
     queryKey,
     queryFn: () => {
@@ -59,6 +60,7 @@ export function useGetOrderByIdHook<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
+
   const query = useQuery<any, TError, TData, any>({
     ...getOrderByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
     queryKey,
@@ -66,9 +68,12 @@ export function useGetOrderByIdHook<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
+
 export function getOrderByIdQueryOptionsInfinite<
   TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
   TError = GetOrderById['error'],
@@ -79,6 +84,7 @@ export function getOrderByIdQueryOptionsInfinite<
   options: GetOrderById['client']['paramaters'] = {},
 ): UseInfiniteQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData, GetOrderByIdQueryKey> {
   const queryKey = getOrderByIdQueryKey(orderId)
+
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -111,6 +117,7 @@ export function useGetOrderByIdHookInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
+
   const query = useInfiniteQuery<any, TError, TData, any>({
     ...getOrderByIdQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
     queryKey,
@@ -118,6 +125,8 @@ export function useGetOrderByIdHookInfinite<
   }) as UseInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

@@ -33,6 +33,7 @@ export function useDeleteUser<TData = DeleteUser['response'], TError = DeleteUse
   } = {},
 ): UseMutationReturnType<TData, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, void, unknown>({
     mutationFn: () => {
       const username = unref(refUsername)

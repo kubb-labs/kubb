@@ -26,6 +26,7 @@ export function getInventoryQueryOptions<
   TQueryData = GetInventory['response'],
 >(options: GetInventory['client']['paramaters'] = {}): CreateBaseQueryOptions<GetInventory['unionResponse'], TError, TData, TQueryData, GetInventoryQueryKey> {
   const queryKey = getInventoryQueryKey()
+
   return {
     queryKey,
     queryFn: () => {
@@ -58,6 +59,7 @@ export function getInventoryQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
+
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...getInventoryQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
     queryKey,
@@ -65,9 +67,12 @@ export function getInventoryQuery<
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
+
 export function getInventoryQueryOptionsInfinite<
   TQueryFnData extends GetInventory['data'] = GetInventory['data'],
   TError = GetInventory['error'],
@@ -77,6 +82,7 @@ export function getInventoryQueryOptionsInfinite<
   options: GetInventory['client']['paramaters'] = {},
 ): CreateInfiniteQueryOptions<GetInventory['unionResponse'], TError, TData, TQueryData, GetInventoryQueryKey> {
   const queryKey = getInventoryQueryKey()
+
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -109,6 +115,7 @@ export function getInventoryQueryInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
+
   const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...getInventoryQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(clientOptions),
     queryKey,
@@ -116,6 +123,8 @@ export function getInventoryQueryInfinite<
   }) as CreateInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

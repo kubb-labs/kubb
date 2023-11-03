@@ -30,6 +30,7 @@ export function updateUserQuery<TData = UpdateUser['response'], TError = UpdateU
   } = {},
 ): CreateMutationResult<TData, TError, UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return createMutation<TData, TError, UpdateUser['request']>({
     mutationFn: (data) => {
       return client<UpdateUser['data'], TError, UpdateUser['request']>({

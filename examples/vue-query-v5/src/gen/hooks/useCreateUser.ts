@@ -29,6 +29,7 @@ export function useCreateUser<TData = CreateUser['response'], TError = CreateUse
   } = {},
 ): UseMutationReturnType<TData, TError, CreateUser['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, CreateUser['request'], unknown>({
     mutationFn: (data) => {
       return client<CreateUser['data'], TError, CreateUser['request']>({

@@ -24,6 +24,5 @@ export async function uploadFile(
     data,
     ...options,
   })
-
   return resData
 }

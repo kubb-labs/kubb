@@ -27,6 +27,7 @@ export function useDeleteUser<TData = DeleteUser['response'], TError = DeleteUse
   client?: DeleteUser['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<DeleteUser['data'], TError, void>({

@@ -33,6 +33,7 @@ export function useDeleteOrder<TData = DeleteOrder['response'], TError = DeleteO
   } = {},
 ): UseMutationReturnType<TData, TError, void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, void, unknown>({
     mutationFn: () => {
       const orderId = unref(refOrderId)

@@ -17,6 +17,5 @@ export async function findPetsByStatus(
     params,
     ...options,
   })
-
   return resData
 }

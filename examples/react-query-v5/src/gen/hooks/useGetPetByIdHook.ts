@@ -20,6 +20,7 @@ export function getPetByIdQueryOptions<
   options: GetPetById['client']['paramaters'] = {},
 ): QueryObserverOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdQueryKey> {
   const queryKey = getPetByIdQueryKey(petId)
+
   return {
     queryKey,
     queryFn: () => {
@@ -50,6 +51,7 @@ export function useGetPetByIdHook<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
+
   const query = useQuery<any, TError, TData, any>({
     ...getPetByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(petId, clientOptions),
     queryKey,
@@ -57,9 +59,12 @@ export function useGetPetByIdHook<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
+
 export function getPetByIdQueryOptionsInfinite<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
   TError = GetPetById['error'],
@@ -70,6 +75,7 @@ export function getPetByIdQueryOptionsInfinite<
   options: GetPetById['client']['paramaters'] = {},
 ): UseInfiniteQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdQueryKey> {
   const queryKey = getPetByIdQueryKey(petId)
+
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -102,6 +108,7 @@ export function useGetPetByIdHookInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
+
   const query = useInfiniteQuery<any, TError, TData, any>({
     ...getPetByIdQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(petId, clientOptions),
     queryKey,
@@ -109,6 +116,8 @@ export function useGetPetByIdHookInfinite<
   }) as UseInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

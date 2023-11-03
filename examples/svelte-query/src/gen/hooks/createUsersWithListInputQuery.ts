@@ -29,6 +29,7 @@ export function createUsersWithListInputQuery<TData = CreateUsersWithListInput['
   } = {},
 ): CreateMutationResult<TData, TError, CreateUsersWithListInput['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return createMutation<TData, TError, CreateUsersWithListInput['request']>({
     mutationFn: (data) => {
       return client<CreateUsersWithListInput['data'], TError, CreateUsersWithListInput['request']>({

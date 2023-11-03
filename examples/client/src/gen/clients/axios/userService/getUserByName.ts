@@ -15,6 +15,5 @@ export async function getUserByName(
     url: `/user/${username}`,
     ...options,
   })
-
   return resData
 }

@@ -29,6 +29,7 @@ export function getUserByNameQueryOptions<
   options: GetUserByName['client']['paramaters'] = {},
 ): CreateBaseQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
   const queryKey = getUserByNameQueryKey(username)
+
   return {
     queryKey,
     queryFn: () => {
@@ -61,6 +62,7 @@ export function getUserByNameQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
+
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
     queryKey,
@@ -68,9 +70,12 @@ export function getUserByNameQuery<
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
+
 export function getUserByNameQueryOptionsInfinite<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
   TError = GetUserByName['error'],
@@ -81,6 +86,7 @@ export function getUserByNameQueryOptionsInfinite<
   options: GetUserByName['client']['paramaters'] = {},
 ): CreateInfiniteQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
   const queryKey = getUserByNameQueryKey(username)
+
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -113,6 +119,7 @@ export function getUserByNameQueryInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
+
   const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...getUserByNameQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
     queryKey,
@@ -120,6 +127,8 @@ export function getUserByNameQueryInfinite<
   }) as CreateInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

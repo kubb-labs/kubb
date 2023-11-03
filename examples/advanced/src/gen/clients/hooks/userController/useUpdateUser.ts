@@ -27,6 +27,7 @@ export function useUpdateUser<TData = UpdateUser['response'], TError = UpdateUse
   client?: UpdateUser['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, UpdateUser['request']>({
     mutationFn: (data) => {
       return client<UpdateUser['data'], TError, UpdateUser['request']>({

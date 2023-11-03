@@ -29,6 +29,7 @@ export function findPetsByTagsQueryOptions<
   options: FindPetsByTags['client']['paramaters'] = {},
 ): CreateBaseQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsQueryKey> {
   const queryKey = findPetsByTagsQueryKey(params)
+
   return {
     queryKey,
     queryFn: () => {
@@ -63,6 +64,7 @@ export function findPetsByTagsQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
+
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     queryKey,
@@ -70,9 +72,12 @@ export function findPetsByTagsQuery<
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
+
 export function findPetsByTagsQueryOptionsInfinite<
   TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
   TError = FindPetsByTags['error'],
@@ -83,6 +88,7 @@ export function findPetsByTagsQueryOptionsInfinite<
   options: FindPetsByTags['client']['paramaters'] = {},
 ): CreateInfiniteQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsQueryKey> {
   const queryKey = findPetsByTagsQueryKey(params)
+
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -121,6 +127,7 @@ export function findPetsByTagsQueryInfinite<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
+
   const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
     ...findPetsByTagsQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     queryKey,
@@ -128,6 +135,8 @@ export function findPetsByTagsQueryInfinite<
   }) as CreateInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

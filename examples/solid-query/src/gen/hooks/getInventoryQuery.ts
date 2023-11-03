@@ -26,6 +26,7 @@ export function getInventoryQueryOptions<
   TQueryData = GetInventory['response'],
 >(options: GetInventory['client']['paramaters'] = {}): CreateBaseQueryOptions<GetInventory['unionResponse'], TError, TData, TQueryData, GetInventoryQueryKey> {
   const queryKey = getInventoryQueryKey()
+
   return {
     queryKey,
     queryFn: () => {
@@ -58,6 +59,7 @@ export function getInventoryQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
+
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...getInventoryQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
     queryKey: () => queryKey,
@@ -65,6 +67,8 @@ export function getInventoryQuery<
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

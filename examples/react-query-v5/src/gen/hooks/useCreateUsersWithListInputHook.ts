@@ -27,6 +27,7 @@ export function useCreateUsersWithListInputHook<TData = CreateUsersWithListInput
   client?: CreateUsersWithListInput['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, CreateUsersWithListInput['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, CreateUsersWithListInput['request']>({
     mutationFn: (data) => {
       return client<CreateUsersWithListInput['data'], TError, CreateUsersWithListInput['request']>({

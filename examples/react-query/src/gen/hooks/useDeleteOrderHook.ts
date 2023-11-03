@@ -27,6 +27,7 @@ export function useDeleteOrderHook<TData = DeleteOrder['response'], TError = Del
   client?: DeleteOrder['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<DeleteOrder['data'], TError, void>({

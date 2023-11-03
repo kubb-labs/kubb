@@ -16,6 +16,5 @@ export async function getPetById(
     url: `/pet/${petId}`,
     ...options,
   })
-
   return resData
 }
