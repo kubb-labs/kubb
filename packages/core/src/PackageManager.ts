@@ -133,6 +133,11 @@ export class PackageManager {
     if (!packageVersion) {
       return false
     }
+
+    if (packageVersion === version) {
+      return true
+    }
+
     const semVer = coerce(packageVersion)
 
     if (!semVer) {

@@ -6,9 +6,9 @@ import { isReference } from '@kubb/swagger/utils'
 import { camelCase } from 'change-case'
 
 import type { PluginContext } from '@kubb/core'
+import type { ts } from '@kubb/parser'
 import type { OpenAPIV3, Refs } from '@kubb/swagger'
 import type { Options as CaseOptions } from 'change-case'
-import type ts from 'typescript'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 

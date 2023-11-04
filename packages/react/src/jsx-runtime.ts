@@ -53,3 +53,5 @@ export const Fragment = ReactJSXRuntime.Fragment
 export const jsx = ReactJSXRuntime.jsx
 // @ts-ignore
 export const jsxs = ReactJSXRuntime.jsxs
+// @ts-ignore
+export const jsxDEV = ReactJSXRuntime.jsx

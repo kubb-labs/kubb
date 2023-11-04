@@ -43,6 +43,7 @@
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
+    "src",
     "dist",
     "client.ts",
     "*.d.ts",
@@ -76,9 +77,9 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.2.34",
     "axios": "^1.6.0",
-    "eslint": "^8.52.0",
+    "eslint": "^8.53.0",
     "tsup": "^7.2.0",
-    "typescript": "^5.2.2"
+    "typescript": "rc"
   },
   "peerDependencies": {
     "axios": "^1.4.0",

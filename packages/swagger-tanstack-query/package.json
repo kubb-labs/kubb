@@ -36,6 +36,7 @@
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
+    "src",
     "dist",
     "templates",
     "!/**/**.test.**",
@@ -67,9 +68,9 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.2.34",
-    "eslint": "^8.52.0",
+    "eslint": "^8.53.0",
     "tsup": "^7.2.0",
-    "typescript": "^5.2.2"
+    "typescript": "rc"
   },
   "peerDependencies": {
     "@kubb/react": "workspace:*"

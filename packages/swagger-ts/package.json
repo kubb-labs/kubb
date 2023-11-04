@@ -37,6 +37,7 @@
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
+    "src",
     "dist",
     "!/**/**.test.**",
     "!/**/__tests__/**"
@@ -58,17 +59,17 @@
     "@kubb/parser": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "change-case": "^4.1.2",
-    "typescript": "^5.2.2"
+    "typescript": "rc"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "eslint": "^8.52.0",
+    "eslint": "^8.53.0",
     "tsup": "^7.2.0"
   },
   "peerDependencies": {
-    "typescript": "^5.2.2"
+    "typescript": "rc"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

@@ -25,6 +25,7 @@
     "kubb": "bin/kubb.js"
   },
   "files": [
+    "src",
     "dist",
     "bin",
     "!/**/**.test.**",
@@ -61,7 +62,7 @@
     "@types/node": "^20.8.10",
     "source-map-support": "^0.5.21",
     "tsup": "^7.2.0",
-    "typescript": "^5.2.2"
+    "typescript": "rc"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

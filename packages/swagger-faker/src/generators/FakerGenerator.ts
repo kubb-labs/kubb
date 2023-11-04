@@ -7,8 +7,8 @@ import { fakerKeywords, fakerParser } from '../parsers/index.ts'
 import { pluginKey } from '../plugin.ts'
 
 import type { PluginContext } from '@kubb/core'
+import type { ts } from '@kubb/parser'
 import type { FileResolver, ImportMeta, OpenAPIV3, Refs } from '@kubb/swagger'
-import type ts from 'typescript'
 import type { FakerKeyword, FakerMeta } from '../parsers/index.ts'
 
 type Options = {

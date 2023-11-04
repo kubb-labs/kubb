@@ -29,6 +29,11 @@
       "require": "./dist/jsx-runtime.cjs",
       "default": "./dist/jsx-runtime.cjs"
     },
+    "./jsx-dev-runtime": {
+      "import": "./dist/jsx-runtime.js",
+      "require": "./dist/jsx-runtime.cjs",
+      "default": "./dist/jsx-runtime.cjs"
+    },
     "./client": {
       "import": "./dist/client/index.js",
       "require": "./dist/client/index.cjs",
@@ -45,6 +50,7 @@
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
+    "src",
     "dist",
     "*.d.ts",
     "*.d.cts",
@@ -73,10 +79,11 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.2.34",
     "@types/react-reconciler": "^0.28.6",
-    "eslint": "^8.52.0",
+    "eslint": "^8.53.0",
     "react": "^18.2.0",
     "react-reconciler": "^0.29.0",
-    "tsup": "^7.2.0"
+    "tsup": "^7.2.0",
+    "typescript": "rc"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

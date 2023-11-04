@@ -1,5 +1,3 @@
-import { Function } from '@kubb/react'
-
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 

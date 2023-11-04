@@ -25,58 +25,12 @@
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "types": [
       "vitest/globals",
       "bun-types"
-    ],
-    "paths": {
-      "@kubb/cli": [
-        "packages/cli"
-      ],
-      "@kubb/eslint-config": [
-        "packages/config/eslint-config"
-      ],
-      "@kubb/ts-config": [
-        "packages/config/ts-config"
-      ],
-      "@kubb/tsup-config": [
-        "packages/config/tsup-config"
-      ],
-      "@kubb/core": [
-        "packages/core"
-      ],
-      "@kubb/swagger": [
-        "packages/swagger"
-      ],
-      "@kubb/swagger-client": [
-        "packages/swagger-client"
-      ],
-      "@kubb/swagger-faker": [
-        "packages/swagger-faker"
-      ],
-      "@kubb/swagger-msw": [
-        "packages/swagger-msw"
-      ],
-      "@kubb/swagger-tanstack-query": [
-        "packages/swagger-tanstack-query"
-      ],
-      "@kubb/swagger-ts": [
-        "packages/swagger-ts"
-      ],
-      "@kubb/swagger-zod": [
-        "packages/swagger-zod"
-      ],
-      "@kubb/swagger-zodios": [
-        "packages/swagger-zodios"
-      ],
-      "@kubb/parser": [
-        "packages/parser"
-      ],
-      "@kubb/react": [
-        "packages/react"
-      ]
-    }
+    ]
   },
   "exclude": [
     "**/node_modules",

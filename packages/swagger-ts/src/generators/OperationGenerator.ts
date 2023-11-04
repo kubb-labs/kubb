@@ -2,7 +2,8 @@ import { getRelativePath } from '@kubb/core/utils'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
-import { camelCase, pascalCase } from 'change-case'
+
+import { pascalCase } from 'change-case'
 
 import { TypeBuilder } from '../builders/index.ts'
 

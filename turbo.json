@@ -45,11 +45,9 @@
       "outputMode": "new-only"
     },
     "typecheck": {
-      "dependsOn": [],
-      "outputs": [
-        "dist/**"
-      ],
-      "cache": false
+      "dependsOn": [
+        "^build"
+      ]
     },
     "release": {
       "dependsOn": [

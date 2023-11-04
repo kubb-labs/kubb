@@ -1,7 +1,6 @@
 import { useApp } from '@kubb/react'
 
-import type { Operation } from '@kubb/swagger'
-import type { AppMeta } from '../types.ts'
+import type { AppMeta, Operation } from '../types.ts'
 
 export function useOperation(): Operation {
   const { meta } = useApp<AppMeta>()

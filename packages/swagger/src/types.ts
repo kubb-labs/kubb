@@ -52,6 +52,19 @@ export type { default as Operation } from 'oas/operation'
 export type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
 export type { OpenAPIV3 } from 'openapi-types'
 
+/**
+ * `propertyName` is the ref name + resolved with the nameResolver
+ *  @example `import { Pet } from './Pet'`
+ *
+ * `originalName` is the original name used(in PascalCase), only used to remove duplicates
+ *
+ * `pluginKey` can be used to override the current plugin being used, handy when you want to import a type/schema out of another plugin
+ * @example import a type(swagger-ts) for a mock file(swagger-faker)
+ */
+
+export type Ref = { propertyName: string; originalName: string; pluginKey?: KubbPlugin['key'] }
+export type Refs = Record<string, Ref>
+
 export type Resolver = {
   /**
    * Original name or name resolved by `resolveName({ name: operation?.getOperationId() as string, pluginName })`
