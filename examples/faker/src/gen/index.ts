@@ -1,2 +1,2 @@
-export * from './mocks'
-export type * from './models'
+export * from './mocks/index'
+export * from './models/index'

@@ -1,1 +1,1 @@
-export * from './ts'
+export * from './ts/index'

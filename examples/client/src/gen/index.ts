@@ -1,3 +1,3 @@
 export * from './client'
-export * from './clients'
-export * from './models'
+export * from './clients/index'
+export * from './models/index'

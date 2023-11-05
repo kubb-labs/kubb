@@ -1,4 +1,4 @@
 export * from './handlers'
-export * as petHandlers from './petHandlers'
-export * as storeHandlers from './storeHandlers'
-export * as userHandlers from './userHandlers'
+export * as petHandlers from './petHandlers/index'
+export * as storeHandlers from './storeHandlers/index'
+export * as userHandlers from './userHandlers/index'

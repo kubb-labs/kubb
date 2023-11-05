@@ -1,3 +1,3 @@
-export * as petHooks from './petController'
-export * as petsHooks from './petsController'
-export * as userHooks from './userController'
+export * as petHooks from './petController/index'
+export * as petsHooks from './petsController/index'
+export * as userHooks from './userController/index'

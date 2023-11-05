@@ -57,15 +57,14 @@ export class BarrelManager {
         const exports: KubbFile.Export[] = currentTree.children
           .filter(Boolean)
           .map((file) => {
-            const importPath: string = file.data.type === 'directory' ? `./${file.data.name}` : `./${file.data.name.replace(/\.[^.]*$/, '')}`
+            const importPath: string = file.data.type === 'directory' ? `./${file.data.name}/index` : `./${file.data.name.replace(/\.[^.]*$/, '')}`
 
-            // TODO weird hacky fix
-            if (importPath.includes('index') && indexPath.includes('index')) {
+            if (importPath.includes('index') && file.data.type === 'file') {
               return undefined
             }
 
             return {
-              path: includeExt ? (file.data.type === 'directory' ? `${importPath}/index${extName}` : `${importPath}${extName}`) : importPath,
+              path: includeExt ? `${importPath}${extName}` : importPath,
               isTypeOnly,
             } as KubbFile.Export
           })
@@ -84,11 +83,13 @@ export class BarrelManager {
       } else {
         currentTree.children?.forEach((child) => {
           const indexPath = path.resolve(currentTree.data.path, 'index.ts')
-          const importPath = child.data.type === 'directory' ? `./${child.data.name}` : `./${child.data.name.replace(/\.[^.]*$/, '')}`
+          const importPath = child.data.type === 'directory' ? `./${child.data.name}/index` : `./${child.data.name.replace(/\.[^.]*$/, '')}`
 
           const exports = [
             {
-              path: includeExt ? (child.data.type === 'directory' ? `${importPath}/index${extName}` : `${importPath}${extName}`) : importPath,
+              path: includeExt
+                ? `${importPath}${extName}`
+                : importPath,
               isTypeOnly,
             },
           ]

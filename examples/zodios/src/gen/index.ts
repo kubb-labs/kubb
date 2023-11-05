@@ -1,2 +1,2 @@
-export * from './zod'
+export * from './zod/index'
 export * from './zodios'

@@ -1,3 +1,3 @@
-export * from './petsSWRController'
-export * from './petSWRController'
-export * from './userSWRController'
+export * from './petsSWRController/index'
+export * from './petSWRController/index'
+export * from './userSWRController/index'

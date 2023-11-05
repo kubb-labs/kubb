@@ -109,7 +109,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
                 baseName: 'index.ts' as const,
                 path: path.resolve(this.config.root, this.config.output.path, 'index.ts'),
                 source: '',
-                exports: [{ path: tagPath, asAlias: true, name: tagName }],
+                exports: [{ path: `${tagPath}/index`, asAlias: true, name: tagName }],
                 meta: {
                   pluginKey: this.plugin.key,
                 },

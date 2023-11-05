@@ -1,4 +1,4 @@
 export * from './operations'
-export * as petService from './petService'
-export * as petsService from './petsService'
-export * as userService from './userService'
+export * as petService from './petService/index'
+export * as petsService from './petsService/index'
+export * as userService from './userService/index'

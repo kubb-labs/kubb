@@ -28,7 +28,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     pathParamsType = 'inline',
   } = options
 
-  const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
+  const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller/index`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
@@ -122,7 +122,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
                 baseName: 'index.ts' as const,
                 path: path.resolve(this.config.root, this.config.output.path, output, 'index.ts'),
                 source: '',
-                exports: [{ path: tagPath, asAlias: true, name: tagName }],
+                exports: [{ path: `${tagPath}/index`, asAlias: true, name: tagName }],
                 meta: {
                   pluginKey: this.plugin.key,
                 },
