@@ -26,6 +26,7 @@ type BaseOptions = {
 
 type QueryOptions = BaseOptions & {
   infinite?: PluginOptions['infinite']
+  suspense?: PluginOptions['suspense']
 }
 
 type MutationOptions = BaseOptions
@@ -307,8 +308,6 @@ export class QueryBuilder extends OasBuilder<Options> {
     // TODO check why we need any for v5
     const useQueryGenerics = [frameworkImports.isV5 ? 'any' : 'TQueryFnData', 'TError', 'TData', 'any']
     const queryOptionsGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData']
-    // only neeed for the options to override the useQuery options/params
-    const queryOptionsOverrideGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData', 'TQueryKey']
 
     queryParams.add([
       ...getASTParams(schemas.pathParams, {
@@ -331,13 +330,15 @@ export class QueryBuilder extends OasBuilder<Options> {
       },
     ])
 
-    const Component = ({ infinite }: { infinite?: boolean }) => {
+    const Component = ({ infinite, suspense }: { infinite?: boolean; suspense?: boolean }) => {
       const params = new FunctionParams()
 
       let name = this.#names.query
       let hookName = frameworkImports.query.hook
       let QueryResult = frameworkImports.query.Result
       let QueryOptions = frameworkImports.query.Options
+      // only needed for the options to override the useQuery options/params
+      let queryOptionsOverrideGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData', 'TQueryKey']
 
       const queryKey = `${this.#names.queryKey}(${schemas.pathParams?.name ? `${pathParams}, ` : ''}${
         schemas.queryParams?.name ? (framework === 'vue' ? 'refParams' : 'params') : ''
@@ -350,6 +351,15 @@ export class QueryBuilder extends OasBuilder<Options> {
         hookName = frameworkImports.queryInfinite.hook
         QueryResult = frameworkImports.queryInfinite.Result
         QueryOptions = frameworkImports.queryInfinite.Options
+      }
+
+      if (suspense) {
+        name = `${name}Suspense`
+        hookName = frameworkImports.querySuspense.hook
+        QueryResult = frameworkImports.querySuspense.Result
+        QueryOptions = frameworkImports.querySuspense.Options
+        // suspense is having 4 generics instead of 5
+        queryOptionsOverrideGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryKey']
       }
 
       params.add([
@@ -525,7 +535,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
   }
 
   render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<AppMeta>> {
-    const { infinite } = this.options as QueryOptions
+    const { infinite, suspense, framework, frameworkImports } = this.options as QueryOptions
     const { pluginManager, operation, schemas, plugin } = this.context
 
     const QueryKey = this.queryKey
@@ -554,6 +564,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
               <br />
               {infinite && <QueryOptions infinite />}
               {infinite && <Query infinite />}
+              {suspense && framework === 'react' && frameworkImports.isV5 && <Query suspense />}
               <br />
             </File.Source>
           </File>

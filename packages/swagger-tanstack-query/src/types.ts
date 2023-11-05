@@ -14,6 +14,9 @@ type Infinite = {
   initialPageParam?: number
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+type Suspense = {}
+
 export type Options = {
   /**
    * Output to save the @tanstack/query hooks.
@@ -91,6 +94,10 @@ export type Options = {
    * When set, an infiniteQuery hooks will be added.
    */
   infinite?: Infinite
+  /**
+   * When set, a suspenseQuery hooks will be added.
+   */
+  suspense?: Suspense
   transformers?: {
     /**
      * Override the name of the hook that is getting generated, this will also override the name of the file.
@@ -153,6 +160,15 @@ export type FrameworkImports = {
     Result?: string
   }
   queryInfinite: {
+    // types
+    hook?: string
+    Options?: string
+    Result?: string
+  }
+  /**
+   * Only for React
+   */
+  querySuspense: {
     // types
     hook?: string
     Options?: string

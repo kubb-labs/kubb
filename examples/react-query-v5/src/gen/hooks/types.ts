@@ -1,4 +1,4 @@
-import type client from '@kubb/swagger-client/client'
+import client from '@kubb/swagger-client/client'
 
 export type KubbQueryFactory<
   TData = unknown,

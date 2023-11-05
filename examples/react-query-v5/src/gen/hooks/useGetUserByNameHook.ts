@@ -1,7 +1,15 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, QueryObserverOptions, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  QueryKey,
+  QueryObserverOptions,
+  UseQueryResult,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 
 type GetUserByName = KubbQueryFactory<
@@ -121,6 +129,37 @@ export function useGetUserByNameHookInfinite<
     queryKey,
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+
+  query.queryKey = queryKey as TQueryKey
+
+  return query
+}
+/**
+ * @summary Get user by user name
+ * @link /user/:username
+ */
+export function useGetUserByNameHookSuspense<
+  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
+  TError = GetUserByName['error'],
+  TData = GetUserByName['response'],
+  TQueryData = GetUserByName['response'],
+  TQueryKey extends QueryKey = GetUserByNameQueryKey,
+>(username: GetUserByNamePathParams['username'], options: {
+  query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+  client?: GetUserByName['client']['paramaters']
+} = {}): UseSuspenseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
+
+  const query = useSuspenseQuery<any, TError, TData, any>({
+    ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
+    queryKey,
+    ...queryOptions,
+  }) as UseSuspenseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
 

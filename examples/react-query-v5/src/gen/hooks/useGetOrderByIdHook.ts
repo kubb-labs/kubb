@@ -1,7 +1,15 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, QueryObserverOptions, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  QueryKey,
+  QueryObserverOptions,
+  UseQueryResult,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 
 type GetOrderById = KubbQueryFactory<
@@ -123,6 +131,38 @@ export function useGetOrderByIdHookInfinite<
     queryKey,
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+
+  query.queryKey = queryKey as TQueryKey
+
+  return query
+}
+/**
+ * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
+ * @summary Find purchase order by ID
+ * @link /store/order/:orderId
+ */
+export function useGetOrderByIdHookSuspense<
+  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
+  TError = GetOrderById['error'],
+  TData = GetOrderById['response'],
+  TQueryData = GetOrderById['response'],
+  TQueryKey extends QueryKey = GetOrderByIdQueryKey,
+>(orderId: GetOrderByIdPathParams['orderId'], options: {
+  query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+  client?: GetOrderById['client']['paramaters']
+} = {}): UseSuspenseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
+
+  const query = useSuspenseQuery<any, TError, TData, any>({
+    ...getOrderByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
+    queryKey,
+    ...queryOptions,
+  }) as UseSuspenseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
 

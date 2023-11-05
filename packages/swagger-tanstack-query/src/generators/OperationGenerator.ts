@@ -15,9 +15,13 @@ type Options = {
   clientImportPath?: PluginOptions['clientImportPath']
   dataReturnType: NonNullable<PluginOptions['dataReturnType']>
   /**
-   * Only used of infinite
+   * Only used for infinite
    */
   infinite?: PluginOptions['infinite']
+  /**
+   * Only used for suspense
+   */
+  suspense?: PluginOptions['suspense']
 }
 
 export class OperationGenerator extends Generator<Options, FileMeta> {
@@ -93,6 +97,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
           Options: isV5 ? 'CreateInfiniteQueryOptions' : 'CreateInfiniteQueryOptions',
           Result: isV5 ? 'CreateInfiniteQueryResult' : 'CreateInfiniteQueryResult',
         },
+        querySuspense: {},
         mutate: {
           hook: 'createMutation',
           Options: isV5 ? 'CreateMutationOptions' : 'CreateMutationOptions',
@@ -120,6 +125,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
           Options: isV5 ? 'CreateInfiniteQueryOptions' : 'CreateInfiniteQueryOptions',
           Result: isV5 ? 'CreateInfiniteQueryResult' : 'CreateInfiniteQueryResult',
         },
+        querySuspense: {},
         mutate: {
           hook: 'createMutation',
           Options: isV5 ? 'CreateMutationOptions' : 'CreateMutationOptions',
@@ -147,6 +153,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
           Options: isV5 ? 'UseInfiniteQueryOptions' : 'VueInfiniteQueryObserverOptions',
           Result: isV5 ? 'UseInfiniteQueryReturnType' : 'UseInfiniteQueryReturnType',
         },
+        querySuspense: {},
         mutate: {
           hook: 'useMutation',
           Options: isV5 ? 'UseMutationOptions' : 'VueMutationObserverOptions',
@@ -175,6 +182,11 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
         Options: isV5 ? 'UseInfiniteQueryOptions' : 'UseInfiniteQueryOptions',
         Result: isV5 ? 'UseInfiniteQueryResult' : 'UseInfiniteQueryResult',
       },
+      querySuspense: {
+        hook: 'useSuspenseQuery',
+        Options: isV5 ? 'UseSuspenseQueryOptions' : 'UseSuspenseQueryOptions',
+        Result: isV5 ? 'UseSuspenseQueryResult' : 'UseSuspenseQueryResult',
+      },
       mutate: {
         hook: 'useMutation',
         Options: isV5 ? 'UseMutationOptions' : 'UseMutationOptions',
@@ -183,7 +195,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
     }
   }
 
-  getQueryImports(type: 'query' | 'queryInfinite' | 'mutate'): Array<KubbFile.Import> {
+  getQueryImports(type: 'query' | 'queryInfinite' | 'querySuspense' | 'mutate'): Array<KubbFile.Import> {
     const { framework } = this.options
 
     if (framework === 'svelte') {
@@ -280,7 +292,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
-    const { clientPath, framework, infinite, dataReturnType } = options
+    const { clientPath, framework, infinite, suspense, dataReturnType } = options
     const { pluginManager, oas, plugin } = this.context
 
     const hook = this.resolve(operation)
@@ -294,7 +306,13 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
       errors = this.resolveErrors(operation, schemas.errors)
     }
 
-    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, infinite, dataReturnType }, { oas, plugin, pluginManager, operation, schemas })
+    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, infinite, suspense, dataReturnType }, {
+      oas,
+      plugin,
+      pluginManager,
+      operation,
+      schemas,
+    })
     const clientImportPath = this.options.clientImportPath
       ? this.options.clientImportPath
       : clientPath
@@ -331,6 +349,7 @@ export class OperationGenerator extends Generator<Options, FileMeta> {
             ...(renderedFile.imports || []),
             ...this.getQueryImports('query'),
             ...this.getQueryImports('queryInfinite'),
+            ...this.getQueryImports('querySuspense'),
             {
               name: 'client',
               path: clientImportPath,

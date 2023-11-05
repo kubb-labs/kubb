@@ -16,7 +16,8 @@ export const pluginName = 'swagger-tanstack-query' satisfies PluginOptions['name
 export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy, skipBy = [], overrideBy = [], framework = 'react', infinite, transformers = {}, dataReturnType = 'data' } = options
+  const { output = 'hooks', groupBy, skipBy = [], overrideBy = [], framework = 'react', infinite, suspense, transformers = {}, dataReturnType = 'data' } =
+    options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
@@ -63,7 +64,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const operationGenerator = new OperationGenerator(
         {
           dataReturnType,
-          infinite: infinite,
+          infinite,
+          suspense,
           framework,
           clientPath,
           clientImportPath: options.clientImportPath,

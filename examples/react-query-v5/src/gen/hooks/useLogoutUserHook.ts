@@ -1,7 +1,15 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, QueryObserverOptions, UseQueryResult, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  QueryKey,
+  QueryObserverOptions,
+  UseQueryResult,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query'
 import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 
 type LogoutUser = KubbQueryFactory<LogoutUserQueryResponse, never, never, never, never, never, LogoutUserQueryResponse, {
@@ -106,6 +114,37 @@ export function useLogoutUserHookInfinite<
     queryKey,
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+
+  query.queryKey = queryKey as TQueryKey
+
+  return query
+}
+/**
+ * @summary Logs out current logged in user session
+ * @link /user/logout
+ */
+export function useLogoutUserHookSuspense<
+  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
+  TError = LogoutUser['error'],
+  TData = LogoutUser['response'],
+  TQueryData = LogoutUser['response'],
+  TQueryKey extends QueryKey = LogoutUserQueryKey,
+>(options: {
+  query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+  client?: LogoutUser['client']['paramaters']
+} = {}): UseSuspenseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
+
+  const query = useSuspenseQuery<any, TError, TData, any>({
+    ...logoutUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
+    queryKey,
+    ...queryOptions,
+  }) as UseSuspenseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
 
