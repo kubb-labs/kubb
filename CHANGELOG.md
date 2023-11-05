@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.0-alpha.4](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.3...kubb-v2.0.0-alpha.4) (2023-11-05)
+
+
+### 🐞 Bug Fixes
+
+* add `/index` to folders ([f887146](https://github.com/kubb-project/kubb/commit/f88714633e71266b51781729cf4c617145e54798))
+
+
+### 📦 Miscellaneous Chores
+
+* release 2.0.0-alpha.4 ([36f790a](https://github.com/kubb-project/kubb/commit/36f790a8260ce0842ca64852590e59f2c661367c))
+
 ## [2.0.0-alpha.3](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.2...kubb-v2.0.0-alpha.3) (2023-11-02)
 
 
