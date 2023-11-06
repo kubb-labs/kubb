@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0-alpha.4](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.4...kubb-v2.1.0-alpha.4) (2023-11-06)
+
+
+### ✨ Features
+
+* `@kubb/types` package ([1d11f32](https://github.com/kubb-project/kubb/commit/1d11f32d846c2da3c74471cb40e76955ae45cb44))
+
 ## [2.0.0-alpha.4](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.3...kubb-v2.0.0-alpha.4) (2023-11-05)
 
 
