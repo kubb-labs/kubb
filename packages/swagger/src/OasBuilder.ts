@@ -1,13 +1,13 @@
-import type { PluginManager } from '@kubb/core'
+import type { PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
 import type { Oas, Operation, OperationSchema, OperationSchemas, Ref } from './types.ts'
 
 export type FileResolver = (name: string, ref: Ref) => string | null | undefined
 
-type Context = {
+type Context<TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas
   pluginManager: PluginManager
-  plugin: KubbPlugin
+  plugin: KubbPlugin<TPluginOptions>
   operation: Operation
   schemas: OperationSchemas
 }
@@ -15,7 +15,7 @@ type Context = {
 /**
  * Abstract class that contains the building blocks for creating an type/zod builder
  */
-export abstract class OasBuilder<TOptions = unknown, TContext = Context> {
+export abstract class OasBuilder<TOptions = unknown, TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions, TContext = Context<TPluginOptions>> {
   #options: TOptions = {} as TOptions
   #context: TContext = {} as TContext
 

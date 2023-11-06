@@ -1,3 +1,4 @@
+import type { PossiblePromise } from '@kubb/types'
 import type { FileManager, KubbFile } from './FileManager.ts'
 import type { OptionsPlugins, PluginUnion } from './index.ts'
 import type { PluginManager } from './PluginManager.ts'
@@ -12,20 +13,22 @@ import type { Logger, LogLevel } from './utils/logger.ts'
  * ...
  * })
  */
-export type KubbUserConfig = Omit<KubbConfig, 'root' | 'plugins'> & {
-  /**
-   * Project root directory. Can be an absolute path, or a path relative from
-   * the location of the config file itself.
-   * @default process.cwd()
-   */
-  root?: string
-  /**
-   * Plugin type can be KubbJSONPlugin or KubbPlugin
-   * Example: ['@kubb/swagger', { output: false }]
-   * Or: createSwagger({ output: false })
-   */
-  plugins?: Array<Omit<KubbUserPlugin, 'api'> | KubbUnionPlugins | [name: string, options: object]>
-}
+export type KubbUserConfig =
+  & Omit<KubbConfig, 'root' | 'plugins'>
+  & {
+    /**
+     * Project root directory. Can be an absolute path, or a path relative from
+     * the location of the config file itself.
+     * @default process.cwd()
+     */
+    root?: string
+    /**
+     * Plugin type can be KubbJSONPlugin or KubbPlugin
+     * Example: ['@kubb/swagger', { output: false }]
+     * Or: createSwagger({ output: false })
+     */
+    plugins?: Array<Omit<UnknownKubbUserPlugin, 'api'> | KubbUnionPlugins | [name: string, options: object]>
+  }
 
 export type InputPath = {
   /**
@@ -150,14 +153,13 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
     /**
      * Options set for a specific plugin(see kubb.config.js), passthrough of options.
      */
-    options: TOptions['options'] extends never ? undefined : TOptions['options']
+    options: TOptions['resolvedOptions'] extends never ? undefined : TOptions['resolvedOptions']
   }
-  & Partial<PluginLifecycle<TOptions>>
   & (TOptions['api'] extends never ? {
       api?: never
     }
     : {
-      api: (this: TOptions['name'] extends 'core' ? null : Omit<PluginContext, 'addFile'>) => TOptions['api']
+      api: (this: TOptions['name'] extends 'core' ? null : Omit<PluginContext<TOptions>, 'addFile'>) => TOptions['api']
     })
   & (TOptions['kind'] extends never ? {
       kind?: never
@@ -171,6 +173,10 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
        */
       kind: TOptions['kind']
     })
+
+export type KubbUserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = KubbUserPlugin<TOptions> & PluginLifecycle<TOptions>
+
+type UnknownKubbUserPlugin = KubbUserPlugin<PluginFactoryOptions<any, any, any, any, any, any>>
 
 export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
   & {
@@ -187,19 +193,18 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
     /**
      * Options set for a specific plugin(see kubb.config.js), passthrough of options.
      */
-    options: TOptions['options'] extends never ? undefined : TOptions['options']
+    options: TOptions['resolvedOptions']
     /**
      * Kind/type for the plugin
      * Type 'schema' can be used for JSON schema's, TypeScript types, ...
      * Type 'controller' can be used to create generate API calls, React-Query hooks, Axios controllers, ...
      * @default undefined
      */
-    kind?: KubbPluginKind
+    kind?: TOptions['kind']
     /**
      * Define an api that can be used by other plugins, see `PluginManager' where we convert from `KubbUserPlugin` to `KubbPlugin`(used when calling `createPlugin`).
      */
   }
-  & PluginLifecycle<TOptions>
   & (TOptions['api'] extends never ? {
       api?: never
     }
@@ -207,26 +212,28 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
       api: TOptions['api']
     })
 
+export type KubbPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = KubbPlugin<TOptions> & PluginLifecycle<TOptions>
+
 // use of type objects
 
 export type PluginFactoryOptions<
   Name = string,
-  Kind extends KubbPluginKind = KubbPluginKind | never,
-  Options = unknown | never,
-  Nested extends boolean = false,
+  Kind extends KubbPluginKind = KubbPluginKind,
+  Options = object,
+  ResolvedOptions = Options,
   API = unknown | never,
-  resolvePathOptions = Record<string, unknown>,
+  ResolvePathOptions = Record<string, unknown>,
 > = {
   name: Name
   kind: Kind
   /**
-   * Same like `QueryKey` in `@tanstack/react-query`
+   * Same behaviour like what has been done with `QueryKey` in `@tanstack/react-query`
    */
-  key: [kind: Kind | undefined, name: Name, identifier?: string | number]
+  key: [kind: Kind | undefined, name: Name | string, identifier?: string | number]
   options: Options
-  nested: Nested
+  resolvedOptions: ResolvedOptions
   api: API
-  resolvePathOptions: resolvePathOptions
+  resolvePathOptions: ResolvePathOptions
 }
 
 export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
@@ -234,46 +241,46 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * Valdiate all plugins to see if their depended plugins are installed and configured.
    * @type hookParallel
    */
-  validate?: (this: Omit<PluginContext, 'addFile'>, plugins: NonNullable<KubbConfig['plugins']>) => PossiblePromise<true>
+  validate?: (this: Omit<PluginContext<TOptions>, 'addFile'>, plugins: NonNullable<KubbConfig['plugins']>) => PossiblePromise<true>
   /**
    * Start of the lifecycle of a plugin.
    * @type hookParallel
    */
-  buildStart?: (this: PluginContext, kubbConfig: KubbConfig) => PossiblePromise<void>
+  buildStart?: (this: PluginContext<TOptions>, kubbConfig: KubbConfig) => PossiblePromise<void>
   /**
    * Resolve to a Path based on a baseName(example: `./Pet.ts`) and directory(example: `./models`).
    * Options can als be included.
    * @type hookFirst
    * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
    */
-  resolvePath?: (this: PluginContext, baseName: string, directory?: string, options?: TOptions['resolvePathOptions']) => KubbFile.OptionalPath
+  resolvePath?: (this: PluginContext<TOptions>, baseName: string, directory?: string, options?: TOptions['resolvePathOptions']) => KubbFile.OptionalPath
   /**
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.
    * @type hookFirst
    * @example ('pet') => 'Pet'
    */
-  resolveName?: (this: PluginContext, name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+  resolveName?: (this: PluginContext<TOptions>, name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   /**
    * Makes it possible to run async logic to override the path defined previously by `resolvePath`.
    * @type hookFirst
    */
-  load?: (this: Omit<PluginContext, 'addFile'>, path: KubbFile.Path) => PossiblePromise<TransformResult | null>
+  load?: (this: Omit<PluginContext<TOptions>, 'addFile'>, path: KubbFile.Path) => PossiblePromise<TransformResult | null>
   /**
    * Transform the source-code.
    * @type hookReduceArg0
    */
-  transform?: (this: Omit<PluginContext, 'addFile'>, source: string, path: KubbFile.Path) => PossiblePromise<TransformResult>
+  transform?: (this: Omit<PluginContext<TOptions>, 'addFile'>, source: string, path: KubbFile.Path) => PossiblePromise<TransformResult>
   /**
    * Write the result to the file-system based on the id(defined by `resolvePath` or changed by `load`).
    * @type hookParallel
    */
-  writeFile?: (this: Omit<PluginContext, 'addFile'>, source: string | undefined, path: KubbFile.Path) => PossiblePromise<string | void>
+  writeFile?: (this: Omit<PluginContext<TOptions>, 'addFile'>, source: string | undefined, path: KubbFile.Path) => PossiblePromise<string | void>
   /**
    * End of the plugin lifecycle.
    * @type hookParallel
    */
-  buildEnd?: (this: PluginContext) => PossiblePromise<void>
+  buildEnd?: (this: PluginContext<TOptions>) => PossiblePromise<void>
 }
 
 export type PluginLifecycleHooks = keyof PluginLifecycle
@@ -298,13 +305,13 @@ export type ResolveNameParams = {
   type?: 'file' | 'function'
 }
 
-export type PluginContext<TOptions = Record<string, unknown>> = {
+export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   config: KubbConfig
   cache: Cache<PluginCache>
   fileManager: FileManager
   pluginManager: PluginManager
   addFile: (...file: Array<KubbFile.File>) => Promise<Array<KubbFile.File>>
-  resolvePath: (params: ResolvePathParams<TOptions>) => KubbFile.OptionalPath
+  resolvePath: (params: ResolvePathParams<TOptions['resolvePathOptions']>) => KubbFile.OptionalPath
   resolveName: (params: ResolveNameParams) => string
   logger: Logger
   /**
@@ -314,57 +321,10 @@ export type PluginContext<TOptions = Record<string, unknown>> = {
   /**
    * Current plugin
    */
-  plugin: KubbPlugin
+  plugin: KubbPlugin<TOptions>
 }
 
 // null will mean clear the watcher for this key
 export type TransformResult = string | null
 
 export type AppMeta = { pluginManager: PluginManager }
-
-// generic types
-
-export type Prettify<T> =
-  & {
-    [K in keyof T]: T[K]
-  }
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  & {}
-
-/**
- * TODO move to @kubb/types
- * @deprecated
- */
-export type PossiblePromise<T> = Promise<T> | T
-
-type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
-type LastOf<T> = UnionToIntersection<T extends any ? () => T : never> extends () => infer R ? R : never
-
-// TS4.0+
-type Push<T extends any[], V> = [...T, V]
-
-// TS4.1+
-type TuplifyUnion<T, L = LastOf<T>, N = [T] extends [never] ? true : false> = true extends N ? [] : Push<TuplifyUnion<Exclude<T, L>>, L>
-/**
- * TODO move to @kubb/types
- * @deprecated
- */
-export type ObjValueTuple<T, KS extends any[] = TuplifyUnion<keyof T>, R extends any[] = []> = KS extends [infer K, ...infer KT]
-  ? ObjValueTuple<T, KT, [...R, [name: K & keyof T, options: T[K & keyof T]]]>
-  : R
-/**
- * TODO move to @kubb/types
- * @deprecated
- */
-export type TupleToUnion<T> = T extends Array<infer ITEMS> ? ITEMS : never
-
-/**
- * TODO move to @kubb/types
- * @deprecated
- */
-type ArrayWithLength<T extends number, U extends any[] = []> = U['length'] extends T ? U : ArrayWithLength<T, [true, ...U]>
-/**
- * TODO move to @kubb/types
- * @deprecated
- */
-export type GreaterThan<T extends number, U extends number> = ArrayWithLength<U> extends [...ArrayWithLength<T>, ...infer _] ? false : true

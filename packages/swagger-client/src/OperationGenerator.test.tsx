@@ -5,17 +5,19 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbPlugin, PluginContext, PluginManager } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
+import type { PluginOptions } from './types.ts'
 
 describe('OperationGenerator', () => {
   const resolvePath = () => './pets.ts'
   const resolveName: PluginContext['resolveName'] = ({ name }) => name
 
   test('[GET] should generate code based on a pathParamsType `inline`', async () => {
-    const oas = await OasManager.parseFromConfig({
+    const config = {
       root: './',
       output: { path: 'test', clean: true },
       input: { path: 'packages/swagger-client/mocks/petStore.yaml' },
-    })
+    }
+    const oas = await OasManager.parseFromConfig(config)
 
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dataReturnType: 'data',
@@ -27,8 +29,8 @@ describe('OperationGenerator', () => {
       {
         oas,
         skipBy: [],
-        pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
-        plugin: {} as KubbPlugin,
+        pluginManager: { resolvePath, resolveName, config } as unknown as PluginManager,
+        plugin: { options } as KubbPlugin<PluginOptions>,
         contentType: undefined,
       },
     )
@@ -42,11 +44,12 @@ describe('OperationGenerator', () => {
   })
 
   test('[GET] should generate code based on a pathParamsType `object`', async () => {
-    const oas = await OasManager.parseFromConfig({
+    const config = {
       root: './',
       output: { path: 'test', clean: true },
       input: { path: 'packages/swagger-client/mocks/petStore.yaml' },
-    })
+    }
+    const oas = await OasManager.parseFromConfig(config)
 
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dataReturnType: 'data',
@@ -58,8 +61,8 @@ describe('OperationGenerator', () => {
       {
         oas,
         skipBy: [],
-        pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
-        plugin: {} as KubbPlugin,
+        pluginManager: { resolvePath, resolveName, config } as unknown as PluginManager,
+        plugin: { options } as KubbPlugin<PluginOptions>,
         contentType: undefined,
       },
     )

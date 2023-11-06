@@ -7,15 +7,15 @@ import { useResolve, useResolveName } from '@kubb/swagger/hooks'
 import { useResolve as useResolveFaker } from '@kubb/swagger-faker/hooks'
 
 import type { AppContextProps, RootType } from '@kubb/react'
-import type { AppMeta } from '../types.ts'
+import type { AppMeta, PluginOptions } from '../types.ts'
 
 type Options = {
   responseName?: string
 }
 
-type MSWResult = { Component: React.ElementType }
+type MSWResult = { Component: React.ComponentType }
 
-export class MSWBuilder extends OasBuilder<Options> {
+export class MSWBuilder extends OasBuilder<Options, PluginOptions> {
   get mock(): MSWResult {
     const { responseName } = this.options
     const { operation, plugin } = this.context
@@ -67,7 +67,7 @@ export class MSWBuilder extends OasBuilder<Options> {
 
     const { Component: Mock } = this.mock
 
-    const root = createRoot<AppContextProps<AppMeta>>()
+    const root = createRoot<AppContextProps<AppMeta>>({ logger: pluginManager.logger })
 
     const isV2 = new PackageManager().isValidSync('msw', '>=2')
 
@@ -88,7 +88,7 @@ export class MSWBuilder extends OasBuilder<Options> {
       )
     }
 
-    root.render(<Component />, { meta: { pluginManager, schemas, operation } })
+    root.render(<Component />, { meta: { pluginManager, plugin, schemas, operation } })
 
     return root
   }

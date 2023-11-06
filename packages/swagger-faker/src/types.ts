@@ -56,7 +56,7 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-faker', 'schema', Options, false, never, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-faker', 'schema', Options, Options, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {

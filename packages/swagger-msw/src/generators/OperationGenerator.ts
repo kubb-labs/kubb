@@ -6,12 +6,12 @@ import { MSWBuilder } from '../builders/index.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { HttpMethod, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
-import type { FileMeta } from '../types.ts'
+import type { FileMeta, PluginOptions } from '../types.ts'
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type Options = {}
 
-export class OperationGenerator extends Generator<Options> {
+export class OperationGenerator extends Generator<Options, PluginOptions> {
   resolve(operation: Operation): Resolver {
     const { pluginManager, plugin } = this.context
 

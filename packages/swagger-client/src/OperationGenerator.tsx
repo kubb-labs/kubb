@@ -4,21 +4,14 @@ import { File } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 import { useResolve } from '@kubb/swagger/hooks'
 
+import { ClientFile } from './components/ClientFile.tsx'
 import { OperationsFunction } from './components/OperationsFunction.tsx'
-import { ClientBuilder } from './ClientBuilder.tsx'
 
 import type { AppContextProps } from '@kubb/react'
 import type { HttpMethod, Operation, OperationMethodResult, OperationSchemas } from '@kubb/swagger'
-import type { FileMeta, Options as PluginOptions } from './types.ts'
+import type { AppMeta, FileMeta, PluginOptions } from './types.ts'
 
-type Options = {
-  clientPath?: PluginOptions['client']
-  pathParamsType: PluginOptions['pathParamsType']
-  clientImportPath?: PluginOptions['clientImportPath']
-  dataReturnType: NonNullable<PluginOptions['dataReturnType']>
-}
-
-export class OperationGenerator extends Generator<Options> {
+export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
   async all(paths: Record<string, Record<HttpMethod, Operation>>): OperationMethodResult<FileMeta> {
     const { pluginManager, oas, plugin } = this.context
 
@@ -37,7 +30,7 @@ export class OperationGenerator extends Generator<Options> {
       })
     })
 
-    const root = createRoot<AppContextProps>()
+    const root = createRoot<AppContextProps>({ logger: pluginManager.logger })
 
     const Component = () => {
       const file = useResolve({ name: 'operations', pluginKey: plugin.key, type: 'file' })
@@ -57,38 +50,36 @@ export class OperationGenerator extends Generator<Options> {
       )
     }
 
-    root.render(<Component />, { meta: { pluginManager } })
+    root.render(<Component />, { meta: { pluginManager, plugin } })
 
     return root.files
   }
 
-  async #generate(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
-    const { pluginManager, oas, plugin } = this.context
+  async #generate(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+    const { pluginManager, plugin } = this.context
 
-    const clientBuilder = new ClientBuilder(
-      options,
-      { oas, pluginManager, plugin, operation, schemas },
-    )
-    const { files } = clientBuilder.render()
+    const root = createRoot<AppContextProps<AppMeta>>({ logger: pluginManager.logger })
 
-    return files
+    root.render(<ClientFile />, { meta: { pluginManager, plugin: { ...plugin, options }, schemas, operation } })
+
+    return root.files
   }
 
-  async get(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
+  async get(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     return this.#generate(operation, schemas, options)
   }
 
-  async post(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
+  async post(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     return this.#generate(operation, schemas, options)
   }
 
-  async put(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
+  async put(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     return this.#generate(operation, schemas, options)
   }
-  async patch(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
+  async patch(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     return this.#generate(operation, schemas, options)
   }
-  async delete(operation: Operation, schemas: OperationSchemas, options: Options): OperationMethodResult<FileMeta> {
+  async delete(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     return this.#generate(operation, schemas, options)
   }
 }

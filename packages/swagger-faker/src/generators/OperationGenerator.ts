@@ -5,14 +5,14 @@ import { FakerBuilder } from '../builders/index.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { FileResolver, Operation, OperationSchemas, Resolver } from '@kubb/swagger'
-import type { FileMeta, Options as PluginOptions } from '../types.ts'
+import type { FileMeta, PluginOptions } from '../types.ts'
 
 type Options = {
   mode: KubbFile.Mode
-  dateType: NonNullable<PluginOptions['dateType']>
+  dateType: NonNullable<PluginOptions['options']['dateType']>
 }
 
-export class OperationGenerator extends Generator<Options> {
+export class OperationGenerator extends Generator<Options, PluginOptions> {
   resolve(operation: Operation): Resolver {
     const { pluginManager, plugin } = this.context
 

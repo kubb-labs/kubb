@@ -15,23 +15,23 @@ import { HelpersFile, QueryKeyFunction } from '../components/index.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
-import type { AppMeta, Framework, FrameworkImports, Options as PluginOptions } from '../types.ts'
+import type { AppMeta, Framework, FrameworkImports, PluginOptions } from '../types.ts'
 
 type BaseOptions = {
-  dataReturnType: PluginOptions['dataReturnType']
+  dataReturnType: PluginOptions['options']['dataReturnType']
   framework: Framework
   frameworkImports: FrameworkImports
   errors: Resolver[]
 }
 
 type QueryOptions = BaseOptions & {
-  infinite?: PluginOptions['infinite']
+  infinite?: PluginOptions['options']['infinite']
 }
 
 type MutationOptions = BaseOptions
 type Options = QueryOptions | MutationOptions
 
-export class QueryBuilder extends OasBuilder<Options> {
+export class QueryBuilder extends OasBuilder<Options, PluginOptions> {
   get #names() {
     const { operation } = this.context
     const { frameworkImports } = this.options
@@ -50,7 +50,7 @@ export class QueryBuilder extends OasBuilder<Options> {
     } as const
   }
 
-  get queryFactoryType(): React.ElementType {
+  get queryFactoryType(): React.ComponentType {
     const { dataReturnType, errors } = this.options
     const { schemas } = this.context
 
@@ -70,7 +70,7 @@ export class QueryBuilder extends OasBuilder<Options> {
     return Component
   }
 
-  get mutationFactoryType(): React.ElementType {
+  get mutationFactoryType(): React.ComponentType {
     const { errors } = this.options
     const { schemas } = this.context
 
@@ -89,7 +89,7 @@ export class QueryBuilder extends OasBuilder<Options> {
 
     return Component
   }
-  get queryKey(): React.ElementType {
+  get queryKey(): React.ComponentType {
     const { framework } = this.options
 
     const FrameworkComponent = QueryKeyFunction[framework]
@@ -99,7 +99,7 @@ export class QueryBuilder extends OasBuilder<Options> {
     return Component
   }
 
-  get queryOptions(): React.ElementType<{ infinite?: boolean }> {
+  get queryOptions(): React.ComponentType<{ infinite?: boolean }> {
     const { framework, frameworkImports, infinite: { queryParam = 'id', initialPageParam = 0 } = {} } = this.options as QueryOptions
     const { operation, schemas } = this.context
 
@@ -282,7 +282,7 @@ export class QueryBuilder extends OasBuilder<Options> {
     return Component
   }
 
-  get query(): React.ElementType {
+  get query(): React.ComponentType<{ infinite?: boolean }> {
     const { framework, frameworkImports } = this.options
     const { operation, schemas } = this.context
 
@@ -331,7 +331,7 @@ export class QueryBuilder extends OasBuilder<Options> {
       },
     ])
 
-    const Component = ({ infinite }: { infinite?: boolean }) => {
+    const Component: React.FC<{ infinite?: boolean }> = ({ infinite }) => {
       const params = new FunctionParams()
 
       let name = this.#names.query
@@ -412,7 +412,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${QueryR
     return Component
   }
 
-  get mutation(): React.ElementType {
+  get mutation(): React.ComponentType {
     const { framework, frameworkImports } = this.options as MutationOptions
     const { operation, schemas } = this.context
 
@@ -536,7 +536,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
     const Mutation = this.mutation
 
-    const root = createRoot<AppContextProps<AppMeta>>()
+    const root = createRoot<AppContextProps<AppMeta>>({ logger: pluginManager.logger })
 
     const ComponentQuery = () => {
       const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
@@ -579,10 +579,10 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     }
 
     if (type === 'query') {
-      root.render(<ComponentQuery />, { meta: { pluginManager, schemas, operation } })
+      root.render(<ComponentQuery />, { meta: { pluginManager, plugin, schemas, operation } })
     }
     if (type === 'mutation') {
-      root.render(<ComponentMutation />, { meta: { pluginManager, schemas, operation } })
+      root.render(<ComponentMutation />, { meta: { pluginManager, plugin, schemas, operation } })
     }
 
     return root

@@ -3,13 +3,13 @@ import { usePluginManager } from '@kubb/react'
 import { useOperation } from '../hooks/useOperation.ts'
 import { resolve } from '../resolve.ts'
 
-import type { KubbFile, PluginContext, ResolveNameParams, ResolvePathParams } from '@kubb/core'
+import type { KubbFile, ResolveNameParams, ResolvePathParams } from '@kubb/core'
 import type { ResolveProps } from '../resolve.ts'
 import type { Resolver } from '../types.ts'
 
 export type UseResolveProps = Omit<ResolveProps, 'operation' | 'resolvePath' | 'resolveName'> & {
-  resolvePath?: PluginContext['resolvePath']
-  resolveName?: PluginContext['resolveName']
+  resolvePath?: (params: ResolvePathParams<Record<string, unknown>>) => KubbFile.OptionalPath
+  resolveName?: (params: ResolveNameParams) => string
 }
 
 export function useResolvePath(props: ResolvePathParams): KubbFile.OptionalPath {

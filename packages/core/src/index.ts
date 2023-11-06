@@ -1,6 +1,6 @@
 import { build } from './build.ts'
 
-import type { ObjValueTuple, TupleToUnion } from './types.ts'
+import type { ObjValueTuple, TupleToUnion } from '@kubb/types'
 
 export { build, safeBuild } from './build.ts'
 export * from './config.ts'

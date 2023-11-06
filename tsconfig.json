@@ -22,7 +22,6 @@
     "./eslint.config.js"
   ],
   "exclude": [
-    "**/node_modules/**",
-    "**/types/**"
+    "**/node_modules/**"
   ]
 }
