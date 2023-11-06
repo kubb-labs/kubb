@@ -1,4 +1,4 @@
-import { URLPath } from '@kubb/core/utils'
+import { transformers, URLPath } from '@kubb/core/utils'
 
 import type Operation from 'oas/operation'
 
@@ -8,5 +8,5 @@ export function getComments(operation: Operation): string[] {
     operation.getSummary() && `@summary ${operation.getSummary()}`,
     operation.path && `@link ${new URLPath(operation.path).URL}`,
     operation.isDeprecated() && `@deprecated`,
-  ].filter(Boolean)
+  ].filter(Boolean).map(text => transformers.trim(text))
 }

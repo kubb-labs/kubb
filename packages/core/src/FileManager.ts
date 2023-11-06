@@ -14,8 +14,9 @@ import { transformers } from './utils/transformers/index.ts'
 import { write } from './utils/write.ts'
 import { BarrelManager } from './BarrelManager.ts'
 
+import type { GreaterThan } from '@kubb/types'
 import type { BarrelManagerOptions } from './BarrelManager.ts'
-import type { GreaterThan, KubbPlugin } from './types.ts'
+import type { KubbPlugin } from './types.ts'
 import type { Queue, QueueJob } from './utils/Queue.ts'
 
 type BasePath<T extends string = string> = `${T}/`

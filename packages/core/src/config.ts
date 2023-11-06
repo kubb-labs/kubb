@@ -1,4 +1,5 @@
-import type { CLIOptions, InputPath, KubbConfig, KubbUserConfig, PossiblePromise } from './types.ts'
+import type { PossiblePromise } from '@kubb/types'
+import type { CLIOptions, InputPath, KubbConfig, KubbUserConfig } from './types.ts'
 
 /**
  * Type helper to make it easier to use kubb.config.js

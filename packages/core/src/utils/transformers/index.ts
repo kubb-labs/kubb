@@ -5,6 +5,7 @@ import { createIndent } from './indent.ts'
 import { nameSorter } from './nameSorter.ts'
 import { searchAndReplace } from './searchAndReplace.ts'
 import { transformReservedWord } from './transformReservedWord.ts'
+import { trim } from './trim.ts'
 
 export const transformers = {
   combineCodes,
@@ -14,6 +15,7 @@ export const transformers = {
   transformReservedWord,
   nameSorter,
   searchAndReplace,
+  trim,
   JSDoc: {
     createJSDocBlockText,
   },

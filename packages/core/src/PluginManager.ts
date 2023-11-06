@@ -11,6 +11,7 @@ import { definePlugin as defineCorePlugin } from './plugin.ts'
 import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
 import { PromiseManager } from './PromiseManager.ts'
 
+import type { PossiblePromise } from '@kubb/types'
 import type { KubbFile } from './FileManager.ts'
 import type { CorePluginOptions } from './plugin.ts'
 import type {
@@ -24,7 +25,6 @@ import type {
   PluginLifecycle,
   PluginLifecycleHooks,
   PluginParameter,
-  PossiblePromise,
   ResolveNameParams,
   ResolvePathParams,
 } from './types.ts'
