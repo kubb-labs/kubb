@@ -278,7 +278,7 @@ export function ${name} <
 
     const Mutation = this.mutation
 
-    const root = createRoot<AppContextProps<AppMeta>>()
+    const root = createRoot<AppContextProps<AppMeta>>({ logger: pluginManager.logger })
 
     const ComponentQuery = () => {
       const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })

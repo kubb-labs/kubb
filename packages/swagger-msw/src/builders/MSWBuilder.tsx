@@ -67,7 +67,7 @@ export class MSWBuilder extends OasBuilder<Options, PluginOptions> {
 
     const { Component: Mock } = this.mock
 
-    const root = createRoot<AppContextProps<AppMeta>>()
+    const root = createRoot<AppContextProps<AppMeta>>({ logger: pluginManager.logger })
 
     const isV2 = new PackageManager().isValidSync('msw', '>=2')
 

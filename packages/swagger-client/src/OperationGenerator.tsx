@@ -30,7 +30,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
       })
     })
 
-    const root = createRoot<AppContextProps>()
+    const root = createRoot<AppContextProps>({ logger: pluginManager.logger })
 
     const Component = () => {
       const file = useResolve({ name: 'operations', pluginKey: plugin.key, type: 'file' })
@@ -58,7 +58,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   async #generate(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { pluginManager, plugin } = this.context
 
-    const root = createRoot<AppContextProps<AppMeta>>()
+    const root = createRoot<AppContextProps<AppMeta>>({ logger: pluginManager.logger })
 
     root.render(<ClientFile />, { meta: { pluginManager, plugin: { ...plugin, options }, schemas, operation } })
 

@@ -112,7 +112,11 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
     this.#lastFile = file
     this.#lastFiles = files
   }
-  onError(_error: Error): void {}
+  onError(error: Error): void {
+    if (!this.#options.logger) {
+      console.error(error)
+    }
+  }
 
   render(node: ReactNode, context?: Context): void {
     if (context) {
