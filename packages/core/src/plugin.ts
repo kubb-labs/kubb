@@ -4,9 +4,9 @@ import { createPluginCache } from './utils/cache.ts'
 
 import type { FileManager } from './FileManager.ts'
 import type { PluginManager } from './PluginManager.ts'
-import type { KubbPlugin, KubbUserPlugin, PluginContext, PluginFactoryOptions } from './types.ts'
+import type { KubbPlugin, KubbUserPluginWithLifeCycle, PluginContext, PluginFactoryOptions } from './types.ts'
 
-type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (options: T['options']) => KubbUserPlugin<T>
+type KubbPluginFactory<T extends PluginFactoryOptions = PluginFactoryOptions> = (options: T['options']) => KubbUserPluginWithLifeCycle<T>
 
 export function createPlugin<T extends PluginFactoryOptions = PluginFactoryOptions>(factory: KubbPluginFactory<T>) {
   return (options: T['options']): ReturnType<KubbPluginFactory<T>> => {
@@ -26,7 +26,7 @@ type Options = {
 }
 
 // not publicly exported
-export type CorePluginOptions = PluginFactoryOptions<'core', 'controller', Options, false, PluginContext>
+export type CorePluginOptions = PluginFactoryOptions<'core', 'controller', Options, Options, PluginContext>
 
 export const pluginName = 'core' satisfies CorePluginOptions['name']
 export const pluginKey: CorePluginOptions['key'] = ['controller', pluginName] satisfies CorePluginOptions['key']

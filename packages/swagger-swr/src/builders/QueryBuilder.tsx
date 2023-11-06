@@ -10,15 +10,15 @@ import { camelCase } from 'change-case'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
-import type { AppMeta, Options as PluginOptions } from '../types.ts'
+import type { AppMeta, PluginOptions } from '../types.ts'
 
 type Options = {
-  dataReturnType: PluginOptions['dataReturnType']
+  dataReturnType: PluginOptions['options']['dataReturnType']
   errors: Resolver[]
   name: string
 }
 
-export class QueryBuilder extends OasBuilder<Options> {
+export class QueryBuilder extends OasBuilder<Options, PluginOptions> {
   get #names() {
     const { operation } = this.context
     const { name } = this.options
@@ -30,7 +30,7 @@ export class QueryBuilder extends OasBuilder<Options> {
     } as const
   }
 
-  get queryOptions(): React.ElementType {
+  get queryOptions(): React.ComponentType {
     const { errors, dataReturnType } = this.options
     const { operation, schemas } = this.context
 
@@ -97,7 +97,7 @@ export class QueryBuilder extends OasBuilder<Options> {
     return Component
   }
 
-  get query(): React.ElementType {
+  get query(): React.ComponentType {
     const { name, errors, dataReturnType } = this.options
     const { operation, schemas } = this.context
 
@@ -185,7 +185,7 @@ export class QueryBuilder extends OasBuilder<Options> {
     return Component
   }
 
-  get mutation(): React.ElementType {
+  get mutation(): React.ComponentType {
     const { errors } = this.options
     const { operation, schemas } = this.context
 
@@ -307,10 +307,10 @@ export function ${name} <
     }
 
     if (type === 'query') {
-      root.render(<ComponentQuery />, { meta: { pluginManager, schemas, operation } })
+      root.render(<ComponentQuery />, { meta: { pluginManager, plugin, schemas, operation } })
     }
     if (type === 'mutation') {
-      root.render(<ComponentMutation />, { meta: { pluginManager, schemas, operation } })
+      root.render(<ComponentMutation />, { meta: { pluginManager, plugin, schemas, operation } })
     }
 
     return root

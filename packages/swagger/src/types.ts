@@ -45,7 +45,7 @@ export type Options = {
   contentType?: ContentType
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger', 'schema', Options, false, API>
+export type PluginOptions = PluginFactoryOptions<'swagger', 'schema', Options, Options, API>
 
 export type { default as Oas } from 'oas'
 export type { default as Operation } from 'oas/operation'

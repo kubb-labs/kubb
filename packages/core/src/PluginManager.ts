@@ -17,7 +17,9 @@ import type {
   GetPluginFactoryOptions,
   KubbConfig,
   KubbPlugin,
+  KubbPluginWithLifeCycle,
   KubbUserPlugin,
+  KubbUserPluginWithLifeCycle,
   PluginFactoryOptions,
   PluginLifecycle,
   PluginLifecycleHooks,
@@ -76,11 +78,12 @@ type Events = {
 }
 
 export class PluginManager {
-  plugins: KubbPlugin[]
+  readonly plugins: KubbPluginWithLifeCycle[]
   readonly fileManager: FileManager
   readonly eventEmitter: EventEmitter<Events> = new EventEmitter()
 
   readonly queue: Queue
+  readonly config: KubbConfig
 
   readonly executed: Executer[] = []
   readonly logger: Logger
@@ -90,7 +93,7 @@ export class PluginManager {
   readonly #promiseManager: PromiseManager
 
   constructor(config: KubbConfig, options: Options) {
-    // TODO use logger for all warnings/errors
+    this.config = config
     this.logger = options.logger
     this.queue = new Queue(100, this.logger.logLevel === LogLevel.debug)
     this.fileManager = new FileManager({ task: options.task, queue: this.queue, timeout: options.writeTimeout })
@@ -465,7 +468,7 @@ export class PluginManager {
     strategy: Strategy
     hookName: H
     parameters: unknown[] | undefined
-    plugin: KubbPlugin
+    plugin: KubbPluginWithLifeCycle
   }): Promise<ReturnType<ParseResult<H>> | null> | null {
     const hook = plugin[hookName]
     let output: unknown
@@ -527,7 +530,7 @@ export class PluginManager {
     strategy: Strategy
     hookName: H
     parameters: PluginParameter<H>
-    plugin: KubbPlugin
+    plugin: KubbPluginWithLifeCycle
   }): ReturnType<ParseResult<H>> | null {
     const hook = plugin[hookName]
     let output: unknown
@@ -571,7 +574,7 @@ export class PluginManager {
     this.eventEmitter.emit('error', e)
   }
 
-  #parse<TPlugin extends KubbUserPlugin>(
+  #parse<TPlugin extends KubbUserPluginWithLifeCycle>(
     plugin: TPlugin,
     pluginManager: PluginManager,
     context: CorePluginOptions['api'] | undefined,

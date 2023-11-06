@@ -1,4 +1,4 @@
-import type { KubbPlugin, PluginContext, ResolveNameParams } from '@kubb/core'
+import type { KubbFile, KubbPlugin, PluginContext, ResolveNameParams, ResolvePathParams } from '@kubb/core'
 import type { Operation, ResolvePathOptions, Resolver } from './types.ts'
 
 type PropsWithOperation = {
@@ -23,7 +23,7 @@ export type ResolveProps = (PropsWithOperation | PropsWithoutOperation) & {
    * @default `operation.getTags()[0]?.name`
    */
   tag?: string
-  resolvePath: PluginContext<ResolvePathOptions>['resolvePath']
+  resolvePath: (params: ResolvePathParams<ResolvePathOptions>) => KubbFile.OptionalPath
   resolveName: PluginContext['resolveName']
   type?: ResolveNameParams['type']
 }

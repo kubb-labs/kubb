@@ -58,7 +58,7 @@ export type Options = {
   /**
    * Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
    */
-  overrideBy?: Array<OverrideBy<Options>>
+  overrideBy?: Array<OverrideBy<ResolvedOptions>>
   /**
    * Path to the client that will be used to do the API calls.
    * Relative to the root.
@@ -106,14 +106,20 @@ export type Options = {
   }
 }
 
+export type ResolvedOptions = Pick<Options, 'clientImportPath'> & {
+  dataReturnType: NonNullable<Options['dataReturnType']>
+  pathParamsType: NonNullable<Options['pathParamsType']>
+  client?: Options['client']
+}
+
 export type FileMeta = {
   pluginKey?: KubbPlugin['key']
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-client', 'controller', Options, false, never, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-client', 'controller', Options, ResolvedOptions, never, ResolvePathOptions>
 
-export type AppMeta = SwaggerAppMeta
+export type AppMeta = SwaggerAppMeta & { plugin: KubbPlugin<PluginOptions> }
 
 declare module '@kubb/core' {
   export interface _Register {

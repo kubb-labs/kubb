@@ -6,18 +6,18 @@ import { findSchemaDefinition } from 'oas/utils'
 
 import { isReference } from './utils/isReference.ts'
 
-import type { KubbFile, PluginManager } from '@kubb/core'
+import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
 import type { ContentType, Oas, OperationSchemas, OverrideBy, SkipBy } from './types.ts'
 
-export type GetOperationGeneratorOptions<T extends OperationGenerator> = T extends OperationGenerator<infer X> ? X : never
+export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
 
 export type OperationMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Promise<KubbFile.File<TFileMeta> | Array<KubbFile.File<TFileMeta>> | null>
 
-type Context<TOptions> = {
+type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas
   skipBy: Array<SkipBy> | undefined
   overrideBy?: Array<OverrideBy<TOptions>> | undefined
@@ -26,13 +26,15 @@ type Context<TOptions> = {
   /**
    * Current plugin
    */
-  plugin: KubbPlugin
+  plugin: KubbPlugin<TPluginOptions>
   mode?: KubbFile.Mode
 }
 
-export abstract class OperationGenerator<TOptions = unknown, TFileMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>
-  extends Generator<TOptions, Context<TOptions>>
-{
+export abstract class OperationGenerator<
+  TOptions = unknown,
+  TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
+  TFileMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase,
+> extends Generator<TOptions, Context<TOptions, TPluginOptions>> {
   /**
    * Validate an operation to see if used with camelCase we don't overwrite other files
    * DRAFT version

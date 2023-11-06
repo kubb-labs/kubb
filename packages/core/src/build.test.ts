@@ -23,7 +23,7 @@ describe('build', () => {
   const plugin = createPlugin(() => {
     return {
       name: 'plugin',
-      options: undefined as unknown,
+      options: undefined as any,
       api: undefined as never,
       kind: 'schema',
       key: ['schema', 'plugin'],

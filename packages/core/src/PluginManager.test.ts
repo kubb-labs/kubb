@@ -19,7 +19,7 @@ describe('PluginManager', () => {
   const pluginA = createPlugin(() => {
     return {
       name: 'pluginA',
-      options: undefined as unknown,
+      options: undefined as any,
       api: undefined as never,
       kind: 'schema',
       key: ['schema', 'pluginA'],
@@ -45,7 +45,7 @@ describe('PluginManager', () => {
   const pluginB = createPlugin(() => {
     return {
       name: 'pluginB',
-      options: undefined as unknown,
+      options: undefined as any,
       api: undefined as never,
       kind: 'schema',
       key: ['schema', 'pluginB', 1],
@@ -71,7 +71,7 @@ describe('PluginManager', () => {
   const pluginBBis = createPlugin(() => {
     return {
       name: 'pluginB',
-      options: undefined as unknown,
+      options: undefined as any,
       api: undefined as never,
       kind: 'schema',
       key: ['schema', 'pluginB', 2],

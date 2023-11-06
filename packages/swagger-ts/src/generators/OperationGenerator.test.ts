@@ -6,6 +6,7 @@ import { OperationGenerator } from './OperationGenerator.ts'
 import type { PluginContext, PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
+import type { PluginOptions } from '../types.ts'
 
 describe('OperationGenerator', () => {
   const resolvePath = () => './pets.ts'
@@ -32,7 +33,7 @@ describe('OperationGenerator', () => {
         oas,
         skipBy: [],
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
-        plugin: {} as KubbPlugin,
+        plugin: {} as KubbPlugin<PluginOptions>,
         contentType: undefined,
       },
     )
@@ -70,7 +71,7 @@ describe('OperationGenerator', () => {
         oas,
         skipBy: [],
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
-        plugin: {} as KubbPlugin,
+        plugin: {} as KubbPlugin<PluginOptions>,
         contentType: undefined,
       },
     )

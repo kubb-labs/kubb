@@ -33,7 +33,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
   return {
     name: pluginName,
-    options,
+    options: {
+      client,
+      dataReturnType,
+      pathParamsType,
+    },
     kind: 'controller',
     validate(plugins) {
       pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
@@ -76,13 +80,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const [swaggerPlugin] = pluginsOptions
 
       const oas = await swaggerPlugin.api.getOas()
-      const root = path.resolve(this.config.root, this.config.output.path)
-      const clientPath = client ? path.resolve(root, 'client.ts') : undefined
 
       const operationGenerator = new OperationGenerator(
         {
           dataReturnType,
-          clientPath,
+          client,
           clientImportPath,
           pathParamsType,
         },

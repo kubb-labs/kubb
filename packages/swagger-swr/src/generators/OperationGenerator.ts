@@ -6,15 +6,15 @@ import { QueryBuilder } from '../builders/QueryBuilder.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { Operation, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
-import type { FileMeta, Options as PluginOptions } from '../types.ts'
+import type { FileMeta, PluginOptions } from '../types.ts'
 
 type Options = {
-  clientPath?: NonNullable<PluginOptions['client']>
-  clientImportPath?: NonNullable<PluginOptions['clientImportPath']>
-  dataReturnType: NonNullable<PluginOptions['dataReturnType']>
+  clientPath?: NonNullable<PluginOptions['options']['client']>
+  clientImportPath?: NonNullable<PluginOptions['options']['clientImportPath']>
+  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
 
-export class OperationGenerator extends Generator<Options> {
+export class OperationGenerator extends Generator<Options, PluginOptions> {
   resolve(operation: Operation): Resolver {
     const { pluginManager, plugin } = this.context
 
