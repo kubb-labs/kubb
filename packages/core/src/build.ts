@@ -11,7 +11,7 @@ import { PluginManager } from './PluginManager.ts'
 import { isPromise } from './PromiseManager.ts'
 
 import type { KubbFile } from './FileManager.ts'
-import type { BuildOutput, KubbPlugin, PluginContext, PluginParameter, TransformResult } from './types.ts'
+import type { KubbPlugin, PluginContext, PluginParameter, TransformResult } from './types.ts'
 import type { Logger } from './utils/logger.ts'
 import type { QueueJob } from './utils/Queue.ts'
 
@@ -21,6 +21,15 @@ type BuildOptions = {
    * @default Logger without the spinner
    */
   logger?: Logger
+}
+
+type BuildOutput = {
+  files: FileManager['files']
+  pluginManager: PluginManager
+  /**
+   * Only for safeBuild
+   */
+  error?: Error
 }
 
 async function transformReducer(

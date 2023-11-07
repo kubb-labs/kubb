@@ -6,10 +6,10 @@ import pc from 'picocolors'
 
 import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
 
-import type { BuildOutput, KubbConfig } from '@kubb/core'
+import type { KubbConfig, PluginManager } from '@kubb/core'
 
 type SummaryProps = {
-  pluginManager: BuildOutput['pluginManager']
+  pluginManager: PluginManager
   status: 'success' | 'failed'
   hrstart: [number, number]
   config: KubbConfig

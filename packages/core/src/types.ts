@@ -5,6 +5,8 @@ import type { PluginManager } from './PluginManager.ts'
 import type { Cache } from './utils/cache.ts'
 import type { Logger, LogLevel } from './utils/logger.ts'
 
+// config
+
 /**
  * Config used in `kubb.config.js`
  *
@@ -119,15 +121,6 @@ export type CLIOptions = {
   logLevel?: LogLevel
 }
 
-export type BuildOutput = {
-  files: FileManager['files']
-  pluginManager: PluginManager
-  /**
-   * Only for safeBuild
-   */
-  error?: Error
-}
-
 // plugin
 
 export type KubbPluginKind = 'schema' | 'controller'
@@ -135,6 +128,53 @@ export type KubbPluginKind = 'schema' | 'controller'
 export type KubbUnionPlugins = PluginUnion
 
 export type KubbObjectPlugin = keyof OptionsPlugins
+
+export type PluginFactoryOptions<
+  /**
+   * Name to be used for the plugin, this will also be used for they key.
+   */
+  TName extends string = string,
+  /**
+   * @type "schema" | "controller"
+   */
+  TKind extends KubbPluginKind = KubbPluginKind,
+  /**
+   * Options of the plugin.
+   */
+  TOptions extends object = object,
+  /**
+   * Options of the plugin that can be used later on, see `options` inside your plugin config.
+   */
+  TResolvedOptions extends object = TOptions,
+  /**
+   * Api that you want to expose to other plugins.
+   */
+  TAPI = any,
+  /**
+   * When calling `resolvePath` you can specify better types.
+   */
+  TResolvePathOptions extends object = object,
+  /**
+   * When using @kubb/react(based on React) you can specify here which types should be used when calling render.
+   * Always extend from `AppMeta` of the core.
+   */
+  TAppMeta = unknown,
+> = {
+  name: TName
+  kind: TKind
+  /**
+   * Same behaviour like what has been done with `QueryKey` in `@tanstack/react-query`
+   */
+  key: [kind: TKind | undefined, name: TName | string, identifier?: string | number]
+  options: TOptions
+  resolvedOptions: TResolvedOptions
+  api: TAPI
+  resolvePathOptions: TResolvePathOptions
+  appMeta: {
+    pluginManager: PluginManager
+    plugin: KubbPlugin<PluginFactoryOptions<TName, TKind, TOptions, TResolvedOptions, TAPI, TResolvePathOptions, TAppMeta>>
+  } & TAppMeta
+}
 
 export type GetPluginFactoryOptions<TPlugin extends KubbUserPlugin> = TPlugin extends KubbUserPlugin<infer X> ? X : never
 
@@ -153,7 +193,7 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
     /**
      * Options set for a specific plugin(see kubb.config.js), passthrough of options.
      */
-    options: TOptions['resolvedOptions'] extends never ? undefined : TOptions['resolvedOptions']
+    options: TOptions['resolvedOptions']
   }
   & (TOptions['api'] extends never ? {
       api?: never
@@ -176,7 +216,7 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
 
 export type KubbUserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = KubbUserPlugin<TOptions> & PluginLifecycle<TOptions>
 
-type UnknownKubbUserPlugin = KubbUserPlugin<PluginFactoryOptions<any, any, any, any, any, any>>
+type UnknownKubbUserPlugin = KubbUserPlugin<PluginFactoryOptions<any, any, any, any, any, any, any>>
 
 export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
   & {
@@ -213,28 +253,6 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
     })
 
 export type KubbPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = KubbPlugin<TOptions> & PluginLifecycle<TOptions>
-
-// use of type objects
-
-export type PluginFactoryOptions<
-  Name = string,
-  Kind extends KubbPluginKind = KubbPluginKind,
-  Options = object,
-  ResolvedOptions = Options,
-  API = unknown | never,
-  ResolvePathOptions = Record<string, unknown>,
-> = {
-  name: Name
-  kind: Kind
-  /**
-   * Same behaviour like what has been done with `QueryKey` in `@tanstack/react-query`
-   */
-  key: [kind: Kind | undefined, name: Name | string, identifier?: string | number]
-  options: Options
-  resolvedOptions: ResolvedOptions
-  api: API
-  resolvePathOptions: ResolvePathOptions
-}
 
 export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
@@ -289,7 +307,7 @@ export type PluginParameter<H extends PluginLifecycleHooks> = Parameters<Require
 
 export type PluginCache = Record<string, [number, unknown]>
 
-export type ResolvePathParams<TOptions = Record<string, unknown>> = {
+export type ResolvePathParams<TOptions = object> = {
   pluginKey?: KubbPlugin['key']
   baseName: string
   directory?: string | undefined
@@ -326,5 +344,3 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
 
 // null will mean clear the watcher for this key
 export type TransformResult = string | null
-
-export type AppMeta = { pluginManager: PluginManager }

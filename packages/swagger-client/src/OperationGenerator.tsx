@@ -9,7 +9,7 @@ import { OperationsFunction } from './components/OperationsFunction.tsx'
 
 import type { AppContextProps } from '@kubb/react'
 import type { HttpMethod, Operation, OperationMethodResult, OperationSchemas } from '@kubb/swagger'
-import type { AppMeta, FileMeta, PluginOptions } from './types.ts'
+import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
   async all(paths: Record<string, Record<HttpMethod, Operation>>): OperationMethodResult<FileMeta> {
@@ -58,7 +58,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   async #generate(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { pluginManager, plugin } = this.context
 
-    const root = createRoot<AppContextProps<AppMeta>>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
     root.render(<ClientFile />, { meta: { pluginManager, plugin: { ...plugin, options }, schemas, operation } })
 

@@ -15,7 +15,7 @@ import { HelpersFile, QueryKeyFunction } from '../components/index.ts'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
-import type { AppMeta, Framework, FrameworkImports, PluginOptions } from '../types.ts'
+import type { Framework, FrameworkImports, PluginOptions } from '../types.ts'
 
 type BaseOptions = {
   dataReturnType: PluginOptions['options']['dataReturnType']
@@ -524,7 +524,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
     return this.render(type, name).output
   }
 
-  render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<AppMeta>> {
+  render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<PluginOptions['appMeta']>> {
     const { infinite } = this.options as QueryOptions
     const { pluginManager, operation, schemas, plugin } = this.context
 
@@ -536,7 +536,7 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
 
     const Mutation = this.mutation
 
-    const root = createRoot<AppContextProps<AppMeta>>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
     const ComponentQuery = () => {
       const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })

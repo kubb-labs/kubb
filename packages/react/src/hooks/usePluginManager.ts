@@ -1,9 +1,9 @@
 import { useApp } from './useApp.ts'
 
-import type { AppMeta, PluginManager } from '@kubb/core'
+import type { PluginManager } from '@kubb/core'
 
 export function usePluginManager(): PluginManager {
-  const app = useApp<AppMeta>()
+  const app = useApp<{ pluginManager: PluginManager }>()
 
   return app.meta.pluginManager
 }

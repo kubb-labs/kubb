@@ -26,7 +26,7 @@ type Options = {
 }
 
 // not publicly exported
-export type CorePluginOptions = PluginFactoryOptions<'core', 'controller', Options, Options, PluginContext>
+export type CorePluginOptions = PluginFactoryOptions<'core', 'controller', Options, Options, PluginContext, never>
 
 export const pluginName = 'core' satisfies CorePluginOptions['name']
 export const pluginKey: CorePluginOptions['key'] = ['controller', pluginName] satisfies CorePluginOptions['key']

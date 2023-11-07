@@ -1,5 +1,5 @@
 import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
-import type { AppMeta as SwaggerAppMeta, OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
+import type { OverrideBy, AppMeta as SwaggerAppMeta, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -76,10 +76,8 @@ export type FileMeta = {
   pluginKey?: KubbPlugin['key']
   tag?: string
 }
-
-export type PluginOptions = PluginFactoryOptions<'swagger-swr', 'controller', Options, Options, never, ResolvePathOptions>
-
-export type AppMeta = SwaggerAppMeta & { plugin: KubbPlugin<PluginOptions> }
+type AppMeta = SwaggerAppMeta
+export type PluginOptions = PluginFactoryOptions<'swagger-swr', 'controller', Options, Options, never, ResolvePathOptions, AppMeta>
 
 declare module '@kubb/core' {
   export interface _Register {

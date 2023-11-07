@@ -10,7 +10,7 @@ import { camelCase } from 'change-case'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
-import type { AppMeta, PluginOptions } from '../types.ts'
+import type { PluginOptions } from '../types.ts'
 
 type Options = {
   dataReturnType: PluginOptions['options']['dataReturnType']
@@ -270,7 +270,7 @@ export function ${name} <
     return this.render(type, name).output
   }
 
-  render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<AppMeta>> {
+  render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<PluginOptions['appMeta']>> {
     const { pluginManager, operation, schemas, plugin } = this.context
 
     const QueryOptions = this.queryOptions
@@ -278,7 +278,7 @@ export function ${name} <
 
     const Mutation = this.mutation
 
-    const root = createRoot<AppContextProps<AppMeta>>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
     const ComponentQuery = () => {
       const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })

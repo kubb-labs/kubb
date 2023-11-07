@@ -1,5 +1,5 @@
 import type { KubbPlugin } from '@kubb/core'
-import type { AppMeta as AppCoreMeta, KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type Oas from 'oas'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
@@ -44,8 +44,6 @@ export type Options = {
    */
   contentType?: ContentType
 }
-
-export type PluginOptions = PluginFactoryOptions<'swagger', 'schema', Options, Options, API>
 
 export type { default as Oas } from 'oas'
 export type { default as Operation } from 'oas/operation'
@@ -123,7 +121,9 @@ export type SkipBy = ByTag | ByOperationId | ByPath | ByMethod
 
 export type OverrideBy<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & { options: Partial<TOptions> }
 
-export type AppMeta = AppCoreMeta & { schemas: OperationSchemas; operation: Operation }
+export type AppMeta = { schemas: OperationSchemas; operation: Operation }
+
+export type PluginOptions = PluginFactoryOptions<'swagger', 'schema', Options, Options, API, never, AppMeta>
 
 declare module '@kubb/core' {
   export interface _Register {

@@ -1,9 +1,9 @@
 import { useApp } from '@kubb/react'
 
-import type { AppMeta, OperationSchemas } from '../types.ts'
+import type { OperationSchemas, PluginOptions } from '../types.ts'
 
 export function useSchemas(): OperationSchemas {
-  const { meta } = useApp<AppMeta>()
+  const { meta } = useApp<PluginOptions['appMeta']>()
 
   return meta.schemas
 }
