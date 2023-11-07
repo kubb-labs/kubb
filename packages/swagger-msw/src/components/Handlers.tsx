@@ -67,7 +67,7 @@ Handlers.File = function({ paths, Template = Handlers.Template }: HandlersProps)
     const { path } = resolve({
       pluginKey,
       type: 'function',
-      name: `${name}.ts` as const,
+      name,
       resolveName: pluginManager.resolveName,
       resolvePath: pluginManager.resolvePath,
       tag: operation?.getTags()[0]?.name,

@@ -147,7 +147,7 @@ export type PluginFactoryOptions<
    */
   TResolvedOptions extends object = TOptions,
   /**
-   * Api that you want to expose to other plugins.
+   * API that you want to expose to other plugins.
    */
   TAPI = any,
   /**

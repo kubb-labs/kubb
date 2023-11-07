@@ -3,6 +3,7 @@ import path from 'node:path'
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
 import { getRelativePath, renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
+import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
@@ -11,7 +12,7 @@ import { OperationGenerator } from './generators/index.ts'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { OpenAPIV3, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
-import type { FileMeta, PluginOptions } from './types.ts'
+import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-zod' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
@@ -183,35 +184,19 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const root = path.resolve(this.config.root, this.config.output.path)
 
       if (groupBy?.type === 'tag') {
-        const filteredFiles = this.fileManager.files.filter(
-          (file) => file.meta?.pluginKey?.[1] === pluginName && (file.meta as FileMeta)?.tag,
-        ) as KubbFile.File<FileMeta>[]
-        const rootFiles = filteredFiles
-          .map((file) => {
-            const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
-            const tagPath = getRelativePath(path.resolve(root, output), path.resolve(root, renderTemplate(template, { tag })))
-            const tagName = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Schemas', { tag }), {
-              delimiter: '',
-              transform: camelCaseTransformMerge,
-            })
-
-            if (tagName) {
-              return {
-                baseName: 'index.ts' as const,
-                path: path.resolve(root, output, 'index.ts'),
-                source: '',
-                exports: [{ path: `${tagPath}/index`, asAlias: true, name: tagName }],
-                meta: {
-                  pluginKey: this.plugin.key,
-                },
-              }
-            }
-          })
-          .filter(Boolean)
+        const rootFiles = getGroupedByTagFiles({
+          logger: this.logger,
+          files: this.fileManager.files,
+          plugin: this.plugin,
+          template,
+          exportAs: groupBy.exportAs || '{{tag}}Schemas',
+          root,
+          output,
+          resolveName: this.pluginManager.resolveName,
+        })
 
         await this.addFile(...rootFiles)
       }
-
       await this.fileManager.addIndexes({ root, extName: '.ts', meta: { pluginKey: this.plugin.key } })
     },
   }

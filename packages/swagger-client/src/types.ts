@@ -1,6 +1,5 @@
 import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
-import type { CreateAxiosDefaults } from 'axios'
 
 export type Options = {
   /**

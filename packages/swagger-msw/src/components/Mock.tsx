@@ -64,6 +64,7 @@ type MockProps = {
 Mock.File = function({ Template = Mock.Template }: MockProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
+  const operation = useOperation()
   const file = useResolve({ pluginKey, type: 'file' })
   const faker = useResolveFaker({ type: 'file' })
   const responseName = useResolveName({ pluginKey: fakerPluginKey, name: schemas.response.name, type: 'type' })
@@ -76,6 +77,8 @@ Mock.File = function({ Template = Mock.Template }: MockProps): ReactNode {
       path={file.path}
       meta={{
         pluginKey,
+        // needed for the `output.groupBy`
+        tag: operation?.getTags()[0]?.name,
       }}
     >
       {!isV2 && <File.Import name={['rest']} path={'msw'} />}

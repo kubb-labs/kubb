@@ -53,7 +53,7 @@ export function createLogger({ logLevel, name, spinner }: Props): Logger {
   }
 
   const info: Logger['warn'] = (message) => {
-    if (message && spinner) {
+    if (message && spinner && logLevel !== LogLevel.silent) {
       spinner.info(message)
       logs.push(message)
     }
