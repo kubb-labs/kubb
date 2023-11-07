@@ -1,5 +1,6 @@
 export * from './convertSwagger2ToOpenApi.ts'
 export * from './getComments.ts'
+export * from './getGroupedByTagFiles.ts'
 export * from './getParams.ts'
 export * from './getSchemas.ts'
 export * from './isOpenApiV3Document.ts'

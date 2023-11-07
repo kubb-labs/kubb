@@ -1,7 +1,4 @@
 export * from './clients/index'
-export * as petsSwrHooks from './clients/swr/petsSWRController/index'
-export * as petSwrHooks from './clients/swr/petSWRController/index'
-export * as userSwrHooks from './clients/swr/userSWRController/index'
 export * from './mocks/index'
 export * from './models/index'
 export * from './msw/index'

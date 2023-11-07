@@ -52,7 +52,8 @@ export type FileMeta = {
 }
 type AppMeta = SwaggerAppMeta
 
-export type PluginOptions = PluginFactoryOptions<'swagger-msw', 'schema', Options, Options, never, ResolvePathOptions, AppMeta>
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type PluginOptions = PluginFactoryOptions<'swagger-msw', 'schema', Options, {}, never, ResolvePathOptions, AppMeta>
 
 declare module '@kubb/core' {
   export interface _Register {
