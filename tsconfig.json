@@ -1,18 +1,31 @@
 {
   "extends": "@kubb/ts-config/base.json",
   "compilerOptions": {
-    "rootDir": ".",
     "baseUrl": ".",
-    "jsxImportSource": "@kubb/react",
     "types": [
       "vitest/globals",
       "bun-types",
       "@kubb/ts-config"
     ],
     "paths": {
-      "@kubb/react/jsx-dev-runtime": [
-        "./packages/react/src/jsx-runtime.ts"
-      ]
+      "@kubb/core": [
+        "packages/core/src/index.ts"
+      ],
+      "@kubb/core/utils": [
+        "packages/core/src/utils/index.ts"
+      ],
+      "@kubb/swagger": [
+        "packages/swagger/src/index.ts"
+      ],
+      "@kubb/swagger/hooks": [
+        "packages/swagger/src/hooks/index.ts"
+      ],
+      "@kubb/swagger/utils": [
+        "packages/swagger/src/utils/index.ts"
+      ],
+      "@kubb/react": [
+        "packages/react/src/index.ts"
+      ],
     }
   },
   "include": [

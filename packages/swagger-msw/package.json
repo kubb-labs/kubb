@@ -67,6 +67,7 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.2.36",
+    "react": "^18.2.0",
     "eslint": "^8.53.0",
     "tsup": "^7.2.0",
     "typescript": "rc"
