@@ -31,7 +31,7 @@
     "@kubb/swagger-faker": "workspace:*",
     "@kubb/swagger-msw": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "@mswjs/http-middleware": "^0.8.0",
+    "@mswjs/http-middleware": "0.8.0",
     "msw": "^1.3.2",
     "react": "^18.2.0",
     "tsup": "^7.2.0"
