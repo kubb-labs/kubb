@@ -1,30 +1,141 @@
-import { FunctionParams } from '@kubb/core/utils'
+import path from 'node:path'
+
+import { FunctionParams, getRelativePath, transformers } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
-import { useOperation, useResolveName, useSchemas } from '@kubb/swagger/hooks'
+import { File, Function, usePlugin, usePluginManager } from '@kubb/react'
+import { useOperation, useResolve, useResolveName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
+import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
 
-import { ClientFunction } from './ClientFunction.tsx'
-
-import type { KubbPlugin } from '@kubb/core'
+import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { Options as PluginOptions } from '../types.ts'
+import type { FileMeta, PluginOptions } from '../types.ts'
 
-type Props = {
-  pluginKey: KubbPlugin['key']
-  dataReturnType?: PluginOptions['dataReturnType']
-  pathParamsType?: PluginOptions['pathParamsType']
+type ClientTemplateProps = {
+  name: string
+  params: string
+  generics?: string
+  returnType: string
+  comments: string[]
+  children?: ReactNode
+
+  // props Client
+  method: HttpMethod
+  path: URLPath
+  clientGenerics: string
+  dataReturnType: PluginOptions['options']['dataReturnType']
+  withParams?: boolean
+  withData?: boolean
+  withHeaders?: boolean
+}
+
+Client.Template = function({
+  name,
+  generics,
+  returnType,
+  params,
+  method,
+  path,
+  clientGenerics,
+  withParams,
+  withData,
+  withHeaders,
+  comments,
+  children,
+  dataReturnType,
+}: ClientTemplateProps): ReactNode {
+  const clientParams = [
+    `method: "${method}"`,
+    `url: ${path.template}`,
+    withParams ? 'params' : undefined,
+    withData ? 'data' : undefined,
+    withHeaders ? 'headers: { ...headers, ...options.headers }' : undefined,
+    '...options',
+  ].filter(Boolean)
+
+  const clientOptions = `${transformers.createIndent(4)}${clientParams.join(`,\n${transformers.createIndent(4)}`)}`
+
+  if (dataReturnType === 'full') {
+    return (
+      <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
+        {`
+  return client<${clientGenerics}>({
+  ${transformers.createIndent(4)}${clientParams.join(`,\n${transformers.createIndent(4)}`)}
+  });`}
+        {children}
+      </Function>
+    )
+  }
+
+  return (
+    <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
+      {`
+const { data: resData } = await client<${clientGenerics}>({
+${clientOptions}
+});
+
+return resData;`}
+
+      {children}
+    </Function>
+  )
+}
+
+Client.File = function({ Template = Client.Template }: ClientProps): ReactNode {
+  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const { config } = usePluginManager()
+
+  const { clientImportPath, client } = options
+
+  const root = path.resolve(config.root, config.output.path)
+  const clientPath = client ? path.resolve(root, 'client.ts') : undefined
+
+  const schemas = useSchemas()
+  const operation = useOperation()
+  const file = useResolve({ pluginKey, type: 'file' })
+  const fileType = useResolveType({ type: 'file' })
+
+  const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
+
+  return (
+    <File<FileMeta>
+      baseName={file.baseName}
+      path={file.path}
+      meta={{
+        pluginKey,
+        tag: operation.getTags()[0]?.name,
+      }}
+    >
+      <File.Import name={'client'} path={resolvedClientPath} />
+      <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
+      <File.Import
+        name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
+          Boolean,
+        )}
+        root={file.path}
+        path={fileType.path}
+        isTypeOnly
+      />
+      <File.Source>
+        <Client Template={Template} />
+      </File.Source>
+    </File>
+  )
+}
+
+type ClientProps = {
   /**
-   * Will make it possible to override the default behaviour of ClientFunction
+   * Will make it possible to override the default behaviour of Client.Template
    */
-  Component?: React.ComponentType<React.ComponentProps<typeof ClientFunction>>
+  Template?: React.ComponentType<React.ComponentProps<typeof Client.Template>>
 }
 
 export function Client({
-  pluginKey,
-  dataReturnType,
-  pathParamsType,
-  Component = ClientFunction,
-}: Props): ReactNode {
+  Template = Client.Template,
+}: ClientProps): ReactNode {
+  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const { dataReturnType, pathParamsType } = options
+
   const params = new FunctionParams()
   const clientGenerics = new FunctionParams()
 
@@ -62,7 +173,7 @@ export function Client({
   ])
 
   return (
-    <Component
+    <Template
       name={name}
       clientGenerics={clientGenerics.toString()}
       dataReturnType={dataReturnType}

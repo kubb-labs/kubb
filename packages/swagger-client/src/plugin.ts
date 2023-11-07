@@ -28,14 +28,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     pathParamsType = 'inline',
   } = options
 
-  const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller/index`
+  const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
     options: {
-      client,
       dataReturnType,
+      client,
+      clientImportPath,
       pathParamsType,
     },
     kind: 'controller',
@@ -82,12 +83,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const oas = await swaggerPlugin.api.getOas()
 
       const operationGenerator = new OperationGenerator(
-        {
-          dataReturnType,
-          client,
-          clientImportPath,
-          pathParamsType,
-        },
+        this.plugin.options,
         {
           oas,
           pluginManager: this.pluginManager,

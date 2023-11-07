@@ -2,27 +2,6 @@ import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 import type { CreateAxiosDefaults } from 'axios'
 
-/**
- * We override `process.env` so no need to import this
- * @example tsconfig.json
-"compilerOptions": {
-___ "types": ["@kubb/swagger-client/globals"]
-}
-*/
-export type Environments = {
-  AXIOS_BASE?: CreateAxiosDefaults['baseURL']
-  AXIOS_HEADERS?: CreateAxiosDefaults['headers']
-}
-
-/**
- * We override `process.env` so no need to import this
- * @example tsconfig.json
-"compilerOptions": {
-___ "types": ["@kubb/swagger-client/globals"]
-}
-*/
-export type Environment = keyof Environments
-
 export type Options = {
   /**
    * Output to save the clients.

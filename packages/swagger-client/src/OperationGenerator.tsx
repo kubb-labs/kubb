@@ -1,56 +1,21 @@
-import { URLPath } from '@kubb/core/utils'
 import { createRoot } from '@kubb/react'
-import { File } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/swagger'
-import { useResolve } from '@kubb/swagger/hooks'
 
-import { ClientFile } from './components/ClientFile.tsx'
-import { OperationsFunction } from './components/OperationsFunction.tsx'
+import { Client } from './components/Client.tsx'
+import { Operations } from './components/Operations.tsx'
 
 import type { AppContextProps } from '@kubb/react'
-import type { HttpMethod, Operation, OperationMethodResult, OperationSchemas } from '@kubb/swagger'
+import type { HttpMethod, OperationMethodResult, OperationSchemas } from '@kubb/swagger'
+import type { Operation } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
   async all(paths: Record<string, Record<HttpMethod, Operation>>): OperationMethodResult<FileMeta> {
     const { pluginManager, oas, plugin } = this.context
 
-    const operations: Record<string, { path: string; method: HttpMethod }> = {}
-
-    Object.keys(paths).forEach((path) => {
-      const methods = paths[path] || []
-      Object.keys(methods).forEach((method) => {
-        const operation = oas.operation(path, method as HttpMethod)
-        if (operation) {
-          operations[operation.getOperationId()] = {
-            path: new URLPath(path).URL,
-            method: method as HttpMethod,
-          }
-        }
-      })
-    })
-
     const root = createRoot<AppContextProps>({ logger: pluginManager.logger })
 
-    const Component = () => {
-      const file = useResolve({ name: 'operations', pluginKey: plugin.key, type: 'file' })
-
-      return (
-        <File<FileMeta>
-          baseName={file.baseName}
-          path={file.path}
-          meta={{
-            pluginKey: plugin.key,
-          }}
-        >
-          <File.Source>
-            <OperationsFunction operations={operations} />
-          </File.Source>
-        </File>
-      )
-    }
-
-    root.render(<Component />, { meta: { pluginManager, plugin } })
+    root.render(<Operations.File oas={oas} paths={paths} />, { meta: { pluginManager, plugin } })
 
     return root.files
   }
@@ -60,7 +25,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
-    root.render(<ClientFile />, { meta: { pluginManager, plugin: { ...plugin, options }, schemas, operation } })
+    root.render(<Client.File />, { meta: { pluginManager, plugin: { ...plugin, options }, schemas, operation } })
 
     return root.files
   }
