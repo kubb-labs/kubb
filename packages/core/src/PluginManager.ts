@@ -163,6 +163,7 @@ export class PluginManager {
 
       return transformReservedWord(names?.at(0) || params.name)
     }
+
     const name = this.hookFirstSync({
       hookName: 'resolveName',
       parameters: [params.name, params.type],

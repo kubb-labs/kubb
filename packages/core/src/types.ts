@@ -320,7 +320,7 @@ export type ResolvePathParams<TOptions = object> = {
 export type ResolveNameParams = {
   name: string
   pluginKey?: KubbPlugin['key']
-  type?: 'file' | 'function'
+  type?: 'file' | 'function' | 'type'
 }
 
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {

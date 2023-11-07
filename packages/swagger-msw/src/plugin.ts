@@ -8,7 +8,7 @@ import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import { OperationGenerator } from './generators/index.ts'
+import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
@@ -24,7 +24,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
   return {
     name: pluginName,
-    options,
+    options: {},
     kind: 'schema',
     validate(plugins) {
       pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName, swaggerTypeScriptPluginName, swaggerFakerPluginName])
@@ -69,7 +69,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const oas = await swaggerPlugin.api.getOas()
 
       const operationGenerator = new OperationGenerator(
-        {},
+        this.plugin.options,
         {
           oas,
           pluginManager: this.pluginManager,

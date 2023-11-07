@@ -36,8 +36,8 @@ type OperationsProps = {
 
 Operations.File = function({ paths, oas, Template = Operations.Template }: OperationsProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
-
   const file = useResolve({ name: 'operations', pluginKey, type: 'file' })
+
   return (
     <File<FileMeta>
       baseName={file.baseName}

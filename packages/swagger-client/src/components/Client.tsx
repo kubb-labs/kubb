@@ -3,7 +3,7 @@ import path from 'node:path'
 import { FunctionParams, getRelativePath, transformers } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
 import { File, Function, usePlugin, usePluginManager } from '@kubb/react'
-import { useOperation, useResolve, useResolveName, useSchemas } from '@kubb/swagger/hooks'
+import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
 
@@ -84,17 +84,14 @@ return resData;`}
 Client.File = function({ Template = Client.Template }: ClientProps): ReactNode {
   const { key: pluginKey, options } = usePlugin<PluginOptions>()
   const { config } = usePluginManager()
-
-  const { clientImportPath, client } = options
-
-  const root = path.resolve(config.root, config.output.path)
-  const clientPath = client ? path.resolve(root, 'client.ts') : undefined
-
   const schemas = useSchemas()
   const operation = useOperation()
   const file = useResolve({ pluginKey, type: 'file' })
   const fileType = useResolveType({ type: 'file' })
 
+  const { clientImportPath, client } = options
+  const root = path.resolve(config.root, config.output.path)
+  const clientPath = client ? path.resolve(root, 'client.ts') : undefined
   const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
 
   return (
@@ -134,14 +131,13 @@ export function Client({
   Template = Client.Template,
 }: ClientProps): ReactNode {
   const { key: pluginKey, options } = usePlugin<PluginOptions>()
-  const { dataReturnType, pathParamsType } = options
-
-  const params = new FunctionParams()
-  const clientGenerics = new FunctionParams()
-
   const schemas = useSchemas()
   const operation = useOperation()
-  const name = useResolveName({ pluginKey, type: 'function' })
+  const { name } = useResolve({ pluginKey, type: 'function' })
+
+  const { dataReturnType, pathParamsType } = options
+  const params = new FunctionParams()
+  const clientGenerics = new FunctionParams()
 
   clientGenerics.add([{ type: schemas.response.name }, { type: schemas.request?.name, enabled: !!schemas.request?.name }])
 
