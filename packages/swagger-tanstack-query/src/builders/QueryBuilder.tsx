@@ -11,7 +11,8 @@ import { getASTParams, getComments, getParams } from '@kubb/swagger/utils'
 import { camelCase, pascalCase } from 'change-case'
 import { capitalCase, capitalCaseTransform } from 'change-case'
 
-import { HelpersFile, QueryKeyFunction } from '../components/index.ts'
+import { HelpersFile } from '../components/HelpersFile.tsx'
+import { QueryKeyFunction } from '../components/QueryKeyFunction.tsx'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
@@ -70,25 +71,6 @@ export class QueryBuilder extends OasBuilder<Options, PluginOptions> {
     return Component
   }
 
-  get mutationFactoryType(): React.ComponentType {
-    const { errors } = this.options
-    const { schemas } = this.context
-
-    const generics = [
-      schemas.response.name,
-      errors.map((error) => error.name).join(' | ') || 'never',
-      schemas.request?.name || 'never',
-      schemas.pathParams?.name || 'never',
-      schemas.queryParams?.name || 'never',
-      schemas.headerParams?.name || 'never',
-      schemas.response.name,
-      `{ dataReturnType: 'full'; type: 'mutation' }`,
-    ] as [data: string, error: string, request: string, pathParams: string, queryParams: string, headerParams: string, response: string, options: string]
-
-    const Component = () => <>{`type ${this.#names.mutationFactoryType} = KubbQueryFactory<${generics.join(', ')}>`}</>
-
-    return Component
-  }
   get queryKey(): React.ComponentType {
     const { framework } = this.options
 
@@ -412,134 +394,23 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${QueryR
     return Component
   }
 
-  get mutation(): React.ComponentType {
-    const { framework, frameworkImports } = this.options as MutationOptions
-    const { operation, schemas } = this.context
-
-    const comments = getComments(operation)
-
-    const generics = new FunctionParams()
-    const params = new FunctionParams()
-
-    generics.add([
-      { type: 'TData', default: `${this.#names.mutationFactoryType}["response"]` },
-      { type: 'TError', default: `${this.#names.mutationFactoryType}["error"]` },
-    ])
-
-    const clientGenerics = [
-      `${this.#names.mutationFactoryType}["data"]`,
-      'TError',
-      schemas.request?.name ? `${this.#names.mutationFactoryType}["request"]` : 'void',
-      framework === 'vue' ? 'unknown' : undefined,
-    ].filter(Boolean)
-    const resultGenerics = [
-      'TData',
-      'TError',
-      schemas.request?.name ? `${this.#names.mutationFactoryType}["request"]` : 'void',
-      framework === 'vue' ? 'unknown' : undefined,
-    ].filter(Boolean)
-
-    // only neeed for the options to override the useMutation options/params
-    const mutationOptionsOverrideGenerics = [
-      'TData',
-      'TError',
-      schemas.request?.name ? `${this.#names.mutationFactoryType}["request"]` : 'void',
-      framework === 'vue' ? 'unknown' : undefined,
-    ].filter(Boolean)
-
-    const paramsData = [
-      ...getASTParams(schemas.pathParams, {
-        typed: true,
-        override: framework === 'vue'
-          ? (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, type: `MaybeRef<${item.type}>` })
-          : undefined,
-      }),
-      {
-        name: framework === 'vue' ? 'refParams' : 'params',
-        type: framework === 'vue' && schemas.queryParams?.name ? `MaybeRef<${schemas.queryParams?.name}>` : `${this.#names.mutationFactoryType}['queryParams']`,
-        enabled: !!schemas.queryParams?.name,
-        required: !!schemas.queryParams?.schema.required?.length,
-      },
-      // TODO add headerparams
-      {
-        name: framework === 'vue' ? 'refHeaders' : 'headers',
-        type: framework === 'vue' && schemas.headerParams?.name ? `MaybeRef<${schemas.headerParams?.name}>` : schemas.headerParams?.name,
-        enabled: !!schemas.headerParams?.name,
-        required: !!schemas.headerParams?.schema.required?.length,
-      },
-      {
-        name: 'options',
-        type: `{
-          mutation?: ${frameworkImports.mutate.Options}<${mutationOptionsOverrideGenerics.join(', ')}>,
-          client?: ${this.#names.mutationFactoryType}['client']['paramaters']
-      }`,
-        default: '{}',
-      },
-    ]
-    params.add(paramsData)
-
-    const unrefs = framework === 'vue'
-      ? paramsData
-        .filter((item) => item.type?.startsWith('MaybeRef<'))
-        .map((item) => {
-          return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
-        })
-        .join('\n')
-      : ''
-
-    const Component = () => {
-      const name = this.#names.mutation
-
-      return (
-        <>
-          {transformers.JSDoc.createJSDocBlockText({ comments })}
-          {`
-export function ${name} <${generics.toString()}>(${params.toString()}): ${frameworkImports.mutate.Result}<${resultGenerics.join(', ')}> {
-  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
-  return ${frameworkImports.mutate.hook}<${resultGenerics.join(', ')}>({
-    mutationFn: (${schemas.request?.name ? 'data' : ''}) => {
-      ${unrefs}
-      return client<${clientGenerics.filter((generic) => generic !== 'unknown').join(', ')}>({
-        method: "${operation.method}",
-        url: ${new URLPath(operation.path).template},
-        ${schemas.request?.name ? 'data,' : ''}
-        ${schemas.queryParams?.name ? 'params,' : ''}
-        ${schemas.headerParams?.name ? 'headers: { ...headers, ...clientOptions.headers },' : ''}
-        ...clientOptions
-      }).then(res => res as TData)
-    },
-    ...mutationOptions
-  })
-}
-`}
-        </>
-      )
-    }
-
-    return Component
-  }
-
-  print(type: 'query' | 'mutation', name: string): string {
+  print(type: 'query', name: string): string {
     return this.render(type, name).output
   }
 
-  render(type: 'query' | 'mutation', name: string): RootType<AppContextProps<PluginOptions['appMeta']>> {
+  render(type: 'query', name: string): RootType<AppContextProps<PluginOptions['appMeta']>> {
     const { infinite } = this.options as QueryOptions
     const { pluginManager, operation, schemas, plugin } = this.context
 
     const QueryKey = this.queryKey
     const QueryType = this.queryFactoryType
-    const MutationType = this.mutationFactoryType
     const QueryOptions = this.queryOptions
     const Query = this.query
-
-    const Mutation = this.mutation
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
     const ComponentQuery = () => {
-      const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
+      const file = useResolve({ name, pluginKey: plugin.key })
 
       return (
         <>
@@ -561,30 +432,9 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${framew
       )
     }
 
-    const ComponentMutation = () => {
-      const file = useResolve({ name, pluginKey: plugin.key, type: 'file' })
-
-      return (
-        <>
-          <HelpersFile id={'types'} path={path.resolve(file.path, '../types.ts')} />
-          <File id={name} baseName={file.baseName} path={file.path}>
-            <File.Import root={file.path} path={path.resolve(file.path, '../types.ts')} name={['KubbQueryFactory']} isTypeOnly />
-            <File.Source>
-              <MutationType />
-              <Mutation />
-            </File.Source>
-          </File>
-        </>
-      )
-    }
-
     if (type === 'query') {
       root.render(<ComponentQuery />, { meta: { pluginManager, plugin, schemas, operation } })
     }
-    if (type === 'mutation') {
-      root.render(<ComponentMutation />, { meta: { pluginManager, plugin, schemas, operation } })
-    }
-
     return root
   }
 }

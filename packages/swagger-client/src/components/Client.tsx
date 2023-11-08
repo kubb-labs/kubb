@@ -17,7 +17,6 @@ type ClientTemplateProps = {
   generics?: string
   returnType: string
   comments: string[]
-  children?: ReactNode
 
   // props Client
   method: HttpMethod
@@ -41,7 +40,6 @@ Client.Template = function({
   withData,
   withHeaders,
   comments,
-  children,
   dataReturnType,
 }: ClientTemplateProps): ReactNode {
   const clientParams = [
@@ -62,7 +60,6 @@ Client.Template = function({
   return client<${clientGenerics}>({
   ${transformers.createIndent(4)}${clientParams.join(`,\n${transformers.createIndent(4)}`)}
   });`}
-        {children}
       </Function>
     )
   }
@@ -75,13 +72,20 @@ ${clientOptions}
 });
 
 return resData;`}
-
-      {children}
     </Function>
   )
 }
 
-Client.File = function({ Template = Client.Template }: ClientProps): ReactNode {
+const defaultTemplates = { default: Client.Template } as const
+
+type ClientFileProps = {
+  /**
+   * Will make it possible to override the default behaviour of Mock.Template
+   */
+  templates?: typeof defaultTemplates
+}
+
+Client.File = function({ templates = defaultTemplates }: ClientFileProps): ReactNode {
   const { key: pluginKey, options } = usePlugin<PluginOptions>()
   const { config } = usePluginManager()
   const schemas = useSchemas()
@@ -94,12 +98,15 @@ Client.File = function({ Template = Client.Template }: ClientProps): ReactNode {
   const clientPath = client ? path.resolve(root, 'client.ts') : undefined
   const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
 
+  const Template = templates.default
+
   return (
     <File<FileMeta>
       baseName={file.baseName}
       path={file.path}
       meta={{
         pluginKey,
+        // needed for the `output.groupBy`
         tag: operation.getTags()[0]?.name,
       }}
     >
@@ -128,7 +135,7 @@ type ClientProps = {
 }
 
 export function Client({
-  Template = Client.Template,
+  Template = defaultTemplates.default,
 }: ClientProps): ReactNode {
   const { key: pluginKey, options } = usePlugin<PluginOptions>()
   const schemas = useSchemas()

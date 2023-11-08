@@ -1,8 +1,8 @@
-import { useMutation } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
+import { useMutation } from '@tanstack/vue-query'
 import type { KubbQueryFactory } from './types'
-import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet'
+import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
 
 type UpdatePet = KubbQueryFactory<
   UpdatePetMutationResponse,
@@ -16,12 +16,12 @@ type UpdatePet = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
  * @link /pet
  */
-
 export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['error']>(
   options: {
     mutation?: UseMutationOptions<TData, TError, UpdatePet['request'], unknown>
@@ -29,7 +29,6 @@ export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['
   } = {},
 ): UseMutationReturnType<TData, TError, UpdatePet['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, UpdatePet['request'], unknown>({
     mutationFn: (data) => {
       return client<UpdatePet['data'], TError, UpdatePet['request']>({

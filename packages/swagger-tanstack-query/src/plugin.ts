@@ -1,4 +1,5 @@
 import path from 'node:path'
+import url from 'node:url'
 
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
 import { renderTemplate } from '@kubb/core/utils'
@@ -7,9 +8,9 @@ import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import { OperationGenerator } from './generators/index.ts'
+import { OperationGenerator } from './OperationGenerator.tsx'
 
-import type { KubbFile, KubbPlugin } from '@kubb/core'
+import type { KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
@@ -17,13 +18,31 @@ export const pluginName = 'swagger-tanstack-query' satisfies PluginOptions['name
 export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy, skipBy = [], overrideBy = [], framework = 'react', infinite, transformers = {}, dataReturnType = 'data' } = options
+  const {
+    output = 'hooks',
+    groupBy,
+    skipBy = [],
+    overrideBy = [],
+    framework = 'react',
+    client,
+    clientImportPath,
+    infinite,
+    transformers = {},
+    dataReturnType = 'data',
+  } = options
   const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
-    options,
+    options: {
+      framework,
+      clientImportPath,
+      client,
+      dataReturnType,
+      infinite,
+      templatesPath: path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '../templates'),
+    },
     kind: 'controller',
     validate(plugins) {
       pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
@@ -50,8 +69,18 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return path.resolve(root, output, baseName)
     },
-    resolveName(name) {
-      const resolvedName = camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+    resolveName(name, type) {
+      let resolvedName = camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+
+      if (type) {
+        if (framework === 'react' || framework === 'vue') {
+          resolvedName = camelCase(`use ${name}`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+        }
+
+        if (framework === 'svelte' || framework === 'solid') {
+          resolvedName = camelCase(`${name} query`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+        }
+      }
 
       return transformers?.name?.(resolvedName) || resolvedName
     },
@@ -59,16 +88,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const [swaggerPlugin] = pluginsOptions
 
       const oas = await swaggerPlugin.api.getOas()
-      const clientPath: KubbFile.OptionalPath = options.client ? path.resolve(this.config.root, options.client) : undefined
 
       const operationGenerator = new OperationGenerator(
-        {
-          dataReturnType,
-          infinite: infinite,
-          framework,
-          clientPath,
-          clientImportPath: options.clientImportPath,
-        },
+        this.plugin.options,
         {
           oas,
           pluginManager: this.pluginManager,

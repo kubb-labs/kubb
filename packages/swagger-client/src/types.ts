@@ -84,7 +84,8 @@ export type Options = {
   }
 }
 
-export type ResolvedOptions = Pick<Options, 'clientImportPath'> & {
+type ResolvedOptions = {
+  clientImportPath?: Options['clientImportPath']
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   client?: Options['client']

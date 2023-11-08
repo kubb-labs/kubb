@@ -1,12 +1,12 @@
-import { useMutation } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
+import { useMutation } from '@tanstack/react-query'
 import type { KubbQueryFactory } from './types'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams, UpdateUserError } from '../models/UpdateUser'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
 
 type UpdateUser = KubbQueryFactory<
   UpdateUserMutationResponse,
-  never,
+  UpdateUserError,
   UpdateUserMutationRequest,
   UpdateUserPathParams,
   never,
@@ -16,18 +16,17 @@ type UpdateUser = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username
  */
-
 export function useUpdateUserHook<TData = UpdateUser['response'], TError = UpdateUser['error']>(username: UpdateUserPathParams['username'], options: {
   mutation?: UseMutationOptions<TData, TError, UpdateUser['request']>
   client?: UpdateUser['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, UpdateUser['request']>({
     mutationFn: (data) => {
       return client<UpdateUser['data'], TError, UpdateUser['request']>({

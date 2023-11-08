@@ -99,8 +99,23 @@ export class PackageManager {
     PackageManager.#cache[dependency] = version
   }
 
-  async getVersion(dependency: DependencyName): Promise<DependencyVersion | undefined> {
-    if (PackageManager.#cache[dependency]) {
+  #match(packageJSON: PackageJSON, dependency: DependencyName | RegExp): string | undefined {
+    const dependencies = {
+      ...packageJSON['dependencies'] || {},
+      ...packageJSON['devDependencies'] || {},
+    }
+
+    if (typeof dependency === 'string' && dependencies[dependency]) {
+      return dependencies[dependency]
+    }
+
+    const matchedDependency = Object.keys(dependencies).find(dep => dep.match(dependency))
+
+    return matchedDependency ? dependencies[matchedDependency] : undefined
+  }
+
+  async getVersion(dependency: DependencyName | RegExp): Promise<DependencyVersion | undefined> {
+    if (typeof dependency === 'string' && PackageManager.#cache[dependency]) {
       return PackageManager.#cache[dependency]
     }
 
@@ -110,11 +125,11 @@ export class PackageManager {
       return undefined
     }
 
-    return packageJSON['dependencies']?.[dependency] || packageJSON['devDependencies']?.[dependency]
+    return this.#match(packageJSON, dependency)
   }
 
-  getVersionSync(dependency: DependencyName): DependencyVersion | undefined {
-    if (PackageManager.#cache[dependency]) {
+  getVersionSync(dependency: DependencyName | RegExp): DependencyVersion | undefined {
+    if (typeof dependency === 'string' && PackageManager.#cache[dependency]) {
       return PackageManager.#cache[dependency]
     }
 
@@ -124,10 +139,10 @@ export class PackageManager {
       return undefined
     }
 
-    return packageJSON['dependencies']?.[dependency] || packageJSON['devDependencies']?.[dependency]
+    return this.#match(packageJSON, dependency)
   }
 
-  async isValid(dependency: DependencyName, version: DependencyVersion): Promise<boolean> {
+  async isValid(dependency: DependencyName | RegExp, version: DependencyVersion): Promise<boolean> {
     const packageVersion = await this.getVersion(dependency)
 
     if (!packageVersion) {
@@ -146,7 +161,7 @@ export class PackageManager {
 
     return satisfies(semVer, version)
   }
-  isValidSync(dependency: DependencyName, version: DependencyVersion): boolean {
+  isValidSync(dependency: DependencyName | RegExp, version: DependencyVersion): boolean {
     const packageVersion = this.getVersionSync(dependency)
 
     if (!packageVersion) {

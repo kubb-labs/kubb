@@ -1,15 +1,15 @@
-import { unref } from 'vue'
-import { useMutation } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
+import { useMutation } from '@tanstack/vue-query'
+import { unref } from 'vue'
 import type { KubbQueryFactory } from './types'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams, UpdateUserError } from '../models/UpdateUser'
+import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 import type { MaybeRef } from 'vue'
-import type { UseMutationReturnType } from '@tanstack/vue-query'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
 
 type UpdateUser = KubbQueryFactory<
   UpdateUserMutationResponse,
-  never,
+  UpdateUserError,
   UpdateUserMutationRequest,
   UpdateUserPathParams,
   never,
@@ -19,12 +19,12 @@ type UpdateUser = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username
  */
-
 export function useUpdateUser<TData = UpdateUser['response'], TError = UpdateUser['error']>(
   refUsername: MaybeRef<UpdateUserPathParams['username']>,
   options: {
@@ -33,7 +33,6 @@ export function useUpdateUser<TData = UpdateUser['response'], TError = UpdateUse
   } = {},
 ): UseMutationReturnType<TData, TError, UpdateUser['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, UpdateUser['request'], unknown>({
     mutationFn: (data) => {
       const username = unref(refUsername)

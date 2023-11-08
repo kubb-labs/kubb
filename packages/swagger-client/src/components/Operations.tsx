@@ -2,41 +2,43 @@ import { URLPath } from '@kubb/core/utils'
 import { File, usePlugin } from '@kubb/react'
 import { useResolve } from '@kubb/swagger/hooks'
 
-import type { HttpMethod, Oas, Operation } from '@kubb/swagger'
+import type { HttpMethod, Oas } from '@kubb/swagger'
+import type { Operation } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
 type OperationsTemplateProps = {
   name?: string
-  children?: ReactNode
   operations: Record<string, { path: string; method: HttpMethod }>
 }
 
 Operations.Template = function({
   name = 'operations',
   operations,
-  children,
 }: OperationsTemplateProps): ReactNode {
   return (
     <>
       {`export const ${name} = ${JSON.stringify(operations)} as const;`}
-      {children}
     </>
   )
 }
 
-type OperationsProps = {
+const defaultTemplates = { default: Operations.Template } as const
+
+type OperationsFileProps = {
   oas: Oas
   paths: Record<string, Record<HttpMethod, Operation>>
   /**
-   * Will make it possible to override the default behaviour of Operations.Template
+   * Will make it possible to override the default behaviour of Mock.Template
    */
-  Template?: React.ComponentType<React.ComponentProps<typeof Operations.Template>>
+  templates?: typeof defaultTemplates
 }
 
-Operations.File = function({ paths, oas, Template = Operations.Template }: OperationsProps): ReactNode {
+Operations.File = function({ paths, oas, templates = defaultTemplates }: OperationsFileProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const file = useResolve({ name: 'operations', pluginKey, type: 'file' })
+
+  const Template = templates.default
 
   return (
     <File<FileMeta>
@@ -53,10 +55,19 @@ Operations.File = function({ paths, oas, Template = Operations.Template }: Opera
   )
 }
 
+type OperationsProps = {
+  oas: Oas
+  paths: Record<string, Record<HttpMethod, Operation>>
+  /**
+   * Will make it possible to override the default behaviour of Operations.Template
+   */
+  Template?: React.ComponentType<React.ComponentProps<typeof Operations.Template>>
+}
+
 export function Operations({
   oas,
   paths,
-  Template = Operations.Template,
+  Template = defaultTemplates.default,
 }: OperationsProps): ReactNode {
   const operations: Record<string, { path: string; method: HttpMethod }> = {}
 

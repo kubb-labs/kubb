@@ -1,7 +1,6 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
 import client from '@kubb/swagger-client/client'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import type { KubbQueryFactory } from './types'
-import type { UseMutationOptions, UseMutationResult, QueryKey, UseBaseQueryOptions, UseQueryResult } from '@tanstack/react-query'
 import type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
@@ -50,8 +49,10 @@ import type {
   DeleteOrder404,
   CreateUserMutationRequest,
   CreateUserMutationResponse,
+  CreateUserError,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
+  CreateUsersWithListInputError,
   LoginUserQueryResponse,
   LoginUserQueryParams,
   LoginUser400,
@@ -63,11 +64,13 @@ import type {
   UpdateUserMutationRequest,
   UpdateUserMutationResponse,
   UpdateUserPathParams,
+  UpdateUserError,
   DeleteUserMutationResponse,
   DeleteUserPathParams,
   DeleteUser400,
   DeleteUser404,
 } from './models'
+import type { UseMutationOptions, UseMutationResult, QueryKey, UseBaseQueryOptions, UseQueryResult } from '@tanstack/react-query'
 
 type UpdatePet = KubbQueryFactory<
   UpdatePetMutationResponse,
@@ -81,18 +84,17 @@ type UpdatePet = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
  * @link /pet
  */
-
 export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, UpdatePet['request']>
   client?: UpdatePet['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, UpdatePet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, UpdatePet['request']>({
     mutationFn: (data) => {
       return client<UpdatePet['data'], TError, UpdatePet['request']>({
@@ -109,18 +111,17 @@ export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['
 type AddPet = KubbQueryFactory<AddPetMutationResponse, AddPet405, AddPetMutationRequest, never, never, never, AddPetMutationResponse, {
   dataReturnType: 'full'
   type: 'mutation'
-}> /**
+}>
+/**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet
  */
-
 export function useAddPet<TData = AddPet['response'], TError = AddPet['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, AddPet['request']>
   client?: AddPet['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, AddPet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, AddPet['request']>({
     mutationFn: (data) => {
       return client<AddPet['data'], TError, AddPet['request']>({
@@ -349,11 +350,11 @@ type UpdatePetWithForm = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-
 export function useUpdatePetWithForm<TData = UpdatePetWithForm['response'], TError = UpdatePetWithForm['error']>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithForm['queryParams'],
@@ -363,7 +364,6 @@ export function useUpdatePetWithForm<TData = UpdatePetWithForm['response'], TErr
   } = {},
 ): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<UpdatePetWithForm['data'], TError, void>({
@@ -389,22 +389,21 @@ type DeletePet = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-
 export function useDeletePet<TData = DeletePet['response'], TError = DeletePet['error']>(
   petId: DeletePetPathParams['petId'],
-  headers?: DeletePetHeaderParams,
+  headers?: DeletePet['headerParams'],
   options: {
     mutation?: UseMutationOptions<TData, TError, void>
     client?: DeletePet['client']['paramaters']
   } = {},
 ): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<DeletePet['data'], TError, void>({
@@ -430,11 +429,11 @@ type UploadFile = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-
 export function useUploadFile<TData = UploadFile['response'], TError = UploadFile['error']>(
   petId: UploadFilePathParams['petId'],
   params?: UploadFile['queryParams'],
@@ -444,14 +443,13 @@ export function useUploadFile<TData = UploadFile['response'], TError = UploadFil
   } = {},
 ): UseMutationResult<TData, TError, UploadFile['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, UploadFile['request']>({
     mutationFn: (data) => {
       return client<UploadFile['data'], TError, UploadFile['request']>({
         method: 'post',
         url: `/pet/${petId}/uploadImage`,
-        data,
         params,
+        data,
         ...clientOptions,
       }).then(res => res as TData)
     },
@@ -520,18 +518,17 @@ export function useGetInventory<
 type PlaceOrder = KubbQueryFactory<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest, never, never, never, PlaceOrderMutationResponse, {
   dataReturnType: 'full'
   type: 'mutation'
-}> /**
+}>
+/**
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order
  */
-
 export function usePlaceOrder<TData = PlaceOrder['response'], TError = PlaceOrder['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, PlaceOrder['request']>
   client?: PlaceOrder['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, PlaceOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, PlaceOrder['request']>({
     mutationFn: (data) => {
       return client<PlaceOrder['data'], TError, PlaceOrder['request']>({
@@ -557,18 +554,17 @@ type PlaceOrderPatch = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
  * @link /store/order
  */
-
 export function usePlaceOrderPatch<TData = PlaceOrderPatch['response'], TError = PlaceOrderPatch['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, PlaceOrderPatch['request']>
   client?: PlaceOrderPatch['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, PlaceOrderPatch['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, PlaceOrderPatch['request']>({
     mutationFn: (data) => {
       return client<PlaceOrderPatch['data'], TError, PlaceOrderPatch['request']>({
@@ -664,18 +660,17 @@ type DeleteOrder = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-
 export function useDeleteOrder<TData = DeleteOrder['response'], TError = DeleteOrder['error']>(orderId: DeleteOrderPathParams['orderId'], options: {
   mutation?: UseMutationOptions<TData, TError, void>
   client?: DeleteOrder['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<DeleteOrder['data'], TError, void>({
@@ -688,21 +683,20 @@ export function useDeleteOrder<TData = DeleteOrder['response'], TError = DeleteO
   })
 }
 
-type CreateUser = KubbQueryFactory<CreateUserMutationResponse, never, CreateUserMutationRequest, never, never, never, CreateUserMutationResponse, {
+type CreateUser = KubbQueryFactory<CreateUserMutationResponse, CreateUserError, CreateUserMutationRequest, never, never, never, CreateUserMutationResponse, {
   dataReturnType: 'full'
   type: 'mutation'
-}> /**
+}>
+/**
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user
  */
-
 export function useCreateUser<TData = CreateUser['response'], TError = CreateUser['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, CreateUser['request']>
   client?: CreateUser['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, CreateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, CreateUser['request']>({
     mutationFn: (data) => {
       return client<CreateUser['data'], TError, CreateUser['request']>({
@@ -718,7 +712,7 @@ export function useCreateUser<TData = CreateUser['response'], TError = CreateUse
 
 type CreateUsersWithListInput = KubbQueryFactory<
   CreateUsersWithListInputMutationResponse,
-  never,
+  CreateUsersWithListInputError,
   CreateUsersWithListInputMutationRequest,
   never,
   never,
@@ -728,18 +722,17 @@ type CreateUsersWithListInput = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
-
 export function useCreateUsersWithListInput<TData = CreateUsersWithListInput['response'], TError = CreateUsersWithListInput['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, CreateUsersWithListInput['request']>
   client?: CreateUsersWithListInput['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, CreateUsersWithListInput['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, CreateUsersWithListInput['request']>({
     mutationFn: (data) => {
       return client<CreateUsersWithListInput['data'], TError, CreateUsersWithListInput['request']>({
@@ -942,7 +935,7 @@ export function useGetUserByName<
 
 type UpdateUser = KubbQueryFactory<
   UpdateUserMutationResponse,
-  never,
+  UpdateUserError,
   UpdateUserMutationRequest,
   UpdateUserPathParams,
   never,
@@ -952,18 +945,17 @@ type UpdateUser = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username
  */
-
 export function useUpdateUser<TData = UpdateUser['response'], TError = UpdateUser['error']>(username: UpdateUserPathParams['username'], options: {
   mutation?: UseMutationOptions<TData, TError, UpdateUser['request']>
   client?: UpdateUser['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, UpdateUser['request']>({
     mutationFn: (data) => {
       return client<UpdateUser['data'], TError, UpdateUser['request']>({
@@ -989,18 +981,17 @@ type DeleteUser = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description This can only be done by the logged in user.
  * @summary Delete user
  * @link /user/:username
  */
-
 export function useDeleteUser<TData = DeleteUser['response'], TError = DeleteUser['error']>(username: DeleteUserPathParams['username'], options: {
   mutation?: UseMutationOptions<TData, TError, void>
   client?: DeleteUser['client']['paramaters']
 } = {}): UseMutationResult<TData, TError, void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<TData, TError, void>({
     mutationFn: () => {
       return client<DeleteUser['data'], TError, void>({

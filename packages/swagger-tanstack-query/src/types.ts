@@ -1,5 +1,5 @@
 import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
-import type { Operation, OverrideBy, AppMeta as SwaggerAppMeta, ResolvePathOptions, SkipBy } from '@kubb/swagger'
+import type { AppMeta as SwaggerAppMeta, Operation, OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
 type Infinite = {
   /**
@@ -42,6 +42,12 @@ export type Options = {
      */
     exportAs?: string
   }
+  /**
+   * Path to the client that will be used to do the API calls.
+   * Relative to the root.
+   * @default '@kubb/swagger-client/client'
+   * @deprecated Use `clientImportPath` instead. It will be skipped if `clientImportPath` is provided.
+   */
   client?: string
   /**
    * Path to the client import path that will be used to do the API calls.
@@ -179,12 +185,24 @@ export type FrameworkImports = {
   isV5: boolean
 }
 
+type ResolvedOptions = {
+  framework: NonNullable<PluginOptions['options']['framework']>
+  client?: Options['client']
+  clientImportPath?: PluginOptions['options']['clientImportPath']
+  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
+  /**
+   * Only used of infinite
+   */
+  infinite?: PluginOptions['options']['infinite']
+  templatesPath: string
+}
+
 export type FileMeta = {
   pluginKey?: KubbPlugin['key']
   tag?: string
 }
 type AppMeta = SwaggerAppMeta
-export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', 'controller', Options, Options, never, ResolvePathOptions, AppMeta>
+export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', 'controller', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
 
 declare module '@kubb/core' {
   export interface _Register {

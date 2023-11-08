@@ -17,6 +17,12 @@
       "@kubb/swagger": [
         "packages/swagger/src/index.ts"
       ],
+      "@kubb/swagger-ts": [
+        "packages/swagger-ts/src/index.ts"
+      ],
+      "@kubb/swagger-ts/hooks": [
+        "packages/swagger-ts/src/hooks/index.ts"
+      ],
       "@kubb/swagger/hooks": [
         "packages/swagger/src/hooks/index.ts"
       ],
@@ -25,7 +31,7 @@
       ],
       "@kubb/react": [
         "packages/react/src/index.ts"
-      ],
+      ]
     }
   },
   "include": [

@@ -1,12 +1,12 @@
-import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
+import { createMutation } from '@tanstack/solid-query'
 import type { KubbQueryFactory } from './types'
+import type { CreateUserMutationRequest, CreateUserMutationResponse, CreateUserError } from '../models/CreateUser'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 
 type CreateUser = KubbQueryFactory<
   CreateUserMutationResponse,
-  never,
+  CreateUserError,
   CreateUserMutationRequest,
   never,
   never,
@@ -16,12 +16,12 @@ type CreateUser = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user
  */
-
 export function createUserQuery<TData = CreateUser['response'], TError = CreateUser['error']>(
   options: {
     mutation?: CreateMutationOptions<TData, TError, CreateUser['request']>
@@ -29,7 +29,6 @@ export function createUserQuery<TData = CreateUser['response'], TError = CreateU
   } = {},
 ): CreateMutationResult<TData, TError, CreateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<TData, TError, CreateUser['request']>({
     mutationFn: (data) => {
       return client<CreateUser['data'], TError, CreateUser['request']>({

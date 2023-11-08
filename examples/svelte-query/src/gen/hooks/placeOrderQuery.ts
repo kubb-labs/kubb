@@ -1,8 +1,8 @@
-import { createMutation } from '@tanstack/svelte-query'
 import client from '@kubb/swagger-client/client'
+import { createMutation } from '@tanstack/svelte-query'
 import type { KubbQueryFactory } from './types'
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
 
 type PlaceOrder = KubbQueryFactory<
   PlaceOrderMutationResponse,
@@ -16,12 +16,12 @@ type PlaceOrder = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order
  */
-
 export function placeOrderQuery<TData = PlaceOrder['response'], TError = PlaceOrder['error']>(
   options: {
     mutation?: CreateMutationOptions<TData, TError, PlaceOrder['request']>
@@ -29,7 +29,6 @@ export function placeOrderQuery<TData = PlaceOrder['response'], TError = PlaceOr
   } = {},
 ): CreateMutationResult<TData, TError, PlaceOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<TData, TError, PlaceOrder['request']>({
     mutationFn: (data) => {
       return client<PlaceOrder['data'], TError, PlaceOrder['request']>({
