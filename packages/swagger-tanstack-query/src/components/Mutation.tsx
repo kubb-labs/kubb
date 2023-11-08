@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { PackageManager } from '@kubb/core'
 import { FunctionParams, getRelativePath, transformers, URLPath } from '@kubb/core/utils'
-import { File, Function, usePlugin, usePluginManager } from '@kubb/react'
+import { File, Function, Type, usePlugin, usePluginManager } from '@kubb/react'
 import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
@@ -63,7 +63,9 @@ Mutation.Template = function({
 
   return (
     <>
-      {`type ${factory.name} = KubbQueryFactory<${factory.Generics.join(', ')}>`}
+      <Type name={factory.name}>
+        {`KubbQueryFactory<${factory.Generics.join(', ')}>`}
+      </Type>
       <br />
       <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
         {`

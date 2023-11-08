@@ -3,7 +3,7 @@
 import path from 'node:path'
 
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
-import { createRoot, File } from '@kubb/react'
+import { createRoot, File, Type } from '@kubb/react'
 import { OasBuilder } from '@kubb/swagger'
 import { useResolve } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, getParams } from '@kubb/swagger/utils'
@@ -66,7 +66,11 @@ export class QueryBuilder extends OasBuilder<Options, PluginOptions> {
       `{ dataReturnType: '${dataReturnType}'; type: 'query' }`,
     ] as [data: string, error: string, request: string, pathParams: string, queryParams: string, headerParams: string, response: string, options: string]
 
-    const Component = () => <>{`type ${this.#names.queryFactoryType} = KubbQueryFactory<${generics.join(', ')}>`}</>
+    const Component = () => (
+      <Type name={this.#names.queryFactoryType}>
+        {`KubbQueryFactory<${generics.join(', ')}>`}
+      </Type>
+    )
 
     return Component
   }
