@@ -1,4 +1,17 @@
 # Changelog
+## [1.14.7](https://github.com/kubb-project/kubb/compare/kubb-v1.14.6...kubb-v1.14.7) (2023-11-08)
+
+
+### 📚 Documentation
+
+* add alpha docs ([ec726d7](https://github.com/kubb-project/kubb/commit/ec726d79f2dbe2823ad3f532e378a1a174e74d24))
+* fix install command for swagger-tanstack-query plugin ([216390f](https://github.com/kubb-project/kubb/commit/216390fd47c60aecf04e562e385715147ba97a38))
+
+
+### 🐞 Bug Fixes
+
+* upgrade js-runtime ([70785bd](https://github.com/kubb-project/kubb/commit/70785bdaa1cb3e35a9511b73b0772de644eecd39))
+
 ## [1.14.6](https://github.com/kubb-project/kubb/compare/kubb-v1.14.5...kubb-v1.14.6) (2023-10-27)
 
 

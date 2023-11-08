@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.14.7](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.14.6...@kubb/swagger-swr-v1.14.7) (2023-11-08)
+
+
+### ✨ Features
+
+* `overrideBy` to specify different options per `operationId | tag | path | method` ([ebb3db1](https://github.com/kubb-project/kubb/commit/ebb3db14c3796ea5211a49ccded5544ee54ad66c))
+* **client,swr,tanstack-query:** add clientImportPath option ([f3b3b30](https://github.com/kubb-project/kubb/commit/f3b3b30501fe48a19071fe37b082d3646b81b5c8))
+* type for `resolveName` ([53f9893](https://github.com/kubb-project/kubb/commit/53f98933e4b1ffe834622207768257d524f1f725))
+
+
+### 📚 Documentation
+
+* better docs with examples ([fb42958](https://github.com/kubb-project/kubb/commit/fb429588f213a0ec7973fd64aa24eea17529747a))
+
+
+### 🐞 Bug Fixes
+
+* docs about wrong Badge usage, wrong import line example ([15c0cd3](https://github.com/kubb-project/kubb/commit/15c0cd34f54629292d30c57e162dad4467f8b9c8))
+* use of `fileManager.addIndexes` and `URLPath` without static functions ([9bc291d](https://github.com/kubb-project/kubb/commit/9bc291d5b9126b1d3f26803e6a1c54a3b008f634))
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.14.2 ([91e61ac](https://github.com/kubb-project/kubb/commit/91e61acde1c3824c40f291e1142363eaa95fb1cf))
+* release 1.14.3 ([695f324](https://github.com/kubb-project/kubb/commit/695f3242d61ac13f4284f3bdf529a3bc0e353244))
+
 ## [1.14.6](https://github.com/kubb-project/kubb/compare/@kubb/swagger-swr-v1.14.5...@kubb/swagger-swr-v1.14.6) (2023-10-27)
 
 
