@@ -3,7 +3,7 @@
 import path from 'node:path'
 
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
-import { createRoot, File, Type } from '@kubb/react'
+import { createRoot, File } from '@kubb/react'
 import { OasBuilder } from '@kubb/swagger'
 import { useResolve } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, getParams } from '@kubb/swagger/utils'
@@ -12,7 +12,6 @@ import { camelCase, pascalCase } from 'change-case'
 import { capitalCase, capitalCaseTransform } from 'change-case'
 
 import { HelpersFile } from '../components/HelpersFile.tsx'
-import { QueryKeyFunction } from '../components/QueryKeyFunction.tsx'
 
 import type { AppContextProps, RootType } from '@kubb/react'
 import type { Resolver } from '@kubb/swagger'
@@ -49,40 +48,6 @@ export class QueryBuilder extends OasBuilder<Options, PluginOptions> {
       mutation: frameworkImports.getName(operation),
       mutationFactoryType: pascalCase(operation.getOperationId()),
     } as const
-  }
-
-  get queryFactoryType(): React.ComponentType {
-    const { dataReturnType, errors } = this.options
-    const { schemas } = this.context
-
-    const generics = [
-      schemas.response.name,
-      errors.map((error) => error.name).join(' | ') || 'never',
-      schemas.request?.name || 'never',
-      schemas.pathParams?.name || 'never',
-      schemas.queryParams?.name || 'never',
-      schemas.headerParams?.name || 'never',
-      schemas.response.name,
-      `{ dataReturnType: '${dataReturnType}'; type: 'query' }`,
-    ] as [data: string, error: string, request: string, pathParams: string, queryParams: string, headerParams: string, response: string, options: string]
-
-    const Component = () => (
-      <Type name={this.#names.queryFactoryType}>
-        {`KubbQueryFactory<${generics.join(', ')}>`}
-      </Type>
-    )
-
-    return Component
-  }
-
-  get queryKey(): React.ComponentType {
-    const { framework } = this.options
-
-    const FrameworkComponent = QueryKeyFunction[framework]
-
-    const Component = () => <FrameworkComponent factoryTypeName={this.#names.queryFactoryType} name={this.#names.queryKey} typeName={this.#names.QueryKey} />
-
-    return Component
   }
 
   get queryOptions(): React.ComponentType<{ infinite?: boolean }> {
@@ -290,6 +255,7 @@ export class QueryBuilder extends OasBuilder<Options, PluginOptions> {
     ])
 
     const resultGenerics = ['TData', 'TError']
+    // DONE
     // TODO check why we need any for v5
     const useQueryGenerics = [frameworkImports.isV5 ? 'any' : 'TQueryFnData', 'TError', 'TData', 'any']
     const queryOptionsGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData']
@@ -406,8 +372,6 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${QueryR
     const { infinite } = this.options as QueryOptions
     const { pluginManager, operation, schemas, plugin } = this.context
 
-    const QueryKey = this.queryKey
-    const QueryType = this.queryFactoryType
     const QueryOptions = this.queryOptions
     const Query = this.query
 
@@ -422,8 +386,6 @@ export function ${name} <${generics.toString()}>(${params.toString()}): ${QueryR
           <File id={name} baseName={file.baseName} path={file.path}>
             <File.Import root={file.path} path={path.resolve(file.path, '../types.ts')} name={['KubbQueryFactory']} isTypeOnly />
             <File.Source>
-              <QueryType />
-              <QueryKey />
               <QueryOptions infinite={false} />
               <Query />
               <br />

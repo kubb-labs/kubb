@@ -1,68 +1,16 @@
 import { PackageManager } from '@kubb/core'
-import { getRelativePath } from '@kubb/core/utils'
 import { createRoot } from '@kubb/react'
-import { OperationGenerator as Generator, resolve } from '@kubb/swagger'
-import { pluginKey as swaggerTypescriptPluginKey, resolve as resolveSwaggerTypescript } from '@kubb/swagger-ts'
+import { OperationGenerator as Generator } from '@kubb/swagger'
 
-import { QueryBuilder } from './builders/QueryBuilder.tsx'
 import { Mutation } from './components/Mutation.tsx'
+import { Query } from './components/Query.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
-import type { Operation, OperationMethodResult, OperationSchema, OperationSchemas, Resolver } from '@kubb/swagger'
+import type { Operation, OperationMethodResult, OperationSchemas } from '@kubb/swagger'
 import type { FileMeta, FrameworkImports, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions, FileMeta> {
-  resolve(operation: Operation): Resolver {
-    const { framework } = this.options
-    const { pluginManager, plugin } = this.context
-
-    const imports = this.getFrameworkSpecificImports(framework)
-    const name = imports.getName(operation)
-
-    return resolve({
-      name,
-      operation,
-      resolveName: pluginManager.resolveName,
-      resolvePath: pluginManager.resolvePath,
-      pluginKey: plugin.key,
-    })
-  }
-
-  resolveType(operation: Operation): Resolver {
-    const { pluginManager } = this.context
-
-    return resolveSwaggerTypescript({
-      operation,
-      resolveName: pluginManager.resolveName,
-      resolvePath: pluginManager.resolvePath,
-    })
-  }
-
-  resolveError(operation: Operation, statusCode: number): Resolver {
-    const { pluginManager } = this.context
-
-    const name = pluginManager.resolveName({ name: `${operation.getOperationId()} ${statusCode}`, pluginKey: swaggerTypescriptPluginKey })
-
-    return resolveSwaggerTypescript({
-      name,
-      operation,
-      resolveName: pluginManager.resolveName,
-      resolvePath: pluginManager.resolvePath,
-    })
-  }
-
-  resolveErrors(operation: Operation, errors: OperationSchema[]): Resolver[] {
-    return errors
-      .map((item) => {
-        if (item.statusCode) {
-          return this.resolveError(operation, item.statusCode)
-        }
-        return undefined
-      })
-      .filter(Boolean)
-  }
-
   getFrameworkSpecificImports(framework: PluginOptions['resolvedOptions']['framework']): FrameworkImports {
     const { pluginManager, plugin } = this.context
 
@@ -273,87 +221,18 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   }
 
   async get(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    const { framework, infinite, dataReturnType } = options
-    const { pluginManager, oas, plugin } = this.context
+    const { pluginManager, plugin } = this.context
 
-    const clientPath = plugin.options.client
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+    root.render(
+      <>
+        <Query.File framework={options.framework} />
+        {/** {inifinte && <QueryInfinite.File framework={options.framework} />} */}
+      </>,
+      { meta: { pluginManager, plugin: { ...plugin, options }, schemas, operation } },
+    )
 
-    const hook = this.resolve(operation)
-    const type = this.resolveType(operation)
-    const frameworkImports = this.getFrameworkSpecificImports(framework)
-    const name = frameworkImports.getName(operation)
-
-    let errors: Resolver[] = []
-
-    if (schemas.errors) {
-      errors = this.resolveErrors(operation, schemas.errors)
-    }
-
-    const queryBuilder = new QueryBuilder({ errors, framework, frameworkImports, infinite, dataReturnType }, { oas, plugin, pluginManager, operation, schemas })
-    const clientImportPath = this.options.clientImportPath
-      ? this.options.clientImportPath
-      : clientPath
-      ? getRelativePath(hook.path, clientPath)
-      : '@kubb/swagger-client/client'
-
-    const root = queryBuilder.render('query', name)
-    const { file, getFile } = root
-
-    if (!file) {
-      throw new Error('No <File/> being used or File is undefined(see resolvePath/resolveName)')
-    }
-
-    // TODO refactor
-    const helpersFile = getFile('types')
-    const renderedFile = getFile(name)
-
-    return [
-      helpersFile
-        ? {
-          ...helpersFile,
-          imports: [...helpersFile.imports || [], {
-            name: 'client',
-            path: clientImportPath,
-          }],
-        }
-        : undefined,
-      renderedFile
-        ? {
-          path: renderedFile.path,
-          baseName: renderedFile.baseName,
-          source: renderedFile.source,
-          imports: [
-            ...(renderedFile.imports || []),
-            ...this.getQueryImports('query'),
-            ...this.getQueryImports('queryInfinite'),
-            {
-              name: 'client',
-              path: clientImportPath,
-            },
-            {
-              name: ['ResponseConfig'],
-              path: clientImportPath,
-              isTypeOnly: true,
-            },
-            {
-              name: [
-                schemas.response.name,
-                schemas.pathParams?.name,
-                schemas.queryParams?.name,
-                schemas.headerParams?.name,
-                ...errors.map((error) => error.name),
-              ].filter(Boolean),
-              path: getRelativePath(hook.path, type.path),
-              isTypeOnly: true,
-            },
-          ],
-          meta: {
-            pluginKey: plugin.key,
-            tag: operation.getTags()[0]?.name,
-          },
-        }
-        : undefined,
-    ].filter(Boolean)
+    return root.files
   }
 
   async post(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
