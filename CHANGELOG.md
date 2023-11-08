@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0-alpha.5](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.5...kubb-v2.1.0-alpha.5) (2023-11-08)
+
+
+### ✨ Features
+
+* Type component ([bfaf12b](https://github.com/kubb-project/kubb/commit/bfaf12b751dffc2ec2b6077782af6ccd339c9cd6))
+
 ## [2.0.0-alpha.5](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.4...kubb-v2.0.0-alpha.5) (2023-11-07)
 
 

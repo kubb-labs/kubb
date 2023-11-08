@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.1.0-alpha.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v2.0.0-alpha.5...@kubb/swagger-tanstack-query-v2.1.0-alpha.5) (2023-11-08)
+
+
+### 🐞 Bug Fixes
+
+* add `/index` to folders ([f887146](https://github.com/kubb-project/kubb/commit/f88714633e71266b51781729cf4c617145e54798))
+* add `as QueryKey` cast for `@tanstack/react-query` v5 ([67a3073](https://github.com/kubb-project/kubb/commit/67a30731713b2f1a047f0cd72f728db752322305))
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.14.3 ([695f324](https://github.com/kubb-project/kubb/commit/695f3242d61ac13f4284f3bdf529a3bc0e353244))
+* release 2.0.0-alpha.1 ([925bf68](https://github.com/kubb-project/kubb/commit/925bf686956804aad82ba6480152427aaa6ad4f8))
+* release 2.0.0-alpha.2 ([c0abf54](https://github.com/kubb-project/kubb/commit/c0abf54220849007e354f594267cd69086c38b07))
+* release 2.0.0-alpha.3 ([3175248](https://github.com/kubb-project/kubb/commit/3175248895d3def0e32fbf87a7ffa45c0c859b68))
+* release 2.0.0-alpha.4 ([36f790a](https://github.com/kubb-project/kubb/commit/36f790a8260ce0842ca64852590e59f2c661367c))
+* release 2.0.0-alpha.5 ([cb226aa](https://github.com/kubb-project/kubb/commit/cb226aa772601d54e44717770b12a450a3863c45))
+
+
+### ✨ Features
+
+* Type component ([bfaf12b](https://github.com/kubb-project/kubb/commit/bfaf12b751dffc2ec2b6077782af6ccd339c9cd6))
+
 ## [2.0.0-alpha.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-tanstack-query-v2.0.0-alpha.4...@kubb/swagger-tanstack-query-v2.0.0-alpha.5) (2023-11-07)
 
 
