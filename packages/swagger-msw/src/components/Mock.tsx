@@ -54,6 +54,15 @@ export const ${name} = rest.${method}('*${path.toURLPath()}', function handler(r
   )
 }
 
+const defaultTemplates = { default: Mock.Template } as const
+
+type MockFileProps = {
+  /**
+   * Will make it possible to override the default behaviour of Mock.Template
+   */
+  templates?: typeof defaultTemplates
+}
+
 type MockProps = {
   /**
    * Will make it possible to override the default behaviour of Mock.Template
@@ -61,7 +70,7 @@ type MockProps = {
   Template?: React.ComponentType<React.ComponentProps<typeof Mock.Template>>
 }
 
-Mock.File = function({ Template = Mock.Template }: MockProps): ReactNode {
+Mock.File = function({ templates = defaultTemplates }: MockFileProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const operation = useOperation()
@@ -70,6 +79,8 @@ Mock.File = function({ Template = Mock.Template }: MockProps): ReactNode {
   const responseName = useResolveName({ pluginKey: fakerPluginKey, name: schemas.response.name, type: 'type' })
 
   const isV2 = new PackageManager().isValidSync('msw', '>=2')
+
+  const Template = templates.default
 
   return (
     <File<FileMeta>
@@ -92,7 +103,7 @@ Mock.File = function({ Template = Mock.Template }: MockProps): ReactNode {
 }
 
 export function Mock({
-  Template = Mock.Template,
+  Template = defaultTemplates.default,
 }: MockProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const schemas = useSchemas()

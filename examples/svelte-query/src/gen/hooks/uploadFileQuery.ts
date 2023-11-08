@@ -1,8 +1,8 @@
-import { createMutation } from '@tanstack/svelte-query'
 import client from '@kubb/swagger-client/client'
+import { createMutation } from '@tanstack/svelte-query'
 import type { KubbQueryFactory } from './types'
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
 
 type UploadFile = KubbQueryFactory<
   UploadFileMutationResponse,
@@ -16,11 +16,11 @@ type UploadFile = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-
 export function uploadFileQuery<TData = UploadFile['response'], TError = UploadFile['error']>(
   petId: UploadFilePathParams['petId'],
   params?: UploadFile['queryParams'],
@@ -30,14 +30,13 @@ export function uploadFileQuery<TData = UploadFile['response'], TError = UploadF
   } = {},
 ): CreateMutationResult<TData, TError, UploadFile['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<TData, TError, UploadFile['request']>({
     mutationFn: (data) => {
       return client<UploadFile['data'], TError, UploadFile['request']>({
         method: 'post',
         url: `/pet/${petId}/uploadImage`,
-        data,
         params,
+        data,
         ...clientOptions,
       }).then((res) => res as TData)
     },

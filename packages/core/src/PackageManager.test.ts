@@ -15,6 +15,10 @@ describe('getPackageJSON', () => {
     const version = await packageManager.getVersion('typescript')
 
     expect(version).toBe('rc')
+
+    const versionRegex = await packageManager.getVersion('typescr')
+
+    expect(versionRegex).toBe('rc')
   })
 
   test('if compared version is correct', async () => {

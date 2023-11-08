@@ -13,7 +13,7 @@ export default defineConfig({
     clean: true,
   },
   hooks: {
-    // done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
+    done: ['dprint fmt'],
   },
   plugins: [
     createSwagger({ output: false }),

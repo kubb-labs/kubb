@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`<Type/> > render Function 1`] = `
+"type Data = string
+"
+`;
+
+exports[`<Type/> > render Function with comments 1`] = `
+"/**
+ * @deprecated
+ */
+export type Data = number | string
+"
+`;

@@ -1,8 +1,8 @@
-import { createMutation } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
+import { createMutation } from '@tanstack/solid-query'
 import type { KubbQueryFactory } from './types'
-import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
+import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
 
 type AddPet = KubbQueryFactory<
   AddPetMutationResponse,
@@ -16,12 +16,12 @@ type AddPet = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
-> /**
+>
+/**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet
  */
-
 export function addPetQuery<TData = AddPet['response'], TError = AddPet['error']>(
   options: {
     mutation?: CreateMutationOptions<TData, TError, AddPet['request']>
@@ -29,7 +29,6 @@ export function addPetQuery<TData = AddPet['response'], TError = AddPet['error']
   } = {},
 ): CreateMutationResult<TData, TError, AddPet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<TData, TError, AddPet['request']>({
     mutationFn: (data) => {
       return client<AddPet['data'], TError, AddPet['request']>({

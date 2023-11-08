@@ -1,5 +1,5 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { Function } from '@kubb/react'
+import { Function, Type } from '@kubb/react'
 import { useOperation, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams } from '@kubb/swagger/utils'
 
@@ -54,7 +54,9 @@ function QueryKeyFunctionBase({ name, typeName, factoryTypeName }: Props): React
         {`[${result.join(',')}] as const;`}
       </Function.Arrow>
 
-      {`export type ${typeName} = ReturnType<typeof ${name}>`}
+      <Type name={typeName}>
+        {`ReturnType<typeof ${name}>`}
+      </Type>
     </>
   )
 }
@@ -94,7 +96,9 @@ function QueryKeyFunctionVue({ name, typeName, factoryTypeName }: Props): ReactN
         {`[${result.join(',')}] as const;`}
       </Function.Arrow>
 
-      {`export type ${typeName} = ReturnType<typeof ${name}>`}
+      <Type name={typeName}>
+        {`ReturnType<typeof ${name}>`}
+      </Type>
     </>
   )
 }

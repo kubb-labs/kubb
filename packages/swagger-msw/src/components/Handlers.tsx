@@ -9,21 +9,28 @@ import type { FileMeta, PluginOptions } from '../types.ts'
 
 type HandlersTemplateProps = {
   name?: string
-  children?: ReactNode
   handlers: string[]
 }
 
 Handlers.Template = function({
   name = 'handlers',
   handlers,
-  children,
 }: HandlersTemplateProps): ReactNode {
   return (
     <>
       {`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const;`}
-      {children}
     </>
   )
+}
+
+const defaultTemplates = { default: Handlers.Template } as const
+
+type HandlersFileProps = {
+  paths: Record<string, Record<HttpMethod, Operation>>
+  /**
+   * Will make it possible to override the default behaviour of Mock.Template
+   */
+  templates?: typeof defaultTemplates
 }
 
 function getHandlers(
@@ -47,15 +54,7 @@ function getHandlers(
   return handlers
 }
 
-type HandlersProps = {
-  paths: Record<string, Record<HttpMethod, Operation>>
-  /**
-   * Will make it possible to override the default behaviour of Handlers.Template
-   */
-  Template?: React.ComponentType<React.ComponentProps<typeof Handlers.Template>>
-}
-
-Handlers.File = function({ paths, Template = Handlers.Template }: HandlersProps): ReactNode {
+Handlers.File = function({ paths, templates = defaultTemplates }: HandlersFileProps): ReactNode {
   const pluginManager = usePluginManager()
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const file = useResolve({ name: 'handlers', pluginKey, type: 'file' })
@@ -76,6 +75,8 @@ Handlers.File = function({ paths, Template = Handlers.Template }: HandlersProps)
     return <File.Import key={name} name={[name]} root={file.path} path={path} />
   })
 
+  const Template = templates.default
+
   return (
     <File<FileMeta>
       baseName={file.baseName}
@@ -92,9 +93,17 @@ Handlers.File = function({ paths, Template = Handlers.Template }: HandlersProps)
   )
 }
 
+type HandlersProps = {
+  paths: Record<string, Record<HttpMethod, Operation>>
+  /**
+   * Will make it possible to override the default behaviour of Handlers.Template
+   */
+  Template?: React.ComponentType<React.ComponentProps<typeof Handlers.Template>>
+}
+
 export function Handlers({
   paths,
-  Template = Handlers.Template,
+  Template = defaultTemplates.default,
 }: HandlersProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const pluginManager = usePluginManager()

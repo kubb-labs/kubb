@@ -14,6 +14,9 @@ type Props = {
   path: string
 }
 
+/**
+ * @deprecated
+ */
 export function HelpersFile({ id, path: resolvedPath }: Props): ReactNode {
   return (
     <File id={id} override baseName={'types.ts'} path={resolvedPath}>
