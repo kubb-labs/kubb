@@ -19,11 +19,11 @@ type UploadFile = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
->
-/**
+> /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
+
 export function useUploadFile<TData = UploadFile['response'], TError = UploadFile['error']>(
   refPetId: MaybeRef<UploadFilePathParams['petId']>,
   refParams?: MaybeRef<UploadFileQueryParams>,

@@ -54,7 +54,7 @@ function QueryKeyFunctionBase({ name, typeName, factoryTypeName }: Props): React
         {`[${result.join(',')}] as const;`}
       </Function.Arrow>
 
-      <Type name={typeName}>
+      <Type name={typeName} export>
         {`ReturnType<typeof ${name}>`}
       </Type>
     </>
@@ -96,7 +96,7 @@ function QueryKeyFunctionVue({ name, typeName, factoryTypeName }: Props): ReactN
         {`[${result.join(',')}] as const;`}
       </Function.Arrow>
 
-      <Type name={typeName}>
+      <Type name={typeName} export>
         {`ReturnType<typeof ${name}>`}
       </Type>
     </>

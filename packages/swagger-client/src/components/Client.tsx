@@ -24,8 +24,8 @@ type ClientTemplateProps = {
   clientGenerics: string
   dataReturnType: PluginOptions['options']['dataReturnType']
   withQueryParams: boolean
-  withData?: boolean
-  withHeaders?: boolean
+  withData: boolean
+  withHeaders: boolean
 }
 
 Client.Template = function({
@@ -58,7 +58,7 @@ Client.Template = function({
       <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
         {`
   return client<${clientGenerics}>({
-  ${transformers.createIndent(4)}${clientParams.join(`,\n${transformers.createIndent(4)}`)}
+${clientOptions}
   });`}
       </Function>
     )

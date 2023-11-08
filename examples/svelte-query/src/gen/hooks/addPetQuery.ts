@@ -16,12 +16,12 @@ type AddPet = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
->
-/**
+> /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet
  */
+
 export function addPetQuery<TData = AddPet['response'], TError = AddPet['error']>(
   options: {
     mutation?: CreateMutationOptions<TData, TError, AddPet['request']>

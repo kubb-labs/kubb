@@ -16,11 +16,11 @@ type UploadFile = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
->
-/**
+> /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
+
 export function uploadFileQuery<TData = UploadFile['response'], TError = UploadFile['error']>(
   petId: UploadFilePathParams['petId'],
   params?: UploadFile['queryParams'],

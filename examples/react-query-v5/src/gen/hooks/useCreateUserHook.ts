@@ -7,12 +7,12 @@ import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-quer
 type CreateUser = KubbQueryFactory<CreateUserMutationResponse, CreateUserError, CreateUserMutationRequest, never, never, never, CreateUserMutationResponse, {
   dataReturnType: 'full'
   type: 'mutation'
-}>
-/**
+}> /**
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user
  */
+
 export function useCreateUserHook<TData = CreateUser['response'], TError = CreateUser['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, CreateUser['request']>
   client?: CreateUser['client']['paramaters']
