@@ -23,9 +23,10 @@ type MutationTemplateProps = {
   clientGenerics: string
   comments: string[]
   method: HttpMethod
-  withParams?: boolean
-  withData?: boolean
-  withHeaders?: boolean
+  withQueryParams: boolean
+  withPathParams: boolean
+  withData: boolean
+  withHeaders: boolean
   path: URLPath
   isV5: boolean
   factory: {
@@ -48,14 +49,14 @@ Mutation.Template = function({
   path,
   withData,
   withHeaders,
-  withParams,
+  withQueryParams,
   hookGenerics,
   children,
 }: MutationTemplateProps): ReactNode {
   const clientParams = [
     `method: "${method}"`,
     `url: ${path.template}`,
-    withParams ? 'params' : undefined,
+    withQueryParams ? 'params' : undefined,
     withData ? 'data' : undefined,
     withHeaders ? 'headers: { ...headers, ...clientOptions.headers }' : undefined,
     '...clientOptions',
@@ -89,7 +90,9 @@ type MutationTemplateFrameworkProps = Omit<MutationTemplateProps, 'returnType' |
   schemas: OperationSchemas
 }
 
-Mutation.TemplateReact = function({ schemas, withData, factory, ...rest }: MutationTemplateFrameworkProps): ReactNode {
+Mutation.TemplateReact = function(
+  { schemas, withData, withPathParams, withHeaders, withQueryParams, factory, ...rest }: MutationTemplateFrameworkProps,
+): ReactNode {
   const hookName = 'useMutation'
   const resultType = 'UseMutationResult'
   const optionsType = 'UseMutationOptions'
@@ -121,13 +124,13 @@ Mutation.TemplateReact = function({ schemas, withData, factory, ...rest }: Mutat
     {
       name: 'params',
       type: `${factory.name}['queryParams']`,
-      enabled: !!schemas.queryParams?.name,
+      enabled: withQueryParams,
       required: !!schemas.queryParams?.schema.required?.length,
     },
     {
       name: 'headers',
       type: `${factory.name}['headerParams']`,
-      enabled: !!schemas.headerParams?.name,
+      enabled: withHeaders,
       required: !!schemas.headerParams?.schema.required?.length,
     },
     {
@@ -147,6 +150,9 @@ Mutation.TemplateReact = function({ schemas, withData, factory, ...rest }: Mutat
       clientGenerics={clientGenerics.toString()}
       hookGenerics={hookGenerics.join(', ')}
       withData={withData}
+      withHeaders={withHeaders}
+      withPathParams={withPathParams}
+      withQueryParams={withQueryParams}
       factory={factory}
       hookName={hookName}
       returnType={`${resultType}<${resultGenerics.join(', ')}`}
@@ -154,7 +160,9 @@ Mutation.TemplateReact = function({ schemas, withData, factory, ...rest }: Mutat
   )
 }
 
-Mutation.TemplateSolid = function({ schemas, withData, factory, ...rest }: MutationTemplateFrameworkProps): ReactNode {
+Mutation.TemplateSolid = function(
+  { schemas, withHeaders, withPathParams, withQueryParams, withData, factory, ...rest }: MutationTemplateFrameworkProps,
+): ReactNode {
   const hookName = 'createMutation'
   const resultType = 'CreateMutationResult'
   const optionsType = 'CreateMutationOptions'
@@ -185,13 +193,13 @@ Mutation.TemplateSolid = function({ schemas, withData, factory, ...rest }: Mutat
     {
       name: 'params',
       type: `${factory.name}['queryParams']`,
-      enabled: !!schemas.queryParams?.name,
+      enabled: withQueryParams,
       required: !!schemas.queryParams?.schema.required?.length,
     },
     {
       name: 'headers',
       type: `${factory.name}['headerParams']`,
-      enabled: !!schemas.headerParams?.name,
+      enabled: withHeaders,
       required: !!schemas.headerParams?.schema.required?.length,
     },
     {
@@ -211,6 +219,9 @@ Mutation.TemplateSolid = function({ schemas, withData, factory, ...rest }: Mutat
       clientGenerics={clientGenerics.toString()}
       hookGenerics={hookGenerics.join(', ')}
       withData={withData}
+      withHeaders={withHeaders}
+      withPathParams={withPathParams}
+      withQueryParams={withQueryParams}
       factory={factory}
       hookName={hookName}
       returnType={`${resultType}<${resultGenerics.join(', ')}`}
@@ -218,7 +229,9 @@ Mutation.TemplateSolid = function({ schemas, withData, factory, ...rest }: Mutat
   )
 }
 
-Mutation.TemplateSvelte = function({ schemas, withData, factory, ...rest }: MutationTemplateFrameworkProps): ReactNode {
+Mutation.TemplateSvelte = function(
+  { schemas, withHeaders, withPathParams, withQueryParams, withData, factory, ...rest }: MutationTemplateFrameworkProps,
+): ReactNode {
   const hookName = 'createMutation'
   const resultType = 'CreateMutationResult'
   const optionsType = 'CreateMutationOptions'
@@ -249,13 +262,13 @@ Mutation.TemplateSvelte = function({ schemas, withData, factory, ...rest }: Muta
     {
       name: 'params',
       type: `${factory.name}['queryParams']`,
-      enabled: !!schemas.queryParams?.name,
+      enabled: withQueryParams,
       required: !!schemas.queryParams?.schema.required?.length,
     },
     {
       name: 'headers',
       type: `${factory.name}['headerParams']`,
-      enabled: !!schemas.headerParams?.name,
+      enabled: withHeaders,
       required: !!schemas.headerParams?.schema.required?.length,
     },
     {
@@ -275,6 +288,9 @@ Mutation.TemplateSvelte = function({ schemas, withData, factory, ...rest }: Muta
       clientGenerics={clientGenerics.toString()}
       hookGenerics={hookGenerics.join(', ')}
       withData={withData}
+      withHeaders={withHeaders}
+      withPathParams={withPathParams}
+      withQueryParams={withQueryParams}
       factory={factory}
       hookName={hookName}
       returnType={`${resultType}<${resultGenerics.join(', ')}`}
@@ -282,7 +298,9 @@ Mutation.TemplateSvelte = function({ schemas, withData, factory, ...rest }: Muta
   )
 }
 
-Mutation.TemplateVue = function({ isV5, schemas, withData, factory, ...rest }: MutationTemplateFrameworkProps): ReactNode {
+Mutation.TemplateVue = function(
+  { isV5, schemas, withHeaders, withPathParams, withQueryParams, withData, factory, ...rest }: MutationTemplateFrameworkProps,
+): ReactNode {
   const hookName = 'useMutation'
   const resultType = 'UseMutationReturnType'
   const optionsType = isV5 ? 'UseMutationOptions' : 'VueMutationObserverOptions'
@@ -316,13 +334,13 @@ Mutation.TemplateVue = function({ isV5, schemas, withData, factory, ...rest }: M
     {
       name: 'refParams',
       type: `MaybeRef<${schemas.queryParams?.name}>`,
-      enabled: !!schemas.queryParams?.name,
+      enabled: withQueryParams,
       required: !!schemas.queryParams?.schema.required?.length,
     },
     {
       name: 'refHeaders',
       type: `MaybeRef<${schemas.headerParams?.name}>`,
-      enabled: !!schemas.headerParams?.name,
+      enabled: withHeaders,
       required: !!schemas.headerParams?.schema.required?.length,
     },
     {
@@ -350,6 +368,9 @@ Mutation.TemplateVue = function({ isV5, schemas, withData, factory, ...rest }: M
       clientGenerics={clientGenerics.toString()}
       hookGenerics={hookGenerics.join(', ')}
       withData={withData}
+      withHeaders={withHeaders}
+      withPathParams={withPathParams}
+      withQueryParams={withQueryParams}
       factory={factory}
       hookName={hookName}
       returnType={`${resultType}<${resultGenerics.join(', ')}`}
@@ -528,7 +549,8 @@ export function Mutation({
       schemas={schemas}
       generics={generics.toString()}
       path={new URLPath(operation.path)}
-      withParams={!!schemas.queryParams?.name}
+      withQueryParams={!!schemas.queryParams?.name}
+      withPathParams={!!schemas.pathParams?.name}
       withData={!!schemas.request?.name}
       withHeaders={!!schemas.headerParams?.name}
       factory={factory}

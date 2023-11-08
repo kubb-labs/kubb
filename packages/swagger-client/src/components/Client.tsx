@@ -23,7 +23,7 @@ type ClientTemplateProps = {
   path: URLPath
   clientGenerics: string
   dataReturnType: PluginOptions['options']['dataReturnType']
-  withParams?: boolean
+  withQueryParams: boolean
   withData?: boolean
   withHeaders?: boolean
 }
@@ -36,7 +36,7 @@ Client.Template = function({
   method,
   path,
   clientGenerics,
-  withParams,
+  withQueryParams,
   withData,
   withHeaders,
   comments,
@@ -45,7 +45,7 @@ Client.Template = function({
   const clientParams = [
     `method: "${method}"`,
     `url: ${path.template}`,
-    withParams ? 'params' : undefined,
+    withQueryParams ? 'params' : undefined,
     withData ? 'data' : undefined,
     withHeaders ? 'headers: { ...headers, ...options.headers }' : undefined,
     '...options',
@@ -184,7 +184,7 @@ export function Client({
       returnType={dataReturnType === 'data' ? `ResponseConfig<${schemas.response.name}>["data"]` : `ResponseConfig<${schemas.response.name}>`}
       method={operation.method}
       path={new URLPath(operation.path)}
-      withParams={!!schemas.queryParams?.name}
+      withQueryParams={!!schemas.queryParams?.name}
       withData={!!schemas.request?.name}
       withHeaders={!!schemas.headerParams?.name}
       comments={getComments(operation)}

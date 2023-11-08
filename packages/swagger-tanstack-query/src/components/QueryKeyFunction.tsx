@@ -26,7 +26,7 @@ function QueryKeyFunctionBase({ name, typeName, factoryTypeName }: Props): React
   const operation = useOperation()
   const path = new URLPath(operation.path)
   const params = new FunctionParams()
-  const withParams = !!schemas.queryParams?.name
+  const withQueryParams = !!schemas.queryParams?.name
 
   params.add([
     ...getASTParams(schemas.pathParams, {
@@ -45,7 +45,7 @@ function QueryKeyFunctionBase({ name, typeName, factoryTypeName }: Props): React
       type: 'template',
       stringify: true,
     }),
-    withParams ? `...(params ? [params] : [])` : undefined,
+    withQueryParams ? `...(params ? [params] : [])` : undefined,
   ].filter(Boolean)
 
   return (
@@ -66,7 +66,7 @@ function QueryKeyFunctionVue({ name, typeName, factoryTypeName }: Props): ReactN
   const operation = useOperation()
   const path = new URLPath(operation.path)
   const params = new FunctionParams()
-  const withParams = !!schemas.queryParams?.name
+  const withQueryParams = !!schemas.queryParams?.name
 
   params.add([
     ...getASTParams(schemas.pathParams, {
@@ -87,7 +87,7 @@ function QueryKeyFunctionVue({ name, typeName, factoryTypeName }: Props): ReactN
       stringify: true,
       replacer: (pathParam) => `unref(${pathParam})`,
     }),
-    withParams ? `...(params ? [params] : [])` : undefined,
+    withQueryParams ? `...(params ? [params] : [])` : undefined,
   ].filter(Boolean)
 
   return (
