@@ -16,12 +16,12 @@ type DeleteOrder = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
->
-/**
+> /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
+
 export function useDeleteOrderHook<TData = DeleteOrder['response'], TError = DeleteOrder['error']>(orderId: DeleteOrderPathParams['orderId'], options: {
   mutation?: UseMutationOptions<TData, TError, void>
   client?: DeleteOrder['client']['paramaters']

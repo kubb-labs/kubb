@@ -7,12 +7,12 @@ import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-quer
 type AddPet = KubbQueryFactory<AddPetMutationResponse, AddPet405, AddPetMutationRequest, never, never, never, AddPetMutationResponse, {
   dataReturnType: 'full'
   type: 'mutation'
-}>
-/**
+}> /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet
  */
+
 export function useAddPet<TData = AddPet['response'], TError = AddPet['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, AddPet['request']>
   client?: AddPet['client']['paramaters']

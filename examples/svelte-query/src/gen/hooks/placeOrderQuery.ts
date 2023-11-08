@@ -16,12 +16,12 @@ type PlaceOrder = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
->
-/**
+> /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order
  */
+
 export function placeOrderQuery<TData = PlaceOrder['response'], TError = PlaceOrder['error']>(
   options: {
     mutation?: CreateMutationOptions<TData, TError, PlaceOrder['request']>

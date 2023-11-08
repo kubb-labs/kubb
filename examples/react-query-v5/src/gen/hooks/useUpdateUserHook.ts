@@ -16,12 +16,12 @@ type UpdateUser = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
->
-/**
+> /**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username
  */
+
 export function useUpdateUserHook<TData = UpdateUser['response'], TError = UpdateUser['error']>(username: UpdateUserPathParams['username'], options: {
   mutation?: UseMutationOptions<TData, TError, UpdateUser['request']>
   client?: UpdateUser['client']['paramaters']

@@ -20,12 +20,12 @@ type CreateUsersWithListInput = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
->
-/**
+> /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
+
 export function useCreateUsersWithListInput<TData = CreateUsersWithListInput['response'], TError = CreateUsersWithListInput['error']>(
   options: {
     mutation?: UseMutationOptions<TData, TError, CreateUsersWithListInput['request'], unknown>

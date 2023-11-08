@@ -24,11 +24,11 @@ type CreatePets = KubbQueryFactory<
     dataReturnType: 'full'
     type: 'mutation'
   }
->
-/**
+> /**
  * @summary Create a pet
  * @link /pets/:uuid
  */
+
 export function useCreatePets<TData = CreatePets['response'], TError = CreatePets['error']>(
   uuid: CreatePetsPathParams['uuid'],
   headers: CreatePets['headerParams'],
