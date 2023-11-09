@@ -20,7 +20,7 @@ type UpdatePetWithForm = KubbQueryFactory<
   never,
   UpdatePetWithFormMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**

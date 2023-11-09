@@ -1,11 +1,11 @@
-import { unref } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
+import { useQuery } from '@tanstack/vue-query'
+import { unref } from 'vue'
 import type { KubbQueryFactory } from './types'
+import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
+import type { UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
 import type { MaybeRef } from 'vue'
-import type { QueryKey, UseQueryReturnType } from '@tanstack/vue-query'
-import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
 
 type GetPetById = KubbQueryFactory<
   GetPetByIdQueryResponse,
@@ -32,7 +32,6 @@ export function getPetByIdQueryOptions<
   options: GetPetById['client']['paramaters'] = {},
 ): VueQueryObserverOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdQueryKey> {
   const queryKey = getPetByIdQueryKey(refPetId)
-
   return {
     queryKey,
     queryFn: () => {
@@ -44,12 +43,12 @@ export function getPetByIdQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId
  */
+
 export function useGetPetById<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
   TError = GetPetById['error'],
@@ -57,7 +56,7 @@ export function useGetPetById<
   TQueryData = GetPetById['response'],
   TQueryKey extends QueryKey = GetPetByIdQueryKey,
 >(
-  refPetId: MaybeRef<GetPetByIdPathParams['petId']>,
+  refPetId: GetPetByIdPathParams['petId'],
   options: {
     query?: VueQueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: GetPetById['client']['paramaters']
@@ -67,7 +66,6 @@ export function useGetPetById<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(refPetId)
-
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...getPetByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(refPetId, clientOptions),
     queryKey,
@@ -75,8 +73,6 @@ export function useGetPetById<
   }) as UseQueryReturnType<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

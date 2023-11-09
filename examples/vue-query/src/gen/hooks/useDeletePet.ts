@@ -16,7 +16,7 @@ type DeletePet = KubbQueryFactory<
   DeletePetHeaderParams,
   DeletePetMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**

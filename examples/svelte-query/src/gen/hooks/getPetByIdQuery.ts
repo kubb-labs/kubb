@@ -1,8 +1,8 @@
-import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
 import client from '@kubb/swagger-client/client'
+import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult, CreateInfiniteQueryOptions, CreateInfiniteQueryResult } from '@tanstack/svelte-query'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, CreateInfiniteQueryOptions, CreateInfiniteQueryResult } from '@tanstack/svelte-query'
 
 type GetPetById = KubbQueryFactory<
   GetPetByIdQueryResponse,
@@ -29,7 +29,6 @@ export function getPetByIdQueryOptions<
   options: GetPetById['client']['paramaters'] = {},
 ): CreateBaseQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdQueryKey> {
   const queryKey = getPetByIdQueryKey(petId)
-
   return {
     queryKey,
     queryFn: () => {
@@ -40,12 +39,12 @@ export function getPetByIdQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId
  */
+
 export function getPetByIdQuery<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
   TError = GetPetById['error'],
@@ -63,7 +62,6 @@ export function getPetByIdQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
-
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...getPetByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(petId, clientOptions),
     queryKey,
@@ -71,23 +69,34 @@ export function getPetByIdQuery<
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
-
-export function getPetByIdQueryOptionsInfinite<
-  TQueryFnData extends GetPetById['data'] = GetPetById['data'],
-  TError = GetPetById['error'],
-  TData = GetPetById['response'],
-  TQueryData = GetPetById['response'],
+type GetPetByIdInfinite = KubbQueryFactory<
+  GetPetByIdQueryResponse,
+  GetPetById400 | GetPetById404,
+  never,
+  GetPetByIdPathParams,
+  never,
+  never,
+  GetPetByIdQueryResponse,
+  {
+    dataReturnType: 'data'
+    type: 'query'
+  }
+>
+export const getPetByIdInfiniteQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: `/pet/${petId}`, params: { petId: petId } }] as const
+export type GetPetByIdInfiniteQueryKey = ReturnType<typeof getPetByIdInfiniteQueryKey>
+export function getPetByIdInfiniteQueryOptions<
+  TQueryFnData extends GetPetByIdInfinite['data'] = GetPetByIdInfinite['data'],
+  TError = GetPetByIdInfinite['error'],
+  TData = GetPetByIdInfinite['response'],
+  TQueryData = GetPetByIdInfinite['response'],
 >(
   petId: GetPetByIdPathParams['petId'],
-  options: GetPetById['client']['paramaters'] = {},
-): CreateInfiniteQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdQueryKey> {
-  const queryKey = getPetByIdQueryKey(petId)
-
+  options: GetPetByIdInfinite['client']['paramaters'] = {},
+): CreateInfiniteQueryOptions<GetPetByIdInfinite['unionResponse'], TError, TData, TQueryData, GetPetByIdInfiniteQueryKey> {
+  const queryKey = getPetByIdInfiniteQueryKey(petId)
   return {
     queryKey,
     queryFn: ({ pageParam }) => {
@@ -98,39 +107,36 @@ export function getPetByIdQueryOptionsInfinite<
       }).then((res) => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId
  */
+
 export function getPetByIdQueryInfinite<
-  TQueryFnData extends GetPetById['data'] = GetPetById['data'],
-  TError = GetPetById['error'],
-  TData = GetPetById['response'],
-  TQueryData = GetPetById['response'],
-  TQueryKey extends QueryKey = GetPetByIdQueryKey,
+  TQueryFnData extends GetPetByIdInfinite['data'] = GetPetByIdInfinite['data'],
+  TError = GetPetByIdInfinite['error'],
+  TData = GetPetByIdInfinite['response'],
+  TQueryData = GetPetByIdInfinite['response'],
+  TQueryKey extends QueryKey = GetPetByIdInfiniteQueryKey,
 >(
   petId: GetPetByIdPathParams['petId'],
   options: {
     query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: GetPetById['client']['paramaters']
+    client?: GetPetByIdInfinite['client']['paramaters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
-
+  const queryKey = queryOptions?.queryKey ?? getPetByIdInfiniteQueryKey(petId)
   const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
-    ...getPetByIdQueryOptionsInfinite<TQueryFnData, TError, TData, TQueryData>(petId, clientOptions),
+    ...getPetByIdInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData>(petId, clientOptions),
     queryKey,
     ...queryOptions,
   }) as CreateInfiniteQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

@@ -5,7 +5,7 @@ import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder4
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
 type PlaceOrder = KubbQueryFactory<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest, never, never, never, PlaceOrderMutationResponse, {
-  dataReturnType: 'full'
+  dataReturnType: 'data'
   type: 'mutation'
 }> /**
  * @description Place a new order in the store

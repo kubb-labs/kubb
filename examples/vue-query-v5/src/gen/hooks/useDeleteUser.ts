@@ -15,7 +15,7 @@ type DeleteUser = KubbQueryFactory<
   never,
   DeleteUserMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**

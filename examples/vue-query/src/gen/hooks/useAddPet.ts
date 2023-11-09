@@ -14,7 +14,7 @@ type AddPet = KubbQueryFactory<
   never,
   AddPetMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**

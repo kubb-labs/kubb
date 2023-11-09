@@ -57,6 +57,7 @@ import type {
   LoginUserQueryParams,
   LoginUser400,
   LogoutUserQueryResponse,
+  LogoutUserError,
   GetUserByNameQueryResponse,
   GetUserByNamePathParams,
   GetUserByName400,
@@ -70,7 +71,7 @@ import type {
   DeleteUser400,
   DeleteUser404,
 } from './models'
-import type { UseMutationOptions, UseMutationResult, QueryKey, UseBaseQueryOptions, UseQueryResult } from '@tanstack/react-query'
+import type { UseMutationOptions, UseMutationResult, UseBaseQueryOptions, UseQueryResult, QueryKey } from '@tanstack/react-query'
 
 type UpdatePet = KubbQueryFactory<
   UpdatePetMutationResponse,
@@ -81,7 +82,7 @@ type UpdatePet = KubbQueryFactory<
   never,
   UpdatePetMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**
@@ -109,7 +110,7 @@ export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['
 }
 
 type AddPet = KubbQueryFactory<AddPetMutationResponse, AddPet405, AddPetMutationRequest, never, never, never, AddPetMutationResponse, {
-  dataReturnType: 'full'
+  dataReturnType: 'data'
   type: 'mutation'
 }> /**
  * @description Add a new pet to the store
@@ -160,7 +161,6 @@ export function findPetsByStatusQueryOptions<
   options: FindPetsByStatus['client']['paramaters'] = {},
 ): UseBaseQueryOptions<FindPetsByStatus['unionResponse'], TError, TData, TQueryData, FindPetsByStatusQueryKey> {
   const queryKey = findPetsByStatusQueryKey(params)
-
   return {
     queryKey,
     queryFn: () => {
@@ -172,12 +172,12 @@ export function findPetsByStatusQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
+
 export function useFindPetsByStatus<
   TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
   TError = FindPetsByStatus['error'],
@@ -192,7 +192,6 @@ export function useFindPetsByStatus<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
-
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...findPetsByStatusQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     queryKey,
@@ -200,9 +199,7 @@ export function useFindPetsByStatus<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
 
@@ -231,7 +228,6 @@ export function findPetsByTagsQueryOptions<
   options: FindPetsByTags['client']['paramaters'] = {},
 ): UseBaseQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsQueryKey> {
   const queryKey = findPetsByTagsQueryKey(params)
-
   return {
     queryKey,
     queryFn: () => {
@@ -243,12 +239,12 @@ export function findPetsByTagsQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
+
 export function useFindPetsByTags<
   TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
   TError = FindPetsByTags['error'],
@@ -263,7 +259,6 @@ export function useFindPetsByTags<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     queryKey,
@@ -271,9 +266,7 @@ export function useFindPetsByTags<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
 
@@ -293,7 +286,6 @@ export function getPetByIdQueryOptions<
   options: GetPetById['client']['paramaters'] = {},
 ): UseBaseQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdQueryKey> {
   const queryKey = getPetByIdQueryKey(petId)
-
   return {
     queryKey,
     queryFn: () => {
@@ -304,12 +296,12 @@ export function getPetByIdQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId
  */
+
 export function useGetPetById<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
   TError = GetPetById['error'],
@@ -324,7 +316,6 @@ export function useGetPetById<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
-
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...getPetByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(petId, clientOptions),
     queryKey,
@@ -332,9 +323,7 @@ export function useGetPetById<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
 
@@ -347,7 +336,7 @@ type UpdatePetWithForm = KubbQueryFactory<
   never,
   UpdatePetWithFormMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**
@@ -386,7 +375,7 @@ type DeletePet = KubbQueryFactory<
   DeletePetHeaderParams,
   DeletePetMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**
@@ -426,7 +415,7 @@ type UploadFile = KubbQueryFactory<
   never,
   UploadFileMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**
@@ -470,7 +459,6 @@ export function getInventoryQueryOptions<
   TQueryData = GetInventory['response'],
 >(options: GetInventory['client']['paramaters'] = {}): UseBaseQueryOptions<GetInventory['unionResponse'], TError, TData, TQueryData, GetInventoryQueryKey> {
   const queryKey = getInventoryQueryKey()
-
   return {
     queryKey,
     queryFn: () => {
@@ -481,12 +469,12 @@ export function getInventoryQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
  * @link /store/inventory
  */
+
 export function useGetInventory<
   TQueryFnData extends GetInventory['data'] = GetInventory['data'],
   TError = GetInventory['error'],
@@ -501,7 +489,6 @@ export function useGetInventory<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
-
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...getInventoryQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
     queryKey,
@@ -509,14 +496,12 @@ export function useGetInventory<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
 
 type PlaceOrder = KubbQueryFactory<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest, never, never, never, PlaceOrderMutationResponse, {
-  dataReturnType: 'full'
+  dataReturnType: 'data'
   type: 'mutation'
 }> /**
  * @description Place a new order in the store
@@ -551,7 +536,7 @@ type PlaceOrderPatch = KubbQueryFactory<
   never,
   PlaceOrderPatchMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**
@@ -603,7 +588,6 @@ export function getOrderByIdQueryOptions<
   options: GetOrderById['client']['paramaters'] = {},
 ): UseBaseQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData, GetOrderByIdQueryKey> {
   const queryKey = getOrderByIdQueryKey(orderId)
-
   return {
     queryKey,
     queryFn: () => {
@@ -614,12 +598,12 @@ export function getOrderByIdQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
+
 export function useGetOrderById<
   TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
   TError = GetOrderById['error'],
@@ -634,7 +618,6 @@ export function useGetOrderById<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
-
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...getOrderByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
     queryKey,
@@ -642,9 +625,7 @@ export function useGetOrderById<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
 
@@ -657,7 +638,7 @@ type DeleteOrder = KubbQueryFactory<
   never,
   DeleteOrderMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**
@@ -684,7 +665,7 @@ export function useDeleteOrder<TData = DeleteOrder['response'], TError = DeleteO
 }
 
 type CreateUser = KubbQueryFactory<CreateUserMutationResponse, CreateUserError, CreateUserMutationRequest, never, never, never, CreateUserMutationResponse, {
-  dataReturnType: 'full'
+  dataReturnType: 'data'
   type: 'mutation'
 }> /**
  * @description This can only be done by the logged in user.
@@ -719,7 +700,7 @@ type CreateUsersWithListInput = KubbQueryFactory<
   never,
   CreateUsersWithListInputMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**
@@ -762,7 +743,6 @@ export function loginUserQueryOptions<
   options: LoginUser['client']['paramaters'] = {},
 ): UseBaseQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
   const queryKey = loginUserQueryKey(params)
-
   return {
     queryKey,
     queryFn: () => {
@@ -774,11 +754,11 @@ export function loginUserQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @summary Logs user into the system
  * @link /user/login
  */
+
 export function useLoginUser<
   TQueryFnData extends LoginUser['data'] = LoginUser['data'],
   TError = LoginUser['error'],
@@ -793,7 +773,6 @@ export function useLoginUser<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
-
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...loginUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
     queryKey,
@@ -801,13 +780,11 @@ export function useLoginUser<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
 
-type LogoutUser = KubbQueryFactory<LogoutUserQueryResponse, never, never, never, never, never, LogoutUserQueryResponse, {
+type LogoutUser = KubbQueryFactory<LogoutUserQueryResponse, LogoutUserError, never, never, never, never, LogoutUserQueryResponse, {
   dataReturnType: 'data'
   type: 'query'
 }>
@@ -820,7 +797,6 @@ export function logoutUserQueryOptions<
   TQueryData = LogoutUser['response'],
 >(options: LogoutUser['client']['paramaters'] = {}): UseBaseQueryOptions<LogoutUser['unionResponse'], TError, TData, TQueryData, LogoutUserQueryKey> {
   const queryKey = logoutUserQueryKey()
-
   return {
     queryKey,
     queryFn: () => {
@@ -831,11 +807,11 @@ export function logoutUserQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @summary Logs out current logged in user session
  * @link /user/logout
  */
+
 export function useLogoutUser<
   TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
   TError = LogoutUser['error'],
@@ -850,7 +826,6 @@ export function useLogoutUser<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
-
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...logoutUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
     queryKey,
@@ -858,9 +833,7 @@ export function useLogoutUser<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
 
@@ -889,7 +862,6 @@ export function getUserByNameQueryOptions<
   options: GetUserByName['client']['paramaters'] = {},
 ): UseBaseQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
   const queryKey = getUserByNameQueryKey(username)
-
   return {
     queryKey,
     queryFn: () => {
@@ -900,11 +872,11 @@ export function getUserByNameQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @summary Get user by user name
  * @link /user/:username
  */
+
 export function useGetUserByName<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
   TError = GetUserByName['error'],
@@ -919,7 +891,6 @@ export function useGetUserByName<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
-
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
     queryKey,
@@ -927,9 +898,7 @@ export function useGetUserByName<
   }) as UseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
 
@@ -942,7 +911,7 @@ type UpdateUser = KubbQueryFactory<
   never,
   UpdateUserMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**
@@ -978,7 +947,7 @@ type DeleteUser = KubbQueryFactory<
   never,
   DeleteUserMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**

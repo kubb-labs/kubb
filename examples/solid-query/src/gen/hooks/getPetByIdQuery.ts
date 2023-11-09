@@ -1,8 +1,8 @@
-import { createQuery } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
+import { createQuery } from '@tanstack/solid-query'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
 type GetPetById = KubbQueryFactory<
   GetPetByIdQueryResponse,
@@ -29,7 +29,6 @@ export function getPetByIdQueryOptions<
   options: GetPetById['client']['paramaters'] = {},
 ): CreateBaseQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdQueryKey> {
   const queryKey = getPetByIdQueryKey(petId)
-
   return {
     queryKey,
     queryFn: () => {
@@ -40,12 +39,12 @@ export function getPetByIdQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId
  */
+
 export function getPetByIdQuery<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
   TError = GetPetById['error'],
@@ -63,16 +62,13 @@ export function getPetByIdQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
-
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...getPetByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(petId, clientOptions),
-    queryKey: () => queryKey,
+    queryKey,
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

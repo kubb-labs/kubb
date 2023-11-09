@@ -1,10 +1,10 @@
-import { unref } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
+import { useQuery } from '@tanstack/vue-query'
+import { unref } from 'vue'
 import type { KubbQueryFactory } from './types'
-import type { MaybeRef } from 'vue'
-import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
+import type { UseQueryReturnType, QueryObserverOptions, QueryKey } from '@tanstack/vue-query'
+import type { MaybeRef } from 'vue'
 
 type GetUserByName = KubbQueryFactory<
   GetUserByNameQueryResponse,
@@ -32,7 +32,6 @@ export function getUserByNameQueryOptions<
   options: GetUserByName['client']['paramaters'] = {},
 ): QueryObserverOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
   const queryKey = getUserByNameQueryKey(refUsername)
-
   return {
     queryKey,
     queryFn: () => {
@@ -44,11 +43,11 @@ export function getUserByNameQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @summary Get user by user name
  * @link /user/:username
  */
+
 export function useGetUserByName<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
   TError = GetUserByName['error'],
@@ -56,7 +55,7 @@ export function useGetUserByName<
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
-  refUsername: MaybeRef<GetUserByNamePathParams['username']>,
+  refUsername: GetUserByNamePathParams['username'],
   options: {
     query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
     client?: GetUserByName['client']['paramaters']
@@ -66,7 +65,6 @@ export function useGetUserByName<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(refUsername)
-
   const query = useQuery<any, TError, TData, any>({
     ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(refUsername, clientOptions),
     queryKey,
@@ -74,8 +72,6 @@ export function useGetUserByName<
   }) as UseQueryReturnType<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

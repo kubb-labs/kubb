@@ -13,7 +13,7 @@ type UpdateUser = KubbQueryFactory<
   never,
   UpdateUserMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**

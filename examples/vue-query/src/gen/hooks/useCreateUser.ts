@@ -14,7 +14,7 @@ type CreateUser = KubbQueryFactory<
   never,
   CreateUserMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**

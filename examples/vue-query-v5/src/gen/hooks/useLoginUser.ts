@@ -1,10 +1,10 @@
-import { unref } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
+import { useQuery } from '@tanstack/vue-query'
+import { unref } from 'vue'
 import type { KubbQueryFactory } from './types'
-import type { MaybeRef } from 'vue'
-import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
+import type { UseQueryReturnType, QueryObserverOptions, QueryKey } from '@tanstack/vue-query'
+import type { MaybeRef } from 'vue'
 
 type LoginUser = KubbQueryFactory<
   LoginUserQueryResponse,
@@ -31,7 +31,6 @@ export function loginUserQueryOptions<
   options: LoginUser['client']['paramaters'] = {},
 ): QueryObserverOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
   const queryKey = loginUserQueryKey(refParams)
-
   return {
     queryKey,
     queryFn: () => {
@@ -44,11 +43,11 @@ export function loginUserQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @summary Logs user into the system
  * @link /user/login
  */
+
 export function useLoginUser<
   TQueryFnData extends LoginUser['data'] = LoginUser['data'],
   TError = LoginUser['error'],
@@ -66,7 +65,6 @@ export function useLoginUser<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(refParams)
-
   const query = useQuery<any, TError, TData, any>({
     ...loginUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(refParams, clientOptions),
     queryKey,
@@ -74,8 +72,6 @@ export function useLoginUser<
   }) as UseQueryReturnType<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

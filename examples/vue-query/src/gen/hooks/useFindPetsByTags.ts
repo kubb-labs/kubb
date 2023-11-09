@@ -1,11 +1,11 @@
-import { unref } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
+import { useQuery } from '@tanstack/vue-query'
+import { unref } from 'vue'
 import type { KubbQueryFactory } from './types'
+import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
+import type { UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
 import type { MaybeRef } from 'vue'
-import type { QueryKey, UseQueryReturnType } from '@tanstack/vue-query'
-import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 
 type FindPetsByTags = KubbQueryFactory<
   FindPetsByTagsQueryResponse,
@@ -32,7 +32,6 @@ export function findPetsByTagsQueryOptions<
   options: FindPetsByTags['client']['paramaters'] = {},
 ): VueQueryObserverOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsQueryKey> {
   const queryKey = findPetsByTagsQueryKey(refParams)
-
   return {
     queryKey,
     queryFn: () => {
@@ -45,12 +44,12 @@ export function findPetsByTagsQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
+
 export function useFindPetsByTags<
   TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
   TError = FindPetsByTags['error'],
@@ -68,7 +67,6 @@ export function useFindPetsByTags<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(refParams)
-
   const query = useQuery<TQueryFnData, TError, TData, any>({
     ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(refParams, clientOptions),
     queryKey,
@@ -76,8 +74,6 @@ export function useFindPetsByTags<
   }) as UseQueryReturnType<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

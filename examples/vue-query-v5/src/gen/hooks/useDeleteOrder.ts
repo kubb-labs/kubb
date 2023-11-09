@@ -15,7 +15,7 @@ type DeleteOrder = KubbQueryFactory<
   never,
   DeleteOrderMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**

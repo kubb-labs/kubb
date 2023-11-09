@@ -5,7 +5,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse, CreateUserE
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
 type CreateUser = KubbQueryFactory<CreateUserMutationResponse, CreateUserError, CreateUserMutationRequest, never, never, never, CreateUserMutationResponse, {
-  dataReturnType: 'full'
+  dataReturnType: 'data'
   type: 'mutation'
 }> /**
  * @description This can only be done by the logged in user.

@@ -1,8 +1,8 @@
-import { createQuery } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
+import { createQuery } from '@tanstack/solid-query'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
 type GetUserByName = KubbQueryFactory<
   GetUserByNameQueryResponse,
@@ -29,7 +29,6 @@ export function getUserByNameQueryOptions<
   options: GetUserByName['client']['paramaters'] = {},
 ): CreateBaseQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
   const queryKey = getUserByNameQueryKey(username)
-
   return {
     queryKey,
     queryFn: () => {
@@ -40,11 +39,11 @@ export function getUserByNameQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @summary Get user by user name
  * @link /user/:username
  */
+
 export function getUserByNameQuery<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
   TError = GetUserByName['error'],
@@ -62,16 +61,13 @@ export function getUserByNameQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
-
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
-    queryKey: () => queryKey,
+    queryKey,
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
