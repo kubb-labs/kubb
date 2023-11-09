@@ -7,12 +7,12 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderPar
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-export async function deletePet<TData = DeletePetMutationResponse>(
+export async function deletePet(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData>({
+): Promise<ResponseConfig<DeletePetMutationResponse>['data']> {
+  const { data: resData } = await client<DeletePetMutationResponse>({
     method: 'delete',
     url: `/pet/${petId}`,
     headers: { ...headers, ...options.headers },

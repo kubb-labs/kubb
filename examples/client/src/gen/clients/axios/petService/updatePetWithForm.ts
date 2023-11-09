@@ -10,12 +10,12 @@ import type {
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export async function updatePetWithForm<TData = UpdatePetWithFormMutationResponse>(
+export async function updatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>['data']> {
-  const { data: resData } = await client<TData>({
+): Promise<ResponseConfig<UpdatePetWithFormMutationResponse>['data']> {
+  const { data: resData } = await client<UpdatePetWithFormMutationResponse>({
     method: 'post',
     url: `/pet/${petId}`,
     params,

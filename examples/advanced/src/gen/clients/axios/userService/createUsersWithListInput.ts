@@ -10,11 +10,11 @@ import type {
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
-export async function createUsersWithListInput<TData = CreateUsersWithListInputMutationResponse, TVariables = CreateUsersWithListInputMutationRequest>(
-  data?: TVariables,
+export async function createUsersWithListInput(
+  data?: CreateUsersWithListInputMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>> {
-  return client<TData, TVariables>({
+): Promise<ResponseConfig<CreateUsersWithListInputMutationResponse>> {
+  return client<CreateUsersWithListInputMutationResponse, CreateUsersWithListInputMutationRequest>({
     method: 'post',
     url: `/user/createWithList`,
     data,

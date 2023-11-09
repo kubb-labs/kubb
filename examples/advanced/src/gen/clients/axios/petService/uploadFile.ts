@@ -11,13 +11,13 @@ import type {
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-export async function uploadFile<TData = UploadFileMutationResponse, TVariables = UploadFileMutationRequest>(
+export async function uploadFile(
   { petId }: UploadFilePathParams,
-  data?: TVariables,
+  data?: UploadFileMutationRequest,
   params?: UploadFileQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>> {
-  return client<TData, TVariables>({
+): Promise<ResponseConfig<UploadFileMutationResponse>> {
+  return client<UploadFileMutationResponse, UploadFileMutationRequest>({
     method: 'post',
     url: `/pet/${petId}/uploadImage`,
     params,
