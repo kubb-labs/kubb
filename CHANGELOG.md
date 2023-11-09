@@ -1,4 +1,11 @@
 # Changelog
+## [1.14.8](https://github.com/kubb-project/kubb/compare/kubb-v1.14.7...kubb-v1.14.8) (2023-11-09)
+
+
+### 🐞 Bug Fixes
+
+* strict type for swagger-client ([eacdd8c](https://github.com/kubb-project/kubb/commit/eacdd8c4ccf316bb75777a6386f31828489d48b5))
+
 ## [1.14.7](https://github.com/kubb-project/kubb/compare/kubb-v1.14.6...kubb-v1.14.7) (2023-11-08)
 
 
