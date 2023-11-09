@@ -7,11 +7,11 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../
  * @summary Update an existing pet
  * @link /pet
  */
-export async function updatePet<TData = UpdatePetMutationResponse, TVariables = UpdatePetMutationRequest>(
-  data: TVariables,
+export async function updatePet(
+  data: UpdatePetMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>> {
-  return client<TData, TVariables>({
+): Promise<ResponseConfig<UpdatePetMutationResponse>> {
+  return client<UpdatePetMutationResponse, UpdatePetMutationRequest>({
     method: 'put',
     url: `/pet`,
     data,

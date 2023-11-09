@@ -12,14 +12,14 @@ import type {
  * @summary Create a pet
  * @link /pets/:uuid
  */
-export async function createPets<TData = CreatePetsMutationResponse, TVariables = CreatePetsMutationRequest>(
+export async function createPets(
   { uuid }: CreatePetsPathParams,
-  data: TVariables,
+  data: CreatePetsMutationRequest,
   headers: CreatePetsHeaderParams,
   params?: CreatePetsQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<TData>> {
-  return client<TData, TVariables>({
+): Promise<ResponseConfig<CreatePetsMutationResponse>> {
+  return client<CreatePetsMutationResponse, CreatePetsMutationRequest>({
     method: 'post',
     url: `/pets/${uuid}`,
     params,
