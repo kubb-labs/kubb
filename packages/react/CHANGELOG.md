@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.14.8](https://github.com/kubb-project/kubb/compare/@kubb/react-v1.14.7...@kubb/react-v1.14.8) (2023-11-09)
+
+
+### ✨ Features
+
+* PackageManager to retreive a version in the package.json of the user ([220cd63](https://github.com/kubb-project/kubb/commit/220cd631f95e24e622c6579849a53b3cedd95b50))
+
+
+### 📚 Documentation
+
+* better docs with examples ([fb42958](https://github.com/kubb-project/kubb/commit/fb429588f213a0ec7973fd64aa24eea17529747a))
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.14.2 ([91e61ac](https://github.com/kubb-project/kubb/commit/91e61acde1c3824c40f291e1142363eaa95fb1cf))
+* release 1.14.3 ([695f324](https://github.com/kubb-project/kubb/commit/695f3242d61ac13f4284f3bdf529a3bc0e353244))
+
+
+### 🐞 Bug Fixes
+
+* upgrade packages ([6222f59](https://github.com/kubb-project/kubb/commit/6222f599d96ab1fa34b41720715e5004cceee56b))
+
 ## [1.14.7](https://github.com/kubb-project/kubb/compare/@kubb/react-v1.14.6...@kubb/react-v1.14.7) (2023-11-08)
 
 
