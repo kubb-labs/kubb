@@ -7,7 +7,7 @@ import { camelCase, pascalCase } from 'change-case'
 
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { Framework } from '../types.ts'
+import type { Framework, Infinite } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -45,6 +45,8 @@ type TemplateProps = {
     withData: boolean
     withHeaders: boolean
   }
+  isV5: boolean
+  infinite?: Infinite
 }
 
 function Template({
@@ -55,22 +57,58 @@ function Template({
   JSDoc,
   hook,
   client,
+  infinite,
+  isV5,
 }: TemplateProps): ReactNode {
-  const clientParams = [
+  const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
-    client.withQueryParams ? 'params' : undefined,
+    client.withQueryParams && !infinite ? 'params' : undefined,
     client.withData ? 'data' : undefined,
     client.withHeaders ? 'headers: { ...headers, ...options.headers }' : undefined,
     '...options',
+    client.withQueryParams && !!infinite
+      ? `params: {
+      ...params,
+      ['${infinite.queryParam}']: pageParam,
+      ...(options.params || {}),
+    }`
+      : undefined,
   ].filter(Boolean)
 
-  const clientOptions = `${transformers.createIndent(4)}${clientParams.join(`,\n${transformers.createIndent(4)}`)}`
+  const queryOptions = [
+    isV5 && !!infinite ? `initialPageParam: ${infinite.initialPageParam}` : undefined,
+    isV5 && !!infinite ? `getNextPageParam: (lastPage) => lastPage['${infinite.queryParam}']` : undefined,
+  ].filter(Boolean)
 
-  return (
-    <>
+  const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
+  const resolvedQueryOptions = `${transformers.createIndent(4)}${queryOptions.join(`,\n${transformers.createIndent(4)}`)}`
+
+  if (infinite) {
+    return (
       <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
+         const queryKey = ${hook.queryKey}
+
+         return {
+           queryKey,
+           queryFn: ({ pageParam }) => {
+            ${hook.children || ''}
+             return client<${client.generics}>({
+              ${resolvedClientOptions}
+             }).then(res => res?.data || res)
+           },
+           ${resolvedQueryOptions}
+         }
+
+         `}
+      </Function>
+    )
+  }
+
+  return (
+    <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+      {`
        const queryKey = ${hook.queryKey}
 
        return {
@@ -78,19 +116,20 @@ function Template({
          queryFn: () => {
           ${hook.children || ''}
            return client<${client.generics}>({
-            ${clientOptions}
+            ${resolvedClientOptions}
            }).then(res => res?.data || res)
          },
+         ${resolvedQueryOptions}
        }
 
        `}
-      </Function>
-    </>
+    </Function>
   )
 }
 
 type Props = {
   isV5: boolean
+  infinite?: Infinite
   resultType?: string
   factory: {
     name: string
@@ -104,10 +143,16 @@ type Props = {
 const defaultTemplates = {
   get default() {
     return function({
-      resultType = 'UseBaseQueryOptions',
+      resultType,
       factory,
+      infinite,
+      isV5,
       Template: QueryTemplate = Template,
     }: Props): ReactNode {
+      if (!resultType) {
+        throw new Error('Could not find a resultType')
+      }
+
       const schemas = useSchemas()
       const operation = useOperation()
 
@@ -175,6 +220,8 @@ const defaultTemplates = {
           returnType={`${resultType}<${resultGenerics.join(', ')}>`}
           client={client}
           hook={hook}
+          isV5={isV5}
+          infinite={infinite}
         />
       )
     }
@@ -185,8 +232,8 @@ const defaultTemplates = {
     return function(props: Props): ReactNode {
       return (
         <Component
-          {...props}
           resultType={props.isV5 ? 'QueryObserverOptions' : 'UseBaseQueryOptions'}
+          {...props}
         />
       )
     }
@@ -197,8 +244,8 @@ const defaultTemplates = {
     return function(props: Props): ReactNode {
       return (
         <Component
-          {...props}
           resultType={'CreateQueryResult'}
+          {...props}
         />
       )
     }
@@ -209,8 +256,8 @@ const defaultTemplates = {
     return function(props: Props): ReactNode {
       return (
         <Component
-          {...props}
           resultType={'CreateQueryResult'}
+          {...props}
         />
       )
     }
@@ -218,6 +265,7 @@ const defaultTemplates = {
   get vue() {
     return function({
       isV5,
+      infinite,
       factory,
       Template: QueryTemplate = Template,
     }: Props): ReactNode {
@@ -298,6 +346,8 @@ const defaultTemplates = {
           returnType={`${resultType}<${resultGenerics.join(', ')}>`}
           client={client}
           hook={hook}
+          isV5={isV5}
+          infinite={infinite}
         />
       )
     }

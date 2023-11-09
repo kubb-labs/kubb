@@ -26,6 +26,7 @@ function Template({
 }
 
 type Props = {
+  isInfinite: boolean
   isV5?: boolean
   /**
    * This will make it possible to override the default behaviour.
@@ -39,8 +40,19 @@ export const defaultTemplates = {
   },
   get react() {
     return function(
-      { isV5, Template: QueryImportsTemplate = Template }: Props,
+      { isV5, isInfinite, Template: QueryImportsTemplate = Template }: Props,
     ): ReactNode {
+      if (isInfinite) {
+        return (
+          <QueryImportsTemplate
+            path={'@tanstack/react-query'}
+            hookName={'useInfiniteQuery'}
+            optionsType={'UseInfiniteQueryOptions'}
+            resultType={'UseInfiniteQueryResult'}
+          />
+        )
+      }
+
       return (
         <QueryImportsTemplate
           path={'@tanstack/react-query'}
@@ -53,13 +65,24 @@ export const defaultTemplates = {
   },
   get solid() {
     return function(
-      { Template: QueryImportsTemplate = Template }: Props,
+      { isInfinite, Template: QueryImportsTemplate = Template }: Props,
     ): ReactNode {
+      if (isInfinite) {
+        return (
+          <QueryImportsTemplate
+            path={'@tanstack/solid-query'}
+            hookName={'createInfiniteQuery'}
+            optionsType={'CreateInfiniteQueryOptions'}
+            resultType={'CreateInfiniteQueryResult'}
+          />
+        )
+      }
+
       return (
         <QueryImportsTemplate
           path={'@tanstack/solid-query'}
           hookName={'createQuery'}
-          optionsType={'CreateQueryOptions'}
+          optionsType={'CreateBaseQueryOptions'}
           resultType={'CreateQueryResult'}
         />
       )
@@ -67,13 +90,24 @@ export const defaultTemplates = {
   },
   get svelte() {
     return function(
-      { Template: QueryImportsTemplate = Template }: Props,
+      { isInfinite, Template: QueryImportsTemplate = Template }: Props,
     ): ReactNode {
+      if (isInfinite) {
+        return (
+          <QueryImportsTemplate
+            path={'@tanstack/svelte-query'}
+            hookName={'createInfiniteQuery'}
+            optionsType={'CreateInfiniteQueryOptions'}
+            resultType={'CreateInfiniteQueryResult'}
+          />
+        )
+      }
+
       return (
         <QueryImportsTemplate
           path={'@tanstack/svelte-query'}
           hookName={'createQuery'}
-          optionsType={'CreateQueryOptions'}
+          optionsType={'CreateBaseQueryOptions'}
           resultType={'CreateQueryResult'}
         />
       )
@@ -81,9 +115,25 @@ export const defaultTemplates = {
   },
   get vue() {
     return function(
-      { isV5 }: Props,
+      { isInfinite, isV5 }: Props,
     ): ReactNode {
       const path = '@tanstack/vue-query'
+
+      if (isInfinite) {
+        return (
+          <>
+            {isV5 && <File.Import name={['UseInfiniteQueryOptions', 'UseInfiniteQueryReturnType']} path={path} isTypeOnly />}
+
+            {!isV5 && <File.Import name={['UseInfiniteQueryReturnType']} path={path} isTypeOnly />}
+            {!isV5 && <File.Import name={['VueInfiniteQueryObserverOptions']} path={'@tanstack/vue-query/build/lib/types'} isTypeOnly />}
+            <File.Import name={['useInfiniteQuery']} path={path} />
+            <File.Import name={['unref']} path={'vue'} />
+            <File.Import name={['MaybeRef']} path={'vue'} isTypeOnly />
+            <File.Import name={['QueryKey']} path={path} isTypeOnly />
+          </>
+        )
+      }
+
       return (
         <>
           {isV5 && <File.Import name={['UseQueryOptions', 'UseQueryReturnType', 'QueryObserverOptions']} path={path} isTypeOnly />}

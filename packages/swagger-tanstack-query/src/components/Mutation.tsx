@@ -13,7 +13,7 @@ import { MutationImports } from './MutationImports.tsx'
 
 import type { HttpMethod, OperationSchemas } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { FileMeta, Framework, PluginOptions } from '../types.ts'
+import type { FileMeta, PluginOptions } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -52,7 +52,6 @@ type TemplateProps = {
     withHeaders: boolean
     path: URLPath
   }
-  isV5: boolean
 }
 
 function Template({
@@ -64,7 +63,7 @@ function Template({
   client,
   hook,
 }: TemplateProps): ReactNode {
-  const clientParams = [
+  const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
     client.withQueryParams ? 'params' : undefined,
@@ -73,7 +72,7 @@ function Template({
     '...clientOptions',
   ].filter(Boolean)
 
-  const clientOptions = `${transformers.createIndent(4)}${clientParams.join(`,\n${transformers.createIndent(4)}`)}`
+  const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
   return (
     <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
@@ -84,7 +83,7 @@ function Template({
          mutationFn: (${client.withData ? 'data' : ''}) => {
           ${hook.children || ''}
            return client<${client.generics}>({
-            ${clientOptions}
+            ${resolvedClientOptions}
            }).then(res => res as TData)
          },
          ...mutationOptions
@@ -94,6 +93,7 @@ function Template({
 }
 
 type FrameworkTemplateProps = Omit<TemplateProps, 'returnType' | 'client' | 'hook' | 'params'> & {
+  isV5: boolean
   optionsType?: string
   resultType?: string
   hook?: Pick<TemplateProps['hook'], 'name'>
@@ -311,7 +311,6 @@ const defaultTemplates = {
           </Type>
           <MutationTemplate
             {...rest}
-            isV5={isV5}
             params={params.toString()}
             returnType={`${resultType}<${resultGenerics.join(', ')}>`}
             client={{
@@ -391,7 +390,6 @@ export function Mutation({
 }
 
 type FileProps = {
-  framework: Framework
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -402,7 +400,7 @@ type FileProps = {
   imports?: typeof MutationImports.templates
 }
 
-Mutation.File = function({ framework, templates = defaultTemplates, imports = MutationImports.templates }: FileProps): ReactNode {
+Mutation.File = function({ templates = defaultTemplates, imports = MutationImports.templates }: FileProps): ReactNode {
   const { key: pluginKey, options } = usePlugin<PluginOptions>()
   const pluginManager = usePluginManager()
   const schemas = useSchemas()
@@ -410,7 +408,7 @@ Mutation.File = function({ framework, templates = defaultTemplates, imports = Mu
   const file = useResolve({ pluginKey, type: 'file' })
   const fileType = useResolveType({ type: 'file' })
 
-  const { clientImportPath, client, templatesPath } = options
+  const { clientImportPath, client, templatesPath, framework } = options
   const root = path.resolve(pluginManager.config.root, pluginManager.config.output.path)
   const clientPath = client ? path.resolve(root, 'client.ts') : undefined
   const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'

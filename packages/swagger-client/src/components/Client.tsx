@@ -53,7 +53,7 @@ function Template({
   JSDoc,
   client,
 }: TemplateProps): ReactNode {
-  const clientParams = [
+  const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
     client.withQueryParams ? 'params' : undefined,
@@ -62,14 +62,14 @@ function Template({
     '...options',
   ].filter(Boolean)
 
-  const clientOptions = `${transformers.createIndent(4)}${clientParams.join(`,\n${transformers.createIndent(4)}`)}`
+  const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
   if (client.dataReturnType === 'full') {
     return (
       <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
   return client<${client.generics}>({
-${clientOptions}
+${resolvedClientOptions}
   });`}
       </Function>
     )
@@ -79,7 +79,7 @@ ${clientOptions}
     <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
       {`
 const { data: resData } = await client<${client.generics}>({
-${clientOptions}
+${resolvedClientOptions}
 });
 
 return resData;`}

@@ -15,7 +15,7 @@ import { QueryOptions } from './QueryOptions.tsx'
 
 import type { HttpMethod, OperationSchemas } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { FileMeta, Framework, PluginOptions } from '../types.ts'
+import type { FileMeta, Infinite, PluginOptions } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -46,7 +46,6 @@ type TemplateProps = {
     queryKey: string
     queryOptions: string
   }
-  isV5: boolean
 }
 
 function Template({
@@ -85,6 +84,8 @@ function Template({
 type FrameworkTemplateProps =
   & Omit<TemplateProps, 'returnType' | 'hook' | 'params'>
   & {
+    isV5: boolean
+    infinite?: Infinite
     optionsType?: string
     resultType?: string
     hook?: Pick<TemplateProps['hook'], 'name'>
@@ -126,6 +127,7 @@ const defaultTemplates = {
         client,
         hook,
         factory,
+        infinite,
         Template: QueryTemplate = Template,
         QueryKeyTemplate = QueryKey.templates.default,
         QueryOptionsTemplate = QueryOptions.templates.default,
@@ -207,10 +209,9 @@ const defaultTemplates = {
             factory={factory}
             name={queryKey}
           />
-          <QueryOptionsTemplate factory={factory} isV5={isV5} resultType={optionsType} />
+          <QueryOptionsTemplate factory={factory} isV5={isV5} resultType={optionsType} infinite={infinite} />
           <QueryTemplate
             {...rest}
-            isV5={isV5}
             params={params.toString()}
             returnType={`${resultType}<${resultGenerics.join(', ')}>`}
             hook={{
@@ -228,6 +229,21 @@ const defaultTemplates = {
     const Component = this.default
 
     return function(props: FrameworkTemplateProps): ReactNode {
+      if (props.infinite) {
+        return (
+          <Component
+            {...props}
+            QueryKeyTemplate={QueryKey.templates.react}
+            QueryOptionsTemplate={QueryOptions.templates.react}
+            hook={{
+              name: 'useInfiniteQuery',
+            }}
+            resultType="UseInfiniteQueryResult"
+            optionsType={'UseInfiniteQueryOptions'}
+          />
+        )
+      }
+
       return (
         <Component
           {...props}
@@ -246,6 +262,21 @@ const defaultTemplates = {
     const Component = this.default
 
     return function(props: FrameworkTemplateProps): ReactNode {
+      if (props.infinite) {
+        return (
+          <Component
+            {...props}
+            QueryKeyTemplate={QueryKey.templates.react}
+            QueryOptionsTemplate={QueryOptions.templates.react}
+            hook={{
+              name: 'createInfiniteQuery',
+            }}
+            resultType="CreateInfiniteQueryResult"
+            optionsType={'CreateInfiniteQueryOptions'}
+          />
+        )
+      }
+
       return (
         <Component
           {...props}
@@ -264,6 +295,21 @@ const defaultTemplates = {
     const Component = this.default
 
     return function(props: FrameworkTemplateProps): ReactNode {
+      if (props.infinite) {
+        return (
+          <Component
+            {...props}
+            QueryKeyTemplate={QueryKey.templates.react}
+            QueryOptionsTemplate={QueryOptions.templates.react}
+            hook={{
+              name: 'createInfiniteQuery',
+            }}
+            resultType="CreateInfiniteQueryResult"
+            optionsType={'CreateInfiniteQueryOptions'}
+          />
+        )
+      }
+
       return (
         <Component
           {...props}
@@ -280,11 +326,16 @@ const defaultTemplates = {
   },
   get vue() {
     return function(
-      { isV5, schemas, client, hook, factory, Template: QueryTemplate = Template, ...rest }: FrameworkTemplateProps,
+      { infinite, isV5, schemas, client, hook, factory, Template: QueryTemplate = Template, ...rest }: FrameworkTemplateProps,
     ): ReactNode {
-      const hookName = 'useQuery'
-      const resultType = 'UseQueryReturnType'
-      const optionsType = isV5 ? 'QueryObserverOptions' : 'VueQueryObserverOptions'
+      // TODO refactor
+      const hookName = infinite ? 'useInfiniteQuery' : 'useQuery'
+      const resultType = infinite ? 'UseInfiniteQueryReturnType' : 'UseQueryReturnType'
+      const optionsType = infinite
+        ? isV5 ? 'UseInfiniteQueryOptions' : 'VueInfiniteQueryObserverOptions'
+        : isV5
+        ? 'QueryObserverOptions'
+        : 'VueQueryObserverOptions'
       const queryKey = camelCase(`${factory.name}QueryKey`)
 
       const params = new FunctionParams()
@@ -359,10 +410,9 @@ const defaultTemplates = {
             factory={factory}
             name={queryKey}
           />
-          <QueryOptions.templates.vue factory={factory} isV5={isV5} />
+          <QueryOptions.templates.vue factory={factory} isV5={isV5} infinite={infinite} />
           <QueryTemplate
             {...rest}
-            isV5={isV5}
             params={params.toString()}
             returnType={`${resultType}<${resultGenerics.join(', ')}>`}
             hook={{
@@ -380,6 +430,7 @@ const defaultTemplates = {
 } as const
 
 type Props = {
+  infinite?: Infinite
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -387,6 +438,7 @@ type Props = {
 }
 
 export function Query({
+  infinite,
   Template = defaultTemplates.react,
 }: Props): ReactNode {
   const { key: pluginKey, options } = usePlugin<PluginOptions>()
@@ -398,7 +450,7 @@ export function Query({
   const schemas = useSchemas()
 
   const factory: FrameworkTemplateProps['factory'] = {
-    name: pascalCase(operation.getOperationId()),
+    name: infinite ? pascalCase(`${operation.getOperationId()}Infinite`) : pascalCase(operation.getOperationId()),
     generics: [
       schemas.response.name,
       schemas.errors?.map((error) => error.name).join(' | ') || 'never',
@@ -424,7 +476,8 @@ export function Query({
   return (
     <Template
       isV5={isV5}
-      name={name}
+      infinite={infinite}
+      name={infinite ? `${name}Infinite` : name}
       schemas={schemas}
       generics={generics.toString()}
       factory={factory}
@@ -442,7 +495,6 @@ export function Query({
 }
 
 type FileProps = {
-  framework: Framework
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -450,7 +502,7 @@ type FileProps = {
   imports?: typeof QueryImports.templates
 }
 
-Query.File = function({ framework, templates = defaultTemplates, imports = QueryImports.templates }: FileProps): ReactNode {
+Query.File = function({ templates = defaultTemplates, imports = QueryImports.templates }: FileProps): ReactNode {
   const { key: pluginKey, options } = usePlugin<PluginOptions>()
   const pluginManager = usePluginManager()
   const schemas = useSchemas()
@@ -458,7 +510,7 @@ Query.File = function({ framework, templates = defaultTemplates, imports = Query
   const file = useResolve({ pluginKey, type: 'file' })
   const fileType = useResolveType({ type: 'file' })
 
-  const { clientImportPath, client, templatesPath } = options
+  const { clientImportPath, client, templatesPath, framework, infinite } = options
   const root = path.resolve(pluginManager.config.root, pluginManager.config.output.path)
   const clientPath = client ? path.resolve(root, 'client.ts') : undefined
   const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
@@ -501,9 +553,11 @@ Query.File = function({ framework, templates = defaultTemplates, imports = Query
           isTypeOnly
         />
 
-        <Import isV5={isV5} />
+        <Import isV5={isV5} isInfinite={false} />
+        {!!infinite && <Import isV5={isV5} isInfinite />}
         <File.Source>
-          <Query Template={Template} />
+          <Query Template={Template} infinite={undefined} />
+          {!!infinite && <Query Template={Template} infinite={infinite} />}
         </File.Source>
       </File>
     </>

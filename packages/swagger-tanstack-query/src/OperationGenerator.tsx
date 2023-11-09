@@ -19,10 +19,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
     root.render(
-      <>
-        <Query.File framework={options.framework} />
-        {/** {infinites && <QueryInfinite.File framework={options.framework} />} */}
-      </>,
+      <Query.File />,
       { meta: { pluginManager, plugin: { ...plugin, options }, schemas, operation } },
     )
 
@@ -33,7 +30,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     const { pluginManager, plugin } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
-    root.render(<Mutation.File framework={options.framework} />, { meta: { pluginManager, plugin: { ...plugin, options }, schemas, operation } })
+    root.render(<Mutation.File />, { meta: { pluginManager, plugin: { ...plugin, options }, schemas, operation } })
 
     return root.files
   }
