@@ -7,8 +7,9 @@ import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, getParams } from '@kubb/swagger/utils'
 import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
 
-import { camelCase, capitalCase, capitalCaseTransform, pascalCase } from 'change-case'
+import { camelCase, capitalCase, capitalCaseTransform, pascalCase, pascalCaseTransformMerge } from 'change-case'
 
+import { getImports } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
 import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
@@ -229,20 +230,7 @@ const defaultTemplates = {
     const Component = this.default
 
     return function(props: FrameworkTemplateProps): ReactNode {
-      if (props.infinite) {
-        return (
-          <Component
-            {...props}
-            QueryKeyTemplate={QueryKey.templates.react}
-            QueryOptionsTemplate={QueryOptions.templates.react}
-            hook={{
-              name: 'useInfiniteQuery',
-            }}
-            resultType="UseInfiniteQueryResult"
-            optionsType={'UseInfiniteQueryOptions'}
-          />
-        )
-      }
+      const imports = getImports({ isV5: props.isV5 })
 
       return (
         <Component
@@ -250,10 +238,10 @@ const defaultTemplates = {
           QueryKeyTemplate={QueryKey.templates.react}
           QueryOptionsTemplate={QueryOptions.templates.react}
           hook={{
-            name: 'useQuery',
+            name: props.infinite ? imports.queryInfinite.react.hookName : imports.query.react.hookName,
           }}
-          resultType="UseQueryResult"
-          optionsType={props.isV5 ? 'QueryObserverOptions' : 'UseBaseQueryOptions'}
+          resultType={props.infinite ? imports.queryInfinite.react.resultType : imports.query.react.resultType}
+          optionsType={props.infinite ? imports.queryInfinite.react.optionsType : imports.query.react.optionsType}
         />
       )
     }
@@ -262,20 +250,7 @@ const defaultTemplates = {
     const Component = this.default
 
     return function(props: FrameworkTemplateProps): ReactNode {
-      if (props.infinite) {
-        return (
-          <Component
-            {...props}
-            QueryKeyTemplate={QueryKey.templates.react}
-            QueryOptionsTemplate={QueryOptions.templates.react}
-            hook={{
-              name: 'createInfiniteQuery',
-            }}
-            resultType="CreateInfiniteQueryResult"
-            optionsType={'CreateInfiniteQueryOptions'}
-          />
-        )
-      }
+      const imports = getImports({ isV5: props.isV5 })
 
       return (
         <Component
@@ -283,10 +258,10 @@ const defaultTemplates = {
           QueryKeyTemplate={QueryKey.templates.solid}
           QueryOptionsTemplate={QueryOptions.templates.solid}
           hook={{
-            name: 'createQuery',
+            name: props.infinite ? imports.queryInfinite.solid.hookName : imports.query.solid.hookName,
           }}
-          resultType="CreateQueryResult"
-          optionsType="CreateBaseQueryOptions"
+          resultType={props.infinite ? imports.queryInfinite.solid.resultType : imports.query.solid.resultType}
+          optionsType={props.infinite ? imports.queryInfinite.solid.optionsType : imports.query.solid.optionsType}
         />
       )
     }
@@ -295,20 +270,7 @@ const defaultTemplates = {
     const Component = this.default
 
     return function(props: FrameworkTemplateProps): ReactNode {
-      if (props.infinite) {
-        return (
-          <Component
-            {...props}
-            QueryKeyTemplate={QueryKey.templates.react}
-            QueryOptionsTemplate={QueryOptions.templates.react}
-            hook={{
-              name: 'createInfiniteQuery',
-            }}
-            resultType="CreateInfiniteQueryResult"
-            optionsType={'CreateInfiniteQueryOptions'}
-          />
-        )
-      }
+      const imports = getImports({ isV5: props.isV5 })
 
       return (
         <Component
@@ -316,10 +278,10 @@ const defaultTemplates = {
           QueryKeyTemplate={QueryKey.templates.svelte}
           QueryOptionsTemplate={QueryOptions.templates.svelte}
           hook={{
-            name: 'createQuery',
+            name: props.infinite ? imports.queryInfinite.svelte.hookName : imports.query.svelte.hookName,
           }}
-          resultType="CreateQueryResult"
-          optionsType="CreateBaseQueryOptions"
+          resultType={props.infinite ? imports.queryInfinite.svelte.resultType : imports.query.svelte.resultType}
+          optionsType={props.infinite ? imports.queryInfinite.svelte.optionsType : imports.query.svelte.optionsType}
         />
       )
     }
@@ -328,14 +290,12 @@ const defaultTemplates = {
     return function(
       { infinite, isV5, schemas, client, hook, factory, Template: QueryTemplate = Template, ...rest }: FrameworkTemplateProps,
     ): ReactNode {
-      // TODO refactor
-      const hookName = infinite ? 'useInfiniteQuery' : 'useQuery'
-      const resultType = infinite ? 'UseInfiniteQueryReturnType' : 'UseQueryReturnType'
-      const optionsType = infinite
-        ? isV5 ? 'UseInfiniteQueryOptions' : 'VueInfiniteQueryObserverOptions'
-        : isV5
-        ? 'QueryObserverOptions'
-        : 'VueQueryObserverOptions'
+      const imports = getImports({ isV5 })
+
+      const hookName = infinite ? imports.queryInfinite.vue.hookName : imports.query.vue.hookName
+      const resultType = infinite ? imports.queryInfinite.vue.resultType : imports.query.vue.resultType
+      const optionsType = infinite ? imports.queryInfinite.vue.optionsType : imports.query.vue.optionsType
+
       const queryKey = camelCase(`${factory.name}QueryKey`)
 
       const params = new FunctionParams()
@@ -450,7 +410,9 @@ export function Query({
   const schemas = useSchemas()
 
   const factory: FrameworkTemplateProps['factory'] = {
-    name: infinite ? pascalCase(`${operation.getOperationId()}Infinite`) : pascalCase(operation.getOperationId()),
+    name: infinite
+      ? pascalCase(`${operation.getOperationId()}Infinite`, { delimiter: '', transform: pascalCaseTransformMerge })
+      : pascalCase(operation.getOperationId(), { delimiter: '', transform: pascalCaseTransformMerge }),
     generics: [
       schemas.response.name,
       schemas.errors?.map((error) => error.name).join(' | ') || 'never',

@@ -88,7 +88,7 @@ export type Options = {
   /**
    * Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
    */
-  overrideBy?: Array<OverrideBy<Options>>
+  overrideBy?: Array<OverrideBy<ResolvedOptions>>
   /**
    * Framework to be generated for
    * @default 'react'
@@ -116,7 +116,7 @@ type ResolvedOptions = {
   /**
    * Only used of infinite
    */
-  infinite?: PluginOptions['options']['infinite']
+  infinite?: Infinite
   templatesPath: string
 }
 

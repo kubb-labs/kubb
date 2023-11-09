@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { KubbQueryFactory } from './types'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
-import type { UseQueryReturnType, QueryObserverOptions, QueryKey } from '@tanstack/vue-query'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
 type GetPetById = KubbQueryFactory<

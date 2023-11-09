@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { KubbQueryFactory } from './types'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
-import type { UseQueryReturnType, QueryObserverOptions, QueryKey } from '@tanstack/vue-query'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
 type GetOrderById = KubbQueryFactory<

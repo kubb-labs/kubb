@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { KubbQueryFactory } from './types'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
-import type { UseQueryReturnType, QueryObserverOptions, QueryKey } from '@tanstack/vue-query'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
 type LoginUser = KubbQueryFactory<

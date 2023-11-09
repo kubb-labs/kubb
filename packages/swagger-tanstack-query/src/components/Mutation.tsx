@@ -7,8 +7,9 @@ import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
 
-import { camelCase, pascalCase } from 'change-case'
+import { camelCase, pascalCase, pascalCaseTransformMerge } from 'change-case'
 
+import { getImports } from '../utils.ts'
 import { MutationImports } from './MutationImports.tsx'
 
 import type { HttpMethod, OperationSchemas } from '@kubb/swagger'
@@ -199,14 +200,16 @@ const defaultTemplates = {
     const Component = this.default
 
     return function(props: FrameworkTemplateProps): ReactNode {
+      const imports = getImports({ isV5: props.isV5 })
+
       return (
         <Component
           {...props}
           hook={{
-            name: 'useMutation',
+            name: imports.mutation.react.hookName,
           }}
-          resultType="UseMutationResult"
-          optionsType="UseMutationOptions"
+          resultType={imports.mutation.react.resultType}
+          optionsType={imports.mutation.react.optionsType}
         />
       )
     }
@@ -215,14 +218,16 @@ const defaultTemplates = {
     const Component = this.default
 
     return function(props: FrameworkTemplateProps): ReactNode {
+      const imports = getImports({ isV5: props.isV5 })
+
       return (
         <Component
           {...props}
           hook={{
-            name: 'createMutation',
+            name: imports.mutation.solid.hookName,
           }}
-          resultType="CreateMutationResult"
-          optionsType="CreateMutationOptions"
+          resultType={imports.mutation.solid.resultType}
+          optionsType={imports.mutation.solid.optionsType}
         />
       )
     }
@@ -231,23 +236,27 @@ const defaultTemplates = {
     const Component = this.default
 
     return function(props: FrameworkTemplateProps): ReactNode {
+      const imports = getImports({ isV5: props.isV5 })
+
       return (
         <Component
           {...props}
           hook={{
-            name: 'createMutation',
+            name: imports.mutation.svelte.hookName,
           }}
-          resultType="CreateMutationResult"
-          optionsType="CreateMutationOptions"
+          resultType={imports.mutation.svelte.resultType}
+          optionsType={imports.mutation.svelte.optionsType}
         />
       )
     }
   },
   get vue() {
     return function({ isV5, schemas, client, hook, factory, Template: MutationTemplate = Template, ...rest }: FrameworkTemplateProps): ReactNode {
-      const hookName = 'useMutation'
-      const resultType = 'UseMutationReturnType'
-      const optionsType = isV5 ? 'UseMutationOptions' : 'VueMutationObserverOptions'
+      const imports = getImports({ isV5 })
+
+      const hookName = imports.mutation.vue.hookName
+      const resultType = imports.mutation.vue.resultType
+      const optionsType = imports.mutation.vue.optionsType
       const params = new FunctionParams()
 
       const clientGenerics = [
@@ -349,7 +358,7 @@ export function Mutation({
   const schemas = useSchemas()
 
   const factory: FrameworkTemplateProps['factory'] = {
-    name: pascalCase(operation.getOperationId()),
+    name: pascalCase(operation.getOperationId(), { delimiter: '', transform: pascalCaseTransformMerge }),
     generics: [
       schemas.response.name,
       schemas.errors?.map((error) => error.name).join(' | ') || 'never',

@@ -1,5 +1,7 @@
 import { File } from '@kubb/react'
 
+import { getImports } from '../utils.ts'
+
 import type { ReactNode } from 'react'
 import type { Framework } from '../types.ts'
 
@@ -38,58 +40,66 @@ export const defaultTemplates = {
   },
   get react() {
     return function(
-      { Template: MutationImportsTemplate = Template }: Props,
+      { isV5, Template: MutationImportsTemplate = Template }: Props,
     ): ReactNode {
+      const imports = getImports({ isV5 })
+
       return (
         <MutationImportsTemplate
-          path={'@tanstack/react-query'}
-          hookName={'useMutation'}
-          optionsType={'UseMutationOptions'}
-          resultType={'UseMutationResult'}
+          {...imports.mutation.react}
         />
       )
     }
   },
   get solid() {
     return function(
-      { Template: MutationImportsTemplate = Template }: Props,
+      { isV5, Template: MutationImportsTemplate = Template }: Props,
     ): ReactNode {
+      const imports = getImports({ isV5 })
+
       return (
         <MutationImportsTemplate
-          path={'@tanstack/solid-query'}
-          hookName={'createMutation'}
-          optionsType={'CreateMutationOptions'}
-          resultType={'CreateMutationResult'}
+          {...imports.mutation.solid}
         />
       )
     }
   },
   get svelte() {
     return function(
-      { Template: MutationImportsTemplate = Template }: Props,
+      { isV5, Template: MutationImportsTemplate = Template }: Props,
     ): ReactNode {
+      const imports = getImports({ isV5 })
+
       return (
         <MutationImportsTemplate
-          path={'@tanstack/svelte-query'}
-          hookName={'createMutation'}
-          optionsType={'CreateMutationOptions'}
-          resultType={'CreateMutationResult'}
+          {...imports.mutation.svelte}
         />
       )
     }
   },
   get vue() {
     return function(
-      { isV5 }: Props,
+      { isV5, Template: MutationImportsTemplate = Template }: Props,
     ): ReactNode {
+      const imports = getImports({ isV5 })
       const path = '@tanstack/vue-query'
+
       return (
         <>
-          {isV5 && <File.Import name={['UseMutationOptions', 'UseMutationReturnType']} path={path} isTypeOnly />}
+          {isV5
+            && (
+              <MutationImportsTemplate
+                {...imports.mutation.vue}
+              />
+            )}
 
-          {!isV5 && <File.Import name={['UseMutationReturnType']} path={path} isTypeOnly />}
-          {!isV5 && <File.Import name={['VueMutationObserverOptions']} path={'@tanstack/vue-query/build/lib/useMutation'} isTypeOnly />}
-          <File.Import name={['useMutation']} path={path} />
+          {!isV5 && (
+            <>
+              <File.Import name={[imports.mutation.vue.resultType]} path={path} isTypeOnly />
+              <File.Import name={[imports.mutation.vue.optionsType]} path={'@tanstack/vue-query/build/lib/useMutation'} isTypeOnly />
+              <File.Import name={[imports.mutation.vue.hookName]} path={path} />
+            </>
+          )}
           <File.Import name={['unref']} path={'vue'} />
           <File.Import name={['MaybeRef']} path={'vue'} isTypeOnly />
         </>

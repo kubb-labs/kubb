@@ -3,7 +3,7 @@ import { Function } from '@kubb/react'
 import { useOperation, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getParams } from '@kubb/swagger/utils'
 
-import { camelCase, pascalCase } from 'change-case'
+import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
@@ -156,9 +156,9 @@ const defaultTemplates = {
       const schemas = useSchemas()
       const operation = useOperation()
 
-      const name = camelCase(`${factory.name}QueryOptions`)
-      const queryKey = camelCase(`${factory.name}QueryKey`)
-      const queryKeyType = pascalCase(queryKey)
+      const name = camelCase(`${factory.name}QueryOptions`, { delimiter: '', transform: camelCaseTransformMerge })
+      const queryKey = camelCase(`${factory.name}QueryKey`, { delimiter: '', transform: camelCaseTransformMerge })
+      const queryKeyType = pascalCase(queryKey, { delimiter: '', transform: pascalCaseTransformMerge })
 
       const generics = new FunctionParams()
       const params = new FunctionParams()
@@ -273,9 +273,9 @@ const defaultTemplates = {
       const schemas = useSchemas()
       const operation = useOperation()
 
-      const name = camelCase(`${factory.name}QueryOptions`)
-      const queryKey = camelCase(`${factory.name}QueryKey`)
-      const queryKeyType = pascalCase(queryKey)
+      const name = camelCase(`${factory.name}QueryOptions`, { delimiter: '', transform: camelCaseTransformMerge })
+      const queryKey = camelCase(`${factory.name}QueryKey`, { delimiter: '', transform: camelCaseTransformMerge })
+      const queryKeyType = pascalCase(queryKey, { delimiter: '', transform: pascalCaseTransformMerge })
 
       const generics = new FunctionParams()
       const params = new FunctionParams()

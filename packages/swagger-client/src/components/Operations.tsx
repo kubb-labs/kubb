@@ -28,20 +28,7 @@ function Template({
 
 const defaultTemplates = { default: Template } as const
 
-type Props = {
-  oas: Oas
-  paths: Record<string, Record<HttpMethod, Operation>>
-  /**
-   * This will make it possible to override the default behaviour.
-   */
-  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
-}
-
-export function Operations({
-  oas,
-  paths,
-  Template = defaultTemplates.default,
-}: Props): ReactNode {
+function getOperations(oas: Oas, paths: Record<string, Record<HttpMethod, Operation>>): Record<string, { path: string; method: HttpMethod }> {
   const operations: Record<string, { path: string; method: HttpMethod }> = {}
 
   Object.keys(paths).forEach((path) => {
@@ -57,6 +44,24 @@ export function Operations({
     })
   })
 
+  return operations
+}
+
+type Props = {
+  oas: Oas
+  paths: Record<string, Record<HttpMethod, Operation>>
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
+}
+
+export function Operations({
+  oas,
+  paths,
+  Template = defaultTemplates.default,
+}: Props): ReactNode {
+  const operations = getOperations(oas, paths)
   return (
     <Template
       name="operations"

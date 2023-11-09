@@ -1,5 +1,7 @@
 import { File } from '@kubb/react'
 
+import { getImports } from '../utils.ts'
+
 import type { ReactNode } from 'react'
 import type { Framework } from '../types.ts'
 
@@ -42,105 +44,75 @@ export const defaultTemplates = {
     return function(
       { isV5, isInfinite, Template: QueryImportsTemplate = Template }: Props,
     ): ReactNode {
-      if (isInfinite) {
-        return (
-          <QueryImportsTemplate
-            path={'@tanstack/react-query'}
-            hookName={'useInfiniteQuery'}
-            optionsType={'UseInfiniteQueryOptions'}
-            resultType={'UseInfiniteQueryResult'}
-          />
-        )
-      }
+      const imports = getImports({ isV5 })
 
       return (
         <QueryImportsTemplate
-          path={'@tanstack/react-query'}
-          hookName={'useQuery'}
-          optionsType={isV5 ? 'QueryObserverOptions' : 'UseBaseQueryOptions'}
-          resultType={'UseQueryResult'}
+          {...isInfinite ? imports.queryInfinite.react : imports.query.react}
         />
       )
     }
   },
   get solid() {
     return function(
-      { isInfinite, Template: QueryImportsTemplate = Template }: Props,
+      { isV5, isInfinite, Template: QueryImportsTemplate = Template }: Props,
     ): ReactNode {
-      if (isInfinite) {
-        return (
-          <QueryImportsTemplate
-            path={'@tanstack/solid-query'}
-            hookName={'createInfiniteQuery'}
-            optionsType={'CreateInfiniteQueryOptions'}
-            resultType={'CreateInfiniteQueryResult'}
-          />
-        )
-      }
+      const imports = getImports({ isV5 })
 
       return (
         <QueryImportsTemplate
-          path={'@tanstack/solid-query'}
-          hookName={'createQuery'}
-          optionsType={'CreateBaseQueryOptions'}
-          resultType={'CreateQueryResult'}
+          {...isInfinite ? imports.queryInfinite.solid : imports.query.solid}
         />
       )
     }
   },
   get svelte() {
     return function(
-      { isInfinite, Template: QueryImportsTemplate = Template }: Props,
+      { isV5, isInfinite, Template: QueryImportsTemplate = Template }: Props,
     ): ReactNode {
-      if (isInfinite) {
-        return (
-          <QueryImportsTemplate
-            path={'@tanstack/svelte-query'}
-            hookName={'createInfiniteQuery'}
-            optionsType={'CreateInfiniteQueryOptions'}
-            resultType={'CreateInfiniteQueryResult'}
-          />
-        )
-      }
+      const imports = getImports({ isV5 })
 
       return (
         <QueryImportsTemplate
-          path={'@tanstack/svelte-query'}
-          hookName={'createQuery'}
-          optionsType={'CreateBaseQueryOptions'}
-          resultType={'CreateQueryResult'}
+          {...isInfinite ? imports.queryInfinite.svelte : imports.query.svelte}
         />
       )
     }
   },
   get vue() {
     return function(
-      { isInfinite, isV5 }: Props,
+      { isV5, isInfinite, Template: QueryImportsTemplate = Template }: Props,
     ): ReactNode {
+      const imports = getImports({ isV5 })
       const path = '@tanstack/vue-query'
-
-      if (isInfinite) {
-        return (
-          <>
-            {isV5 && <File.Import name={['UseInfiniteQueryOptions', 'UseInfiniteQueryReturnType']} path={path} isTypeOnly />}
-
-            {!isV5 && <File.Import name={['UseInfiniteQueryReturnType']} path={path} isTypeOnly />}
-            {!isV5 && <File.Import name={['VueInfiniteQueryObserverOptions']} path={'@tanstack/vue-query/build/lib/types'} isTypeOnly />}
-            <File.Import name={['useInfiniteQuery']} path={path} />
-            <File.Import name={['unref']} path={'vue'} />
-            <File.Import name={['MaybeRef']} path={'vue'} isTypeOnly />
-            <File.Import name={['QueryKey']} path={path} isTypeOnly />
-          </>
-        )
-      }
 
       return (
         <>
-          {isV5 && <File.Import name={['UseQueryOptions', 'UseQueryReturnType', 'QueryObserverOptions']} path={path} isTypeOnly />}
+          {isV5
+            && (
+              <>
+                <QueryImportsTemplate
+                  {...isInfinite ? imports.queryInfinite.vue : imports.query.vue}
+                />
+                <File.Import name={['QueryObserverOptions']} path={path} isTypeOnly />
+              </>
+            )}
 
-          {!isV5 && <File.Import name={['UseQueryReturnType']} path={path} isTypeOnly />}
-          {!isV5 && <File.Import name={['VueQueryObserverOptions']} path={'@tanstack/vue-query/build/lib/types'} isTypeOnly />}
-          <File.Import name={['useQuery']} path={path} />
+          {!isV5 && isInfinite && (
+            <>
+              <File.Import name={[imports.queryInfinite.vue.resultType]} path={path} isTypeOnly />
+              <File.Import name={[imports.queryInfinite.vue.optionsType]} path={'@tanstack/vue-query/build/lib/types'} isTypeOnly />
+              <File.Import name={[imports.queryInfinite.vue.hookName]} path={path} />
+            </>
+          )}
+
+          {!isV5 && !isInfinite && (
+            <>
+              <File.Import name={[imports.query.vue.resultType]} path={path} isTypeOnly />
+              <File.Import name={[imports.query.vue.optionsType]} path={'@tanstack/vue-query/build/lib/types'} isTypeOnly />
+              <File.Import name={[imports.query.vue.hookName]} path={path} />
+            </>
+          )}
           <File.Import name={['unref']} path={'vue'} />
           <File.Import name={['MaybeRef']} path={'vue'} isTypeOnly />
           <File.Import name={['QueryKey']} path={path} isTypeOnly />

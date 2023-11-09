@@ -2,7 +2,7 @@ import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
 import type { KubbQueryFactory } from './types'
 import type { LogoutUserQueryResponse, LogoutUserError } from '../models/LogoutUser'
-import type { UseQueryReturnType, QueryObserverOptions, QueryKey } from '@tanstack/vue-query'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 
 type LogoutUser = KubbQueryFactory<
   LogoutUserQueryResponse,
