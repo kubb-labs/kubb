@@ -1,7 +1,5 @@
 export type { AppContextProps } from './AppContext.tsx'
-export { Export } from './Export.tsx'
 export { File } from './File.tsx'
 export { Function } from './Function.tsx'
-export { Import } from './Import.tsx'
 export { Text } from './Text.tsx'
 export { Type } from './Type.tsx'

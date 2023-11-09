@@ -5,16 +5,39 @@ import { Text } from './Text.tsx'
 import type { KubbNode } from '../types.ts'
 
 type Props = {
+  /**
+   * Name of the function
+   */
   name: string
-  export?: boolean
-  async?: boolean
-  generics?: string | string[]
+  /**
+   * Parameters/options/props that need to be used
+   */
   params?: string
+  /**
+   * Does this function need to be exported
+   */
+  export?: boolean
+  /**
+   * Does the function has async/promise behaviour.
+   * This will also add `Promise<returnType>` as the returnType
+   */
+  async?: boolean
+  /**
+   * Generics that needs to be added for TypeScript
+   */
+  generics?: string | string[]
+
+  /**
+   * ReturnType(see async for adding Promise type)
+   */
   returnType?: string
-  children?: KubbNode
+  /**
+   * Options for JSdocs
+   */
   JSDoc?: {
     comments: string[]
   }
+  children?: KubbNode
 }
 
 export function Function({ name, export: canExport, async, generics, params, returnType, JSDoc, children }: Props): KubbNode {
@@ -68,6 +91,9 @@ export function Function({ name, export: canExport, async, generics, params, ret
 }
 
 type ArrowFunctionProps = Props & {
+  /**
+   * Create Arrow function in one line
+   */
   singleLine?: boolean
 }
 

@@ -7,15 +7,18 @@ import type { HttpMethod, Operation } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
-type HandlersTemplateProps = {
-  name?: string
+type TemplateProps = {
+  /**
+   * Name of the function
+   */
+  name: string
   handlers: string[]
 }
 
-Handlers.Template = function({
-  name = 'handlers',
+function Template({
+  name,
   handlers,
-}: HandlersTemplateProps): ReactNode {
+}: TemplateProps): ReactNode {
   return (
     <>
       {`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const;`}
@@ -23,15 +26,7 @@ Handlers.Template = function({
   )
 }
 
-const defaultTemplates = { default: Handlers.Template } as const
-
-type HandlersFileProps = {
-  paths: Record<string, Record<HttpMethod, Operation>>
-  /**
-   * Will make it possible to override the default behaviour of Mock.Template
-   */
-  templates?: typeof defaultTemplates
-}
+const defaultTemplates = { default: Template } as const
 
 function getHandlers(
   paths: Record<string, Record<HttpMethod, Operation>>,
@@ -54,7 +49,41 @@ function getHandlers(
   return handlers
 }
 
-Handlers.File = function({ paths, templates = defaultTemplates }: HandlersFileProps): ReactNode {
+type Props = {
+  paths: Record<string, Record<HttpMethod, Operation>>
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
+}
+
+export function Handlers({
+  paths,
+  Template = defaultTemplates.default,
+}: Props): ReactNode {
+  const { key: pluginKey } = usePlugin<PluginOptions>()
+  const pluginManager = usePluginManager()
+
+  // TODO can we do without pluginManager
+  const handlers = getHandlers(paths, { resolveName: pluginManager.resolveName, pluginKey })
+
+  return (
+    <Template
+      name="handlers"
+      handlers={handlers.map(item => item.name)}
+    />
+  )
+}
+
+type FileProps = {
+  paths: Record<string, Record<HttpMethod, Operation>>
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  templates?: typeof defaultTemplates
+}
+
+Handlers.File = function({ paths, templates = defaultTemplates }: FileProps): ReactNode {
   const pluginManager = usePluginManager()
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const file = useResolve({ name: 'handlers', pluginKey, type: 'file' })
@@ -93,27 +122,4 @@ Handlers.File = function({ paths, templates = defaultTemplates }: HandlersFilePr
   )
 }
 
-type HandlersProps = {
-  paths: Record<string, Record<HttpMethod, Operation>>
-  /**
-   * Will make it possible to override the default behaviour of Handlers.Template
-   */
-  Template?: React.ComponentType<React.ComponentProps<typeof Handlers.Template>>
-}
-
-export function Handlers({
-  paths,
-  Template = defaultTemplates.default,
-}: HandlersProps): ReactNode {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
-  const pluginManager = usePluginManager()
-
-  // TODO can we do without pluginManager
-  const handlers = getHandlers(paths, { resolveName: pluginManager.resolveName, pluginKey })
-
-  return (
-    <Template
-      handlers={handlers.map(item => item.name)}
-    />
-  )
-}
+Handlers.templates = defaultTemplates

@@ -11,53 +11,64 @@ import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
-type ClientTemplateProps = {
+type TemplateProps = {
+  /**
+   * Name of the function
+   */
   name: string
+  /**
+   * Parameters/options/props that need to be used
+   */
   params: string
+  /**
+   * Generics that needs to be added for TypeScript
+   */
   generics?: string
-  returnType: string
-  comments: string[]
-
-  // props Client
-  method: HttpMethod
-  path: URLPath
-  clientGenerics: string
-  dataReturnType: PluginOptions['options']['dataReturnType']
-  withQueryParams: boolean
-  withData: boolean
-  withHeaders: boolean
+  /**
+   * ReturnType(see async for adding Promise type)
+   */
+  returnType?: string
+  /**
+   * Options for JSdocs
+   */
+  JSDoc?: {
+    comments: string[]
+  }
+  client: {
+    generics: string
+    method: HttpMethod
+    path: URLPath
+    dataReturnType: PluginOptions['options']['dataReturnType']
+    withQueryParams: boolean
+    withData: boolean
+    withHeaders: boolean
+  }
 }
 
-Client.Template = function({
+function Template({
   name,
   generics,
   returnType,
   params,
-  method,
-  path,
-  clientGenerics,
-  withQueryParams,
-  withData,
-  withHeaders,
-  comments,
-  dataReturnType,
-}: ClientTemplateProps): ReactNode {
+  JSDoc,
+  client,
+}: TemplateProps): ReactNode {
   const clientParams = [
-    `method: "${method}"`,
-    `url: ${path.template}`,
-    withQueryParams ? 'params' : undefined,
-    withData ? 'data' : undefined,
-    withHeaders ? 'headers: { ...headers, ...options.headers }' : undefined,
+    `method: "${client.method}"`,
+    `url: ${client.path.template}`,
+    client.withQueryParams ? 'params' : undefined,
+    client.withData ? 'data' : undefined,
+    client.withHeaders ? 'headers: { ...headers, ...options.headers }' : undefined,
     '...options',
   ].filter(Boolean)
 
   const clientOptions = `${transformers.createIndent(4)}${clientParams.join(`,\n${transformers.createIndent(4)}`)}`
 
-  if (dataReturnType === 'full') {
+  if (client.dataReturnType === 'full') {
     return (
-      <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
+      <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
-  return client<${clientGenerics}>({
+  return client<${client.generics}>({
 ${clientOptions}
   });`}
       </Function>
@@ -65,9 +76,9 @@ ${clientOptions}
   }
 
   return (
-    <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
+    <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
       {`
-const { data: resData } = await client<${clientGenerics}>({
+const { data: resData } = await client<${client.generics}>({
 ${clientOptions}
 });
 
@@ -76,62 +87,13 @@ return resData;`}
   )
 }
 
-const defaultTemplates = { default: Client.Template } as const
-
-type ClientFileProps = {
-  /**
-   * Will make it possible to override the default behaviour of Mock.Template
-   */
-  templates?: typeof defaultTemplates
-}
-
-Client.File = function({ templates = defaultTemplates }: ClientFileProps): ReactNode {
-  const { key: pluginKey, options } = usePlugin<PluginOptions>()
-  const { config } = usePluginManager()
-  const schemas = useSchemas()
-  const operation = useOperation()
-  const file = useResolve({ pluginKey, type: 'file' })
-  const fileType = useResolveType({ type: 'file' })
-
-  const { clientImportPath, client } = options
-  const root = path.resolve(config.root, config.output.path)
-  const clientPath = client ? path.resolve(root, 'client.ts') : undefined
-  const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
-
-  const Template = templates.default
-
-  return (
-    <File<FileMeta>
-      baseName={file.baseName}
-      path={file.path}
-      meta={{
-        pluginKey,
-        // needed for the `output.groupBy`
-        tag: operation.getTags()[0]?.name,
-      }}
-    >
-      <File.Import name={'client'} path={resolvedClientPath} />
-      <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
-      <File.Import
-        name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
-          Boolean,
-        )}
-        root={file.path}
-        path={fileType.path}
-        isTypeOnly
-      />
-      <File.Source>
-        <Client Template={Template} />
-      </File.Source>
-    </File>
-  )
-}
+const defaultTemplates = { default: Template } as const
 
 type ClientProps = {
   /**
-   * Will make it possible to override the default behaviour of Client.Template
+   * This will make it possible to override the default behaviour.
    */
-  Template?: React.ComponentType<React.ComponentProps<typeof Client.Template>>
+  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
 }
 
 export function Client({
@@ -178,16 +140,71 @@ export function Client({
   return (
     <Template
       name={name}
-      clientGenerics={clientGenerics.toString()}
-      dataReturnType={dataReturnType}
       params={params.toString()}
       returnType={dataReturnType === 'data' ? `ResponseConfig<${schemas.response.name}>["data"]` : `ResponseConfig<${schemas.response.name}>`}
-      method={operation.method}
-      path={new URLPath(operation.path)}
-      withQueryParams={!!schemas.queryParams?.name}
-      withData={!!schemas.request?.name}
-      withHeaders={!!schemas.headerParams?.name}
-      comments={getComments(operation)}
+      JSDoc={{
+        comments: getComments(operation),
+      }}
+      client={{
+        generics: clientGenerics.toString(),
+        dataReturnType,
+        withQueryParams: !!schemas.queryParams?.name,
+        withData: !!schemas.request?.name,
+        withHeaders: !!schemas.headerParams?.name,
+        method: operation.method,
+        path: new URLPath(operation.path),
+      }}
     />
   )
 }
+
+type FileProps = {
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  templates?: typeof defaultTemplates
+}
+
+Client.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
+  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const { config } = usePluginManager()
+  const schemas = useSchemas()
+  const operation = useOperation()
+  const file = useResolve({ pluginKey, type: 'file' })
+  const fileType = useResolveType({ type: 'file' })
+
+  const { clientImportPath, client } = options
+  const root = path.resolve(config.root, config.output.path)
+  const clientPath = client ? path.resolve(root, 'client.ts') : undefined
+  const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
+
+  const Template = templates.default
+
+  return (
+    <File<FileMeta>
+      baseName={file.baseName}
+      path={file.path}
+      meta={{
+        pluginKey,
+        // needed for the `output.groupBy`
+        tag: operation.getTags()[0]?.name,
+      }}
+    >
+      <File.Import name={'client'} path={resolvedClientPath} />
+      <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
+      <File.Import
+        name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
+          Boolean,
+        )}
+        root={file.path}
+        path={fileType.path}
+        isTypeOnly
+      />
+      <File.Source>
+        <Client Template={Template} />
+      </File.Source>
+    </File>
+  )
+}
+
+Client.templates = defaultTemplates

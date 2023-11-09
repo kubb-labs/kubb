@@ -9,22 +9,38 @@ import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
-type MockTemplateProps = {
+type TemplateProps = {
+  /**
+   * Name of the function
+   */
   name: string
+  /**
+   * If false, MSW 1.x.x
+   * If true, MSW 2.x.x
+   */
   isV2: boolean
-  // props Mock
+  /**
+   * Method of the current operation, see useOperation.
+   */
   method: HttpMethod
+  /**
+   * Path of the mock
+   */
   path: URLPath
+  /**
+   * Name of the import for the mock(this is a function).
+   * @example createPet
+   */
   responseName: string
 }
 
-Mock.Template = function({
+function Template({
   name,
   method,
   path,
   isV2,
   responseName,
-}: MockTemplateProps): ReactNode {
+}: TemplateProps): ReactNode {
   if (isV2) {
     return (
       <>
@@ -54,23 +70,37 @@ export const ${name} = rest.${method}('*${path.toURLPath()}', function handler(r
   )
 }
 
-const defaultTemplates = { default: Mock.Template } as const
+const defaultTemplates = { default: Template } as const
 
-type MockFileProps = {
+type Props = {
   /**
-   * Will make it possible to override the default behaviour of Mock.Template
+   * This will make it possible to override the default behaviour.
+   */
+  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
+}
+
+export function Mock({
+  Template = defaultTemplates.default,
+}: Props): ReactNode {
+  const { key: pluginKey } = usePlugin<PluginOptions>()
+  const schemas = useSchemas()
+  const { name } = useResolve({ pluginKey, type: 'function' })
+  const responseName = useResolveName({ pluginKey: fakerPluginKey, name: schemas.response.name, type: 'type' })
+  const operation = useOperation()
+
+  const isV2 = new PackageManager().isValidSync('msw', '>=2')
+
+  return <Template isV2={isV2} name={name} responseName={responseName} method={operation.method} path={new URLPath(operation.path)} />
+}
+
+type FileProps = {
+  /**
+   * This will make it possible to override the default behaviour.
    */
   templates?: typeof defaultTemplates
 }
 
-type MockProps = {
-  /**
-   * Will make it possible to override the default behaviour of Mock.Template
-   */
-  Template?: React.ComponentType<React.ComponentProps<typeof Mock.Template>>
-}
-
-Mock.File = function({ templates = defaultTemplates }: MockFileProps): ReactNode {
+Mock.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const operation = useOperation()
@@ -102,16 +132,4 @@ Mock.File = function({ templates = defaultTemplates }: MockFileProps): ReactNode
   )
 }
 
-export function Mock({
-  Template = defaultTemplates.default,
-}: MockProps): ReactNode {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
-  const schemas = useSchemas()
-  const { name } = useResolve({ pluginKey, type: 'function' })
-  const responseName = useResolveName({ pluginKey: fakerPluginKey, name: schemas.response.name, type: 'type' })
-  const operation = useOperation()
-
-  const isV2 = new PackageManager().isValidSync('msw', '>=2')
-
-  return <Template isV2={isV2} name={name} responseName={responseName} method={operation.method} path={new URLPath(operation.path)} />
-}
+Mock.templates = defaultTemplates

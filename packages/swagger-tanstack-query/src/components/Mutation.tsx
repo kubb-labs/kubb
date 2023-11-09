@@ -9,67 +9,82 @@ import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
 
 import { camelCase, pascalCase } from 'change-case'
 
+import { MutationImports } from './MutationImports.tsx'
+
 import type { HttpMethod, OperationSchemas } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, Framework, PluginOptions } from '../types.ts'
 
-type MutationTemplateProps = {
+type TemplateProps = {
+  /**
+   * Name of the function
+   */
   name: string
+  /**
+   * Parameters/options/props that need to be used
+   */
   params: string
+  /**
+   * Generics that needs to be added for TypeScript
+   */
   generics?: string
-  returnType: string
-  comments: string[]
-
-  // props Mutation
-  hookName: string
-  hookGenerics: string
-  clientGenerics: string
-  method: HttpMethod
-  withQueryParams: boolean
-  withPathParams: boolean
-  withData: boolean
-  withHeaders: boolean
-  path: URLPath
+  /**
+   * ReturnType(see async for adding Promise type)
+   */
+  returnType?: string
+  /**
+   * Options for JSdocs
+   */
+  JSDoc?: {
+    comments: string[]
+  }
+  hook: {
+    name: string
+    generics?: string
+    children?: string
+  }
+  client: {
+    method: HttpMethod
+    generics: string
+    withQueryParams: boolean
+    withPathParams: boolean
+    withData: boolean
+    withHeaders: boolean
+    path: URLPath
+  }
   isV5: boolean
-
-  children?: string
 }
 
-Mutation.Template = function({
+function Template({
   name,
-  hookName,
   generics,
   returnType,
   params,
-  comments,
-  clientGenerics,
-  method,
-  path,
-  withData,
-  withHeaders,
-  withQueryParams,
-  hookGenerics,
-  children,
-}: MutationTemplateProps): ReactNode {
+  JSDoc,
+  client,
+  hook,
+}: TemplateProps): ReactNode {
   const clientParams = [
-    `method: "${method}"`,
-    `url: ${path.template}`,
-    withQueryParams ? 'params' : undefined,
-    withData ? 'data' : undefined,
-    withHeaders ? 'headers: { ...headers, ...clientOptions.headers }' : undefined,
+    `method: "${client.method}"`,
+    `url: ${client.path.template}`,
+    client.withQueryParams ? 'params' : undefined,
+    client.withData ? 'data' : undefined,
+    client.withHeaders ? 'headers: { ...headers, ...clientOptions.headers }' : undefined,
     '...clientOptions',
   ].filter(Boolean)
 
+  const clientOptions = `${transformers.createIndent(4)}${clientParams.join(`,\n${transformers.createIndent(4)}`)}`
+
   return (
-    <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={{ comments }}>
+    <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
       {`
        const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
-       return ${hookName}<${hookGenerics}>({
-         mutationFn: (${withData ? 'data' : ''}) => {
-          ${children || ''}
-           return client<${clientGenerics}>({
-            ${transformers.createIndent(4)}${clientParams.join(`,\n${transformers.createIndent(4)}`)}
+       return ${hook.name}<${hook.generics}>({
+         mutationFn: (${client.withData ? 'data' : ''}) => {
+          ${hook.children || ''}
+           return client<${client.generics}>({
+            ${clientOptions}
            }).then(res => res as TData)
          },
          ...mutationOptions
@@ -78,34 +93,37 @@ Mutation.Template = function({
   )
 }
 
-type MutationTemplateFrameworkProps = Omit<MutationTemplateProps, 'returnType' | 'hookName' | 'params' | 'clientGenerics' | 'hookGenerics'> & {
+type FrameworkTemplateProps = Omit<TemplateProps, 'returnType' | 'client' | 'hook' | 'params'> & {
   optionsType?: string
   resultType?: string
-  hookName?: string
+  hook?: Pick<TemplateProps['hook'], 'name'>
+  client: Omit<TemplateProps['client'], 'generics'>
   schemas: OperationSchemas
   factory: {
     name: string
-    Generics: [data: string, error: string, request: string, pathParams: string, queryParams: string, headerParams: string, response: string, options: string]
+    generics: [data: string, error: string, request: string, pathParams: string, queryParams: string, headerParams: string, response: string, options: string]
   }
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
 }
 
 const defaultTemplates = {
   get default() {
     return function(
       {
-        hookName = 'useMutation',
-        resultType = 'UseMutationResult',
-        optionsType = 'UseMutationOptions',
+        resultType,
+        optionsType,
         schemas,
-        withData,
-        withPathParams,
-        withHeaders,
-        withQueryParams,
+        client,
+        hook,
         factory,
+        Template: MutationTemplate = Template,
         ...rest
-      }: MutationTemplateFrameworkProps,
+      }: FrameworkTemplateProps,
     ): ReactNode {
-      if (!hookName || !resultType || !optionsType) {
+      if (!hook?.name || !resultType || !optionsType) {
         throw new Error('Could not find a hookname')
       }
 
@@ -114,19 +132,19 @@ const defaultTemplates = {
       const clientGenerics = [
         `${factory.name}["data"]`,
         'TError',
-        withData ? `${factory.name}["request"]` : 'void',
+        client.withData ? `${factory.name}["request"]` : 'void',
       ]
 
       const hookGenerics = [
         'TData',
         'TError',
-        withData ? `${factory.name}["request"]` : 'void',
+        client.withData ? `${factory.name}["request"]` : 'void',
       ]
 
       const resultGenerics = [
         'TData',
         'TError',
-        withData ? `${factory.name}["request"]` : 'void',
+        client.withData ? `${factory.name}["request"]` : 'void',
       ]
 
       params.add([
@@ -136,13 +154,13 @@ const defaultTemplates = {
         {
           name: 'params',
           type: `${factory.name}['queryParams']`,
-          enabled: withQueryParams,
+          enabled: client.withQueryParams,
           required: !!schemas.queryParams?.schema.required?.length,
         },
         {
           name: 'headers',
           type: `${factory.name}['headerParams']`,
-          enabled: withHeaders,
+          enabled: client.withHeaders,
           required: !!schemas.headerParams?.schema.required?.length,
         },
         {
@@ -158,35 +176,51 @@ const defaultTemplates = {
       return (
         <>
           <Type name={factory.name}>
-            {`KubbQueryFactory<${factory.Generics.join(', ')}>`}
+            {`KubbQueryFactory<${factory.generics.join(', ')}>`}
           </Type>
-          <Mutation.Template
+          <MutationTemplate
             {...rest}
             params={params.toString()}
-            clientGenerics={clientGenerics.toString()}
-            hookGenerics={hookGenerics.join(', ')}
-            withData={withData}
-            withHeaders={withHeaders}
-            withPathParams={withPathParams}
-            withQueryParams={withQueryParams}
-            hookName={hookName}
-            returnType={`${resultType}<${resultGenerics.join(', ')}`}
+            returnType={`${resultType}<${resultGenerics.join(', ')}>`}
+            client={{
+              ...client,
+              generics: clientGenerics.toString(),
+            }}
+            hook={{
+              ...hook,
+              generics: hookGenerics.join(', '),
+            }}
           />
         </>
       )
     }
   },
   get react() {
-    return this.default
+    const Component = this.default
+
+    return function(props: FrameworkTemplateProps): ReactNode {
+      return (
+        <Component
+          {...props}
+          hook={{
+            name: 'useMutation',
+          }}
+          resultType="UseMutationResult"
+          optionsType="UseMutationOptions"
+        />
+      )
+    }
   },
   get solid() {
     const Component = this.default
 
-    return function(props: MutationTemplateFrameworkProps): ReactNode {
+    return function(props: FrameworkTemplateProps): ReactNode {
       return (
         <Component
           {...props}
-          hookName="createMutation"
+          hook={{
+            name: 'createMutation',
+          }}
           resultType="CreateMutationResult"
           optionsType="CreateMutationOptions"
         />
@@ -196,11 +230,13 @@ const defaultTemplates = {
   get svelte() {
     const Component = this.default
 
-    return function(props: MutationTemplateFrameworkProps): ReactNode {
+    return function(props: FrameworkTemplateProps): ReactNode {
       return (
         <Component
           {...props}
-          hookName="createMutation"
+          hook={{
+            name: 'createMutation',
+          }}
           resultType="CreateMutationResult"
           optionsType="CreateMutationOptions"
         />
@@ -208,7 +244,7 @@ const defaultTemplates = {
     }
   },
   get vue() {
-    return function({ isV5, schemas, withHeaders, withPathParams, withQueryParams, withData, factory, ...rest }: MutationTemplateFrameworkProps): ReactNode {
+    return function({ isV5, schemas, client, hook, factory, Template: MutationTemplate = Template, ...rest }: FrameworkTemplateProps): ReactNode {
       const hookName = 'useMutation'
       const resultType = 'UseMutationReturnType'
       const optionsType = isV5 ? 'UseMutationOptions' : 'VueMutationObserverOptions'
@@ -217,20 +253,20 @@ const defaultTemplates = {
       const clientGenerics = [
         `${factory.name}["data"]`,
         'TError',
-        withData ? `${factory.name}["request"]` : 'void',
+        client.withData ? `${factory.name}["request"]` : 'void',
       ]
 
       const hookGenerics = [
         'TData',
         'TError',
-        withData ? `${factory.name}["request"]` : 'void',
+        client.withData ? `${factory.name}["request"]` : 'void',
         'unknown',
       ]
 
       const resultGenerics = [
         'TData',
         'TError',
-        withData ? `${factory.name}["request"]` : 'void',
+        client.withData ? `${factory.name}["request"]` : 'void',
         'unknown',
       ]
 
@@ -242,13 +278,13 @@ const defaultTemplates = {
         {
           name: 'refParams',
           type: `MaybeRef<${schemas.queryParams?.name}>`,
-          enabled: withQueryParams,
+          enabled: client.withQueryParams,
           required: !!schemas.queryParams?.schema.required?.length,
         },
         {
           name: 'refHeaders',
           type: `MaybeRef<${schemas.headerParams?.name}>`,
-          enabled: withHeaders,
+          enabled: client.withHeaders,
           required: !!schemas.headerParams?.schema.required?.length,
         },
         {
@@ -271,126 +307,102 @@ const defaultTemplates = {
       return (
         <>
           <Type name={factory.name}>
-            {`KubbQueryFactory<${factory.Generics.join(', ')}>`}
+            {`KubbQueryFactory<${factory.generics.join(', ')}>`}
           </Type>
-          <Mutation.Template
+          <MutationTemplate
             {...rest}
             isV5={isV5}
             params={params.toString()}
-            clientGenerics={clientGenerics.toString()}
-            hookGenerics={hookGenerics.join(', ')}
-            withData={withData}
-            withHeaders={withHeaders}
-            withPathParams={withPathParams}
-            withQueryParams={withQueryParams}
-            hookName={hookName}
-            returnType={`${resultType}<${resultGenerics.join(', ')}`}
-          >
-            {unrefs}
-          </Mutation.Template>
+            returnType={`${resultType}<${resultGenerics.join(', ')}>`}
+            client={{
+              ...client,
+              generics: clientGenerics.toString(),
+            }}
+            hook={{
+              ...hook,
+              name: hookName,
+              generics: hookGenerics.join(', '),
+              children: unrefs,
+            }}
+          />
         </>
       )
     }
   },
 } as const
 
-type MutationImportFrameworkProps = {
-  isV5?: boolean
-  path?: string
-  optionsType?: string
-  resultType?: string
-  hookName?: string
+type Props = {
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  Template?: React.ComponentType<FrameworkTemplateProps>
 }
 
-const defaultImports = {
-  get default() {
-    return function(
-      { path, hookName = 'useMutation', resultType = 'UseMutationResult', optionsType = 'UseMutationOptions' }: MutationImportFrameworkProps,
-    ): ReactNode {
-      if (!path) {
-        throw new Error('Could not find a paht')
-      }
+export function Mutation({
+  Template = defaultTemplates.react,
+}: Props): ReactNode {
+  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const operation = useOperation()
+  const { name } = useResolve({
+    pluginKey,
+    type: 'function',
+  })
+  const schemas = useSchemas()
 
-      return (
-        <>
-          <File.Import name={[optionsType, resultType]} path={path} isTypeOnly />
-          <File.Import name={[hookName]} path={path} />
-        </>
-      )
-    }
-  },
-  get react() {
-    const Component = this.default
+  const factory: FrameworkTemplateProps['factory'] = {
+    name: pascalCase(operation.getOperationId()),
+    generics: [
+      schemas.response.name,
+      schemas.errors?.map((error) => error.name).join(' | ') || 'never',
+      schemas.request?.name || 'never',
+      schemas.pathParams?.name || 'never',
+      schemas.queryParams?.name || 'never',
+      schemas.headerParams?.name || 'never',
+      schemas.response.name,
+      `{ dataReturnType: '${options.dataReturnType}'; type: 'mutation' }`,
+    ],
+  }
+  const generics = new FunctionParams()
+  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 
-    return function(props: MutationImportFrameworkProps): ReactNode {
-      return (
-        <Component
-          {...props}
-          path={'@tanstack/react-query'}
-          hookName={'useMutation'}
-          optionsType={'UseMutationOptions'}
-          resultType={'UseMutationResult'}
-        />
-      )
-    }
-  },
-  get solid() {
-    const Component = this.default
+  generics.add([
+    { type: 'TData', default: `${factory.name}["response"]` },
+    { type: 'TError', default: `${factory.name}["error"]` },
+  ])
 
-    return function(props: MutationImportFrameworkProps): ReactNode {
-      return (
-        <Component
-          {...props}
-          path={'@tanstack/solid-query'}
-          hookName={'createMutation'}
-          optionsType={'CreateMutationOptions'}
-          resultType={'CreateMutationResult'}
-        />
-      )
-    }
-  },
-  get svelte() {
-    const Component = this.default
+  return (
+    <Template
+      isV5={isV5}
+      name={name}
+      schemas={schemas}
+      generics={generics.toString()}
+      factory={factory}
+      JSDoc={{ comments: getComments(operation) }}
+      client={{
+        withQueryParams: !!schemas.queryParams?.name,
+        withData: !!schemas.request?.name,
+        withPathParams: !!schemas.pathParams?.name,
+        withHeaders: !!schemas.headerParams?.name,
+        method: operation.method,
+        path: new URLPath(operation.path),
+      }}
+    />
+  )
+}
 
-    return function(props: MutationImportFrameworkProps): ReactNode {
-      return (
-        <Component
-          {...props}
-          path={'@tanstack/svelte-query'}
-          hookName={'createMutation'}
-          optionsType={'CreateMutationOptions'}
-          resultType={'CreateMutationResult'}
-        />
-      )
-    }
-  },
-  get vue() {
-    return function({ isV5, path = '@tanstack/vue-query' }: MutationImportFrameworkProps): ReactNode {
-      return (
-        <>
-          {isV5 && <File.Import name={['UseMutationOptions', 'UseMutationReturnType']} path={path} isTypeOnly />}
-
-          {!isV5 && <File.Import name={['UseMutationReturnType']} path={path} isTypeOnly />}
-          {!isV5 && <File.Import name={['VueMutationObserverOptions']} path={'@tanstack/vue-query/build/lib/useMutation'} isTypeOnly />}
-          <File.Import name={['useMutation']} path={path} />
-          <File.Import name={['unref']} path={'vue'} />
-          <File.Import name={['MaybeRef']} path={'vue'} isTypeOnly />
-        </>
-      )
-    }
-  },
-} as const
-
-type MutationFileProps = {
+type FileProps = {
   framework: Framework
   /**
-   * Will make it possible to override the default behaviour of Mock.Template
+   * This will make it possible to override the default behaviour.
    */
   templates?: typeof defaultTemplates
-  imports?: typeof defaultImports
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  imports?: typeof MutationImports.templates
 }
 
-Mutation.File = function({ framework, templates = defaultTemplates, imports = defaultImports }: MutationFileProps): ReactNode {
+Mutation.File = function({ framework, templates = defaultTemplates, imports = MutationImports.templates }: FileProps): ReactNode {
   const { key: pluginKey, options } = usePlugin<PluginOptions>()
   const pluginManager = usePluginManager()
   const schemas = useSchemas()
@@ -422,7 +434,6 @@ Mutation.File = function({ framework, templates = defaultTemplates, imports = de
           tag: operation?.getTags()[0]?.name,
         }}
       >
-        {/** for HelpersFile, TODO add to operationGenerator */}
         <File.Import root={file.path} path={path.resolve(file.path, '../types.ts')} name={['KubbQueryFactory']} isTypeOnly />
 
         <File.Import name={'client'} path={resolvedClientPath} />
@@ -451,56 +462,4 @@ Mutation.File = function({ framework, templates = defaultTemplates, imports = de
   )
 }
 
-type MutationProps = {
-  Template?: React.ComponentType<MutationTemplateFrameworkProps>
-}
-
-export function Mutation({
-  Template = defaultTemplates.react,
-}: MutationProps): ReactNode {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
-  const operation = useOperation()
-  const { name } = useResolve({
-    pluginKey,
-    type: 'function',
-  })
-  const schemas = useSchemas()
-
-  const factory: MutationTemplateFrameworkProps['factory'] = {
-    name: pascalCase(operation.getOperationId()),
-    Generics: [
-      schemas.response.name,
-      schemas.errors?.map((error) => error.name).join(' | ') || 'never',
-      schemas.request?.name || 'never',
-      schemas.pathParams?.name || 'never',
-      schemas.queryParams?.name || 'never',
-      schemas.headerParams?.name || 'never',
-      schemas.response.name,
-      `{ dataReturnType: 'full'; type: 'mutation' }`,
-    ],
-  }
-  const generics = new FunctionParams()
-  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
-
-  generics.add([
-    { type: 'TData', default: `${factory.name}["response"]` },
-    { type: 'TError', default: `${factory.name}["error"]` },
-  ])
-
-  return (
-    <Template
-      isV5={isV5}
-      name={name}
-      schemas={schemas}
-      generics={generics.toString()}
-      path={new URLPath(operation.path)}
-      withQueryParams={!!schemas.queryParams?.name}
-      withPathParams={!!schemas.pathParams?.name}
-      withData={!!schemas.request?.name}
-      withHeaders={!!schemas.headerParams?.name}
-      factory={factory}
-      comments={getComments(operation)}
-      method={operation.method}
-    />
-  )
-}
+Mutation.templates = defaultTemplates

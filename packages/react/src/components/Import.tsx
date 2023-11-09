@@ -4,6 +4,10 @@ import type { KubbFile } from '@kubb/core'
 import type { KubbNode } from '../types.ts'
 
 type Props = KubbFile.Import & {
+  /**
+   * When true, it will return the generated import.
+   * When false, it will add the import to a KubbFile instance(see fileManager)
+   */
   print?: boolean
   /**
    * When root is set it will get the path with relative getRelativePath(root, path)
@@ -11,8 +15,8 @@ type Props = KubbFile.Import & {
   root?: string
 }
 
-export function Import({ name, root, path, isTypeOnly, print: printImport }: Props): KubbNode {
-  const importPath = root ? getRelativePath(root, path) : path
+export function Import({ name, root, path, isTypeOnly, print }: Props): KubbNode {
+  const resolvedPath = root ? getRelativePath(root, path) : path
 
-  return <kubb-import name={name} path={importPath} isTypeOnly={isTypeOnly} print={printImport} />
+  return <kubb-import name={name} path={resolvedPath} isTypeOnly={isTypeOnly} print={print} />
 }

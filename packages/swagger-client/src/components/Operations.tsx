@@ -7,15 +7,18 @@ import type { Operation } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
-type OperationsTemplateProps = {
-  name?: string
+type TemplateProps = {
+  /**
+   * Name of the function
+   */
+  name: string
   operations: Record<string, { path: string; method: HttpMethod }>
 }
 
-Operations.Template = function({
-  name = 'operations',
+function Template({
+  name,
   operations,
-}: OperationsTemplateProps): ReactNode {
+}: TemplateProps): ReactNode {
   return (
     <>
       {`export const ${name} = ${JSON.stringify(operations)} as const;`}
@@ -23,18 +26,55 @@ Operations.Template = function({
   )
 }
 
-const defaultTemplates = { default: Operations.Template } as const
+const defaultTemplates = { default: Template } as const
 
-type OperationsFileProps = {
+type Props = {
   oas: Oas
   paths: Record<string, Record<HttpMethod, Operation>>
   /**
-   * Will make it possible to override the default behaviour of Mock.Template
+   * This will make it possible to override the default behaviour.
+   */
+  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
+}
+
+export function Operations({
+  oas,
+  paths,
+  Template = defaultTemplates.default,
+}: Props): ReactNode {
+  const operations: Record<string, { path: string; method: HttpMethod }> = {}
+
+  Object.keys(paths).forEach((path) => {
+    const methods = paths[path] || []
+    Object.keys(methods).forEach((method) => {
+      const operation = oas.operation(path, method as HttpMethod)
+      if (operation) {
+        operations[operation.getOperationId()] = {
+          path: new URLPath(path).URL,
+          method: method as HttpMethod,
+        }
+      }
+    })
+  })
+
+  return (
+    <Template
+      name="operations"
+      operations={operations}
+    />
+  )
+}
+
+type FileProps = {
+  oas: Oas
+  paths: Record<string, Record<HttpMethod, Operation>>
+  /**
+   * This will make it possible to override the default behaviour.
    */
   templates?: typeof defaultTemplates
 }
 
-Operations.File = function({ paths, oas, templates = defaultTemplates }: OperationsFileProps): ReactNode {
+Operations.File = function({ paths, oas, templates = defaultTemplates }: FileProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const file = useResolve({ name: 'operations', pluginKey, type: 'file' })
 
@@ -55,38 +95,4 @@ Operations.File = function({ paths, oas, templates = defaultTemplates }: Operati
   )
 }
 
-type OperationsProps = {
-  oas: Oas
-  paths: Record<string, Record<HttpMethod, Operation>>
-  /**
-   * Will make it possible to override the default behaviour of Operations.Template
-   */
-  Template?: React.ComponentType<React.ComponentProps<typeof Operations.Template>>
-}
-
-export function Operations({
-  oas,
-  paths,
-  Template = defaultTemplates.default,
-}: OperationsProps): ReactNode {
-  const operations: Record<string, { path: string; method: HttpMethod }> = {}
-
-  Object.keys(paths).forEach((path) => {
-    const methods = paths[path] || []
-    Object.keys(methods).forEach((method) => {
-      const operation = oas.operation(path, method as HttpMethod)
-      if (operation) {
-        operations[operation.getOperationId()] = {
-          path: new URLPath(path).URL,
-          method: method as HttpMethod,
-        }
-      }
-    })
-  })
-
-  return (
-    <Template
-      operations={operations}
-    />
-  )
-}
+Operations.templates = defaultTemplates

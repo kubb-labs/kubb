@@ -23,15 +23,42 @@ type BasePath<T extends string = string> = `${T}/`
 
 export namespace KubbFile {
   export type Import = {
+    /**
+     * Import name to be used
+     * @example ["useState"]
+     * @examples "React"
+     */
     name: string | Array<string>
+    /**
+     * Path for the import
+     * @xample '@kubb/core'
+     */
     path: string
+    /**
+     * Add `type` prefix to the import, this will result in: `import type { Type } from './path'`
+     */
     isTypeOnly?: boolean
   }
 
   export type Export = {
+    /**
+     * Export name to be used
+     * @example ["useState"]
+     * @examples "React"
+     */
     name?: string | Array<string>
+    /**
+     * Path for the import
+     * @xample '@kubb/core'
+     */
     path: string
+    /**
+     * Add `type` prefix to the export, this will result in: `export type { Type } from './path'`
+     */
     isTypeOnly?: boolean
+    /**
+     * Make it possible to override the name, this will result in: `export * as aliasName from './path'`
+     */
     asAlias?: boolean
   }
 
@@ -47,8 +74,16 @@ export namespace KubbFile {
 
   export type Mode = 'file' | 'directory'
 
+  /**
+   * Name to be used to dynamicly create the baseName(based on input.path)
+   * Based on UNIX basename
+   * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
+   */
   export type BaseName = `${string}${Extname}`
 
+  /**
+   * Path will be full qualified path to a specified file
+   */
   export type Path = string
 
   export type AdvancedPath<T extends BaseName = BaseName> = `${BasePath}${T}`
@@ -87,11 +122,17 @@ export namespace KubbFile {
      * @default `false`
      */
     override?: boolean
+    /**
+     * Use extra meta, this is getting used to generate the barrel/index files.
+     */
     meta?: TMeta
     /**
      * This will override `process.env[key]` inside the `source`, see `getFileSource`.
      */
     env?: NodeJS.ProcessEnv
+    /**
+     * @deprecated
+     */
     validate?: boolean
   }
 
