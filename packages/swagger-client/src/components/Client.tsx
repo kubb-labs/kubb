@@ -1,8 +1,6 @@
-import path from 'node:path'
-
-import { FunctionParams, getRelativePath, transformers } from '@kubb/core/utils'
+import { FunctionParams, transformers } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
-import { File, Function, usePlugin, usePluginManager } from '@kubb/react'
+import { File, Function, usePlugin } from '@kubb/react'
 import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
@@ -167,16 +165,13 @@ type FileProps = {
 
 Client.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
   const { key: pluginKey, options } = usePlugin<PluginOptions>()
-  const { config } = usePluginManager()
   const schemas = useSchemas()
   const operation = useOperation()
   const file = useResolve({ pluginKey, type: 'file' })
   const fileType = useResolveType({ type: 'file' })
 
-  const { clientImportPath, client } = options
-  const root = path.resolve(config.root, config.output.path)
-  const clientPath = client ? path.resolve(root, 'client.ts') : undefined
-  const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
+  const { clientImportPath } = options
+  const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
 
   const Template = templates.default
 

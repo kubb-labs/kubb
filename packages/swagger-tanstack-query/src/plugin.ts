@@ -24,7 +24,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     skipBy = [],
     overrideBy = [],
     framework = 'react',
-    client,
     clientImportPath,
     infinite,
     transformers = {},
@@ -38,7 +37,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     options: {
       framework,
       clientImportPath,
-      client,
       dataReturnType,
       infinite: infinite
         ? {

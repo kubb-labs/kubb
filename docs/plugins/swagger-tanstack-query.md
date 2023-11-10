@@ -145,20 +145,6 @@ export default defineConfig({
 
 :::
 
-### client <Badge type="danger" text="deprecated" />
-
-Path to the client that will be used to do the API calls.
-Relative to the root
-
-::: info
-
-Type: `string` <br/>
-Default: `'@kubb/swagger-client/client'`
-
-Deprecated. Use `clientImportPath` instead. It will be skipped if `clientImportPath` is provided.
-
-:::
-
 ### clientImportPath
 
 Path to the client import path that will be used to do the API calls.<br/>
