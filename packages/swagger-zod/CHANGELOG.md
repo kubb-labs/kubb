@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.1.0-alpha.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v2.0.0-alpha.5...@kubb/swagger-zod-v2.1.0-alpha.5) (2023-11-10)
+
+
+### 🐞 Bug Fixes
+
+* add `/index` to folders ([f887146](https://github.com/kubb-project/kubb/commit/f88714633e71266b51781729cf4c617145e54798))
+
+
+### 📦 Miscellaneous Chores
+
+* release 1.14.3 ([695f324](https://github.com/kubb-project/kubb/commit/695f3242d61ac13f4284f3bdf529a3bc0e353244))
+* release 2.0.0-alpha.1 ([925bf68](https://github.com/kubb-project/kubb/commit/925bf686956804aad82ba6480152427aaa6ad4f8))
+* release 2.0.0-alpha.2 ([c0abf54](https://github.com/kubb-project/kubb/commit/c0abf54220849007e354f594267cd69086c38b07))
+* release 2.0.0-alpha.3 ([3175248](https://github.com/kubb-project/kubb/commit/3175248895d3def0e32fbf87a7ffa45c0c859b68))
+* release 2.0.0-alpha.4 ([36f790a](https://github.com/kubb-project/kubb/commit/36f790a8260ce0842ca64852590e59f2c661367c))
+* release 2.0.0-alpha.5 ([cb226aa](https://github.com/kubb-project/kubb/commit/cb226aa772601d54e44717770b12a450a3863c45))
+
 ## [2.0.0-alpha.5](https://github.com/kubb-project/kubb/compare/@kubb/swagger-zod-v2.0.0-alpha.4...@kubb/swagger-zod-v2.0.0-alpha.5) (2023-11-07)
 
 

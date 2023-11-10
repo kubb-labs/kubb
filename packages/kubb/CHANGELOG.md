@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0-alpha.5](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.5...kubb-v2.1.0-alpha.5) (2023-11-10)
+
+
+### ✨ Features
+
+* mutations and queries with `@kubb/react` ([a51d15a](https://github.com/kubb-project/kubb/commit/a51d15a643091cc5a74e40e48cd5e4028172221d))
+
 ## [2.0.0-alpha.5](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.4...kubb-v2.0.0-alpha.5) (2023-11-07)
 
 
