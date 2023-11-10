@@ -5,12 +5,21 @@ import { Text } from './Text.tsx'
 import type { KubbNode } from '../types.ts'
 
 type Props = {
+  /**
+   * Name of the type, this needs to start with a capital letter.
+   */
   name: string
+  /**
+   * Does this type need to be exported
+   */
   export?: boolean
-  children?: KubbNode
+  /**
+   * Options for JSdocs
+   */
   JSDoc?: {
     comments: string[]
   }
+  children?: KubbNode
 }
 
 export function Type({ name, export: canExport, JSDoc, children }: Props): KubbNode {

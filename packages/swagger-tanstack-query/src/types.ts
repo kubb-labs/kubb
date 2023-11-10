@@ -1,17 +1,18 @@
 import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
-import type { AppMeta as SwaggerAppMeta, Operation, OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
+import type { AppMeta as SwaggerAppMeta, OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
 
-type Infinite = {
+export type Infinite = {
   /**
    * Specify the params key used for `pageParam`.
    * Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`
    * @default `'id'`
    */
-  queryParam?: string
+  queryParam: string
   /**
    * For v5
+   * @default `0`
    */
-  initialPageParam?: number
+  initialPageParam: number
 }
 
 export type Options = {
@@ -87,7 +88,7 @@ export type Options = {
   /**
    * Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
    */
-  overrideBy?: Array<OverrideBy<Options>>
+  overrideBy?: Array<OverrideBy<ResolvedOptions>>
   /**
    * Framework to be generated for
    * @default 'react'
@@ -96,7 +97,7 @@ export type Options = {
   /**
    * When set, an infiniteQuery hooks will be added.
    */
-  infinite?: Infinite
+  infinite?: Partial<Infinite>
   transformers?: {
     /**
      * Override the name of the hook that is getting generated, this will also override the name of the file.
@@ -107,84 +108,6 @@ export type Options = {
 
 export type Framework = 'react' | 'solid' | 'svelte' | 'vue'
 
-export type FrameworkImports = {
-  getName: (operation: Operation) => string
-  query: {
-    QueryKey: string
-    /**
-     * @deprecated
-     */
-    UseQueryResult?: string
-    /**
-     * @deprecated
-     */
-    UseQueryOptions?: string
-    /**
-     * v5 only
-     */
-    queryOptions?: string
-    /**
-     * v5 only
-     *  @deprecated
-     */
-    QueryObserverOptions?: string
-    /**
-     * Infinte
-     *  @deprecated
-     */
-    UseInfiniteQueryOptions?: string
-    /**
-     * v5 only
-     *  @deprecated
-     */
-    InfiniteQueryObserverOptions?: string
-    /**
-     * v5 only
-     *  @deprecated
-     */
-    infiniteQueryOptions?: string
-    /**
-     * v5 only
-     *  @deprecated
-     */
-    InfiniteData?: string
-    /**
-     * @deprecated
-     */
-    UseInfiniteQueryResult?: string
-
-    // types
-    hook?: string
-    Options?: string
-    Result?: string
-  }
-  queryInfinite: {
-    // types
-    hook?: string
-    Options?: string
-    Result?: string
-  }
-  mutate: {
-    /**
-     * @deprecated
-     */
-    UseMutationOptions?: string
-    /**
-     * v5 only
-     */
-    MutationObserverOptions?: string
-    /**
-     * @deprecated
-     */
-    UseMutationResult?: string
-    // types
-    hook?: string
-    Options?: string
-    Result?: string
-  }
-  isV5: boolean
-}
-
 type ResolvedOptions = {
   framework: NonNullable<PluginOptions['options']['framework']>
   client?: Options['client']
@@ -193,7 +116,7 @@ type ResolvedOptions = {
   /**
    * Only used of infinite
    */
-  infinite?: PluginOptions['options']['infinite']
+  infinite?: Infinite
   templatesPath: string
 }
 

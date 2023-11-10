@@ -1,8 +1,8 @@
-import { createQuery } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
+import { createQuery } from '@tanstack/solid-query'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
 type LoginUser = KubbQueryFactory<
   LoginUserQueryResponse,
@@ -29,7 +29,6 @@ export function loginUserQueryOptions<
   options: LoginUser['client']['paramaters'] = {},
 ): CreateBaseQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
   const queryKey = loginUserQueryKey(params)
-
   return {
     queryKey,
     queryFn: () => {
@@ -41,11 +40,11 @@ export function loginUserQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @summary Logs user into the system
  * @link /user/login
  */
+
 export function loginUserQuery<
   TQueryFnData extends LoginUser['data'] = LoginUser['data'],
   TError = LoginUser['error'],
@@ -63,16 +62,13 @@ export function loginUserQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
-
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...loginUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
-    queryKey: () => queryKey,
+    queryKey,
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

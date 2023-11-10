@@ -1,8 +1,8 @@
-import { createQuery } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
+import { createQuery } from '@tanstack/solid-query'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
 type GetOrderById = KubbQueryFactory<
   GetOrderByIdQueryResponse,
@@ -29,7 +29,6 @@ export function getOrderByIdQueryOptions<
   options: GetOrderById['client']['paramaters'] = {},
 ): CreateBaseQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData, GetOrderByIdQueryKey> {
   const queryKey = getOrderByIdQueryKey(orderId)
-
   return {
     queryKey,
     queryFn: () => {
@@ -40,12 +39,12 @@ export function getOrderByIdQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
  */
+
 export function getOrderByIdQuery<
   TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
   TError = GetOrderById['error'],
@@ -63,16 +62,13 @@ export function getOrderByIdQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
-
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...getOrderByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
-    queryKey: () => queryKey,
+    queryKey,
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

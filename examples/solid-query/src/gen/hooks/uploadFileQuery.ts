@@ -13,7 +13,7 @@ type UploadFile = KubbQueryFactory<
   never,
   UploadFileMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**

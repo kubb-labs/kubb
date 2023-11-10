@@ -1,12 +1,17 @@
 import { transformers } from '@kubb/core/utils'
 
+import type { KubbNode } from '../types.ts'
+
 type Props = {
+  /**
+   * Size to use for the indenting
+   */
   size: number
-  children?: React.ReactNode
+  children?: KubbNode
 }
 
-export function useIndent({ size, children }: Props): React.ReactNode {
-  let indentWithChildren: React.ReactNode
+export function useIndent({ size, children }: Props): KubbNode {
+  let indentWithChildren: KubbNode
 
   if (!children) {
     return transformers.createIndent(size)

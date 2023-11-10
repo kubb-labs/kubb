@@ -24,7 +24,7 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "axios": "^1.6.0"
+    "axios": "^1.6.1"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",

@@ -1,10 +1,10 @@
-import { unref } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
 import client from '@kubb/swagger-client/client'
+import { useQuery } from '@tanstack/vue-query'
+import { unref } from 'vue'
 import type { KubbQueryFactory } from './types'
-import type { MaybeRef } from 'vue'
-import type { QueryKey, QueryObserverOptions, UseQueryReturnType } from '@tanstack/vue-query'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
+import type { MaybeRef } from 'vue'
 
 type FindPetsByStatus = KubbQueryFactory<
   FindPetsByStatusQueryResponse,
@@ -32,7 +32,6 @@ export function findPetsByStatusQueryOptions<
   options: FindPetsByStatus['client']['paramaters'] = {},
 ): QueryObserverOptions<FindPetsByStatus['unionResponse'], TError, TData, TQueryData, FindPetsByStatusQueryKey> {
   const queryKey = findPetsByStatusQueryKey(refParams)
-
   return {
     queryKey,
     queryFn: () => {
@@ -45,12 +44,12 @@ export function findPetsByStatusQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
+
 export function useFindPetsByStatus<
   TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
   TError = FindPetsByStatus['error'],
@@ -68,7 +67,6 @@ export function useFindPetsByStatus<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(refParams)
-
   const query = useQuery<any, TError, TData, any>({
     ...findPetsByStatusQueryOptions<TQueryFnData, TError, TData, TQueryData>(refParams, clientOptions),
     queryKey,
@@ -76,8 +74,6 @@ export function useFindPetsByStatus<
   }) as UseQueryReturnType<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

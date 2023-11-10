@@ -5,7 +5,7 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
 type AddPet = KubbQueryFactory<AddPetMutationResponse, AddPet405, AddPetMutationRequest, never, never, never, AddPetMutationResponse, {
-  dataReturnType: 'full'
+  dataReturnType: 'data'
   type: 'mutation'
 }> /**
  * @description Add a new pet to the store

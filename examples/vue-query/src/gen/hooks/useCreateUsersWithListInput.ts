@@ -18,7 +18,7 @@ type CreateUsersWithListInput = KubbQueryFactory<
   never,
   CreateUsersWithListInputMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**

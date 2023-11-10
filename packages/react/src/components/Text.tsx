@@ -3,8 +3,12 @@ import { useIndent } from '../hooks/useIndent.ts'
 import type { KubbNode } from '../types.ts'
 
 type Props = {
-  children?: KubbNode
+  /**
+   * Change the indent
+   * @default 0
+   */
   indentSize?: number
+  children?: KubbNode
 }
 
 export function Text({ indentSize = 0, children }: Props): KubbNode {
@@ -19,8 +23,16 @@ export function Text({ indentSize = 0, children }: Props): KubbNode {
   )
 }
 
-function Space({ indentSize = 1 }: Omit<Props, 'children'>): KubbNode {
-  const indentBefore = useIndent({ size: indentSize })
+type SpaceProps = {
+  /**
+   * Change the indent
+   * @default 1
+   */
+  size?: number
+}
+
+function Space({ size = 1 }: SpaceProps): KubbNode {
+  const indentBefore = useIndent({ size })
 
   return <kubb-text>{indentBefore}</kubb-text>
 }

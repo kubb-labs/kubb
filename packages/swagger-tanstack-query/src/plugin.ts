@@ -40,7 +40,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       clientImportPath,
       client,
       dataReturnType,
-      infinite,
+      infinite: infinite
+        ? {
+          queryParam: 'id',
+          initialPageParam: 0,
+          ...infinite,
+        }
+        : undefined,
       templatesPath: path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '../templates'),
     },
     kind: 'controller',

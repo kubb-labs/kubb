@@ -14,7 +14,7 @@ type PlaceOrder = KubbQueryFactory<
   never,
   PlaceOrderMutationResponse,
   {
-    dataReturnType: 'full'
+    dataReturnType: 'data'
     type: 'mutation'
   }
 > /**

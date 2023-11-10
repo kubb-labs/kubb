@@ -1,8 +1,8 @@
-import { createQuery } from '@tanstack/solid-query'
 import client from '@kubb/swagger-client/client'
+import { createQuery } from '@tanstack/solid-query'
 import type { KubbQueryFactory } from './types'
-import type { QueryKey, CreateBaseQueryOptions, CreateQueryResult } from '@tanstack/solid-query'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
+import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
 type FindPetsByTags = KubbQueryFactory<
   FindPetsByTagsQueryResponse,
@@ -29,7 +29,6 @@ export function findPetsByTagsQueryOptions<
   options: FindPetsByTags['client']['paramaters'] = {},
 ): CreateBaseQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsQueryKey> {
   const queryKey = findPetsByTagsQueryKey(params)
-
   return {
     queryKey,
     queryFn: () => {
@@ -41,12 +40,12 @@ export function findPetsByTagsQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-}
-/**
+} /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags
  */
+
 export function findPetsByTagsQuery<
   TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
   TError = FindPetsByTags['error'],
@@ -64,16 +63,13 @@ export function findPetsByTagsQuery<
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-
   const query = createQuery<TQueryFnData, TError, TData, any>({
     ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
-    queryKey: () => queryKey,
+    queryKey,
     ...queryOptions,
   }) as CreateQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
-
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
