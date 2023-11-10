@@ -1,3 +1,4 @@
+import { PackageManager } from '@kubb/core'
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
 import { Function } from '@kubb/react'
 import { useOperation, useSchemas } from '@kubb/swagger/hooks'
@@ -7,7 +8,7 @@ import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerg
 
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { Framework, Infinite } from '../types.ts'
+import type { Infinite } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -127,180 +128,54 @@ function Template({
   )
 }
 
-type Props = {
-  isV5: boolean
-  infinite?: Infinite
-  resultType?: string
-  factory: {
-    name: string
+type FrameworkProps = TemplateProps & {
+  context: {
+    factory: {
+      name: string
+    }
+    queryKey: string
   }
-  /**
-   * This will make it possible to override the default behaviour.
-   */
-  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
 }
 
 const defaultTemplates = {
-  get default() {
-    return function({
-      resultType,
-      factory,
-      infinite,
-      isV5,
-      Template: QueryTemplate = Template,
-    }: Props): ReactNode {
-      if (!resultType) {
-        throw new Error('Could not find a resultType')
-      }
-
-      const schemas = useSchemas()
-      const operation = useOperation()
-
-      const name = camelCase(`${factory.name}QueryOptions`, { delimiter: '', transform: camelCaseTransformMerge })
-      const queryKey = camelCase(`${factory.name}QueryKey`, { delimiter: '', transform: camelCaseTransformMerge })
-      const queryKeyType = pascalCase(queryKey, { delimiter: '', transform: pascalCaseTransformMerge })
-
-      const generics = new FunctionParams()
-      const params = new FunctionParams()
-
-      const pathParams = getParams(schemas.pathParams, {}).toString()
-
-      const clientGenerics = ['TQueryFnData', 'TError']
-      const resultGenerics = [`${factory.name}['unionResponse']`, 'TError', 'TData', 'TQueryData', queryKeyType]
-
-      generics.add([
-        { type: `TQueryFnData extends ${factory.name}['data']`, default: `${factory.name}["data"]` },
-        { type: 'TError', default: `${factory.name}["error"]` },
-        { type: 'TData', default: `${factory.name}["response"]` },
-        { type: 'TQueryData', default: `${factory.name}["response"]` },
-      ])
-
-      params.add([
-        ...getASTParams(schemas.pathParams, {
-          typed: true,
-        }),
-        {
-          name: 'params',
-          type: `${factory.name}['queryParams']`,
-          enabled: !!schemas.queryParams?.name,
-          required: !!schemas.queryParams?.schema.required?.length,
-        },
-        {
-          name: 'headers',
-          type: `${factory.name}['headerParams']`,
-          enabled: !!schemas.headerParams?.name,
-          required: !!schemas.headerParams?.schema.required?.length,
-        },
-        {
-          name: 'options',
-          type: `${factory.name}['client']['paramaters']`,
-          default: '{}',
-        },
-      ])
-
-      const client = {
-        withQueryParams: !!schemas.queryParams?.name,
-        withData: !!schemas.request?.name,
-        withPathParams: !!schemas.pathParams?.name,
-        withHeaders: !!schemas.headerParams?.name,
-        method: operation.method,
-        path: new URLPath(operation.path),
-        generics: clientGenerics.toString(),
-      }
-
-      const hook = {
-        queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? ('params') : ''})`,
-      }
-
-      return (
-        <QueryTemplate
-          name={name}
-          params={params.toString()}
-          generics={generics.toString()}
-          returnType={`${resultType}<${resultGenerics.join(', ')}>`}
-          client={client}
-          hook={hook}
-          isV5={isV5}
-          infinite={infinite}
-        />
-      )
-    }
-  },
   get react() {
-    const Component = this.default
-
-    return function(props: Props): ReactNode {
+    return function(props: FrameworkProps): ReactNode {
       return (
-        <Component
-          resultType={props.isV5 ? 'QueryObserverOptions' : 'UseBaseQueryOptions'}
+        <Template
           {...props}
         />
       )
     }
   },
   get solid() {
-    const Component = this.default
-
-    return function(props: Props): ReactNode {
+    return function(props: FrameworkProps): ReactNode {
       return (
-        <Component
-          resultType={'CreateQueryResult'}
+        <Template
           {...props}
         />
       )
     }
   },
   get svelte() {
-    const Component = this.default
-
-    return function(props: Props): ReactNode {
+    return function(props: FrameworkProps): ReactNode {
       return (
-        <Component
-          resultType={'CreateQueryResult'}
+        <Template
           {...props}
         />
       )
     }
   },
   get vue() {
-    return function({
-      isV5,
-      infinite,
-      factory,
-      Template: QueryTemplate = Template,
-    }: Props): ReactNode {
-      const resultType = isV5 ? 'QueryObserverOptions' : 'VueQueryObserverOptions'
+    return function(
+      { client, context, ...rest }: FrameworkProps,
+    ): ReactNode {
+      const { factory, queryKey } = context
+
       const schemas = useSchemas()
-      const operation = useOperation()
-
-      const name = camelCase(`${factory.name}QueryOptions`, { delimiter: '', transform: camelCaseTransformMerge })
-      const queryKey = camelCase(`${factory.name}QueryKey`, { delimiter: '', transform: camelCaseTransformMerge })
-      const queryKeyType = pascalCase(queryKey, { delimiter: '', transform: pascalCaseTransformMerge })
-
-      const generics = new FunctionParams()
       const params = new FunctionParams()
 
       const pathParams = getParams(schemas.pathParams, { override: (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) })
         .toString()
-
-      const clientGenerics = ['TQueryFnData', 'TError']
-      const resultGenerics = [`${factory.name}['unionResponse']`, 'TError', 'TData', 'TQueryData', queryKeyType]
-      const client = {
-        withQueryParams: !!schemas.queryParams?.name,
-        withData: !!schemas.request?.name,
-        withPathParams: !!schemas.pathParams?.name,
-        withHeaders: !!schemas.headerParams?.name,
-        method: operation.method,
-        path: new URLPath(operation.path),
-        generics: clientGenerics.toString(),
-      }
-
-      generics.add([
-        { type: `TQueryFnData extends ${factory.name}['data']`, default: `${factory.name}["data"]` },
-        { type: 'TError', default: `${factory.name}["error"]` },
-        { type: 'TData', default: `${factory.name}["response"]` },
-        { type: 'TQueryData', default: `${factory.name}["response"]` },
-      ])
 
       params.add([
         ...getASTParams(schemas.pathParams, {
@@ -339,25 +214,106 @@ const defaultTemplates = {
       }
 
       return (
-        <QueryTemplate
-          name={name}
+        <Template
+          {...rest}
           params={params.toString()}
-          generics={generics.toString()}
-          returnType={`${resultType}<${resultGenerics.join(', ')}>`}
-          client={client}
           hook={hook}
-          isV5={isV5}
-          infinite={infinite}
+          client={client}
         />
       )
     }
   },
 } as const
 
-export function QueryOptions({ framework, ...rest }: Props & { framework: Framework }): ReactNode {
-  const Template = defaultTemplates[framework]
+type Props = {
+  infinite: Infinite | undefined
+  factory: {
+    name: string
+  }
+  resultType: string
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  Template?: React.ComponentType<FrameworkProps>
+}
 
-  return <Template {...rest} />
+export function QueryOptions({ factory, infinite, resultType, Template = defaultTemplates.react }: Props): ReactNode {
+  const schemas = useSchemas()
+  const operation = useOperation()
+
+  const name = camelCase(`${factory.name}QueryOptions`, { delimiter: '', transform: camelCaseTransformMerge })
+  const queryKey = camelCase(`${factory.name}QueryKey`, { delimiter: '', transform: camelCaseTransformMerge })
+  const queryKeyType = pascalCase(queryKey, { delimiter: '', transform: pascalCaseTransformMerge })
+
+  const generics = new FunctionParams()
+  const params = new FunctionParams()
+  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+
+  const pathParams = getParams(schemas.pathParams, {}).toString()
+
+  const clientGenerics = ['TQueryFnData', 'TError']
+  const resultGenerics = [`${factory.name}['unionResponse']`, 'TError', 'TData', 'TQueryData', queryKeyType]
+
+  generics.add([
+    { type: `TQueryFnData extends ${factory.name}['data']`, default: `${factory.name}["data"]` },
+    { type: 'TError', default: `${factory.name}["error"]` },
+    { type: 'TData', default: `${factory.name}["response"]` },
+    { type: 'TQueryData', default: `${factory.name}["response"]` },
+  ])
+
+  params.add([
+    ...getASTParams(schemas.pathParams, {
+      typed: true,
+    }),
+    {
+      name: 'params',
+      type: `${factory.name}['queryParams']`,
+      enabled: !!schemas.queryParams?.name,
+      required: !!schemas.queryParams?.schema.required?.length,
+    },
+    {
+      name: 'headers',
+      type: `${factory.name}['headerParams']`,
+      enabled: !!schemas.headerParams?.name,
+      required: !!schemas.headerParams?.schema.required?.length,
+    },
+    {
+      name: 'options',
+      type: `${factory.name}['client']['paramaters']`,
+      default: '{}',
+    },
+  ])
+
+  const client = {
+    withQueryParams: !!schemas.queryParams?.name,
+    withData: !!schemas.request?.name,
+    withPathParams: !!schemas.pathParams?.name,
+    withHeaders: !!schemas.headerParams?.name,
+    method: operation.method,
+    path: new URLPath(operation.path),
+    generics: clientGenerics.toString(),
+  }
+
+  const hook = {
+    queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? ('params') : ''})`,
+  }
+
+  return (
+    <Template
+      name={name}
+      params={params.toString()}
+      generics={generics.toString()}
+      returnType={`${resultType}<${resultGenerics.join(', ')}>`}
+      client={client}
+      hook={hook}
+      isV5={isV5}
+      infinite={infinite}
+      context={{
+        factory,
+        queryKey,
+      }}
+    />
+  )
 }
 
 QueryOptions.templates = defaultTemplates

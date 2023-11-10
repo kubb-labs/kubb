@@ -1,9 +1,9 @@
+import { PackageManager } from '@kubb/core'
 import { File } from '@kubb/react'
 
-import { getImports } from '../utils.ts'
+import { getImportNames } from '../utils.ts'
 
 import type { ReactNode } from 'react'
-import type { Framework } from '../types.ts'
 
 type TemplateProps = {
   path: string
@@ -26,78 +26,74 @@ function Template({
   )
 }
 
-type Props = {
-  isV5?: boolean
-  /**
-   * This will make it possible to override the default behaviour.
-   */
-  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
-}
+type FrameworkProps = Partial<TemplateProps>
 
-export const defaultTemplates = {
-  get default() {
-    return null
-  },
+const defaultTemplates = {
   get react() {
     return function(
-      { isV5, Template: MutationImportsTemplate = Template }: Props,
+      { ...rest }: FrameworkProps,
     ): ReactNode {
-      const imports = getImports({ isV5 })
+      const importNames = getImportNames()
 
       return (
-        <MutationImportsTemplate
-          {...imports.mutation.react}
+        <Template
+          {...importNames.mutation.react}
+          {...rest}
         />
       )
     }
   },
   get solid() {
     return function(
-      { isV5, Template: MutationImportsTemplate = Template }: Props,
+      { ...rest }: FrameworkProps,
     ): ReactNode {
-      const imports = getImports({ isV5 })
+      const importNames = getImportNames()
 
       return (
-        <MutationImportsTemplate
-          {...imports.mutation.solid}
+        <Template
+          {...importNames.mutation.solid}
+          {...rest}
         />
       )
     }
   },
   get svelte() {
     return function(
-      { isV5, Template: MutationImportsTemplate = Template }: Props,
+      { ...rest }: FrameworkProps,
     ): ReactNode {
-      const imports = getImports({ isV5 })
+      const importNames = getImportNames()
 
       return (
-        <MutationImportsTemplate
-          {...imports.mutation.svelte}
+        <Template
+          {...importNames.mutation.svelte}
+          {...rest}
         />
       )
     }
   },
   get vue() {
     return function(
-      { isV5, Template: MutationImportsTemplate = Template }: Props,
+      { ...rest }: FrameworkProps,
     ): ReactNode {
-      const imports = getImports({ isV5 })
+      const importNames = getImportNames()
+      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const path = '@tanstack/vue-query'
 
       return (
         <>
           {isV5
             && (
-              <MutationImportsTemplate
-                {...imports.mutation.vue}
+              <Template
+                {...importNames.mutation.vue}
+                {...rest}
               />
             )}
 
           {!isV5 && (
             <>
-              <File.Import name={[imports.mutation.vue.resultType]} path={path} isTypeOnly />
-              <File.Import name={[imports.mutation.vue.optionsType]} path={'@tanstack/vue-query/build/lib/useMutation'} isTypeOnly />
-              <File.Import name={[imports.mutation.vue.hookName]} path={path} />
+              <File.Import name={[importNames.mutation.vue.resultType]} path={path} isTypeOnly />
+              <File.Import name={[importNames.mutation.vue.optionsType]} path={'@tanstack/vue-query/build/lib/useMutation'} isTypeOnly />
+              <File.Import name={[importNames.mutation.vue.hookName]} path={path} />
             </>
           )}
           <File.Import name={['unref']} path={'vue'} />
@@ -108,10 +104,15 @@ export const defaultTemplates = {
   },
 } as const
 
-export function MutationImports({ framework, ...rest }: Props & { framework: Framework }): ReactNode {
-  const Template = defaultTemplates[framework]
+type Props = {
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  Template?: React.ComponentType<FrameworkProps>
+}
 
-  return <Template {...rest} />
+export function MutationImports({ Template = defaultTemplates.react }: Props): ReactNode {
+  return <Template />
 }
 
 MutationImports.templates = defaultTemplates

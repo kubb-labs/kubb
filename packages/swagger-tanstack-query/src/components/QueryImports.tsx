@@ -1,9 +1,9 @@
+import { PackageManager } from '@kubb/core'
 import { File } from '@kubb/react'
 
-import { getImports } from '../utils.ts'
+import { getImportNames } from '../utils.ts'
 
 import type { ReactNode } from 'react'
-import type { Framework } from '../types.ts'
 
 type TemplateProps = {
   path: string
@@ -27,63 +27,65 @@ function Template({
   )
 }
 
-type Props = {
-  isInfinite: boolean
-  isV5?: boolean
-  /**
-   * This will make it possible to override the default behaviour.
-   */
-  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
+type FrameworkProps = Partial<TemplateProps> & {
+  context: {
+    isInfinite: boolean
+  }
 }
 
-export const defaultTemplates = {
-  get default() {
-    return null
-  },
+const defaultTemplates = {
   get react() {
     return function(
-      { isV5, isInfinite, Template: QueryImportsTemplate = Template }: Props,
+      { context, ...rest }: FrameworkProps,
     ): ReactNode {
-      const imports = getImports({ isV5 })
+      const importNames = getImportNames()
+      const { isInfinite } = context
 
       return (
-        <QueryImportsTemplate
-          {...isInfinite ? imports.queryInfinite.react : imports.query.react}
+        <Template
+          {...isInfinite ? importNames.queryInfinite.react : importNames.query.react}
+          {...rest}
         />
       )
     }
   },
   get solid() {
     return function(
-      { isV5, isInfinite, Template: QueryImportsTemplate = Template }: Props,
+      { context, ...rest }: FrameworkProps,
     ): ReactNode {
-      const imports = getImports({ isV5 })
+      const importNames = getImportNames()
+      const { isInfinite } = context
 
       return (
-        <QueryImportsTemplate
-          {...isInfinite ? imports.queryInfinite.solid : imports.query.solid}
+        <Template
+          {...isInfinite ? importNames.queryInfinite.solid : importNames.query.solid}
+          {...rest}
         />
       )
     }
   },
   get svelte() {
     return function(
-      { isV5, isInfinite, Template: QueryImportsTemplate = Template }: Props,
+      { context, ...rest }: FrameworkProps,
     ): ReactNode {
-      const imports = getImports({ isV5 })
+      const importNames = getImportNames()
+      const { isInfinite } = context
 
       return (
-        <QueryImportsTemplate
-          {...isInfinite ? imports.queryInfinite.svelte : imports.query.svelte}
+        <Template
+          {...isInfinite ? importNames.queryInfinite.svelte : importNames.query.svelte}
+          {...rest}
         />
       )
     }
   },
   get vue() {
     return function(
-      { isV5, isInfinite, Template: QueryImportsTemplate = Template }: Props,
+      { context, ...rest }: FrameworkProps,
     ): ReactNode {
-      const imports = getImports({ isV5 })
+      const importNames = getImportNames()
+      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+      const { isInfinite } = context
       const path = '@tanstack/vue-query'
 
       return (
@@ -91,8 +93,9 @@ export const defaultTemplates = {
           {isV5
             && (
               <>
-                <QueryImportsTemplate
-                  {...isInfinite ? imports.queryInfinite.vue : imports.query.vue}
+                <Template
+                  {...isInfinite ? importNames.queryInfinite.vue : importNames.query.vue}
+                  {...rest}
                 />
                 <File.Import name={['QueryObserverOptions']} path={path} isTypeOnly />
               </>
@@ -100,17 +103,17 @@ export const defaultTemplates = {
 
           {!isV5 && isInfinite && (
             <>
-              <File.Import name={[imports.queryInfinite.vue.resultType]} path={path} isTypeOnly />
-              <File.Import name={[imports.queryInfinite.vue.optionsType]} path={'@tanstack/vue-query/build/lib/types'} isTypeOnly />
-              <File.Import name={[imports.queryInfinite.vue.hookName]} path={path} />
+              <File.Import name={[importNames.queryInfinite.vue.resultType]} path={path} isTypeOnly />
+              <File.Import name={[importNames.queryInfinite.vue.optionsType]} path={'@tanstack/vue-query/build/lib/types'} isTypeOnly />
+              <File.Import name={[importNames.queryInfinite.vue.hookName]} path={path} />
             </>
           )}
 
           {!isV5 && !isInfinite && (
             <>
-              <File.Import name={[imports.query.vue.resultType]} path={path} isTypeOnly />
-              <File.Import name={[imports.query.vue.optionsType]} path={'@tanstack/vue-query/build/lib/types'} isTypeOnly />
-              <File.Import name={[imports.query.vue.hookName]} path={path} />
+              <File.Import name={[importNames.query.vue.resultType]} path={path} isTypeOnly />
+              <File.Import name={[importNames.query.vue.optionsType]} path={'@tanstack/vue-query/build/lib/types'} isTypeOnly />
+              <File.Import name={[importNames.query.vue.hookName]} path={path} />
             </>
           )}
           <File.Import name={['unref']} path={'vue'} />
@@ -122,10 +125,22 @@ export const defaultTemplates = {
   },
 } as const
 
-export function QueryImports({ framework, ...rest }: Props & { framework: Framework }): ReactNode {
-  const Template = defaultTemplates[framework]
+type Props = {
+  isInfinite: boolean
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  Template?: React.ComponentType<FrameworkProps>
+}
 
-  return <Template {...rest} />
+export function QueryImports({ isInfinite, Template = defaultTemplates.react }: Props): ReactNode {
+  return (
+    <Template
+      context={{
+        isInfinite,
+      }}
+    />
+  )
 }
 
 QueryImports.templates = defaultTemplates

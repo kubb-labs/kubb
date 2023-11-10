@@ -6,7 +6,6 @@ import { getASTParams } from '@kubb/swagger/utils'
 import { capitalCase, capitalCaseTransform } from 'change-case'
 
 import type { ReactNode } from 'react'
-import type { Framework } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -57,60 +56,48 @@ function Template({
   )
 }
 
-type Props = {
-  name: string
-  factory: {
-    name: string
+type FrameworkProps = TemplateProps & {
+  context: {
+    factory: {
+      name: string
+    }
   }
-  /**
-   * This will make it possible to override the default behaviour.
-   */
-  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
 }
 
-export const defaultTemplates = {
-  get default() {
-    return function({ name, factory, Template: QueryKeyTemplate = Template }: Props): ReactNode {
-      const schemas = useSchemas()
-      const operation = useOperation()
-      const path = new URLPath(operation.path)
-      const params = new FunctionParams()
-      const withQueryParams = !!schemas.queryParams?.name
-
-      params.add([
-        ...getASTParams(schemas.pathParams, {
-          typed: true,
-        }),
-        {
-          name: 'params',
-          type: `${factory.name}["queryParams"]`,
-          enabled: !!schemas.queryParams?.name,
-          required: !!schemas.queryParams?.schema.required?.length,
-        },
-      ])
-
-      const keys = [
-        path.toObject({
-          type: 'template',
-          stringify: true,
-        }),
-        withQueryParams ? `...(params ? [params] : [])` : undefined,
-      ].filter(Boolean)
-
-      return <QueryKeyTemplate name={name} params={params.toString()} keys={keys.join(', ')} />
+const defaultTemplates = {
+  get react() {
+    return function(props: FrameworkProps): ReactNode {
+      return (
+        <Template
+          {...props}
+        />
+      )
     }
   },
-  get react() {
-    return this.default
-  },
   get solid() {
-    return this.default
+    return function(props: FrameworkProps): ReactNode {
+      return (
+        <Template
+          {...props}
+        />
+      )
+    }
   },
   get svelte() {
-    return this.default
+    return function(props: FrameworkProps): ReactNode {
+      return (
+        <Template
+          {...props}
+        />
+      )
+    }
   },
   get vue() {
-    return function({ name, factory, Template: QueryKeyTemplate = Template }: Props): ReactNode {
+    return function(
+      { context, ...rest }: FrameworkProps,
+    ): ReactNode {
+      const { factory } = context
+
       const schemas = useSchemas()
       const operation = useOperation()
       const path = new URLPath(operation.path)
@@ -139,15 +126,50 @@ export const defaultTemplates = {
         withQueryParams ? `...(params ? [params] : [])` : undefined,
       ].filter(Boolean)
 
-      return <QueryKeyTemplate name={name} params={params.toString()} keys={keys.join(', ')} />
+      return <Template {...rest} params={params.toString()} keys={keys.join(', ')} />
     }
   },
 } as const
 
-export function QueryKey({ framework, ...rest }: Props & { framework: Framework }): ReactNode {
-  const Template = defaultTemplates[framework]
+type Props = {
+  name: string
+  factory: {
+    name: string
+  }
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  Template?: React.ComponentType<FrameworkProps>
+}
 
-  return <Template {...rest} />
+export function QueryKey({ name, factory, Template = defaultTemplates.react }: Props): ReactNode {
+  const schemas = useSchemas()
+  const operation = useOperation()
+  const path = new URLPath(operation.path)
+  const params = new FunctionParams()
+  const withQueryParams = !!schemas.queryParams?.name
+
+  params.add([
+    ...getASTParams(schemas.pathParams, {
+      typed: true,
+    }),
+    {
+      name: 'params',
+      type: `${factory.name}["queryParams"]`,
+      enabled: !!schemas.queryParams?.name,
+      required: !!schemas.queryParams?.schema.required?.length,
+    },
+  ])
+
+  const keys = [
+    path.toObject({
+      type: 'template',
+      stringify: true,
+    }),
+    withQueryParams ? `...(params ? [params] : [])` : undefined,
+  ].filter(Boolean)
+
+  return <Template name={name} params={params.toString()} keys={keys.join(', ')} context={{ factory }} />
 }
 
 QueryKey.templates = defaultTemplates

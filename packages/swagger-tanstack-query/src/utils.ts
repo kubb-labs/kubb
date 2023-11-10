@@ -1,5 +1,9 @@
+import { PackageManager } from '@kubb/core'
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function getImports({ isV5 }: { isV5?: boolean }) {
+export function getImportNames() {
+  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+
   return {
     mutation: {
       'react': {
