@@ -23,7 +23,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     skipBy = [],
     overrideBy = [],
     transformers = {},
-    client,
     clientImportPath,
     dataReturnType = 'data',
     pathParamsType = 'inline',
@@ -36,7 +35,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     name: pluginName,
     options: {
       dataReturnType,
-      client,
       clientImportPath,
       pathParamsType,
     },
@@ -119,34 +117,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         })
 
         await this.addFile(...rootFiles)
-      }
-
-      // Copy `client.ts` file only when the 'client' option is provided.
-      if (client) {
-        const packageManager = new PackageManager(process.cwd())
-
-        const clientPath = path.resolve(root, 'client.ts')
-        const originalClientPath: KubbFile.OptionalPath = options.client
-          ? path.resolve(this.config.root, options.client)
-          : packageManager.getLocation('@kubb/swagger-client/ts-client')
-
-        if (!originalClientPath) {
-          throw new Error(
-            `Cannot find the 'client.ts' file, or 'client' is not set in the options or '@kubb/swagger-client' is not included in your dependencies`,
-          )
-        }
-
-        const baseURL = await swaggerPlugin.api.getBaseURL()
-
-        await this.addFile({
-          baseName: 'client.ts',
-          path: clientPath,
-          source: await read(originalClientPath),
-          env: {
-            AXIOS_BASE: baseURL,
-            AXIOS_HEADERS: JSON.stringify({}),
-          },
-        })
       }
 
       await this.fileManager.addIndexes({ root, extName: '.ts', meta: { pluginKey: this.plugin.key } })

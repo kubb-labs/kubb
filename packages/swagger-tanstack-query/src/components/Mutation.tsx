@@ -344,16 +344,13 @@ type FileProps = {
 
 Mutation.File = function({ templates = defaultTemplates, imports = MutationImports.templates }: FileProps): ReactNode {
   const { key: pluginKey, options } = usePlugin<PluginOptions>()
-  const pluginManager = usePluginManager()
   const schemas = useSchemas()
   const operation = useOperation()
   const file = useResolve({ pluginKey, type: 'file' })
   const fileType = useResolveType({ type: 'file' })
 
-  const { clientImportPath, client, templatesPath, framework } = options
-  const root = path.resolve(pluginManager.config.root, pluginManager.config.output.path)
-  const clientPath = client ? path.resolve(root, 'client.ts') : undefined
-  const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
+  const { clientImportPath, templatesPath, framework } = options
+  const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
 
   const importNames = getImportNames()
   const Template = templates[framework]

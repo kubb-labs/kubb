@@ -1,8 +1,8 @@
 import path from 'node:path'
 
 import { PackageManager } from '@kubb/core'
-import { FunctionParams, getRelativePath, URLPath } from '@kubb/core/utils'
-import { File, Function, Type, usePlugin, usePluginManager } from '@kubb/react'
+import { FunctionParams, URLPath } from '@kubb/core/utils'
+import { File, Function, Type, usePlugin } from '@kubb/react'
 import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, getParams } from '@kubb/swagger/utils'
 import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
@@ -393,16 +393,13 @@ type FileProps = {
 
 Query.File = function({ templates = defaultTemplates, imports = QueryImports.templates }: FileProps): ReactNode {
   const { key: pluginKey, options } = usePlugin<PluginOptions>()
-  const pluginManager = usePluginManager()
   const schemas = useSchemas()
   const operation = useOperation()
   const file = useResolve({ pluginKey, type: 'file' })
   const fileType = useResolveType({ type: 'file' })
 
-  const { clientImportPath, client, templatesPath, framework, infinite } = options
-  const root = path.resolve(pluginManager.config.root, pluginManager.config.output.path)
-  const clientPath = client ? path.resolve(root, 'client.ts') : undefined
-  const resolvedClientPath = clientImportPath ? clientImportPath : clientPath ? getRelativePath(file.path, clientPath) : '@kubb/swagger-client/client'
+  const { clientImportPath, templatesPath, framework, infinite } = options
+  const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
 
   const importNames = getImportNames()
   const Template = templates[framework]

@@ -9,7 +9,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './generators/index.ts'
 
-import type { KubbFile, KubbPlugin } from '@kubb/core'
+import type { KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
@@ -60,13 +60,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const oas = await swaggerPlugin.api.getOas()
 
-      const clientPath: KubbFile.OptionalPath = options.client ? path.resolve(this.config.root, options.client) : undefined
-
       const operationGenerator = new OperationGenerator(
         {
           dataReturnType,
           clientImportPath: options.clientImportPath,
-          clientPath,
         },
         {
           oas,

@@ -44,13 +44,6 @@ export type Options = {
     exportAs?: string
   }
   /**
-   * Path to the client that will be used to do the API calls.
-   * Relative to the root.
-   * @default '@kubb/swagger-client/client'
-   * @deprecated Use `clientImportPath` instead. It will be skipped if `clientImportPath` is provided.
-   */
-  client?: string
-  /**
    * Path to the client import path that will be used to do the API calls.
    * It will be used as `import client from '${clientImportPath}'`.
    * It allow both relative and absolute path.
@@ -110,7 +103,6 @@ export type Framework = 'react' | 'solid' | 'svelte' | 'vue'
 
 type ResolvedOptions = {
   framework: NonNullable<PluginOptions['options']['framework']>
-  client?: Options['client']
   clientImportPath?: PluginOptions['options']['clientImportPath']
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
   /**

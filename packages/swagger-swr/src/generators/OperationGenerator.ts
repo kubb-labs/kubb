@@ -9,7 +9,6 @@ import type { Operation, OperationSchema, OperationSchemas, Resolver } from '@ku
 import type { FileMeta, PluginOptions } from '../types.ts'
 
 type Options = {
-  clientPath?: NonNullable<PluginOptions['options']['client']>
   clientImportPath?: NonNullable<PluginOptions['options']['clientImportPath']>
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
@@ -68,15 +67,13 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { clientPath, dataReturnType } = options
+    const { dataReturnType } = options
     const { pluginManager, oas, plugin } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
-    const clientImportPath = this.options.clientImportPath
-      ? this.options.clientImportPath
-      : clientPath
-      ? getRelativePath(hook.path, clientPath)
+    const clientImportPath = options.clientImportPath
+      ? options.clientImportPath
       : '@kubb/swagger-client/client'
 
     let errors: Resolver[] = []
@@ -137,15 +134,13 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { clientPath, dataReturnType } = options
+    const { dataReturnType } = options
     const { pluginManager, oas, plugin } = this.context
 
     const hook = this.resolve(operation)
     const type = this.resolveType(operation)
-    const clientImportPath = this.options.clientImportPath
-      ? this.options.clientImportPath
-      : clientPath
-      ? getRelativePath(hook.path, clientPath)
+    const clientImportPath = options.clientImportPath
+      ? options.clientImportPath
       : '@kubb/swagger-client/client'
 
     let errors: Resolver[] = []
