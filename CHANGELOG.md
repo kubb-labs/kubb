@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1-alpha.6](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.6...kubb-v2.0.1-alpha.6) (2023-11-10)
+
+
+### 🐞 Bug Fixes
+
+* deprecate client and replace by clientImportPath [#621](https://github.com/kubb-project/kubb/issues/621) ([#622](https://github.com/kubb-project/kubb/issues/622)) ([74f562b](https://github.com/kubb-project/kubb/commit/74f562be03908c27f1f0e9cff483909022284b6a))
+
 ## [2.0.0-alpha.6](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.5...kubb-v2.0.0-alpha.6) (2023-11-10)
 
 
