@@ -18,7 +18,7 @@ type LogoutUser = KubbQueryFactory<
     type: 'query'
   }
 >
-export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const
+export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
 export function logoutUserQueryOptions<
   TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],

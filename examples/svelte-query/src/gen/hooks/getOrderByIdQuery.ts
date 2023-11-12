@@ -17,7 +17,7 @@ type GetOrderById = KubbQueryFactory<
     type: 'query'
   }
 >
-export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: `/store/order/${orderId}`, params: { orderId: orderId } }] as const
+export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 export function getOrderByIdQueryOptions<
   TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
@@ -86,7 +86,7 @@ type GetOrderByIdInfinite = KubbQueryFactory<
   }
 >
 export const getOrderByIdInfiniteQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
-  [{ url: `/store/order/${orderId}`, params: { orderId: orderId } }] as const
+  [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdInfiniteQueryKey = ReturnType<typeof getOrderByIdInfiniteQueryKey>
 export function getOrderByIdInfiniteQueryOptions<
   TQueryFnData extends GetOrderByIdInfinite['data'] = GetOrderByIdInfinite['data'],

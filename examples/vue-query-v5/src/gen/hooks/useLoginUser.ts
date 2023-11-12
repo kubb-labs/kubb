@@ -19,7 +19,7 @@ type LoginUser = KubbQueryFactory<
     type: 'query'
   }
 >
-export const loginUserQueryKey = (params?: MaybeRef<LoginUser['queryParams']>) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
+export const loginUserQueryKey = (params?: MaybeRef<LoginUser['queryParams']>) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 export function loginUserQueryOptions<
   TQueryFnData extends LoginUser['data'] = LoginUser['data'],

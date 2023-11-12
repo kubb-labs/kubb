@@ -8,7 +8,7 @@ type LoginUser = KubbQueryFactory<LoginUserQueryResponse, LoginUser400, never, n
   dataReturnType: 'full'
   type: 'query'
 }>
-export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
+export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 export function loginUserQueryOptions<
   TQueryFnData extends LoginUser['data'] = LoginUser['data'],
@@ -65,7 +65,7 @@ type LoginUserInfinite = KubbQueryFactory<LoginUserQueryResponse, LoginUser400, 
   dataReturnType: 'full'
   type: 'query'
 }>
-export const loginUserInfiniteQueryKey = (params?: LoginUserInfinite['queryParams']) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
+export const loginUserInfiniteQueryKey = (params?: LoginUserInfinite['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserInfiniteQueryKey = ReturnType<typeof loginUserInfiniteQueryKey>
 export function loginUserInfiniteQueryOptions<
   TQueryFnData extends LoginUserInfinite['data'] = LoginUserInfinite['data'],

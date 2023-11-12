@@ -20,7 +20,7 @@ type FindPetsByTags = KubbQueryFactory<
     type: 'query'
   }
 >
-export const findPetsByTagsQueryKey = (params?: MaybeRef<FindPetsByTags['queryParams']>) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params?: MaybeRef<FindPetsByTags['queryParams']>) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export function findPetsByTagsQueryOptions<
   TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],

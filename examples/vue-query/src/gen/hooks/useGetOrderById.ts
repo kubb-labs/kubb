@@ -21,7 +21,7 @@ type GetOrderById = KubbQueryFactory<
   }
 >
 export const getOrderByIdQueryKey = (orderId: MaybeRef<GetOrderByIdPathParams['orderId']>) =>
-  [{ url: `/store/order/${unref(orderId)}`, params: { orderId: orderId } }] as const
+  [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 export function getOrderByIdQueryOptions<
   TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
