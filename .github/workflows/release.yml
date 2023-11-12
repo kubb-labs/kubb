@@ -21,5 +21,7 @@ jobs:
       - name: Release
         uses: google-github-actions/release-please-action@v3
         with:
+          release-type: node
+          monorepo-tags: true
           default-branch: alpha
 
