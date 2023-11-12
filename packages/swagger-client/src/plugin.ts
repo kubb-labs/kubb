@@ -1,7 +1,7 @@
 import path from 'node:path'
 
-import { createPlugin, FileManager, PackageManager, PluginManager } from '@kubb/core'
-import { read, renderTemplate } from '@kubb/core/utils'
+import { createPlugin, FileManager, PluginManager } from '@kubb/core'
+import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
@@ -9,7 +9,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
-import type { KubbFile, KubbPlugin } from '@kubb/core'
+import type { KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
@@ -19,16 +19,17 @@ export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisf
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
     output = 'clients',
-    groupBy,
-    skipBy = [],
-    overrideBy = [],
+    group,
+    exclude = [],
+    include,
+    override = [],
     transformers = {},
     clientImportPath,
     dataReturnType = 'data',
     pathParamsType = 'inline',
   } = options
 
-  const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
+  const template = group?.output ? group.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
@@ -56,7 +57,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return path.resolve(root, output)
       }
 
-      if (options?.tag && groupBy?.type === 'tag') {
+      if (options?.tag && group?.type === 'tag') {
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
         return path.resolve(root, renderTemplate(template, { tag }), baseName)
@@ -88,8 +89,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           pluginManager: this.pluginManager,
           plugin: this.plugin,
           contentType: swaggerPlugin.api.contentType,
-          skipBy,
-          overrideBy,
+          exclude,
+          include,
+          override,
         },
       )
 
@@ -101,16 +103,16 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       if (this.config.output.write === false) {
         return
       }
-      const [swaggerPlugin] = pluginsOptions
+
       const root = path.resolve(this.config.root, this.config.output.path)
 
-      if (groupBy?.type === 'tag') {
+      if (group?.type === 'tag') {
         const rootFiles = getGroupedByTagFiles({
           logger: this.logger,
           files: this.fileManager.files,
           plugin: this.plugin,
           template,
-          exportAs: groupBy.exportAs || '{{tag}}Service',
+          exportAs: group.exportAs || '{{tag}}Service',
           root,
           output,
           resolveName: this.pluginManager.resolveName,

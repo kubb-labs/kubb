@@ -25,7 +25,7 @@ export default defineConfig({
     createSwagger({ output: false, validate: true }),
     createSwaggerTS({
       output: 'models/ts',
-      groupBy: {
+      group: {
         type: 'tag',
       },
       enumType: 'asPascalConst',
@@ -33,71 +33,71 @@ export default defineConfig({
     }),
     createSwaggerTanstackQuery({
       output: './clients/hooks',
-      skipBy: [
+      exclude: [
         {
           type: 'tag',
           pattern: 'store',
         },
       ],
-      groupBy: { type: 'tag' },
+      group: { type: 'tag' },
       client: './src/client.ts',
       infinite: {},
     }),
     createSwaggerSWR({
       output: './clients/swr',
-      skipBy: [
+      exclude: [
         {
           type: 'tag',
           pattern: 'store',
         },
       ],
-      groupBy: { type: 'tag' },
+      group: { type: 'tag' },
       client: './src/client.ts',
     }),
     createSwaggerClient({
       output: './clients/axios',
-      skipBy: [
+      exclude: [
         {
           type: 'tag',
           pattern: 'store',
         },
       ],
-      groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' },
+      group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
       client: './src/client.ts',
     }),
     createSwaggerZod({
       output: './zod',
-      skipBy: [
+      exclude: [
         {
           type: 'tag',
           pattern: 'store',
         },
       ],
-      groupBy: { type: 'tag' },
+      group: { type: 'tag' },
     }),
     createSwaggerZodios({
       output: 'zodios.ts',
     }),
     createSwaggerFaker({
       output: 'mocks',
-      skipBy: [
+      exclude: [
         {
           type: 'tag',
           pattern: 'store',
         },
       ],
-      groupBy: { type: 'tag' },
+      group: { type: 'tag' },
       dateType: 'date',
     }),
     createSwaggerMsw({
       output: 'msw',
-      skipBy: [
+      exclude: [
         {
           type: 'tag',
           pattern: 'store',
         },
       ],
-      groupBy: { type: 'tag' },
+      group: { type: 'tag' },
     }),
   ],
 })

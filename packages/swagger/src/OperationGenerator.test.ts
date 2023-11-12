@@ -25,9 +25,10 @@ class DummyOperationGenerator extends OperationGenerator {
     })
   }
 
-  post(_operation: Operation): Promise<KubbFile.File | null> {
+  post(operation: Operation): Promise<KubbFile.File | null> {
     return new Promise((resolve) => {
-      resolve(null)
+      const baseName: `${string}.ts` = `${operation.getOperationId()}.ts`
+      resolve({ baseName, path: baseName, source: '' })
     })
   }
   patch(_operation: Operation): Promise<KubbFile.File | null> {
@@ -49,7 +50,7 @@ class DummyOperationGenerator extends OperationGenerator {
   }
 }
 
-describe('abstract class OperationGenerator', () => {
+describe('OperationGenerator core', () => {
   test('if pathParams return undefined when there are no params in path', async () => {
     const oas = await OasManager.parseFromConfig({
       root: './',
@@ -64,15 +65,18 @@ describe('abstract class OperationGenerator', () => {
         contentType: undefined,
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
-        skipBy: [],
+        exclude: [],
+        include: undefined,
       },
     )
 
     expect(og.getSchemas(oas.operation('/pets', 'get')).pathParams).toBeUndefined()
     expect(og.getSchemas(oas.operation('/pets', 'get')).queryParams).toBeDefined()
   })
+})
 
-  test('if skipBy is filtered out for tag', async () => {
+describe('OperationGenerator exclude', () => {
+  test('if exclude is filtered out for tag', async () => {
     const oas = await OasManager.parseFromConfig({
       root: './',
       output: { path: 'test', clean: true },
@@ -83,12 +87,13 @@ describe('abstract class OperationGenerator', () => {
       {},
       {
         oas,
-        skipBy: [
+        exclude: [
           {
             type: 'tag',
             pattern: 'pets',
           },
         ],
+        include: undefined,
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
@@ -97,10 +102,10 @@ describe('abstract class OperationGenerator', () => {
 
     const files = await og.build()
 
-    expect(files).toMatchObject([])
+    expect(files).toMatchSnapshot()
   })
 
-  test('if skipBy is filtered out for operationId', async () => {
+  test('if exclude is filtered out for operationId', async () => {
     const oas = await OasManager.parseFromConfig({
       root: './',
       output: { path: 'test', clean: true },
@@ -111,12 +116,13 @@ describe('abstract class OperationGenerator', () => {
       {},
       {
         oas,
-        skipBy: [
+        exclude: [
           {
             type: 'operationId',
             pattern: 'listPets',
           },
         ],
+        include: undefined,
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
@@ -125,16 +131,10 @@ describe('abstract class OperationGenerator', () => {
 
     const files = await og.build()
 
-    expect(files).toMatchObject([
-      {
-        baseName: 'showPetById.ts',
-        path: 'showPetById.ts',
-        source: '',
-      },
-    ])
+    expect(files).toMatchSnapshot()
   })
 
-  test('if skipBy is filtered out for path', async () => {
+  test('if exclude is filtered out for path', async () => {
     const oas = await OasManager.parseFromConfig({
       root: './',
       output: { path: 'test', clean: true },
@@ -145,12 +145,13 @@ describe('abstract class OperationGenerator', () => {
       {},
       {
         oas,
-        skipBy: [
+        exclude: [
           {
             type: 'path',
             pattern: '/pets/{petId}',
           },
         ],
+        include: undefined,
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
@@ -159,16 +160,10 @@ describe('abstract class OperationGenerator', () => {
 
     const files = await og.build()
 
-    expect(files).toMatchObject([
-      {
-        baseName: 'listPets.ts',
-        path: 'listPets.ts',
-        source: '',
-      },
-    ])
+    expect(files).toMatchSnapshot()
   })
 
-  test('if skipBy is filtered out for method', async () => {
+  test('if exclude is filtered out for method', async () => {
     const oas = await OasManager.parseFromConfig({
       root: './',
       output: { path: 'test', clean: true },
@@ -179,12 +174,13 @@ describe('abstract class OperationGenerator', () => {
       {},
       {
         oas,
-        skipBy: [
+        exclude: [
           {
             type: 'method',
             pattern: 'get',
           },
         ],
+        include: undefined,
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
@@ -193,10 +189,10 @@ describe('abstract class OperationGenerator', () => {
 
     const files = await og.build()
 
-    expect(files).toMatchObject([])
+    expect(files).toMatchSnapshot()
   })
 
-  test('if skipBy is filtered out for path and operationId', async () => {
+  test('if exclude is filtered out for path and operationId', async () => {
     const oas = await OasManager.parseFromConfig({
       root: './',
       output: { path: 'test', clean: true },
@@ -207,7 +203,7 @@ describe('abstract class OperationGenerator', () => {
       {},
       {
         oas,
-        skipBy: [
+        exclude: [
           {
             type: 'path',
             pattern: '/pets/{petId}',
@@ -217,6 +213,7 @@ describe('abstract class OperationGenerator', () => {
             pattern: 'listPets',
           },
         ],
+        include: undefined,
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
@@ -225,6 +222,191 @@ describe('abstract class OperationGenerator', () => {
 
     const files = await og.build()
 
-    expect(files).toMatchObject([])
+    expect(files).toMatchSnapshot()
+  })
+})
+
+describe('OperationGenerator include', () => {
+  test('if include is only selecting tag', async () => {
+    const oas = await OasManager.parseFromConfig({
+      root: './',
+      output: { path: 'test', clean: true },
+      input: { path: 'packages/swagger/mocks/petStore.yaml' },
+    })
+
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        include: [
+          {
+            type: 'tag',
+            pattern: 'pets',
+          },
+        ],
+        exclude: undefined,
+        pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
+        contentType: undefined,
+      },
+    )
+
+    const files = await og.build()
+
+    expect(files).toMatchSnapshot()
+  })
+
+  test('if include is only selecting for operationId', async () => {
+    const oas = await OasManager.parseFromConfig({
+      root: './',
+      output: { path: 'test', clean: true },
+      input: { path: 'packages/swagger/mocks/petStore.yaml' },
+    })
+
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        include: [
+          {
+            type: 'operationId',
+            pattern: 'listPets',
+          },
+        ],
+        exclude: undefined,
+        pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
+        contentType: undefined,
+      },
+    )
+
+    const files = await og.build()
+
+    expect(files).toMatchSnapshot()
+  })
+
+  test('if include is only selecting for path', async () => {
+    const oas = await OasManager.parseFromConfig({
+      root: './',
+      output: { path: 'test', clean: true },
+      input: { path: 'packages/swagger/mocks/petStore.yaml' },
+    })
+
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        include: [
+          {
+            type: 'path',
+            pattern: '/pets/{petId}',
+          },
+        ],
+        exclude: undefined,
+        pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
+        contentType: undefined,
+      },
+    )
+
+    const files = await og.build()
+
+    expect(files).toMatchSnapshot()
+  })
+
+  test('if include is only selecting for method', async () => {
+    const oas = await OasManager.parseFromConfig({
+      root: './',
+      output: { path: 'test', clean: true },
+      input: { path: 'packages/swagger/mocks/petStore.yaml' },
+    })
+
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        include: [
+          {
+            type: 'method',
+            pattern: 'get',
+          },
+        ],
+        exclude: undefined,
+        pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
+        contentType: undefined,
+      },
+    )
+
+    const files = await og.build()
+
+    expect(files).toMatchSnapshot()
+  })
+
+  test('if include is only selecting path and operationId', async () => {
+    const oas = await OasManager.parseFromConfig({
+      root: './',
+      output: { path: 'test', clean: true },
+      input: { path: 'packages/swagger/mocks/petStore.yaml' },
+    })
+
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        include: [
+          {
+            type: 'path',
+            pattern: '/pets/{petId}',
+          },
+          {
+            type: 'operationId',
+            pattern: 'listPets',
+          },
+        ],
+        exclude: undefined,
+        pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
+        contentType: undefined,
+      },
+    )
+
+    const files = await og.build()
+
+    expect(files).toMatchSnapshot()
+  })
+})
+
+describe('OperationGenerator include and exclude', () => {
+  test('if include is only selecting path and exclude is removing the GET calls', async () => {
+    const oas = await OasManager.parseFromConfig({
+      root: './',
+      output: { path: 'test', clean: true },
+      input: { path: 'packages/swagger/mocks/petStore.yaml' },
+    })
+
+    const og = new DummyOperationGenerator(
+      {},
+      {
+        oas,
+        include: [
+          {
+            type: 'path',
+            pattern: /\pets$/,
+          },
+        ],
+        exclude: [{
+          type: 'method',
+          pattern: 'post',
+        }],
+        pluginManager: undefined as unknown as PluginManager,
+        plugin: {} as KubbPlugin,
+        contentType: undefined,
+      },
+    )
+
+    const files = await og.build()
+
+    expect(files).toMatchSnapshot()
   })
 })

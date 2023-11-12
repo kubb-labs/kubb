@@ -1,7 +1,7 @@
 import path from 'node:path'
 
-import { FunctionParams, getRelativePath, transformers, URLPath } from '@kubb/core/utils'
-import { File, Function, Type, usePlugin, usePluginManager } from '@kubb/react'
+import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
+import { File, Function, Type, usePlugin } from '@kubb/react'
 import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
@@ -367,7 +367,7 @@ Mutation.File = function({ templates = defaultTemplates, imports = MutationImpor
         path={file.path}
         meta={{
           pluginKey,
-          // needed for the `output.groupBy`
+          // needed for the `output.group`
           tag: operation?.getTags()[0]?.name,
         }}
       >

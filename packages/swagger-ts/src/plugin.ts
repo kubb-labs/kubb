@@ -19,16 +19,17 @@ export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
     output = 'types',
-    groupBy,
-    skipBy = [],
-    overrideBy = [],
+    group,
+    exclude = [],
+    include,
+    override = [],
     enumType = 'asConst',
     dateType = 'string',
     optionalType = 'questionToken',
     transformers = {},
     exportAs,
   } = options
-  const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
+  const template = group?.output ? group.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
@@ -52,7 +53,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return path.resolve(root, output)
       }
 
-      if (options?.tag && groupBy?.type === 'tag') {
+      if (options?.tag && group?.type === 'tag') {
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
         return path.resolve(root, renderTemplate(template, { tag }), baseName)
@@ -179,8 +180,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           pluginManager: this.pluginManager,
           plugin: this.plugin,
           contentType: swaggerPlugin.api.contentType,
-          skipBy,
-          overrideBy,
+          exclude,
+          include,
+          override,
         },
       )
 

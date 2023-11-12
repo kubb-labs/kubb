@@ -20,16 +20,17 @@ export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisf
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
     output = 'hooks',
-    groupBy,
-    skipBy = [],
-    overrideBy = [],
+    group,
+    exclude = [],
+    include,
+    override = [],
     framework = 'react',
     clientImportPath,
     infinite,
     transformers = {},
     dataReturnType = 'data',
   } = options
-  const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}Controller`
+  const template = group?.output ? group.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
@@ -65,7 +66,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return path.resolve(root, output)
       }
 
-      if (options?.tag && groupBy?.type === 'tag') {
+      if (options?.tag && group?.type === 'tag') {
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
         return path.resolve(root, renderTemplate(template, { tag }), baseName)
@@ -100,8 +101,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           pluginManager: this.pluginManager,
           plugin: this.plugin,
           contentType: swaggerPlugin.api.contentType,
-          skipBy,
-          overrideBy,
+          exclude,
+          include,
+          override,
         },
       )
 
@@ -123,13 +125,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const root = path.resolve(this.config.root, this.config.output.path)
 
-      if (groupBy?.type === 'tag') {
+      if (group?.type === 'tag') {
         const rootFiles = getGroupedByTagFiles({
           logger: this.logger,
           files: this.fileManager.files,
           plugin: this.plugin,
           template,
-          exportAs: groupBy.exportAs || '{{tag}}Hooks',
+          exportAs: group.exportAs || '{{tag}}Hooks',
           root,
           output,
           resolveName: this.pluginManager.resolveName,

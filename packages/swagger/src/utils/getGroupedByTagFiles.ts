@@ -1,10 +1,11 @@
 import path from 'node:path'
 
-import { getRelativePath, type Logger, renderTemplate } from '@kubb/core/utils'
+import { getRelativePath, renderTemplate } from '@kubb/core/utils'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import type { KubbFile, KubbPlugin, ResolveNameParams } from '@kubb/core'
+import type { Logger } from '@kubb/core/utils'
 
 type Options = {
   logger?: Logger
@@ -51,7 +52,7 @@ export function getGroupedByTagFiles({
       const tagName = renderTemplate(exportAs, { tag })
 
       /*
-            const tagName = camelCase(renderTemplate(groupBy.exportAs || '{{tag}}Mocks', { tag }), {
+            const tagName = camelCase(renderTemplate(group.exportAs || '{{tag}}Mocks', { tag }), {
               delimiter: '',
               transform: camelCaseTransformMerge,
             })

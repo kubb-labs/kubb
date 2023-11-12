@@ -17,8 +17,8 @@ export const pluginName = 'swagger-swr' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', groupBy, skipBy = [], overrideBy = [], transformers = {}, dataReturnType = 'data' } = options
-  const template = groupBy?.output ? groupBy.output : `${output}/{{tag}}SWRController`
+  const { output = 'hooks', group, exclude = [], override = [], transformers = {}, dataReturnType = 'data' } = options
+  const template = group?.output ? group.output : `${output}/{{tag}}SWRController`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
@@ -42,7 +42,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return path.resolve(root, output)
       }
 
-      if (options?.tag && groupBy?.type === 'tag') {
+      if (options?.tag && group?.type === 'tag') {
         const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
 
         return path.resolve(root, renderTemplate(template, { tag }), baseName)
@@ -70,8 +70,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           pluginManager: this.pluginManager,
           plugin: this.plugin,
           contentType: swaggerPlugin.api.contentType,
-          skipBy,
-          overrideBy,
+          exclude,
+          override,
         },
       )
 
@@ -92,13 +92,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const root = path.resolve(this.config.root, this.config.output.path)
 
-      if (groupBy?.type === 'tag') {
+      if (group?.type === 'tag') {
         const rootFiles = getGroupedByTagFiles({
           logger: this.logger,
           files: this.fileManager.files,
           plugin: this.plugin,
           template,
-          exportAs: groupBy.exportAs || '{{tag}}SWRHooks',
+          exportAs: group.exportAs || '{{tag}}SWRHooks',
           root,
           output,
           resolveName: this.pluginManager.resolveName,

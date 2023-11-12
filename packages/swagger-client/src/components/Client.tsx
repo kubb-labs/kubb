@@ -181,7 +181,7 @@ Client.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
       path={file.path}
       meta={{
         pluginKey,
-        // needed for the `output.groupBy`
+        // needed for the `output.group`
         tag: operation.getTags()[0]?.name,
       }}
     >

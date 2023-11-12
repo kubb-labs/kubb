@@ -117,9 +117,10 @@ type ByMethod = {
   pattern: HttpMethod | RegExp
 }
 
-export type SkipBy = ByTag | ByOperationId | ByPath | ByMethod
+export type Exclude = ByTag | ByOperationId | ByPath | ByMethod
+export type Include = ByTag | ByOperationId | ByPath | ByMethod
 
-export type OverrideBy<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & { options: Partial<TOptions> }
+export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & { options: Partial<TOptions> }
 
 export type AppMeta = { schemas: OperationSchemas; operation: Operation }
 
