@@ -21,7 +21,5 @@ jobs:
       - name: Release
         uses: google-github-actions/release-please-action@v3
         with:
-          command: manifest
-          monorepo-tags: true
           default-branch: alpha
 
