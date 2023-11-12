@@ -42,6 +42,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const operationGenerator = new OperationGenerator(
         {
+          baseURL: await swaggerPlugin.api.getBaseURL(),
           output,
         },
         {
