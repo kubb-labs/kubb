@@ -17,7 +17,7 @@ type FindPetsByStatus = KubbQueryFactory<
     type: 'query'
   }
 >
-export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: `/pet/findByStatus` }, ...(params ? [params] : [])] as const
+export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
 export function findPetsByStatusQueryOptions<
   TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],

@@ -62,10 +62,15 @@ export class URLPath {
     }
 
     if (stringify) {
-      if (type !== 'template') {
-        throw new Error('Type should be `template` when using stringiyf')
+      if (type === 'template') {
+        return JSON.stringify(object).replaceAll("'", '').replaceAll(`"`, '')
       }
-      return JSON.stringify(object).replaceAll("'", '').replaceAll(`"`, '')
+
+      if (object.params) {
+        return `{ url: '${object.url}', params: ${JSON.stringify(object.params).replaceAll("'", '').replaceAll(`"`, '')} }`
+      }
+
+      return `{ url: '${object.url}' }`
     }
 
     return object

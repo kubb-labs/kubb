@@ -8,7 +8,7 @@ type GetPetById = KubbQueryFactory<GetPetByIdQueryResponse, GetPetById400 | GetP
   dataReturnType: 'full'
   type: 'query'
 }>
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: `/pet/${petId}`, params: { petId: petId } }] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 export function getPetByIdQueryOptions<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
@@ -74,7 +74,7 @@ type GetPetByIdInfinite = KubbQueryFactory<
     type: 'query'
   }
 >
-export const getPetByIdInfiniteQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: `/pet/${petId}`, params: { petId: petId } }] as const
+export const getPetByIdInfiniteQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdInfiniteQueryKey = ReturnType<typeof getPetByIdInfiniteQueryKey>
 export function getPetByIdInfiniteQueryOptions<
   TQueryFnData extends GetPetByIdInfinite['data'] = GetPetByIdInfinite['data'],

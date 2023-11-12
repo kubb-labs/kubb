@@ -119,7 +119,7 @@ const defaultTemplates = {
 
       const keys = [
         path.toObject({
-          type: 'template',
+          type: 'path',
           stringify: true,
           replacer: (pathParam) => `unref(${pathParam})`,
         }),
@@ -163,7 +163,7 @@ export function QueryKey({ name, factory, Template = defaultTemplates.react }: P
 
   const keys = [
     path.toObject({
-      type: 'template',
+      type: 'path',
       stringify: true,
     }),
     withQueryParams ? `...(params ? [params] : [])` : undefined,

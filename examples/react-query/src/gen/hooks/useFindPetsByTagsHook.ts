@@ -17,7 +17,7 @@ type FindPetsByTags = KubbQueryFactory<
     type: 'query'
   }
 >
-export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export function findPetsByTagsQueryOptions<
   TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
@@ -85,7 +85,7 @@ type FindPetsByTagsInfinite = KubbQueryFactory<
   }
 >
 export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsInfinite['queryParams']) =>
-  [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
+  [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
 export function findPetsByTagsInfiniteQueryOptions<
   TQueryFnData extends FindPetsByTagsInfinite['data'] = FindPetsByTagsInfinite['data'],

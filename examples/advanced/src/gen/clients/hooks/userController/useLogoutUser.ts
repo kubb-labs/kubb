@@ -8,7 +8,7 @@ type LogoutUser = KubbQueryFactory<LogoutUserQueryResponse, LogoutUserError, nev
   dataReturnType: 'full'
   type: 'query'
 }>
-export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const
+export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
 export function logoutUserQueryOptions<
   TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
@@ -61,7 +61,7 @@ type LogoutUserInfinite = KubbQueryFactory<LogoutUserQueryResponse, LogoutUserEr
   dataReturnType: 'full'
   type: 'query'
 }>
-export const logoutUserInfiniteQueryKey = () => [{ url: `/user/logout` }] as const
+export const logoutUserInfiniteQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserInfiniteQueryKey = ReturnType<typeof logoutUserInfiniteQueryKey>
 export function logoutUserInfiniteQueryOptions<
   TQueryFnData extends LogoutUserInfinite['data'] = LogoutUserInfinite['data'],

@@ -21,7 +21,7 @@ type GetUserByName = KubbQueryFactory<
   }
 >
 export const getUserByNameQueryKey = (username: MaybeRef<GetUserByNamePathParams['username']>) =>
-  [{ url: `/user/${unref(username)}`, params: { username: username } }] as const
+  [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 export function getUserByNameQueryOptions<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],

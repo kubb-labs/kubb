@@ -149,7 +149,7 @@ type FindPetsByStatus = KubbQueryFactory<
     type: 'query'
   }
 >
-export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: `/pet/findByStatus` }, ...(params ? [params] : [])] as const
+export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
 export function findPetsByStatusQueryOptions<
   TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
@@ -216,7 +216,7 @@ type FindPetsByTags = KubbQueryFactory<
     type: 'query'
   }
 >
-export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: `/pet/findByTags` }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export function findPetsByTagsQueryOptions<
   TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
@@ -274,7 +274,7 @@ type GetPetById = KubbQueryFactory<GetPetByIdQueryResponse, GetPetById400 | GetP
   dataReturnType: 'data'
   type: 'query'
 }>
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: `/pet/${petId}`, params: { petId: petId } }] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 export function getPetByIdQueryOptions<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
@@ -450,7 +450,7 @@ type GetInventory = KubbQueryFactory<GetInventoryQueryResponse, never, never, ne
   dataReturnType: 'data'
   type: 'query'
 }>
-export const getInventoryQueryKey = () => [{ url: `/store/inventory` }] as const
+export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 export function getInventoryQueryOptions<
   TQueryFnData extends GetInventory['data'] = GetInventory['data'],
@@ -576,7 +576,7 @@ type GetOrderById = KubbQueryFactory<
     type: 'query'
   }
 >
-export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: `/store/order/${orderId}`, params: { orderId: orderId } }] as const
+export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 export function getOrderByIdQueryOptions<
   TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
@@ -731,7 +731,7 @@ type LoginUser = KubbQueryFactory<LoginUserQueryResponse, LoginUser400, never, n
   dataReturnType: 'data'
   type: 'query'
 }>
-export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: `/user/login` }, ...(params ? [params] : [])] as const
+export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 export function loginUserQueryOptions<
   TQueryFnData extends LoginUser['data'] = LoginUser['data'],
@@ -788,7 +788,7 @@ type LogoutUser = KubbQueryFactory<LogoutUserQueryResponse, LogoutUserError, nev
   dataReturnType: 'data'
   type: 'query'
 }>
-export const logoutUserQueryKey = () => [{ url: `/user/logout` }] as const
+export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
 export function logoutUserQueryOptions<
   TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
@@ -850,7 +850,7 @@ type GetUserByName = KubbQueryFactory<
     type: 'query'
   }
 >
-export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: `/user/${username}`, params: { username: username } }] as const
+export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 export function getUserByNameQueryOptions<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],

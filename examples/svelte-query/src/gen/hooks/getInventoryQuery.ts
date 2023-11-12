@@ -17,7 +17,7 @@ type GetInventory = KubbQueryFactory<
     type: 'query'
   }
 >
-export const getInventoryQueryKey = () => [{ url: `/store/inventory` }] as const
+export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 export function getInventoryQueryOptions<
   TQueryFnData extends GetInventory['data'] = GetInventory['data'],
@@ -81,7 +81,7 @@ type GetInventoryInfinite = KubbQueryFactory<
     type: 'query'
   }
 >
-export const getInventoryInfiniteQueryKey = () => [{ url: `/store/inventory` }] as const
+export const getInventoryInfiniteQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryInfiniteQueryKey = ReturnType<typeof getInventoryInfiniteQueryKey>
 export function getInventoryInfiniteQueryOptions<
   TQueryFnData extends GetInventoryInfinite['data'] = GetInventoryInfinite['data'],

@@ -18,7 +18,7 @@ type GetInventory = KubbQueryFactory<
     type: 'query'
   }
 >
-export const getInventoryQueryKey = () => [{ url: `/store/inventory` }] as const
+export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 export function getInventoryQueryOptions<
   TQueryFnData extends GetInventory['data'] = GetInventory['data'],

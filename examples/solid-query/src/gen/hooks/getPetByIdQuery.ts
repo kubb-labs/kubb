@@ -17,7 +17,7 @@ type GetPetById = KubbQueryFactory<
     type: 'query'
   }
 >
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: `/pet/${petId}`, params: { petId: petId } }] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 export function getPetByIdQueryOptions<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
