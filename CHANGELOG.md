@@ -1,4 +1,11 @@
 # Changelog
+## [1.14.9](https://github.com/kubb-project/kubb/compare/kubb-v1.14.8...kubb-v1.14.9) (2023-11-12)
+
+
+### 🐞 Bug Fixes
+
+* use of baseURL for Zodios ([#631](https://github.com/kubb-project/kubb/issues/631)) ([f5dbd2f](https://github.com/kubb-project/kubb/commit/f5dbd2f5ab301d9620a823b6fb35fbb1acfa256f))
+
 ## [1.14.8](https://github.com/kubb-project/kubb/compare/kubb-v1.14.7...kubb-v1.14.8) (2023-11-09)
 
 
