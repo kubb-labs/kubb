@@ -32,6 +32,7 @@ describe('OperationGenerator', () => {
       {
         oas,
         exclude: [],
+        include: undefined,
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
         plugin: {} as KubbPlugin<PluginOptions>,
         contentType: undefined,
@@ -70,6 +71,7 @@ describe('OperationGenerator', () => {
       {
         oas,
         exclude: [],
+        include: undefined,
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
         plugin: {} as KubbPlugin<PluginOptions>,
         contentType: undefined,

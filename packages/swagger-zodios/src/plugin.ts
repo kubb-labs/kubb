@@ -58,6 +58,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           plugin: this.plugin,
           contentType: swaggerPlugin.api.contentType,
           exclude: swaggerZodPlugin.options.exclude,
+          include: swaggerZodPlugin.options.include,
         },
       )
 

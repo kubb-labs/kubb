@@ -17,7 +17,7 @@ export const pluginName = 'swagger-swr' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', group, exclude = [], override = [], transformers = {}, dataReturnType = 'data' } = options
+  const { output = 'hooks', group, exclude = [], include, override = [], transformers = {}, dataReturnType = 'data' } = options
   const template = group?.output ? group.output : `${output}/{{tag}}SWRController`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
@@ -71,6 +71,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           plugin: this.plugin,
           contentType: swaggerPlugin.api.contentType,
           exclude,
+          include,
           override,
         },
       )
