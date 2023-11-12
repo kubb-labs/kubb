@@ -25,12 +25,12 @@ export default defineConfig(async () => {
         '@kubb/swagger-ts',
         {
           output: 'models/ts',
-          groupBy: {
+          group: {
             type: 'tag',
           },
           enumType: 'asPascalConst',
           dateType: 'date',
-          overrideBy: [
+          override: [
             {
               type: 'operationId',
               pattern: 'findPetsByStatus',
@@ -45,13 +45,13 @@ export default defineConfig(async () => {
         '@kubb/swagger-tanstack-query',
         {
           output: './clients/hooks',
-          skipBy: [
+          exclude: [
             {
               type: 'tag',
               pattern: 'store',
             },
           ],
-          overrideBy: [
+          override: [
             {
               type: 'tag',
               pattern: 'pet',
@@ -62,7 +62,7 @@ export default defineConfig(async () => {
               },
             },
           ],
-          groupBy: { type: 'tag' },
+          group: { type: 'tag' },
           clientImportPath: '../../../../tanstack-query-client.ts',
           infinite: {},
           dataReturnType: 'full',
@@ -72,13 +72,13 @@ export default defineConfig(async () => {
         '@kubb/swagger-swr',
         {
           output: './clients/swr',
-          skipBy: [
+          exclude: [
             {
               type: 'tag',
               pattern: 'store',
             },
           ],
-          groupBy: { type: 'tag' },
+          group: { type: 'tag' },
           clientImportPath: '../../../../swr-client.ts',
           dataReturnType: 'full',
         },
@@ -87,13 +87,13 @@ export default defineConfig(async () => {
         '@kubb/swagger-client',
         {
           output: './clients/axios',
-          skipBy: [
+          exclude: [
             {
               type: 'tag',
               pattern: 'store',
             },
           ],
-          groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' },
+          group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
           clientImportPath: '../../../../axios-client.ts',
           dataReturnType: 'full',
           pathParamsType: 'object',
@@ -103,13 +103,13 @@ export default defineConfig(async () => {
         '@kubb/swagger-zod',
         {
           output: './zod',
-          skipBy: [
+          exclude: [
             {
               type: 'tag',
               pattern: 'store',
             },
           ],
-          groupBy: { type: 'tag' },
+          group: { type: 'tag' },
         },
       ],
       [
@@ -122,13 +122,13 @@ export default defineConfig(async () => {
         '@kubb/swagger-faker',
         {
           output: 'mocks',
-          skipBy: [
+          exclude: [
             {
               type: 'tag',
               pattern: 'store',
             },
           ],
-          groupBy: { type: 'tag' },
+          group: { type: 'tag' },
           dateType: 'date',
         },
       ],
@@ -136,13 +136,13 @@ export default defineConfig(async () => {
         '@kubb/swagger-msw',
         {
           output: 'msw',
-          skipBy: [
+          exclude: [
             {
               type: 'tag',
               pattern: 'store',
             },
           ],
-          groupBy: { type: 'tag' },
+          group: { type: 'tag' },
         },
       ],
     ],

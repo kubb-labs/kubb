@@ -1,5 +1,5 @@
 import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
-import type { AppMeta as SwaggerAppMeta, OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
+import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 
 export type Infinite = {
   /**
@@ -24,7 +24,7 @@ export type Options = {
   /**
    * Group the @tanstack/query hooks based on the provided name.
    */
-  groupBy?: {
+  group?: {
     /**
      * Tag will group based on the operation tag inside the Swagger file
      */
@@ -75,13 +75,17 @@ export type Options = {
    */
   dataReturnType?: 'data' | 'full'
   /**
-   * Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
+   * Array containing exclude paramaters to exclude/skip tags/operations/methods/paths.
    */
-  skipBy?: Array<SkipBy>
+  exclude?: Array<Exclude>
   /**
-   * Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
+   * Array containing include paramaters to include tags/operations/methods/paths.
    */
-  overrideBy?: Array<OverrideBy<ResolvedOptions>>
+  include?: Array<Include>
+  /**
+   * Array containing override paramaters to override `options` based on tags/operations/methods/paths.
+   */
+  override?: Array<Override<ResolvedOptions>>
   /**
    * Framework to be generated for
    * @default 'react'

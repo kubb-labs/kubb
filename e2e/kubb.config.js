@@ -36,19 +36,19 @@ const baseConfig = {
       '@kubb/swagger-ts',
       {
         output: 'models/ts',
-        groupBy: {
+        group: {
           type: 'tag',
         },
         enumType: 'asPascalConst',
       },
     ],
-    ['@kubb/swagger-tanstack-query', { output: './clients/hooks', groupBy: { type: 'tag' } }],
-    ['@kubb/swagger-swr', { output: './clients/swr', groupBy: { type: 'tag' } }],
-    ['@kubb/swagger-client', { output: './clients/axios', groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' } }],
-    ['@kubb/swagger-zod', { output: './zod', groupBy: { type: 'tag' } }],
+    ['@kubb/swagger-tanstack-query', { output: './clients/hooks', group: { type: 'tag' } }],
+    ['@kubb/swagger-swr', { output: './clients/swr', group: { type: 'tag' } }],
+    ['@kubb/swagger-client', { output: './clients/axios', group: { type: 'tag', output: './clients/axios/{{tag}}Service' } }],
+    ['@kubb/swagger-zod', { output: './zod', group: { type: 'tag' } }],
     // ['@kubb/swagger-zodios', { output: 'zodios.ts' }],
-    ['@kubb/swagger-faker', { output: 'mocks', groupBy: { type: 'tag' } }],
-    ['@kubb/swagger-msw', { output: 'msw', groupBy: { type: 'tag' } }],
+    ['@kubb/swagger-faker', { output: 'mocks', group: { type: 'tag' } }],
+    ['@kubb/swagger-msw', { output: 'msw', group: { type: 'tag' } }],
   ],
 }
 

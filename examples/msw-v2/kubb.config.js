@@ -26,11 +26,11 @@ export default defineConfig(async () => {
       }],
       ['@kubb/swagger-faker', {
         output: './mocks',
-        groupBy: { type: 'tag', output: './mocks/{{tag}}Mocks' },
+        group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
       }],
       ['@kubb/swagger-msw', {
         output: './msw',
-        groupBy: { type: 'tag', output: './msw/{{tag}}Handlers' },
+        group: { type: 'tag', output: './msw/{{tag}}Handlers' },
       }],
     ],
   }

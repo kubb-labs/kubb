@@ -1,5 +1,5 @@
 import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
-import type { OverrideBy, ResolvePathOptions, SkipBy } from '@kubb/swagger'
+import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -11,7 +11,7 @@ export type Options = {
   /**
    * Group the Zod schemas based on the provided name.
    */
-  groupBy?: {
+  group?: {
     /**
      * Tag will group based on the operation tag inside the Swagger file
      */
@@ -30,11 +30,18 @@ export type Options = {
      */
     exportAs?: string
   }
-  skipBy?: Array<SkipBy>
   /**
-   * Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
+   * Array containing exclude paramaters to exclude/skip tags/operations/methods/paths.
    */
-  overrideBy?: Array<OverrideBy<Options>>
+  exclude?: Array<Exclude>
+  /**
+   * Array containing include paramaters to include tags/operations/methods/paths.
+   */
+  include?: Array<Include>
+  /**
+   * Array containing override paramaters to override `options` based on tags/operations/methods/paths.
+   */
+  override?: Array<Override<Options>>
   transformers?: {
     /**
      * Override the name of the Zod schema that is getting generated, this will also override the name of the file.

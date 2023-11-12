@@ -341,7 +341,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
       if (operations) {
         methods.forEach((method) => {
           // use isSkipped to also exclude operations(skipby in our Zod plugin).
-          if (operations[method] && !this.isSkipped(operations[method]!, method)) {
+          if (operations[method] && !this.isExcluded(operations[method]!, method)) {
             acc.push(mapOperationToZodios(operations[method]!))
           }
         })

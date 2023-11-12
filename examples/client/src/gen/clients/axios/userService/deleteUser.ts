@@ -1,5 +1,5 @@
-import client from '../../../client'
-import type { ResponseConfig } from '../../../client'
+import client from '@kubb/swagger-client/client'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser'
 
 /**

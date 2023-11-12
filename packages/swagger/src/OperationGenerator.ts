@@ -11,7 +11,7 @@ import type { KubbPlugin } from '@kubb/core'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
 import type { OpenAPIV3 } from 'openapi-types'
-import type { ContentType, Oas, OperationSchemas, OverrideBy, SkipBy } from './types.ts'
+import type { ContentType, Exclude, Include, Oas, OperationSchemas, Override } from './types.ts'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
 
@@ -19,8 +19,9 @@ export type OperationMethodResult<TFileMeta extends KubbFile.FileMetaBase> = Pro
 
 type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas
-  skipBy: Array<SkipBy> | undefined
-  overrideBy?: Array<OverrideBy<TOptions>> | undefined
+  exclude: Array<Exclude> | undefined
+  include: Array<Include> | undefined
+  override?: Array<Override<TOptions>> | undefined
   contentType: ContentType | undefined
   pluginManager: PluginManager
   /**
@@ -53,10 +54,10 @@ export abstract class OperationGenerator<
   }
 
   #getOptions(operation: Operation, method: HttpMethod): Partial<TOptions> {
-    const { overrideBy = [] } = this.context
+    const { override = [] } = this.context
 
     return (
-      overrideBy.find(({ pattern, type }) => {
+      override.find(({ pattern, type }) => {
         if (type === 'tag') {
           return !!operation.getTags()[0]?.name.match(pattern)
         }
@@ -78,29 +79,53 @@ export abstract class OperationGenerator<
     )
   }
 
-  isSkipped(operation: Operation, method: HttpMethod): boolean {
-    const { skipBy = [] } = this.context
-    let skip = false
+  isExcluded(operation: Operation, method: HttpMethod): boolean {
+    const { exclude = [] } = this.context
+    let matched = false
 
-    skipBy.forEach(({ pattern, type }) => {
-      if (type === 'tag' && !skip) {
-        skip = !!operation.getTags()[0]?.name.match(pattern)
+    exclude.forEach(({ pattern, type }) => {
+      if (type === 'tag' && !matched) {
+        matched = !!operation.getTags()[0]?.name.match(pattern)
       }
 
-      if (type === 'operationId' && !skip) {
-        skip = !!operation.getOperationId().match(pattern)
+      if (type === 'operationId' && !matched) {
+        matched = !!operation.getOperationId().match(pattern)
       }
 
-      if (type === 'path' && !skip) {
-        skip = !!operation.path.match(pattern)
+      if (type === 'path' && !matched) {
+        matched = !!operation.path.match(pattern)
       }
 
-      if (type === 'method' && !skip) {
-        skip = !!method.match(pattern)
+      if (type === 'method' && !matched) {
+        matched = !!method.match(pattern)
       }
     })
 
-    return skip
+    return matched
+  }
+  isIncluded(operation: Operation, method: HttpMethod): boolean {
+    const { include = [] } = this.context
+    let matched = false
+
+    include.forEach(({ pattern, type }) => {
+      if (type === 'tag' && !matched) {
+        matched = !!operation.getTags()[0]?.name.match(pattern)
+      }
+
+      if (type === 'operationId' && !matched) {
+        matched = !!operation.getOperationId().match(pattern)
+      }
+
+      if (type === 'path' && !matched) {
+        matched = !!operation.path.match(pattern)
+      }
+
+      if (type === 'method' && !matched) {
+        matched = !!method.match(pattern)
+      }
+    })
+
+    return matched
   }
 
   #getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): OpenAPIV3.SchemaObject | null {
@@ -319,9 +344,10 @@ export abstract class OperationGenerator<
         methods.forEach((method) => {
           const operation = oas.operation(path, method)
           if (operation && this.#methods[method]) {
-            const isSkipped = this.isSkipped(operation, method)
+            const isExcluded = this.isExcluded(operation, method)
+            const isIncluded = this.context.include ? this.isIncluded(operation, method) : true
 
-            if (!isSkipped) {
+            if (isIncluded && !isExcluded) {
               if (!acc[path]) {
                 acc[path] = {} as (typeof acc)['path']
               }

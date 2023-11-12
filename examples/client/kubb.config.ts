@@ -24,7 +24,7 @@ export default defineConfig(async () => {
         '@kubb/swagger-ts',
         {
           output: 'models/ts',
-          groupBy: {
+          group: {
             type: 'tag',
           },
           enumType: 'asPascalConst',
@@ -35,13 +35,13 @@ export default defineConfig(async () => {
         '@kubb/swagger-client',
         {
           output: './clients/axios',
-          skipBy: [
+          exclude: [
             {
               type: 'tag',
               pattern: 'store',
             },
           ],
-          groupBy: { type: 'tag', output: './clients/axios/{{tag}}Service' },
+          group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
           client: './src/client.ts',
         },
       ],

@@ -71,7 +71,7 @@ export default defineConfig({
 
 :::
 
-### groupBy
+### group
 
 Group the Faker mocks based on the provided name.
 
@@ -127,7 +127,7 @@ export default defineConfig({
     createSwaggerFaker(
       {
         output: './mocks',
-        groupBy: { type: 'tag', output: './mocks/{{tag}}Mocks' },
+        group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
       },
     ),
   ],
@@ -136,14 +136,14 @@ export default defineConfig({
 
 :::
 
-### skipBy
+### include
 
-Array containing skipBy paramaters to exclude/skip tags/operations/methods/paths.
+Array containing include paramaters to include tags/operations/methods/paths.
 
 ::: info type
 
-```typescript [SkipBy]
-export type SkipBy = {
+```typescript [Include]
+export type Include = {
   type: 'tag' | 'operationId' | 'path' | 'method'
   pattern: string | RegExp
 }
@@ -153,7 +153,7 @@ export type SkipBy = {
 
 ::: info
 
-Type: `Array<SkipBy>` <br/>
+Type: `Array<Include>` <br/>
 
 ::: code-group
 
@@ -175,7 +175,7 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerFaker(
       {
-        skipBy: [
+        include: [
           {
             type: 'tag',
             pattern: 'store',
@@ -189,17 +189,16 @@ export default defineConfig({
 
 :::
 
-### overrideBy
+### exclude
 
-Array containing overrideBy paramaters to override `options` based on tags/operations/methods/paths.
+Array containing exclude paramaters to exclude/skip tags/operations/methods/paths.
 
 ::: info type
 
-```typescript [OverrideBy]
-export type OverrideBy = {
+```typescript [Exclude]
+export type Exclude = {
   type: 'tag' | 'operationId' | 'path' | 'method'
   pattern: string | RegExp
-  options: PluginOptions
 }
 ```
 
@@ -207,7 +206,7 @@ export type OverrideBy = {
 
 ::: info
 
-Type: `Array<OverrideBy>` <br/>
+Type: `Array<Exclude>` <br/>
 
 ::: code-group
 
@@ -229,7 +228,61 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerFaker(
       {
-        overrideBy: [
+        exclude: [
+          {
+            type: 'tag',
+            pattern: 'store',
+          },
+        ],
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+### override
+
+Array containing override paramaters to override `options` based on tags/operations/methods/paths.
+
+::: info type
+
+```typescript [Override]
+export type Override = {
+  type: 'tag' | 'operationId' | 'path' | 'method'
+  pattern: string | RegExp
+  options: PluginOptions
+}
+```
+
+:::
+
+::: info
+
+Type: `Array<Override>` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerFaker(
+      {
+        override: [
           {
             type: 'tag',
             pattern: 'pet',
