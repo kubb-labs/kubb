@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.0-alpha.7](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.6...kubb-v2.0.0-alpha.7) (2023-11-12)
+
+
+### 📦 Miscellaneous Chores
+
+* release 2.0.0-alpha.7 ([bf80ef3](https://github.com/kubb-project/kubb/commit/bf80ef3eed770ce865a2618cfa5e79180077a7ce))
+
 ## [2.0.0-alpha.6](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.5...kubb-v2.0.0-alpha.6) (2023-11-10)
 
 
