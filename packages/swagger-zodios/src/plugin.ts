@@ -6,7 +6,7 @@ import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import { OperationGenerator } from './generators/index.ts'
+import { OperationGenerator } from './OperationGenerator.ts'
 
 import type { KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'

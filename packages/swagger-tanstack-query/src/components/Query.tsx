@@ -7,7 +7,7 @@ import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, getParams } from '@kubb/swagger/utils'
 import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
 
-import { camelCase, capitalCase, capitalCaseTransform, pascalCase, pascalCaseTransformMerge } from 'change-case'
+import { camelCase, camelCaseTransformMerge, capitalCase, capitalCaseTransform, pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import { getImportNames } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
@@ -287,7 +287,7 @@ export function Query({
     withPathParams: !!schemas.pathParams?.name,
     withHeaders: !!schemas.headerParams?.name,
   }
-  const queryKey = camelCase(`${factory.name}QueryKey`)
+  const queryKey = camelCase(`${factory.name}QueryKey`, { delimiter: '', transform: camelCaseTransformMerge })
 
   generics.add([
     { type: `TQueryFnData extends ${factory.name}['data']`, default: `${factory.name}["data"]` },

@@ -4,7 +4,7 @@ import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
 
-import { camelCase } from 'change-case'
+import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import { QueryOptions } from './QueryOptions.tsx'
 
@@ -105,6 +105,9 @@ export function Query({
   const { dataReturnType = 'data' } = options
   const schemas = useSchemas()
 
+  const factory = {
+    name: pascalCase(operation.getOperationId(), { delimiter: '', transform: pascalCaseTransformMerge }),
+  }
   const generics = new FunctionParams()
   const params = new FunctionParams()
   const queryParams = new FunctionParams()
@@ -169,15 +172,17 @@ export function Query({
     },
   ])
 
+  const queryOptionsName = camelCase(`${operation.getOperationId()}QueryOptions`, { delimiter: '', transform: camelCaseTransformMerge })
+
   const hook = {
     name: 'useSWR',
     generics: [...resultGenerics, 'string | null'].join(', '),
-    queryOptions: `${camelCase(`${operation.getOperationId()}QueryOptions`)}<${client.generics}>(${queryParams.toString()})`,
+    queryOptions: `${queryOptionsName}<${client.generics}>(${queryParams.toString()})`,
   }
 
   return (
     <>
-      <QueryOptions Template={QueryOptionsTemplate} dataReturnType={dataReturnType} />
+      <QueryOptions factory={factory} Template={QueryOptionsTemplate} dataReturnType={dataReturnType} />
       <Template
         name={name}
         generics={generics.toString()}

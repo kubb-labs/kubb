@@ -1,8 +1,6 @@
 import type { PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
-import type { Oas, Operation, OperationSchema, OperationSchemas, Ref } from './types.ts'
-
-export type FileResolver = (name: string, ref: Ref) => string | null | undefined
+import type { Oas, Operation, OperationSchema, OperationSchemas } from './types.ts'
 
 type Context<TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas

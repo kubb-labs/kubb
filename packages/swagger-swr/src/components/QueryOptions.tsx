@@ -85,6 +85,9 @@ const defaultTemplates = {
 } as const
 
 type Props = {
+  factory: {
+    name: string
+  }
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
   /**
    * This will make it possible to override the default behaviour.
@@ -92,11 +95,11 @@ type Props = {
   Template?: React.ComponentType<TemplateProps>
 }
 
-export function QueryOptions({ dataReturnType, Template = defaultTemplates.default }: Props): ReactNode {
+export function QueryOptions({ factory, dataReturnType, Template = defaultTemplates.default }: Props): ReactNode {
   const schemas = useSchemas()
   const operation = useOperation()
 
-  const name = camelCase(`${operation.getOperationId()}QueryOptions`, { delimiter: '', transform: camelCaseTransformMerge })
+  const name = camelCase(`${factory.name}QueryOptions`, { delimiter: '', transform: camelCaseTransformMerge })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
