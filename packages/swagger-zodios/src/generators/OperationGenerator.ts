@@ -10,6 +10,7 @@ import type { KubbFile } from '@kubb/core'
 import type { HttpMethod, OpenAPIV3, Operation, Resolver } from '@kubb/swagger'
 
 type Options = {
+  baseURL?: string
   output: string
 }
 
@@ -353,13 +354,21 @@ export class OperationGenerator extends Generator<Options> {
 
     const sources: string[] = []
 
-    sources.push(`
-      const endpoints = makeApi([${definitions.join(',')}]);
+    sources.push(`const endpoints = makeApi([${definitions.join(',')}]);`)
 
+    if (this.options.baseURL) {
+      sources.push(`
+      export const api = new Zodios('${this.options.baseURL}', endpoints);
+
+      export default api;
+    `)
+    } else {
+      sources.push(`
       export const api = new Zodios(endpoints);
 
       export default api;
     `)
+    }
 
     return {
       path: zodios.path,
