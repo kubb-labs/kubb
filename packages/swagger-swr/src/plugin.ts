@@ -7,7 +7,7 @@ import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import { OperationGenerator } from './generators/index.ts'
+import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
@@ -50,8 +50,12 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return path.resolve(root, output, baseName)
     },
-    resolveName(name) {
-      const resolvedName = camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+    resolveName(name, type) {
+      let resolvedName = camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+
+      if (type) {
+        resolvedName = camelCase(`use ${name}`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+      }
 
       return transformers?.name?.(resolvedName) || resolvedName
     },
@@ -61,10 +65,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const oas = await swaggerPlugin.api.getOas()
 
       const operationGenerator = new OperationGenerator(
-        {
-          dataReturnType,
-          clientImportPath: options.clientImportPath,
-        },
+        this.plugin.options,
         {
           oas,
           pluginManager: this.pluginManager,

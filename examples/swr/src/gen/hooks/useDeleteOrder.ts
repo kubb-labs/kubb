@@ -18,7 +18,6 @@ export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = Del
   },
 ): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, never> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/store/order/${orderId}` : null
   return useSWRMutation<ResponseConfig<TData>, TError, string | null, never>(
     url,
@@ -26,7 +25,6 @@ export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = Del
       return client<TData, TError>({
         method: 'delete',
         url,
-
         ...clientOptions,
       })
     },

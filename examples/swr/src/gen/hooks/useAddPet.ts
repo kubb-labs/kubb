@@ -15,7 +15,6 @@ export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TV
   shouldFetch?: boolean
 }): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/pet` : null
   return useSWRMutation<ResponseConfig<TData>, TError, string | null, TVariables>(
     url,
@@ -24,7 +23,6 @@ export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TV
         method: 'post',
         url,
         data,
-
         ...clientOptions,
       })
     },

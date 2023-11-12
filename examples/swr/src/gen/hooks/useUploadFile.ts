@@ -18,7 +18,6 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
   },
 ): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/pet/${petId}/uploadImage` : null
   return useSWRMutation<ResponseConfig<TData>, TError, string | null, TVariables>(
     url,
@@ -26,9 +25,8 @@ export function useUploadFile<TData = UploadFileMutationResponse, TError = unkno
       return client<TData, TError, TVariables>({
         method: 'post',
         url,
-        data,
         params,
-
+        data,
         ...clientOptions,
       })
     },

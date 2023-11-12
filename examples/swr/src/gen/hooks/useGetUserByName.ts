@@ -12,14 +12,11 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
       return client<TData, TError>({
         method: 'get',
         url: `/user/${username}`,
-
         ...options,
       }).then((res) => res.data)
     },
   }
-}
-
-/**
+} /**
  * @summary Get user by user name
  * @link /user/:username
  */
@@ -32,12 +29,10 @@ export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = Ge
   },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/user/${username}` : null
   const query = useSWR<TData, TError, string | null>(url, {
     ...getUserByNameQueryOptions<TData, TError>(username, clientOptions),
     ...queryOptions,
   })
-
   return query
 }

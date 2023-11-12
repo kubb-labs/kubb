@@ -19,7 +19,6 @@ export function useUpdatePet<
   shouldFetch?: boolean
 }): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/pet` : null
   return useSWRMutation<ResponseConfig<TData>, TError, string | null, TVariables>(
     url,
@@ -28,7 +27,6 @@ export function useUpdatePet<
         method: 'put',
         url,
         data,
-
         ...clientOptions,
       })
     },

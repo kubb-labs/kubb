@@ -2,14 +2,14 @@ import useSWRMutation from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../models/UpdateUser'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams, UpdateUserError } from '../models/UpdateUser'
 
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username
  */
-export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unknown, TVariables = UpdateUserMutationRequest>(
+export function useUpdateUser<TData = UpdateUserMutationResponse, TError = UpdateUserError, TVariables = UpdateUserMutationRequest>(
   username: UpdateUserPathParams['username'],
   options?: {
     mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
@@ -18,7 +18,6 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
   },
 ): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/user/${username}` : null
   return useSWRMutation<ResponseConfig<TData>, TError, string | null, TVariables>(
     url,
@@ -27,7 +26,6 @@ export function useUpdateUser<TData = UpdateUserMutationResponse, TError = unkno
         method: 'put',
         url,
         data,
-
         ...clientOptions,
       })
     },

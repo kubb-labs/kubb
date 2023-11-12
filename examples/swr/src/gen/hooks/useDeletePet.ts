@@ -19,7 +19,6 @@ export function useDeletePet<TData = DeletePetMutationResponse, TError = DeleteP
   },
 ): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, never> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/pet/${petId}` : null
   return useSWRMutation<ResponseConfig<TData>, TError, string | null, never>(
     url,
@@ -27,7 +26,6 @@ export function useDeletePet<TData = DeletePetMutationResponse, TError = DeleteP
       return client<TData, TError>({
         method: 'delete',
         url,
-
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
       })

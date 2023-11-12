@@ -12,16 +12,12 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
       return client<TData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
-
         params,
-
         ...options,
       }).then((res) => res.data)
     },
   }
-}
-
-/**
+} /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags
@@ -35,12 +31,10 @@ export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = 
   },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/pet/findByTags` : null
   const query = useSWR<TData, TError, string | null>(url, {
     ...findPetsByTagsQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
   })
-
   return query
 }

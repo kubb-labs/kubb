@@ -12,16 +12,12 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
       return client<TData, TError>({
         method: 'get',
         url: `/user/login`,
-
         params,
-
         ...options,
       }).then((res) => res.data)
     },
   }
-}
-
-/**
+} /**
  * @summary Logs user into the system
  * @link /user/login
  */
@@ -34,12 +30,10 @@ export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser4
   },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/user/login` : null
   const query = useSWR<TData, TError, string | null>(url, {
     ...loginUserQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
   })
-
   return query
 }

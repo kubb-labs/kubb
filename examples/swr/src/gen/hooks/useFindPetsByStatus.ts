@@ -12,16 +12,12 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
       return client<TData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
-
         params,
-
         ...options,
       }).then((res) => res.data)
     },
   }
-}
-
-/**
+} /**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
  * @link /pet/findByStatus
@@ -35,12 +31,10 @@ export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TErro
   },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/pet/findByStatus` : null
   const query = useSWR<TData, TError, string | null>(url, {
     ...findPetsByStatusQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
   })
-
   return query
 }

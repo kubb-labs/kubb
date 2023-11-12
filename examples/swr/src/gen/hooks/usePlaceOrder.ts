@@ -15,7 +15,6 @@ export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = Place
   shouldFetch?: boolean
 }): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/store/order` : null
   return useSWRMutation<ResponseConfig<TData>, TError, string | null, TVariables>(
     url,
@@ -24,7 +23,6 @@ export function usePlaceOrder<TData = PlaceOrderMutationResponse, TError = Place
         method: 'post',
         url,
         data,
-
         ...clientOptions,
       })
     },
