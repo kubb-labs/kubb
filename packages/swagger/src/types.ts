@@ -9,6 +9,8 @@ import type { GetSchemasProps } from './utils/getSchemas.ts'
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type ContentType = 'application/json' | (string & {})
 
+export type FileResolver = (name: string, ref: Ref) => string | null | undefined
+
 export type ResolvePathOptions = { pluginKey?: KubbPlugin['key']; tag?: string; type?: ResolveNameParams['type'] }
 
 export type API = {
@@ -123,6 +125,11 @@ export type Include = ByTag | ByOperationId | ByPath | ByMethod
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & { options: Partial<TOptions> }
 
 export type AppMeta = { schemas: OperationSchemas; operation: Operation }
+
+export type ImportMeta = {
+  ref: Ref
+  path: string
+}
 
 export type PluginOptions = PluginFactoryOptions<'swagger', 'schema', Options, Options, API, never, AppMeta>
 

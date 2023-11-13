@@ -12,14 +12,11 @@ export function getOrderByIdQueryOptions<TData = GetOrderByIdQueryResponse, TErr
       return client<TData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
-
         ...options,
       }).then((res) => res.data)
     },
   }
-}
-
-/**
+} /**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId
@@ -33,12 +30,10 @@ export function useGetOrderById<TData = GetOrderByIdQueryResponse, TError = GetO
   },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/store/order/${orderId}` : null
   const query = useSWR<TData, TError, string | null>(url, {
     ...getOrderByIdQueryOptions<TData, TError>(orderId, clientOptions),
     ...queryOptions,
   })
-
   return query
 }

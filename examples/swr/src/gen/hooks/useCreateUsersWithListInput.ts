@@ -2,7 +2,11 @@ import useSWRMutation from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
-import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
+import type {
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
+  CreateUsersWithListInputError,
+} from '../models/CreateUsersWithListInput'
 
 /**
  * @description Creates list of users with given input array
@@ -11,7 +15,7 @@ import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputM
  */
 export function useCreateUsersWithListInput<
   TData = CreateUsersWithListInputMutationResponse,
-  TError = unknown,
+  TError = CreateUsersWithListInputError,
   TVariables = CreateUsersWithListInputMutationRequest,
 >(options?: {
   mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
@@ -19,7 +23,6 @@ export function useCreateUsersWithListInput<
   shouldFetch?: boolean
 }): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/user/createWithList` : null
   return useSWRMutation<ResponseConfig<TData>, TError, string | null, TVariables>(
     url,
@@ -28,7 +31,6 @@ export function useCreateUsersWithListInput<
         method: 'post',
         url,
         data,
-
         ...clientOptions,
       })
     },

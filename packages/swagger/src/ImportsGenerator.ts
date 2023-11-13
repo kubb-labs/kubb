@@ -1,14 +1,8 @@
 import { Generator } from '@kubb/core'
 
-import type { FileResolver } from './OasBuilder.ts'
-import type { Ref, Refs } from './types.ts'
+import type { FileResolver, ImportMeta, Refs } from './types.ts'
 
 type Import = { refs: Refs; name: string }
-
-export type ImportMeta = {
-  ref: Ref
-  path: string
-}
 
 type Options = {
   fileResolver?: FileResolver

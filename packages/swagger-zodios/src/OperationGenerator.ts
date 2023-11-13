@@ -6,7 +6,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import type { KubbFile } from '@kubb/core'
 import type { HttpMethod, OpenAPIV3, Operation, Resolver } from '@kubb/swagger'
-import type { PluginOptions } from '../types.ts'
+import type { PluginOptions } from './types.ts'
 
 type Options = {
   baseURL?: string

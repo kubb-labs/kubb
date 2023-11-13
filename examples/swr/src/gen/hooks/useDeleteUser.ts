@@ -18,7 +18,6 @@ export function useDeleteUser<TData = DeleteUserMutationResponse, TError = Delet
   },
 ): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, never> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/user/${username}` : null
   return useSWRMutation<ResponseConfig<TData>, TError, string | null, never>(
     url,
@@ -26,7 +25,6 @@ export function useDeleteUser<TData = DeleteUserMutationResponse, TError = Delet
       return client<TData, TError>({
         method: 'delete',
         url,
-
         ...clientOptions,
       })
     },

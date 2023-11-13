@@ -11,14 +11,11 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
       return client<TData, TError>({
         method: 'get',
         url: `/store/inventory`,
-
         ...options,
       }).then((res) => res.data)
     },
   }
-}
-
-/**
+} /**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
  * @link /store/inventory
@@ -29,12 +26,10 @@ export function useGetInventory<TData = GetInventoryQueryResponse, TError = unkn
   shouldFetch?: boolean
 }): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/store/inventory` : null
   const query = useSWR<TData, TError, string | null>(url, {
     ...getInventoryQueryOptions<TData, TError>(clientOptions),
     ...queryOptions,
   })
-
   return query
 }

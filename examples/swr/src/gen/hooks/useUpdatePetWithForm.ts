@@ -23,7 +23,6 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
   },
 ): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, never> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/pet/${petId}` : null
   return useSWRMutation<ResponseConfig<TData>, TError, string | null, never>(
     url,
@@ -31,9 +30,7 @@ export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, 
       return client<TData, TError>({
         method: 'post',
         url,
-
         params,
-
         ...clientOptions,
       })
     },

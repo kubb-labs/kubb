@@ -12,14 +12,11 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
       return client<TData, TError>({
         method: 'get',
         url: `/pet/${petId}`,
-
         ...options,
       }).then((res) => res.data)
     },
   }
-}
-
-/**
+} /**
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId
@@ -33,12 +30,10 @@ export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetBy
   },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/pet/${petId}` : null
   const query = useSWR<TData, TError, string | null>(url, {
     ...getPetByIdQueryOptions<TData, TError>(petId, clientOptions),
     ...queryOptions,
   })
-
   return query
 }
