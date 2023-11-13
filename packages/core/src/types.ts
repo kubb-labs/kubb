@@ -207,7 +207,9 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
     : {
       /**
        * Kind/type for the plugin
+       *
        * Type 'schema' can be used for JSON schema's, TypeScript types, ...
+       *
        * Type 'controller' can be used to create generate API calls, React-Query hooks, Axios controllers, ...
        * @default undefined
        */

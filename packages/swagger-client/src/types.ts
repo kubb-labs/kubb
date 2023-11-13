@@ -1,5 +1,7 @@
 import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { Client } from './components/Client.tsx'
+import type { Operations } from './components/Operations.tsx'
 
 export type Options = {
   /**
@@ -79,12 +81,20 @@ export type Options = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
+  /**
+   * Make it possible to override one of the templates
+   */
+  templates?: {
+    operations: typeof Operations.templates
+    client: typeof Client.templates
+  }
 }
 
 type ResolvedOptions = {
   clientImportPath?: Options['clientImportPath']
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
+  templates: NonNullable<Options['templates']>
 }
 
 export type FileMeta = {

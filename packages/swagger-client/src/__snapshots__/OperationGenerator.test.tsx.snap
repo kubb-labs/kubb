@@ -1,5 +1,29 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`OperationGenerator > [GET] should generate code based on a custom template 1`] = `
+"import client from '@kubb/swagger-client/client'
+import axios from 'axios'
+import type { ResponseConfig } from '@kubb/swagger-client/client'
+import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from './'
+
+/**
+ * @summary Info for a specific pet
+ * @link /pets/:pet_id
+ */
+export async function showPetById(
+  { petId, testId }: ShowPetByIdPathParams,
+  options: Partial<Parameters<typeof client>[0]> = {},
+): Promise<ResponseConfig<ShowPetByIdQueryResponse>['data']> {
+  const { data: resData } = await Axios.get<ShowPetByIdQueryResponse>({
+    method: 'get',
+    url: \`/pets/\${petId}\`,
+    ...options,
+  })
+  return resData
+}
+"
+`;
+
 exports[`OperationGenerator > [GET] should generate code based on a pathParamsType \`inline\` 1`] = `
 "/**
  * @summary Info for a specific pet

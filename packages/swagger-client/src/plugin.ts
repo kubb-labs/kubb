@@ -7,6 +7,8 @@ import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
+import { Client } from './components/Client.tsx'
+import { Operations } from './components/Operations.tsx'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbPlugin } from '@kubb/core'
@@ -38,6 +40,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       dataReturnType,
       clientImportPath,
       pathParamsType,
+      templates: {
+        operations: Operations.templates,
+        client: Client.templates,
+      },
     },
     kind: 'controller',
     validate(plugins) {
