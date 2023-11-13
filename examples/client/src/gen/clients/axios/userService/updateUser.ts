@@ -1,4 +1,5 @@
-import client from '@kubb/swagger-client/client'
+import type client from '@kubb/swagger-client/client'
+import axios from 'axios'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
 
@@ -12,11 +13,5 @@ export async function updateUser(
   data?: UpdateUserMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<UpdateUserMutationResponse>['data']> {
-  const { data: resData } = await client<UpdateUserMutationResponse, UpdateUserMutationRequest>({
-    method: 'put',
-    url: `/user/${username}`,
-    data,
-    ...options,
-  })
-  return resData
+  return axios.put(`/user/${username}`, data, options)
 }
