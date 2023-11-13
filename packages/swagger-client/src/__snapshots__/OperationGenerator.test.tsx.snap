@@ -14,12 +14,7 @@ export async function showPetById(
   { petId, testId }: ShowPetByIdPathParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<ShowPetByIdQueryResponse>['data']> {
-  const { data: resData } = await Axios.get<ShowPetByIdQueryResponse>({
-    method: 'get',
-    url: \`/pets/\${petId}\`,
-    ...options,
-  })
-  return resData
+  return axios.get(\`/pets/\${petId}\`, options)
 }
 "
 `;

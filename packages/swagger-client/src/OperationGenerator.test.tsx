@@ -1,7 +1,7 @@
 import { FileManager } from '@kubb/core'
 import { OasManager } from '@kubb/swagger'
 
-import CustomClientTemplate from '../mocks/customClientTemplate.tsx'
+import CustomClientTemplate from '../mocks/CustomClientTemplate.tsx'
 import { format } from '../mocks/format.ts'
 import { Client } from './components/Client.tsx'
 import { Operations } from './components/Operations.tsx'

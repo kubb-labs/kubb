@@ -1,8 +1,7 @@
 import { createRoot } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/swagger'
 
-import { Client } from './components/Client.tsx'
-import { Operations } from './components/Operations.tsx'
+import { Client, Operations } from './components/index.ts'
 
 import type { AppContextProps } from '@kubb/react'
 import type { HttpMethod, OperationMethodResult, OperationSchemas } from '@kubb/swagger'
