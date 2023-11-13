@@ -59,7 +59,7 @@
     "@vitest/ui": "^0.34.6",
     "bun-types": "^1.0.11",
     "dprint": "^0.41.0",
-    "prettier": "^3.0.3",
+    "prettier": "^3.1.0",
     "prettier-eslint": "^16.1.2",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.1",
