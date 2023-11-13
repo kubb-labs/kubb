@@ -51,10 +51,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return path.resolve(root, output, baseName)
     },
-    resolveName(name) {
+    resolveName(name, type) {
       const resolvedName = camelCase(`${name}Schema`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
 
-      return transformers?.name?.(resolvedName) || resolvedName
+      if (type) {
+        return transformers?.name?.(resolvedName, type) || resolvedName
+      }
+
+      return resolvedName
     },
     async writeFile(source, writePath) {
       if (!writePath.endsWith('.ts') || !source) {

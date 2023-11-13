@@ -22,8 +22,11 @@ export default defineConfig({
     }),
     createSwaggerTanstackQuery({
       transformers: {
-        name: (name) => {
-          return `${name}Hook`
+        name: (name, type) => {
+          if (type === 'file' || type === 'function') {
+            return `${name}Hook`
+          }
+          return name
         },
       },
       output: './hooks',

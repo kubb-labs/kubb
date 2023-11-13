@@ -1,9 +1,7 @@
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
-import { Function } from '@kubb/react'
-import { useOperation, useSchemas } from '@kubb/swagger/hooks'
+import { Function, usePlugin } from '@kubb/react'
+import { useOperation, useResolveName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams } from '@kubb/swagger/utils'
-
-import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
@@ -96,10 +94,11 @@ type Props = {
 }
 
 export function QueryOptions({ factory, dataReturnType, Template = defaultTemplates.default }: Props): ReactNode {
+  const { key: pluginKey } = usePlugin()
   const schemas = useSchemas()
   const operation = useOperation()
 
-  const name = camelCase(`${factory.name}QueryOptions`, { delimiter: '', transform: camelCaseTransformMerge })
+  const name = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()

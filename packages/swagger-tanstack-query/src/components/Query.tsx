@@ -3,11 +3,11 @@ import path from 'node:path'
 import { PackageManager } from '@kubb/core'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { File, Function, Type, usePlugin } from '@kubb/react'
-import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
+import { useOperation, useOperationFile, useOperationName, useResolveName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, getParams } from '@kubb/swagger/utils'
-import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
+import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
-import { camelCase, camelCaseTransformMerge, capitalCase, capitalCaseTransform, pascalCase, pascalCaseTransformMerge } from 'change-case'
+import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import { getImportNames } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
@@ -129,6 +129,7 @@ const defaultTemplates = {
       { context, ...rest }: FrameworkProps,
     ): ReactNode {
       const { factory, queryKey, infinite } = context
+      const { key: pluginKey } = usePlugin()
       const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const importNames = getImportNames()
 
@@ -137,6 +138,7 @@ const defaultTemplates = {
       const optionsType = infinite ? importNames.queryInfinite.vue.optionsType : importNames.query.vue.optionsType
 
       const schemas = useSchemas()
+      const queryOptions = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
       const params = new FunctionParams()
       const queryParams = new FunctionParams()
       const client = {
@@ -208,7 +210,7 @@ const defaultTemplates = {
       const hook = {
         name: hookName,
         generics: [isV5 ? 'any' : 'TQueryFnData', 'TError', 'TData', 'any'].join(', '),
-        queryOptions: `${camelCase(`${factory.name}QueryOptions`)}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
+        queryOptions: `${queryOptions}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
         queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? ('refParams') : ''})`,
       }
 
@@ -252,19 +254,18 @@ export function Query({
   QueryKeyTemplate = QueryKey.templates.react,
   QueryOptionsTemplate = QueryOptions.templates.react,
 }: Props): ReactNode {
-  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const { key: pluginKey, options: { dataReturnType = 'data' } } = usePlugin<PluginOptions>()
   const operation = useOperation()
-  const { name } = useResolve({
-    pluginKey,
-    type: 'function',
-  })
   const schemas = useSchemas()
+  const name = useOperationName({ type: 'function' })
+  const factoryName = useOperationName({ type: 'type' })
+  const factoryInfiniteName = useResolveName({ name: `${factoryName}Infinite`, type: 'type', pluginKey })
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 
   const factory: Factory = {
     name: infinite
-      ? pascalCase(`${operation.getOperationId()}Infinite`, { delimiter: '', transform: pascalCaseTransformMerge })
-      : pascalCase(operation.getOperationId(), { delimiter: '', transform: pascalCaseTransformMerge }),
+      ? factoryInfiniteName
+      : factoryName,
     generics: [
       schemas.response.name,
       schemas.errors?.map((error) => error.name).join(' | ') || 'never',
@@ -273,9 +274,13 @@ export function Query({
       schemas.queryParams?.name || 'never',
       schemas.headerParams?.name || 'never',
       schemas.response.name,
-      `{ dataReturnType: '${options.dataReturnType}'; type: 'query' }`,
+      `{ dataReturnType: '${dataReturnType}'; type: 'query' }`,
     ],
   }
+  const queryKey = useResolveName({ name: `${factory.name}QueryKey`, pluginKey })
+  const queryKeyType = useResolveName({ name: `${factory.name}QueryKey`, type: 'type', pluginKey })
+  const queryOptions = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
+
   const generics = new FunctionParams()
   const params = new FunctionParams()
   const queryParams = new FunctionParams()
@@ -287,14 +292,13 @@ export function Query({
     withPathParams: !!schemas.pathParams?.name,
     withHeaders: !!schemas.headerParams?.name,
   }
-  const queryKey = camelCase(`${factory.name}QueryKey`, { delimiter: '', transform: camelCaseTransformMerge })
 
   generics.add([
     { type: `TQueryFnData extends ${factory.name}['data']`, default: `${factory.name}["data"]` },
     { type: 'TError', default: `${factory.name}["error"]` },
     { type: 'TData', default: `${factory.name}["response"]` },
     { type: 'TQueryData', default: `${factory.name}["response"]` },
-    { type: `TQueryKey extends QueryKey`, default: capitalCase(`${factory.name}QueryKey`, { delimiter: '', transform: capitalCaseTransform }) },
+    { type: `TQueryKey extends QueryKey`, default: queryKeyType },
   ])
 
   const pathParams = getParams(schemas.pathParams, {}).toString()
@@ -355,7 +359,7 @@ export function Query({
   const hook = {
     name: hookName,
     generics: [isV5 ? 'any' : 'TQueryFnData', 'TError', 'TData', 'any'].join(', '),
-    queryOptions: `${camelCase(`${factory.name}QueryOptions`)}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
+    queryOptions: `${queryOptions}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
     queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? ('params') : ''})`,
   }
 
@@ -392,13 +396,11 @@ type FileProps = {
 }
 
 Query.File = function({ templates = defaultTemplates, imports = QueryImports.templates }: FileProps): ReactNode {
-  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const { options: { clientImportPath, templatesPath, framework, infinite } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
-  const operation = useOperation()
-  const file = useResolve({ pluginKey, type: 'file' })
-  const fileType = useResolveType({ type: 'file' })
+  const file = useOperationFile()
+  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
-  const { clientImportPath, templatesPath, framework, infinite } = options
   const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
 
   const importNames = getImportNames()
@@ -414,11 +416,7 @@ Query.File = function({ templates = defaultTemplates, imports = QueryImports.tem
       <File<FileMeta>
         baseName={file.baseName}
         path={file.path}
-        meta={{
-          pluginKey,
-          // needed for the `output.group`
-          tag: operation?.getTags()[0]?.name,
-        }}
+        meta={file.meta}
       >
         <File.Import root={file.path} path={path.resolve(file.path, '../types.ts')} name={['KubbQueryFactory']} isTypeOnly />
 

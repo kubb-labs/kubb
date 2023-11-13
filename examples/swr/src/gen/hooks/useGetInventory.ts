@@ -20,6 +20,7 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
  * @summary Returns pet inventories by status
  * @link /store/inventory
  */
+
 export function useGetInventory<TData = GetInventoryQueryResponse, TError = unknown>(options?: {
   query?: SWRConfiguration<TData, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>

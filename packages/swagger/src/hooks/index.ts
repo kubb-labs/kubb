@@ -1,3 +1,3 @@
-export * from './useOperation.ts'
-export * from './useResolve.ts'
-export * from './useSchemas.ts'
+export { useOperation, useOperationFile, useOperationName } from './useOperation.ts'
+export { useResolveName } from './useResolveName.ts'
+export { useSchemas } from './useSchemas.ts'

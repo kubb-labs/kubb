@@ -1,10 +1,10 @@
 import { PackageManager } from '@kubb/core'
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
-import { Function } from '@kubb/react'
-import { useOperation, useSchemas } from '@kubb/swagger/hooks'
+import { Function, usePlugin } from '@kubb/react'
+import { useOperation, useResolveName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getParams } from '@kubb/swagger/utils'
 
-import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
+import { camelCase, pascalCase } from 'change-case'
 
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
@@ -238,12 +238,13 @@ type Props = {
 }
 
 export function QueryOptions({ factory, infinite, resultType, Template = defaultTemplates.react }: Props): ReactNode {
+  const { key: pluginKey } = usePlugin()
   const schemas = useSchemas()
   const operation = useOperation()
 
-  const name = camelCase(`${factory.name}QueryOptions`, { delimiter: '', transform: camelCaseTransformMerge })
-  const queryKey = camelCase(`${factory.name}QueryKey`, { delimiter: '', transform: camelCaseTransformMerge })
-  const queryKeyType = pascalCase(queryKey, { delimiter: '', transform: pascalCaseTransformMerge })
+  const name = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
+  const queryKey = useResolveName({ name: `${factory.name}QueryKey`, pluginKey })
+  const queryKeyType = useResolveName({ name: `${factory.name}QueryKey`, type: 'type', pluginKey })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()

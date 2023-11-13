@@ -28,11 +28,6 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
-    "./hooks": {
-      "import": "./dist/hooks.js",
-      "require": "./dist/hooks.cjs",
-      "default": "./dist/hooks.cjs"
-    },
     "./package.json": "./package.json",
     "./*": "./*"
   },

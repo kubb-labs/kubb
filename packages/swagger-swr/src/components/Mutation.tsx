@@ -1,8 +1,8 @@
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
 import { File, Function, usePlugin } from '@kubb/react'
-import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
+import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
-import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
+import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
@@ -101,12 +101,8 @@ type Props = {
 export function Mutation({
   Template = defaultTemplates.default,
 }: Props): ReactNode {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
   const operation = useOperation()
-  const { name } = useResolve({
-    pluginKey,
-    type: 'function',
-  })
+  const name = useOperationName({ type: 'function' })
   const schemas = useSchemas()
 
   const generics = new FunctionParams()
@@ -181,13 +177,11 @@ type FileProps = {
 }
 
 Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
-  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const { options: { clientImportPath } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
-  const operation = useOperation()
-  const file = useResolve({ pluginKey, type: 'file' })
-  const fileType = useResolveType({ type: 'file' })
+  const file = useOperationFile()
+  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
-  const { clientImportPath } = options
   const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
 
   const Template = templates.default
@@ -197,11 +191,7 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
       <File<FileMeta>
         baseName={file.baseName}
         path={file.path}
-        meta={{
-          pluginKey,
-          // needed for the `output.group`
-          tag: operation?.getTags()[0]?.name,
-        }}
+        meta={file.meta}
       >
         <File.Import name="useSWRMutation" path="swr/mutation" />
         <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path="swr/mutation" isTypeOnly />

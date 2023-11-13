@@ -3,7 +3,7 @@ import { Function, Type } from '@kubb/react'
 import { useOperation, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams } from '@kubb/swagger/utils'
 
-import { capitalCase, capitalCaseTransform } from 'change-case'
+import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import type { ReactNode } from 'react'
 
@@ -41,7 +41,7 @@ function Template({
   JSDoc,
   keys,
 }: TemplateProps): ReactNode {
-  const typeName = capitalCase(name, { delimiter: '', transform: capitalCaseTransform })
+  const typeName = pascalCase(name, { delimiter: '', transform: pascalCaseTransformMerge })
 
   return (
     <>

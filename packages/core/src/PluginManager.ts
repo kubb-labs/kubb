@@ -121,12 +121,12 @@ export class PluginManager {
     return this
   }
 
-  resolvePath = (params: ResolvePathParams): KubbFile.OptionalPath => {
+  resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.OptionalPath => {
     if (params.pluginKey) {
       const paths = this.hookForPluginSync({
         pluginKey: params.pluginKey,
         hookName: 'resolvePath',
-        parameters: [params.baseName, params.directory, params.options],
+        parameters: [params.baseName, params.directory, params.options as object],
       })
 
       if (paths && paths?.length > 1) {
@@ -141,7 +141,7 @@ export class PluginManager {
     }
     return this.hookFirstSync({
       hookName: 'resolvePath',
-      parameters: [params.baseName, params.directory, params.options],
+      parameters: [params.baseName, params.directory, params.options as object],
     }).result
   }
 
@@ -338,7 +338,7 @@ export class PluginManager {
           this.#catcher<H>(result.reason, plugin, hookName)
         }
       })
-
+    // TODO replace by promiseManager
     return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
   }
 
@@ -370,6 +370,7 @@ export class PluginManager {
         })
         .then((result) => reduce.call(this.#core.api, argument0, result as ReturnType<ParseResult<H>>, plugin)) as Promise<Argument0<H>>
     }
+    // TODO replace by promiseManager
     return promise
   }
 

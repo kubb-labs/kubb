@@ -52,10 +52,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return path.resolve(root, output, baseName)
     },
-    resolveName(name) {
+    resolveName(name, type) {
       const resolvedName = camelCase(`${name} Handler`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+      if (type) {
+        return transformers?.name?.(resolvedName, type) || resolvedName
+      }
 
-      return transformers?.name?.(resolvedName) || resolvedName
+      return resolvedName
     },
     async writeFile(source, writePath) {
       if (!writePath.endsWith('.ts') || !source) {

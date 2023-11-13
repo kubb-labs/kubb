@@ -21,6 +21,7 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
  * @summary Logs user into the system
  * @link /user/login
  */
+
 export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
   params?: LoginUserQueryParams,
   options?: {

@@ -1,6 +1,8 @@
 import type { KubbFile, KubbPlugin, PluginContext, ResolveNameParams, ResolvePathParams } from '@kubb/core'
 import type { Operation, ResolvePathOptions, Resolver } from './types.ts'
-
+/**
+ * @deprecated
+ */
 type PropsWithOperation = {
   operation: Operation
   /**
@@ -8,7 +10,9 @@ type PropsWithOperation = {
    */
   name?: string
 }
-
+/**
+ * @deprecated
+ */
 type PropsWithoutOperation = {
   operation?: never
   /**
@@ -16,7 +20,9 @@ type PropsWithoutOperation = {
    */
   name: string
 }
-
+/**
+ * @deprecated
+ */
 export type ResolveProps = (PropsWithOperation | PropsWithoutOperation) & {
   pluginKey?: KubbPlugin['key']
   /**
@@ -27,7 +33,9 @@ export type ResolveProps = (PropsWithOperation | PropsWithoutOperation) & {
   resolveName: PluginContext['resolveName']
   type?: ResolveNameParams['type']
 }
-
+/**
+ * @deprecated
+ */
 export function resolve({ operation, name, tag, type, pluginKey, resolveName, resolvePath }: ResolveProps): Resolver {
   if (!name && !operation?.getOperationId()) {
     throw new Error('name or operation should be set')

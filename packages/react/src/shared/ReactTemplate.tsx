@@ -2,7 +2,7 @@
 import crypto from 'node:crypto'
 import process from 'node:process'
 
-import { throttle } from '@kubb/core/utils'
+import { createLogger, throttle } from '@kubb/core/utils'
 
 import { App } from '../components/App.tsx'
 import { reconciler } from '../reconciler.ts'
@@ -36,12 +36,17 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   #lastFiles: KubbFile.File[] = []
   readonly #container: FiberRoot
   readonly #rootNode: DOMElement
+  public logger?: Logger
   public readonly id = crypto.randomUUID()
 
   constructor(rootNode: DOMElement, options: ReactTemplateOptions = { debug: false }) {
     // autoBind(this)
 
     this.#options = options
+    if (options.logger) {
+      this.logger = options.logger
+    }
+
     this.#rootNode = rootNode
 
     this.#rootNode.onRender = options.debug ? this.onRender : throttle(this.onRender, 32)[0]
@@ -113,7 +118,7 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
     this.#lastFiles = files
   }
   onError(error: Error): void {
-    if (!this.#options.logger) {
+    if (!this.logger) {
       console.error(error)
     }
   }
@@ -121,7 +126,7 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   render(node: ReactNode, context?: Context): void {
     if (context) {
       const tree = (
-        <App logger={this.#options.logger} meta={context.meta} onError={this.onError}>
+        <App logger={this.logger} meta={context.meta} onError={this.onError}>
           {node}
         </App>
       )

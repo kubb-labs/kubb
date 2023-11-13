@@ -9,10 +9,7 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderPar
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-export function useDeletePet<
-  TData = DeletePetMutationResponse,
-  TError = DeletePet400,
->(
+export function useDeletePet<TData = DeletePetMutationResponse, TError = DeletePet400>(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,
   options?: {
@@ -22,19 +19,13 @@ export function useDeletePet<
   },
 ): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, never> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/pet/${petId}` : null
-  return useSWRMutation<ResponseConfig<TData>, TError, string | null, never>(
-    url,
-    (url) => {
-      return client<TData, TError>({
-        method: 'delete',
-        url,
-
-        headers: { ...headers, ...clientOptions.headers },
-        ...clientOptions,
-      })
-    },
-    mutationOptions,
-  )
+  return useSWRMutation<ResponseConfig<TData>, TError, string | null, never>(url, (url) => {
+    return client<TData, TError>({
+      method: 'delete',
+      url,
+      headers: { ...headers, ...clientOptions.headers },
+      ...clientOptions,
+    })
+  }, mutationOptions)
 }

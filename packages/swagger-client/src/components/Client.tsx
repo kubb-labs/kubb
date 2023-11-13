@@ -1,13 +1,13 @@
 import { FunctionParams, transformers } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
 import { File, Function, usePlugin } from '@kubb/react'
-import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
+import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
-import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
 
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
+import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
 type TemplateProps = {
   /**
@@ -97,12 +97,11 @@ type ClientProps = {
 export function Client({
   Template = defaultTemplates.default,
 }: ClientProps): ReactNode {
-  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const { options: { dataReturnType, pathParamsType } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const operation = useOperation()
-  const { name } = useResolve({ pluginKey, type: 'function' })
+  const name = useOperationName({ type: 'function' })
 
-  const { dataReturnType, pathParamsType } = options
   const params = new FunctionParams()
   const clientGenerics = new FunctionParams()
 
@@ -164,13 +163,11 @@ type FileProps = {
 }
 
 Client.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
-  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const { options: { clientImportPath } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
-  const operation = useOperation()
-  const file = useResolve({ pluginKey, type: 'file' })
-  const fileType = useResolveType({ type: 'file' })
+  const file = useOperationFile()
+  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
-  const { clientImportPath } = options
   const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
 
   const Template = templates.default
@@ -179,11 +176,7 @@ Client.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
     <File<FileMeta>
       baseName={file.baseName}
       path={file.path}
-      meta={{
-        pluginKey,
-        // needed for the `output.group`
-        tag: operation.getTags()[0]?.name,
-      }}
+      meta={file.meta}
     >
       <File.Import name={'client'} path={resolvedClientPath} />
       <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
