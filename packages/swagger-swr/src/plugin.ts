@@ -5,7 +5,7 @@ import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
-import { camelCase, camelCaseTransformMerge } from 'change-case'
+import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
@@ -17,7 +17,7 @@ export const pluginName = 'swagger-swr' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', group, exclude = [], include, override = [], transformers = {}, dataReturnType = 'data' } = options
+  const { output = 'hooks', group, exclude = [], include, override = [], transformers = {} } = options
   const template = group?.output ? group.output : `${output}/{{tag}}SWRController`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
@@ -53,11 +53,19 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     resolveName(name, type) {
       let resolvedName = camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
 
-      if (type) {
+      if (type === 'file' || type === 'function') {
         resolvedName = camelCase(`use ${name}`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
       }
 
-      return transformers?.name?.(resolvedName) || resolvedName
+      if (type === 'type') {
+        resolvedName = pascalCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: pascalCaseTransformMerge })
+      }
+
+      if (type) {
+        return transformers?.name?.(resolvedName, type) || resolvedName
+      }
+
+      return resolvedName
     },
     async buildStart() {
       const [swaggerPlugin] = pluginsOptions

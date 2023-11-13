@@ -1,6 +1,5 @@
 import { File, usePlugin, usePluginManager } from '@kubb/react'
-import { resolve } from '@kubb/swagger'
-import { useResolve } from '@kubb/swagger/hooks'
+import { useFile } from '@kubb/react'
 
 import type { ResolveNameParams } from '@kubb/core'
 import type { HttpMethod, Operation } from '@kubb/swagger'
@@ -64,7 +63,6 @@ export function Handlers({
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const pluginManager = usePluginManager()
 
-  // TODO can we do without pluginManager
   const handlers = getHandlers(paths, { resolveName: pluginManager.resolveName, pluginKey })
 
   return (
@@ -86,23 +84,24 @@ type FileProps = {
 Handlers.File = function({ paths, templates = defaultTemplates }: FileProps): ReactNode {
   const pluginManager = usePluginManager()
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useResolve({ name: 'handlers', pluginKey, type: 'file' })
+  const file = useFile({ name: 'handlers', pluginKey })
 
   const handlers = getHandlers(paths, { resolveName: pluginManager.resolveName, pluginKey })
 
   const imports = handlers.map(({ name, operation }) => {
-    // TODO can we do without the pluginManager and resolve(tag should be set and can cause issues)
-    const { path } = resolve({
+    const path = pluginManager.resolvePath({
       pluginKey,
-      type: 'function',
-      name,
-      resolveName: pluginManager.resolveName,
-      resolvePath: pluginManager.resolvePath,
-      tag: operation?.getTags()[0]?.name,
+      baseName: `${name}.ts`,
+      options: {
+        tag: operation?.getTags()[0]?.name,
+      },
     })
+    if (!path) {
+      return null
+    }
 
     return <File.Import key={name} name={[name]} root={file.path} path={path} />
-  })
+  }).filter(Boolean)
 
   const Template = templates.default
 
@@ -110,9 +109,7 @@ Handlers.File = function({ paths, templates = defaultTemplates }: FileProps): Re
     <File<FileMeta>
       baseName={file.baseName}
       path={file.path}
-      meta={{
-        pluginKey,
-      }}
+      meta={file.meta}
     >
       {imports}
       <File.Source>

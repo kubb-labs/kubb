@@ -1,4 +1,4 @@
-import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
+import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 
 export type Options = {
@@ -42,17 +42,17 @@ export type Options = {
    * Array containing override paramaters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<Options>>
-  transformers?: {
-    /**
-     * Override the name of the faker data that is getting generated, this will also override the name of the file.
-     */
-    name?: (name: string) => string
-  }
   /**
    * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
    * @default 'string'
    */
   dateType?: 'string' | 'date'
+  transformers?: {
+    /**
+     * Customize the names based on the type that is provided by the plugin.
+     */
+    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+  }
 }
 
 export type FileMeta = {

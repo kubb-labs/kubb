@@ -22,6 +22,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
  * @summary Finds Pets by status
  * @link /pet/findByStatus
  */
+
 export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams,
   options?: {

@@ -320,6 +320,11 @@ export type ResolvePathParams<TOptions = object> = {
 export type ResolveNameParams = {
   name: string
   pluginKey?: KubbPlugin['key']
+  /**
+   * `file` will be used to customize the name of the created file(use of camelCase)
+   * `function` can be used used to customize the exported functions(use of camelCase)
+   * `type` is a special type for TypeScript(use of PascalCase)
+   */
   type?: 'file' | 'function' | 'type'
 }
 

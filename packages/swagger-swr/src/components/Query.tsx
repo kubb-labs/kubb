@@ -1,10 +1,8 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { File, Function, usePlugin } from '@kubb/react'
-import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
+import { useOperation, useOperationFile, useOperationName, useResolveName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
-import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
-
-import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
+import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
 import { QueryOptions } from './QueryOptions.tsx'
 
@@ -95,19 +93,16 @@ export function Query({
   Template = defaultTemplates.default,
   QueryOptionsTemplate = QueryOptions.templates.default,
 }: Props): ReactNode {
-  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const { key: pluginKey, options: { dataReturnType = 'data' } } = usePlugin<PluginOptions>()
   const operation = useOperation()
-  const { name } = useResolve({
-    pluginKey,
-    type: 'function',
-  })
-
-  const { dataReturnType = 'data' } = options
   const schemas = useSchemas()
+  const name = useOperationName({ type: 'function' })
+  const factoryName = useOperationName({ type: 'type' })
 
   const factory = {
-    name: pascalCase(operation.getOperationId(), { delimiter: '', transform: pascalCaseTransformMerge }),
+    name: factoryName,
   }
+  const queryOptionsName = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
   const generics = new FunctionParams()
   const params = new FunctionParams()
   const queryParams = new FunctionParams()
@@ -172,8 +167,6 @@ export function Query({
     },
   ])
 
-  const queryOptionsName = camelCase(`${operation.getOperationId()}QueryOptions`, { delimiter: '', transform: camelCaseTransformMerge })
-
   const hook = {
     name: 'useSWR',
     generics: [...resultGenerics, 'string | null'].join(', '),
@@ -204,13 +197,11 @@ type FileProps = {
 }
 
 Query.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
-  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const { options: { clientImportPath } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
-  const operation = useOperation()
-  const file = useResolve({ pluginKey, type: 'file' })
-  const fileType = useResolveType({ type: 'file' })
+  const file = useOperationFile()
+  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
-  const { clientImportPath } = options
   const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
 
   const Template = templates.default
@@ -220,11 +211,7 @@ Query.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
       <File<FileMeta>
         baseName={file.baseName}
         path={file.path}
-        meta={{
-          pluginKey,
-          // needed for the `output.group`
-          tag: operation?.getTags()[0]?.name,
-        }}
+        meta={file.meta}
       >
         <File.Import name="useSWR" path="swr" />
         <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />

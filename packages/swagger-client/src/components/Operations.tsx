@@ -1,6 +1,6 @@
 import { URLPath } from '@kubb/core/utils'
 import { File, usePlugin } from '@kubb/react'
-import { useResolve } from '@kubb/swagger/hooks'
+import { useFile } from '@kubb/react'
 
 import type { HttpMethod, Oas } from '@kubb/swagger'
 import type { Operation } from '@kubb/swagger'
@@ -81,7 +81,7 @@ type FileProps = {
 
 Operations.File = function({ paths, oas, templates = defaultTemplates }: FileProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useResolve({ name: 'operations', pluginKey, type: 'file' })
+  const file = useFile({ name: 'operations', pluginKey })
 
   const Template = templates.default
 
@@ -89,9 +89,7 @@ Operations.File = function({ paths, oas, templates = defaultTemplates }: FilePro
     <File<FileMeta>
       baseName={file.baseName}
       path={file.path}
-      meta={{
-        pluginKey,
-      }}
+      meta={file.meta}
     >
       <File.Source>
         <Operations Template={Template} paths={paths} oas={oas} />

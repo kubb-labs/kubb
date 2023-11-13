@@ -1,4 +1,4 @@
-import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
+import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 
 export type Options = {
@@ -44,9 +44,9 @@ export type Options = {
   override?: Array<Override<Options>>
   transformers?: {
     /**
-     * Override the name of the Zod schema that is getting generated, this will also override the name of the file.
+     * Customize the names based on the type that is provided by the plugin.
      */
-    name?: (name: string) => string
+    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
 }
 

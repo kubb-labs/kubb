@@ -9,17 +9,14 @@ import type {
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
   CreatePets201,
+  CreatePetsError,
 } from '../../../models/ts/petsController/CreatePets'
 
 /**
  * @summary Create a pet
  * @link /pets/:uuid
  */
-export function useCreatePets<
-  TData = CreatePetsMutationResponse,
-  TError = CreatePets201,
-  TVariables = CreatePetsMutationRequest,
->(
+export function useCreatePets<TData = CreatePetsMutationResponse, TError = CreatePets201 | CreatePetsError, TVariables = CreatePetsMutationRequest>(
   uuid: CreatePetsPathParams['uuid'],
   params?: CreatePetsQueryParams,
   headers?: CreatePetsHeaderParams,
@@ -30,20 +27,15 @@ export function useCreatePets<
   },
 ): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, TVariables> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/pets/${uuid}` : null
-  return useSWRMutation<ResponseConfig<TData>, TError, string | null, TVariables>(
-    url,
-    (url, { arg: data }) => {
-      return client<TData, TError, TVariables>({
-        method: 'post',
-        url,
-        data,
-        params,
-        headers: { ...headers, ...clientOptions.headers },
-        ...clientOptions,
-      })
-    },
-    mutationOptions,
-  )
+  return useSWRMutation<ResponseConfig<TData>, TError, string | null, TVariables>(url, (url, { arg: data }) => {
+    return client<TData, TError, TVariables>({
+      method: 'post',
+      url,
+      params,
+      data,
+      headers: { ...headers, ...clientOptions.headers },
+      ...clientOptions,
+    })
+  }, mutationOptions)
 }

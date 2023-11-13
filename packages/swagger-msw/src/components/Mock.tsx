@@ -1,13 +1,12 @@
 import { PackageManager } from '@kubb/core'
 import { URLPath } from '@kubb/core/utils'
-import { File, usePlugin } from '@kubb/react'
-import { useOperation, useResolve, useResolveName, useSchemas } from '@kubb/swagger/hooks'
+import { File } from '@kubb/react'
+import { useOperation, useOperationFile, useOperationName, useResolveName, useSchemas } from '@kubb/swagger/hooks'
 import { pluginKey as fakerPluginKey } from '@kubb/swagger-faker'
-import { useResolve as useResolveFaker } from '@kubb/swagger-faker/hooks'
 
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { FileMeta, PluginOptions } from '../types.ts'
+import type { FileMeta } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -82,9 +81,8 @@ type Props = {
 export function Mock({
   Template = defaultTemplates.default,
 }: Props): ReactNode {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
-  const { name } = useResolve({ pluginKey, type: 'function' })
+  const name = useOperationName({ type: 'function' })
   const responseName = useResolveName({ pluginKey: fakerPluginKey, name: schemas.response.name, type: 'type' })
   const operation = useOperation()
 
@@ -101,11 +99,9 @@ type FileProps = {
 }
 
 Mock.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
-  const operation = useOperation()
-  const file = useResolve({ pluginKey, type: 'file' })
-  const faker = useResolveFaker({ type: 'file' })
+  const file = useOperationFile()
+  const fileFaker = useOperationFile({ pluginKey: fakerPluginKey })
   const responseName = useResolveName({ pluginKey: fakerPluginKey, name: schemas.response.name, type: 'type' })
 
   const isV2 = new PackageManager().isValidSync('msw', '>=2')
@@ -116,15 +112,11 @@ Mock.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
     <File<FileMeta>
       baseName={file.baseName}
       path={file.path}
-      meta={{
-        pluginKey,
-        // needed for the `output.group`
-        tag: operation?.getTags()[0]?.name,
-      }}
+      meta={file.meta}
     >
       {!isV2 && <File.Import name={['rest']} path={'msw'} />}
       {isV2 && <File.Import name={['http']} path={'msw'} />}
-      {faker && responseName && <File.Import name={[responseName]} root={file.path} path={faker.path} />}
+      {fileFaker && responseName && <File.Import name={[responseName]} root={file.path} path={fileFaker.path} />}
       <File.Source>
         <Mock Template={Template} />
       </File.Source>

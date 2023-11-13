@@ -13,10 +13,7 @@ import type {
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-export function useUpdatePetWithForm<
-  TData = UpdatePetWithFormMutationResponse,
-  TError = UpdatePetWithForm405,
->(
+export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithFormQueryParams,
   options?: {
@@ -26,20 +23,13 @@ export function useUpdatePetWithForm<
   },
 ): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, never> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = shouldFetch ? `/pet/${petId}` : null
-  return useSWRMutation<ResponseConfig<TData>, TError, string | null, never>(
-    url,
-    (url) => {
-      return client<TData, TError>({
-        method: 'post',
-        url,
-
-        params,
-
-        ...clientOptions,
-      })
-    },
-    mutationOptions,
-  )
+  return useSWRMutation<ResponseConfig<TData>, TError, string | null, never>(url, (url) => {
+    return client<TData, TError>({
+      method: 'post',
+      url,
+      params,
+      ...clientOptions,
+    })
+  }, mutationOptions)
 }

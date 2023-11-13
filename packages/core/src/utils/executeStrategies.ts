@@ -58,7 +58,7 @@ export function hookFirst<TInput extends Array<PromiseFunc<TValue, null>>, TValu
   return promise as TOutput
 }
 
-export type Strategy = 'seq' | 'first'
+export type Strategy = 'seq' | 'first' | 'parallel' | 'reduceArg0'
 
 export type StrategySwitch<TStrategy extends Strategy, TInput extends Array<PromiseFunc<TValue, null>>, TValue> = TStrategy extends 'first'
   ? HookFirstOutput<TInput, TValue>

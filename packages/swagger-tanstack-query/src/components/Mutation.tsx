@@ -2,11 +2,11 @@ import path from 'node:path'
 
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
 import { File, Function, Type, usePlugin } from '@kubb/react'
-import { useOperation, useResolve, useSchemas } from '@kubb/swagger/hooks'
+import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
-import { useResolve as useResolveType } from '@kubb/swagger-ts/hooks'
+import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
-import { camelCase, pascalCase, pascalCaseTransformMerge } from 'change-case'
+import { camelCase, pascalCase } from 'change-case'
 
 import { getImportNames } from '../utils.ts'
 import { MutationImports } from './MutationImports.tsx'
@@ -230,16 +230,15 @@ export function Mutation({
   optionsType,
   Template = defaultTemplates.react,
 }: Props): ReactNode {
-  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const { options: { dataReturnType = 'data' } } = usePlugin<PluginOptions>()
   const operation = useOperation()
-  const { name } = useResolve({
-    pluginKey,
-    type: 'function',
-  })
+  const name = useOperationName({ type: 'function' })
+  const factoryName = useOperationName({ type: 'type' })
+
   const schemas = useSchemas()
 
   const factory: Factory = {
-    name: pascalCase(operation.getOperationId(), { delimiter: '', transform: pascalCaseTransformMerge }),
+    name: factoryName,
     generics: [
       schemas.response.name,
       schemas.errors?.map((error) => error.name).join(' | ') || 'never',
@@ -248,7 +247,7 @@ export function Mutation({
       schemas.queryParams?.name || 'never',
       schemas.headerParams?.name || 'never',
       schemas.response.name,
-      `{ dataReturnType: '${options.dataReturnType}'; type: 'mutation' }`,
+      `{ dataReturnType: '${dataReturnType}'; type: 'mutation' }`,
     ],
   }
   const generics = new FunctionParams()
@@ -343,13 +342,11 @@ type FileProps = {
 }
 
 Mutation.File = function({ templates = defaultTemplates, imports = MutationImports.templates }: FileProps): ReactNode {
-  const { key: pluginKey, options } = usePlugin<PluginOptions>()
+  const { options: { clientImportPath, templatesPath, framework } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
-  const operation = useOperation()
-  const file = useResolve({ pluginKey, type: 'file' })
-  const fileType = useResolveType({ type: 'file' })
+  const file = useOperationFile()
+  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
-  const { clientImportPath, templatesPath, framework } = options
   const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
 
   const importNames = getImportNames()
@@ -365,11 +362,7 @@ Mutation.File = function({ templates = defaultTemplates, imports = MutationImpor
       <File<FileMeta>
         baseName={file.baseName}
         path={file.path}
-        meta={{
-          pluginKey,
-          // needed for the `output.group`
-          tag: operation?.getTags()[0]?.name,
-        }}
+        meta={file.meta}
       >
         <File.Import root={file.path} path={path.resolve(file.path, '../types.ts')} name={['KubbQueryFactory']} isTypeOnly />
 

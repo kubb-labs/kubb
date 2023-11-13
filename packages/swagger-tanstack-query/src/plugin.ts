@@ -6,7 +6,7 @@ import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
-import { camelCase, camelCaseTransformMerge } from 'change-case'
+import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
@@ -77,7 +77,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     resolveName(name, type) {
       let resolvedName = camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
 
-      if (type) {
+      if (type === 'file' || type === 'function') {
         if (framework === 'react' || framework === 'vue') {
           resolvedName = camelCase(`use ${name}`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
         }
@@ -86,8 +86,15 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           resolvedName = camelCase(`${name} query`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
         }
       }
+      if (type === 'type') {
+        resolvedName = pascalCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: pascalCaseTransformMerge })
+      }
 
-      return transformers?.name?.(resolvedName) || resolvedName
+      if (type) {
+        return transformers?.name?.(resolvedName, type) || resolvedName
+      }
+
+      return resolvedName
     },
     async buildStart() {
       const [swaggerPlugin] = pluginsOptions

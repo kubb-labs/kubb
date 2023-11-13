@@ -1,4 +1,4 @@
-import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
+import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 
 export type Options = {
@@ -63,9 +63,9 @@ export type Options = {
   dataReturnType?: 'data' | 'full'
   transformers?: {
     /**
-     * Override the name of the hook that is getting generated, this will also override the name of the file.
+     * Customize the names based on the type that is provided by the plugin.
      */
-    name?: (name: string) => string
+    name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
 }
 
