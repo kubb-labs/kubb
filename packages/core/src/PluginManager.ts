@@ -308,27 +308,11 @@ export class PluginManager {
     hookName: H
     parameters?: Parameters<RequiredPluginLifecycle[H]> | undefined
   }): Promise<Awaited<TOuput>[]> {
-    const parallelPromises: Promise<TOuput>[] = []
+    const promises = this.#getSortedPlugins().map((plugin) => {
+      return () => this.#execute({ strategy: 'hookParallel', hookName, parameters, plugin }) as Promise<TOuput>
+    })
 
-    for (const plugin of this.#getSortedPlugins()) {
-      // TODO implement sequential with `buildStart` as an object({ sequential: boolean; handler: PluginContext["buildStart"] })
-      // if ((plugin[hookName] as { sequential?: boolean })?.sequential) {
-      //   await Promise.all(parallelPromises)
-      //   parallelPromises.length = 0
-      //   await this.execute({
-      //     strategy: 'hookParallel',
-      //     hookName,
-      //     parameters,
-      //     plugin,
-      //   })
-      // }
-      const promise: Promise<TOuput> | null = this.#execute({ strategy: 'hookParallel', hookName, parameters, plugin }) as Promise<TOuput>
-
-      if (promise) {
-        parallelPromises.push(promise)
-      }
-    }
-    const results = await Promise.allSettled(parallelPromises)
+    const results = await this.#promiseManager.run('parallel', promises)
 
     results
       .forEach((result, index) => {
@@ -338,7 +322,7 @@ export class PluginManager {
           this.#catcher<H>(result.reason, plugin, hookName)
         }
       })
-    // TODO replace by promiseManager
+
     return results.filter((result) => result.status === 'fulfilled').map((result) => (result as PromiseFulfilledResult<Awaited<TOuput>>).value)
   }
 
@@ -370,7 +354,7 @@ export class PluginManager {
         })
         .then((result) => reduce.call(this.#core.api, argument0, result as ReturnType<ParseResult<H>>, plugin)) as Promise<Argument0<H>>
     }
-    // TODO replace by promiseManager
+
     return promise
   }
 

@@ -1,4 +1,4 @@
-import { hookFirst, hookSeq } from './utils/executeStrategies.ts'
+import { hookFirst, hookParallel, hookSeq } from './utils/executeStrategies.ts'
 
 import type { PossiblePromise } from '@kubb/types'
 import type { Strategy, StrategySwitch } from './utils/executeStrategies.ts'
@@ -28,6 +28,10 @@ export class PromiseManager<TState = any> {
 
     if (strategy === 'first') {
       return hookFirst<TInput, TValue, TOutput>(promises, this.#options.nullCheck)
+    }
+
+    if (strategy === 'parallel') {
+      return hookParallel<TInput, TValue, TOutput>(promises)
     }
 
     throw new Error(`${strategy} not implemented`)
