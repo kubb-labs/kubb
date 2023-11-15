@@ -28,8 +28,8 @@
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@tanstack/vue-query": "^5.8.3",
-    "axios": "^1.6.1",
+    "@tanstack/vue-query": "^5.8.4",
+    "axios": "^1.6.2",
     "vue": "^3.3.8"
   },
   "devDependencies": {

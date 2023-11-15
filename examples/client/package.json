@@ -21,11 +21,11 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "@kubb/react": "workspace:*",
-    "axios": "^1.6.1"
+    "axios": "^1.6.2"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",

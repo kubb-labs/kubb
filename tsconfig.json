@@ -1,5 +1,5 @@
 {
-  "extends": "@kubb/ts-config/base.json",
+  "extends": "@kubb/ts-config/bundler.json",
   "compilerOptions": {
     "baseUrl": ".",
     "types": [

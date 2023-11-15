@@ -168,6 +168,7 @@ Client.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
+  // TODO replace by default set in plugin.ts
   const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
 
   const Template = templates.default
