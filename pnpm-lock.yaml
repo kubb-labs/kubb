@@ -993,6 +993,9 @@ importers:
       eslint-plugin-simple-import-sort:
         specifier: ^10.0.0
         version: 10.0.0(eslint@8.53.0)
+      eslint-plugin-turbo:
+        specifier: ~1.10.16
+        version: 1.10.16(eslint@8.53.0)
       eslint-plugin-unused-imports:
         specifier: ~3.0.0
         version: 3.0.0(@typescript-eslint/eslint-plugin@6.11.0)(eslint@8.53.0)
