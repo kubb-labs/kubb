@@ -166,4 +166,4 @@ export default defineConfig(() => {
 
 :::
 
-If you're looking for a fully functioning example, please have a look at our [simple codesandbox example](https://codesandbox.io/s/github/kubb-project/kubb/tree/main/examples/typescript).
+If you're looking for a fully functioning example, please have a look at our [simple codesandbox example](https://codesandbox.io/s/github/kubb-project/kubb/tree/alpha/examples/typescript).
