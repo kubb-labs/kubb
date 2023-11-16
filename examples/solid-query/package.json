@@ -27,7 +27,7 @@
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
     "@tanstack/solid-query": "^4.36.1",
-    "axios": "^1.6.1",
+    "axios": "^1.6.2",
     "solid-js": "^1.8.5",
     "tsup": "^7.2.0"
   },
