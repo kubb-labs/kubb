@@ -1,6 +1,6 @@
 import { SchemaGenerator } from '@kubb/core'
 import { getUniqueName, transformers } from '@kubb/core/utils'
-import { isReference } from '@kubb/swagger/utils'
+import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
 
 import { zodKeywords, zodParser } from '../parsers/index.ts'
 import { pluginKey } from '../plugin.ts'
@@ -195,11 +195,18 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
     return [{ keyword: zodKeywords.ref, args: ref.propertyName }]
   }
 
+  #getParsedSchema(schema?: OasTypes.SchemaObject) {
+    const parsedSchema = getSchemaFactory(this.options.oas)(schema)
+    return parsedSchema
+  }
+
   /**
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  #getBaseTypeFromSchema(schema: OasTypes.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): ZodMeta[] {
+  #getBaseTypeFromSchema(_schema: OasTypes.SchemaObject | undefined, baseName?: string): ZodMeta[] {
+    const { schema, version } = this.#getParsedSchema(_schema)
+
     if (!schema) {
       return [{ keyword: zodKeywords.any }]
     }

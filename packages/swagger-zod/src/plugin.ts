@@ -89,6 +89,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             return getRelativePath(root, resolvedTypeId)
           },
           withJSDocs: true,
+          oas,
         }).configure()
 
         Object.entries(schemas).forEach(([name, schema]: [string, OasTypes.SchemaObject]) => {
@@ -132,6 +133,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         const builder = new ZodBuilder({
           resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           withJSDocs: true,
+          oas,
         }).configure()
         const mapFileSchema = ([name, schema]: [string, OasTypes.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file

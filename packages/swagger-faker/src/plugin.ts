@@ -91,6 +91,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           },
           withJSDocs: true,
           dateType,
+          oas,
         }).configure()
 
         Object.entries(schemas).forEach(([name, schema]: [string, OasTypes.SchemaObject]) => {
@@ -135,6 +136,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           withJSDocs: true,
           dateType,
+          oas,
         }).configure()
         const mapFileSchema = ([name, schema]: [string, OasTypes.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file

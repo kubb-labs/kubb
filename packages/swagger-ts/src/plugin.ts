@@ -106,6 +106,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           enumType,
           dateType,
           optionalType,
+          oas,
         }).configure()
         Object.entries(schemas).forEach(([name, schema]: [string, OasTypes.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
@@ -146,6 +147,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           enumType,
           dateType,
           optionalType,
+          oas,
         }).configure()
         Object.entries(schemas).forEach(([name, schema]: [string, OasTypes.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file

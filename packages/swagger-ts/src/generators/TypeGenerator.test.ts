@@ -6,7 +6,7 @@ import { OasManager } from '@kubb/swagger'
 import { format } from '../../mocks/format.ts'
 import { TypeGenerator } from './TypeGenerator.ts'
 
-import type { OasTypes } from '@kubb/swagger'
+import type { Oas, OasTypes } from '@kubb/swagger'
 
 describe('TypeGenerator simple', () => {
   const petStorePath = path.resolve(__dirname, '../../mocks/petStore.yaml')
@@ -20,6 +20,7 @@ describe('TypeGenerator simple', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: {} as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -41,6 +42,7 @@ describe('TypeGenerator simple', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'undefined',
+      oas: {} as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -62,6 +64,7 @@ describe('TypeGenerator simple', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionTokenAndUndefined',
+      oas: {} as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -82,6 +85,7 @@ describe('TypeGenerator simple', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: {} as Oas,
     })
 
     const schema: OasTypes.SchemaObject = {
@@ -108,6 +112,7 @@ describe('TypeGenerator simple', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: {} as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -132,6 +137,7 @@ describe('TypeGenerator with refs', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: {} as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -157,6 +163,7 @@ describe('TypeGenerator with discriminators', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: {} as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -177,6 +184,7 @@ describe('TypeGenerator with discriminators', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: { api: { openapi: '3.1' } } as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
@@ -196,6 +204,7 @@ describe('TypeGenerator with discriminators', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: { api: { openapi: '3.1' } } as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas

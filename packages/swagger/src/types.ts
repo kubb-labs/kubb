@@ -3,6 +3,7 @@ import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/co
 import type Oas from 'oas'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod, SchemaObject } from 'oas/rmoas.types'
+import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
 
 // eslint-disable-next-line @typescript-eslint/ban-types
