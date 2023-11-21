@@ -18,8 +18,11 @@ exports[`TypeGenerator with discriminators > Dog.type defined as const 1`] = `
 "
 `;
 
-exports[`TypeGenerator with discriminators > MixedValueTypeConst correctly throws error 1`] = `
-# TODO define intended behaviour
+exports[`TypeGenerator with discriminators > MixedValueTypeConst ignores type constraint in favor of const constraint 1`] = `
+"export type MixedValueTypeConst = {
+    foobar?: \\"foobar\\";
+};
+"
 `;
 
 exports[`TypeGenerator with discriminators > NullConst correctly produces "null" 1`] = `

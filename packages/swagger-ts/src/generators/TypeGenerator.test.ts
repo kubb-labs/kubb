@@ -295,7 +295,7 @@ describe('TypeGenerator with discriminators', () => {
       expect(ast_output).toMatchSnapshot()
     })
 
-    test('MixedValueTypeConst correctly throws error', async () => {
+    test('MixedValueTypeConst ignores type constraint in favor of const constraint', async () => {
       const oas = await oasPathParser(path)
       const generator = new TypeGenerator({
         withJSDocs: false,
@@ -308,10 +308,9 @@ describe('TypeGenerator with discriminators', () => {
       const schemas = oas.getDefinition().components?.schemas
       const ast = generator.build({ schema: schemas?.MixedValueTypeConst as OpenAPIV3.SchemaObject, baseName: 'MixedValueTypeConst' })
 
-      // const ast_output = print(ast, undefined)
-      expect(generator).toThrow("TODO Decide on expected behaviour.")
+      const ast_output = print(ast, undefined)
 
-      // expect(ast_output).toBeDefined()
-      // expect(ast_output).toMatchSnapshot()
+      expect(ast_output).toBeDefined()
+      expect(ast_output).toMatchSnapshot()
     })
 })
