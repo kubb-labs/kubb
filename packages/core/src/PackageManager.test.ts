@@ -14,15 +14,15 @@ describe('getPackageJSON', () => {
   test('if version out of package.json data is returned', async () => {
     const version = await packageManager.getVersion('typescript')
 
-    expect(version).toBe('rc')
+    expect(version).toBe('^5.3.2')
 
     const versionRegex = await packageManager.getVersion('typescr')
 
-    expect(versionRegex).toBe('rc')
+    expect(versionRegex).toBe('^5.3.2')
   })
 
   test('if compared version is correct', async () => {
-    const isValid = await packageManager.isValid('typescript', 'rc')
+    const isValid = await packageManager.isValid('typescript', '^5.3.2')
 
     expect(isValid).toBeTruthy()
   })

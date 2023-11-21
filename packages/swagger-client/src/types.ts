@@ -2,6 +2,11 @@ import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/
 import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 import type { Client, Operations } from './components/index.ts'
 
+type Templates = {
+  operations?: typeof Operations.templates
+  client?: typeof Client.templates
+}
+
 export type Options = {
   /**
    * Output to save the clients.
@@ -83,10 +88,7 @@ export type Options = {
   /**
    * Make it possible to override one of the templates
    */
-  templates?: {
-    operations?: typeof Operations.templates
-    client?: typeof Client.templates
-  }
+  templates?: Templates
 }
 
 type ResolvedOptions = {
