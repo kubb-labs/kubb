@@ -2,8 +2,7 @@ import type { KubbPlugin } from '@kubb/core'
 import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type Oas from 'oas'
 import type Operation from 'oas/operation'
-import type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
-import type { OpenAPIV3 } from 'openapi-types'
+import type { HttpMethods as HttpMethod, SchemaObject } from 'oas/rmoas.types'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -15,7 +14,7 @@ export type ResolvePathOptions = { pluginKey?: KubbPlugin['key']; tag?: string; 
 
 export type API = {
   getOas: () => Promise<Oas>
-  getSchemas: (options?: Pick<GetSchemasProps, 'includes'>) => Promise<Record<string, OpenAPIV3.SchemaObject>>
+  getSchemas: (options?: Pick<GetSchemasProps, 'includes'>) => Promise<Record<string, SchemaObject>>
   getBaseURL: () => Promise<string | undefined>
   contentType?: ContentType
 }
@@ -50,7 +49,8 @@ export type Options = {
 export type { default as Oas } from 'oas'
 export type { default as Operation } from 'oas/operation'
 export type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
-export type { OpenAPIV3 } from 'openapi-types'
+export type * as OasTypes from 'oas/rmoas.types'
+export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 
 /**
  * `propertyName` is the ref name + resolved with the nameResolver
@@ -84,7 +84,7 @@ export type OperationSchema = {
    */
   operationName?: string
   description?: string
-  schema: OpenAPIV3.SchemaObject & { $ref?: OpenAPIV3.ReferenceObject['$ref'] }
+  schema: SchemaObject & { $ref?: string }
   statusCode?: number
   keys?: string[]
   keysToOmit?: string[]

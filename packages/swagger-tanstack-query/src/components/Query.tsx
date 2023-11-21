@@ -168,13 +168,17 @@ const defaultTemplates = {
           name: 'refParams',
           type: `MaybeRef<${schemas.queryParams?.name}>`,
           enabled: client.withQueryParams,
-          required: !!schemas.queryParams?.schema.required?.length,
+          required: Array.isArray(schemas.queryParams?.schema.required)
+            ? !!schemas.queryParams?.schema.required?.length
+            : !!schemas.queryParams?.schema.required,
         },
         {
           name: 'refHeaders',
           type: `MaybeRef<${schemas.headerParams?.name}>`,
           enabled: client.withHeaders,
-          required: !!schemas.headerParams?.schema.required?.length,
+          required: Array.isArray(schemas.headerParams?.schema.required)
+            ? !!schemas.headerParams?.schema.required?.length
+            : !!schemas.headerParams?.schema.required,
         },
         {
           name: 'options',
@@ -194,12 +198,16 @@ const defaultTemplates = {
         {
           name: 'refParams',
           enabled: client.withQueryParams,
-          required: !!schemas.queryParams?.schema.required?.length,
+          required: Array.isArray(schemas.queryParams?.schema.required)
+            ? !!schemas.queryParams?.schema.required?.length
+            : !!schemas.queryParams?.schema.required,
         },
         {
           name: 'refHeaders',
           enabled: client.withHeaders,
-          required: !!schemas.headerParams?.schema.required?.length,
+          required: Array.isArray(schemas.headerParams?.schema.required)
+            ? !!schemas.headerParams?.schema.required?.length
+            : !!schemas.headerParams?.schema.required,
         },
         {
           name: 'clientOptions',
@@ -318,13 +326,17 @@ export function Query({
       name: 'params',
       type: `${factory.name}['queryParams']`,
       enabled: client.withQueryParams,
-      required: !!schemas.queryParams?.schema.required?.length,
+      required: Array.isArray(schemas.queryParams?.schema.required)
+        ? !!schemas.queryParams?.schema.required?.length
+        : !!schemas.queryParams?.schema.required,
     },
     {
       name: 'headers',
       type: `${factory.name}['headerParams']`,
       enabled: client.withHeaders,
-      required: !!schemas.headerParams?.schema.required?.length,
+      required: Array.isArray(schemas.headerParams?.schema.required)
+        ? !!schemas.headerParams?.schema.required?.length
+        : !!schemas.headerParams?.schema.required,
     },
     {
       name: 'options',
@@ -343,12 +355,16 @@ export function Query({
     {
       name: 'params',
       enabled: client.withQueryParams,
-      required: !!schemas.queryParams?.schema.required?.length,
+      required: Array.isArray(schemas.queryParams?.schema.required)
+        ? !!schemas.queryParams?.schema.required?.length
+        : !!schemas.queryParams?.schema.required,
     },
     {
       name: 'headers',
       enabled: client.withHeaders,
-      required: !!schemas.headerParams?.schema.required?.length,
+      required: Array.isArray(schemas.headerParams?.schema.required)
+        ? !!schemas.headerParams?.schema.required?.length
+        : !!schemas.headerParams?.schema.required,
     },
     {
       name: 'clientOptions',

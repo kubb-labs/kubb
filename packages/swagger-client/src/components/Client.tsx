@@ -113,19 +113,21 @@ export function Client({
       name: 'data',
       type: schemas.request?.name,
       enabled: !!schemas.request?.name,
-      required: !!schemas.request?.schema.required?.length,
+      required: Array.isArray(schemas.request?.schema.required) ? !!schemas.request?.schema.required?.length : !!schemas.request?.schema.required,
     },
     {
       name: 'params',
       type: schemas.queryParams?.name,
       enabled: !!schemas.queryParams?.name,
-      required: !!schemas.queryParams?.schema.required?.length,
+      required: Array.isArray(schemas.queryParams?.schema.required) ? !!schemas.queryParams?.schema.required?.length : !!schemas.queryParams?.schema.required,
     },
     {
       name: 'headers',
       type: schemas.headerParams?.name,
       enabled: !!schemas.headerParams?.name,
-      required: !!schemas.headerParams?.schema.required?.length,
+      required: Array.isArray(schemas.headerParams?.schema.required)
+        ? !!schemas.headerParams?.schema.required?.length
+        : !!schemas.headerParams?.schema.required,
     },
     {
       name: 'options',

@@ -1,5 +1,4 @@
-import type { OpenAPIV3 } from 'openapi-types'
-import type { ContentType, Oas } from '../types.ts'
+import type { ContentType, Oas, OasTypes } from '../types.ts'
 
 type Mode = 'schemas' | 'responses' | 'requestBodies'
 
@@ -13,15 +12,15 @@ export function getSchemas({
   oas,
   contentType,
   includes = ['schemas', 'requestBodies', 'responses'],
-}: GetSchemasProps): Record<string, OpenAPIV3.SchemaObject> {
+}: GetSchemasProps): Record<string, OasTypes.SchemaObject> {
   const components = oas.getDefinition().components
 
-  let schemas: Record<string, OpenAPIV3.SchemaObject> = {}
+  let schemas: Record<string, OasTypes.SchemaObject> = {}
 
   if (includes.includes('schemas')) {
     schemas = {
       ...schemas,
-      ...((components?.schemas as Record<string, OpenAPIV3.SchemaObject>) || {}),
+      ...((components?.schemas as Record<string, OasTypes.SchemaObject>) || {}),
     }
   }
 
@@ -29,19 +28,19 @@ export function getSchemas({
   if (includes.includes('responses')) {
     const responses = components?.responses || {}
 
-    Object.entries(responses).forEach(([name, response]: [string, OpenAPIV3.ResponseObject]) => {
+    Object.entries(responses).forEach(([name, response]: [string, OasTypes.ResponseObject]) => {
       if (response.content && !schemas[name]) {
         const firstContentType = Object.keys(response.content)[0] || 'application/json'
-        schemas[name] = response.content?.[contentType || firstContentType]?.schema as OpenAPIV3.SchemaObject
+        schemas[name] = response.content?.[contentType || firstContentType]?.schema as OasTypes.SchemaObject
       }
     })
   }
 
   if (includes.includes('requestBodies')) {
-    Object.entries(requestBodies).forEach(([name, request]: [string, OpenAPIV3.RequestBodyObject]) => {
+    Object.entries(requestBodies).forEach(([name, request]: [string, OasTypes.RequestBodyObject]) => {
       if (request.content && !schemas[name]) {
         const firstContentType = Object.keys(request.content)[0] || 'application/json'
-        schemas[name] = request.content?.[contentType || firstContentType]?.schema as OpenAPIV3.SchemaObject
+        schemas[name] = request.content?.[contentType || firstContentType]?.schema as OasTypes.SchemaObject
       }
     })
   }

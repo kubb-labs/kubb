@@ -10,8 +10,7 @@ import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
-import type { OpenAPIV3 } from 'openapi-types'
-import type { ContentType, Exclude, Include, Oas, OperationSchemas, Override } from './types.ts'
+import type { ContentType, Exclude, Include, Oas, OasTypes, OpenAPIV3, OperationSchemas, Override } from './types.ts'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
 
@@ -128,14 +127,14 @@ export abstract class OperationGenerator<
     return matched
   }
 
-  #getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): OpenAPIV3.SchemaObject | null {
+  #getParametersSchema(operation: Operation, inKey: 'path' | 'query' | 'header'): OasTypes.SchemaObject | null {
     const contentType = this.context.contentType || operation.getContentType()
     const params = operation
       .getParameters()
       .map((item) => {
-        const param = item as unknown as OpenAPIV3.ReferenceObject & OpenAPIV3.ParameterObject
+        const param = item as unknown as OpenAPIV3.ReferenceObject & OasTypes.ParameterObject
         if (isReference(param)) {
-          return findSchemaDefinition(param.$ref, operation.api) as OpenAPIV3.ParameterObject
+          return findSchemaDefinition(param.$ref, operation.api) as OasTypes.ParameterObject
         }
 
         return param
@@ -148,14 +147,17 @@ export abstract class OperationGenerator<
 
     return params.reduce(
       (schema, pathParameters) => {
-        const property = pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as OpenAPIV3.SchemaObject)
+        const property = pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as OasTypes.SchemaObject)
         return {
           ...schema,
           description: pathParameters.description,
           pathParameters: pathParameters.deprecated,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
           example: pathParameters.example,
-          required: [...(schema.required || []), pathParameters.required ? pathParameters.name : undefined].filter(Boolean),
+          required: [...(schema.required || [] as any), pathParameters.required ? pathParameters.name : undefined]
+            .filter(
+              Boolean,
+            ),
           properties: {
             ...schema.properties,
             [pathParameters.name]: {
@@ -165,41 +167,41 @@ export abstract class OperationGenerator<
           },
         }
       },
-      { type: 'object', required: [], properties: {} } as OpenAPIV3.SchemaObject,
+      { type: 'object', required: [], properties: {} } as OasTypes.SchemaObject,
     )
   }
 
-  #getResponseSchema(operation: Operation, statusCode?: string | number): OpenAPIV3.SchemaObject {
+  #getResponseSchema(operation: Operation, statusCode?: string | number): OasTypes.SchemaObject {
     const contentType = this.context.contentType || operation.getContentType()
     const responseStatusCode = statusCode || (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
     const schema = operation.schema.responses?.[responseStatusCode] as OpenAPIV3.ReferenceObject
 
     if (isReference(schema)) {
-      const responseSchema = findSchemaDefinition(schema?.$ref, operation.api) as OpenAPIV3.ResponseObject
-      const contentTypeSchema = responseSchema.content?.[contentType]?.schema as OpenAPIV3.SchemaObject
+      const responseSchema = findSchemaDefinition(schema?.$ref, operation.api) as OasTypes.ResponseObject
+      const contentTypeSchema = responseSchema.content?.[contentType]?.schema as OasTypes.SchemaObject
 
       if (isReference(contentTypeSchema)) {
         return {
           ...findSchemaDefinition(contentTypeSchema?.$ref, operation.api),
           $ref: contentTypeSchema.$ref,
-        } as OpenAPIV3.SchemaObject
+        } as OasTypes.SchemaObject
       }
 
       return contentTypeSchema
     }
-    const responseJSONSchema = operation.getResponseAsJSONSchema(responseStatusCode)?.at(0)?.schema as OpenAPIV3.SchemaObject
+    const responseJSONSchema = operation.getResponseAsJSONSchema(responseStatusCode)?.at(0)?.schema as OasTypes.SchemaObject
 
     if (isReference(responseJSONSchema)) {
       return {
         ...findSchemaDefinition(responseJSONSchema?.$ref, operation.api),
         $ref: responseJSONSchema.$ref,
-      } as OpenAPIV3.SchemaObject
+      } as OasTypes.SchemaObject
     }
 
     return responseJSONSchema
   }
 
-  #getRequestSchema(operation: Operation): OpenAPIV3.SchemaObject | null {
+  #getRequestSchema(operation: Operation): OasTypes.SchemaObject | null {
     if (!operation.hasRequestBody()) {
       return null
     }
@@ -207,7 +209,7 @@ export abstract class OperationGenerator<
     const contentType = this.context.contentType || operation.getContentType()
     const requestBody = operation.getRequestBody() as MediaTypeObject
     const requestBodyContentType = operation.getRequestBody(contentType) as MediaTypeObject
-    const schema = (requestBody?.schema || requestBodyContentType?.schema) as OpenAPIV3.SchemaObject
+    const schema = (requestBody?.schema || requestBodyContentType?.schema) as OasTypes.SchemaObject
 
     if (!schema) {
       return null
@@ -217,7 +219,7 @@ export abstract class OperationGenerator<
       return {
         ...findSchemaDefinition(schema?.$ref, operation.api),
         $ref: schema.$ref,
-      } as OpenAPIV3.SchemaObject
+      } as OasTypes.SchemaObject
     }
 
     return schema
@@ -267,7 +269,7 @@ export abstract class OperationGenerator<
           keys: requestSchema.properties ? Object.keys(requestSchema.properties) : undefined,
           keysToOmit: requestSchema.properties
             ? Object.keys(requestSchema.properties).filter((key) => {
-              const item = requestSchema.properties![key] as OpenAPIV3.SchemaObject
+              const item = requestSchema.properties![key] as OasTypes.SchemaObject
               return item?.readOnly
             })
             : undefined,
@@ -285,7 +287,7 @@ export abstract class OperationGenerator<
         keys: responseSchema?.properties ? Object.keys(responseSchema.properties) : undefined,
         keysToOmit: responseSchema?.properties
           ? Object.keys(responseSchema.properties).filter((key) => {
-            const item = responseSchema.properties![key] as OpenAPIV3.SchemaObject
+            const item = responseSchema.properties![key] as OasTypes.SchemaObject
             return item?.writeOnly
           })
           : undefined,
@@ -304,7 +306,7 @@ export abstract class OperationGenerator<
           return {
             name: pascalCase(`${operation.getOperationId()} ${name}`, { delimiter: '', transform: pascalCaseTransformMerge }),
             description: operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description
-              || (operation.getResponseByStatusCode(statusCode) as OpenAPIV3.ResponseObject)?.description,
+              || (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
             schema,
             operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
             statusCode: name === 'error' ? undefined : Number(statusCode),

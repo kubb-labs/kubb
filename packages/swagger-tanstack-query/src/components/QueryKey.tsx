@@ -113,7 +113,9 @@ const defaultTemplates = {
           name: 'params',
           type: schemas.queryParams?.name ? `MaybeRef<${`${factory.name}["queryParams"]`}>` : undefined,
           enabled: !!schemas.queryParams?.name,
-          required: !!schemas.queryParams?.schema.required?.length,
+          required: Array.isArray(schemas.queryParams?.schema.required)
+            ? !!schemas.queryParams?.schema.required?.length
+            : !!schemas.queryParams?.schema.required,
         },
       ])
 
@@ -157,7 +159,9 @@ export function QueryKey({ name, factory, Template = defaultTemplates.react }: P
       name: 'params',
       type: `${factory.name}["queryParams"]`,
       enabled: !!schemas.queryParams?.name,
-      required: !!schemas.queryParams?.schema.required?.length,
+      required: Array.isArray(schemas.queryParams?.schema.required)
+        ? !!schemas.queryParams?.schema.required?.length
+        : !!schemas.queryParams?.schema.required,
     },
   ])
 

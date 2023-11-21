@@ -7,14 +7,14 @@ import { pluginKey } from '../plugin.ts'
 
 import type { PluginContext } from '@kubb/core'
 import type { ts } from '@kubb/parser'
-import type { OpenAPIV3, Refs } from '@kubb/swagger'
+import type { OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
 import type { ZodMeta } from '../parsers/index.ts'
 
 type Options = {
   withJSDocs?: boolean
   resolveName: PluginContext['resolveName']
 }
-export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, string[]> {
+export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject, string[]> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
 
@@ -37,7 +37,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     description,
     keysToOmit,
   }: {
-    schema: OpenAPIV3.SchemaObject
+    schema: OasTypes.SchemaObject
     baseName: string
     description?: string
     keysToOmit?: string[]
@@ -63,7 +63,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  #getTypeFromSchema(schema: OpenAPIV3.SchemaObject, baseName?: string): ZodMeta[] {
+  #getTypeFromSchema(schema: OasTypes.SchemaObject, baseName?: string): ZodMeta[] {
     const validationFunctions = this.#getBaseTypeFromSchema(schema, baseName)
     if (validationFunctions) {
       return validationFunctions
@@ -75,7 +75,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
   /**
    * Recursively creates a type literal with the given props.
    */
-  #getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string): ZodMeta[] {
+  #getTypeFromProperties(baseSchema?: OasTypes.SchemaObject, baseName?: string): ZodMeta[] {
     const properties = baseSchema?.properties || {}
     const required = baseSchema?.required
     const additionalProperties = baseSchema?.additionalProperties
@@ -84,8 +84,8 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
       .map((name) => {
         const validationFunctions: ZodMeta[] = []
 
-        const schema = properties[name] as OpenAPIV3.SchemaObject
-        const isRequired = required && required.includes(name)
+        const schema = properties[name] as OasTypes.SchemaObject
+        const isRequired = Array.isArray(required) ? required.includes(name) : !!required
 
         validationFunctions.push(...this.#getTypeFromSchema(schema, name))
 
@@ -164,7 +164,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
     if (additionalProperties) {
       const addionalValidationFunctions: ZodMeta[] = additionalProperties === true
         ? [{ keyword: zodKeywords.any }]
-        : this.#getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
+        : this.#getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
 
       members.push({ keyword: zodKeywords.catchall, args: addionalValidationFunctions })
     }
@@ -198,7 +198,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  #getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): ZodMeta[] {
+  #getBaseTypeFromSchema(schema: OasTypes.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): ZodMeta[] {
     if (!schema) {
       return [{ keyword: zodKeywords.any }]
     }
@@ -215,7 +215,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         keyword: zodKeywords.union,
         args: schema.oneOf
           .map((item) => {
-            return this.#getBaseTypeFromSchema(item)[0]
+            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -237,7 +237,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         keyword: zodKeywords.union,
         args: schema.anyOf
           .map((item) => {
-            return this.#getBaseTypeFromSchema(item)[0]
+            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -258,7 +258,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
         keyword: zodKeywords.and,
         args: schema.allOf
           .map((item) => {
-            return this.#getBaseTypeFromSchema(item)[0]
+            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -313,11 +313,11 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
 
     if ('items' in schema) {
       // items -> array
-      return [{ keyword: zodKeywords.array, args: this.#getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName) }]
+      return [{ keyword: zodKeywords.array, args: this.#getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName) }]
     }
 
     if ('prefixItems' in schema) {
-      const prefixItems = schema.prefixItems as OpenAPIV3.SchemaObject[]
+      const prefixItems = schema.prefixItems as OasTypes.SchemaObject[]
 
       return [
         {

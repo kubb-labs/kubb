@@ -12,7 +12,6 @@ import type { FileResolver } from '@kubb/swagger'
 
 type Options = {
   usedEnumNames: Record<string, number>
-
   resolveName: PluginContext['resolveName']
   fileResolver?: FileResolver
   withJSDocs?: boolean

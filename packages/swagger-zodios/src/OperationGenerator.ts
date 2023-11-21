@@ -5,7 +5,7 @@ import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import type { KubbFile } from '@kubb/core'
-import type { HttpMethod, OpenAPIV3, Operation, Resolver } from '@kubb/swagger'
+import type { HttpMethod, OasTypes, Operation, Resolver } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 type Options = {
@@ -217,7 +217,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
         })
 
         schemas.pathParams.keys?.forEach((key) => {
-          const schema = schemas.pathParams?.schema?.properties?.[key] as OpenAPIV3.SchemaObject
+          const schema = schemas.pathParams?.schema?.properties?.[key] as OasTypes.SchemaObject
           const zodSchema = schemas.pathParams?.schema?.$ref ? `${pathParams.name}.schema.shape['${key}']` : `${pathParams.name}.shape['${key}']`
 
           parameters.push(`
@@ -240,7 +240,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
         })
 
         schemas.queryParams.keys?.forEach((key) => {
-          const schema = schemas.queryParams?.schema?.properties?.[key] as OpenAPIV3.SchemaObject
+          const schema = schemas.queryParams?.schema?.properties?.[key] as OasTypes.SchemaObject
           const zodSchema = schemas.queryParams?.schema?.$ref ? `${queryParams.name}.schema.shape['${key}']` : `${queryParams.name}.shape['${key}']`
 
           parameters.push(`
@@ -281,7 +281,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
         })
 
         schemas.headerParams.keys?.forEach((key) => {
-          const schema = schemas.headerParams?.schema?.properties?.[key] as OpenAPIV3.SchemaObject
+          const schema = schemas.headerParams?.schema?.properties?.[key] as OasTypes.SchemaObject
           const zodSchema = schemas.headerParams?.schema?.$ref ? `${headerParams.name}.schema.shape['${key}']` : `${headerParams.name}.shape['${key}']`
 
           parameters.push(`
