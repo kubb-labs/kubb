@@ -9,6 +9,6 @@
     "bundler.json"
   ],
   "devDependencies": {
-    "typescript": "rc"
+    "typescript": "^5.3.2"
   }
 }
