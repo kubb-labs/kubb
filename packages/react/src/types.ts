@@ -89,3 +89,7 @@ export type DOMElement = {
 export type NodeNames = ElementNames | TextName
 
 export type KubbNode = ReactNode
+
+export type JSDoc = {
+  comments: string[]
+}

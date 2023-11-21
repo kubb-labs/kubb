@@ -141,7 +141,7 @@ export default defineConfig(async () => {
 
 :::
 
-### Multiple <img src="/icons/experimental.svg"/>
+### Multiple
 
 Since version `2.x.x` we also support using multiple of the same plugin.
 
@@ -180,7 +180,7 @@ export default defineConfig(async () => {
 
 :::
 
-### Multiple JSON <img src="/icons/experimental.svg"/>
+### Multiple JSON
 
 Since version `2.x.x` we also support using multiple of the same plugin.
 
@@ -262,7 +262,7 @@ Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/pl
 
 :::
 
-### Multiple <img src="/icons/experimental.svg"/>
+### Multiple
 
 Since version `2.x.x` we also support using multiple of the same plugin.
 

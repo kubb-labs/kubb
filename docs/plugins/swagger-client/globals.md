@@ -5,7 +5,7 @@ title: Globals.d.ts
 outline: deep
 ---
 
-# Globals.d.ts <img src="/icons/experimental.svg"/>
+# Globals.d.ts
 
 ## Features
 

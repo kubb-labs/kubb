@@ -125,10 +125,10 @@ export default defineConfig({
             text: 'Installation',
             link: '/installation',
           },
-          {
-            text: 'Comparison <span class="beta">under construction</span>',
-            link: '/comparison',
-          },
+          // {
+          //   text: 'Comparison <span class="beta">under construction</span>',
+          //   link: '/comparison',
+          // },
           {
             text: 'Quick start',
             link: '/quick-start',
@@ -167,11 +167,8 @@ export default defineConfig({
             link: '/plugins/introduction',
           },
           {
-            text: 'Template',
-            link: '/plugins/template',
-          },
-          {
             text: '@kubb/core',
+            collapsed: true,
             link: '/plugins/core/',
             items: [
               {
@@ -186,19 +183,20 @@ export default defineConfig({
           },
           {
             text: 'Swagger plugins',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '@kubb/swagger', link: '/plugins/swagger' },
               {
                 text: '@kubb/swagger-client',
+                collapsed: true,
                 link: '/plugins/swagger-client/',
                 items: [
                   {
-                    text: 'globals.d.ts <img src="/icons/experimental.svg"/>',
+                    text: 'globals.d.ts',
                     link: '/plugins/swagger-client/globals',
                   },
                   {
-                    text: 'client <img src="/icons/experimental.svg"/>',
+                    text: 'client',
                     link: '/plugins/swagger-client/client',
                   },
                 ],
@@ -235,15 +233,33 @@ export default defineConfig({
           },
           {
             text: 'Internal plugins',
-            collapsed: false,
+            collapsed: true,
             items: [
               {
                 text: '@kubb/parser',
                 link: '/plugins/parser',
               },
               {
-                text: '@kubb/react <span class="beta">under construction</span>',
-                link: '/plugins/react',
+                text: '@kubb/react <span class="new">New</span>',
+                link: '/plugins/react/',
+                items: [
+                  {
+                    text: 'Text',
+                    link: '/plugins/react/text',
+                  },
+                  {
+                    text: 'Function',
+                    link: '/plugins/react/function',
+                  },
+                  {
+                    text: 'Type',
+                    link: '/plugins/react/type',
+                  },
+                  {
+                    text: 'File',
+                    link: '/plugins/react/file',
+                  },
+                ],
               },
             ],
           },
@@ -261,11 +277,15 @@ export default defineConfig({
             text: 'PluginManager',
             link: '/reference/pluginManager',
           },
+          {
+            text: 'Templates <img src="/icons/experimental.svg"/>',
+            link: '/reference/templates',
+          },
         ],
       },
       {
         text: 'Examples(PetStore)',
-        collapsed: false,
+        collapsed: true,
         items: [
           {
             text: 'TypeScript',

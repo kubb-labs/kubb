@@ -6,11 +6,11 @@ import type { KubbNode } from '../types.ts'
 type Props = KubbFile.Import & {
   /**
    * When true, it will return the generated import.
-   * When false, it will add the import to a KubbFile instance(see fileManager)
+   * When false, it will add the import to a KubbFile instance(see fileManager).
    */
   print?: boolean
   /**
-   * When root is set it will get the path with relative getRelativePath(root, path)
+   * When root is set it will get the path with relative getRelativePath(root, path).
    */
   root?: string
 }

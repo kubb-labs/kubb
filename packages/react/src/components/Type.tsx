@@ -2,7 +2,7 @@ import { transformers } from '@kubb/core/utils'
 
 import { Text } from './Text.tsx'
 
-import type { KubbNode } from '../types.ts'
+import type { JSDoc, KubbNode } from '../types.ts'
 
 type Props = {
   /**
@@ -10,15 +10,13 @@ type Props = {
    */
   name: string
   /**
-   * Does this type need to be exported
+   * Does this type need to be exported.
    */
   export?: boolean
   /**
-   * Options for JSdocs
+   * Options for JSdocs.
    */
-  JSDoc?: {
-    comments: string[]
-  }
+  JSDoc?: JSDoc
   children?: KubbNode
 }
 

@@ -4,7 +4,7 @@ import type { KubbNode } from '../types.ts'
 
 type Props = {
   /**
-   * Change the indent
+   * Change the indent.
    * @default 0
    */
   indentSize?: number
