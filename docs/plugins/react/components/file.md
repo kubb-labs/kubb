@@ -1,0 +1,220 @@
+---
+layout: doc
+
+title: \@kubb/react
+outline: deep
+---
+
+# File
+
+## File
+
+::: code-group
+
+```tsx [simple]
+import { createRoot, File } from '@kubb/react'
+
+const root = createRoot()
+
+const Component = () => {
+  return (
+    <File baseName="test.ts" path="path">
+      <File.Import name={'React'} path="react" print />
+    </File>
+  )
+}
+
+root.render(<Component />)
+
+return root.output
+```
+
+:::
+
+::: code-group
+
+```typescript [simple]
+export function test() {
+  return true
+}
+```
+
+:::
+
+### API
+
+::: warning
+`baseName` or `path` can be used, you can not use them together!
+:::
+
+| Property | Description                                                                                                         | Type                              | Default               |
+| -------- | ------------------------------------------------------------------------------------------------------------------- | --------------------------------- | --------------------- |
+| baseName | Name to be used to dynamicly create the baseName(based on input.path).                                              | `string`                          | -                     |
+| path     | Path will be full qualified path to a specified file.                                                               | `string`                          | -                     |
+| id       | Unique identifier to reuse later.                                                                                   | `string \|  undefined`            | `crypto.randomUUID()` |
+| env      | This will override `process.env[key]` inside the `source`, see `getFileSource`.                                     | `NodeJS.ProcessEnv \|  undefined` | -                     |
+| override | This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists. | `boolean \|  undefined`           | `false`               |
+| meta     | Add extra meta to a file.                                                                                           | `object \|  undefined`            | -                     |
+| children |                                                                                                                     | `KubbNode \|  undefined`          | -                     |
+
+## File.Import
+
+::: code-group
+
+```tsx [simple]
+import { createRoot, File } from '@kubb/react'
+
+const root = createRoot()
+
+const Component = () => {
+  return <File.Import name={'React'} path="react" print />
+}
+
+root.render(<Component />)
+
+return root.output
+```
+
+```tsx [type]
+import { createRoot, File } from '@kubb/react'
+
+const root = createRoot()
+
+const Component = () => {
+  return <File.Import name={'React'} path="react" isTypeOnly print />
+}
+
+root.render(<Component />)
+
+return root.output
+```
+
+:::
+
+::: code-group
+
+```typescript [simple]
+import React from 'react'
+```
+
+```typescript [type]
+import type React from 'react'
+```
+
+:::
+
+### API
+
+| Property   | Description                                                                                                                 | Type                      | Default |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ------- |
+| name       | Import name to be used.<br/>Examples: `["useState"]`, `"React"`                                                             | `string \| Array<string>` | -       |
+| path       | Path for the import.<br/>Examples: `"@kubb/core"`                                                                           | `string`                  | -       |
+| isTypeOnly | Add `type` prefix to the import, this will result in: `import type { Type } from './path'`.                                 | `boolean \|  undefined`   | -       |
+| print      | When true, it will return the generated import. When false, it will add the import to a KubbFile instance(see fileManager). | `boolean \|  undefined`   | -       |
+| root       | When root is set it will get the path with relative getRelativePath(root, path).                                            | `string \|  undefined`    | -       |
+
+## File.Export
+
+::: code-group
+
+```tsx [simple]
+import { createRoot, File } from '@kubb/react'
+
+const root = createRoot()
+
+const Component = () => {
+  return <File.Export path="kubb" print />
+}
+
+root.render(<Component />)
+
+return root.output
+```
+
+:::
+
+::: code-group
+
+```typescript [simple]
+export * from 'kubb'
+```
+
+:::
+
+### API
+
+| Property   | Description                                                                                                                 | Type                                    | Default |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------- |
+| name       | Import name to be used.<br/>Examples: `["useState"]`, `"React"`                                                             | `string \| Array<string> \|  undefined` | -       |
+| path       | Path for the import.<br/>Examples: `"@kubb/core"`                                                                           | `string`                                | -       |
+| isTypeOnly | Add `type` prefix to the import, this will result in: `import type { Type } from './path'`.                                 | `boolean \|  undefined`                 | -       |
+| asAlias    | Make it possible to override the name, this will result in: `export * as aliasName from './path'`                           | `boolean \|  undefined`                 | -       |
+| print      | When true, it will return the generated import. When false, it will add the import to a KubbFile instance(see fileManager). | `boolean \|  undefined`                 | -       |
+
+## File.Source
+
+::: code-group
+
+```tsx [children]
+import { createRoot, File } from '@kubb/react'
+
+const root = createRoot()
+
+const Component = () => {
+  return (
+    <File baseName="test.ts" path="path">
+      <File.Source>test</File.Source>
+    </File>
+  )
+}
+
+root.render(<Component />)
+
+return root.output
+```
+
+```tsx [path]
+import { createRoot, File } from '@kubb/react'
+
+const root = createRoot()
+
+const Component = () => {
+  return (
+    <File baseName="test.ts" path="path">
+      <File.Source path={path.resolve(__dirname, './test.ts')} print></File.Source>
+    </File>
+  )
+}
+
+root.render(<Component />)
+
+return root.output
+```
+
+:::
+
+::: code-group
+
+```typescript [children]
+test
+```
+
+```typescript[path]
+export const resultFromTestDotTs = "hello world";
+```
+
+:::
+
+### API
+
+::: warning
+`path` or `children` can be used, you can not use them together!
+:::
+
+| Property       | Description                                                                                                                 | Type       | Default |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------- | ---------- | ------- |
+| path           | When path is set it will copy-paste that file as a string inside the component.                                             | `string`   | -       |
+| print          | When true, it will return the generated import. When false, it will add the import to a KubbFile instance(see fileManager). | `boolean`  | -       |
+| removeComments | Removes comments.                                                                                                           | `boolean`  | -       |
+| noEmitHelpers  | When set it can override the print of the TypeScript compiler.                                                              | `boolean`  | -       |
+| children       |                                                                                                                             | `KubbNode` | -       |

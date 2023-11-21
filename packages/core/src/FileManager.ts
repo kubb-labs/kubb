@@ -26,7 +26,7 @@ export namespace KubbFile {
     /**
      * Import name to be used
      * @example ["useState"]
-     * @examples "React"
+     * @example "React"
      */
     name: string | Array<string>
     /**
@@ -35,29 +35,29 @@ export namespace KubbFile {
      */
     path: string
     /**
-     * Add `type` prefix to the import, this will result in: `import type { Type } from './path'`
+     * Add `type` prefix to the import, this will result in: `import type { Type } from './path'`.
      */
     isTypeOnly?: boolean
   }
 
   export type Export = {
     /**
-     * Export name to be used
+     * Export name to be used.
      * @example ["useState"]
-     * @examples "React"
+     * @example "React"
      */
     name?: string | Array<string>
     /**
-     * Path for the import
+     * Path for the import.
      * @xample '@kubb/core'
      */
     path: string
     /**
-     * Add `type` prefix to the export, this will result in: `export type { Type } from './path'`
+     * Add `type` prefix to the export, this will result in: `export type { Type } from './path'`.
      */
     isTypeOnly?: boolean
     /**
-     * Make it possible to override the name, this will result in: `export * as aliasName from './path'`
+     * Make it possible to override the name, this will result in: `export * as aliasName from './path'`.
      */
     asAlias?: boolean
   }

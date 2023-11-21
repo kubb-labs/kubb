@@ -6,13 +6,13 @@ import type { KubbNode } from '../types.ts'
 
 type BasePropsWithBaseName = {
   /**
-   * Name to be used to dynamicly create the baseName(based on input.path)
+   * Name to be used to dynamicly create the baseName(based on input.path).
    * Based on UNIX basename
    * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
    */
   baseName: KubbFile.BaseName
   /**
-   * Path will be full qualified path to a specified file
+   * Path will be full qualified path to a specified file.
    */
   path: KubbFile.Path
 }
@@ -20,7 +20,7 @@ type BasePropsWithBaseName = {
 type BasePropsWithoutBaseName = {
   baseName?: never
   /**
-   * Path will be full qualified path to a specified file
+   * Path will be full qualified path to a specified file.
    */
   path?: KubbFile.Path
 }
@@ -29,7 +29,7 @@ type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 
 type Props<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = BaseProps & {
   /**
-   * Unique identifier to reuse later
+   * Unique identifier to reuse later.
    * @default crypto.randomUUID()
    */
   id?: KubbFile.File['id']
@@ -38,7 +38,7 @@ type Props<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase> = BasePr
    */
   env?: KubbFile.File['env']
   /**
-   * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists
+   * This will call fileManager.add instead of fileManager.addOrAppend, adding the source when the files already exists.
    * This will also ignore the combinefiles utils
    * @default `false`
    */
@@ -57,14 +57,14 @@ export function File<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase
 
 type FileSourceUnionProps = {
   /**
-   * When path is set it will copy-paste that file as a string inside the component
+   * When path is set it will copy-paste that file as a string inside the component.
    * Children will then be ignored
    */
   path?: string
   children?: never
 } | {
   /**
-   * When path is set it will copy-paste that file as a string inside the component
+   * When path is set it will copy-paste that file as a string inside the component.
    * Children will then be ignored
    */
   path?: never
@@ -74,15 +74,15 @@ type FileSourceUnionProps = {
 type FileSourceProps = FileSourceUnionProps & {
   /**
    * When true, it will return the generated import.
-   * When false, it will add the import to a KubbFile instance(see fileManager)
+   * When false, it will add the import to a KubbFile instance(see fileManager).
    */
   print?: boolean
   /**
-   * Removes comments
+   * Removes comments.
    */
   removeComments?: boolean
   /**
-   * When set it can override the print of the TypeScript compiler
+   * When set it can override the print of the TypeScript compiler.
    */
   noEmitHelpers?: boolean
 }

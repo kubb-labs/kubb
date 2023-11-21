@@ -21,6 +21,7 @@
   "dependencies": {
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",

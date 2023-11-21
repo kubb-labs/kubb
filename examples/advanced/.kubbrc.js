@@ -40,7 +40,6 @@ export default defineConfig({
         },
       ],
       group: { type: 'tag' },
-      client: './src/client.ts',
       infinite: {},
     }),
     createSwaggerSWR({
@@ -52,7 +51,6 @@ export default defineConfig({
         },
       ],
       group: { type: 'tag' },
-      client: './src/client.ts',
     }),
     createSwaggerClient({
       output: './clients/axios',
@@ -63,7 +61,6 @@ export default defineConfig({
         },
       ],
       group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
-      client: './src/client.ts',
     }),
     createSwaggerZod({
       output: './zod',

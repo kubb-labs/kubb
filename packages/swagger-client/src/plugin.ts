@@ -7,6 +7,7 @@ import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
+import { Client, Operations } from './components/index.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbPlugin } from '@kubb/core'
@@ -27,6 +28,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     clientImportPath,
     dataReturnType = 'data',
     pathParamsType = 'inline',
+    templates,
   } = options
 
   const template = group?.output ? group.output : `${output}/{{tag}}Controller`
@@ -38,6 +40,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       dataReturnType,
       clientImportPath,
       pathParamsType,
+      templates: {
+        operations: Operations.templates,
+        client: Client.templates,
+        ...templates,
+      },
     },
     kind: 'controller',
     validate(plugins) {

@@ -14,7 +14,7 @@
   "main": "index.js",
   "scripts": {
     "build": "vitepress build",
-    "dev": "vitepress dev --port=3000 --cors --open",
+    "dev": "vitepress dev --port=3000 --cors",
     "preview": "vitepress preview",
     "serve": "vitepress serve"
   },

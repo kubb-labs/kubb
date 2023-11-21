@@ -2,41 +2,39 @@ import { transformers } from '@kubb/core/utils'
 
 import { Text } from './Text.tsx'
 
-import type { KubbNode } from '../types.ts'
+import type { JSDoc, KubbNode } from '../types.ts'
 
 type Props = {
   /**
-   * Name of the function
+   * Name of the function.
    */
   name: string
   /**
-   * Parameters/options/props that need to be used
+   * Parameters/options/props that need to be used.
    */
   params?: string
   /**
-   * Does this function need to be exported
+   * Does this function need to be exported.
    */
   export?: boolean
   /**
    * Does the function has async/promise behaviour.
-   * This will also add `Promise<returnType>` as the returnType
+   * This will also add `Promise<returnType>` as the returnType.
    */
   async?: boolean
   /**
-   * Generics that needs to be added for TypeScript
+   * Generics that needs to be added for TypeScript.
    */
   generics?: string | string[]
 
   /**
-   * ReturnType(see async for adding Promise type)
+   * ReturnType(see async for adding Promise type).
    */
   returnType?: string
   /**
-   * Options for JSdocs
+   * Options for JSdocs.
    */
-  JSDoc?: {
-    comments: string[]
-  }
+  JSDoc?: JSDoc
   children?: KubbNode
 }
 

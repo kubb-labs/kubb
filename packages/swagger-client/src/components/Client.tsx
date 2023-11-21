@@ -3,11 +3,11 @@ import { URLPath } from '@kubb/core/utils'
 import { File, Function, usePlugin } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
+import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
-import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
 type TemplateProps = {
   /**
@@ -168,6 +168,7 @@ Client.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
+  // TODO replace by default set in plugin.ts
   const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
 
   const Template = templates.default

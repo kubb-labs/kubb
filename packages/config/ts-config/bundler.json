@@ -1,6 +1,6 @@
 {
   "extends": "./base.json",
-  "display": "Bun",
+  "display": "Bundler",
   "compilerOptions": {
     /* If NOT transpiling with TypeScript: */
     "module": "ES2020",

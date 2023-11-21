@@ -26,6 +26,11 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
+    "./components": {
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs",
+      "default": "./dist/components.cjs"
+    },
     "./client": {
       "import": "./dist/client.js",
       "require": "./dist/client.cjs",

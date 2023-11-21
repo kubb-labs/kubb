@@ -17,4 +17,16 @@ export default defineConfig([
     name: 'client',
     banner: {},
   },
+  {
+    ...optionsCJS,
+    entry: { components: './src/components/index.ts' },
+    name: 'components',
+    banner: {},
+  },
+  {
+    ...optionsESM,
+    entry: { components: './src/components/index.ts' },
+    name: 'components',
+    banner: {},
+  },
 ])

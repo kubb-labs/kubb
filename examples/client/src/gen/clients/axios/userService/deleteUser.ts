@@ -1,4 +1,5 @@
-import client from '@kubb/swagger-client/client'
+import type client from '@kubb/swagger-client/client'
+import axios from 'axios'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser'
 
@@ -11,10 +12,5 @@ export async function deleteUser(
   username: DeleteUserPathParams['username'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<DeleteUserMutationResponse>['data']> {
-  const { data: resData } = await client<DeleteUserMutationResponse>({
-    method: 'delete',
-    url: `/user/${username}`,
-    ...options,
-  })
-  return resData
+  return axios.delete(`/user/${username}`, options)
 }

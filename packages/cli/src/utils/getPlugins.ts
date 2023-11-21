@@ -25,7 +25,7 @@ async function importPlugin(name: string, options: object): Promise<KubbUserConf
 
 export function getPlugins(plugins: KubbUserConfig['plugins']): Promise<KubbUserConfig['plugins']> {
   if (isObjectPlugins(plugins)) {
-    throw new Error('Object plugins are not supported anymore, best to use http://kubb.dev/configuration/configure#json')
+    throw new Error('Object plugins are not supported anymore, best to use http://kubb.dev/guide/configure#json')
   }
 
   if (isJSONPlugins(plugins)) {

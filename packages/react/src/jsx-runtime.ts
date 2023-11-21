@@ -5,6 +5,10 @@ import ReactJSXRuntime from 'react/jsx-runtime'
 
 import type { KubbFile } from '@kubb/core'
 import type { Key, ReactNode } from 'react'
+/**
+ * TODO add for Server Components
+ * import type {} from 'react/experimental'
+ */
 
 /// <reference no-default-lib="true" />
 /// <reference lib="esnext" />

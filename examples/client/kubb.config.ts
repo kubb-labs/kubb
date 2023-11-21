@@ -1,5 +1,7 @@
 import { defineConfig } from '@kubb/core'
 
+import { templates } from './templates/CustomClientTemplate'
+
 export default defineConfig(async () => {
   await setTimeout(() => {
     // wait for 1s, async behaviour
@@ -42,7 +44,17 @@ export default defineConfig(async () => {
             },
           ],
           group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
-          client: './src/client.ts',
+          override: [
+            {
+              type: 'tag',
+              pattern: 'user',
+              options: {
+                templates: {
+                  client: templates,
+                },
+              },
+            },
+          ],
         },
       ],
     ],

@@ -1,15 +1,15 @@
 ---
 layout: doc
 
-title: Basic guide
+title: Basic tutorial
 outline: deep
 ---
 
-# Basic guide
+# Basic tutorial
 
-This guide will describe how you can setup Kubb + use the TypeScript plugin to generate types based on the `petStore.yaml` file.
+This tutorial will describe how you can setup Kubb + use the TypeScript plugin to generate types based on the `petStore.yaml` file.
 
-The setup will contain from the beginning the following folder structure
+The setup will contain from the beginning the following folder structure:
 
 ```typescript
 .
@@ -21,7 +21,7 @@ The setup will contain from the beginning the following folder structure
 
 ## Step one
 
-Setup your `kubb.config.js` file based on the [Quick-start](/quick-start).
+Setup your `kubb.config.js` file based on the [Quick-start](/guide/quick-start).
 
 We will add here the [Swagger](/plugins/swagger) and [SwaggerTypescript](/plugins/swagger-ts)(which is depended on the [Swagger](/plugins/swagger) plugin) plugin, those 2 plugins together will generate the TypeScript types.
 
@@ -78,7 +78,7 @@ This will result in the following folder structure when Kubb has been executed
 
 ## Step two
 
-Update your `package.json` and install `Kubb`, see [installation](/introduction.html#configuration-file).
+Update your `package.json` and install `Kubb`, see [installation](/guide/introduction.html#configuration-file).
 
 Your `package.json` will look like this:
 

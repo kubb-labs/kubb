@@ -10,7 +10,7 @@ outline: deep
 ## Intro
 
 The easiest way to get started with Kubb is just run the following in your cli.
-Kubb will search based on the [configuration order](/introduction.html#configuration-file) which file/config it needs to use.
+Kubb will search based on the [configuration order](/guide/introduction.html#configuration-file) which file/config it needs to use.
 
 ```bash
 kubb
@@ -43,7 +43,7 @@ export default defineConfig(async () => {
 
 :::
 
-## Advanced example <img src="/icons/experimental.svg"/>
+## Advanced example
 
 Since version `2.x.x` we also support using multiple entry(OpenAPI/Swagger) files.
 

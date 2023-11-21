@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import type { KubbFile } from '@kubb/core'
 import type { Key, ReactNode } from 'react'
+/**
+ * TODO add for Server Components
+ * import type {} from 'react/experimental'
+ */
 
 type ReactElementNames = 'br'
 
@@ -85,3 +89,7 @@ export type DOMElement = {
 export type NodeNames = ElementNames | TextName
 
 export type KubbNode = ReactNode
+
+export type JSDoc = {
+  comments: string[]
+}

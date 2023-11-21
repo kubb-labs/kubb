@@ -2,7 +2,7 @@
 import crypto from 'node:crypto'
 import process from 'node:process'
 
-import { createLogger, throttle } from '@kubb/core/utils'
+import { throttle } from '@kubb/core/utils'
 
 import { App } from '../components/App.tsx'
 import { reconciler } from '../reconciler.ts'
@@ -15,6 +15,7 @@ import type { AppContextProps } from '../components/AppContext.tsx'
 import type { FiberRoot } from '../reconciler.ts'
 import type { DOMElement } from '../types.ts'
 
+// https://agent-hunt.medium.com/hello-world-custom-react-renderer-9a95b7cd04bc
 const noop = () => {}
 
 export type ReactTemplateOptions = {
@@ -40,8 +41,6 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   public readonly id = crypto.randomUUID()
 
   constructor(rootNode: DOMElement, options: ReactTemplateOptions = { debug: false }) {
-    // autoBind(this)
-
     this.#options = options
     if (options.logger) {
       this.logger = options.logger

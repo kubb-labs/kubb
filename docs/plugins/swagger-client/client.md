@@ -5,7 +5,7 @@ title: Client
 outline: deep
 ---
 
-# Client <img src="/icons/experimental.svg"/>
+# Client
 
 ## Features
 

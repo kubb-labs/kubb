@@ -43,7 +43,7 @@ resolvePath: (this: PluginContext, fileName: string, directory?: string, options
 `hookFirst`: Resolve to a name based on a string. Useful when converting to PascalCase or camelCase.
 
 ```typescript
-resolveName: (this: PluginContext, name: string) => string
+resolveName: (this: PluginContext, name: string, type?: string) => string
 ```
 
 ## 5. load

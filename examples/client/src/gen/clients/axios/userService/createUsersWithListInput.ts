@@ -1,4 +1,5 @@
-import client from '@kubb/swagger-client/client'
+import type client from '@kubb/swagger-client/client'
+import axios from 'axios'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type {
   CreateUsersWithListInputMutationRequest,
@@ -14,11 +15,5 @@ export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<CreateUsersWithListInputMutationResponse>['data']> {
-  const { data: resData } = await client<CreateUsersWithListInputMutationResponse, CreateUsersWithListInputMutationRequest>({
-    method: 'post',
-    url: `/user/createWithList`,
-    data,
-    ...options,
-  })
-  return resData
+  return axios.post(`/user/createWithList`, data, options)
 }

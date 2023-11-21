@@ -1,4 +1,5 @@
-import client from '@kubb/swagger-client/client'
+import type client from '@kubb/swagger-client/client'
+import axios from 'axios'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser'
 
@@ -11,11 +12,5 @@ export async function createUser(
   data?: CreateUserMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<CreateUserMutationResponse>['data']> {
-  const { data: resData } = await client<CreateUserMutationResponse, CreateUserMutationRequest>({
-    method: 'post',
-    url: `/user`,
-    data,
-    ...options,
-  })
-  return resData
+  return axios.post(`/user`, data, options)
 }

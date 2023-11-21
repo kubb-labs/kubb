@@ -1,4 +1,5 @@
-import client from '@kubb/swagger-client/client'
+import type client from '@kubb/swagger-client/client'
+import axios from 'axios'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../models/ts/userController/LoginUser'
 
@@ -10,11 +11,5 @@ export async function loginUser(
   params?: LoginUserQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<LoginUserQueryResponse>['data']> {
-  const { data: resData } = await client<LoginUserQueryResponse>({
-    method: 'get',
-    url: `/user/login`,
-    params,
-    ...options,
-  })
-  return resData
+  return axios.get(`/user/login`, options)
 }
