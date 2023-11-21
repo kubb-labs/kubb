@@ -6,7 +6,6 @@
   "release-type": "node",
   "bump-minor-pre-major": false,
   "bump-patch-for-minor-pre-major": false,
-  "last-release-sha": "2851936b5f3d457952445a6f1d9934da92477b86",
   "changelog-sections": [
     {
       "type": "feat",
