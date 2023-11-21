@@ -7,7 +7,7 @@ outline: deep
 
 <script setup>
 
-import { version } from '../packages/core/package.json'
+import { version } from '../../packages/core/package.json'
 
 </script>
 
@@ -64,7 +64,7 @@ yarn add @kubb/cli @kubb/core
 
 :::
 
-See [Installation](/installation)
+See [Installation](/guide/installation)
 
 ## Configuration File
 
@@ -81,4 +81,4 @@ This means you can configure Kubb via (in order of precedence):
 You can also use `configs/kubb.config.ts` or `.config/kubb.config.ts` instead of `kubb.config.ts` in the root of your project.
 :::
 
-See [kubb.config.js](/configuration/options) on how to configure Kubb.
+See [kubb.config.js](/guide/options) on how to configure Kubb.

@@ -12,6 +12,262 @@ const description = 'OpenAPI to TypeScript, React-Query, Zod, Zodios, Faker.js, 
 
 const links: Array<{ url: string; lastmod: number | undefined }> = []
 
+const guideSidebar = [
+  {
+    text: 'Getting Started',
+    items: [
+      {
+        text: 'Introduction',
+        link: '/guide/introduction',
+      },
+      {
+        text: 'Installation',
+        link: '/guide/installation',
+      },
+      // {
+      //   text: 'Comparison <span class="beta">under construction</span>',
+      //   link: '/comparison',
+      // },
+      {
+        text: 'Quick start',
+        link: '/guide/quick-start',
+      },
+    ],
+  },
+  {
+    text: 'Configuration',
+    items: [
+      {
+        text: 'Options',
+        link: '/guide/options',
+      },
+      {
+        text: 'Configuring Kubb',
+        link: '/guide/configure',
+      },
+    ],
+  },
+  {
+    text: 'Tutorials',
+    collapsed: false,
+    items: [
+      {
+        text: 'Basic tutorial',
+        link: '/guide/tutorial/basic',
+      },
+      {
+        text: 'Templates tutorial <span class="new">new</span>',
+        link: '/guide/tutorial/templates',
+      },
+    ],
+  },
+]
+
+const referenceSidebar = [
+  {
+    text: 'Plugins',
+    collapsed: false,
+    items: [
+      {
+        text: 'Introduction',
+        link: '/plugins/introduction',
+      },
+      {
+        text: '@kubb/core',
+        collapsed: true,
+        link: '/plugins/core/',
+        items: [
+          {
+            text: 'globals.d.ts',
+            link: '/plugins/core/globals',
+          },
+        ],
+      },
+      {
+        text: '@kubb/cli',
+        link: '/plugins/cli',
+      },
+      {
+        text: 'Swagger plugins',
+        collapsed: true,
+        items: [
+          { text: '@kubb/swagger', link: '/plugins/swagger' },
+          {
+            text: '@kubb/swagger-client',
+            collapsed: true,
+            link: '/plugins/swagger-client/',
+            items: [
+              {
+                text: 'globals.d.ts',
+                link: '/plugins/swagger-client/globals',
+              },
+              {
+                text: 'client',
+                link: '/plugins/swagger-client/client',
+              },
+            ],
+          },
+          {
+            text: '@kubb/swagger-ts',
+            link: '/plugins/swagger-ts',
+          },
+          {
+            text: '@kubb/swagger-zod',
+            link: '/plugins/swagger-zod',
+          },
+          {
+            text: '@kubb/swagger-zodios',
+            link: '/plugins/swagger-zodios',
+          },
+          {
+            text: '@kubb/swagger-tanstack-query <span class="new">v5 support</span>',
+            link: '/plugins/swagger-tanstack-query',
+          },
+          {
+            text: '@kubb/swagger-swr',
+            link: '/plugins/swagger-swr',
+          },
+          {
+            text: '@kubb/swagger-faker',
+            link: '/plugins/swagger-faker',
+          },
+          {
+            text: '@kubb/swagger-msw <span class="new">v2 support</span>',
+            link: '/plugins/swagger-msw',
+          },
+        ],
+      },
+      {
+        text: '@kubb/parser',
+        link: '/plugins/parser',
+      },
+      {
+        text: '@kubb/react <span class="new">New</span>',
+        link: '/plugins/react/',
+        collapsed: true,
+        items: [
+          {
+            text: 'Components',
+            link: '/plugins/react/components/',
+            items: [
+              {
+                text: 'Text',
+                link: '/plugins/react/components/text',
+              },
+              {
+                text: 'Function',
+                link: '/plugins/react/components/function',
+              },
+              {
+                text: 'Type',
+                link: '/plugins/react/components/type',
+              },
+              {
+                text: 'File',
+                link: '/plugins/react/components/file',
+              },
+            ],
+          },
+          {
+            text: 'Hooks',
+            link: '/plugins/react/hooks/',
+            items: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    text: 'API <span class="beta">under construction</span>',
+    collapsed: false,
+    items: [
+      {
+        text: 'FileManager',
+        link: '/reference/fileManager',
+      },
+      {
+        text: 'PluginManager',
+        link: '/reference/pluginManager',
+      },
+      {
+        text: 'Templates <img src="/icons/experimental.svg"/>',
+        link: '/reference/templates',
+      },
+    ],
+  },
+]
+
+const examplesSidebar = [
+  {
+    text: 'TypeScript',
+    link: '/examples/typescript',
+  },
+  {
+    text: 'Tanstack-Query',
+    items: [
+      {
+        text: 'React-Query',
+        link: '/examples/tanstack-query/react-query',
+      },
+      {
+        text: 'React-Query v5 <span class="new">new</span>',
+        link: '/examples/tanstack-query/react-query-v5',
+      },
+      {
+        text: 'Vue-Query',
+        link: '/examples/tanstack-query/vue-query',
+      },
+      {
+        text: 'Vue-Query v5 <span class="new">new</span>',
+        link: '/examples/tanstack-query/vue-query-v5',
+      },
+      {
+        text: 'Svelte-Query',
+        link: '/examples/tanstack-query/svelte-query',
+      },
+      {
+        text: 'Solid-Query',
+        link: '/examples/tanstack-query/solid-query',
+      },
+    ],
+  },
+  {
+    text: 'SWR-Query',
+    link: '/examples/swr',
+  },
+  {
+    text: 'Zod',
+    link: '/examples/zod',
+  },
+  {
+    text: 'Faker',
+    link: '/examples/faker',
+  },
+  {
+    text: 'MSW',
+    link: '/examples/msw',
+  },
+  {
+    text: 'Simple',
+    link: '/examples/simple',
+  },
+  {
+    text: 'Client',
+    link: '/examples/client',
+  },
+  {
+    text: 'Advanced',
+    link: '/examples/advanced',
+  },
+]
+
+const blogSidebar = [
+  {
+    text: 'Release of Kubb v2',
+    link: '/blog/v2',
+  },
+]
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   lang: 'en-UK',
@@ -70,11 +326,14 @@ export default defineConfig({
       provider: 'local',
     },
     nav: [
-      { text: 'Introduction', link: '/introduction' },
-      { text: 'Guides', link: '/guides/basic-usage' },
-      { text: 'Plugins', link: '/plugins/introduction' },
+      { text: 'Guide', link: '/guide/introduction' },
+      { text: 'Reference', link: '/plugins/introduction' },
       { text: 'Examples', link: '/examples/typescript' },
       { text: 'Playground', link: '/playground' },
+      {
+        text: 'Blog',
+        link: '/blog/v2',
+      },
       {
         text: `v${version}`,
         items: [
@@ -88,6 +347,7 @@ export default defineConfig({
             link: 'https://github.com/kubb-project/kubb/releases',
             target: '_blank',
           },
+
           {
             text: 'Sponsor Kubb',
             link: 'https://github.com/sponsors/stijnvanhulle/',
@@ -113,244 +373,14 @@ export default defineConfig({
     editLink: {
       pattern: 'https://github.com/kubb-project/kubb/edit/main/docs/src/:path',
     },
-    sidebar: [
-      {
-        text: 'Getting Started',
-        items: [
-          {
-            text: 'Introduction',
-            link: '/introduction',
-          },
-          {
-            text: 'Installation',
-            link: '/installation',
-          },
-          // {
-          //   text: 'Comparison <span class="beta">under construction</span>',
-          //   link: '/comparison',
-          // },
-          {
-            text: 'Quick start',
-            link: '/quick-start',
-          },
-        ],
-      },
-      {
-        text: 'Configuration',
-        items: [
-          {
-            text: 'Options',
-            link: '/configuration/options',
-          },
-          {
-            text: '<code class="code">kubb.config.js</code>',
-            link: '/configuration/configure',
-          },
-        ],
-      },
-      {
-        text: 'Usage Guides',
-        collapsed: false,
-        items: [
-          {
-            text: 'Basic Usage',
-            link: '/guides/basic-usage',
-          },
-        ],
-      },
-      {
-        text: 'Plugins',
-        collapsed: false,
-        items: [
-          {
-            text: 'Introduction',
-            link: '/plugins/introduction',
-          },
-          {
-            text: '@kubb/core',
-            collapsed: true,
-            link: '/plugins/core/',
-            items: [
-              {
-                text: 'globals.d.ts',
-                link: '/plugins/core/globals',
-              },
-            ],
-          },
-          {
-            text: '@kubb/cli',
-            link: '/plugins/cli',
-          },
-          {
-            text: 'Swagger plugins',
-            collapsed: true,
-            items: [
-              { text: '@kubb/swagger', link: '/plugins/swagger' },
-              {
-                text: '@kubb/swagger-client',
-                collapsed: true,
-                link: '/plugins/swagger-client/',
-                items: [
-                  {
-                    text: 'globals.d.ts',
-                    link: '/plugins/swagger-client/globals',
-                  },
-                  {
-                    text: 'client',
-                    link: '/plugins/swagger-client/client',
-                  },
-                ],
-              },
-              {
-                text: '@kubb/swagger-ts',
-                link: '/plugins/swagger-ts',
-              },
-              {
-                text: '@kubb/swagger-zod',
-                link: '/plugins/swagger-zod',
-              },
-              {
-                text: '@kubb/swagger-zodios',
-                link: '/plugins/swagger-zodios',
-              },
-              {
-                text: '@kubb/swagger-tanstack-query <span class="new">v5 support</span>',
-                link: '/plugins/swagger-tanstack-query',
-              },
-              {
-                text: '@kubb/swagger-swr',
-                link: '/plugins/swagger-swr',
-              },
-              {
-                text: '@kubb/swagger-faker',
-                link: '/plugins/swagger-faker',
-              },
-              {
-                text: '@kubb/swagger-msw <span class="new">v2 support</span>',
-                link: '/plugins/swagger-msw',
-              },
-            ],
-          },
-          {
-            text: 'Internal plugins',
-            collapsed: true,
-            items: [
-              {
-                text: '@kubb/parser',
-                link: '/plugins/parser',
-              },
-              {
-                text: '@kubb/react <span class="new">New</span>',
-                link: '/plugins/react/',
-                items: [
-                  {
-                    text: 'Text',
-                    link: '/plugins/react/text',
-                  },
-                  {
-                    text: 'Function',
-                    link: '/plugins/react/function',
-                  },
-                  {
-                    text: 'Type',
-                    link: '/plugins/react/type',
-                  },
-                  {
-                    text: 'File',
-                    link: '/plugins/react/file',
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'API <span class="beta">under construction</span>',
-        collapsed: false,
-        items: [
-          {
-            text: 'FileManager',
-            link: '/reference/fileManager',
-          },
-          {
-            text: 'PluginManager',
-            link: '/reference/pluginManager',
-          },
-          {
-            text: 'Templates <img src="/icons/experimental.svg"/>',
-            link: '/reference/templates',
-          },
-        ],
-      },
-      {
-        text: 'Examples(PetStore)',
-        collapsed: true,
-        items: [
-          {
-            text: 'TypeScript',
-            link: '/examples/typescript',
-          },
-          {
-            text: 'Tanstack-Query',
-            items: [
-              {
-                text: 'React-Query',
-                link: '/examples/tanstack-query/react-query',
-              },
-              {
-                text: 'React-Query v5 <span class="new">new</span>',
-                link: '/examples/tanstack-query/react-query-v5',
-              },
-              {
-                text: 'Vue-Query',
-                link: '/examples/tanstack-query/vue-query',
-              },
-              {
-                text: 'Vue-Query v5 <span class="new">new</span>',
-                link: '/examples/tanstack-query/vue-query-v5',
-              },
-              {
-                text: 'Svelte-Query',
-                link: '/examples/tanstack-query/svelte-query',
-              },
-              {
-                text: 'Solid-Query',
-                link: '/examples/tanstack-query/solid-query',
-              },
-            ],
-          },
-          {
-            text: 'SWR-Query',
-            link: '/examples/swr',
-          },
-          {
-            text: 'Zod',
-            link: '/examples/zod',
-          },
-          {
-            text: 'Faker',
-            link: '/examples/faker',
-          },
-          {
-            text: 'MSW',
-            link: '/examples/msw',
-          },
-          {
-            text: 'Simple',
-            link: '/examples/simple',
-          },
-          {
-            text: 'Client',
-            link: '/examples/client',
-          },
-          {
-            text: 'Advanced',
-            link: '/examples/advanced',
-          },
-        ],
-      },
-    ],
+    sidebar: {
+      '/configuration': guideSidebar,
+      '/guide': guideSidebar,
+      '/plugins': referenceSidebar,
+      '/reference': referenceSidebar,
+      '/examples': examplesSidebar,
+      '/blog': blogSidebar,
+    },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/kubb-project/kubb' },
       { icon: 'discord', link: 'https://discord.gg/shfBFeczrm' },

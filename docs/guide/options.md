@@ -238,7 +238,7 @@ type Plugins = Array<KubbUserPlugin | [name: string, options: object]>
 Array of Kubb plugins to use. The plugin/package can have some extra options defined by the plugin.
 Sometimes a plugin is depended on another plugin, if that's the case you will get an error back from the plugin you installed.([see validate](/reference/pluginManager#1-validate))
 
-([see configure](/configuration/configure))
+([see configure](/guide/configure))
 
 When using JSON, the structure will be a little bit different.
 Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/plugins/) makes it possible to use plugins with extra options.

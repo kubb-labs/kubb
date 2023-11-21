@@ -320,4 +320,4 @@ plugins:
 
 :::
 
-Read more about [configuring the options](/configuration/options).
+Read more about [configuring the options](/guide/options).

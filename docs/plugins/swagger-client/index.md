@@ -558,7 +558,7 @@ export default defineConfig({
 
 Make it possible to override one of the templates. <br/>
 
-::: warning
+::: tip
 See [templates](/reference/templates) for more information about creating templates.
 :::
 

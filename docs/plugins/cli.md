@@ -58,7 +58,7 @@ Options:
 
 ## Generate
 
-::: warning
+::: tip
 `kubb generate` and `kubb` are the same.
 :::
 
@@ -162,4 +162,4 @@ Options:
 
 - [`@kubb/core`](/plugins/core/)
 
-See [getting-started](/introduction) on how to configure Kubb.
+See [getting-started](/guide/introduction) on how to configure Kubb.
