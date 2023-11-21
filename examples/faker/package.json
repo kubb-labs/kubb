@@ -30,11 +30,11 @@
     "@kubb/swagger-faker": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "react": "^18.2.0",
-    "tsup": "^7.2.0"
+    "tsup": "^8.0.1"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.2"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

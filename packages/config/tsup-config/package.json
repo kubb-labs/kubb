@@ -35,11 +35,11 @@
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
-    "@types/node": "^20.9.0",
-    "tsup": "^7.2.0"
+    "@types/node": "^20.9.3",
+    "tsup": "^8.0.1"
   },
   "peerDependencies": {
-    "tsup": "^7.2.0"
+    "tsup": "^8.0.0"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {
