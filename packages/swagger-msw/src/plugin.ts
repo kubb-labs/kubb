@@ -9,6 +9,7 @@ import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
+import { Handlers, Mock } from './components/index.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbPlugin } from '@kubb/core'
@@ -19,13 +20,19 @@ export const pluginName = 'swagger-msw' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'handlers', group, exclude = [], include, override = [], transformers = {} } = options
+  const { output = 'handlers', group, exclude = [], include, override = [], transformers = {}, templates } = options
   const template = group?.output ? group.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
-    options: {},
+    options: {
+      templates: {
+        handlers: Handlers.templates,
+        mock: Mock.templates,
+        ...templates,
+      },
+    },
     kind: 'schema',
     validate(plugins) {
       pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName, swaggerTypeScriptPluginName, swaggerFakerPluginName])

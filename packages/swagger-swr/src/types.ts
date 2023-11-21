@@ -1,5 +1,14 @@
 import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { Mutation } from './components/Mutation.tsx'
+import type { Query } from './components/Query.tsx'
+import type { QueryOptions } from './components/QueryOptions.tsx'
+
+type Templates = {
+  mutation: typeof Mutation.templates
+  query: typeof Query.templates
+  queryOptions: typeof QueryOptions.templates
+}
 
 export type Options = {
   /**
@@ -40,7 +49,7 @@ export type Options = {
   /**
    * Array containing override paramaters to override `options` based on tags/operations/methods/paths.
    */
-  override?: Array<Override<Options>>
+  override?: Array<Override<ResolvedOptions>>
   /**
    * Path to the client import path that will be used to do the API calls.
    * It will be used as `import client from '${clientImportPath}'`.
@@ -67,6 +76,16 @@ export type Options = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
+  /**
+   * Make it possible to override one of the templates
+   */
+  templates?: Partial<Templates>
+}
+
+type ResolvedOptions = {
+  templates: Templates
+  clientImportPath: NonNullable<Options['clientImportPath']>
+  dataReturnType: NonNullable<Options['dataReturnType']>
 }
 
 export type FileMeta = {
@@ -74,7 +93,7 @@ export type FileMeta = {
   tag?: string
 }
 type AppMeta = SwaggerAppMeta
-export type PluginOptions = PluginFactoryOptions<'swagger-swr', 'controller', Options, Options, never, ResolvePathOptions, AppMeta>
+export type PluginOptions = PluginFactoryOptions<'swagger-swr', 'controller', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
 
 declare module '@kubb/core' {
   export interface _Register {

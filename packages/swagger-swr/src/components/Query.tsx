@@ -93,7 +93,7 @@ export function Query({
   Template = defaultTemplates.default,
   QueryOptionsTemplate = QueryOptions.templates.default,
 }: Props): ReactNode {
-  const { key: pluginKey, options: { dataReturnType = 'data' } } = usePlugin<PluginOptions>()
+  const { key: pluginKey, options: { dataReturnType } } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const schemas = useSchemas()
   const name = useOperationName({ type: 'function' })
@@ -193,18 +193,20 @@ type FileProps = {
   /**
    * This will make it possible to override the default behaviour.
    */
-  templates?: typeof defaultTemplates
+  templates?: {
+    query: typeof defaultTemplates
+    queryOptions: typeof QueryOptions.templates
+  }
 }
 
-Query.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
+Query.File = function({ templates }: FileProps): ReactNode {
   const { options: { clientImportPath } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
-  const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
-
-  const Template = templates.default
+  const Template = templates?.query.default || defaultTemplates.default
+  const QueryOptionsTemplate = templates?.queryOptions.default || QueryOptions.templates.default
 
   return (
     <>
@@ -215,8 +217,8 @@ Query.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
       >
         <File.Import name="useSWR" path="swr" />
         <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
-        <File.Import name={'client'} path={resolvedClientPath} />
-        <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
+        <File.Import name={'client'} path={clientImportPath} />
+        <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
         <File.Import
           name={[
             schemas.request?.name,
@@ -236,6 +238,7 @@ Query.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
         <File.Source>
           <Query
             Template={Template}
+            QueryOptionsTemplate={QueryOptionsTemplate}
           />
         </File.Source>
       </File>

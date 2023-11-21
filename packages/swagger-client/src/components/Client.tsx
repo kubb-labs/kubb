@@ -168,9 +168,6 @@ Client.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
-  // TODO replace by default set in plugin.ts
-  const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
-
   const Template = templates.default
 
   return (
@@ -179,8 +176,8 @@ Client.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
       path={file.path}
       meta={file.meta}
     >
-      <File.Import name={'client'} path={resolvedClientPath} />
-      <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
+      <File.Import name={'client'} path={clientImportPath} />
+      <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
       <File.Import
         name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
           Boolean,

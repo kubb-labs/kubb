@@ -25,7 +25,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     include,
     override = [],
     transformers = {},
-    clientImportPath,
+    clientImportPath = '@kubb/swagger-client/client',
     dataReturnType = 'data',
     pathParamsType = 'inline',
     templates,

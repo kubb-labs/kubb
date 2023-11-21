@@ -29,6 +29,11 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
+    "./components": {
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs",
+      "default": "./dist/components.cjs"
+    },
     "./package.json": "./package.json",
     "./*": "./*"
   },

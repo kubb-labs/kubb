@@ -347,8 +347,6 @@ Mutation.File = function({ templates = defaultTemplates, imports = MutationImpor
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
-  const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
-
   const importNames = getImportNames()
   const Template = templates[framework]
   const Import = imports[framework]
@@ -356,7 +354,7 @@ Mutation.File = function({ templates = defaultTemplates, imports = MutationImpor
   return (
     <>
       <File override baseName={'types.ts'} path={path.resolve(file.path, '../types.ts')}>
-        <File.Import name={'client'} path={resolvedClientPath} />
+        <File.Import name={'client'} path={clientImportPath} />
         <File.Source path={path.resolve(templatesPath, './types.ts')} print removeComments />
       </File>
       <File<FileMeta>
@@ -366,8 +364,8 @@ Mutation.File = function({ templates = defaultTemplates, imports = MutationImpor
       >
         <File.Import root={file.path} path={path.resolve(file.path, '../types.ts')} name={['KubbQueryFactory']} isTypeOnly />
 
-        <File.Import name={'client'} path={resolvedClientPath} />
-        <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
+        <File.Import name={'client'} path={clientImportPath} />
+        <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
         <File.Import
           name={[
             schemas.request?.name,

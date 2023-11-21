@@ -3,8 +3,8 @@ import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePath
 import type { Client, Operations } from './components/index.ts'
 
 type Templates = {
-  operations?: typeof Operations.templates
-  client?: typeof Client.templates
+  operations: typeof Operations.templates
+  client: typeof Client.templates
 }
 
 export type Options = {
@@ -88,14 +88,14 @@ export type Options = {
   /**
    * Make it possible to override one of the templates
    */
-  templates?: Templates
+  templates?: Partial<Templates>
 }
 
 type ResolvedOptions = {
-  clientImportPath?: Options['clientImportPath']
+  clientImportPath: NonNullable<Options['clientImportPath']>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
-  templates: NonNullable<Options['templates']>
+  templates: Templates
 }
 
 export type FileMeta = {

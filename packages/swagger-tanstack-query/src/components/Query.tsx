@@ -7,7 +7,7 @@ import { useOperation, useOperationFile, useOperationName, useResolveName, useSc
 import { getASTParams, getComments, getParams } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
-import { pascalCase, pascalCaseTransformMerge } from 'change-case'
+import { pascalCase } from 'change-case'
 
 import { getImportNames } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
@@ -391,26 +391,30 @@ type FileProps = {
   /**
    * This will make it possible to override the default behaviour.
    */
-  templates?: typeof defaultTemplates
+  templates?: {
+    query: typeof defaultTemplates
+    queryKey: typeof QueryKey.templates
+    queryOptions: typeof QueryOptions.templates
+  }
   imports?: typeof QueryImports.templates
 }
 
-Query.File = function({ templates = defaultTemplates, imports = QueryImports.templates }: FileProps): ReactNode {
+Query.File = function({ templates, imports = QueryImports.templates }: FileProps): ReactNode {
   const { options: { clientImportPath, templatesPath, framework, infinite } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
-  const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
-
   const importNames = getImportNames()
-  const Template = templates[framework]
+  const Template = templates?.query[framework] || defaultTemplates[framework]
+  const QueryOptionsTemplate = templates?.queryOptions[framework] || QueryOptions.templates[framework]
+  const QueryKeyTemplate = templates?.queryKey[framework] || QueryKey.templates[framework]
   const Import = imports[framework]
 
   return (
     <>
       <File override baseName={'types.ts'} path={path.resolve(file.path, '../types.ts')}>
-        <File.Import name={'client'} path={resolvedClientPath} />
+        <File.Import name={'client'} path={clientImportPath} />
         <File.Source path={path.resolve(templatesPath, './types.ts')} print removeComments />
       </File>
       <File<FileMeta>
@@ -420,8 +424,8 @@ Query.File = function({ templates = defaultTemplates, imports = QueryImports.tem
       >
         <File.Import root={file.path} path={path.resolve(file.path, '../types.ts')} name={['KubbQueryFactory']} isTypeOnly />
 
-        <File.Import name={'client'} path={resolvedClientPath} />
-        <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
+        <File.Import name={'client'} path={clientImportPath} />
+        <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
         <File.Import
           name={[
             schemas.response.name,
@@ -442,8 +446,8 @@ Query.File = function({ templates = defaultTemplates, imports = QueryImports.tem
         <File.Source>
           <Query
             Template={Template}
-            QueryKeyTemplate={QueryKey.templates[framework]}
-            QueryOptionsTemplate={QueryOptions.templates[framework]}
+            QueryKeyTemplate={QueryKeyTemplate}
+            QueryOptionsTemplate={QueryOptionsTemplate}
             infinite={undefined}
             hookName={importNames.query[framework].hookName}
             resultType={importNames.query[framework].resultType}
@@ -452,8 +456,8 @@ Query.File = function({ templates = defaultTemplates, imports = QueryImports.tem
           {!!infinite && (
             <Query
               Template={Template}
-              QueryKeyTemplate={QueryKey.templates[framework]}
-              QueryOptionsTemplate={QueryOptions.templates[framework]}
+              QueryKeyTemplate={QueryKeyTemplate}
+              QueryOptionsTemplate={QueryOptionsTemplate}
               infinite={infinite}
               hookName={importNames.queryInfinite[framework].hookName}
               resultType={importNames.queryInfinite[framework].resultType}

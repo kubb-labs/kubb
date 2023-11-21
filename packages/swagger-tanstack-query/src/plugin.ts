@@ -8,6 +8,7 @@ import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
 
+import { Mutation, Query, QueryKey, QueryOptions } from './components/index.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbPlugin } from '@kubb/core'
@@ -25,10 +26,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     include,
     override = [],
     framework = 'react',
-    clientImportPath,
+    clientImportPath = '@kubb/swagger-client/client',
     infinite,
     transformers = {},
     dataReturnType = 'data',
+    templates,
   } = options
   const template = group?.output ? group.output : `${output}/{{tag}}Controller`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
@@ -46,6 +48,13 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           ...infinite,
         }
         : undefined,
+      templates: {
+        mutation: Mutation.templates,
+        query: Query.templates,
+        queryOptions: QueryOptions.templates,
+        queryKey: QueryKey.templates,
+        ...templates,
+      },
       templatesPath: path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '../templates'),
     },
     kind: 'controller',

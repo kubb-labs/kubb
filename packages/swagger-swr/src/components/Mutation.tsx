@@ -182,8 +182,6 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
-  const resolvedClientPath = clientImportPath ? clientImportPath : '@kubb/swagger-client/client'
-
   const Template = templates.default
 
   return (
@@ -195,8 +193,8 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
       >
         <File.Import name="useSWRMutation" path="swr/mutation" />
         <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path="swr/mutation" isTypeOnly />
-        <File.Import name={'client'} path={resolvedClientPath} />
-        <File.Import name={['ResponseConfig']} path={resolvedClientPath} isTypeOnly />
+        <File.Import name={'client'} path={clientImportPath} />
+        <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
         <File.Import
           name={[
             schemas.request?.name,

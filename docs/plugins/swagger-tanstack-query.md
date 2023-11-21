@@ -604,6 +604,64 @@ export default defineConfig({
 
 :::
 
+### templates
+
+Make it possible to override one of the templates. <br/>
+
+::: tip
+See [templates](/reference/templates) for more information about creating templates.
+:::
+
+::: info type
+
+```typescript [Templates]
+import type { Mutation, Query, QueryOptions, QueryKey } from '@kubb/swagger-tanstack-query/components'
+
+export type Templates = {
+  mutation: typeof Mutation.templates
+  query: typeof Query.templates
+  queryOptions: typeof QueryOptions.templates
+  queryKey: typeof QueryKey.templates
+}
+```
+
+:::
+
+::: info
+
+Type: `Templates` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+import { templates } from './CustomTemplate'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery(
+      {
+        templates,
+      },
+    ),
+  ],
+})
+```
+
+:::
+
 ## Depended
 
 - [`@kubb/swagger`](/plugins/swagger)

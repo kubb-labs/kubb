@@ -7,6 +7,7 @@ import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
 
+import { Mutation, Query, QueryOptions } from './components/index.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbPlugin } from '@kubb/core'
@@ -17,13 +18,32 @@ export const pluginName = 'swagger-swr' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'hooks', group, exclude = [], include, override = [], transformers = {} } = options
+  const {
+    output = 'hooks',
+    group,
+    exclude = [],
+    include,
+    override = [],
+    transformers = {},
+    templates,
+    dataReturnType = 'data',
+    clientImportPath = '@kubb/swagger-client/client',
+  } = options
   const template = group?.output ? group.output : `${output}/{{tag}}SWRController`
   let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
-    options,
+    options: {
+      templates: {
+        mutation: Mutation.templates,
+        query: Query.templates,
+        queryOptions: QueryOptions.templates,
+        ...templates,
+      },
+      clientImportPath,
+      dataReturnType,
+    },
     kind: 'controller',
     validate(plugins) {
       pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])

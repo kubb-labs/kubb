@@ -1,5 +1,11 @@
 import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { Handlers, Mock } from './components/index.ts'
+
+type Templates = {
+  handlers: typeof Handlers.templates
+  mock: typeof Mock.templates
+}
 
 export type Options = {
   /**
@@ -41,13 +47,20 @@ export type Options = {
   /**
    * Array containing override paramaters to override `options` based on tags/operations/methods/paths.
    */
-  override?: Array<Override<Options>>
+  override?: Array<Override<ResolvedOptions>>
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
+  /**
+   * Make it possible to override one of the templates
+   */
+  templates?: Partial<Templates>
+}
+type ResolvedOptions = {
+  templates: Templates
 }
 
 export type FileMeta = {
@@ -56,8 +69,7 @@ export type FileMeta = {
 }
 type AppMeta = SwaggerAppMeta
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type PluginOptions = PluginFactoryOptions<'swagger-msw', 'schema', Options, {}, never, ResolvePathOptions, AppMeta>
+export type PluginOptions = PluginFactoryOptions<'swagger-msw', 'schema', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
 
 declare module '@kubb/core' {
   export interface _Register {

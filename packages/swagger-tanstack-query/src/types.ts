@@ -1,5 +1,16 @@
 import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { Mutation } from './components/Mutation.tsx'
+import type { Query } from './components/Query.tsx'
+import type { QueryKey } from './components/QueryKey.tsx'
+import type { QueryOptions } from './components/QueryOptions.tsx'
+
+type Templates = {
+  mutation: typeof Mutation.templates
+  query: typeof Query.templates
+  queryOptions: typeof QueryOptions.templates
+  queryKey: typeof QueryKey.templates
+}
 
 export type Infinite = {
   /**
@@ -101,19 +112,24 @@ export type Options = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
+  /**
+   * Make it possible to override one of the templates
+   */
+  templates?: Partial<Templates>
 }
 
 export type Framework = 'react' | 'solid' | 'svelte' | 'vue'
 
 type ResolvedOptions = {
   framework: NonNullable<PluginOptions['options']['framework']>
-  clientImportPath?: PluginOptions['options']['clientImportPath']
+  clientImportPath: NonNullable<PluginOptions['options']['clientImportPath']>
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
   /**
    * Only used of infinite
    */
   infinite?: Infinite
   templatesPath: string
+  templates: Templates
 }
 
 export type FileMeta = {
