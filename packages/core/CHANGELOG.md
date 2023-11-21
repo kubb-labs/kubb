@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.0.0-alpha.10](https://github.com/kubb-project/kubb/compare/core-v2.0.0-alpha.9...core-v2.0.0-alpha.10) (2023-11-21)
+
+
+### ✨ Features
+
+* strategy parallel ([5bb4f78](https://github.com/kubb-project/kubb/commit/5bb4f78cce3fb6b1636f42dcd04c570d14668c0b))
+
+
+### 📦 Miscellaneous Chores
+
+* release 2.0.0-alpha.10 ([e4256d5](https://github.com/kubb-project/kubb/commit/e4256d51e4de8ebd035848807264987ce7320501))
+* release 2.0.0-alpha.8 ([ef37ddd](https://github.com/kubb-project/kubb/commit/ef37dddb60659ceb8806c1233d7c46fd890eab6b))
+* release 2.0.0-alpha.9 ([980623c](https://github.com/kubb-project/kubb/commit/980623c7703a16d6a970aa2a954028ca4ae48d78))
+
 ## [2.0.0-alpha.9](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.8...core-v2.0.0-alpha.9) (2023-11-13)
 
 
