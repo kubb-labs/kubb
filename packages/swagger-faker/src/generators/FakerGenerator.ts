@@ -8,10 +8,11 @@ import { pluginKey } from '../plugin.ts'
 
 import type { PluginContext } from '@kubb/core'
 import type { ts } from '@kubb/parser'
-import type { FileResolver, ImportMeta, OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
+import type { FileResolver, ImportMeta, Oas, OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
 import type { FakerKeyword, FakerMeta } from '../parsers/index.ts'
 
 type Options = {
+  oas: Oas
   fileResolver?: FileResolver
   withJSDocs?: boolean
   resolveName: PluginContext['resolveName']
@@ -30,7 +31,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
   // Keep track of already used type aliases
   #usedAliasNames: Record<string, number> = {}
 
-  constructor(options: Options = { withJSDocs: true, dateType: 'string', resolveName: ({ name }) => name }) {
+  constructor(options: Options) {
     super(options)
 
     return this

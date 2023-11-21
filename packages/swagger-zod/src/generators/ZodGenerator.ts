@@ -7,10 +7,11 @@ import { pluginKey } from '../plugin.ts'
 
 import type { PluginContext } from '@kubb/core'
 import type { ts } from '@kubb/parser'
-import type { OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
+import type { Oas, OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
 import type { ZodMeta } from '../parsers/index.ts'
 
 type Options = {
+  oas: Oas
   withJSDocs?: boolean
   resolveName: PluginContext['resolveName']
 }
@@ -25,7 +26,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
   // Keep track of already used type aliases
   #usedAliasNames: Record<string, number> = {}
 
-  constructor(options: Options = { withJSDocs: true, resolveName: ({ name }) => name }) {
+  constructor(options: Options) {
     super(options)
 
     return this

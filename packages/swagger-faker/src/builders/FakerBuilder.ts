@@ -8,9 +8,10 @@ import { refsSorter } from '@kubb/swagger/utils'
 import { FakerGenerator } from '../generators/index.ts'
 
 import type { PluginContext } from '@kubb/core'
-import type { FileResolver } from '@kubb/swagger'
+import type { FileResolver, Oas } from '@kubb/swagger'
 
 type Options = {
+  oas: Oas
   fileResolver?: FileResolver
   resolveName: PluginContext['resolveName']
   withJSDocs?: boolean
@@ -43,6 +44,7 @@ export class FakerBuilder extends OasBuilder<Options, never> {
           resolveName: this.options.resolveName,
           fileResolver: this.options.fileResolver,
           dateType: this.options.dateType,
+          oas: this.options.oas,
         })
         const sources = generator.build({
           schema: operationSchema.schema,

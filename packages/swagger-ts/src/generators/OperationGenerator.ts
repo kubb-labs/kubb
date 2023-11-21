@@ -104,7 +104,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { mode, enumType, dateType, optionalType, usedEnumNames } = options
-    const { pluginManager, plugin } = this.context
+    const { pluginManager, plugin, oas } = this.context
 
     const type = this.resolve(operation)
 
@@ -128,6 +128,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
       enumType,
       optionalType,
       dateType,
+      oas,
     })
       .add(schemas.pathParams)
       .add(schemas.queryParams)
@@ -152,7 +153,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
 
   async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { mode, enumType, dateType, optionalType, usedEnumNames } = options
-    const { pluginManager, plugin } = this.context
+    const { pluginManager, plugin, oas } = this.context
 
     const type = this.resolve(operation)
 
@@ -176,6 +177,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
       enumType,
       optionalType,
       dateType,
+      oas,
     })
       .add(schemas.pathParams)
       .add(schemas.queryParams)

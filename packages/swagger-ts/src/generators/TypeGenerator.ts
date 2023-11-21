@@ -7,12 +7,13 @@ import { camelCase } from 'change-case'
 
 import type { PluginContext } from '@kubb/core'
 import type { ts } from '@kubb/parser'
-import type { OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
+import type { Oas, OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
 import type { Options as CaseOptions } from 'change-case'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
 type Options = {
+  oas: Oas
   usedEnumNames: Record<string, number>
 
   withJSDocs?: boolean
@@ -37,14 +38,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
   }
 
   constructor(
-    options: Options = {
-      usedEnumNames: {},
-      withJSDocs: true,
-      resolveName: ({ name }) => name,
-      enumType: 'asConst',
-      dateType: 'string',
-      optionalType: 'questionToken',
-    },
+    options: Options,
   ) {
     super(options)
 
@@ -318,10 +312,12 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
         return factory.createArrayTypeNode(node)
       }
     }
+
     /**
      * OpenAPI 3.1
      * @link https://json-schema.org/understanding-json-schema/reference/array.html#tuple-validation
      */
+
     if ('prefixItems' in schema) {
       const prefixItems = schema.prefixItems as OasTypes.SchemaObject[]
 
