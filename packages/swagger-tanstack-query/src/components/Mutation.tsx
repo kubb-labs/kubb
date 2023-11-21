@@ -3,7 +3,7 @@ import path from 'node:path'
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
 import { File, Function, Type, usePlugin } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
-import { getASTParams, getComments } from '@kubb/swagger/utils'
+import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
 import { camelCase, pascalCase } from 'change-case'
@@ -163,17 +163,13 @@ const defaultTemplates = {
           name: 'refParams',
           type: `MaybeRef<${schemas.queryParams?.name}>`,
           enabled: client.withQueryParams,
-          required: Array.isArray(schemas.queryParams?.schema.required)
-            ? !!schemas.queryParams?.schema.required?.length
-            : !!schemas.queryParams?.schema.required,
+          required: isRequired(schemas.queryParams?.schema),
         },
         {
           name: 'refHeaders',
           type: `MaybeRef<${schemas.headerParams?.name}>`,
           enabled: client.withHeaders,
-          required: Array.isArray(schemas.headerParams?.schema.required)
-            ? !!schemas.headerParams?.schema.required?.length
-            : !!schemas.headerParams?.schema.required,
+          required: isRequired(schemas.headerParams?.schema),
         },
         {
           name: 'options',
@@ -297,17 +293,13 @@ export function Mutation({
       name: 'params',
       type: `${factory.name}['queryParams']`,
       enabled: client.withQueryParams,
-      required: Array.isArray(schemas.queryParams?.schema.required)
-        ? !!schemas.queryParams?.schema.required?.length
-        : !!schemas.queryParams?.schema.required,
+      required: isRequired(schemas.queryParams?.schema),
     },
     {
       name: 'headers',
       type: `${factory.name}['headerParams']`,
       enabled: client.withHeaders,
-      required: Array.isArray(schemas.headerParams?.schema.required)
-        ? !!schemas.headerParams?.schema.required?.length
-        : !!schemas.headerParams?.schema.required,
+      required: isRequired(schemas.headerParams?.schema),
     },
     {
       name: 'options',

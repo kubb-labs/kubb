@@ -2,7 +2,7 @@ import { FunctionParams, transformers } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
 import { File, Function, usePlugin } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
-import { getASTParams, getComments } from '@kubb/swagger/utils'
+import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
 import type { HttpMethod } from '@kubb/swagger'
@@ -113,21 +113,19 @@ export function Client({
       name: 'data',
       type: schemas.request?.name,
       enabled: !!schemas.request?.name,
-      required: Array.isArray(schemas.request?.schema.required) ? !!schemas.request?.schema.required?.length : !!schemas.request?.schema.required,
+      required: isRequired(schemas.request?.schema),
     },
     {
       name: 'params',
       type: schemas.queryParams?.name,
       enabled: !!schemas.queryParams?.name,
-      required: Array.isArray(schemas.queryParams?.schema.required) ? !!schemas.queryParams?.schema.required?.length : !!schemas.queryParams?.schema.required,
+      required: isRequired(schemas.queryParams?.schema),
     },
     {
       name: 'headers',
       type: schemas.headerParams?.name,
       enabled: !!schemas.headerParams?.name,
-      required: Array.isArray(schemas.headerParams?.schema.required)
-        ? !!schemas.headerParams?.schema.required?.length
-        : !!schemas.headerParams?.schema.required,
+      required: isRequired(schemas.headerParams?.schema),
     },
     {
       name: 'options',
