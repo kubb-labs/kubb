@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1-beta.1](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-beta.1...kubb-v2.0.1-beta.1) (2023-11-22)
+
+
+### 📚 Documentation
+
+* beta installation ([d8f486b](https://github.com/kubb-project/kubb/commit/d8f486bf6432a6ad513c08021cf3b55541db0a44))
+
 ## [2.0.0-beta.1](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.12...kubb-v2.0.0-beta.1) (2023-11-22)
 
 
