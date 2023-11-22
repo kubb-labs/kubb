@@ -78,6 +78,30 @@ yarn add @kubb/cli@canary @kubb/core@canary
 
 :::
 
+## Beta <img src="/icons/experimental.svg"/> <Badge type="tip" text="beta" />
+
+Kubb also publishes a beta version which contains experimental features that are not production ready.
+
+::: code-group
+
+```shell [bun <img src="/feature/bun.svg"/>]
+bun add @kubb/cli@beta @kubb/core@beta
+```
+
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
+pnpm add @kubb/cli@beta @kubb/core@beta
+```
+
+```shell [npm <img src="/feature/npm.svg"/>]
+npm install @kubb/cli@beta @kubb/core@beta
+```
+
+```shell [yarn <img src="/feature/yarn.svg"/>]
+yarn add @kubb/cli@beta @kubb/core@alpha
+```
+
+:::
+
 ## Alpha <img src="/icons/experimental.svg"/> <Badge type="tip" text="alpha" />
 
 Kubb also publishes an alpha version which contains experimental features that are not production ready.
