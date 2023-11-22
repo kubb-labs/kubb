@@ -1,4 +1,7 @@
+import pathParser from 'node:path'
 import { parseZodMeta, zodParser } from './zodParser.ts'
+import { oasPathParser, type OpenAPIV3 } from '@kubb/swagger'
+import { ZodGenerator } from '@kubb/swagger-zod'
 
 const input = [
   {
@@ -195,5 +198,100 @@ describe('parseZod', () => {
 
   test('empty items should return an export with an empty string as result', () => {
     expect(zodParser([], { name: 'name' })).toBe("export const name = '';")
+  })
+})
+
+describe('zodGenerator validates mocks/zod_parser correctly', async () => {
+  const path = pathParser.resolve(__dirname, '../../mocks/zod_parser.yaml')
+  const oas = await oasPathParser(path)
+  const schemas = oas.getDefinition().components?.schemas as Record<string, OpenAPIV3.SchemaObject>
+
+  test('UuidSchema generates a string with uuid format constraint', async () => {
+    const generator = new ZodGenerator({
+      withJSDocs: false,
+      resolveName: ({ name }) => name,
+    })
+    const schema = schemas['UuidSchema'] as OpenAPIV3.SchemaObject as OpenAPIV3.SchemaObject
+    const node = generator.build({ schema, baseName: 'UuidSchema' })
+
+    expect(node).toEqual([`export const UuidSchema = z.string().uuid();`])
+  })
+
+  test('NullableString zodifies correctly', async () => {
+    const generator = new ZodGenerator({
+      withJSDocs: false,
+      resolveName: ({ name }) => name,
+    })
+    const schema = schemas['NullableString'] as OpenAPIV3.SchemaObject
+    const node = generator.build({ schema, baseName: 'NullableString' })
+
+    expect(node).toEqual([`export const NullableString = z.string().nullable();`])
+  })
+
+  test('NullableStringWithAnyOf results in union of string and null', async () => {
+    const generator = new ZodGenerator({
+      withJSDocs: false,
+      resolveName: ({ name }) => name,
+    })
+    const schema = schemas['NullableStringWithAnyOf'] as OpenAPIV3.SchemaObject
+    const node = generator.build({ schema, baseName: 'NullableStringWithAnyOf' })
+
+    expect(node).toEqual([`export const NullableStringWithAnyOf = z.union([z.string(),z.null()]);`])
+  })
+
+  test('NullableStringUuid zodifies correctly to a uuid or null', async () => {
+    const generator = new ZodGenerator({
+      withJSDocs: false,
+      resolveName: ({ name }) => name,
+    })
+    const schema = schemas['NullableStringUuid'] as OpenAPIV3.SchemaObject
+    const node = generator.build({ schema, baseName: 'NullableStringUuid' })
+
+    expect(node).toEqual([`export const NullableStringUuid = z.string().uuid().nullable();`])
+  })
+
+  test('NullConst zodifies correctly', async () => {
+    const generator = new ZodGenerator({
+      withJSDocs: false,
+      resolveName: ({ name }) => name,
+    })
+    const schema = schemas['NullConst'] as OpenAPIV3.SchemaObject
+    const node = generator.build({ schema, baseName: 'NullConst' })
+
+    expect(node).toEqual([`export const NullConst = z.literal(z.null());`])
+  })
+
+  test('StringValueConst correctly generates zod literal', async () => {
+    const generator = new ZodGenerator({
+      withJSDocs: false,
+      resolveName: ({ name }) => name,
+    })
+
+    const schema = schemas['StringValueConst'] as OpenAPIV3.SchemaObject
+    const node = generator.build({ schema, baseName: 'StringValueConst' })
+
+    expect(node).toEqual([`export const StringValueConst = z.object({"foobar": z.literal("foobar")});`])
+  })
+
+  test('NumberValueConst correctly generates zod literal', async () => {
+    const generator = new ZodGenerator({
+      withJSDocs: false,
+      resolveName: ({ name }) => name,
+    })
+    const schema = schemas['NumberValueConst'] as OpenAPIV3.SchemaObject
+    const node = generator.build({ schema, baseName: 'NumberValueConst' })
+
+    expect(node).toEqual([`export const NumberValueConst = z.object({"foobar": z.literal(42)});`])
+  })
+
+  test('MixedValueTypeConst generates zod literal value correctly, overriding the type constraint', async () => {
+    const generator = new ZodGenerator({
+      withJSDocs: false,
+      resolveName: ({ name }) => name,
+    })
+    const schema = schemas['MixedValueTypeConst'] as OpenAPIV3.SchemaObject
+    const node = generator.build({ schema, baseName: 'MixedValueTypeConst' })
+
+    expect(node).toEqual([`export const MixedValueTypeConst = z.object({"foobar": z.literal("foobar")});`])
   })
 })
