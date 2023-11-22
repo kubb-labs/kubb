@@ -40,7 +40,6 @@
     "lint:fix": "ESLINT_USE_FLAT_CONFIG=true eslint --fix --format pretty ./packages/* && bun run lint:case",
     "lint:turbo": "turbo run lint",
     "release": "turbo run release --filter=./packages/* --continue",
-    "release:alpha": "turbo run release:alpha --filter=./packages/* --continue",
     "release:canary": "turbo run release:canary --filter=./packages/* --continue",
     "start": "turbo run start --filter=./packages/*",
     "test": "vitest run --config ./configs/vitest.config.ts --coverage",

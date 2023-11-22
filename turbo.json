@@ -61,12 +61,6 @@
       ],
       "outputs": []
     },
-    "release:alpha": {
-      "dependsOn": [
-        "build"
-      ],
-      "outputs": []
-    },
     "generate": {
       "dependsOn": [],
       "outputs": [
