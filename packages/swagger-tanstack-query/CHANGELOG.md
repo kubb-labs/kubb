@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.0-alpha.12](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.11...swagger-tanstack-query-v2.0.0-alpha.12) (2023-11-22)
+
+
+### ✨ Features
+
+* useSuspenseQuery for v5 and react ([db2307a](https://github.com/kubb-project/kubb/commit/db2307a001e520f1eab182aba2fb130399d60388))
+
+
+### 📦 Miscellaneous Chores
+
+* release 2.0.0-alpha.12 ([d3f7e15](https://github.com/kubb-project/kubb/commit/d3f7e15e19bb02258cf711c5333aa699bba15689))
+
 ## [2.0.0-alpha.11](https://github.com/kubb-project/kubb/compare/kubb-v2.0.0-alpha.10...swagger-tanstack-query-v2.0.0-alpha.11) (2023-11-21)
 
 
