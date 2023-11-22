@@ -1,4 +1,11 @@
 # Changelog
+## [1.14.10](https://github.com/kubb-project/kubb/compare/kubb-v1.14.9...kubb-v1.14.10) (2023-11-22)
+
+
+### 📚 Documentation
+
+* removal of react-query v5 ([c0961c5](https://github.com/kubb-project/kubb/commit/c0961c576b9833d87713c4680c876b8121f06eaa))
+
 ## [1.14.9](https://github.com/kubb-project/kubb/compare/kubb-v1.14.8...kubb-v1.14.9) (2023-11-12)
 
 
