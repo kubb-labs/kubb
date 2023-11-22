@@ -1,6 +1,5 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { KubbQueryFactory } from './types'
 import type {
   UpdatePetMutationRequest,
   UpdatePetMutationResponse,
@@ -73,24 +72,26 @@ import type {
 } from './models'
 import type { UseMutationOptions, UseMutationResult, UseBaseQueryOptions, UseQueryResult, QueryKey } from '@tanstack/react-query'
 
-type UpdatePet = KubbQueryFactory<
-  UpdatePetMutationResponse,
-  UpdatePet400 | UpdatePet404 | UpdatePet405,
-  UpdatePetMutationRequest,
-  never,
-  never,
-  never,
-  UpdatePetMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type UpdatePetClient = typeof client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>
+type UpdatePet = {
+  data: UpdatePetMutationResponse
+  error: UpdatePet400 | UpdatePet404 | UpdatePet405
+  request: UpdatePetMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<UpdatePetClient>>['data']
+  unionResponse: Awaited<ReturnType<UpdatePetClient>> | Awaited<ReturnType<UpdatePetClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<UpdatePetClient>[0]>
+    return: Awaited<ReturnType<UpdatePetClient>>
   }
-> /**
+}
+/**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
  * @link /pet
  */
-
 export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, UpdatePet['request']>
   client?: UpdatePet['client']['paramaters']
@@ -109,15 +110,26 @@ export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['
   })
 }
 
-type AddPet = KubbQueryFactory<AddPetMutationResponse, AddPet405, AddPetMutationRequest, never, never, never, AddPetMutationResponse, {
-  dataReturnType: 'data'
-  type: 'mutation'
-}> /**
+type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
+type AddPet = {
+  data: AddPetMutationResponse
+  error: AddPet405
+  request: AddPetMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<AddPetClient>>['data']
+  unionResponse: Awaited<ReturnType<AddPetClient>> | Awaited<ReturnType<AddPetClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<AddPetClient>[0]>
+    return: Awaited<ReturnType<AddPetClient>>
+  }
+}
+/**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet
  */
-
 export function useAddPet<TData = AddPet['response'], TError = AddPet['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, AddPet['request']>
   client?: AddPet['client']['paramaters']
@@ -136,19 +148,21 @@ export function useAddPet<TData = AddPet['response'], TError = AddPet['error']>(
   })
 }
 
-type FindPetsByStatus = KubbQueryFactory<
-  FindPetsByStatusQueryResponse,
-  FindPetsByStatus400,
-  never,
-  never,
-  FindPetsByStatusQueryParams,
-  never,
-  FindPetsByStatusQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
+type FindPetsByStatus = {
+  data: FindPetsByStatusQueryResponse
+  error: FindPetsByStatus400
+  request: never
+  pathParams: never
+  queryParams: FindPetsByStatusQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<FindPetsByStatusClient>>['data']
+  unionResponse: Awaited<ReturnType<FindPetsByStatusClient>> | Awaited<ReturnType<FindPetsByStatusClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<FindPetsByStatusClient>[0]>
+    return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
->
+}
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
 export function findPetsByStatusQueryOptions<
@@ -203,19 +217,21 @@ export function useFindPetsByStatus<
   return query
 }
 
-type FindPetsByTags = KubbQueryFactory<
-  FindPetsByTagsQueryResponse,
-  FindPetsByTags400,
-  never,
-  never,
-  FindPetsByTagsQueryParams,
-  never,
-  FindPetsByTagsQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
+type FindPetsByTags = {
+  data: FindPetsByTagsQueryResponse
+  error: FindPetsByTags400
+  request: never
+  pathParams: never
+  queryParams: FindPetsByTagsQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<FindPetsByTagsClient>>['data']
+  unionResponse: Awaited<ReturnType<FindPetsByTagsClient>> | Awaited<ReturnType<FindPetsByTagsClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
+    return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
->
+}
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export function findPetsByTagsQueryOptions<
@@ -270,10 +286,21 @@ export function useFindPetsByTags<
   return query
 }
 
-type GetPetById = KubbQueryFactory<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never, GetPetByIdPathParams, never, never, GetPetByIdQueryResponse, {
-  dataReturnType: 'data'
-  type: 'query'
-}>
+type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
+type GetPetById = {
+  data: GetPetByIdQueryResponse
+  error: GetPetById400 | GetPetById404
+  request: never
+  pathParams: GetPetByIdPathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetPetByIdClient>>['data']
+  unionResponse: Awaited<ReturnType<GetPetByIdClient>> | Awaited<ReturnType<GetPetByIdClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetPetByIdClient>[0]>
+    return: Awaited<ReturnType<GetPetByIdClient>>
+  }
+}
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 export function getPetByIdQueryOptions<
@@ -327,23 +354,25 @@ export function useGetPetById<
   return query
 }
 
-type UpdatePetWithForm = KubbQueryFactory<
-  UpdatePetWithFormMutationResponse,
-  UpdatePetWithForm405,
-  never,
-  UpdatePetWithFormPathParams,
-  UpdatePetWithFormQueryParams,
-  never,
-  UpdatePetWithFormMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
+type UpdatePetWithForm = {
+  data: UpdatePetWithFormMutationResponse
+  error: UpdatePetWithForm405
+  request: never
+  pathParams: UpdatePetWithFormPathParams
+  queryParams: UpdatePetWithFormQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<UpdatePetWithFormClient>>['data']
+  unionResponse: Awaited<ReturnType<UpdatePetWithFormClient>> | Awaited<ReturnType<UpdatePetWithFormClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<UpdatePetWithFormClient>[0]>
+    return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
-> /**
+}
+/**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-
 export function useUpdatePetWithForm<TData = UpdatePetWithForm['response'], TError = UpdatePetWithForm['error']>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithForm['queryParams'],
@@ -366,24 +395,26 @@ export function useUpdatePetWithForm<TData = UpdatePetWithForm['response'], TErr
   })
 }
 
-type DeletePet = KubbQueryFactory<
-  DeletePetMutationResponse,
-  DeletePet400,
-  never,
-  DeletePetPathParams,
-  never,
-  DeletePetHeaderParams,
-  DeletePetMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
+type DeletePet = {
+  data: DeletePetMutationResponse
+  error: DeletePet400
+  request: never
+  pathParams: DeletePetPathParams
+  queryParams: never
+  headerParams: DeletePetHeaderParams
+  response: Awaited<ReturnType<DeletePetClient>>['data']
+  unionResponse: Awaited<ReturnType<DeletePetClient>> | Awaited<ReturnType<DeletePetClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<DeletePetClient>[0]>
+    return: Awaited<ReturnType<DeletePetClient>>
   }
-> /**
+}
+/**
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-
 export function useDeletePet<TData = DeletePet['response'], TError = DeletePet['error']>(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePet['headerParams'],
@@ -406,23 +437,25 @@ export function useDeletePet<TData = DeletePet['response'], TError = DeletePet['
   })
 }
 
-type UploadFile = KubbQueryFactory<
-  UploadFileMutationResponse,
-  never,
-  UploadFileMutationRequest,
-  UploadFilePathParams,
-  UploadFileQueryParams,
-  never,
-  UploadFileMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+type UploadFile = {
+  data: UploadFileMutationResponse
+  error: never
+  request: UploadFileMutationRequest
+  pathParams: UploadFilePathParams
+  queryParams: UploadFileQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<UploadFileClient>>['data']
+  unionResponse: Awaited<ReturnType<UploadFileClient>> | Awaited<ReturnType<UploadFileClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<UploadFileClient>[0]>
+    return: Awaited<ReturnType<UploadFileClient>>
   }
-> /**
+}
+/**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-
 export function useUploadFile<TData = UploadFile['response'], TError = UploadFile['error']>(
   petId: UploadFilePathParams['petId'],
   params?: UploadFile['queryParams'],
@@ -446,10 +479,21 @@ export function useUploadFile<TData = UploadFile['response'], TError = UploadFil
   })
 }
 
-type GetInventory = KubbQueryFactory<GetInventoryQueryResponse, never, never, never, never, never, GetInventoryQueryResponse, {
-  dataReturnType: 'data'
-  type: 'query'
-}>
+type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
+type GetInventory = {
+  data: GetInventoryQueryResponse
+  error: never
+  request: never
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetInventoryClient>>['data']
+  unionResponse: Awaited<ReturnType<GetInventoryClient>> | Awaited<ReturnType<GetInventoryClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetInventoryClient>[0]>
+    return: Awaited<ReturnType<GetInventoryClient>>
+  }
+}
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 export function getInventoryQueryOptions<
@@ -500,15 +544,26 @@ export function useGetInventory<
   return query
 }
 
-type PlaceOrder = KubbQueryFactory<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest, never, never, never, PlaceOrderMutationResponse, {
-  dataReturnType: 'data'
-  type: 'mutation'
-}> /**
+type PlaceOrderClient = typeof client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>
+type PlaceOrder = {
+  data: PlaceOrderMutationResponse
+  error: PlaceOrder405
+  request: PlaceOrderMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<PlaceOrderClient>>['data']
+  unionResponse: Awaited<ReturnType<PlaceOrderClient>> | Awaited<ReturnType<PlaceOrderClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<PlaceOrderClient>[0]>
+    return: Awaited<ReturnType<PlaceOrderClient>>
+  }
+}
+/**
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order
  */
-
 export function usePlaceOrder<TData = PlaceOrder['response'], TError = PlaceOrder['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, PlaceOrder['request']>
   client?: PlaceOrder['client']['paramaters']
@@ -527,24 +582,26 @@ export function usePlaceOrder<TData = PlaceOrder['response'], TError = PlaceOrde
   })
 }
 
-type PlaceOrderPatch = KubbQueryFactory<
-  PlaceOrderPatchMutationResponse,
-  PlaceOrderPatch405,
-  PlaceOrderPatchMutationRequest,
-  never,
-  never,
-  never,
-  PlaceOrderPatchMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type PlaceOrderPatchClient = typeof client<PlaceOrderPatchMutationResponse, PlaceOrderPatch405, PlaceOrderPatchMutationRequest>
+type PlaceOrderPatch = {
+  data: PlaceOrderPatchMutationResponse
+  error: PlaceOrderPatch405
+  request: PlaceOrderPatchMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<PlaceOrderPatchClient>>['data']
+  unionResponse: Awaited<ReturnType<PlaceOrderPatchClient>> | Awaited<ReturnType<PlaceOrderPatchClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<PlaceOrderPatchClient>[0]>
+    return: Awaited<ReturnType<PlaceOrderPatchClient>>
   }
-> /**
+}
+/**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
  * @link /store/order
  */
-
 export function usePlaceOrderPatch<TData = PlaceOrderPatch['response'], TError = PlaceOrderPatch['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, PlaceOrderPatch['request']>
   client?: PlaceOrderPatch['client']['paramaters']
@@ -563,19 +620,21 @@ export function usePlaceOrderPatch<TData = PlaceOrderPatch['response'], TError =
   })
 }
 
-type GetOrderById = KubbQueryFactory<
-  GetOrderByIdQueryResponse,
-  GetOrderById400 | GetOrderById404,
-  never,
-  GetOrderByIdPathParams,
-  never,
-  never,
-  GetOrderByIdQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
+type GetOrderById = {
+  data: GetOrderByIdQueryResponse
+  error: GetOrderById400 | GetOrderById404
+  request: never
+  pathParams: GetOrderByIdPathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetOrderByIdClient>>['data']
+  unionResponse: Awaited<ReturnType<GetOrderByIdClient>> | Awaited<ReturnType<GetOrderByIdClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
+    return: Awaited<ReturnType<GetOrderByIdClient>>
   }
->
+}
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 export function getOrderByIdQueryOptions<
@@ -629,24 +688,26 @@ export function useGetOrderById<
   return query
 }
 
-type DeleteOrder = KubbQueryFactory<
-  DeleteOrderMutationResponse,
-  DeleteOrder400 | DeleteOrder404,
-  never,
-  DeleteOrderPathParams,
-  never,
-  never,
-  DeleteOrderMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type DeleteOrderClient = typeof client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, never>
+type DeleteOrder = {
+  data: DeleteOrderMutationResponse
+  error: DeleteOrder400 | DeleteOrder404
+  request: never
+  pathParams: DeleteOrderPathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<DeleteOrderClient>>['data']
+  unionResponse: Awaited<ReturnType<DeleteOrderClient>> | Awaited<ReturnType<DeleteOrderClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<DeleteOrderClient>[0]>
+    return: Awaited<ReturnType<DeleteOrderClient>>
   }
-> /**
+}
+/**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId
  */
-
 export function useDeleteOrder<TData = DeleteOrder['response'], TError = DeleteOrder['error']>(orderId: DeleteOrderPathParams['orderId'], options: {
   mutation?: UseMutationOptions<TData, TError, void>
   client?: DeleteOrder['client']['paramaters']
@@ -664,15 +725,26 @@ export function useDeleteOrder<TData = DeleteOrder['response'], TError = DeleteO
   })
 }
 
-type CreateUser = KubbQueryFactory<CreateUserMutationResponse, CreateUserError, CreateUserMutationRequest, never, never, never, CreateUserMutationResponse, {
-  dataReturnType: 'data'
-  type: 'mutation'
-}> /**
+type CreateUserClient = typeof client<CreateUserMutationResponse, CreateUserError, CreateUserMutationRequest>
+type CreateUser = {
+  data: CreateUserMutationResponse
+  error: CreateUserError
+  request: CreateUserMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<CreateUserClient>>['data']
+  unionResponse: Awaited<ReturnType<CreateUserClient>> | Awaited<ReturnType<CreateUserClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<CreateUserClient>[0]>
+    return: Awaited<ReturnType<CreateUserClient>>
+  }
+}
+/**
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user
  */
-
 export function useCreateUser<TData = CreateUser['response'], TError = CreateUser['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, CreateUser['request']>
   client?: CreateUser['client']['paramaters']
@@ -691,24 +763,30 @@ export function useCreateUser<TData = CreateUser['response'], TError = CreateUse
   })
 }
 
-type CreateUsersWithListInput = KubbQueryFactory<
+type CreateUsersWithListInputClient = typeof client<
   CreateUsersWithListInputMutationResponse,
   CreateUsersWithListInputError,
-  CreateUsersWithListInputMutationRequest,
-  never,
-  never,
-  never,
-  CreateUsersWithListInputMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+  CreateUsersWithListInputMutationRequest
+>
+type CreateUsersWithListInput = {
+  data: CreateUsersWithListInputMutationResponse
+  error: CreateUsersWithListInputError
+  request: CreateUsersWithListInputMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<CreateUsersWithListInputClient>>['data']
+  unionResponse: Awaited<ReturnType<CreateUsersWithListInputClient>> | Awaited<ReturnType<CreateUsersWithListInputClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
+    return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
-> /**
+}
+/**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
-
 export function useCreateUsersWithListInput<TData = CreateUsersWithListInput['response'], TError = CreateUsersWithListInput['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, CreateUsersWithListInput['request']>
   client?: CreateUsersWithListInput['client']['paramaters']
@@ -727,10 +805,21 @@ export function useCreateUsersWithListInput<TData = CreateUsersWithListInput['re
   })
 }
 
-type LoginUser = KubbQueryFactory<LoginUserQueryResponse, LoginUser400, never, never, LoginUserQueryParams, never, LoginUserQueryResponse, {
-  dataReturnType: 'data'
-  type: 'query'
-}>
+type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
+type LoginUser = {
+  data: LoginUserQueryResponse
+  error: LoginUser400
+  request: never
+  pathParams: never
+  queryParams: LoginUserQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<LoginUserClient>>['data']
+  unionResponse: Awaited<ReturnType<LoginUserClient>> | Awaited<ReturnType<LoginUserClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<LoginUserClient>[0]>
+    return: Awaited<ReturnType<LoginUserClient>>
+  }
+}
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 export function loginUserQueryOptions<
@@ -784,10 +873,21 @@ export function useLoginUser<
   return query
 }
 
-type LogoutUser = KubbQueryFactory<LogoutUserQueryResponse, LogoutUserError, never, never, never, never, LogoutUserQueryResponse, {
-  dataReturnType: 'data'
-  type: 'query'
-}>
+type LogoutUserClient = typeof client<LogoutUserQueryResponse, LogoutUserError, never>
+type LogoutUser = {
+  data: LogoutUserQueryResponse
+  error: LogoutUserError
+  request: never
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<LogoutUserClient>>['data']
+  unionResponse: Awaited<ReturnType<LogoutUserClient>> | Awaited<ReturnType<LogoutUserClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<LogoutUserClient>[0]>
+    return: Awaited<ReturnType<LogoutUserClient>>
+  }
+}
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
 export function logoutUserQueryOptions<
@@ -837,19 +937,21 @@ export function useLogoutUser<
   return query
 }
 
-type GetUserByName = KubbQueryFactory<
-  GetUserByNameQueryResponse,
-  GetUserByName400 | GetUserByName404,
-  never,
-  GetUserByNamePathParams,
-  never,
-  never,
-  GetUserByNameQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
+type GetUserByName = {
+  data: GetUserByNameQueryResponse
+  error: GetUserByName400 | GetUserByName404
+  request: never
+  pathParams: GetUserByNamePathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetUserByNameClient>>['data']
+  unionResponse: Awaited<ReturnType<GetUserByNameClient>> | Awaited<ReturnType<GetUserByNameClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetUserByNameClient>[0]>
+    return: Awaited<ReturnType<GetUserByNameClient>>
   }
->
+}
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 export function getUserByNameQueryOptions<
@@ -902,24 +1004,26 @@ export function useGetUserByName<
   return query
 }
 
-type UpdateUser = KubbQueryFactory<
-  UpdateUserMutationResponse,
-  UpdateUserError,
-  UpdateUserMutationRequest,
-  UpdateUserPathParams,
-  never,
-  never,
-  UpdateUserMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type UpdateUserClient = typeof client<UpdateUserMutationResponse, UpdateUserError, UpdateUserMutationRequest>
+type UpdateUser = {
+  data: UpdateUserMutationResponse
+  error: UpdateUserError
+  request: UpdateUserMutationRequest
+  pathParams: UpdateUserPathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<UpdateUserClient>>['data']
+  unionResponse: Awaited<ReturnType<UpdateUserClient>> | Awaited<ReturnType<UpdateUserClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<UpdateUserClient>[0]>
+    return: Awaited<ReturnType<UpdateUserClient>>
   }
-> /**
+}
+/**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username
  */
-
 export function useUpdateUser<TData = UpdateUser['response'], TError = UpdateUser['error']>(username: UpdateUserPathParams['username'], options: {
   mutation?: UseMutationOptions<TData, TError, UpdateUser['request']>
   client?: UpdateUser['client']['paramaters']
@@ -938,24 +1042,26 @@ export function useUpdateUser<TData = UpdateUser['response'], TError = UpdateUse
   })
 }
 
-type DeleteUser = KubbQueryFactory<
-  DeleteUserMutationResponse,
-  DeleteUser400 | DeleteUser404,
-  never,
-  DeleteUserPathParams,
-  never,
-  never,
-  DeleteUserMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type DeleteUserClient = typeof client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, never>
+type DeleteUser = {
+  data: DeleteUserMutationResponse
+  error: DeleteUser400 | DeleteUser404
+  request: never
+  pathParams: DeleteUserPathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<DeleteUserClient>>['data']
+  unionResponse: Awaited<ReturnType<DeleteUserClient>> | Awaited<ReturnType<DeleteUserClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<DeleteUserClient>[0]>
+    return: Awaited<ReturnType<DeleteUserClient>>
   }
-> /**
+}
+/**
  * @description This can only be done by the logged in user.
  * @summary Delete user
  * @link /user/:username
  */
-
 export function useDeleteUser<TData = DeleteUser['response'], TError = DeleteUser['error']>(username: DeleteUserPathParams['username'], options: {
   mutation?: UseMutationOptions<TData, TError, void>
   client?: DeleteUser['client']['paramaters']

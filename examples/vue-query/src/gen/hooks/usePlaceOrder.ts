@@ -1,28 +1,29 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
-import type { KubbQueryFactory } from './types'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 
-type PlaceOrder = KubbQueryFactory<
-  PlaceOrderMutationResponse,
-  PlaceOrder405,
-  PlaceOrderMutationRequest,
-  never,
-  never,
-  never,
-  PlaceOrderMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type PlaceOrderClient = typeof client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>
+type PlaceOrder = {
+  data: PlaceOrderMutationResponse
+  error: PlaceOrder405
+  request: PlaceOrderMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<PlaceOrderClient>>['data']
+  unionResponse: Awaited<ReturnType<PlaceOrderClient>> | Awaited<ReturnType<PlaceOrderClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<PlaceOrderClient>[0]>
+    return: Awaited<ReturnType<PlaceOrderClient>>
   }
-> /**
+}
+/**
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order
  */
-
 export function usePlaceOrder<TData = PlaceOrder['response'], TError = PlaceOrder['error']>(
   options: {
     mutation?: VueMutationObserverOptions<TData, TError, PlaceOrder['request'], unknown>

@@ -1,22 +1,23 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery } from '@tanstack/solid-query'
-import type { KubbQueryFactory } from './types'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
-type GetPetById = KubbQueryFactory<
-  GetPetByIdQueryResponse,
-  GetPetById400 | GetPetById404,
-  never,
-  GetPetByIdPathParams,
-  never,
-  never,
-  GetPetByIdQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
+type GetPetById = {
+  data: GetPetByIdQueryResponse
+  error: GetPetById400 | GetPetById404
+  request: never
+  pathParams: GetPetByIdPathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetPetByIdClient>>['data']
+  unionResponse: Awaited<ReturnType<GetPetByIdClient>> | Awaited<ReturnType<GetPetByIdClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetPetByIdClient>[0]>
+    return: Awaited<ReturnType<GetPetByIdClient>>
   }
->
+}
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 export function getPetByIdQueryOptions<

@@ -1,22 +1,23 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery } from '@tanstack/solid-query'
-import type { KubbQueryFactory } from './types'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
-type GetOrderById = KubbQueryFactory<
-  GetOrderByIdQueryResponse,
-  GetOrderById400 | GetOrderById404,
-  never,
-  GetOrderByIdPathParams,
-  never,
-  never,
-  GetOrderByIdQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
+type GetOrderById = {
+  data: GetOrderByIdQueryResponse
+  error: GetOrderById400 | GetOrderById404
+  request: never
+  pathParams: GetOrderByIdPathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetOrderByIdClient>>['data']
+  unionResponse: Awaited<ReturnType<GetOrderByIdClient>> | Awaited<ReturnType<GetOrderByIdClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
+    return: Awaited<ReturnType<GetOrderByIdClient>>
   }
->
+}
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 export function getOrderByIdQueryOptions<

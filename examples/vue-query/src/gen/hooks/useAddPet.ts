@@ -1,28 +1,29 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
-import type { KubbQueryFactory } from './types'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 
-type AddPet = KubbQueryFactory<
-  AddPetMutationResponse,
-  AddPet405,
-  AddPetMutationRequest,
-  never,
-  never,
-  never,
-  AddPetMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
+type AddPet = {
+  data: AddPetMutationResponse
+  error: AddPet405
+  request: AddPetMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<AddPetClient>>['data']
+  unionResponse: Awaited<ReturnType<AddPetClient>> | Awaited<ReturnType<AddPetClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<AddPetClient>[0]>
+    return: Awaited<ReturnType<AddPetClient>>
   }
-> /**
+}
+/**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet
  */
-
 export function useAddPet<TData = AddPet['response'], TError = AddPet['error']>(
   options: {
     mutation?: VueMutationObserverOptions<TData, TError, AddPet['request'], unknown>

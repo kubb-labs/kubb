@@ -1,22 +1,23 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { KubbQueryFactory } from './types'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 import type { QueryObserverOptions, UseQueryResult, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 
-type FindPetsByTags = KubbQueryFactory<
-  FindPetsByTagsQueryResponse,
-  FindPetsByTags400,
-  never,
-  never,
-  FindPetsByTagsQueryParams,
-  never,
-  FindPetsByTagsQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
+type FindPetsByTags = {
+  data: FindPetsByTagsQueryResponse
+  error: FindPetsByTags400
+  request: never
+  pathParams: never
+  queryParams: FindPetsByTagsQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<FindPetsByTagsClient>>['data']
+  unionResponse: Awaited<ReturnType<FindPetsByTagsClient>> | Awaited<ReturnType<FindPetsByTagsClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
+    return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
->
+}
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export function findPetsByTagsQueryOptions<
@@ -71,31 +72,17 @@ export function useFindPetsByTagsHook<
   return query
 }
 
-type FindPetsByTagsInfinite = KubbQueryFactory<
-  FindPetsByTagsQueryResponse,
-  FindPetsByTags400,
-  never,
-  never,
-  FindPetsByTagsQueryParams,
-  never,
-  FindPetsByTagsQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
-  }
->
-export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTagsInfinite['queryParams']) =>
-  [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
 export function findPetsByTagsInfiniteQueryOptions<
-  TQueryFnData extends FindPetsByTagsInfinite['data'] = FindPetsByTagsInfinite['data'],
-  TError = FindPetsByTagsInfinite['error'],
-  TData = FindPetsByTagsInfinite['response'],
-  TQueryData = FindPetsByTagsInfinite['response'],
+  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
+  TError = FindPetsByTags['error'],
+  TData = FindPetsByTags['response'],
+  TQueryData = FindPetsByTags['response'],
 >(
-  params?: FindPetsByTagsInfinite['queryParams'],
-  options: FindPetsByTagsInfinite['client']['paramaters'] = {},
-): UseInfiniteQueryOptions<FindPetsByTagsInfinite['unionResponse'], TError, TData, TQueryData, FindPetsByTagsInfiniteQueryKey> {
+  params?: FindPetsByTags['queryParams'],
+  options: FindPetsByTags['client']['paramaters'] = {},
+): UseInfiniteQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsInfiniteQueryKey> {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return {
     queryKey,
@@ -121,14 +108,14 @@ export function findPetsByTagsInfiniteQueryOptions<
  */
 
 export function useFindPetsByTagsHookInfinite<
-  TQueryFnData extends FindPetsByTagsInfinite['data'] = FindPetsByTagsInfinite['data'],
-  TError = FindPetsByTagsInfinite['error'],
-  TData = FindPetsByTagsInfinite['response'],
-  TQueryData = FindPetsByTagsInfinite['response'],
+  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
+  TError = FindPetsByTags['error'],
+  TData = FindPetsByTags['response'],
+  TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
->(params?: FindPetsByTagsInfinite['queryParams'], options: {
+>(params?: FindPetsByTags['queryParams'], options: {
   query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: FindPetsByTagsInfinite['client']['paramaters']
+  client?: FindPetsByTags['client']['paramaters']
 } = {}): UseInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {

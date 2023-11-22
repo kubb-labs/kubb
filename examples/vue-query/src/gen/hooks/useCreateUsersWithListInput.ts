@@ -1,6 +1,5 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
-import type { KubbQueryFactory } from './types'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
@@ -9,24 +8,30 @@ import type {
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 
-type CreateUsersWithListInput = KubbQueryFactory<
+type CreateUsersWithListInputClient = typeof client<
   CreateUsersWithListInputMutationResponse,
   CreateUsersWithListInputError,
-  CreateUsersWithListInputMutationRequest,
-  never,
-  never,
-  never,
-  CreateUsersWithListInputMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+  CreateUsersWithListInputMutationRequest
+>
+type CreateUsersWithListInput = {
+  data: CreateUsersWithListInputMutationResponse
+  error: CreateUsersWithListInputError
+  request: CreateUsersWithListInputMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<CreateUsersWithListInputClient>>['data']
+  unionResponse: Awaited<ReturnType<CreateUsersWithListInputClient>> | Awaited<ReturnType<CreateUsersWithListInputClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
+    return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
-> /**
+}
+/**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
-
 export function useCreateUsersWithListInput<TData = CreateUsersWithListInput['response'], TError = CreateUsersWithListInput['error']>(
   options: {
     mutation?: VueMutationObserverOptions<TData, TError, CreateUsersWithListInput['request'], unknown>

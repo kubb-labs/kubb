@@ -1,6 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
-import type { KubbQueryFactory } from './types'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
@@ -8,24 +7,30 @@ import type {
 } from '../../../models/ts/userController/CreateUsersWithListInput'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
-type CreateUsersWithListInput = KubbQueryFactory<
+type CreateUsersWithListInputClient = typeof client<
   CreateUsersWithListInputMutationResponse,
   CreateUsersWithListInputError,
-  CreateUsersWithListInputMutationRequest,
-  never,
-  never,
-  never,
-  CreateUsersWithListInputMutationResponse,
-  {
-    dataReturnType: 'full'
-    type: 'mutation'
+  CreateUsersWithListInputMutationRequest
+>
+type CreateUsersWithListInput = {
+  data: CreateUsersWithListInputMutationResponse
+  error: CreateUsersWithListInputError
+  request: CreateUsersWithListInputMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<CreateUsersWithListInputClient>>
+  unionResponse: Awaited<ReturnType<CreateUsersWithListInputClient>> | Awaited<ReturnType<CreateUsersWithListInputClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
+    return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
-> /**
+}
+/**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
-
 export function useCreateUsersWithListInput<TData = CreateUsersWithListInput['response'], TError = CreateUsersWithListInput['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, CreateUsersWithListInput['request']>
   client?: CreateUsersWithListInput['client']['paramaters']

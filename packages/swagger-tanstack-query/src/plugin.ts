@@ -55,7 +55,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         queryKey: QueryKey.templates,
         ...templates,
       },
-      templatesPath: path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), '../templates'),
     },
     kind: 'controller',
     validate(plugins) {

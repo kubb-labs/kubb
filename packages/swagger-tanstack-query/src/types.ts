@@ -128,7 +128,6 @@ type ResolvedOptions = {
    * Only used of infinite
    */
   infinite?: Infinite
-  templatesPath: string
   templates: Templates
 }
 

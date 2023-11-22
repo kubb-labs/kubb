@@ -1,6 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
-import type { KubbQueryFactory } from './types'
 import type {
   UploadFileMutationRequest,
   UploadFileMutationResponse,
@@ -9,23 +8,25 @@ import type {
 } from '../../../models/ts/petController/UploadFile'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
-type UploadFile = KubbQueryFactory<
-  UploadFileMutationResponse,
-  never,
-  UploadFileMutationRequest,
-  UploadFilePathParams,
-  UploadFileQueryParams,
-  never,
-  UploadFileMutationResponse,
-  {
-    dataReturnType: 'full'
-    type: 'mutation'
+type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+type UploadFile = {
+  data: UploadFileMutationResponse
+  error: never
+  request: UploadFileMutationRequest
+  pathParams: UploadFilePathParams
+  queryParams: UploadFileQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<UploadFileClient>>
+  unionResponse: Awaited<ReturnType<UploadFileClient>> | Awaited<ReturnType<UploadFileClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<UploadFileClient>[0]>
+    return: Awaited<ReturnType<UploadFileClient>>
   }
-> /**
+}
+/**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-
 export function useUploadFile<TData = UploadFile['response'], TError = UploadFile['error']>(
   petId: UploadFilePathParams['petId'],
   params?: UploadFile['queryParams'],

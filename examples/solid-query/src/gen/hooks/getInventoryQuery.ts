@@ -1,22 +1,23 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery } from '@tanstack/solid-query'
-import type { KubbQueryFactory } from './types'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
-type GetInventory = KubbQueryFactory<
-  GetInventoryQueryResponse,
-  never,
-  never,
-  never,
-  never,
-  never,
-  GetInventoryQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
+type GetInventory = {
+  data: GetInventoryQueryResponse
+  error: never
+  request: never
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetInventoryClient>>['data']
+  unionResponse: Awaited<ReturnType<GetInventoryClient>> | Awaited<ReturnType<GetInventoryClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetInventoryClient>[0]>
+    return: Awaited<ReturnType<GetInventoryClient>>
   }
->
+}
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 export function getInventoryQueryOptions<
