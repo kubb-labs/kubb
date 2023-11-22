@@ -354,17 +354,17 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
      * > Use of this keyword is functionally equivalent to an "enum" (Section 6.1.2) with a single value.
      * > An instance validates successfully against this keyword if its value is equal to the value of the keyword.
      */
-    if('const' in schema) {
+    if ('const' in schema) {
       // const keyword takes precendence over the actual type.
-      if(schema['const']) {
-          if(typeof schema['const'] === 'string') {
-            return factory.createLiteralTypeNode(factory.createStringLiteral(schema['const']));
-          } else if(typeof schema['const'] === 'number') {
-            return factory.createLiteralTypeNode(factory.createNumericLiteral(schema['const']));
-          }
-        } else {
-          return keywordTypeNodes.null;
+      if (schema['const']) {
+        if (typeof schema['const'] === 'string') {
+          return factory.createLiteralTypeNode(factory.createStringLiteral(schema['const']))
+        } else if (typeof schema['const'] === 'number') {
+          return factory.createLiteralTypeNode(factory.createNumericLiteral(schema['const']))
         }
+      } else {
+        return keywordTypeNodes.null
+      }
     }
 
     if (schema.type) {
