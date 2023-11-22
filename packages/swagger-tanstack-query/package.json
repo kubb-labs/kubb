@@ -43,7 +43,6 @@
   "files": [
     "src",
     "dist",
-    "templates",
     "!/**/**.test.**",
     "!/**/__tests__/**"
   ],

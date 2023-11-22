@@ -242,9 +242,9 @@ export function QueryOptions({ factory, infinite, resultType, Template = default
   const schemas = useSchemas()
   const operation = useOperation()
 
-  const name = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
-  const queryKey = useResolveName({ name: `${factory.name}QueryKey`, pluginKey })
-  const queryKeyType = useResolveName({ name: `${factory.name}QueryKey`, type: 'type', pluginKey })
+  const queryKey = useResolveName({ name: [factory.name, infinite ? 'Infinite' : undefined, 'QueryKey'].filter(Boolean).join(''), pluginKey })
+  const queryKeyType = useResolveName({ name: [factory.name, infinite ? 'Infinite' : undefined, 'QueryKey'].filter(Boolean).join(''), type: 'type', pluginKey })
+  const queryOptions = useResolveName({ name: [factory.name, infinite ? 'Infinite' : undefined, 'QueryOptions'].filter(Boolean).join(''), pluginKey })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
@@ -301,7 +301,7 @@ export function QueryOptions({ factory, infinite, resultType, Template = default
 
   return (
     <Template
-      name={name}
+      name={queryOptions}
       params={params.toString()}
       generics={generics.toString()}
       returnType={`${resultType}<${resultGenerics.join(', ')}>`}

@@ -1,24 +1,25 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
-import type { KubbQueryFactory } from './types'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
 import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
-type FindPetsByStatus = KubbQueryFactory<
-  FindPetsByStatusQueryResponse,
-  FindPetsByStatus400,
-  never,
-  never,
-  FindPetsByStatusQueryParams,
-  never,
-  FindPetsByStatusQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
+type FindPetsByStatus = {
+  data: FindPetsByStatusQueryResponse
+  error: FindPetsByStatus400
+  request: never
+  pathParams: never
+  queryParams: FindPetsByStatusQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<FindPetsByStatusClient>>['data']
+  unionResponse: Awaited<ReturnType<FindPetsByStatusClient>> | Awaited<ReturnType<FindPetsByStatusClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<FindPetsByStatusClient>[0]>
+    return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
->
+}
 export const findPetsByStatusQueryKey = (params?: MaybeRef<FindPetsByStatus['queryParams']>) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>

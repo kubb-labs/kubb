@@ -1,6 +1,5 @@
 import client from '@kubb/swagger-client/client'
 import { createMutation } from '@tanstack/svelte-query'
-import type { KubbQueryFactory } from './types'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -9,23 +8,25 @@ import type {
 } from '../models/UpdatePetWithForm'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
 
-type UpdatePetWithForm = KubbQueryFactory<
-  UpdatePetWithFormMutationResponse,
-  UpdatePetWithForm405,
-  never,
-  UpdatePetWithFormPathParams,
-  UpdatePetWithFormQueryParams,
-  never,
-  UpdatePetWithFormMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
+type UpdatePetWithForm = {
+  data: UpdatePetWithFormMutationResponse
+  error: UpdatePetWithForm405
+  request: never
+  pathParams: UpdatePetWithFormPathParams
+  queryParams: UpdatePetWithFormQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<UpdatePetWithFormClient>>['data']
+  unionResponse: Awaited<ReturnType<UpdatePetWithFormClient>> | Awaited<ReturnType<UpdatePetWithFormClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<UpdatePetWithFormClient>[0]>
+    return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
-> /**
+}
+/**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-
 export function updatePetWithFormQuery<TData = UpdatePetWithForm['response'], TError = UpdatePetWithForm['error']>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithForm['queryParams'],

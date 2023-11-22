@@ -79,6 +79,9 @@ const defaultTemplates = {
 } as const
 
 type Props = {
+  factory: {
+    name: string
+  }
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -90,6 +93,7 @@ type Props = {
 }
 
 export function Query({
+  factory,
   Template = defaultTemplates.default,
   QueryOptionsTemplate = QueryOptions.templates.default,
 }: Props): ReactNode {
@@ -97,11 +101,7 @@ export function Query({
   const operation = useOperation()
   const schemas = useSchemas()
   const name = useOperationName({ type: 'function' })
-  const factoryName = useOperationName({ type: 'type' })
 
-  const factory = {
-    name: factoryName,
-  }
   const queryOptionsName = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
   const generics = new FunctionParams()
   const params = new FunctionParams()
@@ -204,9 +204,13 @@ Query.File = function({ templates }: FileProps): ReactNode {
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
+  const factoryName = useOperationName({ type: 'type' })
 
   const Template = templates?.query.default || defaultTemplates.default
   const QueryOptionsTemplate = templates?.queryOptions.default || QueryOptions.templates.default
+  const factory = {
+    name: factoryName,
+  }
 
   return (
     <>
@@ -237,6 +241,7 @@ Query.File = function({ templates }: FileProps): ReactNode {
 
         <File.Source>
           <Query
+            factory={factory}
             Template={Template}
             QueryOptionsTemplate={QueryOptionsTemplate}
           />

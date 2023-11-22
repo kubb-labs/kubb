@@ -1,24 +1,25 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
-import type { KubbQueryFactory } from './types'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
-type GetUserByName = KubbQueryFactory<
-  GetUserByNameQueryResponse,
-  GetUserByName400 | GetUserByName404,
-  never,
-  GetUserByNamePathParams,
-  never,
-  never,
-  GetUserByNameQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
+type GetUserByName = {
+  data: GetUserByNameQueryResponse
+  error: GetUserByName400 | GetUserByName404
+  request: never
+  pathParams: GetUserByNamePathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetUserByNameClient>>['data']
+  unionResponse: Awaited<ReturnType<GetUserByNameClient>> | Awaited<ReturnType<GetUserByNameClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetUserByNameClient>[0]>
+    return: Awaited<ReturnType<GetUserByNameClient>>
   }
->
+}
 export const getUserByNameQueryKey = (username: MaybeRef<GetUserByNamePathParams['username']>) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>

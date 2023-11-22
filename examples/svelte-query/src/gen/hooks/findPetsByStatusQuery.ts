@@ -1,22 +1,23 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
-import type { KubbQueryFactory } from './types'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, CreateInfiniteQueryOptions, CreateInfiniteQueryResult } from '@tanstack/svelte-query'
 
-type FindPetsByStatus = KubbQueryFactory<
-  FindPetsByStatusQueryResponse,
-  FindPetsByStatus400,
-  never,
-  never,
-  FindPetsByStatusQueryParams,
-  never,
-  FindPetsByStatusQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
+type FindPetsByStatus = {
+  data: FindPetsByStatusQueryResponse
+  error: FindPetsByStatus400
+  request: never
+  pathParams: never
+  queryParams: FindPetsByStatusQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<FindPetsByStatusClient>>['data']
+  unionResponse: Awaited<ReturnType<FindPetsByStatusClient>> | Awaited<ReturnType<FindPetsByStatusClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<FindPetsByStatusClient>[0]>
+    return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
->
+}
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
 export function findPetsByStatusQueryOptions<
@@ -73,31 +74,18 @@ export function findPetsByStatusQuery<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-type FindPetsByStatusInfinite = KubbQueryFactory<
-  FindPetsByStatusQueryResponse,
-  FindPetsByStatus400,
-  never,
-  never,
-  FindPetsByStatusQueryParams,
-  never,
-  FindPetsByStatusQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
-  }
->
-export const findPetsByStatusInfiniteQueryKey = (params?: FindPetsByStatusInfinite['queryParams']) =>
+export const findPetsByStatusInfiniteQueryKey = (params?: FindPetsByStatus['queryParams']) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusInfiniteQueryKey = ReturnType<typeof findPetsByStatusInfiniteQueryKey>
 export function findPetsByStatusInfiniteQueryOptions<
-  TQueryFnData extends FindPetsByStatusInfinite['data'] = FindPetsByStatusInfinite['data'],
-  TError = FindPetsByStatusInfinite['error'],
-  TData = FindPetsByStatusInfinite['response'],
-  TQueryData = FindPetsByStatusInfinite['response'],
+  TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
+  TError = FindPetsByStatus['error'],
+  TData = FindPetsByStatus['response'],
+  TQueryData = FindPetsByStatus['response'],
 >(
-  params?: FindPetsByStatusInfinite['queryParams'],
-  options: FindPetsByStatusInfinite['client']['paramaters'] = {},
-): CreateInfiniteQueryOptions<FindPetsByStatusInfinite['unionResponse'], TError, TData, TQueryData, FindPetsByStatusInfiniteQueryKey> {
+  params?: FindPetsByStatus['queryParams'],
+  options: FindPetsByStatus['client']['paramaters'] = {},
+): CreateInfiniteQueryOptions<FindPetsByStatus['unionResponse'], TError, TData, TQueryData, FindPetsByStatusInfiniteQueryKey> {
   const queryKey = findPetsByStatusInfiniteQueryKey(params)
   return {
     queryKey,
@@ -121,16 +109,16 @@ export function findPetsByStatusInfiniteQueryOptions<
  */
 
 export function findPetsByStatusQueryInfinite<
-  TQueryFnData extends FindPetsByStatusInfinite['data'] = FindPetsByStatusInfinite['data'],
-  TError = FindPetsByStatusInfinite['error'],
-  TData = FindPetsByStatusInfinite['response'],
-  TQueryData = FindPetsByStatusInfinite['response'],
+  TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
+  TError = FindPetsByStatus['error'],
+  TData = FindPetsByStatus['response'],
+  TQueryData = FindPetsByStatus['response'],
   TQueryKey extends QueryKey = FindPetsByStatusInfiniteQueryKey,
 >(
-  params?: FindPetsByStatusInfinite['queryParams'],
+  params?: FindPetsByStatus['queryParams'],
   options: {
     query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: FindPetsByStatusInfinite['client']['paramaters']
+    client?: FindPetsByStatus['client']['paramaters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey

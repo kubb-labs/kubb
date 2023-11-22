@@ -1,8 +1,6 @@
-import path from 'node:path'
-
 import { PackageManager } from '@kubb/core'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function, Type, usePlugin } from '@kubb/react'
+import { File, Function, usePlugin } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useResolveName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, getParams, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
@@ -13,14 +11,10 @@ import { getImportNames } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
 import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
+import { SchemaType } from './SchemaType.tsx'
 
 import type { ReactNode } from 'react'
 import type { FileMeta, Infinite, PluginOptions } from '../types.ts'
-
-type Factory = {
-  name: string
-  generics: [data: string, error: string, request: string, pathParams: string, queryParams: string, headerParams: string, response: string, options: string]
-}
 
 type TemplateProps = {
   /**
@@ -227,6 +221,9 @@ const defaultTemplates = {
 } as const
 
 type Props = {
+  factory: {
+    name: string
+  }
   resultType: string
   hookName: string
   optionsType: string
@@ -246,6 +243,7 @@ type Props = {
 }
 
 export function Query({
+  factory,
   infinite,
   optionsType,
   hookName,
@@ -254,32 +252,15 @@ export function Query({
   QueryKeyTemplate = QueryKey.templates.react,
   QueryOptionsTemplate = QueryOptions.templates.react,
 }: Props): ReactNode {
-  const { key: pluginKey, options: { dataReturnType = 'data' } } = usePlugin<PluginOptions>()
+  const { key: pluginKey } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const schemas = useSchemas()
   const name = useOperationName({ type: 'function' })
-  const factoryName = useOperationName({ type: 'type' })
-  const factoryInfiniteName = useResolveName({ name: `${factoryName}Infinite`, type: 'type', pluginKey })
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 
-  const factory: Factory = {
-    name: infinite
-      ? factoryInfiniteName
-      : factoryName,
-    generics: [
-      schemas.response.name,
-      schemas.errors?.map((error) => error.name).join(' | ') || 'never',
-      schemas.request?.name || 'never',
-      schemas.pathParams?.name || 'never',
-      schemas.queryParams?.name || 'never',
-      schemas.headerParams?.name || 'never',
-      schemas.response.name,
-      `{ dataReturnType: '${dataReturnType}'; type: 'query' }`,
-    ],
-  }
-  const queryKey = useResolveName({ name: `${factory.name}QueryKey`, pluginKey })
-  const queryKeyType = useResolveName({ name: `${factory.name}QueryKey`, type: 'type', pluginKey })
-  const queryOptions = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
+  const queryKey = useResolveName({ name: [factory.name, infinite ? 'Infinite' : undefined, 'QueryKey'].filter(Boolean).join(''), pluginKey })
+  const queryKeyType = useResolveName({ name: [factory.name, infinite ? 'Infinite' : undefined, 'QueryKey'].filter(Boolean).join(''), type: 'type', pluginKey })
+  const queryOptions = useResolveName({ name: [factory.name, infinite ? 'Infinite' : undefined, 'QueryOptions'].filter(Boolean).join(''), pluginKey })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
@@ -365,9 +346,6 @@ export function Query({
 
   return (
     <>
-      <Type name={factory.name}>
-        {`KubbQueryFactory<${factory.generics.join(', ')}>`}
-      </Type>
       <QueryKey Template={QueryKeyTemplate} factory={factory} name={queryKey} />
       <QueryOptions Template={QueryOptionsTemplate} factory={factory} resultType={optionsType} infinite={infinite} />
       <Template
@@ -400,10 +378,11 @@ type FileProps = {
 }
 
 Query.File = function({ templates, imports = QueryImports.templates }: FileProps): ReactNode {
-  const { options: { clientImportPath, templatesPath, framework, infinite } } = usePlugin<PluginOptions>()
+  const { options: { clientImportPath, framework, infinite } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
+  const factoryName = useOperationName({ type: 'type' })
 
   const importNames = getImportNames()
   const Template = templates?.query[framework] || defaultTemplates[framework]
@@ -411,62 +390,61 @@ Query.File = function({ templates, imports = QueryImports.templates }: FileProps
   const QueryKeyTemplate = templates?.queryKey[framework] || QueryKey.templates[framework]
   const Import = imports[framework]
 
+  const factory = {
+    name: factoryName,
+  }
+
   return (
-    <>
-      <File override baseName={'types.ts'} path={path.resolve(file.path, '../types.ts')}>
-        <File.Import name={'client'} path={clientImportPath} />
-        <File.Source path={path.resolve(templatesPath, './types.ts')} print removeComments />
-      </File>
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
-        <File.Import root={file.path} path={path.resolve(file.path, '../types.ts')} name={['KubbQueryFactory']} isTypeOnly />
+    <File<FileMeta>
+      baseName={file.baseName}
+      path={file.path}
+      meta={file.meta}
+    >
+      <File.Import name={'client'} path={clientImportPath} />
+      <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
+      <File.Import
+        name={[
+          schemas.response.name,
+          schemas.pathParams?.name,
+          schemas.queryParams?.name,
+          schemas.headerParams?.name,
+          ...schemas.errors?.map((error) => error.name) || [],
+        ].filter(
+          Boolean,
+        )}
+        root={file.path}
+        path={fileType.path}
+        isTypeOnly
+      />
 
-        <File.Import name={'client'} path={clientImportPath} />
-        <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
-        <File.Import
-          name={[
-            schemas.response.name,
-            schemas.pathParams?.name,
-            schemas.queryParams?.name,
-            schemas.headerParams?.name,
-            ...schemas.errors?.map((error) => error.name) || [],
-          ].filter(
-            Boolean,
-          )}
-          root={file.path}
-          path={fileType.path}
-          isTypeOnly
+      <QueryImports Template={Import} isInfinite={false} />
+      {!!infinite && <QueryImports Template={Import} isInfinite={true} />}
+      <File.Source>
+        <SchemaType factory={factory} />
+        <Query
+          factory={factory}
+          Template={Template}
+          QueryKeyTemplate={QueryKeyTemplate}
+          QueryOptionsTemplate={QueryOptionsTemplate}
+          infinite={undefined}
+          hookName={importNames.query[framework].hookName}
+          resultType={importNames.query[framework].resultType}
+          optionsType={importNames.query[framework].optionsType}
         />
-
-        <QueryImports Template={Import} isInfinite={false} />
-        {!!infinite && <QueryImports Template={Import} isInfinite={true} />}
-        <File.Source>
+        {!!infinite && (
           <Query
+            factory={factory}
             Template={Template}
             QueryKeyTemplate={QueryKeyTemplate}
             QueryOptionsTemplate={QueryOptionsTemplate}
-            infinite={undefined}
-            hookName={importNames.query[framework].hookName}
-            resultType={importNames.query[framework].resultType}
-            optionsType={importNames.query[framework].optionsType}
+            infinite={infinite}
+            hookName={importNames.queryInfinite[framework].hookName}
+            resultType={importNames.queryInfinite[framework].resultType}
+            optionsType={importNames.queryInfinite[framework].optionsType}
           />
-          {!!infinite && (
-            <Query
-              Template={Template}
-              QueryKeyTemplate={QueryKeyTemplate}
-              QueryOptionsTemplate={QueryOptionsTemplate}
-              infinite={infinite}
-              hookName={importNames.queryInfinite[framework].hookName}
-              resultType={importNames.queryInfinite[framework].resultType}
-              optionsType={importNames.queryInfinite[framework].optionsType}
-            />
-          )}
-        </File.Source>
-      </File>
-    </>
+        )}
+      </File.Source>
+    </File>
   )
 }
 

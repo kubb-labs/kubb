@@ -1,22 +1,23 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery } from '@tanstack/solid-query'
-import type { KubbQueryFactory } from './types'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
-type LoginUser = KubbQueryFactory<
-  LoginUserQueryResponse,
-  LoginUser400,
-  never,
-  never,
-  LoginUserQueryParams,
-  never,
-  LoginUserQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
+type LoginUser = {
+  data: LoginUserQueryResponse
+  error: LoginUser400
+  request: never
+  pathParams: never
+  queryParams: LoginUserQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<LoginUserClient>>['data']
+  unionResponse: Awaited<ReturnType<LoginUserClient>> | Awaited<ReturnType<LoginUserClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<LoginUserClient>[0]>
+    return: Awaited<ReturnType<LoginUserClient>>
   }
->
+}
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 export function loginUserQueryOptions<

@@ -1,25 +1,26 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
-import type { KubbQueryFactory } from './types'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 import type { UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
 import type { MaybeRef } from 'vue'
 
-type GetOrderById = KubbQueryFactory<
-  GetOrderByIdQueryResponse,
-  GetOrderById400 | GetOrderById404,
-  never,
-  GetOrderByIdPathParams,
-  never,
-  never,
-  GetOrderByIdQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
+type GetOrderById = {
+  data: GetOrderByIdQueryResponse
+  error: GetOrderById400 | GetOrderById404
+  request: never
+  pathParams: GetOrderByIdPathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetOrderByIdClient>>['data']
+  unionResponse: Awaited<ReturnType<GetOrderByIdClient>> | Awaited<ReturnType<GetOrderByIdClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
+    return: Awaited<ReturnType<GetOrderByIdClient>>
   }
->
+}
 export const getOrderByIdQueryKey = (orderId: MaybeRef<GetOrderByIdPathParams['orderId']>) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>

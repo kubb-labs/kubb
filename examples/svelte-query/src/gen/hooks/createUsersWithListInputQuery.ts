@@ -1,6 +1,5 @@
 import client from '@kubb/swagger-client/client'
 import { createMutation } from '@tanstack/svelte-query'
-import type { KubbQueryFactory } from './types'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
@@ -8,24 +7,30 @@ import type {
 } from '../models/CreateUsersWithListInput'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
 
-type CreateUsersWithListInput = KubbQueryFactory<
+type CreateUsersWithListInputClient = typeof client<
   CreateUsersWithListInputMutationResponse,
   CreateUsersWithListInputError,
-  CreateUsersWithListInputMutationRequest,
-  never,
-  never,
-  never,
-  CreateUsersWithListInputMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+  CreateUsersWithListInputMutationRequest
+>
+type CreateUsersWithListInput = {
+  data: CreateUsersWithListInputMutationResponse
+  error: CreateUsersWithListInputError
+  request: CreateUsersWithListInputMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<CreateUsersWithListInputClient>>['data']
+  unionResponse: Awaited<ReturnType<CreateUsersWithListInputClient>> | Awaited<ReturnType<CreateUsersWithListInputClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
+    return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
-> /**
+}
+/**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList
  */
-
 export function createUsersWithListInputQuery<TData = CreateUsersWithListInput['response'], TError = CreateUsersWithListInput['error']>(
   options: {
     mutation?: CreateMutationOptions<TData, TError, CreateUsersWithListInput['request']>

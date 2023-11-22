@@ -1,6 +1,5 @@
 import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
-import type { KubbQueryFactory } from './types'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
@@ -12,23 +11,25 @@ import type {
 } from '../../../models/ts/petsController/CreatePets'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
-type CreatePets = KubbQueryFactory<
-  CreatePetsMutationResponse,
-  CreatePets201 | CreatePetsError,
-  CreatePetsMutationRequest,
-  CreatePetsPathParams,
-  CreatePetsQueryParams,
-  CreatePetsHeaderParams,
-  CreatePetsMutationResponse,
-  {
-    dataReturnType: 'full'
-    type: 'mutation'
+type CreatePetsClient = typeof client<CreatePetsMutationResponse, CreatePets201 | CreatePetsError, CreatePetsMutationRequest>
+type CreatePets = {
+  data: CreatePetsMutationResponse
+  error: CreatePets201 | CreatePetsError
+  request: CreatePetsMutationRequest
+  pathParams: CreatePetsPathParams
+  queryParams: CreatePetsQueryParams
+  headerParams: CreatePetsHeaderParams
+  response: Awaited<ReturnType<CreatePetsClient>>
+  unionResponse: Awaited<ReturnType<CreatePetsClient>> | Awaited<ReturnType<CreatePetsClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<CreatePetsClient>[0]>
+    return: Awaited<ReturnType<CreatePetsClient>>
   }
-> /**
+}
+/**
  * @summary Create a pet
  * @link /pets/:uuid
  */
-
 export function useCreatePets<TData = CreatePets['response'], TError = CreatePets['error']>(
   uuid: CreatePetsPathParams['uuid'],
   headers: CreatePets['headerParams'],

@@ -1,25 +1,26 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
-import type { KubbQueryFactory } from './types'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
 import type { UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
 import type { MaybeRef } from 'vue'
 
-type GetPetById = KubbQueryFactory<
-  GetPetByIdQueryResponse,
-  GetPetById400 | GetPetById404,
-  never,
-  GetPetByIdPathParams,
-  never,
-  never,
-  GetPetByIdQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
+type GetPetById = {
+  data: GetPetByIdQueryResponse
+  error: GetPetById400 | GetPetById404
+  request: never
+  pathParams: GetPetByIdPathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetPetByIdClient>>['data']
+  unionResponse: Awaited<ReturnType<GetPetByIdClient>> | Awaited<ReturnType<GetPetByIdClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetPetByIdClient>[0]>
+    return: Awaited<ReturnType<GetPetByIdClient>>
   }
->
+}
 export const getPetByIdQueryKey = (petId: MaybeRef<GetPetByIdPathParams['petId']>) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 export function getPetByIdQueryOptions<

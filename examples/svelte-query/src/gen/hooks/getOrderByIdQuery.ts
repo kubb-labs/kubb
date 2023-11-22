@@ -1,22 +1,23 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
-import type { KubbQueryFactory } from './types'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, CreateInfiniteQueryOptions, CreateInfiniteQueryResult } from '@tanstack/svelte-query'
 
-type GetOrderById = KubbQueryFactory<
-  GetOrderByIdQueryResponse,
-  GetOrderById400 | GetOrderById404,
-  never,
-  GetOrderByIdPathParams,
-  never,
-  never,
-  GetOrderByIdQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
+type GetOrderById = {
+  data: GetOrderByIdQueryResponse
+  error: GetOrderById400 | GetOrderById404
+  request: never
+  pathParams: GetOrderByIdPathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetOrderByIdClient>>['data']
+  unionResponse: Awaited<ReturnType<GetOrderByIdClient>> | Awaited<ReturnType<GetOrderByIdClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
+    return: Awaited<ReturnType<GetOrderByIdClient>>
   }
->
+}
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 export function getOrderByIdQueryOptions<
@@ -72,31 +73,18 @@ export function getOrderByIdQuery<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-type GetOrderByIdInfinite = KubbQueryFactory<
-  GetOrderByIdQueryResponse,
-  GetOrderById400 | GetOrderById404,
-  never,
-  GetOrderByIdPathParams,
-  never,
-  never,
-  GetOrderByIdQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
-  }
->
 export const getOrderByIdInfiniteQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdInfiniteQueryKey = ReturnType<typeof getOrderByIdInfiniteQueryKey>
 export function getOrderByIdInfiniteQueryOptions<
-  TQueryFnData extends GetOrderByIdInfinite['data'] = GetOrderByIdInfinite['data'],
-  TError = GetOrderByIdInfinite['error'],
-  TData = GetOrderByIdInfinite['response'],
-  TQueryData = GetOrderByIdInfinite['response'],
+  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
+  TError = GetOrderById['error'],
+  TData = GetOrderById['response'],
+  TQueryData = GetOrderById['response'],
 >(
   orderId: GetOrderByIdPathParams['orderId'],
-  options: GetOrderByIdInfinite['client']['paramaters'] = {},
-): CreateInfiniteQueryOptions<GetOrderByIdInfinite['unionResponse'], TError, TData, TQueryData, GetOrderByIdInfiniteQueryKey> {
+  options: GetOrderById['client']['paramaters'] = {},
+): CreateInfiniteQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData, GetOrderByIdInfiniteQueryKey> {
   const queryKey = getOrderByIdInfiniteQueryKey(orderId)
   return {
     queryKey,
@@ -115,16 +103,16 @@ export function getOrderByIdInfiniteQueryOptions<
  */
 
 export function getOrderByIdQueryInfinite<
-  TQueryFnData extends GetOrderByIdInfinite['data'] = GetOrderByIdInfinite['data'],
-  TError = GetOrderByIdInfinite['error'],
-  TData = GetOrderByIdInfinite['response'],
-  TQueryData = GetOrderByIdInfinite['response'],
+  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
+  TError = GetOrderById['error'],
+  TData = GetOrderById['response'],
+  TQueryData = GetOrderById['response'],
   TQueryKey extends QueryKey = GetOrderByIdInfiniteQueryKey,
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
     query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: GetOrderByIdInfinite['client']['paramaters']
+    client?: GetOrderById['client']['paramaters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey

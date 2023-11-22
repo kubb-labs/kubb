@@ -1,26 +1,27 @@
 import client from '@kubb/swagger-client/client'
 import { createMutation } from '@tanstack/solid-query'
-import type { KubbQueryFactory } from './types'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/solid-query'
 
-type UploadFile = KubbQueryFactory<
-  UploadFileMutationResponse,
-  never,
-  UploadFileMutationRequest,
-  UploadFilePathParams,
-  UploadFileQueryParams,
-  never,
-  UploadFileMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+type UploadFile = {
+  data: UploadFileMutationResponse
+  error: never
+  request: UploadFileMutationRequest
+  pathParams: UploadFilePathParams
+  queryParams: UploadFileQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<UploadFileClient>>['data']
+  unionResponse: Awaited<ReturnType<UploadFileClient>> | Awaited<ReturnType<UploadFileClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<UploadFileClient>[0]>
+    return: Awaited<ReturnType<UploadFileClient>>
   }
-> /**
+}
+/**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage
  */
-
 export function uploadFileQuery<TData = UploadFile['response'], TError = UploadFile['error']>(
   petId: UploadFilePathParams['petId'],
   params?: UploadFile['queryParams'],

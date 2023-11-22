@@ -1,22 +1,23 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
-import type { KubbQueryFactory } from './types'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, CreateInfiniteQueryOptions, CreateInfiniteQueryResult } from '@tanstack/svelte-query'
 
-type GetInventory = KubbQueryFactory<
-  GetInventoryQueryResponse,
-  never,
-  never,
-  never,
-  never,
-  never,
-  GetInventoryQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
+type GetInventory = {
+  data: GetInventoryQueryResponse
+  error: never
+  request: never
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetInventoryClient>>['data']
+  unionResponse: Awaited<ReturnType<GetInventoryClient>> | Awaited<ReturnType<GetInventoryClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetInventoryClient>[0]>
+    return: Awaited<ReturnType<GetInventoryClient>>
   }
->
+}
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 export function getInventoryQueryOptions<
@@ -68,29 +69,16 @@ export function getInventoryQuery<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-type GetInventoryInfinite = KubbQueryFactory<
-  GetInventoryQueryResponse,
-  never,
-  never,
-  never,
-  never,
-  never,
-  GetInventoryQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
-  }
->
 export const getInventoryInfiniteQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryInfiniteQueryKey = ReturnType<typeof getInventoryInfiniteQueryKey>
 export function getInventoryInfiniteQueryOptions<
-  TQueryFnData extends GetInventoryInfinite['data'] = GetInventoryInfinite['data'],
-  TError = GetInventoryInfinite['error'],
-  TData = GetInventoryInfinite['response'],
-  TQueryData = GetInventoryInfinite['response'],
+  TQueryFnData extends GetInventory['data'] = GetInventory['data'],
+  TError = GetInventory['error'],
+  TData = GetInventory['response'],
+  TQueryData = GetInventory['response'],
 >(
-  options: GetInventoryInfinite['client']['paramaters'] = {},
-): CreateInfiniteQueryOptions<GetInventoryInfinite['unionResponse'], TError, TData, TQueryData, GetInventoryInfiniteQueryKey> {
+  options: GetInventory['client']['paramaters'] = {},
+): CreateInfiniteQueryOptions<GetInventory['unionResponse'], TError, TData, TQueryData, GetInventoryInfiniteQueryKey> {
   const queryKey = getInventoryInfiniteQueryKey()
   return {
     queryKey,
@@ -109,15 +97,15 @@ export function getInventoryInfiniteQueryOptions<
  */
 
 export function getInventoryQueryInfinite<
-  TQueryFnData extends GetInventoryInfinite['data'] = GetInventoryInfinite['data'],
-  TError = GetInventoryInfinite['error'],
-  TData = GetInventoryInfinite['response'],
-  TQueryData = GetInventoryInfinite['response'],
+  TQueryFnData extends GetInventory['data'] = GetInventory['data'],
+  TError = GetInventory['error'],
+  TData = GetInventory['response'],
+  TQueryData = GetInventory['response'],
   TQueryKey extends QueryKey = GetInventoryInfiniteQueryKey,
 >(
   options: {
     query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: GetInventoryInfinite['client']['paramaters']
+    client?: GetInventory['client']['paramaters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey

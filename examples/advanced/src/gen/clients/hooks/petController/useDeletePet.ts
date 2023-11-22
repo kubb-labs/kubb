@@ -1,27 +1,28 @@
 import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
-import type { KubbQueryFactory } from './types'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../../../models/ts/petController/DeletePet'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
-type DeletePet = KubbQueryFactory<
-  DeletePetMutationResponse,
-  DeletePet400,
-  never,
-  DeletePetPathParams,
-  never,
-  DeletePetHeaderParams,
-  DeletePetMutationResponse,
-  {
-    dataReturnType: 'full'
-    type: 'mutation'
+type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
+type DeletePet = {
+  data: DeletePetMutationResponse
+  error: DeletePet400
+  request: never
+  pathParams: DeletePetPathParams
+  queryParams: never
+  headerParams: DeletePetHeaderParams
+  response: Awaited<ReturnType<DeletePetClient>>
+  unionResponse: Awaited<ReturnType<DeletePetClient>> | Awaited<ReturnType<DeletePetClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<DeletePetClient>[0]>
+    return: Awaited<ReturnType<DeletePetClient>>
   }
-> /**
+}
+/**
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId
  */
-
 export function useDeletePet<TData = DeletePet['response'], TError = DeletePet['error']>(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePet['headerParams'],

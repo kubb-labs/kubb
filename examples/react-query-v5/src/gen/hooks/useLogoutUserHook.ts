@@ -1,13 +1,23 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { KubbQueryFactory } from './types'
 import type { LogoutUserQueryResponse, LogoutUserError } from '../models/LogoutUser'
 import type { QueryObserverOptions, UseQueryResult, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 
-type LogoutUser = KubbQueryFactory<LogoutUserQueryResponse, LogoutUserError, never, never, never, never, LogoutUserQueryResponse, {
-  dataReturnType: 'data'
-  type: 'query'
-}>
+type LogoutUserClient = typeof client<LogoutUserQueryResponse, LogoutUserError, never>
+type LogoutUser = {
+  data: LogoutUserQueryResponse
+  error: LogoutUserError
+  request: never
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<LogoutUserClient>>['data']
+  unionResponse: Awaited<ReturnType<LogoutUserClient>> | Awaited<ReturnType<LogoutUserClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<LogoutUserClient>[0]>
+    return: Awaited<ReturnType<LogoutUserClient>>
+  }
+}
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
 export function logoutUserQueryOptions<
@@ -57,20 +67,16 @@ export function useLogoutUserHook<
   return query
 }
 
-type LogoutUserInfinite = KubbQueryFactory<LogoutUserQueryResponse, LogoutUserError, never, never, never, never, LogoutUserQueryResponse, {
-  dataReturnType: 'data'
-  type: 'query'
-}>
 export const logoutUserInfiniteQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserInfiniteQueryKey = ReturnType<typeof logoutUserInfiniteQueryKey>
 export function logoutUserInfiniteQueryOptions<
-  TQueryFnData extends LogoutUserInfinite['data'] = LogoutUserInfinite['data'],
-  TError = LogoutUserInfinite['error'],
-  TData = LogoutUserInfinite['response'],
-  TQueryData = LogoutUserInfinite['response'],
+  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
+  TError = LogoutUser['error'],
+  TData = LogoutUser['response'],
+  TQueryData = LogoutUser['response'],
 >(
-  options: LogoutUserInfinite['client']['paramaters'] = {},
-): UseInfiniteQueryOptions<LogoutUserInfinite['unionResponse'], TError, TData, TQueryData, LogoutUserInfiniteQueryKey> {
+  options: LogoutUser['client']['paramaters'] = {},
+): UseInfiniteQueryOptions<LogoutUser['unionResponse'], TError, TData, TQueryData, LogoutUserInfiniteQueryKey> {
   const queryKey = logoutUserInfiniteQueryKey()
   return {
     queryKey,
@@ -90,14 +96,14 @@ export function logoutUserInfiniteQueryOptions<
  */
 
 export function useLogoutUserHookInfinite<
-  TQueryFnData extends LogoutUserInfinite['data'] = LogoutUserInfinite['data'],
-  TError = LogoutUserInfinite['error'],
-  TData = LogoutUserInfinite['response'],
-  TQueryData = LogoutUserInfinite['response'],
+  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
+  TError = LogoutUser['error'],
+  TData = LogoutUser['response'],
+  TQueryData = LogoutUser['response'],
   TQueryKey extends QueryKey = LogoutUserInfiniteQueryKey,
 >(options: {
   query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: LogoutUserInfinite['client']['paramaters']
+  client?: LogoutUser['client']['paramaters']
 } = {}): UseInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {

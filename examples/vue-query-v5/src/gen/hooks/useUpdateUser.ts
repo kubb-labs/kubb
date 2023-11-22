@@ -1,29 +1,30 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
-import type { KubbQueryFactory } from './types'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams, UpdateUserError } from '../models/UpdateUser'
 import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
-type UpdateUser = KubbQueryFactory<
-  UpdateUserMutationResponse,
-  UpdateUserError,
-  UpdateUserMutationRequest,
-  UpdateUserPathParams,
-  never,
-  never,
-  UpdateUserMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type UpdateUserClient = typeof client<UpdateUserMutationResponse, UpdateUserError, UpdateUserMutationRequest>
+type UpdateUser = {
+  data: UpdateUserMutationResponse
+  error: UpdateUserError
+  request: UpdateUserMutationRequest
+  pathParams: UpdateUserPathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<UpdateUserClient>>['data']
+  unionResponse: Awaited<ReturnType<UpdateUserClient>> | Awaited<ReturnType<UpdateUserClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<UpdateUserClient>[0]>
+    return: Awaited<ReturnType<UpdateUserClient>>
   }
-> /**
+}
+/**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username
  */
-
 export function useUpdateUser<TData = UpdateUser['response'], TError = UpdateUser['error']>(
   refUsername: MaybeRef<UpdateUserPathParams['username']>,
   options: {

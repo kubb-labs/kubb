@@ -1,7 +1,6 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
-import type { KubbQueryFactory } from './types'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -11,23 +10,25 @@ import type {
 import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
-type UpdatePetWithForm = KubbQueryFactory<
-  UpdatePetWithFormMutationResponse,
-  UpdatePetWithForm405,
-  never,
-  UpdatePetWithFormPathParams,
-  UpdatePetWithFormQueryParams,
-  never,
-  UpdatePetWithFormMutationResponse,
-  {
-    dataReturnType: 'data'
-    type: 'mutation'
+type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
+type UpdatePetWithForm = {
+  data: UpdatePetWithFormMutationResponse
+  error: UpdatePetWithForm405
+  request: never
+  pathParams: UpdatePetWithFormPathParams
+  queryParams: UpdatePetWithFormQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<UpdatePetWithFormClient>>['data']
+  unionResponse: Awaited<ReturnType<UpdatePetWithFormClient>> | Awaited<ReturnType<UpdatePetWithFormClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<UpdatePetWithFormClient>[0]>
+    return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
-> /**
+}
+/**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId
  */
-
 export function useUpdatePetWithForm<TData = UpdatePetWithForm['response'], TError = UpdatePetWithForm['error']>(
   refPetId: MaybeRef<UpdatePetWithFormPathParams['petId']>,
   refParams?: MaybeRef<UpdatePetWithFormQueryParams>,

@@ -1,23 +1,24 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
-import type { KubbQueryFactory } from './types'
 import type { LogoutUserQueryResponse, LogoutUserError } from '../models/LogoutUser'
 import type { UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
 
-type LogoutUser = KubbQueryFactory<
-  LogoutUserQueryResponse,
-  LogoutUserError,
-  never,
-  never,
-  never,
-  never,
-  LogoutUserQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type LogoutUserClient = typeof client<LogoutUserQueryResponse, LogoutUserError, never>
+type LogoutUser = {
+  data: LogoutUserQueryResponse
+  error: LogoutUserError
+  request: never
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<LogoutUserClient>>['data']
+  unionResponse: Awaited<ReturnType<LogoutUserClient>> | Awaited<ReturnType<LogoutUserClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<LogoutUserClient>[0]>
+    return: Awaited<ReturnType<LogoutUserClient>>
   }
->
+}
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
 export function logoutUserQueryOptions<

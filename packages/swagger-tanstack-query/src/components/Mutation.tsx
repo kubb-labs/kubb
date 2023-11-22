@@ -1,7 +1,5 @@
-import path from 'node:path'
-
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
-import { File, Function, Type, usePlugin } from '@kubb/react'
+import { File, Function, usePlugin } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
@@ -10,15 +8,11 @@ import { camelCase, pascalCase } from 'change-case'
 
 import { getImportNames } from '../utils.ts'
 import { MutationImports } from './MutationImports.tsx'
+import { SchemaType } from './SchemaType.tsx'
 
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
-
-type Factory = {
-  name: string
-  generics: [data: string, error: string, request: string, pathParams: string, queryParams: string, headerParams: string, response: string, options: string]
-}
 
 type TemplateProps = {
   /**
@@ -215,6 +209,9 @@ const defaultTemplates = {
 } as const
 
 type Props = {
+  factory: {
+    name: string
+  }
   resultType: string
   hookName: string
   optionsType: string
@@ -225,31 +222,17 @@ type Props = {
 }
 
 export function Mutation({
+  factory,
   resultType,
   hookName,
   optionsType,
   Template = defaultTemplates.react,
 }: Props): ReactNode {
-  const { options: { dataReturnType = 'data' } } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
-  const factoryName = useOperationName({ type: 'type' })
 
   const schemas = useSchemas()
 
-  const factory: Factory = {
-    name: factoryName,
-    generics: [
-      schemas.response.name,
-      schemas.errors?.map((error) => error.name).join(' | ') || 'never',
-      schemas.request?.name || 'never',
-      schemas.pathParams?.name || 'never',
-      schemas.queryParams?.name || 'never',
-      schemas.headerParams?.name || 'never',
-      schemas.response.name,
-      `{ dataReturnType: '${dataReturnType}'; type: 'mutation' }`,
-    ],
-  }
   const generics = new FunctionParams()
   const params = new FunctionParams()
   const client = {
@@ -313,9 +296,6 @@ export function Mutation({
 
   return (
     <>
-      <Type name={factory.name}>
-        {`KubbQueryFactory<${factory.generics.join(', ')}>`}
-      </Type>
       <Template
         name={name}
         generics={generics.toString()}
@@ -342,56 +322,54 @@ type FileProps = {
 }
 
 Mutation.File = function({ templates = defaultTemplates, imports = MutationImports.templates }: FileProps): ReactNode {
-  const { options: { clientImportPath, templatesPath, framework } } = usePlugin<PluginOptions>()
+  const { options: { clientImportPath, framework } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
+  const factoryName = useOperationName({ type: 'type' })
 
   const importNames = getImportNames()
   const Template = templates[framework]
   const Import = imports[framework]
+  const factory = {
+    name: factoryName,
+  }
 
   return (
-    <>
-      <File override baseName={'types.ts'} path={path.resolve(file.path, '../types.ts')}>
-        <File.Import name={'client'} path={clientImportPath} />
-        <File.Source path={path.resolve(templatesPath, './types.ts')} print removeComments />
-      </File>
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
-        <File.Import root={file.path} path={path.resolve(file.path, '../types.ts')} name={['KubbQueryFactory']} isTypeOnly />
-
-        <File.Import name={'client'} path={clientImportPath} />
-        <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
-        <File.Import
-          name={[
-            schemas.request?.name,
-            schemas.response.name,
-            schemas.pathParams?.name,
-            schemas.queryParams?.name,
-            schemas.headerParams?.name,
-            ...schemas.errors?.map((error) => error.name) || [],
-          ].filter(
-            Boolean,
-          )}
-          root={file.path}
-          path={fileType.path}
-          isTypeOnly
+    <File<FileMeta>
+      baseName={file.baseName}
+      path={file.path}
+      meta={file.meta}
+    >
+      <File.Import name={'client'} path={clientImportPath} />
+      <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
+      <File.Import
+        name={[
+          schemas.request?.name,
+          schemas.response.name,
+          schemas.pathParams?.name,
+          schemas.queryParams?.name,
+          schemas.headerParams?.name,
+          ...schemas.errors?.map((error) => error.name) || [],
+        ].filter(
+          Boolean,
+        )}
+        root={file.path}
+        path={fileType.path}
+        isTypeOnly
+      />
+      <MutationImports Template={Import} />
+      <File.Source>
+        <SchemaType factory={factory} />
+        <Mutation
+          factory={factory}
+          Template={Template}
+          hookName={importNames.mutation[framework].hookName}
+          resultType={importNames.mutation[framework].resultType}
+          optionsType={importNames.mutation[framework].optionsType}
         />
-        <MutationImports Template={Import} />
-        <File.Source>
-          <Mutation
-            Template={Template}
-            hookName={importNames.mutation[framework].hookName}
-            resultType={importNames.mutation[framework].resultType}
-            optionsType={importNames.mutation[framework].optionsType}
-          />
-        </File.Source>
-      </File>
-    </>
+      </File.Source>
+    </File>
   )
 }
 

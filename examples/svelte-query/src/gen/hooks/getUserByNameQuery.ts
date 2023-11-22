@@ -1,22 +1,23 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
-import type { KubbQueryFactory } from './types'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, CreateInfiniteQueryOptions, CreateInfiniteQueryResult } from '@tanstack/svelte-query'
 
-type GetUserByName = KubbQueryFactory<
-  GetUserByNameQueryResponse,
-  GetUserByName400 | GetUserByName404,
-  never,
-  GetUserByNamePathParams,
-  never,
-  never,
-  GetUserByNameQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
+type GetUserByName = {
+  data: GetUserByNameQueryResponse
+  error: GetUserByName400 | GetUserByName404
+  request: never
+  pathParams: GetUserByNamePathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetUserByNameClient>>['data']
+  unionResponse: Awaited<ReturnType<GetUserByNameClient>> | Awaited<ReturnType<GetUserByNameClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<GetUserByNameClient>[0]>
+    return: Awaited<ReturnType<GetUserByNameClient>>
   }
->
+}
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 export function getUserByNameQueryOptions<
@@ -71,31 +72,18 @@ export function getUserByNameQuery<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-type GetUserByNameInfinite = KubbQueryFactory<
-  GetUserByNameQueryResponse,
-  GetUserByName400 | GetUserByName404,
-  never,
-  GetUserByNamePathParams,
-  never,
-  never,
-  GetUserByNameQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
-  }
->
 export const getUserByNameInfiniteQueryKey = (username: GetUserByNamePathParams['username']) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameInfiniteQueryKey = ReturnType<typeof getUserByNameInfiniteQueryKey>
 export function getUserByNameInfiniteQueryOptions<
-  TQueryFnData extends GetUserByNameInfinite['data'] = GetUserByNameInfinite['data'],
-  TError = GetUserByNameInfinite['error'],
-  TData = GetUserByNameInfinite['response'],
-  TQueryData = GetUserByNameInfinite['response'],
+  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
+  TError = GetUserByName['error'],
+  TData = GetUserByName['response'],
+  TQueryData = GetUserByName['response'],
 >(
   username: GetUserByNamePathParams['username'],
-  options: GetUserByNameInfinite['client']['paramaters'] = {},
-): CreateInfiniteQueryOptions<GetUserByNameInfinite['unionResponse'], TError, TData, TQueryData, GetUserByNameInfiniteQueryKey> {
+  options: GetUserByName['client']['paramaters'] = {},
+): CreateInfiniteQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameInfiniteQueryKey> {
   const queryKey = getUserByNameInfiniteQueryKey(username)
   return {
     queryKey,
@@ -113,16 +101,16 @@ export function getUserByNameInfiniteQueryOptions<
  */
 
 export function getUserByNameQueryInfinite<
-  TQueryFnData extends GetUserByNameInfinite['data'] = GetUserByNameInfinite['data'],
-  TError = GetUserByNameInfinite['error'],
-  TData = GetUserByNameInfinite['response'],
-  TQueryData = GetUserByNameInfinite['response'],
+  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
+  TError = GetUserByName['error'],
+  TData = GetUserByName['response'],
+  TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
 >(
   username: GetUserByNamePathParams['username'],
   options: {
     query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: GetUserByNameInfinite['client']['paramaters']
+    client?: GetUserByName['client']['paramaters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey

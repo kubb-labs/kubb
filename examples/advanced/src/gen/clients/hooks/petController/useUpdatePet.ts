@@ -1,27 +1,28 @@
 import client from '../../../../tanstack-query-client.ts'
 import { useMutation } from '@tanstack/react-query'
-import type { KubbQueryFactory } from './types'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../../../models/ts/petController/UpdatePet'
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
-type UpdatePet = KubbQueryFactory<
-  UpdatePetMutationResponse,
-  UpdatePet400 | UpdatePet404 | UpdatePet405,
-  UpdatePetMutationRequest,
-  never,
-  never,
-  never,
-  UpdatePetMutationResponse,
-  {
-    dataReturnType: 'full'
-    type: 'mutation'
+type UpdatePetClient = typeof client<UpdatePetMutationResponse, UpdatePet400 | UpdatePet404 | UpdatePet405, UpdatePetMutationRequest>
+type UpdatePet = {
+  data: UpdatePetMutationResponse
+  error: UpdatePet400 | UpdatePet404 | UpdatePet405
+  request: UpdatePetMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<UpdatePetClient>>
+  unionResponse: Awaited<ReturnType<UpdatePetClient>> | Awaited<ReturnType<UpdatePetClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<UpdatePetClient>[0]>
+    return: Awaited<ReturnType<UpdatePetClient>>
   }
-> /**
+}
+/**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
  * @link /pet
  */
-
 export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, UpdatePet['request']>
   client?: UpdatePet['client']['paramaters']

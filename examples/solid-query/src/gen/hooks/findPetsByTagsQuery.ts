@@ -1,22 +1,23 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery } from '@tanstack/solid-query'
-import type { KubbQueryFactory } from './types'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey } from '@tanstack/solid-query'
 
-type FindPetsByTags = KubbQueryFactory<
-  FindPetsByTagsQueryResponse,
-  FindPetsByTags400,
-  never,
-  never,
-  FindPetsByTagsQueryParams,
-  never,
-  FindPetsByTagsQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
+type FindPetsByTags = {
+  data: FindPetsByTagsQueryResponse
+  error: FindPetsByTags400
+  request: never
+  pathParams: never
+  queryParams: FindPetsByTagsQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<FindPetsByTagsClient>>['data']
+  unionResponse: Awaited<ReturnType<FindPetsByTagsClient>> | Awaited<ReturnType<FindPetsByTagsClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
+    return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
->
+}
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export function findPetsByTagsQueryOptions<

@@ -1,22 +1,23 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
-import type { KubbQueryFactory } from './types'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, CreateInfiniteQueryOptions, CreateInfiniteQueryResult } from '@tanstack/svelte-query'
 
-type LoginUser = KubbQueryFactory<
-  LoginUserQueryResponse,
-  LoginUser400,
-  never,
-  never,
-  LoginUserQueryParams,
-  never,
-  LoginUserQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
+type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
+type LoginUser = {
+  data: LoginUserQueryResponse
+  error: LoginUser400
+  request: never
+  pathParams: never
+  queryParams: LoginUserQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<LoginUserClient>>['data']
+  unionResponse: Awaited<ReturnType<LoginUserClient>> | Awaited<ReturnType<LoginUserClient>>['data']
+  client: {
+    paramaters: Partial<Parameters<LoginUserClient>[0]>
+    return: Awaited<ReturnType<LoginUserClient>>
   }
->
+}
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 export function loginUserQueryOptions<
@@ -72,30 +73,17 @@ export function loginUserQuery<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-type LoginUserInfinite = KubbQueryFactory<
-  LoginUserQueryResponse,
-  LoginUser400,
-  never,
-  never,
-  LoginUserQueryParams,
-  never,
-  LoginUserQueryResponse,
-  {
-    dataReturnType: 'data'
-    type: 'query'
-  }
->
-export const loginUserInfiniteQueryKey = (params?: LoginUserInfinite['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+export const loginUserInfiniteQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserInfiniteQueryKey = ReturnType<typeof loginUserInfiniteQueryKey>
 export function loginUserInfiniteQueryOptions<
-  TQueryFnData extends LoginUserInfinite['data'] = LoginUserInfinite['data'],
-  TError = LoginUserInfinite['error'],
-  TData = LoginUserInfinite['response'],
-  TQueryData = LoginUserInfinite['response'],
+  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
+  TError = LoginUser['error'],
+  TData = LoginUser['response'],
+  TQueryData = LoginUser['response'],
 >(
-  params?: LoginUserInfinite['queryParams'],
-  options: LoginUserInfinite['client']['paramaters'] = {},
-): CreateInfiniteQueryOptions<LoginUserInfinite['unionResponse'], TError, TData, TQueryData, LoginUserInfiniteQueryKey> {
+  params?: LoginUser['queryParams'],
+  options: LoginUser['client']['paramaters'] = {},
+): CreateInfiniteQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserInfiniteQueryKey> {
   const queryKey = loginUserInfiniteQueryKey(params)
   return {
     queryKey,
@@ -118,16 +106,16 @@ export function loginUserInfiniteQueryOptions<
  */
 
 export function loginUserQueryInfinite<
-  TQueryFnData extends LoginUserInfinite['data'] = LoginUserInfinite['data'],
-  TError = LoginUserInfinite['error'],
-  TData = LoginUserInfinite['response'],
-  TQueryData = LoginUserInfinite['response'],
+  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
+  TError = LoginUser['error'],
+  TData = LoginUser['response'],
+  TQueryData = LoginUser['response'],
   TQueryKey extends QueryKey = LoginUserInfiniteQueryKey,
 >(
-  params?: LoginUserInfinite['queryParams'],
+  params?: LoginUser['queryParams'],
   options: {
     query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: LoginUserInfinite['client']['paramaters']
+    client?: LoginUser['client']['paramaters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey
