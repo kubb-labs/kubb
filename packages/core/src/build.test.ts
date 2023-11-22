@@ -25,8 +25,8 @@ describe('build', () => {
       name: 'plugin',
       options: undefined as any,
       api: undefined as never,
-      kind: 'schema',
-      key: ['schema', 'plugin'],
+
+      key: ['plugin'],
       async buildStart(...params) {
         pluginMocks.buildStart(...params)
 
@@ -39,11 +39,6 @@ describe('build', () => {
         pluginMocks.load(...params)
 
         return 'id'
-      },
-      validate(...params) {
-        pluginMocks.validate(...params)
-
-        return true
       },
       transform(...params) {
         pluginMocks.transform(...params)
@@ -97,7 +92,6 @@ describe('build', () => {
       },
     ])
 
-    expect(pluginMocks.validate).toHaveBeenCalledTimes(1)
     expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
 
     expect(pluginMocks.load).toHaveBeenCalledTimes(1)

@@ -131,7 +131,7 @@ export type ImportMeta = {
   path: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger', 'schema', Options, Options, API, never, AppMeta>
+export type PluginOptions = PluginFactoryOptions<'swagger', Options, Options, API, never, AppMeta>
 
 declare module '@kubb/core' {
   export interface _Register {

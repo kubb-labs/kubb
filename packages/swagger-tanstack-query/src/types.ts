@@ -144,7 +144,7 @@ export type FileMeta = {
   tag?: string
 }
 type AppMeta = SwaggerAppMeta
-export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', 'controller', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
+export type PluginOptions = PluginFactoryOptions<'swagger-tanstack-query', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
 
 declare module '@kubb/core' {
   export interface _Register {

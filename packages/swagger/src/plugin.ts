@@ -10,7 +10,7 @@ import type { Logger } from '@kubb/core/utils'
 import type { Oas, OasTypes, PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'schemas', validate = true, serverIndex = 0, contentType } = options
@@ -32,7 +32,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   return {
     name: pluginName,
     options,
-    kind: 'schema',
+
     api() {
       const { config, logger } = this
 

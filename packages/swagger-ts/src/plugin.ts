@@ -14,7 +14,7 @@ import type { OasTypes, PluginOptions as SwaggerPluginOptions } from '@kubb/swag
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-ts' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
@@ -30,17 +30,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     exportAs,
   } = options
   const template = group?.output ? group.output : `${output}/{{tag}}Controller`
-  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
     options,
-    kind: 'schema',
-    validate(plugins) {
-      pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
-
-      return true
-    },
+    pre: [swaggerPluginName],
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output))
@@ -78,7 +72,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath)
     },
     async buildStart() {
-      const [swaggerPlugin] = pluginsOptions
+      const [swaggerPlugin]: [KubbPlugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
 
       const oas = await swaggerPlugin.api.getOas()
 

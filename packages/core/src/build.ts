@@ -157,11 +157,6 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 
   const { fileManager, logger } = pluginManager
 
-  await pluginManager.hookParallel<'validate', true>({
-    hookName: 'validate',
-    parameters: [pluginManager.plugins],
-  })
-
   await pluginManager.hookParallel({
     hookName: 'buildStart',
     parameters: [options.config],
@@ -183,11 +178,6 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
   const { fileManager, logger } = pluginManager
 
   try {
-    await pluginManager.hookParallel<'validate', true>({
-      hookName: 'validate',
-      parameters: [pluginManager.plugins],
-    })
-
     await pluginManager.hookParallel({
       hookName: 'buildStart',
       parameters: [options.config],

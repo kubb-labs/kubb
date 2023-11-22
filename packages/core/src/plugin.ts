@@ -26,10 +26,10 @@ type Options = {
 }
 
 // not publicly exported
-export type CorePluginOptions = PluginFactoryOptions<'core', 'controller', Options, Options, PluginContext, never>
+export type CorePluginOptions = PluginFactoryOptions<'core', Options, Options, PluginContext, never>
 
 export const pluginName = 'core' satisfies CorePluginOptions['name']
-export const pluginKey: CorePluginOptions['key'] = ['controller', pluginName] satisfies CorePluginOptions['key']
+export const pluginKey: CorePluginOptions['key'] = [pluginName] satisfies CorePluginOptions['key']
 
 export const definePlugin = createPlugin<CorePluginOptions>((options) => {
   const { fileManager, pluginManager, resolvePath, resolveName, logger } = options
@@ -37,8 +37,8 @@ export const definePlugin = createPlugin<CorePluginOptions>((options) => {
   return {
     name: pluginName,
     options,
-    key: ['controller', 'core'],
-    kind: 'controller',
+    key: ['core'],
+
     api() {
       return {
         get config() {

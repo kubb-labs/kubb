@@ -388,28 +388,46 @@ export class PluginManager {
 
       return plugins.filter((item) => item[hookName])
     }
+    // TODO add test case for sorting with pre/post
 
-    return plugins
+    return plugins.map(plugin => {
+      if (plugin.pre) {
+        const isValid = plugin.pre.every(pluginName => plugins.find(pluginToFind => pluginToFind.name === pluginName))
+
+        if (!isValid) {
+          throw new ValidationPluginError(`This plugin has a pre set that is not valid(${JSON.stringify(plugin.pre, undefined, 2)})`)
+        }
+      }
+
+      return plugin
+    }).sort((a, b) => {
+      if (b.pre?.includes(a.name)) {
+        return 1
+      }
+      if (b.post?.includes(a.name)) {
+        return -1
+      }
+      return 0
+    })
   }
 
   getPluginsByKey(hookName: keyof PluginLifecycle, pluginKey: KubbPlugin['key']): KubbPlugin[] {
     const plugins = [...this.plugins]
-    const [searchKind, searchPluginName, searchIdentifier] = pluginKey
+    const [searchPluginName, searchIdentifier] = pluginKey
 
     const pluginByPluginName = plugins
       .filter((plugin) => plugin[hookName])
       .filter((item) => {
-        const [kind, name, identifier] = item.key
+        const [name, identifier] = item.key
 
         const identifierCheck = identifier?.toString() === searchIdentifier?.toString()
-        const kindCheck = kind === searchKind
         const nameCheck = name === searchPluginName
 
         if (searchIdentifier) {
-          return identifierCheck && kindCheck && nameCheck
+          return identifierCheck && nameCheck
         }
 
-        return kindCheck && nameCheck
+        return nameCheck
       })
 
     if (!pluginByPluginName?.length) {
@@ -569,7 +587,7 @@ export class PluginManager {
 
     setUniqueName(plugin.name, usedPluginNames)
 
-    const key = plugin.key || ([plugin.kind, plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.kind, typeof plugin.name, string])
+    const key = [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.name, string]
 
     if (plugin.name !== 'core' && usedPluginNames[plugin.name]! >= 2) {
       pluginManager.logger.warn('Using multiple of the same plugin is an experimental feature')
@@ -624,6 +642,6 @@ export class PluginManager {
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   static get hooks() {
-    return ['validate', 'buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'] as const
+    return ['buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'] as const
   }
 }

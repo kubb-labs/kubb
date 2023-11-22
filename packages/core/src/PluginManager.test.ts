@@ -21,8 +21,8 @@ describe('PluginManager', () => {
       name: 'pluginA',
       options: undefined as any,
       api: undefined as never,
-      kind: 'schema',
-      key: ['schema', 'pluginA'],
+
+      key: ['pluginA'],
       buildStart() {
         pluginAMocks.buildStart()
       },
@@ -47,8 +47,8 @@ describe('PluginManager', () => {
       name: 'pluginB',
       options: undefined as any,
       api: undefined as never,
-      kind: 'schema',
-      key: ['schema', 'pluginB', 1],
+
+      key: ['pluginB', 1],
       buildStart() {
         pluginBMocks.buildStart()
       },
@@ -73,8 +73,8 @@ describe('PluginManager', () => {
       name: 'pluginB',
       options: undefined as any,
       api: undefined as never,
-      kind: 'schema',
-      key: ['schema', 'pluginB', 2],
+
+      key: ['pluginB', 2],
       buildStart() {
         pluginBMocks.buildStart()
       },
@@ -119,8 +119,8 @@ describe('PluginManager', () => {
     expect(pluginManager.queue).toBeDefined()
     expect(pluginManager.fileManager).toBeDefined()
     expect(pluginManager.plugins.length).toBe(config.plugins.length + 1)
-    expect(PluginManager.hooks).toStrictEqual(['validate', 'buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'])
-    expect(pluginManager.getPluginsByKey('buildStart', ['schema', 'pluginB'])?.[0]?.name).toBe('pluginB')
+    expect(PluginManager.hooks).toStrictEqual(['buildStart', 'resolvePath', 'resolveName', 'load', 'transform', 'writeFile', 'buildEnd'])
+    expect(pluginManager.getPluginsByKey('buildStart', ['pluginB'])?.[0]?.name).toBe('pluginB')
   })
 
   test('hookFirst', async () => {
@@ -201,7 +201,7 @@ describe('PluginManager', () => {
   test('resolvePath with `pluginKey`', () => {
     const path = pluginManager.resolvePath({
       baseName: 'fileNameB',
-      pluginKey: ['schema', 'pluginB', 1],
+      pluginKey: ['pluginB', 1],
     })
 
     expect(path).toBe('pluginB/gen')
@@ -211,7 +211,7 @@ describe('PluginManager', () => {
     try {
       pluginManager.resolvePath({
         baseName: 'fileNameB',
-        pluginKey: ['schema', 'pluginB'],
+        pluginKey: ['pluginB'],
       })
     } catch (e) {
       expect(e).toBeDefined()
@@ -235,7 +235,7 @@ describe('PluginManager', () => {
 
     const name = pluginManager.resolveName({
       name: 'nameB',
-      pluginKey: ['schema', 'pluginB', '1'],
+      pluginKey: ['pluginB', '1'],
     })
 
     expect(name).toBe('pluginBName')
@@ -244,7 +244,7 @@ describe('PluginManager', () => {
 
   test('hookForPlugin', async () => {
     await pluginManager.hookForPlugin({
-      pluginKey: ['schema', 'pluginB'],
+      pluginKey: ['pluginB'],
       hookName: 'resolvePath',
       parameters: ['path'],
     })

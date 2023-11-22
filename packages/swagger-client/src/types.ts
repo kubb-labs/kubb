@@ -105,7 +105,7 @@ export type FileMeta = {
 
 type AppMeta = SwaggerAppMeta
 
-export type PluginOptions = PluginFactoryOptions<'swagger-client', 'controller', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
+export type PluginOptions = PluginFactoryOptions<'swagger-client', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
 
 declare module '@kubb/core' {
   export interface _Register {

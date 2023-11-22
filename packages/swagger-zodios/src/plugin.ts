@@ -14,21 +14,15 @@ import type { PluginOptions as SwaggerZodPluginOptions } from '@kubb/swagger-zod
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-zodios' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'zodios.ts' } = options
-  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>, KubbPlugin<SwaggerZodPluginOptions>]
 
   return {
     name: pluginName,
     options,
-    kind: 'controller',
-    validate(plugins) {
-      pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions, SwaggerZodPluginOptions>(plugins, [swaggerPluginName, swaggerZodPluginName])
-
-      return true
-    },
+    pre: [swaggerPluginName, swaggerZodPluginName],
     resolvePath(baseName, _directory) {
       const root = path.resolve(this.config.root, this.config.output.path)
 
@@ -45,7 +39,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath)
     },
     async buildStart() {
-      const [swaggerPlugin, swaggerZodPlugin] = pluginsOptions
+      const [swaggerPlugin, swaggerZodPlugin]: [KubbPlugin<SwaggerPluginOptions>, KubbPlugin<SwaggerZodPluginOptions>] = PluginManager.getDependedPlugins<
+        SwaggerPluginOptions,
+        SwaggerZodPluginOptions
+      >(this.plugins, [swaggerPluginName, swaggerZodPluginName])
       const oas = await swaggerPlugin.api.getOas()
 
       const operationGenerator = new OperationGenerator(

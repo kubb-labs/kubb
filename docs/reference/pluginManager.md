@@ -13,15 +13,25 @@ Under construction
 
 [Type system](https://github.com/kubb-project/kubb/blob/main/packages/core/src/types.ts)
 
-## 1. validate
+## pre
 
-`hookParallel`: Valdiate all plugins to see if their depended plugins are installed and configured.
+Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.<br/>
+
+Can be used to validate depended plugins.
 
 ```typescript
-validate: (this: PluginContext, plugins: Plugin[]) => WithPromise<ValidationResult>
+pre: string[]
 ```
 
-## 2. buildStart
+## post
+
+Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
+
+```typescript
+post: string[]
+```
+
+## buildStart
 
 `hookParallel`: Start of the lifecycle of a plugin.
 BuildStart is used to implement your transformation logic and also the only place where you can run _this.addFile_.
@@ -30,7 +40,7 @@ BuildStart is used to implement your transformation logic and also the only plac
 buildStart: (this: PluginContext, kubbConfig: KubbConfig) => WithPromise<void>
 ```
 
-## 3. resolvePath
+## resolvePath
 
 `hookFirst`: Resolve to an id based on fileName(example: `./Pet.ts`) and directory(example: `./models`).
 
@@ -38,7 +48,7 @@ buildStart: (this: PluginContext, kubbConfig: KubbConfig) => WithPromise<void>
 resolvePath: (this: PluginContext, fileName: string, directory?: string, options?: Record<string, any>) => string | null | undefined
 ```
 
-## 4. resolveName
+## resolveName
 
 `hookFirst`: Resolve to a name based on a string. Useful when converting to PascalCase or camelCase.
 
@@ -46,7 +56,7 @@ resolvePath: (this: PluginContext, fileName: string, directory?: string, options
 resolveName: (this: PluginContext, name: string, type?: string) => string
 ```
 
-## 5. load
+## load
 
 `hookFirst`: Makes it possible to run async logic to override the path defined previously by `resolvePath`.
 
@@ -54,7 +64,7 @@ resolveName: (this: PluginContext, name: string, type?: string) => string
 load: (this: PluginContext, path: Path) => WithPromise<TransformResult | null>
 ```
 
-## 6. transform
+## transform
 
 `hookReduceArg0`: Transform the source-code.
 
@@ -62,7 +72,7 @@ load: (this: PluginContext, path: Path) => WithPromise<TransformResult | null>
 transform: (this: PluginContext, source: string, path: Path) => WithPromise<TransformResult>
 ```
 
-## 7. writeFile
+## writeFile
 
 `hookParallel`: Write the result to the file-system based on the id(defined by `resolvePath` or changed by `load`).
 
@@ -70,7 +80,7 @@ transform: (this: PluginContext, source: string, path: Path) => WithPromise<Tran
 writeFile: (this: PluginContext, source: string | undefined, path: Path) => WithPromise<void>
 ```
 
-## 8. buildEnd
+## buildEnd
 
 `hookParallel`: End of the plugin lifecycle.
 

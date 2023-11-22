@@ -15,7 +15,7 @@ import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-swr' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
@@ -30,7 +30,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     clientImportPath = '@kubb/swagger-client/client',
   } = options
   const template = group?.output ? group.output : `${output}/{{tag}}SWRController`
-  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
@@ -44,12 +43,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       clientImportPath,
       dataReturnType,
     },
-    kind: 'controller',
-    validate(plugins) {
-      pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
-
-      return true
-    },
+    pre: [swaggerPluginName],
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output))
@@ -88,7 +82,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return resolvedName
     },
     async buildStart() {
-      const [swaggerPlugin] = pluginsOptions
+      const [swaggerPlugin]: [KubbPlugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
 
       const oas = await swaggerPlugin.api.getOas()
 
@@ -131,7 +125,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           exportAs: group.exportAs || '{{tag}}SWRHooks',
           root,
           output,
-          resolveName: this.pluginManager.resolveName,
         })
 
         await this.addFile(...rootFiles)
