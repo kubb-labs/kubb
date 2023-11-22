@@ -4,7 +4,7 @@ import { PackageManager } from '@kubb/core'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { File, Function, Type, usePlugin } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useResolveName, useSchemas } from '@kubb/swagger/hooks'
-import { getASTParams, getComments, getParams } from '@kubb/swagger/utils'
+import { getASTParams, getComments, getParams, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
 import { pascalCase } from 'change-case'
@@ -168,13 +168,13 @@ const defaultTemplates = {
           name: 'refParams',
           type: `MaybeRef<${schemas.queryParams?.name}>`,
           enabled: client.withQueryParams,
-          required: !!schemas.queryParams?.schema.required?.length,
+          required: isRequired(schemas.queryParams?.schema),
         },
         {
           name: 'refHeaders',
           type: `MaybeRef<${schemas.headerParams?.name}>`,
           enabled: client.withHeaders,
-          required: !!schemas.headerParams?.schema.required?.length,
+          required: isRequired(schemas.headerParams?.schema),
         },
         {
           name: 'options',
@@ -194,12 +194,12 @@ const defaultTemplates = {
         {
           name: 'refParams',
           enabled: client.withQueryParams,
-          required: !!schemas.queryParams?.schema.required?.length,
+          required: isRequired(schemas.queryParams?.schema),
         },
         {
           name: 'refHeaders',
           enabled: client.withHeaders,
-          required: !!schemas.headerParams?.schema.required?.length,
+          required: isRequired(schemas.headerParams?.schema),
         },
         {
           name: 'clientOptions',
@@ -318,13 +318,13 @@ export function Query({
       name: 'params',
       type: `${factory.name}['queryParams']`,
       enabled: client.withQueryParams,
-      required: !!schemas.queryParams?.schema.required?.length,
+      required: isRequired(schemas.queryParams?.schema),
     },
     {
       name: 'headers',
       type: `${factory.name}['headerParams']`,
       enabled: client.withHeaders,
-      required: !!schemas.headerParams?.schema.required?.length,
+      required: isRequired(schemas.headerParams?.schema),
     },
     {
       name: 'options',
@@ -343,12 +343,12 @@ export function Query({
     {
       name: 'params',
       enabled: client.withQueryParams,
-      required: !!schemas.queryParams?.schema.required?.length,
+      required: isRequired(schemas.queryParams?.schema),
     },
     {
       name: 'headers',
       enabled: client.withHeaders,
-      required: !!schemas.headerParams?.schema.required?.length,
+      required: isRequired(schemas.headerParams?.schema),
     },
     {
       name: 'clientOptions',

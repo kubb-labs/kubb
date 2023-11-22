@@ -1,7 +1,7 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function, Type } from '@kubb/react'
 import { useOperation, useSchemas } from '@kubb/swagger/hooks'
-import { getASTParams } from '@kubb/swagger/utils'
+import { getASTParams, isRequired } from '@kubb/swagger/utils'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
@@ -113,7 +113,7 @@ const defaultTemplates = {
           name: 'params',
           type: schemas.queryParams?.name ? `MaybeRef<${`${factory.name}["queryParams"]`}>` : undefined,
           enabled: !!schemas.queryParams?.name,
-          required: !!schemas.queryParams?.schema.required?.length,
+          required: isRequired(schemas.queryParams?.schema),
         },
       ])
 
@@ -157,7 +157,7 @@ export function QueryKey({ name, factory, Template = defaultTemplates.react }: P
       name: 'params',
       type: `${factory.name}["queryParams"]`,
       enabled: !!schemas.queryParams?.name,
-      required: !!schemas.queryParams?.schema.required?.length,
+      required: isRequired(schemas.queryParams?.schema),
     },
   ])
 

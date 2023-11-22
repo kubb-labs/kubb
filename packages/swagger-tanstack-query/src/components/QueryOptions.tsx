@@ -2,7 +2,7 @@ import { PackageManager } from '@kubb/core'
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
 import { Function, usePlugin } from '@kubb/react'
 import { useOperation, useResolveName, useSchemas } from '@kubb/swagger/hooks'
-import { getASTParams, getParams } from '@kubb/swagger/utils'
+import { getASTParams, getParams, isRequired } from '@kubb/swagger/utils'
 
 import { camelCase, pascalCase } from 'change-case'
 
@@ -186,13 +186,13 @@ const defaultTemplates = {
           name: 'refParams',
           type: `MaybeRef<${schemas.queryParams?.name}>`,
           enabled: client.withQueryParams,
-          required: !!schemas.queryParams?.schema.required?.length,
+          required: isRequired(schemas.queryParams?.schema),
         },
         {
           name: 'refHeaders',
           type: `MaybeRef<${schemas.headerParams?.name}>`,
           enabled: client.withHeaders,
-          required: !!schemas.headerParams?.schema.required?.length,
+          required: isRequired(schemas.headerParams?.schema),
         },
         {
           name: 'options',
@@ -270,13 +270,13 @@ export function QueryOptions({ factory, infinite, resultType, Template = default
       name: 'params',
       type: `${factory.name}['queryParams']`,
       enabled: !!schemas.queryParams?.name,
-      required: !!schemas.queryParams?.schema.required?.length,
+      required: isRequired(schemas.queryParams?.schema),
     },
     {
       name: 'headers',
       type: `${factory.name}['headerParams']`,
       enabled: !!schemas.headerParams?.name,
-      required: !!schemas.headerParams?.schema.required?.length,
+      required: isRequired(schemas.headerParams?.schema),
     },
     {
       name: 'options',

@@ -7,9 +7,10 @@ import { refsSorter } from '@kubb/swagger/utils'
 import { ZodGenerator } from '../generators/index.ts'
 
 import type { PluginContext } from '@kubb/core'
-import type { FileResolver } from '@kubb/swagger'
+import type { FileResolver, Oas } from '@kubb/swagger'
 
 type Options = {
+  oas: Oas
   fileResolver?: FileResolver
   resolveName: PluginContext['resolveName']
   withJSDocs?: boolean
@@ -37,7 +38,7 @@ export class ZodBuilder extends OasBuilder<Options, never> {
       .filter((operationSchema) => (name ? operationSchema.name === name : true))
       .sort(transformers.nameSorter)
       .map((operationSchema) => {
-        const generator = new ZodGenerator({ withJSDocs: this.options.withJSDocs, resolveName: this.options.resolveName })
+        const generator = new ZodGenerator({ withJSDocs: this.options.withJSDocs, resolveName: this.options.resolveName, oas: this.options.oas })
         const sources = generator.build({
           schema: operationSchema.schema,
           baseName: operationSchema.name,

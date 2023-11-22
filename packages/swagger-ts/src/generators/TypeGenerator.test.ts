@@ -6,7 +6,7 @@ import { OasManager } from '@kubb/swagger'
 import { format } from '../../mocks/format.ts'
 import { TypeGenerator } from './TypeGenerator.ts'
 
-import type { OpenAPIV3 } from '@kubb/swagger'
+import type { Oas, OasTypes } from '@kubb/swagger'
 
 describe('TypeGenerator simple', () => {
   const petStorePath = path.resolve(__dirname, '../../mocks/petStore.yaml')
@@ -20,10 +20,11 @@ describe('TypeGenerator simple', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: {} as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Pet as OpenAPIV3.SchemaObject, baseName: 'Pet' })
+    const node = generator.build({ schema: schemas?.Pet as OasTypes.SchemaObject, baseName: 'Pet' })
 
     const output = print(node, undefined)
 
@@ -41,10 +42,11 @@ describe('TypeGenerator simple', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'undefined',
+      oas: {} as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Pet as OpenAPIV3.SchemaObject, baseName: 'Pet' })
+    const node = generator.build({ schema: schemas?.Pet as OasTypes.SchemaObject, baseName: 'Pet' })
 
     const output = print(node, undefined)
 
@@ -62,10 +64,11 @@ describe('TypeGenerator simple', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionTokenAndUndefined',
+      oas: {} as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Pet as OpenAPIV3.SchemaObject, baseName: 'Pet' })
+    const node = generator.build({ schema: schemas?.Pet as OasTypes.SchemaObject, baseName: 'Pet' })
 
     const output = print(node, undefined)
 
@@ -82,9 +85,10 @@ describe('TypeGenerator simple', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: {} as Oas,
     })
 
-    const schema: OpenAPIV3.SchemaObject = {
+    const schema: OasTypes.SchemaObject = {
       type: 'object',
       properties: {
         foo: {
@@ -108,10 +112,11 @@ describe('TypeGenerator simple', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: {} as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Pets as OpenAPIV3.SchemaObject, baseName: 'Pets' })
+    const node = generator.build({ schema: schemas?.Pets as OasTypes.SchemaObject, baseName: 'Pets' })
 
     const output = print(node, undefined)
 
@@ -132,10 +137,11 @@ describe('TypeGenerator with refs', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: {} as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Pets as OpenAPIV3.SchemaObject, baseName: 'Pets' })
+    const node = generator.build({ schema: schemas?.Pets as OasTypes.SchemaObject, baseName: 'Pets' })
 
     const output = print(node, undefined)
 
@@ -157,10 +163,11 @@ describe('TypeGenerator with discriminators', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: {} as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const node = generator.build({ schema: schemas?.Petstore as OpenAPIV3.SchemaObject, baseName: 'Petstore' })
+    const node = generator.build({ schema: schemas?.Petstore as OasTypes.SchemaObject, baseName: 'Petstore' })
 
     const output = print(node, undefined)
 
@@ -177,10 +184,11 @@ describe('TypeGenerator with discriminators', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: { api: { openapi: '3.1' } } as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const cat = generator.build({ schema: schemas?.Cat as OpenAPIV3.SchemaObject, baseName: 'Cat' })
+    const cat = generator.build({ schema: schemas?.Cat as OasTypes.SchemaObject, baseName: 'Cat' })
 
     const cat_output = print(cat, undefined)
     expect(cat_output).toBeDefined()
@@ -196,10 +204,11 @@ describe('TypeGenerator with discriminators', () => {
       enumType: 'asConst',
       dateType: 'string',
       optionalType: 'questionToken',
+      oas: { api: { openapi: '3.1' } } as Oas,
     })
 
     const schemas = oas.getDefinition().components?.schemas
-    const dog = generator.build({ schema: schemas?.Dog as OpenAPIV3.SchemaObject, baseName: 'Dog' })
+    const dog = generator.build({ schema: schemas?.Dog as OasTypes.SchemaObject, baseName: 'Dog' })
 
     const dog_output = print(dog, undefined)
     expect(dog_output).toBeDefined()

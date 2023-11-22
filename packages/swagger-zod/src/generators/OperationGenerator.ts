@@ -27,7 +27,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
   }
 
   async get(operation: Operation, schemas: OperationSchemas, _options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, mode, plugin } = this.context
+    const { pluginManager, mode, plugin, oas } = this.context
 
     const zod = this.resolve(operation)
 
@@ -43,7 +43,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
       return getRelativePath(root, resolvedTypeId)
     }
 
-    const source = new ZodBuilder({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName: pluginManager.resolveName })
+    const source = new ZodBuilder({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName: pluginManager.resolveName, oas })
       .add(schemas.pathParams)
       .add(schemas.queryParams)
       .add(schemas.headerParams)
@@ -70,7 +70,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
   }
 
   async post(operation: Operation, schemas: OperationSchemas, _options: Options): Promise<KubbFile.File<FileMeta> | null> {
-    const { pluginManager, mode, plugin } = this.context
+    const { pluginManager, mode, plugin, oas } = this.context
 
     const zod = this.resolve(operation)
 
@@ -86,7 +86,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
       return getRelativePath(root, resolvedTypeId)
     }
 
-    const source = new ZodBuilder({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName: pluginManager.resolveName })
+    const source = new ZodBuilder({ fileResolver: mode === 'file' ? undefined : fileResolver, withJSDocs: true, resolveName: pluginManager.resolveName, oas })
       .add(schemas.pathParams)
       .add(schemas.queryParams)
       .add(schemas.headerParams)

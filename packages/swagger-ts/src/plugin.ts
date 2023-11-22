@@ -10,7 +10,7 @@ import { TypeBuilder } from './builders/index.ts'
 import { OperationGenerator } from './generators/index.ts'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
-import type { OpenAPIV3, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import type { OasTypes, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-ts' satisfies PluginOptions['name']
@@ -106,8 +106,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           enumType,
           dateType,
           optionalType,
+          oas,
         }).configure()
-        Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
+        Object.entries(schemas).forEach(([name, schema]: [string, OasTypes.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
           return builder.add({
             schema,
@@ -115,7 +116,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           })
         })
 
-        const mapFolderSchema = async ([name]: [string, OpenAPIV3.SchemaObject]) => {
+        const mapFolderSchema = async ([name]: [string, OasTypes.SchemaObject]) => {
           const resolvedPath = this.resolvePath({ baseName: `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts`, pluginKey: this.plugin.key })
 
           if (!resolvedPath) {
@@ -146,8 +147,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           enumType,
           dateType,
           optionalType,
+          oas,
         }).configure()
-        Object.entries(schemas).forEach(([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
+        Object.entries(schemas).forEach(([name, schema]: [string, OasTypes.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
           return builder.add({
             schema,

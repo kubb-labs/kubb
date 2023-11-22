@@ -1,18 +1,19 @@
 import { SchemaGenerator } from '@kubb/core'
 import { getUniqueName } from '@kubb/core/utils'
 import * as factory from '@kubb/parser/factory'
-import { isReference } from '@kubb/swagger/utils'
+import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
 
 import { camelCase } from 'change-case'
 
 import type { PluginContext } from '@kubb/core'
 import type { ts } from '@kubb/parser'
-import type { OpenAPIV3, Refs } from '@kubb/swagger'
+import type { Oas, OasTypes, OpenAPIV3, OpenAPIV3_1, Refs } from '@kubb/swagger'
 import type { Options as CaseOptions } from 'change-case'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
 type Options = {
+  oas: Oas
   usedEnumNames: Record<string, number>
 
   withJSDocs?: boolean
@@ -21,7 +22,8 @@ type Options = {
   dateType: 'string' | 'date'
   optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
 }
-export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObject, ts.Node[]> {
+
+export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject, ts.Node[]> {
   refs: Refs = {}
 
   extraNodes: ts.Node[] = []
@@ -37,14 +39,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   }
 
   constructor(
-    options: Options = {
-      usedEnumNames: {},
-      withJSDocs: true,
-      resolveName: ({ name }) => name,
-      enumType: 'asConst',
-      dateType: 'string',
-      optionalType: 'questionToken',
-    },
+    options: Options,
   ) {
     super(options)
 
@@ -57,7 +52,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     description,
     keysToOmit,
   }: {
-    schema: OpenAPIV3.SchemaObject
+    schema: OasTypes.SchemaObject
     baseName: string
     description?: string
     keysToOmit?: string[]
@@ -102,7 +97,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  #getTypeFromSchema(schema?: OpenAPIV3.SchemaObject, name?: string): ts.TypeNode | null {
+  #getTypeFromSchema(schema?: OasTypes.SchemaObject, name?: string): ts.TypeNode | null {
     const type = this.#getBaseTypeFromSchema(schema, name)
 
     if (!type) {
@@ -119,16 +114,16 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
   /**
    * Recursively creates a type literal with the given props.
    */
-  #getTypeFromProperties(baseSchema?: OpenAPIV3.SchemaObject, baseName?: string) {
+  #getTypeFromProperties(baseSchema?: OasTypes.SchemaObject, baseName?: string) {
     const { optionalType } = this.options
     const properties = baseSchema?.properties || {}
     const required = baseSchema?.required
     const additionalProperties = baseSchema?.additionalProperties
 
     const members: Array<ts.TypeElement | null> = Object.keys(properties).map((name) => {
-      const schema = properties[name] as OpenAPIV3.SchemaObject
+      const schema = properties[name] as OasTypes.SchemaObject
 
-      const isRequired = required && required.includes(name)
+      const isRequired = Array.isArray(required) ? required.includes(name) : !!required
       let type = this.#getTypeFromSchema(schema, this.options.resolveName({ name: `${baseName || ''} ${name}` }))
 
       if (!type) {
@@ -149,7 +144,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
           node: propertySignature,
           comments: [
             schema.description ? `@description ${schema.description}` : undefined,
-            schema.type ? `@type ${schema.type}${isRequired ? '' : ' | undefined'} ${schema.format || ''}` : undefined,
+            schema.type ? `@type ${schema.type?.toString()}${isRequired ? '' : ' | undefined'} ${schema.format || ''}` : undefined,
             schema.example ? `@example ${schema.example as string}` : undefined,
             schema.deprecated ? `@deprecated` : undefined,
             schema.default !== undefined && typeof schema.default === 'string' ? `@default '${schema.default}'` : undefined,
@@ -161,7 +156,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
       return propertySignature
     })
     if (additionalProperties) {
-      const type = additionalProperties === true ? factory.keywordTypeNodes.any : this.#getTypeFromSchema(additionalProperties as OpenAPIV3.SchemaObject)
+      const type = additionalProperties === true ? factory.keywordTypeNodes.any : this.#getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
 
       if (type) {
         members.push(factory.createIndexSignature(type))
@@ -192,11 +187,21 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     return factory.createTypeReferenceNode(ref.propertyName, undefined)
   }
 
+  #getParsedSchema(schema?: OasTypes.SchemaObject) {
+    const parsedSchema = getSchemaFactory(this.options.oas)(schema)
+    return parsedSchema
+  }
+
   /**
    * This is the very core of the OpenAPI to TS conversion - it takes a
    * schema and returns the appropriate type.
    */
-  #getBaseTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined, baseName?: string): ts.TypeNode | null {
+  #getBaseTypeFromSchema(
+    _schema: OasTypes.SchemaObject | undefined,
+    baseName?: string,
+  ): ts.TypeNode | null {
+    const { schema, version } = this.#getParsedSchema(_schema)
+
     if (!schema) {
       return factory.keywordTypeNodes.any
     }
@@ -207,13 +212,13 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.oneOf) {
       // union
-      const schemaWithoutOneOf = { ...schema, oneOf: undefined }
+      const schemaWithoutOneOf = { ...schema, oneOf: undefined } as OasTypes.SchemaObject
 
       const union = factory.createUnionDeclaration({
         withParentheses: true,
         nodes: schema.oneOf
-          .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
-            return this.#getBaseTypeFromSchema(item)
+          .map((item) => {
+            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)
           })
           .filter((item) => {
             return item && item !== factory.keywordTypeNodes.any
@@ -230,13 +235,13 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     }
 
     if (schema.anyOf) {
-      const schemaWithoutAnyOf = { ...schema, anyOf: undefined }
+      const schemaWithoutAnyOf = { ...schema, anyOf: undefined } as OasTypes.SchemaObject
 
       const union = factory.createUnionDeclaration({
         withParentheses: true,
         nodes: schema.anyOf
-          .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
-            return this.#getBaseTypeFromSchema(item)
+          .map((item) => {
+            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)
           })
           .filter((item) => {
             return item && item !== factory.keywordTypeNodes.any
@@ -253,13 +258,13 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     }
     if (schema.allOf) {
       // intersection/add
-      const schemaWithoutAllOf = { ...schema, allOf: undefined }
+      const schemaWithoutAllOf = { ...schema, allOf: undefined } as OasTypes.SchemaObject
 
       const and = factory.createIntersectionDeclaration({
         withParentheses: true,
         nodes: schema.allOf
-          .map((item: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject) => {
-            return this.#getBaseTypeFromSchema(item)
+          .map((item) => {
+            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)
           })
           .filter((item) => {
             return item && item !== factory.keywordTypeNodes.any
@@ -285,7 +290,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
       if ('x-enumNames' in schema) {
         enums = [...new Set(schema['x-enumNames'] as string[])].map((key: string, index) => {
-          return [key, schema.enum?.[index]]
+          return [key, schema.enum?.[index] as string]
         })
       }
 
@@ -302,7 +307,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if (schema.enum) {
       return factory.createUnionDeclaration({
-        nodes: schema.enum.map((name: string) => {
+        nodes: schema.enum.map((name) => {
           return factory.createLiteralTypeNode(typeof name === 'number' ? factory.createNumericLiteral(name) : factory.createStringLiteral(`${name}`))
         }) as unknown as Array<ts.TypeNode>,
       })
@@ -310,17 +315,19 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
 
     if ('items' in schema) {
       // items -> array
-      const node = this.#getTypeFromSchema(schema.items as OpenAPIV3.SchemaObject, baseName)
+      const node = this.#getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName)
       if (node) {
         return factory.createArrayTypeNode(node)
       }
     }
+
     /**
      * OpenAPI 3.1
      * @link https://json-schema.org/understanding-json-schema/reference/array.html#tuple-validation
      */
+
     if ('prefixItems' in schema) {
-      const prefixItems = schema.prefixItems as OpenAPIV3.SchemaObject[]
+      const prefixItems = schema.prefixItems as OasTypes.SchemaObject[]
 
       return factory.createTupleDeclaration({
         nodes: prefixItems.map((item) => {
@@ -338,7 +345,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     if (schema.type) {
       if (Array.isArray(schema.type)) {
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
-        const [type, nullable] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
+        const [type, nullable] = schema.type as Array<OpenAPIV3_1.NonArraySchemaObjectType>
 
         return factory.createUnionDeclaration({
           nodes: [
@@ -369,7 +376,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObje
     }
 
     // detect assertion "const" and define the type property as a Literal
-    if ('const' in schema && schema['const'] !== undefined && typeof schema['const'] === 'string') {
+    if (version === '3.1' && typeof schema['const'] === 'string') {
       return factory.createLiteralTypeNode(factory.createStringLiteral(schema['const']))
     }
 

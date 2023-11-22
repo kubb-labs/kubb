@@ -1,5 +1,9 @@
-import type { OpenAPIV3 } from 'openapi-types'
+import { isRef } from 'oas/rmoas.types'
 
-export function isReference(obj: OpenAPIV3.ParameterObject | OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject): obj is OpenAPIV3.ReferenceObject {
-  return obj && '$ref' in obj
+import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+
+export function isReference(
+  obj?: unknown,
+): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
+  return !!obj && isRef(obj)
 }

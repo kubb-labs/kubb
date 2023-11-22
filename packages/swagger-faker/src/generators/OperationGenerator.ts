@@ -30,7 +30,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
 
   async get(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { mode, dateType } = options
-    const { pluginManager, plugin } = this.context
+    const { pluginManager, plugin, oas } = this.context
 
     const faker = this.resolve(operation)
 
@@ -52,6 +52,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
       withJSDocs: true,
       dateType,
       resolveName: pluginManager.resolveName,
+      oas,
     })
       .add(schemas.pathParams)
       .add(schemas.queryParams)
@@ -80,7 +81,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
 
   async post(operation: Operation, schemas: OperationSchemas, options: Options): Promise<KubbFile.File<FileMeta> | null> {
     const { mode, dateType } = options
-    const { pluginManager, plugin } = this.context
+    const { pluginManager, plugin, oas } = this.context
 
     const faker = this.resolve(operation)
 
@@ -102,6 +103,7 @@ export class OperationGenerator extends Generator<Options, PluginOptions> {
       withJSDocs: true,
       resolveName: pluginManager.resolveName,
       dateType,
+      oas,
     })
       .add(schemas.pathParams)
       .add(schemas.queryParams)

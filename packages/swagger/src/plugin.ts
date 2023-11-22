@@ -7,8 +7,7 @@ import { OasManager } from './OasManager.ts'
 
 import type { KubbConfig } from '@kubb/core'
 import type { Logger } from '@kubb/core/utils'
-import type { OpenAPIV3 } from 'openapi-types'
-import type { Oas, PluginOptions } from './types.ts'
+import type { Oas, OasTypes, PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
@@ -78,7 +77,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       await oas.dereference()
       const schemas = getSchemas({ oas, contentType })
 
-      const mapSchema = async ([name, schema]: [string, OpenAPIV3.SchemaObject]) => {
+      const mapSchema = async ([name, schema]: [string, OasTypes.SchemaObject]) => {
         const resolvedPath = this.resolvePath({
           baseName: `${name}.json`,
           pluginKey: this.plugin.key,

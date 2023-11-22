@@ -8,11 +8,11 @@ import { refsSorter } from '@kubb/swagger/utils'
 import { TypeGenerator } from '../generators/TypeGenerator.ts'
 
 import type { PluginContext } from '@kubb/core'
-import type { FileResolver } from '@kubb/swagger'
+import type { FileResolver, Oas } from '@kubb/swagger'
 
 type Options = {
+  oas: Oas
   usedEnumNames: Record<string, number>
-
   resolveName: PluginContext['resolveName']
   fileResolver?: FileResolver
   withJSDocs?: boolean
@@ -49,6 +49,7 @@ export class TypeBuilder extends OasBuilder<Options, never> {
           enumType: this.options.enumType,
           dateType: this.options.dateType,
           optionalType: this.options.optionalType,
+          oas: this.options.oas,
         })
         const sources = generator.build({
           schema: operationSchema.schema,
