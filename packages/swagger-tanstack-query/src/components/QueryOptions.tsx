@@ -8,7 +8,7 @@ import { camelCase, pascalCase } from 'change-case'
 
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
-import type { Infinite } from '../types.ts'
+import type { Infinite, Suspense } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -227,6 +227,7 @@ const defaultTemplates = {
 
 type Props = {
   infinite: Infinite | undefined
+  suspense: Suspense | undefined
   factory: {
     name: string
   }
@@ -237,14 +238,24 @@ type Props = {
   Template?: React.ComponentType<FrameworkProps>
 }
 
-export function QueryOptions({ factory, infinite, resultType, Template = defaultTemplates.react }: Props): ReactNode {
+export function QueryOptions({ factory, infinite, suspense, resultType, Template = defaultTemplates.react }: Props): ReactNode {
   const { key: pluginKey } = usePlugin()
   const schemas = useSchemas()
   const operation = useOperation()
 
-  const queryKey = useResolveName({ name: [factory.name, infinite ? 'Infinite' : undefined, 'QueryKey'].filter(Boolean).join(''), pluginKey })
-  const queryKeyType = useResolveName({ name: [factory.name, infinite ? 'Infinite' : undefined, 'QueryKey'].filter(Boolean).join(''), type: 'type', pluginKey })
-  const queryOptions = useResolveName({ name: [factory.name, infinite ? 'Infinite' : undefined, 'QueryOptions'].filter(Boolean).join(''), pluginKey })
+  const queryKey = useResolveName({
+    name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
+    pluginKey,
+  })
+  const queryKeyType = useResolveName({
+    name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
+    type: 'type',
+    pluginKey,
+  })
+  const queryOptions = useResolveName({
+    name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryOptions'].filter(Boolean).join(''),
+    pluginKey,
+  })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
@@ -253,13 +264,16 @@ export function QueryOptions({ factory, infinite, resultType, Template = default
   const pathParams = getParams(schemas.pathParams, {}).toString()
 
   const clientGenerics = ['TQueryFnData', 'TError']
-  const resultGenerics = [`${factory.name}['unionResponse']`, 'TError', 'TData', 'TQueryData', queryKeyType]
+  // suspense is having 4 generics instead of 5, TQueryData is not needed because data will always be defined
+  const resultGenerics = suspense
+    ? [`${factory.name}['unionResponse']`, 'TError', 'TData', queryKeyType]
+    : [`${factory.name}['unionResponse']`, 'TError', 'TData', 'TQueryData', queryKeyType]
 
   generics.add([
     { type: `TQueryFnData extends ${factory.name}['data']`, default: `${factory.name}["data"]` },
     { type: 'TError', default: `${factory.name}["error"]` },
     { type: 'TData', default: `${factory.name}["response"]` },
-    { type: 'TQueryData', default: `${factory.name}["response"]` },
+    suspense ? undefined : { type: 'TQueryData', default: `${factory.name}["response"]` },
   ])
 
   params.add([

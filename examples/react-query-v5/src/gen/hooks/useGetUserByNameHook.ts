@@ -1,7 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
-import type { QueryObserverOptions, UseQueryResult, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  QueryObserverOptions,
+  UseQueryResult,
+  QueryKey,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
 type GetUserByName = {
@@ -119,6 +127,57 @@ export function useGetUserByNameHookInfinite<
     queryKey,
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+
+export const getUserByNameSuspenseQueryKey = (username: GetUserByNamePathParams['username']) =>
+  [{ url: '/user/:username', params: { username: username } }] as const
+export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspenseQueryKey>
+export function getUserByNameSuspenseQueryOptions<
+  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
+  TError = GetUserByName['error'],
+  TData = GetUserByName['response'],
+>(
+  username: GetUserByNamePathParams['username'],
+  options: GetUserByName['client']['paramaters'] = {},
+): UseSuspenseQueryOptions<GetUserByName['unionResponse'], TError, TData, GetUserByNameSuspenseQueryKey> {
+  const queryKey = getUserByNameSuspenseQueryKey(username)
+  return {
+    queryKey,
+    queryFn: () => {
+      return client<TQueryFnData, TError>({
+        method: 'get',
+        url: `/user/${username}`,
+        ...options,
+      }).then(res => res?.data || res)
+    },
+  }
+} /**
+ * @summary Get user by user name
+ * @link /user/:username
+ */
+
+export function useGetUserByNameHookSuspense<
+  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
+  TError = GetUserByName['error'],
+  TData = GetUserByName['response'],
+  TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey,
+>(username: GetUserByNamePathParams['username'], options: {
+  query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+  client?: GetUserByName['client']['paramaters']
+} = {}): UseSuspenseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? getUserByNameSuspenseQueryKey(username)
+  const query = useSuspenseQuery<any, TError, TData, any>({
+    ...getUserByNameSuspenseQueryOptions<TQueryFnData, TError, TData>(username, clientOptions),
+    queryKey,
+    ...queryOptions,
+  }) as UseSuspenseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

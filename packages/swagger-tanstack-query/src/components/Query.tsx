@@ -14,7 +14,7 @@ import { QueryOptions } from './QueryOptions.tsx'
 import { SchemaType } from './SchemaType.tsx'
 
 import type { ReactNode } from 'react'
-import type { FileMeta, Infinite, PluginOptions } from '../types.ts'
+import type { FileMeta, Infinite, PluginOptions, Suspense } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -228,6 +228,7 @@ type Props = {
   hookName: string
   optionsType: string
   infinite: Infinite | undefined
+  suspense: Suspense | undefined
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -245,6 +246,7 @@ type Props = {
 export function Query({
   factory,
   infinite,
+  suspense,
   optionsType,
   hookName,
   resultType,
@@ -258,9 +260,19 @@ export function Query({
   const name = useOperationName({ type: 'function' })
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 
-  const queryKey = useResolveName({ name: [factory.name, infinite ? 'Infinite' : undefined, 'QueryKey'].filter(Boolean).join(''), pluginKey })
-  const queryKeyType = useResolveName({ name: [factory.name, infinite ? 'Infinite' : undefined, 'QueryKey'].filter(Boolean).join(''), type: 'type', pluginKey })
-  const queryOptions = useResolveName({ name: [factory.name, infinite ? 'Infinite' : undefined, 'QueryOptions'].filter(Boolean).join(''), pluginKey })
+  const queryKey = useResolveName({
+    name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
+    pluginKey,
+  })
+  const queryKeyType = useResolveName({
+    name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
+    type: 'type',
+    pluginKey,
+  })
+  const queryOptions = useResolveName({
+    name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryOptions'].filter(Boolean).join(''),
+    pluginKey,
+  })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
@@ -278,7 +290,7 @@ export function Query({
     { type: `TQueryFnData extends ${factory.name}['data']`, default: `${factory.name}["data"]` },
     { type: 'TError', default: `${factory.name}["error"]` },
     { type: 'TData', default: `${factory.name}["response"]` },
-    { type: 'TQueryData', default: `${factory.name}["response"]` },
+    suspense ? undefined : { type: 'TQueryData', default: `${factory.name}["response"]` },
     { type: `TQueryKey extends QueryKey`, default: queryKeyType },
   ])
 
@@ -288,8 +300,11 @@ export function Query({
     'TError',
   ]
   // only needed for the options to override the useQuery options/params
-  const queryOptionsOverrideGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData', 'TQueryKey']
-  const queryOptionsGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData']
+  // suspense is having 4 generics instead of 5, TQueryData is not needed because data will always be defined
+  const queryOptionsOverrideGenerics = suspense
+    ? ['TQueryFnData', 'TError', 'TData', 'TQueryKey']
+    : ['TQueryFnData', 'TError', 'TData', 'TQueryData', 'TQueryKey']
+  const queryOptionsGenerics = suspense ? ['TQueryFnData', 'TError', 'TData'] : ['TQueryFnData', 'TError', 'TData', 'TQueryData']
 
   params.add([
     ...getASTParams(schemas.pathParams, {
@@ -347,9 +362,9 @@ export function Query({
   return (
     <>
       <QueryKey Template={QueryKeyTemplate} factory={factory} name={queryKey} />
-      <QueryOptions Template={QueryOptionsTemplate} factory={factory} resultType={optionsType} infinite={infinite} />
+      <QueryOptions Template={QueryOptionsTemplate} factory={factory} resultType={optionsType} infinite={infinite} suspense={suspense} />
       <Template
-        name={infinite ? `${name}Infinite` : name}
+        name={[name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined].filter(Boolean).join('')}
         generics={generics.toString()}
         JSDoc={{ comments: getComments(operation) }}
         params={params.toString()}
@@ -378,13 +393,14 @@ type FileProps = {
 }
 
 Query.File = function({ templates, imports = QueryImports.templates }: FileProps): ReactNode {
-  const { options: { clientImportPath, framework, infinite } } = usePlugin<PluginOptions>()
+  const { options: { clientImportPath, framework, infinite, suspense } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
   const factoryName = useOperationName({ type: 'type' })
 
   const importNames = getImportNames()
+  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
   const Template = templates?.query[framework] || defaultTemplates[framework]
   const QueryOptionsTemplate = templates?.queryOptions[framework] || QueryOptions.templates[framework]
   const QueryKeyTemplate = templates?.queryKey[framework] || QueryKey.templates[framework]
@@ -417,8 +433,9 @@ Query.File = function({ templates, imports = QueryImports.templates }: FileProps
         isTypeOnly
       />
 
-      <QueryImports Template={Import} isInfinite={false} />
-      {!!infinite && <QueryImports Template={Import} isInfinite={true} />}
+      <QueryImports Template={Import} isInfinite={false} isSuspense={false} />
+      {!!infinite && <QueryImports Template={Import} isInfinite={true} isSuspense={false} />}
+      {!!suspense && isV5 && framework === 'react' && <QueryImports Template={Import} isInfinite={false} isSuspense={true} />}
       <File.Source>
         <SchemaType factory={factory} />
         <Query
@@ -427,6 +444,7 @@ Query.File = function({ templates, imports = QueryImports.templates }: FileProps
           QueryKeyTemplate={QueryKeyTemplate}
           QueryOptionsTemplate={QueryOptionsTemplate}
           infinite={undefined}
+          suspense={undefined}
           hookName={importNames.query[framework].hookName}
           resultType={importNames.query[framework].resultType}
           optionsType={importNames.query[framework].optionsType}
@@ -438,9 +456,23 @@ Query.File = function({ templates, imports = QueryImports.templates }: FileProps
             QueryKeyTemplate={QueryKeyTemplate}
             QueryOptionsTemplate={QueryOptionsTemplate}
             infinite={infinite}
+            suspense={undefined}
             hookName={importNames.queryInfinite[framework].hookName}
             resultType={importNames.queryInfinite[framework].resultType}
             optionsType={importNames.queryInfinite[framework].optionsType}
+          />
+        )}
+        {!!suspense && isV5 && framework === 'react' && (
+          <Query
+            factory={factory}
+            Template={Template}
+            QueryKeyTemplate={QueryKeyTemplate}
+            QueryOptionsTemplate={QueryOptionsTemplate}
+            infinite={undefined}
+            suspense={suspense}
+            hookName={importNames.querySuspense[framework].hookName}
+            resultType={importNames.querySuspense[framework].resultType}
+            optionsType={importNames.querySuspense[framework].optionsType}
           />
         )}
       </File.Source>

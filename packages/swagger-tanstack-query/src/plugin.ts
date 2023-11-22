@@ -1,5 +1,4 @@
 import path from 'node:path'
-import url from 'node:url'
 
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
 import { renderTemplate } from '@kubb/core/utils'
@@ -28,6 +27,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     framework = 'react',
     clientImportPath = '@kubb/swagger-client/client',
     infinite,
+    suspense,
     transformers = {},
     dataReturnType = 'data',
     templates,
@@ -48,6 +48,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           ...infinite,
         }
         : undefined,
+      suspense,
       templates: {
         mutation: Mutation.templates,
         query: Query.templates,

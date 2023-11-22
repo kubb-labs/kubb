@@ -12,6 +12,9 @@ type Templates = {
   queryKey: typeof QueryKey.templates
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Suspense = {}
+
 export type Infinite = {
   /**
    * Specify the params key used for `pageParam`.
@@ -106,6 +109,10 @@ export type Options = {
    * When set, an infiniteQuery hooks will be added.
    */
   infinite?: Partial<Infinite>
+  /**
+   * When set, a suspenseQuery hooks will be added.
+   */
+  suspense?: Suspense
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -128,6 +135,7 @@ type ResolvedOptions = {
    * Only used of infinite
    */
   infinite?: Infinite
+  suspense?: Suspense
   templates: Templates
 }
 
