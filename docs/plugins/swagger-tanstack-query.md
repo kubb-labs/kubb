@@ -365,6 +365,82 @@ export default defineConfig({
 
 :::
 
+#### queryParam
+
+Specify the params key used for `pageParam`.<br/>
+Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`.
+
+::: info
+Type: `string` <br/>
+Default: `'id'`
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({
+      infinite: {
+        queryParam: 'next_page',
+      },
+    }),
+  ],
+})
+```
+
+:::
+
+#### initialPageParam
+
+Specify the initial page param value.<br/>
+Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` and will only be needed for v5.
+
+::: info
+Type: `string` <br/>
+Default: `'0'`
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({
+      infinite: {
+        initialPageParam: 0,
+      },
+    }),
+  ],
+})
+```
+
+:::
+
 ### suspense
 
 When set, a suspenseQuery hooks will be added. This will only work for v5 and react.
@@ -401,44 +477,6 @@ export default defineConfig({
     createSwagger({ output: false }),
     createSwaggerTS({}),
     createSwaggerTanstackQuery({ suspense: {} }),
-  ],
-})
-```
-
-:::
-
-#### queryParam
-
-Specify the params key used for `pageParam`.<br/>
-Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`.
-
-::: info
-Type: `string` <br/>
-Default: `'id'`
-
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
-import createSwagger from '@kubb/swagger'
-import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
-import createSwaggerTS from '@kubb/swagger-ts'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({}),
-    createSwaggerTanstackQuery({
-      infinite: {
-        queryParam: 'next_page',
-      },
-    }),
   ],
 })
 ```
