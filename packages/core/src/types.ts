@@ -123,8 +123,6 @@ export type CLIOptions = {
 
 // plugin
 
-export type KubbPluginKind = 'schema' | 'controller'
-
 export type KubbUnionPlugins = PluginUnion
 
 export type KubbObjectPlugin = keyof OptionsPlugins
@@ -134,10 +132,6 @@ export type PluginFactoryOptions<
    * Name to be used for the plugin, this will also be used for they key.
    */
   TName extends string = string,
-  /**
-   * @type "schema" | "controller"
-   */
-  TKind extends KubbPluginKind = KubbPluginKind,
   /**
    * Options of the plugin.
    */
@@ -161,18 +155,17 @@ export type PluginFactoryOptions<
   TAppMeta = unknown,
 > = {
   name: TName
-  kind: TKind
   /**
    * Same behaviour like what has been done with `QueryKey` in `@tanstack/react-query`
    */
-  key: [kind: TKind | undefined, name: TName | string, identifier?: string | number]
+  key: [name: TName | string, identifier?: string | number]
   options: TOptions
   resolvedOptions: TResolvedOptions
   api: TAPI
   resolvePathOptions: TResolvePathOptions
   appMeta: {
     pluginManager: PluginManager
-    plugin: KubbPlugin<PluginFactoryOptions<TName, TKind, TOptions, TResolvedOptions, TAPI, TResolvePathOptions, TAppMeta>>
+    plugin: KubbPlugin<PluginFactoryOptions<TName, TOptions, TResolvedOptions, TAPI, TResolvePathOptions, TAppMeta>>
   } & TAppMeta
 }
 
@@ -182,18 +175,23 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
   & {
     /**
      * Unique name used for the plugin
+     * The name of the plugin follows the format scope:foo-bar or foo-bar, adding scope: can avoid naming conflicts with other plugins.
      * @example @kubb/typescript
      */
     name: TOptions['name']
     /**
-     * Internal key used when a developer uses more than one of the same plugin
-     * @private
-     */
-    key?: TOptions['key']
-    /**
      * Options set for a specific plugin(see kubb.config.js), passthrough of options.
      */
     options: TOptions['resolvedOptions']
+    /**
+     * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
+     * Can be used to validate depended plugins.
+     */
+    pre?: Array<string>
+    /**
+     * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
+     */
+    post?: Array<string>
   }
   & (TOptions['api'] extends never ? {
       api?: never
@@ -201,24 +199,10 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
     : {
       api: (this: TOptions['name'] extends 'core' ? null : Omit<PluginContext<TOptions>, 'addFile'>) => TOptions['api']
     })
-  & (TOptions['kind'] extends never ? {
-      kind?: never
-    }
-    : {
-      /**
-       * Kind/type for the plugin
-       *
-       * Type 'schema' can be used for JSON schema's, TypeScript types, ...
-       *
-       * Type 'controller' can be used to create generate API calls, React-Query hooks, Axios controllers, ...
-       * @default undefined
-       */
-      kind: TOptions['kind']
-    })
 
 export type KubbUserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = KubbUserPlugin<TOptions> & PluginLifecycle<TOptions>
 
-type UnknownKubbUserPlugin = KubbUserPlugin<PluginFactoryOptions<any, any, any, any, any, any, any>>
+type UnknownKubbUserPlugin = KubbUserPlugin<PluginFactoryOptions<any, any, any, any, any, any>>
 
 export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
   & {
@@ -233,16 +217,18 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
      */
     key: TOptions['key']
     /**
+     * Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.
+     * Can be used to validate depended plugins.
+     */
+    pre?: Array<string>
+    /**
+     * Specifies the succeeding plugins for the current plugin. You can pass an array of succeeding plugin names, and the current plugin will be executed before these plugins.
+     */
+    post?: Array<string>
+    /**
      * Options set for a specific plugin(see kubb.config.js), passthrough of options.
      */
     options: TOptions['resolvedOptions']
-    /**
-     * Kind/type for the plugin
-     * Type 'schema' can be used for JSON schema's, TypeScript types, ...
-     * Type 'controller' can be used to create generate API calls, React-Query hooks, Axios controllers, ...
-     * @default undefined
-     */
-    kind?: TOptions['kind']
     /**
      * Define an api that can be used by other plugins, see `PluginManager' where we convert from `KubbUserPlugin` to `KubbPlugin`(used when calling `createPlugin`).
      */
@@ -257,11 +243,6 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 export type KubbPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = KubbPlugin<TOptions> & PluginLifecycle<TOptions>
 
 export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
-  /**
-   * Valdiate all plugins to see if their depended plugins are installed and configured.
-   * @type hookParallel
-   */
-  validate?: (this: Omit<PluginContext<TOptions>, 'addFile'>, plugins: NonNullable<KubbConfig['plugins']>) => PossiblePromise<true>
   /**
    * Start of the lifecycle of a plugin.
    * @type hookParallel

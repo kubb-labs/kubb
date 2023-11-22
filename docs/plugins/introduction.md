@@ -38,7 +38,7 @@ import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'plugin-demo' satisfies PluginOptions['name']
-export const pluginKey = ['controller', pluginName] satisfies PluginOptions['key']
+export const pluginKey = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'demo' } = options
@@ -47,12 +47,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   return {
     name: pluginName,
     options,
-    kind: 'controller',
-    validate(plugins) {
-      pluginsOptions = getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
-
-      return true
-    },
     resolvePath(fileName, directory, options) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
       const mode = getPathMode(pathParser.resolve(root, output))

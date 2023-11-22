@@ -15,7 +15,7 @@ import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-client' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = ['controller', pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
@@ -32,7 +32,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   } = options
 
   const template = group?.output ? group.output : `${output}/{{tag}}Controller`
-  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
@@ -46,12 +45,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         ...templates,
       },
     },
-    kind: 'controller',
-    validate(plugins) {
-      pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName])
-
-      return true
-    },
+    pre: [swaggerPluginName],
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output))
@@ -89,7 +83,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath)
     },
     async buildStart() {
-      const [swaggerPlugin] = pluginsOptions
+      const [swaggerPlugin]: [KubbPlugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
 
       const oas = await swaggerPlugin.api.getOas()
 
@@ -126,7 +120,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           exportAs: group.exportAs || '{{tag}}Service',
           root,
           output,
-          resolveName: this.pluginManager.resolveName,
         })
 
         await this.addFile(...rootFiles)

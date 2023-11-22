@@ -35,23 +35,6 @@ export abstract class OperationGenerator<
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase,
 > extends Generator<TOptions, Context<TOptions, TPluginOptions>> {
-  /**
-   * Validate an operation to see if used with camelCase we don't overwrite other files
-   * DRAFT version
-   */
-  validate(operation: Operation): void {
-    const { oas } = this.context
-    const schemas = oas.getDefinition().components?.schemas || {}
-
-    const foundSchemaKey = Object.keys(schemas).find(
-      (key) => key.toLowerCase() === pascalCase(operation.getOperationId(), { delimiter: '', transform: pascalCaseTransformMerge }).toLowerCase(),
-    )
-
-    if (foundSchemaKey) {
-      throw new Warning(`OperationId '${operation.getOperationId()}' has the same name used as in schemas '${foundSchemaKey}' when using CamelCase`)
-    }
-  }
-
   #getOptions(operation: Operation, method: HttpMethod): Partial<TOptions> {
     const { override = [] } = this.context
 

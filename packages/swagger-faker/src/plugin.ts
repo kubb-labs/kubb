@@ -16,22 +16,16 @@ import type { OasTypes, PluginOptions as SwaggerPluginOptions } from '@kubb/swag
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-faker' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'mocks', group, exclude = [], include, override = [], transformers = {}, dateType = 'string' } = options
   const template = group?.output ? group.output : `${output}/{{tag}}Controller`
-  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
     options,
-    kind: 'schema',
-    validate(plugins) {
-      pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName, swaggerTypeScriptPluginName])
-
-      return true
-    },
+    pre: [swaggerPluginName, swaggerTypeScriptPluginName],
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output))
@@ -69,7 +63,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath)
     },
     async buildStart() {
-      const [swaggerPlugin] = pluginsOptions
+      const [swaggerPlugin]: [KubbPlugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
 
       const oas = await swaggerPlugin.api.getOas()
       const schemas = await swaggerPlugin.api.getSchemas()
@@ -204,7 +198,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           exportAs: group.exportAs || '{{tag}}Mocks',
           root,
           output,
-          resolveName: this.pluginManager.resolveName,
         })
 
         await this.addFile(...rootFiles)

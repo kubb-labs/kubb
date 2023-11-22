@@ -14,7 +14,7 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-zodios', 'controller', Options, Options, never>
+export type PluginOptions = PluginFactoryOptions<'swagger-zodios', Options, Options, never>
 
 declare module '@kubb/core' {
   export interface _Register {

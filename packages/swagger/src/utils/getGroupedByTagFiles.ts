@@ -21,7 +21,6 @@ type Options = {
    * Output for plugin
    */
   output: string
-  resolveName: (params: ResolveNameParams) => string
 }
 
 type FileMeta = {
@@ -37,9 +36,11 @@ export function getGroupedByTagFiles({
   exportAs,
   root,
   output,
-  resolveName,
 }: Options): KubbFile.File<FileMeta>[] {
-  return files.filter(file => file.meta?.pluginKey?.[1] === plugin.name)
+  return files.filter(file => {
+    const name = file.meta?.pluginKey?.[0]
+    return name === plugin.name
+  })
     .map((file: KubbFile.File<FileMeta>) => {
       if (!file.meta?.tag) {
         logger?.warn(`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`)

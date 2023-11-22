@@ -31,13 +31,13 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
   const failedPlugins = config.plugins?.filter((plugin) => !buildEndPlugins.includes(plugin.name))?.map((plugin) => plugin.name)
   const pluginsCount = config.plugins?.length || 0
   const files = pluginManager.fileManager.files.sort((a, b) => {
-    if (!a.meta?.pluginKey?.[1] || !b.meta?.pluginKey?.[1]) {
+    if (!a.meta?.pluginKey?.[0] || !b.meta?.pluginKey?.[0]) {
       return 0
     }
-    if (a.meta?.pluginKey?.[1]?.length < b.meta?.pluginKey?.[1]?.length) {
+    if (a.meta?.pluginKey?.[0]?.length < b.meta?.pluginKey?.[0]?.length) {
       return 1
     }
-    if (a.meta?.pluginKey?.[1]?.length > b.meta?.pluginKey?.[1]?.length) {
+    if (a.meta?.pluginKey?.[0]?.length > b.meta?.pluginKey?.[0]?.length) {
       return -1
     }
     return 0

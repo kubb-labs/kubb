@@ -17,12 +17,11 @@ import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-msw' satisfies PluginOptions['name']
-export const pluginKey: PluginOptions['key'] = ['schema', pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'handlers', group, exclude = [], include, override = [], transformers = {}, templates } = options
   const template = group?.output ? group.output : `${output}/{{tag}}Controller`
-  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
@@ -33,12 +32,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         ...templates,
       },
     },
-    kind: 'schema',
-    validate(plugins) {
-      pluginsOptions = PluginManager.getDependedPlugins<SwaggerPluginOptions>(plugins, [swaggerPluginName, swaggerTypeScriptPluginName, swaggerFakerPluginName])
-
-      return true
-    },
+    pre: [swaggerPluginName, swaggerTypeScriptPluginName, swaggerFakerPluginName],
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output))
@@ -75,7 +69,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath)
     },
     async buildStart() {
-      const [swaggerPlugin] = pluginsOptions
+      const [swaggerPlugin]: [KubbPlugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
 
       const oas = await swaggerPlugin.api.getOas()
 
@@ -111,7 +105,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           exportAs: group.exportAs || '{{tag}}Handlers',
           root,
           output,
-          resolveName: this.pluginManager.resolveName,
         })
 
         await this.addFile(...rootFiles)
