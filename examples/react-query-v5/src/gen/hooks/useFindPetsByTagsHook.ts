@@ -1,7 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
-import type { QueryObserverOptions, UseQueryResult, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  QueryObserverOptions,
+  UseQueryResult,
+  QueryKey,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {
@@ -126,6 +134,58 @@ export function useFindPetsByTagsHookInfinite<
     queryKey,
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+
+export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSuspenseQueryKey>
+export function findPetsByTagsSuspenseQueryOptions<
+  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
+  TError = FindPetsByTags['error'],
+  TData = FindPetsByTags['response'],
+>(
+  params?: FindPetsByTags['queryParams'],
+  options: FindPetsByTags['client']['paramaters'] = {},
+): UseSuspenseQueryOptions<FindPetsByTags['unionResponse'], TError, TData, FindPetsByTagsSuspenseQueryKey> {
+  const queryKey = findPetsByTagsSuspenseQueryKey(params)
+  return {
+    queryKey,
+    queryFn: () => {
+      return client<TQueryFnData, TError>({
+        method: 'get',
+        url: `/pet/findByTags`,
+        params,
+        ...options,
+      }).then(res => res?.data || res)
+    },
+  }
+} /**
+ * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
+ * @summary Finds Pets by tags
+ * @link /pet/findByTags
+ */
+
+export function useFindPetsByTagsHookSuspense<
+  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
+  TError = FindPetsByTags['error'],
+  TData = FindPetsByTags['response'],
+  TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey,
+>(params?: FindPetsByTags['queryParams'], options: {
+  query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+  client?: FindPetsByTags['client']['paramaters']
+} = {}): UseSuspenseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
+  const query = useSuspenseQuery<any, TError, TData, any>({
+    ...findPetsByTagsSuspenseQueryOptions<TQueryFnData, TError, TData>(params, clientOptions),
+    queryKey,
+    ...queryOptions,
+  }) as UseSuspenseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

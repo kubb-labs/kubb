@@ -1,7 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
-import type { QueryObserverOptions, UseQueryResult, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  QueryObserverOptions,
+  UseQueryResult,
+  QueryKey,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
 type LoginUser = {
@@ -124,6 +132,57 @@ export function useLoginUserHookInfinite<
     queryKey,
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+
+export const loginUserSuspenseQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+export type LoginUserSuspenseQueryKey = ReturnType<typeof loginUserSuspenseQueryKey>
+export function loginUserSuspenseQueryOptions<
+  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
+  TError = LoginUser['error'],
+  TData = LoginUser['response'],
+>(
+  params?: LoginUser['queryParams'],
+  options: LoginUser['client']['paramaters'] = {},
+): UseSuspenseQueryOptions<LoginUser['unionResponse'], TError, TData, LoginUserSuspenseQueryKey> {
+  const queryKey = loginUserSuspenseQueryKey(params)
+  return {
+    queryKey,
+    queryFn: () => {
+      return client<TQueryFnData, TError>({
+        method: 'get',
+        url: `/user/login`,
+        params,
+        ...options,
+      }).then(res => res?.data || res)
+    },
+  }
+} /**
+ * @summary Logs user into the system
+ * @link /user/login
+ */
+
+export function useLoginUserHookSuspense<
+  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
+  TError = LoginUser['error'],
+  TData = LoginUser['response'],
+  TQueryKey extends QueryKey = LoginUserSuspenseQueryKey,
+>(params?: LoginUser['queryParams'], options: {
+  query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+  client?: LoginUser['client']['paramaters']
+} = {}): UseSuspenseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? loginUserSuspenseQueryKey(params)
+  const query = useSuspenseQuery<any, TError, TData, any>({
+    ...loginUserSuspenseQueryOptions<TQueryFnData, TError, TData>(params, clientOptions),
+    queryKey,
+    ...queryOptions,
+  }) as UseSuspenseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

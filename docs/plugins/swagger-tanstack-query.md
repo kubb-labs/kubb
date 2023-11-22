@@ -326,7 +326,12 @@ type Infinite = {
    * Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`
    * @default `'id'`
    */
-  queryParam?: string
+  queryParam: string
+  /**
+   * For v5
+   * @default `0`
+   */
+  initialPageParam: number
 }
 ```
 
@@ -354,6 +359,48 @@ export default defineConfig({
     createSwagger({ output: false }),
     createSwaggerTS({}),
     createSwaggerTanstackQuery({ infinite: {} }),
+  ],
+})
+```
+
+:::
+
+### suspense
+
+When set, a suspenseQuery hooks will be added. This will only work for v5 and react.
+
+::: info type
+
+::: code-group
+
+```typescript [Suspense]
+type Suspense = {}
+```
+
+:::
+
+::: info
+Type: `Suspense` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({ suspense: {} }),
   ],
 })
 ```

@@ -1,7 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
-import type { QueryObserverOptions, UseQueryResult, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  QueryObserverOptions,
+  UseQueryResult,
+  QueryKey,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 type GetPetById = {
@@ -120,6 +128,57 @@ export function useGetPetByIdHookInfinite<
     queryKey,
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+
+export const getPetByIdSuspenseQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQueryKey>
+export function getPetByIdSuspenseQueryOptions<
+  TQueryFnData extends GetPetById['data'] = GetPetById['data'],
+  TError = GetPetById['error'],
+  TData = GetPetById['response'],
+>(
+  petId: GetPetByIdPathParams['petId'],
+  options: GetPetById['client']['paramaters'] = {},
+): UseSuspenseQueryOptions<GetPetById['unionResponse'], TError, TData, GetPetByIdSuspenseQueryKey> {
+  const queryKey = getPetByIdSuspenseQueryKey(petId)
+  return {
+    queryKey,
+    queryFn: () => {
+      return client<TQueryFnData, TError>({
+        method: 'get',
+        url: `/pet/${petId}`,
+        ...options,
+      }).then(res => res?.data || res)
+    },
+  }
+} /**
+ * @description Returns a single pet
+ * @summary Find pet by ID
+ * @link /pet/:petId
+ */
+
+export function useGetPetByIdHookSuspense<
+  TQueryFnData extends GetPetById['data'] = GetPetById['data'],
+  TError = GetPetById['error'],
+  TData = GetPetById['response'],
+  TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey,
+>(petId: GetPetByIdPathParams['petId'], options: {
+  query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+  client?: GetPetById['client']['paramaters']
+} = {}): UseSuspenseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? getPetByIdSuspenseQueryKey(petId)
+  const query = useSuspenseQuery<any, TError, TData, any>({
+    ...getPetByIdSuspenseQueryOptions<TQueryFnData, TError, TData>(petId, clientOptions),
+    queryKey,
+    ...queryOptions,
+  }) as UseSuspenseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

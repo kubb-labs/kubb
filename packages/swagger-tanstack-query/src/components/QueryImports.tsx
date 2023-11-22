@@ -30,6 +30,7 @@ function Template({
 type FrameworkProps = Partial<TemplateProps> & {
   context: {
     isInfinite: boolean
+    isSuspense: boolean
   }
 }
 
@@ -39,11 +40,13 @@ const defaultTemplates = {
       { context, ...rest }: FrameworkProps,
     ): ReactNode {
       const importNames = getImportNames()
-      const { isInfinite } = context
+      const { isInfinite, isSuspense } = context
+
+      const props = isSuspense ? importNames.querySuspense.react : isInfinite ? importNames.queryInfinite.react : importNames.query.react
 
       return (
         <Template
-          {...isInfinite ? importNames.queryInfinite.react : importNames.query.react}
+          {...props}
           {...rest}
         />
       )
@@ -128,16 +131,21 @@ const defaultTemplates = {
 type Props = {
   isInfinite: boolean
   /**
+   * Only for React and v5
+   */
+  isSuspense: boolean
+  /**
    * This will make it possible to override the default behaviour.
    */
   Template?: React.ComponentType<FrameworkProps>
 }
 
-export function QueryImports({ isInfinite, Template = defaultTemplates.react }: Props): ReactNode {
+export function QueryImports({ isInfinite, isSuspense, Template = defaultTemplates.react }: Props): ReactNode {
   return (
     <Template
       context={{
         isInfinite,
+        isSuspense,
       }}
     />
   )

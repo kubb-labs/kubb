@@ -1,7 +1,15 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
 import type { LogoutUserQueryResponse, LogoutUserError } from '../models/LogoutUser'
-import type { QueryObserverOptions, UseQueryResult, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  QueryObserverOptions,
+  UseQueryResult,
+  QueryKey,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+} from '@tanstack/react-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, LogoutUserError, never>
 type LogoutUser = {
@@ -114,6 +122,53 @@ export function useLogoutUserHookInfinite<
     queryKey,
     ...queryOptions,
   }) as UseInfiniteQueryResult<TData, TError> & {
+    queryKey: TQueryKey
+  }
+  query.queryKey = queryKey as TQueryKey
+  return query
+}
+
+export const logoutUserSuspenseQueryKey = () => [{ url: '/user/logout' }] as const
+export type LogoutUserSuspenseQueryKey = ReturnType<typeof logoutUserSuspenseQueryKey>
+export function logoutUserSuspenseQueryOptions<
+  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
+  TError = LogoutUser['error'],
+  TData = LogoutUser['response'],
+>(options: LogoutUser['client']['paramaters'] = {}): UseSuspenseQueryOptions<LogoutUser['unionResponse'], TError, TData, LogoutUserSuspenseQueryKey> {
+  const queryKey = logoutUserSuspenseQueryKey()
+  return {
+    queryKey,
+    queryFn: () => {
+      return client<TQueryFnData, TError>({
+        method: 'get',
+        url: `/user/logout`,
+        ...options,
+      }).then(res => res?.data || res)
+    },
+  }
+} /**
+ * @summary Logs out current logged in user session
+ * @link /user/logout
+ */
+
+export function useLogoutUserHookSuspense<
+  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
+  TError = LogoutUser['error'],
+  TData = LogoutUser['response'],
+  TQueryKey extends QueryKey = LogoutUserSuspenseQueryKey,
+>(options: {
+  query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
+  client?: LogoutUser['client']['paramaters']
+} = {}): UseSuspenseQueryResult<TData, TError> & {
+  queryKey: TQueryKey
+} {
+  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+  const queryKey = queryOptions?.queryKey ?? logoutUserSuspenseQueryKey()
+  const query = useSuspenseQuery<any, TError, TData, any>({
+    ...logoutUserSuspenseQueryOptions<TQueryFnData, TError, TData>(clientOptions),
+    queryKey,
+    ...queryOptions,
+  }) as UseSuspenseQueryResult<TData, TError> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

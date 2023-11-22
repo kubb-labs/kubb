@@ -83,5 +83,13 @@ export function getImportNames() {
         resultType: isV5 ? 'UseInfiniteQueryReturnType' : 'VueInfiniteQueryObserverOptions',
       },
     },
+    querySuspense: {
+      'react': {
+        path: '@tanstack/react-query',
+        hookName: 'useSuspenseQuery',
+        optionsType: 'UseSuspenseQueryOptions',
+        resultType: 'UseSuspenseQueryResult',
+      },
+    },
   } as const
 }
