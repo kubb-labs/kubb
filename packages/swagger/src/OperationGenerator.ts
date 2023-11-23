@@ -20,7 +20,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas
   exclude: Array<Exclude> | undefined
   include: Array<Include> | undefined
-  override?: Array<Override<TOptions>> | undefined
+  override: Array<Override<TOptions>> | undefined
   contentType: ContentType | undefined
   pluginManager: PluginManager
   /**

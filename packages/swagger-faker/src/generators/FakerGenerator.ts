@@ -1,4 +1,4 @@
-import { SchemaGenerator } from '@kubb/core'
+import { Generator } from '@kubb/core'
 import { getUniqueName, transformers } from '@kubb/core/utils'
 import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
@@ -6,19 +6,22 @@ import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 import { fakerKeywords, fakerParser } from '../parsers/index.ts'
 import { pluginKey } from '../plugin.ts'
 
-import type { PluginContext } from '@kubb/core'
+import type { PluginManager } from '@kubb/core'
 import type { ts } from '@kubb/parser'
 import type { FileResolver, ImportMeta, Oas, OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
 import type { FakerKeyword, FakerMeta } from '../parsers/index.ts'
+import type { PluginOptions } from '../types.ts'
 
-type Options = {
-  oas: Oas
+type Options = PluginOptions['resolvedOptions'] & {
   fileResolver?: FileResolver
-  withJSDocs?: boolean
-  resolveName: PluginContext['resolveName']
-  dateType: 'string' | 'date'
 }
-export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject, string[]> {
+
+type Context = {
+  oas: Oas
+  pluginManager: PluginManager
+}
+
+export class FakerGenerator extends Generator<Options, Context> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
 
@@ -30,12 +33,6 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
 
   // Keep track of already used type aliases
   #usedAliasNames: Record<string, number> = {}
-
-  constructor(options: Options) {
-    super(options)
-
-    return this
-  }
 
   build({
     schema,
@@ -49,17 +46,18 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
     operationName?: string
   }): string[] {
     const texts: string[] = []
-    const fakerInput = this.#getTypeFromSchema(schema, baseName)
+    const fakerInput = this.getTypeFromSchema(schema, baseName)
     if (description) {
       texts.push(transformers.JSDoc.createJSDocBlockText({ comments: [`@description ${description}`] }))
     }
 
-    const name = this.options.resolveName({ name: baseName, pluginKey }) || baseName
-    const typeName = this.options.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey })
+    const name = this.context.pluginManager.resolveName({ name: baseName, pluginKey }) || baseName
+    const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey })
 
     const fakerOutput = fakerParser(fakerInput, {
       name,
       typeName,
+      mapper: this.options.mapper,
     })
     // hack to create import with recreating the ImportGenerator
     if (typeName) {
@@ -84,13 +82,8 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  #getTypeFromSchema(schema: OasTypes.SchemaObject, baseName?: string): FakerMeta[] {
-    const validationFunctions = this.#getBaseTypeFromSchema(schema, baseName)
-    if (validationFunctions) {
-      return validationFunctions
-    }
-
-    return []
+  getTypeFromSchema(schema: OasTypes.SchemaObject, baseName?: string): FakerMeta[] {
+    return this.options.transformers.schema?.(schema, baseName) || this.#getBaseTypeFromSchema(schema, baseName) || []
   }
 
   /**
@@ -106,7 +99,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
 
         const schema = properties[name] as OasTypes.SchemaObject
 
-        validationFunctions.push(...this.#getTypeFromSchema(schema, name))
+        validationFunctions.push(...this.getTypeFromSchema(schema, name))
 
         return {
           [name]: validationFunctions,
@@ -119,7 +112,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
     if (additionalProperties) {
       const addionalValidationFunctions: FakerMeta[] = additionalProperties === true
         ? [{ keyword: fakerKeywords.any }]
-        : this.#getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
+        : this.getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
 
       members.push({ keyword: fakerKeywords.catchall, args: addionalValidationFunctions })
     }
@@ -139,7 +132,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
-    const propertyName = this.options.resolveName({ name: originalName, pluginKey }) || originalName
+    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey }) || originalName
 
     ref = this.refs[$ref] = {
       propertyName,
@@ -150,7 +143,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
   }
 
   #getParsedSchema(schema?: OasTypes.SchemaObject) {
-    const parsedSchema = getSchemaFactory(this.options.oas)(schema)
+    const parsedSchema = getSchemaFactory(this.context.oas)(schema)
     return parsedSchema
   }
 
@@ -177,7 +170,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
         keyword: fakerKeywords.union,
         args: schema.oneOf
           .map((item) => {
-            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)[0]
+            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -185,7 +178,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
           }),
       }
       if (schemaWithoutOneOf.properties && union.args) {
-        return [{ ...union, args: [...this.#getBaseTypeFromSchema(schemaWithoutOneOf, baseName), ...union.args] }]
+        return [{ ...union, args: [...this.getTypeFromSchema(schemaWithoutOneOf, baseName), ...union.args] }]
       }
 
       return [union]
@@ -199,7 +192,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
         keyword: fakerKeywords.union,
         args: schema.anyOf
           .map((item) => {
-            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)[0]
+            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -207,7 +200,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
           }),
       }
       if (schemaWithouAnyOf.properties && union.args) {
-        return [{ ...union, args: [...this.#getBaseTypeFromSchema(schemaWithouAnyOf, baseName), ...union.args] }]
+        return [{ ...union, args: [...this.getTypeFromSchema(schemaWithouAnyOf, baseName), ...union.args] }]
       }
 
       return [union]
@@ -220,7 +213,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
         keyword: fakerKeywords.and,
         args: schema.allOf
           .map((item) => {
-            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)[0]
+            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -229,7 +222,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
       }
 
       if (schemaWithoutAllOf.properties && and.args) {
-        return [{ ...and, args: [...this.#getBaseTypeFromSchema(schemaWithoutAllOf, baseName), ...and.args] }]
+        return [{ ...and, args: [...this.getTypeFromSchema(schemaWithoutAllOf, baseName), ...and.args] }]
       }
 
       return [and]
@@ -264,7 +257,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
 
     if ('items' in schema) {
       // items -> array
-      return [{ keyword: fakerKeywords.array, args: this.#getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName) }]
+      return [{ keyword: fakerKeywords.array, args: this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName) }]
     }
 
     if ('prefixItems' in schema) {
@@ -276,7 +269,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
           args: prefixItems
             .map((item) => {
               // no baseType so we can fall back on an union when using enum
-              return this.#getBaseTypeFromSchema(item, undefined)?.[0]
+              return this.getTypeFromSchema(item, undefined)?.[0]
             })
             .filter(Boolean),
         },
@@ -294,7 +287,7 @@ export class FakerGenerator extends SchemaGenerator<Options, OasTypes.SchemaObje
         const [type] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
         return [
-          ...this.#getBaseTypeFromSchema(
+          ...this.getTypeFromSchema(
             {
               ...schema,
               type,

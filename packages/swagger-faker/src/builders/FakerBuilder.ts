@@ -7,26 +7,18 @@ import { refsSorter } from '@kubb/swagger/utils'
 
 import { FakerGenerator } from '../generators/index.ts'
 
-import type { PluginContext } from '@kubb/core'
-import type { FileResolver, Oas } from '@kubb/swagger'
+import type { FileResolver } from '@kubb/swagger'
+import type { PluginOptions } from '../types.ts'
 
-type Options = {
-  oas: Oas
+type Options = PluginOptions['resolvedOptions'] & {
   fileResolver?: FileResolver
-  resolveName: PluginContext['resolveName']
-  withJSDocs?: boolean
-  withImports?: boolean
-  dateType: 'string' | 'date'
 }
 
-export class FakerBuilder extends OasBuilder<Options, never> {
-  configure(options?: Options) {
-    if (options) {
-      this.options = options
-    }
-
+export class FakerBuilder extends OasBuilder<Options> {
+  #withImports = false
+  configure() {
     if (this.options.fileResolver) {
-      this.options.withImports = true
+      this.#withImports = true
     }
 
     return this
@@ -39,13 +31,7 @@ export class FakerBuilder extends OasBuilder<Options, never> {
       .filter((operationSchema) => (name ? operationSchema.name === name : true))
       .sort(transformers.nameSorter)
       .map((operationSchema) => {
-        const generator = new FakerGenerator({
-          withJSDocs: this.options.withJSDocs,
-          resolveName: this.options.resolveName,
-          fileResolver: this.options.fileResolver,
-          dateType: this.options.dateType,
-          oas: this.options.oas,
-        })
+        const generator = new FakerGenerator(this.options, this.context)
         const sources = generator.build({
           schema: operationSchema.schema,
           baseName: operationSchema.name,
@@ -68,7 +54,7 @@ export class FakerBuilder extends OasBuilder<Options, never> {
       codes.push(...item.sources)
     })
 
-    if (this.options.withImports) {
+    if (this.#withImports) {
       const importsGenerator = new ImportsGenerator({ fileResolver: this.options.fileResolver })
 
       importsGenerator.add(generated.flatMap((item) => item.imports))

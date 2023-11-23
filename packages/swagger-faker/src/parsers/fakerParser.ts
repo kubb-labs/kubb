@@ -65,6 +65,8 @@ type FakerMetaBase<T> = {
   args: T
 }
 
+type FakerMetaUnknown = { keyword: string }
+
 type FakerMetaAny = { keyword: typeof fakerKeywords.any }
 type FakerMetaNull = { keyword: typeof fakerKeywords.null }
 type FakerMetaUndefined = { keyword: typeof fakerKeywords.undefined }
@@ -109,6 +111,7 @@ type FakerMetaUuid = { keyword: typeof fakerKeywords.uuid }
 type FakerMetaUrl = { keyword: typeof fakerKeywords.url }
 
 export type FakerMeta =
+  | FakerMetaUnknown
   | FakerMetaAny
   | FakerMetaNull
   | FakerMetaUndefined

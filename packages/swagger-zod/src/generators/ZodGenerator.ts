@@ -44,7 +44,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
     keysToOmit?: string[]
   }): string[] {
     const texts: string[] = []
-    const zodInput = this.#getTypeFromSchema(schema, baseName)
+    const zodInput = this.getTypeFromSchema(schema, baseName)
     if (description) {
       texts.push(`
       /**
@@ -64,13 +64,8 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  #getTypeFromSchema(schema: OasTypes.SchemaObject, baseName?: string): ZodMeta[] {
-    const validationFunctions = this.#getBaseTypeFromSchema(schema, baseName)
-    if (validationFunctions) {
-      return validationFunctions
-    }
-
-    return []
+  getTypeFromSchema(schema: OasTypes.SchemaObject, baseName?: string): ZodMeta[] {
+    return this.#getBaseTypeFromSchema(schema, baseName) || []
   }
 
   /**
@@ -88,7 +83,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
         const schema = properties[name] as OasTypes.SchemaObject
         const isRequired = Array.isArray(required) ? required.includes(name) : !!required
 
-        validationFunctions.push(...this.#getTypeFromSchema(schema, name))
+        validationFunctions.push(...this.getTypeFromSchema(schema, name))
 
         if (this.options.withJSDocs && schema.description) {
           validationFunctions.push({ keyword: zodKeywords.describe, args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
@@ -165,7 +160,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
     if (additionalProperties) {
       const addionalValidationFunctions: ZodMeta[] = additionalProperties === true
         ? [{ keyword: zodKeywords.any }]
-        : this.#getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
+        : this.getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
 
       members.push({ keyword: zodKeywords.catchall, args: addionalValidationFunctions })
     }
@@ -223,7 +218,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
         keyword: zodKeywords.union,
         args: schema.oneOf
           .map((item) => {
-            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)[0]
+            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -231,7 +226,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
           }),
       }
       if (schemaWithoutOneOf.properties) {
-        return [...this.#getBaseTypeFromSchema(schemaWithoutOneOf, baseName), union]
+        return [...this.getTypeFromSchema(schemaWithoutOneOf, baseName), union]
       }
 
       return [union]
@@ -245,7 +240,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
         keyword: zodKeywords.union,
         args: schema.anyOf
           .map((item) => {
-            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)[0]
+            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -253,7 +248,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
           }),
       }
       if (schemaWithoutAnyOf.properties) {
-        return [...this.#getBaseTypeFromSchema(schemaWithoutAnyOf, baseName), union]
+        return [...this.getTypeFromSchema(schemaWithoutAnyOf, baseName), union]
       }
 
       return [union]
@@ -266,7 +261,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
         keyword: zodKeywords.and,
         args: schema.allOf
           .map((item) => {
-            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)[0]
+            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)[0]
           })
           .filter(Boolean)
           .filter((item) => {
@@ -278,7 +273,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
         return [
           {
             ...and,
-            args: [...(and.args || []), ...this.#getBaseTypeFromSchema(schemaWithoutAllOf, baseName)],
+            args: [...(and.args || []), ...this.getTypeFromSchema(schemaWithoutAllOf, baseName)],
           },
         ]
       }
@@ -321,7 +316,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
 
     if ('items' in schema) {
       // items -> array
-      return [{ keyword: zodKeywords.array, args: this.#getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName) }]
+      return [{ keyword: zodKeywords.array, args: this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName) }]
     }
 
     if ('prefixItems' in schema) {
@@ -333,7 +328,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
           args: prefixItems
             .map((item) => {
               // no baseType so we can fall back on an union when using enum
-              return this.#getBaseTypeFromSchema(item, undefined)[0]
+              return this.getTypeFromSchema(item, undefined)[0]
             })
             .filter(Boolean),
         },
@@ -351,7 +346,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
         const [type] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
         return [
-          ...this.#getBaseTypeFromSchema(
+          ...this.getTypeFromSchema(
             {
               ...schema,
               type,

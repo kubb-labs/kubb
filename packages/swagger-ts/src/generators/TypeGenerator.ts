@@ -58,7 +58,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
     keysToOmit?: string[]
   }): ts.Node[] {
     const nodes: ts.Node[] = []
-    const type = this.#getTypeFromSchema(schema, baseName)
+    const type = this.getTypeFromSchema(schema, baseName)
 
     if (!type) {
       return this.extraNodes
@@ -97,7 +97,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  #getTypeFromSchema(schema?: OasTypes.SchemaObject, name?: string): ts.TypeNode | null {
+  getTypeFromSchema(schema?: OasTypes.SchemaObject, name?: string): ts.TypeNode | null {
     const type = this.#getBaseTypeFromSchema(schema, name)
 
     if (!type) {
@@ -114,7 +114,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
   /**
    * Recursively creates a type literal with the given props.
    */
-  #getTypeFromProperties(baseSchema?: OasTypes.SchemaObject, baseName?: string) {
+  #getTypeFromProperties(baseSchema?: OasTypes.SchemaObject, baseName?: string): ts.TypeNode | null {
     const { optionalType } = this.options
     const properties = baseSchema?.properties || {}
     const required = baseSchema?.required
@@ -124,7 +124,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
       const schema = properties[name] as OasTypes.SchemaObject
 
       const isRequired = Array.isArray(required) ? required.includes(name) : !!required
-      let type = this.#getTypeFromSchema(schema, this.options.resolveName({ name: `${baseName || ''} ${name}` }))
+      let type = this.getTypeFromSchema(schema, this.options.resolveName({ name: `${baseName || ''} ${name}` }))
 
       if (!type) {
         return null
@@ -156,7 +156,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
       return propertySignature
     })
     if (additionalProperties) {
-      const type = additionalProperties === true ? factory.keywordTypeNodes.any : this.#getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
+      const type = additionalProperties === true ? factory.keywordTypeNodes.any : this.getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
 
       if (type) {
         members.push(factory.createIndexSignature(type))
@@ -218,7 +218,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
         withParentheses: true,
         nodes: schema.oneOf
           .map((item) => {
-            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)
+            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)
           })
           .filter((item) => {
             return item && item !== factory.keywordTypeNodes.any
@@ -227,7 +227,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
 
       if (schemaWithoutOneOf.properties) {
         return factory.createIntersectionDeclaration({
-          nodes: [this.#getBaseTypeFromSchema(schemaWithoutOneOf, baseName), union].filter(Boolean),
+          nodes: [this.getTypeFromSchema(schemaWithoutOneOf, baseName), union].filter(Boolean),
         })
       }
 
@@ -241,7 +241,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
         withParentheses: true,
         nodes: schema.anyOf
           .map((item) => {
-            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)
+            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)
           })
           .filter((item) => {
             return item && item !== factory.keywordTypeNodes.any
@@ -250,7 +250,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
 
       if (schemaWithoutAnyOf.properties) {
         return factory.createIntersectionDeclaration({
-          nodes: [this.#getBaseTypeFromSchema(schemaWithoutAnyOf, baseName), union].filter(Boolean),
+          nodes: [this.getTypeFromSchema(schemaWithoutAnyOf, baseName), union].filter(Boolean),
         })
       }
 
@@ -264,7 +264,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
         withParentheses: true,
         nodes: schema.allOf
           .map((item) => {
-            return item && this.#getBaseTypeFromSchema(item as OasTypes.SchemaObject)
+            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)
           })
           .filter((item) => {
             return item && item !== factory.keywordTypeNodes.any
@@ -273,7 +273,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
 
       if (schemaWithoutAllOf.properties) {
         return factory.createIntersectionDeclaration({
-          nodes: [this.#getBaseTypeFromSchema(schemaWithoutAllOf, baseName), and].filter(Boolean),
+          nodes: [this.getTypeFromSchema(schemaWithoutAllOf, baseName), and].filter(Boolean),
         })
       }
 
@@ -315,7 +315,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
 
     if ('items' in schema) {
       // items -> array
-      const node = this.#getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName)
+      const node = this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName)
       if (node) {
         return factory.createArrayTypeNode(node)
       }
@@ -332,7 +332,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
       return factory.createTupleDeclaration({
         nodes: prefixItems.map((item) => {
           // no baseType so we can fall back on an union when using enum
-          return this.#getBaseTypeFromSchema(item, undefined)
+          return this.getTypeFromSchema(item, undefined)
         }) as Array<ts.TypeNode>,
       })
     }
@@ -349,7 +349,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
 
         return factory.createUnionDeclaration({
           nodes: [
-            this.#getBaseTypeFromSchema(
+            this.getTypeFromSchema(
               {
                 ...schema,
                 type,

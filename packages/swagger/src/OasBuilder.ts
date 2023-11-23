@@ -1,19 +1,15 @@
-import type { PluginFactoryOptions, PluginManager } from '@kubb/core'
-import type { KubbPlugin } from '@kubb/core'
-import type { Oas, Operation, OperationSchema, OperationSchemas } from './types.ts'
+import type { PluginManager } from '@kubb/core'
+import type { Oas, OperationSchema } from './types.ts'
 
-type Context<TPluginOptions extends PluginFactoryOptions> = {
+type Context = {
   oas: Oas
   pluginManager: PluginManager
-  plugin: KubbPlugin<TPluginOptions>
-  operation: Operation
-  schemas: OperationSchemas
 }
 
 /**
- * Abstract class that contains the building blocks for creating an type/zod builder
+ * Abstract class that contains the building blocks for creating a type/zod builder
  */
-export abstract class OasBuilder<TOptions = unknown, TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions, TContext = Context<TPluginOptions>> {
+export abstract class OasBuilder<TOptions = unknown, TContext = Context> {
   #options: TOptions = {} as TOptions
   #context: TContext = {} as TContext
 

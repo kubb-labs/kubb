@@ -75,6 +75,8 @@ type ZodMetaBase<T> = {
   args: T
 }
 
+type ZodMetaUnknown = { keyword: string }
+
 type ZodMetaAny = { keyword: typeof zodKeywords.any }
 type ZodMetaNull = { keyword: typeof zodKeywords.null }
 
@@ -124,6 +126,7 @@ type ZodMetaUrl = { keyword: typeof zodKeywords.url }
 type ZodMetaReadOnly = { keyword: typeof zodKeywords.readOnly }
 
 export type ZodMeta =
+  | ZodMetaUnknown
   | ZodMetaAny
   | ZodMetaNull
   | ZodMetaNullish

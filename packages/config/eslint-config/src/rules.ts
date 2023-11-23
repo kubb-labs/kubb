@@ -17,7 +17,6 @@ export const rules = {
       disallowTypeAnnotations: false,
     },
   ],
-  '@typescript-eslint/explicit-function-return-type': 'error',
   '@typescript-eslint/no-unsafe-assignment': 'warn',
   '@typescript-eslint/no-floating-promises': 'off',
   '@typescript-eslint/await-thenable': 'off',

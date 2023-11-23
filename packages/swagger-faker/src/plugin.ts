@@ -19,12 +19,16 @@ export const pluginName = 'swagger-faker' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'mocks', group, exclude = [], include, override = [], transformers = {}, dateType = 'string' } = options
+  const { output = 'mocks', group, exclude = [], include, override = [], transformers = {}, mapper = {}, dateType = 'string' } = options
   const template = group?.output ? group.output : `${output}/{{tag}}Controller`
 
   return {
     name: pluginName,
-    options,
+    options: {
+      transformers,
+      mapper,
+      dateType,
+    },
     pre: [swaggerPluginName, swaggerTypeScriptPluginName],
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
@@ -72,7 +76,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (mode === 'directory') {
         const builder = await new FakerBuilder({
-          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
           fileResolver: (name, ref) => {
             const resolvedTypeId = this.resolvePath({
               baseName: `${name}.ts`,
@@ -83,10 +86,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
             return getRelativePath(root, resolvedTypeId)
           },
-          withJSDocs: true,
-          dateType,
-          oas,
-        }).configure()
+          ...this.plugin.options,
+        }, { oas, pluginManager: this.pluginManager }).configure()
 
         Object.entries(schemas).forEach(([name, schema]: [string, OasTypes.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
@@ -126,12 +127,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (mode === 'file') {
         // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
-        const builder = new FakerBuilder({
-          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
-          withJSDocs: true,
-          dateType,
-          oas,
-        }).configure()
+        const builder = new FakerBuilder(this.plugin.options, { oas, pluginManager: this.pluginManager }).configure()
         const mapFileSchema = ([name, schema]: [string, OasTypes.SchemaObject]) => {
           // generate and pass through new code back to the core so it can be write to that file
           return builder.add({
@@ -164,10 +160,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       const operationGenerator = new OperationGenerator(
-        {
-          mode,
-          dateType,
-        },
+        this.plugin.options,
         {
           oas,
           pluginManager: this.pluginManager,
@@ -176,6 +169,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           exclude,
           include,
           override,
+          mode,
         },
       )
 

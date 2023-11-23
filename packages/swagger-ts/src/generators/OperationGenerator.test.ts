@@ -36,6 +36,7 @@ describe('OperationGenerator', () => {
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
         plugin: {} as KubbPlugin<PluginOptions>,
         contentType: undefined,
+        override: undefined,
       },
     )
     const operation = oas.operation('/pets', 'get')
@@ -75,6 +76,7 @@ describe('OperationGenerator', () => {
         pluginManager: { resolvePath, resolveName } as unknown as PluginManager,
         plugin: {} as KubbPlugin<PluginOptions>,
         contentType: undefined,
+        override: undefined,
       },
     )
     const operation = oas.operation('/pets', 'post')
