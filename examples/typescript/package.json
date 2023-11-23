@@ -10,6 +10,7 @@
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
+  "private": true,
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",

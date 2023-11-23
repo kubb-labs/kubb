@@ -1,6 +1,7 @@
 {
   "name": "advanced-pet-store",
   "version": "0.0.1",
+  "private": true,
   "description": "Advanced PetStore example",
   "repository": {
     "type": "git",
