@@ -1,5 +1,6 @@
 info:
   title: Swagger Petstore
+  version: 1.0.0
 openapi: 3.1.0
 components:
   schemas:
@@ -62,4 +63,4 @@ components:
       required:
       - id
 
-paths:
+paths:  {}
