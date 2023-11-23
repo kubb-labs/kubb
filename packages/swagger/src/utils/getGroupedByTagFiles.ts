@@ -4,7 +4,7 @@ import { getRelativePath, renderTemplate } from '@kubb/core/utils'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import type { KubbFile, KubbPlugin, ResolveNameParams } from '@kubb/core'
+import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { Logger } from '@kubb/core/utils'
 
 type Options = {

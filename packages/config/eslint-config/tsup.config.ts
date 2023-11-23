@@ -7,6 +7,16 @@ export default defineConfig([
   optionsESM,
   {
     ...optionsCJS,
+    entry: ['src/legacy.ts'],
+    name: 'legacy',
+  },
+  {
+    ...optionsESM,
+    entry: ['src/legacy.ts'],
+    name: 'legacy',
+  },
+  {
+    ...optionsCJS,
     entry: ['src/flat.ts'],
     name: 'flat',
   },

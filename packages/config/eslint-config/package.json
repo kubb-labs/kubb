@@ -10,6 +10,11 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.cjs"
     },
+    "./legacy": {
+      "import": "./dist/legacy.js",
+      "require": "./dist/legacy.cjs",
+      "default": "./dist/legacy.cjs"
+    },
     "./flat": {
       "import": "./dist/flat.js",
       "require": "./dist/flat.cjs",

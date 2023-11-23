@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { FileManager, Generator, Warning } from '@kubb/core'
+import { FileManager, Generator } from '@kubb/core'
 
 import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 import { findSchemaDefinition } from 'oas/utils'

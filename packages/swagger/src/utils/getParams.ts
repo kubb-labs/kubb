@@ -5,7 +5,7 @@ import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { isParameterObject } from './isParameterObject.ts'
 
 import type { FunctionParamsAST } from '@kubb/core/utils'
-import type { OperationSchema } from '../types.ts'
+import type { OasTypes, OperationSchema } from '../types.ts'
 
 export function getASTParams(
   operationSchema: OperationSchema | undefined,
@@ -30,7 +30,7 @@ export function getASTParams(
     ]
   }
 
-  return Object.entries(operationSchema.schema.properties).map(([name, schema]) => {
+  return Object.entries(operationSchema.schema.properties).map(([name, schema]: [string, OasTypes.SchemaObject]) => {
     const isParam = isParameterObject(schema)
     const data: FunctionParamsAST = { name, required: isParam ? schema.required : undefined, type: typed ? `${operationSchema.name}["${name}"]` : undefined }
 

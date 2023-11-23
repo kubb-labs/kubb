@@ -29,8 +29,8 @@ importers:
         specifier: ^0.34.6
         version: 0.34.6(vitest@0.34.6)
       bun-types:
-        specifier: ^1.0.13
-        version: 1.0.13
+        specifier: ^1.0.14
+        version: 1.0.14
       dprint:
         specifier: ^0.41.0
         version: 0.41.0
@@ -118,7 +118,7 @@ importers:
         version: 4.36.1(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/solid-query':
         specifier: ^4.36.1
-        version: 4.36.1(solid-js@1.8.5)
+        version: 4.36.1(solid-js@1.8.6)
       '@tanstack/svelte-query':
         specifier: ^4.36.1
         version: 4.36.1(svelte@3.59.2)
@@ -138,8 +138,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       solid-js:
-        specifier: ^1.8.5
-        version: 1.8.5
+        specifier: ^1.8.6
+        version: 1.8.6
       svelte:
         specifier: ^3.59.2
         version: 3.59.2
@@ -209,7 +209,7 @@ importers:
         version: 4.36.1(react-dom@18.2.0)(react@18.2.0)
       '@tanstack/solid-query':
         specifier: ^4.36.1
-        version: 4.36.1(solid-js@1.8.5)
+        version: 4.36.1(solid-js@1.8.6)
       '@tanstack/svelte-query':
         specifier: ^4.36.1
         version: 4.36.1(svelte@3.59.2)
@@ -229,8 +229,8 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
       solid-js:
-        specifier: ^1.8.5
-        version: 1.8.5
+        specifier: ^1.8.6
+        version: 1.8.6
       svelte:
         specifier: ^3.59.2
         version: 3.59.2
@@ -594,13 +594,13 @@ importers:
         version: link:../../packages/swagger-zod
       '@tanstack/solid-query':
         specifier: ^4.36.1
-        version: 4.36.1(solid-js@1.8.5)
+        version: 4.36.1(solid-js@1.8.6)
       axios:
         specifier: ^1.6.2
         version: 1.6.2
       solid-js:
-        specifier: ^1.8.5
-        version: 1.8.5
+        specifier: ^1.8.6
+        version: 1.8.6
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(ts-node@10.9.1)(typescript@5.3.2)
@@ -2966,13 +2966,13 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/solid-query@4.36.1(solid-js@1.8.5):
+  /@tanstack/solid-query@4.36.1(solid-js@1.8.6):
     resolution: {integrity: sha512-w8L6B12AsCyF7AB2Np4fj9qsOBfrzzxyIkdsniKo9HErdXdlGLyynYaDm4EGsH9ePPcdJSUX7ELGqmXllofn/Q==}
     peerDependencies:
       solid-js: ^1.5.7
     dependencies:
       '@tanstack/query-core': 4.36.1
-      solid-js: 1.8.5
+      solid-js: 1.8.6
     dev: false
 
   /@tanstack/svelte-query@4.36.1(svelte@3.59.2):
@@ -4211,8 +4211,8 @@ packages:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  /bun-types@1.0.13:
-    resolution: {integrity: sha512-QQH6NLAOU+2tWgQuDSAYBFy+kQwVhPJLB0Q38QLjCmFUZJEYCiiq7tzvU784LAIX2onzO6gr+gIGXt8yCt0cJw==}
+  /bun-types@1.0.14:
+    resolution: {integrity: sha512-hLVfM2fk8xSJeobfuPGilfvxM5gLtEy1bn7RJhrtw3u4OaC0kieXKYFFTVHU8jZ3hj8YyPLIFClIUodkFSrMBQ==}
     dev: true
 
   /bundle-require@4.0.2(esbuild@0.19.5):
@@ -7528,8 +7528,8 @@ packages:
       upper-case-first: 2.0.2
     dev: false
 
-  /seroval@0.12.3:
-    resolution: {integrity: sha512-5WDeMpv7rmEylsypRj1iwRVHE/QLsMLiZ+9savlNNQEVdgGia1iRMb7qyaAagY0wu/7+QTe6d2wldk/lgaLb6g==}
+  /seroval@0.14.1:
+    resolution: {integrity: sha512-ZlC9y1KVDhZFdEHLYZup1RjKDutyX1tt3ffOauqRbRURa2vRr2NU/bHuVEuNEqR3zE2uCU3WM6LqH6Oinc3tWg==}
     engines: {node: '>=10'}
     dev: false
 
@@ -7679,11 +7679,11 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /solid-js@1.8.5:
-    resolution: {integrity: sha512-xvtJvzJzWbsn35oKFhW9kNwaxG1Z/YLMsDp4tLVcYZTMPzvzQ8vEZuyDQ6nt7xDArVgZJ7TUFrJUwrui/oq53A==}
+  /solid-js@1.8.6:
+    resolution: {integrity: sha512-yiH6ZfBBZ3xj/aU/PBpVKB+8r8WWp100NGF7k/Z0IrK9Y8Lv0jwvFiJY1cHdc6Tj7GqXArKnMBabM0m1k+LzkA==}
     dependencies:
       csstype: 3.1.2
-      seroval: 0.12.3
+      seroval: 0.14.1
     dev: false
 
   /source-map-js@1.0.2:
