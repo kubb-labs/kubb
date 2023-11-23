@@ -1,7 +1,12 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@2.3.1/schema.json",
-  "changelog": "@changesets/cli/changelog",
-  "commit": true,
+  "changelog": [
+    "@changesets/changelog-github",
+    {
+      "repo": "kubb-project/kubb"
+    }
+  ],
+  "commit": false,
   "fixed": [],
   "linked": [],
   "access": "restricted",
