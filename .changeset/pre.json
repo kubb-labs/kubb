@@ -36,5 +36,7 @@
     "@kubb/swagger-zodios": "2.0.0-beta.2",
     "@kubb/types": "2.0.0-beta.2"
   },
-  "changesets": []
+  "changesets": [
+    "old-pandas-teach"
+  ]
 }
