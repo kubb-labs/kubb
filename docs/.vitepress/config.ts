@@ -80,7 +80,7 @@ export default defineConfig({
         items: [
           {
             text: '2.0.0',
-            link: 'https://alpha.kubb.dev',
+            link: 'https://beta.kubb.dev',
             target: '_blank',
           },
           {
