@@ -73,5 +73,11 @@ features:
       dark: ./feature/plugins-dark.svg
       light: ./feature/plugins-light.svg
     title: Extensible with plugins
-    details: Create your own plugin or fork and change one of the default plugins with your own flavour without the need of forking the full project. <div class="learn-more"><a href="/plugins/introduction">Learn more</a></div>
+    details: Create your own plugin or fork and change one of the default plugins with your own flavour without the need of forking the full project. <div class="learn-more"><a href="/plugins/overview">Learn more</a></div>
+  - icon:
+      src: ./feature/react.svg
+      height: 24
+    title: Templates
+    details: Customize the generated files/output based on a custom defined JSX(React) template. <div class="learn-more"><a href="/reference/templates">Learn more</a></div>
+
 ---

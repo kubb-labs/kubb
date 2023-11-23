@@ -1,23 +1,37 @@
 ---
 layout: doc
 
-title: kubb.config.js
+title: kubb.config.ts
 outline: deep
 ---
 
 # Configuring Kubb
 
-Kubb is configured with a configuation file (preferably with `kubb.config.js`).
+Kubb is configured with a configuation file (preferably with `kubb.config.ts`).
 
-## TypeScript/JavaScript
+## Usage
+
+When you use the CLI of Kubb, Kubb will automatically read the configuration file in the root directory of the current project and resolve it in the following order:
+
+- `kubb.config.ts`
+- `kubb.config.js`
+- `kubb.config.mjs`
+- `kubb.config.cjs`
+
+We recommend using the .ts format for the configuration file and importing the `defineConfig` utility function from `@kubb/core`. It provides friendly TypeScript type hints and autocompletion, which can help you avoid errors in the configuration.
+
+In the background Kubb uses [Cosmiconfig](https://github.com/davidtheclark/cosmiconfig) which means you can als use the following:
+
+- A `"kubb"` key in your package.json file.
+- A `.kubbrc` file written in JSON or YAML.
+- A `.kubbrc.json` file.
+- A `.kubbrc.yaml` or `.kubbrc.yml` file.
 
 ::: tip
-When using a `import` statement you need to set `"type": "module"` in your `package.json`.
-
-You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cjs for CJS.
+You can also use `configs/kubb.config.ts` or `.config/kubb.config.ts` instead of `kubb.config.ts` in the root of your project.
 :::
 
-### DefineConfig
+## DefineConfig
 
 When using TypeScript/JavaScript you need to use `defineConfig` to create your config.
 
@@ -32,11 +46,17 @@ export const defineConfig = (
 ) => options
 ```
 
-#### Basic config
+## Basic
+
+::: tip
+When using a `import` statement you need to set `"type": "module"` in your `package.json`.
+
+You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cjs for CJS.
+:::
 
 ::: code-group
 
-```typescript [kubb.config.js]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig({
@@ -53,7 +73,7 @@ export default defineConfig({
 
 :::
 
-#### Conditional config
+## Conditional
 
 If the config needs to be conditionally determined based on CLI options flags, it can be exported as a function instead.<br/>
 Here you can choose between returning the config options synchronously or asynchronously.
@@ -62,7 +82,7 @@ Here you can choose between returning the config options synchronously or asynch
 // CLI options flags
 export type CLIOptions = {
   /**
-   * Path to `kubb.config.js`
+   * Path to `kubb.config.ts`
    */
   config?: string
   /**
@@ -86,7 +106,7 @@ export type CLIOptions = {
 
 ::: code-group
 
-```typescript [kubb.config.js]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
 export default defineConfig(async ({ config, debug, watch }) => {
@@ -110,44 +130,16 @@ export default defineConfig(async ({ config, debug, watch }) => {
 
 :::
 
-### Single
+## Multiple plugins
 
-::: code-group
-
-```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
-
-export default defineConfig(async () => {
-  return {
-    root: '.',
-    input: {
-      path: './petStore.yaml',
-    },
-    output: {
-      path: './src/gen',
-    },
-    plugins: [
-      createSwagger(
-        {
-          'output': 'schemas',
-          'validate': true,
-        },
-      ),
-    ],
-  }
-})
-```
+::: tip
+Since version `2.x.x` we also support using multiple of the same plugin.
 
 :::
 
-### Multiple
-
-Since version `2.x.x` we also support using multiple of the same plugin.
-
 ::: code-group
 
-```typescript [kubb.config.js]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 
@@ -178,27 +170,22 @@ export default defineConfig(async () => {
 })
 ```
 
+## Multiple configs
+
+::: tip
+Since version `2.x.x` we also support using multiple configs.
+
 :::
-
-### Multiple JSON
-
-Since version `2.x.x` we also support using multiple of the same plugin.
-
-When using JSON, the structure will be a little bit different.
-Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/plugins/) makes it possible to use plugins with extra options.
-
-```
-[pluginName: string, options: PluginOptions]
-```
 
 ::: code-group
 
-```typescript [kubb.config.js]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 
-export default defineConfig(async () => {
-  return {
+export default defineConfig([
+  {
+    name: 'petStore',
     root: '.',
     input: {
       path: './petStore.yaml',
@@ -207,117 +194,31 @@ export default defineConfig(async () => {
       path: './src/gen',
     },
     plugins: [
-      ['@kubb/swagger', {
-        'output': 'schemas',
-        'validate': true,
-      }],
-      ['@kubb/swagger', {
-        'output': 'schemas2',
-        'validate': true,
-      }],
+      createSwagger(
+        {
+          'output': 'schemas',
+          'validate': true,
+        },
+      ),
     ],
-  }
-})
-```
-
-:::
-
-## JSON
-
-You can use a [JSON schema](https://github.com/kubb-project/kubb/blob/main/packages/core/schema.json) to be sure you are using the correct configs.<br/>
-
-When using JSON, the structure will be a little bit different.
-Here we are using the same syntax like how [Babel](https://babeljs.io/docs/en/plugins/) makes it possible to use plugins with extra options.
-
-```
-[pluginName: string, options: PluginOptions]
-```
-
-### Single
-
-::: code-group
-
-```json [kubb.json]
-{
-  "$schema": "@kubb/core/schemas.json",
-  "root": ".",
-  "input": {
-    "path": "./petStore.yaml"
   },
-  "output": {
-    "path": "./src/gen"
-  },
-  "logLevel": "info",
-  "plugins": [
-    [
-      "@kubb/swagger",
-      {
-        "output": "schemas",
-        "validate": true
-      }
-    ]
-  ]
-}
-```
-
-:::
-
-### Multiple
-
-Since version `2.x.x` we also support using multiple of the same plugin.
-
-::: code-group
-
-```json [kubb.json]
-{
-  "$schema": "@kubb/core/schemas.json",
-  "root": ".",
-  "input": {
-    "path": "./petStore.yaml"
-  },
-  "output": {
-    "path": "./src/gen"
-  },
-  "logLevel": "info",
-  "plugins": [
-    [
-      "@kubb/swagger",
-      {
-        "output": "schemas",
-        "validate": true
-      }
+  {
+    name: 'petStoreV2',
+    root: '.',
+    input: {
+      path: './petStoreV2.yaml',
+    },
+    output: {
+      path: './src/gen-v2',
+    },
+    plugins: [
+      createSwagger(
+        {
+          'output': 'schemas',
+          'validate': true,
+        },
+      ),
     ],
-    [
-      "@kubb/swagger",
-      {
-        "output": "schemas2",
-        "validate": true
-      }
-    ]
-  ]
-}
+  },
+])
 ```
-
-:::
-
-## YAML <img src="/icons/experimental.svg"/>
-
-### Example with a plugin
-
-::: code-group
-
-```yaml [.kubbrc]
-root: .
-input:
-  path: ./petStore.yaml
-output:
-  path: ./src/gen
-plugins:
-  - '@kubb/swagger'
-  - output: schemas
-    validate: true
-```
-
-:::
-
-Read more about [configuring the options](/guide/options).

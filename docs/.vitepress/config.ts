@@ -24,40 +24,69 @@ const guideSidebar = [
         text: 'Installation',
         link: '/guide/installation',
       },
-      // {
-      //   text: 'Comparison <span class="beta">under construction</span>',
-      //   link: '/comparison',
-      // },
+      {
+        text: 'Configure',
+        link: '/guide/configure',
+      },
+      {
+        text: 'CLI',
+        link: '/guide/cli',
+      },
       {
         text: 'Quick start',
         link: '/guide/quick-start',
       },
     ],
   },
-  {
-    text: 'Configuration',
-    items: [
-      {
-        text: 'Options',
-        link: '/guide/options',
-      },
-      {
-        text: 'Configuring Kubb',
-        link: '/guide/configure',
-      },
-    ],
-  },
+
   {
     text: 'Tutorials',
     collapsed: false,
     items: [
       {
-        text: 'Basic tutorial',
+        text: 'Basic',
         link: '/guide/tutorial/basic',
       },
       {
-        text: 'Templates tutorial <span class="new">new</span>',
+        text: 'Templates <span class="new">new</span>',
         link: '/guide/tutorial/templates',
+      },
+    ],
+  },
+]
+
+const configSidebar = [
+  {
+    text: 'Overview',
+    link: '/config/overview',
+  },
+  {
+    text: 'Options',
+    collapsed: false,
+    items: [
+      {
+        text: 'name',
+        link: '/config/name',
+      },
+      {
+        text: 'root',
+        link: '/config/root',
+      },
+      {
+        text: 'input',
+        link: '/config/input',
+      },
+      {
+        text: 'output',
+        link: '/config/output',
+      },
+      {
+        text: 'plugins',
+        link: '/config/plugins',
+      },
+      {
+        text: 'hooks',
+        link: '/config/hooks',
       },
     ],
   },
@@ -65,13 +94,32 @@ const guideSidebar = [
 
 const referenceSidebar = [
   {
-    text: 'Plugins',
+    text: 'Overview',
+    link: '/reference/overview',
+  },
+  {
+    text: 'FileManager',
+    link: '/reference/fileManager',
+  },
+  {
+    text: 'PluginManager',
+    link: '/reference/pluginManager',
+  },
+  {
+    text: 'Templates <img src="/icons/experimental.svg"/>',
+    link: '/reference/templates',
+  },
+]
+
+const pluginsSidebar = [
+  {
+    text: 'Overview',
+    link: '/plugins/overview',
+  },
+  {
+    text: 'Internal plugins',
     collapsed: false,
     items: [
-      {
-        text: 'Introduction',
-        link: '/plugins/introduction',
-      },
       {
         text: '@kubb/core',
         collapsed: true,
@@ -86,56 +134,6 @@ const referenceSidebar = [
       {
         text: '@kubb/cli',
         link: '/plugins/cli',
-      },
-      {
-        text: 'Swagger plugins',
-        collapsed: true,
-        items: [
-          { text: '@kubb/swagger', link: '/plugins/swagger' },
-          {
-            text: '@kubb/swagger-client',
-            collapsed: true,
-            link: '/plugins/swagger-client/',
-            items: [
-              {
-                text: 'globals.d.ts',
-                link: '/plugins/swagger-client/globals',
-              },
-              {
-                text: 'client',
-                link: '/plugins/swagger-client/client',
-              },
-            ],
-          },
-          {
-            text: '@kubb/swagger-ts',
-            link: '/plugins/swagger-ts',
-          },
-          {
-            text: '@kubb/swagger-zod',
-            link: '/plugins/swagger-zod',
-          },
-          {
-            text: '@kubb/swagger-zodios',
-            link: '/plugins/swagger-zodios',
-          },
-          {
-            text: '@kubb/swagger-tanstack-query <span class="new">v5 support</span>',
-            link: '/plugins/swagger-tanstack-query',
-          },
-          {
-            text: '@kubb/swagger-swr',
-            link: '/plugins/swagger-swr',
-          },
-          {
-            text: '@kubb/swagger-faker',
-            link: '/plugins/swagger-faker',
-          },
-          {
-            text: '@kubb/swagger-msw <span class="new">v2 support</span>',
-            link: '/plugins/swagger-msw',
-          },
-        ],
       },
       {
         text: '@kubb/parser',
@@ -178,20 +176,70 @@ const referenceSidebar = [
     ],
   },
   {
-    text: 'API <span class="beta">under construction</span>',
+    text: 'Swagger plugins',
+    collapsed: false,
+    items: [
+      { text: '@kubb/swagger', link: '/plugins/swagger' },
+      {
+        text: '@kubb/swagger-client',
+        collapsed: true,
+        link: '/plugins/swagger-client/',
+        items: [
+          {
+            text: 'globals.d.ts',
+            link: '/plugins/swagger-client/globals',
+          },
+          {
+            text: 'client',
+            link: '/plugins/swagger-client/client',
+          },
+        ],
+      },
+      {
+        text: '@kubb/swagger-ts',
+        link: '/plugins/swagger-ts',
+      },
+      {
+        text: '@kubb/swagger-zod',
+        link: '/plugins/swagger-zod',
+      },
+      {
+        text: '@kubb/swagger-zodios',
+        link: '/plugins/swagger-zodios',
+      },
+      {
+        text: '@kubb/swagger-tanstack-query <span class="new">v5 support</span>',
+        link: '/plugins/swagger-tanstack-query',
+      },
+      {
+        text: '@kubb/swagger-swr',
+        link: '/plugins/swagger-swr',
+      },
+      {
+        text: '@kubb/swagger-faker',
+        link: '/plugins/swagger-faker',
+      },
+      {
+        text: '@kubb/swagger-msw <span class="new">v2 support</span>',
+        link: '/plugins/swagger-msw',
+      },
+    ],
+  },
+  {
+    text: 'Development',
     collapsed: false,
     items: [
       {
-        text: 'FileManager',
-        link: '/reference/fileManager',
+        text: 'Plugin system',
+        link: '/plugins/development/system',
       },
       {
-        text: 'PluginManager',
-        link: '/reference/pluginManager',
+        text: 'Plugin core',
+        link: '/plugins/development/core',
       },
       {
-        text: 'Templates <img src="/icons/experimental.svg"/>',
-        link: '/reference/templates',
+        text: 'Plugin template',
+        link: '/plugins/development/template',
       },
     ],
   },
@@ -268,6 +316,89 @@ const blogSidebar = [
   },
 ]
 
+const pluginsMenu = [
+  {
+    text: 'Overview',
+    link: '/plugins/overview',
+  },
+  {
+    text: 'Internal plugins',
+    items: [
+      {
+        text: '@kubb/core',
+        link: '/plugins/core/',
+      },
+      {
+        text: '@kubb/cli',
+        link: '/plugins/cli',
+      },
+      {
+        text: '@kubb/parser',
+        link: '/plugins/parser',
+      },
+      {
+        text: '@kubb/react',
+        link: '/plugins/react/',
+      },
+    ],
+  },
+  {
+    text: 'Swagger plugins',
+    items: [
+      { text: '@kubb/swagger', link: '/plugins/swagger' },
+      {
+        text: '@kubb/swagger-client',
+        link: '/plugins/swagger-client/',
+      },
+      {
+        text: '@kubb/swagger-ts',
+        link: '/plugins/swagger-ts',
+      },
+      {
+        text: '@kubb/swagger-zod',
+        link: '/plugins/swagger-zod',
+      },
+      {
+        text: '@kubb/swagger-zodios',
+        link: '/plugins/swagger-zodios',
+      },
+      {
+        text: '@kubb/swagger-tanstack-query',
+        link: '/plugins/swagger-tanstack-query',
+      },
+      {
+        text: '@kubb/swagger-swr',
+        link: '/plugins/swagger-swr',
+      },
+      {
+        text: '@kubb/swagger-faker',
+        link: '/plugins/swagger-faker',
+      },
+      {
+        text: '@kubb/swagger-msw',
+        link: '/plugins/swagger-msw',
+      },
+    ],
+  },
+  {
+    text: 'Development',
+    items: [
+      {
+        text: 'Plugin system',
+        link: '/plugins/development/system',
+      },
+      {
+        text: 'Plugin core',
+        link: '/plugins/development/core',
+      },
+      {
+        text: 'Plugin template',
+        link: '/plugins/development/template',
+      },
+    ],
+  },
+]
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   lang: 'en-UK',
@@ -326,13 +457,22 @@ export default defineConfig({
       provider: 'local',
     },
     nav: [
-      { text: 'Guide', link: '/guide/introduction' },
-      { text: 'Reference', link: '/plugins/introduction' },
-      { text: 'Examples', link: '/examples/typescript' },
-      { text: 'Playground', link: '/playground' },
+      { text: 'Guide', link: '/guide/introduction', activeMatch: 'guide' },
+      { text: 'Config', link: '/config/overview', activeMatch: 'config' },
       {
-        text: 'Blog',
-        link: '/blog/v2',
+        text: 'Plugins',
+        activeMatch: 'plugins',
+        items: [
+          ...pluginsMenu,
+        ],
+      },
+      { text: 'Reference', link: '/reference/overview', activeMatch: 'reference' },
+      {
+        text: 'Try Out',
+        items: [
+          { text: 'Examples', link: '/examples/typescript', activeMatch: 'examples' },
+          { text: 'Playground', link: '/playground' },
+        ],
       },
       {
         text: `v${version}`,
@@ -341,6 +481,10 @@ export default defineConfig({
             text: '1.0.0',
             link: 'https://kubb.dev',
             target: '_blank',
+          },
+          {
+            text: 'Blog',
+            link: '/blog/v2',
           },
           {
             text: 'Releases',
@@ -374,9 +518,9 @@ export default defineConfig({
       pattern: 'https://github.com/kubb-project/kubb/edit/main/docs/src/:path',
     },
     sidebar: {
-      '/configuration': guideSidebar,
+      '/config': configSidebar,
       '/guide': guideSidebar,
-      '/plugins': referenceSidebar,
+      '/plugins': pluginsSidebar,
       '/reference': referenceSidebar,
       '/examples': examplesSidebar,
       '/blog': blogSidebar,

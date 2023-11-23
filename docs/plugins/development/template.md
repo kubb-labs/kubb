@@ -1,21 +1,11 @@
 ---
 layout: doc
 
-title: Plugins
+title: Development
 outline: deep
 ---
 
-# Plugins
-
-Plugins are a great way to extend Kubb's basic functionality. Even the package `@kubb/core` is a plugin, which also contains the building blocks in creating your own plugin. We have already written some plugins so you can easily get started with TypeScript or ReactQuery.
-
-::: tip
-Do you have an idea or a specific change is needed, feel free to <a href="https://github.com/kubb-project/kubb/issues/new/choose">create an issue</a>.
-:::
-
-<hr/>
-
-## Template
+# Plugin template
 
 The easiest way to get started with creating your own Kubb plugin is to use our [template on GitHub](https://github.com/kubb-project/plugin-template) or clone the following repo [https://github.com/kubb-project/plugin-template](https://github.com/kubb-project/plugin-template).
 
@@ -28,28 +18,28 @@ $ git clone https://github.com/kubb-project/plugin-template.git
 ```typescript
 import pathParser from 'node:path'
 
-import { createPlugin, getPathMode, validatePlugins, writeIndexes, KubbPlugin } from '@kubb/core'
+import { FileManager, createPlugin } from '@kubb/core'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import type { File } from '@kubb/core'
-import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import type { KubbFile } from '@kubb/core'
 import type { PluginOptions } from './types.ts'
+import path from 'node:path'
 
 export const pluginName = 'plugin-demo' satisfies PluginOptions['name']
-export const pluginKey = [pluginName] satisfies PluginOptions['key']
+export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = 'demo' } = options
-  let pluginsOptions: [KubbPlugin<SwaggerPluginOptions>]
 
   return {
     name: pluginName,
     options,
+    pre: [swaggerPluginName],
     resolvePath(fileName, directory, options) {
       const root = pathParser.resolve(this.config.root, this.config.output.path)
-      const mode = getPathMode(pathParser.resolve(root, output))
+      const mode = FileManager.getMode(path.resolve(root, output))
 
       if (mode === 'file') {
         /**
@@ -65,22 +55,21 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
     },
     async buildStart() {
-      // const [swaggerPlugin] = pluginsOptions
       // const oas = await swaggerApi.getOas()
 
-      const files: File[] = [
+      const files: KubbFile.File[] = [
         {
-          fileName: 'test.ts',
+          baseName: 'test.ts',
           path: this.resolvePath({
-            fileName: 'test.ts',
-            pluginName,
+            baseName: 'test.ts',
+            pluginKey: this.plugin.key,
           })!,
           source: "export const hello = 'world';",
         },
       ]
       await this.addFile(...files)
 
-      console.log('Build start')
+      console.log('Build started')
     },
     async buildEnd() {
       if (this.config.output.write === false) {
@@ -88,20 +77,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       const root = pathParser.resolve(this.config.root, this.config.output.path)
-      const files = await writeIndexes(root, { extensions: /\.ts/, exclude: [/schemas/, /json/] })
 
-      if (files) {
-        await this.addFile(...files)
-      }
-
-      console.log('Build end')
+      await this.fileManager.addIndexes({
+        root,
+        extName: '.ts',
+        meta: { pluginKey: this.plugin.key },
+        options: {
+          output,
+        },
+      })
+      console.log('Build ended')
     },
   }
 })
 ```
-
-Our plugin system is based on some ideas of the following packages:
-
-- [Rollup's](https://github.com/rollup/rollup/blob/master/docs/05-plugin-development.md)
-- [Unplugin](https://github.com/unjs/unplugin)
-- [Snowpack](https://www.snowpack.dev/guides/plugins)

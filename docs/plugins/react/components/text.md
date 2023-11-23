@@ -7,6 +7,8 @@ outline: deep
 
 # Text
 
+## Text
+
 ::: code-group
 
 ```tsx [simple]
@@ -37,7 +39,7 @@ export const test = 2
 
 :::
 
-# Text with indent
+## Text with indent
 
 ::: code-group
 

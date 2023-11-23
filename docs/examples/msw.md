@@ -4,7 +4,7 @@ aside: false
 ---
 
 <iframe
-  src="https://codesandbox.io/embed/github/kubb-project/kubb/tree/alpha/examples/msw?fontsize=14&module=%2Fsrc%2Fgen%2Fmodels%2FPerson.ts&theme=dark&view=editor"
+  src="https://codesandbox.io/embed/github/kubb-project/kubb/tree/beta/examples/msw?fontsize=14&module=%2Fsrc%2Fgen%2Fmodels%2FPerson.ts&theme=dark&view=editor"
   :style="{
     width: '100%',
     height: '700px',

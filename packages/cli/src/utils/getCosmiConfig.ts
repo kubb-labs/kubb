@@ -48,13 +48,13 @@ export async function getCosmiConfig(moduleName: string, config?: string): Promi
 
     `.${moduleName}rc.ts`,
     `.${moduleName}rc.js`,
-    `.${moduleName}rc.cjs`,
     `.${moduleName}rc.mjs`,
+    `.${moduleName}rc.cjs`,
 
     `${moduleName}.config.ts`,
     `${moduleName}.config.js`,
-    `${moduleName}.config.cjs`,
     `${moduleName}.config.mjs`,
+    `${moduleName}.config.cjs`,
   ]
   const explorer = cosmiconfig(moduleName, {
     cache: false,
