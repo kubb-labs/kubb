@@ -1,4 +1,4 @@
-name: release-please
+name: release
 on:
   push:
     branches: ['main', 'alpha', 'beta', 'rc']
@@ -10,19 +10,42 @@ on:
   workflow_dispatch:
 
 
-permissions:
-  contents: write
-  pull-requests: write
+concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Release
-        uses: google-github-actions/release-please-action@v3
-        with:
-          command: manifest-pr
-          release-type: node
-          monorepo-tags: true
-          default-branch: beta
+  release:
+      name: Release
+      timeout-minutes: 15
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 2
 
+        - uses: pnpm/action-setup@v2.2.4
+          with:
+            version: 8
+
+        - name: Setup Node.js environment
+          uses: actions/setup-node@v3
+          with:
+            node-version: 18
+            cache: 'pnpm'
+            registry-url: 'https://registry.npmjs.org'
+
+        - name: Install bun
+          uses: oven-sh/setup-bun@v1
+
+        - name: Install dependencies
+          run: pnpm install --prefer-offline
+
+        - uses: dtinth/setup-github-actions-caching-for-turbo@v1
+          with:
+           # Set the prefix for the cache keys.
+            cache-prefix: kubb_
+
+        - name: Create Release Pull Request
+          uses: changesets/action@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

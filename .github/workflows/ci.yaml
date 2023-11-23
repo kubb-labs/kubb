@@ -63,6 +63,7 @@ jobs:
              CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
         - name: Publish
+          uses: changesets/action@v1
           id: publish
           continue-on-error: true
           if: ${{ success() && github.event.inputs.tag == '' && github.ref == 'refs/heads/beta' && (github.event_name != 'pull_request' || github.event.action == 'closed' && github.event.pull_request.merged == true) }}
@@ -71,7 +72,9 @@ jobs:
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             TAG: ${{ inputs.tag }}
-          run: bun run release --concurrency=1 -- -tag beta
+          with:
+            # This expects you to have a script called release which does a build for your packages and calls changeset publish
+            publish: bun run release --concurrency=1 -- -tag beta
 
         - name: Publish ${{ inputs.tag || 'canary' }}
           continue-on-error: true

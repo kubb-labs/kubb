@@ -39,8 +39,8 @@
     "lint:ci": "ESLINT_USE_FLAT_CONFIG=true eslint --max-warnings 10 --format pretty ./packages/*",
     "lint:fix": "ESLINT_USE_FLAT_CONFIG=true eslint --fix --format pretty ./packages/* && bun run lint:case",
     "lint:turbo": "turbo run lint",
-    "release": "turbo run release --filter=./packages/* --continue",
-    "release:canary": "turbo run release:canary --filter=./packages/* --continue",
+    "release": "changeset version && changeset publish",
+    "release:canary": "changeset version --snapshot && changeset publish",
     "start": "turbo run start --filter=./packages/*",
     "test": "vitest run --config ./configs/vitest.config.ts --coverage",
     "test:bun": "bun test --preload ./configs/setup.ts",
@@ -48,9 +48,14 @@
     "test:watch": "vitest --config ./configs/vitest.config.ts",
     "typecheck": "turbo run typecheck --continue --filter='./packages/*'",
     "typecheck:examples": "turbo run typecheck --continue --filter='./examples/*'",
-    "upgrade": "npx taze -r -w --exclude pnpm"
+    "upgrade": "npx taze -r -w --exclude pnpm",
+    "changeset": "changeset",
+    "//changeset:beta:enter": "changeset pre enter beta",
+    "//changeset:beta:exit": "changeset pre exit"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.2",
+    "@changesets/changelog-github": "^0.4.8",
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@types/node": "^20.9.4",
