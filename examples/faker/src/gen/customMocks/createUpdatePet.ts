@@ -1,5 +1,5 @@
-import { createPet } from '../createPet'
-import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../models/UpdatePet'
+import { createPet } from './createPet'
+import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../models/UpdatePet'
 
 /**
  * @description Invalid ID supplied

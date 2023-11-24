@@ -116,7 +116,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
         logger.spinner.start(`💾 Writing`)
       }
 
-      if (logger.logLevel === 'debug') {
+      if (logger.logLevel === LogLevel.debug) {
         logger.info(`PluginKey ${pc.dim(JSON.stringify(plugin.key))} \nwith source\n\n${code}`)
       }
     }

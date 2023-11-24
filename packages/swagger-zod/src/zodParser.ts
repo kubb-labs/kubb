@@ -245,7 +245,7 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
     return ''
   }
 
-  if (keyword in zodKeywords) {
+  if (keyword in mapper) {
     return `${value}(${args as string})`
   }
 

@@ -22,5 +22,9 @@ export type Address = {
   /**
    * @type array | undefined
    */
-  identifier?: [number, string, 'NW' | 'NE' | 'SW' | 'SE']
+  identifier?: [
+    number,
+    string,
+    'NW' | 'NE' | 'SW' | 'SE',
+  ]
 }

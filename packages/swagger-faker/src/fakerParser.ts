@@ -207,7 +207,7 @@ export function parseFakerMeta(item: FakerMeta, mapper: Record<FakerKeyword, str
     return value
   }
 
-  if (keyword in fakerKeywords) {
+  if (keyword in mapper) {
     const options = JSON.stringify(args)
     return `${value}(${options ?? ''})`
   }

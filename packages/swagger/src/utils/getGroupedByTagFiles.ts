@@ -2,7 +2,7 @@ import path from 'node:path'
 
 import { FileManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
-import { getRelativePath, renderTemplate } from '@kubb/core/utils'
+import { LogLevel, getRelativePath, renderTemplate } from '@kubb/core/utils'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { Logger } from '@kubb/core/utils'
@@ -49,7 +49,9 @@ export function getGroupedByTagFiles({
   })
     .map((file: KubbFile.File<FileMeta>) => {
       if (!file.meta?.tag) {
-        logger?.warn(`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`)
+        if (logger?.logLevel === LogLevel.debug) {
+          logger?.warn(`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`)
+        }
 
         return
       }
