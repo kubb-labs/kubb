@@ -1,5 +1,4 @@
-import { LogoutUserError } from '../../models/LogoutUser'
-import { LogoutUserQueryResponse } from '../../models/LogoutUser'
+import { LogoutUserError, LogoutUserQueryResponse } from '../../models/LogoutUser'
 
 /**
  * @description successful operation

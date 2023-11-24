@@ -3,14 +3,14 @@ import { getUniqueName, transformers } from '@kubb/core/utils'
 import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
-import { fakerKeywords, fakerParser } from '../parsers/index.ts'
-import { pluginKey } from '../plugin.ts'
+import { fakerKeywords, fakerParser } from './fakerParser.ts'
+import { pluginKey } from './plugin.ts'
 
 import type { PluginManager } from '@kubb/core'
 import type { ts } from '@kubb/parser'
 import type { FileResolver, ImportMeta, Oas, OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
-import type { FakerKeyword, FakerMeta } from '../parsers/index.ts'
-import type { PluginOptions } from '../types.ts'
+import type { FakerKeyword, FakerMeta } from './fakerParser.ts'
+import type { PluginOptions } from './types.ts'
 
 type Options = PluginOptions['resolvedOptions'] & {
   fileResolver?: FileResolver

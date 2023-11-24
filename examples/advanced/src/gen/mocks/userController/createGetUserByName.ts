@@ -1,10 +1,6 @@
 import { faker } from '@faker-js/faker'
-
 import { createUser } from '../createUser'
-import { GetUserByName400 } from '../../models/ts/userController/GetUserByName'
-import { GetUserByName404 } from '../../models/ts/userController/GetUserByName'
-import { GetUserByNamePathParams } from '../../models/ts/userController/GetUserByName'
-import { GetUserByNameQueryResponse } from '../../models/ts/userController/GetUserByName'
+import { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/ts/userController/GetUserByName'
 
 /**
  * @description Invalid username supplied
@@ -13,7 +9,6 @@ import { GetUserByNameQueryResponse } from '../../models/ts/userController/GetUs
 export function createGetUserByName400(): NonNullable<GetUserByName400> {
   return undefined
 }
-
 /**
  * @description User not found
  */
@@ -25,7 +20,6 @@ export function createGetUserByName404(): NonNullable<GetUserByName404> {
 export function createGetUserByNamePathParams(): NonNullable<GetUserByNamePathParams> {
   return { 'username': faker.string.alpha() }
 }
-
 /**
  * @description successful operation
  */

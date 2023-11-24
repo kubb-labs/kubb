@@ -1,9 +1,5 @@
 import { faker } from '@faker-js/faker'
-
-import { DeletePet400 } from '../../models/DeletePet'
-import { DeletePetHeaderParams } from '../../models/DeletePet'
-import { DeletePetMutationResponse } from '../../models/DeletePet'
-import { DeletePetPathParams } from '../../models/DeletePet'
+import { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../../models/DeletePet'
 
 /**
  * @description Invalid pet value

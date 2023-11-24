@@ -1,6 +1,5 @@
-import { faker } from '@faker-js/faker'
-
 import { User } from '../models/User'
+import { faker } from '@faker-js/faker'
 
 export function createUser(): NonNullable<User> {
   return {

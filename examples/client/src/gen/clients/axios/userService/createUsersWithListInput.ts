@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import client from '@kubb/swagger-client/client'
 import axios from 'axios'
 import type { ResponseConfig } from '@kubb/swagger-client/client'

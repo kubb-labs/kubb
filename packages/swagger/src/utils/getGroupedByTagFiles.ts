@@ -52,13 +52,6 @@ export function getGroupedByTagFiles({
       const tagPath = getRelativePath(path.resolve(root, output), path.resolve(root, renderTemplate(template, { tag })))
       const tagName = renderTemplate(exportAs, { tag })
 
-      /*
-            const tagName = camelCase(renderTemplate(group.exportAs || '{{tag}}Mocks', { tag }), {
-              delimiter: '',
-              transform: camelCaseTransformMerge,
-            })
-      */
-
       if (tagName) {
         return {
           baseName: 'index.ts' as const,

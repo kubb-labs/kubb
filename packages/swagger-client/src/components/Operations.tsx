@@ -1,6 +1,7 @@
 import { URLPath } from '@kubb/core/utils'
 import { File, usePlugin } from '@kubb/react'
 import { useFile } from '@kubb/react'
+import { useOas } from '@kubb/swagger/hooks'
 
 import type { HttpMethod, Oas } from '@kubb/swagger'
 import type { Operation } from '@kubb/swagger'
@@ -48,7 +49,6 @@ function getOperations(oas: Oas, paths: Record<string, Record<HttpMethod, Operat
 }
 
 type Props = {
-  oas: Oas
   paths: Record<string, Record<HttpMethod, Operation>>
   /**
    * This will make it possible to override the default behaviour.
@@ -57,10 +57,11 @@ type Props = {
 }
 
 export function Operations({
-  oas,
   paths,
   Template = defaultTemplates.default,
 }: Props): ReactNode {
+  const oas = useOas()
+
   const operations = getOperations(oas, paths)
   return (
     <Template
@@ -71,7 +72,6 @@ export function Operations({
 }
 
 type FileProps = {
-  oas: Oas
   paths: Record<string, Record<HttpMethod, Operation>>
   /**
    * This will make it possible to override the default behaviour.
@@ -79,7 +79,7 @@ type FileProps = {
   templates?: typeof defaultTemplates
 }
 
-Operations.File = function({ paths, oas, templates = defaultTemplates }: FileProps): ReactNode {
+Operations.File = function({ paths, templates = defaultTemplates }: FileProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const file = useFile({ name: 'operations', pluginKey })
 
@@ -92,7 +92,7 @@ Operations.File = function({ paths, oas, templates = defaultTemplates }: FilePro
       meta={file.meta}
     >
       <File.Source>
-        <Operations Template={Template} paths={paths} oas={oas} />
+        <Operations Template={Template} paths={paths} />
       </File.Source>
     </File>
   )

@@ -124,7 +124,7 @@ export type Include = ByTag | ByOperationId | ByPath | ByMethod
 
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & { options: Partial<TOptions> }
 
-export type AppMeta = { schemas: OperationSchemas; operation: Operation }
+export type AppMeta = { schemas: OperationSchemas; operation: Operation; oas: Oas }
 
 export type ImportMeta = {
   ref: Ref

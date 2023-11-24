@@ -28,7 +28,14 @@ export namespace KubbFile {
      * @example ["useState"]
      * @example "React"
      */
-    name: string | Array<string>
+    name:
+      | string
+      | Array<
+        string | {
+          propertyName: string
+          name?: string
+        }
+      >
     /**
      * Path for the import
      * @xample '@kubb/core'
@@ -452,7 +459,7 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
     }
 
     if (Array.isArray(name)) {
-      name = name.filter((item) => hasImportInSource(item))
+      name = name.filter((item) => typeof item === 'string' ? hasImportInSource(item) : hasImportInSource(item.propertyName))
     }
 
     const prevByPath = prev.findLast((imp) => imp.path === curr.path && imp.isTypeOnly === curr.isTypeOnly)

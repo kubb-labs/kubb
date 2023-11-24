@@ -1,9 +1,5 @@
 import { createPet } from '../createPet'
-import { UpdatePet400 } from '../../models/UpdatePet'
-import { UpdatePet404 } from '../../models/UpdatePet'
-import { UpdatePet405 } from '../../models/UpdatePet'
-import { UpdatePetMutationRequest } from '../../models/UpdatePet'
-import { UpdatePetMutationResponse } from '../../models/UpdatePet'
+import { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../models/UpdatePet'
 
 /**
  * @description Invalid ID supplied
@@ -12,7 +8,6 @@ import { UpdatePetMutationResponse } from '../../models/UpdatePet'
 export function createUpdatePet400(): NonNullable<UpdatePet400> {
   return undefined
 }
-
 /**
  * @description Pet not found
  */
@@ -20,7 +15,6 @@ export function createUpdatePet400(): NonNullable<UpdatePet400> {
 export function createUpdatePet404(): NonNullable<UpdatePet404> {
   return undefined
 }
-
 /**
  * @description Validation exception
  */
@@ -28,7 +22,6 @@ export function createUpdatePet404(): NonNullable<UpdatePet404> {
 export function createUpdatePet405(): NonNullable<UpdatePet405> {
   return undefined
 }
-
 /**
  * @description Update an existent pet in the store
  */
@@ -36,7 +29,6 @@ export function createUpdatePet405(): NonNullable<UpdatePet405> {
 export function createUpdatePetMutationRequest(): NonNullable<UpdatePetMutationRequest> {
   return createPet()
 }
-
 /**
  * @description Successful operation
  */
