@@ -3,14 +3,11 @@ import { getUniqueName, transformers } from '@kubb/core/utils'
 import * as factory from '@kubb/parser/factory'
 import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
 
-import { camelCase } from 'change-case'
-
 import { pluginKey } from './plugin.ts'
 
 import type { PluginManager } from '@kubb/core'
 import type { ts } from '@kubb/parser'
 import type { ImportMeta, Oas, OasTypes, OpenAPIV3, OpenAPIV3_1, Refs } from '@kubb/swagger'
-import type { Options as CaseOptions } from 'change-case'
 import type { PluginOptions } from './types.ts'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
@@ -30,11 +27,6 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
 
   // Keep track of already used type aliases
   #usedAliasNames: Record<string, number> = {}
-
-  #caseOptions: CaseOptions = {
-    delimiter: '',
-    stripRegexp: /[^A-Z0-9$]/gi,
-  }
 
   build({
     schema,
@@ -293,7 +285,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
 
       this.extraNodes.push(
         ...factory.createEnumDeclaration({
-          name: camelCase(enumName, this.#caseOptions),
+          name: transformers.camelCase(enumName),
           typeName: this.context.pluginManager.resolveName({ name: enumName, pluginKey }),
           enums,
           type: this.options.enumType,

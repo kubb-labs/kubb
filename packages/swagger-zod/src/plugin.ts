@@ -1,11 +1,11 @@
 import path from 'node:path'
 
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
-import { renderTemplate } from '@kubb/core/utils'
+import { renderTemplate, transformers } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
-import { camelCase, camelCaseTransformMerge } from 'change-case'
+const { camelCase } = transformers
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { ZodBuilder } from './ZodBuilder.ts'
@@ -40,7 +40,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (options?.tag && group?.type === 'tag') {
-        const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
+        const tag = camelCase(options.tag)
 
         return path.resolve(root, renderTemplate(template, { tag }), baseName)
       }
@@ -48,7 +48,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return path.resolve(root, output, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = camelCase(`${name}Schema`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+      const resolvedName = camelCase(`${name}Schema`)
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName

@@ -4,8 +4,6 @@ import { useOperation, useOperationFile, useOperationName, useSchemas } from '@k
 import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
-import { camelCase, pascalCase } from 'change-case'
-
 import { getImportNames } from '../utils.ts'
 import { MutationImports } from './MutationImports.tsx'
 import { SchemaType } from './SchemaType.tsx'
@@ -151,7 +149,12 @@ const defaultTemplates = {
       params.add([
         ...getASTParams(schemas.pathParams, {
           typed: true,
-          override: (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, enabled: !!item.name, type: `MaybeRef<${item.type}>` }),
+          override: (item) => ({
+            ...item,
+            name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
+            enabled: !!item.name,
+            type: `MaybeRef<${item.type}>`,
+          }),
         }),
         {
           name: 'refParams',
@@ -178,7 +181,7 @@ const defaultTemplates = {
       const unrefs = params.items
         .filter((item) => item.enabled)
         .map((item) => {
-          return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
+          return item.name ? `const ${transformers.camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
         })
         .join('\n')
 

@@ -1,9 +1,7 @@
-import { FunctionParams, URLPath } from '@kubb/core/utils'
+import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
 import { Function, Type } from '@kubb/react'
 import { useOperation, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, isRequired } from '@kubb/swagger/utils'
-
-import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import type { ReactNode } from 'react'
 
@@ -41,7 +39,7 @@ function Template({
   JSDoc,
   keys,
 }: TemplateProps): ReactNode {
-  const typeName = pascalCase(name, { delimiter: '', transform: pascalCaseTransformMerge })
+  const typeName = transformers.pascalCase(name)
 
   return (
     <>

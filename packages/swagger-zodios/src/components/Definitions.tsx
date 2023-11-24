@@ -1,0 +1,331 @@
+import { transformers, URLPath } from '@kubb/core/utils'
+import { File, useFile, usePlugin } from '@kubb/react'
+import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
+
+import { usePluginManager } from 'packages/react/dist/index'
+
+import type { ResolveNameParams, ResolvePathParams } from '@kubb/core'
+import type { OasTypes, Operation, OperationSchemas, Paths } from '@kubb/swagger'
+import type { KubbFile } from 'packages/core/dist/index'
+import type { ReactNode } from 'react'
+import type { FileMeta, PluginOptions } from '../types.ts'
+
+type TemplateProps = {
+  /**
+   * Name of the function
+   */
+  name: string
+  definitions: string[]
+  baseURL: string | undefined
+}
+
+function Template({
+  name,
+  definitions,
+  baseURL,
+}: TemplateProps): ReactNode {
+  return (
+    <>
+      {`const endpoints = makeApi([${definitions.join(',')}]);`}
+      {baseURL && `export const ${name} = new Zodios('${baseURL}', endpoints);`}
+      {!baseURL && `export const  ${name} = new Zodios(endpoints);`}
+      {`export default ${name};`}
+    </>
+  )
+}
+const defaultTemplates = { default: Template } as const
+
+const parameters = {
+  getPathParams(name: string, item: NonNullable<OperationSchemas['pathParams']>): string[] {
+    const parameters: string[] = []
+
+    item.keys?.forEach((key) => {
+      const schema = item.schema?.properties?.[key] as OasTypes.SchemaObject
+      const zodSchema = item.schema?.$ref ? `${name}.schema.shape['${key}']` : `${name}.shape['${key}']`
+
+      parameters.push(`
+        {
+          name: "${key}",
+          description: \`${transformers.escape(schema?.description)}\`,
+          type: "Path",
+          schema: ${zodSchema}
+        }
+      `)
+    })
+
+    return parameters
+  },
+  getQueryParams(name: string, item: NonNullable<OperationSchemas['queryParams']>): string[] {
+    const parameters: string[] = []
+
+    item.keys?.forEach((key) => {
+      const schema = item.schema?.properties?.[key] as OasTypes.SchemaObject
+      const zodSchema = item.schema?.$ref ? `${name}.schema.shape['${key}']` : `${name}.shape['${key}']`
+
+      parameters.push(`
+      {
+        name: "${key}",
+        description: \`${transformers.escape(schema?.description)}\`,
+        type: "Query",
+        schema: ${zodSchema}
+      }
+    `)
+    })
+    return parameters
+  },
+  getHeaderParams(name: string, item: NonNullable<OperationSchemas['queryParams']>): string[] {
+    const parameters: string[] = []
+
+    item.keys?.forEach((key) => {
+      const schema = item.schema?.properties?.[key] as OasTypes.SchemaObject
+      const zodSchema = item.schema?.$ref ? `${name}.schema.shape['${key}']` : `${name}.shape['${key}']`
+
+      parameters.push(`
+      {
+        name: "${key}",
+        description: \`${transformers.escape(schema?.description)}\`,
+        type: "Header",
+        schema: ${zodSchema}
+      }
+    `)
+    })
+    return parameters
+  },
+  getRequest(name: string, item: NonNullable<OperationSchemas['request']>): string[] {
+    const parameters: string[] = []
+
+    parameters.push(`
+    {
+      name: "${item.name}",
+      description: \`${transformers.escape(item.description)}\`,
+      type: "Body",
+      schema: ${name}
+    }
+  `)
+    return parameters
+  },
+} as const
+
+function getDefinitionsImports(
+  paths: Paths,
+  { resolveName, resolvePath, pluginKey }: {
+    resolveName: (params: ResolveNameParams) => string
+    resolvePath: (params: ResolvePathParams) => KubbFile.OptionalPath
+    pluginKey: ResolveNameParams['pluginKey']
+  },
+): Array<{ name: string; path: KubbFile.OptionalPath }> {
+  const definitions: Array<{ name: string; operation: Operation }> = []
+
+  Object.keys(paths).forEach((path) => {
+    const operations = paths[path]
+    const filteredOperations = [operations?.get, operations?.post, operations?.patch, operations?.put, operations?.delete].filter(Boolean)
+
+    filteredOperations.forEach(({ operation, schemas }) => {
+      const responseName = resolveName({ name: schemas.response.name, pluginKey })
+
+      definitions.push({ name: responseName, operation })
+
+      if (schemas.pathParams?.name) {
+        const name = resolveName({ name: schemas.pathParams.name, pluginKey })
+
+        definitions.push({ name, operation })
+      }
+
+      if (schemas.queryParams?.name) {
+        const name = resolveName({ name: schemas.queryParams.name, pluginKey })
+
+        definitions.push({ name, operation })
+      }
+
+      if (schemas.headerParams?.name) {
+        const name = resolveName({ name: schemas.headerParams.name, pluginKey })
+
+        definitions.push({ name, operation })
+      }
+
+      if (schemas.request?.name) {
+        const name = resolveName({ name: schemas.request.name, pluginKey })
+
+        definitions.push({ name, operation })
+      }
+      if (schemas.errors) {
+        schemas.errors.forEach((errorOperationSchema) => {
+          if (!errorOperationSchema.statusCode) {
+            return
+          }
+
+          const name = resolveName({ name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`, pluginKey })
+
+          definitions.push({ name, operation })
+        })
+      }
+    })
+  })
+
+  return definitions.map(({ name, operation }) => {
+    const path = resolvePath({
+      pluginKey,
+      baseName: `${name}.ts`,
+      options: {
+        tag: operation?.getTags()[0]?.name,
+      },
+    })
+    return { name, path }
+  })
+}
+
+function getDefinitions(
+  paths: Paths,
+  { resolveName, pluginKey }: { resolveName: (params: ResolveNameParams) => string; pluginKey: ResolveNameParams['pluginKey'] },
+): Array<{ operation: Operation; response: string | undefined; parameters: string[]; errors: string[] }> {
+  const definitions: Array<{ response: string; operation: Operation; parameters: string[]; errors: string[] }> = []
+
+  Object.keys(paths).forEach((path) => {
+    const operations = paths[path]
+    const filteredOperations = [operations?.get, operations?.post, operations?.patch, operations?.put, operations?.delete].filter(Boolean)
+
+    filteredOperations.forEach(({ operation, schemas }) => {
+      let params: string[] = []
+      const errors: string[] = []
+      const responseName = resolveName({ name: schemas.response.name, pluginKey })
+
+      // definitions.push({ name: responseName, response: responseName, operation, parameters: [], errors: [] })
+
+      if (schemas.pathParams?.name) {
+        const name = resolveName({ name: schemas.pathParams.name, pluginKey })
+        params = [...params, ...parameters.getPathParams(name, schemas.pathParams)]
+        // definitions.push({ name, response: undefined, operation, parameters: parameters.getPathParams(name, schemas.pathParams), errors: [] })
+      }
+
+      if (schemas.queryParams?.name) {
+        const name = resolveName({ name: schemas.queryParams.name, pluginKey })
+        params = [...params, ...parameters.getQueryParams(name, schemas.queryParams)]
+        // definitions.push({ name, operation, parameters: parameters.getQueryParams(name, schemas.queryParams), errors: [] })
+      }
+
+      if (schemas.headerParams?.name) {
+        const name = resolveName({ name: schemas.headerParams.name, pluginKey })
+        params = [...params, ...parameters.getHeaderParams(name, schemas.headerParams)]
+        // definitions.push({ name, operation, parameters: parameters.getHeaderParams(name, schemas.headerParams), errors: [] })
+      }
+
+      if (schemas.request?.name) {
+        const name = resolveName({ name: schemas.request.name, pluginKey })
+        params = [...params, ...parameters.getRequest(name, schemas.request)]
+        // definitions.push({ name, operation, parameters: parameters.getRequest(name, schemas.request), errors: [] })
+      }
+      if (schemas.errors) {
+        schemas.errors.forEach((errorOperationSchema) => {
+          if (!errorOperationSchema.statusCode) {
+            return
+          }
+
+          const name = resolveName({ name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`, pluginKey })
+
+          if (errorOperationSchema.statusCode) {
+            errors.push(`
+              {
+                status: ${errorOperationSchema.statusCode},
+                description: \`${transformers.escape(errorOperationSchema.description)}\`,
+                schema: ${name}
+              }
+            `)
+          }
+        })
+      }
+      definitions.push({ operation, parameters: params, errors, response: responseName })
+    })
+  })
+
+  return definitions
+}
+
+type Props = {
+  baseURL: string | undefined
+  paths: Paths
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
+}
+
+export function Definitions({
+  baseURL,
+  paths,
+  Template = defaultTemplates.default,
+}: Props): ReactNode {
+  const pluginManager = usePluginManager()
+  const definitions = getDefinitions(paths, { resolveName: pluginManager.resolveName, pluginKey: swaggerZodPluginKey })
+
+  return (
+    <Template
+      name={'api'}
+      baseURL={baseURL}
+      definitions={definitions.map(({ errors, response, operation, parameters }) => {
+        return `
+        {
+          method: "${operation.method}",
+          path: "${new URLPath(operation.path).URL}",
+          description: \`${transformers.escape(operation.getDescription())}\`,
+          requestFormat: "json",
+          parameters: [
+              ${parameters.join(',')}
+          ],
+          response: ${response},
+          errors: [
+              ${errors.join(',')}
+          ],
+      }
+      `
+      })}
+    />
+  )
+}
+
+type FileProps = {
+  name: string
+  baseURL: string | undefined
+  paths: Paths
+  /**
+   * This will make it possible to override the default behaviour.
+   */
+  templates?: typeof defaultTemplates
+}
+
+Definitions.File = function({ name, baseURL, paths, templates = defaultTemplates }: FileProps): ReactNode {
+  const pluginManager = usePluginManager()
+  const { key: pluginKey } = usePlugin<PluginOptions>()
+  const file = useFile({ name, pluginKey })
+
+  const definitionsImports = getDefinitionsImports(paths, {
+    resolveName: pluginManager.resolveName,
+    resolvePath: pluginManager.resolvePath,
+    pluginKey: swaggerZodPluginKey,
+  })
+
+  const imports = definitionsImports.map(({ name, path }) => {
+    if (!path) {
+      return null
+    }
+
+    return <File.Import key={name} name={[name]} root={file.path} path={path} />
+  }).filter(Boolean)
+
+  const Template = templates.default
+
+  return (
+    <File<FileMeta>
+      baseName={file.baseName}
+      path={file.path}
+      meta={file.meta}
+    >
+      <File.Import name={['makeApi', 'Zodios']} path="@zodios/core" />
+      {imports}
+      <File.Source>
+        <Definitions Template={Template} paths={paths} baseURL={baseURL} />
+      </File.Source>
+    </File>
+  )
+}
+
+Definitions.templates = defaultTemplates

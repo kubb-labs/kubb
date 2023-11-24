@@ -1,11 +1,9 @@
 import path from 'node:path'
 
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
-import { renderTemplate } from '@kubb/core/utils'
+import { renderTemplate, transformers } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
-
-import { camelCase, camelCaseTransformMerge } from 'change-case'
 
 import { Client, Operations } from './components/index.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
@@ -13,6 +11,8 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import type { KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
+
+const { camelCase } = transformers
 
 export const pluginName = 'swagger-client' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
@@ -59,7 +59,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (options?.tag && group?.type === 'tag') {
-        const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
+        const tag = camelCase(options.tag)
 
         return path.resolve(root, renderTemplate(template, { tag }), baseName)
       }
@@ -67,7 +67,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return path.resolve(root, output, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+      const resolvedName = camelCase(name)
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName

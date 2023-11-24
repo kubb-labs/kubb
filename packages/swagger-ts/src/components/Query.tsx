@@ -1,9 +1,8 @@
+import { transformers } from '@kubb/core/utils'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 import { File, usePlugin, usePluginManager } from '@kubb/react'
 import { useOas, useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
-
-import { pascalCase } from 'change-case'
 
 import { TypeBuilder } from '../TypeBuilder.ts'
 
@@ -72,7 +71,7 @@ function printCombinedSchema(name: string, operation: Operation, schemas: Operat
       }
       return factory.createTypeAliasDeclaration({
         modifiers: [factory.modifiers.export],
-        name: pascalCase(key),
+        name: transformers.pascalCase(key),
         type,
       })
     }).filter(Boolean),

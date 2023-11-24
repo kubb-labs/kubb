@@ -1,11 +1,9 @@
 import path from 'node:path'
 
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
-import { renderTemplate } from '@kubb/core/utils'
+import { renderTemplate, transformers } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
-
-import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
 
 import { Mutation, Query, QueryKey, QueryOptions } from './components/index.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
@@ -13,6 +11,8 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import type { KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
+
+const { camelCase, pascalCase } = transformers
 
 export const pluginName = 'swagger-tanstack-query' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
@@ -70,7 +70,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (options?.tag && group?.type === 'tag') {
-        const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
+        const tag = camelCase(options.tag)
 
         return path.resolve(root, renderTemplate(template, { tag }), baseName)
       }
@@ -78,19 +78,19 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return path.resolve(root, output, baseName)
     },
     resolveName(name, type) {
-      let resolvedName = camelCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+      let resolvedName = camelCase(name)
 
       if (type === 'file' || type === 'function') {
         if (framework === 'react' || framework === 'vue') {
-          resolvedName = camelCase(`use ${name}`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+          resolvedName = camelCase(`use ${name}`)
         }
 
         if (framework === 'svelte' || framework === 'solid') {
-          resolvedName = camelCase(`${name} query`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+          resolvedName = camelCase(`${name} query`)
         }
       }
       if (type === 'type') {
-        resolvedName = pascalCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: pascalCaseTransformMerge })
+        resolvedName = pascalCase(name)
       }
 
       if (type) {

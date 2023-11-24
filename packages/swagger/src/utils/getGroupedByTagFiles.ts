@@ -1,9 +1,7 @@
 import path from 'node:path'
 
 import { FileManager } from '@kubb/core'
-import { getRelativePath, renderTemplate } from '@kubb/core/utils'
-
-import { camelCase, camelCaseTransformMerge } from 'change-case'
+import { getRelativePath, renderTemplate, transformers } from '@kubb/core/utils'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { Logger } from '@kubb/core/utils'
@@ -55,7 +53,7 @@ export function getGroupedByTagFiles({
         return
       }
 
-      const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
+      const tag = file.meta?.tag && transformers.camelCase(file.meta.tag)
       const tagPath = getRelativePath(path.resolve(root, output), path.resolve(root, renderTemplate(template, { tag })))
       const tagName = renderTemplate(exportAs, { tag })
 

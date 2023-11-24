@@ -1,6 +1,6 @@
 import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
-import { Function, usePlugin } from '@kubb/react'
-import { useOperation, useResolveName, useSchemas } from '@kubb/swagger/hooks'
+import { Function, usePlugin, useResolveName } from '@kubb/react'
+import { useOperation, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams } from '@kubb/swagger/utils'
 
 import type { HttpMethod } from '@kubb/swagger'

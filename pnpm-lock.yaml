@@ -1606,6 +1606,9 @@ importers:
       '@kubb/parser':
         specifier: workspace:*
         version: link:../parser
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../react
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
@@ -1625,9 +1628,15 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup-config
+      '@types/react':
+        specifier: ^18.2.38
+        version: 18.2.38
       eslint:
         specifier: ^8.54.0
         version: 8.54.0
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(ts-node@10.9.1)(typescript@5.3.2)

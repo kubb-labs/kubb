@@ -348,7 +348,7 @@ export class FileManager {
     const importNodes = imports.filter(item => {
       // isImportNotNeeded
       // trim extName
-      return item.path !== file.path.replace(/\.[^/.]+$/, '')
+      return item.path !== transformers.trimExtName(file.path)
     }).map((item) => {
       return factory.createImportDeclaration({
         name: item.name,

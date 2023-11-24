@@ -1,11 +1,9 @@
 import { PackageManager } from '@kubb/core'
-import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function, usePlugin } from '@kubb/react'
-import { useOperation, useOperationFile, useOperationName, useResolveName, useSchemas } from '@kubb/swagger/hooks'
+import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
+import { File, Function, usePlugin, useResolveName } from '@kubb/react'
+import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, getParams, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
-
-import { pascalCase } from 'change-case'
 
 import { getImportNames } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
@@ -142,7 +140,9 @@ const defaultTemplates = {
         withHeaders: !!schemas.headerParams?.name,
       }
 
-      const pathParams = getParams(schemas.pathParams, { override: (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) })
+      const pathParams = getParams(schemas.pathParams, {
+        override: (item) => ({ ...item, name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined }),
+      })
         .toString()
 
       const resultGenerics = [
@@ -156,7 +156,7 @@ const defaultTemplates = {
       params.add([
         ...getASTParams(schemas.pathParams, {
           typed: true,
-          override: (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }),
+          override: (item) => ({ ...item, name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined }),
         }),
         {
           name: 'refParams',
@@ -183,7 +183,7 @@ const defaultTemplates = {
       queryParams.add([
         ...getASTParams(schemas.pathParams, {
           typed: false,
-          override: (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }),
+          override: (item) => ({ ...item, name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined }),
         }),
         {
           name: 'refParams',

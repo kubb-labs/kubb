@@ -1,5 +1,6 @@
-import { camelCase, camelCaseTransformMerge } from 'change-case'
 import { orderBy } from 'natural-orderby'
+
+import { transformers } from './transformers/index.ts'
 
 type FunctionParamsASTWithoutType = {
   name?: string
@@ -66,7 +67,7 @@ export class FunctionParams {
           return acc
         }
         // TODO check whey we still need the camelcase here
-        const parameterName = name.startsWith('{') ? name : camelCase(name, { delimiter: '', transform: camelCaseTransformMerge })
+        const parameterName = name.startsWith('{') ? name : transformers.camelCase(name)
 
         if (type) {
           if (required) {

@@ -3,8 +3,7 @@ import { File, usePlugin } from '@kubb/react'
 import { useFile } from '@kubb/react'
 import { useOas } from '@kubb/swagger/hooks'
 
-import type { HttpMethod, Oas } from '@kubb/swagger'
-import type { Operation } from '@kubb/swagger'
+import type { HttpMethod, Oas, Paths } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
@@ -29,7 +28,7 @@ function Template({
 
 const defaultTemplates = { default: Template } as const
 
-function getOperations(oas: Oas, paths: Record<string, Record<HttpMethod, Operation>>): Record<string, { path: string; method: HttpMethod }> {
+function getOperations(oas: Oas, paths: Paths): Record<string, { path: string; method: HttpMethod }> {
   const operations: Record<string, { path: string; method: HttpMethod }> = {}
 
   Object.keys(paths).forEach((path) => {
@@ -49,7 +48,7 @@ function getOperations(oas: Oas, paths: Record<string, Record<HttpMethod, Operat
 }
 
 type Props = {
-  paths: Record<string, Record<HttpMethod, Operation>>
+  paths: Paths
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -72,16 +71,17 @@ export function Operations({
 }
 
 type FileProps = {
-  paths: Record<string, Record<HttpMethod, Operation>>
+  name: string
+  paths: Paths
   /**
    * This will make it possible to override the default behaviour.
    */
   templates?: typeof defaultTemplates
 }
 
-Operations.File = function({ paths, templates = defaultTemplates }: FileProps): ReactNode {
+Operations.File = function({ name, paths, templates = defaultTemplates }: FileProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name: 'operations', pluginKey })
+  const file = useFile({ name, pluginKey })
 
   const Template = templates.default
 

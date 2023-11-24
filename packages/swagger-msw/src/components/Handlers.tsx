@@ -1,8 +1,8 @@
 import { File, usePlugin, usePluginManager } from '@kubb/react'
 import { useFile } from '@kubb/react'
 
-import type { ResolveNameParams } from '@kubb/core'
-import type { HttpMethod, Operation } from '@kubb/swagger'
+import type { KubbFile, ResolveNameParams, ResolvePathParams } from '@kubb/core'
+import type { Operation, Paths } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
@@ -28,7 +28,7 @@ function Template({
 const defaultTemplates = { default: Template } as const
 
 function getHandlers(
-  paths: Record<string, Record<HttpMethod, Operation>>,
+  paths: Paths,
   { resolveName, pluginKey }: { resolveName: (params: ResolveNameParams) => string; pluginKey: ResolveNameParams['pluginKey'] },
 ): Array<{ name: string; operation: Operation }> {
   const handlers: Array<{ name: string; operation: Operation }> = []
@@ -37,7 +37,7 @@ function getHandlers(
     const operations = paths[path]
     const filteredOperations = [operations?.get, operations?.post, operations?.patch, operations?.put, operations?.delete].filter(Boolean)
 
-    filteredOperations.forEach(operation => {
+    filteredOperations.forEach(({ operation }) => {
       const operationId = operation.getOperationId()
       const name = resolveName({ name: operationId, pluginKey })
 
@@ -48,8 +48,30 @@ function getHandlers(
   return handlers
 }
 
+function getHandlersImports(
+  paths: Paths,
+  { resolveName, resolvePath, pluginKey }: {
+    resolveName: (params: ResolveNameParams) => string
+    resolvePath: (params: ResolvePathParams) => KubbFile.OptionalPath
+    pluginKey: ResolveNameParams['pluginKey']
+  },
+): Array<{ name: string; path: KubbFile.OptionalPath }> {
+  const handlers = getHandlers(paths, { resolveName, pluginKey })
+
+  return handlers.map(({ name, operation }) => {
+    const path = resolvePath({
+      pluginKey,
+      baseName: `${name}.ts`,
+      options: {
+        tag: operation?.getTags()[0]?.name,
+      },
+    })
+    return { name, path }
+  })
+}
+
 type Props = {
-  paths: Record<string, Record<HttpMethod, Operation>>
+  paths: Paths
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -74,28 +96,22 @@ export function Handlers({
 }
 
 type FileProps = {
-  paths: Record<string, Record<HttpMethod, Operation>>
+  name: string
+  paths: Paths
   /**
    * This will make it possible to override the default behaviour.
    */
   templates?: typeof defaultTemplates
 }
 
-Handlers.File = function({ paths, templates = defaultTemplates }: FileProps): ReactNode {
+Handlers.File = function({ name, paths, templates = defaultTemplates }: FileProps): ReactNode {
   const pluginManager = usePluginManager()
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name: 'handlers', pluginKey })
+  const file = useFile({ name, pluginKey })
 
-  const handlers = getHandlers(paths, { resolveName: pluginManager.resolveName, pluginKey })
+  const handlersImports = getHandlersImports(paths, { resolveName: pluginManager.resolveName, resolvePath: pluginManager.resolvePath, pluginKey })
 
-  const imports = handlers.map(({ name, operation }) => {
-    const path = pluginManager.resolvePath({
-      pluginKey,
-      baseName: `${name}.ts`,
-      options: {
-        tag: operation?.getTags()[0]?.name,
-      },
-    })
+  const imports = handlersImports.map(({ name, path }) => {
     if (!path) {
       return null
     }
