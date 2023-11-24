@@ -1223,9 +1223,6 @@ importers:
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      change-case:
-        specifier: ^4.1.2
-        version: 4.1.2
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.0
@@ -1287,9 +1284,6 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      change-case:
-        specifier: ^4.1.2
-        version: 4.1.2
     devDependencies:
       '@kubb/eslint-config':
         specifier: workspace:*
@@ -1336,9 +1330,6 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      change-case:
-        specifier: ^4.1.2
-        version: 4.1.2
     devDependencies:
       '@kubb/eslint-config':
         specifier: workspace:*
@@ -1385,9 +1376,6 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      change-case:
-        specifier: ^4.1.2
-        version: 4.1.2
     devDependencies:
       '@kubb/eslint-config':
         specifier: workspace:*
@@ -1483,9 +1471,6 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      change-case:
-        specifier: ^4.1.2
-        version: 4.1.2
     devDependencies:
       '@kubb/eslint-config':
         specifier: workspace:*
@@ -1526,9 +1511,6 @@ importers:
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
-      change-case:
-        specifier: ^4.1.2
-        version: 4.1.2
       typescript:
         specifier: ^5.3.2
         version: 5.3.2
@@ -1569,9 +1551,6 @@ importers:
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
-      change-case:
-        specifier: ^4.1.2
-        version: 4.1.2
     devDependencies:
       '@kubb/eslint-config':
         specifier: workspace:*
@@ -1615,9 +1594,6 @@ importers:
       '@kubb/swagger-zod':
         specifier: workspace:*
         version: link:../swagger-zod
-      change-case:
-        specifier: ^4.1.2
-        version: 4.1.2
     devDependencies:
       '@kubb/eslint-config':
         specifier: workspace:*

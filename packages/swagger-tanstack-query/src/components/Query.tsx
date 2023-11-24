@@ -130,7 +130,7 @@ const defaultTemplates = {
       const optionsType = infinite ? importNames.queryInfinite.vue.optionsType : importNames.query.vue.optionsType
 
       const schemas = useSchemas()
-      const queryOptions = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
+      const queryOptions = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey, type: 'function' })
       const params = new FunctionParams()
       const queryParams = new FunctionParams()
       const client = {
@@ -263,6 +263,7 @@ export function Query({
   const queryKey = useResolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
     pluginKey,
+    type: 'function',
   })
   const queryKeyType = useResolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
@@ -271,6 +272,7 @@ export function Query({
   })
   const queryOptions = useResolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryOptions'].filter(Boolean).join(''),
+    type: 'function',
     pluginKey,
   })
 

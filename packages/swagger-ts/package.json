@@ -58,7 +58,6 @@
     "@kubb/parser": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/react": "workspace:*",
-    "change-case": "^4.1.2",
     "typescript": "^5.3.2"
   },
   "devDependencies": {

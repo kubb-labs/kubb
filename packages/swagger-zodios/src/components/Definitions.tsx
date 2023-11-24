@@ -1,12 +1,11 @@
 import { transformers, URLPath } from '@kubb/core/utils'
 import { File, useFile, usePlugin } from '@kubb/react'
+import { usePluginManager } from '@kubb/react'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
-import { usePluginManager } from 'packages/react/dist/index'
-
 import type { ResolveNameParams, ResolvePathParams } from '@kubb/core'
+import type { KubbFile } from '@kubb/core'
 import type { OasTypes, Operation, OperationSchemas, Paths } from '@kubb/swagger'
-import type { KubbFile } from 'packages/core/dist/index'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
@@ -121,30 +120,30 @@ function getDefinitionsImports(
     const filteredOperations = [operations?.get, operations?.post, operations?.patch, operations?.put, operations?.delete].filter(Boolean)
 
     filteredOperations.forEach(({ operation, schemas }) => {
-      const responseName = resolveName({ name: schemas.response.name, pluginKey })
+      const responseName = resolveName({ name: schemas.response.name, pluginKey, type: 'function' })
 
       definitions.push({ name: responseName, operation })
 
       if (schemas.pathParams?.name) {
-        const name = resolveName({ name: schemas.pathParams.name, pluginKey })
+        const name = resolveName({ name: schemas.pathParams.name, pluginKey, type: 'function' })
 
         definitions.push({ name, operation })
       }
 
       if (schemas.queryParams?.name) {
-        const name = resolveName({ name: schemas.queryParams.name, pluginKey })
+        const name = resolveName({ name: schemas.queryParams.name, pluginKey, type: 'function' })
 
         definitions.push({ name, operation })
       }
 
       if (schemas.headerParams?.name) {
-        const name = resolveName({ name: schemas.headerParams.name, pluginKey })
+        const name = resolveName({ name: schemas.headerParams.name, pluginKey, type: 'function' })
 
         definitions.push({ name, operation })
       }
 
       if (schemas.request?.name) {
-        const name = resolveName({ name: schemas.request.name, pluginKey })
+        const name = resolveName({ name: schemas.request.name, pluginKey, type: 'function' })
 
         definitions.push({ name, operation })
       }
@@ -154,7 +153,7 @@ function getDefinitionsImports(
             return
           }
 
-          const name = resolveName({ name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`, pluginKey })
+          const name = resolveName({ name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`, pluginKey, type: 'function' })
 
           definitions.push({ name, operation })
         })
@@ -163,9 +162,11 @@ function getDefinitionsImports(
   })
 
   return definitions.map(({ name, operation }) => {
+    const baseName = resolveName({ name: `${operation.getOperationId()}`, pluginKey, type: 'file' })
+
     const path = resolvePath({
       pluginKey,
-      baseName: `${name}.ts`,
+      baseName: `${baseName}.ts`,
       options: {
         tag: operation?.getTags()[0]?.name,
       },
@@ -187,30 +188,30 @@ function getDefinitions(
     filteredOperations.forEach(({ operation, schemas }) => {
       let params: string[] = []
       const errors: string[] = []
-      const responseName = resolveName({ name: schemas.response.name, pluginKey })
+      const responseName = resolveName({ name: schemas.response.name, pluginKey, type: 'function' })
 
       // definitions.push({ name: responseName, response: responseName, operation, parameters: [], errors: [] })
 
       if (schemas.pathParams?.name) {
-        const name = resolveName({ name: schemas.pathParams.name, pluginKey })
+        const name = resolveName({ name: schemas.pathParams.name, pluginKey, type: 'function' })
         params = [...params, ...parameters.getPathParams(name, schemas.pathParams)]
         // definitions.push({ name, response: undefined, operation, parameters: parameters.getPathParams(name, schemas.pathParams), errors: [] })
       }
 
       if (schemas.queryParams?.name) {
-        const name = resolveName({ name: schemas.queryParams.name, pluginKey })
+        const name = resolveName({ name: schemas.queryParams.name, pluginKey, type: 'function' })
         params = [...params, ...parameters.getQueryParams(name, schemas.queryParams)]
         // definitions.push({ name, operation, parameters: parameters.getQueryParams(name, schemas.queryParams), errors: [] })
       }
 
       if (schemas.headerParams?.name) {
-        const name = resolveName({ name: schemas.headerParams.name, pluginKey })
+        const name = resolveName({ name: schemas.headerParams.name, pluginKey, type: 'function' })
         params = [...params, ...parameters.getHeaderParams(name, schemas.headerParams)]
         // definitions.push({ name, operation, parameters: parameters.getHeaderParams(name, schemas.headerParams), errors: [] })
       }
 
       if (schemas.request?.name) {
-        const name = resolveName({ name: schemas.request.name, pluginKey })
+        const name = resolveName({ name: schemas.request.name, pluginKey, type: 'function' })
         params = [...params, ...parameters.getRequest(name, schemas.request)]
         // definitions.push({ name, operation, parameters: parameters.getRequest(name, schemas.request), errors: [] })
       }
@@ -220,7 +221,7 @@ function getDefinitions(
             return
           }
 
-          const name = resolveName({ name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`, pluginKey })
+          const name = resolveName({ name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`, pluginKey, type: 'function' })
 
           if (errorOperationSchema.statusCode) {
             errors.push(`
@@ -303,12 +304,12 @@ Definitions.File = function({ name, baseURL, paths, templates = defaultTemplates
     pluginKey: swaggerZodPluginKey,
   })
 
-  const imports = definitionsImports.map(({ name, path }) => {
+  const imports = definitionsImports.map(({ name, path }, index) => {
     if (!path) {
       return null
     }
 
-    return <File.Import key={name} name={[name]} root={file.path} path={path} />
+    return <File.Import key={index} name={[name]} root={file.path} path={path} />
   }).filter(Boolean)
 
   const Template = templates.default

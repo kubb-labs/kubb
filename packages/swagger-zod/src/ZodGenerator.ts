@@ -47,7 +47,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
        */`)
     }
 
-    const zodOutput = zodParser(zodInput, { keysToOmit, name: this.context.pluginManager.resolveName({ name: baseName, pluginKey }) })
+    const zodOutput = zodParser(zodInput, { keysToOmit, name: this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' }) })
 
     texts.push(zodOutput)
 
@@ -175,7 +175,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
-    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey })
+    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey, 'type': 'function' })
 
     ref = this.refs[$ref] = {
       propertyName,

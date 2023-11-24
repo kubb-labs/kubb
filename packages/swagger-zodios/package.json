@@ -59,8 +59,7 @@
     "@kubb/parser": "workspace:*",
     "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
-    "@kubb/swagger-zod": "workspace:*",
-    "change-case": "^4.1.2"
+    "@kubb/swagger-zod": "workspace:*"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
@@ -76,6 +75,9 @@
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.3.0"
+  },
+  "peerDependencies": {
+    "@kubb/react": "workspace:*"
   },
   "publishConfig": {
     "access": "public",

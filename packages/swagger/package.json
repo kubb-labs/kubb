@@ -62,7 +62,6 @@
     "@apidevtools/swagger-parser": "^10.1.0",
     "@kubb/core": "workspace:*",
     "@kubb/react": "workspace:*",
-    "change-case": "^4.1.2",
     "js-yaml": "^4.1.0",
     "oas": "23.0.0",
     "oas-normalize": "^11.0.1",

@@ -98,7 +98,7 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
   const schemas = useSchemas()
   const operation = useOperation()
 
-  const name = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
+  const name = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey, type: 'function' })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()

@@ -49,8 +49,8 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
       texts.push(transformers.JSDoc.createJSDocBlockText({ comments: [`@description ${transformers.trim(description)}`] }))
     }
 
-    const name = this.context.pluginManager.resolveName({ name: baseName, pluginKey })
-    const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey })
+    const name = this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' })
+    const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
     const fakerOutput = fakerParser(fakerInput, {
       name,
@@ -136,7 +136,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
-    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey })
+    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey, type: 'function' })
 
     ref = this.refs[$ref] = {
       propertyName,

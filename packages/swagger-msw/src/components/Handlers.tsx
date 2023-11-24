@@ -39,7 +39,7 @@ function getHandlers(
 
     filteredOperations.forEach(({ operation }) => {
       const operationId = operation.getOperationId()
-      const name = resolveName({ name: operationId, pluginKey })
+      const name = resolveName({ name: operationId, pluginKey, type: 'function' })
 
       handlers.push({ name, operation })
     })
@@ -111,12 +111,12 @@ Handlers.File = function({ name, paths, templates = defaultTemplates }: FileProp
 
   const handlersImports = getHandlersImports(paths, { resolveName: pluginManager.resolveName, resolvePath: pluginManager.resolvePath, pluginKey })
 
-  const imports = handlersImports.map(({ name, path }) => {
+  const imports = handlersImports.map(({ name, path }, index) => {
     if (!path) {
       return null
     }
 
-    return <File.Import key={name} name={[name]} root={file.path} path={path} />
+    return <File.Import key={index} name={[name]} root={file.path} path={path} />
   }).filter(Boolean)
 
   const Template = templates.default

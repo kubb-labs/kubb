@@ -102,7 +102,7 @@ export function Query({
   const schemas = useSchemas()
   const name = useOperationName({ type: 'function' })
 
-  const queryOptionsName = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
+  const queryOptionsName = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey, type: 'function' })
   const generics = new FunctionParams()
   const params = new FunctionParams()
   const queryParams = new FunctionParams()

@@ -48,7 +48,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
 
     const node = factory.createTypeAliasDeclaration({
       modifiers: [factory.modifiers.export],
-      name: this.context.pluginManager.resolveName({ name: baseName, pluginKey }),
+      name: this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'type' }),
       type: keysToOmit?.length ? factory.createOmitDeclaration({ keys: keysToOmit, type, nonNullable: true }) : type,
     })
 
@@ -106,7 +106,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
       const schema = properties[name] as OasTypes.SchemaObject
 
       const isRequired = Array.isArray(required) ? required.includes(name) : !!required
-      let type = this.getTypeFromSchema(schema, this.context.pluginManager.resolveName({ name: `${baseName || ''} ${name}`, pluginKey }))
+      let type = this.getTypeFromSchema(schema, this.context.pluginManager.resolveName({ name: `${baseName || ''} ${name}`, pluginKey, type: 'type' }))
 
       if (!type) {
         return null
@@ -158,7 +158,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
-    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey })
+    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey, type: 'type' })
 
     ref = this.refs[$ref] = {
       propertyName,
@@ -286,12 +286,12 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
       this.extraNodes.push(
         ...factory.createEnumDeclaration({
           name: transformers.camelCase(enumName),
-          typeName: this.context.pluginManager.resolveName({ name: enumName, pluginKey }),
+          typeName: this.context.pluginManager.resolveName({ name: enumName, pluginKey, type: 'type' }),
           enums,
           type: this.options.enumType,
         }),
       )
-      return factory.createTypeReferenceNode(this.context.pluginManager.resolveName({ name: enumName, pluginKey }), undefined)
+      return factory.createTypeReferenceNode(this.context.pluginManager.resolveName({ name: enumName, pluginKey, type: 'type' }), undefined)
     }
 
     if (schema.enum) {
