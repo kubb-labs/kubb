@@ -40,12 +40,11 @@ export function getPetByIdQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
- */
-
+ * @link /pet/:petId */
 export function useGetPetByIdHook<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
   TError = GetPetById['error'],
@@ -70,7 +69,6 @@ export function useGetPetByIdHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const getPetByIdInfiniteQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdInfiniteQueryKey = ReturnType<typeof getPetByIdInfiniteQueryKey>
 export function getPetByIdInfiniteQueryOptions<
@@ -93,12 +91,11 @@ export function getPetByIdInfiniteQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
- */
-
+ * @link /pet/:petId */
 export function useGetPetByIdHookInfinite<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
   TError = GetPetById['error'],

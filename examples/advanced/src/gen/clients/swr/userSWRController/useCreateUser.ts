@@ -7,8 +7,7 @@ import type { CreateUserMutationRequest, CreateUserMutationResponse, CreateUserE
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
- * @link /user
- */
+ * @link /user */
 export function useCreateUser<TData = CreateUserMutationResponse, TError = CreateUserError, TVariables = CreateUserMutationRequest>(options?: {
   mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
   client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>

@@ -11,8 +11,7 @@ import type {
 
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage
- */
+ * @link /pet/:petId/uploadImage */
 export function useUploadFile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
   petId: UploadFilePathParams['petId'],
   params?: UploadFileQueryParams,

@@ -1,4 +1,3 @@
-import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function, Type } from '@kubb/react'
 import { useOperation, useSchemas } from '@kubb/swagger/hooks'
@@ -48,7 +47,7 @@ function Template({
   return (
     <>
       <Function.Arrow name={name} export generics={generics} params={params} returnType={returnType} singleLine JSDoc={JSDoc}>
-        {`[${keys}] as const;`}
+        {`[${keys}] as const`}
       </Function.Arrow>
 
       <Type name={typeName} export>

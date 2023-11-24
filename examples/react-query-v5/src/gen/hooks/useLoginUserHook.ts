@@ -49,11 +49,10 @@ export function loginUserQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Logs user into the system
- * @link /user/login
- */
-
+ * @link /user/login */
 export function useLoginUserHook<
   TQueryFnData extends LoginUser['data'] = LoginUser['data'],
   TError = LoginUser['error'],
@@ -78,7 +77,6 @@ export function useLoginUserHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const loginUserInfiniteQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserInfiniteQueryKey = ReturnType<typeof loginUserInfiniteQueryKey>
 export function loginUserInfiniteQueryOptions<
@@ -108,11 +106,10 @@ export function loginUserInfiniteQueryOptions<
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
   }
-} /**
+}
+/**
  * @summary Logs user into the system
- * @link /user/login
- */
-
+ * @link /user/login */
 export function useLoginUserHookInfinite<
   TQueryFnData extends LoginUser['data'] = LoginUser['data'],
   TError = LoginUser['error'],
@@ -137,7 +134,6 @@ export function useLoginUserHookInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const loginUserSuspenseQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserSuspenseQueryKey = ReturnType<typeof loginUserSuspenseQueryKey>
 export function loginUserSuspenseQueryOptions<
@@ -160,11 +156,10 @@ export function loginUserSuspenseQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Logs user into the system
- * @link /user/login
- */
-
+ * @link /user/login */
 export function useLoginUserHookSuspense<
   TQueryFnData extends LoginUser['data'] = LoginUser['data'],
   TError = LoginUser['error'],

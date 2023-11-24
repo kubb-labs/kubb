@@ -1,4 +1,5 @@
-import transformers from '@kubb/core/transformers'
+import { print } from '@kubb/parser'
+import * as factory from '@kubb/parser/factory'
 
 import { Text } from './Text.tsx'
 
@@ -43,7 +44,7 @@ export function Function({ name, export: canExport, async, generics, params, ret
     <>
       {JSDoc?.comments && (
         <>
-          <Text>{transformers.JSDoc.createJSDocBlockText({ comments: JSDoc.comments })}</Text>
+          <Text>{print(factory.createJSDoc({ comments: JSDoc?.comments }))}</Text>
           <br />
         </>
       )}
@@ -83,7 +84,8 @@ export function Function({ name, export: canExport, async, generics, params, ret
       <br />
       <Text indentSize={4}>{children}</Text>
       <br />
-      <Text>{'};'}</Text>
+      <Text>{'}'}</Text>
+      <br />
     </>
   )
 }
@@ -100,7 +102,7 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
     <>
       {JSDoc?.comments && (
         <>
-          <Text>{transformers.JSDoc.createJSDocBlockText({ comments: JSDoc.comments })}</Text>
+          <Text>{print(factory.createJSDoc({ comments: JSDoc?.comments }))}</Text>
           <br />
         </>
       )}
@@ -139,6 +141,7 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
         <>
           <Text>{' => '}</Text>
           <Text indentSize={4}>{children}</Text>
+          <br />
         </>
       )}
 
@@ -148,7 +151,8 @@ export function ArrowFunction({ name, export: canExport, async, generics, params
           <br />
           <Text indentSize={4}>{children}</Text>
           <br />
-          <Text>{'};'}</Text>
+          <Text>{'}'}</Text>
+          <br />
         </>
       )}
     </>

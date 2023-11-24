@@ -11,8 +11,7 @@ import type {
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
- * @link /user/createWithList
- */
+ * @link /user/createWithList */
 export function useCreateUsersWithListInput<
   TData = CreateUsersWithListInputMutationResponse,
   TError = CreateUsersWithListInputError,

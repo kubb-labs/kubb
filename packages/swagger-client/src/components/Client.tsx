@@ -69,7 +69,7 @@ function Template({
         {`
   return client<${client.generics}>({
 ${resolvedClientOptions}
-  });`}
+  })`}
       </Function>
     )
   }
@@ -79,9 +79,9 @@ ${resolvedClientOptions}
       {`
 const { data: resData } = await client<${client.generics}>({
 ${resolvedClientOptions}
-});
+})
 
-return resData;`}
+return resData`}
     </Function>
   )
 }

@@ -48,12 +48,11 @@ export function getPetByIdQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
- */
-
+ * @link /pet/:petId */
 export function useGetPetByIdHook<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
   TError = GetPetById['error'],
@@ -78,7 +77,6 @@ export function useGetPetByIdHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const getPetByIdInfiniteQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdInfiniteQueryKey = ReturnType<typeof getPetByIdInfiniteQueryKey>
 export function getPetByIdInfiniteQueryOptions<
@@ -103,12 +101,11 @@ export function getPetByIdInfiniteQueryOptions<
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
   }
-} /**
+}
+/**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
- */
-
+ * @link /pet/:petId */
 export function useGetPetByIdHookInfinite<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
   TError = GetPetById['error'],
@@ -133,7 +130,6 @@ export function useGetPetByIdHookInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const getPetByIdSuspenseQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQueryKey>
 export function getPetByIdSuspenseQueryOptions<
@@ -155,12 +151,11 @@ export function getPetByIdSuspenseQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
- */
-
+ * @link /pet/:petId */
 export function useGetPetByIdHookSuspense<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
   TError = GetPetById['error'],

@@ -16,11 +16,10 @@ export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TE
       }).then((res) => res.data)
     },
   }
-} /**
+}
+/**
  * @summary Get user by user name
- * @link /user/:username
- */
-
+ * @link /user/:username */
 export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
   username: GetUserByNamePathParams['username'],
   options?: {

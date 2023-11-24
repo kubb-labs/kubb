@@ -7,8 +7,7 @@ import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400,
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet
- */
+ * @link /pet */
 export function useUpdatePet<
   TData = UpdatePetMutationResponse,
   TError = UpdatePet400 | UpdatePet404 | UpdatePet405,

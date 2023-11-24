@@ -48,12 +48,11 @@ export function getOrderByIdQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId
- */
-
+ * @link /store/order/:orderId */
 export function useGetOrderByIdHook<
   TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
   TError = GetOrderById['error'],
@@ -78,7 +77,6 @@ export function useGetOrderByIdHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const getOrderByIdInfiniteQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdInfiniteQueryKey = ReturnType<typeof getOrderByIdInfiniteQueryKey>
@@ -104,12 +102,11 @@ export function getOrderByIdInfiniteQueryOptions<
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
   }
-} /**
+}
+/**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId
- */
-
+ * @link /store/order/:orderId */
 export function useGetOrderByIdHookInfinite<
   TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
   TError = GetOrderById['error'],
@@ -134,7 +131,6 @@ export function useGetOrderByIdHookInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const getOrderByIdSuspenseQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspenseQueryKey>
@@ -157,12 +153,11 @@ export function getOrderByIdSuspenseQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
- * @link /store/order/:orderId
- */
-
+ * @link /store/order/:orderId */
 export function useGetOrderByIdHookSuspense<
   TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
   TError = GetOrderById['error'],

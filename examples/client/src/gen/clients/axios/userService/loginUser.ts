@@ -5,8 +5,7 @@ import type { LoginUserQueryResponse, LoginUserQueryParams } from '../../../mode
 
 /**
  * @summary Logs user into the system
- * @link /user/login
- */
+ * @link /user/login */
 export async function loginUser(
   params?: LoginUserQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},

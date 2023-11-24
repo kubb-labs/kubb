@@ -45,11 +45,10 @@ export function logoutUserQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Logs out current logged in user session
- * @link /user/logout
- */
-
+ * @link /user/logout */
 export function useLogoutUserHook<
   TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
   TError = LogoutUser['error'],
@@ -74,7 +73,6 @@ export function useLogoutUserHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const logoutUserInfiniteQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserInfiniteQueryKey = ReturnType<typeof logoutUserInfiniteQueryKey>
 export function logoutUserInfiniteQueryOptions<
@@ -98,11 +96,10 @@ export function logoutUserInfiniteQueryOptions<
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
   }
-} /**
+}
+/**
  * @summary Logs out current logged in user session
- * @link /user/logout
- */
-
+ * @link /user/logout */
 export function useLogoutUserHookInfinite<
   TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
   TError = LogoutUser['error'],
@@ -127,7 +124,6 @@ export function useLogoutUserHookInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const logoutUserSuspenseQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserSuspenseQueryKey = ReturnType<typeof logoutUserSuspenseQueryKey>
 export function logoutUserSuspenseQueryOptions<
@@ -146,11 +142,10 @@ export function logoutUserSuspenseQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Logs out current logged in user session
- * @link /user/logout
- */
-
+ * @link /user/logout */
 export function useLogoutUserHookSuspense<
   TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
   TError = LogoutUser['error'],

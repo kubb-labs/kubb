@@ -41,11 +41,10 @@ export function loginUserQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Logs user into the system
- * @link /user/login
- */
-
+ * @link /user/login */
 export function loginUserQuery<
   TQueryFnData extends LoginUser['data'] = LoginUser['data'],
   TError = LoginUser['error'],

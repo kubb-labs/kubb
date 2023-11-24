@@ -37,11 +37,10 @@ export function logoutUserQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Logs out current logged in user session
- * @link /user/logout
- */
-
+ * @link /user/logout */
 export function useLogoutUser<
   TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
   TError = LogoutUser['error'],

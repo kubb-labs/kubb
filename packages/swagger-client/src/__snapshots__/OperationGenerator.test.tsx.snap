@@ -8,8 +8,7 @@ import type { ShowPetByIdQueryResponse, ShowPetByIdPathParams } from './'
 
 /**
  * @summary Info for a specific pet
- * @link /pets/:pet_id
- */
+ * @link /pets/:pet_id */
 export async function showPetById(
   { petId, testId }: ShowPetByIdPathParams,
   options: Partial<Parameters<typeof client>[0]> = {},
@@ -22,8 +21,7 @@ export async function showPetById(
 exports[`OperationGenerator > [GET] should generate code based on a pathParamsType \`inline\` 1`] = `
 "/**
  * @summary Info for a specific pet
- * @link /pets/:pet_id
- */
+ * @link /pets/:pet_id */
 export async function showPetById(
   petId: ShowPetByIdPathParams['pet_id'],
   testId: ShowPetByIdPathParams['testId'],
@@ -42,8 +40,7 @@ export async function showPetById(
 exports[`OperationGenerator > [GET] should generate code based on a pathParamsType \`object\` 1`] = `
 "/**
  * @summary Info for a specific pet
- * @link /pets/:pet_id
- */
+ * @link /pets/:pet_id */
 export async function showPetById(
   { petId, testId }: ShowPetByIdPathParams,
   options: Partial<Parameters<typeof client>[0]> = {},

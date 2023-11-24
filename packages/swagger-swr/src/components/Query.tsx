@@ -176,6 +176,7 @@ export function Query({
   return (
     <>
       <QueryOptions factory={factory} Template={QueryOptionsTemplate} dataReturnType={dataReturnType} />
+
       <Template
         name={name}
         generics={generics.toString()}

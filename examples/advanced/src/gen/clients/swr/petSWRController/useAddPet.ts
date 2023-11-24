@@ -7,8 +7,7 @@ import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '.
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
- * @link /pet
- */
+ * @link /pet */
 export function useAddPet<TData = AddPetMutationResponse, TError = AddPet405, TVariables = AddPetMutationRequest>(options?: {
   mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, TVariables>
   client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>

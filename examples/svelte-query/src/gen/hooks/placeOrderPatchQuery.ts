@@ -21,8 +21,7 @@ type PlaceOrderPatch = {
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
- * @link /store/order
- */
+ * @link /store/order */
 export function placeOrderPatchQuery<TData = PlaceOrderPatch['response'], TError = PlaceOrderPatch['error']>(
   options: {
     mutation?: CreateMutationOptions<TData, TError, PlaceOrderPatch['request']>

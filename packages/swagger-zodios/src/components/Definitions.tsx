@@ -26,10 +26,10 @@ function Template({
 }: TemplateProps): ReactNode {
   return (
     <>
-      {`const endpoints = makeApi([${definitions.join(',')}]);`}
-      {baseURL && `export const ${name} = new Zodios('${baseURL}', endpoints);`}
-      {!baseURL && `export const  ${name} = new Zodios(endpoints);`}
-      {`export default ${name};`}
+      {`const endpoints = makeApi([${definitions.join(',')}])`}
+      {baseURL && `export const ${name} = new Zodios('${baseURL}', endpoints)`}
+      {!baseURL && `export const  ${name} = new Zodios(endpoints)`}
+      {`export default ${name}`}
     </>
   )
 }

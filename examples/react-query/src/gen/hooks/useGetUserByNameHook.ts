@@ -40,11 +40,10 @@ export function getUserByNameQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Get user by user name
- * @link /user/:username
- */
-
+ * @link /user/:username */
 export function useGetUserByNameHook<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
   TError = GetUserByName['error'],
@@ -69,7 +68,6 @@ export function useGetUserByNameHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const getUserByNameInfiniteQueryKey = (username: GetUserByNamePathParams['username']) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameInfiniteQueryKey = ReturnType<typeof getUserByNameInfiniteQueryKey>
@@ -93,11 +91,10 @@ export function getUserByNameInfiniteQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Get user by user name
- * @link /user/:username
- */
-
+ * @link /user/:username */
 export function useGetUserByNameHookInfinite<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
   TError = GetUserByName['error'],

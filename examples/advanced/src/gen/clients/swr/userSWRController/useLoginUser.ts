@@ -18,11 +18,10 @@ export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = L
       }).then(res => res)
     },
   }
-} /**
+}
+/**
  * @summary Logs user into the system
- * @link /user/login
- */
-
+ * @link /user/login */
 export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(params?: LoginUserQueryParams, options?: {
   query?: SWRConfiguration<ResponseConfig<TData>, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>

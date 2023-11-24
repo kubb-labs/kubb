@@ -7,8 +7,7 @@ import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, P
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
- * @link /store/order
- */
+ * @link /store/order */
 export function usePlaceOrderPatch<
   TData = PlaceOrderPatchMutationResponse,
   TError = PlaceOrderPatch405,

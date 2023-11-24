@@ -20,7 +20,7 @@ function Template({
 }: TemplateProps): ReactNode {
   return (
     <>
-      {`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const;`}
+      {`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const`}
     </>
   )
 }

@@ -7,8 +7,7 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, D
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
- * @link /user/:username
- */
+ * @link /user/:username */
 export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400 | DeleteUser404>(
   username: DeleteUserPathParams['username'],
   options?: {

@@ -37,12 +37,11 @@ export function getInventoryQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory
- */
-
+ * @link /store/inventory */
 export function useGetInventoryHook<
   TQueryFnData extends GetInventory['data'] = GetInventory['data'],
   TError = GetInventory['error'],
@@ -67,7 +66,6 @@ export function useGetInventoryHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const getInventoryInfiniteQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryInfiniteQueryKey = ReturnType<typeof getInventoryInfiniteQueryKey>
 export function getInventoryInfiniteQueryOptions<
@@ -89,12 +87,11 @@ export function getInventoryInfiniteQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory
- */
-
+ * @link /store/inventory */
 export function useGetInventoryHookInfinite<
   TQueryFnData extends GetInventory['data'] = GetInventory['data'],
   TError = GetInventory['error'],

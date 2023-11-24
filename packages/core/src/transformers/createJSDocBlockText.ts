@@ -1,15 +1,9 @@
-export function createJSDocBlockText({ comments, newLine }: { comments: Array<string>; newLine?: boolean }): string {
+export function createJSDocBlockText({ comments }: { comments: Array<string> }): string {
   const filteredComments = comments.filter(Boolean)
 
   if (!filteredComments.length) {
     return ''
   }
 
-  const source = `/**\n * ${filteredComments.join('\n * ')}\n */`
-
-  if (newLine) {
-    return `${source}\n`
-  }
-
-  return source
+  return `/**\n * ${filteredComments.join('\n * ')}\n */`
 }
