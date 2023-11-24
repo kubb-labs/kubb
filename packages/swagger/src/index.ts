@@ -1,6 +1,5 @@
 import { definePlugin } from './plugin.ts'
 
-export { ImportsGenerator } from './ImportsGenerator.ts'
 export { OasBuilder } from './OasBuilder.ts'
 export { OasManager } from './OasManager.ts'
 export type { GetOperationGeneratorOptions, OperationMethodResult } from './OperationGenerator.ts'

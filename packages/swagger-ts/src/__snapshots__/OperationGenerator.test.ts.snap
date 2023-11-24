@@ -18,7 +18,6 @@ export type ListPetsError = Error
  * @description A paged array of pets
  */
 export type ListPetsQueryResponse = Pets
-
 export namespace listPetsQuery {
   export type Response = ListPetsQueryResponse
   export type QueryParams = ListPetsQueryParams
@@ -50,7 +49,6 @@ export type ShowPetByIdError = Error
  * @description Expected response to a valid request
  */
 export type ShowPetByIdQueryResponse = Pet
-
 export namespace showPetByIdQuery {
   export type Response = ShowPetByIdQueryResponse
   export type PathParams = ShowPetByIdPathParams
@@ -82,7 +80,6 @@ export type CreatePetsMutationResponse = any | null
  * @description unexpected error
  */
 export type CreatePetsError = Error
-
 export namespace createPetsMutation {
   export type Response = CreatePetsMutationResponse
   export type Request = CreatePetsMutationRequest

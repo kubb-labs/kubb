@@ -1,30 +1,28 @@
-import { SchemaGenerator } from '@kubb/core'
+import { Generator } from '@kubb/core'
 import { getUniqueName, transformers } from '@kubb/core/utils'
 import * as factory from '@kubb/parser/factory'
 import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
 
 import { camelCase } from 'change-case'
 
-import type { PluginContext } from '@kubb/core'
+import { pluginKey } from './plugin.ts'
+
+import type { PluginManager } from '@kubb/core'
 import type { ts } from '@kubb/parser'
-import type { Oas, OasTypes, OpenAPIV3, OpenAPIV3_1, Refs } from '@kubb/swagger'
+import type { ImportMeta, Oas, OasTypes, OpenAPIV3, OpenAPIV3_1, Refs } from '@kubb/swagger'
 import type { Options as CaseOptions } from 'change-case'
+import type { PluginOptions } from './types.ts'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
-type Options = {
+type Context = {
   oas: Oas
-  usedEnumNames: Record<string, number>
-
-  withJSDocs?: boolean
-  resolveName: PluginContext['resolveName']
-  enumType: 'enum' | 'asConst' | 'asPascalConst'
-  dateType: 'string' | 'date'
-  optionalType: 'questionToken' | 'undefined' | 'questionTokenAndUndefined'
+  pluginManager: PluginManager
 }
 
-export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject, ts.Node[]> {
+export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], Context> {
   refs: Refs = {}
+  imports: ImportMeta[] = []
 
   extraNodes: ts.Node[] = []
 
@@ -36,14 +34,6 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
   #caseOptions: CaseOptions = {
     delimiter: '',
     stripRegexp: /[^A-Z0-9$]/gi,
-  }
-
-  constructor(
-    options: Options,
-  ) {
-    super(options)
-
-    return this
   }
 
   build({
@@ -66,7 +56,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
 
     const node = factory.createTypeAliasDeclaration({
       modifiers: [factory.modifiers.export],
-      name: this.options.resolveName({ name: baseName }) || baseName,
+      name: this.context.pluginManager.resolveName({ name: baseName, pluginKey }),
       type: keysToOmit?.length ? factory.createOmitDeclaration({ keys: keysToOmit, type, nonNullable: true }) : type,
     })
 
@@ -124,34 +114,33 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
       const schema = properties[name] as OasTypes.SchemaObject
 
       const isRequired = Array.isArray(required) ? required.includes(name) : !!required
-      let type = this.getTypeFromSchema(schema, this.options.resolveName({ name: `${baseName || ''} ${name}` }))
+      let type = this.getTypeFromSchema(schema, this.context.pluginManager.resolveName({ name: `${baseName || ''} ${name}`, pluginKey }))
 
       if (!type) {
         return null
       }
 
-      if (!isRequired && ['undefined', 'questionTokenAndUndefined'].includes(optionalType)) {
+      if (!isRequired && ['undefined', 'questionTokenAndUndefined'].includes(optionalType as string)) {
         type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] })
       }
       const propertySignature = factory.createPropertySignature({
-        questionToken: ['questionToken', 'questionTokenAndUndefined'].includes(optionalType) && !isRequired,
+        questionToken: ['questionToken', 'questionTokenAndUndefined'].includes(optionalType as string) && !isRequired,
         name,
         type: type as ts.TypeNode,
         readOnly: schema.readOnly,
       })
-      if (this.options.withJSDocs) {
-        return factory.appendJSDocToNode({
-          node: propertySignature,
-          comments: [
-            schema.description ? `@description ${schema.description}` : undefined,
-            schema.type ? `@type ${schema.type?.toString()}${isRequired ? '' : ' | undefined'} ${schema.format || ''}` : undefined,
-            schema.example ? `@example ${schema.example as string}` : undefined,
-            schema.deprecated ? `@deprecated` : undefined,
-            schema.default !== undefined && typeof schema.default === 'string' ? `@default '${schema.default}'` : undefined,
-            schema.default !== undefined && typeof schema.default !== 'string' ? `@default ${schema.default as string}` : undefined,
-          ].filter(Boolean),
-        })
-      }
+
+      return factory.appendJSDocToNode({
+        node: propertySignature,
+        comments: [
+          schema.description ? `@description ${schema.description}` : undefined,
+          schema.type ? `@type ${schema.type?.toString()}${isRequired ? '' : ' | undefined'} ${schema.format || ''}` : undefined,
+          schema.example ? `@example ${schema.example as string}` : undefined,
+          schema.deprecated ? `@deprecated` : undefined,
+          schema.default !== undefined && typeof schema.default === 'string' ? `@default '${schema.default}'` : undefined,
+          schema.default !== undefined && typeof schema.default !== 'string' ? `@default ${schema.default as string}` : undefined,
+        ].filter(Boolean),
+      })
 
       return propertySignature
     })
@@ -177,18 +166,25 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
-    const propertyName = this.options.resolveName({ name: originalName }) || originalName
+    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey })
 
     ref = this.refs[$ref] = {
       propertyName,
       originalName,
     }
 
+    const path = this.context.pluginManager.resolvePath({ baseName: propertyName, pluginKey })
+
+    this.imports.push({
+      ref,
+      path: path || '',
+    })
+
     return factory.createTypeReferenceNode(ref.propertyName, undefined)
   }
 
   #getParsedSchema(schema?: OasTypes.SchemaObject) {
-    const parsedSchema = getSchemaFactory(this.options.oas)(schema)
+    const parsedSchema = getSchemaFactory(this.context.oas)(schema)
     return parsedSchema
   }
 
@@ -297,12 +293,12 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
       this.extraNodes.push(
         ...factory.createEnumDeclaration({
           name: camelCase(enumName, this.#caseOptions),
-          typeName: this.options.resolveName({ name: enumName }),
+          typeName: this.context.pluginManager.resolveName({ name: enumName, pluginKey }),
           enums,
           type: this.options.enumType,
         }),
       )
-      return factory.createTypeReferenceNode(this.options.resolveName({ name: enumName }), undefined)
+      return factory.createTypeReferenceNode(this.context.pluginManager.resolveName({ name: enumName, pluginKey }), undefined)
     }
 
     if (schema.enum) {

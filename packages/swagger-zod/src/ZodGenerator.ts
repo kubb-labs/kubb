@@ -1,23 +1,24 @@
-import { SchemaGenerator } from '@kubb/core'
+import { Generator } from '@kubb/core'
 import { getUniqueName, transformers } from '@kubb/core/utils'
 import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
 
-import { zodKeywords, zodParser } from '../parsers/index.ts'
-import { pluginKey } from '../plugin.ts'
+import { pluginKey } from './plugin.ts'
+import { zodKeywords, zodParser } from './zodParser.ts'
 
-import type { PluginContext } from '@kubb/core'
+import type { PluginManager } from '@kubb/core'
 import type { ts } from '@kubb/parser'
-import type { Oas, OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
-import type { ZodMeta } from '../parsers/index.ts'
+import type { ImportMeta, Oas, OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
+import type { PluginOptions } from './types.ts'
+import type { ZodMeta } from './zodParser.ts'
 
-type Options = {
+type Context = {
   oas: Oas
-  withJSDocs?: boolean
-  resolveName: PluginContext['resolveName']
+  pluginManager: PluginManager
 }
-export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject, string[]> {
+export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Context> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
+  imports: ImportMeta[] = []
 
   extraTexts: string[] = []
 
@@ -25,12 +26,6 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
 
   // Keep track of already used type aliases
   #usedAliasNames: Record<string, number> = {}
-
-  constructor(options: Options) {
-    super(options)
-
-    return this
-  }
 
   build({
     schema,
@@ -52,7 +47,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
        */`)
     }
 
-    const zodOutput = zodParser(zodInput, { keysToOmit, name: this.options.resolveName({ name: baseName, pluginKey }) || baseName })
+    const zodOutput = zodParser(zodInput, { keysToOmit, name: this.context.pluginManager.resolveName({ name: baseName, pluginKey }) })
 
     texts.push(zodOutput)
 
@@ -85,7 +80,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
 
         validationFunctions.push(...this.getTypeFromSchema(schema, name))
 
-        if (this.options.withJSDocs && schema.description) {
+        if (schema.description) {
           validationFunctions.push({ keyword: zodKeywords.describe, args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
         }
         const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
@@ -180,18 +175,25 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
-    const propertyName = this.options.resolveName({ name: originalName, pluginKey }) || originalName
+    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey })
 
     ref = this.refs[$ref] = {
       propertyName,
       originalName,
     }
 
+    const path = this.context.pluginManager.resolvePath({ baseName: propertyName, pluginKey })
+
+    this.imports.push({
+      ref,
+      path: path || '',
+    })
+
     return [{ keyword: zodKeywords.ref, args: ref.propertyName }]
   }
 
   #getParsedSchema(schema?: OasTypes.SchemaObject) {
-    const parsedSchema = getSchemaFactory(this.options.oas)(schema)
+    const parsedSchema = getSchemaFactory(this.context.oas)(schema)
     return parsedSchema
   }
 

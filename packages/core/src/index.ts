@@ -12,7 +12,6 @@ export { PackageManager } from './PackageManager.ts'
 export { createPlugin, pluginName as name, pluginName } from './plugin.ts'
 export { PluginManager } from './PluginManager.ts'
 export { PromiseManager } from './PromiseManager.ts'
-export { SchemaGenerator } from './SchemaGenerator.ts'
 export * from './types.ts'
 
 export interface _Register {}

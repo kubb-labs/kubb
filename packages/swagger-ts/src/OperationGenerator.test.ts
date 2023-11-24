@@ -1,12 +1,12 @@
 import { OasManager } from '@kubb/swagger'
 
-import { format } from '../../mocks/format.ts'
-import { OperationGenerator } from './OperationGenerator.ts'
+import { format } from '../mocks/format.ts'
+import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { PluginContext, PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
-import type { PluginOptions } from '../types.ts'
+import type { PluginOptions } from './types.ts'
 
 describe('OperationGenerator', () => {
   const resolvePath = () => './pets.ts'
@@ -21,10 +21,10 @@ describe('OperationGenerator', () => {
 
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
-      mode: 'directory',
       dateType: 'string',
       optionalType: 'questionToken',
       usedEnumNames: {},
+      transformers: {},
     }
 
     const og = await new OperationGenerator(
@@ -41,13 +41,15 @@ describe('OperationGenerator', () => {
     )
     const operation = oas.operation('/pets', 'get')
 
-    const get = await og.get(operation, og.getSchemas(operation), options)
+    const files = await og.get(operation, og.getSchemas(operation), options)
+    const get = Array.isArray(files) ? files.at(0) : files
 
     expect(await format(get?.source)).toMatchSnapshot()
 
     const operationShowById = oas.operation('/pets/{petId}', 'get')
 
-    const getShowById = await og.get(operationShowById, og.getSchemas(operationShowById), options)
+    const getShowByIdFiles = await og.get(operationShowById, og.getSchemas(operationShowById), options)
+    const getShowById = Array.isArray(getShowByIdFiles) ? getShowByIdFiles.at(0) : getShowByIdFiles
 
     expect(await format(getShowById?.source)).toMatchSnapshot()
   })
@@ -61,10 +63,10 @@ describe('OperationGenerator', () => {
 
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
-      mode: 'directory',
       dateType: 'string',
       optionalType: 'questionToken',
       usedEnumNames: {},
+      transformers: {},
     }
 
     const og = await new OperationGenerator(
@@ -81,7 +83,8 @@ describe('OperationGenerator', () => {
     )
     const operation = oas.operation('/pets', 'post')
 
-    const post = await og.post(operation, og.getSchemas(operation), options)
+    const files = await og.post(operation, og.getSchemas(operation), options)
+    const post = Array.isArray(files) ? files.at(0) : files
 
     expect(await format(post?.source)).toMatchSnapshot()
   })

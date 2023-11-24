@@ -81,7 +81,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (mode === 'directory') {
         const mapFolderSchema = async ([name]: [string, OasTypes.SchemaObject]) => {
-          const baseName = `${this.resolveName({ name, pluginKey })}.ts` as const
+          const baseName = `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts` as const
           const resolvedPath = this.resolvePath({ baseName, pluginKey: this.plugin.key })
           const { source, imports } = builder.build(name)
 

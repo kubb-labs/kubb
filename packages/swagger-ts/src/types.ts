@@ -1,5 +1,5 @@
 import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -67,13 +67,23 @@ export type Options = {
   }
 }
 
+type ResolvedOptions = {
+  enumType: NonNullable<Options['enumType']>
+  dateType: NonNullable<Options['dateType']>
+  optionalType: NonNullable<Options['optionalType']>
+  transformers: NonNullable<Options['transformers']>
+  usedEnumNames: Record<string, number>
+}
+
 export type FileMeta = {
   pluginKey?: KubbPlugin['key']
   name?: string
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-ts', Options, Options, never, ResolvePathOptions>
+type AppMeta = SwaggerAppMeta
+
+export type PluginOptions = PluginFactoryOptions<'swagger-ts', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
 
 declare module '@kubb/core' {
   export interface _Register {

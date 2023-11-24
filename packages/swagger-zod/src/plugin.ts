@@ -1,14 +1,14 @@
 import path from 'node:path'
 
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
-import { getRelativePath, renderTemplate } from '@kubb/core/utils'
+import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
 
-import { ZodBuilder } from './builders/index.ts'
-import { OperationGenerator } from './generators/index.ts'
+import { OperationGenerator } from './OperationGenerator.tsx'
+import { ZodBuilder } from './ZodBuilder.ts'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { OasTypes, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
@@ -23,7 +23,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
   return {
     name: pluginName,
-    options,
+    options: {
+      transformers,
+    },
     pre: [swaggerPluginName],
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
@@ -68,34 +70,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const schemas = await swaggerPlugin.api.getSchemas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output))
+      const builder = new ZodBuilder(this.plugin.options, { oas, pluginManager: this.pluginManager })
+
+      builder.add(
+        Object.entries(schemas).map(([name, schema]: [string, OasTypes.SchemaObject]) => ({ name, schema })),
+      )
 
       if (mode === 'directory') {
-        const builder = await new ZodBuilder({
-          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
-          fileResolver: (name) => {
-            const resolvedTypeId = this.resolvePath({
-              baseName: `${name}.ts`,
-              pluginKey: this.plugin.key,
-            })
-
-            const root = this.resolvePath({ baseName: ``, pluginKey: this.plugin.key })
-
-            return getRelativePath(root, resolvedTypeId)
-          },
-          withJSDocs: true,
-          oas,
-        }).configure()
-
-        Object.entries(schemas).forEach(([name, schema]: [string, OasTypes.SchemaObject]) => {
-          // generate and pass through new code back to the core so it can be write to that file
-          return builder.add({
-            schema,
-            name,
-          })
-        })
-
         const mapFolderSchema = async ([name]: [string, OasTypes.SchemaObject]) => {
-          const resolvedPath = this.resolvePath({ baseName: `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts`, pluginKey: this.plugin.key })
+          const baseName = `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts` as const
+          const resolvedPath = this.resolvePath({ baseName, pluginKey: this.plugin.key })
+          const { source, imports } = builder.build(name)
 
           if (!resolvedPath) {
             return null
@@ -103,9 +88,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
           return this.addFile({
             path: resolvedPath,
-            baseName: `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts`,
-            source: builder.print(name),
+            baseName,
+            source,
             imports: [
+              ...imports.map(item => ({ ...item, root: resolvedPath })),
               {
                 name: ['z'],
                 path: 'zod',
@@ -123,22 +109,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (mode === 'file') {
-        // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
-        const builder = new ZodBuilder({
-          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
-          withJSDocs: true,
-          oas,
-        }).configure()
-        const mapFileSchema = ([name, schema]: [string, OasTypes.SchemaObject]) => {
-          // generate and pass through new code back to the core so it can be write to that file
-          return builder.add({
-            schema,
-            name,
-          })
-        }
-
-        Object.entries(schemas).map(mapFileSchema)
         const resolvedPath = this.resolvePath({ baseName: '', pluginKey: this.plugin.key })
+        const { source, imports = [] } = builder.build()
+
         if (!resolvedPath) {
           return
         }
@@ -146,8 +119,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         await this.addFile({
           path: resolvedPath,
           baseName: output as KubbFile.BaseName,
-          source: builder.print(),
+          source,
           imports: [
+            ...imports.map(item => ({ ...item, root: resolvedPath })),
             {
               name: ['z'],
               path: 'zod',
@@ -156,12 +130,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           meta: {
             pluginKey: this.plugin.key,
           },
-          validate: false,
         })
       }
 
       const operationGenerator = new OperationGenerator(
-        {},
+        this.plugin.options,
         {
           oas,
           pluginManager: this.pluginManager,

@@ -141,10 +141,6 @@ export namespace KubbFile {
      * This will override `process.env[key]` inside the `source`, see `getFileSource`.
      */
     env?: NodeJS.ProcessEnv
-    /**
-     * @deprecated
-     */
-    validate?: boolean
   }
 
   export type ResolvedFile<
@@ -216,10 +212,6 @@ export class FileManager {
   }
 
   #validate(file: KubbFile.File): void {
-    if (!file.validate) {
-      return
-    }
-
     if (!file.path.toLowerCase().endsWith(file.baseName.toLowerCase())) {
       throw new Error(`${file.path} should end with the baseName ${file.baseName}`)
     }
@@ -229,7 +221,7 @@ export class FileManager {
     ...files: T
   ): AddResult<T> {
     const promises = files.map((file) => {
-      this.#validate(file)
+      // this.#validate(file)
 
       if (file.override) {
         return this.#add(file)
