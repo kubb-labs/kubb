@@ -85,7 +85,7 @@ describe('<Function/>', () => {
 
     expect(await format(root.output)).toMatchSnapshot()
   })
-  test.only('render multiple functions', async () => {
+  test('render multiple functions', async () => {
     const Component = () => {
       return (
         <>
