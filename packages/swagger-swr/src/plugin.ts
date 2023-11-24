@@ -1,7 +1,8 @@
 import path from 'node:path'
 
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
-import { renderTemplate, transformers } from '@kubb/core/utils'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
+import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 
@@ -11,8 +12,6 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import type { KubbPlugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
-
-const { camelCase, pascalCase } = transformers
 
 export const pluginName = 'swagger-swr' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']

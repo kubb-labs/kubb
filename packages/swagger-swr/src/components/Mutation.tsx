@@ -1,4 +1,5 @@
-import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
+import { FunctionParams, URLPath } from '@kubb/core/utils'
+import transformers from '@kubb/core/transformers'
 import { File, Function, usePlugin } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'

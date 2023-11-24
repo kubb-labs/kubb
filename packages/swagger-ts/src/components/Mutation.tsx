@@ -1,4 +1,4 @@
-import { transformers } from '@kubb/core/utils'
+import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 import { File, usePlugin, usePluginManager } from '@kubb/react'

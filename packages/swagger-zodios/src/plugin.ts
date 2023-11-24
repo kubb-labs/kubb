@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { createPlugin, PluginManager } from '@kubb/core'
-import { transformers } from '@kubb/core/utils'
+import { camelCase, trimExtName } from '@kubb/core/transformers'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
@@ -12,8 +12,6 @@ import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions as SwaggerZodPluginOptions } from '@kubb/swagger-zod'
 import type { PluginOptions } from './types.ts'
 
-const { camelCase } = transformers
-
 export const pluginName = 'swagger-zodios' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
@@ -23,7 +21,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
   return {
     name: pluginName,
     options: {
-      name: transformers.trimExtName(output),
+      name: trimExtName(output),
       baseURL: undefined,
     },
     pre: [swaggerPluginName, swaggerZodPluginName],
@@ -51,7 +49,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const operationGenerator = new OperationGenerator(
         {
-          name: transformers.trimExtName(output),
+          name: trimExtName(output),
           baseURL: await swaggerPlugin.api.getBaseURL(),
         },
         {

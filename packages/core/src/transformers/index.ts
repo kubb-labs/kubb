@@ -8,7 +8,17 @@ import { searchAndReplace } from './searchAndReplace.ts'
 import { transformReservedWord } from './transformReservedWord.ts'
 import { trim, trimExtName } from './trim.ts'
 
-export const transformers = {
+export { camelCase, pascalCase } from './casing.ts'
+export { combineCodes } from './combineCodes.ts'
+export { createJSDocBlockText } from './createJSDocBlockText.ts'
+export { escape, jsStringEscape } from './escape.ts'
+export { createIndent } from './indent.ts'
+export { nameSorter } from './nameSorter.ts'
+export { searchAndReplace } from './searchAndReplace.ts'
+export { transformReservedWord } from './transformReservedWord.ts'
+export { trim, trimExtName } from './trim.ts'
+
+export default {
   combineCodes,
   escape,
   jsStringEscape,

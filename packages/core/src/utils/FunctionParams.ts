@@ -1,6 +1,6 @@
 import { orderBy } from 'natural-orderby'
 
-import { transformers } from './transformers/index.ts'
+import transformers from '../transformers/index.ts'
 
 type FunctionParamsASTWithoutType = {
   name?: string

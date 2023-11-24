@@ -1,4 +1,4 @@
-import { transformers } from './transformers/index.ts'
+import transformers from '../transformers/index.ts'
 
 export type URLObject = {
   url: string

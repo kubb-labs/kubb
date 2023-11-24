@@ -1,4 +1,4 @@
-import { transformers } from '@kubb/core/utils'
+import transformers from '@kubb/core/transformers'
 
 import { Text } from './Text.tsx'
 

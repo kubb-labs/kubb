@@ -1,7 +1,8 @@
 import path from 'node:path'
 
 import { FileManager } from '@kubb/core'
-import { getRelativePath, renderTemplate, transformers } from '@kubb/core/utils'
+import transformers from '@kubb/core/transformers'
+import { getRelativePath, renderTemplate } from '@kubb/core/utils'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { Logger } from '@kubb/core/utils'

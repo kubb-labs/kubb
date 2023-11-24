@@ -14,6 +14,9 @@
       "@kubb/core/utils": [
         "packages/core/src/utils/index.ts"
       ],
+      "@kubb/core/transformers": [
+        "packages/core/src/transformers/index.ts"
+      ],
       "@kubb/swagger": [
         "packages/swagger/src/index.ts"
       ],

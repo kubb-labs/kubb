@@ -1,4 +1,5 @@
-import { transformers, URLPath } from '@kubb/core/utils'
+import transformers from '@kubb/core/transformers'
+import { URLPath } from '@kubb/core/utils'
 import { File, useFile, usePlugin } from '@kubb/react'
 import { usePluginManager } from '@kubb/react'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'

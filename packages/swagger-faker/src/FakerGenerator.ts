@@ -1,5 +1,6 @@
 import { Generator } from '@kubb/core'
-import { getUniqueName, transformers } from '@kubb/core/utils'
+import transformers from '@kubb/core/transformers'
+import { getUniqueName } from '@kubb/core/utils'
 import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 

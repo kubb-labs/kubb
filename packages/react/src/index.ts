@@ -1,4 +1,4 @@
-import { transformers } from '@kubb/core/utils'
+import transformers from '@kubb/core/transformers'
 
 export type { RootType } from './client/index.ts'
 export { createRoot } from './client/index.ts'

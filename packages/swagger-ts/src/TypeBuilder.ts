@@ -1,4 +1,4 @@
-import { transformers } from '@kubb/core/utils'
+import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import { OasBuilder } from '@kubb/swagger'
 import { refsSorter } from '@kubb/swagger/utils'

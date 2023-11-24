@@ -8,9 +8,9 @@ import * as factory from '@kubb/parser/factory'
 import isEqual from 'lodash.isequal'
 import { orderBy } from 'natural-orderby'
 
+import transformers from './transformers/index.ts'
 import { getRelativePath, read } from './utils/read.ts'
 import { timeout } from './utils/timeout.ts'
-import { transformers } from './utils/transformers/index.ts'
 import { write } from './utils/write.ts'
 import { BarrelManager } from './BarrelManager.ts'
 

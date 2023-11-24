@@ -1,4 +1,5 @@
-import { FunctionParams, transformers } from '@kubb/core/utils'
+import transformers from '@kubb/core/transformers'
+import { FunctionParams } from '@kubb/core/utils'
 
 import { isParameterObject } from './isParameterObject.ts'
 

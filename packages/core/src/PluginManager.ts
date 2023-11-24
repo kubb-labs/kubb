@@ -3,7 +3,7 @@
 import { EventEmitter } from './utils/EventEmitter.ts'
 import { LogLevel } from './utils/logger.ts'
 import { Queue } from './utils/Queue.ts'
-import { transformReservedWord } from './utils/transformers/transformReservedWord.ts'
+import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
 import { ValidationPluginError } from './errors.ts'
 import { FileManager } from './FileManager.ts'

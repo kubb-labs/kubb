@@ -1,11 +1,10 @@
 import path from 'node:path'
 
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
-import { renderTemplate, transformers } from '@kubb/core/utils'
+import { camelCase } from '@kubb/core/transformers'
+import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
-
-const { camelCase } = transformers
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { ZodBuilder } from './ZodBuilder.ts'
