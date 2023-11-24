@@ -40,12 +40,11 @@ export function getPetByIdQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
- */
-
+ * @link /pet/:petId */
 export function getPetByIdQuery<
   TQueryFnData extends GetPetById['data'] = GetPetById['data'],
   TError = GetPetById['error'],

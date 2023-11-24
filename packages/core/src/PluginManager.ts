@@ -3,7 +3,7 @@
 import { EventEmitter } from './utils/EventEmitter.ts'
 import { LogLevel } from './utils/logger.ts'
 import { Queue } from './utils/Queue.ts'
-import { transformReservedWord } from './utils/transformers/transformReservedWord.ts'
+import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
 import { ValidationPluginError } from './errors.ts'
 import { FileManager } from './FileManager.ts'
@@ -129,11 +129,11 @@ export class PluginManager {
         parameters: [params.baseName, params.directory, params.options as object],
       })
 
-      if (paths && paths?.length > 1) {
-        throw new Error(
+      if (paths && paths?.length > 1 && this.logger.logLevel === LogLevel.debug) {
+        this.logger.warn(
           `Cannot return a path where the 'pluginKey' ${params.pluginKey ? JSON.stringify(params.pluginKey) : '"'} is not unique enough\n\nPaths: ${
             JSON.stringify(paths, undefined, 2)
-          }`,
+          }\n\nFalling back on the first item.\n`,
         )
       }
 
@@ -153,11 +153,11 @@ export class PluginManager {
         parameters: [params.name, params.type],
       })
 
-      if (names && names?.length > 1) {
-        throw new Error(
+      if (names && names?.length > 1 && this.logger.logLevel === LogLevel.debug) {
+        this.logger.warn(
           `Cannot return a name where the 'pluginKey' ${params.pluginKey ? JSON.stringify(params.pluginKey) : '"'} is not unique enough\n\nNames: ${
             JSON.stringify(names, undefined, 2)
-          }`,
+          }\n\nFalling back on the first item.\n`,
         )
       }
 
@@ -379,7 +379,7 @@ export class PluginManager {
     const plugins = [...this.plugins].filter((plugin) => plugin.name !== 'core')
 
     if (hookName) {
-      if (this.logger.logLevel === 'info') {
+      if (this.logger.logLevel === LogLevel.info) {
         const containsHookName = plugins.some((item) => item[hookName])
         if (!containsHookName) {
           this.logger.warn(`No hook ${hookName} found`)
@@ -435,7 +435,7 @@ export class PluginManager {
 
       const corePlugin = plugins.find((plugin) => plugin.name === 'core' && plugin[hookName])
 
-      if (this.logger.logLevel === 'info') {
+      if (this.logger.logLevel === LogLevel.debug) {
         if (corePlugin) {
           this.logger.warn(`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`)
         } else {

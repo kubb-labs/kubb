@@ -1,10 +1,11 @@
 import { faker } from '@faker-js/faker'
-
 import { createPet } from '../createPet'
-import { FindPetsByTags400 } from '../../models/ts/petController/FindPetsByTags'
-import { FindPetsByTagsHeaderParams } from '../../models/ts/petController/FindPetsByTags'
-import { FindPetsByTagsQueryParams } from '../../models/ts/petController/FindPetsByTags'
-import { FindPetsByTagsQueryResponse } from '../../models/ts/petController/FindPetsByTags'
+import type {
+  FindPetsByTags400,
+  FindPetsByTagsHeaderParams,
+  FindPetsByTagsQueryParams,
+  FindPetsByTagsQueryResponse,
+} from '../../models/ts/petController/FindPetsByTags'
 
 /**
  * @description Invalid tag value
@@ -21,7 +22,6 @@ export function createFindPetsByTagsHeaderParams(): NonNullable<FindPetsByTagsHe
 export function createFindPetsByTagsQueryParams(): NonNullable<FindPetsByTagsQueryParams> {
   return { 'tags': faker.helpers.arrayElements([faker.string.alpha()]) as any, 'page': faker.string.alpha(), 'pageSize': faker.string.alpha() }
 }
-
 /**
  * @description successful operation
  */

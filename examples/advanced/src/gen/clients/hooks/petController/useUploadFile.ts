@@ -25,8 +25,7 @@ type UploadFile = {
 }
 /**
  * @summary uploads an image
- * @link /pet/:petId/uploadImage
- */
+ * @link /pet/:petId/uploadImage */
 export function useUploadFile<TData = UploadFile['response'], TError = UploadFile['error']>(
   petId: UploadFilePathParams['petId'],
   params?: UploadFile['queryParams'],

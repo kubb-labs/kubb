@@ -1,7 +1,7 @@
 import { PackageManager } from '@kubb/core'
 import { URLPath } from '@kubb/core/utils'
-import { File } from '@kubb/react'
-import { useOperation, useOperationFile, useOperationName, useResolveName, useSchemas } from '@kubb/swagger/hooks'
+import { File, useResolveName } from '@kubb/react'
+import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { pluginKey as fakerPluginKey } from '@kubb/swagger-faker'
 
 import type { HttpMethod } from '@kubb/swagger'

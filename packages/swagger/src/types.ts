@@ -79,12 +79,13 @@ export type OperationSchema = {
    * Converted name, contains already `PathParams`, `QueryParams`, ...
    */
   name: string
+  schema: SchemaObject & { $ref?: string }
+  operation?: Operation
   /**
    * OperationName in PascalCase, only being used in OperationGenerator
    */
   operationName?: string
   description?: string
-  schema: SchemaObject & { $ref?: string }
   statusCode?: number
   keys?: string[]
   keysToOmit?: string[]
@@ -98,6 +99,8 @@ export type OperationSchemas = {
   response: OperationSchema
   errors?: Array<OperationSchema>
 }
+
+export type Paths = Record<string, Record<HttpMethod, { operation: Operation; schemas: OperationSchemas }>>
 
 type ByTag = {
   type: 'tag'
@@ -124,11 +127,12 @@ export type Include = ByTag | ByOperationId | ByPath | ByMethod
 
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & { options: Partial<TOptions> }
 
-export type AppMeta = { schemas: OperationSchemas; operation: Operation }
+export type AppMeta = { schemas: OperationSchemas; operation: Operation; oas: Oas }
 
 export type ImportMeta = {
   ref: Ref
   path: string
+  isTypeOnly: boolean
 }
 
 export type PluginOptions = PluginFactoryOptions<'swagger', Options, Options, API, never, AppMeta>

@@ -3,8 +3,6 @@ import { Function, Type } from '@kubb/react'
 import { useOperation, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, isRequired } from '@kubb/swagger/utils'
 
-import { pascalCase, pascalCaseTransformMerge } from 'change-case'
-
 import type { ReactNode } from 'react'
 
 type TemplateProps = {
@@ -12,6 +10,10 @@ type TemplateProps = {
    * Name of the function
    */
   name: string
+  /**
+   * TypeName of the function in PascalCase
+   */
+  typeName: string
   /**
    * Parameters/options/props that need to be used
    */
@@ -35,18 +37,17 @@ type TemplateProps = {
 
 function Template({
   name,
+  typeName,
   params,
   generics,
   returnType,
   JSDoc,
   keys,
 }: TemplateProps): ReactNode {
-  const typeName = pascalCase(name, { delimiter: '', transform: pascalCaseTransformMerge })
-
   return (
     <>
       <Function.Arrow name={name} export generics={generics} params={params} returnType={returnType} singleLine JSDoc={JSDoc}>
-        {`[${keys}] as const;`}
+        {`[${keys}] as const`}
       </Function.Arrow>
 
       <Type name={typeName} export>
@@ -133,6 +134,7 @@ const defaultTemplates = {
 
 type Props = {
   name: string
+  typeName: string
   factory: {
     name: string
   }
@@ -142,7 +144,7 @@ type Props = {
   Template?: React.ComponentType<FrameworkProps>
 }
 
-export function QueryKey({ name, factory, Template = defaultTemplates.react }: Props): ReactNode {
+export function QueryKey({ name, typeName, factory, Template = defaultTemplates.react }: Props): ReactNode {
   const schemas = useSchemas()
   const operation = useOperation()
   const path = new URLPath(operation.path)
@@ -169,7 +171,7 @@ export function QueryKey({ name, factory, Template = defaultTemplates.react }: P
     withQueryParams ? `...(params ? [params] : [])` : undefined,
   ].filter(Boolean)
 
-  return <Template name={name} params={params.toString()} keys={keys.join(', ')} context={{ factory }} />
+  return <Template typeName={typeName} name={name} params={params.toString()} keys={keys.join(', ')} context={{ factory }} />
 }
 
 QueryKey.templates = defaultTemplates

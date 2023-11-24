@@ -4,27 +4,27 @@ import { OperationGenerator as Generator } from '@kubb/swagger'
 import { Client, Operations } from './components/index.ts'
 
 import type { AppContextProps } from '@kubb/react'
-import type { HttpMethod, OperationMethodResult, OperationSchemas } from '@kubb/swagger'
+import type { OperationMethodResult, OperationSchemas, Paths } from '@kubb/swagger'
 import type { Operation } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
-  async all(paths: Record<string, Record<HttpMethod, Operation>>): OperationMethodResult<FileMeta> {
+  async all(paths: Paths): OperationMethodResult<FileMeta> {
     const { pluginManager, oas, plugin } = this.context
 
     const root = createRoot<AppContextProps>({ logger: pluginManager.logger })
 
-    root.render(<Operations.File oas={oas} paths={paths} templates={this.options.templates.operations} />, { meta: { pluginManager, plugin } })
+    root.render(<Operations.File name="operations" paths={paths} templates={this.options.templates.operations} />, { meta: { oas, pluginManager, plugin } })
 
     return root.files
   }
 
   async #generate(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    const { pluginManager, plugin } = this.context
+    const { oas, pluginManager, plugin } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
-    root.render(<Client.File templates={options.templates.client} />, { meta: { pluginManager, plugin: { ...plugin, options }, schemas, operation } })
+    root.render(<Client.File templates={options.templates.client} />, { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } })
 
     return root.files
   }

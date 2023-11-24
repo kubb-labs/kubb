@@ -49,12 +49,11 @@ export function findPetsByStatusQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
- */
-
+ * @link /pet/findByStatus */
 export function useFindPetsByStatusHook<
   TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
   TError = FindPetsByStatus['error'],
@@ -79,7 +78,6 @@ export function useFindPetsByStatusHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const findPetsByStatusInfiniteQueryKey = (params?: FindPetsByStatus['queryParams']) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusInfiniteQueryKey = ReturnType<typeof findPetsByStatusInfiniteQueryKey>
@@ -110,12 +108,11 @@ export function findPetsByStatusInfiniteQueryOptions<
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
   }
-} /**
+}
+/**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
- */
-
+ * @link /pet/findByStatus */
 export function useFindPetsByStatusHookInfinite<
   TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
   TError = FindPetsByStatus['error'],
@@ -140,7 +137,6 @@ export function useFindPetsByStatusHookInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const findPetsByStatusSuspenseQueryKey = (params?: FindPetsByStatus['queryParams']) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusSuspenseQueryKey = ReturnType<typeof findPetsByStatusSuspenseQueryKey>
@@ -164,12 +160,11 @@ export function findPetsByStatusSuspenseQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
- */
-
+ * @link /pet/findByStatus */
 export function useFindPetsByStatusHookSuspense<
   TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
   TError = FindPetsByStatus['error'],

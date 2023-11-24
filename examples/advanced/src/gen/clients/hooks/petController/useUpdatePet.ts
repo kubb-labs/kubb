@@ -21,8 +21,7 @@ type UpdatePet = {
 /**
  * @description Update an existing pet by Id
  * @summary Update an existing pet
- * @link /pet
- */
+ * @link /pet */
 export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, UpdatePet['request']>
   client?: UpdatePet['client']['paramaters']

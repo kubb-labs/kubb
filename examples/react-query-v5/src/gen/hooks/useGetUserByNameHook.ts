@@ -48,11 +48,10 @@ export function getUserByNameQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Get user by user name
- * @link /user/:username
- */
-
+ * @link /user/:username */
 export function useGetUserByNameHook<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
   TError = GetUserByName['error'],
@@ -77,7 +76,6 @@ export function useGetUserByNameHook<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const getUserByNameInfiniteQueryKey = (username: GetUserByNamePathParams['username']) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameInfiniteQueryKey = ReturnType<typeof getUserByNameInfiniteQueryKey>
@@ -103,11 +101,10 @@ export function getUserByNameInfiniteQueryOptions<
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
   }
-} /**
+}
+/**
  * @summary Get user by user name
- * @link /user/:username
- */
-
+ * @link /user/:username */
 export function useGetUserByNameHookInfinite<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
   TError = GetUserByName['error'],
@@ -132,7 +129,6 @@ export function useGetUserByNameHookInfinite<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const getUserByNameSuspenseQueryKey = (username: GetUserByNamePathParams['username']) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspenseQueryKey>
@@ -155,11 +151,10 @@ export function getUserByNameSuspenseQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Get user by user name
- * @link /user/:username
- */
-
+ * @link /user/:username */
 export function useGetUserByNameHookSuspense<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
   TError = GetUserByName['error'],

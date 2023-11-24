@@ -1,5 +1,5 @@
 import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 
 export type Options = {
   /**
@@ -50,12 +50,20 @@ export type Options = {
   }
 }
 
+type ResolvedOptions = {
+  transformers: NonNullable<Options['transformers']>
+  exclude: Options['exclude']
+  include: Options['include']
+  override: Options['override']
+}
+
 export type FileMeta = {
   pluginKey?: KubbPlugin['key']
   tag?: string
 }
+type AppMeta = SwaggerAppMeta
 
-export type PluginOptions = PluginFactoryOptions<'swagger-zod', Options, Options, never, ResolvePathOptions>
+export type PluginOptions = PluginFactoryOptions<'swagger-zod', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
 
 declare module '@kubb/core' {
   export interface _Register {

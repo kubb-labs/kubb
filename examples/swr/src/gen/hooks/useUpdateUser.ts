@@ -7,8 +7,7 @@ import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserP
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
- * @link /user/:username
- */
+ * @link /user/:username */
 export function useUpdateUser<TData = UpdateUserMutationResponse, TError = UpdateUserError, TVariables = UpdateUserMutationRequest>(
   username: UpdateUserPathParams['username'],
   options?: {

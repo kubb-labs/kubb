@@ -1,5 +1,6 @@
 import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { AppMeta as SwaggerAppMeta, Exclude, Include, OasTypes, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { FakerKeyword, FakerMeta } from './fakerParser.ts'
 
 export type Options = {
   /**
@@ -52,7 +53,15 @@ export type Options = {
      * Customize the names based on the type that is provided by the plugin.
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+    schema?: (schema: OasTypes.SchemaObject | undefined, baseName?: string) => FakerMeta[] | undefined
   }
+  mapper?: Record<string, string>
+}
+
+type ResolvedOptions = {
+  dateType: NonNullable<Options['dateType']>
+  mapper: NonNullable<Options['mapper']>
+  transformers: NonNullable<Options['transformers']>
 }
 
 export type FileMeta = {
@@ -60,7 +69,9 @@ export type FileMeta = {
   tag?: string
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger-faker', Options, Options, never, ResolvePathOptions>
+type AppMeta = SwaggerAppMeta
+
+export type PluginOptions = PluginFactoryOptions<'swagger-faker', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
 
 declare module '@kubb/core' {
   export interface _Register {

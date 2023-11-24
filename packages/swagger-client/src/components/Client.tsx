@@ -1,4 +1,5 @@
-import { FunctionParams, transformers } from '@kubb/core/utils'
+import transformers from '@kubb/core/transformers'
+import { FunctionParams } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
 import { File, Function, usePlugin } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
@@ -68,7 +69,7 @@ function Template({
         {`
   return client<${client.generics}>({
 ${resolvedClientOptions}
-  });`}
+  })`}
       </Function>
     )
   }
@@ -78,9 +79,9 @@ ${resolvedClientOptions}
       {`
 const { data: resData } = await client<${client.generics}>({
 ${resolvedClientOptions}
-});
+})
 
-return resData;`}
+return resData`}
     </Function>
   )
 }

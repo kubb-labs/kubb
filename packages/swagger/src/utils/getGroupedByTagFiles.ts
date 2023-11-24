@@ -1,8 +1,8 @@
 import path from 'node:path'
 
-import { getRelativePath, renderTemplate } from '@kubb/core/utils'
-
-import { camelCase, camelCaseTransformMerge } from 'change-case'
+import { FileManager } from '@kubb/core'
+import transformers from '@kubb/core/transformers'
+import { LogLevel, getRelativePath, renderTemplate } from '@kubb/core/utils'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { Logger } from '@kubb/core/utils'
@@ -37,27 +37,28 @@ export function getGroupedByTagFiles({
   root,
   output,
 }: Options): KubbFile.File<FileMeta>[] {
+  const mode = FileManager.getMode(path.resolve(root, output))
+
+  if (mode === 'file') {
+    return []
+  }
+
   return files.filter(file => {
     const name = file.meta?.pluginKey?.[0]
     return name === plugin.name
   })
     .map((file: KubbFile.File<FileMeta>) => {
       if (!file.meta?.tag) {
-        logger?.warn(`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`)
+        if (logger?.logLevel === LogLevel.debug) {
+          logger?.warn(`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`)
+        }
 
         return
       }
 
-      const tag = file.meta?.tag && camelCase(file.meta.tag, { delimiter: '', transform: camelCaseTransformMerge })
+      const tag = file.meta?.tag && transformers.camelCase(file.meta.tag)
       const tagPath = getRelativePath(path.resolve(root, output), path.resolve(root, renderTemplate(template, { tag })))
       const tagName = renderTemplate(exportAs, { tag })
-
-      /*
-            const tagName = camelCase(renderTemplate(group.exportAs || '{{tag}}Mocks', { tag }), {
-              delimiter: '',
-              transform: camelCaseTransformMerge,
-            })
-      */
 
       if (tagName) {
         return {

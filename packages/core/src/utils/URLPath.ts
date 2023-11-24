@@ -1,4 +1,4 @@
-import { camelCase, camelCaseTransformMerge } from 'change-case'
+import transformers from '../transformers/index.ts'
 
 export type URLObject = {
   url: string
@@ -90,8 +90,8 @@ export class URLPath {
     if (found) {
       newPath = found.reduce((prev, curr) => {
         const pathParam = replacer
-          ? replacer(camelCase(curr, { delimiter: '', transform: camelCaseTransformMerge }))
-          : camelCase(curr, { delimiter: '', transform: camelCaseTransformMerge })
+          ? replacer(transformers.camelCase(curr))
+          : transformers.camelCase(curr)
         const replacement = `\${${pathParam}}`
 
         return prev.replace(curr, replacement)
@@ -114,8 +114,8 @@ export class URLPath {
       item = item.replaceAll('{', '').replaceAll('}', '')
 
       const pathParam = replacer
-        ? replacer(camelCase(item, { delimiter: '', transform: camelCaseTransformMerge }))
-        : camelCase(item, { delimiter: '', transform: camelCaseTransformMerge })
+        ? replacer(transformers.camelCase(item))
+        : transformers.camelCase(item)
 
       params[pathParam] = pathParam
     }, this.path)

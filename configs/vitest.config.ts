@@ -9,6 +9,7 @@ export default defineConfig({
       '@kubb/eslint-config': 'packages/config/eslint/src/index.ts',
       '@kubb/tsup-config': 'packages/config/tsup/src/index.ts',
       '@kubb/core/utils': 'packages/core/src/utils/index.ts',
+      '@kubb/core/transformers': 'packages/core/src/transformers/index.ts',
       '@kubb/core': 'packages/core/src/index.ts',
       '@kubb/swagger/utils': 'packages/swagger/src/utils/index.ts',
       '@kubb/swagger/hooks': 'packages/swagger/src/hooks/index.ts',

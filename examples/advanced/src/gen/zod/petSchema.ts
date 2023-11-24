@@ -1,7 +1,6 @@
-import { z } from 'zod'
-
 import { categorySchema } from './categorySchema'
 import { tagSchema } from './tagSchema'
+import { z } from 'zod'
 
 export const petSchema = z.object({
   'id': z.number().readonly().optional(),

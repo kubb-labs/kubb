@@ -28,6 +28,11 @@
       "require": "./dist/utils.cjs",
       "default": "./dist/utils.cjs"
     },
+    "./transformers": {
+      "import": "./dist/transformers.js",
+      "require": "./dist/transformers.cjs",
+      "default": "./dist/transformers.cjs"
+    },
     "./package.json": "./package.json",
     "./*": "./*",
     "./globals": {

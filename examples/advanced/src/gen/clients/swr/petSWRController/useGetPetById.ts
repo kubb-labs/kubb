@@ -17,12 +17,11 @@ export function getPetByIdQueryOptions<TData = GetPetByIdQueryResponse, TError =
       }).then(res => res)
     },
   }
-} /**
+}
+/**
  * @description Returns a single pet
  * @summary Find pet by ID
- * @link /pet/:petId
- */
-
+ * @link /pet/:petId */
 export function useGetPetById<TData = GetPetByIdQueryResponse, TError = GetPetById400 | GetPetById404>(petId: GetPetByIdPathParams['petId'], options?: {
   query?: SWRConfiguration<ResponseConfig<TData>, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>

@@ -579,4 +579,6 @@ export const test2 = 3;`,
 
     expect(combineImports(importsWithoutSource, [])).toEqual([imports[0], imports[1]])
   })
+
+  test.todo('if combineImports is excluding imports when import path and file path are the same')
 })

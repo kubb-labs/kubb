@@ -17,7 +17,6 @@ export type DeleteUserPathParams = {
    */
   username: string
 }
-
 export namespace DeleteUserMutation {
   export type Response = DeleteUserMutationResponse
   export type PathParams = DeleteUserPathParams

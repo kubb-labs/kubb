@@ -27,7 +27,6 @@ export type FindPetsByTagsQueryParams = {
  * @description successful operation
  */
 export type FindPetsByTagsQueryResponse = Pet[]
-
 export namespace FindPetsByTagsQuery {
   export type Response = FindPetsByTagsQueryResponse
   export type QueryParams = FindPetsByTagsQueryParams

@@ -21,8 +21,7 @@ type PlaceOrder = {
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
- * @link /store/order
- */
+ * @link /store/order */
 export function usePlaceOrder<TData = PlaceOrder['response'], TError = PlaceOrder['error']>(
   options: {
     mutation?: UseMutationOptions<TData, TError, PlaceOrder['request'], unknown>

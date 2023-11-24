@@ -24,7 +24,6 @@ export type UpdatePetMutationRequest = Pet
  * @description Successful operation
  */
 export type UpdatePetMutationResponse = Pet
-
 export namespace UpdatePetMutation {
   export type Response = UpdatePetMutationResponse
   export type Request = UpdatePetMutationRequest

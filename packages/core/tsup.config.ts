@@ -24,4 +24,18 @@ export default defineConfig([
     name: 'utils',
     noExternal: [/find-up/],
   },
+  {
+    ...optionsCJS,
+    entry: {
+      transformers: 'src/transformers/index.ts',
+    },
+    name: 'transformers',
+  },
+  {
+    ...optionsESM,
+    entry: {
+      transformers: 'src/transformers/index.ts',
+    },
+    name: 'transformers',
+  },
 ])

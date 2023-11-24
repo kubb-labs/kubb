@@ -37,12 +37,11 @@ export function getInventoryQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory
- */
-
+ * @link /store/inventory */
 export function getInventoryQuery<
   TQueryFnData extends GetInventory['data'] = GetInventory['data'],
   TError = GetInventory['error'],
@@ -90,12 +89,11 @@ export function getInventoryInfiniteQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory
- */
-
+ * @link /store/inventory */
 export function getInventoryQueryInfinite<
   TQueryFnData extends GetInventory['data'] = GetInventory['data'],
   TError = GetInventory['error'],

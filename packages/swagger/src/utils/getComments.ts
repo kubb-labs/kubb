@@ -1,4 +1,5 @@
-import { transformers, URLPath } from '@kubb/core/utils'
+import transformers from '@kubb/core/transformers'
+import { URLPath } from '@kubb/core/utils'
 
 import type Operation from 'oas/operation'
 

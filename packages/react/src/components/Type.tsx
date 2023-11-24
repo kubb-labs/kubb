@@ -1,4 +1,5 @@
-import { transformers } from '@kubb/core/utils'
+import { print } from '@kubb/parser'
+import * as factory from '@kubb/parser/factory'
 
 import { Text } from './Text.tsx'
 
@@ -29,7 +30,7 @@ export function Type({ name, export: canExport, JSDoc, children }: Props): KubbN
     <>
       {JSDoc?.comments && (
         <>
-          <Text>{transformers.JSDoc.createJSDocBlockText({ comments: JSDoc.comments })}</Text>
+          <Text>{print(factory.createJSDoc({ comments: JSDoc?.comments }))}</Text>
           <br />
         </>
       )}
@@ -44,6 +45,7 @@ export function Type({ name, export: canExport, JSDoc, children }: Props): KubbN
         <Text.Space />
       </Text>
       <Text>{children}</Text>
+      <br />
     </>
   )
 }

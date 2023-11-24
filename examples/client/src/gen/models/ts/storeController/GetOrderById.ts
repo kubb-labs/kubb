@@ -22,7 +22,6 @@ export type GetOrderByIdPathParams = {
  * @description successful operation
  */
 export type GetOrderByIdQueryResponse = Order
-
 export namespace GetOrderByIdQuery {
   export type Response = GetOrderByIdQueryResponse
   export type PathParams = GetOrderByIdPathParams

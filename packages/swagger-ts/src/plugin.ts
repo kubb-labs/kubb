@@ -1,18 +1,16 @@
 import path from 'node:path'
 
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
-import { getRelativePath, renderTemplate } from '@kubb/core/utils'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
+import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
-import { camelCase, camelCaseTransformMerge, pascalCase, pascalCaseTransformMerge } from 'change-case'
-
-import { TypeBuilder } from './builders/index.ts'
-import { OperationGenerator } from './generators/index.ts'
+import { OperationGenerator } from './OperationGenerator.tsx'
+import { TypeBuilder } from './TypeBuilder.ts'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { OasTypes, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
-
 export const pluginName = 'swagger-ts' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
@@ -33,7 +31,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
   return {
     name: pluginName,
-    options,
+    options: {
+      transformers,
+      dateType,
+      enumType,
+      optionalType,
+      // keep the used enumnames between TypeBuilder and OperationGenerator per plugin(pluginKey)
+      usedEnumNames: {},
+    },
     pre: [swaggerPluginName],
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
@@ -48,7 +53,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (options?.tag && group?.type === 'tag') {
-        const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
+        const tag = camelCase(options.tag)
 
         return path.resolve(root, renderTemplate(template, { tag }), baseName)
       }
@@ -56,7 +61,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return path.resolve(root, output, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = pascalCase(name, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: pascalCaseTransformMerge })
+      const resolvedName = pascalCase(name)
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName
@@ -79,39 +84,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const schemas = await swaggerPlugin.api.getSchemas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output))
-      // keep the used enumnames between TypeBuilder and OperationGenerator per plugin(pluginKey)
-      const usedEnumNames = {}
+      const builder = new TypeBuilder(this.plugin.options, { oas, pluginManager: this.pluginManager })
+
+      builder.add(
+        Object.entries(schemas).map(([name, schema]: [string, OasTypes.SchemaObject]) => ({ name, schema })),
+      )
 
       if (mode === 'directory') {
-        const builder = await new TypeBuilder({
-          usedEnumNames,
-          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
-          fileResolver: (name) => {
-            const resolvedTypeId = this.resolvePath({
-              baseName: `${name}.ts`,
-              pluginKey: this.plugin.key,
-            })
-
-            const root = this.resolvePath({ baseName: ``, pluginKey: this.plugin.key })
-
-            return getRelativePath(root, resolvedTypeId)
-          },
-          withJSDocs: true,
-          enumType,
-          dateType,
-          optionalType,
-          oas,
-        }).configure()
-        Object.entries(schemas).forEach(([name, schema]: [string, OasTypes.SchemaObject]) => {
-          // generate and pass through new code back to the core so it can be write to that file
-          return builder.add({
-            schema,
-            name,
-          })
-        })
-
         const mapFolderSchema = async ([name]: [string, OasTypes.SchemaObject]) => {
-          const resolvedPath = this.resolvePath({ baseName: `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts`, pluginKey: this.plugin.key })
+          const baseName = `${this.resolveName({ name, pluginKey: this.plugin.key, type: 'file' })}.ts` as const
+          const resolvedPath = this.resolvePath({ baseName, pluginKey: this.plugin.key })
+          const { source, imports } = builder.build(name)
 
           if (!resolvedPath) {
             return null
@@ -119,8 +102,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
           return this.addFile({
             path: resolvedPath,
-            baseName: `${this.resolveName({ name, pluginKey: this.plugin.key })}.ts`,
-            source: builder.print(name),
+            baseName,
+            source,
+            imports: imports.map(item => ({ ...item, root: resolvedPath })),
             meta: {
               pluginKey: this.plugin.key,
             },
@@ -133,25 +117,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (mode === 'file') {
-        // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
-        const builder = new TypeBuilder({
-          usedEnumNames,
-          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
-          withJSDocs: true,
-          enumType,
-          dateType,
-          optionalType,
-          oas,
-        }).configure()
-        Object.entries(schemas).forEach(([name, schema]: [string, OasTypes.SchemaObject]) => {
-          // generate and pass through new code back to the core so it can be write to that file
-          return builder.add({
-            schema,
-            name,
-          })
-        })
-
         const resolvedPath = this.resolvePath({ baseName: '', pluginKey: this.plugin.key })
+        const { source } = builder.build()
+
         if (!resolvedPath) {
           return
         }
@@ -159,22 +127,16 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         await this.addFile({
           path: resolvedPath,
           baseName: output as KubbFile.BaseName,
-          source: builder.print(),
+          source,
+          imports: [],
           meta: {
             pluginKey: this.plugin.key,
           },
-          validate: false,
         })
       }
 
       const operationGenerator = new OperationGenerator(
-        {
-          mode,
-          enumType,
-          dateType,
-          optionalType,
-          usedEnumNames,
-        },
+        this.plugin.options,
         {
           oas,
           pluginManager: this.pluginManager,
@@ -183,6 +145,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           exclude,
           include,
           override,
+          mode,
         },
       )
 

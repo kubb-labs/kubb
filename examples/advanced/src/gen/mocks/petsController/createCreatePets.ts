@@ -1,13 +1,14 @@
 import { faker } from '@faker-js/faker'
-
 import { createPetNotFound } from '../createPetNotFound'
-import { CreatePets201 } from '../../models/ts/petsController/CreatePets'
-import { CreatePetsHeaderParams } from '../../models/ts/petsController/CreatePets'
-import { CreatePetsMutationRequest } from '../../models/ts/petsController/CreatePets'
-import { CreatePetsMutationResponse } from '../../models/ts/petsController/CreatePets'
-import { CreatePetsPathParams } from '../../models/ts/petsController/CreatePets'
-import { CreatePetsQueryParams } from '../../models/ts/petsController/CreatePets'
-import { CreatePetsError } from '../../models/ts/petsController/CreatePets'
+import type {
+  CreatePets201,
+  CreatePetsError,
+  CreatePetsHeaderParams,
+  CreatePetsMutationRequest,
+  CreatePetsMutationResponse,
+  CreatePetsPathParams,
+  CreatePetsQueryParams,
+} from '../../models/ts/petsController/CreatePets'
 
 /**
  * @description Null response
@@ -36,7 +37,6 @@ export function createCreatePetsPathParams(): NonNullable<CreatePetsPathParams> 
 export function createCreatePetsQueryParams(): NonNullable<CreatePetsQueryParams> {
   return { 'offset': faker.number.float({}) }
 }
-
 /**
  * @description unexpected error
  */

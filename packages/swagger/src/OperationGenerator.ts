@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { FileManager, Generator } from '@kubb/core'
+import transformers from '@kubb/core/transformers'
 
-import { pascalCase, pascalCaseTransformMerge } from 'change-case'
 import { findSchemaDefinition } from 'oas/utils'
 
 import { isReference } from './utils/isReference.ts'
@@ -10,7 +10,7 @@ import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
 import type Operation from 'oas/operation'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
-import type { ContentType, Exclude, Include, Oas, OasTypes, OpenAPIV3, OperationSchemas, Override } from './types.ts'
+import type { ContentType, Exclude, Include, Oas, OasTypes, OpenAPIV3, OperationSchemas, Override, Paths } from './types.ts'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
 
@@ -20,7 +20,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   oas: Oas
   exclude: Array<Exclude> | undefined
   include: Array<Include> | undefined
-  override?: Array<Override<TOptions>> | undefined
+  override: Array<Override<TOptions>> | undefined
   contentType: ContentType | undefined
   pluginManager: PluginManager
   /**
@@ -218,36 +218,37 @@ export abstract class OperationGenerator<
     return {
       pathParams: pathParamsSchema
         ? {
-          name: pascalCase(`${operation.getOperationId()} PathParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
-          operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          name: transformers.pascalCase(`${operation.getOperationId()} PathParams`),
+          operation,
+          operationName: transformers.pascalCase(`${operation.getOperationId()}`),
           schema: pathParamsSchema,
           keys: pathParamsSchema.properties ? Object.keys(pathParamsSchema.properties) : undefined,
         }
         : undefined,
       queryParams: queryParamsSchema
         ? {
-          name: pascalCase(`${operation.getOperationId()} QueryParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
-          operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          name: transformers.pascalCase(`${operation.getOperationId()} QueryParams`),
+          operation,
+          operationName: transformers.pascalCase(`${operation.getOperationId()}`),
           schema: queryParamsSchema,
           keys: queryParamsSchema.properties ? Object.keys(queryParamsSchema.properties) : [],
         }
         : undefined,
       headerParams: headerParamsSchema
         ? {
-          name: pascalCase(`${operation.getOperationId()} HeaderParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
-          operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          name: transformers.pascalCase(`${operation.getOperationId()} HeaderParams`),
+          operation,
+          operationName: transformers.pascalCase(`${operation.getOperationId()}`),
           schema: headerParamsSchema,
           keys: headerParamsSchema.properties ? Object.keys(headerParamsSchema.properties) : undefined,
         }
         : undefined,
       request: requestSchema
         ? {
-          name: pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`, {
-            delimiter: '',
-            transform: pascalCaseTransformMerge,
-          }),
+          name: transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`),
           description: (operation.schema.requestBody as RequestBodyObject)?.description,
-          operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          operation,
+          operationName: transformers.pascalCase(`${operation.getOperationId()}`),
           schema: requestSchema,
           keys: requestSchema.properties ? Object.keys(requestSchema.properties) : undefined,
           keysToOmit: requestSchema.properties
@@ -259,12 +260,10 @@ export abstract class OperationGenerator<
         }
         : undefined,
       response: {
-        name: pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`, {
-          delimiter: '',
-          transform: pascalCaseTransformMerge,
-        }),
+        name: transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`),
         description: operation.getResponseAsJSONSchema('200')?.at(0)?.description,
-        operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+        operation,
+        operationName: transformers.pascalCase(`${operation.getOperationId()}`),
         schema: responseSchema,
         statusCode: 200,
         keys: responseSchema?.properties ? Object.keys(responseSchema.properties) : undefined,
@@ -287,11 +286,12 @@ export abstract class OperationGenerator<
           const schema = this.#getResponseSchema(operation, statusCode)
 
           return {
-            name: pascalCase(`${operation.getOperationId()} ${name}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            name: transformers.pascalCase(`${operation.getOperationId()} ${name}`),
             description: operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description
               || (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
             schema,
-            operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
+            operation,
+            operationName: transformers.pascalCase(`${operation.getOperationId()}`),
             statusCode: name === 'error' ? undefined : Number(statusCode),
             keys: schema?.properties ? Object.keys(schema.properties) : undefined,
           }
@@ -334,19 +334,22 @@ export abstract class OperationGenerator<
 
             if (isIncluded && !isExcluded) {
               if (!acc[path]) {
-                acc[path] = {} as (typeof acc)['path']
+                acc[path] = {} as Paths['get']
               }
               acc[path] = {
                 ...acc[path],
-                [method]: paths[path]![method],
-              } as (typeof acc)['path']
+                [method]: {
+                  operation,
+                  schemas: this.getSchemas(operation),
+                },
+              } as Paths['get']
             }
           }
         })
 
         return acc
       },
-      {} as typeof paths,
+      {} as Paths,
     )
 
     const promises = Object.keys(filterdPaths).reduce(
@@ -354,10 +357,10 @@ export abstract class OperationGenerator<
         const methods = Object.keys(filterdPaths[path]!) as HttpMethod[]
 
         methods.forEach((method) => {
-          const operation = oas.operation(path, method)
+          const { operation, schemas } = filterdPaths[path]![method]
           const options = this.#getOptions(operation, method)
 
-          const promise = this.#methods[method].call(this, operation, this.getSchemas(operation), { ...this.options, ...options })
+          const promise = this.#methods[method].call(this, operation, schemas, { ...this.options, ...options })
           if (promise) {
             acc.push(promise)
           }
@@ -403,5 +406,5 @@ export abstract class OperationGenerator<
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE
    */
-  abstract all(paths: Record<string, Record<HttpMethod, Operation>>): OperationMethodResult<TFileMeta>
+  abstract all(paths: Paths): OperationMethodResult<TFileMeta>
 }

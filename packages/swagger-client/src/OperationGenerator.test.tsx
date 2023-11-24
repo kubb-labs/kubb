@@ -42,6 +42,7 @@ describe('OperationGenerator', () => {
         pluginManager: { resolvePath, resolveName, config } as unknown as PluginManager,
         plugin: { options } as KubbPlugin<PluginOptions>,
         contentType: undefined,
+        override: undefined,
       },
     )
     const operation = oas.operation('/pets/{pet_id}', 'get')
@@ -80,6 +81,7 @@ describe('OperationGenerator', () => {
         pluginManager: { resolvePath, resolveName, config } as unknown as PluginManager,
         plugin: { options } as KubbPlugin<PluginOptions>,
         contentType: undefined,
+        override: undefined,
       },
     )
     const operation = oas.operation('/pets/{pet_id}', 'get')
@@ -120,6 +122,7 @@ describe('OperationGenerator', () => {
         pluginManager: { resolvePath, resolveName, config } as unknown as PluginManager,
         plugin: { options } as KubbPlugin<PluginOptions>,
         contentType: undefined,
+        override: undefined,
       },
     )
     const operation = oas.operation('/pets/{pet_id}', 'get')

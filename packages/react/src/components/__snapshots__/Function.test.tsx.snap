@@ -35,10 +35,20 @@ exports[`<Function/> > render Function Generics 1`] = `
 
 exports[`<Function/> > render Function with comments 1`] = `
 "/**
- * @deprecated
- */
+ * @deprecated */
+
 export async function getData() {
   return 2
+}
+"
+`;
+
+exports[`<Function/> > render multiple functions 1`] = `
+"export async function getData<TData>(): Promise<number> {
+  2
+}
+export async function getData<TData>(): Promise<number> {
+  3
 }
 "
 `;

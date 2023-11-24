@@ -29,8 +29,7 @@ type CreateUsersWithListInput = {
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
- * @link /user/createWithList
- */
+ * @link /user/createWithList */
 export function useCreateUsersWithListInputHook<TData = CreateUsersWithListInput['response'], TError = CreateUsersWithListInput['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, CreateUsersWithListInput['request']>
   client?: CreateUsersWithListInput['client']['paramaters']

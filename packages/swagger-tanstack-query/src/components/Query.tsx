@@ -1,11 +1,10 @@
 import { PackageManager } from '@kubb/core'
+import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function, usePlugin } from '@kubb/react'
-import { useOperation, useOperationFile, useOperationName, useResolveName, useSchemas } from '@kubb/swagger/hooks'
+import { File, Function, usePlugin, useResolveName } from '@kubb/react'
+import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, getParams, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
-
-import { pascalCase } from 'change-case'
 
 import { getImportNames } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
@@ -142,7 +141,9 @@ const defaultTemplates = {
         withHeaders: !!schemas.headerParams?.name,
       }
 
-      const pathParams = getParams(schemas.pathParams, { override: (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) })
+      const pathParams = getParams(schemas.pathParams, {
+        override: (item) => ({ ...item, name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined }),
+      })
         .toString()
 
       const resultGenerics = [
@@ -156,7 +157,7 @@ const defaultTemplates = {
       params.add([
         ...getASTParams(schemas.pathParams, {
           typed: true,
-          override: (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }),
+          override: (item) => ({ ...item, name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined }),
         }),
         {
           name: 'refParams',
@@ -183,7 +184,7 @@ const defaultTemplates = {
       queryParams.add([
         ...getASTParams(schemas.pathParams, {
           typed: false,
-          override: (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }),
+          override: (item) => ({ ...item, name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined }),
         }),
         {
           name: 'refParams',
@@ -361,8 +362,9 @@ export function Query({
 
   return (
     <>
-      <QueryKey Template={QueryKeyTemplate} factory={factory} name={queryKey} />
+      <QueryKey Template={QueryKeyTemplate} factory={factory} name={queryKey} typeName={queryKeyType} />
       <QueryOptions Template={QueryOptionsTemplate} factory={factory} resultType={optionsType} infinite={infinite} suspense={suspense} />
+
       <Template
         name={[name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined].filter(Boolean).join('')}
         generics={generics.toString()}

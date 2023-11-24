@@ -1,10 +1,6 @@
 import { faker } from '@faker-js/faker'
-
 import { createPet } from '../createPet'
-import { GetPetById400 } from '../../models/GetPetById'
-import { GetPetById404 } from '../../models/GetPetById'
-import { GetPetByIdPathParams } from '../../models/GetPetById'
-import { GetPetByIdQueryResponse } from '../../models/GetPetById'
+import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/GetPetById'
 
 /**
  * @description Invalid ID supplied
@@ -13,7 +9,6 @@ import { GetPetByIdQueryResponse } from '../../models/GetPetById'
 export function createGetPetById400(): NonNullable<GetPetById400> {
   return undefined
 }
-
 /**
  * @description Pet not found
  */
@@ -25,7 +20,6 @@ export function createGetPetById404(): NonNullable<GetPetById404> {
 export function createGetPetByIdPathParams(): NonNullable<GetPetByIdPathParams> {
   return { 'petId': faker.number.float({}) }
 }
-
 /**
  * @description successful operation
  */

@@ -1,8 +1,7 @@
-import { faker } from '@faker-js/faker'
-
 import { createCategory } from './createCategory'
 import { createTag } from './createTag'
-import { AddPetRequest } from '../models/ts/AddPetRequest'
+import { faker } from '@faker-js/faker'
+import type { AddPetRequest } from '../models/ts/AddPetRequest'
 
 export function createAddPetRequest(): NonNullable<AddPetRequest> {
   return {

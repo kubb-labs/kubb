@@ -1,10 +1,9 @@
 import { PackageManager } from '@kubb/core'
-import { FunctionParams, transformers, URLPath } from '@kubb/core/utils'
-import { Function, usePlugin } from '@kubb/react'
-import { useOperation, useResolveName, useSchemas } from '@kubb/swagger/hooks'
+import transformers from '@kubb/core/transformers'
+import { FunctionParams, URLPath } from '@kubb/core/utils'
+import { Function, usePlugin, useResolveName } from '@kubb/react'
+import { useOperation, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getParams, isRequired } from '@kubb/swagger/utils'
-
-import { camelCase, pascalCase } from 'change-case'
 
 import type { HttpMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
@@ -174,13 +173,20 @@ const defaultTemplates = {
       const schemas = useSchemas()
       const params = new FunctionParams()
 
-      const pathParams = getParams(schemas.pathParams, { override: (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined }) })
+      const pathParams = getParams(schemas.pathParams, {
+        override: (item) => ({ ...item, name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined }),
+      })
         .toString()
 
       params.add([
         ...getASTParams(schemas.pathParams, {
           typed: true,
-          override: (item) => ({ ...item, name: item.name ? `ref${pascalCase(item.name)}` : undefined, enabled: !!item.name, type: `MaybeRef<${item.type}>` }),
+          override: (item) => ({
+            ...item,
+            name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined,
+            enabled: !!item.name,
+            type: `MaybeRef<${item.type}>`,
+          }),
         }),
         {
           name: 'refParams',
@@ -204,7 +210,7 @@ const defaultTemplates = {
       const unrefs = params.items
         .filter((item) => item.enabled)
         .map((item) => {
-          return item.name ? `const ${camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
+          return item.name ? `const ${transformers.camelCase(item.name.replace('ref', ''))} = unref(${item.name})` : undefined
         })
         .join('\n')
 

@@ -8,9 +8,9 @@ import * as factory from '@kubb/parser/factory'
 import isEqual from 'lodash.isequal'
 import { orderBy } from 'natural-orderby'
 
-import { read } from './utils/read.ts'
+import transformers from './transformers/index.ts'
+import { getRelativePath, read } from './utils/read.ts'
 import { timeout } from './utils/timeout.ts'
-import { transformers } from './utils/transformers/index.ts'
 import { write } from './utils/write.ts'
 import { BarrelManager } from './BarrelManager.ts'
 
@@ -28,7 +28,14 @@ export namespace KubbFile {
      * @example ["useState"]
      * @example "React"
      */
-    name: string | Array<string>
+    name:
+      | string
+      | Array<
+        string | {
+          propertyName: string
+          name?: string
+        }
+      >
     /**
      * Path for the import
      * @xample '@kubb/core'
@@ -38,6 +45,10 @@ export namespace KubbFile {
      * Add `type` prefix to the import, this will result in: `import type { Type } from './path'`.
      */
     isTypeOnly?: boolean
+    /**
+     * When root is set it will get the path with relative getRelativePath(root, path).
+     */
+    root?: string
   }
 
   export type Export = {
@@ -130,10 +141,6 @@ export namespace KubbFile {
      * This will override `process.env[key]` inside the `source`, see `getFileSource`.
      */
     env?: NodeJS.ProcessEnv
-    /**
-     * @deprecated
-     */
-    validate?: boolean
   }
 
   export type ResolvedFile<
@@ -205,10 +212,6 @@ export class FileManager {
   }
 
   #validate(file: KubbFile.File): void {
-    if (!file.validate) {
-      return
-    }
-
     if (!file.path.toLowerCase().endsWith(file.baseName.toLowerCase())) {
       throw new Error(`${file.path} should end with the baseName ${file.baseName}`)
     }
@@ -218,7 +221,7 @@ export class FileManager {
     ...files: T
   ): AddResult<T> {
     const promises = files.map((file) => {
-      this.#validate(file)
+      // this.#validate(file)
 
       if (file.override) {
         return this.#add(file)
@@ -342,9 +345,24 @@ export class FileManager {
     const exports = file.exports ? combineExports(file.exports) : []
     const imports = file.imports ? combineImports(file.imports, exports, file.source) : []
 
-    const importNodes = imports.map((item) => factory.createImportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly }))
+    const importNodes = imports.filter(item => {
+      // isImportNotNeeded
+      // trim extName
+      return item.path !== transformers.trimExtName(file.path)
+    }).map((item) => {
+      return factory.createImportDeclaration({
+        name: item.name,
+        path: item.root ? getRelativePath(item.root, item.path) : item.path,
+        isTypeOnly: item.isTypeOnly,
+      })
+    })
     const exportNodes = exports.map((item) =>
-      factory.createExportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly, asAlias: item.asAlias })
+      factory.createExportDeclaration({
+        name: item.name,
+        path: item.path,
+        isTypeOnly: item.isTypeOnly,
+        asAlias: item.asAlias,
+      })
     )
 
     return [print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')
@@ -452,7 +470,7 @@ export function combineImports(imports: Array<KubbFile.Import>, exports: Array<K
     }
 
     if (Array.isArray(name)) {
-      name = name.filter((item) => hasImportInSource(item))
+      name = name.filter((item) => typeof item === 'string' ? hasImportInSource(item) : hasImportInSource(item.propertyName))
     }
 
     const prevByPath = prev.findLast((imp) => imp.path === curr.path && imp.isTypeOnly === curr.isTypeOnly)

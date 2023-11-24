@@ -41,11 +41,10 @@ export function loginUserQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Logs user into the system
- * @link /user/login
- */
-
+ * @link /user/login */
 export function useLoginUser<
   TQueryFnData extends LoginUser['data'] = LoginUser['data'],
   TError = LoginUser['error'],
@@ -70,7 +69,6 @@ export function useLoginUser<
   query.queryKey = queryKey as TQueryKey
   return query
 }
-
 export const loginUserInfiniteQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserInfiniteQueryKey = ReturnType<typeof loginUserInfiniteQueryKey>
 export function loginUserInfiniteQueryOptions<
@@ -98,11 +96,10 @@ export function loginUserInfiniteQueryOptions<
       }).then(res => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Logs user into the system
- * @link /user/login
- */
-
+ * @link /user/login */
 export function useLoginUserInfinite<
   TQueryFnData extends LoginUser['data'] = LoginUser['data'],
   TError = LoginUser['error'],

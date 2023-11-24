@@ -7,8 +7,7 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderPar
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId
- */
+ * @link /pet/:petId */
 export function useDeletePet<TData = DeletePetMutationResponse, TError = DeletePet400>(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,

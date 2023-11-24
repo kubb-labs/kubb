@@ -1,15 +1,14 @@
 import path from 'node:path'
 
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
-import { getRelativePath, renderTemplate } from '@kubb/core/utils'
+import { camelCase } from '@kubb/core/transformers'
+import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
-import { camelCase, camelCaseTransformMerge } from 'change-case'
-
-import { FakerBuilder } from './builders/index.ts'
-import { OperationGenerator } from './generators/index.ts'
+import { FakerBuilder } from './FakerBuilder.ts'
+import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
 import type { OasTypes, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
@@ -19,12 +18,16 @@ export const pluginName = 'swagger-faker' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'mocks', group, exclude = [], include, override = [], transformers = {}, dateType = 'string' } = options
+  const { output = 'mocks', group, exclude = [], include, override = [], transformers = {}, mapper = {}, dateType = 'string' } = options
   const template = group?.output ? group.output : `${output}/{{tag}}Controller`
 
   return {
     name: pluginName,
-    options,
+    options: {
+      transformers,
+      mapper,
+      dateType,
+    },
     pre: [swaggerPluginName, swaggerTypeScriptPluginName],
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
@@ -39,7 +42,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (options?.tag && group?.type === 'tag') {
-        const tag = camelCase(options.tag, { delimiter: '', transform: camelCaseTransformMerge })
+        const tag = camelCase(options.tag)
 
         return path.resolve(root, renderTemplate(template, { tag }), baseName)
       }
@@ -47,7 +50,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return path.resolve(root, output, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = camelCase(`create ${name}`, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+      const resolvedName = camelCase(`create ${name}`)
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName
@@ -69,35 +72,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const schemas = await swaggerPlugin.api.getSchemas()
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output))
+      const builder = new FakerBuilder(this.plugin.options, { oas, pluginManager: this.pluginManager })
+
+      builder.add(
+        Object.entries(schemas).map(([name, schema]: [string, OasTypes.SchemaObject]) => ({ name, schema })),
+      )
 
       if (mode === 'directory') {
-        const builder = await new FakerBuilder({
-          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
-          fileResolver: (name, ref) => {
-            const resolvedTypeId = this.resolvePath({
-              baseName: `${name}.ts`,
-              pluginKey: ref.pluginKey || this.plugin.key,
-            })
-
-            const root = this.resolvePath({ baseName: ref.pluginKey ? `${name}.ts` : ``, pluginKey: this.plugin.key })
-
-            return getRelativePath(root, resolvedTypeId)
-          },
-          withJSDocs: true,
-          dateType,
-          oas,
-        }).configure()
-
-        Object.entries(schemas).forEach(([name, schema]: [string, OasTypes.SchemaObject]) => {
-          // generate and pass through new code back to the core so it can be write to that file
-          return builder.add({
-            schema,
-            name,
-          })
-        })
-
         const mapFolderSchema = async ([name]: [string, OasTypes.SchemaObject]) => {
-          const resolvedPath = this.resolvePath({ baseName: `${this.resolveName({ name, pluginKey })}.ts`, pluginKey })
+          const baseName = `${this.resolveName({ name, pluginKey: this.plugin.key, type: 'file' })}.ts` as const
+          const resolvedPath = this.resolvePath({ baseName, pluginKey: this.plugin.key })
+          const { source, imports } = builder.build(name)
 
           if (!resolvedPath) {
             return null
@@ -105,9 +90,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
           return this.addFile({
             path: resolvedPath,
-            baseName: `${this.resolveName({ name, pluginKey })}.ts`,
-            source: builder.print(name),
+            baseName,
+            source,
             imports: [
+              ...imports.map(item => ({ ...item, root: resolvedPath })),
               {
                 name: ['faker'],
                 path: '@faker-js/faker',
@@ -125,31 +111,17 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       if (mode === 'file') {
-        // outside the loop because we need to add files to just one instance to have the correct sorting, see refsSorter
-        const builder = new FakerBuilder({
-          resolveName: (params) => this.resolveName({ pluginKey: this.plugin.key, ...params }),
-          withJSDocs: true,
-          dateType,
-          oas,
-        }).configure()
-        const mapFileSchema = ([name, schema]: [string, OasTypes.SchemaObject]) => {
-          // generate and pass through new code back to the core so it can be write to that file
-          return builder.add({
-            schema,
-            name,
-          })
-        }
+        const resolvedPath = this.resolvePath({ baseName: '', pluginKey: this.plugin.key })
+        const { source } = builder.build()
 
-        Object.entries(schemas).map(mapFileSchema)
-        const resolvedpath = this.resolvePath({ baseName: '', pluginKey: this.plugin.key })
-        if (!resolvedpath) {
+        if (!resolvedPath) {
           return
         }
 
         await this.addFile({
-          path: resolvedpath,
+          path: resolvedPath,
           baseName: output as KubbFile.BaseName,
-          source: builder.print(),
+          source,
           imports: [
             {
               name: ['faker'],
@@ -159,15 +131,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           meta: {
             pluginKey: this.plugin.key,
           },
-          validate: false,
         })
       }
 
       const operationGenerator = new OperationGenerator(
-        {
-          mode,
-          dateType,
-        },
+        this.plugin.options,
         {
           oas,
           pluginManager: this.pluginManager,
@@ -176,6 +144,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           exclude,
           include,
           override,
+          mode,
         },
       )
 

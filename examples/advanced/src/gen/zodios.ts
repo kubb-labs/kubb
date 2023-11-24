@@ -3,8 +3,8 @@ import {
   createPetsMutationResponseSchema,
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
-  createPetsMutationRequestSchema,
   createPetsHeaderParamsSchema,
+  createPetsMutationRequestSchema,
   createPets201Schema,
 } from './zod/petsController/createPetsSchema'
 import { addPetMutationResponseSchema, addPetMutationRequestSchema, addPet405Schema } from './zod/petController/addPetSchema'
@@ -77,16 +77,16 @@ const endpoints = makeApi([
         schema: createPetsQueryParamsSchema.shape['offset'],
       },
       {
-        name: 'CreatePetsMutationRequest',
-        description: ``,
-        type: 'Body',
-        schema: createPetsMutationRequestSchema,
-      },
-      {
         name: 'X-EXAMPLE',
         description: `Header parameters`,
         type: 'Header',
         schema: createPetsHeaderParamsSchema.shape['X-EXAMPLE'],
+      },
+      {
+        name: 'CreatePetsMutationRequest',
+        description: ``,
+        type: 'Body',
+        schema: createPetsMutationRequestSchema,
       },
     ],
     response: createPetsMutationResponseSchema,
@@ -477,7 +477,5 @@ const endpoints = makeApi([
     ],
   },
 ])
-
 export const api = new Zodios('https://petstore3.swagger.io/api/v3', endpoints)
-
 export default api

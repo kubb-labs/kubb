@@ -517,7 +517,5 @@ const endpoints = makeApi([
     ],
   },
 ])
-
 export const api = new Zodios('https://petstore3.swagger.io/api/v3', endpoints)
-
 export default api

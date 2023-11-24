@@ -1,0 +1,133 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TypeGenerator simple > generate type for Pet with optionalType \`questionToken\` 1`] = `
+"export type Pet = {
+  /**
+   * @type integer int64
+   */
+  id: number
+  /**
+   * @type string
+   */
+  name: string
+  /**
+   * @type string | undefined
+   */
+  tag?: string
+}
+"
+`;
+
+exports[`TypeGenerator simple > generate type for Pet with optionalType \`questionTokenAndUndefined\` 1`] = `
+"export type Pet = {
+  /**
+   * @type integer int64
+   */
+  id: number
+  /**
+   * @type string
+   */
+  name: string
+  /**
+   * @type string | undefined
+   */
+  tag?: string | undefined
+}
+"
+`;
+
+exports[`TypeGenerator simple > generate type for Pet with optionalType \`undefined\` 1`] = `
+"export type Pet = {
+  /**
+   * @type integer int64
+   */
+  id: number
+  /**
+   * @type string
+   */
+  name: string
+  /**
+   * @type string | undefined
+   */
+  tag: string | undefined
+}
+"
+`;
+
+exports[`TypeGenerator simple > generate type for Pets 1`] = `
+"export type Pets = {
+  /**
+   * @type integer int64
+   */
+  id: number
+  /**
+   * @type string
+   */
+  name: string
+  /**
+   * @type string | undefined
+   */
+  tag?: string
+}[]
+"
+`;
+
+exports[`TypeGenerator simple > generate type for nullable fields 1`] = `
+"export type Test = {
+  /**
+   * @type string | undefined
+   */
+  foo?: string | null
+}
+"
+`;
+
+exports[`TypeGenerator with discriminators > Cat.type defined as const 1`] = `
+"export type Cat = {
+    /**
+     * @type string uuid
+    */
+    id: string;
+    type: any;
+    /**
+     * @type boolean | undefined
+    */
+    meow?: boolean;
+};
+"
+`;
+
+exports[`TypeGenerator with discriminators > Dog.type defined as const 1`] = `
+"export type Dog = {
+    /**
+     * @type string uuid
+    */
+    id: string;
+    /**
+     * @type number | undefined
+    */
+    bark?: number;
+    type: \\"Dog\\";
+};
+"
+`;
+
+exports[`TypeGenerator with discriminators > PetStore defined as array with type union 1`] = `
+"export type Petstore = {
+    /**
+     * @type integer
+    */
+    id: number;
+    /**
+     * @type array | undefined
+     * @default
+    */
+    pets?: (Cat | Dog)[];
+};
+"
+`;
+
+exports[`TypeGenerator with refs > generate type for Pets 1`] = `
+"export type Pets = Pet[]
+"
+`;

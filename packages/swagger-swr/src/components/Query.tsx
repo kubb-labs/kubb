@@ -1,6 +1,6 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function, usePlugin } from '@kubb/react'
-import { useOperation, useOperationFile, useOperationName, useResolveName, useSchemas } from '@kubb/swagger/hooks'
+import { File, Function, usePlugin, useResolveName } from '@kubb/react'
+import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
@@ -176,6 +176,7 @@ export function Query({
   return (
     <>
       <QueryOptions factory={factory} Template={QueryOptionsTemplate} dataReturnType={dataReturnType} />
+
       <Template
         name={name}
         generics={generics.toString()}

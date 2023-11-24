@@ -134,8 +134,8 @@ type ResolvedOptions = {
   /**
    * Only used of infinite
    */
-  infinite?: Infinite
-  suspense?: Suspense
+  infinite: Infinite | undefined
+  suspense: Suspense | undefined
   templates: Templates
 }
 

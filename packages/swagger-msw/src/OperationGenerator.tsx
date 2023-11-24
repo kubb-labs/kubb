@@ -5,26 +5,26 @@ import { Handlers } from './components/Handlers.tsx'
 import { Mock } from './components/Mock.tsx'
 
 import type { AppContextProps } from '@kubb/react'
-import type { HttpMethod, Operation, OperationMethodResult, OperationSchemas } from '@kubb/swagger'
+import type { Operation, OperationMethodResult, OperationSchemas, Paths } from '@kubb/swagger'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
-  async all(paths: Record<string, Record<HttpMethod, Operation>>): OperationMethodResult<FileMeta> {
-    const { pluginManager, plugin } = this.context
+  async all(paths: Paths): OperationMethodResult<FileMeta> {
+    const { oas, pluginManager, plugin } = this.context
 
     const root = createRoot<AppContextProps>({ logger: pluginManager.logger })
 
-    root.render(<Handlers.File paths={paths} templates={this.options.templates.handlers} />, { meta: { pluginManager, plugin } })
+    root.render(<Handlers.File name="handlers" paths={paths} templates={this.options.templates.handlers} />, { meta: { oas, pluginManager, plugin } })
 
     return root.files
   }
 
   async #generate(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    const { pluginManager, plugin } = this.context
+    const { oas, pluginManager, plugin } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
-    root.render(<Mock.File templates={options.templates.mock} />, { meta: { pluginManager, plugin: { ...plugin, options }, schemas, operation } })
+    root.render(<Mock.File templates={options.templates.mock} />, { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } })
 
     return root.files
   }

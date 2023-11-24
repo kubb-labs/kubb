@@ -1,9 +1,10 @@
 import { faker } from '@faker-js/faker'
-
 import { createUser } from '../createUser'
-import { CreateUsersWithListInputError } from '../../models/CreateUsersWithListInput'
-import { CreateUsersWithListInputMutationRequest } from '../../models/CreateUsersWithListInput'
-import { CreateUsersWithListInputMutationResponse } from '../../models/CreateUsersWithListInput'
+import type {
+  CreateUsersWithListInputError,
+  CreateUsersWithListInputMutationRequest,
+  CreateUsersWithListInputMutationResponse,
+} from '../../models/CreateUsersWithListInput'
 
 /**
  * @description successful operation
@@ -16,7 +17,6 @@ export function createCreateUsersWithListInputError(): NonNullable<CreateUsersWi
 export function createCreateUsersWithListInputMutationRequest(): NonNullable<CreateUsersWithListInputMutationRequest> {
   return faker.helpers.arrayElements([createUser()]) as any
 }
-
 /**
  * @description Successful operation
  */

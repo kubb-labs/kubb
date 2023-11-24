@@ -15,12 +15,11 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
       }).then((res) => res.data)
     },
   }
-} /**
+}
+/**
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
- * @link /store/inventory
- */
-
+ * @link /store/inventory */
 export function useGetInventory<TData = GetInventoryQueryResponse, TError = unknown>(options?: {
   query?: SWRConfiguration<TData, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>

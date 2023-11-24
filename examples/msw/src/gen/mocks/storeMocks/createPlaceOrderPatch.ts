@@ -1,7 +1,5 @@
 import { createOrder } from '../createOrder'
-import { PlaceOrderPatch405 } from '../../models/PlaceOrderPatch'
-import { PlaceOrderPatchMutationRequest } from '../../models/PlaceOrderPatch'
-import { PlaceOrderPatchMutationResponse } from '../../models/PlaceOrderPatch'
+import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse } from '../../models/PlaceOrderPatch'
 
 /**
  * @description Invalid input
@@ -14,7 +12,6 @@ export function createPlaceOrderPatch405(): NonNullable<PlaceOrderPatch405> {
 export function createPlaceOrderPatchMutationRequest(): NonNullable<PlaceOrderPatchMutationRequest> {
   return createOrder()
 }
-
 /**
  * @description successful operation
  */

@@ -1,9 +1,5 @@
 import { faker } from '@faker-js/faker'
-
-import { DeleteUser400 } from '../../models/DeleteUser'
-import { DeleteUser404 } from '../../models/DeleteUser'
-import { DeleteUserMutationResponse } from '../../models/DeleteUser'
-import { DeleteUserPathParams } from '../../models/DeleteUser'
+import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/DeleteUser'
 
 /**
  * @description Invalid username supplied
@@ -12,7 +8,6 @@ import { DeleteUserPathParams } from '../../models/DeleteUser'
 export function createDeleteUser400(): NonNullable<DeleteUser400> {
   return undefined
 }
-
 /**
  * @description User not found
  */

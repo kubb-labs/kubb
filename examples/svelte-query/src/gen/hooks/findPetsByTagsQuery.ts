@@ -41,12 +41,11 @@ export function findPetsByTagsQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags
- */
-
+ * @link /pet/findByTags */
 export function findPetsByTagsQuery<
   TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
   TError = FindPetsByTags['error'],
@@ -101,12 +100,11 @@ export function findPetsByTagsInfiniteQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
- * @link /pet/findByTags
- */
-
+ * @link /pet/findByTags */
 export function findPetsByTagsQueryInfinite<
   TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
   TError = FindPetsByTags['error'],

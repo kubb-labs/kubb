@@ -67,6 +67,7 @@ describe('OperationGenerator core', () => {
         plugin: {} as KubbPlugin,
         exclude: [],
         include: undefined,
+        override: undefined,
       },
     )
 
@@ -97,6 +98,7 @@ describe('OperationGenerator exclude', () => {
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
+        override: undefined,
       },
     )
 
@@ -126,6 +128,7 @@ describe('OperationGenerator exclude', () => {
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
+        override: undefined,
       },
     )
 
@@ -155,6 +158,7 @@ describe('OperationGenerator exclude', () => {
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
+        override: undefined,
       },
     )
 
@@ -184,6 +188,7 @@ describe('OperationGenerator exclude', () => {
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
+        override: undefined,
       },
     )
 
@@ -217,6 +222,7 @@ describe('OperationGenerator exclude', () => {
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
+        override: undefined,
       },
     )
 
@@ -248,6 +254,7 @@ describe('OperationGenerator include', () => {
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
+        override: undefined,
       },
     )
 
@@ -277,6 +284,7 @@ describe('OperationGenerator include', () => {
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
+        override: undefined,
       },
     )
 
@@ -306,6 +314,7 @@ describe('OperationGenerator include', () => {
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
+        override: undefined,
       },
     )
 
@@ -335,6 +344,7 @@ describe('OperationGenerator include', () => {
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
+        override: undefined,
       },
     )
 
@@ -368,6 +378,7 @@ describe('OperationGenerator include', () => {
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
+        override: undefined,
       },
     )
 
@@ -402,6 +413,7 @@ describe('OperationGenerator include and exclude', () => {
         pluginManager: undefined as unknown as PluginManager,
         plugin: {} as KubbPlugin,
         contentType: undefined,
+        override: undefined,
       },
     )
 

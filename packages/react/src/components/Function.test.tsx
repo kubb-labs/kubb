@@ -85,6 +85,25 @@ describe('<Function/>', () => {
 
     expect(await format(root.output)).toMatchSnapshot()
   })
+  test('render multiple functions', async () => {
+    const Component = () => {
+      return (
+        <>
+          <Function name="getData" export async generics={['TData']} returnType="number">
+            2;
+          </Function>
+
+          <Function name="getData" export async generics={['TData']} returnType="number">
+            3;
+          </Function>
+        </>
+      )
+    }
+    const root = createRoot()
+    root.render(<Component />)
+
+    expect(await format(root.output)).toMatchSnapshot()
+  })
   // test('render Function ServerComponent(beta)', async () => {
   //   const Component = async () => {
   //     const data = await Promise.resolve('return 2;')

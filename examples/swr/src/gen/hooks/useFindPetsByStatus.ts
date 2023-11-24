@@ -17,12 +17,11 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
       }).then((res) => res.data)
     },
   }
-} /**
+}
+/**
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
- * @link /pet/findByStatus
- */
-
+ * @link /pet/findByStatus */
 export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
   params?: FindPetsByStatusQueryParams,
   options?: {

@@ -21,8 +21,7 @@ type CreateUser = {
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
- * @link /user
- */
+ * @link /user */
 export function useCreateUserHook<TData = CreateUser['response'], TError = CreateUser['error']>(options: {
   mutation?: UseMutationOptions<TData, TError, CreateUser['request']>
   client?: CreateUser['client']['paramaters']

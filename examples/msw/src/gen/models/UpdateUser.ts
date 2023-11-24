@@ -19,7 +19,6 @@ export type UpdateUserPathParams = {
  * @description Update an existent user in the store
  */
 export type UpdateUserMutationRequest = User
-
 export namespace UpdateUserMutation {
   export type Response = UpdateUserMutationResponse
   export type Request = UpdateUserMutationRequest

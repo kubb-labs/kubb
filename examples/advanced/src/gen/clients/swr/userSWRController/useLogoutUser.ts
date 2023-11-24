@@ -16,11 +16,10 @@ export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError =
       }).then(res => res)
     },
   }
-} /**
+}
+/**
  * @summary Logs out current logged in user session
- * @link /user/logout
- */
-
+ * @link /user/logout */
 export function useLogoutUser<TData = LogoutUserQueryResponse, TError = LogoutUserError>(options?: {
   query?: SWRConfiguration<ResponseConfig<TData>, TError>
   client?: Partial<Parameters<typeof client<TData, TError>>[0]>

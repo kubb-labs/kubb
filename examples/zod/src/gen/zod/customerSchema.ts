@@ -1,6 +1,5 @@
-import { z } from 'zod'
-
 import { addressSchema } from './addressSchema'
+import { z } from 'zod'
 
 export const customerSchema = z.object({
   id: z.number().optional(),

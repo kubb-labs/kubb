@@ -1,5 +1,9 @@
 import { defineConfig } from '@kubb/core'
 
+import createSwagger from '@kubb/swagger'
+import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
+
 export default defineConfig(async () => {
   await setTimeout(() => {
     // wait for 1s, async behaviour
@@ -15,19 +19,42 @@ export default defineConfig(async () => {
       clean: true,
     },
     hooks: {
-      done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
+      // done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
     },
     plugins: [
-      ['@kubb/swagger', {
-        output: false,
-      }],
-      ['@kubb/swagger-ts', {
-        output: 'models',
-      }],
-      ['@kubb/swagger-faker', {
-        output: './mocks',
-        group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
-      }],
+      createSwagger({ output: false }),
+      createSwaggerTS({ output: 'models' }),
+      // createSwaggerFaker({
+      //   output: './mocks',
+      //   group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
+      // }),
+      createSwaggerFaker({
+        output: './customMocks',
+        transformers: {
+          schema: (_schema, baseName) => {
+            /* override a property with name 'name'
+             name:
+                type: string
+                example: doggie
+            */
+            if (baseName === 'name') {
+              // see mapper where we map `productionName` to `faker.commerce.productName`
+              return [{ keyword: 'productName' }]
+            }
+            return undefined
+          },
+        },
+        mapper: {
+          'productName': 'faker.commerce.productName',
+        },
+        include: [
+          {
+            type: 'operationId',
+            pattern: 'updatePet',
+          },
+        ],
+        exclude: [],
+      }),
     ],
   }
 })

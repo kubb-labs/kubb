@@ -25,8 +25,7 @@ type UpdatePetWithForm = {
 }
 /**
  * @summary Updates a pet in the store with form data
- * @link /pet/:petId
- */
+ * @link /pet/:petId */
 export function updatePetWithFormQuery<TData = UpdatePetWithForm['response'], TError = UpdatePetWithForm['error']>(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithForm['queryParams'],

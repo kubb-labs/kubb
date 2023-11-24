@@ -7,8 +7,8 @@ exports[`<Type/> > render Function 1`] = `
 
 exports[`<Type/> > render Function with comments 1`] = `
 "/**
- * @deprecated
- */
+ * @deprecated */
+
 export type Data = number | string
 "
 `;

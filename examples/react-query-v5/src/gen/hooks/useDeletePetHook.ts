@@ -21,8 +21,7 @@ type DeletePet = {
 /**
  * @description delete a pet
  * @summary Deletes a pet
- * @link /pet/:petId
- */
+ * @link /pet/:petId */
 export function useDeletePetHook<TData = DeletePet['response'], TError = DeletePet['error']>(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePet['headerParams'],

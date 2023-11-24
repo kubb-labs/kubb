@@ -40,11 +40,10 @@ export function getUserByNameQueryOptions<
       }).then((res) => res?.data || res)
     },
   }
-} /**
+}
+/**
  * @summary Get user by user name
- * @link /user/:username
- */
-
+ * @link /user/:username */
 export function getUserByNameQuery<
   TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
   TError = GetUserByName['error'],
