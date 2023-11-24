@@ -16,9 +16,32 @@
     "@kubb/swagger-ts": "2.0.0-beta.2",
     "@kubb/swagger-zod": "2.0.0-beta.2",
     "@kubb/swagger-zodios": "2.0.0-beta.2",
-    "@kubb/types": "2.0.0-beta.2"
+    "@kubb/types": "2.0.0-beta.2",
+    "kubb-docs": "1.0.0",
+    "e2e": "0.0.1",
+    "advanced-pet-store": "0.0.1",
+    "client-pet-store": "0.0.1",
+    "faker-pet-store": "0.0.1",
+    "msw-pet-store": "0.0.1",
+    "msw-v2-pet-store": "0.0.1",
+    "react-query-pet-store": "0.0.1",
+    "react-query-v5-pet-store": "0.0.1",
+    "simple-single-pet-store": "0.0.1",
+    "solid-query-pet-store": "0.0.1",
+    "svelte-query-pet-store": "0.0.1",
+    "swr-pet-store": "0.0.1",
+    "typescript-pet-store": "0.0.1",
+    "vue-query-pet-store": "0.0.1",
+    "vue-query-v5-pet-store": "0.0.1",
+    "zod-pet-store": "0.0.1",
+    "zodios-pet-store": "0.0.1"
   },
   "changesets": [
-    "old-pandas-teach"
+    "bright-needles-move",
+    "khaki-crews-act",
+    "large-melons-try",
+    "lucky-moles-travel",
+    "old-pandas-teach",
+    "swift-eagles-raise"
   ]
 }
