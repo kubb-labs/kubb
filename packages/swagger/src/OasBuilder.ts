@@ -52,6 +52,4 @@ export abstract class OasBuilder<TOptions = unknown, TContext = Context> {
 
     return this
   }
-
-  abstract print(...rest: unknown[]): string
 }

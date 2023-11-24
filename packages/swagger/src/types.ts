@@ -79,12 +79,13 @@ export type OperationSchema = {
    * Converted name, contains already `PathParams`, `QueryParams`, ...
    */
   name: string
+  schema: SchemaObject & { $ref?: string }
+  operation?: Operation
   /**
    * OperationName in PascalCase, only being used in OperationGenerator
    */
   operationName?: string
   description?: string
-  schema: SchemaObject & { $ref?: string }
   statusCode?: number
   keys?: string[]
   keysToOmit?: string[]

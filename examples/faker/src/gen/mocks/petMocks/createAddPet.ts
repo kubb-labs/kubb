@@ -1,5 +1,5 @@
-import { createPet } from '../createPet'
 import { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/AddPet'
+import { createPet } from '../createPet'
 
 /**
  * @description Invalid input

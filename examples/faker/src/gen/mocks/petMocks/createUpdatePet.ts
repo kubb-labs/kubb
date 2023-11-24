@@ -1,5 +1,5 @@
-import { createPet } from '../createPet'
 import { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../models/UpdatePet'
+import { createPet } from '../createPet'
 
 /**
  * @description Invalid ID supplied

@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
-import { createPet } from '../createPet'
 import { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../../models/ts/petController/GetPetById'
+import { createPet } from '../createPet'
 
 /**
  * @description Invalid ID supplied

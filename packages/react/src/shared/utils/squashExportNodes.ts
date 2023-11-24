@@ -21,7 +21,12 @@ export function squashExportNodes(node: DOMElement): Array<KubbFile.Export> {
 
     if (childNode.nodeName === 'kubb-export' && !childNode.attributes.print) {
       const attributes = childNode.attributes as React.ComponentProps<typeof ExportComponent>
-      exports.push({ name: attributes['name'], path: attributes['path'], isTypeOnly: attributes.isTypeOnly, asAlias: attributes['asAlias'] })
+      exports.push({
+        name: attributes['name'],
+        path: attributes['path'],
+        isTypeOnly: attributes.isTypeOnly,
+        asAlias: attributes['asAlias'],
+      })
     }
   }
 

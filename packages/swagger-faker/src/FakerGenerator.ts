@@ -8,20 +8,16 @@ import { pluginKey } from './plugin.ts'
 
 import type { PluginManager } from '@kubb/core'
 import type { ts } from '@kubb/parser'
-import type { FileResolver, ImportMeta, Oas, OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
+import type { ImportMeta, Oas, OasTypes, OpenAPIV3, Operation, Refs } from '@kubb/swagger'
 import type { FakerKeyword, FakerMeta } from './fakerParser.ts'
 import type { PluginOptions } from './types.ts'
-
-type Options = PluginOptions['resolvedOptions'] & {
-  fileResolver?: FileResolver
-}
 
 type Context = {
   oas: Oas
   pluginManager: PluginManager
 }
 
-export class FakerGenerator extends Generator<Options, Context> {
+export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], Context> {
   // Collect the types of all referenced schemas so we can export them later
   refs: Refs = {}
 
@@ -39,19 +35,21 @@ export class FakerGenerator extends Generator<Options, Context> {
     baseName,
     description,
     operationName,
+    operation,
   }: {
     schema: OasTypes.SchemaObject
     baseName: string
     description?: string
     operationName?: string
+    operation?: Operation
   }): string[] {
     const texts: string[] = []
     const fakerInput = this.getTypeFromSchema(schema, baseName)
     if (description) {
-      texts.push(transformers.JSDoc.createJSDocBlockText({ comments: [`@description ${description}`] }))
+      texts.push(transformers.JSDoc.createJSDocBlockText({ comments: [`@description ${transformers.trim(description)}`] }))
     }
 
-    const name = this.context.pluginManager.resolveName({ name: baseName, pluginKey }) || baseName
+    const name = this.context.pluginManager.resolveName({ name: baseName, pluginKey })
     const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey })
 
     const fakerOutput = fakerParser(fakerInput, {
@@ -59,16 +57,21 @@ export class FakerGenerator extends Generator<Options, Context> {
       typeName,
       mapper: this.options.mapper,
     })
-    // hack to create import with recreating the ImportGenerator
+    // hack to add typescript imports
     if (typeName) {
       const ref = {
         propertyName: typeName,
         originalName: baseName,
-        pluginKey: swaggerTypeScriptPluginKey,
       }
+      const path = this.context.pluginManager.resolvePath({
+        baseName: operationName || typeName,
+        pluginKey: swaggerTypeScriptPluginKey,
+        options: { tag: operation?.getTags()[0]?.name },
+      })
+
       this.imports.push({
         ref,
-        path: this.options.fileResolver?.(operationName || typeName, ref) || '',
+        path: path || '',
       })
     }
 
@@ -132,12 +135,19 @@ export class FakerGenerator extends Generator<Options, Context> {
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
-    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey }) || originalName
+    const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey })
 
     ref = this.refs[$ref] = {
       propertyName,
       originalName,
     }
+
+    const path = this.context.pluginManager.resolvePath({ baseName: propertyName, pluginKey })
+
+    this.imports.push({
+      ref,
+      path: path || '',
+    })
 
     return [{ keyword: fakerKeywords.ref, args: ref.propertyName }]
   }

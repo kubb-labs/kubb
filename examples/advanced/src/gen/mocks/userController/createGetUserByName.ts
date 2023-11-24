@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
-import { createUser } from '../createUser'
 import { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/ts/userController/GetUserByName'
+import { createUser } from '../createUser'
 
 /**
  * @description Invalid username supplied

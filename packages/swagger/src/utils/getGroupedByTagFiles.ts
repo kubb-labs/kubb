@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { FileManager } from '@kubb/core'
 import { getRelativePath, renderTemplate } from '@kubb/core/utils'
 
 import { camelCase, camelCaseTransformMerge } from 'change-case'
@@ -37,6 +38,12 @@ export function getGroupedByTagFiles({
   root,
   output,
 }: Options): KubbFile.File<FileMeta>[] {
+  const mode = FileManager.getMode(path.resolve(root, output))
+
+  if (mode === 'file') {
+    return []
+  }
+
   return files.filter(file => {
     const name = file.meta?.pluginKey?.[0]
     return name === plugin.name

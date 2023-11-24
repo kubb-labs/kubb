@@ -8,7 +8,7 @@ import * as factory from '@kubb/parser/factory'
 import isEqual from 'lodash.isequal'
 import { orderBy } from 'natural-orderby'
 
-import { read } from './utils/read.ts'
+import { getRelativePath, read } from './utils/read.ts'
 import { timeout } from './utils/timeout.ts'
 import { transformers } from './utils/transformers/index.ts'
 import { write } from './utils/write.ts'
@@ -45,6 +45,10 @@ export namespace KubbFile {
      * Add `type` prefix to the import, this will result in: `import type { Type } from './path'`.
      */
     isTypeOnly?: boolean
+    /**
+     * When root is set it will get the path with relative getRelativePath(root, path).
+     */
+    root?: string
   }
 
   export type Export = {
@@ -349,9 +353,24 @@ export class FileManager {
     const exports = file.exports ? combineExports(file.exports) : []
     const imports = file.imports ? combineImports(file.imports, exports, file.source) : []
 
-    const importNodes = imports.map((item) => factory.createImportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly }))
+    const importNodes = imports.filter(item => {
+      // isImportNotNeeded
+      // trim extName
+      return item.path !== file.path.replace(/\.[^/.]+$/, '')
+    }).map((item) => {
+      return factory.createImportDeclaration({
+        name: item.name,
+        path: item.root ? getRelativePath(item.root, item.path) : item.path,
+        isTypeOnly: item.isTypeOnly,
+      })
+    })
     const exportNodes = exports.map((item) =>
-      factory.createExportDeclaration({ name: item.name, path: item.path, isTypeOnly: item.isTypeOnly, asAlias: item.asAlias })
+      factory.createExportDeclaration({
+        name: item.name,
+        path: item.path,
+        isTypeOnly: item.isTypeOnly,
+        asAlias: item.asAlias,
+      })
     )
 
     return [print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')

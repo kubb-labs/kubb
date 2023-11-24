@@ -7,6 +7,9 @@ type Import = { refs: Refs; name: string }
 type Options = {
   fileResolver?: FileResolver
 }
+/**
+ * @deprecated
+ */
 export class ImportsGenerator extends Generator<Options> {
   public items: ImportMeta[] = []
 

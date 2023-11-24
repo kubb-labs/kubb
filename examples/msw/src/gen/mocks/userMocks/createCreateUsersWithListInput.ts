@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker'
-import { createUser } from '../createUser'
 import {
   CreateUsersWithListInputError,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
 } from '../../models/CreateUsersWithListInput'
+import { createUser } from '../createUser'
 
 /**
  * @description successful operation

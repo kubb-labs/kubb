@@ -1,11 +1,11 @@
 import { faker } from '@faker-js/faker'
-import { createPet } from '../createPet'
 import {
   FindPetsByTags400,
   FindPetsByTagsHeaderParams,
   FindPetsByTagsQueryParams,
   FindPetsByTagsQueryResponse,
 } from '../../models/ts/petController/FindPetsByTags'
+import { createPet } from '../createPet'
 
 /**
  * @description Invalid tag value

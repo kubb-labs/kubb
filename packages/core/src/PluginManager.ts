@@ -130,10 +130,10 @@ export class PluginManager {
       })
 
       if (paths && paths?.length > 1) {
-        throw new Error(
+        this.logger.warn(
           `Cannot return a path where the 'pluginKey' ${params.pluginKey ? JSON.stringify(params.pluginKey) : '"'} is not unique enough\n\nPaths: ${
             JSON.stringify(paths, undefined, 2)
-          }`,
+          }\n\nFalling back on the first item.\n`,
         )
       }
 
@@ -154,10 +154,10 @@ export class PluginManager {
       })
 
       if (names && names?.length > 1) {
-        throw new Error(
+        this.logger.warn(
           `Cannot return a name where the 'pluginKey' ${params.pluginKey ? JSON.stringify(params.pluginKey) : '"'} is not unique enough\n\nNames: ${
             JSON.stringify(names, undefined, 2)
-          }`,
+          }\n\nFalling back on the first item.\n`,
         )
       }
 

@@ -48,7 +48,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OasTypes.SchemaObject
     if (description) {
       texts.push(`
       /**
-       * @description ${description}
+       * @description ${transformers.trim(description)}
        */`)
     }
 

@@ -25,43 +25,25 @@ export function Query({
   )
 }
 
-type FileProps = {
-  mode: KubbFile.Mode | undefined
-}
+// eslint-disable-next-line @typescript-eslint/ban-types
+type FileProps = {}
 
-Query.File = function({ mode }: FileProps): ReactNode {
-  const { key: pluginKey, options } = usePlugin<PluginOptions>()
-  const operation = useOperation()
+Query.File = function({}: FileProps): ReactNode {
+  const { options } = usePlugin<PluginOptions>()
+
   const schemas = useSchemas()
   const pluginManager = usePluginManager()
   const oas = useOas()
   const file = useOperationFile()
-  const baseName = useOperationName({ type: 'type' })
 
-  const fileResolver: FileResolver = (name, ref) => {
-    // Used when a react-query type(request, response, params) has an import of a global type
-    const root = pluginManager.resolvePath({ baseName, pluginKey: pluginKey, options: { tag: operation.getTags()[0]?.name } })
-    // refs import, will always been created with the SwaggerTS plugin, our global type
-    const resolvedTypeId = pluginManager.resolvePath({
-      baseName: `${name}.ts`,
-      pluginKey: ref.pluginKey || pluginKey,
-      options: ref.pluginKey ? { tag: operation.getTags()[0]?.name } : undefined,
-    })
-
-    return getRelativePath(root, resolvedTypeId)
-  }
-
-  const builder = new FakerBuilder({
-    fileResolver: mode === 'file' ? undefined : fileResolver,
-    ...options,
-  }, { oas, pluginManager })
+  const builder = new FakerBuilder(options, { oas, pluginManager })
     .add(schemas.pathParams)
     .add(schemas.queryParams)
     .add(schemas.headerParams)
     .add(schemas.response)
     .add(schemas.errors)
 
-  const { source, imports = [] } = builder.build()
+  const { source, imports } = builder.build()
 
   return (
     <>
@@ -72,7 +54,7 @@ Query.File = function({ mode }: FileProps): ReactNode {
       >
         <File.Import name={['faker']} path="@faker-js/faker" />
         {imports.map((item, index) => {
-          return <File.Import key={index} {...item} />
+          return <File.Import key={index} root={file.path} {...item} />
         })}
         <File.Source>
           {source}

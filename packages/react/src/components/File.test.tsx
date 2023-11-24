@@ -43,6 +43,7 @@ describe('<File/>', () => {
         isTypeOnly: undefined,
         name: 'React',
         path: 'react',
+        root: undefined,
       },
     ])
   })
@@ -143,6 +144,7 @@ describe('<File/>', () => {
       'isTypeOnly': undefined,
       'name': 'node',
       'path': 'node',
+      'root': undefined,
     }])
 
     expect(root.files.length).toBe(2)
@@ -153,6 +155,7 @@ describe('<File/>', () => {
       'isTypeOnly': undefined,
       'name': 'node',
       'path': 'node',
+      'root': undefined,
     }])
 
     expect(await format(root.files[1]?.source)).toMatchSnapshot()
@@ -211,6 +214,7 @@ describe('<File/>', () => {
       'isTypeOnly': undefined,
       'name': 'node',
       'path': 'node',
+      'root': undefined,
     }])
 
     expect(root.files.length).toBe(2)
@@ -221,6 +225,7 @@ describe('<File/>', () => {
       'isTypeOnly': undefined,
       'name': 'node',
       'path': 'node',
+      'root': undefined,
     }])
 
     expect(await format(root.files[1]?.source)).toMatchSnapshot()

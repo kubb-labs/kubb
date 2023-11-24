@@ -28,6 +28,10 @@ export default defineConfig(async () => {
         output: './mocks',
         group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
       }],
+      // ['@kubb/swagger-faker', {
+      //   output: './mocks.ts',
+      //   group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
+      // }],
     ],
   }
 })

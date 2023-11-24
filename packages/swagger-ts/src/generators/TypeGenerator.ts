@@ -1,5 +1,5 @@
 import { SchemaGenerator } from '@kubb/core'
-import { getUniqueName } from '@kubb/core/utils'
+import { getUniqueName, transformers } from '@kubb/core/utils'
 import * as factory from '@kubb/parser/factory'
 import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
 
@@ -74,7 +74,7 @@ export class TypeGenerator extends SchemaGenerator<Options, OasTypes.SchemaObjec
       nodes.push(
         factory.appendJSDocToNode({
           node,
-          comments: [`@description ${description}`],
+          comments: [`@description ${transformers.trim(description)}`],
         }),
       )
     } else {

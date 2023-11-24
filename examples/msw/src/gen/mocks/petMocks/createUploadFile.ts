@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
-import { createApiResponse } from '../createApiResponse'
 import { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../../models/UploadFile'
+import { createApiResponse } from '../createApiResponse'
 
 export function createUploadFileMutationRequest(): NonNullable<UploadFileMutationRequest> {
   return faker.string.alpha()

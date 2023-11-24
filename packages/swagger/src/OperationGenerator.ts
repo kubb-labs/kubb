@@ -219,6 +219,7 @@ export abstract class OperationGenerator<
       pathParams: pathParamsSchema
         ? {
           name: pascalCase(`${operation.getOperationId()} PathParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          operation,
           operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
           schema: pathParamsSchema,
           keys: pathParamsSchema.properties ? Object.keys(pathParamsSchema.properties) : undefined,
@@ -227,6 +228,7 @@ export abstract class OperationGenerator<
       queryParams: queryParamsSchema
         ? {
           name: pascalCase(`${operation.getOperationId()} QueryParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          operation,
           operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
           schema: queryParamsSchema,
           keys: queryParamsSchema.properties ? Object.keys(queryParamsSchema.properties) : [],
@@ -235,6 +237,7 @@ export abstract class OperationGenerator<
       headerParams: headerParamsSchema
         ? {
           name: pascalCase(`${operation.getOperationId()} HeaderParams`, { delimiter: '', transform: pascalCaseTransformMerge }),
+          operation,
           operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
           schema: headerParamsSchema,
           keys: headerParamsSchema.properties ? Object.keys(headerParamsSchema.properties) : undefined,
@@ -247,6 +250,7 @@ export abstract class OperationGenerator<
             transform: pascalCaseTransformMerge,
           }),
           description: (operation.schema.requestBody as RequestBodyObject)?.description,
+          operation,
           operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
           schema: requestSchema,
           keys: requestSchema.properties ? Object.keys(requestSchema.properties) : undefined,
@@ -264,6 +268,7 @@ export abstract class OperationGenerator<
           transform: pascalCaseTransformMerge,
         }),
         description: operation.getResponseAsJSONSchema('200')?.at(0)?.description,
+        operation,
         operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
         schema: responseSchema,
         statusCode: 200,
@@ -291,6 +296,7 @@ export abstract class OperationGenerator<
             description: operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description
               || (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
             schema,
+            operation,
             operationName: pascalCase(`${operation.getOperationId()}`, { delimiter: '', transform: pascalCaseTransformMerge }),
             statusCode: name === 'error' ? undefined : Number(statusCode),
             keys: schema?.properties ? Object.keys(schema.properties) : undefined,
