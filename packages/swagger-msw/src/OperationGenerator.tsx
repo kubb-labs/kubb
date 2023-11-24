@@ -14,7 +14,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps>({ logger: pluginManager.logger })
 
-    root.render(<Handlers.File name="handelers" paths={paths} templates={this.options.templates.handlers} />, { meta: { oas, pluginManager, plugin } })
+    root.render(<Handlers.File name="handlers" paths={paths} templates={this.options.templates.handlers} />, { meta: { oas, pluginManager, plugin } })
 
     return root.files
   }

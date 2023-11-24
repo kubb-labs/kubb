@@ -27,7 +27,7 @@ export default defineConfig([
   {
     ...optionsCJS,
     entry: {
-      utils: 'src/transformers/index.ts',
+      transformers: 'src/transformers/index.ts',
     },
     name: 'transformers',
   },

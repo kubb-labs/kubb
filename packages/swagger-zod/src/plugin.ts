@@ -24,6 +24,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     name: pluginName,
     options: {
       transformers,
+      include,
+      exclude,
+      override,
     },
     pre: [swaggerPluginName],
     resolvePath(baseName, directory, options) {
@@ -109,7 +112,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (mode === 'file') {
         const resolvedPath = this.resolvePath({ baseName: '', pluginKey: this.plugin.key })
-        const { source, imports = [] } = builder.build()
+        const { source } = builder.build()
 
         if (!resolvedPath) {
           return
@@ -120,7 +123,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           baseName: output as KubbFile.BaseName,
           source,
           imports: [
-            ...imports.map(item => ({ ...item, root: resolvedPath })),
             {
               name: ['z'],
               path: 'zod',

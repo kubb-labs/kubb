@@ -1,5 +1,3 @@
-import type { Category, Tag, Address, User, Pet, AddPetRequest, ApiResponse, Order } from './models'
-
 export type Address = {
   /**
    * @type string | undefined

@@ -3,8 +3,8 @@ import {
   createPetsMutationResponseSchema,
   createPetsPathParamsSchema,
   createPetsQueryParamsSchema,
-  createPetsMutationRequestSchema,
   createPetsHeaderParamsSchema,
+  createPetsMutationRequestSchema,
   createPets201Schema,
 } from './zod/petsController/createPetsSchema'
 import { addPetMutationResponseSchema, addPetMutationRequestSchema, addPet405Schema } from './zod/petController/addPetSchema'
@@ -41,25 +41,6 @@ import {
   uploadFileQueryParamsSchema,
   uploadFileMutationRequestSchema,
 } from './zod/petController/uploadFileSchema'
-import { getInventoryQueryResponseSchema } from './zod/storeController/getInventorySchema'
-import { placeOrderMutationResponseSchema, placeOrderMutationRequestSchema, placeOrder405Schema } from './zod/storeController/placeOrderSchema'
-import {
-  placeOrderPatchMutationResponseSchema,
-  placeOrderPatchMutationRequestSchema,
-  placeOrderPatch405Schema,
-} from './zod/storeController/placeOrderPatchSchema'
-import {
-  getOrderByIdQueryResponseSchema,
-  getOrderByIdPathParamsSchema,
-  getOrderById400Schema,
-  getOrderById404Schema,
-} from './zod/storeController/getOrderByIdSchema'
-import {
-  deleteOrderMutationResponseSchema,
-  deleteOrderPathParamsSchema,
-  deleteOrder400Schema,
-  deleteOrder404Schema,
-} from './zod/storeController/deleteOrderSchema'
 import { createUserMutationResponseSchema, createUserMutationRequestSchema } from './zod/userController/createUserSchema'
 import {
   createUsersWithListInputMutationResponseSchema,
@@ -96,16 +77,16 @@ const endpoints = makeApi([
         schema: createPetsQueryParamsSchema.shape['offset'],
       },
       {
-        name: 'CreatePetsMutationRequest',
-        description: ``,
-        type: 'Body',
-        schema: createPetsMutationRequestSchema,
-      },
-      {
         name: 'X-EXAMPLE',
         description: `Header parameters`,
         type: 'Header',
         schema: createPetsHeaderParamsSchema.shape['X-EXAMPLE'],
+      },
+      {
+        name: 'CreatePetsMutationRequest',
+        description: ``,
+        type: 'Body',
+        schema: createPetsMutationRequestSchema,
       },
     ],
     response: createPetsMutationResponseSchema,
@@ -351,113 +332,6 @@ const endpoints = makeApi([
     errors: [],
   },
   {
-    method: 'get',
-    path: '/store/inventory',
-    description: `Returns a map of status codes to quantities`,
-    requestFormat: 'json',
-    parameters: [],
-    response: getInventoryQueryResponseSchema,
-    errors: [],
-  },
-  {
-    method: 'post',
-    path: '/store/order',
-    description: `Place a new order in the store`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'PlaceOrderMutationRequest',
-        description: ``,
-        type: 'Body',
-        schema: placeOrderMutationRequestSchema,
-      },
-    ],
-    response: placeOrderMutationResponseSchema,
-    errors: [
-      {
-        status: 405,
-        description: `Invalid input`,
-        schema: placeOrder405Schema,
-      },
-    ],
-  },
-  {
-    method: 'patch',
-    path: '/store/order',
-    description: `Place a new order in the store with patch`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'PlaceOrderPatchMutationRequest',
-        description: ``,
-        type: 'Body',
-        schema: placeOrderPatchMutationRequestSchema,
-      },
-    ],
-    response: placeOrderPatchMutationResponseSchema,
-    errors: [
-      {
-        status: 405,
-        description: `Invalid input`,
-        schema: placeOrderPatch405Schema,
-      },
-    ],
-  },
-  {
-    method: 'get',
-    path: '/store/order/:orderId',
-    description: `For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'orderId',
-        description: `ID of order that needs to be fetched`,
-        type: 'Path',
-        schema: getOrderByIdPathParamsSchema.shape['orderId'],
-      },
-    ],
-    response: getOrderByIdQueryResponseSchema,
-    errors: [
-      {
-        status: 400,
-        description: `Invalid ID supplied`,
-        schema: getOrderById400Schema,
-      },
-      {
-        status: 404,
-        description: `Order not found`,
-        schema: getOrderById404Schema,
-      },
-    ],
-  },
-  {
-    method: 'delete',
-    path: '/store/order/:orderId',
-    description: `For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors`,
-    requestFormat: 'json',
-    parameters: [
-      {
-        name: 'orderId',
-        description: `ID of the order that needs to be deleted`,
-        type: 'Path',
-        schema: deleteOrderPathParamsSchema.shape['orderId'],
-      },
-    ],
-    response: deleteOrderMutationResponseSchema,
-    errors: [
-      {
-        status: 400,
-        description: `Invalid ID supplied`,
-        schema: deleteOrder400Schema,
-      },
-      {
-        status: 404,
-        description: `Order not found`,
-        schema: deleteOrder404Schema,
-      },
-    ],
-  },
-  {
     method: 'post',
     path: '/user',
     description: `This can only be done by the logged in user.`,
@@ -603,7 +477,5 @@ const endpoints = makeApi([
     ],
   },
 ])
-
 export const api = new Zodios('https://petstore3.swagger.io/api/v3', endpoints)
-
 export default api

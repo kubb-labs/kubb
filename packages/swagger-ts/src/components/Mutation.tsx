@@ -10,6 +10,7 @@ import type { ts } from '@kubb/parser'
 import type { Operation, OperationSchemas } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
+import type { KubbFile } from '@kubb/core'
 
 type Props = {
   builder: TypeBuilder
@@ -92,10 +93,11 @@ export function Mutation({
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type FileProps = {}
+type FileProps = {
+  mode: KubbFile.Mode
+}
 
-Mutation.File = function({}: FileProps): ReactNode {
+Mutation.File = function({ mode }: FileProps): ReactNode {
   const { options } = usePlugin<PluginOptions>()
 
   const schemas = useSchemas()
@@ -122,7 +124,7 @@ Mutation.File = function({}: FileProps): ReactNode {
         path={file.path}
         meta={file.meta}
       >
-        {imports.map((item, index) => {
+        {mode === 'directory' && imports.map((item, index) => {
           return <File.Import key={index} root={file.path} {...item} />
         })}
         <File.Source>

@@ -251,7 +251,6 @@ export function QueryOptions({ factory, infinite, suspense, resultType, Template
 
   const queryKey = useResolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
-    type: 'function',
     pluginKey,
   })
   const queryKeyType = useResolveName({
@@ -261,7 +260,6 @@ export function QueryOptions({ factory, infinite, suspense, resultType, Template
   })
   const queryOptions = useResolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryOptions'].filter(Boolean).join(''),
-    type: 'function',
     pluginKey,
   })
 

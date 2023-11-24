@@ -15,11 +15,11 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   }
 
   async get(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    const { oas, pluginManager, plugin } = this.context
+    const { oas, pluginManager, plugin, mode = 'directory' } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
     root.render(
-      <Query.File />,
+      <Query.File mode={mode} />,
       { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } },
     )
 
@@ -27,11 +27,11 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   }
 
   async post(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    const { oas, pluginManager, plugin } = this.context
+    const { oas, pluginManager, plugin, mode = 'directory' } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
     root.render(
-      <Mutation.File />,
+      <Mutation.File mode={mode} />,
       { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } },
     )
 

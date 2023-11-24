@@ -112,7 +112,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (mode === 'file') {
         const resolvedPath = this.resolvePath({ baseName: '', pluginKey: this.plugin.key })
-        const { source, imports = [] } = builder.build()
+        const { source } = builder.build()
 
         if (!resolvedPath) {
           return
@@ -123,7 +123,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           baseName: output as KubbFile.BaseName,
           source,
           imports: [
-            ...imports.map(item => ({ ...item, root: resolvedPath })),
             {
               name: ['faker'],
               path: '@faker-js/faker',

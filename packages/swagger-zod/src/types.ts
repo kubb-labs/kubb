@@ -52,6 +52,9 @@ export type Options = {
 
 type ResolvedOptions = {
   transformers: NonNullable<Options['transformers']>
+  exclude: Options['exclude']
+  include: Options['include']
+  override: Options['override']
 }
 
 export type FileMeta = {
