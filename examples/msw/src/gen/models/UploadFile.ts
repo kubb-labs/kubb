@@ -22,7 +22,6 @@ export type UploadFileQueryParams = {
  * @description successful operation
  */
 export type UploadFileMutationResponse = ApiResponse
-
 export namespace UploadFileMutation {
   export type Response = UploadFileMutationResponse
   export type Request = UploadFileMutationRequest

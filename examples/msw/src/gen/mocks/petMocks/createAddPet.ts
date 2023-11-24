@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
-import { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/AddPet'
 import { createAddPetRequest } from '../createAddPetRequest'
 import { createPet } from '../createPet'
+import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/AddPet'
 
 export function createAddPet405(): NonNullable<AddPet405> {
   return { 'code': faker.number.float({}), 'message': faker.string.alpha() }

@@ -72,6 +72,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
       this.imports.push({
         ref,
         path: path || '',
+        isTypeOnly: true,
       })
     }
 
@@ -147,6 +148,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
     this.imports.push({
       ref,
       path: path || '',
+      isTypeOnly: false,
     })
 
     return [{ keyword: fakerKeywords.ref, args: ref.propertyName }]

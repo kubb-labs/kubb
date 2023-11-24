@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/ts/userController/DeleteUser'
+import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUserPathParams } from '../../models/ts/userController/DeleteUser'
 
 /**
  * @description Invalid username supplied

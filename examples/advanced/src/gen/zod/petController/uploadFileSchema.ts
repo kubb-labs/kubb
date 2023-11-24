@@ -1,5 +1,4 @@
 import { z } from 'zod'
-
 import { apiResponseSchema } from '../apiResponseSchema'
 
 export const uploadFileMutationRequestSchema = z.string()

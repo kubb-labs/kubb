@@ -130,6 +130,7 @@ export type AppMeta = { schemas: OperationSchemas; operation: Operation; oas: Oa
 export type ImportMeta = {
   ref: Ref
   path: string
+  isTypeOnly: boolean
 }
 
 export type PluginOptions = PluginFactoryOptions<'swagger', Options, Options, API, never, AppMeta>

@@ -178,6 +178,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     this.imports.push({
       ref,
       path: path || '',
+      isTypeOnly: true,
     })
 
     return factory.createTypeReferenceNode(ref.propertyName, undefined)

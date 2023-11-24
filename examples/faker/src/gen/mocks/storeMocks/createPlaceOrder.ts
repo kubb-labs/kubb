@@ -1,5 +1,5 @@
-import { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../../models/PlaceOrder'
 import { createOrder } from '../createOrder'
+import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationResponse } from '../../models/PlaceOrder'
 
 /**
  * @description Invalid input

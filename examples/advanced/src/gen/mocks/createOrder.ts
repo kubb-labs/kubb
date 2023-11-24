@@ -1,5 +1,5 @@
-import { Order } from '../models/ts/Order'
 import { faker } from '@faker-js/faker'
+import type { Order } from '../models/ts/Order'
 
 export function createOrder(): NonNullable<Order> {
   return {

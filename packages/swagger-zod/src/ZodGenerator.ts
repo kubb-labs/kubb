@@ -187,6 +187,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     this.imports.push({
       ref,
       path: path || '',
+      isTypeOnly: false,
     })
 
     return [{ keyword: zodKeywords.ref, args: ref.propertyName }]

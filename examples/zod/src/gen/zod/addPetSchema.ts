@@ -1,5 +1,4 @@
 import { z } from 'zod'
-
 import { addPetRequestSchema } from './addPetRequestSchema'
 import { petSchema } from './petSchema'
 

@@ -1,3 +1,5 @@
+import type { Category, Tag, Address, User, Pet, AddPetRequest, ApiResponse, Order } from './'
+
 export type Address = {
   /**
    * @type string | undefined
@@ -270,7 +272,6 @@ export type UpdatePetMutationRequest = Pet
  * @description Successful operation
  */
 export type UpdatePetMutationResponse = Pet
-
 export namespace UpdatePetMutation {
   export type Response = UpdatePetMutationResponse
   export type Request = UpdatePetMutationRequest
@@ -297,7 +298,6 @@ export type AddPetMutationRequest = AddPetRequest
  * @description Successful operation
  */
 export type AddPetMutationResponse = Pet
-
 export namespace AddPetMutation {
   export type Response = AddPetMutationResponse
   export type Request = AddPetMutationRequest
@@ -327,7 +327,6 @@ export type FindPetsByStatusQueryParams = {
  * @description successful operation
  */
 export type FindPetsByStatusQueryResponse = Pet[]
-
 export namespace FindPetsByStatusQuery {
   export type Response = FindPetsByStatusQueryResponse
   export type QueryParams = FindPetsByStatusQueryParams
@@ -361,7 +360,6 @@ export type FindPetsByTagsQueryParams = {
  * @description successful operation
  */
 export type FindPetsByTagsQueryResponse = Pet[]
-
 export namespace FindPetsByTagsQuery {
   export type Response = FindPetsByTagsQueryResponse
   export type QueryParams = FindPetsByTagsQueryParams
@@ -390,7 +388,6 @@ export type GetPetByIdPathParams = {
  * @description successful operation
  */
 export type GetPetByIdQueryResponse = Pet
-
 export namespace GetPetByIdQuery {
   export type Response = GetPetByIdQueryResponse
   export type PathParams = GetPetByIdPathParams
@@ -424,7 +421,6 @@ export type UpdatePetWithFormQueryParams = {
    */
   status?: string
 }
-
 export namespace UpdatePetWithFormMutation {
   export type Response = UpdatePetWithFormMutationResponse
   export type PathParams = UpdatePetWithFormPathParams
@@ -453,7 +449,6 @@ export type DeletePetPathParams = {
    */
   petId: number
 }
-
 export namespace DeletePetMutation {
   export type Response = DeletePetMutationResponse
   export type PathParams = DeletePetPathParams
@@ -483,7 +478,6 @@ export type UploadFileQueryParams = {
  * @description successful operation
  */
 export type UploadFileMutationResponse = ApiResponse
-
 export namespace UploadFileMutation {
   export type Response = UploadFileMutationResponse
   export type Request = UploadFileMutationRequest
@@ -497,7 +491,6 @@ export namespace UploadFileMutation {
 export type GetInventoryQueryResponse = {
   [key: string]: number
 }
-
 export namespace GetInventoryQuery {
   export type Response = GetInventoryQueryResponse
 }
@@ -513,7 +506,6 @@ export type PlaceOrderMutationRequest = Order
  * @description successful operation
  */
 export type PlaceOrderMutationResponse = Order
-
 export namespace PlaceOrderMutation {
   export type Response = PlaceOrderMutationResponse
   export type Request = PlaceOrderMutationRequest
@@ -531,7 +523,6 @@ export type PlaceOrderPatchMutationRequest = Order
  * @description successful operation
  */
 export type PlaceOrderPatchMutationResponse = Order
-
 export namespace PlaceOrderPatchMutation {
   export type Response = PlaceOrderPatchMutationResponse
   export type Request = PlaceOrderPatchMutationRequest
@@ -560,7 +551,6 @@ export type GetOrderByIdPathParams = {
  * @description successful operation
  */
 export type GetOrderByIdQueryResponse = Order
-
 export namespace GetOrderByIdQuery {
   export type Response = GetOrderByIdQueryResponse
   export type PathParams = GetOrderByIdPathParams
@@ -586,7 +576,6 @@ export type DeleteOrderPathParams = {
    */
   orderId: number
 }
-
 export namespace DeleteOrderMutation {
   export type Response = DeleteOrderMutationResponse
   export type PathParams = DeleteOrderPathParams
@@ -604,7 +593,6 @@ export type CreateUserError = User
  * @description Created user object
  */
 export type CreateUserMutationRequest = User
-
 export namespace CreateUserMutation {
   export type Response = CreateUserMutationResponse
   export type Request = CreateUserMutationRequest
@@ -622,7 +610,6 @@ export type CreateUsersWithListInputMutationRequest = User[]
  * @description Successful operation
  */
 export type CreateUsersWithListInputMutationResponse = User
-
 export namespace CreateUsersWithListInputMutation {
   export type Response = CreateUsersWithListInputMutationResponse
   export type Request = CreateUsersWithListInputMutationRequest
@@ -651,7 +638,6 @@ export type LoginUserQueryParams = {
  * @description successful operation
  */
 export type LoginUserQueryResponse = string
-
 export namespace LoginUserQuery {
   export type Response = LoginUserQueryResponse
   export type QueryParams = LoginUserQueryParams
@@ -664,7 +650,6 @@ export namespace LoginUserQuery {
 export type LogoutUserError = any | null
 
 export type LogoutUserQueryResponse = any | null
-
 export namespace LogoutUserQuery {
   export type Response = LogoutUserQueryResponse
   export type Errors = LogoutUserError
@@ -692,7 +677,6 @@ export type GetUserByNamePathParams = {
  * @description successful operation
  */
 export type GetUserByNameQueryResponse = User
-
 export namespace GetUserByNameQuery {
   export type Response = GetUserByNameQueryResponse
   export type PathParams = GetUserByNamePathParams
@@ -718,7 +702,6 @@ export type UpdateUserPathParams = {
  * @description Update an existent user in the store
  */
 export type UpdateUserMutationRequest = User
-
 export namespace UpdateUserMutation {
   export type Response = UpdateUserMutationResponse
   export type Request = UpdateUserMutationRequest
@@ -745,7 +728,6 @@ export type DeleteUserPathParams = {
    */
   username: string
 }
-
 export namespace DeleteUserMutation {
   export type Response = DeleteUserMutationResponse
   export type PathParams = DeleteUserPathParams

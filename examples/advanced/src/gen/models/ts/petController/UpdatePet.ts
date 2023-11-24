@@ -24,7 +24,6 @@ export type UpdatePetMutationRequest = Omit<NonNullable<Pet>, 'id'>
  * @description Successful operation
  */
 export type UpdatePetMutationResponse = Omit<NonNullable<Pet>, 'name'>
-
 export namespace UpdatePetMutation {
   export type Response = UpdatePetMutationResponse
   export type Request = UpdatePetMutationRequest

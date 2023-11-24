@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker'
-import {
+import { createPetNotFound } from '../createPetNotFound'
+import type {
   CreatePets201,
   CreatePetsError,
   CreatePetsHeaderParams,
@@ -8,7 +9,6 @@ import {
   CreatePetsPathParams,
   CreatePetsQueryParams,
 } from '../../models/ts/petsController/CreatePets'
-import { createPetNotFound } from '../createPetNotFound'
 
 /**
  * @description Null response

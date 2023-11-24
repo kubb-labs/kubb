@@ -46,7 +46,7 @@ export class FakerBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
       return {
         name: [item.ref.propertyName],
         path: item.path,
-        isTypeOnly: false,
+        isTypeOnly: item.isTypeOnly,
       }
     })
 

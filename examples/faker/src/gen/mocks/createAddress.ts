@@ -1,5 +1,5 @@
-import { Address } from '../models/Address'
 import { faker } from '@faker-js/faker'
+import type { Address } from '../models/Address'
 
 export function createAddress(): NonNullable<Address> {
   return {
