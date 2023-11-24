@@ -307,6 +307,10 @@ const examplesSidebar = [
     text: 'Advanced',
     link: '/examples/advanced',
   },
+  {
+    text: 'Templates',
+    link: '/examples/client',
+  },
 ]
 
 const blogSidebar = [

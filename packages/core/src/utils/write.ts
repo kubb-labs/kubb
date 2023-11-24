@@ -1,4 +1,4 @@
-import { dirname, resolve, extname } from 'node:path'
+import { dirname, resolve } from 'node:path'
 
 import fs from 'fs-extra'
 import { switcher } from 'js-runtime'

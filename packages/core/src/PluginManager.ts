@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-unsafe-argument */
 
+import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 import { LogLevel } from './utils/logger.ts'
 import { Queue } from './utils/Queue.ts'
-import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
 import { ValidationPluginError } from './errors.ts'
 import { FileManager } from './FileManager.ts'
