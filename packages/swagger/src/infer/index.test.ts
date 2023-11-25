@@ -1,10 +1,11 @@
-import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from './index.ts'
-import oas from '../../mocks/oas.ts'
 import { expectTypeOf } from 'expect-type'
+
+import type { oas } from '../../mocks/oas.ts'
+import type { Infer, MethodMap, Model, RequestParams, Response } from './index.ts'
 
 describe('swagger infer', () => {
   type Oas = Infer<typeof oas>
-  type Paths = keyof PathMap<Oas>
+  // type Paths = keyof PathMap<Oas>
   type Methods = keyof MethodMap<Oas, '/pet'>
 
   type UserModel = Model<Oas, 'User'>

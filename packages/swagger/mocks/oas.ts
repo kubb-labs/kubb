@@ -1,4 +1,4 @@
-export default {
+export const oas = {
   'openapi': '3.0.3',
   'info': {
     'title': 'Swagger Petstore - OpenAPI 3.0',
