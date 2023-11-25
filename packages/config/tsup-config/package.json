@@ -32,6 +32,9 @@
     "start": "tsup --watch",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
+  "dependencies": {
+    "@microsoft/api-extractor": "^7.38.3"
+  },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
     "@types/node": "^20.10.0",

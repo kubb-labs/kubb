@@ -11,6 +11,9 @@
       "@kubb/core": [
         "packages/core/src/index.ts"
       ],
+      "@kubb/types": [
+        "packages/types/src/index.ts"
+      ],
       "@kubb/core/utils": [
         "packages/core/src/utils/index.ts"
       ],

@@ -33,4 +33,11 @@ export default defineConfig([
     },
     name: 'hooks',
   },
+  {
+    ...optionsESM,
+    entry: {
+      infer: 'src/infer/index.ts',
+    },
+    name: 'infer',
+  },
 ])

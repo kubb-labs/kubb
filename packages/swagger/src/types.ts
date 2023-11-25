@@ -46,12 +46,6 @@ export type Options = {
   contentType?: ContentType
 }
 
-export type { default as Oas } from 'oas'
-export type { default as Operation } from 'oas/operation'
-export type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
-export type * as OasTypes from 'oas/rmoas.types'
-export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
-
 /**
  * `propertyName` is the ref name + resolved with the nameResolver
  *  @example `import { Pet } from './Pet'`
@@ -142,3 +136,10 @@ declare module '@kubb/core' {
     ['@kubb/swagger']: PluginOptions
   }
 }
+
+// external packages
+export type { default as Oas } from 'oas'
+export type { default as Operation } from 'oas/operation'
+export type { HttpMethods as HttpMethod } from 'oas/rmoas.types'
+export type * as OasTypes from 'oas/rmoas.types'
+export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
