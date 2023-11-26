@@ -1,5 +1,7 @@
 # @kubb/types
 
+## 2.0.0-beta.6
+
 ## 2.0.0-beta.3
 
 ### Major Changes
