@@ -1,1 +1,1 @@
-export * from './CreatePets'
+export type * from './CreatePets'

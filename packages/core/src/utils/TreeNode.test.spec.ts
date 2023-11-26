@@ -2,8 +2,6 @@ import path from 'node:path'
 
 import { TreeNode } from './TreeNode.ts'
 
-import type { KubbFile } from '../FileManager.ts'
-
 describe('TreeNode', () => {
   const rootPath = path.resolve(__dirname, '../../mocks/treeNode')
   const tree = TreeNode.build(rootPath, { extensions: /\.ts/ })

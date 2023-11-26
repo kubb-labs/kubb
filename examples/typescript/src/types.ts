@@ -1,5 +1,5 @@
-import { Infer } from '@kubb/swagger-ts'
+import { Model } from '@kubb/swagger-ts/infer'
 
-import type { Oas } from './gen/index.ts'
+import type { models } from './gen/index.ts'
 
-export type UserModel = Infer.Model<Oas, 'User'>
+export type UserModel = Model<models.Oas, 'User'>

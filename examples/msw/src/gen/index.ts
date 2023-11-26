@@ -1,3 +1,3 @@
-export * from './mocks/index'
-export * from './models/index'
-export * from './msw/index'
+export * from './mocks'
+export type * from './models'
+export * from './msw'

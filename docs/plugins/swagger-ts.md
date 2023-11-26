@@ -35,6 +35,8 @@ yarn add @kubb/swagger-ts @kubb/swagger
 
 ### output
 
+#### output.path
+
 Relative path to save the TypeScript types. <br/>
 When output is a file it will save all models inside that file else it will create a file per schema item.
 
@@ -61,6 +63,41 @@ export default defineConfig({
     createSwaggerTS({
       output: {
         path: './models',
+      },
+    }),
+  ],
+})
+```
+
+:::
+
+#### output.path
+
+Name to be used for the `export * as {{exportAs}} from './'`
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      output: {
+        path: './models',
+        exportAs: 'models',
       },
     }),
   ],

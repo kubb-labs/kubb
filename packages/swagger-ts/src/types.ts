@@ -10,7 +10,7 @@ export type Options = {
      */
     path: string
     /**
-     * Name to be used for the `export * as {{exportAs}} from './`
+     * Name to be used for the `export * as {{exportAs}} from './'`
      */
     exportAs?: string
   }

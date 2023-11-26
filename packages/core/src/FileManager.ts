@@ -296,7 +296,7 @@ export class FileManager {
   }
 
   async addIndexes({ root, output, extName = '.ts', meta, options = {} }: AddIndexesProps): Promise<Array<KubbFile.File> | undefined> {
-    // TODO remove
+    // TODO remove when all plugins are using path as object
     const outputPath = typeof output === 'string' ? output : output.path
     const exportAs = typeof output === 'string' ? undefined : output.exportAs
     const exportPath = outputPath.startsWith('./') ? outputPath : `./${outputPath}`
@@ -319,9 +319,11 @@ export class FileManager {
             name: exportAs,
             asAlias: !!exportAs,
             path: exportPath,
+            isTypeOnly: options.isTypeOnly,
           }
           : {
             path: exportPath,
+            isTypeOnly: options.isTypeOnly,
           },
       ],
     }

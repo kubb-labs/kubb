@@ -25,7 +25,7 @@ function Template({
       {`export const ${name} = ${JSON.stringify(api, undefined, 2)} as const`}
       <br />
       <Type name={typeName} export>
-        {`Infer.Parse<typeof ${name}>`}
+        {`Parse<typeof ${name}>`}
       </Type>
     </>
   )
@@ -73,7 +73,7 @@ Oas.File = function({ name, typeName, templates = defaultTemplates }: FileProps)
       path={file.path}
       meta={file.meta}
     >
-      <File.Import name={'Infer'} path="@kubb/swagger-ts/infer" isTypeOnly isNameSpace />
+      <File.Import name={['Parse']} path="@kubb/swagger-ts/infer" isTypeOnly />
       <File.Source>
         <Oas Template={Template} name={name} typeName={typeName} />
       </File.Source>
