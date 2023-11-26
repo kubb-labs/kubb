@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 2.0.0-beta.8
+
+### Patch Changes
+
+- [#689](https://github.com/kubb-project/kubb/pull/689) [`8044907`](https://github.com/kubb-project/kubb/commit/8044907f560f1e9a6120df259568b9213a4f1e4a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - path.extName to set `.ts` or `.js` to the barrel files
+
+- Updated dependencies [[`8044907`](https://github.com/kubb-project/kubb/commit/8044907f560f1e9a6120df259568b9213a4f1e4a)]:
+  - @kubb/core@2.0.0-beta.8
+  - @kubb/react@2.0.0-beta.8
+
 ## 2.0.0-beta.7
 
 ### Major Changes
