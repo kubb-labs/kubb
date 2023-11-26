@@ -25,12 +25,15 @@ export type Options = {
    * @default true
    */
   validate?: boolean
-  /**
-   * Relative path to save the JSON models.
-   * False will not generate the schema JSON's.
-   * @default 'schemas'
-   */
-  output?: string | false
+  output?: {
+    /**
+     * Relative path to save the JSON models.
+     * False will not generate the schema JSON's.
+     * @default 'schemas'
+     */
+    path: string
+  } | false
+
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
    * @example `0` will return `http://petstore.swagger.io/api` and `1` will return `http://localhost:3000`
@@ -138,7 +141,6 @@ declare module '@kubb/core' {
 }
 
 // external packages
-export * as Infer from './infer/index.ts'
 export type { default as Oas } from 'oas'
 export type { Operation } from 'oas/operation'
 export type { HttpMethods as HttpMethod } from 'oas/types'

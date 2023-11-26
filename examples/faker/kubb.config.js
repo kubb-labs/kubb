@@ -23,13 +23,21 @@ export default defineConfig(async () => {
     },
     plugins: [
       createSwagger({ output: false }),
-      createSwaggerTS({ output: 'models' }),
+      createSwaggerTS({
+        output: {
+          path: 'models',
+        },
+      }),
       // createSwaggerFaker({
-      //   output: './mocks',
+      //   output: {
+      //     path: './mocks',
+      //   },
       //   group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
       // }),
       createSwaggerFaker({
-        output: './customMocks',
+        output: {
+          path: './customMocks',
+        },
         transformers: {
           schema: (_schema, baseName) => {
             /* override a property with name 'name'

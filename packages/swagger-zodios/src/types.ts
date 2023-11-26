@@ -2,12 +2,18 @@ import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta } from '@kubb/swagger'
 
 export type Options = {
-  /**
-   * Relative path to save the Zodios instance.
-   * Output should be a file(ending with .ts or .js).
-   * @default 'zodios.ts'
-   */
-  output?: string
+  output?: {
+    /**
+     * Relative path to save the Zodios instance.
+     * Output should be a file(ending with .ts or .js).
+     * @default 'zodios.ts'
+     */
+    path: string
+    /**
+     * Name to be used for the `export * as {{exportAs}} from './'`
+     */
+    exportAs?: string
+  }
 }
 
 type ResolveOptions = {

@@ -18,7 +18,9 @@ export default defineConfig({
   plugins: [
     createSwagger({ output: false }),
     createSwaggerTS({
-      output: 'models',
+      output: {
+        path: 'models',
+      },
     }),
     createSwaggerTanstackQuery({
       transformers: {
@@ -29,7 +31,9 @@ export default defineConfig({
           return name
         },
       },
-      output: './hooks',
+      output: {
+        path: './hooks',
+      },
       framework: 'react',
       infinite: {},
     }),

@@ -49,9 +49,9 @@ export const defineConfig = (
 ## Basic
 
 ::: tip
-When using a `import` statement you need to set `"type": "module"` in your `package.json`.
+When using an `import` statement you need to set `"type": "module"` in your `package.json`.
 
-You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cjs for CJS.
+You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cjs` for CJS.
 :::
 
 ::: code-group

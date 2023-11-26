@@ -2,12 +2,18 @@ import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/
 import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 
 export type Options = {
-  /**
-   * Relative path to save the Zod schemas.
-   * When output is a file it will save all models inside that file else it will create a file per schema item.
-   * @default 'zod'
-   */
-  output?: string
+  output?: {
+    /**
+     * Relative path to save the Zod schemas.
+     * When output is a file it will save all models inside that file else it will create a file per schema item.
+     * @default 'zod'
+     */
+    path: string
+    /**
+     * Name to be used for the `export * as {{exportAs}} from './'`
+     */
+    exportAs?: string
+  }
   /**
    * Group the Zod schemas based on the provided name.
    */

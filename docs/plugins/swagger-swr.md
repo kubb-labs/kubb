@@ -35,6 +35,8 @@ yarn add @kubb/swagger-swr @kubb/swagger-ts @kubb/swagger
 
 ### output
 
+#### output.path
+
 Output to save the SWR hooks.
 
 ::: info
@@ -60,7 +62,48 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerSwr(
       {
-        output: './hooks',
+        output: {
+          path: './hooks',
+        },
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+#### output.exportAs
+
+Name to be used for the `export * as {{exportAs}} from './'`
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerSwr from '@kubb/swagger-swr'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerSwr(
+      {
+        output: {
+          path: './hooks',
+          exportAs: 'hooks',
+        },
       },
     ),
   ],
@@ -73,14 +116,14 @@ export default defineConfig({
 
 Group the SWR hooks based on the provided name.
 
-#### type
+#### group.type
 
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
-#### output
+#### group.output
 
 ::: v-pre
 Relative path to save the grouped SWR hooks.
@@ -93,7 +136,7 @@ Example: `hooks/{{tag}}Controller` => `hooks/PetController` <br/>
 Default: `'${output}/{{tag}}Controller'`
 :::
 
-#### exportAs
+#### group.exportAs
 
 ::: v-pre
 Name to be used for the `export * as {{exportAs}} from './`
@@ -127,7 +170,9 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerSwr(
       {
-        output: './hooks',
+        output: {
+          path: './hooks',
+        },
         group: { type: 'tag', output: './hooks/{{tag}}Controller' },
       },
     ),
@@ -415,7 +460,9 @@ export default defineConfig({
             type: 'tag',
             pattern: 'pet',
             options: {
-              output: './custom',
+              output: {
+                path: './custom',
+              },
             },
           },
         ],
@@ -429,7 +476,7 @@ export default defineConfig({
 
 ### transformers
 
-#### name
+#### transformers.name
 
 Override the name of the hook that is getting generated, this will also override the name of the file.
 
@@ -457,7 +504,9 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerSwr(
       {
-        output: './hooks',
+        output: {
+          path: './hooks',
+        },
         transformers: {
           name: (name) => {
             return `${name}Hook`
@@ -519,7 +568,9 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerSwr(
       {
-        output: './hooks',
+        output: {
+          path: './hooks',
+        },
         templates,
       },
     ),

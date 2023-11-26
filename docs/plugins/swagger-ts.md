@@ -35,6 +35,8 @@ yarn add @kubb/swagger-ts @kubb/swagger
 
 ### output
 
+#### output.path
+
 Relative path to save the TypeScript types. <br/>
 When output is a file it will save all models inside that file else it will create a file per schema item.
 
@@ -58,7 +60,46 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ output: './models' }),
+    createSwaggerTS({
+      output: {
+        path: './models',
+      },
+    }),
+  ],
+})
+```
+
+:::
+
+#### output.exportAs
+
+Name to be used for the `export * as {{exportAs}} from './'`
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      output: {
+        path: './models',
+        exportAs: 'models',
+      },
+    }),
   ],
 })
 ```
@@ -69,14 +110,14 @@ export default defineConfig({
 
 Group the TypeScript types based on the provided name.
 
-#### type
+#### group.type
 
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
-#### output
+#### group.output
 
 ::: v-pre
 Relative path to save the grouped TypeScript Types.
@@ -108,7 +149,9 @@ export default defineConfig({
   plugins: [
     createSwagger({ output: false }),
     createSwaggerTS({
-      output: './types',
+      output: {
+        path: './types',
+      },
       group: { type: 'tag', output: './types/{{tag}}Controller' },
     }),
   ],
@@ -528,7 +571,9 @@ export default defineConfig({
             type: 'tag',
             pattern: 'pet',
             options: {
-              output: './custom',
+              output: {
+                path: './custom',
+              },
             },
           },
         ],
@@ -542,7 +587,7 @@ export default defineConfig({
 
 ### transformers
 
-#### name
+#### transformers.name
 
 Override the name of the TypeScript type that is getting generated, this will also override the name of the file.
 

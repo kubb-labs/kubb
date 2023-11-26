@@ -35,6 +35,8 @@ yarn add @kubb/swagger-faker @kubb/swagger-ts @kubb/swagger
 
 ### output
 
+#### output.path
+
 Relative path to save the Faker mocks.
 When output is a file it will save all models inside that file else it will create a file per schema item.
 
@@ -62,7 +64,48 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerFaker(
       {
-        output: './mocks',
+        output: {
+          path: './mocks',
+        },
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+#### output.exportAs
+
+Name to be used for the `export * as {{exportAs}} from './'`
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerFaker(
+      {
+        output: {
+          path: './mocks',
+          exportAs: 'mocks',
+        },
       },
     ),
   ],
@@ -75,14 +118,14 @@ export default defineConfig({
 
 Group the Faker mocks based on the provided name.
 
-#### type
+#### group.type
 
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
-#### output
+#### group.output
 
 ::: v-pre
 Relative path to save the grouped Faker mocks.
@@ -95,7 +138,7 @@ Example: `mocks/{{tag}}Controller` => `mocks/PetController` <br/>
 Default: `${output}/{{tag}}Controller`
 :::
 
-#### exportAs
+#### group.exportAs
 
 Name to be used for the `export * as {{exportAs}} from './`
 
@@ -126,8 +169,13 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerFaker(
       {
-        output: './mocks',
-        group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
+        output: {
+          path: './mocks',
+        },
+        group: {
+          type: 'tag',
+          output: './mocks/{{tag}}Mocks',
+        },
       },
     ),
   ],
@@ -301,7 +349,7 @@ export default defineConfig({
 
 ### transformers
 
-#### name
+#### transformers.name
 
 Override the name of the faker data that is getting generated, this will also override the name of the file.
 
@@ -329,7 +377,9 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerFaker(
       {
-        output: './mocks',
+        output: {
+          path: './mocks',
+        },
         transformers: {
           name: (name) => {
             return `${name}Mock`

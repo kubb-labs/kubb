@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-namespace */
+import type { OasTypes } from '@kubb/swagger'
 import type {
   FromSchema,
   JSONSchema,
 } from 'json-schema-to-ts'
-import type { OASDocument } from 'oas/types'
 
 namespace Checks {
   export type ModelWithSchemas = {
@@ -29,7 +29,7 @@ namespace Checks {
 }
 
 export type Model<
-  TOAS extends OASDocument,
+  TOAS extends OasTypes.OASDocument,
   TName extends TOAS extends Checks.ModelWithSchemas ? keyof TOAS['components']['schemas']
     : TOAS extends Checks.ModelWithDefinitions ? keyof TOAS['definitions']
     : never,

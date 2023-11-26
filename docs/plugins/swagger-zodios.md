@@ -35,6 +35,8 @@ yarn add @kubb/swagger-zodios @kubb/swagger-zod @kubb/swagger
 
 ### output
 
+#### output.path
+
 Output to save the zodios instance. <br/>
 Output should be a file(ending with .ts or .js).
 
@@ -45,7 +47,7 @@ Default: `'zodios.ts'`
 
 ::: code-group
 
-```typescript [kubbo.config.js]
+```typescript [kubb.config.js]
 import { defineConfig } from '@kubb/swagger'
 import createSwagger from '@kubb/swagger'
 import createSwaggerZod from '@kubb/swagger-zod'
@@ -63,7 +65,48 @@ export default defineConfig({
     createSwaggerZod({}),
     createSwaggerZodios(
       {
-        output: 'zodios.ts',
+        output: {
+          path: 'zodios.ts',
+        },
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+#### output.exportAs
+
+Name to be used for the `export * as {{exportAs}} from './'`
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerZod from '@kubb/swagger-zod'
+import createSwaggerZodios from '@kubb/swagger-zodios'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod({}),
+    createSwaggerZodios(
+      {
+        output: {
+          path: 'zodios.ts',
+          exportAs: 'zodios',
+        },
       },
     ),
   ],

@@ -13,7 +13,7 @@ export const pluginName = 'swagger' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'schemas', validate = true, serverIndex = 0, contentType } = options
+  const { output = { path: 'schemas' }, validate = true, serverIndex = 0, contentType } = options
 
   const getOas = async (config: KubbConfig, logger: Logger): Promise<Oas> => {
     try {
@@ -59,7 +59,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const root = path.resolve(this.config.root, this.config.output.path)
 
-      return path.resolve(root, output, baseName)
+      return path.resolve(root, output.path, baseName)
     },
     async writeFile(source, writePath) {
       if (!writePath.endsWith('.json') || !source) {

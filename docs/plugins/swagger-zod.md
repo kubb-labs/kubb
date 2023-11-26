@@ -60,7 +60,9 @@ export default defineConfig({
     createSwagger({ output: false }),
     createSwaggerZod(
       {
-        output: './zod',
+        output: {
+          path: './zod',
+        },
       },
     ),
   ],
@@ -73,14 +75,14 @@ export default defineConfig({
 
 Group the Zod schemas based on the provided name.
 
-#### type
+#### group.type
 
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
-#### output
+#### group.output
 
 ::: v-pre
 Relative path to save the grouped Zod schemas.
@@ -93,7 +95,7 @@ Example: `zod/{{tag}}Controller` => `zod/PetController` <br/>
 Default: `'${output}/{{tag}}Controller'`
 :::
 
-#### exportAs
+#### group.exportAs
 
 ::: v-pre
 Name to be used for the `export * as {{exportAs}} from './`
@@ -124,7 +126,9 @@ export default defineConfig({
     createSwagger({ output: false }),
     createSwaggerZod(
       {
-        output: './schemas',
+        output: {
+          path: './schemas',
+        },
         group: { type: 'tag', output: './schemas/{{tag}}Schemas' },
       },
     ),
@@ -280,7 +284,9 @@ export default defineConfig({
             type: 'tag',
             pattern: 'pet',
             options: {
-              output: './custom',
+              output: {
+                path: './custom',
+              },
             },
           },
         ],
@@ -294,7 +300,7 @@ export default defineConfig({
 
 ### transformers
 
-#### name
+#### transformers.name
 
 Override the name of the Zod schema that is getting generated, this will also override the name of the file.
 

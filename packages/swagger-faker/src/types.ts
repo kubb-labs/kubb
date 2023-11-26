@@ -3,12 +3,19 @@ import type { AppMeta as SwaggerAppMeta, Exclude, Include, OasTypes, Override, R
 import type { FakerMeta } from './fakerParser.ts'
 
 export type Options = {
-  /**
-   * Relative path to save the Faker mocks.
-   * When output is a file it will save all models inside that file else it will create a file per schema item.
-   * @default 'mocks'
-   */
-  output?: string
+  output?: {
+    /**
+     * Relative path to save the Faker mocks.
+     * When output is a file it will save all models inside that file else it will create a file per schema item.
+     * @default 'mocks'
+     */
+    path: string
+    /**
+     * Name to be used for the `export * as {{exportAs}} from './'`
+     */
+    exportAs?: string
+  }
+
   /**
    * Group the Faker mocks based on the provided name.
    */
@@ -53,8 +60,18 @@ export type Options = {
      * Customize the names based on the type that is provided by the plugin.
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+    /**
+     * Receive schema and baseName(propertName) and return FakerMeta array
+     * TODO TODO add docs
+     * @beta
+     */
     schema?: (schema: OasTypes.SchemaObject | undefined, baseName?: string) => FakerMeta[] | undefined
   }
+  /**
+   * Override FakerMapper with extra mappers(that can be overriden by `transformers.schema`)
+   * TODO TODO add docs
+   * @beta
+   */
   mapper?: Record<string, string>
 }
 
