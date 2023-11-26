@@ -7,7 +7,7 @@ import type {
   FromSchema,
   JSONSchema,
 } from 'json-schema-to-ts'
-import type { OASDocument } from 'oas/rmoas.types'
+import type { OASDocument } from 'oas/types'
 import type { MethodMap, ParamMap, PathMap } from './mappers.ts'
 import type { SecurityParamsBySecurityRef } from './security.ts'
 

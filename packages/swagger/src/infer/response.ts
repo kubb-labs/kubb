@@ -2,7 +2,7 @@
 import type {
   FromSchema,
 } from 'json-schema-to-ts'
-import type { OASDocument } from 'oas/rmoas.types'
+import type { OASDocument } from 'oas/types'
 import type { MethodMap, PathMap, StatusMap } from './mappers.ts'
 
 namespace Checks {

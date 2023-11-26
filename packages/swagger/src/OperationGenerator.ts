@@ -8,9 +8,8 @@ import { isReference } from './utils/isReference.ts'
 
 import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
-import type Operation from 'oas/operation'
-import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/rmoas.types'
-import type { ContentType, Exclude, Include, Oas, OasTypes, OpenAPIV3, OperationSchemas, Override, Paths } from './types.ts'
+import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/types'
+import type { ContentType, Exclude, Include, Oas, OasTypes, OpenAPIV3, Operation, OperationSchemas, Override, Paths } from './types.ts'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
 

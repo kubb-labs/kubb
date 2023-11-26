@@ -1,6 +1,6 @@
-import { isSchema } from 'oas/rmoas.types'
+import { isSchema } from 'oas/types'
 
-import type { SchemaObject } from 'oas/rmoas.types'
+import type { SchemaObject } from 'oas/types'
 
 export function isJSONSchema(
   obj?: unknown,

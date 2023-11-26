@@ -1,6 +1,6 @@
 import swagger2openapi from 'swagger2openapi'
 
-import type { OASDocument } from 'oas/rmoas.types'
+import type { OASDocument } from 'oas/types'
 import type { OpenAPIV2 } from 'openapi-types'
 
 export function convertSwagger2ToOpenApi(document: OASDocument): Promise<OASDocument> {

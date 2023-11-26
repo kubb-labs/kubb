@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
 
-import type Operation from 'oas/operation'
+import type { Operation } from '../types.ts'
 
 export function getComments(operation: Operation): string[] {
   return [
