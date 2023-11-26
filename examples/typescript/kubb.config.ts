@@ -1,5 +1,5 @@
 import { defineConfig } from '@kubb/core'
-import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwagger } from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
 export default defineConfig({
@@ -22,5 +22,6 @@ export default defineConfig({
       enumType: 'asConst',
       exportAs: 'modelsAsConst',
     }),
+    createSwaggerTS({ output: 'ts-models', oasType: true, exportAs: 'models' }),
   ],
 })

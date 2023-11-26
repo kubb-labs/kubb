@@ -53,8 +53,18 @@ export type Options = {
      * Customize the names based on the type that is provided by the plugin.
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
+    /**
+     * Receive schema and baseName(propertName) and return FakerMeta array
+     * TODO TODO add docs
+     * @beta
+     */
     schema?: (schema: OasTypes.SchemaObject | undefined, baseName?: string) => FakerMeta[] | undefined
   }
+  /**
+   * Override FakerMapper with extra mappers(that can be overriden by `transformers.schema`)
+   * TODO TODO add docs
+   * @beta
+   */
   mapper?: Record<string, string>
 }
 

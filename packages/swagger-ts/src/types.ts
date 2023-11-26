@@ -65,6 +65,12 @@ export type Options = {
      */
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
+  /**
+   * Export Oas object as Oas type with import type { Infer } from `@kubb/swagger-ts/infer`
+   * TODO add docs
+   * @beta
+   */
+  oasType?: boolean
 }
 
 type ResolvedOptions = {
@@ -72,6 +78,7 @@ type ResolvedOptions = {
   dateType: NonNullable<Options['dateType']>
   optionalType: NonNullable<Options['optionalType']>
   transformers: NonNullable<Options['transformers']>
+  oasType: NonNullable<Options['oasType']>
   usedEnumNames: Record<string, number>
 }
 
@@ -90,3 +97,5 @@ declare module '@kubb/core' {
     ['@kubb/swagger-ts']: PluginOptions
   }
 }
+// external packages
+export * as Infer from './infer/index.ts'

@@ -22,6 +22,7 @@ describe('OperationGenerator', async () => {
       optionalType: 'questionToken',
       usedEnumNames: {},
       transformers: {},
+      oasType: false,
     }
 
     const og = await new OperationGenerator(
@@ -53,6 +54,7 @@ describe('OperationGenerator', async () => {
       optionalType: 'questionToken',
       usedEnumNames: {},
       transformers: {},
+      oasType: false,
     }
 
     const og = await new OperationGenerator(

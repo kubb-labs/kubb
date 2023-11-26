@@ -13,9 +13,9 @@ The easiest way to get started with Kubb is just run the following in your cli.
 Kubb will search based on the [configuration order](/guide/configure#usage) which file/config it needs to use.
 
 ::: tip
-When using a `import` statement you need to set `"type": "module"` in your `package.json`.
+When using an `import` statement you need to set `"type": "module"` in your `package.json`.
 
-You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cjs for CJS.
+You can also rename your file to `kubb.config.mjs` to use ESM or `kubb.config.cjs` for CJS.
 :::
 
 ```bash

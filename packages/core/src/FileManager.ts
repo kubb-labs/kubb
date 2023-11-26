@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import crypto from 'node:crypto'
-import { extname } from 'node:path'
+import { extname, resolve } from 'node:path'
 
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
@@ -45,6 +45,10 @@ export namespace KubbFile {
      * Add `type` prefix to the import, this will result in: `import type { Type } from './path'`.
      */
     isTypeOnly?: boolean
+    /**
+     * Add `* as` prefix to the import, this will result in: `import * as path from './path'`.
+     */
+    isNameSpace?: boolean
     /**
      * When root is set it will get the path with relative getRelativePath(root, path).
      */
@@ -115,8 +119,8 @@ export namespace KubbFile {
      */
     id?: string
     /**
-     * Name to be used to dynamicly create the baseName(based on input.path)
-     * Based on UNIX basename
+     * Name to be used to create the path
+     * Based on UNIX basename, `${name}.extName`
      * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
      */
     baseName: TBaseName
@@ -151,6 +155,12 @@ export namespace KubbFile {
      * @default crypto.randomUUID()
      */
     id: UUID
+    /**
+     * Contains the first part of the baseName, generated based on baseName
+     * @link  https://nodejs.org/api/path.html#pathformatpathobject
+     */
+
+    name: string
   }
 }
 
@@ -163,7 +173,14 @@ type AddResult<T extends Array<KubbFile.File>> = Promise<
 >
 
 type AddIndexesProps = {
-  root: KubbFile.Path
+  /**
+   * Root based on root and output.path specified in the config
+   */
+  root: string
+  /**
+   * Output for plugin
+   */
+  output: string
   extName?: KubbFile.Extname
   options?: BarrelManagerOptions
   meta?: KubbFile.File['meta']
@@ -241,7 +258,7 @@ export class FileManager {
 
   async #add(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
     const controller = new AbortController()
-    const resolvedFile: KubbFile.ResolvedFile = { id: crypto.randomUUID(), ...file }
+    const resolvedFile: KubbFile.ResolvedFile = { id: crypto.randomUUID(), name: transformers.trimExtName(file.baseName), ...file }
 
     this.#cache.set(resolvedFile.path, [{ cancel: () => controller.abort(), ...resolvedFile }])
 
@@ -275,10 +292,10 @@ export class FileManager {
     return this.#add(file)
   }
 
-  async addIndexes({ root, extName = '.ts', meta, options = {} }: AddIndexesProps): Promise<Array<KubbFile.File> | undefined> {
-    const barrelManager = new BarrelManager(options)
+  async addIndexes({ root, output, extName = '.ts', meta, options = {} }: AddIndexesProps): Promise<Array<KubbFile.File> | undefined> {
+    const barrelManager = new BarrelManager({ ...options, output })
 
-    const files = barrelManager.getIndexes(root, extName)
+    const files = barrelManager.getIndexes(resolve(root, output), extName)
 
     if (!files) {
       return undefined

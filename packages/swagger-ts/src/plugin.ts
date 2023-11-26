@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
-import { camelCase, pascalCase } from '@kubb/core/transformers'
+import { camelCase, pascalCase, trimExtName } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
@@ -25,6 +25,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     dateType = 'string',
     optionalType = 'questionToken',
     transformers = {},
+    oasType = false,
     exportAs,
   } = options
   const template = group?.output ? group.output : `${output}/{{tag}}Controller`
@@ -36,6 +37,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       dateType,
       enumType,
       optionalType,
+      oasType,
       // keep the used enumnames between TypeBuilder and OperationGenerator per plugin(pluginKey)
       usedEnumNames: {},
     },
@@ -161,14 +163,24 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       await this.fileManager.addIndexes({
         root,
+        output,
         extName: '.ts',
         meta: { pluginKey: this.plugin.key },
         options: {
           map: (file) => {
+            const treeNode = file.meta?.treeNode
+
+            if (treeNode?.parent) {
+              return file
+            }
+
             return {
               ...file,
               exports: file.exports?.map((item) => {
-                if (exportAs) {
+                const outputName = trimExtName(output)
+                const pathName = trimExtName(item.path)
+
+                if (exportAs && pathName.endsWith(outputName)) {
                   return {
                     ...item,
                     name: exportAs,
@@ -180,7 +192,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
             }
           },
           output,
-          isTypeOnly: true,
+          isTypeOnly: false,
         },
       })
     },

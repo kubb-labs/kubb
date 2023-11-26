@@ -9,6 +9,6 @@ type Props = KubbFile.Import & {
   print?: boolean
 }
 
-export function Import({ name, root, path, isTypeOnly, print }: Props): KubbNode {
-  return <kubb-import name={name} root={root} path={path} isTypeOnly={isTypeOnly} print={print} />
+export function Import({ name, root, path, isTypeOnly, isNameSpace, print }: Props): KubbNode {
+  return <kubb-import name={name} root={root} path={path} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly} print={print} />
 }

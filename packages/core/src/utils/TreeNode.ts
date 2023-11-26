@@ -3,10 +3,13 @@ import dirTree from 'directory-tree'
 import { FileManager } from '../FileManager.ts'
 
 import type { DirectoryTree, DirectoryTreeOptions } from 'directory-tree'
+import type { KubbFile } from '../FileManager.ts'
 
 export type TreeNodeOptions = DirectoryTreeOptions
 
-export class TreeNode<T = unknown> {
+type BarrelData = { type: KubbFile.Mode; path: KubbFile.Path; name: string }
+
+export class TreeNode<T = BarrelData> {
   public data: T
 
   public parent?: TreeNode<T>
@@ -91,7 +94,7 @@ export class TreeNode<T = unknown> {
     return this
   }
 
-  public static build<T = unknown>(path: string, options: TreeNodeOptions = {}): TreeNode<T> | null {
+  public static build(path: string, options: TreeNodeOptions = {}): TreeNode | null {
     try {
       const exclude = Array.isArray(options.exclude) ? options.exclude : [options.exclude].filter(Boolean)
       const filteredTree = dirTree(path, { extensions: options.extensions, exclude: [/node_modules/, ...exclude] })
@@ -114,7 +117,7 @@ export class TreeNode<T = unknown> {
 
       filteredTree.children?.forEach((child) => recurse(treeNode, child))
 
-      return treeNode as TreeNode<T>
+      return treeNode
     } catch (e) {
       throw new Error('Something went wrong with creating index files with the TreehNode class', { cause: e })
     }

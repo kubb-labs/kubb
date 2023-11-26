@@ -4,11 +4,9 @@ import { TreeNode } from './TreeNode.ts'
 
 import type { KubbFile } from '../FileManager.ts'
 
-type TreeNodeData = { type: KubbFile.Mode; path: KubbFile.Path; name: string }
-
 describe('TreeNode', () => {
   const rootPath = path.resolve(__dirname, '../../mocks/treeNode')
-  const tree = TreeNode.build<TreeNodeData>(rootPath, { extensions: /\.ts/ })
+  const tree = TreeNode.build(rootPath, { extensions: /\.ts/ })
 
   test('if schemas folder contains x files and y folders', () => {
     expect(tree).toBeDefined()
@@ -48,7 +46,7 @@ describe('TreeNode', () => {
   })
 
   test('if `foreach` is executed correctly', () => {
-    const items: TreeNodeData[] = []
+    const items: TreeNode['data'][] = []
 
     tree?.forEach((treeNode) => {
       items.push(treeNode.data)

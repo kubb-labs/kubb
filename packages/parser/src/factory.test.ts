@@ -136,6 +136,16 @@ describe('codegen', () => {
     expect(
       await formatTS(
         createImportDeclaration({
+          name: 'hello',
+          path: './hello.ts',
+          isNameSpace: true,
+        }),
+      ),
+    ).toMatchSnapshot()
+
+    expect(
+      await formatTS(
+        createImportDeclaration({
           name: [{ propertyName: 'hello', name: 'helloWorld' }],
           path: './hello.ts',
         }),

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/no-namespace */
+import type { OasTypes } from '@kubb/swagger'
 import type { Fn, Pipe, Tuples } from 'hotscript'
 import type {
   FromSchema,
   JSONSchema,
 } from 'json-schema-to-ts'
-import type { OASDocument } from 'oas/types'
 
 namespace Checks {
   export type Required = { required: true }
@@ -19,7 +19,7 @@ namespace Checks {
   export type Responses = { responses: any }
 }
 
-export type PathMap<TOAS extends OASDocument> = TOAS['paths']
+export type PathMap<TOAS extends OasTypes.OASDocument> = TOAS['paths']
 
 interface ParamPropMap {
   query: 'query'
@@ -81,12 +81,12 @@ export type ParamMap<TParameters extends Checks.Parameters> = Pipe<
 >
 
 export type MethodMap<
-  TOAS extends OASDocument,
+  TOAS extends OasTypes.OASDocument,
   TPath extends keyof PathMap<TOAS>,
 > = PathMap<TOAS>[TPath]
 
 export type StatusMap<
-  TOAS extends OASDocument,
+  TOAS extends OasTypes.OASDocument,
   TPath extends keyof PathMap<TOAS>,
   TMethod extends keyof MethodMap<TOAS, TPath>,
 > = MethodMap<TOAS, TPath>[TMethod] extends Checks.Responses ? MethodMap<TOAS, TPath>[TMethod]['responses']

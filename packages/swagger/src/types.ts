@@ -138,7 +138,6 @@ declare module '@kubb/core' {
 }
 
 // external packages
-export * as Infer from './infer/index.ts'
 export type { default as Oas } from 'oas'
 export type { Operation } from 'oas/operation'
 export type { HttpMethods as HttpMethod } from 'oas/types'
