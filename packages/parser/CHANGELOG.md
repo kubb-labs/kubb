@@ -1,5 +1,11 @@
 # @kubb/parser
 
+## 2.0.0-beta.5
+
+### Major Changes
+
+- [#678](https://github.com/kubb-project/kubb/pull/678) [`48b7ff24`](https://github.com/kubb-project/kubb/commit/48b7ff246a3459bb7a9be6d430407c2538d3b2eb) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - swagger `Infer<typeof oas>` type
+
 ## 2.0.0-beta.4
 
 ### Major Changes
