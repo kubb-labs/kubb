@@ -341,15 +341,20 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
         ].filter(Boolean)
       }
 
+      if (schema.readOnly) {
+        baseItems.unshift({ keyword: zodKeywords.readOnly })
+      }
+
       if (schema.type === zodKeywords.number || schema.type === zodKeywords.integer) {
         const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
         const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
 
-        if (min !== undefined) {
-          baseItems.push({ keyword: zodKeywords.min, args: min })
-        }
         if (max !== undefined) {
-          baseItems.push({ keyword: zodKeywords.max, args: max })
+          baseItems.unshift({ keyword: zodKeywords.max, args: max })
+        }
+
+        if (min !== undefined) {
+          baseItems.unshift({ keyword: zodKeywords.min, args: min })
         }
       }
 
@@ -358,26 +363,22 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
         const isEndWithSlash = schema.pattern.endsWith('/')
 
         const regexp = `new RegExp('${transformers.jsStringEscape(schema.pattern.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))}')`
-        baseItems.push({ keyword: zodKeywords.matches, args: regexp })
+        baseItems.unshift({ keyword: zodKeywords.matches, args: regexp })
       }
 
       if (schema.format === 'date-time' || baseName === 'date') {
-        baseItems.push({ keyword: zodKeywords.datetime })
+        baseItems.unshift({ keyword: zodKeywords.datetime })
       }
 
       if (schema.format === 'email' || baseName === 'email') {
-        baseItems.push({ keyword: zodKeywords.email })
+        baseItems.unshift({ keyword: zodKeywords.email })
       }
 
       if (schema.format === 'uri' || schema.format === 'hostname') {
-        baseItems.push({ keyword: zodKeywords.url })
+        baseItems.unshift({ keyword: zodKeywords.url })
       }
       if (schema.format === 'uuid') {
-        baseItems.push({ keyword: zodKeywords.uuid })
-      }
-
-      if (schema.readOnly) {
-        baseItems.push({ keyword: zodKeywords.readOnly })
+        baseItems.unshift({ keyword: zodKeywords.uuid })
       }
 
       // string, boolean, null, number
