@@ -1,5 +1,19 @@
 # @kubb/swagger-zod
 
+## 2.0.0-beta.6
+
+### Minor Changes
+
+- [#683](https://github.com/kubb-project/kubb/pull/683) [`c7722cf`](https://github.com/kubb-project/kubb/commit/c7722cf16113e4d7ac33e5281e650e707a1e5f88) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - add `const` logic + move `schema.format` to `getBaseTypeFromSchema` instead of `getTypeFromProperties`
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.0.0-beta.6
+  - @kubb/parser@2.0.0-beta.6
+  - @kubb/react@2.0.0-beta.6
+  - @kubb/swagger@2.0.0-beta.6
+
 ## 2.0.0-beta.5
 
 ### Major Changes
