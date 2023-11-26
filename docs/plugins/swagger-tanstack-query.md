@@ -654,7 +654,7 @@ Override the name of the hook that is getting generated, this will also override
 
 ::: info
 
-Type: `(name: string) => string` <br/>
+Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ::: code-group
 

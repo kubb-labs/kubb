@@ -548,7 +548,7 @@ Override the name of the TypeScript type that is getting generated, this will al
 
 ::: info
 
-Type: `(name: string) => string` <br/>
+Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ::: code-group
 

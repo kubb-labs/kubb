@@ -519,7 +519,7 @@ Override the name of the client that is getting generated, this will also overri
 
 ::: info
 
-Type: `(name: string) => string` <br/>
+Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ::: code-group
 

@@ -300,7 +300,7 @@ Override the name of the Zod schema that is getting generated, this will also ov
 
 ::: info
 
-Type: `(name: string) => string` <br/>
+Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ::: code-group
 
