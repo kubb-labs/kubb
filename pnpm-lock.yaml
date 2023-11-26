@@ -1222,18 +1222,9 @@ importers:
       '@kubb/react':
         specifier: workspace:*
         version: link:../react
-      '@kubb/types':
-        specifier: workspace:*
-        version: link:../types
-      hotscript:
-        specifier: ^1.0.13
-        version: 1.0.13
       js-yaml:
         specifier: ^4.1.0
         version: 4.1.0
-      json-schema-to-ts:
-        specifier: ^2.9.2
-        version: 2.9.2
       oas:
         specifier: ^24.1.0
         version: 24.1.0
@@ -1246,9 +1237,6 @@ importers:
       swagger2openapi:
         specifier: ^7.0.8
         version: 7.0.8
-      ts-toolbelt:
-        specifier: ^9.6.0
-        version: 9.6.0
     devDependencies:
       '@kubb/eslint-config':
         specifier: workspace:*
@@ -1271,9 +1259,6 @@ importers:
       eslint:
         specifier: ^8.54.0
         version: 8.54.0
-      expect-type:
-        specifier: ^0.17.3
-        version: 0.17.3
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(@microsoft/api-extractor@7.38.3)(ts-node@10.9.1)(typescript@5.3.2)
@@ -1525,9 +1510,18 @@ importers:
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../swagger
-      typescript:
-        specifier: ^5.3.2
-        version: 5.3.2
+      '@kubb/types':
+        specifier: workspace:*
+        version: link:../types
+      hotscript:
+        specifier: ^1.0.13
+        version: 1.0.13
+      json-schema-to-ts:
+        specifier: ^2.9.2
+        version: 2.9.2
+      ts-toolbelt:
+        specifier: ^9.6.0
+        version: 9.6.0
     devDependencies:
       '@kubb/eslint-config':
         specifier: workspace:*
@@ -1544,6 +1538,9 @@ importers:
       eslint:
         specifier: ^8.54.0
         version: 8.54.0
+      expect-type:
+        specifier: ^0.17.3
+        version: 0.17.3
       react:
         specifier: ^18.2.0
         version: 18.2.0

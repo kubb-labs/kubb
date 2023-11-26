@@ -30,11 +30,17 @@ export type Infinite = {
 }
 
 export type Options = {
-  /**
-   * Output to save the @tanstack/query hooks.
-   * @default `"hooks"`
-   */
-  output?: string
+  output?: {
+    /**
+     * Output to save the @tanstack/query hooks.
+     * @default `"hooks"`
+     */
+    path: string
+    /**
+     * Name to be used for the `export * as {{exportAs}} from './'`
+     */
+    exportAs?: string
+  }
   /**
    * Group the @tanstack/query hooks based on the provided name.
    */

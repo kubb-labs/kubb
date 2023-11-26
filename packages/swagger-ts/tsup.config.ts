@@ -9,12 +9,17 @@ export default defineConfig([
     ...optionsCJS,
     entry: { components: './src/components/index.ts' },
     name: 'components',
-    banner: {},
   },
   {
     ...optionsESM,
     entry: { components: './src/components/index.ts' },
     name: 'components',
-    banner: {},
+  },
+  {
+    ...optionsESM,
+    entry: {
+      infer: 'src/infer/index.ts',
+    },
+    name: 'infer',
   },
 ])

@@ -35,6 +35,8 @@ yarn add @kubb/swagger-client @kubb/swagger-ts @kubb/swagger
 
 ### output
 
+#### output.path
+
 Output to save the clients.
 ::: info
 Type: `string` <br/>
@@ -56,9 +58,54 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: false }),
+    createSwagger({
+      output: false,
+    }),
     createSwaggerTS({}),
-    createSwaggerClient({ output: './axios' }),
+    createSwaggerClient({
+      output: {
+        path: './axios',
+      },
+    }),
+  ],
+})
+```
+
+:::
+
+#### output.exportAs
+
+Name to be used for the `export * as {{exportAs}} from './'`
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerClient from '@kubb/swagger-client'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({
+      output: false,
+    }),
+    createSwaggerTS({}),
+    createSwaggerClient({
+      output: {
+        path: './axios',
+        exportAs: 'clients',
+      },
+    }),
   ],
 })
 ```
@@ -69,14 +116,14 @@ export default defineConfig({
 
 Group the clients based on the provided name.
 
-#### type
+#### group.type
 
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
-#### output
+#### group.output
 
 ::: v-pre
 Relative path to save the grouped clients.
@@ -89,7 +136,7 @@ Example: `clients/{{tag}}Controller` => `clients/PetController` <br/>
 Default: `${output}/{{tag}}Controller`
 :::
 
-#### exportAs
+#### group.exportAs
 
 ::: v-pre
 Name to be used for the `export * as {{exportAs}} from './`
@@ -122,7 +169,9 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerClient(
       {
-        output: './clients/axios',
+        output: {
+          path: './clients/axios',
+        },
         group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
       },
     ),
@@ -499,7 +548,9 @@ export default defineConfig({
             type: 'tag',
             pattern: 'pet',
             options: {
-              output: './custom',
+              output: {
+                path: './custom',
+              },
             },
           },
         ],
@@ -513,13 +564,13 @@ export default defineConfig({
 
 ### transformers
 
-#### name
+#### transformers.name
 
 Override the name of the client that is getting generated, this will also override the name of the file.
 
 ::: info
 
-Type: `(name: string) => string` <br/>
+Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 
 ::: code-group
 

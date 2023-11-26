@@ -29,7 +29,9 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({
-      output: 'schemas',
+      output: {
+        path: 'schemas',
+      },
       validate: true,
     }),
   ],

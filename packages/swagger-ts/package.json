@@ -30,6 +30,9 @@
       "require": "./dist/components.cjs",
       "default": "./dist/components.cjs"
     },
+    "./infer": {
+      "types": "./dist/infer.d.ts"
+    },
     "./package.json": "./package.json",
     "./*": "./*"
   },
@@ -57,8 +60,11 @@
     "@kubb/core": "workspace:*",
     "@kubb/parser": "workspace:*",
     "@kubb/react": "workspace:*",
+    "@kubb/types": "workspace:*",
     "@kubb/swagger": "workspace:*",
-    "typescript": "^5.3.2"
+    "json-schema-to-ts": "^2.9.2",
+    "hotscript": "^1.0.13",
+    "ts-toolbelt": "^9.6.0"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
@@ -66,11 +72,11 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/react": "^18.2.38",
     "eslint": "^8.54.0",
+    "expect-type": "^0.17.3",
     "react": "^18.2.0",
     "tsup": "^8.0.1"
   },
   "peerDependencies": {
-    "typescript": "^5.3.0",
     "@kubb/react": "workspace:*"
   },
   "packageManager": "pnpm@8.3.0",

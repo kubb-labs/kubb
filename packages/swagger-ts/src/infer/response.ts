@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-namespace */
+import type { OasTypes } from '@kubb/swagger'
 import type {
   FromSchema,
 } from 'json-schema-to-ts'
-import type { OASDocument } from 'oas/types'
 import type { MethodMap, PathMap, StatusMap } from './mappers.ts'
 
 namespace Checks {
@@ -10,14 +10,14 @@ namespace Checks {
 }
 
 type ResponseSchemas<
-  TOAS extends OASDocument,
+  TOAS extends OasTypes.OASDocument,
   TPath extends keyof PathMap<TOAS>,
   TMethod extends keyof MethodMap<TOAS, TPath>,
   TStatus extends keyof StatusMap<TOAS, TPath, TMethod>,
 > = StatusMap<TOAS, TPath, TMethod>[TStatus]['content']
 
 type JSONResponseSchema<
-  TOAS extends OASDocument,
+  TOAS extends OasTypes.OASDocument,
   TPath extends keyof PathMap<TOAS>,
   TMethod extends keyof MethodMap<TOAS, TPath>,
   TStatus extends keyof StatusMap<TOAS, TPath, TMethod>,
@@ -32,7 +32,7 @@ type JSONResponseSchema<
   : StatusMap<TOAS, TPath, TMethod>[TStatus]['schema']
 
 export type Response<
-  TOAS extends OASDocument,
+  TOAS extends OasTypes.OASDocument,
   TPath extends keyof PathMap<TOAS>,
   TMethod extends keyof MethodMap<TOAS, TPath>,
   TStatusCode extends keyof StatusMap<TOAS, TPath, TMethod> = 200,

@@ -53,7 +53,9 @@ export default defineConfig(async () => {
       ),
       createSwaggerTS(
         {
-          output: 'models',
+          output: {
+            path: 'models',
+          },
         },
       ),
     ],

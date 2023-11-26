@@ -22,6 +22,7 @@ describe('TypeGenerator simple', async () => {
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
+      oasType: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -44,6 +45,7 @@ describe('TypeGenerator simple', async () => {
       dateType: 'string',
       optionalType: 'undefined',
       transformers: {},
+      oasType: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -66,6 +68,7 @@ describe('TypeGenerator simple', async () => {
       dateType: 'string',
       optionalType: 'questionTokenAndUndefined',
       transformers: {},
+      oasType: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -88,6 +91,7 @@ describe('TypeGenerator simple', async () => {
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
+      oasType: false,
     }, {
       oas: {} as Oas,
       pluginManager: { resolveName: ({ name }) => name, resolvePath: ({ baseName }) => baseName } as PluginManager,
@@ -115,6 +119,7 @@ describe('TypeGenerator simple', async () => {
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
+      oasType: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -141,6 +146,7 @@ describe('TypeGenerator with refs', async () => {
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
+      oasType: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -167,6 +173,7 @@ describe('TypeGenerator with discriminators', async () => {
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
+      oasType: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -188,6 +195,7 @@ describe('TypeGenerator with discriminators', async () => {
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
+      oasType: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -208,6 +216,7 @@ describe('TypeGenerator with discriminators', async () => {
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
+      oasType: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -228,6 +237,7 @@ describe('TypeGenerator with discriminators', async () => {
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
+      oasType: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -247,6 +257,7 @@ describe('TypeGenerator with discriminators', async () => {
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
+      oasType: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -267,6 +278,7 @@ describe('TypeGenerator with discriminators', async () => {
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
+      oasType: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -287,6 +299,7 @@ describe('TypeGenerator with discriminators', async () => {
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
+      oasType: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,

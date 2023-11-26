@@ -74,6 +74,11 @@ exports[`codegen > createImportDeclaration 3`] = `
 `;
 
 exports[`codegen > createImportDeclaration 4`] = `
+"import * as hello from './hello.ts'
+"
+`;
+
+exports[`codegen > createImportDeclaration 5`] = `
 "import { hello as helloWorld } from './hello.ts'
 "
 `;

@@ -36,7 +36,9 @@ export default defineConfig(() => {
     plugins: [
       createSwagger({ output: false }),
       createSwaggerClient({
-        output: './clients/axios', // [!code ++]
+        output: { // [!code ++]
+          path: './clients/axios', // [!code ++]
+        }, // [!code ++]
       }),
     ],
   }
@@ -127,7 +129,9 @@ export default defineConfig(() => {
         output: false,
       }),
       createSwaggerClient({
-        output: './clients/axios', // [!code ++]
+        output: { // [!code ++]
+          path: './clients/axios', // [!code ++]
+        }, // [!code ++]
         clientImportPath: '@kubb/swagger-client/client', // [!code ++]
       }),
     ],

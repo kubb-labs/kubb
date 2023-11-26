@@ -164,6 +164,8 @@ describe('FileManager', () => {
     expect(FileManager.getMode(undefined)).toBe('directory')
     expect(FileManager.getMode(null)).toBe('directory')
   })
+
+  test.todo('fileManager.addIndexes')
 })
 
 describe('FileManager utils', () => {

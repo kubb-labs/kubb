@@ -11,11 +11,17 @@ type Templates = {
 }
 
 export type Options = {
-  /**
-   * Output to save the SWR hooks.
-   * @default `"hooks"`
-   */
-  output?: string
+  output?: {
+    /**
+     * Output to save the SWR hooks.
+     * @default `"hooks"`
+     */
+    path: string
+    /**
+     * Name to be used for the `export * as {{exportAs}} from './'`
+     */
+    exportAs?: string
+  }
   /**
    * Group the SWR hooks based on the provided name.
    */

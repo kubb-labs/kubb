@@ -8,12 +8,18 @@ type Templates = {
 }
 
 export type Options = {
-  /**
-   * Relative path to save the MSW mocks.
-   * When output is a file it will save all models inside that file else it will create a file per schema item.
-   * @default 'mocks'
-   */
-  output?: string
+  output?: {
+    /**
+     * Relative path to save the MSW mocks.
+     * When output is a file it will save all models inside that file else it will create a file per schema item.
+     * @default 'mocks'
+     */
+    path: string
+    /**
+     * Name to be used for the `export * as {{exportAs}} from './'`
+     */
+    exportAs?: string
+  }
   /**
    * Group the MSW mocks based on the provided name.
    */

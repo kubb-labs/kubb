@@ -16,8 +16,18 @@ export default defineConfig({
     done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
   },
   plugins: [
-    createSwagger({ output: false }),
-    createSwaggerTS({ output: 'models' }),
-    createSwaggerTanstackQuery({ output: './hooks', framework: 'svelte', infinite: {} }),
+    createSwagger({
+      output: false,
+    }),
+    createSwaggerTS({
+      output: { path: 'models' },
+    }),
+    createSwaggerTanstackQuery({
+      output: {
+        path: './hooks',
+      },
+      framework: 'svelte',
+      infinite: {},
+    }),
   ],
 })

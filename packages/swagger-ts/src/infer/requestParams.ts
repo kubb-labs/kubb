@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable @typescript-eslint/ban-types */
 
+import type { OasTypes } from '@kubb/swagger'
 import type { SplitByDelimiter, TupleToUnion } from '@kubb/types'
 import type { Pipe, Strings, Tuples } from 'hotscript'
 import type {
   FromSchema,
   JSONSchema,
 } from 'json-schema-to-ts'
-import type { OASDocument } from 'oas/types'
 import type { MethodMap, ParamMap, PathMap } from './mappers.ts'
 import type { SecurityParamsBySecurityRef } from './security.ts'
 
@@ -62,7 +62,7 @@ type ExtractPathParamsWithBrackets<TPath extends string> = TupleToUnion<
 >
 
 export type RequestParams<
-  TOAS extends OASDocument,
+  TOAS extends OasTypes.OASDocument,
   TPath extends keyof PathMap<TOAS>,
   TMethod extends keyof MethodMap<TOAS, TPath>,
 > =

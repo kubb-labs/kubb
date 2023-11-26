@@ -234,15 +234,25 @@ export function createImportDeclaration({
   name,
   path,
   isTypeOnly = false,
+  isNameSpace = false,
 }: {
-  name: string | Array<ts.Identifier | string | { propertyName: string; name?: string }>
+  name: string | Array<string | { propertyName: string; name?: string }>
   path: string
   isTypeOnly?: boolean
+  isNameSpace?: boolean
 }) {
   if (!Array.isArray(name)) {
+    let importPropertyName: ts.Identifier | undefined = factory.createIdentifier(name)
+    let importName: ts.NamedImportBindings | undefined = undefined
+
+    if (isNameSpace) {
+      importPropertyName = undefined
+      importName = factory.createNamespaceImport(factory.createIdentifier(name))
+    }
+
     return factory.createImportDeclaration(
       undefined,
-      factory.createImportClause(isTypeOnly, factory.createIdentifier(name), undefined),
+      factory.createImportClause(isTypeOnly, importPropertyName, importName),
       factory.createStringLiteral(path),
       undefined,
     )
@@ -254,16 +264,17 @@ export function createImportDeclaration({
       isTypeOnly,
       undefined,
       factory.createNamedImports(
-        name.map((propertyName) => {
-          if (typeof propertyName === 'object') {
-            const obj = propertyName as { propertyName: string; name?: string }
+        name.map((item) => {
+          if (typeof item === 'object') {
+            const obj = item as { propertyName: string; name?: string }
             if (obj.name) {
               return factory.createImportSpecifier(false, factory.createIdentifier(obj.propertyName), factory.createIdentifier(obj.name))
             }
+
             return factory.createImportSpecifier(false, undefined, factory.createIdentifier(obj.propertyName))
           }
 
-          return factory.createImportSpecifier(false, undefined, typeof propertyName === 'string' ? factory.createIdentifier(propertyName) : propertyName)
+          return factory.createImportSpecifier(false, undefined, factory.createIdentifier(item))
         }),
       ),
     ),
