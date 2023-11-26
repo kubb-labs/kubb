@@ -1,30 +1,38 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 import type {
   FromSchema,
   JSONSchema,
 } from 'json-schema-to-ts'
 import type { OASDocument } from 'oas/rmoas.types'
 
-export type Model<
-  TOAS extends OASDocument,
-  TName extends TOAS extends {
+namespace Checks {
+  export type ModelWithSchemas = {
     components: {
       schemas: Record<string, JSONSchema>
     }
-  } ? keyof TOAS['components']['schemas']
-    : TOAS extends {
-      definitions: Record<string, JSONSchema>
-    } ? keyof TOAS['definitions']
-    : never,
-> = TOAS extends {
-  components: {
-    schemas: {
-      [TModelName in TName]: JSONSchema
+  }
+  export type ModelWithSchemasNamed<TName extends string | number | symbol> = {
+    components: {
+      schemas: {
+        [TModelName in TName]: JSONSchema
+      }
     }
   }
-} ? FromSchema<TOAS['components']['schemas'][TName]>
-  : TOAS extends {
+  export type ModelWithDefinitions = {
+    definitions: Record<string, JSONSchema>
+  }
+  export type ModelWithDefinitionsNamed<TName extends string | number | symbol = never> = {
     definitions: {
       [TModelName in TName]: JSONSchema
     }
-  } ? FromSchema<TOAS['definitions'][TName]>
+  }
+}
+
+export type Model<
+  TOAS extends OASDocument,
+  TName extends TOAS extends Checks.ModelWithSchemas ? keyof TOAS['components']['schemas']
+    : TOAS extends Checks.ModelWithDefinitions ? keyof TOAS['definitions']
+    : never,
+> = TOAS extends Checks.ModelWithSchemasNamed<TName> ? FromSchema<TOAS['components']['schemas'][TName]>
+  : TOAS extends Checks.ModelWithDefinitionsNamed<TName> ? FromSchema<TOAS['definitions'][TName]>
   : never

@@ -1,22 +1,30 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 import type { Booleans, Call, Objects, Strings, Tuples } from 'hotscript'
 import type { Object } from 'ts-toolbelt'
 
-type FixAdditionalPropertiesForAllOf<T> = T extends { allOf: any[] } ? Omit<T, 'allOf'> & {
+namespace Checks {
+  export type AllOFf = { allOf: any[] }
+  export type Object = {
+    type: 'object'
+    properties: any
+  }
+  export type Properties = { properties: any }
+  export type PropertiesRequired = {
+    properties: Record<string, any>
+    required: string[]
+  }
+}
+
+type FixAdditionalPropertiesForAllOf<T> = T extends Checks.AllOFf ? Omit<T, 'allOf'> & {
     allOf: Call<Tuples.Map<Objects.Omit<'additionalProperties'>>, T['allOf']>
   }
   : T
 
-type FixMissingAdditionalProperties<T> = T extends {
-  type: 'object'
-  properties: any
-} ? Omit<T, 'additionalProperties'> & { additionalProperties: false }
+type FixMissingAdditionalProperties<T> = T extends Checks.Object ? Omit<T, 'additionalProperties'> & { additionalProperties: false }
   : T
-type FixMissingTypeObject<T> = T extends { properties: any } ? T & { type: 'object' } : T
+type FixMissingTypeObject<T> = T extends Checks.Properties ? T & { type: 'object' } : T
 
-type FixExtraRequiredFields<T> = T extends {
-  properties: Record<string, any>
-  required: string[]
-} ? Omit<T, 'required'> & {
+type FixExtraRequiredFields<T> = T extends Checks.PropertiesRequired ? Omit<T, 'required'> & {
     required: Call<Tuples.Filter<Booleans.Extends<keyof T['properties']>>, T['required']>
   }
   : T
@@ -47,4 +55,4 @@ type ResolveRefsInObj<T, TBase = T> = {
   [K in keyof T]: ResolveRefsInObj<ResolveRefInObj<T[K], TBase>, TBase>
 }
 
-export type Infer<TOAS> = Mutable<ResolveRefsInObj<TOAS>>
+export type Parse<TOAS> = Mutable<ResolveRefsInObj<TOAS>>
