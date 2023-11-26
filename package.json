@@ -76,10 +76,5 @@
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.3.0"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "oas@23.0.0": "patches/oas@23.0.0.patch"
-    }
   }
 }

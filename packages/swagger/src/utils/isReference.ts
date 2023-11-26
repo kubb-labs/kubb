@@ -1,4 +1,4 @@
-import { isRef } from 'oas/rmoas.types'
+import { isRef } from 'oas/types'
 
 import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 

@@ -12,7 +12,7 @@ import { isOpenApiV3Document } from './utils/isOpenApiV3Document.ts'
 
 import type { KubbConfig } from '@kubb/core'
 import type oas from 'oas'
-import type { OASDocument } from 'oas/rmoas.types'
+import type { OASDocument } from 'oas/types'
 
 type Options = {
   validate?: boolean

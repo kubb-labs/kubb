@@ -120,8 +120,10 @@ function Component() {
   const pluginName = 'custom-plugin'
   const file = useFile({
     name: 'fileName' // no extension needed
-    pluginKey: ["controller", pluginName],
-    options: {}
+    pluginKey: [pluginName],
+    options: {
+      tag: "pet"
+    }
   })
 
   return (

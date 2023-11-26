@@ -1,9 +1,12 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "./base.json",
   "display": "Bundler",
   "compilerOptions": {
     /* If NOT transpiling with TypeScript: */
     "module": "ES2020",
-    "moduleResolution": "Bundler"
+    "moduleResolution": "Bundler",
+    "declaration": false,
+    "declarationMap": false
   }
 }
