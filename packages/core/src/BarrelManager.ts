@@ -18,7 +18,7 @@ export type BarrelManagerOptions = {
   /**
    * Add .ts or .js
    */
-  includeExt?: boolean
+  extName?: KubbFile.Extname
 }
 
 export class BarrelManager {
@@ -32,21 +32,9 @@ export class BarrelManager {
 
   getIndexes(
     pathToBuild: string,
-    extName?: KubbFile.Extname,
   ): Array<KubbFile.File<FileMeta>> | null {
-    const { treeNode = {}, isTypeOnly, includeExt } = this.#options
-
-    const extMapper: Record<KubbFile.Extname, DirectoryTreeOptions> = {
-      '.ts': {
-        extensions: /\.ts/,
-        exclude: [/schemas/, /json/],
-      },
-      '.json': {
-        extensions: /\.json/,
-        exclude: [],
-      },
-    }
-    const tree = TreeNode.build(pathToBuild, { ...(extMapper[extName as keyof typeof extMapper] || {}), ...treeNode })
+    const { treeNode = {}, isTypeOnly, extName } = this.#options
+    const tree = TreeNode.build(pathToBuild, treeNode)
 
     if (!tree) {
       return null
@@ -70,7 +58,7 @@ export class BarrelManager {
             }
 
             return {
-              path: includeExt ? `${importPath}${extName}` : importPath,
+              path: extName ? `${importPath}${extName}` : importPath,
               isTypeOnly,
             } as KubbFile.Export
           })
@@ -95,7 +83,7 @@ export class BarrelManager {
 
         const exports = [
           {
-            path: includeExt
+            path: extName
               ? `${importPath}${extName}`
               : importPath,
             isTypeOnly,

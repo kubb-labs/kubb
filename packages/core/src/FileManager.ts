@@ -180,11 +180,11 @@ type AddIndexesProps = {
   /**
    * Output for plugin
    */
-  output: string | {
+  output: {
     path: string
     exportAs?: string
+    extName?: KubbFile.Extname
   }
-  extName?: KubbFile.Extname
   options?: BarrelManagerOptions
   meta?: KubbFile.File['meta']
 }
@@ -295,15 +295,12 @@ export class FileManager {
     return this.#add(file)
   }
 
-  async addIndexes({ root, output, extName = '.ts', meta, options = {} }: AddIndexesProps): Promise<Array<KubbFile.File> | undefined> {
-    // TODO remove when all plugins are using path as object
-    const outputPath = typeof output === 'string' ? output : output.path
-    const exportAs = typeof output === 'string' ? undefined : output.exportAs
-    const exportPath = outputPath.startsWith('./') ? outputPath : `./${outputPath}`
+  async addIndexes({ root, output, meta, options = {} }: AddIndexesProps): Promise<Array<KubbFile.File> | undefined> {
+    const exportPath = output.path.startsWith('./') ? output.path : `./${output.path}`
 
-    const barrelManager = new BarrelManager(options)
+    const barrelManager = new BarrelManager({ extName: output.extName, ...options })
 
-    const files = barrelManager.getIndexes(resolve(root, outputPath), extName)
+    const files = barrelManager.getIndexes(resolve(root, output.path))
 
     if (!files) {
       return undefined
@@ -314,10 +311,10 @@ export class FileManager {
       baseName: 'index.ts',
       source: '',
       exports: [
-        exportAs
+        output.exportAs
           ? {
-            name: exportAs,
-            asAlias: !!exportAs,
+            name: output.exportAs,
+            asAlias: true,
             path: exportPath,
             isTypeOnly: options.isTypeOnly,
           }

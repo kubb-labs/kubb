@@ -101,8 +101,45 @@ export default defineConfig({
     createSwaggerSwr(
       {
         output: {
-          path: './hooks',
           exportAs: 'hooks',
+        },
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+#### output.extName
+
+Add an extension to the generated imports and exports, default it will not use an extension
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerSwr from '@kubb/swagger-swr'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerSwr(
+      {
+        output: {
+          extName: '.js',
         },
       },
     ),

@@ -22,14 +22,12 @@ describe('BarrelManager', () => {
   })
 
   test.todo('if getIndexes can return an export with `exportAs` and/or `isTypeOnly`', async () => {
-    const barrelManager = new BarrelManager({
-      includeExt: true,
-    })
+    const barrelManager = new BarrelManager()
 
     // const exportAs = 'models'
     const rootPath = path.resolve(__dirname, '../mocks/treeNode')
 
-    const files = barrelManager.getIndexes(rootPath, '.ts') || []
+    const files = barrelManager.getIndexes(rootPath) || []
     const rootIndex = files[0]!
 
     expect(rootIndex).toBeDefined()
@@ -47,10 +45,10 @@ describe('BarrelManager', () => {
     expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()
   })
   test('if getIndexes can return an export with `includeExt`', () => {
-    const barrelManager = new BarrelManager({ includeExt: true })
+    const barrelManager = new BarrelManager()
 
     const rootPath = path.resolve(__dirname, '../mocks/treeNode')
-    const files = barrelManager.getIndexes(rootPath, '.ts') || []
+    const files = barrelManager.getIndexes(rootPath) || []
     const rootIndex = files[0]
 
     expect(rootIndex).toBeDefined()

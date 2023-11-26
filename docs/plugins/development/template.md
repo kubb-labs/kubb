@@ -80,11 +80,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       await this.fileManager.addIndexes({
         root,
-        extName: '.ts',
+        output,
         meta: { pluginKey: this.plugin.key },
-        options: {
-          output,
-        },
       })
       console.log('Build ended')
     },
