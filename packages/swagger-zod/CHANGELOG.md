@@ -1,5 +1,19 @@
 # @kubb/swagger-zod
 
+## 2.0.0-beta.7
+
+### Major Changes
+
+- [#686](https://github.com/kubb-project/kubb/pull/686) [`0c894ca`](https://github.com/kubb-project/kubb/commit/0c894ca935045272a3427ed5646a83184646e354) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - swagger-ts with output object
+
+### Patch Changes
+
+- Updated dependencies [[`0c894ca`](https://github.com/kubb-project/kubb/commit/0c894ca935045272a3427ed5646a83184646e354), [`0c894ca`](https://github.com/kubb-project/kubb/commit/0c894ca935045272a3427ed5646a83184646e354)]:
+  - @kubb/swagger@2.0.0-beta.7
+  - @kubb/core@2.0.0-beta.7
+  - @kubb/parser@2.0.0-beta.7
+  - @kubb/react@2.0.0-beta.7
+
 ## 2.0.0-beta.6
 
 ### Minor Changes
