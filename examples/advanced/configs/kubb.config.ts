@@ -19,12 +19,12 @@ export default defineConfig(async () => {
       // done: ['npx eslint --fix ./src/gen', 'prettier --write "**/*.{ts,tsx}"', 'pnpm typecheck'],
     },
     plugins: [
-      ['@kubb/swagger', { output: 'schemass', validate: true }],
+      ['@kubb/swagger', { output: 'schemas', validate: true }],
       ['@kubb/swagger', { output: 'schemas2', validate: true }],
       [
         '@kubb/swagger-ts',
         {
-          output: 'models/ts',
+          output: { path: 'models/ts' },
           group: {
             type: 'tag',
           },

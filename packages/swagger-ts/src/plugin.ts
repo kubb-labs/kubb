@@ -16,7 +16,7 @@ export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOpti
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const {
-    output = 'types',
+    output = { path: 'types' },
     group,
     exclude = [],
     include,
@@ -26,9 +26,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     optionalType = 'questionToken',
     transformers = {},
     oasType = false,
-    exportAs,
   } = options
-  const template = group?.output ? group.output : `${output}/{{tag}}Controller`
+  const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
     name: pluginName,
@@ -44,14 +43,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     pre: [swaggerPluginName],
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = FileManager.getMode(path.resolve(root, output))
+      const mode = FileManager.getMode(path.resolve(root, output.path))
 
       if (mode === 'file') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
-        return path.resolve(root, output)
+        return path.resolve(root, output.path)
       }
 
       if (options?.tag && group?.type === 'tag') {
@@ -60,7 +59,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return path.resolve(root, renderTemplate(template, { tag }), baseName)
       }
 
-      return path.resolve(root, output, baseName)
+      return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
       const resolvedName = pascalCase(name)
@@ -85,7 +84,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const schemas = await swaggerPlugin.api.getSchemas()
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = FileManager.getMode(path.resolve(root, output))
+      const mode = FileManager.getMode(path.resolve(root, output.path))
       const builder = new TypeBuilder(this.plugin.options, { oas, pluginManager: this.pluginManager })
 
       builder.add(
@@ -128,7 +127,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
         await this.addFile({
           path: resolvedPath,
-          baseName: output as KubbFile.BaseName,
+          baseName: output.path as KubbFile.BaseName,
           source,
           imports: [],
           meta: {
@@ -167,32 +166,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         extName: '.ts',
         meta: { pluginKey: this.plugin.key },
         options: {
-          map: (file) => {
-            const treeNode = file.meta?.treeNode
-
-            if (treeNode?.parent) {
-              return file
-            }
-
-            return {
-              ...file,
-              exports: file.exports?.map((item) => {
-                const outputName = trimExtName(output)
-                const pathName = trimExtName(item.path)
-
-                if (exportAs && pathName.endsWith(outputName)) {
-                  return {
-                    ...item,
-                    name: exportAs,
-                    asAlias: !!exportAs,
-                  }
-                }
-                return item
-              }),
-            }
-          },
-          output,
-          isTypeOnly: false,
+          isTypeOnly: true,
         },
       })
     },

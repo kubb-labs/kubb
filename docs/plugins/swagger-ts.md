@@ -58,7 +58,11 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ output: './models' }),
+    createSwaggerTS({
+      output: {
+        path: './models',
+      },
+    }),
   ],
 })
 ```
@@ -108,7 +112,9 @@ export default defineConfig({
   plugins: [
     createSwagger({ output: false }),
     createSwaggerTS({
-      output: './types',
+      output: {
+        path: './types',
+      },
       group: { type: 'tag', output: './types/{{tag}}Controller' },
     }),
   ],

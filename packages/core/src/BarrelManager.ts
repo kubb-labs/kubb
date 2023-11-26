@@ -2,7 +2,6 @@ import path from 'path'
 
 import transformers from './transformers/index.ts'
 import { TreeNode } from './utils/TreeNode.ts'
-import { FileManager } from './FileManager.ts'
 
 import type { DirectoryTreeOptions } from 'directory-tree'
 import type { KubbFile } from './FileManager.ts'
@@ -16,23 +15,16 @@ type FileMeta = {
 export type BarrelManagerOptions = {
   treeNode?: DirectoryTreeOptions
   isTypeOnly?: boolean
-  filter?: (file: KubbFile.File<FileMeta>) => boolean
-  map?: (file: KubbFile.File<FileMeta>) => KubbFile.File<FileMeta>
   /**
    * Add .ts or .js
    */
   includeExt?: boolean
-  /**
-   * Output for plugin
-   * TODO check if needed
-   */
-  output?: string
 }
 
 export class BarrelManager {
   #options: BarrelManagerOptions
 
-  constructor(options: BarrelManagerOptions) {
+  constructor(options: BarrelManagerOptions = {}) {
     this.#options = options
 
     return this
@@ -42,7 +34,7 @@ export class BarrelManager {
     pathToBuild: string,
     extName?: KubbFile.Extname,
   ): Array<KubbFile.File<FileMeta>> | null {
-    const { treeNode = {}, isTypeOnly, filter, map, output, includeExt } = this.#options
+    const { treeNode = {}, isTypeOnly, includeExt } = this.#options
 
     const extMapper: Record<KubbFile.Extname, DirectoryTreeOptions> = {
       '.ts': {
@@ -55,7 +47,6 @@ export class BarrelManager {
       },
     }
     const tree = TreeNode.build(pathToBuild, { ...(extMapper[extName as keyof typeof extMapper] || {}), ...treeNode })
-    const isFile = !!output && FileManager.getMode(output) === 'file'
 
     if (!tree) {
       return null
@@ -89,12 +80,7 @@ export class BarrelManager {
           path: indexPath,
           baseName: 'index.ts',
           source: '',
-          exports: isFile
-            ? exports?.filter((item) => {
-              // TODO check if needed
-              return item.path.endsWith(transformers.trimExtName(output))
-            })
-            : exports,
+          exports,
           meta: {
             treeNode,
           },
@@ -120,12 +106,7 @@ export class BarrelManager {
           path: indexPath,
           baseName: 'index.ts',
           source: '',
-          exports: isFile
-            ? exports?.filter((item) => {
-              // TODO check if needed
-              return item.path.endsWith(transformers.trimExtName(output))
-            })
-            : exports,
+          exports,
           meta: {
             treeNode,
           },
@@ -139,10 +120,6 @@ export class BarrelManager {
       return files
     }
 
-    const files = fileReducer([], tree).reverse()
-
-    const filteredFiles = filter ? files.filter(filter) : files
-
-    return map ? filteredFiles.map(map) : filteredFiles
+    return fileReducer([], tree).reverse()
   }
 }

@@ -180,7 +180,10 @@ type AddIndexesProps = {
   /**
    * Output for plugin
    */
-  output: string
+  output: string | {
+    path: string
+    exportAs?: string
+  }
   extName?: KubbFile.Extname
   options?: BarrelManagerOptions
   meta?: KubbFile.File['meta']
@@ -293,13 +296,40 @@ export class FileManager {
   }
 
   async addIndexes({ root, output, extName = '.ts', meta, options = {} }: AddIndexesProps): Promise<Array<KubbFile.File> | undefined> {
-    const barrelManager = new BarrelManager({ ...options, output })
+    // TODO remove
+    const outputPath = typeof output === 'string' ? output : output.path
+    const exportAs = typeof output === 'string' ? undefined : output.exportAs
+    const exportPath = outputPath.startsWith('./') ? outputPath : `./${outputPath}`
 
-    const files = barrelManager.getIndexes(resolve(root, output), extName)
+    const barrelManager = new BarrelManager(options)
+
+    const files = barrelManager.getIndexes(resolve(root, outputPath), extName)
 
     if (!files) {
       return undefined
     }
+
+    const rootFile: KubbFile.File = {
+      path: resolve(root, 'index.ts'),
+      baseName: 'index.ts',
+      source: '',
+      exports: [
+        exportAs
+          ? {
+            name: exportAs,
+            asAlias: !!exportAs,
+            path: exportPath,
+          }
+          : {
+            path: exportPath,
+          },
+      ],
+    }
+
+    await this.#addOrAppend({
+      ...rootFile,
+      meta: meta ? meta : rootFile.meta,
+    })
 
     return await Promise.all(
       files.map((file) => {

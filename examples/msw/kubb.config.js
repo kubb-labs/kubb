@@ -22,7 +22,7 @@ export default defineConfig(async () => {
         output: false,
       }],
       ['@kubb/swagger-ts', {
-        output: 'models',
+        output: { path: 'models' },
       }],
       ['@kubb/swagger-faker', {
         output: './mocks',

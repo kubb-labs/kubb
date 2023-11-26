@@ -23,7 +23,11 @@ export default defineConfig(async () => {
     },
     plugins: [
       createSwagger({ output: false }),
-      createSwaggerTS({ output: 'models' }),
+      createSwaggerTS({
+        output: {
+          path: 'models',
+        },
+      }),
       // createSwaggerFaker({
       //   output: './mocks',
       //   group: { type: 'tag', output: './mocks/{{tag}}Mocks' },

@@ -18,7 +18,9 @@ export default defineConfig({
   plugins: [
     createSwagger({ output: false }),
     createSwaggerTS({
-      output: 'models',
+      output: {
+        path: 'models',
+      },
     }),
     createSwaggerTanstackQuery({
       transformers: {

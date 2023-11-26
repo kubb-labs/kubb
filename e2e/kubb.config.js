@@ -35,7 +35,7 @@ const baseConfig = {
     [
       '@kubb/swagger-ts',
       {
-        output: 'models/ts',
+        output: { path: 'models/ts' },
         group: {
           type: 'tag',
         },

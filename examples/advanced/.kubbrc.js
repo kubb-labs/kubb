@@ -24,7 +24,7 @@ export default defineConfig({
   plugins: [
     createSwagger({ output: false, validate: true }),
     createSwaggerTS({
-      output: 'models/ts',
+      output: { path: 'models/ts' },
       group: {
         type: 'tag',
       },

@@ -25,7 +25,7 @@ export default defineConfig(async () => {
       [
         '@kubb/swagger-ts',
         {
-          output: 'models/ts',
+          output: { path: 'models/ts' },
           group: {
             type: 'tag',
           },

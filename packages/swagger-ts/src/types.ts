@@ -2,12 +2,18 @@ import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/
 import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 
 export type Options = {
-  /**
-   * Relative path to save the TypeScript types.
-   * When output is a file it will save all models inside that file else it will create a file per schema item.
-   * @default 'types'
-   */
-  output?: string
+  output?: {
+    /**
+     * Relative path to save the TypeScript types.
+     * When output is a file it will save all models inside that file else it will create a file per schema item.
+     * @default 'types'
+     */
+    path: string
+    /**
+     * Name to be used for the `export * as {{exportAs}} from './`
+     */
+    exportAs?: string
+  }
   /**
    * Group the TypeScript types based on the provided name.
    */
@@ -25,10 +31,6 @@ export type Options = {
      */
     output?: string
   }
-  /**
-   * Name to be used for the `export * as {{exportAs}} from './`
-   */
-  exportAs?: string
   /**
    * Array containing exclude paramaters to exclude/skip tags/operations/methods/paths.
    */

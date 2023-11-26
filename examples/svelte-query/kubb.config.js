@@ -17,7 +17,7 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ output: 'models' }),
+    createSwaggerTS({ output: { path: 'models' } }),
     createSwaggerTanstackQuery({ output: './hooks', framework: 'svelte', infinite: {} }),
   ],
 })
