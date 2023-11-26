@@ -7,6 +7,7 @@ export const zodKeywords = {
   string: 'string',
   boolean: 'boolean',
   undefined: 'undefined',
+  nullable: 'nullable',
   null: 'null',
   nullish: 'nullish',
   array: 'array',
@@ -44,7 +45,8 @@ export const zodKeywordMapper: Record<ZodKeyword, string> = {
   string: 'z.string',
   boolean: 'z.boolean',
   undefined: 'z.undefined',
-  null: '.nullable',
+  nullable: '.nullable',
+  null: 'z.null',
   nullish: '.nullish',
   array: 'z.array',
   tuple: 'z.tuple',
@@ -104,7 +106,7 @@ type ZodMetaCatchall = { keyword: typeof zodKeywords.catchall; args?: ZodMeta[] 
 type ZodMetaRef = { keyword: typeof zodKeywords.ref; args?: string }
 
 type ZodMetaUnion = { keyword: typeof zodKeywords.union; args?: ZodMeta[] }
-type ZodMetaLiteral = { keyword: typeof zodKeywords.literal; args?: string | number }
+type ZodMetaLiteral = { keyword: typeof zodKeywords.literal; args: string | number }
 
 type ZodMetaAnd = { keyword: typeof zodKeywords.and; args?: ZodMeta[] }
 

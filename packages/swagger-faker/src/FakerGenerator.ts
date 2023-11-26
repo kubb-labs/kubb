@@ -296,8 +296,9 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
 
     if (schema.type) {
       if (Array.isArray(schema.type)) {
+        // TODO  remove hardcoded first type, second nullable
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
-        const [type] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
+        const [type, nullable] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
         return [
           ...this.getTypeFromSchema(
@@ -307,8 +308,8 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
             },
             baseName,
           ),
-          { keyword: fakerKeywords.null },
-        ]
+          nullable ? { keyword: fakerKeywords.null } : undefined,
+        ].filter(Boolean)
       }
 
       if (schema.type === fakerKeywords.number || schema.type === fakerKeywords.integer) {

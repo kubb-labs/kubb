@@ -81,64 +81,12 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
 
         validationFunctions.push(...this.getTypeFromSchema(schema, name))
 
-        if (schema.description) {
-          validationFunctions.push({ keyword: zodKeywords.describe, args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
-        }
-        const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
-        const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
-        const matches = schema.pattern ?? undefined
         const nullable = schema.nullable ?? false
-        const isEnum = validationFunctions.some((item) => item.keyword === zodKeywords.enum)
-
-        if (!isEnum && min !== undefined) {
-          // enums cannot have a min/max set in Zod
-          validationFunctions.push({ keyword: zodKeywords.min, args: min })
-        }
-        if (!isEnum && max !== undefined) {
-          // enums cannot have a min/max set in Zod
-          validationFunctions.push({ keyword: zodKeywords.max, args: max })
-        }
-        if (matches) {
-          const isStartWithSlash = matches.startsWith('/')
-          const isEndWithSlash = matches.endsWith('/')
-
-          const regexp = `new RegExp('${transformers.jsStringEscape(matches.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))}')`
-
-          validationFunctions.push({ keyword: zodKeywords.matches, args: regexp })
-        }
-
-        if (schema.format === 'date-time' || baseName === 'date') {
-          validationFunctions.push({ keyword: zodKeywords.datetime })
-        }
-
-        if (schema.format === 'email' || baseName === 'email') {
-          validationFunctions.push({ keyword: zodKeywords.email })
-        }
-
-        if (schema.format === 'uri' || schema.format === 'hostname') {
-          validationFunctions.push({ keyword: zodKeywords.url })
-        }
-        if (schema.format === 'uuid') {
-          validationFunctions.push({ keyword: zodKeywords.uuid })
-        }
-
-        if (schema.readOnly) {
-          validationFunctions.push({ keyword: zodKeywords.readOnly })
-        }
-
-        if (schema.default !== undefined && !Array.isArray(schema.default)) {
-          if (typeof schema.default === 'string') {
-            validationFunctions.push({ keyword: zodKeywords.default, args: `'${schema.default}'` })
-          }
-          if (typeof schema.default === 'boolean') {
-            validationFunctions.push({ keyword: zodKeywords.default, args: schema.default ?? false })
-          }
-        }
 
         if (!isRequired && nullable) {
           validationFunctions.push({ keyword: zodKeywords.nullish })
         } else if (nullable) {
-          validationFunctions.push({ keyword: zodKeywords.null })
+          validationFunctions.push({ keyword: zodKeywords.nullable })
         } else if (!isRequired) {
           validationFunctions.push({ keyword: zodKeywords.optional })
         }
@@ -344,10 +292,24 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
       return this.#getTypeFromProperties(schema, baseName)
     }
 
+    if (version === '3.1' && 'const' in schema) {
+      // const keyword takes precendence over the actual type.
+      if (schema['const']) {
+        if (typeof schema['const'] === 'string') {
+          return [{ keyword: zodKeywords.literal, args: `"${schema['const']}"` }]
+        } else if (typeof schema['const'] === 'number') {
+          return [{ keyword: zodKeywords.literal, args: schema['const'] }]
+        }
+      } else {
+        return [{ keyword: zodKeywords.literal, args: 'z.null()' }]
+      }
+    }
+
     if (schema.type) {
       if (Array.isArray(schema.type)) {
+        // TODO  remove hardcoded first type, second nullable
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
-        const [type] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
+        const [type, nullable] = schema.type as Array<OpenAPIV3.NonArraySchemaObjectType>
 
         return [
           ...this.getTypeFromSchema(
@@ -357,14 +319,69 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
             },
             baseName,
           ),
-          { keyword: zodKeywords.null },
-        ]
+          nullable ? { keyword: zodKeywords.nullable } : undefined,
+        ].filter(Boolean)
+      }
+      const baseItems: ZodMeta[] = []
+
+      if (schema.default !== undefined && !Array.isArray(schema.default)) {
+        if (typeof schema.default === 'string') {
+          baseItems.push({ keyword: zodKeywords.default, args: `"${schema.default}"` })
+        }
+        if (typeof schema.default === 'boolean') {
+          baseItems.push({ keyword: zodKeywords.default, args: schema.default ?? false })
+        }
+      }
+
+      if (schema.description) {
+        baseItems.push({ keyword: zodKeywords.describe, args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
+      }
+
+      if (schema.type === zodKeywords.number || schema.type === zodKeywords.integer) {
+        const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
+        const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
+
+        if (min !== undefined) {
+          baseItems.push({ keyword: zodKeywords.min, args: min })
+        }
+        if (max !== undefined) {
+          baseItems.push({ keyword: zodKeywords.max, args: max })
+        }
+      }
+
+      if (schema.pattern) {
+        const isStartWithSlash = schema.pattern.startsWith('/')
+        const isEndWithSlash = schema.pattern.endsWith('/')
+
+        const regexp = `new RegExp('${transformers.jsStringEscape(schema.pattern.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))}')`
+        baseItems.push({ keyword: zodKeywords.matches, args: regexp })
+      }
+
+      if (schema.format === 'date-time' || baseName === 'date') {
+        baseItems.push({ keyword: zodKeywords.datetime })
+      }
+
+      if (schema.format === 'email' || baseName === 'email') {
+        baseItems.push({ keyword: zodKeywords.email })
+      }
+
+      if (schema.format === 'uri' || schema.format === 'hostname') {
+        baseItems.push({ keyword: zodKeywords.url })
+      }
+      if (schema.format === 'uuid') {
+        baseItems.push({ keyword: zodKeywords.uuid })
+      }
+
+      if (schema.readOnly) {
+        baseItems.push({ keyword: zodKeywords.readOnly })
       }
 
       // string, boolean, null, number
       if (schema.type in zodKeywords) {
-        return [{ keyword: schema.type }]
+        return [{ keyword: schema.type }, ...baseItems]
       }
+
+      return baseItems
     }
 
     if (schema.format === 'binary') {
