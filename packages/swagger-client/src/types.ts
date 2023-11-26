@@ -1,4 +1,4 @@
-import type { KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { KubbFile, KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 import type { Client, Operations } from './components/index.ts'
 
@@ -18,6 +18,10 @@ export type Options = {
      * Name to be used for the `export * as {{exportAs}} from './'`
      */
     exportAs?: string
+    /**
+     * Add an extension to the generated imports and exports, default it will not use an extension
+     */
+    extName?: KubbFile.Extname
   }
   /**
    * Group the clients based on the provided name.

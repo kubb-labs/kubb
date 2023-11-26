@@ -151,7 +151,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       await this.fileManager.addIndexes({
         root,
         output,
-        extName: '.ts',
         meta: { pluginKey: this.plugin.key },
       })
     },

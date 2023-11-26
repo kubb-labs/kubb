@@ -23,6 +23,7 @@ type Options = {
   output: {
     path: string
     exportAs?: string
+    extName?: string
   }
 }
 
@@ -68,7 +69,7 @@ export function getGroupedByTagFiles({
           baseName: 'index.ts' as const,
           path: path.resolve(root, output.path, 'index.ts'),
           source: '',
-          exports: [{ path: `${tagPath}/index`, asAlias: true, name: tagName }],
+          exports: [{ path: output.extName ? `${tagPath}/index${output.extName}` : `${tagPath}/index`, asAlias: true, name: tagName }],
           meta: {
             pluginKey: plugin.key,
           },

@@ -36,6 +36,7 @@ export default defineConfig(async () => {
         {
           output: {
             path: 'models/ts',
+            extName: '.js',
           },
           group: {
             type: 'tag',

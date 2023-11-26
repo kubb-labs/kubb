@@ -104,8 +104,45 @@ export default defineConfig({
     createSwaggerZodios(
       {
         output: {
-          path: 'zodios.ts',
           exportAs: 'zodios',
+        },
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+#### output.extName
+
+Add an extension to the generated imports and exports, default it will not use an extension
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerZod from '@kubb/swagger-zod'
+import createSwaggerZodios from '@kubb/swagger-zodios'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod({}),
+    createSwaggerZodios(
+      {
+        output: {
+          extName: '.js',
         },
       },
     ),
