@@ -88,7 +88,7 @@ exports[`TypeGenerator with discriminators > Cat.type defined as const 1`] = `
      * @type string uuid
     */
     id: string;
-    type: any;
+    type: \\"Cat\\";
     /**
      * @type boolean | undefined
     */
@@ -112,6 +112,33 @@ exports[`TypeGenerator with discriminators > Dog.type defined as const 1`] = `
 "
 `;
 
+exports[`TypeGenerator with discriminators > MixedValueTypeConst ignores type constraint in favor of const constraint 1`] = `
+"export type MixedValueTypeConst = {
+    /**
+     * @type number | undefined
+    */
+    foobar?: \\"foobar\\";
+};
+"
+`;
+
+exports[`TypeGenerator with discriminators > NullConst correctly produces "null" 1`] = `
+"export type NullConst = {
+    withoutValue?: null;
+};
+"
+`;
+
+exports[`TypeGenerator with discriminators > NumberValueConst const correctly produces \`42\` 1`] = `
+"export type NumberValueConst = {
+    /**
+     * @type number | undefined
+    */
+    foobar?: 42;
+};
+"
+`;
+
 exports[`TypeGenerator with discriminators > PetStore defined as array with type union 1`] = `
 "export type Petstore = {
     /**
@@ -123,6 +150,16 @@ exports[`TypeGenerator with discriminators > PetStore defined as array with type
      * @default
     */
     pets?: (Cat | Dog)[];
+};
+"
+`;
+
+exports[`TypeGenerator with discriminators > StringValueConst const correctly produces "foobar" 1`] = `
+"export type StringValueConst = {
+    /**
+     * @type string | undefined
+    */
+    foobar?: \\"foobar\\";
 };
 "
 `;

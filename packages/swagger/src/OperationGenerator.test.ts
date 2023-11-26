@@ -50,14 +50,14 @@ class DummyOperationGenerator extends OperationGenerator {
   }
 }
 
-describe('OperationGenerator core', () => {
-  test('if pathParams return undefined when there are no params in path', async () => {
-    const oas = await OasManager.parseFromConfig({
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })
+describe('OperationGenerator core', async () => {
+  const oas = await OasManager.parseFromConfig({
+    root: './',
+    output: { path: 'test', clean: true },
+    input: { path: 'packages/swagger/mocks/petStore.yaml' },
+  })
 
+  test('if pathParams return undefined when there are no params in path', async () => {
     const og = new DummyOperationGenerator(
       {},
       {
@@ -76,14 +76,13 @@ describe('OperationGenerator core', () => {
   })
 })
 
-describe('OperationGenerator exclude', () => {
+describe('OperationGenerator exclude', async () => {
+  const oas = await OasManager.parseFromConfig({
+    root: './',
+    output: { path: 'test', clean: true },
+    input: { path: 'packages/swagger/mocks/petStore.yaml' },
+  })
   test('if exclude is filtered out for tag', async () => {
-    const oas = await OasManager.parseFromConfig({
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })
-
     const og = new DummyOperationGenerator(
       {},
       {
@@ -108,12 +107,6 @@ describe('OperationGenerator exclude', () => {
   })
 
   test('if exclude is filtered out for operationId', async () => {
-    const oas = await OasManager.parseFromConfig({
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })
-
     const og = new DummyOperationGenerator(
       {},
       {
@@ -138,12 +131,6 @@ describe('OperationGenerator exclude', () => {
   })
 
   test('if exclude is filtered out for path', async () => {
-    const oas = await OasManager.parseFromConfig({
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })
-
     const og = new DummyOperationGenerator(
       {},
       {
@@ -168,12 +155,6 @@ describe('OperationGenerator exclude', () => {
   })
 
   test('if exclude is filtered out for method', async () => {
-    const oas = await OasManager.parseFromConfig({
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })
-
     const og = new DummyOperationGenerator(
       {},
       {
@@ -198,12 +179,6 @@ describe('OperationGenerator exclude', () => {
   })
 
   test('if exclude is filtered out for path and operationId', async () => {
-    const oas = await OasManager.parseFromConfig({
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })
-
     const og = new DummyOperationGenerator(
       {},
       {
@@ -232,14 +207,14 @@ describe('OperationGenerator exclude', () => {
   })
 })
 
-describe('OperationGenerator include', () => {
-  test('if include is only selecting tag', async () => {
-    const oas = await OasManager.parseFromConfig({
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })
+describe('OperationGenerator include', async () => {
+  const oas = await OasManager.parseFromConfig({
+    root: './',
+    output: { path: 'test', clean: true },
+    input: { path: 'packages/swagger/mocks/petStore.yaml' },
+  })
 
+  test('if include is only selecting tag', async () => {
     const og = new DummyOperationGenerator(
       {},
       {
@@ -264,12 +239,6 @@ describe('OperationGenerator include', () => {
   })
 
   test('if include is only selecting for operationId', async () => {
-    const oas = await OasManager.parseFromConfig({
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })
-
     const og = new DummyOperationGenerator(
       {},
       {
@@ -294,12 +263,6 @@ describe('OperationGenerator include', () => {
   })
 
   test('if include is only selecting for path', async () => {
-    const oas = await OasManager.parseFromConfig({
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })
-
     const og = new DummyOperationGenerator(
       {},
       {
@@ -324,12 +287,6 @@ describe('OperationGenerator include', () => {
   })
 
   test('if include is only selecting for method', async () => {
-    const oas = await OasManager.parseFromConfig({
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })
-
     const og = new DummyOperationGenerator(
       {},
       {
@@ -354,12 +311,6 @@ describe('OperationGenerator include', () => {
   })
 
   test('if include is only selecting path and operationId', async () => {
-    const oas = await OasManager.parseFromConfig({
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })
-
     const og = new DummyOperationGenerator(
       {},
       {
@@ -388,14 +339,14 @@ describe('OperationGenerator include', () => {
   })
 })
 
-describe('OperationGenerator include and exclude', () => {
-  test('if include is only selecting path and exclude is removing the GET calls', async () => {
-    const oas = await OasManager.parseFromConfig({
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger/mocks/petStore.yaml' },
-    })
+describe('OperationGenerator include and exclude', async () => {
+  const oas = await OasManager.parseFromConfig({
+    root: './',
+    output: { path: 'test', clean: true },
+    input: { path: 'packages/swagger/mocks/petStore.yaml' },
+  })
 
+  test('if include is only selecting path and exclude is removing the GET calls', async () => {
     const og = new DummyOperationGenerator(
       {},
       {

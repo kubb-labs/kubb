@@ -1,0 +1,180 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OperationGenerator > [GET] should generate with optionalType \`questionToken\` 1`] = `
+[
+  {
+    "baseName": "listPets.ts",
+    "env": undefined,
+    "exports": [],
+    "id": undefined,
+    "imports": [
+      {
+        "isTypeOnly": true,
+        "name": [
+          "Error",
+        ],
+        "path": "Error",
+        "root": "listPets.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "Pets",
+        ],
+        "path": "Pets",
+        "root": "listPets.ts",
+      },
+    ],
+    "meta": {
+      "name": "listPets",
+      "pluginKey": undefined,
+      "tag": "pets",
+    },
+    "override": undefined,
+    "path": "listPets.ts",
+    "source": "export type ListPetsQueryParams = {
+    /**
+     * @description How many items to return at one time (max 100)
+     * @type string | undefined
+    */
+    limit?: string;
+};
+
+ /**
+ * @description unexpected error
+*/
+export type ListPetsError = Error;
+
+ /**
+ * @description A paged array of pets
+*/
+export type ListPetsQueryResponse = Pets;
+export namespace listPetsQuery {
+    export type Response = ListPetsQueryResponse;
+    export type QueryParams = ListPetsQueryParams;
+    export type Errors = ListPetsError;
+}
+",
+  },
+]
+`;
+
+exports[`OperationGenerator > [GET] should generate with optionalType \`questionToken\` 2`] = `
+[
+  {
+    "baseName": "showPetById.ts",
+    "env": undefined,
+    "exports": [],
+    "id": undefined,
+    "imports": [
+      {
+        "isTypeOnly": true,
+        "name": [
+          "Error",
+        ],
+        "path": "Error",
+        "root": "showPetById.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "Pet",
+        ],
+        "path": "Pet",
+        "root": "showPetById.ts",
+      },
+    ],
+    "meta": {
+      "name": "showPetById",
+      "pluginKey": undefined,
+      "tag": "pets",
+    },
+    "override": undefined,
+    "path": "showPetById.ts",
+    "source": "export type ShowPetByIdPathParams = {
+    /**
+     * @description The id of the pet to retrieve
+     * @type string
+    */
+    petId: string;
+    /**
+     * @description The id of the pet to retrieve
+     * @type string
+    */
+    testId: string;
+};
+
+ /**
+ * @description unexpected error
+*/
+export type ShowPetByIdError = Error;
+
+ /**
+ * @description Expected response to a valid request
+*/
+export type ShowPetByIdQueryResponse = Pet;
+export namespace showPetByIdQuery {
+    export type Response = ShowPetByIdQueryResponse;
+    export type PathParams = ShowPetByIdPathParams;
+    export type Errors = ShowPetByIdError;
+}
+",
+  },
+]
+`;
+
+exports[`OperationGenerator > [POST] should generate 1`] = `
+[
+  {
+    "baseName": "createPets.ts",
+    "env": undefined,
+    "exports": [],
+    "id": undefined,
+    "imports": [
+      {
+        "isTypeOnly": true,
+        "name": [
+          "Error",
+        ],
+        "path": "Error",
+        "root": "createPets.ts",
+      },
+    ],
+    "meta": {
+      "name": "createPets",
+      "pluginKey": undefined,
+      "tag": "pets",
+    },
+    "override": undefined,
+    "path": "createPets.ts",
+    "source": "/**
+ * @description Null response
+*/
+export type CreatePets201 = any | null;
+
+ export type CreatePetsMutationRequest = {
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string
+    */
+    tag: string;
+};
+
+ export type CreatePetsMutationResponse = any | null;
+
+ /**
+ * @description unexpected error
+*/
+export type CreatePetsError = Error;
+export namespace createPetsMutation {
+    export type Response = CreatePetsMutationResponse;
+    export type Request = CreatePetsMutationRequest;
+    export type Errors = CreatePets201 | CreatePetsError;
+}
+",
+  },
+]
+`;

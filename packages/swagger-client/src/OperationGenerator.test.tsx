@@ -1,28 +1,24 @@
-import { FileManager } from '@kubb/core'
 import { OasManager } from '@kubb/swagger'
 
 import CustomClientTemplate from '../mocks/CustomClientTemplate.tsx'
-import { format } from '../mocks/format.ts'
 import { Client } from './components/Client.tsx'
 import { Operations } from './components/Operations.tsx'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
-import type { KubbPlugin, PluginContext, PluginManager } from '@kubb/core'
+import type { KubbPlugin, PluginManager } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
-describe('OperationGenerator', () => {
-  const resolvePath = () => './pets.ts'
-  const resolveName: PluginContext['resolveName'] = ({ name }) => name
+const mockedPluginManager = { resolveName: ({ name }) => name, resolvePath: ({ baseName }) => baseName } as PluginManager
 
-  test('[GET] should generate code based on a pathParamsType `inline`', async () => {
-    const config = {
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger-client/mocks/petStore.yaml' },
-    }
-    const oas = await OasManager.parseFromConfig(config)
+describe('OperationGenerator', async () => {
+  const oas = await OasManager.parseFromConfig({
+    root: './',
+    output: { path: 'test', clean: true },
+    input: { path: 'packages/swagger-client/mocks/petStore.yaml' },
+  })
 
+  test('[GET] should generate with pathParamsType `inline`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dataReturnType: 'data',
       pathParamsType: 'inline',
@@ -39,29 +35,19 @@ describe('OperationGenerator', () => {
         oas,
         exclude: [],
         include: undefined,
-        pluginManager: { resolvePath, resolveName, config } as unknown as PluginManager,
+        pluginManager: mockedPluginManager,
         plugin: { options } as KubbPlugin<PluginOptions>,
         contentType: undefined,
         override: undefined,
       },
     )
     const operation = oas.operation('/pets/{pet_id}', 'get')
-
     const files = await og.get(operation, og.getSchemas(operation), options)
 
-    if (files && Array.isArray(files)) {
-      expect(await format(files[0]?.source)).toMatchSnapshot()
-    }
+    expect(files).toMatchSnapshot()
   })
 
-  test('[GET] should generate code based on a pathParamsType `object`', async () => {
-    const config = {
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger-client/mocks/petStore.yaml' },
-    }
-    const oas = await OasManager.parseFromConfig(config)
-
+  test('[GET] should generate with pathParamsType `object`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dataReturnType: 'data',
       pathParamsType: 'object',
@@ -78,29 +64,19 @@ describe('OperationGenerator', () => {
         oas,
         exclude: [],
         include: undefined,
-        pluginManager: { resolvePath, resolveName, config } as unknown as PluginManager,
+        pluginManager: mockedPluginManager,
         plugin: { options } as KubbPlugin<PluginOptions>,
         contentType: undefined,
         override: undefined,
       },
     )
     const operation = oas.operation('/pets/{pet_id}', 'get')
-
     const files = await og.get(operation, og.getSchemas(operation), options)
 
-    if (files && Array.isArray(files)) {
-      expect(await format(files[0]?.source)).toMatchSnapshot()
-    }
+    expect(files).toMatchSnapshot()
   })
 
-  test('[GET] should generate code based on a custom template', async () => {
-    const config = {
-      root: './',
-      output: { path: 'test', clean: true },
-      input: { path: 'packages/swagger-client/mocks/petStore.yaml' },
-    }
-    const oas = await OasManager.parseFromConfig(config)
-
+  test('[GET] should generate with templates', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       dataReturnType: 'data',
       pathParamsType: 'object',
@@ -119,18 +95,15 @@ describe('OperationGenerator', () => {
         oas,
         exclude: [],
         include: undefined,
-        pluginManager: { resolvePath, resolveName, config } as unknown as PluginManager,
+        pluginManager: mockedPluginManager,
         plugin: { options } as KubbPlugin<PluginOptions>,
         contentType: undefined,
         override: undefined,
       },
     )
     const operation = oas.operation('/pets/{pet_id}', 'get')
-
     const files = await og.get(operation, og.getSchemas(operation), options)
 
-    if (files && Array.isArray(files) && files[0]) {
-      expect(await format(FileManager.getSource(files[0]))).toMatchSnapshot()
-    }
+    expect(files).toMatchSnapshot()
   })
 })
