@@ -19,8 +19,8 @@ export const pluginName = 'swagger-msw' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'handlers', group, exclude = [], include, override = [], transformers = {}, templates } = options
-  const template = group?.output ? group.output : `${output}/{{tag}}Controller`
+  const { output = { path: 'handlers' }, group, exclude = [], include, override = [], transformers = {}, templates } = options
+  const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
     name: pluginName,
@@ -34,14 +34,14 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     pre: [swaggerPluginName, swaggerTypeScriptPluginName, swaggerFakerPluginName],
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = FileManager.getMode(path.resolve(root, output))
+      const mode = FileManager.getMode(path.resolve(root, output.path))
 
       if (mode === 'file') {
         /**
          * when output is a file then we will always append to the same file(output file), see fileManager.addOrAppend
          * Other plugins then need to call addOrAppend instead of just add from the fileManager class
          */
-        return path.resolve(root, output)
+        return path.resolve(root, output.path)
       }
 
       if (options?.tag && group?.type === 'tag') {
@@ -50,7 +50,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return path.resolve(root, renderTemplate(template, { tag }), baseName)
       }
 
-      return path.resolve(root, output, baseName)
+      return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
       const resolvedName = camelCase(`${name} Handler`)

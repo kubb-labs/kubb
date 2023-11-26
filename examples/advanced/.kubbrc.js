@@ -22,7 +22,10 @@ export default defineConfig({
     // done: ['prettier --write "**/*.{ts,tsx}"', 'eslint --fix ./src/gen'],
   },
   plugins: [
-    createSwagger({ output: false, validate: true }),
+    createSwagger({
+      output: false,
+      validate: true,
+    }),
     createSwaggerTS({
       output: { path: 'models/ts' },
       group: {
@@ -32,7 +35,9 @@ export default defineConfig({
       dateType: 'date',
     }),
     createSwaggerTanstackQuery({
-      output: './clients/hooks',
+      output: {
+        path: './clients/hooks',
+      },
       exclude: [
         {
           type: 'tag',
@@ -43,7 +48,9 @@ export default defineConfig({
       infinite: {},
     }),
     createSwaggerSWR({
-      output: './clients/swr',
+      output: {
+        path: './clients/swr',
+      },
       exclude: [
         {
           type: 'tag',
@@ -53,7 +60,9 @@ export default defineConfig({
       group: { type: 'tag' },
     }),
     createSwaggerClient({
-      output: './clients/axios',
+      output: {
+        path: './clients/axios',
+      },
       exclude: [
         {
           type: 'tag',
@@ -63,7 +72,9 @@ export default defineConfig({
       group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
     }),
     createSwaggerZod({
-      output: './zod',
+      output: {
+        path: './zod',
+      },
       exclude: [
         {
           type: 'tag',
@@ -76,7 +87,9 @@ export default defineConfig({
       output: 'zodios.ts',
     }),
     createSwaggerFaker({
-      output: 'mocks',
+      output: {
+        path: 'mocks',
+      },
       exclude: [
         {
           type: 'tag',
@@ -87,7 +100,9 @@ export default defineConfig({
       dateType: 'date',
     }),
     createSwaggerMsw({
-      output: 'msw',
+      output: {
+        path: 'msw',
+      },
       exclude: [
         {
           type: 'tag',

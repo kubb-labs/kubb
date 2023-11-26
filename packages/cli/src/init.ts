@@ -52,7 +52,7 @@ export default defineConfig({
   hooks: {
     done: ['echo "🎉 done"'],
   },
-  plugins: [createSwagger({}), createSwaggerTS({ output: { path: 'models'}, enumType: 'enum' }), createSwaggerTanstackQuery({ output: './hooks' })],
+  plugins: [createSwagger({}), createSwaggerTS({ output: { path: 'models'}, enumType: 'enum' }), createSwaggerTanstackQuery({ output: { path: './hooks' } })],
 })
   `,
     packages: ['@kubb/core', '@kubb/cli', '@kubb/swagger', '@kubb/swagger-ts', '@kubb/swagger-tanstack-query'],

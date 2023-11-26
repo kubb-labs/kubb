@@ -43,6 +43,8 @@ yarn add @kubb/swagger-msw @kubb/swagger-ts @kubb/swagger-faker @kubb/swagger
 
 ### output
 
+#### output.path
+
 Relative path to save the MSW mocks.
 When output is a file it will save all models inside that file else it will create a file per schema item.
 
@@ -71,7 +73,50 @@ export default defineConfig({
     createSwaggerFaker({}),
     createSwaggerMsw(
       {
-        output: './mocks',
+        output: {
+          path: './mocks',
+        },
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+#### output.exportAs
+
+Name to be used for the `export * as {{exportAs}} from './'`
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerMsw from '@kubb/swagger-msw'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerFaker({}),
+    createSwaggerMsw(
+      {
+        output: {
+          path: './mocks',
+          exportAs: 'mocks',
+        },
       },
     ),
   ],
@@ -137,7 +182,9 @@ export default defineConfig({
     createSwaggerFaker({}),
     createSwaggerMsw(
       {
-        output: './mocks',
+        output: {
+          path: './mocks',
+        },
         group: { type: 'tag', output: './mocks/{{tag}}Handlers' },
       },
     ),
@@ -304,7 +351,9 @@ export default defineConfig({
             type: 'tag',
             pattern: 'pet',
             options: {
-              output: './custom',
+              output: {
+                path: './custom',
+              },
             },
           },
         ],
@@ -348,7 +397,9 @@ export default defineConfig({
     createSwaggerFaker({}),
     createSwaggerMsw(
       {
-        output: './mocks',
+        output: {
+          path: './mocks',
+        },
         transformers: {
           name: (name) => {
             return `${name}Client`
@@ -416,7 +467,9 @@ export default defineConfig({
     createSwaggerFaker({}),
     createSwaggerMsw(
       {
-        output: './mocks',
+        output: {
+          path: './mocks',
+        },
         templates,
       },
     ),

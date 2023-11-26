@@ -48,6 +48,8 @@ yarn add @kubb/swagger-tanstack-query @kubb/swagger-ts  @kubb/swagger
 
 ### output
 
+#### output.path
+
 Output to save the [Tanstack Query](https://tanstack.com/query) hooks.
 ::: info
 Type: `string` <br/>
@@ -71,7 +73,48 @@ export default defineConfig({
   plugins: [
     createSwagger({ output: false }),
     createSwaggerTS({}),
-    createSwaggerTanstackQuery({ output: './hooks' }),
+    createSwaggerTanstackQuery({
+      output: {
+        path: './hooks',
+      },
+    }),
+  ],
+})
+```
+
+:::
+
+#### output.exportAs
+
+Name to be used for the `export * as {{exportAs}} from './'`
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({
+      output: {
+        path: './hooks',
+        exportAs: 'hooks',
+      },
+    }),
   ],
 })
 ```
@@ -135,7 +178,9 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerTanstackQuery(
       {
-        output: './hooks',
+        output: {
+          path: './hooks',
+        },
         group: { type: 'tag', output: './hooks/{{tag}}Hooks' },
       },
     ),
@@ -634,7 +679,9 @@ export default defineConfig({
             type: 'tag',
             pattern: 'pet',
             options: {
-              output: './custom',
+              output: {
+                path: './custom',
+              },
             },
           },
         ],

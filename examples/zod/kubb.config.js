@@ -22,7 +22,9 @@ export default defineConfig(async () => {
         output: false,
       }],
       ['@kubb/swagger-zod', {
-        output: './zod',
+        output: {
+          path: './zod',
+        },
       }],
     ],
   }

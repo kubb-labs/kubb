@@ -36,7 +36,9 @@ export default defineConfig(async () => {
       [
         '@kubb/swagger-client',
         {
-          output: './clients/axios',
+          output: {
+            path: './clients/axios',
+          },
           exclude: [
             {
               type: 'tag',

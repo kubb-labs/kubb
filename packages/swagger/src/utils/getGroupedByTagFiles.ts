@@ -20,7 +20,10 @@ type Options = {
   /**
    * Output for plugin
    */
-  output: string
+  output: {
+    path: string
+    exportAs?: string
+  }
 }
 
 type FileMeta = {
@@ -37,7 +40,7 @@ export function getGroupedByTagFiles({
   root,
   output,
 }: Options): KubbFile.File<FileMeta>[] {
-  const mode = FileManager.getMode(path.resolve(root, output))
+  const mode = FileManager.getMode(path.resolve(root, output.path))
 
   if (mode === 'file') {
     return []
@@ -57,13 +60,13 @@ export function getGroupedByTagFiles({
       }
 
       const tag = file.meta?.tag && transformers.camelCase(file.meta.tag)
-      const tagPath = getRelativePath(path.resolve(root, output), path.resolve(root, renderTemplate(template, { tag })))
+      const tagPath = getRelativePath(path.resolve(root, output.path), path.resolve(root, renderTemplate(template, { tag })))
       const tagName = renderTemplate(exportAs, { tag })
 
       if (tagName) {
         return {
           baseName: 'index.ts' as const,
-          path: path.resolve(root, output, 'index.ts'),
+          path: path.resolve(root, output.path, 'index.ts'),
           source: '',
           exports: [{ path: `${tagPath}/index`, asAlias: true, name: tagName }],
           meta: {

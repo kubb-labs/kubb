@@ -22,15 +22,27 @@ export default defineConfig(async () => {
         output: false,
       }],
       ['@kubb/swagger-ts', {
-        output: { path: 'models' },
+        output: {
+          path: 'models',
+        },
       }],
       ['@kubb/swagger-faker', {
-        output: './mocks',
-        group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
+        output: {
+          path: './mocks',
+        },
+        group: {
+          type: 'tag',
+          output: './mocks/{{tag}}Mocks',
+        },
       }],
       ['@kubb/swagger-msw', {
-        output: './msw',
-        group: { type: 'tag', output: './msw/{{tag}}Handlers' },
+        output: {
+          path: './msw',
+        },
+        group: {
+          type: 'tag',
+          output: './msw/{{tag}}Handlers',
+        },
       }],
     ],
   }

@@ -76,6 +76,8 @@ export default defineConfig({
 
 ### output
 
+#### output.path
+
 Relative path to save the JSON models.<br/>
 False will not generate the schema JSON's.
 
@@ -97,7 +99,11 @@ export default defineConfig({
     path: './src/gen',
   },
   plugins: [
-    createSwagger({ output: './json' }),
+    createSwagger({
+      output: {
+        path: './json',
+      },
+    }),
   ],
 })
 ```
@@ -121,6 +127,39 @@ export default defineConfig({
 
 :::
 
+#### output.exportAs
+
+Name to be used for the `export * as {{exportAs}} from './'`
+
+::: info
+Type: `string` <br/>
+
+::: code-group
+
+```typescript [output]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({
+      output: {
+        path: 'schemas',
+        exportAs: 'schemas',
+      },
+    }),
+  ],
+})
+```
+
+:::
+
 ### serverIndex
 
 Which server to use from the array of `servers.url[serverIndex]`
@@ -138,7 +177,7 @@ Default: `0`
 openapi: 3.0.3
 info:
   title: Swagger Example
-  description: 
+  description:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html

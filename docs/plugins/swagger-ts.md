@@ -71,7 +71,7 @@ export default defineConfig({
 
 :::
 
-#### output.path
+#### output.exportAs
 
 Name to be used for the `export * as {{exportAs}} from './'`
 
@@ -571,7 +571,9 @@ export default defineConfig({
             type: 'tag',
             pattern: 'pet',
             options: {
-              output: './custom',
+              output: {
+                path: './custom',
+              },
             },
           },
         ],

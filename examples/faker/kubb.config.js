@@ -29,11 +29,15 @@ export default defineConfig(async () => {
         },
       }),
       // createSwaggerFaker({
-      //   output: './mocks',
+      //   output: {
+      //     path: './mocks',
+      //   },
       //   group: { type: 'tag', output: './mocks/{{tag}}Mocks' },
       // }),
       createSwaggerFaker({
-        output: './customMocks',
+        output: {
+          path: './customMocks',
+        },
         transformers: {
           schema: (_schema, baseName) => {
             /* override a property with name 'name'

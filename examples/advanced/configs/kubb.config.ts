@@ -19,8 +19,18 @@ export default defineConfig(async () => {
       // done: ['npx eslint --fix ./src/gen', 'prettier --write "**/*.{ts,tsx}"', 'pnpm typecheck'],
     },
     plugins: [
-      ['@kubb/swagger', { output: 'schemas', validate: true }],
-      ['@kubb/swagger', { output: 'schemas2', validate: true }],
+      ['@kubb/swagger', {
+        output: {
+          path: 'schemas',
+        },
+        validate: true,
+      }],
+      ['@kubb/swagger', {
+        output: {
+          path: 'schemas2',
+        },
+        validate: true,
+      }],
       [
         '@kubb/swagger-ts',
         {
@@ -44,7 +54,9 @@ export default defineConfig(async () => {
       [
         '@kubb/swagger-tanstack-query',
         {
-          output: './clients/hooks',
+          output: {
+            path: './clients/hooks',
+          },
           exclude: [
             {
               type: 'tag',
@@ -71,7 +83,9 @@ export default defineConfig(async () => {
       [
         '@kubb/swagger-swr',
         {
-          output: './clients/swr',
+          output: {
+            path: './clients/swr',
+          },
           exclude: [
             {
               type: 'tag',
@@ -86,7 +100,9 @@ export default defineConfig(async () => {
       [
         '@kubb/swagger-client',
         {
-          output: './clients/axios',
+          output: {
+            path: './clients/axios',
+          },
           exclude: [
             {
               type: 'tag',
@@ -102,7 +118,9 @@ export default defineConfig(async () => {
       [
         '@kubb/swagger-zod',
         {
-          output: './zod',
+          output: {
+            path: './zod',
+          },
           exclude: [
             {
               type: 'tag',
@@ -115,13 +133,17 @@ export default defineConfig(async () => {
       [
         '@kubb/swagger-zodios',
         {
-          output: 'zodios.ts',
+          output: {
+            path: 'zodios.ts',
+          },
         },
       ],
       [
         '@kubb/swagger-faker',
         {
-          output: 'mocks',
+          output: {
+            path: 'mocks',
+          },
           exclude: [
             {
               type: 'tag',
@@ -135,7 +157,9 @@ export default defineConfig(async () => {
       [
         '@kubb/swagger-msw',
         {
-          output: 'msw',
+          output: {
+            path: 'msw',
+          },
           exclude: [
             {
               type: 'tag',

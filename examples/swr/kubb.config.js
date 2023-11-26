@@ -17,7 +17,15 @@ export default defineConfig({
   },
   plugins: [
     createSwagger({ output: false }),
-    createSwaggerTS({ output: { path: 'models' } }),
-    createSwaggerSWR({ output: './hooks' }),
+    createSwaggerTS({
+      output: {
+        path: 'models',
+      },
+    }),
+    createSwaggerSWR({
+      output: {
+        path: './hooks',
+      },
+    }),
   ],
 })

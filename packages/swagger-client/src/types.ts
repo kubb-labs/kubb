@@ -8,11 +8,17 @@ type Templates = {
 }
 
 export type Options = {
-  /**
-   * Output to save the clients.
-   * @default `"clients"``
-   */
-  output?: string
+  output?: {
+    /**
+     * Output to save the clients.
+     * @default `"clients"``
+     */
+    path: string
+    /**
+     * Name to be used for the `export * as {{exportAs}} from './'`
+     */
+    exportAs?: string
+  }
   /**
    * Group the clients based on the provided name.
    */

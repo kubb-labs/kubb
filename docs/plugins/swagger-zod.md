@@ -60,7 +60,9 @@ export default defineConfig({
     createSwagger({ output: false }),
     createSwaggerZod(
       {
-        output: './zod',
+        output: {
+          path: './zod',
+        },
       },
     ),
   ],
@@ -124,7 +126,9 @@ export default defineConfig({
     createSwagger({ output: false }),
     createSwaggerZod(
       {
-        output: './schemas',
+        output: {
+          path: './schemas',
+        },
         group: { type: 'tag', output: './schemas/{{tag}}Schemas' },
       },
     ),
@@ -280,7 +284,9 @@ export default defineConfig({
             type: 'tag',
             pattern: 'pet',
             options: {
-              output: './custom',
+              output: {
+                path: './custom',
+              },
             },
           },
         ],

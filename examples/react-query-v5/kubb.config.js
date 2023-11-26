@@ -31,7 +31,9 @@ export default defineConfig({
           return name
         },
       },
-      output: './hooks',
+      output: {
+        path: './hooks',
+      },
       framework: 'react',
       infinite: {},
       suspense: {},

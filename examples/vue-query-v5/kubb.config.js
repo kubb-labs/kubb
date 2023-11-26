@@ -25,7 +25,9 @@ export default defineConfig({
       },
     }),
     createSwaggerTanstackQuery({
-      output: './hooks',
+      output: {
+        path: './hooks',
+      },
       framework: 'vue',
     }),
   ],

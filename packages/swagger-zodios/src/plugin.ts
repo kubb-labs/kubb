@@ -16,12 +16,12 @@ export const pluginName = 'swagger-zodios' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = 'zodios.ts' } = options
+  const { output = { path: 'zodios.ts' } } = options
 
   return {
     name: pluginName,
     options: {
-      name: trimExtName(output),
+      name: trimExtName(output.path),
       baseURL: undefined,
     },
     pre: [swaggerPluginName, swaggerZodPluginName],
@@ -49,7 +49,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const operationGenerator = new OperationGenerator(
         {
-          name: trimExtName(output),
+          name: trimExtName(output.path),
           baseURL: await swaggerPlugin.api.getBaseURL(),
         },
         {

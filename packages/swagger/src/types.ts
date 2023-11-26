@@ -25,12 +25,19 @@ export type Options = {
    * @default true
    */
   validate?: boolean
-  /**
-   * Relative path to save the JSON models.
-   * False will not generate the schema JSON's.
-   * @default 'schemas'
-   */
-  output?: string | false
+  output?: {
+    /**
+     * Relative path to save the JSON models.
+     * False will not generate the schema JSON's.
+     * @default 'schemas'
+     */
+    path: string
+    /**
+     * Name to be used for the `export * as {{exportAs}} from './'`
+     */
+    exportAs?: string
+  } | false
+
   /**
    * Which server to use from the array of `servers.url[serverIndex]`
    * @example `0` will return `http://petstore.swagger.io/api` and `1` will return `http://localhost:3000`

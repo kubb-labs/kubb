@@ -31,24 +31,59 @@ const baseConfig = {
     done: ['pnpm typecheck'],
   },
   plugins: [
-    ['@kubb/swagger', { output: false, validate: true }],
+    ['@kubb/swagger', {
+      output: false,
+      validate: true,
+    }],
     [
       '@kubb/swagger-ts',
       {
-        output: { path: 'models/ts' },
+        output: {
+          path: 'models/ts',
+        },
         group: {
           type: 'tag',
         },
         enumType: 'asPascalConst',
       },
     ],
-    ['@kubb/swagger-tanstack-query', { output: './clients/hooks', group: { type: 'tag' } }],
-    ['@kubb/swagger-swr', { output: './clients/swr', group: { type: 'tag' } }],
-    ['@kubb/swagger-client', { output: './clients/axios', group: { type: 'tag', output: './clients/axios/{{tag}}Service' } }],
-    ['@kubb/swagger-zod', { output: './zod', group: { type: 'tag' } }],
+    ['@kubb/swagger-tanstack-query', {
+      output: {
+        path: './clients/hooks',
+      },
+      group: { type: 'tag' },
+    }],
+    ['@kubb/swagger-swr', {
+      output: {
+        path: './clients/swr',
+      },
+      group: { type: 'tag' },
+    }],
+    ['@kubb/swagger-client', {
+      output: {
+        path: './clients/axios',
+      },
+      group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
+    }],
+    ['@kubb/swagger-zod', {
+      output: {
+        path: './zod',
+      },
+      group: { type: 'tag' },
+    }],
     // ['@kubb/swagger-zodios', { output: 'zodios.ts' }],
-    ['@kubb/swagger-faker', { output: 'mocks', group: { type: 'tag' } }],
-    ['@kubb/swagger-msw', { output: 'msw', group: { type: 'tag' } }],
+    ['@kubb/swagger-faker', {
+      output: {
+        path: 'mocks',
+      },
+      group: { type: 'tag' },
+    }],
+    ['@kubb/swagger-msw', {
+      output: {
+        path: 'msw',
+      },
+      group: { type: 'tag' },
+    }],
   ],
 }
 
