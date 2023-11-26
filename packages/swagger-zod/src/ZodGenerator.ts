@@ -162,6 +162,21 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
       return this.#getRefAlias(schema, baseName)
     }
 
+    const baseItems: ZodMeta[] = []
+
+    if (schema.default !== undefined && !Array.isArray(schema.default)) {
+      if (typeof schema.default === 'string') {
+        baseItems.push({ keyword: zodKeywords.default, args: `"${schema.default}"` })
+      }
+      if (typeof schema.default === 'boolean') {
+        baseItems.push({ keyword: zodKeywords.default, args: schema.default ?? false })
+      }
+    }
+
+    if (schema.description) {
+      baseItems.push({ keyword: zodKeywords.describe, args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
+    }
+
     if (schema.oneOf) {
       // union
       const schemaWithoutOneOf = { ...schema, oneOf: undefined }
@@ -240,6 +255,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
             keyword: zodKeywords.enum,
             args: [...new Set(schema['x-enumNames'] as string[])].map((value: string) => `\`${value}\``),
           },
+          ...baseItems,
         ]
       }
 
@@ -255,6 +271,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
               }
             }),
           },
+          ...baseItems,
         ]
       }
 
@@ -263,12 +280,13 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
           keyword: zodKeywords.enum,
           args: [...new Set(schema.enum)].map((value: string) => `\`${value}\``),
         },
+        ...baseItems,
       ]
     }
 
     if ('items' in schema) {
       // items -> array
-      return [{ keyword: zodKeywords.array, args: this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName) }]
+      return [{ keyword: zodKeywords.array, args: this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName) }, ...baseItems]
     }
 
     if ('prefixItems' in schema) {
@@ -321,20 +339,6 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
           ),
           nullable ? { keyword: zodKeywords.nullable } : undefined,
         ].filter(Boolean)
-      }
-      const baseItems: ZodMeta[] = []
-
-      if (schema.default !== undefined && !Array.isArray(schema.default)) {
-        if (typeof schema.default === 'string') {
-          baseItems.push({ keyword: zodKeywords.default, args: `"${schema.default}"` })
-        }
-        if (typeof schema.default === 'boolean') {
-          baseItems.push({ keyword: zodKeywords.default, args: schema.default ?? false })
-        }
-      }
-
-      if (schema.description) {
-        baseItems.push({ keyword: zodKeywords.describe, args: `\`${schema.description.replaceAll('\n', ' ').replaceAll('`', "'")}\`` })
       }
 
       if (schema.type === zodKeywords.number || schema.type === zodKeywords.integer) {
