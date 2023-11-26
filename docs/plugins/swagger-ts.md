@@ -110,14 +110,14 @@ export default defineConfig({
 
 Group the TypeScript types based on the provided name.
 
-#### type
+#### group.type
 
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
-#### output
+#### group.output
 
 ::: v-pre
 Relative path to save the grouped TypeScript Types.
@@ -587,7 +587,7 @@ export default defineConfig({
 
 ### transformers
 
-#### name
+#### transformers.name
 
 Override the name of the TypeScript type that is getting generated, this will also override the name of the file.
 

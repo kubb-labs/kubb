@@ -125,14 +125,14 @@ export default defineConfig({
 
 Group the [Tanstack Query](https://tanstack.com/query) hooks based on the provided name.
 
-#### type
+#### group.type
 
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
-#### output
+#### group.output
 
 ::: v-pre
 Relative path to save the grouped [Tanstack Query](https://tanstack.com/query) hooks.
@@ -145,7 +145,7 @@ Example: `hooks/{{tag}}Controller` => `hooks/PetController` <br/>
 Default: `'${output}/{{tag}}Controller'`
 :::
 
-#### exportAs
+#### group.exportAs
 
 ::: v-pre
 Name to be used for the `export * as {{exportAs}} from './`
@@ -410,7 +410,7 @@ export default defineConfig({
 
 :::
 
-#### queryParam
+#### infinite.queryParam
 
 Specify the params key used for `pageParam`.<br/>
 Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery`.
@@ -448,7 +448,7 @@ export default defineConfig({
 
 :::
 
-#### initialPageParam
+#### infinite.initialPageParam
 
 Specify the initial page param value.<br/>
 Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` and will only be needed for v5.
@@ -695,7 +695,7 @@ export default defineConfig({
 
 ### transformers
 
-#### name
+#### transformers.name
 
 Override the name of the hook that is getting generated, this will also override the name of the file.
 

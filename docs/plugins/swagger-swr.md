@@ -116,14 +116,14 @@ export default defineConfig({
 
 Group the SWR hooks based on the provided name.
 
-#### type
+#### group.type
 
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
-#### output
+#### group.output
 
 ::: v-pre
 Relative path to save the grouped SWR hooks.
@@ -136,7 +136,7 @@ Example: `hooks/{{tag}}Controller` => `hooks/PetController` <br/>
 Default: `'${output}/{{tag}}Controller'`
 :::
 
-#### exportAs
+#### group.exportAs
 
 ::: v-pre
 Name to be used for the `export * as {{exportAs}} from './`
@@ -476,7 +476,7 @@ export default defineConfig({
 
 ### transformers
 
-#### name
+#### transformers.name
 
 Override the name of the hook that is getting generated, this will also override the name of the file.
 

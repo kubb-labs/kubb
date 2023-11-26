@@ -118,14 +118,14 @@ export default defineConfig({
 
 Group the Faker mocks based on the provided name.
 
-#### type
+#### group.type
 
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
-#### output
+#### group.output
 
 ::: v-pre
 Relative path to save the grouped Faker mocks.
@@ -138,7 +138,7 @@ Example: `mocks/{{tag}}Controller` => `mocks/PetController` <br/>
 Default: `${output}/{{tag}}Controller`
 :::
 
-#### exportAs
+#### group.exportAs
 
 Name to be used for the `export * as {{exportAs}} from './`
 
@@ -349,7 +349,7 @@ export default defineConfig({
 
 ### transformers
 
-#### name
+#### transformers.name
 
 Override the name of the faker data that is getting generated, this will also override the name of the file.
 

@@ -75,14 +75,14 @@ export default defineConfig({
 
 Group the Zod schemas based on the provided name.
 
-#### type
+#### group.type
 
 Tag will group based on the operation tag inside the Swagger file.
 
 Type: `'tag'` <br/>
 Required: `true`
 
-#### output
+#### group.output
 
 ::: v-pre
 Relative path to save the grouped Zod schemas.
@@ -95,7 +95,7 @@ Example: `zod/{{tag}}Controller` => `zod/PetController` <br/>
 Default: `'${output}/{{tag}}Controller'`
 :::
 
-#### exportAs
+#### group.exportAs
 
 ::: v-pre
 Name to be used for the `export * as {{exportAs}} from './`
@@ -300,7 +300,7 @@ export default defineConfig({
 
 ### transformers
 
-#### name
+#### transformers.name
 
 Override the name of the Zod schema that is getting generated, this will also override the name of the file.
 
