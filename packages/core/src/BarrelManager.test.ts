@@ -44,14 +44,22 @@ describe('BarrelManager', () => {
 
     expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()
   })
-  test('if getIndexes can return an export with `includeExt`', () => {
-    const barrelManager = new BarrelManager()
+  test('if getIndexes can return an export with treeNode options', () => {
+    const barrelManager = new BarrelManager({
+      treeNode: {
+        extensions: /\.ts/,
+        exclude: [/schemas/, /json/],
+      },
+      extName: '.ts',
+    })
 
     const rootPath = path.resolve(__dirname, '../mocks/treeNode')
     const files = barrelManager.getIndexes(rootPath) || []
     const rootIndex = files[0]
 
     expect(rootIndex).toBeDefined()
+
+    console.log(rootIndex)
 
     expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()
   })
