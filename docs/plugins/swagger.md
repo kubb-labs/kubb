@@ -127,39 +127,6 @@ export default defineConfig({
 
 :::
 
-#### output.exportAs
-
-Name to be used for the `export * as {{exportAs}} from './'`
-
-::: info
-Type: `string` <br/>
-
-::: code-group
-
-```typescript [output]
-import { defineConfig } from '@kubb/swagger'
-import createSwagger from '@kubb/swagger'
-
-export default defineConfig({
-  input: {
-    path: './petStore.yaml',
-  },
-  output: {
-    path: './src/gen',
-  },
-  plugins: [
-    createSwagger({
-      output: {
-        path: 'schemas',
-        exportAs: 'schemas',
-      },
-    }),
-  ],
-})
-```
-
-:::
-
 ### serverIndex
 
 Which server to use from the array of `servers.url[serverIndex]`

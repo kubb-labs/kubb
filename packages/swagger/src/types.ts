@@ -32,10 +32,6 @@ export type Options = {
      * @default 'schemas'
      */
     path: string
-    /**
-     * Name to be used for the `export * as {{exportAs}} from './'`
-     */
-    exportAs?: string
   } | false
 
   /**

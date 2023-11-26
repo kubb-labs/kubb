@@ -34,7 +34,9 @@ export default defineConfig(async () => {
       [
         '@kubb/swagger-ts',
         {
-          output: { path: 'models/ts' },
+          output: {
+            path: 'models/ts',
+          },
           group: {
             type: 'tag',
           },
@@ -56,6 +58,7 @@ export default defineConfig(async () => {
         {
           output: {
             path: './clients/hooks',
+            exportAs: 'hooks',
           },
           exclude: [
             {
@@ -85,6 +88,7 @@ export default defineConfig(async () => {
         {
           output: {
             path: './clients/swr',
+            exportAs: 'swrHooks',
           },
           exclude: [
             {
@@ -102,6 +106,7 @@ export default defineConfig(async () => {
         {
           output: {
             path: './clients/axios',
+            exportAs: 'clients',
           },
           exclude: [
             {
@@ -120,6 +125,7 @@ export default defineConfig(async () => {
         {
           output: {
             path: './zod',
+            exportAs: 'zod',
           },
           exclude: [
             {
@@ -135,6 +141,7 @@ export default defineConfig(async () => {
         {
           output: {
             path: 'zodios.ts',
+            exportAs: 'zodios',
           },
         },
       ],
@@ -143,6 +150,7 @@ export default defineConfig(async () => {
         {
           output: {
             path: 'mocks',
+            exportAs: 'faker',
           },
           exclude: [
             {
@@ -159,6 +167,7 @@ export default defineConfig(async () => {
         {
           output: {
             path: 'msw',
+            exportAs: 'msw',
           },
           exclude: [
             {
