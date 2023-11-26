@@ -358,6 +358,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
 
     if (schema.type) {
       if (Array.isArray(schema.type)) {
+        // TODO  remove hardcoded first type, second nullable
         // OPENAPI v3.1.0: https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
         const [type, nullable] = schema.type as Array<OpenAPIV3_1.NonArraySchemaObjectType>
 
