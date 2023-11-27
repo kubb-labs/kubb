@@ -18,7 +18,7 @@ export default defineConfig({
       '@kubb/swagger-faker': 'packages/swagger-faker/src/index.ts',
       '@kubb/swagger-msw': 'packages/swagger-msw/src/index.ts',
       '@kubb/swagger-tanstack-query': 'packages/swagger-tanstack-query/src/index.ts',
-      '@kubb/swagger-ts/infer': 'packages/swagger-ts/src/infer/index.ts',
+      '@kubb/swagger-ts/oas': 'packages/swagger-ts/src/oas/index.ts',
       '@kubb/swagger-ts/hooks': 'packages/swagger-ts/src/hooks/index.ts',
       '@kubb/swagger-ts': 'packages/swagger-ts/src/index.ts',
       '@kubb/swagger-zod': 'packages/swagger-zod/src/index.ts',

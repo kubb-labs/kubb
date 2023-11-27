@@ -72,9 +72,7 @@ export type Options = {
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
   /**
-   * Export Oas object as Oas type with import type { Infer } from `@kubb/swagger-ts/infer`
-   * TODO add docs
-   * @beta
+   * Export an Oas object as Oas type with `import type { Infer } from '@kubb/swagger-ts/oas'`
    */
   oasType?: boolean
 }
@@ -104,4 +102,4 @@ declare module '@kubb/core' {
   }
 }
 // external packages
-export * as Infer from './infer/index.ts'
+export * as Oas from './oas/index.ts'

@@ -30,8 +30,8 @@
       "require": "./dist/components.cjs",
       "default": "./dist/components.cjs"
     },
-    "./infer": {
-      "types": "./dist/infer.d.ts"
+    "./oas": {
+      "types": "./dist/oas.d.ts"
     },
     "./package.json": "./package.json",
     "./*": "./*"
@@ -60,10 +60,10 @@
     "@kubb/core": "workspace:*",
     "@kubb/parser": "workspace:*",
     "@kubb/react": "workspace:*",
-    "@kubb/types": "workspace:*",
     "@kubb/swagger": "workspace:*",
-    "json-schema-to-ts": "^2.9.2",
+    "@kubb/types": "workspace:*",
     "hotscript": "^1.0.13",
+    "json-schema-to-ts": "^2.9.2",
     "ts-toolbelt": "^9.6.0"
   },
   "devDependencies": {

@@ -1,9 +1,56 @@
-import type { Infer, Model, RequestParams, Response } from '@kubb/swagger-ts/oas'
+---
+layout: doc
 
-import type { models } from './gen/index.ts'
+title: \@kubb/swagger-ts
+outline: deep
+---
 
-export type UserModel = Model<models.Oas, 'User'>
+# Infer
 
+With the type `Infer` you can infer your Swagger/OpenAPI schema without the need of creating the types. This gives you the TypeScript power with autocomplete of specific paths and methods related to that path. <br/>
+
+::: warning
+To use the `Infer` type you need OpenAPI v3 or higher. <br/>
+When using the `@kubb/swagger-ts` with option `oasType` set to true it will already convert your Swagger v2 to v3 and create the `oas.ts` file with the type `Oas`(you can skip the prepare step).
+:::
+
+::: tip
+This can also be used as a standalone solution without doing the generation.
+:::
+
+## Installation
+
+::: code-group
+
+```shell [bun <img src="/feature/bun.svg"/>]
+bun add @kubb/swagger-ts
+```
+
+```shell [pnpm <img src="/feature/pnpm.svg"/>]
+pnpm add @kubb/swagger-ts
+```
+
+```shell [npm <img src="/feature/npm.svg"/>]
+npm install @kubb/swagger-ts
+```
+
+```shell [yarn <img src="/feature/yarn.svg"/>]
+yarn add @kubb/swagger-ts
+```
+
+:::
+
+## Prepare
+
+Start by creating a TypeScript file that exports your OpenAPI document. Due to limitations in TypeScript, importing types directly from JSON files isn't currently supported. To work around this, simply copy and paste the content of your Swagger/OpenAPI file into the TypeScript file and then export it with the `as const` modifier.
+
+::: code-group
+
+```typescript [oas.ts]
+export default { openapi: '3.0.0' /* ... */ } as const
+```
+
+```typescript [oas.ts]
 const oas = {
   'openapi': '3.0.1',
   'info': {
@@ -171,15 +218,54 @@ const oas = {
       },
     },
   },
-} as const
+} as const // [!code ++]
+```
 
-type Oas = Infer<typeof oas>
+:::
+
+## Inferring OAS Schema Types
+
+### Model
+
+To infer models from an OpenAPI document, use the Model type.
+
+```typescript
+import type { Infer, Model } from '@kubb/swagger-ts/oas'
+
+import type { oas } from './oas.ts'
+
+export type Oas = Infer<typeof oas>
 
 export type Pet = Model<Oas, 'Pet'>
-//           ^?
+//           ^? { [x: string]: unknown; tag?: string | undefined; name: string; id: number; }
+```
+
+### RequestParams
+
+To infer request body parameters from an OpenAPI document, utilize the RequestParams type
+
+```typescript
+import type { Infer, RequestParams } from '@kubb/swagger-ts/oas'
+
+import type { oas } from './oas.ts'
+
+export type Oas = Infer<typeof oas>
 
 export type AddPet = RequestParams<Oas, '/pets', 'post'>
-//           ^?
+//           ^? { json: { tag?: string | undefined; name: string; }; }
+```
+
+### Response
+
+To infer the response body of an OpenAPI document, utilize the Response type
+
+```typescript
+import type { Infer, Response } from '@kubb/swagger-ts/oas'
+
+import type { oas } from './oas.ts'
+
+export type Oas = Infer<typeof oas>
 
 export type AddPetResponse = Response<Oas, '/pets', 'post'>
-//           ^?
+//           ^?{ [x: string]: unknown; tag?: string | undefined; name: string; id: number; }
+```

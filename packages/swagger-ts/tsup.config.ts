@@ -18,8 +18,8 @@ export default defineConfig([
   {
     ...optionsESM,
     entry: {
-      infer: 'src/infer/index.ts',
+      oas: 'src/oas/index.ts',
     },
-    name: 'infer',
+    name: 'oas',
   },
 ])

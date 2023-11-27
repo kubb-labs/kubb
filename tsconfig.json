@@ -29,8 +29,8 @@
       "@kubb/swagger-ts/hooks": [
         "packages/swagger-ts/src/hooks/index.ts"
       ],
-      "@kubb/swagger-ts/infer": [
-        "packages/swagger-ts/src/infer/index.ts"
+      "@kubb/swagger-ts/oas": [
+        "packages/swagger-ts/src/oas/index.ts"
       ],
       "@kubb/swagger/hooks": [
         "packages/swagger/src/hooks/index.ts"

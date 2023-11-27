@@ -659,6 +659,39 @@ export default defineConfig({
 
 :::
 
+### oasType
+
+Export an Oas object as Oas type with `import type { Infer } from '@kubb/swagger-ts/oas'` <br/>
+See [infer](/plugins/swagger/ts/infer) in how to use the types with `@kubb/swagger-ts/oas`.<br/>
+
+::: info
+Type: `boolean` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      oasType: true,
+    }),
+  ],
+})
+```
+
+:::
+
 ## Depended
 
 - [`@kubb/swagger`](/plugins/swagger)

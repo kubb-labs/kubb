@@ -182,8 +182,8 @@ const pluginsSidebar = [
       { text: '@kubb/swagger', link: '/plugins/swagger' },
       {
         text: '@kubb/swagger-client',
-        collapsed: true,
         link: '/plugins/swagger-client/',
+        collapsed: true,
         items: [
           {
             text: 'globals.d.ts',
@@ -197,7 +197,14 @@ const pluginsSidebar = [
       },
       {
         text: '@kubb/swagger-ts',
-        link: '/plugins/swagger-ts',
+        link: '/plugins/swagger-ts/',
+        collapsed: true,
+        items: [
+          {
+            text: 'infer',
+            link: '/plugins/swagger-ts/infer',
+          },
+        ],
       },
       {
         text: '@kubb/swagger-zod',
@@ -349,14 +356,17 @@ const pluginsMenu = [
   {
     text: 'Swagger plugins',
     items: [
-      { text: '@kubb/swagger', link: '/plugins/swagger' },
+      {
+        text: '@kubb/swagger',
+        link: '/plugins/swagger',
+      },
       {
         text: '@kubb/swagger-client',
         link: '/plugins/swagger-client/',
       },
       {
         text: '@kubb/swagger-ts',
-        link: '/plugins/swagger-ts',
+        link: '/plugins/swagger-ts/',
       },
       {
         text: '@kubb/swagger-zod',

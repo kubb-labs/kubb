@@ -55,4 +55,4 @@ type ResolveRefsInObj<T, TBase = T> = {
   [K in keyof T]: ResolveRefsInObj<ResolveRefInObj<T[K], TBase>, TBase>
 }
 
-export type Parse<TOAS> = Mutable<ResolveRefsInObj<TOAS>>
+export type Infer<TOAS> = Mutable<ResolveRefsInObj<TOAS>>

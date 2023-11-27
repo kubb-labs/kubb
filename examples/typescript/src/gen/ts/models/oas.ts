@@ -1,4 +1,4 @@
-import type { Parse } from '@kubb/swagger-ts/infer'
+import type { Infer } from '@kubb/swagger-ts/oas'
 
 export const oas = {
   openapi: '3.0.3',
@@ -1289,4 +1289,4 @@ export const oas = {
     },
   },
 } as const
-export type Oas = Parse<typeof oas>
+export type Oas = Infer<typeof oas>
