@@ -114,7 +114,7 @@ With `useFile` you can get all props needed to create a file(path, baseName, sou
 ::: code-group
 
 ```typescript
-import { useFile } from '@kubb/react'
+import { File, useFile } from '@kubb/react'
 
 function Component() {
   const pluginName = 'custom-plugin'
@@ -138,6 +138,113 @@ function Component() {
     </File>
   )
 }
+```
+
+## useResolvePath
+
+Resolve a path based on what has been set inside the `resolvePath` of a specific plugin. Use `pluginKey` to retreive the path of that specific plugin.
+
+```typescript [props]
+type Props = {
+  pluginKey?: [pluginName: string; identifier: number]
+  baseName: string
+  directory?: string | undefined
+  options?: {}
+}
+```
+
+::: code-group
+
+```typescript [Component.tsx]
+import { useResolvePath } from '@kubb/react'
+
+function Component() {
+  const pluginName = 'custom-plugin'
+  const path = useResolvePath({
+    pluginKey: [pluginName],
+    baseName: 'test.ts',
+    options: {
+      tag: 'pet',
+    },
+  })
+  // path will be `{{root}}/{{output.path}}/test.ts`
+
+  return null
+}
+```
+
+```typescript [plugin.ts]
+import path from 'node:path'
+import { FileManager, createPlugin } from '@kubb/core'
+import type { PluginOptions } from './types.ts'
+import { pascalCase } from 'change-case'
+
+export const definePlugin = createPlugin<PluginOptions>((options) => {
+  const { output } = options
+
+  return {
+    name: 'custom-plugin',
+    resolvePath(fileName, directory, options) {
+      const root = path.resolve(this.config.root, this.config.output.path)
+
+      return path.resolve(root, output.path, fileName)
+    },
+  }
+})
+```
+
+:::
+
+## useResolveName
+
+Resolve a name based on what has been set inside the `resolveName` of a specific plugin. Use `pluginKey` to retreive the name of that specific plugin.
+
+```typescript [props]
+type Props = {
+  name: string
+  pluginKey?: KubbPlugin['key']
+  /**
+   * `file` will be used to customize the name of the created file(use of camelCase)
+   * `function` can be used used to customize the exported functions(use of camelCase)
+   * `type` is a special type for TypeScript(use of PascalCase)
+   */
+  type?: 'file' | 'function' | 'type'
+}
+```
+
+::: code-group
+
+```typescript [Component.tsx]
+import { useResolveName } from '@kubb/react'
+
+function Component() {
+  const pluginName = 'custom-plugin'
+  const name = useResolveName({
+    pluginKey: [pluginName],
+    name: 'pet',
+    type: 'file',
+  })
+  // name will be `Pet`
+
+  return null
+}
+```
+
+```typescript [plugin.ts]
+import { FileManager, createPlugin } from '@kubb/core'
+import type { PluginOptions } from './types.ts'
+import { pascalCase } from 'change-case'
+
+export const definePlugin = createPlugin<PluginOptions>((options) => {
+  const {} = options
+
+  return {
+    name: 'custom-plugin',
+    resolveName(name) {
+      return pascalCase(name)
+    },
+  }
+})
 ```
 
 :::

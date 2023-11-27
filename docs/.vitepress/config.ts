@@ -133,11 +133,11 @@ const pluginsSidebar = [
       },
       {
         text: '@kubb/cli',
-        link: '/plugins/cli',
+        link: '/plugins/cli/',
       },
       {
         text: '@kubb/parser',
-        link: '/plugins/parser',
+        link: '/plugins/parser/',
       },
       {
         text: '@kubb/react <span class="new">New</span>',
@@ -179,7 +179,17 @@ const pluginsSidebar = [
     text: 'Swagger plugins',
     collapsed: false,
     items: [
-      { text: '@kubb/swagger', link: '/plugins/swagger' },
+      {
+        text: '@kubb/swagger',
+        link: '/plugins/swagger/',
+        collapsed: true,
+        items: [
+          {
+            text: 'Hooks',
+            link: '/plugins/swagger/hooks/',
+          },
+        ],
+      },
       {
         text: '@kubb/swagger-client',
         link: '/plugins/swagger-client/',
@@ -189,10 +199,10 @@ const pluginsSidebar = [
             text: 'globals.d.ts',
             link: '/plugins/swagger-client/globals',
           },
-          {
-            text: 'client',
-            link: '/plugins/swagger-client/client',
-          },
+          // {
+          //   text: 'Client',
+          //   link: '/plugins/swagger-client/client',
+          // },
         ],
       },
       {
@@ -201,34 +211,34 @@ const pluginsSidebar = [
         collapsed: true,
         items: [
           {
-            text: 'infer',
+            text: 'Infer',
             link: '/plugins/swagger-ts/infer',
           },
         ],
       },
       {
         text: '@kubb/swagger-zod',
-        link: '/plugins/swagger-zod',
+        link: '/plugins/swagger-zod/',
       },
       {
         text: '@kubb/swagger-zodios',
-        link: '/plugins/swagger-zodios',
+        link: '/plugins/swagger-zodios/',
       },
       {
         text: '@kubb/swagger-tanstack-query <span class="new">v5 support</span>',
-        link: '/plugins/swagger-tanstack-query',
+        link: '/plugins/swagger-tanstack-query/',
       },
       {
         text: '@kubb/swagger-swr',
-        link: '/plugins/swagger-swr',
+        link: '/plugins/swagger-swr/',
       },
       {
         text: '@kubb/swagger-faker',
-        link: '/plugins/swagger-faker',
+        link: '/plugins/swagger-faker/',
       },
       {
         text: '@kubb/swagger-msw <span class="new">v2 support</span>',
-        link: '/plugins/swagger-msw',
+        link: '/plugins/swagger-msw/',
       },
     ],
   },
@@ -243,10 +253,6 @@ const pluginsSidebar = [
       {
         text: 'Plugin core',
         link: '/plugins/development/core',
-      },
-      {
-        text: 'Plugin template',
-        link: '/plugins/development/template',
       },
     ],
   },
@@ -341,11 +347,11 @@ const pluginsMenu = [
       },
       {
         text: '@kubb/cli',
-        link: '/plugins/cli',
+        link: '/plugins/cli/',
       },
       {
         text: '@kubb/parser',
-        link: '/plugins/parser',
+        link: '/plugins/parser/',
       },
       {
         text: '@kubb/react',
@@ -358,7 +364,7 @@ const pluginsMenu = [
     items: [
       {
         text: '@kubb/swagger',
-        link: '/plugins/swagger',
+        link: '/plugins/swagger/',
       },
       {
         text: '@kubb/swagger-client',
@@ -370,27 +376,27 @@ const pluginsMenu = [
       },
       {
         text: '@kubb/swagger-zod',
-        link: '/plugins/swagger-zod',
+        link: '/plugins/swagger-zod/',
       },
       {
         text: '@kubb/swagger-zodios',
-        link: '/plugins/swagger-zodios',
+        link: '/plugins/swagger-zodios/',
       },
       {
         text: '@kubb/swagger-tanstack-query',
-        link: '/plugins/swagger-tanstack-query',
+        link: '/plugins/swagger-tanstack-query/',
       },
       {
         text: '@kubb/swagger-swr',
-        link: '/plugins/swagger-swr',
+        link: '/plugins/swagger-swr/',
       },
       {
         text: '@kubb/swagger-faker',
-        link: '/plugins/swagger-faker',
+        link: '/plugins/swagger-faker/',
       },
       {
         text: '@kubb/swagger-msw',
-        link: '/plugins/swagger-msw',
+        link: '/plugins/swagger-msw/',
       },
     ],
   },

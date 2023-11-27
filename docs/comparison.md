@@ -7,8 +7,7 @@ outline: deep
 
 # Comparison
 
-::: warning
-Under construction
+::: warning Under construction
 :::
 
 Feature/Capability Key:

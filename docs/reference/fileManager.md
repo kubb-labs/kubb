@@ -7,8 +7,7 @@ outline: deep
 
 # FileManager <Badge type="info" text="@kubb/core" />
 
-::: warning
-Under construction
+::: warning Under construction
 :::
 
 ### getEnvSource
