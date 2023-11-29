@@ -33,7 +33,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@microsoft/api-extractor": "^7.38.3"
+    "@microsoft/api-extractor": "^7.38.3",
+    "esbuild-plugin-file-path-extensions": "^1.0.0"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",

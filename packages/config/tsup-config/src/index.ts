@@ -1,3 +1,5 @@
+import { esbuildPluginFilePathExtensions } from 'esbuild-plugin-file-path-extensions'
+
 import type { Options } from 'tsup'
 
 export const bannerCJS: Options['banner'] = {}
@@ -38,3 +40,26 @@ export const optionsCJS: Options = {
   banner: bannerCJS,
   splitting: false,
 }
+
+export const optionsFlat: Options = {
+  format: ['cjs', 'esm'],
+  entry: ['./src/**/!(*.d|*.test).ts'],
+  outDir: './dist',
+  sourcemap: true,
+  clean: true,
+  dts: true,
+  minify: false,
+  bundle: true,
+  skipNodeModulesBundle: true,
+  treeshake: true,
+  shims: true,
+  ignoreWatch: options.ignoreWatch,
+  esbuildPlugins: [esbuildPluginFilePathExtensions({ esmExtension: 'js', cjsExtension: 'cjs' })] as Options['esbuildPlugins'],
+}
+
+export default {
+  default: options,
+  esm: optionsESM,
+  cjs: optionsCJS,
+  flat: optionsFlat,
+} as const

@@ -73,7 +73,7 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/js-yaml": "^4.0.9",
-    "@types/react": "^18.2.38",
+    "@types/react": "^18.2.39",
     "@types/swagger2openapi": "^7.0.4",
     "eslint": "^8.54.0",
     "tsup": "^8.0.1",

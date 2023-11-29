@@ -1,6 +1,6 @@
 import { defineConfig } from 'tsup'
 
-import { optionsCJS, optionsESM } from '../tsup-config/src/index.ts'
+import { optionsCJS, optionsESM } from '@kubb/tsup-config'
 
 export default defineConfig([
   optionsCJS,

@@ -109,7 +109,7 @@ export type CLIOptions = {
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 
-export default defineConfig(async ({ config, debug, watch }) => {
+export default defineConfig(async ({ config, watch, logLevel }: CLIOptions) => {
   await setTimeout(() => {
     // wait for 1s, async behaviour
     return Promise.resolve(true)
