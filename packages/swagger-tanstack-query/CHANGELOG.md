@@ -1,5 +1,19 @@
 # @kubb/swagger-tanstack-query
 
+## 2.0.0-beta.9
+
+### Patch Changes
+
+- [`8be9466d87929983fb0aea415b5b776638dd41e6`](https://github.com/kubb-project/kubb/commit/8be9466d87929983fb0aea415b5b776638dd41e6) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - fix typo queryOptions `queryKey`
+
+- Updated dependencies []:
+  - @kubb/core@2.0.0-beta.9
+  - @kubb/parser@2.0.0-beta.9
+  - @kubb/react@2.0.0-beta.9
+  - @kubb/swagger@2.0.0-beta.9
+  - @kubb/swagger-client@2.0.0-beta.9
+  - @kubb/swagger-ts@2.0.0-beta.9
+
 ## 2.0.0-beta.8
 
 ### Patch Changes
