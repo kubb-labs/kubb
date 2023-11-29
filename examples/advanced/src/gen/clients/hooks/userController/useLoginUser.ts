@@ -1,7 +1,7 @@
 import client from '../../../../tanstack-query-client.ts'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
-import type { UseBaseQueryOptions, UseQueryResult, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
 type LoginUser = {
@@ -28,7 +28,7 @@ export function loginUserQueryOptions<
 >(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['paramaters'] = {},
-): UseBaseQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
+): WithRequired<UseBaseQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(params)
   return {
     queryKey,
@@ -79,7 +79,7 @@ export function loginUserInfiniteQueryOptions<
 >(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['paramaters'] = {},
-): UseInfiniteQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserInfiniteQueryKey> {
+): WithRequired<UseInfiniteQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserInfiniteQueryKey(params)
   return {
     queryKey,

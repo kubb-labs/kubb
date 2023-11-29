@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
-import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
 type GetInventory = {
@@ -25,7 +25,9 @@ export function getInventoryQueryOptions<
   TError = GetInventory['error'],
   TData = GetInventory['response'],
   TQueryData = GetInventory['response'],
->(options: GetInventory['client']['paramaters'] = {}): QueryObserverOptions<GetInventory['unionResponse'], TError, TData, TQueryData, GetInventoryQueryKey> {
+>(
+  options: GetInventory['client']['paramaters'] = {},
+): WithRequired<QueryObserverOptions<GetInventory['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getInventoryQueryKey()
   return {
     queryKey,

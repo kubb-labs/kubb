@@ -1,7 +1,14 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, CreateInfiniteQueryOptions, CreateInfiniteQueryResult } from '@tanstack/svelte-query'
+import type {
+  CreateBaseQueryOptions,
+  CreateQueryResult,
+  QueryKey,
+  WithRequired,
+  CreateInfiniteQueryOptions,
+  CreateInfiniteQueryResult,
+} from '@tanstack/svelte-query'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 type GetPetById = {
@@ -28,7 +35,7 @@ export function getPetByIdQueryOptions<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: GetPetById['client']['paramaters'] = {},
-): CreateBaseQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdQueryKey> {
+): WithRequired<CreateBaseQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getPetByIdQueryKey(petId)
   return {
     queryKey,
@@ -82,7 +89,7 @@ export function getPetByIdInfiniteQueryOptions<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: GetPetById['client']['paramaters'] = {},
-): CreateInfiniteQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdInfiniteQueryKey> {
+): WithRequired<CreateInfiniteQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getPetByIdInfiniteQueryKey(petId)
   return {
     queryKey,

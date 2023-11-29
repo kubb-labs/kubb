@@ -1,7 +1,14 @@
 import client from '@kubb/swagger-client/client'
 import { createQuery, createInfiniteQuery } from '@tanstack/svelte-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
-import type { CreateBaseQueryOptions, CreateQueryResult, QueryKey, CreateInfiniteQueryOptions, CreateInfiniteQueryResult } from '@tanstack/svelte-query'
+import type {
+  CreateBaseQueryOptions,
+  CreateQueryResult,
+  QueryKey,
+  WithRequired,
+  CreateInfiniteQueryOptions,
+  CreateInfiniteQueryResult,
+} from '@tanstack/svelte-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
 type LoginUser = {
@@ -28,7 +35,7 @@ export function loginUserQueryOptions<
 >(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['paramaters'] = {},
-): CreateBaseQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
+): WithRequired<CreateBaseQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(params)
   return {
     queryKey,
@@ -82,7 +89,7 @@ export function loginUserInfiniteQueryOptions<
 >(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['paramaters'] = {},
-): CreateInfiniteQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserInfiniteQueryKey> {
+): WithRequired<CreateInfiniteQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserInfiniteQueryKey(params)
   return {
     queryKey,

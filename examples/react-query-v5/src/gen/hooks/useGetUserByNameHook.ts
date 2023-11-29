@@ -5,6 +5,7 @@ import type {
   QueryObserverOptions,
   UseQueryResult,
   QueryKey,
+  WithRequired,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
   UseSuspenseQueryOptions,
@@ -36,7 +37,7 @@ export function getUserByNameQueryOptions<
 >(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['paramaters'] = {},
-): QueryObserverOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
+): WithRequired<QueryObserverOptions<GetUserByName['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameQueryKey(username)
   return {
     queryKey,
@@ -87,7 +88,7 @@ export function getUserByNameInfiniteQueryOptions<
 >(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['paramaters'] = {},
-): UseInfiniteQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameInfiniteQueryKey> {
+): WithRequired<UseInfiniteQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameInfiniteQueryKey(username)
   return {
     queryKey,
@@ -139,7 +140,7 @@ export function getUserByNameSuspenseQueryOptions<
 >(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['paramaters'] = {},
-): UseSuspenseQueryOptions<GetUserByName['unionResponse'], TError, TData, GetUserByNameSuspenseQueryKey> {
+): WithRequired<UseSuspenseQueryOptions<GetUserByName['unionResponse'], TError, TData>, 'queryKey'> {
   const queryKey = getUserByNameSuspenseQueryKey(username)
   return {
     queryKey,

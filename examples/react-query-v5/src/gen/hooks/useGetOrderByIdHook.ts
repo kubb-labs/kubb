@@ -5,6 +5,7 @@ import type {
   QueryObserverOptions,
   UseQueryResult,
   QueryKey,
+  WithRequired,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
   UseSuspenseQueryOptions,
@@ -36,7 +37,7 @@ export function getOrderByIdQueryOptions<
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['paramaters'] = {},
-): QueryObserverOptions<GetOrderById['unionResponse'], TError, TData, TQueryData, GetOrderByIdQueryKey> {
+): WithRequired<QueryObserverOptions<GetOrderById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdQueryKey(orderId)
   return {
     queryKey,
@@ -88,7 +89,7 @@ export function getOrderByIdInfiniteQueryOptions<
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['paramaters'] = {},
-): UseInfiniteQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData, GetOrderByIdInfiniteQueryKey> {
+): WithRequired<UseInfiniteQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdInfiniteQueryKey(orderId)
   return {
     queryKey,
@@ -141,7 +142,7 @@ export function getOrderByIdSuspenseQueryOptions<
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['paramaters'] = {},
-): UseSuspenseQueryOptions<GetOrderById['unionResponse'], TError, TData, GetOrderByIdSuspenseQueryKey> {
+): WithRequired<UseSuspenseQueryOptions<GetOrderById['unionResponse'], TError, TData>, 'queryKey'> {
   const queryKey = getOrderByIdSuspenseQueryKey(orderId)
   return {
     queryKey,

@@ -253,11 +253,6 @@ export function QueryOptions({ factory, infinite, suspense, resultType, Template
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
     pluginKey,
   })
-  const queryKeyType = useResolveName({
-    name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
-    type: 'type',
-    pluginKey,
-  })
   const queryOptions = useResolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryOptions'].filter(Boolean).join(''),
     pluginKey,
@@ -272,8 +267,8 @@ export function QueryOptions({ factory, infinite, suspense, resultType, Template
   const clientGenerics = ['TQueryFnData', 'TError']
   // suspense is having 4 generics instead of 5, TQueryData is not needed because data will always be defined
   const resultGenerics = suspense
-    ? [`${factory.name}['unionResponse']`, 'TError', 'TData', queryKeyType]
-    : [`${factory.name}['unionResponse']`, 'TError', 'TData', 'TQueryData', queryKeyType]
+    ? [`${factory.name}['unionResponse']`, 'TError', 'TData']
+    : [`${factory.name}['unionResponse']`, 'TError', 'TData', 'TQueryData']
 
   generics.add([
     { type: `TQueryFnData extends ${factory.name}['data']`, default: `${factory.name}["data"]` },
@@ -324,7 +319,7 @@ export function QueryOptions({ factory, infinite, suspense, resultType, Template
       name={queryOptions}
       params={params.toString()}
       generics={generics.toString()}
-      returnType={`${resultType}<${resultGenerics.join(', ')}>`}
+      returnType={`WithRequired<${resultType}<${resultGenerics.join(', ')}>, 'queryKey'>`}
       client={client}
       hook={hook}
       isV5={isV5}

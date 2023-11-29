@@ -2,7 +2,7 @@ import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
-import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
@@ -31,7 +31,7 @@ export function getUserByNameQueryOptions<
 >(
   refUsername: MaybeRef<GetUserByNamePathParams['username']>,
   options: GetUserByName['client']['paramaters'] = {},
-): QueryObserverOptions<GetUserByName['unionResponse'], TError, TData, TQueryData, GetUserByNameQueryKey> {
+): WithRequired<QueryObserverOptions<GetUserByName['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameQueryKey(refUsername)
   return {
     queryKey,

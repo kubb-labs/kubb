@@ -5,6 +5,7 @@ import type {
   QueryObserverOptions,
   UseQueryResult,
   QueryKey,
+  WithRequired,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
   UseSuspenseQueryOptions,
@@ -36,7 +37,7 @@ export function findPetsByTagsQueryOptions<
 >(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['paramaters'] = {},
-): QueryObserverOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsQueryKey> {
+): WithRequired<QueryObserverOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsQueryKey(params)
   return {
     queryKey,
@@ -88,7 +89,7 @@ export function findPetsByTagsInfiniteQueryOptions<
 >(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['paramaters'] = {},
-): UseInfiniteQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData, FindPetsByTagsInfiniteQueryKey> {
+): WithRequired<UseInfiniteQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return {
     queryKey,
@@ -145,7 +146,7 @@ export function findPetsByTagsSuspenseQueryOptions<
 >(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['paramaters'] = {},
-): UseSuspenseQueryOptions<FindPetsByTags['unionResponse'], TError, TData, FindPetsByTagsSuspenseQueryKey> {
+): WithRequired<UseSuspenseQueryOptions<FindPetsByTags['unionResponse'], TError, TData>, 'queryKey'> {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
   return {
     queryKey,

@@ -2,7 +2,7 @@ import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
-import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
@@ -30,7 +30,7 @@ export function getPetByIdQueryOptions<
 >(
   refPetId: MaybeRef<GetPetByIdPathParams['petId']>,
   options: GetPetById['client']['paramaters'] = {},
-): QueryObserverOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdQueryKey> {
+): WithRequired<QueryObserverOptions<GetPetById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getPetByIdQueryKey(refPetId)
   return {
     queryKey,

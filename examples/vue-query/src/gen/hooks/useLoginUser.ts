@@ -2,7 +2,7 @@ import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
-import type { UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
+import type { UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
 import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
 import type { MaybeRef } from 'vue'
 
@@ -31,7 +31,7 @@ export function loginUserQueryOptions<
 >(
   refParams?: MaybeRef<LoginUserQueryParams>,
   options: LoginUser['client']['paramaters'] = {},
-): VueQueryObserverOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
+): WithRequired<VueQueryObserverOptions<LoginUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(refParams)
   return {
     queryKey,

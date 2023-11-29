@@ -5,6 +5,7 @@ import type {
   QueryObserverOptions,
   UseQueryResult,
   QueryKey,
+  WithRequired,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
   UseSuspenseQueryOptions,
@@ -33,7 +34,7 @@ export function logoutUserQueryOptions<
   TError = LogoutUser['error'],
   TData = LogoutUser['response'],
   TQueryData = LogoutUser['response'],
->(options: LogoutUser['client']['paramaters'] = {}): QueryObserverOptions<LogoutUser['unionResponse'], TError, TData, TQueryData, LogoutUserQueryKey> {
+>(options: LogoutUser['client']['paramaters'] = {}): WithRequired<QueryObserverOptions<LogoutUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = logoutUserQueryKey()
   return {
     queryKey,
@@ -80,9 +81,7 @@ export function logoutUserInfiniteQueryOptions<
   TError = LogoutUser['error'],
   TData = LogoutUser['response'],
   TQueryData = LogoutUser['response'],
->(
-  options: LogoutUser['client']['paramaters'] = {},
-): UseInfiniteQueryOptions<LogoutUser['unionResponse'], TError, TData, TQueryData, LogoutUserInfiniteQueryKey> {
+>(options: LogoutUser['client']['paramaters'] = {}): WithRequired<UseInfiniteQueryOptions<LogoutUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = logoutUserInfiniteQueryKey()
   return {
     queryKey,
@@ -130,7 +129,7 @@ export function logoutUserSuspenseQueryOptions<
   TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
   TError = LogoutUser['error'],
   TData = LogoutUser['response'],
->(options: LogoutUser['client']['paramaters'] = {}): UseSuspenseQueryOptions<LogoutUser['unionResponse'], TError, TData, LogoutUserSuspenseQueryKey> {
+>(options: LogoutUser['client']['paramaters'] = {}): WithRequired<UseSuspenseQueryOptions<LogoutUser['unionResponse'], TError, TData>, 'queryKey'> {
   const queryKey = logoutUserSuspenseQueryKey()
   return {
     queryKey,

@@ -5,6 +5,7 @@ import type {
   QueryObserverOptions,
   UseQueryResult,
   QueryKey,
+  WithRequired,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
   UseSuspenseQueryOptions,
@@ -36,7 +37,7 @@ export function getPetByIdQueryOptions<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: GetPetById['client']['paramaters'] = {},
-): QueryObserverOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdQueryKey> {
+): WithRequired<QueryObserverOptions<GetPetById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getPetByIdQueryKey(petId)
   return {
     queryKey,
@@ -87,7 +88,7 @@ export function getPetByIdInfiniteQueryOptions<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: GetPetById['client']['paramaters'] = {},
-): UseInfiniteQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData, GetPetByIdInfiniteQueryKey> {
+): WithRequired<UseInfiniteQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getPetByIdInfiniteQueryKey(petId)
   return {
     queryKey,
@@ -139,7 +140,7 @@ export function getPetByIdSuspenseQueryOptions<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: GetPetById['client']['paramaters'] = {},
-): UseSuspenseQueryOptions<GetPetById['unionResponse'], TError, TData, GetPetByIdSuspenseQueryKey> {
+): WithRequired<UseSuspenseQueryOptions<GetPetById['unionResponse'], TError, TData>, 'queryKey'> {
   const queryKey = getPetByIdSuspenseQueryKey(petId)
   return {
     queryKey,

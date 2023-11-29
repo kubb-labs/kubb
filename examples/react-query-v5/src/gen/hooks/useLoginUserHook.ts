@@ -5,6 +5,7 @@ import type {
   QueryObserverOptions,
   UseQueryResult,
   QueryKey,
+  WithRequired,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
   UseSuspenseQueryOptions,
@@ -36,7 +37,7 @@ export function loginUserQueryOptions<
 >(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['paramaters'] = {},
-): QueryObserverOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserQueryKey> {
+): WithRequired<QueryObserverOptions<LoginUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(params)
   return {
     queryKey,
@@ -87,7 +88,7 @@ export function loginUserInfiniteQueryOptions<
 >(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['paramaters'] = {},
-): UseInfiniteQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData, LoginUserInfiniteQueryKey> {
+): WithRequired<UseInfiniteQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserInfiniteQueryKey(params)
   return {
     queryKey,
@@ -143,7 +144,7 @@ export function loginUserSuspenseQueryOptions<
 >(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['paramaters'] = {},
-): UseSuspenseQueryOptions<LoginUser['unionResponse'], TError, TData, LoginUserSuspenseQueryKey> {
+): WithRequired<UseSuspenseQueryOptions<LoginUser['unionResponse'], TError, TData>, 'queryKey'> {
   const queryKey = loginUserSuspenseQueryKey(params)
   return {
     queryKey,

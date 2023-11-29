@@ -22,7 +22,7 @@ function Template({
     <>
       <File.Import name={[optionsType, resultType]} path={path} isTypeOnly />
       <File.Import name={[hookName]} path={path} />
-      <File.Import name={['QueryKey']} path={path} isTypeOnly />
+      <File.Import name={['QueryKey', 'WithRequired']} path={path} isTypeOnly />
     </>
   )
 }
@@ -121,7 +121,7 @@ const defaultTemplates = {
           )}
           <File.Import name={['unref']} path={'vue'} />
           <File.Import name={['MaybeRef']} path={'vue'} isTypeOnly />
-          <File.Import name={['QueryKey']} path={path} isTypeOnly />
+          <File.Import name={['QueryKey', 'WithRequired']} path={path} isTypeOnly />
         </>
       )
     }

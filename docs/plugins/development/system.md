@@ -123,7 +123,7 @@ The naming convention for plugins is as follows:
 Simplified `PluginFactoryOptions` type:
 
 ```typescript
-export type PluginFactoryOptions<Name, Options, ResolveOptions, Api, ResolvePathOptions, AppMeta>
+export type PluginFactoryOptions<Name, Options, ResolveOptions, API, ResolvePathOptions, AppMeta>
 ```
 
 ### Template Repository
