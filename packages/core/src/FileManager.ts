@@ -184,6 +184,7 @@ type AddIndexesProps = {
     path: string
     exportAs?: string
     extName?: KubbFile.Extname
+    exportType?: 'barrel' | false
   }
   options?: BarrelManagerOptions
   meta?: KubbFile.File['meta']
@@ -296,10 +297,14 @@ export class FileManager {
   }
 
   async addIndexes({ root, output, meta, options = {} }: AddIndexesProps): Promise<Array<KubbFile.File> | undefined> {
+    const { exportType = 'barrel' } = output
+
+    if (!exportType) {
+      return undefined
+    }
+
     const exportPath = output.path.startsWith('./') ? output.path : `./${output.path}`
-
     const barrelManager = new BarrelManager({ extName: output.extName, ...options })
-
     const files = barrelManager.getIndexes(resolve(root, output.path))
 
     if (!files) {

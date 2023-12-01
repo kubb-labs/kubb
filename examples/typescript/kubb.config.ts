@@ -34,7 +34,7 @@ export default defineConfig({
         path: 'ts/models',
         exportAs: 'models',
       },
-      oasType: true,
+      oasType: 'infer',
     }),
   ],
 })

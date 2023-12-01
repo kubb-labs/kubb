@@ -164,6 +164,15 @@ export default defineConfig({
 
 :::
 
+#### output.exportType
+
+Define what needs to exported, here you can also disable the export of barrel files
+
+::: info
+Type: `'barrel' | false` <br/>
+
+:::
+
 ### group
 
 Group the MSW mocks based on the provided name.

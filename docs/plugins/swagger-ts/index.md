@@ -139,6 +139,15 @@ export default defineConfig({
 
 :::
 
+#### output.exportType
+
+Define what needs to exported, here you can also disable the export of barrel files
+
+::: info
+Type: `'barrel' | false` <br/>
+
+:::
+
 ### group
 
 Group the TypeScript types based on the provided name.
@@ -665,7 +674,7 @@ Export an Oas object as Oas type with `import type { Infer } from '@kubb/swagger
 See [infer](/plugins/swagger/ts/infer) in how to use the types with `@kubb/swagger-ts/oas`.<br/>
 
 ::: info
-Type: `boolean` <br/>
+Type: `'infer' | false` <br/>
 
 ::: code-group
 
@@ -684,7 +693,7 @@ export default defineConfig({
   plugins: [
     createSwagger({ output: false }),
     createSwaggerTS({
-      oasType: true,
+      oasType: 'infer',
     }),
   ],
 })

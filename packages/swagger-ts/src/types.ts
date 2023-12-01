@@ -17,6 +17,11 @@ export type Options = {
      * Add an extension to the generated imports and exports, default it will not use an extension
      */
     extName?: KubbFile.Extname
+    /**
+     * Define what needs to exported, here you can also disable the export of barrel files
+     * @default `'barrel'`
+     */
+    exportType?: 'barrel' | false
   }
   /**
    * Group the TypeScript types based on the provided name.
@@ -74,7 +79,7 @@ export type Options = {
   /**
    * Export an Oas object as Oas type with `import type { Infer } from '@kubb/swagger-ts/oas'`
    */
-  oasType?: boolean
+  oasType?: 'infer' | false
 }
 
 type ResolvedOptions = {
