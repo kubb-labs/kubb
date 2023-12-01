@@ -1,5 +1,21 @@
 # @kubb/swagger-msw
 
+## 2.0.0-beta.10
+
+### Minor Changes
+
+- [`210d58fd1fcc1e8d84f38fdfabbb59630a7394b5`](https://github.com/kubb-project/kubb/commit/210d58fd1fcc1e8d84f38fdfabbb59630a7394b5) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `exportType` to disable the creation of barrel files
+
+### Patch Changes
+
+- Updated dependencies [[`210d58fd1fcc1e8d84f38fdfabbb59630a7394b5`](https://github.com/kubb-project/kubb/commit/210d58fd1fcc1e8d84f38fdfabbb59630a7394b5)]:
+  - @kubb/swagger-faker@2.0.0-beta.10
+  - @kubb/swagger-ts@2.0.0-beta.10
+  - @kubb/core@2.0.0-beta.10
+  - @kubb/react@2.0.0-beta.10
+  - @kubb/swagger@2.0.0-beta.10
+  - @kubb/parser@2.0.0-beta.10
+
 ## 2.0.0-beta.9
 
 ### Patch Changes
