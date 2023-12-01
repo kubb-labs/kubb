@@ -109,7 +109,7 @@ export class ZodGenerator extends SchemaGenerator<Options, OpenAPIV3.SchemaObjec
           const isStartWithSlash = matches.startsWith('/')
           const isEndWithSlash = matches.endsWith('/')
 
-          const regexp = `new RegExp('${jsStringEscape(matches.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))}')`
+          const regexp = `new RegExp('${jsStringEscape(matches.slice(isStartWithSlash ? 1 : 0, isEndWithSlash ? -1 : undefined))}', 'u')`
 
           validationFunctions.push({ keyword: zodKeywords.matches, args: regexp })
         }
