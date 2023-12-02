@@ -247,11 +247,11 @@ const pluginsSidebar = [
     collapsed: false,
     items: [
       {
-        text: 'Plugin system',
+        text: 'Plugin system <img src="/icons/experimental.svg"/>',
         link: '/plugins/development/system',
       },
       {
-        text: 'Plugin core',
+        text: 'Plugin core <img src="/icons/experimental.svg"/>',
         link: '/plugins/development/core',
       },
     ],
@@ -330,6 +330,10 @@ const blogSidebar = [
   {
     text: 'Release of Kubb v2',
     link: '/blog/v2',
+  },
+  {
+    text: 'Typescript JSX based template engine for code generation.',
+    link: '/blog/tsBasedJSXEngine',
   },
 ]
 

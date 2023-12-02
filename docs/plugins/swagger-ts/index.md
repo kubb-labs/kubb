@@ -708,3 +708,4 @@ export default defineConfig({
 ## Links
 
 - [TypeScript](https://www.typescriptlang.org/)
+- [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API)

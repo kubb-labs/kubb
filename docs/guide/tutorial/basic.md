@@ -15,13 +15,13 @@ The setup will contain from the beginning the following folder structure:
 .
 ├── src
 ├── petStore.yaml
-├── kubb.config.js
+├── kubb.config.ts
 └── package.json
 ```
 
 ## Step one
 
-Setup your `kubb.config.js` file based on the [Quick-start](/guide/quick-start).
+Setup your `kubb.config.ts` file based on the [Quick-start](/guide/quick-start).
 
 We will add here the [Swagger](/plugins/swagger) and [SwaggerTypescript](/plugins/swagger-ts)(which is depended on the [Swagger](/plugins/swagger) plugin) plugin, those 2 plugins together will generate the TypeScript types.
 
@@ -30,7 +30,7 @@ We will add here the [Swagger](/plugins/swagger) and [SwaggerTypescript](/plugin
 
 ::: code-group
 
-```typescript [kubb.config.js]
+```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
@@ -74,7 +74,7 @@ This will result in the following folder structure when Kubb has been executed
 │       ├── typeA.ts
 │       └── typeB.ts
 ├── petStore.yaml
-├── kubb.config.js
+├── kubb.config.ts
 └── package.json
 ```
 
