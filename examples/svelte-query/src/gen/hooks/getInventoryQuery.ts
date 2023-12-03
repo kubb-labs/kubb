@@ -18,8 +18,8 @@ type GetInventory = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<GetInventoryClient>>['data']
-  unionResponse: Awaited<ReturnType<GetInventoryClient>> | Awaited<ReturnType<GetInventoryClient>>['data']
+  response: GetInventoryQueryResponse
+  unionResponse: Awaited<ReturnType<GetInventoryClient>> | GetInventoryQueryResponse
   client: {
     paramaters: Partial<Parameters<GetInventoryClient>[0]>
     return: Awaited<ReturnType<GetInventoryClient>>

@@ -228,7 +228,7 @@ export default defineConfig({
 
 ## Depended
 
-- [`@kubb/core`](/plugins/core)
+- [`@kubb/core`](/plugins/core/)
 
 ## Links
 

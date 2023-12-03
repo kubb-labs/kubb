@@ -12,7 +12,7 @@ type GetPetById = {
   queryParams: never
   headerParams: never
   response: Awaited<ReturnType<GetPetByIdClient>>
-  unionResponse: Awaited<ReturnType<GetPetByIdClient>> | Awaited<ReturnType<GetPetByIdClient>>['data']
+  unionResponse: Awaited<ReturnType<GetPetByIdClient>> | GetPetByIdQueryResponse
   client: {
     paramaters: Partial<Parameters<GetPetByIdClient>[0]>
     return: Awaited<ReturnType<GetPetByIdClient>>

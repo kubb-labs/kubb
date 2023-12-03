@@ -11,8 +11,8 @@ type UploadFile = {
   pathParams: UploadFilePathParams
   queryParams: UploadFileQueryParams
   headerParams: never
-  response: Awaited<ReturnType<UploadFileClient>>['data']
-  unionResponse: Awaited<ReturnType<UploadFileClient>> | Awaited<ReturnType<UploadFileClient>>['data']
+  response: UploadFileMutationResponse
+  unionResponse: Awaited<ReturnType<UploadFileClient>> | UploadFileMutationResponse
   client: {
     paramaters: Partial<Parameters<UploadFileClient>[0]>
     return: Awaited<ReturnType<UploadFileClient>>

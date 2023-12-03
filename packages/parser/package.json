@@ -58,7 +58,7 @@
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "eslint": "^8.54.0",
+    "eslint": "^8.55.0",
     "tsup": "^8.0.1"
   },
   "packageManager": "pnpm@8.3.0",

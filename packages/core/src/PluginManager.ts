@@ -2,17 +2,18 @@
 
 import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
-import { LogLevel } from './utils/logger.ts'
 import { Queue } from './utils/Queue.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
 import { ValidationPluginError } from './errors.ts'
 import { FileManager } from './FileManager.ts'
+import { LogLevel } from './logger.ts'
 import { definePlugin as defineCorePlugin } from './plugin.ts'
 import { isPromise, isPromiseRejectedResult } from './PromiseManager.ts'
 import { PromiseManager } from './PromiseManager.ts'
 
 import type { PossiblePromise } from '@kubb/types'
 import type { KubbFile } from './FileManager.ts'
+import type { Logger } from './logger.ts'
 import type { CorePluginOptions } from './plugin.ts'
 import type {
   GetPluginFactoryOptions,
@@ -28,7 +29,6 @@ import type {
   ResolveNameParams,
   ResolvePathParams,
 } from './types.ts'
-import type { Logger } from './utils/logger.ts'
 import type { QueueJob } from './utils/Queue.ts'
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>

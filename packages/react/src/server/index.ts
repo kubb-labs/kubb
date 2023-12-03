@@ -1,6 +1,6 @@
 import { createRootServer } from './createRootServer.ts'
 
-export * from './createRootServer.ts'
-export * from './types.ts'
+export { createRootServer } from './createRootServer.ts'
+export type * from './types.ts'
 
 export default createRootServer

@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-import { LogLevel } from '@kubb/core/utils'
+import { LogLevel } from '@kubb/core/logger'
 
 import PrettyError from 'pretty-error'
 

@@ -1,9 +1,9 @@
 import type { PossiblePromise } from '@kubb/types'
 import type { FileManager, KubbFile } from './FileManager.ts'
 import type { OptionsPlugins, PluginUnion } from './index.ts'
+import type { Logger, LogLevel } from './logger.ts'
 import type { PluginManager } from './PluginManager.ts'
 import type { Cache } from './utils/cache.ts'
-import type { Logger, LogLevel } from './utils/logger.ts'
 
 // config
 

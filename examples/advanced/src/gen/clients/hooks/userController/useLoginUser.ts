@@ -12,7 +12,7 @@ type LoginUser = {
   queryParams: LoginUserQueryParams
   headerParams: never
   response: Awaited<ReturnType<LoginUserClient>>
-  unionResponse: Awaited<ReturnType<LoginUserClient>> | Awaited<ReturnType<LoginUserClient>>['data']
+  unionResponse: Awaited<ReturnType<LoginUserClient>> | LoginUserQueryResponse
   client: {
     paramaters: Partial<Parameters<LoginUserClient>[0]>
     return: Awaited<ReturnType<LoginUserClient>>

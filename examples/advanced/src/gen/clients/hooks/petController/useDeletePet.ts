@@ -12,7 +12,7 @@ type DeletePet = {
   queryParams: never
   headerParams: DeletePetHeaderParams
   response: Awaited<ReturnType<DeletePetClient>>
-  unionResponse: Awaited<ReturnType<DeletePetClient>> | Awaited<ReturnType<DeletePetClient>>['data']
+  unionResponse: Awaited<ReturnType<DeletePetClient>> | DeletePetMutationResponse
   client: {
     paramaters: Partial<Parameters<DeletePetClient>[0]>
     return: Awaited<ReturnType<DeletePetClient>>

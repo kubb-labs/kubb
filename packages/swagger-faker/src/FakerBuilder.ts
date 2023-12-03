@@ -4,8 +4,8 @@ import { refsSorter } from '@kubb/swagger/utils'
 
 import { FakerGenerator } from './FakerGenerator.ts'
 
+import type { KubbFile } from '@kubb/core'
 import type { ImportMeta } from '@kubb/swagger'
-import type { KubbFile } from 'packages/core/dist/index'
 import type { PluginOptions } from './types.ts'
 
 export class FakerBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {

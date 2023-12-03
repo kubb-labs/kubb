@@ -11,8 +11,8 @@ type PlaceOrder = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<PlaceOrderClient>>['data']
-  unionResponse: Awaited<ReturnType<PlaceOrderClient>> | Awaited<ReturnType<PlaceOrderClient>>['data']
+  response: PlaceOrderMutationResponse
+  unionResponse: Awaited<ReturnType<PlaceOrderClient>> | PlaceOrderMutationResponse
   client: {
     paramaters: Partial<Parameters<PlaceOrderClient>[0]>
     return: Awaited<ReturnType<PlaceOrderClient>>

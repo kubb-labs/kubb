@@ -16,7 +16,7 @@ export {
   useResolveName,
   useResolvePath,
 } from './hooks/index.ts'
-export * from './types.ts'
+export type * from './types.ts'
 /**
  * @deprecated use `@kubb/core/utils' import instead
  */

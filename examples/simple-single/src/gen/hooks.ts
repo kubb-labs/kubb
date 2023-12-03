@@ -80,8 +80,8 @@ type UpdatePet = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<UpdatePetClient>>['data']
-  unionResponse: Awaited<ReturnType<UpdatePetClient>> | Awaited<ReturnType<UpdatePetClient>>['data']
+  response: UpdatePetMutationResponse
+  unionResponse: Awaited<ReturnType<UpdatePetClient>> | UpdatePetMutationResponse
   client: {
     paramaters: Partial<Parameters<UpdatePetClient>[0]>
     return: Awaited<ReturnType<UpdatePetClient>>
@@ -117,8 +117,8 @@ type AddPet = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<AddPetClient>>['data']
-  unionResponse: Awaited<ReturnType<AddPetClient>> | Awaited<ReturnType<AddPetClient>>['data']
+  response: AddPetMutationResponse
+  unionResponse: Awaited<ReturnType<AddPetClient>> | AddPetMutationResponse
   client: {
     paramaters: Partial<Parameters<AddPetClient>[0]>
     return: Awaited<ReturnType<AddPetClient>>
@@ -154,8 +154,8 @@ type FindPetsByStatus = {
   pathParams: never
   queryParams: FindPetsByStatusQueryParams
   headerParams: never
-  response: Awaited<ReturnType<FindPetsByStatusClient>>['data']
-  unionResponse: Awaited<ReturnType<FindPetsByStatusClient>> | Awaited<ReturnType<FindPetsByStatusClient>>['data']
+  response: FindPetsByStatusQueryResponse
+  unionResponse: Awaited<ReturnType<FindPetsByStatusClient>> | FindPetsByStatusQueryResponse
   client: {
     paramaters: Partial<Parameters<FindPetsByStatusClient>[0]>
     return: Awaited<ReturnType<FindPetsByStatusClient>>
@@ -222,8 +222,8 @@ type FindPetsByTags = {
   pathParams: never
   queryParams: FindPetsByTagsQueryParams
   headerParams: never
-  response: Awaited<ReturnType<FindPetsByTagsClient>>['data']
-  unionResponse: Awaited<ReturnType<FindPetsByTagsClient>> | Awaited<ReturnType<FindPetsByTagsClient>>['data']
+  response: FindPetsByTagsQueryResponse
+  unionResponse: Awaited<ReturnType<FindPetsByTagsClient>> | FindPetsByTagsQueryResponse
   client: {
     paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
     return: Awaited<ReturnType<FindPetsByTagsClient>>
@@ -290,8 +290,8 @@ type GetPetById = {
   pathParams: GetPetByIdPathParams
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<GetPetByIdClient>>['data']
-  unionResponse: Awaited<ReturnType<GetPetByIdClient>> | Awaited<ReturnType<GetPetByIdClient>>['data']
+  response: GetPetByIdQueryResponse
+  unionResponse: Awaited<ReturnType<GetPetByIdClient>> | GetPetByIdQueryResponse
   client: {
     paramaters: Partial<Parameters<GetPetByIdClient>[0]>
     return: Awaited<ReturnType<GetPetByIdClient>>
@@ -357,8 +357,8 @@ type UpdatePetWithForm = {
   pathParams: UpdatePetWithFormPathParams
   queryParams: UpdatePetWithFormQueryParams
   headerParams: never
-  response: Awaited<ReturnType<UpdatePetWithFormClient>>['data']
-  unionResponse: Awaited<ReturnType<UpdatePetWithFormClient>> | Awaited<ReturnType<UpdatePetWithFormClient>>['data']
+  response: UpdatePetWithFormMutationResponse
+  unionResponse: Awaited<ReturnType<UpdatePetWithFormClient>> | UpdatePetWithFormMutationResponse
   client: {
     paramaters: Partial<Parameters<UpdatePetWithFormClient>[0]>
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
@@ -397,8 +397,8 @@ type DeletePet = {
   pathParams: DeletePetPathParams
   queryParams: never
   headerParams: DeletePetHeaderParams
-  response: Awaited<ReturnType<DeletePetClient>>['data']
-  unionResponse: Awaited<ReturnType<DeletePetClient>> | Awaited<ReturnType<DeletePetClient>>['data']
+  response: DeletePetMutationResponse
+  unionResponse: Awaited<ReturnType<DeletePetClient>> | DeletePetMutationResponse
   client: {
     paramaters: Partial<Parameters<DeletePetClient>[0]>
     return: Awaited<ReturnType<DeletePetClient>>
@@ -438,8 +438,8 @@ type UploadFile = {
   pathParams: UploadFilePathParams
   queryParams: UploadFileQueryParams
   headerParams: never
-  response: Awaited<ReturnType<UploadFileClient>>['data']
-  unionResponse: Awaited<ReturnType<UploadFileClient>> | Awaited<ReturnType<UploadFileClient>>['data']
+  response: UploadFileMutationResponse
+  unionResponse: Awaited<ReturnType<UploadFileClient>> | UploadFileMutationResponse
   client: {
     paramaters: Partial<Parameters<UploadFileClient>[0]>
     return: Awaited<ReturnType<UploadFileClient>>
@@ -479,8 +479,8 @@ type GetInventory = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<GetInventoryClient>>['data']
-  unionResponse: Awaited<ReturnType<GetInventoryClient>> | Awaited<ReturnType<GetInventoryClient>>['data']
+  response: GetInventoryQueryResponse
+  unionResponse: Awaited<ReturnType<GetInventoryClient>> | GetInventoryQueryResponse
   client: {
     paramaters: Partial<Parameters<GetInventoryClient>[0]>
     return: Awaited<ReturnType<GetInventoryClient>>
@@ -543,8 +543,8 @@ type PlaceOrder = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<PlaceOrderClient>>['data']
-  unionResponse: Awaited<ReturnType<PlaceOrderClient>> | Awaited<ReturnType<PlaceOrderClient>>['data']
+  response: PlaceOrderMutationResponse
+  unionResponse: Awaited<ReturnType<PlaceOrderClient>> | PlaceOrderMutationResponse
   client: {
     paramaters: Partial<Parameters<PlaceOrderClient>[0]>
     return: Awaited<ReturnType<PlaceOrderClient>>
@@ -580,8 +580,8 @@ type PlaceOrderPatch = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<PlaceOrderPatchClient>>['data']
-  unionResponse: Awaited<ReturnType<PlaceOrderPatchClient>> | Awaited<ReturnType<PlaceOrderPatchClient>>['data']
+  response: PlaceOrderPatchMutationResponse
+  unionResponse: Awaited<ReturnType<PlaceOrderPatchClient>> | PlaceOrderPatchMutationResponse
   client: {
     paramaters: Partial<Parameters<PlaceOrderPatchClient>[0]>
     return: Awaited<ReturnType<PlaceOrderPatchClient>>
@@ -617,8 +617,8 @@ type GetOrderById = {
   pathParams: GetOrderByIdPathParams
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<GetOrderByIdClient>>['data']
-  unionResponse: Awaited<ReturnType<GetOrderByIdClient>> | Awaited<ReturnType<GetOrderByIdClient>>['data']
+  response: GetOrderByIdQueryResponse
+  unionResponse: Awaited<ReturnType<GetOrderByIdClient>> | GetOrderByIdQueryResponse
   client: {
     paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
     return: Awaited<ReturnType<GetOrderByIdClient>>
@@ -684,8 +684,8 @@ type DeleteOrder = {
   pathParams: DeleteOrderPathParams
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<DeleteOrderClient>>['data']
-  unionResponse: Awaited<ReturnType<DeleteOrderClient>> | Awaited<ReturnType<DeleteOrderClient>>['data']
+  response: DeleteOrderMutationResponse
+  unionResponse: Awaited<ReturnType<DeleteOrderClient>> | DeleteOrderMutationResponse
   client: {
     paramaters: Partial<Parameters<DeleteOrderClient>[0]>
     return: Awaited<ReturnType<DeleteOrderClient>>
@@ -720,8 +720,8 @@ type CreateUser = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<CreateUserClient>>['data']
-  unionResponse: Awaited<ReturnType<CreateUserClient>> | Awaited<ReturnType<CreateUserClient>>['data']
+  response: CreateUserMutationResponse
+  unionResponse: Awaited<ReturnType<CreateUserClient>> | CreateUserMutationResponse
   client: {
     paramaters: Partial<Parameters<CreateUserClient>[0]>
     return: Awaited<ReturnType<CreateUserClient>>
@@ -761,8 +761,8 @@ type CreateUsersWithListInput = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<CreateUsersWithListInputClient>>['data']
-  unionResponse: Awaited<ReturnType<CreateUsersWithListInputClient>> | Awaited<ReturnType<CreateUsersWithListInputClient>>['data']
+  response: CreateUsersWithListInputMutationResponse
+  unionResponse: Awaited<ReturnType<CreateUsersWithListInputClient>> | CreateUsersWithListInputMutationResponse
   client: {
     paramaters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
@@ -798,8 +798,8 @@ type LoginUser = {
   pathParams: never
   queryParams: LoginUserQueryParams
   headerParams: never
-  response: Awaited<ReturnType<LoginUserClient>>['data']
-  unionResponse: Awaited<ReturnType<LoginUserClient>> | Awaited<ReturnType<LoginUserClient>>['data']
+  response: LoginUserQueryResponse
+  unionResponse: Awaited<ReturnType<LoginUserClient>> | LoginUserQueryResponse
   client: {
     paramaters: Partial<Parameters<LoginUserClient>[0]>
     return: Awaited<ReturnType<LoginUserClient>>
@@ -865,8 +865,8 @@ type LogoutUser = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<LogoutUserClient>>['data']
-  unionResponse: Awaited<ReturnType<LogoutUserClient>> | Awaited<ReturnType<LogoutUserClient>>['data']
+  response: LogoutUserQueryResponse
+  unionResponse: Awaited<ReturnType<LogoutUserClient>> | LogoutUserQueryResponse
   client: {
     paramaters: Partial<Parameters<LogoutUserClient>[0]>
     return: Awaited<ReturnType<LogoutUserClient>>
@@ -928,8 +928,8 @@ type GetUserByName = {
   pathParams: GetUserByNamePathParams
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<GetUserByNameClient>>['data']
-  unionResponse: Awaited<ReturnType<GetUserByNameClient>> | Awaited<ReturnType<GetUserByNameClient>>['data']
+  response: GetUserByNameQueryResponse
+  unionResponse: Awaited<ReturnType<GetUserByNameClient>> | GetUserByNameQueryResponse
   client: {
     paramaters: Partial<Parameters<GetUserByNameClient>[0]>
     return: Awaited<ReturnType<GetUserByNameClient>>
@@ -994,8 +994,8 @@ type UpdateUser = {
   pathParams: UpdateUserPathParams
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<UpdateUserClient>>['data']
-  unionResponse: Awaited<ReturnType<UpdateUserClient>> | Awaited<ReturnType<UpdateUserClient>>['data']
+  response: UpdateUserMutationResponse
+  unionResponse: Awaited<ReturnType<UpdateUserClient>> | UpdateUserMutationResponse
   client: {
     paramaters: Partial<Parameters<UpdateUserClient>[0]>
     return: Awaited<ReturnType<UpdateUserClient>>
@@ -1031,8 +1031,8 @@ type DeleteUser = {
   pathParams: DeleteUserPathParams
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<DeleteUserClient>>['data']
-  unionResponse: Awaited<ReturnType<DeleteUserClient>> | Awaited<ReturnType<DeleteUserClient>>['data']
+  response: DeleteUserMutationResponse
+  unionResponse: Awaited<ReturnType<DeleteUserClient>> | DeleteUserMutationResponse
   client: {
     paramaters: Partial<Parameters<DeleteUserClient>[0]>
     return: Awaited<ReturnType<DeleteUserClient>>

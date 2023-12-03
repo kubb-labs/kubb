@@ -1,5 +1,5 @@
 import { safeBuild } from '@kubb/core'
-import { createLogger, LogLevel, randomPicoColour } from '@kubb/core/utils'
+import { createLogger, LogLevel, randomPicoColour } from '@kubb/core/logger'
 
 import { execa } from 'execa'
 import pc from 'picocolors'

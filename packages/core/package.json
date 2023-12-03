@@ -33,6 +33,16 @@
       "require": "./dist/transformers.cjs",
       "default": "./dist/transformers.cjs"
     },
+    "./logger": {
+      "import": "./dist/logger.js",
+      "require": "./dist/logger.cjs",
+      "default": "./dist/logger.cjs"
+    },
+    "./fs": {
+      "import": "./dist/fs.js",
+      "require": "./dist/fs.cjs",
+      "default": "./dist/fs.cjs"
+    },
     "./package.json": "./package.json",
     "./globals": {
       "types": "./globals.d.ts"
@@ -67,10 +77,7 @@
     "@kubb/types": "workspace:*",
     "change-case": "^4.1.2",
     "directory-tree": "^3.5.1",
-    "find-up": "^6.3.0",
-    "fs-extra": "^11.2.0",
     "js-runtime": "^0.0.6",
-    "lodash.isequal": "^4.5.0",
     "natural-orderby": "^3.0.2",
     "picocolors": "^1.0.0",
     "seedrandom": "^3.0.5",
@@ -82,10 +89,13 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash.isequal": "4.5.6",
-    "@types/react": "^18.2.39",
+    "@types/react": "^18.2.41",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.6",
-    "eslint": "^8.54.0",
+    "fs-extra": "^11.2.0",
+    "find-up": "^6.3.0",
+    "lodash.isequal": "^4.5.0",
+    "eslint": "^8.55.0",
     "ora": "^7.0.1",
     "tsup": "^8.0.1",
     "typescript": "^5.3.2"

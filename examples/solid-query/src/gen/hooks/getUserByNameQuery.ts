@@ -11,8 +11,8 @@ type GetUserByName = {
   pathParams: GetUserByNamePathParams
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<GetUserByNameClient>>['data']
-  unionResponse: Awaited<ReturnType<GetUserByNameClient>> | Awaited<ReturnType<GetUserByNameClient>>['data']
+  response: GetUserByNameQueryResponse
+  unionResponse: Awaited<ReturnType<GetUserByNameClient>> | GetUserByNameQueryResponse
   client: {
     paramaters: Partial<Parameters<GetUserByNameClient>[0]>
     return: Awaited<ReturnType<GetUserByNameClient>>

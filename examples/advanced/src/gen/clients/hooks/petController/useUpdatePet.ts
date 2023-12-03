@@ -12,7 +12,7 @@ type UpdatePet = {
   queryParams: never
   headerParams: never
   response: Awaited<ReturnType<UpdatePetClient>>
-  unionResponse: Awaited<ReturnType<UpdatePetClient>> | Awaited<ReturnType<UpdatePetClient>>['data']
+  unionResponse: Awaited<ReturnType<UpdatePetClient>> | UpdatePetMutationResponse
   client: {
     paramaters: Partial<Parameters<UpdatePetClient>[0]>
     return: Awaited<ReturnType<UpdatePetClient>>

@@ -2,7 +2,7 @@ import { Component } from 'react'
 
 import { AppContext } from './AppContext.tsx'
 
-import type { Logger } from '@kubb/core/utils'
+import type { Logger } from '@kubb/core/logger'
 import type { KubbNode } from '../types.ts'
 
 type Props<Meta extends Record<string, unknown> = Record<string, unknown>> = {

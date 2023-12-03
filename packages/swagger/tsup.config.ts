@@ -9,28 +9,14 @@ export default defineConfig([
     ...optionsCJS,
     entry: {
       utils: 'src/utils/index.ts',
+      hooks: 'src/hooks/index.ts',
     },
-    name: 'utils',
   },
   {
     ...optionsESM,
     entry: {
       utils: 'src/utils/index.ts',
-    },
-    name: 'utils',
-  },
-  {
-    ...optionsCJS,
-    entry: {
       hooks: 'src/hooks/index.ts',
     },
-    name: 'hooks',
-  },
-  {
-    ...optionsESM,
-    entry: {
-      hooks: 'src/hooks/index.ts',
-    },
-    name: 'hooks',
   },
 ])

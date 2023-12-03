@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { createLogger } from './utils/logger.ts'
+import { createLogger } from './logger.ts'
 import { createPlugin } from './plugin.ts'
 import { PluginManager } from './PluginManager.ts'
 

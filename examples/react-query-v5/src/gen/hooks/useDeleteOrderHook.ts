@@ -11,8 +11,8 @@ type DeleteOrder = {
   pathParams: DeleteOrderPathParams
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<DeleteOrderClient>>['data']
-  unionResponse: Awaited<ReturnType<DeleteOrderClient>> | Awaited<ReturnType<DeleteOrderClient>>['data']
+  response: DeleteOrderMutationResponse
+  unionResponse: Awaited<ReturnType<DeleteOrderClient>> | DeleteOrderMutationResponse
   client: {
     paramaters: Partial<Parameters<DeleteOrderClient>[0]>
     return: Awaited<ReturnType<DeleteOrderClient>>

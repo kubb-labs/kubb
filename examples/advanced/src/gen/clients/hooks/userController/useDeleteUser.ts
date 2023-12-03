@@ -12,7 +12,7 @@ type DeleteUser = {
   queryParams: never
   headerParams: never
   response: Awaited<ReturnType<DeleteUserClient>>
-  unionResponse: Awaited<ReturnType<DeleteUserClient>> | Awaited<ReturnType<DeleteUserClient>>['data']
+  unionResponse: Awaited<ReturnType<DeleteUserClient>> | DeleteUserMutationResponse
   client: {
     paramaters: Partial<Parameters<DeleteUserClient>[0]>
     return: Awaited<ReturnType<DeleteUserClient>>

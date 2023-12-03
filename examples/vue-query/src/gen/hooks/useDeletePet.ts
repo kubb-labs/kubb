@@ -14,8 +14,8 @@ type DeletePet = {
   pathParams: DeletePetPathParams
   queryParams: never
   headerParams: DeletePetHeaderParams
-  response: Awaited<ReturnType<DeletePetClient>>['data']
-  unionResponse: Awaited<ReturnType<DeletePetClient>> | Awaited<ReturnType<DeletePetClient>>['data']
+  response: DeletePetMutationResponse
+  unionResponse: Awaited<ReturnType<DeletePetClient>> | DeletePetMutationResponse
   client: {
     paramaters: Partial<Parameters<DeletePetClient>[0]>
     return: Awaited<ReturnType<DeletePetClient>>

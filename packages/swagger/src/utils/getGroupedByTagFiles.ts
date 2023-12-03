@@ -1,11 +1,13 @@
 import path from 'node:path'
 
 import { FileManager } from '@kubb/core'
+import { getRelativePath } from '@kubb/core/fs'
+import { LogLevel } from '@kubb/core/logger'
 import transformers from '@kubb/core/transformers'
-import { getRelativePath, LogLevel, renderTemplate } from '@kubb/core/utils'
+import { renderTemplate } from '@kubb/core/utils'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
-import type { Logger } from '@kubb/core/utils'
+import type { Logger } from '@kubb/core/logger'
 
 type Options = {
   logger?: Logger

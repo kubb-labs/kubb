@@ -163,8 +163,8 @@ Type: `'barrel' | false` <br/>
 
 ## Depended
 
-- [`@kubb/swagger`](/plugins/swagger)
-- [`@kubb/swagger-zod`](/plugins/swagger-zod)
+- [`@kubb/swagger`](/plugins/swagger/)
+- [`@kubb/swagger-zod`](/plugins/swagger-zod/)
 
 ## Links
 

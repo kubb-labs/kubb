@@ -11,8 +11,8 @@ type AddPet = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<AddPetClient>>['data']
-  unionResponse: Awaited<ReturnType<AddPetClient>> | Awaited<ReturnType<AddPetClient>>['data']
+  response: AddPetMutationResponse
+  unionResponse: Awaited<ReturnType<AddPetClient>> | AddPetMutationResponse
   client: {
     paramaters: Partial<Parameters<AddPetClient>[0]>
     return: Awaited<ReturnType<AddPetClient>>

@@ -14,8 +14,8 @@ type UpdateUser = {
   pathParams: UpdateUserPathParams
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<UpdateUserClient>>['data']
-  unionResponse: Awaited<ReturnType<UpdateUserClient>> | Awaited<ReturnType<UpdateUserClient>>['data']
+  response: UpdateUserMutationResponse
+  unionResponse: Awaited<ReturnType<UpdateUserClient>> | UpdateUserMutationResponse
   client: {
     paramaters: Partial<Parameters<UpdateUserClient>[0]>
     return: Awaited<ReturnType<UpdateUserClient>>

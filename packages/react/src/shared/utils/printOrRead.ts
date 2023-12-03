@@ -1,4 +1,4 @@
-import { readSync } from '@kubb/core/utils'
+import { readSync } from '@kubb/core/fs'
 import { print } from '@kubb/parser'
 
 import type { File } from '../../components/File.tsx'

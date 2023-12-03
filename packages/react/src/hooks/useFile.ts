@@ -1,4 +1,4 @@
-import { readSync } from '@kubb/core/utils'
+import { readSync } from '@kubb/core/fs'
 import { usePluginManager } from '@kubb/react'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'

@@ -5,6 +5,6 @@ export { OasManager } from './OasManager.ts'
 export type { GetOperationGeneratorOptions, OperationMethodResult } from './OperationGenerator.ts'
 export { OperationGenerator } from './OperationGenerator.ts'
 export { definePlugin, pluginKey, pluginName } from './plugin.ts'
-export * from './types.ts'
+export type * from './types.ts'
 
 export default definePlugin

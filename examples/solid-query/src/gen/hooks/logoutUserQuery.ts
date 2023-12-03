@@ -11,8 +11,8 @@ type LogoutUser = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<LogoutUserClient>>['data']
-  unionResponse: Awaited<ReturnType<LogoutUserClient>> | Awaited<ReturnType<LogoutUserClient>>['data']
+  response: LogoutUserQueryResponse
+  unionResponse: Awaited<ReturnType<LogoutUserClient>> | LogoutUserQueryResponse
   client: {
     paramaters: Partial<Parameters<LogoutUserClient>[0]>
     return: Awaited<ReturnType<LogoutUserClient>>

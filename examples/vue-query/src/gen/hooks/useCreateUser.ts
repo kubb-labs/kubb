@@ -12,8 +12,8 @@ type CreateUser = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<CreateUserClient>>['data']
-  unionResponse: Awaited<ReturnType<CreateUserClient>> | Awaited<ReturnType<CreateUserClient>>['data']
+  response: CreateUserMutationResponse
+  unionResponse: Awaited<ReturnType<CreateUserClient>> | CreateUserMutationResponse
   client: {
     paramaters: Partial<Parameters<CreateUserClient>[0]>
     return: Awaited<ReturnType<CreateUserClient>>

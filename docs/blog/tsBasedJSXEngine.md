@@ -1,13 +1,13 @@
 ---
 layout: doc
 
-title: Typescript JSX based template engine for code generation.
+title: TypeScript JSX based template engine for code generation.
 outline: deep
 ---
 
 Published: 2023-12-06
 
-# Typescript JSX based template engine for code generation.
+# TypeScript JSX based template engine for code generation.
 
 Since v2 `Kubb` has been starting to use JSX templates to create its generated code. Before we use template string but that was not always easy when you have a couple of if statements(not easy to read/understand) and it would also become harder to maintain in the future. Because of that we explored if it was possible to use JSX and React to create our generated code. As a front-end developer we use React on a daily base and to use JSX as a template engine would be really nice.
 
@@ -19,7 +19,7 @@ A template engine is a software program designed to combine templates with a dat
 
 ## What is source code generation?
 
-Source code generation is a technique used in programming where code is automatically generated based on a set of pre-defined rules or templates. This technique can save developers time and effort by automating repetitive tasks and reducing the likelihood of errors. Code generation can be used for a variety of purposes, including creating boilerplate code, generating code from models, and producing code for specific platforms or frameworks. Many commonly used tools, such as graphql, openAPI and gRPC, use code generation under the hood.
+Source code generation is a technique used in programming where code is automatically generated based on a set of pre-defined rules or templates. This technique can save developers time and effort by automating repetitive tasks and reducing the likelihood of errors. Code generation can be used for a variety of purposes, including creating boilerplate code, generating code from models, and producing code for specific platforms or frameworks. Many commonly used tools, such as graphql, OpenAPI and gRPC, use code generation under the hood.
 
 ## Template engines as of today.
 

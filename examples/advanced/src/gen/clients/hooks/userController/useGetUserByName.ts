@@ -12,7 +12,7 @@ type GetUserByName = {
   queryParams: never
   headerParams: never
   response: Awaited<ReturnType<GetUserByNameClient>>
-  unionResponse: Awaited<ReturnType<GetUserByNameClient>> | Awaited<ReturnType<GetUserByNameClient>>['data']
+  unionResponse: Awaited<ReturnType<GetUserByNameClient>> | GetUserByNameQueryResponse
   client: {
     paramaters: Partial<Parameters<GetUserByNameClient>[0]>
     return: Awaited<ReturnType<GetUserByNameClient>>

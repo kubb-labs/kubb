@@ -529,9 +529,9 @@ export default defineConfig({
 
 ## Depended
 
-- [`@kubb/swagger`](/plugins/swagger)
-- [`@kubb/swagger-ts`](/plugins/swagger-ts)
-- [`@kubb/swagger-faker`](/plugins/swagger-faker)
+- [`@kubb/swagger`](/plugins/swagger/)
+- [`@kubb/swagger-ts`](/plugins/swagger-ts/)
+- [`@kubb/swagger-faker`](/plugins/swagger-faker/)
 
 ## Links
 

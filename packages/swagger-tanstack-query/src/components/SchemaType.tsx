@@ -44,9 +44,9 @@ export function SchemaType({ factory }: Props): ReactNode {
           response: ${
           dataReturnType === 'full'
             ? `Awaited<ReturnType<${clientType}>>`
-            : `Awaited<ReturnType<${clientType}>>['data']`
+            : TData
         }
-          unionResponse: Awaited<ReturnType<${clientType}>> | Awaited<ReturnType<${clientType}>>['data']
+          unionResponse: Awaited<ReturnType<${clientType}>> | ${TData}
           client: {
             paramaters: Partial<Parameters<${clientType}>[0]>
             return: Awaited<ReturnType<${clientType}>>

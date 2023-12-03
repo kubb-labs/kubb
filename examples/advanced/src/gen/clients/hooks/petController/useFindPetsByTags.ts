@@ -17,7 +17,7 @@ type FindPetsByTags = {
   queryParams: FindPetsByTagsQueryParams
   headerParams: FindPetsByTagsHeaderParams
   response: Awaited<ReturnType<FindPetsByTagsClient>>
-  unionResponse: Awaited<ReturnType<FindPetsByTagsClient>> | Awaited<ReturnType<FindPetsByTagsClient>>['data']
+  unionResponse: Awaited<ReturnType<FindPetsByTagsClient>> | FindPetsByTagsQueryResponse
   client: {
     paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
     return: Awaited<ReturnType<FindPetsByTagsClient>>

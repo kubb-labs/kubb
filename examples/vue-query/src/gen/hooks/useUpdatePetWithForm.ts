@@ -19,8 +19,8 @@ type UpdatePetWithForm = {
   pathParams: UpdatePetWithFormPathParams
   queryParams: UpdatePetWithFormQueryParams
   headerParams: never
-  response: Awaited<ReturnType<UpdatePetWithFormClient>>['data']
-  unionResponse: Awaited<ReturnType<UpdatePetWithFormClient>> | Awaited<ReturnType<UpdatePetWithFormClient>>['data']
+  response: UpdatePetWithFormMutationResponse
+  unionResponse: Awaited<ReturnType<UpdatePetWithFormClient>> | UpdatePetWithFormMutationResponse
   client: {
     paramaters: Partial<Parameters<UpdatePetWithFormClient>[0]>
     return: Awaited<ReturnType<UpdatePetWithFormClient>>

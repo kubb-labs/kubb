@@ -6,7 +6,7 @@ import { getSchemas } from './utils/getSchemas.ts'
 import { OasManager } from './OasManager.ts'
 
 import type { KubbConfig } from '@kubb/core'
-import type { Logger } from '@kubb/core/utils'
+import type { Logger } from '@kubb/core/logger'
 import type { Oas, OasTypes, PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger' satisfies PluginOptions['name']

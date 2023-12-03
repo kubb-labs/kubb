@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { LogLevel, randomPicoColour } from '@kubb/core/utils'
+import { LogLevel, randomPicoColour } from '@kubb/core/logger'
 
 import pc from 'picocolors'
 

@@ -20,8 +20,8 @@ type CreateUsersWithListInput = {
   pathParams: never
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<CreateUsersWithListInputClient>>['data']
-  unionResponse: Awaited<ReturnType<CreateUsersWithListInputClient>> | Awaited<ReturnType<CreateUsersWithListInputClient>>['data']
+  response: CreateUsersWithListInputMutationResponse
+  unionResponse: Awaited<ReturnType<CreateUsersWithListInputClient>> | CreateUsersWithListInputMutationResponse
   client: {
     paramaters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>

@@ -20,7 +20,7 @@ type CreatePets = {
   queryParams: CreatePetsQueryParams
   headerParams: CreatePetsHeaderParams
   response: Awaited<ReturnType<CreatePetsClient>>
-  unionResponse: Awaited<ReturnType<CreatePetsClient>> | Awaited<ReturnType<CreatePetsClient>>['data']
+  unionResponse: Awaited<ReturnType<CreatePetsClient>> | CreatePetsMutationResponse
   client: {
     paramaters: Partial<Parameters<CreatePetsClient>[0]>
     return: Awaited<ReturnType<CreatePetsClient>>

@@ -1,18 +1,17 @@
 import pc from 'picocolors'
 
-import { clean } from './utils/clean.ts'
-import { createLogger, LogLevel } from './utils/logger.ts'
-import { randomPicoColour } from './utils/randomColour.ts'
-import { read } from './utils/read.ts'
+import { clean } from './fs/clean.ts'
+import { read } from './fs/read.ts'
 import { URLPath } from './utils/URLPath.ts'
 import { isInputPath } from './config.ts'
 import { FileManager } from './FileManager.ts'
+import { createLogger, LogLevel, randomPicoColour } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isPromise } from './PromiseManager.ts'
 
 import type { KubbFile } from './FileManager.ts'
+import type { Logger } from './logger.ts'
 import type { KubbPlugin, PluginContext, PluginParameter, TransformResult } from './types.ts'
-import type { Logger } from './utils/logger.ts'
 import type { QueueJob } from './utils/Queue.ts'
 
 type BuildOptions = {

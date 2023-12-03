@@ -1,2 +1,2 @@
-export * from './msw'
 export type * from './models'
+export * from './msw'

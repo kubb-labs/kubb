@@ -341,7 +341,7 @@ export default defineConfig({
 
 ## Depended
 
-- [`@kubb/swagger`](/plugins/swagger)
+- [`@kubb/swagger`](/plugins/swagger/)
 
 ## Links
 

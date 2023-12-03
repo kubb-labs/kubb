@@ -18,8 +18,8 @@ type GetOrderById = {
   pathParams: GetOrderByIdPathParams
   queryParams: never
   headerParams: never
-  response: Awaited<ReturnType<GetOrderByIdClient>>['data']
-  unionResponse: Awaited<ReturnType<GetOrderByIdClient>> | Awaited<ReturnType<GetOrderByIdClient>>['data']
+  response: GetOrderByIdQueryResponse
+  unionResponse: Awaited<ReturnType<GetOrderByIdClient>> | GetOrderByIdQueryResponse
   client: {
     paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
     return: Awaited<ReturnType<GetOrderByIdClient>>
