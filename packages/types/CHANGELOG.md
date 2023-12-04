@@ -1,5 +1,11 @@
 # @kubb/types
 
+## 2.0.0-beta.13
+
+### Patch Changes
+
+- [`e17bc7c`](https://github.com/kubb-project/kubb/commit/e17bc7ccfb91aeab52488e847356890464aa6166) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - tsup build cleanup with `splitting`
+
 ## 2.0.0-beta.12
 
 ## 2.0.0-beta.11
