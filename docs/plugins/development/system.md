@@ -20,7 +20,7 @@ Our plugin system is based on the following packages:
 - [Unplugin](https://github.com/unjs/unplugin)
 - [Snowpack](https://www.snowpack.dev/guides/plugins)
 
-## Developing Plugins
+## Setup
 
 Plugins provide a function similar to `(options?: PluginOptions) => KubbUserPluginWithLifeCycle` as an entry point.
 
@@ -129,6 +129,84 @@ export type PluginFactoryOptions<Name, Options, ResolveOptions, API, ResolvePath
 ### Template Repository
 
 [`plugin-template`](https://github.com/kubb-project/plugin-template) is a minimal Kubb plugin template repository that you can use as a basis for developing your Kubb plugin.
+
+## Configure
+
+To get started with creating plugins you need to set some options for the `PluginManager`. <br>
+More info about the lifecyle: [PluginManager Lifecycle](/reference/pluginManager/lifecycle)<br/>
+More info about the `PluginContext` or `this`: [Plugin Core](/plugins/development/core)
+
+::: tip
+When using type PluginOptions with `PluginFactoryOptions` you will already receive better types, name will be what you have defined as first parameter to `PluginFactoryOptions` instead of string.
+:::
+
+- **Type:** `KubbUserPluginWithLifeCycle` <br/>
+
+### name
+
+Name of your plugin
+
+- **Type:** `string` <br/>
+
+### options
+
+Specify some options here that you want to expose for other plugins or for internal use.
+
+- **Type:** `object` <br/>
+
+### pre
+
+Which plugin(s) should be executed before the current one.
+
+- **Type:** `string[]` <br/>
+
+### post
+
+Which plugin(s) should be executed after the current one.
+
+- **Type:** `string[]` <br/>
+
+### api
+
+Add some extra functionality to your plugin, here you can even using functions which is not possible with `options`.
+
+- **Type:** `(this: Omit<PluginContext, "addFile">) => object` <br/>
+
+### resolvePath
+
+This will be called when pluginManager.resolvePath is called, see [Pluginmanager and resolving a path](/reference/pluginManager/#pluginmanager-resolvepath).
+
+- **Type:** `(this: PluginContext, baseName: string, directory?: string | undefined, options?: object) => KubbFile.OptionalPath` <br/>
+
+### resolveName
+
+This will be called when pluginManager.resolveName is called, see [Pluginmanager and resolving a name](/reference/pluginManager/#pluginmanager-resolvename).
+
+- **Type:** `(this: PluginContext, name: string, type?: "function" | "type" | "file" | undefined) => string)` <br/>
+
+### buildStart
+
+This will be called when the build starts, see [Lifecycle](/plugins/development/system#lifecycle).
+
+- **Type:** `(this: PluginContext, kubbConfig: KubbConfig) => PossiblePromise<void>` <br/>
+
+### buildEnd
+
+This will be called when the build is done, see [Lifecycle](/plugins/development/system#lifecycle).
+
+- **Type:** `(this: PluginContext) => PossiblePromise<void>` <br/>
+
+### writeFile
+
+This will be called when a new file is ready to be written to the fileSystem, see [Lifecycle](/plugins/development/system#lifecycle).
+
+- **Type:** `(this: Omit<PluginContext, "addFile">, source: string | undefined, path: string) => PossiblePromise<string | void>` <br/>
+
+### transform
+
+This will be called just before we call writeFile, see [Lifecycle](/plugins/development/system#lifecycle). Here you can override the source/content of a file.
+
+- **Type:** `(this: Omit<PluginContext, "addFile">, source: string, path: string) => PossiblePromise<TransformResult>` <br/>
 
 ## Lifecycle
 

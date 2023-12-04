@@ -21,7 +21,7 @@ type Options = {
   resolvePath: PluginContext['resolvePath']
   resolveName: PluginContext['resolveName']
   logger: PluginContext['logger']
-  getPlugins: () => KubbPlugin[]
+  getPlugins: () => Array<KubbPlugin>
   plugin?: PluginContext['plugin']
 }
 

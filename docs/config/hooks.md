@@ -14,8 +14,7 @@ Hooks that will be called when a specific action is triggered in Kubb.
 Hook that will be triggered at the end of Kubb's generation.<br/>
 Useful for running Prettier or ESLint to format/lint your code.
 
-::: info
-Type: `string | string[]` <br/>
+- **Type:** `string | string[]` <br/>
 
 ::: code-group
 
