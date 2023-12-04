@@ -1,5 +1,18 @@
 # @kubb/swagger-zodios
 
+## 2.0.0-beta.13
+
+### Patch Changes
+
+- [`e17bc7c`](https://github.com/kubb-project/kubb/commit/e17bc7ccfb91aeab52488e847356890464aa6166) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - tsup build cleanup with `splitting`
+
+- Updated dependencies [[`e17bc7c`](https://github.com/kubb-project/kubb/commit/e17bc7ccfb91aeab52488e847356890464aa6166)]:
+  - @kubb/core@2.0.0-beta.13
+  - @kubb/parser@2.0.0-beta.13
+  - @kubb/react@2.0.0-beta.13
+  - @kubb/swagger@2.0.0-beta.13
+  - @kubb/swagger-zod@2.0.0-beta.13
+
 ## 2.0.0-beta.12
 
 ### Patch Changes
