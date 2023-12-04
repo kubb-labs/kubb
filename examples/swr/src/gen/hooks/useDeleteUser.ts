@@ -11,16 +11,16 @@ import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, D
 export function useDeleteUser<TData = DeleteUserMutationResponse, TError = DeleteUser400 | DeleteUser404>(
   username: DeleteUserPathParams['username'],
   options?: {
-    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError, string | null, never>
+    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError>
     client?: Partial<Parameters<typeof client<TData, TError>>[0]>
     shouldFetch?: boolean
   },
-): SWRMutationResponse<ResponseConfig<TData>, TError, string | null, never> {
+): SWRMutationResponse<ResponseConfig<TData>, TError> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = shouldFetch ? `/user/${username}` : null
-  return useSWRMutation<ResponseConfig<TData>, TError, string | null, never>(
-    url,
-    (url) => {
+  const url = `/user/${username}` as const
+  return useSWRMutation<ResponseConfig<TData>, TError, typeof url | null>(
+    shouldFetch ? url : null,
+    (_url) => {
       return client<TData, TError>({
         method: 'delete',
         url,

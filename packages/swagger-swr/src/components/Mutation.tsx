@@ -66,17 +66,35 @@ function Template({
   ].filter(Boolean)
 
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
+  if (client.withQueryParams) {
+    return (
+      <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+        {`
+         const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
+         const url = ${client.path.template} as const
+         return ${hook.name}<${hook.generics}>(
+          shouldFetch ? [url, params]: null,
+          (_url${client.withData ? ', { arg: data }' : ''}) => {
+            return client<${client.generics}>({
+              ${resolvedClientOptions}
+            })
+          },
+          mutationOptions
+        )
+      }`}
+      </Function>
+    )
+  }
   return (
     <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
       {`
        const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-       const url = shouldFetch ? ${client.path.template} : null
-
+       const url = ${client.path.template} as const
        return ${hook.name}<${hook.generics}>(
-        url,
-        (url${client.withData ? ', { arg: data }' : ''}) => {
+        shouldFetch ? url : null,
+        (_url${client.withData ? ', { arg: data }' : ''}) => {
           return client<${client.generics}>({
             ${resolvedClientOptions}
           })
@@ -118,7 +136,10 @@ export function Mutation({
     withHeaders: !!schemas.headerParams?.name,
   }
 
-  const resultGenerics = ['ResponseConfig<TData>', 'TError', 'string | null', schemas.request?.name ? `TVariables` : 'never'].filter(Boolean)
+  const resultGenerics = [
+    'ResponseConfig<TData>',
+    'TError',
+  ]
 
   generics.add([
     { type: 'TData', default: schemas.response.name },
@@ -131,13 +152,13 @@ export function Mutation({
     {
       name: 'params',
       type: schemas.queryParams?.name,
-      enabled: !!schemas.queryParams?.name,
+      enabled: client.withQueryParams,
       required: false,
     },
     {
       name: 'headers',
       type: schemas.headerParams?.name,
-      enabled: !!schemas.headerParams?.name,
+      enabled: client.withHeaders,
       required: false,
     },
     {
@@ -154,7 +175,7 @@ export function Mutation({
 
   const hook = {
     name: 'useSWRMutation',
-    generics: resultGenerics.join(', '),
+    generics: [...resultGenerics, client.withQueryParams ? `[typeof url, typeof params] | null` : 'typeof url | null'].join(', '),
   }
 
   return (

@@ -30,8 +30,8 @@ export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = Ge
   },
 ): SWRResponse<ResponseConfig<TData>, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = shouldFetch ? `/user/${username}` : null
-  const query = useSWR<ResponseConfig<TData>, TError, string | null>(url, {
+  const url = `/user/${username}` as const
+  const query = useSWR<ResponseConfig<TData>, TError, typeof url | null>(shouldFetch ? url : null, {
     ...getUserByNameQueryOptions<TData, TError>(username, clientOptions),
     ...queryOptions,
   })
