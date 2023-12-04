@@ -3,9 +3,10 @@ import { File, usePlugin } from '@kubb/react'
 import { useFile } from '@kubb/react'
 import { useOas } from '@kubb/swagger/hooks'
 
+import type { KubbNode } from '@kubb/react'
 import type { Paths } from '@kubb/swagger'
 import type { HttpMethod, Oas } from '@kubb/swagger/oas'
-import type { ReactNode } from 'react'
+import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
 type TemplateProps = {
@@ -19,7 +20,7 @@ type TemplateProps = {
 function Template({
   name,
   operations,
-}: TemplateProps): ReactNode {
+}: TemplateProps): KubbNode {
   return (
     <>
       {`export const ${name} = ${JSON.stringify(operations)} as const;`}
@@ -53,13 +54,13 @@ type Props = {
   /**
    * This will make it possible to override the default behaviour.
    */
-  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
+  Template?: ComponentType<ComponentProps<typeof Template>>
 }
 
 export function Operations({
   paths,
   Template = defaultTemplates.default,
-}: Props): ReactNode {
+}: Props): KubbNode {
   const oas = useOas()
 
   const operations = getOperations(oas, paths)
@@ -80,7 +81,7 @@ type FileProps = {
   templates?: typeof defaultTemplates
 }
 
-Operations.File = function({ name, paths, templates = defaultTemplates }: FileProps): ReactNode {
+Operations.File = function({ name, paths, templates = defaultTemplates }: FileProps): KubbNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const file = useFile({ name, pluginKey })
 

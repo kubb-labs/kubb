@@ -40,6 +40,9 @@
       ],
       "@kubb/react": [
         "packages/react/src/index.ts"
+      ],
+      "@kubb/react/jsx-runtime": [
+        "packages/react/src/jsx-runtime.ts"
       ]
     }
   },

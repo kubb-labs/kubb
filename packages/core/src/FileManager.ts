@@ -10,7 +10,8 @@ import { orderBy } from 'natural-orderby'
 
 import { getRelativePath, read } from './fs/read.ts'
 import { write } from './fs/write.ts'
-import transformers from './transformers/index.ts'
+import { searchAndReplace } from './transformers/searchAndReplace.ts'
+import { trimExtName } from './transformers/trim.ts'
 import { timeout } from './utils/timeout.ts'
 import { BarrelManager } from './BarrelManager.ts'
 
@@ -262,7 +263,7 @@ export class FileManager {
 
   async #add(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
     const controller = new AbortController()
-    const resolvedFile: KubbFile.ResolvedFile = { id: crypto.randomUUID(), name: transformers.trimExtName(file.baseName), ...file }
+    const resolvedFile: KubbFile.ResolvedFile = { id: crypto.randomUUID(), name: trimExtName(file.baseName), ...file }
 
     this.#cache.set(resolvedFile.path, [{ cancel: () => controller.abort(), ...resolvedFile }])
 
@@ -418,7 +419,7 @@ export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMet
   const importNodes = imports.filter(item => {
     // isImportNotNeeded
     // trim extName
-    return item.path !== transformers.trimExtName(file.path)
+    return item.path !== trimExtName(file.path)
   }).map((item) => {
     return factory.createImportDeclaration({
       name: item.name,
@@ -555,9 +556,9 @@ function getEnvSource(source: string, env: NodeJS.ProcessEnv | undefined): strin
     }
 
     if (typeof replaceBy === 'string') {
-      prev = transformers.searchAndReplace({ text: prev.replaceAll(`process.env.${key}`, replaceBy), replaceBy, prefix: 'process.env', key })
+      prev = searchAndReplace({ text: prev.replaceAll(`process.env.${key}`, replaceBy), replaceBy, prefix: 'process.env', key })
       // removes `declare const ...`
-      prev = transformers.searchAndReplace({ text: prev.replaceAll(new RegExp(`(declare const).*\n`, 'ig'), ''), replaceBy, key })
+      prev = searchAndReplace({ text: prev.replaceAll(new RegExp(`(declare const).*\n`, 'ig'), ''), replaceBy, key })
     }
 
     return prev

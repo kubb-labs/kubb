@@ -79,7 +79,9 @@
     "js-runtime": "^0.0.7",
     "natural-orderby": "^3.0.2",
     "seedrandom": "^3.0.5",
-    "semver": "^7.5.4"
+    "semver": "^7.5.4",
+    "find-up": "^7.0.0",
+    "change-case": "^5.2.0"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
@@ -90,9 +92,7 @@
     "@types/react": "^18.2.41",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.6",
-    "change-case": "^5.2.0",
     "eslint": "^8.55.0",
-    "find-up": "^7.0.0",
     "tinyrainbow": "^1.1.0",
     "fs-extra": "^11.2.0",
     "lodash.isequal": "^4.5.0",

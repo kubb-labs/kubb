@@ -1,6 +1,6 @@
 import { orderBy } from 'natural-orderby'
 
-import transformers from '../transformers/index.ts'
+import { camelCase } from '../transformers/casing.ts'
 
 type FunctionParamsASTWithoutType = {
   name?: string
@@ -67,7 +67,7 @@ export class FunctionParams {
           return acc
         }
         // TODO check whey we still need the camelcase here
-        const parameterName = name.startsWith('{') ? name : transformers.camelCase(name)
+        const parameterName = name.startsWith('{') ? name : camelCase(name)
 
         if (type) {
           if (required) {

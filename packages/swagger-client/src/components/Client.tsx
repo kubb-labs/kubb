@@ -6,8 +6,9 @@ import { useOperation, useOperationFile, useOperationName, useSchemas } from '@k
 import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
+import type { KubbNode } from '@kubb/react'
 import type { HttpMethod } from '@kubb/swagger/oas'
-import type { ReactNode } from 'react'
+import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
 type TemplateProps = {
@@ -51,7 +52,7 @@ function Template({
   params,
   JSDoc,
   client,
-}: TemplateProps): ReactNode {
+}: TemplateProps): KubbNode {
   const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
@@ -92,12 +93,12 @@ type ClientProps = {
   /**
    * This will make it possible to override the default behaviour.
    */
-  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
+  Template?: ComponentType<ComponentProps<typeof Template>>
 }
 
 export function Client({
   Template = defaultTemplates.default,
-}: ClientProps): ReactNode {
+}: ClientProps): KubbNode {
   const { options: { dataReturnType, pathParamsType } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const operation = useOperation()
@@ -163,7 +164,7 @@ type FileProps = {
   templates?: typeof defaultTemplates
 }
 
-Client.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
+Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
   const { options: { clientImportPath } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()

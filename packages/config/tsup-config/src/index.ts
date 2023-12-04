@@ -29,7 +29,7 @@ export const optionsESM: Options = {
   ...options,
   format: 'esm',
   dts: true,
-  splitting: false,
+  splitting: true,
   banner: bannerESM,
 }
 
@@ -38,7 +38,7 @@ export const optionsCJS: Options = {
   format: 'cjs',
   dts: true,
   banner: bannerCJS,
-  splitting: false,
+  splitting: true,
 }
 
 export const optionsFlat: Options = {

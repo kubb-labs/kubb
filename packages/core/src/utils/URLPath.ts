@@ -1,4 +1,4 @@
-import transformers from '../transformers/index.ts'
+import { camelCase } from '../transformers/casing.ts'
 
 export type URLObject = {
   url: string
@@ -90,8 +90,8 @@ export class URLPath {
     if (found) {
       newPath = found.reduce((prev, curr) => {
         const pathParam = replacer
-          ? replacer(transformers.camelCase(curr))
-          : transformers.camelCase(curr)
+          ? replacer(camelCase(curr))
+          : camelCase(curr)
         const replacement = `\${${pathParam}}`
 
         return prev.replace(curr, replacement)
@@ -114,8 +114,8 @@ export class URLPath {
       item = item.replaceAll('{', '').replaceAll('}', '')
 
       const pathParam = replacer
-        ? replacer(transformers.camelCase(item))
-        : transformers.camelCase(item)
+        ? replacer(camelCase(item))
+        : camelCase(item)
 
       params[pathParam] = pathParam
     }, this.path)

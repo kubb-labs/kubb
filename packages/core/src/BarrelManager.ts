@@ -1,6 +1,6 @@
 import path from 'path'
 
-import transformers from './transformers/index.ts'
+import { trimExtName } from './transformers/trim.ts'
 import { TreeNode } from './utils/TreeNode.ts'
 
 import type { DirectoryTreeOptions } from 'directory-tree'
@@ -51,7 +51,7 @@ export class BarrelManager {
         const exports: KubbFile.Export[] = treeNode.children
           .filter(Boolean)
           .map((file) => {
-            const importPath: string = file.data.type === 'directory' ? `./${file.data.name}/index` : `./${transformers.trimExtName(file.data.name)}`
+            const importPath: string = file.data.type === 'directory' ? `./${file.data.name}/index` : `./${trimExtName(file.data.name)}`
 
             if (importPath.endsWith('index') && file.data.type === 'file') {
               return undefined
@@ -79,7 +79,7 @@ export class BarrelManager {
         const indexPath = path.resolve(treeNode.data.path, 'index.ts')
         const importPath = treeNodeChild.data.type === 'directory'
           ? `./${treeNodeChild.data.name}/index`
-          : `./${transformers.trimExtName(treeNodeChild.data.name)}`
+          : `./${trimExtName(treeNodeChild.data.name)}`
 
         const exports = [
           {

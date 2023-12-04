@@ -13,6 +13,7 @@ export default defineConfig([
       hooks: 'src/hooks/index.ts',
       components: 'src/components/index.ts',
     },
+    noExternal: ['react'],
   },
   {
     ...optionsESM,
@@ -24,5 +25,6 @@ export default defineConfig([
       hooks: 'src/hooks/index.ts',
       components: 'src/components/index.ts',
     },
+    noExternal: ['react'],
   },
 ])
