@@ -29,8 +29,15 @@ export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TErro
   shouldFetch?: boolean
 }): SWRResponse<ResponseConfig<TData>, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-  const url = shouldFetch ? `/pet/findByStatus` : null
-  const query = useSWR<ResponseConfig<TData>, TError, string | null>(url, {
+  const url = `/pet/findByStatus` as const
+  const query = useSWR<
+    ResponseConfig<TData>,
+    TError,
+    [
+      typeof url,
+      typeof params,
+    ] | null
+  >(shouldFetch ? [url, params] : null, {
     ...findPetsByStatusQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
   })

@@ -39,6 +39,7 @@ type TemplateProps = {
   }
   client: {
     path: URLPath
+    withQueryParams: boolean
   }
 }
 
@@ -51,16 +52,38 @@ function Template({
   hook,
   client,
 }: TemplateProps): ReactNode {
+  if (client.withQueryParams) {
+    return (
+      <>
+        <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+          {`
+         const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+
+         const url = ${client.path.template} as const
+         const query = ${hook.name}<${hook.generics}>(
+          shouldFetch ? [url, params]: null,
+          {
+            ...${hook.queryOptions},
+            ...queryOptions
+          }
+         )
+
+         return query
+         `}
+        </Function>
+      </>
+    )
+  }
+
   return (
     <>
       <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
        const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
 
-       const url = shouldFetch ? ${client.path.template} : null
-
+       const url = ${client.path.template} as const
        const query = ${hook.name}<${hook.generics}>(
-        url,
+        shouldFetch ? url : null,
         {
           ...${hook.queryOptions},
           ...queryOptions
@@ -128,13 +151,13 @@ export function Query({
     {
       name: 'params',
       type: schemas.queryParams?.name,
-      enabled: !!schemas.queryParams?.name,
+      enabled: client.withQueryParams,
       required: false,
     },
     {
       name: 'headers',
       type: schemas.headerParams?.name,
-      enabled: !!schemas.headerParams?.name,
+      enabled: client.withHeaders,
       required: false,
     },
     {
@@ -153,12 +176,12 @@ export function Query({
     ...getASTParams(schemas.pathParams, { typed: false }),
     {
       name: 'params',
-      enabled: !!schemas.queryParams?.name,
+      enabled: client.withQueryParams,
       required: false,
     },
     {
       name: 'headers',
-      enabled: !!schemas.headerParams?.name,
+      enabled: client.withHeaders,
       required: false,
     },
     {
@@ -169,7 +192,7 @@ export function Query({
 
   const hook = {
     name: 'useSWR',
-    generics: [...resultGenerics, 'string | null'].join(', '),
+    generics: [...resultGenerics, client.withQueryParams ? `[typeof url, typeof params] | null` : 'typeof url | null'].join(', '),
     queryOptions: `${queryOptionsName}<${client.generics}>(${queryParams.toString()})`,
   }
 
