@@ -1,5 +1,15 @@
 # @kubb/swagger-zod
 
+## 2.0.0-beta.12
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.0.0-beta.12
+  - @kubb/parser@2.0.0-beta.12
+  - @kubb/react@2.0.0-beta.12
+  - @kubb/swagger@2.0.0-beta.12
+
 ## 2.0.0-beta.11
 
 ### Patch Changes

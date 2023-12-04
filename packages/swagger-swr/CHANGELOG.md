@@ -1,5 +1,19 @@
 # @kubb/swagger-swr
 
+## 2.0.0-beta.12
+
+### Patch Changes
+
+- [#702](https://github.com/kubb-project/kubb/pull/702) [`7c73891`](https://github.com/kubb-project/kubb/commit/7c73891ccdcb09c4de903c959aa5abbdc45e303e) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of array with params when queryParams.name exists
+
+- Updated dependencies []:
+  - @kubb/core@2.0.0-beta.12
+  - @kubb/parser@2.0.0-beta.12
+  - @kubb/react@2.0.0-beta.12
+  - @kubb/swagger@2.0.0-beta.12
+  - @kubb/swagger-client@2.0.0-beta.12
+  - @kubb/swagger-ts@2.0.0-beta.12
+
 ## 2.0.0-beta.11
 
 ### Patch Changes
