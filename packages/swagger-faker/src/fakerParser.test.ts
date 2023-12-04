@@ -136,11 +136,11 @@ const input = [
         address: [{ keyword: 'string' }, { keyword: 'null' }],
       },
     }),
-    expected: '{"firstName": faker.string.alpha({"min":2}),"address": faker.string.alpha()null}',
+    expected: '{"firstName": faker.string.alpha({"min":2}),"address": faker.helpers.arrayElement([faker.string.alpha(),null])}',
   },
 ]
 
-describe('parseZod', () => {
+describe('parseFaker', () => {
   test.each(input)('.add($a, $b)', ({ input, expected }) => {
     expect(input).toBe(expected)
   })

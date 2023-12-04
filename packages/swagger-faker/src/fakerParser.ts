@@ -149,6 +149,17 @@ function fakerKeywordSorter(a: FakerMeta, b: FakerMeta) {
   return 0
 }
 
+function joinItems(items: string[]): string {
+  switch (items.length) {
+    case 0:
+      return 'undefined'
+    case 1:
+      return items[0]!
+    default:
+      return `${fakerKeywordMapper.union}([${items.join(',')}])`
+  }
+}
+
 export function parseFakerMeta(item: FakerMeta, mapper: Record<FakerKeyword, string> = fakerKeywordMapper): string {
   // eslint-disable-next-line prefer-const
   let { keyword, args } = (item || {}) as FakerMetaBase<unknown>
@@ -187,10 +198,11 @@ export function parseFakerMeta(item: FakerMeta, mapper: Record<FakerKeyword, str
         const name = item[0]
         const schema = item[1] as FakerMeta[]
         return `"${name}": ${
-          schema
-            .sort(fakerKeywordSorter)
-            .map((item) => parseFakerMeta(item, mapper))
-            .join('')
+          joinItems(
+            schema
+              .sort(fakerKeywordSorter)
+              .map((item) => parseFakerMeta(item, mapper)),
+          )
         }`
       })
       .join(',')
@@ -216,17 +228,13 @@ export function parseFakerMeta(item: FakerMeta, mapper: Record<FakerKeyword, str
 }
 
 export function fakerParser(items: FakerMeta[], options: { mapper?: Record<FakerKeyword, string>; name: string; typeName?: string | null }): string {
-  if (!items.length) {
-    return `
-export function ${options.name}()${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
-  return undefined;
-}
-`
-  }
-
   return `
 export function ${options.name}()${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
-  return ${items.map((item) => parseFakerMeta(item, { ...fakerKeywordMapper, ...options.mapper })).join('')};
+  return ${
+    joinItems(
+      items.map((item) => parseFakerMeta(item, { ...fakerKeywordMapper, ...options.mapper })),
+    )
+  };
 }
   `
 }

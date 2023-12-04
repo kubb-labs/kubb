@@ -21,8 +21,8 @@ importers:
         specifier: workspace:*
         version: link:packages/config/ts-config
       '@types/node':
-        specifier: ^20.10.2
-        version: 20.10.2
+        specifier: ^20.10.3
+        version: 20.10.3
       '@vitest/coverage-v8':
         specifier: ^0.34.6
         version: 0.34.6(vitest@0.34.6)
@@ -46,7 +46,7 @@ importers:
         version: 5.0.5
       ts-node:
         specifier: ^10.9.1
-        version: 10.9.1(@types/node@20.10.2)(typescript@5.3.2)
+        version: 10.9.1(@types/node@20.10.3)(typescript@5.3.2)
       turbo:
         specifier: ^1.10.16
         version: 1.10.16
@@ -70,14 +70,14 @@ importers:
         version: 7.1.1
       vitepress:
         specifier: ^1.0.0-rc.31
-        version: 1.0.0-rc.31(@algolia/client-search@4.20.0)(@types/node@20.10.2)(search-insights@2.11.0)(typescript@5.3.2)
+        version: 1.0.0-rc.31(@algolia/client-search@4.20.0)(@types/node@20.10.3)(search-insights@2.11.0)(typescript@5.3.2)
       vue:
         specifier: ^3.3.9
         version: 3.3.9(typescript@5.3.2)
     devDependencies:
       '@types/node':
-        specifier: ^20.10.2
-        version: 20.10.2
+        specifier: ^20.10.3
+        version: 20.10.3
 
   e2e:
     dependencies:
@@ -403,10 +403,10 @@ importers:
         version: link:../../packages/swagger-ts
       '@mswjs/http-middleware':
         specifier: ^0.9.2
-        version: 0.9.2(msw@2.0.9)
+        version: 0.9.2(msw@2.0.10)
       msw:
-        specifier: ^2.0.9
-        version: 2.0.9(typescript@5.3.2)
+        specifier: ^2.0.10
+        version: 2.0.10(typescript@5.3.2)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -471,7 +471,7 @@ importers:
         version: 18.2.17
       '@vitejs/plugin-react':
         specifier: ^4.2.0
-        version: 4.2.0(vite@4.5.0)
+        version: 4.2.0(vite@4.5.1)
       msw:
         specifier: ^1.3.2
         version: 1.3.2(typescript@5.3.2)
@@ -479,8 +479,8 @@ importers:
         specifier: ^5.3.2
         version: 5.3.2
       vite:
-        specifier: ^4.5.0
-        version: 4.5.0(@types/node@20.10.2)
+        specifier: ^4.5.1
+        version: 4.5.1(@types/node@20.10.3)
 
   examples/react-query-v5:
     dependencies:
@@ -529,7 +529,7 @@ importers:
         version: 18.2.17
       '@vitejs/plugin-react':
         specifier: ^4.2.0
-        version: 4.2.0(vite@4.5.0)
+        version: 4.2.0(vite@4.5.1)
       msw:
         specifier: ^1.3.2
         version: 1.3.2(typescript@5.3.2)
@@ -537,8 +537,8 @@ importers:
         specifier: ^5.3.2
         version: 5.3.2
       vite:
-        specifier: ^4.5.0
-        version: 4.5.0(@types/node@20.10.2)
+        specifier: ^4.5.1
+        version: 4.5.1(@types/node@20.10.3)
 
   examples/simple-single:
     dependencies:
@@ -749,7 +749,7 @@ importers:
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.5.1
-        version: 4.5.1(vite@4.5.0)(vue@3.3.9)
+        version: 4.5.1(vite@4.5.1)(vue@3.3.9)
       msw:
         specifier: ^1.3.2
         version: 1.3.2(typescript@5.3.2)
@@ -760,8 +760,8 @@ importers:
         specifier: ^5.3.2
         version: 5.3.2
       vite:
-        specifier: ^4.5.0
-        version: 4.5.0(@types/node@20.10.2)
+        specifier: ^4.5.1
+        version: 4.5.1(@types/node@20.10.3)
 
   examples/vue-query-v5:
     dependencies:
@@ -798,7 +798,7 @@ importers:
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.5.1
-        version: 4.5.1(vite@4.5.0)(vue@3.3.9)
+        version: 4.5.1(vite@4.5.1)(vue@3.3.9)
       msw:
         specifier: ^1.3.2
         version: 1.3.2(typescript@5.3.2)
@@ -809,8 +809,8 @@ importers:
         specifier: ^5.3.2
         version: 5.3.2
       vite:
-        specifier: ^4.5.0
-        version: 4.5.0(@types/node@20.10.2)
+        specifier: ^4.5.1
+        version: 4.5.1(@types/node@20.10.3)
 
   examples/zod:
     dependencies:
@@ -938,7 +938,7 @@ importers:
         version: 0.3.2
       ts-node:
         specifier: ^10.9.1
-        version: 10.9.1(@types/node@20.10.2)(typescript@5.3.2)
+        version: 10.9.1(@types/node@20.10.3)(typescript@5.3.2)
     devDependencies:
       '@kubb/swagger':
         specifier: workspace:*
@@ -950,8 +950,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/node':
-        specifier: ^20.10.2
-        version: 20.10.2
+        specifier: ^20.10.3
+        version: 20.10.3
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21
@@ -1039,7 +1039,7 @@ importers:
     dependencies:
       '@microsoft/api-extractor':
         specifier: ^7.38.3
-        version: 7.38.3(@types/node@20.10.2)
+        version: 7.38.3(@types/node@20.10.3)
       esbuild-plugin-file-path-extensions:
         specifier: ^1.0.0
         version: 1.0.0
@@ -1048,8 +1048,8 @@ importers:
         specifier: workspace:*
         version: link:../ts-config
       '@types/node':
-        specifier: ^20.10.2
-        version: 20.10.2
+        specifier: ^20.10.3
+        version: 20.10.3
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(@microsoft/api-extractor@7.38.3)(ts-node@10.9.1)(typescript@5.3.2)
@@ -1146,8 +1146,8 @@ importers:
         specifier: workspace:*
         version: link:../config/tsup-config
       '@types/node':
-        specifier: ^20.10.2
-        version: 20.10.2
+        specifier: ^20.10.3
+        version: 20.10.3
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(@microsoft/api-extractor@7.38.3)(ts-node@10.9.1)(typescript@5.3.2)
@@ -2873,23 +2873,23 @@ packages:
       read-yaml-file: 1.1.0
     dev: true
 
-  /@microsoft/api-extractor-model@7.28.2(@types/node@20.10.2):
+  /@microsoft/api-extractor-model@7.28.2(@types/node@20.10.3):
     resolution: {integrity: sha512-vkojrM2fo3q4n4oPh4uUZdjJ2DxQ2+RnDQL/xhTWSRUNPF6P4QyrvY357HBxbnltKcYu+nNNolVqc6TIGQ73Ig==}
     dependencies:
       '@microsoft/tsdoc': 0.14.2
       '@microsoft/tsdoc-config': 0.16.2
-      '@rushstack/node-core-library': 3.61.0(@types/node@20.10.2)
+      '@rushstack/node-core-library': 3.61.0(@types/node@20.10.3)
     transitivePeerDependencies:
       - '@types/node'
 
-  /@microsoft/api-extractor@7.38.3(@types/node@20.10.2):
+  /@microsoft/api-extractor@7.38.3(@types/node@20.10.3):
     resolution: {integrity: sha512-xt9iYyC5f39281j77JTA9C3ISJpW1XWkCcnw+2vM78CPnro6KhPfwQdPDfwS5JCPNuq0grm8cMdPUOPvrchDWw==}
     hasBin: true
     dependencies:
-      '@microsoft/api-extractor-model': 7.28.2(@types/node@20.10.2)
+      '@microsoft/api-extractor-model': 7.28.2(@types/node@20.10.3)
       '@microsoft/tsdoc': 0.14.2
       '@microsoft/tsdoc-config': 0.16.2
-      '@rushstack/node-core-library': 3.61.0(@types/node@20.10.2)
+      '@rushstack/node-core-library': 3.61.0(@types/node@20.10.3)
       '@rushstack/rig-package': 0.5.1
       '@rushstack/ts-command-line': 4.17.1
       colors: 1.2.5
@@ -2937,14 +2937,14 @@ packages:
       - supports-color
     dev: false
 
-  /@mswjs/http-middleware@0.9.2(msw@2.0.9):
+  /@mswjs/http-middleware@0.9.2(msw@2.0.10):
     resolution: {integrity: sha512-Ie8CZLP632xxOPq3yTNnaIt51NUsmah5YtBU88x0UvYzLH3lsFPBf9hX0FW4mlFwnSFcen1tdU8FpM7qHlvNzg==}
     engines: {node: '>=18'}
     peerDependencies:
       msw: '>=2.0.0'
     dependencies:
       express: 4.18.2
-      msw: 2.0.9(typescript@5.3.2)
+      msw: 2.0.10(typescript@5.3.2)
       strict-event-emitter: 0.5.1
     transitivePeerDependencies:
       - supports-color
@@ -2965,8 +2965,8 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /@mswjs/interceptors@0.25.12:
-    resolution: {integrity: sha512-a+zyoR01cPQeukSmaDEkE6aMwSjjfcT5ILzsyxmctEeCePnc2DMOd0X8Fn9bytq1IsAfMxJf/lu2aTfdivDbRg==}
+  /@mswjs/interceptors@0.25.13:
+    resolution: {integrity: sha512-xfjR81WwXPHwhDbqJRHlxYmboJuiSaIKpP4I5TJVFl/EmByOU13jOBT9hmEnxcjR3jvFYoqoNKt7MM9uqerj9A==}
     engines: {node: '>=18'}
     dependencies:
       '@open-draft/deferred-promise': 2.2.0
@@ -3165,7 +3165,7 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@rushstack/node-core-library@3.61.0(@types/node@20.10.2):
+  /@rushstack/node-core-library@3.61.0(@types/node@20.10.3):
     resolution: {integrity: sha512-tdOjdErme+/YOu4gPed3sFS72GhtWCgNV9oDsHDnoLY5oDfwjKUc9Z+JOZZ37uAxcm/OCahDHfuu2ugqrfWAVQ==}
     peerDependencies:
       '@types/node': '*'
@@ -3173,7 +3173,7 @@ packages:
       '@types/node':
         optional: true
     dependencies:
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
       colors: 1.2.5
       fs-extra: 7.0.1
       import-lazy: 4.0.0
@@ -3371,7 +3371,7 @@ packages:
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
     dev: true
 
   /@types/chai-subset@1.3.5:
@@ -3385,7 +3385,7 @@ packages:
   /@types/connect@3.4.38:
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
     dependencies:
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
     dev: true
 
   /@types/cookie@0.4.1:
@@ -3394,7 +3394,7 @@ packages:
   /@types/cors@2.8.17:
     resolution: {integrity: sha512-8CGDvrBj1zgo2qE+oS3pOCyYNqCPryMWY2bGfwA0dcfopWGgxs+78df0Rs3rc9THP4JkOhLsAa+15VdpAqkcUA==}
     dependencies:
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
     dev: true
 
   /@types/debug@4.1.12:
@@ -3416,7 +3416,7 @@ packages:
   /@types/express-serve-static-core@4.17.41:
     resolution: {integrity: sha512-OaJ7XLaelTgrvlZD8/aa0vvvxZdUmlCn6MtWeB7TkiKW70BQLc9XEPpDLPdbo52ZhXUCrznlWdCHWxJWtdyajA==}
     dependencies:
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
       '@types/qs': 6.9.10
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -3435,7 +3435,7 @@ packages:
     resolution: {integrity: sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==}
     dependencies:
       '@types/jsonfile': 6.1.4
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
     dev: true
 
   /@types/hast@3.0.3:
@@ -3470,7 +3470,7 @@ packages:
   /@types/jsonfile@6.1.4:
     resolution: {integrity: sha512-D5qGUYwjvnNNextdU59/+fI+spnwtTFmyQP0h+PfIOSkNfpU6AOICUOkm4i0OnSk+NyjdPJrxCDro0sJsWlRpQ==}
     dependencies:
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
     dev: true
 
   /@types/linkify-it@3.0.5:
@@ -3527,8 +3527,8 @@ packages:
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
     dev: false
 
-  /@types/node@20.10.2:
-    resolution: {integrity: sha512-37MXfxkb0vuIlRKHNxwCkb60PNBpR94u4efQuN4JgIAm66zfCDXGSAFCef9XUWFovX2R1ok6Z7MHhtdVXXkkIw==}
+  /@types/node@20.10.3:
+    resolution: {integrity: sha512-XJavIpZqiXID5Yxnxv3RUDKTN5b81ddNC3ecsA0SoFXz/QU8OGBwZGMomiq0zw+uuqbL/krztv/DINAQ/EV4gg==}
     dependencies:
       undici-types: 5.26.5
 
@@ -3571,7 +3571,7 @@ packages:
   /@types/sax@1.2.7:
     resolution: {integrity: sha512-rO73L89PJxeYM3s3pPPjiPgVVcymqU490g0YO5n5By0k2Erzj6tay/4lr1CHAAU4JyOWd1rpQ8bCf6cZfHU96A==}
     dependencies:
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
     dev: false
 
   /@types/scheduler@0.16.8:
@@ -3589,7 +3589,7 @@ packages:
     resolution: {integrity: sha512-x2EM6TJOybec7c52BX0ZspPodMsQUd5L6PRwOunVyVUhXiBSKf3AezDL8Dgvgt5o0UfKNfuA0eMLr2wLT4AiBA==}
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
     dev: true
 
   /@types/serve-static@1.15.5:
@@ -3597,13 +3597,13 @@ packages:
     dependencies:
       '@types/http-errors': 2.0.4
       '@types/mime': 3.0.4
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
     dev: true
 
   /@types/set-cookie-parser@2.4.7:
     resolution: {integrity: sha512-+ge/loa0oTozxip6zmhRIk8Z/boU51wl9Q6QdLZcokIGMzY5lFXYy/x7Htj2HTC6/KZP1hUbZ1ekx8DYXICvWg==}
     dependencies:
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
 
   /@types/statuses@2.0.4:
     resolution: {integrity: sha512-eqNDvZsCNY49OAXB0Firg/Sc2BgoWsntsLUdybGFOhAfCD6QJ2n9HXUIHGqt5qjrxmMv4wS8WLAw43ZkKcJ8Pw==}
@@ -3612,7 +3612,7 @@ packages:
   /@types/swagger2openapi@7.0.4:
     resolution: {integrity: sha512-ffMqzciTDihOKH4Q//9Ond1yb5JP1P5FC/aFPsLK4blea1Fwk2aYctiNCkAh5etDYFswFXS+5LV/vuGkf+PU6A==}
     dependencies:
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
       openapi-types: 12.1.3
     dev: true
 
@@ -3906,7 +3906,7 @@ packages:
       server-only: 0.0.1
     dev: false
 
-  /@vitejs/plugin-react@4.2.0(vite@4.5.0):
+  /@vitejs/plugin-react@4.2.0(vite@4.5.1):
     resolution: {integrity: sha512-+MHTH/e6H12kRp5HUkzOGqPMksezRMmW+TNzlh/QXfI8rRf6l2Z2yH/v12no1UvTwhZgEDMuQ7g7rrfMseU6FQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -3917,7 +3917,7 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.3)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 4.5.0(@types/node@20.10.2)
+      vite: 4.5.1(@types/node@20.10.3)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -3929,18 +3929,18 @@ packages:
       vite: ^4.0.0 || ^5.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 5.0.2(@types/node@20.10.2)
+      vite: 5.0.2(@types/node@20.10.3)
       vue: 3.3.9(typescript@5.3.2)
     dev: false
 
-  /@vitejs/plugin-vue@4.5.1(vite@4.5.0)(vue@3.3.9):
+  /@vitejs/plugin-vue@4.5.1(vite@4.5.1)(vue@3.3.9):
     resolution: {integrity: sha512-DaUzYFr+2UGDG7VSSdShKa9sIWYBa1LL8KC0MNOf2H5LjcTPjob0x8LbkqXWmAtbANJCkpiQTj66UVcQkN2s3g==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.0.0 || ^5.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.5.0(@types/node@20.10.2)
+      vite: 4.5.1(@types/node@20.10.3)
       vue: 3.3.9(typescript@5.3.2)
     dev: true
 
@@ -7348,8 +7348,8 @@ packages:
       - encoding
       - supports-color
 
-  /msw@2.0.9(typescript@5.3.2):
-    resolution: {integrity: sha512-rl3kuGS+wuB4EKyL5nJ5WIoteCIzIgySp5b2hmIQ7fuXFfDfn/yD+E0k/3lDNFnC79tM3cuws6XmJEdPr7y+Zg==}
+  /msw@2.0.10(typescript@5.3.2):
+    resolution: {integrity: sha512-JhKdzIEuMDSU7qak4CJjiSFW2J0R4Wm5AuLhFzimKs68Wx7PTyqjgnw7+7FpQ3kGi0yY49g/qEFmUmMyLmjb4w==}
     engines: {node: '>=18'}
     hasBin: true
     requiresBuild: true
@@ -7363,7 +7363,7 @@ packages:
       '@bundled-es-modules/js-levenshtein': 2.0.1
       '@bundled-es-modules/statuses': 1.0.1
       '@mswjs/cookies': 1.1.0
-      '@mswjs/interceptors': 0.25.12
+      '@mswjs/interceptors': 0.25.13
       '@open-draft/until': 2.1.0
       '@types/cookie': 0.4.1
       '@types/js-levenshtein': 1.1.3
@@ -7904,7 +7904,7 @@ packages:
         optional: true
     dependencies:
       lilconfig: 3.0.0
-      ts-node: 10.9.1(@types/node@20.10.2)(typescript@5.3.2)
+      ts-node: 10.9.1(@types/node@20.10.3)(typescript@5.3.2)
       yaml: 2.3.4
 
   /postcss@8.4.31:
@@ -9008,7 +9008,7 @@ packages:
   /ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
-  /ts-node@10.9.1(@types/node@20.10.2)(typescript@5.3.2):
+  /ts-node@10.9.1(@types/node@20.10.3)(typescript@5.3.2):
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -9027,7 +9027,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
       acorn: 8.11.2
       acorn-walk: 8.3.0
       arg: 4.1.3
@@ -9086,7 +9086,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@microsoft/api-extractor': 7.38.3(@types/node@20.10.2)
+      '@microsoft/api-extractor': 7.38.3(@types/node@20.10.3)
       bundle-require: 4.0.2(esbuild@0.19.7)
       cac: 6.7.14
       chokidar: 3.5.3
@@ -9524,7 +9524,7 @@ packages:
       vfile-message: 4.0.2
     dev: false
 
-  /vite-node@0.34.6(@types/node@20.10.2):
+  /vite-node@0.34.6(@types/node@20.10.3):
     resolution: {integrity: sha512-nlBMJ9x6n7/Amaz6F3zJ97EBwR2FkzhBRxF5e+jE6LA3yi6Wtc2lyTij1OnDMIr34v5g/tVQtsVAzhT0jc5ygA==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -9534,7 +9534,7 @@ packages:
       mlly: 1.4.2
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.5.0(@types/node@20.10.2)
+      vite: 4.5.1(@types/node@20.10.3)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -9561,8 +9561,8 @@ packages:
       - typescript
     dev: true
 
-  /vite@4.5.0(@types/node@20.10.2):
-    resolution: {integrity: sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==}
+  /vite@4.5.1(@types/node@20.10.3):
+    resolution: {integrity: sha512-AXXFaAJ8yebyqzoNB9fu2pHoo/nWX+xZlaRwoeYUxEqBO+Zj4msE5G+BhGBll9lYEKv9Hfks52PAF2X7qDYXQA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -9589,14 +9589,14 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
       esbuild: 0.18.20
       postcss: 8.4.31
       rollup: 3.29.4
     optionalDependencies:
       fsevents: 2.3.3
 
-  /vite@5.0.2(@types/node@20.10.2):
+  /vite@5.0.2(@types/node@20.10.3):
     resolution: {integrity: sha512-6CCq1CAJCNM1ya2ZZA7+jS2KgnhbzvxakmlIjN24cF/PXhRMzpM/z8QgsVJA/Dm5fWUWnVEsmtBoMhmerPxT0g==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -9624,7 +9624,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
       esbuild: 0.19.7
       postcss: 8.4.31
       rollup: 4.5.2
@@ -9632,7 +9632,7 @@ packages:
       fsevents: 2.3.3
     dev: false
 
-  /vitepress@1.0.0-rc.31(@algolia/client-search@4.20.0)(@types/node@20.10.2)(search-insights@2.11.0)(typescript@5.3.2):
+  /vitepress@1.0.0-rc.31(@algolia/client-search@4.20.0)(@types/node@20.10.3)(search-insights@2.11.0)(typescript@5.3.2):
     resolution: {integrity: sha512-ikH9pIjOOAbyoYAGBVfTz8TzuXp+UoWaIRMU4bw/oiTg8R65SbAaGKY84xx6TuL+f4VqUJ8lhzW82YyxSLvstA==}
     hasBin: true
     peerDependencies:
@@ -9657,7 +9657,7 @@ packages:
       mrmime: 1.0.1
       shikiji: 0.7.4
       shikiji-transformers: 0.7.4
-      vite: 5.0.2(@types/node@20.10.2)
+      vite: 5.0.2(@types/node@20.10.3)
       vue: 3.3.9(typescript@5.3.2)
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -9720,7 +9720,7 @@ packages:
     dependencies:
       '@types/chai': 4.3.11
       '@types/chai-subset': 1.3.5
-      '@types/node': 20.10.2
+      '@types/node': 20.10.3
       '@vitest/expect': 0.34.6
       '@vitest/runner': 0.34.6
       '@vitest/snapshot': 0.34.6
@@ -9740,8 +9740,8 @@ packages:
       strip-literal: 1.3.0
       tinybench: 2.5.1
       tinypool: 0.7.0
-      vite: 4.5.0(@types/node@20.10.2)
-      vite-node: 0.34.6(@types/node@20.10.2)
+      vite: 4.5.1(@types/node@20.10.3)
+      vite-node: 0.34.6(@types/node@20.10.3)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less

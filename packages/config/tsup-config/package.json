@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",
-    "@types/node": "^20.10.2",
+    "@types/node": "^20.10.3",
     "tsup": "^8.0.1"
   },
   "peerDependencies": {
