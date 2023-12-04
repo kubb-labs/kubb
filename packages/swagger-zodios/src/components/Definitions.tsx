@@ -6,7 +6,8 @@ import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
 import type { ResolveNameParams, ResolvePathParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/core'
-import type { OasTypes, Operation, OperationSchemas, Paths } from '@kubb/swagger'
+import type { OperationSchemas, Paths } from '@kubb/swagger'
+import type { OasTypes, Operation } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

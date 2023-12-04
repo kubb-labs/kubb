@@ -9,7 +9,8 @@ import { pluginKey } from './plugin.ts'
 
 import type { PluginManager } from '@kubb/core'
 import type { ts } from '@kubb/parser'
-import type { ImportMeta, Oas, OasTypes, OpenAPIV3, OpenAPIV3_1, Refs } from '@kubb/swagger'
+import type { ImportMeta, Refs } from '@kubb/swagger'
+import type { Oas, OasTypes, OpenAPIV3, OpenAPIV3_1 } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398

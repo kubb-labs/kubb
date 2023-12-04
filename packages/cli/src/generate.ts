@@ -1,9 +1,9 @@
 import { safeBuild } from '@kubb/core'
-import { createLogger, LogLevel, randomPicoColour } from '@kubb/core/logger'
+import { createLogger, LogLevel, randomCliColour } from '@kubb/core/logger'
 
 import { execa } from 'execa'
-import pc from 'picocolors'
 import { parseArgsStringToArgv } from 'string-argv'
+import c from 'tinyrainbow'
 
 import { getSummary } from './utils/getSummary.ts'
 import { OraWritable } from './utils/OraWritable.ts'
@@ -47,13 +47,13 @@ async function executeHooks({ hooks, logLevel }: ExecutingHooksProps): Promise<v
         return null
       }
 
-      spinner.start(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
+      spinner.start(`Executing hook ${logLevel !== 'silent' ? c.dim(command) : ''}`)
 
       const subProcess = await execa(cmd, _args, { detached: true, signal: abortController.signal }).pipeStdout!(oraWritable as Writable)
       spinner.suffixText = ''
 
       if (logLevel === LogLevel.silent) {
-        spinner.succeed(`Executing hook ${logLevel !== 'silent' ? pc.dim(command) : ''}`)
+        spinner.succeed(`Executing hook ${logLevel !== 'silent' ? c.dim(command) : ''}`)
 
         console.log(subProcess.stdout)
       }
@@ -74,7 +74,7 @@ export async function generate({ input, config, CLIOptions }: GenerateProps): Pr
   const logger = createLogger({ logLevel: CLIOptions.logLevel || LogLevel.silent, name: config.name, spinner })
 
   if (logger.name) {
-    spinner.prefixText = randomPicoColour(logger.name)
+    spinner.prefixText = randomCliColour(logger.name)
   }
 
   const hrstart = process.hrtime()
@@ -85,7 +85,7 @@ export async function generate({ input, config, CLIOptions }: GenerateProps): Pr
     const performanceOpserver = new PerformanceObserver((items) => {
       const message = `${items.getEntries()[0]?.duration.toFixed(0)}ms`
 
-      spinner.suffixText = pc.yellow(message)
+      spinner.suffixText = c.yellow(message)
 
       performance.clearMarks()
     })
@@ -97,7 +97,7 @@ export async function generate({ input, config, CLIOptions }: GenerateProps): Pr
   const logLevel = logger.logLevel
   const inputPath = input ?? ('path' in userConfig.input ? userConfig.input.path : undefined)
 
-  spinner.start(`🚀 Building ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
+  spinner.start(`🚀 Building ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
 
   const { pluginManager, error } = await safeBuild({
     config: {
@@ -121,7 +121,7 @@ export async function generate({ input, config, CLIOptions }: GenerateProps): Pr
 
   if (error) {
     spinner.suffixText = ''
-    spinner.fail(`🚀 Build failed ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
+    spinner.fail(`🚀 Build failed ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
 
     console.log(summary.join(''))
 
@@ -131,7 +131,7 @@ export async function generate({ input, config, CLIOptions }: GenerateProps): Pr
   await executeHooks({ hooks: config.hooks, logLevel })
 
   spinner.suffixText = ''
-  spinner.succeed(`🚀 Build completed ${logLevel !== 'silent' ? pc.dim(inputPath) : ''}`)
+  spinner.succeed(`🚀 Build completed ${logLevel !== 'silent' ? c.dim(inputPath) : ''}`)
 
   console.log(summary.join(''))
 }

@@ -7,7 +7,7 @@ import { format } from '../mocks/format.ts'
 import { TypeGenerator } from './TypeGenerator.ts'
 
 import type { PluginManager } from '@kubb/core'
-import type { Oas, OasTypes } from '@kubb/swagger'
+import type { Oas, OasTypes } from '@kubb/swagger/oas'
 
 const mockedPluginManager = { resolveName: ({ name }) => name, resolvePath: ({ baseName }) => baseName } as PluginManager
 

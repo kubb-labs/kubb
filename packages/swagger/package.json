@@ -35,6 +35,11 @@
       "require": "./dist/hooks.cjs",
       "default": "./dist/hooks.cjs"
     },
+    "./oas": {
+      "import": "./dist/oas.js",
+      "require": "./dist/oas.cjs",
+      "default": "./dist/oas.cjs"
+    },
     "./package.json": "./package.json",
     "./*": "./*"
   },

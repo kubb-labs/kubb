@@ -1,7 +1,8 @@
 import { useApp, useFile, usePlugin, usePluginManager } from '@kubb/react'
 
 import type { KubbFile, KubbPlugin, ResolveNameParams } from '@kubb/core'
-import type { Operation, PluginOptions, ResolvePathOptions } from '../types.ts'
+import type { Operation } from 'oas/operation'
+import type { PluginOptions, ResolvePathOptions } from '../types.ts'
 
 export function useOperation(): Operation {
   const { meta } = useApp<PluginOptions['appMeta']>()

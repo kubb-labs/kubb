@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@microsoft/api-extractor": "^7.38.3",
-    "esbuild-plugin-file-path-extensions": "^1.0.0"
+    "esbuild-plugin-file-path-extensions": "^2.0.0"
   },
   "devDependencies": {
     "@kubb/ts-config": "workspace:*",

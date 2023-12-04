@@ -4,7 +4,8 @@ import { FunctionParams } from '@kubb/core/utils'
 import { isParameterObject } from './isParameterObject.ts'
 
 import type { FunctionParamsAST } from '@kubb/core/utils'
-import type { OasTypes, OperationSchema } from '../types.ts'
+import type { OasTypes } from '../oas/index.ts'
+import type { OperationSchema } from '../types.ts'
 
 export function getASTParams(
   operationSchema: OperationSchema | undefined,

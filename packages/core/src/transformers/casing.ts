@@ -1,9 +1,9 @@
-import { camelCase as changeCaseCamel, camelCaseTransformMerge, pascalCase as changePascalCase, pascalCaseTransformMerge } from 'change-case'
+import { camelCase as changeCaseCamel, pascalCase as changePascalCase } from 'change-case'
 
 export function camelCase(text: string): string {
-  return changeCaseCamel(text, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: camelCaseTransformMerge })
+  return changeCaseCamel(text, { delimiter: '', mergeAmbiguousCharacters: true })
 }
 
 export function pascalCase(text: string): string {
-  return changePascalCase(text, { delimiter: '', stripRegexp: /[^A-Z0-9$]/gi, transform: pascalCaseTransformMerge })
+  return changePascalCase(text, { delimiter: '', mergeAmbiguousCharacters: true })
 }

@@ -1,6 +1,6 @@
 import { isOpenApiV3_1Document } from './isOpenApiV3_1Document.ts'
 
-import type { Oas, OasTypes, OpenAPIV3, OpenAPIV3_1 } from '../types.ts'
+import type { Oas, OasTypes, OpenAPIV3, OpenAPIV3_1 } from '../oas/index.ts'
 
 /**
  * Make it possible to narrow down the schema based on a specific version(3 or 3.1)

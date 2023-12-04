@@ -11,7 +11,8 @@ import { FakerBuilder } from './FakerBuilder.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
-import type { OasTypes, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import type { OasTypes } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-faker' satisfies PluginOptions['name']

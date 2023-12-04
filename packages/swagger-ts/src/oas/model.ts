@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import type { OasTypes } from '@kubb/swagger'
+import type { OasTypes } from '@kubb/swagger/oas'
 import type {
   FromSchema,
   JSONSchema,

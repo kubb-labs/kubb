@@ -8,7 +8,8 @@ import { TypeBuilder } from '../TypeBuilder.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { ts } from '@kubb/parser'
-import type { Operation, OperationSchemas } from '@kubb/swagger'
+import type { OperationSchemas } from '@kubb/swagger'
+import type { Operation } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

@@ -10,7 +10,8 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import { ZodBuilder } from './ZodBuilder.ts'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
-import type { OasTypes, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import type { OasTypes } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
 
 export const pluginName = 'swagger-zod' satisfies PluginOptions['name']

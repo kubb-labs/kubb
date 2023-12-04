@@ -53,10 +53,10 @@
     "@kubb/core": "workspace:*",
     "cac": "^6.7.14",
     "chokidar": "^3.5.3",
-    "cosmiconfig": "^8.3.6",
+    "cosmiconfig": "^9.0.0",
     "execa": "^8.0.1",
     "ora": "^7.0.1",
-    "picocolors": "^1.0.0",
+    "tinyrainbow": "^1.1.0",
     "pretty-error": "^4.0.0",
     "string-argv": "^0.3.2",
     "ts-node": "^10.9.1"

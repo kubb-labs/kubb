@@ -4,7 +4,7 @@ import { File, useResolveName } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { pluginKey as fakerPluginKey } from '@kubb/swagger-faker'
 
-import type { HttpMethod } from '@kubb/swagger'
+import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta } from '../types.ts'
 

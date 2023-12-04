@@ -5,7 +5,8 @@ import { Handlers } from './components/Handlers.tsx'
 import { Mock } from './components/Mock.tsx'
 
 import type { AppContextProps } from '@kubb/react'
-import type { Operation, OperationMethodResult, OperationSchemas, Paths } from '@kubb/swagger'
+import type { OperationMethodResult, OperationSchemas, Paths } from '@kubb/swagger'
+import type { Operation } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {

@@ -9,7 +9,7 @@ import { getImportNames } from '../utils.ts'
 import { MutationImports } from './MutationImports.tsx'
 import { SchemaType } from './SchemaType.tsx'
 
-import type { HttpMethod } from '@kubb/swagger'
+import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

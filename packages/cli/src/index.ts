@@ -3,7 +3,7 @@ import path from 'node:path'
 import { isInputPath, PromiseManager, Warning } from '@kubb/core'
 
 import { cac } from 'cac'
-import pc from 'picocolors'
+import c from 'tinyrainbow'
 
 import { version } from '../package.json'
 import { getConfig } from './utils/getConfig.ts'
@@ -23,7 +23,7 @@ function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
   const message = renderErrors(error, { logLevel: CLIOptions.logLevel })
 
   if (error instanceof Warning) {
-    spinner.warn(pc.yellow(error.message))
+    spinner.warn(c.yellow(error.message))
     process.exit(0)
   }
 
@@ -34,7 +34,7 @@ function programCatcher(e: unknown, CLIOptions: CLIOptions): void {
 async function generateAction(input: string, CLIOptions: CLIOptions) {
   spinner.start('🔍 Loading config')
   const result = await getCosmiConfig(moduleName, CLIOptions.config)
-  spinner.succeed(`🔍 Config loaded(${pc.dim(path.relative(process.cwd(), result.filepath))})`)
+  spinner.succeed(`🔍 Config loaded(${c.dim(path.relative(process.cwd(), result.filepath))})`)
 
   const config = await getConfig(result, CLIOptions)
 
@@ -47,7 +47,7 @@ async function generateAction(input: string, CLIOptions: CLIOptions) {
       return startWatcher([input || config.input.path], async (paths) => {
         await generate({ config, CLIOptions })
         spinner.spinner = 'simpleDotsScrolling'
-        spinner.start(pc.yellow(pc.bold(`Watching for changes in ${paths.join(' and ')}`)))
+        spinner.start(c.yellow(c.bold(`Watching for changes in ${paths.join(' and ')}`)))
       })
     }
   }

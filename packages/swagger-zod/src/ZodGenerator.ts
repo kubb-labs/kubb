@@ -8,7 +8,8 @@ import { zodKeywords, zodParser } from './zodParser.ts'
 
 import type { PluginManager } from '@kubb/core'
 import type { ts } from '@kubb/parser'
-import type { ImportMeta, Oas, OasTypes, OpenAPIV3, Refs } from '@kubb/swagger'
+import type { ImportMeta, Refs } from '@kubb/swagger'
+import type { Oas, OasTypes, OpenAPIV3 } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
 import type { ZodMeta } from './zodParser.ts'
 

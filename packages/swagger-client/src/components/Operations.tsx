@@ -3,7 +3,8 @@ import { File, usePlugin } from '@kubb/react'
 import { useFile } from '@kubb/react'
 import { useOas } from '@kubb/swagger/hooks'
 
-import type { HttpMethod, Oas, Paths } from '@kubb/swagger'
+import type { Paths } from '@kubb/swagger'
+import type { HttpMethod, Oas } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

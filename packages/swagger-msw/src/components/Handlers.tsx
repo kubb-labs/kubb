@@ -2,7 +2,8 @@ import { File, usePlugin, usePluginManager } from '@kubb/react'
 import { useFile } from '@kubb/react'
 
 import type { KubbFile, ResolveNameParams, ResolvePathParams } from '@kubb/core'
-import type { Operation, Paths } from '@kubb/swagger'
+import type { Paths } from '@kubb/swagger'
+import type { Operation } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

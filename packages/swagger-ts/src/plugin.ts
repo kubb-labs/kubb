@@ -9,7 +9,8 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import { TypeBuilder } from './TypeBuilder.ts'
 
 import type { KubbFile, KubbPlugin } from '@kubb/core'
-import type { OasTypes, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
+import type { OasTypes } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
 export const pluginName = 'swagger-ts' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']

@@ -1,4 +1,4 @@
-import type { OasTypes } from '../types.ts'
+import type { OasTypes } from '../oas/index.ts'
 
 export function isRequired(schema?: OasTypes.SchemaObject): boolean {
   if (!schema) {

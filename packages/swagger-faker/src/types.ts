@@ -1,5 +1,6 @@
 import type { KubbFile, KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { AppMeta as SwaggerAppMeta, Exclude, Include, OasTypes, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { OasTypes } from '@kubb/swagger/oas'
 import type { FakerMeta } from './fakerParser.ts'
 
 export type Options = {

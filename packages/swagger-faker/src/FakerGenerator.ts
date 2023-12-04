@@ -9,7 +9,8 @@ import { pluginKey } from './plugin.ts'
 
 import type { PluginManager } from '@kubb/core'
 import type { ts } from '@kubb/parser'
-import type { ImportMeta, Oas, OasTypes, OpenAPIV3, Operation, Refs } from '@kubb/swagger'
+import type { ImportMeta, Refs } from '@kubb/swagger'
+import type { Oas, OasTypes, OpenAPIV3, Operation } from '@kubb/swagger/oas'
 import type { FakerKeyword, FakerMeta } from './fakerParser.ts'
 import type { PluginOptions } from './types.ts'
 

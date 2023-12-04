@@ -2,7 +2,7 @@
 
 exports[`TypeGenerator with const > MixedValueTypeConst generates zod literal value correctly, overriding the type constraint 1`] = `
 [
-  "export const MixedValueTypeConst = z.object({\\"foobar\\": z.literal(\\"foobar\\")});",
+  "export const MixedValueTypeConst = z.object({"foobar": z.literal("foobar")});",
 ]
 `;
 
@@ -32,13 +32,13 @@ exports[`TypeGenerator with const > NullableStringWithAnyOf results in union of 
 
 exports[`TypeGenerator with const > NumberValueConst correctly generates zod literal 1`] = `
 [
-  "export const NumberValueConst = z.object({\\"foobar\\": z.literal(42)});",
+  "export const NumberValueConst = z.object({"foobar": z.literal(42)});",
 ]
 `;
 
 exports[`TypeGenerator with const > StringValueConst correctly generates zod literal 1`] = `
 [
-  "export const StringValueConst = z.object({\\"foobar\\": z.literal(\\"foobar\\")});",
+  "export const StringValueConst = z.object({"foobar": z.literal("foobar")});",
 ]
 `;
 
@@ -50,6 +50,6 @@ exports[`TypeGenerator with const > UuidSchema generates a string with uuid form
 
 exports[`ZodGenerator simple > generate schema for Pet 1`] = `
 [
-  "export const Pet = z.object({\\"id\\": z.number(),\\"name\\": z.string(),\\"tag\\": z.string().optional()});",
+  "export const Pet = z.object({"id": z.number(),"name": z.string(),"tag": z.string().optional()});",
 ]
 `;

@@ -11,7 +11,6 @@ import { convertSwagger2ToOpenApi } from './utils/convertSwagger2ToOpenApi.ts'
 import { isOpenApiV3Document } from './utils/isOpenApiV3Document.ts'
 
 import type { KubbConfig } from '@kubb/core'
-import type oas from 'oas'
 import type { OASDocument } from 'oas/types'
 
 type Options = {
@@ -32,7 +31,7 @@ export class OasManager {
     return this.#oas
   }
 
-  async parse(pathOrApi: string | OASDocument): Promise<oas> {
+  async parse(pathOrApi: string | OASDocument): Promise<Oas> {
     const { validate } = this.#options
 
     if (validate) {
@@ -51,7 +50,7 @@ export class OasManager {
     return this.#oas
   }
 
-  static parseFromConfig(config: KubbConfig, options: Options = {}): Promise<oas> {
+  static parseFromConfig(config: KubbConfig, options: Options = {}): Promise<Oas> {
     if ('data' in config.input) {
       if (typeof config.input.data === 'object') {
         const api: OASDocument = JSON.parse(JSON.stringify(config.input.data)) as OASDocument

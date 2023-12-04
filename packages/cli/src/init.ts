@@ -5,7 +5,7 @@ import { LogLevel } from '@kubb/core/logger'
 import { isPromiseFulfilledResult } from '@kubb/core/utils'
 
 import { $ } from 'execa'
-import pc from 'picocolors'
+import c from 'tinyrainbow'
 
 import { spinner } from './utils/spinner.ts'
 
@@ -67,16 +67,16 @@ export async function init({ preset = 'simple', logLevel = LogLevel.silent, pack
   const configPath = path.resolve(process.cwd(), './kubb.config.js')
   const installCommand = packageManager === 'npm' ? 'install' : 'add'
 
-  spinner.start(`📀 Writing \`kubb.config.js\` ${pc.dim(configPath)}`)
+  spinner.start(`📀 Writing \`kubb.config.js\` ${c.dim(configPath)}`)
   await write(presetMeta['kubb.config'], configPath)
-  spinner.succeed(`📀 Wrote \`kubb.config.js\` ${pc.dim(configPath)}`)
+  spinner.succeed(`📀 Wrote \`kubb.config.js\` ${c.dim(configPath)}`)
 
   const results = await Promise.allSettled([
     $`npm init es6 -y`,
     ...presetMeta.packages.map(async (pack) => {
-      spinner.start(`📀 Installing ${pc.dim(pack)}`)
+      spinner.start(`📀 Installing ${c.dim(pack)}`)
       const { stdout } = await $({ preferLocal: false })`${packageManager} ${installCommand} ${pack}`
-      spinner.succeed(`📀 Installed ${pc.dim(pack)}`)
+      spinner.succeed(`📀 Installed ${c.dim(pack)}`)
 
       return stdout
     }),

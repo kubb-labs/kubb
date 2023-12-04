@@ -1,11 +1,11 @@
-import pc from 'picocolors'
+import c from 'tinyrainbow'
 
 import { clean } from './fs/clean.ts'
 import { read } from './fs/read.ts'
 import { URLPath } from './utils/URLPath.ts'
 import { isInputPath } from './config.ts'
 import { FileManager } from './FileManager.ts'
-import { createLogger, LogLevel, randomPicoColour } from './logger.ts'
+import { createLogger, LogLevel, randomCliColour } from './logger.ts'
 import { PluginManager } from './PluginManager.ts'
 import { isPromise } from './PromiseManager.ts'
 
@@ -50,7 +50,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
   } catch (e) {
     if (isInputPath(config)) {
       throw new Error(
-        'Cannot read file/URL defined in `input.path` or set with `kubb generate PATH` in the CLI of your Kubb config ' + pc.dim(config.input.path),
+        'Cannot read file/URL defined in `input.path` or set with `kubb generate PATH` in the CLI of your Kubb config ' + c.dim(config.input.path),
         {
           cause: e,
         },
@@ -116,20 +116,20 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
       }
 
       if (logger.logLevel === LogLevel.debug) {
-        logger.info(`PluginKey ${pc.dim(JSON.stringify(plugin.key))} \nwith source\n\n${code}`)
+        logger.info(`PluginKey ${c.dim(JSON.stringify(plugin.key))} \nwith source\n\n${code}`)
       }
     }
   })
 
   pluginManager.on('executed', (executer) => {
     const { hookName, plugin, output, parameters } = executer
-    const messsage = `${randomPicoColour(plugin.name)} Executing ${hookName}`
+    const messsage = `${randomCliColour(plugin.name)} Executing ${hookName}`
 
     if (logger.logLevel === LogLevel.info && logger.spinner) {
       if (hookName === 'writeFile') {
         const [_code, path] = parameters as PluginParameter<'writeFile'>
 
-        logger.spinner.suffixText = pc.dim(path)
+        logger.spinner.suffixText = c.dim(path)
       } else {
         logger.spinner.suffixText = messsage
       }
@@ -138,9 +138,9 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
     if (logger.logLevel === LogLevel.debug) {
       logger.info(messsage)
       const logs = [
-        parameters && `${pc.bgWhite(`Parameters`)} ${randomPicoColour(plugin.name)} ${hookName}`,
+        parameters && `${c.bgWhite(`Parameters`)} ${randomCliColour(plugin.name)} ${hookName}`,
         JSON.stringify(parameters, undefined, 2),
-        output && `${pc.bgWhite('Output')} ${randomPicoColour(plugin.name)} ${hookName}`,
+        output && `${c.bgWhite('Output')} ${randomCliColour(plugin.name)} ${hookName}`,
         output,
       ].filter(Boolean)
 

@@ -88,7 +88,7 @@ exports[`TypeGenerator with discriminators > Cat.type defined as const 1`] = `
      * @type string uuid
     */
     id: string;
-    type: \\"Cat\\";
+    type: "Cat";
     /**
      * @type boolean | undefined
     */
@@ -107,7 +107,7 @@ exports[`TypeGenerator with discriminators > Dog.type defined as const 1`] = `
      * @type number | undefined
     */
     bark?: number;
-    type: \\"Dog\\";
+    type: "Dog";
 };
 "
 `;
@@ -117,7 +117,7 @@ exports[`TypeGenerator with discriminators > MixedValueTypeConst ignores type co
     /**
      * @type number | undefined
     */
-    foobar?: \\"foobar\\";
+    foobar?: "foobar";
 };
 "
 `;
@@ -159,7 +159,7 @@ exports[`TypeGenerator with discriminators > StringValueConst const correctly pr
     /**
      * @type string | undefined
     */
-    foobar?: \\"foobar\\";
+    foobar?: "foobar";
 };
 "
 `;

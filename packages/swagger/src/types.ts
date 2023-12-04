@@ -1,8 +1,7 @@
 import type { KubbPlugin } from '@kubb/core'
 import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type Oas from 'oas'
-import type { Operation } from 'oas/operation'
-import type { HttpMethods as HttpMethod, SchemaObject } from 'oas/types'
+import type { SchemaObject } from 'oas/types'
+import type { HttpMethod, Oas, Operation } from './oas/index.ts'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -139,10 +138,3 @@ declare module '@kubb/core' {
     ['@kubb/swagger']: PluginOptions
   }
 }
-
-// external packages
-export type { default as Oas } from 'oas'
-export type { Operation } from 'oas/operation'
-export type { HttpMethods as HttpMethod } from 'oas/types'
-export type * as OasTypes from 'oas/types'
-export type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'

@@ -5,7 +5,7 @@ import { OasManager } from '@kubb/swagger'
 import { ZodGenerator } from './ZodGenerator.ts'
 
 import type { PluginManager } from '@kubb/core'
-import type { OasTypes } from '@kubb/swagger'
+import type { OasTypes } from '@kubb/swagger/oas'
 
 const mockedPluginManager = { resolveName: ({ name }) => name, resolvePath: ({ baseName }) => baseName } as PluginManager
 

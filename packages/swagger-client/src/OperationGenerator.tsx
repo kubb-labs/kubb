@@ -5,7 +5,7 @@ import { Client, Operations } from './components/index.ts'
 
 import type { AppContextProps } from '@kubb/react'
 import type { OperationMethodResult, OperationSchemas, Paths } from '@kubb/swagger'
-import type { Operation } from '@kubb/swagger'
+import type { Operation } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {

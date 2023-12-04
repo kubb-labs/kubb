@@ -5,7 +5,7 @@ import { useOperation, useOperationFile, useOperationName, useSchemas } from '@k
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
-import type { HttpMethod } from '@kubb/swagger'
+import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 

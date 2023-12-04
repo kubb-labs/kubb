@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable @typescript-eslint/ban-types */
 
-import type { OasTypes } from '@kubb/swagger'
+import type { OasTypes } from '@kubb/swagger/oas'
 import type { SplitByDelimiter, TupleToUnion } from '@kubb/types'
 import type { Pipe, Strings, Tuples } from 'hotscript'
 import type {

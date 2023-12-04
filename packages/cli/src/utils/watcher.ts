@@ -1,4 +1,4 @@
-import pc from 'picocolors'
+import c from 'tinyrainbow'
 
 import { spinner } from './spinner.ts'
 
@@ -12,14 +12,14 @@ export async function startWatcher(path: string[], cb: (path: string[]) => Promi
     ignored,
   })
   watcher.on('all', (type, file) => {
-    spinner.succeed(pc.yellow(pc.bold(`Change detected: ${type} ${file}`)))
+    spinner.succeed(c.yellow(c.bold(`Change detected: ${type} ${file}`)))
     // revert back
     spinner.spinner = 'clock'
 
     try {
       cb(path)
     } catch (e) {
-      spinner.warn(pc.red('Watcher failed'))
+      spinner.warn(c.red('Watcher failed'))
     }
   })
 

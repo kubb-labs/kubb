@@ -5,7 +5,7 @@
 
 import { Writable } from 'node:stream'
 
-import pc from 'picocolors'
+import c from 'tinyrainbow'
 
 import type { WritableOptions } from 'node:stream'
 import type { Ora } from 'ora'
@@ -20,7 +20,7 @@ export class OraWritable extends Writable {
     this.spinner = spinner
   }
   _write(chunk: any, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
-    this.spinner.suffixText = `\n\n${pc.bold(pc.blue(this.command))}: ${chunk?.toString()}`
+    this.spinner.suffixText = `\n\n${c.bold(c.blue(this.command))}: ${chunk?.toString()}`
 
     callback()
   }

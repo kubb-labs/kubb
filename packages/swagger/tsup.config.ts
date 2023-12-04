@@ -9,6 +9,7 @@ export default defineConfig([
       index: 'src/index.ts',
       utils: 'src/utils/index.ts',
       hooks: 'src/hooks/index.ts',
+      oas: 'src/oas/index.ts',
     },
   },
   {
@@ -17,6 +18,7 @@ export default defineConfig([
       index: 'src/index.ts',
       utils: 'src/utils/index.ts',
       hooks: 'src/hooks/index.ts',
+      oas: 'src/oas/index.ts',
     },
   },
 ])

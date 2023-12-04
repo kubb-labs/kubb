@@ -1,8 +1,8 @@
 import path from 'node:path'
 
-import { LogLevel, randomPicoColour } from '@kubb/core/logger'
+import { LogLevel, randomCliColour } from '@kubb/core/logger'
 
-import pc from 'picocolors'
+import c from 'tinyrainbow'
 
 import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
 
@@ -46,28 +46,28 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
   const meta = {
     name: config.name,
     plugins: status === 'success'
-      ? `${pc.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
-      : `${pc.red(`${failedPlugins?.length ?? 1} failed`)}, ${pluginsCount} total`,
-    pluginsFailed: status === 'failed' ? failedPlugins?.map((name) => randomPicoColour(name))?.join(', ') : undefined,
+      ? `${c.green(`${buildStartPlugins.length} successful`)}, ${pluginsCount} total`
+      : `${c.red(`${failedPlugins?.length ?? 1} failed`)}, ${pluginsCount} total`,
+    pluginsFailed: status === 'failed' ? failedPlugins?.map((name) => randomCliColour(name))?.join(', ') : undefined,
     filesCreated: files.length,
-    time: pc.yellow(`${elapsedSeconds}s`),
+    time: c.yellow(`${elapsedSeconds}s`),
     output: path.resolve(config.root, config.output.path),
   } as const
 
   if (logLevel === LogLevel.debug) {
-    logs.push(pc.bold('\nGenerated files:\n'))
-    logs.push(files.map((file) => `${randomPicoColour(JSON.stringify(file.meta?.pluginKey))} ${file.path}`).join('\n'))
+    logs.push(c.bold('\nGenerated files:\n'))
+    logs.push(files.map((file) => `${randomCliColour(JSON.stringify(file.meta?.pluginKey))} ${file.path}`).join('\n'))
   }
 
   logs.push(
     [
       [`\n`, true],
-      [`     ${pc.bold('Name:')}      ${meta.name}`, !!meta.name],
-      [`  ${pc.bold('Plugins:')}      ${meta.plugins}`, true],
-      [`   ${pc.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
-      [`${pc.bold('Generated:')}      ${meta.filesCreated} files`, true],
-      [`     ${pc.bold('Time:')}      ${meta.time}`, true],
-      [`   ${pc.bold('Output:')}      ${meta.output}`, true],
+      [`     ${c.bold('Name:')}      ${meta.name}`, !!meta.name],
+      [`  ${c.bold('Plugins:')}      ${meta.plugins}`, true],
+      [`   ${c.dim('Failed:')}      ${meta.pluginsFailed || 'none'}`, !!meta.pluginsFailed],
+      [`${c.bold('Generated:')}      ${meta.filesCreated} files`, true],
+      [`     ${c.bold('Time:')}      ${meta.time}`, true],
+      [`   ${c.bold('Output:')}      ${meta.output}`, true],
       [`\n`, true],
     ]
       .map((item) => {

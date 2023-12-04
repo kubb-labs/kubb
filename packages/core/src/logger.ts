@@ -1,8 +1,8 @@
-import pc from 'picocolors'
 import seedrandom from 'seedrandom'
+import c, { createColors } from 'tinyrainbow'
 
 import type { Ora } from 'ora'
-import type { Formatter } from 'picocolors/types.ts'
+import type { Formatter } from 'tinyrainbow'
 
 export const LogLevel = {
   silent: 'silent',
@@ -49,7 +49,7 @@ export function createLogger({ logLevel, name, spinner }: Props): Logger {
 
   const warn: Logger['warn'] = (message) => {
     if (message && spinner) {
-      spinner.warn(pc.yellow(message))
+      spinner.warn(c.yellow(message))
       logs.push(message)
     }
   }
@@ -88,8 +88,8 @@ export function randomColour(text?: string, colours = defaultColours): string {
   return colour
 }
 
-export function randomPicoColour(text?: string, colors = defaultColours): string {
-  const colours = pc.createColors(true)
+export function randomCliColour(text?: string, colors = defaultColours): string {
+  const colours = createColors(true)
 
   if (!text) {
     return colours.white(text)
@@ -101,7 +101,7 @@ export function randomPicoColour(text?: string, colors = defaultColours): string
   const formatter: Formatter = colours[key] as Formatter
 
   if (isDark) {
-    return pc.bold(formatter(text))
+    return c.bold(formatter(text))
   }
 
   if (typeof formatter !== 'function') {
@@ -109,5 +109,3 @@ export function randomPicoColour(text?: string, colors = defaultColours): string
   }
   return formatter(text)
 }
-
-export { default as pc } from 'picocolors'

@@ -3,7 +3,8 @@ import { OperationGenerator } from './OperationGenerator.ts'
 
 import type { KubbFile, PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
-import type { Operation, Resolver } from './types.ts'
+import type { Operation } from './oas/index.ts'
+import type { Resolver } from './types.ts'
 
 class DummyOperationGenerator extends OperationGenerator {
   resolve(_operation: Operation): Resolver {

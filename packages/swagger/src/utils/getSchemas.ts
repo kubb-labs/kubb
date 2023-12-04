@@ -1,4 +1,5 @@
-import type { ContentType, Oas, OasTypes } from '../types.ts'
+import type { Oas, OasTypes } from '../oas/index.ts'
+import type { ContentType } from '../types.ts'
 
 type Mode = 'schemas' | 'responses' | 'requestBodies'
 
