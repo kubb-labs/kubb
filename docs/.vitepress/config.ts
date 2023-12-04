@@ -103,7 +103,14 @@ const referenceSidebar = [
   },
   {
     text: 'PluginManager',
-    link: '/reference/pluginManager',
+    link: '/reference/pluginManager/',
+    collapsed: false,
+    items: [
+      {
+        text: 'Lifecycle',
+        link: '/reference/pluginManager/lifecycle',
+      },
+    ],
   },
   {
     text: 'Templates <img src="/icons/experimental.svg"/>',

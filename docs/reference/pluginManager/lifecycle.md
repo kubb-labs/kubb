@@ -5,12 +5,7 @@ title: PluginManager
 outline: deep
 ---
 
-# PluginManager <Badge type="info" text="@kubb/core" />
-
-::: warning Under construction
-:::
-
-[Type system](https://github.com/kubb-project/kubb/blob/main/packages/core/src/types.ts)
+# Lifecycle
 
 ## pre
 

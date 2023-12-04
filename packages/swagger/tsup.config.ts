@@ -3,11 +3,10 @@ import { optionsCJS, optionsESM } from '@kubb/tsup-config'
 import { defineConfig } from 'tsup'
 
 export default defineConfig([
-  optionsCJS,
-  optionsESM,
   {
     ...optionsCJS,
     entry: {
+      index: 'src/index.ts',
       utils: 'src/utils/index.ts',
       hooks: 'src/hooks/index.ts',
     },
@@ -15,6 +14,7 @@ export default defineConfig([
   {
     ...optionsESM,
     entry: {
+      index: 'src/index.ts',
       utils: 'src/utils/index.ts',
       hooks: 'src/hooks/index.ts',
     },

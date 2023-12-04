@@ -7,81 +7,56 @@ outline: deep
 
 # FileManager <Badge type="info" text="@kubb/core" />
 
-::: warning Under construction
+The `FileManager` instance contains the building blocks in writing files, combining excludes or includes, creating barrel files.
+
+::: tip
+What has been written is managed by the [PlugineManager](/reference/pluginManager/). The `FileManager` has no idea what has been processed and what not.
 :::
 
-### getEnvSource
+### fileManager.files
 
-See [packages/core/src/managers/fileManager/utils.ts](https://github.com/kubb-project/kubb/blob/main/packages/core/src/managers/fileManager/utils.ts).
+Array of files that has been added to the `FileManager` instance.
 
-When using `client` in for examples the plugin `@kubb/swagger-client` the following things will happen:
+- **Type:** `Array<KubbFile.File>` <br/>
 
-- Read in `client.ts`
-- Copy paste `client.ts` to the output folder of the `@kubb/swagger-client` plugin
-- Replace process.env[NAME] by a correct env set in the type `File`
+### fileManager.isExecuting
 
-❕environments should always be UPPERCASED
+Check if the instance is writing a file or we have items in the queue.
 
-#### Example with `process.env`
+- **Type:** `boolean` <br/>
 
-::: code-group
+### fileManager.add
 
-```typescript [input]
-import path from 'node:path'
+Add a file to the instance, if no `id` is added it will create an id based on `crypto.randomUUID()`.<br/>
 
-const file: File = {
-  path: path.resolve('./src/models/file1.ts'),
-  fileName: 'file1.ts',
-  source: 'export const hello = process.env.HELLO;',
-  imports: [
-    {
-      name: ['Pets'],
-      path: './Pets',
-      isTypeOnly: true,
-    },
-  ],
-  env: {
-    HELLO: `"world"`,
-  },
-}
-```
+When creating a new instance you can set a `task` and that will be used in the queue as the exectuer. <br/>
 
-```typescript [output]
-import type { Pets } from './Pets'
+Here we will also check if the file already exists and if so we will append(combining the import, exports and source). You can disable this behaviour by setting `override` on the file object(`KubbFile.File`).
 
-export const hello = 'world'
-```
-
+::: tip
+`name` will be added, this is based on the baseName but without the extension.
 :::
 
-#### Example with globals
+- **Type:** `(...files: Array<KubbFile.File>): Promise<Array<KubbFile.File>>` <br/>
 
-::: code-group
+### fileManager.addIndexes
 
-```typescript [input]
-import path from 'node:path'
+Add `index.ts` files, for this we use `BarrelManager` to create all the index files needed for the folder tree(based on the output). The `BarrelManager` will go through your folder structure(based on the output) and create an index file for every folder.
 
-const file: File = {
-  path: path.resolve('./src/models/file1.ts'),
-  fileName: 'file1.ts',
-  source: 'declare const HELLO: string; export const hello = typeof HELLO !== "undefined" ? HELLO : undefined',
-  imports: [
-    {
-      name: ['Pets'],
-      path: './Pets',
-      isTypeOnly: true,
-    },
-  ],
-  env: {
-    HELLO: `"world"`,
-  },
-}
-```
-
-```typescript [output]
-import type { Pets } from './Pets'
-
-export const hello = typeof 'world' !== 'undefined' ? 'world' : undefined
-```
-
+::: tip
+By setting the `output.exportType` to `false` you can disabled the creation of barrel files.
 :::
+
+- **Type:** `(AddIndexesProps): Promise<Array<KubbFile.File> | undefined>)` <br/>
+
+### fileManager.write
+
+Write a file with a check on the queue to be sure no other files are being written. You can set a timeout between writing files with `timeout` when creating the instance.
+
+- **Type:** `(...params: Parameters<typeof Read>): Promise<string>` <br/>
+
+### fileManager.read
+
+Read a file.
+
+- **Type:** `(...params: Parameters<typeof write>): Promise<string | undefined>` <br/>

@@ -4,48 +4,12 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig([
   {
-    ...optionsESM,
-    entry: { 'jsx-runtime': './src/jsx-runtime.ts' },
-    name: 'react',
-  },
-  {
-    ...optionsCJS,
-    entry: { 'jsx-runtime': './src/jsx-runtime.ts' },
-    name: 'react',
-  },
-  optionsCJS,
-  optionsESM,
-  {
-    ...optionsESM,
-    entry: ['./src/client/index.ts'],
-    outDir: 'dist/client',
-    name: 'client',
-    banner: {},
-  },
-  {
-    ...optionsCJS,
-    entry: ['./src/client/index.ts'],
-    outDir: 'dist/client',
-    name: 'client',
-    banner: {},
-  },
-  {
-    ...optionsESM,
-    entry: ['./src/server/index.ts'],
-    outDir: 'dist/server',
-    name: 'server',
-    banner: {},
-  },
-  {
-    ...optionsCJS,
-    entry: ['./src/server/index.ts'],
-    outDir: 'dist/server',
-    name: 'server',
-    banner: {},
-  },
-  {
     ...optionsCJS,
     entry: {
+      index: 'src/index.ts',
+      'jsx-runtime': './src/jsx-runtime.ts',
+      client: 'src/client/index.ts',
+      server: 'src/server/index.ts',
       hooks: 'src/hooks/index.ts',
       components: 'src/components/index.ts',
     },
@@ -53,6 +17,10 @@ export default defineConfig([
   {
     ...optionsESM,
     entry: {
+      index: 'src/index.ts',
+      'jsx-runtime': './src/jsx-runtime.ts',
+      client: 'src/client/index.ts',
+      server: 'src/server/index.ts',
       hooks: 'src/hooks/index.ts',
       components: 'src/components/index.ts',
     },

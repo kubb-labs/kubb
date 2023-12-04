@@ -3,26 +3,20 @@ import { defineConfig } from 'tsup'
 import { optionsCJS, optionsESM } from '@kubb/tsup-config'
 
 export default defineConfig([
-  optionsCJS,
-  optionsESM,
   {
     ...optionsCJS,
-    entry: ['src/legacy.ts'],
-    name: 'legacy',
+    entry: {
+      index: 'src/index.ts',
+      legacy: 'src/legacy.ts',
+      flat: 'src/flat.ts',
+    },
   },
   {
     ...optionsESM,
-    entry: ['src/legacy.ts'],
-    name: 'legacy',
-  },
-  {
-    ...optionsCJS,
-    entry: ['src/flat.ts'],
-    name: 'flat',
-  },
-  {
-    ...optionsESM,
-    entry: ['src/flat.ts'],
-    name: 'flat',
+    entry: {
+      index: 'src/index.ts',
+      legacy: 'src/legacy.ts',
+      flat: 'src/flat.ts',
+    },
   },
 ])

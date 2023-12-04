@@ -389,66 +389,7 @@ export class FileManager {
   // statics
 
   static getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
-    if (!FileManager.isExtensionAllowed(file.baseName)) {
-      return file.source
-    }
-
-    const exports = file.exports ? combineExports(file.exports) : []
-    const imports = file.imports ? combineImports(file.imports, exports, file.source) : []
-
-    const importNodes = imports.filter(item => {
-      // isImportNotNeeded
-      // trim extName
-      return item.path !== transformers.trimExtName(file.path)
-    }).map((item) => {
-      return factory.createImportDeclaration({
-        name: item.name,
-        path: item.root ? getRelativePath(item.root, item.path) : item.path,
-        isTypeOnly: item.isTypeOnly,
-      })
-    })
-    const exportNodes = exports.map((item) =>
-      factory.createExportDeclaration({
-        name: item.name,
-        path: item.path,
-        isTypeOnly: item.isTypeOnly,
-        asAlias: item.asAlias,
-      })
-    )
-
-    return [print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')
-  }
-  static combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(files: Array<KubbFile.File<TMeta> | null>): Array<KubbFile.File<TMeta>> {
-    return files.filter(Boolean).reduce((acc, file: KubbFile.File<TMeta>) => {
-      const prevIndex = acc.findIndex((item) => item.path === file.path)
-
-      if (prevIndex === -1) {
-        return [...acc, file]
-      }
-
-      const prev = acc[prevIndex]
-
-      if (prev && file.override) {
-        acc[prevIndex] = {
-          imports: [],
-          exports: [],
-          ...file,
-        }
-        return acc
-      }
-
-      if (prev) {
-        acc[prevIndex] = {
-          ...file,
-          source: prev.source && file.source ? `${prev.source}\n${file.source}` : '',
-          imports: [...(prev.imports || []), ...(file.imports || [])],
-          exports: [...(prev.exports || []), ...(file.exports || [])],
-          env: { ...(prev.env || {}), ...(file.env || {}) },
-        }
-      }
-
-      return acc
-    }, [] as Array<KubbFile.File<TMeta>>)
+    return getSource<TMeta>(file)
   }
   static getMode(path: string | undefined | null): KubbFile.Mode {
     if (!path) {
@@ -464,6 +405,37 @@ export class FileManager {
   static isExtensionAllowed(baseName: string): boolean {
     return FileManager.extensions.some((extension) => baseName.endsWith(extension))
   }
+}
+
+export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
+  if (!FileManager.isExtensionAllowed(file.baseName)) {
+    return file.source
+  }
+
+  const exports = file.exports ? combineExports(file.exports) : []
+  const imports = file.imports ? combineImports(file.imports, exports, file.source) : []
+
+  const importNodes = imports.filter(item => {
+    // isImportNotNeeded
+    // trim extName
+    return item.path !== transformers.trimExtName(file.path)
+  }).map((item) => {
+    return factory.createImportDeclaration({
+      name: item.name,
+      path: item.root ? getRelativePath(item.root, item.path) : item.path,
+      isTypeOnly: item.isTypeOnly,
+    })
+  })
+  const exportNodes = exports.map((item) =>
+    factory.createExportDeclaration({
+      name: item.name,
+      path: item.path,
+      isTypeOnly: item.isTypeOnly,
+      asAlias: item.asAlias,
+    })
+  )
+
+  return [print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')
 }
 
 export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.Export> {

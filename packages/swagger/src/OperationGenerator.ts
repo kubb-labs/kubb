@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { FileManager, Generator } from '@kubb/core'
+import { Generator } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 
 import { findSchemaDefinition } from 'oas/utils'
@@ -375,7 +375,7 @@ export abstract class OperationGenerator<
     const files = await Promise.all(promises)
 
     // using .flat because operationGenerator[method] can return a array of files or just one file
-    return FileManager.combineFiles<TFileMeta>(files.flat())
+    return files.flat().filter(Boolean)
   }
 
   /**

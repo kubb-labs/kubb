@@ -80,12 +80,12 @@ type Events = {
 export class PluginManager {
   readonly plugins: KubbPluginWithLifeCycle[]
   readonly fileManager: FileManager
-  readonly eventEmitter: EventEmitter<Events> = new EventEmitter()
+  readonly events: EventEmitter<Events> = new EventEmitter()
 
   readonly queue: Queue
   readonly config: KubbConfig
 
-  readonly executed: Executer[] = []
+  readonly executed: Array<Executer> = []
   readonly logger: Logger
   readonly #core: KubbPlugin<CorePluginOptions>
 
@@ -144,7 +144,6 @@ export class PluginManager {
       parameters: [params.baseName, params.directory, params.options as object],
     }).result
   }
-
   resolveName = (params: ResolveNameParams): string => {
     if (params.pluginKey) {
       const names = this.hookForPluginSync({
@@ -172,12 +171,15 @@ export class PluginManager {
     return transformReservedWord(name)
   }
 
+  /**
+   * Instead of calling `pluginManager.events.on` you can use `pluginManager.on`. This one also has better types.
+   */
   on<TEventName extends keyof Events & string>(eventName: TEventName, handler: (...eventArg: Events[TEventName]) => void): void {
-    this.eventEmitter.on(eventName, handler as any)
+    this.events.on(eventName, handler as any)
   }
 
   /**
-   * Run only hook for a specific plugin name
+   * Run a specific hookName for plugin x.
    */
   hookForPlugin<H extends PluginLifecycleHooks>({
     pluginKey,
@@ -203,6 +205,9 @@ export class PluginManager {
 
     return Promise.all(promises)
   }
+  /**
+   * Run a specific hookName for plugin x.
+   */
 
   hookForPluginSync<H extends PluginLifecycleHooks>({
     pluginKey,
@@ -228,7 +233,7 @@ export class PluginManager {
   }
 
   /**
-   * Chains, first non-null result stops and returns
+   * First non-null result stops and will return it's value.
    */
   async hookFirst<H extends PluginLifecycleHooks>({
     hookName,
@@ -263,7 +268,7 @@ export class PluginManager {
   }
 
   /**
-   * Chains, first non-null result stops and returns
+   * First non-null result stops and will return it's value.
    */
   hookFirstSync<H extends PluginLifecycleHooks>({
     hookName,
@@ -299,7 +304,7 @@ export class PluginManager {
   }
 
   /**
-   * Parallel, runs all plugins
+   * Run all plugins in parallel(order will be based on `this.plugin` and if `pre` or `post` is set).
    */
   async hookParallel<H extends PluginLifecycleHooks, TOuput = void>({
     hookName,
@@ -327,7 +332,7 @@ export class PluginManager {
   }
 
   /**
-   * Chains, reduces returned value, handling the reduced value as the first hook argument
+   * Chain all plugins, `reduce` can be passed through to handle every returned value. The return value of the first plugin will be used as the first parameter for the plugin after that.
    */
   hookReduceArg0<H extends PluginLifecycleHooks>({
     hookName,
@@ -451,7 +456,7 @@ export class PluginManager {
 
   #addExecutedToCallStack(executer: Executer | undefined) {
     if (executer) {
-      this.eventEmitter.emit('executed', executer)
+      this.events.emit('executed', executer)
       this.executed.push(executer)
     }
   }
@@ -481,7 +486,7 @@ export class PluginManager {
       return null
     }
 
-    this.eventEmitter.emit('execute', { strategy, hookName, parameters, plugin })
+    this.events.emit('execute', { strategy, hookName, parameters, plugin })
 
     const task = Promise.resolve()
       .then(() => {
@@ -543,7 +548,7 @@ export class PluginManager {
       return null
     }
 
-    this.eventEmitter.emit('execute', { strategy, hookName, parameters, plugin })
+    this.events.emit('execute', { strategy, hookName, parameters, plugin })
 
     try {
       if (typeof hook === 'function') {
@@ -575,7 +580,7 @@ export class PluginManager {
     const text = `${e.message} (plugin: ${plugin?.name || 'unknown'}, hook: ${hookName || 'unknown'})\n`
 
     this.logger.error(text)
-    this.eventEmitter.emit('error', e)
+    this.events.emit('error', e)
   }
 
   #parse<TPlugin extends KubbUserPluginWithLifeCycle>(

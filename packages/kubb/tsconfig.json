@@ -4,7 +4,8 @@
     "baseUrl": ".",
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "paths": {}
   },
   "include": [
     "src/**/*",
