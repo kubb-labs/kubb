@@ -65,7 +65,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
   const queueTask = async (file: KubbFile.File) => {
     const { path } = file
 
-    let code: string | null = FileManager.getSource(file)
+    let code: string | null = await FileManager.getSource(file)
 
     const { result: loadedResult } = await pluginManager.hookFirst({
       hookName: 'load',
@@ -163,12 +163,16 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 
   await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
+  await fileManager.destroy()
+
   if (!fileManager.isExecuting && logger.spinner) {
     logger.spinner.suffixText = ''
     logger.spinner.succeed(`💾 Writing completed`)
   }
 
-  return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager }
+  const files = fileManager.files.map(async (file) => ({ ...file, source: await FileManager.getSource(file) }))
+
+  return { files: await Promise.all(files), pluginManager }
 }
 
 export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
@@ -184,13 +188,19 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
 
     await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
+    await fileManager.destroy()
+
     if (!fileManager.isExecuting && logger.spinner) {
       logger.spinner.suffixText = ''
       logger.spinner.succeed(`💾 Writing completed`)
     }
   } catch (e) {
-    return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager, error: e as Error }
+    const files = fileManager.files.map(async (file) => ({ ...file, source: await FileManager.getSource(file) }))
+
+    return { files: await Promise.all(files), pluginManager, error: e as Error }
   }
 
-  return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager }
+  const files = fileManager.files.map(async (file) => ({ ...file, source: await FileManager.getSource(file) }))
+
+  return { files: await Promise.all(files), pluginManager }
 }

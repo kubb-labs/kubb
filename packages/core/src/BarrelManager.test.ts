@@ -32,7 +32,7 @@ describe('BarrelManager', () => {
 
     expect(rootIndex).toBeDefined()
 
-    const code = FileManager.getSource(rootIndex)
+    const code = await FileManager.getSource(rootIndex)
 
     if (isBun()) {
       // TODO check why bun is reodering the export sort

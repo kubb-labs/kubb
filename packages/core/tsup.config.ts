@@ -25,4 +25,26 @@ export default defineConfig([
     },
     noExternal: [/lodash.isequal/, /tinyrainbow/],
   },
+  {
+    ...optionsCJS,
+    entry: ['./src/workers/!(*.test).ts'],
+    outDir: 'dist/workers',
+    dts: false,
+    sourcemap: false,
+    splitting: false,
+    define: {
+      'TYPE': JSON.stringify('cjs'),
+    },
+  },
+  {
+    ...optionsESM,
+    entry: ['./src/*workers/!(*.test).ts'],
+    outDir: 'dist/workers',
+    dts: false,
+    sourcemap: false,
+    splitting: false,
+    define: {
+      'TYPE': JSON.stringify('esm'),
+    },
+  },
 ])

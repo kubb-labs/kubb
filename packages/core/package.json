@@ -75,13 +75,15 @@
   "dependencies": {
     "@kubb/parser": "workspace:*",
     "@kubb/types": "workspace:*",
+    "change-case": "^5.2.0",
     "directory-tree": "^3.5.1",
+    "find-up": "^7.0.0",
     "js-runtime": "^0.0.7",
     "natural-orderby": "^3.0.2",
+    "piscina": "^4.2.0",
     "seedrandom": "^3.0.5",
     "semver": "^7.5.4",
-    "find-up": "^7.0.0",
-    "change-case": "^5.2.0"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
@@ -93,10 +95,10 @@
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.6",
     "eslint": "^8.55.0",
-    "tinyrainbow": "^1.1.0",
     "fs-extra": "^11.2.0",
     "lodash.isequal": "^4.5.0",
     "ora": "^7.0.1",
+    "tinyrainbow": "^1.1.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.2"
   },
