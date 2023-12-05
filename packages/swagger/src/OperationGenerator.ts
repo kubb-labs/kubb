@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { Generator } from '@kubb/core'
+import { FileManager, Generator } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 
 import { findSchemaDefinition } from 'oas/utils'

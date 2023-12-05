@@ -107,8 +107,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           output,
         })
 
-        console.log({ rootFiles })
-
         await this.addFile(...rootFiles)
       }
       if (exportType === 'barrel') {

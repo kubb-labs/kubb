@@ -242,7 +242,7 @@ export class FileManager {
   async add<T extends Array<KubbFile.File> = Array<KubbFile.File>>(
     ...files: T
   ): AddResult<T> {
-    const promises = files.map((file) => {
+    const promises = combineFiles(files).map((file) => {
       // this.#validate(file)
 
       if (file.override) {
@@ -412,7 +412,7 @@ export class FileManager {
   }
 }
 
-export function combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(
+function combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(
   files: Array<KubbFile.File<TMeta> | null>,
 ): Array<KubbFile.File<TMeta>> {
   return files.filter(Boolean).reduce((acc, file: KubbFile.File<TMeta>) => {

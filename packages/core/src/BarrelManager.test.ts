@@ -59,8 +59,6 @@ describe('BarrelManager', () => {
 
     expect(rootIndex).toBeDefined()
 
-    console.log(rootIndex)
-
     expect(rootIndex?.exports?.every((file) => file.path.endsWith('.ts'))).toBeTruthy()
   })
 })

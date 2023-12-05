@@ -49,7 +49,7 @@ export async function getGroupedByTagFiles({
     return []
   }
 
-  const groupedFiles = files.filter(file => {
+  return files.filter(file => {
     const name = file.meta?.pluginKey?.[0]
     return name === plugin.name
   })
@@ -79,6 +79,4 @@ export async function getGroupedByTagFiles({
       }
     })
     .filter(Boolean)
-
-  return FileManager.combineFiles(groupedFiles)
 }
