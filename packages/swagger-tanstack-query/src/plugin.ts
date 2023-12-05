@@ -120,12 +120,12 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       await this.addFile(...files)
     },
-    async writeFile(source, path) {
-      if (!path.endsWith('.ts') || !source) {
+    async writeFile(source, writePath) {
+      if (!writePath.endsWith('.ts') || !source) {
         return
       }
 
-      return this.fileManager.write(source, path)
+      return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildEnd() {
       if (this.config.output.write === false) {
@@ -136,7 +136,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const { exportType = 'barrel' } = output
 
       if (group?.type === 'tag' && exportType === 'barrel') {
-        const rootFiles = getGroupedByTagFiles({
+        const rootFiles = await getGroupedByTagFiles({
           logger: this.logger,
           files: this.fileManager.files,
           plugin: this.plugin,

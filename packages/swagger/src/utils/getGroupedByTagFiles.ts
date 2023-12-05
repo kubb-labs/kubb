@@ -34,7 +34,7 @@ type FileMeta = {
   tag?: string
 }
 
-export function getGroupedByTagFiles({
+export async function getGroupedByTagFiles({
   logger,
   files,
   plugin,
@@ -42,14 +42,14 @@ export function getGroupedByTagFiles({
   exportAs,
   root,
   output,
-}: Options): KubbFile.File<FileMeta>[] {
+}: Options): Promise<KubbFile.File<FileMeta>[]> {
   const mode = FileManager.getMode(path.resolve(root, output.path))
 
   if (mode === 'file') {
     return []
   }
 
-  return files.filter(file => {
+  const groupedFiles = files.filter(file => {
     const name = file.meta?.pluginKey?.[0]
     return name === plugin.name
   })
@@ -79,4 +79,6 @@ export function getGroupedByTagFiles({
       }
     })
     .filter(Boolean)
+
+  return FileManager.combineFiles(groupedFiles)
 }

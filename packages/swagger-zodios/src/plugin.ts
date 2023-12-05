@@ -38,7 +38,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return
       }
 
-      return this.fileManager.write(source, writePath)
+      return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
       const [swaggerPlugin, swaggerZodPlugin]: [KubbPlugin<SwaggerPluginOptions>, KubbPlugin<SwaggerZodPluginOptions>] = PluginManager.getDependedPlugins<
