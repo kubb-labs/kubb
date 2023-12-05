@@ -3,8 +3,8 @@ import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePath
 import type { Client, Operations } from './components/index.ts'
 
 type Templates = {
-  operations: typeof Operations.templates
-  client: typeof Client.templates
+  operations?: typeof Operations.templates | false
+  client?: typeof Client.templates | false
 }
 
 export type Options = {
@@ -110,7 +110,7 @@ type ResolvedOptions = {
   clientImportPath: NonNullable<Options['clientImportPath']>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
-  templates: Templates
+  templates: NonNullable<Templates>
 }
 
 export type FileMeta = {

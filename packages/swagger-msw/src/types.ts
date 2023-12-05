@@ -3,8 +3,8 @@ import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePath
 import type { Handlers, Mock } from './components/index.ts'
 
 type Templates = {
-  handlers: typeof Handlers.templates
-  mock: typeof Mock.templates
+  handlers?: typeof Handlers.templates | false
+  mock?: typeof Mock.templates | false
 }
 
 export type Options = {
@@ -75,7 +75,7 @@ export type Options = {
   templates?: Partial<Templates>
 }
 type ResolvedOptions = {
-  templates: Templates
+  templates: NonNullable<Templates>
 }
 
 export type FileMeta = {
