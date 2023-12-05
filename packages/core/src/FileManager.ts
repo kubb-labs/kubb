@@ -304,7 +304,7 @@ export class FileManager {
       return undefined
     }
 
-    const exportPath = output.path.startsWith('./') ? output.path : `./${output.path}`
+    const exportPath = output.path.startsWith('./') ? trimExtName(output.path) : `./${trimExtName(output.path)}`
     const barrelManager = new BarrelManager({ extName: output.extName, ...options })
     const files = barrelManager.getIndexes(resolve(root, output.path))
 
@@ -321,11 +321,11 @@ export class FileManager {
           ? {
             name: output.exportAs,
             asAlias: true,
-            path: exportPath,
+            path: output.extName ? `${exportPath}${output.extName}` : exportPath,
             isTypeOnly: options.isTypeOnly,
           }
           : {
-            path: exportPath,
+            path: output.extName ? `${exportPath}${output.extName}` : exportPath,
             isTypeOnly: options.isTypeOnly,
           },
       ],
