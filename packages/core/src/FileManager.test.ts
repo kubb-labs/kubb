@@ -164,7 +164,6 @@ describe('FileManager', () => {
     expect(FileManager.getMode(undefined)).toBe('directory')
     expect(FileManager.getMode(null)).toBe('directory')
   })
-
   test.todo('fileManager.addIndexes')
 })
 
@@ -248,6 +247,57 @@ describe('FileManager utils', () => {
     })
     expect(await format(code)).toMatchSnapshot()
   })
+  test('if combineFiles is removing previous code', () => {
+    const combined = FileManager.combineFiles([
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file1.ts',
+        source: 'export const test = 2;',
+      },
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file2.ts',
+        source: 'export const test2 = 3;',
+      },
+    ])
+
+    expect(combined).toMatchObject([
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file2.ts',
+        imports: [],
+        exports: [],
+        source: `export const test = 2;
+export const test2 = 3;`,
+      },
+    ])
+  })
+  test('if combineFiles is overriding with latest file', () => {
+    const combined = FileManager.combineFiles([
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file1.ts',
+        source: 'export const test = 2;',
+      },
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file1.ts',
+        source: 'export const test2 = 3;',
+        override: true,
+      },
+    ])
+
+    expect(combined).toMatchObject([
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file1.ts',
+        imports: [],
+        exports: [],
+        source: `export const test2 = 3;`,
+        'override': true,
+      },
+    ])
+  })
 
   test('if getFileSource is returning code with exports and exports as', async () => {
     const fileImport: KubbFile.File = {
@@ -300,6 +350,112 @@ describe('FileManager utils', () => {
 
     expect(await format(FileManager.getSource(fileImport))).toMatchSnapshot()
     expect(await format(FileManager.getSource(fileExport))).toMatchSnapshot()
+  })
+
+  test('if combineFiles is combining `exports`, `imports` and `source` for the same file', () => {
+    const importFiles: Array<KubbFile.File | null> = [
+      null,
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file1.ts',
+        source: 'export const test = 2;',
+        imports: [
+          {
+            name: 'Pets',
+            path: './Pets',
+            isTypeOnly: true,
+          },
+        ],
+        env: {
+          test: 'test',
+        },
+      },
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file2.ts',
+        source: 'export const test2 = 3;',
+        imports: [
+          {
+            name: 'Cats',
+            path: './Cats',
+            isTypeOnly: true,
+          },
+        ],
+      },
+    ]
+
+    const exportFiles: Array<KubbFile.File | null> = [
+      null,
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file1.ts',
+        source: 'export const test = 2;',
+        exports: [
+          {
+            name: 'Pets',
+            path: './Pets',
+            isTypeOnly: true,
+          },
+        ],
+      },
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file2.ts',
+        source: 'export const test2 = 3;',
+        exports: [
+          {
+            name: 'Cats',
+            path: './Cats',
+            isTypeOnly: true,
+          },
+        ],
+      },
+    ]
+
+    expect(FileManager.combineFiles(importFiles)).toEqual([
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file2.ts',
+        source: 'export const test = 2;\nexport const test2 = 3;',
+        imports: [
+          {
+            name: 'Pets',
+            path: './Pets',
+            isTypeOnly: true,
+          },
+          {
+            name: 'Cats',
+            path: './Cats',
+            isTypeOnly: true,
+          },
+        ],
+        exports: [],
+        env: {
+          test: 'test',
+        },
+      },
+    ])
+
+    expect(FileManager.combineFiles(exportFiles)).toMatchObject([
+      {
+        path: path.resolve('./src/models/file1.ts'),
+        baseName: 'file2.ts',
+        source: 'export const test = 2;\nexport const test2 = 3;',
+        imports: [],
+        exports: [
+          {
+            name: 'Pets',
+            path: './Pets',
+            isTypeOnly: true,
+          },
+          {
+            name: 'Cats',
+            path: './Cats',
+            isTypeOnly: true,
+          },
+        ],
+      },
+    ])
   })
 
   test('if getFileSource is setting `process.env` based on `env` object', async () => {
@@ -424,6 +580,4 @@ describe('FileManager utils', () => {
 
     expect(combineImports(importsWithoutSource, [])).toEqual([imports[0], imports[1]])
   })
-
-  test.todo('if combineImports is excluding imports when import path and file path are the same')
 })

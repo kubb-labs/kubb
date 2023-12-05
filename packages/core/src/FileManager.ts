@@ -392,6 +392,10 @@ export class FileManager {
   static getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
     return getSource<TMeta>(file)
   }
+
+  static combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(files: Array<KubbFile.File<TMeta> | null>): Array<KubbFile.File<TMeta>> {
+    return combineFiles<TMeta>(files)
+  }
   static getMode(path: string | undefined | null): KubbFile.Mode {
     if (!path) {
       return 'directory'
@@ -406,6 +410,41 @@ export class FileManager {
   static isExtensionAllowed(baseName: string): boolean {
     return FileManager.extensions.some((extension) => baseName.endsWith(extension))
   }
+}
+
+export function combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(
+  files: Array<KubbFile.File<TMeta> | null>,
+): Array<KubbFile.File<TMeta>> {
+  return files.filter(Boolean).reduce((acc, file: KubbFile.File<TMeta>) => {
+    const prevIndex = acc.findIndex((item) => item.path === file.path)
+
+    if (prevIndex === -1) {
+      return [...acc, file]
+    }
+
+    const prev = acc[prevIndex]
+
+    if (prev && file.override) {
+      acc[prevIndex] = {
+        imports: [],
+        exports: [],
+        ...file,
+      }
+      return acc
+    }
+
+    if (prev) {
+      acc[prevIndex] = {
+        ...file,
+        source: prev.source && file.source ? `${prev.source}\n${file.source}` : '',
+        imports: [...(prev.imports || []), ...(file.imports || [])],
+        exports: [...(prev.exports || []), ...(file.exports || [])],
+        env: { ...(prev.env || {}), ...(file.env || {}) },
+      }
+    }
+
+    return acc
+  }, [] as Array<KubbFile.File<TMeta>>)
 }
 
 export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
