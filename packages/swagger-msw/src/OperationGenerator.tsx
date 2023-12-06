@@ -15,6 +15,10 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps>({ logger: pluginManager.logger })
 
+    if (!this.options.templates?.handlers) {
+      return []
+    }
+
     root.render(<Handlers.File name="handlers" paths={paths} templates={this.options.templates.handlers} />, { meta: { oas, pluginManager, plugin } })
 
     return root.files
@@ -24,6 +28,10 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     const { oas, pluginManager, plugin } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
+
+    if (!options.templates?.mock) {
+      return []
+    }
 
     root.render(<Mock.File templates={options.templates.mock} />, { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } })
 

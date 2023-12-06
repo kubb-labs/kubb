@@ -34,7 +34,7 @@
     "@kubb/swagger-zodios": "workspace:*",
     "@tanstack/react-query": "^5.12.2",
     "@tanstack/solid-query": "^5.12.1",
-    "@tanstack/svelte-query": "^5.13.1",
+    "@tanstack/svelte-query": "^5.13.2",
     "@tanstack/vue-query": "^5.12.2",
     "@zodios/core": "^10.9.6",
     "axios": "^1.6.2",

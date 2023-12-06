@@ -7,16 +7,18 @@ import c from 'tinyrainbow'
 import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
 
 import type { KubbConfig, PluginManager } from '@kubb/core'
+import type { Logger } from '@kubb/core/logger'
 
 type SummaryProps = {
   pluginManager: PluginManager
   status: 'success' | 'failed'
   hrstart: [number, number]
   config: KubbConfig
-  logLevel?: LogLevel
+  logger: Logger
 }
 
-export function getSummary({ pluginManager, status, hrstart, config, logLevel }: SummaryProps): string[] {
+export function getSummary({ pluginManager, status, hrstart, config, logger }: SummaryProps): string[] {
+  const { logLevel } = logger
   const logs: string[] = []
   const elapsedSeconds = parseHrtimeToSeconds(process.hrtime(hrstart))
 
@@ -55,8 +57,8 @@ export function getSummary({ pluginManager, status, hrstart, config, logLevel }:
   } as const
 
   if (logLevel === LogLevel.debug) {
-    logs.push(c.bold('\nGenerated files:\n'))
-    logs.push(files.map((file) => `${randomCliColour(JSON.stringify(file.meta?.pluginKey))} ${file.path}`).join('\n'))
+    logger.debug(c.bold('\nGenerated files:\n'))
+    logger.debug(files.map((file) => `${randomCliColour(JSON.stringify(file.meta?.pluginKey))} ${file.path}`).join('\n'))
   }
 
   logs.push(

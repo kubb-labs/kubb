@@ -76,7 +76,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return
       }
 
-      return this.fileManager.write(source, writePath)
+      return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
       const [swaggerPlugin]: [KubbPlugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])

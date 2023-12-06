@@ -6,10 +6,10 @@ import type { QueryKey } from './components/QueryKey.tsx'
 import type { QueryOptions } from './components/QueryOptions.tsx'
 
 type Templates = {
-  mutation: typeof Mutation.templates
-  query: typeof Query.templates
-  queryOptions: typeof QueryOptions.templates
-  queryKey: typeof QueryKey.templates
+  mutation?: typeof Mutation.templates | false
+  query?: typeof Query.templates | false
+  queryOptions?: typeof QueryOptions.templates | false
+  queryKey?: typeof QueryKey.templates | false
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -151,7 +151,7 @@ type ResolvedOptions = {
    */
   infinite: Infinite | undefined
   suspense: Suspense | undefined
-  templates: Templates
+  templates: NonNullable<Templates>
 }
 
 export type FileMeta = {

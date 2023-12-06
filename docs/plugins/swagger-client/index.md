@@ -656,7 +656,8 @@ export default defineConfig({
 Make it possible to override one of the templates. <br/>
 
 ::: tip
-See [templates](/reference/templates) for more information about creating templates.
+See [templates](/reference/templates) for more information about creating templates.<br/>
+Set `false` to disable a template.
 :::
 
 ::: info type
@@ -665,8 +666,8 @@ See [templates](/reference/templates) for more information about creating templa
 import type { Client, Operations } from '@kubb/swagger-client/components'
 
 export type Templates = {
-  operations?: typeof Operations.templates
-  client?: typeof Client.templates
+  operations?: typeof Operations.templates | false
+  client?: typeof Client.templates | false
 }
 ```
 

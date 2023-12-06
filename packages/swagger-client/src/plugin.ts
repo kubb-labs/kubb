@@ -79,7 +79,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         return
       }
 
-      return this.fileManager.write(source, writePath)
+      return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
       const [swaggerPlugin]: [KubbPlugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
@@ -112,7 +112,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       const { exportType = 'barrel' } = output
 
       if (group?.type === 'tag' && exportType === 'barrel') {
-        const rootFiles = getGroupedByTagFiles({
+        const rootFiles = await getGroupedByTagFiles({
           logger: this.logger,
           files: this.fileManager.files,
           plugin: this.plugin,

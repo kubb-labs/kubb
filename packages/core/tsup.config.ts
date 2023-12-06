@@ -12,7 +12,7 @@ export default defineConfig([
       logger: 'src/logger.ts',
       fs: 'src/fs/index.ts',
     },
-    noExternal: [/find-up/, /lodash.isequal/, /change-case/, /tinyrainbow/],
+    noExternal: [/fs-extra/, /p-queue/, /find-up/, /lodash.isequal/, /change-case/, /tinyrainbow/],
   },
   {
     ...optionsESM,

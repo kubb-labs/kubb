@@ -5,9 +5,9 @@ import type { Query } from './components/Query.tsx'
 import type { QueryOptions } from './components/QueryOptions.tsx'
 
 type Templates = {
-  mutation: typeof Mutation.templates
-  query: typeof Query.templates
-  queryOptions: typeof QueryOptions.templates
+  mutation?: typeof Mutation.templates | false
+  query?: typeof Query.templates | false
+  queryOptions?: typeof QueryOptions.templates | false
 }
 
 export type Options = {
@@ -98,9 +98,9 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  templates: Templates
   clientImportPath: NonNullable<Options['clientImportPath']>
   dataReturnType: NonNullable<Options['dataReturnType']>
+  templates: NonNullable<Templates>
 }
 
 export type FileMeta = {

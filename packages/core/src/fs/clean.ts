@@ -1,5 +1,5 @@
-import { remove } from 'fs-extra'
+import fs from 'fs-extra'
 
 export async function clean(path: string): Promise<void> {
-  return remove(path)
+  return fs.remove(path)
 }

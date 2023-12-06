@@ -466,7 +466,8 @@ export default defineConfig({
 Make it possible to override one of the templates. <br/>
 
 ::: tip
-See [templates](/reference/templates) for more information about creating templates.
+See [templates](/reference/templates) for more information about creating templates.<br/>
+Set `false` to disable a template.
 :::
 
 ::: info type
@@ -475,8 +476,8 @@ See [templates](/reference/templates) for more information about creating templa
 import type { Handlers, Mock } from '@kubb/swagger-msw/components'
 
 export type Templates = {
-  handlers?: typeof Handlers.templates
-  mock?: typeof Mock.templates
+  handlers?: typeof Handlers.templates | false
+  mock?: typeof Mock.templates | false
 }
 ```
 

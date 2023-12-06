@@ -785,7 +785,8 @@ export default defineConfig({
 Make it possible to override one of the templates. <br/>
 
 ::: tip
-See [templates](/reference/templates) for more information about creating templates.
+See [templates](/reference/templates) for more information about creating templates.<br/>
+Set `false` to disable a template.
 :::
 
 ::: info type
@@ -794,10 +795,10 @@ See [templates](/reference/templates) for more information about creating templa
 import type { Mutation, Query, QueryOptions, QueryKey } from '@kubb/swagger-tanstack-query/components'
 
 export type Templates = {
-  mutation: typeof Mutation.templates
-  query: typeof Query.templates
-  queryOptions: typeof QueryOptions.templates
-  queryKey: typeof QueryKey.templates
+  mutation: typeof Mutation.templates | false
+  query: typeof Query.templates | false
+  queryOptions: typeof QueryOptions.templates | false
+  queryKey: typeof QueryKey.templates | false
 }
 ```
 
