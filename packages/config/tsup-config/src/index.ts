@@ -22,6 +22,7 @@ export const options: Options = {
   clean: true,
   platform: 'node',
   shims: true,
+  skipNodeModulesBundle: true,
   ignoreWatch: ['**/.turbo', '**/dist', '**/node_modules', '**/.DS_STORE', '**/.git'],
 }
 

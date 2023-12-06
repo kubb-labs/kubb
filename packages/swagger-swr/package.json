@@ -64,8 +64,7 @@
     "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
-    "change-case": "^5.2.0"
+    "@kubb/swagger-ts": "workspace:*"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",

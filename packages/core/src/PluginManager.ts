@@ -594,10 +594,6 @@ export class PluginManager {
 
     const key = [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.name, string]
 
-    if (plugin.name !== 'core' && usedPluginNames[plugin.name]! >= 2) {
-      pluginManager.logger.warn('Using multiple of the same plugin is an experimental feature')
-    }
-
     // default transform
     if (!plugin.transform) {
       plugin.transform = function transform(code) {

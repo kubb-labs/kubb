@@ -1063,8 +1063,8 @@ importers:
         specifier: workspace:*
         version: link:../types
       change-case:
-        specifier: ^5.2.0
-        version: 5.2.0
+        specifier: ^5.3.0
+        version: 5.3.0
       directory-tree:
         specifier: ^3.5.1
         version: 3.5.1
@@ -1427,9 +1427,6 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
-      change-case:
-        specifier: ^5.2.0
-        version: 5.2.0
     devDependencies:
       '@kubb/eslint-config':
         specifier: workspace:*
@@ -4649,8 +4646,8 @@ packages:
     resolution: {integrity: sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
-  /change-case@5.2.0:
-    resolution: {integrity: sha512-L6VzznESnMIKKdKhVzCG+KPz4+x1FWbjOs1AdhoHStV3qo8aySMRGPUoqC0aL1ThKaQNGhAu6ZfHL/QAyQRuiw==}
+  /change-case@5.3.0:
+    resolution: {integrity: sha512-Eykca0fGS/xYlx2fG5NqnGSnsWauhSGiSXYhB1kO6E909GUfo8S54u4UZNS7lMJmgZumZ2SUpWaoLgAcfQRICg==}
     dev: false
 
   /character-entities-html4@2.1.0:
