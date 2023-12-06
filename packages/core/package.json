@@ -82,7 +82,8 @@
     "natural-orderby": "^3.0.2",
     "p-queue": "^7.4.1",
     "seedrandom": "^3.0.5",
-    "semver": "^7.5.4"
+    "semver": "^7.5.4",
+    "fs-extra": "^11.2.0"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
@@ -94,7 +95,6 @@
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.6",
     "eslint": "^8.55.0",
-    "fs-extra": "^11.2.0",
     "lodash.isequal": "^4.5.0",
     "ora": "^7.0.1",
     "tinyrainbow": "^1.1.1",
