@@ -280,8 +280,20 @@ export class FileManager {
     }
 
     const exportPath = output.path.startsWith('./') ? trimExtName(output.path) : `./${trimExtName(output.path)}`
+    const mode = FileManager.getMode(output.path)
     const barrelManager = new BarrelManager({ extName: output.extName, ...options })
     const files = barrelManager.getIndexes(resolve(root, output.path))
+
+    function getPath() {
+      if (output.extName) {
+        if (mode === 'directory') {
+          return `${exportPath}/index${output.extName}`
+        }
+        return `${exportPath}${output.extName}`
+      }
+
+      return exportPath
+    }
 
     if (!files) {
       return undefined
@@ -296,11 +308,11 @@ export class FileManager {
           ? {
             name: output.exportAs,
             asAlias: true,
-            path: output.extName ? `${exportPath}${output.extName}` : exportPath,
+            path: getPath(),
             isTypeOnly: options.isTypeOnly,
           }
           : {
-            path: output.extName ? `${exportPath}${output.extName}` : exportPath,
+            path: getPath(),
             isTypeOnly: options.isTypeOnly,
           },
       ],
