@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-types, @typescript-eslint/no-unsafe-argument */
 
+import PQueue from 'p-queue'
+
 import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
-import { Queue } from './utils/Queue.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
 import { ValidationPluginError } from './errors.ts'
 import { FileManager } from './FileManager.ts'
@@ -29,7 +30,6 @@ import type {
   ResolveNameParams,
   ResolvePathParams,
 } from './types.ts'
-import type { QueueJob } from './utils/Queue.ts'
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>
 
@@ -64,11 +64,7 @@ type Options = {
   /**
    * Task for the FileManager
    */
-  task: QueueJob<KubbFile.ResolvedFile>
-  /**
-   * Timeout between writes in the FileManager
-   */
-  writeTimeout?: number
+  task: (file: KubbFile.ResolvedFile) => Promise<KubbFile.ResolvedFile>
 }
 
 type Events = {
@@ -82,7 +78,6 @@ export class PluginManager {
   readonly fileManager: FileManager
   readonly events: EventEmitter<Events> = new EventEmitter()
 
-  readonly queue: Queue
   readonly config: KubbConfig
 
   readonly executed: Array<Executer> = []
@@ -92,11 +87,13 @@ export class PluginManager {
   readonly #usedPluginNames: Record<string, number> = {}
   readonly #promiseManager: PromiseManager
 
+  readonly queue: PQueue
+
   constructor(config: KubbConfig, options: Options) {
     this.config = config
     this.logger = options.logger
-    this.queue = new Queue(100, this.logger.logLevel === LogLevel.debug)
-    this.fileManager = new FileManager({ task: options.task, queue: this.queue, timeout: options.writeTimeout })
+    this.queue = new PQueue({ concurrency: 1 })
+    this.fileManager = new FileManager({ task: options.task, queue: this.queue })
     this.#promiseManager = new PromiseManager({ nullCheck: (state: SafeParseResult<'resolveName'> | null) => !!state?.result })
 
     const plugins = config.plugins || []
@@ -130,7 +127,7 @@ export class PluginManager {
       })
 
       if (paths && paths?.length > 1 && this.logger.logLevel === LogLevel.debug) {
-        this.logger.warn(
+        this.logger.debug(
           `Cannot return a path where the 'pluginKey' ${params.pluginKey ? JSON.stringify(params.pluginKey) : '"'} is not unique enough\n\nPaths: ${
             JSON.stringify(paths, undefined, 2)
           }\n\nFalling back on the first item.\n`,
@@ -153,7 +150,7 @@ export class PluginManager {
       })
 
       if (names && names?.length > 1 && this.logger.logLevel === LogLevel.debug) {
-        this.logger.warn(
+        this.logger.debug(
           `Cannot return a name where the 'pluginKey' ${params.pluginKey ? JSON.stringify(params.pluginKey) : '"'} is not unique enough\n\nNames: ${
             JSON.stringify(names, undefined, 2)
           }\n\nFalling back on the first item.\n`,
@@ -442,9 +439,9 @@ export class PluginManager {
 
       if (this.logger.logLevel === LogLevel.debug) {
         if (corePlugin) {
-          this.logger.warn(`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`)
+          this.logger.debug(`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`)
         } else {
-          this.logger.warn(`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`)
+          this.logger.debug(`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`)
         }
       }
 
@@ -593,10 +590,6 @@ export class PluginManager {
     setUniqueName(plugin.name, usedPluginNames)
 
     const key = [plugin.name, usedPluginNames[plugin.name]].filter(Boolean) as [typeof plugin.name, string]
-
-    if (plugin.name !== 'core' && usedPluginNames[plugin.name]! >= 2) {
-      pluginManager.logger.warn('Using multiple of the same plugin is an experimental feature')
-    }
 
     // default transform
     if (!plugin.transform) {

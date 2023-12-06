@@ -58,12 +58,12 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     async buildStart() {
       // run something when the build is started
     },
-    async writeFile(source, path) {
-      if (!path.endsWith('.ts') || !source) {
+    async writeFile(source, writePath) {
+      if (!writePath.endsWith('.ts') || !source) {
         return
       }
 
-      return this.fileManager.write(source, path)
+      return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildEnd() {
       // run something when the build is ended

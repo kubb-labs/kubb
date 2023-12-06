@@ -64,14 +64,13 @@
     "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*",
-    "change-case": "^5.2.0"
+    "@kubb/swagger-ts": "workspace:*"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/react": "^18.2.41",
+    "@types/react": "^18.2.42",
     "eslint": "^8.55.0",
     "react": "^18.2.0",
     "tsup": "^8.0.1",

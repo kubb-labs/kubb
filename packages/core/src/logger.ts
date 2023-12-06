@@ -1,6 +1,8 @@
 import seedrandom from 'seedrandom'
 import c, { createColors } from 'tinyrainbow'
 
+import { writeLog } from './fs/write.ts'
+
 import type { Ora } from 'ora'
 import type { Formatter } from 'tinyrainbow'
 
@@ -22,6 +24,7 @@ export type Logger = {
   error: (message: string | null) => void
   info: (message: string | null) => void
   warn: (message: string | null) => void
+  debug: (message: string | null) => Promise<void>
   spinner?: Ora
   logs: string[]
 }
@@ -61,6 +64,12 @@ export function createLogger({ logLevel, name, spinner }: Props): Logger {
     }
   }
 
+  const debug: Logger['debug'] = async (message) => {
+    if (message) {
+      await writeLog(message)
+    }
+  }
+
   const logger: Logger = {
     name,
     logLevel,
@@ -68,6 +77,7 @@ export function createLogger({ logLevel, name, spinner }: Props): Logger {
     error,
     warn,
     info,
+    debug,
     spinner,
     logs,
   }

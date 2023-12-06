@@ -34,7 +34,7 @@ type FileMeta = {
   tag?: string
 }
 
-export function getGroupedByTagFiles({
+export async function getGroupedByTagFiles({
   logger,
   files,
   plugin,
@@ -42,7 +42,7 @@ export function getGroupedByTagFiles({
   exportAs,
   root,
   output,
-}: Options): KubbFile.File<FileMeta>[] {
+}: Options): Promise<KubbFile.File<FileMeta>[]> {
   const mode = FileManager.getMode(path.resolve(root, output.path))
 
   if (mode === 'file') {
@@ -56,7 +56,7 @@ export function getGroupedByTagFiles({
     .map((file: KubbFile.File<FileMeta>) => {
       if (!file.meta?.tag) {
         if (logger?.logLevel === LogLevel.debug) {
-          logger?.warn(`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`)
+          logger?.debug(`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`)
         }
 
         return

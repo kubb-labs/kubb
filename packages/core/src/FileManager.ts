@@ -7,18 +7,17 @@ import * as factory from '@kubb/parser/factory'
 
 import isEqual from 'lodash.isequal'
 import { orderBy } from 'natural-orderby'
+import PQueue from 'p-queue'
 
 import { getRelativePath, read } from './fs/read.ts'
 import { write } from './fs/write.ts'
 import { searchAndReplace } from './transformers/searchAndReplace.ts'
 import { trimExtName } from './transformers/trim.ts'
-import { timeout } from './utils/timeout.ts'
 import { BarrelManager } from './BarrelManager.ts'
 
 import type { GreaterThan } from '@kubb/types'
 import type { BarrelManagerOptions } from './BarrelManager.ts'
 import type { KubbPlugin } from './types.ts'
-import type { Queue, QueueJob } from './utils/Queue.ts'
 
 type BasePath<T extends string = string> = `${T}/`
 
@@ -192,31 +191,19 @@ type AddIndexesProps = {
 }
 
 type Options = {
-  queue?: Queue
-  task?: QueueJob<KubbFile.ResolvedFile>
-  /**
-   * Timeout between writes
-   */
-  timeout?: number
+  queue?: PQueue
+  task?: (file: KubbFile.ResolvedFile) => Promise<KubbFile.ResolvedFile>
 }
 
 export class FileManager {
   #cache: Map<KubbFile.Path, CacheItem[]> = new Map()
 
-  #task?: QueueJob<KubbFile.ResolvedFile>
-  #isWriting = false
-  /**
-   * Timeout between writes
-   */
-  #timeout: number = 0
-  #queue?: Queue
+  #task: Options['task']
+  #queue: PQueue
 
-  constructor(options?: Options) {
-    if (options) {
-      this.#task = options.task
-      this.#queue = options.queue
-      this.#timeout = options.timeout || 0
-    }
+  constructor({ task = async (file) => file, queue = new PQueue() }: Options = {}) {
+    this.#task = task
+    this.#queue = queue
 
     return this
   }
@@ -230,21 +217,13 @@ export class FileManager {
     return files
   }
   get isExecuting(): boolean {
-    return this.#queue?.hasJobs ?? this.#isWriting ?? false
-  }
-
-  #validate(file: KubbFile.File): void {
-    if (!file.path.toLowerCase().endsWith(file.baseName.toLowerCase())) {
-      throw new Error(`${file.path} should end with the baseName ${file.baseName}`)
-    }
+    return this.#queue.size !== 0 && this.#queue.pending !== 0
   }
 
   async add<T extends Array<KubbFile.File> = Array<KubbFile.File>>(
     ...files: T
   ): AddResult<T> {
-    const promises = files.map((file) => {
-      // this.#validate(file)
-
+    const promises = combineFiles(files).map((file) => {
       if (file.override) {
         return this.#add(file)
       }
@@ -267,16 +246,12 @@ export class FileManager {
 
     this.#cache.set(resolvedFile.path, [{ cancel: () => controller.abort(), ...resolvedFile }])
 
-    if (this.#queue) {
-      await this.#queue.run(
-        async () => {
-          return this.#task?.(resolvedFile)
-        },
-        { controller },
-      )
-    }
-
-    return resolvedFile
+    return this.#queue.add(
+      async () => {
+        return this.#task?.(resolvedFile)
+      },
+      { signal: controller.signal },
+    ) as Promise<KubbFile.ResolvedFile>
   }
 
   async #addOrAppend(file: KubbFile.File): Promise<KubbFile.ResolvedFile> {
@@ -304,7 +279,7 @@ export class FileManager {
       return undefined
     }
 
-    const exportPath = output.path.startsWith('./') ? output.path : `./${output.path}`
+    const exportPath = output.path.startsWith('./') ? trimExtName(output.path) : `./${trimExtName(output.path)}`
     const barrelManager = new BarrelManager({ extName: output.extName, ...options })
     const files = barrelManager.getIndexes(resolve(root, output.path))
 
@@ -321,11 +296,11 @@ export class FileManager {
           ? {
             name: output.exportAs,
             asAlias: true,
-            path: exportPath,
+            path: output.extName ? `${exportPath}${output.extName}` : exportPath,
             isTypeOnly: options.isTypeOnly,
           }
           : {
-            path: exportPath,
+            path: output.extName ? `${exportPath}${output.extName}` : exportPath,
             isTypeOnly: options.isTypeOnly,
           },
       ],
@@ -369,18 +344,7 @@ export class FileManager {
   }
 
   async write(...params: Parameters<typeof write>): Promise<string | undefined> {
-    if (!this.#isWriting) {
-      this.#isWriting = true
-
-      const text = await write(...params)
-
-      this.#isWriting = false
-      return text
-    }
-
-    await timeout(this.#timeout)
-
-    return this.write(...params)
+    return write(...params)
   }
 
   async read(...params: Parameters<typeof read>): Promise<string> {
@@ -391,6 +355,10 @@ export class FileManager {
 
   static getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
     return getSource<TMeta>(file)
+  }
+
+  static combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(files: Array<KubbFile.File<TMeta> | null>): Array<KubbFile.File<TMeta>> {
+    return combineFiles<TMeta>(files)
   }
   static getMode(path: string | undefined | null): KubbFile.Mode {
     if (!path) {
@@ -406,6 +374,41 @@ export class FileManager {
   static isExtensionAllowed(baseName: string): boolean {
     return FileManager.extensions.some((extension) => baseName.endsWith(extension))
   }
+}
+
+function combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(
+  files: Array<KubbFile.File<TMeta> | null>,
+): Array<KubbFile.File<TMeta>> {
+  return files.filter(Boolean).reduce((acc, file: KubbFile.File<TMeta>) => {
+    const prevIndex = acc.findIndex((item) => item.path === file.path)
+
+    if (prevIndex === -1) {
+      return [...acc, file]
+    }
+
+    const prev = acc[prevIndex]
+
+    if (prev && file.override) {
+      acc[prevIndex] = {
+        imports: [],
+        exports: [],
+        ...file,
+      }
+      return acc
+    }
+
+    if (prev) {
+      acc[prevIndex] = {
+        ...file,
+        source: prev.source && file.source ? `${prev.source}\n${file.source}` : '',
+        imports: [...(prev.imports || []), ...(file.imports || [])],
+        exports: [...(prev.exports || []), ...(file.exports || [])],
+        env: { ...(prev.env || {}), ...(file.env || {}) },
+      }
+    }
+
+    return acc
+  }, [] as Array<KubbFile.File<TMeta>>)
 }
 
 export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {

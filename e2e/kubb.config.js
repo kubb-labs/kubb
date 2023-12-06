@@ -40,6 +40,7 @@ const baseConfig = {
       {
         output: {
           path: 'models/ts',
+          exportType: false,
         },
         group: {
           type: 'tag',
@@ -71,7 +72,7 @@ const baseConfig = {
       },
       group: { type: 'tag' },
     }],
-    // ['@kubb/swagger-zodios', { output: 'zodios.ts' }],
+    ['@kubb/swagger-zodios', { output: { path: 'zodios.ts' } }],
     ['@kubb/swagger-faker', {
       output: {
         path: 'mocks',
