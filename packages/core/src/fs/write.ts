@@ -1,14 +1,9 @@
-import { dirname, resolve } from 'node:path'
+import { resolve } from 'node:path'
 
 import fs from 'fs-extra'
 import { switcher } from 'js-runtime'
 
-async function saveCreateDirectory(path: string): Promise<void> {
-  // resolve the full path and get just the directory, ignoring the file and extension
-  const passedPath = dirname(resolve(path))
-  // make the directory, recursively. Theoretically, if every directory in the path exists, this won't do anything.
-  await fs.mkdir(passedPath, { recursive: true })
-}
+import { read } from './read.ts'
 
 type Options = { sanity?: boolean }
 
@@ -24,8 +19,7 @@ const writer = switcher(
         /* empty */
       }
 
-      await saveCreateDirectory(path)
-      await fs.writeFile(resolve(path), data, { encoding: 'utf-8' })
+      await fs.outputFile(resolve(path), data, { encoding: 'utf-8' })
 
       if (sanity) {
         const savedData = await fs.readFile(resolve(path), { encoding: 'utf-8' })
@@ -41,7 +35,6 @@ const writer = switcher(
     },
     bun: async (path: string, data: string, { sanity }: Options) => {
       try {
-        await saveCreateDirectory(path)
         await Bun.write(resolve(path), data)
 
         if (sanity) {
@@ -69,4 +62,20 @@ export async function write(data: string, path: string, options: Options = {}): 
     return undefined
   }
   return writer(path, data.trim(), options)
+}
+
+export async function writeLog(data: string): Promise<string | undefined> {
+  if (data.trim() === '') {
+    return undefined
+  }
+  const path = resolve(process.cwd(), 'kubb-log.log')
+  let previousLogs = ''
+
+  try {
+    previousLogs = await read(path)
+  } catch (_err) {
+    /* empty */
+  }
+
+  return writer(path, [previousLogs, data.trim()].filter(Boolean).join('\n\n\n'), { sanity: false })
 }

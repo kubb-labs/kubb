@@ -1,7 +1,6 @@
 import path from 'node:path'
 
 import { format } from '../mocks/format.ts'
-import { Queue } from './utils/Queue.ts'
 import { combineExports, combineImports, FileManager } from './FileManager.ts'
 
 import type { KubbFile } from './FileManager.ts'
@@ -130,7 +129,7 @@ describe('FileManager', () => {
   test('fileManager queue', async () => {
     const taskMock = vi.fn()
 
-    const fileManager = new FileManager({ queue: new Queue(5), task: taskMock })
+    const fileManager = new FileManager({ task: taskMock })
     await fileManager.add({
       path: path.resolve('./src/file1.ts'),
       baseName: 'file1.ts',
@@ -143,16 +142,17 @@ describe('FileManager', () => {
   test('fileManager.remove', async () => {
     const taskMock = vi.fn()
 
-    const fileManager = new FileManager({ queue: new Queue(5), task: taskMock })
-    const file = await fileManager.add({
-      path: path.resolve('./src/file1.ts'),
+    const fileManager = new FileManager({ task: taskMock })
+    const filePath = path.resolve('./src/file1.ts')
+    await fileManager.add({
+      path: filePath,
       baseName: 'file1.ts',
       source: '',
     })
 
-    fileManager.remove(file.path)
+    fileManager.remove(filePath)
 
-    const expectedRemovedFile = fileManager.files.find((f) => f.path === file.path)
+    const expectedRemovedFile = fileManager.files.find((f) => f.path === filePath)
 
     expect(expectedRemovedFile).toBeUndefined()
     expect(taskMock).toHaveBeenCalled()

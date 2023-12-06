@@ -117,7 +117,7 @@ export async function generate({ input, config, CLIOptions }: GenerateProps): Pr
     logger,
   })
 
-  const summary = getSummary({ pluginManager, config, status: error ? 'failed' : 'success', hrstart, logLevel: CLIOptions.logLevel })
+  const summary = getSummary({ pluginManager, config, status: error ? 'failed' : 'success', hrstart, logger })
 
   if (error) {
     spinner.suffixText = ''
