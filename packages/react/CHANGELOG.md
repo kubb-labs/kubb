@@ -1,5 +1,13 @@
 # @kubb/react
 
+## 2.0.0-beta.14
+
+### Patch Changes
+
+- Updated dependencies [[`955f8ed`](https://github.com/kubb-project/kubb/commit/955f8edc26ca303f3432ed875a97e249c88df89b), [`955f8ed`](https://github.com/kubb-project/kubb/commit/955f8edc26ca303f3432ed875a97e249c88df89b), [`955f8ed`](https://github.com/kubb-project/kubb/commit/955f8edc26ca303f3432ed875a97e249c88df89b)]:
+  - @kubb/core@2.0.0-beta.14
+  - @kubb/parser@2.0.0-beta.14
+
 ## 2.0.0-beta.13
 
 ### Patch Changes

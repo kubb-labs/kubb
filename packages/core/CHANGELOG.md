@@ -1,5 +1,19 @@
 # @kubb/core
 
+## 2.0.0-beta.14
+
+### Patch Changes
+
+- [#707](https://github.com/kubb-project/kubb/pull/707) [`955f8ed`](https://github.com/kubb-project/kubb/commit/955f8edc26ca303f3432ed875a97e249c88df89b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - ignore ext when using output.path and output.extname is not set
+
+- [#707](https://github.com/kubb-project/kubb/pull/707) [`955f8ed`](https://github.com/kubb-project/kubb/commit/955f8edc26ca303f3432ed875a97e249c88df89b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of combineFiles
+
+- [#707](https://github.com/kubb-project/kubb/pull/707) [`955f8ed`](https://github.com/kubb-project/kubb/commit/955f8edc26ca303f3432ed875a97e249c88df89b) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of `p-queue` instead of our own queue
+
+- Updated dependencies []:
+  - @kubb/parser@2.0.0-beta.14
+  - @kubb/types@2.0.0-beta.14
+
 ## 2.0.0-beta.13
 
 ### Patch Changes
