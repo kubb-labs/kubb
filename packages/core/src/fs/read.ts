@@ -1,6 +1,7 @@
 import { basename, extname, relative } from 'node:path'
 
 import fs from 'fs-extra'
+
 import { switcher } from 'js-runtime'
 
 function slash(path: string, platform: 'windows' | 'mac' | 'linux' = 'linux') {

@@ -23,6 +23,6 @@ export default defineConfig([
       logger: 'src/logger.ts',
       fs: 'src/fs/index.ts',
     },
-    noExternal: [/fs-extra/, /lodash.isequal/, /tinyrainbow/],
+    noExternal: [/lodash.isequal/, /tinyrainbow/],
   },
 ])

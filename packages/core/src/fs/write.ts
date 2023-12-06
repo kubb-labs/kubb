@@ -3,8 +3,6 @@ import { resolve } from 'node:path'
 import fs from 'fs-extra'
 import { switcher } from 'js-runtime'
 
-import { read } from './read.ts'
-
 type Options = { sanity?: boolean }
 
 const writer = switcher(
@@ -72,7 +70,7 @@ export async function writeLog(data: string): Promise<string | undefined> {
   let previousLogs = ''
 
   try {
-    previousLogs = await read(path)
+    previousLogs = await fs.readFile(resolve(path), { encoding: 'utf-8' })
   } catch (_err) {
     /* empty */
   }
