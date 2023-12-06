@@ -136,15 +136,11 @@ const input = [
         address: [{ keyword: 'string' }, { keyword: 'null' }],
       },
     }),
-    expected: '{"firstName": faker.string.alpha({"min":2}),"address": faker.string.alpha()null}',
+    expected: '{"firstName": faker.string.alpha({"min":2}),"address": faker.helpers.arrayElement([faker.string.alpha(),null])}',
   },
 ]
 
-describe('parseZod', () => {
-  // test.each(input)('.add($a, $b)', ({ input, expected }) => {
-  //   expect(input).toBe(expected)
-  // })
-
+describe('parseFaker', () => {
   test('parsing each input', () => {
     // TODO replace by test.each when Bun has support for test.each
     input.forEach((item) => {
