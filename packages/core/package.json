@@ -78,12 +78,12 @@
     "change-case": "^5.3.0",
     "directory-tree": "^3.5.1",
     "find-up": "^7.0.0",
+    "fs-extra": "^11.2.0",
     "js-runtime": "^0.0.7",
     "natural-orderby": "^3.0.2",
-    "p-queue": "^7.4.1",
+    "p-queue": "^8.0.0",
     "seedrandom": "^3.0.5",
-    "semver": "^7.5.4",
-    "fs-extra": "^11.2.0"
+    "semver": "^7.5.4"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
@@ -99,7 +99,7 @@
     "ora": "^7.0.1",
     "tinyrainbow": "^1.1.1",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.2"
+    "typescript": "^5.3.3"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {
