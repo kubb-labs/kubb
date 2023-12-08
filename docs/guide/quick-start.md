@@ -103,4 +103,4 @@ export default defineConfig(async () => {
 
 :::
 
-If you're looking for a fully functioning example, please have a look at our [simple CodesSandbox example](https://codesandbox.io/s/github/kubb-project/kubb/tree/beta/examples/typescript).
+If you're looking for a fully functioning example, please have a look at our [simple CodesSandbox example](https://codesandbox.io/s/github/kubb-project/kubb/tree/main/examples/typescript).
