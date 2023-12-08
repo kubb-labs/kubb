@@ -422,10 +422,6 @@ const pluginsMenu = [
         text: 'Plugin core',
         link: '/plugins/development/core',
       },
-      {
-        text: 'Plugin template',
-        link: '/plugins/development/template',
-      },
     ],
   },
 ]
