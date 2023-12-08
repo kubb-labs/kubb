@@ -24,9 +24,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     include,
     override = [],
     framework = 'react',
-    clientImportPath = '@kubb/swagger-client/client',
-    infinite,
     suspense,
+    infinite,
     transformers = {},
     dataReturnType = 'data',
     templates,
@@ -37,7 +36,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     name: pluginName,
     options: {
       framework,
-      clientImportPath,
+      client: {
+        importPath: '@kubb/swagger-client/client',
+        ...options.client,
+      },
       dataReturnType,
       infinite: infinite
         ? {

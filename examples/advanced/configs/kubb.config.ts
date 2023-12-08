@@ -79,7 +79,9 @@ export default defineConfig(async () => {
             },
           ],
           group: { type: 'tag' },
-          clientImportPath: '../../../../tanstack-query-client.ts',
+          client: {
+            importPath: '../../../../tanstack-query-client.ts',
+          },
           infinite: {},
           dataReturnType: 'full',
         },
@@ -98,7 +100,9 @@ export default defineConfig(async () => {
             },
           ],
           group: { type: 'tag' },
-          clientImportPath: '../../../../swr-client.ts',
+          client: {
+            importPath: '../../../../swr-client.ts',
+          },
           dataReturnType: 'full',
         },
       ],
@@ -116,7 +120,9 @@ export default defineConfig(async () => {
             },
           ],
           group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
-          clientImportPath: '../../../../axios-client.ts',
+          client: {
+            importPath: '../../../../axios-client.ts',
+          },
           dataReturnType: 'full',
           pathParamsType: 'object',
         },

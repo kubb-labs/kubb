@@ -7,9 +7,11 @@ outline: deep
 
 # Templates tutorial
 
-This tutorial will describe how you can setup Kubb + use the Swagger-client plugin to generate a client based on the `petStore.yaml` file with a defined template. <br/>
-More info about how templates are working behind the scenes can you find [here](/reference/templates).
+This tutorial will describe how you can setup Kubb + use the Swagger-client plugin to generate a client based on the `petStore.yaml` file with a defined template.
 
+More info about how templates are working behind the scenes can be found [here](/reference/templates).
+
+<hr/>
 The setup will contain from the beginning the following folder structure:
 
 ```typescript
@@ -26,7 +28,9 @@ The setup will contain from the beginning the following folder structure:
 Create a React component inside the templates folder that will be used to override the default behaviour of the `@kubb/swagger-client` generated client.
 
 ::: tip
-Make sure you inherit from `Client.templates.default` instead of `Client.templates`. In the future we will add more templates so that's why we have `default`.
+Make sure you inherit from `Client.templates.default` instead of `Client.templates`.
+
+In the future we will add more templates so that's why we have `default`.
 :::
 
 ::: code-group
@@ -49,7 +53,8 @@ export type Options = {
 
 :::
 
-The following component will use the props of the template `React.ComponentProps<typeof Client.templates.default>` and return based on those props a function `axios.get`. <br/>
+The following component will use the props of the template `React.ComponentProps<typeof Client.templates.default>` and return based on those props a function `axios.get`.
+
 Here we also need to add a new import and for that we use `File.Import`. For the other props we just pass them through(JSDoc, params, ...).
 
 ::: code-group
@@ -209,7 +214,7 @@ export const templates: PluginOptions['options']['templates'] = {
 }
 ```
 
-```typescript [with default]
+```typescript [default template]
 import client from '@kubb/swagger-client/client'
 import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { AddPetMutationRequest, AddPetMutationResponse } from '../../../models/ts/petController/AddPet'

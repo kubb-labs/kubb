@@ -199,7 +199,7 @@ type FileProps = {
 }
 
 Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
-  const { options: { clientImportPath } } = usePlugin<PluginOptions>()
+  const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
@@ -215,8 +215,8 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
       >
         <File.Import name="useSWRMutation" path="swr/mutation" />
         <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path="swr/mutation" isTypeOnly />
-        <File.Import name={'client'} path={clientImportPath} />
-        <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
+        <File.Import name={'client'} path={importPath} />
+        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
         <File.Import
           name={[
             schemas.request?.name,

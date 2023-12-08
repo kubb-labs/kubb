@@ -26,7 +26,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     transformers = {},
     templates,
     dataReturnType = 'data',
-    clientImportPath = '@kubb/swagger-client/client',
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}SWRController`
 
@@ -39,7 +38,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         queryOptions: QueryOptions.templates,
         ...templates,
       },
-      clientImportPath,
+      client: {
+        importPath: '@kubb/swagger-client/client',
+        ...options.client,
+      },
       dataReturnType,
     },
     pre: [swaggerPluginName],

@@ -224,7 +224,7 @@ type FileProps = {
 }
 
 Query.File = function({ templates }: FileProps): ReactNode {
-  const { options: { clientImportPath } } = usePlugin<PluginOptions>()
+  const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
@@ -245,8 +245,8 @@ Query.File = function({ templates }: FileProps): ReactNode {
       >
         <File.Import name="useSWR" path="swr" />
         <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
-        <File.Import name={'client'} path={clientImportPath} />
-        <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
+        <File.Import name={'client'} path={importPath} />
+        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
         <File.Import
           name={[
             schemas.request?.name,

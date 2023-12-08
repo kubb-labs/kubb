@@ -72,17 +72,18 @@ export type Options = {
      */
     exportAs?: string
   }
+
+  client?: {
+    /**
+     * Path to the client import path that will be used to do the API calls.
+     * It will be used as `import client from '${client.importPath}'`.
+     * It allow both relative and absolute path.
+     * the path will be applied as is, so relative path shoule be based on the file being generated.
+     * @default '@kubb/swagger-client/client'
+     */
+    importPath?: string
+  }
   /**
-   * Path to the client import path that will be used to do the API calls.
-   * It will be used as `import client from '${clientImportPath}'`.
-   * It allow both relative and absolute path.
-   * the path will be applied as is, so relative path shoule be based on the file being generated.
-   * @default '@kubb/swagger-client/client'
-   */
-  clientImportPath?: string
-  /**
-   * Experimental
-   *
    * ReturnType that needs to be used when calling client().
    *
    * `Data` will return ResponseConfig[data].
@@ -92,8 +93,6 @@ export type Options = {
    * @private
    */
   /**
-   * Experimental
-   *
    * ReturnType that needs to be used when calling client().
    *
    * `Data` will return ResponseConfig[data].
@@ -144,7 +143,7 @@ export type Framework = 'react' | 'solid' | 'svelte' | 'vue'
 
 type ResolvedOptions = {
   framework: NonNullable<PluginOptions['options']['framework']>
-  clientImportPath: NonNullable<PluginOptions['options']['clientImportPath']>
+  client: Required<NonNullable<PluginOptions['options']['client']>>
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
   /**
    * Only used of infinite

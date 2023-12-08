@@ -228,10 +228,12 @@ export default defineConfig({
 
 :::
 
-### clientImportPath
+### client
+
+#### client.importPath
 
 Path to the client import path that will be used to do the API calls.<br/>
-It will be used as `import client from '${clientImportPath}'`.<br/>
+It will be used as `import client from '${client.importPath}'`.<br/>
 It allow both relative and absolute path. the path will be applied as is,
 so relative path shoule be based on the file being generated.
 
@@ -260,7 +262,9 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerSwr(
       {
-        clientImportPath: '../../client.ts',
+        client: {
+          importPath: '../../client.ts',
+        },
       },
     ),
   ],
@@ -269,7 +273,7 @@ export default defineConfig({
 
 :::
 
-### dataReturnType <img src="/icons/experimental.svg"/>
+### dataReturnType
 
 ReturnType that needs to be used when calling client().
 

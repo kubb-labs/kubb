@@ -132,7 +132,9 @@ export default defineConfig(() => {
         output: { // [!code ++]
           path: './clients/axios', // [!code ++]
         }, // [!code ++]
-        clientImportPath: '@kubb/swagger-client/client', // [!code ++]
+        client: { // [!code ++]
+          importPath: '@kubb/swagger-client/client', // [!code ++]
+        }, // [!code ++]
       }),
     ],
   }

@@ -62,17 +62,17 @@ export type Options = {
    * Array containing override paramaters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
+  client?: {
+    /**
+     * Path to the client import path that will be used to do the API calls.
+     * It will be used as `import client from '${client.importPath}'`.
+     * It allow both relative and absolute path.
+     * the path will be applied as is, so relative path shoule be based on the file being generated.
+     * @default '@kubb/swagger-client/client'
+     */
+    importPath?: string
+  }
   /**
-   * Path to the client import path that will be used to do the API calls.
-   * It will be used as `import client from '${clientImportPath}'`.
-   * It allow both relative and absolute path.
-   * the path will be applied as is, so relative path should be based on the file being generated.
-   * @default '@kubb/swagger-client/client'
-   */
-  clientImportPath?: string
-  /**
-   * Experimental
-   *
    * ReturnType that needs to be used when calling client().
    *
    * `Data` will return ResponseConfig[data].
@@ -83,8 +83,6 @@ export type Options = {
    */
   dataReturnType?: 'data' | 'full'
   /**
-   * Experimental
-   *
    * How to pass your pathParams.
    *
    * `object` will return the pathParams as an object.
@@ -107,7 +105,7 @@ export type Options = {
 }
 
 type ResolvedOptions = {
-  clientImportPath: NonNullable<Options['clientImportPath']>
+  client: Required<NonNullable<Options['client']>>
   dataReturnType: NonNullable<Options['dataReturnType']>
   pathParamsType: NonNullable<Options['pathParamsType']>
   templates: NonNullable<Templates>

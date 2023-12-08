@@ -285,6 +285,9 @@ importers:
       '@kubb/ts-config':
         specifier: workspace:*
         version: link:../../packages/config/ts-config
+      react:
+        specifier: ^18.0.0
+        version: 18.2.0
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
@@ -980,8 +983,8 @@ importers:
         specifier: ~9.1.0
         version: 9.1.0(eslint@8.55.0)
       eslint-config-turbo:
-        specifier: ~1.10.16
-        version: 1.10.16(eslint@8.55.0)
+        specifier: ^1.11.1
+        version: 1.11.1(eslint@8.55.0)
       eslint-formatter-pretty:
         specifier: ^6.0.0
         version: 6.0.0
@@ -998,8 +1001,8 @@ importers:
         specifier: ^10.0.0
         version: 10.0.0(eslint@8.55.0)
       eslint-plugin-turbo:
-        specifier: ~1.10.16
-        version: 1.10.16(eslint@8.55.0)
+        specifier: ^1.11.1
+        version: 1.11.1(eslint@8.55.0)
       eslint-plugin-unused-imports:
         specifier: ~3.0.0
         version: 3.0.0(@typescript-eslint/eslint-plugin@6.13.2)(eslint@8.55.0)
@@ -5425,13 +5428,13 @@ packages:
       eslint: 8.55.0
     dev: false
 
-  /eslint-config-turbo@1.10.16(eslint@8.55.0):
-    resolution: {integrity: sha512-O3NQI72bQHV7FvSC6lWj66EGx8drJJjuT1kuInn6nbMLOHdMBhSUX/8uhTAlHRQdlxZk2j9HtgFCIzSc93w42g==}
+  /eslint-config-turbo@1.11.1(eslint@8.55.0):
+    resolution: {integrity: sha512-F0w5nusZ3SMSXS+ns/f0GLiRmLyP0+20Nd1xPgRXxJSW3UCsurysuqfCjo4VwSIVK2mfkDSdrn6/+JxV3WZgiw==}
     peerDependencies:
       eslint: '>6.6.0'
     dependencies:
       eslint: 8.55.0
-      eslint-plugin-turbo: 1.10.16(eslint@8.55.0)
+      eslint-plugin-turbo: 1.11.1(eslint@8.55.0)
     dev: false
 
   /eslint-formatter-pretty@6.0.0:
@@ -5566,8 +5569,8 @@ packages:
       eslint: 8.55.0
     dev: false
 
-  /eslint-plugin-turbo@1.10.16(eslint@8.55.0):
-    resolution: {integrity: sha512-ZjrR88MTN64PNGufSEcM0tf+V1xFYVbeiMeuIqr0aiABGomxFLo4DBkQ7WI4WzkZtWQSIA2sP+yxqSboEfL9MQ==}
+  /eslint-plugin-turbo@1.11.1(eslint@8.55.0):
+    resolution: {integrity: sha512-QegEzLp9CIsDVQOSSjvEl6QUUGpb7Hj9IdFdgz7OHBYzhCArY5z+Q3y+LO6jn1MSkzGUteGNjLhrlkjXadePCA==}
     peerDependencies:
       eslint: '>6.6.0'
     dependencies:

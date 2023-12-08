@@ -19,13 +19,14 @@ In the background templates will use `React/JSX` as the template engine. See [@k
 
 ## How to use templates?
 
-See [examples/client](/examples/client).
+- [examples/client](/examples/client).
+- [templates the guide](/guide/tutorial/templates).
 
 ## How does it work?
 
 For example the following code will create a file `helloWorld.ts` inside the `./src` folder(the [FileManager](/reference/fileManager) will handle the creation of this file).<br/><br/>
-Next to that we have an import(see [File.Import](/plugins/react/file#file-import)) that will add an import statement to the generated file.<br/><br/>
-At this moment the file will only contain the import statement. To add some code we will use [File.Source](/plugins/react/file#file-source) to export a const called helloWorld.
+Next to that we have an import(see [File.Import](/plugins/react/components/file#file-import)) that will add an import statement to the generated file.<br/><br/>
+At this moment the file will only contain the import statement. To add some code we will use [File.Source](/plugins/react/components/file#file-source) to export a const called helloWorld.
 
 <hr/>
 
