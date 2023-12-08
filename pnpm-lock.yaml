@@ -45,11 +45,11 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
       ts-node:
-        specifier: ^10.9.1
-        version: 10.9.1(@types/node@20.10.4)(typescript@5.3.3)
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@20.10.4)(typescript@5.3.3)
       turbo:
-        specifier: ^1.11.0
-        version: 1.11.0
+        specifier: ^1.11.1
+        version: 1.11.1
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -72,8 +72,8 @@ importers:
         specifier: ^1.0.0-rc.31
         version: 1.0.0-rc.31(@algolia/client-search@4.20.0)(@types/node@20.10.4)(search-insights@2.11.0)(typescript@5.3.3)
       vue:
-        specifier: ^3.3.10
-        version: 3.3.10(typescript@5.3.3)
+        specifier: ^3.3.11
+        version: 3.3.11(typescript@5.3.3)
     devDependencies:
       '@types/node':
         specifier: ^20.10.4
@@ -128,7 +128,7 @@ importers:
         version: 5.13.2(svelte@3.59.2)
       '@tanstack/vue-query':
         specifier: ^5.12.2
-        version: 5.12.2(vue@3.3.10)
+        version: 5.12.2(vue@3.3.11)
       '@zodios/core':
         specifier: ^10.9.6
         version: 10.9.6(axios@1.6.2)(zod@3.22.4)
@@ -152,10 +152,10 @@ importers:
         version: 2.2.4(react@18.2.0)
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       vue:
-        specifier: ^3.3.10
-        version: 3.3.10(typescript@5.3.3)
+        specifier: ^3.3.11
+        version: 3.3.11(typescript@5.3.3)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -219,7 +219,7 @@ importers:
         version: 4.36.1(svelte@3.59.2)
       '@tanstack/vue-query':
         specifier: ^4.37.1
-        version: 4.37.1(vue@3.3.10)
+        version: 4.37.1(vue@3.3.11)
       '@zodios/core':
         specifier: ^10.9.6
         version: 10.9.6(axios@1.6.2)(zod@3.22.4)
@@ -242,8 +242,8 @@ importers:
         specifier: ^2.2.4
         version: 2.2.4(react@18.2.0)
       vue:
-        specifier: ^3.3.10
-        version: 3.3.10(typescript@5.3.3)
+        specifier: ^3.3.11
+        version: 3.3.11(typescript@5.3.3)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -253,7 +253,7 @@ importers:
         version: link:../../packages/config/ts-config
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -287,7 +287,7 @@ importers:
         version: link:../../packages/config/ts-config
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -320,7 +320,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
     devDependencies:
       '@kubb/ts-config':
         specifier: workspace:*
@@ -366,7 +366,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
     devDependencies:
       '@kubb/ts-config':
         specifier: workspace:*
@@ -412,7 +412,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
     devDependencies:
       '@kubb/ts-config':
         specifier: workspace:*
@@ -461,7 +461,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
     devDependencies:
       '@types/react':
         specifier: ^18.2.42
@@ -519,7 +519,7 @@ importers:
         version: 18.2.0(react@18.2.0)
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
     devDependencies:
       '@types/react':
         specifier: ^18.2.42
@@ -571,7 +571,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
 
   examples/solid-query:
     dependencies:
@@ -607,7 +607,7 @@ importers:
         version: 1.8.7
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
     devDependencies:
       typescript:
         specifier: ^5.3.3
@@ -647,7 +647,7 @@ importers:
         version: 3.59.2
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
     devDependencies:
       typescript:
         specifier: ^5.3.3
@@ -687,7 +687,7 @@ importers:
         version: 2.2.4(react@18.2.0)
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
 
   examples/typescript:
     dependencies:
@@ -708,7 +708,7 @@ importers:
         version: 1.6.2
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
     devDependencies:
       typescript:
         specifier: ^5.3.3
@@ -739,23 +739,23 @@ importers:
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
         specifier: ^4.37.1
-        version: 4.37.1(vue@3.3.10)
+        version: 4.37.1(vue@3.3.11)
       axios:
         specifier: ^1.6.2
         version: 1.6.2
       vue:
-        specifier: ^3.3.10
-        version: 3.3.10(typescript@5.3.3)
+        specifier: ^3.3.11
+        version: 3.3.11(typescript@5.3.3)
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.5.2
-        version: 4.5.2(vite@4.5.1)(vue@3.3.10)
+        version: 4.5.2(vite@4.5.1)(vue@3.3.11)
       msw:
         specifier: ^1.3.2
         version: 1.3.2(typescript@5.3.3)
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -788,23 +788,23 @@ importers:
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
         specifier: ^5.12.2
-        version: 5.12.2(vue@3.3.10)
+        version: 5.12.2(vue@3.3.11)
       axios:
         specifier: ^1.6.2
         version: 1.6.2
       vue:
-        specifier: ^3.3.10
-        version: 3.3.10(typescript@5.3.3)
+        specifier: ^3.3.11
+        version: 3.3.11(typescript@5.3.3)
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.5.2
-        version: 4.5.2(vite@4.5.1)(vue@3.3.10)
+        version: 4.5.2(vite@4.5.1)(vue@3.3.11)
       msw:
         specifier: ^1.3.2
         version: 1.3.2(typescript@5.3.3)
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -837,7 +837,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -902,7 +902,7 @@ importers:
         version: 4.17.21
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -937,8 +937,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       ts-node:
-        specifier: ^10.9.1
-        version: 10.9.1(@types/node@20.10.4)(typescript@5.3.3)
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@20.10.4)(typescript@5.3.3)
     devDependencies:
       '@kubb/swagger':
         specifier: workspace:*
@@ -957,7 +957,7 @@ importers:
         version: 0.5.21
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1024,7 +1024,7 @@ importers:
         version: 8.55.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1052,7 +1052,7 @@ importers:
         version: 20.10.4
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
 
   packages/core:
     dependencies:
@@ -1128,7 +1128,7 @@ importers:
         version: 1.1.1
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1153,7 +1153,7 @@ importers:
         version: 20.10.4
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1178,7 +1178,7 @@ importers:
         version: 8.55.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
 
   packages/react:
     dependencies:
@@ -1215,7 +1215,7 @@ importers:
         version: 0.29.0(react@18.2.0)
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1270,7 +1270,7 @@ importers:
         version: 8.55.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1316,7 +1316,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1359,7 +1359,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1405,7 +1405,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1451,7 +1451,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1497,7 +1497,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1552,7 +1552,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
 
   packages/swagger-zod:
     dependencies:
@@ -1589,7 +1589,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1632,7 +1632,7 @@ importers:
         version: 18.2.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -1653,7 +1653,7 @@ importers:
         version: 8.55.0
       tsup:
         specifier: ^8.0.1
-        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3)
+        version: 8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3)
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -3360,7 +3360,7 @@ packages:
       svelte: 3.59.2
     dev: false
 
-  /@tanstack/vue-query@4.37.1(vue@3.3.10):
+  /@tanstack/vue-query@4.37.1(vue@3.3.11):
     resolution: {integrity: sha512-QzCQ94g2oZQcEfI4nfqa6Qr3aFXtXiEH17Jho+QFl73c7epqsWNcyP3ovF1fgJz5jEOE5OYtwgkoaRKIRaSigg==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
@@ -3372,11 +3372,11 @@ packages:
       '@tanstack/match-sorter-utils': 8.8.4
       '@tanstack/query-core': 4.36.1
       '@vue/devtools-api': 6.5.1
-      vue: 3.3.10(typescript@5.3.3)
-      vue-demi: 0.13.11(vue@3.3.10)
+      vue: 3.3.11(typescript@5.3.3)
+      vue-demi: 0.13.11(vue@3.3.11)
     dev: false
 
-  /@tanstack/vue-query@5.12.2(vue@3.3.10):
+  /@tanstack/vue-query@5.12.2(vue@3.3.11):
     resolution: {integrity: sha512-Tfb8phiB681gjIcO7fuNpfiFmQinKrGiW9T5hYFFTQfoWehhbm9z7+6B7DbCFJyJkZz1q1WCafNT04r5p9Uacg==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
@@ -3388,8 +3388,8 @@ packages:
       '@tanstack/match-sorter-utils': 8.8.4
       '@tanstack/query-core': 5.12.1
       '@vue/devtools-api': 6.5.1
-      vue: 3.3.10(typescript@5.3.3)
-      vue-demi: 0.14.6(vue@3.3.10)
+      vue: 3.3.11(typescript@5.3.3)
+      vue-demi: 0.14.6(vue@3.3.11)
     dev: false
 
   /@tsconfig/node10@1.0.9:
@@ -3897,7 +3897,7 @@ packages:
       - supports-color
     dev: true
 
-  /@vitejs/plugin-vue@4.5.0(vite@5.0.2)(vue@3.3.10):
+  /@vitejs/plugin-vue@4.5.0(vite@5.0.2)(vue@3.3.11):
     resolution: {integrity: sha512-a2WSpP8X8HTEww/U00bU4mX1QpLINNuz/2KMNpLsdu3BzOpak3AGI1CJYBTXcc4SPhaD0eNRUp7IyQK405L5dQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -3905,10 +3905,10 @@ packages:
       vue: ^3.2.25
     dependencies:
       vite: 5.0.2(@types/node@20.10.4)
-      vue: 3.3.10(typescript@5.3.3)
+      vue: 3.3.11(typescript@5.3.3)
     dev: false
 
-  /@vitejs/plugin-vue@4.5.2(vite@4.5.1)(vue@3.3.10):
+  /@vitejs/plugin-vue@4.5.2(vite@4.5.1)(vue@3.3.11):
     resolution: {integrity: sha512-UGR3DlzLi/SaVBPX0cnSyE37vqxU3O6chn8l0HJNzQzDia6/Au2A4xKv+iIJW8w2daf80G7TYHhi1pAUjdZ0bQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -3916,7 +3916,7 @@ packages:
       vue: ^3.2.25
     dependencies:
       vite: 4.5.1(@types/node@20.10.4)
-      vue: 3.3.10(typescript@5.3.3)
+      vue: 3.3.11(typescript@5.3.3)
     dev: true
 
   /@vitest/coverage-v8@1.0.2(vitest@1.0.2):
@@ -3989,96 +3989,96 @@ packages:
       loupe: 2.3.7
       pretty-format: 29.7.0
 
-  /@vue/compiler-core@3.3.10:
-    resolution: {integrity: sha512-doe0hODR1+i1menPkRzJ5MNR6G+9uiZHIknK3Zn5OcIztu6GGw7u0XUzf3AgB8h/dfsZC9eouzoLo3c3+N/cVA==}
+  /@vue/compiler-core@3.3.11:
+    resolution: {integrity: sha512-h97/TGWBilnLuRaj58sxNrsUU66fwdRKLOLQ9N/5iNDfp+DZhYH9Obhe0bXxhedl8fjAgpRANpiZfbgWyruQ0w==}
     dependencies:
       '@babel/parser': 7.23.5
-      '@vue/shared': 3.3.10
+      '@vue/shared': 3.3.11
       estree-walker: 2.0.2
       source-map-js: 1.0.2
 
-  /@vue/compiler-dom@3.3.10:
-    resolution: {integrity: sha512-NCrqF5fm10GXZIK0GrEAauBqdy+F2LZRt3yNHzrYjpYBuRssQbuPLtSnSNjyR9luHKkWSH8we5LMB3g+4z2HvA==}
+  /@vue/compiler-dom@3.3.11:
+    resolution: {integrity: sha512-zoAiUIqSKqAJ81WhfPXYmFGwDRuO+loqLxvXmfUdR5fOitPoUiIeFI9cTTyv9MU5O1+ZZglJVTusWzy+wfk5hw==}
     dependencies:
-      '@vue/compiler-core': 3.3.10
-      '@vue/shared': 3.3.10
+      '@vue/compiler-core': 3.3.11
+      '@vue/shared': 3.3.11
 
-  /@vue/compiler-sfc@3.3.10:
-    resolution: {integrity: sha512-xpcTe7Rw7QefOTRFFTlcfzozccvjM40dT45JtrE3onGm/jBLZ0JhpKu3jkV7rbDFLeeagR/5RlJ2Y9SvyS0lAg==}
+  /@vue/compiler-sfc@3.3.11:
+    resolution: {integrity: sha512-U4iqPlHO0KQeK1mrsxCN0vZzw43/lL8POxgpzcJweopmqtoYy9nljJzWDIQS3EfjiYhfdtdk9Gtgz7MRXnz3GA==}
     dependencies:
       '@babel/parser': 7.23.5
-      '@vue/compiler-core': 3.3.10
-      '@vue/compiler-dom': 3.3.10
-      '@vue/compiler-ssr': 3.3.10
-      '@vue/reactivity-transform': 3.3.10
-      '@vue/shared': 3.3.10
+      '@vue/compiler-core': 3.3.11
+      '@vue/compiler-dom': 3.3.11
+      '@vue/compiler-ssr': 3.3.11
+      '@vue/reactivity-transform': 3.3.11
+      '@vue/shared': 3.3.11
       estree-walker: 2.0.2
       magic-string: 0.30.5
       postcss: 8.4.32
       source-map-js: 1.0.2
 
-  /@vue/compiler-ssr@3.3.10:
-    resolution: {integrity: sha512-12iM4jA4GEbskwXMmPcskK5wImc2ohKm408+o9iox3tfN9qua8xL0THIZtoe9OJHnXP4eOWZpgCAAThEveNlqQ==}
+  /@vue/compiler-ssr@3.3.11:
+    resolution: {integrity: sha512-Zd66ZwMvndxRTgVPdo+muV4Rv9n9DwQ4SSgWWKWkPFebHQfVYRrVjeygmmDmPewsHyznCNvJ2P2d6iOOhdv8Qg==}
     dependencies:
-      '@vue/compiler-dom': 3.3.10
-      '@vue/shared': 3.3.10
+      '@vue/compiler-dom': 3.3.11
+      '@vue/shared': 3.3.11
 
   /@vue/devtools-api@6.5.1:
     resolution: {integrity: sha512-+KpckaAQyfbvshdDW5xQylLni1asvNSGme1JFs8I1+/H5pHEhqUKMEQD/qn3Nx5+/nycBq11qAEi8lk+LXI2dA==}
     dev: false
 
-  /@vue/reactivity-transform@3.3.10:
-    resolution: {integrity: sha512-0xBdk+CKHWT+Gev8oZ63Tc0qFfj935YZx+UAynlutnrDZ4diFCVFMWixn65HzjE3S1iJppWOo6Tt1OzASH7VEg==}
+  /@vue/reactivity-transform@3.3.11:
+    resolution: {integrity: sha512-fPGjH0wqJo68A0wQ1k158utDq/cRyZNlFoxGwNScE28aUFOKFEnCBsvyD8jHn+0kd0UKVpuGuaZEQ6r9FJRqCg==}
     dependencies:
       '@babel/parser': 7.23.5
-      '@vue/compiler-core': 3.3.10
-      '@vue/shared': 3.3.10
+      '@vue/compiler-core': 3.3.11
+      '@vue/shared': 3.3.11
       estree-walker: 2.0.2
       magic-string: 0.30.5
 
-  /@vue/reactivity@3.3.10:
-    resolution: {integrity: sha512-H5Z7rOY/JLO+e5a6/FEXaQ1TMuOvY4LDVgT+/+HKubEAgs9qeeZ+NhADSeEtrNQeiKLDuzeKc8v0CUFpB6Pqgw==}
+  /@vue/reactivity@3.3.11:
+    resolution: {integrity: sha512-D5tcw091f0nuu+hXq5XANofD0OXnBmaRqMYl5B3fCR+mX+cXJIGNw/VNawBqkjLNWETrFW0i+xH9NvDbTPVh7g==}
     dependencies:
-      '@vue/shared': 3.3.10
+      '@vue/shared': 3.3.11
 
-  /@vue/runtime-core@3.3.10:
-    resolution: {integrity: sha512-DZ0v31oTN4YHX9JEU5VW1LoIVgFovWgIVb30bWn9DG9a7oA415idcwsRNNajqTx8HQJyOaWfRKoyuP2P2TYIag==}
+  /@vue/runtime-core@3.3.11:
+    resolution: {integrity: sha512-g9ztHGwEbS5RyWaOpXuyIVFTschclnwhqEbdy5AwGhYOgc7m/q3NFwr50MirZwTTzX55JY8pSkeib9BX04NIpw==}
     dependencies:
-      '@vue/reactivity': 3.3.10
-      '@vue/shared': 3.3.10
+      '@vue/reactivity': 3.3.11
+      '@vue/shared': 3.3.11
 
-  /@vue/runtime-dom@3.3.10:
-    resolution: {integrity: sha512-c/jKb3ny05KJcYk0j1m7Wbhrxq7mZYr06GhKykDMNRRR9S+/dGT8KpHuNQjv3/8U4JshfkAk6TpecPD3B21Ijw==}
+  /@vue/runtime-dom@3.3.11:
+    resolution: {integrity: sha512-OlhtV1PVpbgk+I2zl+Y5rQtDNcCDs12rsRg71XwaA2/Rbllw6mBLMi57VOn8G0AjOJ4Mdb4k56V37+g8ukShpQ==}
     dependencies:
-      '@vue/runtime-core': 3.3.10
-      '@vue/shared': 3.3.10
+      '@vue/runtime-core': 3.3.11
+      '@vue/shared': 3.3.11
       csstype: 3.1.2
 
-  /@vue/server-renderer@3.3.10(vue@3.3.10):
-    resolution: {integrity: sha512-0i6ww3sBV3SKlF3YTjSVqKQ74xialMbjVYGy7cOTi7Imd8ediE7t72SK3qnvhrTAhOvlQhq6Bk6nFPdXxe0sAg==}
+  /@vue/server-renderer@3.3.11(vue@3.3.11):
+    resolution: {integrity: sha512-AIWk0VwwxCAm4wqtJyxBylRTXSy1wCLOKbWxHaHiu14wjsNYtiRCSgVuqEPVuDpErOlRdNnuRgipQfXRLjLN5A==}
     peerDependencies:
-      vue: 3.3.10
+      vue: 3.3.11
     dependencies:
-      '@vue/compiler-ssr': 3.3.10
-      '@vue/shared': 3.3.10
-      vue: 3.3.10(typescript@5.3.3)
+      '@vue/compiler-ssr': 3.3.11
+      '@vue/shared': 3.3.11
+      vue: 3.3.11(typescript@5.3.3)
 
-  /@vue/shared@3.3.10:
-    resolution: {integrity: sha512-2y3Y2J1a3RhFa0WisHvACJR2ncvWiVHcP8t0Inxo+NKz+8RKO4ZV8eZgCxRgQoA6ITfV12L4E6POOL9HOU5nqw==}
+  /@vue/shared@3.3.11:
+    resolution: {integrity: sha512-u2G8ZQ9IhMWTMXaWqZycnK4UthG1fA238CD+DP4Dm4WJi5hdUKKLg0RMRaRpDPNMdkTwIDkp7WtD0Rd9BH9fLw==}
 
-  /@vueuse/core@10.6.1(vue@3.3.10):
+  /@vueuse/core@10.6.1(vue@3.3.11):
     resolution: {integrity: sha512-Pc26IJbqgC9VG1u6VY/xrXXfxD33hnvxBnKrLlA2LJlyHII+BSrRoTPJgGYq7qZOu61itITFUnm6QbacwZ4H8Q==}
     dependencies:
       '@types/web-bluetooth': 0.0.20
       '@vueuse/metadata': 10.6.1
-      '@vueuse/shared': 10.6.1(vue@3.3.10)
-      vue-demi: 0.14.6(vue@3.3.10)
+      '@vueuse/shared': 10.6.1(vue@3.3.11)
+      vue-demi: 0.14.6(vue@3.3.11)
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
     dev: false
 
-  /@vueuse/integrations@10.6.1(focus-trap@7.5.4)(vue@3.3.10):
+  /@vueuse/integrations@10.6.1(focus-trap@7.5.4)(vue@3.3.11):
     resolution: {integrity: sha512-mPDupuofMJ4DPmtX/FfP1MajmWRzYDv8WSaTCo8LQ5kFznjWgmUQ16ApjYqgMquqffNY6+IRMdMgosLDRZOSZA==}
     peerDependencies:
       async-validator: '*'
@@ -4119,10 +4119,10 @@ packages:
       universal-cookie:
         optional: true
     dependencies:
-      '@vueuse/core': 10.6.1(vue@3.3.10)
-      '@vueuse/shared': 10.6.1(vue@3.3.10)
+      '@vueuse/core': 10.6.1(vue@3.3.11)
+      '@vueuse/shared': 10.6.1(vue@3.3.11)
       focus-trap: 7.5.4
-      vue-demi: 0.14.6(vue@3.3.10)
+      vue-demi: 0.14.6(vue@3.3.11)
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -4132,10 +4132,10 @@ packages:
     resolution: {integrity: sha512-qhdwPI65Bgcj23e5lpGfQsxcy0bMjCAsUGoXkJ7DsoeDUdasbZ2DBa4dinFCOER3lF4gwUv+UD2AlA11zdzMFw==}
     dev: false
 
-  /@vueuse/shared@10.6.1(vue@3.3.10):
+  /@vueuse/shared@10.6.1(vue@3.3.11):
     resolution: {integrity: sha512-TECVDTIedFlL0NUfHWncf3zF9Gc4VfdxfQc8JFwoVZQmxpONhLxFrlm0eHQeidHj4rdTPL3KXJa0TZCk1wnc5Q==}
     dependencies:
-      vue-demi: 0.14.6(vue@3.3.10)
+      vue-demi: 0.14.6(vue@3.3.11)
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -7834,7 +7834,7 @@ packages:
       irregular-plurals: 3.5.0
     dev: false
 
-  /postcss-load-config@4.0.2(ts-node@10.9.1):
+  /postcss-load-config@4.0.2(ts-node@10.9.2):
     resolution: {integrity: sha512-bSVhyJGL00wMVoPUzAVAnbEoWyqRxkjv64tUl427SKnPrENtq6hJwUojroMz2VB+Q1edmi4IfrAPpami5VVgMQ==}
     engines: {node: '>= 14'}
     peerDependencies:
@@ -7847,7 +7847,7 @@ packages:
         optional: true
     dependencies:
       lilconfig: 3.0.0
-      ts-node: 10.9.1(@types/node@20.10.4)(typescript@5.3.3)
+      ts-node: 10.9.2(@types/node@20.10.4)(typescript@5.3.3)
       yaml: 2.3.4
 
   /postcss@8.4.31:
@@ -8947,8 +8947,8 @@ packages:
   /ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
-  /ts-node@10.9.1(@types/node@20.10.4)(typescript@5.3.3):
-    resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
+  /ts-node@10.9.2(@types/node@20.10.4)(typescript@5.3.3):
+    resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
     hasBin: true
     peerDependencies:
       '@swc/core': '>=1.2.50'
@@ -9006,7 +9006,7 @@ packages:
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
 
-  /tsup@8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.1)(typescript@5.3.3):
+  /tsup@8.0.1(@microsoft/api-extractor@7.38.5)(ts-node@10.9.2)(typescript@5.3.3):
     resolution: {integrity: sha512-hvW7gUSG96j53ZTSlT4j/KL0q1Q2l6TqGBFc6/mu/L46IoNWqLLUzLRLP1R8Q7xrJTmkDxxDoojV5uCVs1sVOg==}
     engines: {node: '>=18'}
     hasBin: true
@@ -9034,7 +9034,7 @@ packages:
       execa: 5.1.1
       globby: 11.1.0
       joycon: 3.1.1
-      postcss-load-config: 4.0.2(ts-node@10.9.1)
+      postcss-load-config: 4.0.2(ts-node@10.9.2)
       resolve-from: 5.0.0
       rollup: 4.5.2
       source-map: 0.8.0-beta.0
@@ -9059,64 +9059,64 @@ packages:
       yargs: 17.7.2
     dev: true
 
-  /turbo-darwin-64@1.11.0:
-    resolution: {integrity: sha512-yLDeJ7QgpI1Niw87ydRNvygX67Dra+6MnxR88vwXnQJKsmHTKycBhY9w3Bhe5xvnIg4JoEWoEF5EJtw6ShrlEw==}
+  /turbo-darwin-64@1.11.1:
+    resolution: {integrity: sha512-JmwL8kcfxncDf2SZFioSa6dUvpMq/HbMcurh9mGm6BxWLQoB0d3fP/q3HizgCSbOE4ihScXoQ+c/C2xhl6Ngjg==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-darwin-arm64@1.11.0:
-    resolution: {integrity: sha512-lZGlfTG6+u3R7+6eVY9j/07WpVF/tx8UNkmRWfMNt4ZGSEBMg6A+Vimvp+rni92WdPhD/rhxv+qYI/kco9hNXg==}
+  /turbo-darwin-arm64@1.11.1:
+    resolution: {integrity: sha512-lIpT7nPkU0xmpkI8VOGQcgoQKmUATRMpRhTDclz6j/Px7Qtxjc+2PitKHKfR3aCnseoRMGkgMzPEJTPUwCpnlQ==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-64@1.11.0:
-    resolution: {integrity: sha512-I88/WieHzTZ8V2y0j79RSjVERPp0IJTynTwLi7ddYX0PahkuyaHs1p8ktFMcs6awnJMeT6spaXlyzv5ZxnAdkg==}
+  /turbo-linux-64@1.11.1:
+    resolution: {integrity: sha512-mHFSqMkgy3h/M8Ocj2oiOr6CqlCqB6coCPWVIAmraBk+SQywwsszgJ69GWBfm7lwwJvb3B1YN1wkZNe9ZZnBfg==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-arm64@1.11.0:
-    resolution: {integrity: sha512-jHsKuTFa7KwrA/FIxOnyXnfSEgDEUv0UVcseqQhP0VbdL+En93ZdBZ9S9/lI6VWooXrCqPooBmC+M/6jmwY/Ig==}
+  /turbo-linux-arm64@1.11.1:
+    resolution: {integrity: sha512-6ybojTkAkymo1Ig7kU3s2YQUUSRf3l2qatPZgw3v4OmFTSU2feCU1sHjAEqhHwEjV1KciDo1wRl1gjjyby4foQ==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-64@1.11.0:
-    resolution: {integrity: sha512-7u/1GoMallGDOTg4fnKoJmvBkf2pUCOcA0Z7NbwFB6GOa7q1Su4AaPs6Iy6Tyqrmj3vDHKSXByHwfz+o0cng/g==}
+  /turbo-windows-64@1.11.1:
+    resolution: {integrity: sha512-ytWy6+yEtBfv6nbgCKW6HsolgUFAC1PZGMPzbqRGnCm2eLVWhDuwO1Yk7uq4cvdrpXcXgOMcPEoJZxUCDbeJaQ==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-arm64@1.11.0:
-    resolution: {integrity: sha512-39MNaZ7RnbINEnpeAfB++fmH6p99RhbeeC8n2IXqG61Zrck5AA59Jm8DXpfOGR6Im93iHXSDox8qF3bb8V4amQ==}
+  /turbo-windows-arm64@1.11.1:
+    resolution: {integrity: sha512-O04DdJoRavOh/v9/MM5wWCEtOekO4aiLljNZc/fOh853sOhid61ZRSEYUmS9ecjmZ/OjKqedIfbkitaQ77c4xA==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo@1.11.0:
-    resolution: {integrity: sha512-zIqJs/x1zzIIdwufhk80o7cQc9fIdHdweWRNXbK+Vjf9IaM2eSslcYyo40s+Kg/oiIOpdLM8hV7IUQst8KIyDA==}
+  /turbo@1.11.1:
+    resolution: {integrity: sha512-pmIsyTcyBJ5iJIaTjJyCxAq7YquDqyRai6FW2q0mFAkwK3k0p36wJ5yH85U2Ue6esrTKzeSEKskP4/fa7dv4+A==}
     hasBin: true
     optionalDependencies:
-      turbo-darwin-64: 1.11.0
-      turbo-darwin-arm64: 1.11.0
-      turbo-linux-64: 1.11.0
-      turbo-linux-arm64: 1.11.0
-      turbo-windows-64: 1.11.0
-      turbo-windows-arm64: 1.11.0
+      turbo-darwin-64: 1.11.1
+      turbo-darwin-arm64: 1.11.1
+      turbo-linux-64: 1.11.1
+      turbo-linux-arm64: 1.11.1
+      turbo-windows-64: 1.11.1
+      turbo-windows-arm64: 1.11.1
     dev: true
 
   /type-check@0.4.0:
@@ -9539,10 +9539,10 @@ packages:
       '@docsearch/css': 3.5.2
       '@docsearch/js': 3.5.2(@algolia/client-search@4.20.0)(search-insights@2.11.0)
       '@types/markdown-it': 13.0.7
-      '@vitejs/plugin-vue': 4.5.0(vite@5.0.2)(vue@3.3.10)
+      '@vitejs/plugin-vue': 4.5.0(vite@5.0.2)(vue@3.3.11)
       '@vue/devtools-api': 6.5.1
-      '@vueuse/core': 10.6.1(vue@3.3.10)
-      '@vueuse/integrations': 10.6.1(focus-trap@7.5.4)(vue@3.3.10)
+      '@vueuse/core': 10.6.1(vue@3.3.11)
+      '@vueuse/integrations': 10.6.1(focus-trap@7.5.4)(vue@3.3.11)
       focus-trap: 7.5.4
       mark.js: 8.11.1
       minisearch: 6.3.0
@@ -9550,7 +9550,7 @@ packages:
       shikiji: 0.7.4
       shikiji-transformers: 0.7.4
       vite: 5.0.2(@types/node@20.10.4)
-      vue: 3.3.10(typescript@5.3.3)
+      vue: 3.3.11(typescript@5.3.3)
     transitivePeerDependencies:
       - '@algolia/client-search'
       - '@types/node'
@@ -9636,7 +9636,7 @@ packages:
       - supports-color
       - terser
 
-  /vue-demi@0.13.11(vue@3.3.10):
+  /vue-demi@0.13.11(vue@3.3.11):
     resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}
     engines: {node: '>=12'}
     hasBin: true
@@ -9648,10 +9648,10 @@ packages:
       '@vue/composition-api':
         optional: true
     dependencies:
-      vue: 3.3.10(typescript@5.3.3)
+      vue: 3.3.11(typescript@5.3.3)
     dev: false
 
-  /vue-demi@0.14.6(vue@3.3.10):
+  /vue-demi@0.14.6(vue@3.3.11):
     resolution: {integrity: sha512-8QA7wrYSHKaYgUxDA5ZC24w+eHm3sYCbp0EzcDwKqN3p6HqtTCGR/GVsPyZW92unff4UlcSh++lmqDWN3ZIq4w==}
     engines: {node: '>=12'}
     hasBin: true
@@ -9663,7 +9663,7 @@ packages:
       '@vue/composition-api':
         optional: true
     dependencies:
-      vue: 3.3.10(typescript@5.3.3)
+      vue: 3.3.11(typescript@5.3.3)
     dev: false
 
   /vue-eslint-parser@9.3.2(eslint@8.55.0):
@@ -9684,19 +9684,19 @@ packages:
       - supports-color
     dev: true
 
-  /vue@3.3.10(typescript@5.3.3):
-    resolution: {integrity: sha512-zg6SIXZdTBwiqCw/1p+m04VyHjLfwtjwz8N57sPaBhEex31ND0RYECVOC1YrRwMRmxFf5T1dabl6SGUbMKKuVw==}
+  /vue@3.3.11(typescript@5.3.3):
+    resolution: {integrity: sha512-d4oBctG92CRO1cQfVBZp6WJAs0n8AK4Xf5fNjQCBeKCvMI1efGQ5E3Alt1slFJS9fZuPcFoiAiqFvQlv1X7t/w==}
     peerDependencies:
       typescript: '*'
     peerDependenciesMeta:
       typescript:
         optional: true
     dependencies:
-      '@vue/compiler-dom': 3.3.10
-      '@vue/compiler-sfc': 3.3.10
-      '@vue/runtime-dom': 3.3.10
-      '@vue/server-renderer': 3.3.10(vue@3.3.10)
-      '@vue/shared': 3.3.10
+      '@vue/compiler-dom': 3.3.11
+      '@vue/compiler-sfc': 3.3.11
+      '@vue/runtime-dom': 3.3.11
+      '@vue/server-renderer': 3.3.11(vue@3.3.11)
+      '@vue/shared': 3.3.11
       typescript: 5.3.3
 
   /wcwidth@1.0.1:
