@@ -165,7 +165,7 @@ type FileProps = {
 }
 
 Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
-  const { options: { clientImportPath } } = usePlugin<PluginOptions>()
+  const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
@@ -178,8 +178,8 @@ Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
       path={file.path}
       meta={file.meta}
     >
-      <File.Import name={'client'} path={clientImportPath} />
-      <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
+      <File.Import name={'client'} path={importPath} />
+      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
       <File.Import
         name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
           Boolean,

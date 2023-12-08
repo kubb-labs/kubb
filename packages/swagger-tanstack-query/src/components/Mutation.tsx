@@ -326,7 +326,7 @@ type FileProps = {
 }
 
 Mutation.File = function({ templates = defaultTemplates, imports = MutationImports.templates }: FileProps): ReactNode {
-  const { options: { clientImportPath, framework } } = usePlugin<PluginOptions>()
+  const { options: { client: { importPath }, framework } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
@@ -345,8 +345,8 @@ Mutation.File = function({ templates = defaultTemplates, imports = MutationImpor
       path={file.path}
       meta={file.meta}
     >
-      <File.Import name={'client'} path={clientImportPath} />
-      <File.Import name={['ResponseConfig']} path={clientImportPath} isTypeOnly />
+      <File.Import name={'client'} path={importPath} />
+      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
       <File.Import
         name={[
           schemas.request?.name,

@@ -1,17 +1,17 @@
 ---
 layout: doc
 
-title: TypeScript JSX based template engine for code generation.
+title: Why creating templates with JSX
 outline: deep
 ---
 
-Published: 2023-12-06
+Published: 2023-12-08
 
-# TypeScript JSX based template engine for code generation.
+# Why creating templates with JSX
 
-Since v2 `Kubb` has been starting to use JSX templates to create its generated code. Before we use template string but that was not always easy when you have a couple of if statements(not easy to read/understand) and it would also become harder to maintain in the future. Because of that we explored if it was possible to use JSX and React to create our generated code. As a front-end developer we use React on a daily base and to use JSX as a template engine would be really nice.
+Since v2 `Kubb` has been starting to use JSX templates to create its generated code. Before we used template string but that was not always easy when you had a couple of if statements(not easy to read/understand) and it was also becoming harder to maintain. Because of that we explored if it was possible to use JSX and React to create our generated code. As a front-end developer we use React on a daily base and to use JSX as a template engine would be really nice.
 
-But to understand more you need to understand some basic concepts.
+But to get into details, you need to understand some basic concepts.
 
 ## What is template engine?
 
@@ -24,10 +24,14 @@ Source code generation is a technique used in programming where code is automati
 ## Template engines as of today.
 
 ::: tip
-For example, the OpenAPI TypeScript generator uses Handlebars templates.
+For example, the OpenAPI TypeScript generator uses [Handlebars](https://handlebarsjs.com/).
 :::
 
-Today there are a couple of template engines that exists like Mustache, Handlebars, and EJS. Next to that you can also use the [TypesScript compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API) to create JavaScript/TypeScript. An example of this is [rapini](https://github.com/rametta/rapini/blob/main/src/react-query/generator.ts).
+Today there are a couple of template engines that exists like [Mustache](https://mustache.github.io/), [Handlebars](https://handlebarsjs.com/) and [EJS](https://ejs.co/). Next to that you can also use the [TypesScript compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API) to create JavaScript/TypeScript.
+
+### Rapini
+
+An example of this is [rapini](https://github.com/rametta/rapini/blob/main/src/react-query/generator.ts).
 
 ```typescript
 function makeImportAxiosInstanceTypeDeclaration() {
@@ -55,7 +59,11 @@ function makeImportAxiosInstanceTypeDeclaration() {
 }
 ```
 
+### TypeScript compiler
+
 The [TypesScript compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API) is really nice and powerful to use but not easy to setup. This has a hard learning curve and would not fit our needs. <br/>
+
+### Ink
 
 Then we found [Ink](https://github.com/vadimdemedes/ink) which is a CLI tool that uses React/JSX as their template engine. As of how they describe it:
 
@@ -84,13 +92,14 @@ const Counter = () => {
 render(<Counter />)
 ```
 
-<img src="https://raw.githubusercontent.com/vadimdemedes/ink/master/media/demo.svg" width="600">
+<img src="https://raw.githubusercontent.com/vadimdemedes/ink/master/media/demo.svg" width="600"/>
 <br/>
-After some digging around in their code we came up with a solution that would benefit `Kubb`.
+After some digging around in their code we came up with a solution that would benefit Kubb.
+
 We can use JSX as the template engine and provide some hooks that could be used to access some `Kubb` specific behaviour. <br/>
 
 Getting the `PluginManager` instance or access to the `FileManager` for example. And when using the `@kubb/swagger` plugin, we could also provide some hooks that would return the current operation/path/oas instance. <br/>
-So a lot of things that are possible so we started with a small POC for one of our plugins.
+So a lot of things that are possible so we started with a small POC for one of our plugins and as of today(dec 2023), we are using templates in all our plugins.
 
 ## Examples
 
@@ -136,3 +145,5 @@ If you then compare this with an example with JSX/React, you can already see it'
 At this stage we only did the refactor for the function logic and keeping the template string for the client logic.
 
 ## Overriding with templates
+
+We have made a guide in how you can override templates in one of our plugins: [templates the guide](/guide/tutorial/templates).

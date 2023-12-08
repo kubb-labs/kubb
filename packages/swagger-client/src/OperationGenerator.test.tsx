@@ -26,7 +26,9 @@ describe('OperationGenerator', async () => {
         operations: Operations.templates,
         client: Client.templates,
       },
-      clientImportPath: '@kubb/swagger-client/client',
+      client: {
+        importPath: '@kubb/swagger-client/client',
+      },
     }
 
     const og = await new OperationGenerator(
@@ -55,7 +57,9 @@ describe('OperationGenerator', async () => {
         operations: Operations.templates,
         client: Client.templates,
       },
-      clientImportPath: '@kubb/swagger-client/client',
+      client: {
+        importPath: '@kubb/swagger-client/client',
+      },
     }
 
     const og = await new OperationGenerator(
@@ -86,7 +90,9 @@ describe('OperationGenerator', async () => {
           default: CustomClientTemplate,
         },
       },
-      clientImportPath: '@kubb/swagger-client/client',
+      client: {
+        importPath: '@kubb/swagger-client/client',
+      },
     }
 
     const og = await new OperationGenerator(

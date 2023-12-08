@@ -65,7 +65,7 @@ const configSidebar = [
     collapsed: false,
     items: [
       {
-        text: 'name',
+        text: 'name <span class="new">new</span>',
         link: '/config/name',
       },
       {
@@ -113,7 +113,7 @@ const referenceSidebar = [
     ],
   },
   {
-    text: 'Templates <img src="/icons/experimental.svg"/>',
+    text: 'Templates <span class="new">new</span><img src="/icons/experimental.svg"/>',
     link: '/reference/templates',
   },
 ]
@@ -218,7 +218,7 @@ const pluginsSidebar = [
         collapsed: true,
         items: [
           {
-            text: 'Infer',
+            text: 'Infer <img src="/icons/experimental.svg"/> <span class="new">new</span>',
             link: '/plugins/swagger-ts/infer',
           },
         ],
@@ -328,19 +328,19 @@ const examplesSidebar = [
     link: '/examples/advanced',
   },
   {
-    text: 'Templates',
+    text: 'Templates <span class="new">new</span>',
     link: '/examples/client',
   },
 ]
 
 const blogSidebar = [
   {
-    text: 'Release of Kubb v2',
+    text: 'Release of Kubb 2.0',
     link: '/blog/v2',
   },
   {
-    text: 'Typescript JSX based template engine for code generation.',
-    link: '/blog/tsBasedJSXEngine',
+    text: 'Why creating templates with JSX',
+    link: '/blog/whyTemplates',
   },
 ]
 
@@ -449,8 +449,9 @@ export default defineConfig({
     ['meta', { property: 'twitter:description', content: description }],
     ['link', { rel: 'icon', href: '/logo.png', type: 'image/png' }],
     ['link', { rel: 'mask-icon', href: '/logo.png', color: '#ffffff' }],
+    ['script', { src: 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js' }],
   ],
-  transformHtml: (_, id, { pageData }) => {
+  transformHtml: (code, id, { pageData }) => {
     if (!/[\\/]404\.html$/.test(id)) {
       links.push({
         // you might need to change this if not using clean urls mode
@@ -509,8 +510,8 @@ export default defineConfig({
         text: `v${version}`,
         items: [
           {
-            text: '1.0.0',
-            link: 'https://kubb.dev',
+            text: 'v1',
+            link: 'https://v1.kubb.dev',
             target: '_blank',
           },
           {

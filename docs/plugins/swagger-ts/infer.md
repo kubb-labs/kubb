@@ -5,7 +5,7 @@ title: \@kubb/swagger-ts
 outline: deep
 ---
 
-# Infer
+# Infer <img src="/icons/experimental.svg"/> <Badge type="tip" text="beta" />
 
 With the type `Infer` you can infer your Swagger/OpenAPI schema without the need of creating the types. This gives you the TypeScript power with autocomplete of specific paths and methods related to that path. <br/>
 

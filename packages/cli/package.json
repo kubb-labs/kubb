@@ -59,7 +59,7 @@
     "pretty-error": "^4.0.0",
     "string-argv": "^0.3.2",
     "tinyrainbow": "^1.1.1",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@kubb/swagger": "workspace:*",
