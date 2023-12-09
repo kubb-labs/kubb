@@ -310,36 +310,27 @@ export class FileManager {
       }),
     )
 
-    function getPath() {
-      if (mode === 'directory') {
-        return `${exportPath}/index${output.extName || ''}`
-      }
-      return `${exportPath}${output.extName || ''}`
-    }
-
-    const rootPath = getPath()
+    const rootPath = mode === 'directory' ? `${exportPath}/index${output.extName || ''}` : `${exportPath}${output.extName || ''}`
     const rootFile: KubbFile.File = {
       path: resolve(root, 'index.ts'),
       baseName: 'index.ts',
       source: '',
       exports: [
-        {
-          path: rootPath,
-          isTypeOnly: options.isTypeOnly,
-        },
+        output.exportAs
+          ? {
+            name: output.exportAs,
+            asAlias: true,
+            path: rootPath,
+            isTypeOnly: options.isTypeOnly,
+          }
+          : {
+            path: rootPath,
+            isTypeOnly: options.isTypeOnly,
+          },
       ],
     }
 
-    if (output.exportAs) {
-      rootFile.exports = [{
-        name: output.exportAs,
-        asAlias: true,
-        path: rootPath,
-        isTypeOnly: options.isTypeOnly,
-      }]
-    }
-
-    if (output.exportType === 'barrelNamed' && !output.exportAs && rootFile.exports?.[0]) {
+    if (exportType === 'barrelNamed' && !output.exportAs && rootFile.exports?.[0]) {
       rootFile.exports = barrelManager.getNamedExport(root, rootFile.exports[0])
     }
 

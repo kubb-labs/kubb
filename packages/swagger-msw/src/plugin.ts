@@ -95,7 +95,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       const root = path.resolve(this.config.root, this.config.output.path)
 
-      if (group?.type === 'tag' && output.exportType) {
+      if (group?.type === 'tag') {
         const rootFiles = await getGroupedByTagFiles({
           logger: this.logger,
           files: this.fileManager.files,

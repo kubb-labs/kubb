@@ -1,2 +1,2 @@
-export * from './clients/axios'
-export type * from './models/ts'
+export * from './clients/axios/index'
+export * from './models/ts/index'

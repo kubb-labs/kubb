@@ -1,2 +1,2 @@
-export * from './customMocks'
-export type * from './models'
+export * from './customMocks/index'
+export * from './models/index'
