@@ -1,15 +1,17 @@
 ---
 layout: doc
 
-title: Why creating templates with JSX
+title: Benefits of using JSX for templates
 outline: deep
 ---
 
 Published: 2023-12-08
 
-# Why creating templates with JSX
+# Benefits of using JSX for templates
 
-Since v2 `Kubb` has been starting to use JSX templates to create its generated code. Before we used template string but that was not always easy when you had a couple of if statements(not easy to read/understand) and it was also becoming harder to maintain. Because of that we explored if it was possible to use JSX and React to create our generated code. As a front-end developer we use React on a daily base and to use JSX as a template engine would be really nice.
+Since v2 `Kubb` has been starting to use JSX templates to create its generated code. Before we used template string but that was not always easy when you had a couple of if statements(not easy to read/understand) and it was also becoming harder to maintain.
+
+Because of that we explored if it was possible to use JSX and React to create our generated code. As a front-end developer we use React on a daily base and to use JSX as a template engine would be really nice.
 
 But to get into details, you need to understand some basic concepts.
 
