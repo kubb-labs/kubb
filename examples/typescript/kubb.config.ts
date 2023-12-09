@@ -19,6 +19,7 @@ export default defineConfig({
     createSwaggerTS({
       output: {
         path: 'models.ts',
+        exportAs: 'models',
       },
       enumType: 'enum',
     }),
@@ -32,7 +33,7 @@ export default defineConfig({
     createSwaggerTS({
       output: {
         path: 'ts/models',
-        exportAs: 'models',
+        exportType: 'barrelNamed',
       },
       oasType: 'infer',
     }),

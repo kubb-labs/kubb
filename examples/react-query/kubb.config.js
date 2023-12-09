@@ -20,6 +20,7 @@ export default defineConfig({
     createSwaggerTS({
       output: {
         path: 'models',
+        exportType: 'barrelNamed',
       },
     }),
     createSwaggerTanstackQuery({
