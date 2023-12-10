@@ -340,7 +340,7 @@ const blogSidebar = [
   },
   {
     text: 'Benefits of using JSX for templates',
-    link: '/blog/whyTemplates',
+    link: '/blog/benefits-of-templates',
   },
 ]
 

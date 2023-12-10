@@ -76,7 +76,7 @@ jobs:
 
         - name: Publish ${{ inputs.tag || 'canary' }}
           continue-on-error: true
-          if: ${{ steps.publish.outcome == 'failure' ||  github.event.inputs.tag != '' }}
+          if: ${{ steps.publish.outputs.published == 'false' || steps.publish.outcome == 'failure' ||  github.event.inputs.tag != '' }}
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -98,7 +98,7 @@ jobs:
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                  content: `New release available. [Read the changelog](https://github.com/kubb-project/kubb/releases)`
+                  content: `A new release is available 🎉. \n [Read the changelog](https://github.com/kubb-project/kubb/releases)`
                 }),
               })
               .then((res) => {
