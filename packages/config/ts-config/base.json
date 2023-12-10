@@ -26,6 +26,7 @@
     "allowImportingTsExtensions": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
+    "noErrorTruncation": true,
     "baseUrl": ".",
     "types": [
       "vitest/globals",
