@@ -1,5 +1,18 @@
 # @kubb/swagger-ts
 
+## 2.0.1
+
+### Patch Changes
+
+- [`37bd469`](https://github.com/kubb-project/kubb/commit/37bd469acbe1b80b9602621c8c128b1b0d456d21) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - include export of enums instead of types only(`export *` instead of `export type *`)
+
+- Updated dependencies []:
+  - @kubb/core@2.0.1
+  - @kubb/parser@2.0.1
+  - @kubb/react@2.0.1
+  - @kubb/swagger@2.0.1
+  - @kubb/types@2.0.1
+
 ## 2.0.0
 
 ### Major Changes
