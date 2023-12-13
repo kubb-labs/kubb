@@ -21,7 +21,6 @@ type GetInventory = {
   queryParams: never
   headerParams: never
   response: GetInventoryQueryResponse
-  unionResponse: Awaited<ReturnType<GetInventoryClient>> | GetInventoryQueryResponse
   client: {
     paramaters: Partial<Parameters<GetInventoryClient>[0]>
     return: Awaited<ReturnType<GetInventoryClient>>
@@ -34,18 +33,17 @@ export function getInventoryQueryOptions<
   TError = GetInventory['error'],
   TData = GetInventory['response'],
   TQueryData = GetInventory['response'],
->(
-  options: GetInventory['client']['paramaters'] = {},
-): WithRequired<QueryObserverOptions<GetInventory['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: GetInventory['client']['paramaters'] = {}): WithRequired<QueryObserverOptions<GetInventory['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getInventoryQueryKey()
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/inventory`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -84,18 +82,17 @@ export function getInventoryInfiniteQueryOptions<
   TError = GetInventory['error'],
   TData = GetInventory['response'],
   TQueryData = GetInventory['response'],
->(
-  options: GetInventory['client']['paramaters'] = {},
-): WithRequired<UseInfiniteQueryOptions<GetInventory['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: GetInventory['client']['paramaters'] = {}): WithRequired<UseInfiniteQueryOptions<GetInventory['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getInventoryInfiniteQueryKey()
   return {
     queryKey,
-    queryFn: ({ pageParam }) => {
-      return client<TQueryFnData, TError>({
+    queryFn: async ({ pageParam }) => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/inventory`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
@@ -135,16 +132,17 @@ export function getInventorySuspenseQueryOptions<
   TQueryFnData extends GetInventory['data'] = GetInventory['data'],
   TError = GetInventory['error'],
   TData = GetInventory['response'],
->(options: GetInventory['client']['paramaters'] = {}): WithRequired<UseSuspenseQueryOptions<GetInventory['unionResponse'], TError, TData>, 'queryKey'> {
+>(options: GetInventory['client']['paramaters'] = {}): WithRequired<UseSuspenseQueryOptions<GetInventory['response'], TError, TData>, 'queryKey'> {
   const queryKey = getInventorySuspenseQueryKey()
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/inventory`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }

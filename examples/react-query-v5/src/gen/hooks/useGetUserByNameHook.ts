@@ -21,7 +21,6 @@ type GetUserByName = {
   queryParams: never
   headerParams: never
   response: GetUserByNameQueryResponse
-  unionResponse: Awaited<ReturnType<GetUserByNameClient>> | GetUserByNameQueryResponse
   client: {
     paramaters: Partial<Parameters<GetUserByNameClient>[0]>
     return: Awaited<ReturnType<GetUserByNameClient>>
@@ -37,16 +36,17 @@ export function getUserByNameQueryOptions<
 >(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['paramaters'] = {},
-): WithRequired<QueryObserverOptions<GetUserByName['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<QueryObserverOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameQueryKey(username)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -88,16 +88,17 @@ export function getUserByNameInfiniteQueryOptions<
 >(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['paramaters'] = {},
-): WithRequired<UseInfiniteQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseInfiniteQueryOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameInfiniteQueryKey(username)
   return {
     queryKey,
-    queryFn: ({ pageParam }) => {
-      return client<TQueryFnData, TError>({
+    queryFn: async ({ pageParam }) => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
@@ -140,16 +141,17 @@ export function getUserByNameSuspenseQueryOptions<
 >(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['paramaters'] = {},
-): WithRequired<UseSuspenseQueryOptions<GetUserByName['unionResponse'], TError, TData>, 'queryKey'> {
+): WithRequired<UseSuspenseQueryOptions<GetUserByName['response'], TError, TData>, 'queryKey'> {
   const queryKey = getUserByNameSuspenseQueryKey(username)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }

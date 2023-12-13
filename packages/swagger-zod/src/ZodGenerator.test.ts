@@ -102,3 +102,25 @@ describe('TypeGenerator with const', async () => {
     expect(node).toMatchSnapshot()
   })
 })
+
+describe('ZodGenerator lazy import', async () => {
+  const petStorePath = path.resolve(__dirname, '../mocks/lazy.yaml')
+  const oas = await new OasManager().parse(petStorePath)
+
+  test('generate schema for Example', async () => {
+    const generator = new ZodGenerator({
+      exclude: undefined,
+      include: undefined,
+      override: undefined,
+      transformers: {},
+    }, {
+      oas,
+      pluginManager: mockedPluginManager,
+    })
+
+    const schemas = oas.getDefinition().components?.schemas
+    const node = generator.build({ schema: schemas?.Example as OasTypes.SchemaObject, baseName: 'Example' })
+
+    expect(node).toMatchSnapshot()
+  })
+})

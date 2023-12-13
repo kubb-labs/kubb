@@ -15,7 +15,6 @@ type GetPetById = {
   queryParams: never
   headerParams: never
   response: GetPetByIdQueryResponse
-  unionResponse: Awaited<ReturnType<GetPetByIdClient>> | GetPetByIdQueryResponse
   client: {
     paramaters: Partial<Parameters<GetPetByIdClient>[0]>
     return: Awaited<ReturnType<GetPetByIdClient>>
@@ -31,17 +30,18 @@ export function getPetByIdQueryOptions<
 >(
   refPetId: MaybeRef<GetPetByIdPathParams['petId']>,
   options: GetPetById['client']['paramaters'] = {},
-): WithRequired<VueQueryObserverOptions<GetPetById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<VueQueryObserverOptions<GetPetById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getPetByIdQueryKey(refPetId)
   return {
     queryKey,
-    queryFn: () => {
+    queryFn: async () => {
       const petId = unref(refPetId)
-      return client<TQueryFnData, TError>({
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/${petId}`,
         ...options,
-      }).then((res) => res?.data || res)
+      })
+      return res.data
     },
   }
 }

@@ -10,10 +10,11 @@ export async function updatePet(
   data: UpdatePetMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<UpdatePetMutationResponse>> {
-  return client<UpdatePetMutationResponse, UpdatePetMutationRequest>({
+  const res = await client<UpdatePetMutationResponse, UpdatePetMutationRequest>({
     method: 'put',
     url: `/pet`,
     data,
     ...options,
   })
+  return res
 }

@@ -339,8 +339,8 @@ const blogSidebar = [
     link: '/blog/v2',
   },
   {
-    text: 'Why creating templates with JSX',
-    link: '/blog/whyTemplates',
+    text: 'Benefits of using JSX for templates',
+    link: '/blog/benefits-of-templates',
   },
 ]
 
@@ -421,10 +421,6 @@ const pluginsMenu = [
       {
         text: 'Plugin core',
         link: '/plugins/development/core',
-      },
-      {
-        text: 'Plugin template',
-        link: '/plugins/development/template',
       },
     ],
   },

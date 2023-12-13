@@ -12,7 +12,6 @@ type DeleteUser = {
   queryParams: never
   headerParams: never
   response: DeleteUserMutationResponse
-  unionResponse: Awaited<ReturnType<DeleteUserClient>> | DeleteUserMutationResponse
   client: {
     paramaters: Partial<Parameters<DeleteUserClient>[0]>
     return: Awaited<ReturnType<DeleteUserClient>>
@@ -22,21 +21,22 @@ type DeleteUser = {
  * @description This can only be done by the logged in user.
  * @summary Delete user
  * @link /user/:username */
-export function deleteUserQuery<TData = DeleteUser['response'], TError = DeleteUser['error']>(
+export function deleteUserQuery(
   username: DeleteUserPathParams['username'],
   options: {
-    mutation?: CreateMutationOptions<TData, TError, void>
+    mutation?: CreateMutationOptions<DeleteUser['response'], DeleteUser['error'], void>
     client?: DeleteUser['client']['paramaters']
   } = {},
-): CreateMutationResult<TData, TError, void> {
+): CreateMutationResult<DeleteUser['response'], DeleteUser['error'], void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<TData, TError, void>({
-    mutationFn: () => {
-      return client<DeleteUser['data'], TError, void>({
+  return createMutation<DeleteUser['response'], DeleteUser['error'], void>({
+    mutationFn: async () => {
+      const res = await client<DeleteUser['data'], DeleteUser['error'], void>({
         method: 'delete',
         url: `/user/${username}`,
         ...clientOptions,
-      }).then((res) => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

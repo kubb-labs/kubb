@@ -14,7 +14,6 @@ type DeleteOrder = {
   queryParams: never
   headerParams: never
   response: DeleteOrderMutationResponse
-  unionResponse: Awaited<ReturnType<DeleteOrderClient>> | DeleteOrderMutationResponse
   client: {
     paramaters: Partial<Parameters<DeleteOrderClient>[0]>
     return: Awaited<ReturnType<DeleteOrderClient>>
@@ -24,22 +23,23 @@ type DeleteOrder = {
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId */
-export function useDeleteOrder<TData = DeleteOrder['response'], TError = DeleteOrder['error']>(
+export function useDeleteOrder(
   refOrderId: MaybeRef<DeleteOrderPathParams['orderId']>,
   options: {
-    mutation?: UseMutationOptions<TData, TError, void, unknown>
+    mutation?: UseMutationOptions<DeleteOrder['response'], DeleteOrder['error'], void, unknown>
     client?: DeleteOrder['client']['paramaters']
   } = {},
-): UseMutationReturnType<TData, TError, void, unknown> {
+): UseMutationReturnType<DeleteOrder['response'], DeleteOrder['error'], void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, void, unknown>({
-    mutationFn: () => {
+  return useMutation<DeleteOrder['response'], DeleteOrder['error'], void, unknown>({
+    mutationFn: async () => {
       const orderId = unref(refOrderId)
-      return client<DeleteOrder['data'], TError, void>({
+      const res = await client<DeleteOrder['data'], DeleteOrder['error'], void>({
         method: 'delete',
         url: `/store/order/${orderId}`,
         ...clientOptions,
-      }).then((res) => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

@@ -1,33 +1,47 @@
 import useSWRMutation from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
 
+type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
+type UploadFile = {
+  data: UploadFileMutationResponse
+  error: never
+  request: UploadFileMutationRequest
+  pathParams: UploadFilePathParams
+  queryParams: UploadFileQueryParams
+  headerParams: never
+  response: UploadFileMutationResponse
+  client: {
+    paramaters: Partial<Parameters<UploadFileClient>[0]>
+    return: Awaited<ReturnType<UploadFileClient>>
+  }
+}
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage */
-export function useUploadFile<TData = UploadFileMutationResponse, TError = unknown, TVariables = UploadFileMutationRequest>(
+export function useUploadFile(
   petId: UploadFilePathParams['petId'],
-  params?: UploadFileQueryParams,
+  params?: UploadFile['queryParams'],
   options?: {
-    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+    mutation?: SWRMutationConfiguration<UploadFile['response'], UploadFile['error']>
+    client?: UploadFile['client']['paramaters']
     shouldFetch?: boolean
   },
-): SWRMutationResponse<ResponseConfig<TData>, TError> {
+): SWRMutationResponse<UploadFile['response'], UploadFile['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/pet/${petId}/uploadImage` as const
-  return useSWRMutation<ResponseConfig<TData>, TError, [typeof url, typeof params] | null>(
+  return useSWRMutation<UploadFile['response'], UploadFile['error'], [typeof url, typeof params] | null>(
     shouldFetch ? [url, params] : null,
-    (_url, { arg: data }) => {
-      return client<TData, TError, TVariables>({
+    async (_url, { arg: data }) => {
+      const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
         method: 'post',
         url,
         params,
         data,
         ...clientOptions,
       })
+      return res.data
     },
     mutationOptions,
   )

@@ -99,7 +99,7 @@ jobs:
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                  content: `New release available. [Read the changelog](https://github.com/kubb-project/kubb/releases)`
+                  content: `A new release is available 🎉. \n [Read the changelog](https://github.com/kubb-project/kubb/releases)`
                 }),
               })
               .then((res) => {

@@ -3,18 +3,33 @@ import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
 
-export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
+type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
+type FindPetsByStatus = {
+  data: FindPetsByStatusQueryResponse
+  error: FindPetsByStatus400
+  request: never
+  pathParams: never
+  queryParams: FindPetsByStatusQueryParams
+  headerParams: never
+  response: FindPetsByStatusQueryResponse
+  client: {
+    paramaters: Partial<Parameters<FindPetsByStatusClient>[0]>
+    return: Awaited<ReturnType<FindPetsByStatusClient>>
+  }
+}
+export function findPetsByStatusQueryOptions<TData extends FindPetsByStatus['response'] = FindPetsByStatus['response'], TError = FindPetsByStatus['error']>(
+  params?: FindPetsByStatus['queryParams'],
+  options: FindPetsByStatus['client']['paramaters'] = {},
 ): SWRConfiguration<TData, TError> {
   return {
-    fetcher: () => {
-      return client<TData, TError>({
+    fetcher: async () => {
+      const res = await client<TData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
         params,
         ...options,
-      }).then((res) => res.data)
+      })
+      return res.data
     },
   }
 }
@@ -22,11 +37,11 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatusQueryRespon
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
  * @link /pet/findByStatus */
-export function useFindPetsByStatus<TData = FindPetsByStatusQueryResponse, TError = FindPetsByStatus400>(
-  params?: FindPetsByStatusQueryParams,
+export function useFindPetsByStatus<TData extends FindPetsByStatus['response'] = FindPetsByStatus['response'], TError = FindPetsByStatus['error']>(
+  params?: FindPetsByStatus['queryParams'],
   options?: {
     query?: SWRConfiguration<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    client?: FindPetsByStatus['client']['paramaters']
     shouldFetch?: boolean
   },
 ): SWRResponse<TData, TError> {

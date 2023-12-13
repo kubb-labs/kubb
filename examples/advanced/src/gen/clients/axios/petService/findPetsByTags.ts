@@ -11,11 +11,12 @@ export async function findPetsByTags(
   params?: FindPetsByTagsQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<FindPetsByTagsQueryResponse>> {
-  return client<FindPetsByTagsQueryResponse>({
+  const res = await client<FindPetsByTagsQueryResponse>({
     method: 'get',
     url: `/pet/findByTags`,
     params,
     headers: { ...headers, ...options.headers },
     ...options,
   })
+  return res
 }

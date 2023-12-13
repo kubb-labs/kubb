@@ -21,7 +21,6 @@ type CreateUsersWithListInput = {
   queryParams: never
   headerParams: never
   response: CreateUsersWithListInputMutationResponse
-  unionResponse: Awaited<ReturnType<CreateUsersWithListInputClient>> | CreateUsersWithListInputMutationResponse
   client: {
     paramaters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
@@ -31,21 +30,22 @@ type CreateUsersWithListInput = {
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList */
-export function useCreateUsersWithListInput<TData = CreateUsersWithListInput['response'], TError = CreateUsersWithListInput['error']>(
+export function useCreateUsersWithListInput(
   options: {
-    mutation?: VueMutationObserverOptions<TData, TError, CreateUsersWithListInput['request'], unknown>
+    mutation?: VueMutationObserverOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request'], unknown>
     client?: CreateUsersWithListInput['client']['paramaters']
   } = {},
-): UseMutationReturnType<TData, TError, CreateUsersWithListInput['request'], unknown> {
+): UseMutationReturnType<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, CreateUsersWithListInput['request'], unknown>({
-    mutationFn: (data) => {
-      return client<CreateUsersWithListInput['data'], TError, CreateUsersWithListInput['request']>({
+  return useMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request'], unknown>({
+    mutationFn: async (data) => {
+      const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
         method: 'post',
         url: `/user/createWithList`,
         data,
         ...clientOptions,
-      }).then((res) => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

@@ -116,31 +116,31 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
   /**
    * Create a type alias for the schema referenced by the given ReferenceObject
    */
-  #getRefAlias(obj: OpenAPIV3.ReferenceObject, _baseName?: string): ZodMeta[] {
+  #getRefAlias(obj: OpenAPIV3.ReferenceObject, baseName?: string): ZodMeta[] {
     const { $ref } = obj
     let ref = this.refs[$ref]
 
-    if (ref) {
-      return [{ keyword: zodKeywords.ref, args: ref.propertyName }]
-    }
-
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
     const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey, 'type': 'function' })
+    const path = this.context.pluginManager.resolvePath({ baseName: propertyName, pluginKey })
+
+    if (ref) {
+      return [{ keyword: zodKeywords.ref, args: { name: ref.propertyName, external: propertyName !== path } }]
+    }
 
     ref = this.refs[$ref] = {
       propertyName,
       originalName,
     }
 
-    const path = this.context.pluginManager.resolvePath({ baseName: propertyName, pluginKey })
-
     this.imports.push({
       ref,
       path: path || '',
       isTypeOnly: false,
     })
+    console.log(propertyName, ref, path)
 
-    return [{ keyword: zodKeywords.ref, args: ref.propertyName }]
+    return [{ keyword: zodKeywords.ref, args: { name: ref.propertyName, external: propertyName !== path } }]
   }
 
   #getParsedSchema(schema?: OasTypes.SchemaObject) {

@@ -38,7 +38,7 @@ Kubb has the following features:
 - **Easy to Configure**: One of the goals of Kubb is to provide out-of-the-box plugins and utils for converting your Swagger/OpenAPI file to generated code.<br/><br/>You want to use a Swagger/OpenAPI file or URL, you want to split up the generated code based on a tag in the file, you want to use multiple Swagger/OpenAPI files, we have you covered!
 - **Generate SDK's**: Convert your Swagger/OpenAPI file to TypeScript, React-Query, Zod, Zodios, Faker.js, MSW and Axios.
 - **Templates**: Override/change the generated output of a plugin with the help of [JSX templates(React)](/reference/templates).
-- **Plugin Ecosystem**: Kubb has a [plugin system](/plugins/introdution) that makes it possible to change or add functionalities based on your needs.
+- **Plugin Ecosystem**: Kubb has a [plugin system](/plugins/overview) that makes it possible to change or add functionalities based on your needs.
 - **CLI**: See in real-time what is getting generated or processed.
 - And so much more ...
 

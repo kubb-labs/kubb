@@ -18,7 +18,7 @@ export async function createPets(
   params?: CreatePetsQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<CreatePetsMutationResponse>> {
-  return client<CreatePetsMutationResponse, CreatePetsMutationRequest>({
+  const res = await client<CreatePetsMutationResponse, CreatePetsMutationRequest>({
     method: 'post',
     url: `/pets/${uuid}`,
     params,
@@ -26,4 +26,5 @@ export async function createPets(
     headers: { ...headers, ...options.headers },
     ...options,
   })
+  return res
 }

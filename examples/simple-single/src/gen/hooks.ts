@@ -81,7 +81,6 @@ type UpdatePet = {
   queryParams: never
   headerParams: never
   response: UpdatePetMutationResponse
-  unionResponse: Awaited<ReturnType<UpdatePetClient>> | UpdatePetMutationResponse
   client: {
     paramaters: Partial<Parameters<UpdatePetClient>[0]>
     return: Awaited<ReturnType<UpdatePetClient>>
@@ -91,19 +90,20 @@ type UpdatePet = {
  * @description Update an existing pet by Id
  * @summary Update an existing pet
  * @link /pet */
-export function useUpdatePet<TData = UpdatePet['response'], TError = UpdatePet['error']>(options: {
-  mutation?: UseMutationOptions<TData, TError, UpdatePet['request']>
+export function useUpdatePet(options: {
+  mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
   client?: UpdatePet['client']['paramaters']
-} = {}): UseMutationResult<TData, TError, UpdatePet['request']> {
+} = {}): UseMutationResult<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, UpdatePet['request']>({
-    mutationFn: (data) => {
-      return client<UpdatePet['data'], TError, UpdatePet['request']>({
+  return useMutation<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>({
+    mutationFn: async (data) => {
+      const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
         method: 'put',
         url: `/pet`,
         data,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })
@@ -118,7 +118,6 @@ type AddPet = {
   queryParams: never
   headerParams: never
   response: AddPetMutationResponse
-  unionResponse: Awaited<ReturnType<AddPetClient>> | AddPetMutationResponse
   client: {
     paramaters: Partial<Parameters<AddPetClient>[0]>
     return: Awaited<ReturnType<AddPetClient>>
@@ -128,19 +127,20 @@ type AddPet = {
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet */
-export function useAddPet<TData = AddPet['response'], TError = AddPet['error']>(options: {
-  mutation?: UseMutationOptions<TData, TError, AddPet['request']>
+export function useAddPet(options: {
+  mutation?: UseMutationOptions<AddPet['response'], AddPet['error'], AddPet['request']>
   client?: AddPet['client']['paramaters']
-} = {}): UseMutationResult<TData, TError, AddPet['request']> {
+} = {}): UseMutationResult<AddPet['response'], AddPet['error'], AddPet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, AddPet['request']>({
-    mutationFn: (data) => {
-      return client<AddPet['data'], TError, AddPet['request']>({
+  return useMutation<AddPet['response'], AddPet['error'], AddPet['request']>({
+    mutationFn: async (data) => {
+      const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',
         url: `/pet`,
         data,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })
@@ -155,7 +155,6 @@ type FindPetsByStatus = {
   queryParams: FindPetsByStatusQueryParams
   headerParams: never
   response: FindPetsByStatusQueryResponse
-  unionResponse: Awaited<ReturnType<FindPetsByStatusClient>> | FindPetsByStatusQueryResponse
   client: {
     paramaters: Partial<Parameters<FindPetsByStatusClient>[0]>
     return: Awaited<ReturnType<FindPetsByStatusClient>>
@@ -171,17 +170,18 @@ export function findPetsByStatusQueryOptions<
 >(
   params?: FindPetsByStatus['queryParams'],
   options: FindPetsByStatus['client']['paramaters'] = {},
-): WithRequired<UseBaseQueryOptions<FindPetsByStatus['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<FindPetsByStatus['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByStatusQueryKey(params)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
         params,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -223,7 +223,6 @@ type FindPetsByTags = {
   queryParams: FindPetsByTagsQueryParams
   headerParams: never
   response: FindPetsByTagsQueryResponse
-  unionResponse: Awaited<ReturnType<FindPetsByTagsClient>> | FindPetsByTagsQueryResponse
   client: {
     paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
     return: Awaited<ReturnType<FindPetsByTagsClient>>
@@ -239,17 +238,18 @@ export function findPetsByTagsQueryOptions<
 >(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['paramaters'] = {},
-): WithRequired<UseBaseQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsQueryKey(params)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -291,7 +291,6 @@ type GetPetById = {
   queryParams: never
   headerParams: never
   response: GetPetByIdQueryResponse
-  unionResponse: Awaited<ReturnType<GetPetByIdClient>> | GetPetByIdQueryResponse
   client: {
     paramaters: Partial<Parameters<GetPetByIdClient>[0]>
     return: Awaited<ReturnType<GetPetByIdClient>>
@@ -307,16 +306,17 @@ export function getPetByIdQueryOptions<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: GetPetById['client']['paramaters'] = {},
-): WithRequired<UseBaseQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<GetPetById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getPetByIdQueryKey(petId)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/${petId}`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -358,7 +358,6 @@ type UpdatePetWithForm = {
   queryParams: UpdatePetWithFormQueryParams
   headerParams: never
   response: UpdatePetWithFormMutationResponse
-  unionResponse: Awaited<ReturnType<UpdatePetWithFormClient>> | UpdatePetWithFormMutationResponse
   client: {
     paramaters: Partial<Parameters<UpdatePetWithFormClient>[0]>
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
@@ -367,23 +366,20 @@ type UpdatePetWithForm = {
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId */
-export function useUpdatePetWithForm<TData = UpdatePetWithForm['response'], TError = UpdatePetWithForm['error']>(
-  petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithForm['queryParams'],
-  options: {
-    mutation?: UseMutationOptions<TData, TError, void>
-    client?: UpdatePetWithForm['client']['paramaters']
-  } = {},
-): UseMutationResult<TData, TError, void> {
+export function useUpdatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithForm['queryParams'], options: {
+  mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void>
+  client?: UpdatePetWithForm['client']['paramaters']
+} = {}): UseMutationResult<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, void>({
-    mutationFn: () => {
-      return client<UpdatePetWithForm['data'], TError, void>({
+  return useMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void>({
+    mutationFn: async () => {
+      const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error'], void>({
         method: 'post',
         url: `/pet/${petId}`,
         params,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })
@@ -398,7 +394,6 @@ type DeletePet = {
   queryParams: never
   headerParams: DeletePetHeaderParams
   response: DeletePetMutationResponse
-  unionResponse: Awaited<ReturnType<DeletePetClient>> | DeletePetMutationResponse
   client: {
     paramaters: Partial<Parameters<DeletePetClient>[0]>
     return: Awaited<ReturnType<DeletePetClient>>
@@ -408,23 +403,20 @@ type DeletePet = {
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId */
-export function useDeletePet<TData = DeletePet['response'], TError = DeletePet['error']>(
-  petId: DeletePetPathParams['petId'],
-  headers?: DeletePet['headerParams'],
-  options: {
-    mutation?: UseMutationOptions<TData, TError, void>
-    client?: DeletePet['client']['paramaters']
-  } = {},
-): UseMutationResult<TData, TError, void> {
+export function useDeletePet(petId: DeletePetPathParams['petId'], headers?: DeletePet['headerParams'], options: {
+  mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], void>
+  client?: DeletePet['client']['paramaters']
+} = {}): UseMutationResult<DeletePet['response'], DeletePet['error'], void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, void>({
-    mutationFn: () => {
-      return client<DeletePet['data'], TError, void>({
+  return useMutation<DeletePet['response'], DeletePet['error'], void>({
+    mutationFn: async () => {
+      const res = await client<DeletePet['data'], DeletePet['error'], void>({
         method: 'delete',
         url: `/pet/${petId}`,
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })
@@ -439,7 +431,6 @@ type UploadFile = {
   queryParams: UploadFileQueryParams
   headerParams: never
   response: UploadFileMutationResponse
-  unionResponse: Awaited<ReturnType<UploadFileClient>> | UploadFileMutationResponse
   client: {
     paramaters: Partial<Parameters<UploadFileClient>[0]>
     return: Awaited<ReturnType<UploadFileClient>>
@@ -448,24 +439,21 @@ type UploadFile = {
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage */
-export function useUploadFile<TData = UploadFile['response'], TError = UploadFile['error']>(
-  petId: UploadFilePathParams['petId'],
-  params?: UploadFile['queryParams'],
-  options: {
-    mutation?: UseMutationOptions<TData, TError, UploadFile['request']>
-    client?: UploadFile['client']['paramaters']
-  } = {},
-): UseMutationResult<TData, TError, UploadFile['request']> {
+export function useUploadFile(petId: UploadFilePathParams['petId'], params?: UploadFile['queryParams'], options: {
+  mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
+  client?: UploadFile['client']['paramaters']
+} = {}): UseMutationResult<UploadFile['response'], UploadFile['error'], UploadFile['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, UploadFile['request']>({
-    mutationFn: (data) => {
-      return client<UploadFile['data'], TError, UploadFile['request']>({
+  return useMutation<UploadFile['response'], UploadFile['error'], UploadFile['request']>({
+    mutationFn: async (data) => {
+      const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
         method: 'post',
         url: `/pet/${petId}/uploadImage`,
         params,
         data,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })
@@ -480,7 +468,6 @@ type GetInventory = {
   queryParams: never
   headerParams: never
   response: GetInventoryQueryResponse
-  unionResponse: Awaited<ReturnType<GetInventoryClient>> | GetInventoryQueryResponse
   client: {
     paramaters: Partial<Parameters<GetInventoryClient>[0]>
     return: Awaited<ReturnType<GetInventoryClient>>
@@ -493,16 +480,17 @@ export function getInventoryQueryOptions<
   TError = GetInventory['error'],
   TData = GetInventory['response'],
   TQueryData = GetInventory['response'],
->(options: GetInventory['client']['paramaters'] = {}): WithRequired<UseBaseQueryOptions<GetInventory['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: GetInventory['client']['paramaters'] = {}): WithRequired<UseBaseQueryOptions<GetInventory['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getInventoryQueryKey()
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/inventory`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -544,7 +532,6 @@ type PlaceOrder = {
   queryParams: never
   headerParams: never
   response: PlaceOrderMutationResponse
-  unionResponse: Awaited<ReturnType<PlaceOrderClient>> | PlaceOrderMutationResponse
   client: {
     paramaters: Partial<Parameters<PlaceOrderClient>[0]>
     return: Awaited<ReturnType<PlaceOrderClient>>
@@ -554,19 +541,20 @@ type PlaceOrder = {
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order */
-export function usePlaceOrder<TData = PlaceOrder['response'], TError = PlaceOrder['error']>(options: {
-  mutation?: UseMutationOptions<TData, TError, PlaceOrder['request']>
+export function usePlaceOrder(options: {
+  mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>
   client?: PlaceOrder['client']['paramaters']
-} = {}): UseMutationResult<TData, TError, PlaceOrder['request']> {
+} = {}): UseMutationResult<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, PlaceOrder['request']>({
-    mutationFn: (data) => {
-      return client<PlaceOrder['data'], TError, PlaceOrder['request']>({
+  return useMutation<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>({
+    mutationFn: async (data) => {
+      const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({
         method: 'post',
         url: `/store/order`,
         data,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })
@@ -581,7 +569,6 @@ type PlaceOrderPatch = {
   queryParams: never
   headerParams: never
   response: PlaceOrderPatchMutationResponse
-  unionResponse: Awaited<ReturnType<PlaceOrderPatchClient>> | PlaceOrderPatchMutationResponse
   client: {
     paramaters: Partial<Parameters<PlaceOrderPatchClient>[0]>
     return: Awaited<ReturnType<PlaceOrderPatchClient>>
@@ -591,19 +578,20 @@ type PlaceOrderPatch = {
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
  * @link /store/order */
-export function usePlaceOrderPatch<TData = PlaceOrderPatch['response'], TError = PlaceOrderPatch['error']>(options: {
-  mutation?: UseMutationOptions<TData, TError, PlaceOrderPatch['request']>
+export function usePlaceOrderPatch(options: {
+  mutation?: UseMutationOptions<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>
   client?: PlaceOrderPatch['client']['paramaters']
-} = {}): UseMutationResult<TData, TError, PlaceOrderPatch['request']> {
+} = {}): UseMutationResult<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, PlaceOrderPatch['request']>({
-    mutationFn: (data) => {
-      return client<PlaceOrderPatch['data'], TError, PlaceOrderPatch['request']>({
+  return useMutation<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
+    mutationFn: async (data) => {
+      const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
         method: 'patch',
         url: `/store/order`,
         data,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })
@@ -618,7 +606,6 @@ type GetOrderById = {
   queryParams: never
   headerParams: never
   response: GetOrderByIdQueryResponse
-  unionResponse: Awaited<ReturnType<GetOrderByIdClient>> | GetOrderByIdQueryResponse
   client: {
     paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
     return: Awaited<ReturnType<GetOrderByIdClient>>
@@ -634,16 +621,17 @@ export function getOrderByIdQueryOptions<
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['paramaters'] = {},
-): WithRequired<UseBaseQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<GetOrderById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdQueryKey(orderId)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -685,7 +673,6 @@ type DeleteOrder = {
   queryParams: never
   headerParams: never
   response: DeleteOrderMutationResponse
-  unionResponse: Awaited<ReturnType<DeleteOrderClient>> | DeleteOrderMutationResponse
   client: {
     paramaters: Partial<Parameters<DeleteOrderClient>[0]>
     return: Awaited<ReturnType<DeleteOrderClient>>
@@ -695,18 +682,19 @@ type DeleteOrder = {
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId */
-export function useDeleteOrder<TData = DeleteOrder['response'], TError = DeleteOrder['error']>(orderId: DeleteOrderPathParams['orderId'], options: {
-  mutation?: UseMutationOptions<TData, TError, void>
+export function useDeleteOrder(orderId: DeleteOrderPathParams['orderId'], options: {
+  mutation?: UseMutationOptions<DeleteOrder['response'], DeleteOrder['error'], void>
   client?: DeleteOrder['client']['paramaters']
-} = {}): UseMutationResult<TData, TError, void> {
+} = {}): UseMutationResult<DeleteOrder['response'], DeleteOrder['error'], void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, void>({
-    mutationFn: () => {
-      return client<DeleteOrder['data'], TError, void>({
+  return useMutation<DeleteOrder['response'], DeleteOrder['error'], void>({
+    mutationFn: async () => {
+      const res = await client<DeleteOrder['data'], DeleteOrder['error'], void>({
         method: 'delete',
         url: `/store/order/${orderId}`,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })
@@ -721,7 +709,6 @@ type CreateUser = {
   queryParams: never
   headerParams: never
   response: CreateUserMutationResponse
-  unionResponse: Awaited<ReturnType<CreateUserClient>> | CreateUserMutationResponse
   client: {
     paramaters: Partial<Parameters<CreateUserClient>[0]>
     return: Awaited<ReturnType<CreateUserClient>>
@@ -731,19 +718,20 @@ type CreateUser = {
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user */
-export function useCreateUser<TData = CreateUser['response'], TError = CreateUser['error']>(options: {
-  mutation?: UseMutationOptions<TData, TError, CreateUser['request']>
+export function useCreateUser(options: {
+  mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
   client?: CreateUser['client']['paramaters']
-} = {}): UseMutationResult<TData, TError, CreateUser['request']> {
+} = {}): UseMutationResult<CreateUser['response'], CreateUser['error'], CreateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, CreateUser['request']>({
-    mutationFn: (data) => {
-      return client<CreateUser['data'], TError, CreateUser['request']>({
+  return useMutation<CreateUser['response'], CreateUser['error'], CreateUser['request']>({
+    mutationFn: async (data) => {
+      const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
         method: 'post',
         url: `/user`,
         data,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })
@@ -762,7 +750,6 @@ type CreateUsersWithListInput = {
   queryParams: never
   headerParams: never
   response: CreateUsersWithListInputMutationResponse
-  unionResponse: Awaited<ReturnType<CreateUsersWithListInputClient>> | CreateUsersWithListInputMutationResponse
   client: {
     paramaters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
@@ -772,19 +759,20 @@ type CreateUsersWithListInput = {
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList */
-export function useCreateUsersWithListInput<TData = CreateUsersWithListInput['response'], TError = CreateUsersWithListInput['error']>(options: {
-  mutation?: UseMutationOptions<TData, TError, CreateUsersWithListInput['request']>
+export function useCreateUsersWithListInput(options: {
+  mutation?: UseMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>
   client?: CreateUsersWithListInput['client']['paramaters']
-} = {}): UseMutationResult<TData, TError, CreateUsersWithListInput['request']> {
+} = {}): UseMutationResult<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, CreateUsersWithListInput['request']>({
-    mutationFn: (data) => {
-      return client<CreateUsersWithListInput['data'], TError, CreateUsersWithListInput['request']>({
+  return useMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
+    mutationFn: async (data) => {
+      const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
         method: 'post',
         url: `/user/createWithList`,
         data,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })
@@ -799,7 +787,6 @@ type LoginUser = {
   queryParams: LoginUserQueryParams
   headerParams: never
   response: LoginUserQueryResponse
-  unionResponse: Awaited<ReturnType<LoginUserClient>> | LoginUserQueryResponse
   client: {
     paramaters: Partial<Parameters<LoginUserClient>[0]>
     return: Awaited<ReturnType<LoginUserClient>>
@@ -815,17 +802,18 @@ export function loginUserQueryOptions<
 >(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['paramaters'] = {},
-): WithRequired<UseBaseQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<LoginUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(params)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/login`,
         params,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -866,7 +854,6 @@ type LogoutUser = {
   queryParams: never
   headerParams: never
   response: LogoutUserQueryResponse
-  unionResponse: Awaited<ReturnType<LogoutUserClient>> | LogoutUserQueryResponse
   client: {
     paramaters: Partial<Parameters<LogoutUserClient>[0]>
     return: Awaited<ReturnType<LogoutUserClient>>
@@ -879,16 +866,17 @@ export function logoutUserQueryOptions<
   TError = LogoutUser['error'],
   TData = LogoutUser['response'],
   TQueryData = LogoutUser['response'],
->(options: LogoutUser['client']['paramaters'] = {}): WithRequired<UseBaseQueryOptions<LogoutUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: LogoutUser['client']['paramaters'] = {}): WithRequired<UseBaseQueryOptions<LogoutUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = logoutUserQueryKey()
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/logout`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -929,7 +917,6 @@ type GetUserByName = {
   queryParams: never
   headerParams: never
   response: GetUserByNameQueryResponse
-  unionResponse: Awaited<ReturnType<GetUserByNameClient>> | GetUserByNameQueryResponse
   client: {
     paramaters: Partial<Parameters<GetUserByNameClient>[0]>
     return: Awaited<ReturnType<GetUserByNameClient>>
@@ -945,16 +932,17 @@ export function getUserByNameQueryOptions<
 >(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['paramaters'] = {},
-): WithRequired<UseBaseQueryOptions<GetUserByName['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameQueryKey(username)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -995,7 +983,6 @@ type UpdateUser = {
   queryParams: never
   headerParams: never
   response: UpdateUserMutationResponse
-  unionResponse: Awaited<ReturnType<UpdateUserClient>> | UpdateUserMutationResponse
   client: {
     paramaters: Partial<Parameters<UpdateUserClient>[0]>
     return: Awaited<ReturnType<UpdateUserClient>>
@@ -1005,19 +992,20 @@ type UpdateUser = {
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username */
-export function useUpdateUser<TData = UpdateUser['response'], TError = UpdateUser['error']>(username: UpdateUserPathParams['username'], options: {
-  mutation?: UseMutationOptions<TData, TError, UpdateUser['request']>
+export function useUpdateUser(username: UpdateUserPathParams['username'], options: {
+  mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
   client?: UpdateUser['client']['paramaters']
-} = {}): UseMutationResult<TData, TError, UpdateUser['request']> {
+} = {}): UseMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, UpdateUser['request']>({
-    mutationFn: (data) => {
-      return client<UpdateUser['data'], TError, UpdateUser['request']>({
+  return useMutation<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>({
+    mutationFn: async (data) => {
+      const res = await client<UpdateUser['data'], UpdateUser['error'], UpdateUser['request']>({
         method: 'put',
         url: `/user/${username}`,
         data,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })
@@ -1032,7 +1020,6 @@ type DeleteUser = {
   queryParams: never
   headerParams: never
   response: DeleteUserMutationResponse
-  unionResponse: Awaited<ReturnType<DeleteUserClient>> | DeleteUserMutationResponse
   client: {
     paramaters: Partial<Parameters<DeleteUserClient>[0]>
     return: Awaited<ReturnType<DeleteUserClient>>
@@ -1042,18 +1029,19 @@ type DeleteUser = {
  * @description This can only be done by the logged in user.
  * @summary Delete user
  * @link /user/:username */
-export function useDeleteUser<TData = DeleteUser['response'], TError = DeleteUser['error']>(username: DeleteUserPathParams['username'], options: {
-  mutation?: UseMutationOptions<TData, TError, void>
+export function useDeleteUser(username: DeleteUserPathParams['username'], options: {
+  mutation?: UseMutationOptions<DeleteUser['response'], DeleteUser['error'], void>
   client?: DeleteUser['client']['paramaters']
-} = {}): UseMutationResult<TData, TError, void> {
+} = {}): UseMutationResult<DeleteUser['response'], DeleteUser['error'], void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, void>({
-    mutationFn: () => {
-      return client<DeleteUser['data'], TError, void>({
+  return useMutation<DeleteUser['response'], DeleteUser['error'], void>({
+    mutationFn: async () => {
+      const res = await client<DeleteUser['data'], DeleteUser['error'], void>({
         method: 'delete',
         url: `/user/${username}`,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

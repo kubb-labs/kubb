@@ -14,7 +14,6 @@ type LoginUser = {
   queryParams: LoginUserQueryParams
   headerParams: never
   response: LoginUserQueryResponse
-  unionResponse: Awaited<ReturnType<LoginUserClient>> | LoginUserQueryResponse
   client: {
     paramaters: Partial<Parameters<LoginUserClient>[0]>
     return: Awaited<ReturnType<LoginUserClient>>
@@ -30,18 +29,19 @@ export function loginUserQueryOptions<
 >(
   refParams?: MaybeRef<LoginUserQueryParams>,
   options: LoginUser['client']['paramaters'] = {},
-): WithRequired<QueryObserverOptions<LoginUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<QueryObserverOptions<LoginUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(refParams)
   return {
     queryKey,
-    queryFn: () => {
+    queryFn: async () => {
       const params = unref(refParams)
-      return client<TQueryFnData, TError>({
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/login`,
         params,
         ...options,
-      }).then((res) => res?.data || res)
+      })
+      return res.data
     },
   }
 }

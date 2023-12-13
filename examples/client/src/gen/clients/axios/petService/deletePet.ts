@@ -11,11 +11,11 @@ export async function deletePet(
   headers?: DeletePetHeaderParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<DeletePetMutationResponse>['data']> {
-  const { data: resData } = await client<DeletePetMutationResponse>({
+  const res = await client<DeletePetMutationResponse>({
     method: 'delete',
     url: `/pet/${petId}`,
     headers: { ...headers, ...options.headers },
     ...options,
   })
-  return resData
+  return res.data
 }

@@ -12,7 +12,6 @@ type LogoutUser = {
   queryParams: never
   headerParams: never
   response: LogoutUserQueryResponse
-  unionResponse: Awaited<ReturnType<LogoutUserClient>> | LogoutUserQueryResponse
   client: {
     paramaters: Partial<Parameters<LogoutUserClient>[0]>
     return: Awaited<ReturnType<LogoutUserClient>>
@@ -25,16 +24,17 @@ export function logoutUserQueryOptions<
   TError = LogoutUser['error'],
   TData = LogoutUser['response'],
   TQueryData = LogoutUser['response'],
->(options: LogoutUser['client']['paramaters'] = {}): WithRequired<QueryObserverOptions<LogoutUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: LogoutUser['client']['paramaters'] = {}): WithRequired<QueryObserverOptions<LogoutUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = logoutUserQueryKey()
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/logout`,
         ...options,
-      }).then((res) => res?.data || res)
+      })
+      return res.data
     },
   }
 }

@@ -12,7 +12,6 @@ type GetPetById = {
   queryParams: never
   headerParams: never
   response: GetPetByIdQueryResponse
-  unionResponse: Awaited<ReturnType<GetPetByIdClient>> | GetPetByIdQueryResponse
   client: {
     paramaters: Partial<Parameters<GetPetByIdClient>[0]>
     return: Awaited<ReturnType<GetPetByIdClient>>
@@ -28,16 +27,17 @@ export function getPetByIdQueryOptions<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: GetPetById['client']['paramaters'] = {},
-): WithRequired<UseBaseQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<GetPetById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getPetByIdQueryKey(petId)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/${petId}`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -79,16 +79,17 @@ export function getPetByIdInfiniteQueryOptions<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: GetPetById['client']['paramaters'] = {},
-): WithRequired<UseInfiniteQueryOptions<GetPetById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseInfiniteQueryOptions<GetPetById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getPetByIdInfiniteQueryKey(petId)
   return {
     queryKey,
-    queryFn: ({ pageParam }) => {
-      return client<TQueryFnData, TError>({
+    queryFn: async ({ pageParam }) => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/${petId}`,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }

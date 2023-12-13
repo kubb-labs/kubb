@@ -3,18 +3,33 @@ import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 
-export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  params?: FindPetsByTagsQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
+type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
+type FindPetsByTags = {
+  data: FindPetsByTagsQueryResponse
+  error: FindPetsByTags400
+  request: never
+  pathParams: never
+  queryParams: FindPetsByTagsQueryParams
+  headerParams: never
+  response: FindPetsByTagsQueryResponse
+  client: {
+    paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
+    return: Awaited<ReturnType<FindPetsByTagsClient>>
+  }
+}
+export function findPetsByTagsQueryOptions<TData extends FindPetsByTags['response'] = FindPetsByTags['response'], TError = FindPetsByTags['error']>(
+  params?: FindPetsByTags['queryParams'],
+  options: FindPetsByTags['client']['paramaters'] = {},
 ): SWRConfiguration<TData, TError> {
   return {
-    fetcher: () => {
-      return client<TData, TError>({
+    fetcher: async () => {
+      const res = await client<TData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
         ...options,
-      }).then((res) => res.data)
+      })
+      return res.data
     },
   }
 }
@@ -22,11 +37,11 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTagsQueryResponse, 
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
-export function useFindPetsByTags<TData = FindPetsByTagsQueryResponse, TError = FindPetsByTags400>(
-  params?: FindPetsByTagsQueryParams,
+export function useFindPetsByTags<TData extends FindPetsByTags['response'] = FindPetsByTags['response'], TError = FindPetsByTags['error']>(
+  params?: FindPetsByTags['queryParams'],
   options?: {
     query?: SWRConfiguration<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    client?: FindPetsByTags['client']['paramaters']
     shouldFetch?: boolean
   },
 ): SWRResponse<TData, TError> {

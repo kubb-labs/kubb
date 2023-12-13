@@ -19,7 +19,6 @@ type UpdatePetWithForm = {
   queryParams: UpdatePetWithFormQueryParams
   headerParams: never
   response: UpdatePetWithFormMutationResponse
-  unionResponse: Awaited<ReturnType<UpdatePetWithFormClient>> | UpdatePetWithFormMutationResponse
   client: {
     paramaters: Partial<Parameters<UpdatePetWithFormClient>[0]>
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
@@ -28,25 +27,26 @@ type UpdatePetWithForm = {
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId */
-export function useUpdatePetWithForm<TData = UpdatePetWithForm['response'], TError = UpdatePetWithForm['error']>(
+export function useUpdatePetWithForm(
   refPetId: MaybeRef<UpdatePetWithFormPathParams['petId']>,
   refParams?: MaybeRef<UpdatePetWithFormQueryParams>,
   options: {
-    mutation?: UseMutationOptions<TData, TError, void, unknown>
+    mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void, unknown>
     client?: UpdatePetWithForm['client']['paramaters']
   } = {},
-): UseMutationReturnType<TData, TError, void, unknown> {
+): UseMutationReturnType<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, void, unknown>({
-    mutationFn: () => {
+  return useMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void, unknown>({
+    mutationFn: async () => {
       const petId = unref(refPetId)
       const params = unref(refParams)
-      return client<UpdatePetWithForm['data'], TError, void>({
+      const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error'], void>({
         method: 'post',
         url: `/pet/${petId}`,
         params,
         ...clientOptions,
-      }).then((res) => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

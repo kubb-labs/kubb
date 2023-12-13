@@ -12,7 +12,6 @@ type AddPet = {
   queryParams: never
   headerParams: never
   response: AddPetMutationResponse
-  unionResponse: Awaited<ReturnType<AddPetClient>> | AddPetMutationResponse
   client: {
     paramaters: Partial<Parameters<AddPetClient>[0]>
     return: Awaited<ReturnType<AddPetClient>>
@@ -22,19 +21,20 @@ type AddPet = {
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet */
-export function useAddPetHook<TData = AddPet['response'], TError = AddPet['error']>(options: {
-  mutation?: UseMutationOptions<TData, TError, AddPet['request']>
+export function useAddPetHook(options: {
+  mutation?: UseMutationOptions<AddPet['response'], AddPet['error'], AddPet['request']>
   client?: AddPet['client']['paramaters']
-} = {}): UseMutationResult<TData, TError, AddPet['request']> {
+} = {}): UseMutationResult<AddPet['response'], AddPet['error'], AddPet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, AddPet['request']>({
-    mutationFn: (data) => {
-      return client<AddPet['data'], TError, AddPet['request']>({
+  return useMutation<AddPet['response'], AddPet['error'], AddPet['request']>({
+    mutationFn: async (data) => {
+      const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',
         url: `/pet`,
         data,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

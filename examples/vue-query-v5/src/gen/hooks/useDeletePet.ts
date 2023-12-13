@@ -14,7 +14,6 @@ type DeletePet = {
   queryParams: never
   headerParams: DeletePetHeaderParams
   response: DeletePetMutationResponse
-  unionResponse: Awaited<ReturnType<DeletePetClient>> | DeletePetMutationResponse
   client: {
     paramaters: Partial<Parameters<DeletePetClient>[0]>
     return: Awaited<ReturnType<DeletePetClient>>
@@ -24,25 +23,26 @@ type DeletePet = {
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId */
-export function useDeletePet<TData = DeletePet['response'], TError = DeletePet['error']>(
+export function useDeletePet(
   refPetId: MaybeRef<DeletePetPathParams['petId']>,
   refHeaders?: MaybeRef<DeletePetHeaderParams>,
   options: {
-    mutation?: UseMutationOptions<TData, TError, void, unknown>
+    mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], void, unknown>
     client?: DeletePet['client']['paramaters']
   } = {},
-): UseMutationReturnType<TData, TError, void, unknown> {
+): UseMutationReturnType<DeletePet['response'], DeletePet['error'], void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, void, unknown>({
-    mutationFn: () => {
+  return useMutation<DeletePet['response'], DeletePet['error'], void, unknown>({
+    mutationFn: async () => {
       const petId = unref(refPetId)
       const headers = unref(refHeaders)
-      return client<DeletePet['data'], TError, void>({
+      const res = await client<DeletePet['data'], DeletePet['error'], void>({
         method: 'delete',
         url: `/pet/${petId}`,
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
-      }).then((res) => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

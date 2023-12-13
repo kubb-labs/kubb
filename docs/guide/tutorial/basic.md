@@ -21,12 +21,13 @@ The setup will contain from the beginning the following folder structure:
 
 ## Step one
 
-Setup your `kubb.config.ts` file based on the [Quick-start](/guide/quick-start).
+Set up your `kubb.config.ts`` file based on the [Quick-start](/guide/quick-start).
 
-We will add here the [Swagger](/plugins/swagger) and [SwaggerTypescript](/plugins/swagger-ts)(which is depended on the [Swagger](/plugins/swagger) plugin) plugin, those 2 plugins together will generate the TypeScript types.
+We will add here the [Swagger](/plugins/swagger) and [SwaggerTypescript](/plugins/swagger-ts)(which is dependent on the [Swagger](/plugins/swagger) plugin) plugin, those 2 plugins together will generate the TypeScript types.
 
-- Next to that we will also set `output` to false for the [Swagger](/plugins/swagger) plugin because we don't need the plugin to generate the JSON schemas for us.
-- For the [SwaggerTypescript](/plugins/swagger-ts) plugin we will set the `output` to the models folder.
+Next to that, we will also set `output` to false for the [Swagger](/plugins/swagger) plugin because we don't need the plugin to generate the JSON schemas for us.
+
+- For the [SwaggerTypescript](/plugins/swagger-ts) plugin, we will set the `output` to the models folder.
 
 ::: code-group
 

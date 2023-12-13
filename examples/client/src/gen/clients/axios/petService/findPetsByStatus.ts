@@ -10,11 +10,11 @@ export async function findPetsByStatus(
   params?: FindPetsByStatusQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<FindPetsByStatusQueryResponse>['data']> {
-  const { data: resData } = await client<FindPetsByStatusQueryResponse>({
+  const res = await client<FindPetsByStatusQueryResponse>({
     method: 'get',
     url: `/pet/findByStatus`,
     params,
     ...options,
   })
-  return resData
+  return res.data
 }

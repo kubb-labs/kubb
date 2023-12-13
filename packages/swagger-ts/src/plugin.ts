@@ -167,9 +167,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           root,
           output,
           meta: { pluginKey: this.plugin.key },
-          options: {
-            isTypeOnly: true,
-          },
         })
       }
     },

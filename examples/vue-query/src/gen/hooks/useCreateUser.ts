@@ -13,7 +13,6 @@ type CreateUser = {
   queryParams: never
   headerParams: never
   response: CreateUserMutationResponse
-  unionResponse: Awaited<ReturnType<CreateUserClient>> | CreateUserMutationResponse
   client: {
     paramaters: Partial<Parameters<CreateUserClient>[0]>
     return: Awaited<ReturnType<CreateUserClient>>
@@ -23,21 +22,22 @@ type CreateUser = {
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user */
-export function useCreateUser<TData = CreateUser['response'], TError = CreateUser['error']>(
+export function useCreateUser(
   options: {
-    mutation?: VueMutationObserverOptions<TData, TError, CreateUser['request'], unknown>
+    mutation?: VueMutationObserverOptions<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown>
     client?: CreateUser['client']['paramaters']
   } = {},
-): UseMutationReturnType<TData, TError, CreateUser['request'], unknown> {
+): UseMutationReturnType<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, CreateUser['request'], unknown>({
-    mutationFn: (data) => {
-      return client<CreateUser['data'], TError, CreateUser['request']>({
+  return useMutation<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown>({
+    mutationFn: async (data) => {
+      const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
         method: 'post',
         url: `/user`,
         data,
         ...clientOptions,
-      }).then((res) => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

@@ -5,12 +5,11 @@ title: Config
 outline: deep
 ---
 
-# name
+# name <span class="new">new</span>
 
 Optional config name to show in CLI output.
 
 - **Type:** `string` <br/>
-- **Default:** `process.cwd()` <br/>
 
 ::: code-group
 
