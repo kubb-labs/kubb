@@ -43,12 +43,12 @@ exports[`OperationGenerator > [GET] should generate with pathParamsType \`inline
      * @summary Info for a specific pet
      * @link /pets/:pet_id */
 export async function showPetById(petId: ShowPetByIdPathParams["pet_id"], testId: ShowPetByIdPathParams["testId"], options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
-    const { data: resData } = await client<ShowPetByIdQueryResponse>({
+    const res = await client<ShowPetByIdQueryResponse>({
         method: "get",
         url: \`/pets/\${petId}\`,
         ...options
     });
-    return resData;
+    return res.data;
 }
 ",
   },
@@ -98,12 +98,12 @@ exports[`OperationGenerator > [GET] should generate with pathParamsType \`object
      * @summary Info for a specific pet
      * @link /pets/:pet_id */
 export async function showPetById({ petId, testId }: ShowPetByIdPathParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
-    const { data: resData } = await client<ShowPetByIdQueryResponse>({
+    const res = await client<ShowPetByIdQueryResponse>({
         method: "get",
         url: \`/pets/\${petId}\`,
         ...options
     });
-    return resData;
+    return res.data;
 }
 ",
   },
