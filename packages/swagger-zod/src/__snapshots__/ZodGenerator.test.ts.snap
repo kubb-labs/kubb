@@ -48,6 +48,12 @@ exports[`TypeGenerator with const > UuidSchema generates a string with uuid form
 ]
 `;
 
+exports[`ZodGenerator lazy import > generate schema for Example 1`] = `
+[
+  "export const Example = z.object({"nestedExamples": z.lazy(() => Example).optional()});",
+]
+`;
+
 exports[`ZodGenerator simple > generate schema for Pet 1`] = `
 [
   "export const Pet = z.object({"id": z.number(),"name": z.string(),"tag": z.string().optional()});",
