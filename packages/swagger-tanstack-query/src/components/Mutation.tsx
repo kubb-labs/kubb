@@ -50,6 +50,7 @@ type TemplateProps = {
     withHeaders: boolean
     path: URLPath
   }
+  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
 
 function Template({
@@ -60,6 +61,7 @@ function Template({
   JSDoc,
   client,
   hook,
+  dataReturnType,
 }: TemplateProps): ReactNode {
   const clientOptions = [
     `method: "${client.method}"`,
@@ -82,7 +84,7 @@ function Template({
           ${hook.children || ''}
            return client<${client.generics}>({
             ${resolvedClientOptions}
-           }).then(res => res as TData)
+           }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'})
          },
          ...mutationOptions
        })`}
@@ -232,6 +234,7 @@ export function Mutation({
   optionsType,
   Template = defaultTemplates.react,
 }: Props): ReactNode {
+  const { options: { dataReturnType } } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
 
@@ -308,6 +311,7 @@ export function Mutation({
         hook={hook}
         params={params.toString()}
         returnType={`${resultType}<${resultGenerics.join(', ')}>`}
+        dataReturnType={dataReturnType}
         context={{ factory }}
       />
     </>

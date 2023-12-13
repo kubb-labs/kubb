@@ -255,7 +255,7 @@ export function Query({
   QueryKeyTemplate = QueryKey.templates.react,
   QueryOptionsTemplate = QueryOptions.templates.react,
 }: Props): ReactNode {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
+  const { key: pluginKey, options: { dataReturnType } } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const schemas = useSchemas()
   const name = useOperationName({ type: 'function' })
@@ -363,7 +363,14 @@ export function Query({
   return (
     <>
       <QueryKey Template={QueryKeyTemplate} factory={factory} name={queryKey} typeName={queryKeyType} />
-      <QueryOptions Template={QueryOptionsTemplate} factory={factory} resultType={optionsType} infinite={infinite} suspense={suspense} />
+      <QueryOptions
+        Template={QueryOptionsTemplate}
+        factory={factory}
+        resultType={optionsType}
+        dataReturnType={dataReturnType}
+        infinite={infinite}
+        suspense={suspense}
+      />
 
       <Template
         name={[name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined].filter(Boolean).join('')}

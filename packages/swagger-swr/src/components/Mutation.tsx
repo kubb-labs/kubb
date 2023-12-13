@@ -45,6 +45,7 @@ type TemplateProps = {
     withHeaders: boolean
     path: URLPath
   }
+  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
 
 function Template({
@@ -55,6 +56,7 @@ function Template({
   JSDoc,
   client,
   hook,
+  dataReturnType,
 }: TemplateProps): ReactNode {
   const clientOptions = [
     `method: "${client.method}"`,
@@ -78,7 +80,7 @@ function Template({
           (_url${client.withData ? ', { arg: data }' : ''}) => {
             return client<${client.generics}>({
               ${resolvedClientOptions}
-            })
+            }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'})
           },
           mutationOptions
         )
@@ -97,7 +99,7 @@ function Template({
         (_url${client.withData ? ', { arg: data }' : ''}) => {
           return client<${client.generics}>({
             ${resolvedClientOptions}
-          })
+          }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'})
         },
         mutationOptions
       )
@@ -120,6 +122,7 @@ type Props = {
 export function Mutation({
   Template = defaultTemplates.default,
 }: Props): ReactNode {
+  const { options: { dataReturnType } } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
   const schemas = useSchemas()
@@ -187,6 +190,7 @@ export function Mutation({
       hook={hook}
       params={params.toString()}
       returnType={`SWRMutationResponse<${resultGenerics.join(', ')}>`}
+      dataReturnType={dataReturnType}
     />
   )
 }

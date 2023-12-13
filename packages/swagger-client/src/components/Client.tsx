@@ -64,25 +64,12 @@ function Template({
 
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
-  if (client.dataReturnType === 'full') {
-    return (
-      <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-        {`
-  return client<${client.generics}>({
-${resolvedClientOptions}
-  })`}
-      </Function>
-    )
-  }
-
   return (
     <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
       {`
-const { data: resData } = await client<${client.generics}>({
+return client<${client.generics}>({
 ${resolvedClientOptions}
-})
-
-return resData`}
+}).then(res => ${client.dataReturnType === 'data' ? 'res.data' : 'res'})`}
     </Function>
   )
 }
