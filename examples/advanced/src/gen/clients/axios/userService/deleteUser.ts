@@ -1,16 +1,16 @@
 import client from '../../../../axios-client.ts'
 import type { ResponseConfig } from '../../../../axios-client.ts'
-import type { DeleteUserMutationResponse, DeleteUserPathParams } from '../../../models/ts/userController/DeleteUser'
+import type { DeleteUserMutation } from '../../../models/ts/userController/DeleteUser'
 
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
  * @link /user/:username */
 export async function deleteUser(
-  { username }: DeleteUserPathParams,
+  { username }: DeleteUserMutation.PathParams,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<DeleteUserMutationResponse>> {
-  const res = await client<DeleteUserMutationResponse>({
+): Promise<ResponseConfig<DeleteUserMutation.Response>> {
+  const res = await client<DeleteUserMutation.Response>({
     method: 'delete',
     url: `/user/${username}`,
     ...options,

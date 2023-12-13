@@ -2,14 +2,13 @@ import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 import { File, usePlugin, usePluginManager } from '@kubb/react'
-import { useOas, useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
+import { useOas, useOperation, useOperationFile, useOperationName, useSchemaNamespace, useSchemas } from '@kubb/swagger/hooks'
 
 import { TypeBuilder } from '../TypeBuilder.ts'
 
 import type { KubbFile } from '@kubb/core'
 import type { ts } from '@kubb/parser'
 import type { OperationSchemas } from '@kubb/swagger'
-import type { Operation } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
@@ -17,7 +16,7 @@ type Props = {
   builder: TypeBuilder
 }
 
-function printCombinedSchema(name: string, operation: Operation, schemas: OperationSchemas): string {
+function printCombinedSchema(namespaceName: string, schemas: OperationSchemas): string {
   const properties: Record<string, ts.TypeNode> = {
     'response': factory.createTypeReferenceNode(
       factory.createIdentifier(schemas.response.name),
@@ -65,7 +64,7 @@ function printCombinedSchema(name: string, operation: Operation, schemas: Operat
   }
 
   const namespaceNode = factory.createNamespaceDeclaration({
-    name: operation.method === 'get' ? `${name}Query` : `${name}Mutation`,
+    name: namespaceName,
     statements: Object.keys(properties).map(key => {
       const type = properties[key]
       if (!type) {
@@ -102,6 +101,7 @@ Query.File = function({ mode }: FileProps): ReactNode {
   const { options } = usePlugin<PluginOptions>()
 
   const schemas = useSchemas()
+  const namespace = useSchemaNamespace()
   const pluginManager = usePluginManager()
   const oas = useOas()
   const file = useOperationFile()
@@ -129,7 +129,7 @@ Query.File = function({ mode }: FileProps): ReactNode {
         })}
         <File.Source>
           {source}
-          {printCombinedSchema(factoryName, operation, schemas)}
+          {printCombinedSchema(namespace.name, schemas)}
         </File.Source>
       </File>
     </>

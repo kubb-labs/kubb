@@ -2,7 +2,7 @@ import transformers from '@kubb/core/transformers'
 import { FunctionParams } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
 import { File, Function, usePlugin } from '@kubb/react'
-import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
+import { useOperation, useOperationFile, useOperationName, useSchemaNamespace, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
@@ -90,31 +90,36 @@ export function Client({
 }: ClientProps): KubbNode {
   const { options: { dataReturnType, pathParamsType } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
+  const namespace = useSchemaNamespace()
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
 
   const params = new FunctionParams()
   const clientGenerics = new FunctionParams()
 
-  clientGenerics.add([{ type: schemas.response.name }, { type: schemas.request?.name, enabled: !!schemas.request?.name }])
+  clientGenerics.add([{ type: namespace.types.response }, { type: namespace.types.request, enabled: !!schemas.request?.name }])
 
   params.add([
-    ...getASTParams(schemas.pathParams, { typed: true, asObject: pathParamsType === 'object' }),
+    ...getASTParams(schemas.pathParams, {
+      type: namespace.types.pathParams,
+      typed: true,
+      asObject: pathParamsType === 'object',
+    }),
     {
       name: 'data',
-      type: schemas.request?.name,
+      type: namespace.types.request,
       enabled: !!schemas.request?.name,
       required: isRequired(schemas.request?.schema),
     },
     {
       name: 'params',
-      type: schemas.queryParams?.name,
+      type: namespace.types.queryParams,
       enabled: !!schemas.queryParams?.name,
       required: isRequired(schemas.queryParams?.schema),
     },
     {
       name: 'headers',
-      type: schemas.headerParams?.name,
+      type: namespace.types.headerParams,
       enabled: !!schemas.headerParams?.name,
       required: isRequired(schemas.headerParams?.schema),
     },
@@ -129,7 +134,7 @@ export function Client({
     <Template
       name={name}
       params={params.toString()}
-      returnType={dataReturnType === 'data' ? `ResponseConfig<${schemas.response.name}>["data"]` : `ResponseConfig<${schemas.response.name}>`}
+      returnType={dataReturnType === 'data' ? `ResponseConfig<${namespace.types.response}>["data"]` : `ResponseConfig<${namespace.types.response}>`}
       JSDoc={{
         comments: getComments(operation),
       }}
@@ -155,7 +160,7 @@ type FileProps = {
 
 Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
   const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
-  const schemas = useSchemas()
+  const namespace = useSchemaNamespace()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
@@ -170,9 +175,7 @@ Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
       <File.Import name={'client'} path={importPath} />
       <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
       <File.Import
-        name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
-          Boolean,
-        )}
+        name={[namespace.name]}
         root={file.path}
         path={fileType.path}
         isTypeOnly

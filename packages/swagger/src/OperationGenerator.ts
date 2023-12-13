@@ -10,7 +10,7 @@ import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/types'
 import type { Oas, OasTypes, OpenAPIV3, Operation } from './oas/index.ts'
-import type { ContentType, Exclude, Include, OperationSchemas, Override, Paths } from './types.ts'
+import type { ContentType, Exclude, Include, OperationSchema, OperationSchemas, Override, Paths } from './types.ts'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
 
@@ -215,12 +215,14 @@ export abstract class OperationGenerator<
     const requestSchema = this.#getRequestSchema(operation)
     const responseSchema = this.#getResponseSchema(operation)
 
+    const operationName = transformers.pascalCase(`${operation.getOperationId()}`)
+
     return {
       pathParams: pathParamsSchema
         ? {
           name: transformers.pascalCase(`${operation.getOperationId()} PathParams`),
           operation,
-          operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+          operationName,
           schema: pathParamsSchema,
           keys: pathParamsSchema.properties ? Object.keys(pathParamsSchema.properties) : undefined,
         }
@@ -229,7 +231,7 @@ export abstract class OperationGenerator<
         ? {
           name: transformers.pascalCase(`${operation.getOperationId()} QueryParams`),
           operation,
-          operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+          operationName,
           schema: queryParamsSchema,
           keys: queryParamsSchema.properties ? Object.keys(queryParamsSchema.properties) : [],
         }
@@ -238,7 +240,7 @@ export abstract class OperationGenerator<
         ? {
           name: transformers.pascalCase(`${operation.getOperationId()} HeaderParams`),
           operation,
-          operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+          operationName,
           schema: headerParamsSchema,
           keys: headerParamsSchema.properties ? Object.keys(headerParamsSchema.properties) : undefined,
         }
@@ -248,7 +250,7 @@ export abstract class OperationGenerator<
           name: transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryRequest' : 'mutationRequest'}`),
           description: (operation.schema.requestBody as RequestBodyObject)?.description,
           operation,
-          operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+          operationName,
           schema: requestSchema,
           keys: requestSchema.properties ? Object.keys(requestSchema.properties) : undefined,
           keysToOmit: requestSchema.properties
@@ -263,7 +265,7 @@ export abstract class OperationGenerator<
         name: transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`),
         description: operation.getResponseAsJSONSchema('200')?.at(0)?.description,
         operation,
-        operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+        operationName,
         schema: responseSchema,
         statusCode: 200,
         keys: responseSchema?.properties ? Object.keys(responseSchema.properties) : undefined,

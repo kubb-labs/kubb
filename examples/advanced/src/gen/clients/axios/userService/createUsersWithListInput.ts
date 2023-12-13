@@ -1,19 +1,16 @@
 import client from '../../../../axios-client.ts'
 import type { ResponseConfig } from '../../../../axios-client.ts'
-import type {
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
-} from '../../../models/ts/userController/CreateUsersWithListInput'
+import type { CreateUsersWithListInputMutation } from '../../../models/ts/userController/CreateUsersWithListInput'
 
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList */
 export async function createUsersWithListInput(
-  data?: CreateUsersWithListInputMutationRequest,
+  data?: CreateUsersWithListInputMutation.Request,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<CreateUsersWithListInputMutationResponse>> {
-  const res = await client<CreateUsersWithListInputMutationResponse, CreateUsersWithListInputMutationRequest>({
+): Promise<ResponseConfig<CreateUsersWithListInputMutation.Response>> {
+  const res = await client<CreateUsersWithListInputMutation.Response, CreateUsersWithListInputMutation.Request>({
     method: 'post',
     url: `/user/createWithList`,
     data,

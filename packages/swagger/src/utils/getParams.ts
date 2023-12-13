@@ -9,7 +9,12 @@ import type { OperationSchema } from '../types.ts'
 
 export function getASTParams(
   operationSchema: OperationSchema | undefined,
-  { typed = false, override, asObject = false }: { typed?: boolean; asObject?: boolean; override?: (data: FunctionParamsAST) => FunctionParamsAST } = {},
+  { type, typed = false, override, asObject = false }: {
+    type?: string
+    typed?: boolean
+    asObject?: boolean
+    override?: (data: FunctionParamsAST) => FunctionParamsAST
+  } = {},
 ): FunctionParamsAST[] {
   if (!operationSchema || !operationSchema.schema.properties || !operationSchema.name) {
     return []
@@ -23,7 +28,7 @@ export function getASTParams(
     return [
       {
         name: `{ ${nameText} }`,
-        type: operationSchema?.name,
+        type: type || operationSchema?.name,
         enabled: !!operationSchema?.name,
         required: true,
       },
@@ -32,7 +37,11 @@ export function getASTParams(
 
   return Object.entries(operationSchema.schema.properties).map(([name, schema]: [string, OasTypes.SchemaObject]) => {
     const isParam = isParameterObject(schema)
-    const data: FunctionParamsAST = { name, required: isParam ? schema.required : undefined, type: typed ? `${operationSchema.name}["${name}"]` : undefined }
+    const data: FunctionParamsAST = {
+      name,
+      required: isParam ? schema.required : undefined,
+      type: typed ? `${type || operationSchema.name}["${name}"]` : undefined,
+    }
 
     return override ? override(data) : data
   })

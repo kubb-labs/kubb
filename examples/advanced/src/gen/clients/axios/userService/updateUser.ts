@@ -1,17 +1,17 @@
 import client from '../../../../axios-client.ts'
 import type { ResponseConfig } from '../../../../axios-client.ts'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../../models/ts/userController/UpdateUser'
+import type { UpdateUserMutation } from '../../../models/ts/userController/UpdateUser'
 
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username */
 export async function updateUser(
-  { username }: UpdateUserPathParams,
-  data?: UpdateUserMutationRequest,
+  { username }: UpdateUserMutation.PathParams,
+  data?: UpdateUserMutation.Request,
   options: Partial<Parameters<typeof client>[0]> = {},
-): Promise<ResponseConfig<UpdateUserMutationResponse>> {
-  const res = await client<UpdateUserMutationResponse, UpdateUserMutationRequest>({
+): Promise<ResponseConfig<UpdateUserMutation.Response>> {
+  const res = await client<UpdateUserMutation.Response, UpdateUserMutation.Request>({
     method: 'put',
     url: `/user/${username}`,
     data,
