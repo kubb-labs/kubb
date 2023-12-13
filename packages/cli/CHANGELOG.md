@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 2.0.2
+
+### Patch Changes
+
+- [#718](https://github.com/kubb-project/kubb/pull/718) [`31c7870`](https://github.com/kubb-project/kubb/commit/31c7870c0519b6368f4209ff6817029bdfc630f9) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - useo of `bundle-require`
+
+- Updated dependencies []:
+  - @kubb/core@2.0.2
+
 ## 2.0.1
 
 ### Patch Changes
