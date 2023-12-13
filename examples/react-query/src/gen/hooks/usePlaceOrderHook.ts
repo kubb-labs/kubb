@@ -12,7 +12,6 @@ type PlaceOrder = {
   queryParams: never
   headerParams: never
   response: PlaceOrderMutationResponse
-  unionResponse: Awaited<ReturnType<PlaceOrderClient>> | PlaceOrderMutationResponse
   client: {
     paramaters: Partial<Parameters<PlaceOrderClient>[0]>
     return: Awaited<ReturnType<PlaceOrderClient>>
@@ -22,19 +21,20 @@ type PlaceOrder = {
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order */
-export function usePlaceOrderHook<TData = PlaceOrder['response'], TError = PlaceOrder['error']>(options: {
-  mutation?: UseMutationOptions<TData, TError, PlaceOrder['request']>
+export function usePlaceOrderHook(options: {
+  mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>
   client?: PlaceOrder['client']['paramaters']
-} = {}): UseMutationResult<TData, TError, PlaceOrder['request']> {
+} = {}): UseMutationResult<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, PlaceOrder['request']>({
-    mutationFn: (data) => {
-      return client<PlaceOrder['data'], TError, PlaceOrder['request']>({
+  return useMutation<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>({
+    mutationFn: async (data) => {
+      const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({
         method: 'post',
         url: `/store/order`,
         data,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

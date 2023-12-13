@@ -12,7 +12,6 @@ type UpdatePet = {
   queryParams: never
   headerParams: never
   response: UpdatePetMutationResponse
-  unionResponse: Awaited<ReturnType<UpdatePetClient>> | UpdatePetMutationResponse
   client: {
     paramaters: Partial<Parameters<UpdatePetClient>[0]>
     return: Awaited<ReturnType<UpdatePetClient>>
@@ -22,21 +21,22 @@ type UpdatePet = {
  * @description Update an existing pet by Id
  * @summary Update an existing pet
  * @link /pet */
-export function updatePetQuery<TData = UpdatePet['response'], TError = UpdatePet['error']>(
+export function updatePetQuery(
   options: {
-    mutation?: CreateMutationOptions<TData, TError, UpdatePet['request']>
+    mutation?: CreateMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
     client?: UpdatePet['client']['paramaters']
   } = {},
-): CreateMutationResult<TData, TError, UpdatePet['request']> {
+): CreateMutationResult<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<TData, TError, UpdatePet['request']>({
-    mutationFn: (data) => {
-      return client<UpdatePet['data'], TError, UpdatePet['request']>({
+  return createMutation<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>({
+    mutationFn: async (data) => {
+      const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
         method: 'put',
         url: `/pet`,
         data,
         ...clientOptions,
-      }).then((res) => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

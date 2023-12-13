@@ -1,37 +1,51 @@
 import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { ResponseConfig } from '../../../../swr-client.ts'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
 
-export function getUserByNameQueryOptions<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
+type GetUserByName = {
+  data: GetUserByNameQueryResponse
+  error: GetUserByName400 | GetUserByName404
+  request: never
+  pathParams: GetUserByNamePathParams
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<GetUserByNameClient>>
+  client: {
+    paramaters: Partial<Parameters<GetUserByNameClient>[0]>
+    return: Awaited<ReturnType<GetUserByNameClient>>
+  }
+}
+export function getUserByNameQueryOptions<TData extends GetUserByName['response'] = GetUserByName['response'], TError = GetUserByName['error']>(
   username: GetUserByNamePathParams['username'],
-  options: Partial<Parameters<typeof client>[0]> = {},
-): SWRConfiguration<ResponseConfig<TData>, TError> {
+  options: GetUserByName['client']['paramaters'] = {},
+): SWRConfiguration<TData, TError> {
   return {
-    fetcher: () => {
-      return client<TData, TError>({
+    fetcher: async () => {
+      const res = await client<TData, TError>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
-      }).then(res => res)
+      })
+      return res
     },
   }
 }
 /**
  * @summary Get user by user name
  * @link /user/:username */
-export function useGetUserByName<TData = GetUserByNameQueryResponse, TError = GetUserByName400 | GetUserByName404>(
+export function useGetUserByName<TData extends GetUserByName['response'] = GetUserByName['response'], TError = GetUserByName['error']>(
   username: GetUserByNamePathParams['username'],
   options?: {
-    query?: SWRConfiguration<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    query?: SWRConfiguration<TData, TError>
+    client?: GetUserByName['client']['paramaters']
     shouldFetch?: boolean
   },
-): SWRResponse<ResponseConfig<TData>, TError> {
+): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/user/${username}` as const
-  const query = useSWR<ResponseConfig<TData>, TError, typeof url | null>(shouldFetch ? url : null, {
+  const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
     ...getUserByNameQueryOptions<TData, TError>(username, clientOptions),
     ...queryOptions,
   })

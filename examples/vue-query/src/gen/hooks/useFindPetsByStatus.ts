@@ -15,7 +15,6 @@ type FindPetsByStatus = {
   queryParams: FindPetsByStatusQueryParams
   headerParams: never
   response: FindPetsByStatusQueryResponse
-  unionResponse: Awaited<ReturnType<FindPetsByStatusClient>> | FindPetsByStatusQueryResponse
   client: {
     paramaters: Partial<Parameters<FindPetsByStatusClient>[0]>
     return: Awaited<ReturnType<FindPetsByStatusClient>>
@@ -32,18 +31,19 @@ export function findPetsByStatusQueryOptions<
 >(
   refParams?: MaybeRef<FindPetsByStatusQueryParams>,
   options: FindPetsByStatus['client']['paramaters'] = {},
-): WithRequired<VueQueryObserverOptions<FindPetsByStatus['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<VueQueryObserverOptions<FindPetsByStatus['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByStatusQueryKey(refParams)
   return {
     queryKey,
-    queryFn: () => {
+    queryFn: async () => {
       const params = unref(refParams)
-      return client<TQueryFnData, TError>({
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
         params,
         ...options,
-      }).then((res) => res?.data || res)
+      })
+      return res.data
     },
   }
 }

@@ -1,32 +1,46 @@
 import useSWRMutation from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams, UpdateUserError } from '../models/UpdateUser'
 
+type UpdateUserClient = typeof client<UpdateUserMutationResponse, UpdateUserError, UpdateUserMutationRequest>
+type UpdateUser = {
+  data: UpdateUserMutationResponse
+  error: UpdateUserError
+  request: UpdateUserMutationRequest
+  pathParams: UpdateUserPathParams
+  queryParams: never
+  headerParams: never
+  response: UpdateUserMutationResponse
+  client: {
+    paramaters: Partial<Parameters<UpdateUserClient>[0]>
+    return: Awaited<ReturnType<UpdateUserClient>>
+  }
+}
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username */
-export function useUpdateUser<TData = UpdateUserMutationResponse, TError = UpdateUserError, TVariables = UpdateUserMutationRequest>(
+export function useUpdateUser(
   username: UpdateUserPathParams['username'],
   options?: {
-    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+    mutation?: SWRMutationConfiguration<UpdateUser['response'], UpdateUser['error']>
+    client?: UpdateUser['client']['paramaters']
     shouldFetch?: boolean
   },
-): SWRMutationResponse<ResponseConfig<TData>, TError> {
+): SWRMutationResponse<UpdateUser['response'], UpdateUser['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/user/${username}` as const
-  return useSWRMutation<ResponseConfig<TData>, TError, typeof url | null>(
+  return useSWRMutation<UpdateUser['response'], UpdateUser['error'], typeof url | null>(
     shouldFetch ? url : null,
-    (_url, { arg: data }) => {
-      return client<TData, TError, TVariables>({
+    async (_url, { arg: data }) => {
+      const res = await client<UpdateUser['data'], UpdateUser['error'], UpdateUser['request']>({
         method: 'put',
         url,
         data,
         ...clientOptions,
       })
+      return res.data
     },
     mutationOptions,
   )

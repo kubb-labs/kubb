@@ -14,11 +14,11 @@ export async function updatePetWithForm(
   params?: UpdatePetWithFormQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<UpdatePetWithFormMutationResponse>['data']> {
-  const { data: resData } = await client<UpdatePetWithFormMutationResponse>({
+  const res = await client<UpdatePetWithFormMutationResponse>({
     method: 'post',
     url: `/pet/${petId}`,
     params,
     ...options,
   })
-  return resData
+  return res.data
 }

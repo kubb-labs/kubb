@@ -50,6 +50,7 @@ type TemplateProps = {
     withHeaders: boolean
     path: URLPath
   }
+  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
 
 function Template({
@@ -60,6 +61,7 @@ function Template({
   JSDoc,
   client,
   hook,
+  dataReturnType,
 }: TemplateProps): ReactNode {
   const clientOptions = [
     `method: "${client.method}"`,
@@ -78,11 +80,13 @@ function Template({
        const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
        return ${hook.name}<${hook.generics}>({
-         mutationFn: (${client.withData ? 'data' : ''}) => {
+         mutationFn: async(${client.withData ? 'data' : ''}) => {
           ${hook.children || ''}
-           return client<${client.generics}>({
+           const res = await client<${client.generics}>({
             ${resolvedClientOptions}
-           }).then(res => res as TData)
+           })
+
+           return ${dataReturnType === 'data' ? 'res.data' : 'res'}
          },
          ...mutationOptions
        })`}
@@ -141,8 +145,8 @@ const defaultTemplates = {
       const params = new FunctionParams()
 
       const resultGenerics = [
-        'TData',
-        'TError',
+        `${factory.name}["response"]`,
+        `${factory.name}["error"]`,
         client.withData ? `${factory.name}["request"]` : 'void',
         'unknown',
       ]
@@ -189,8 +193,8 @@ const defaultTemplates = {
       const hook = {
         name: hookName,
         generics: [
-          'TData',
-          'TError',
+          `${factory.name}['response']`,
+          `${factory.name}["error"]`,
           client.withData ? `${factory.name}["request"]` : 'void',
           'unknown',
         ].join(', '),
@@ -232,19 +236,18 @@ export function Mutation({
   optionsType,
   Template = defaultTemplates.react,
 }: Props): ReactNode {
+  const { options: { dataReturnType } } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
-
   const schemas = useSchemas()
 
-  const generics = new FunctionParams()
   const params = new FunctionParams()
   const client = {
     method: operation.method,
     path: new URLPath(operation.path),
     generics: [
       `${factory.name}["data"]`,
-      'TError',
+      `${factory.name}["error"]`,
       schemas.request?.name ? `${factory.name}["request"]` : 'void',
     ].join(', '),
     withQueryParams: !!schemas.queryParams?.name,
@@ -255,22 +258,17 @@ export function Mutation({
   const hook = {
     name: hookName,
     generics: [
-      'TData',
-      'TError',
+      `${factory.name}['response']`,
+      `${factory.name}["error"]`,
       client.withData ? `${factory.name}["request"]` : 'void',
     ].join(', '),
   }
 
   const resultGenerics = [
-    'TData',
-    'TError',
+    `${factory.name}["response"]`,
+    `${factory.name}["error"]`,
     client.withData ? `${factory.name}["request"]` : 'void',
   ]
-
-  generics.add([
-    { type: 'TData', default: `${factory.name}["response"]` },
-    { type: 'TError', default: `${factory.name}["error"]` },
-  ])
 
   params.add([
     ...getASTParams(schemas.pathParams, {
@@ -302,12 +300,12 @@ export function Mutation({
     <>
       <Template
         name={name}
-        generics={generics.toString()}
         JSDoc={{ comments: getComments(operation) }}
         client={client}
         hook={hook}
         params={params.toString()}
         returnType={`${resultType}<${resultGenerics.join(', ')}>`}
+        dataReturnType={dataReturnType}
         context={{ factory }}
       />
     </>

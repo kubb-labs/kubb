@@ -3,29 +3,44 @@ import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
 
-export function loginUserQueryOptions<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params?: LoginUserQueryParams,
-  options: Partial<Parameters<typeof client>[0]> = {},
+type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
+type LoginUser = {
+  data: LoginUserQueryResponse
+  error: LoginUser400
+  request: never
+  pathParams: never
+  queryParams: LoginUserQueryParams
+  headerParams: never
+  response: LoginUserQueryResponse
+  client: {
+    paramaters: Partial<Parameters<LoginUserClient>[0]>
+    return: Awaited<ReturnType<LoginUserClient>>
+  }
+}
+export function loginUserQueryOptions<TData extends LoginUser['response'] = LoginUser['response'], TError = LoginUser['error']>(
+  params?: LoginUser['queryParams'],
+  options: LoginUser['client']['paramaters'] = {},
 ): SWRConfiguration<TData, TError> {
   return {
-    fetcher: () => {
-      return client<TData, TError>({
+    fetcher: async () => {
+      const res = await client<TData, TError>({
         method: 'get',
         url: `/user/login`,
         params,
         ...options,
-      }).then((res) => res.data)
+      })
+      return res.data
     },
   }
 }
 /**
  * @summary Logs user into the system
  * @link /user/login */
-export function useLoginUser<TData = LoginUserQueryResponse, TError = LoginUser400>(
-  params?: LoginUserQueryParams,
+export function useLoginUser<TData extends LoginUser['response'] = LoginUser['response'], TError = LoginUser['error']>(
+  params?: LoginUser['queryParams'],
   options?: {
     query?: SWRConfiguration<TData, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    client?: LoginUser['client']['paramaters']
     shouldFetch?: boolean
   },
 ): SWRResponse<TData, TError> {

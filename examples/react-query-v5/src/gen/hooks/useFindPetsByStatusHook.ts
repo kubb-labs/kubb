@@ -21,7 +21,6 @@ type FindPetsByStatus = {
   queryParams: FindPetsByStatusQueryParams
   headerParams: never
   response: FindPetsByStatusQueryResponse
-  unionResponse: Awaited<ReturnType<FindPetsByStatusClient>> | FindPetsByStatusQueryResponse
   client: {
     paramaters: Partial<Parameters<FindPetsByStatusClient>[0]>
     return: Awaited<ReturnType<FindPetsByStatusClient>>
@@ -37,17 +36,18 @@ export function findPetsByStatusQueryOptions<
 >(
   params?: FindPetsByStatus['queryParams'],
   options: FindPetsByStatus['client']['paramaters'] = {},
-): WithRequired<QueryObserverOptions<FindPetsByStatus['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<QueryObserverOptions<FindPetsByStatus['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByStatusQueryKey(params)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
         params,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -90,12 +90,12 @@ export function findPetsByStatusInfiniteQueryOptions<
 >(
   params?: FindPetsByStatus['queryParams'],
   options: FindPetsByStatus['client']['paramaters'] = {},
-): WithRequired<UseInfiniteQueryOptions<FindPetsByStatus['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseInfiniteQueryOptions<FindPetsByStatus['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByStatusInfiniteQueryKey(params)
   return {
     queryKey,
-    queryFn: ({ pageParam }) => {
-      return client<TQueryFnData, TError>({
+    queryFn: async ({ pageParam }) => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
         ...options,
@@ -104,7 +104,8 @@ export function findPetsByStatusInfiniteQueryOptions<
           ['id']: pageParam,
           ...(options.params || {}),
         },
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
@@ -148,17 +149,18 @@ export function findPetsByStatusSuspenseQueryOptions<
 >(
   params?: FindPetsByStatus['queryParams'],
   options: FindPetsByStatus['client']['paramaters'] = {},
-): WithRequired<UseSuspenseQueryOptions<FindPetsByStatus['unionResponse'], TError, TData>, 'queryKey'> {
+): WithRequired<UseSuspenseQueryOptions<FindPetsByStatus['response'], TError, TData>, 'queryKey'> {
   const queryKey = findPetsByStatusSuspenseQueryKey(params)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
         params,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }

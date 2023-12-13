@@ -1,7 +1,6 @@
 import useSWRMutation from 'swr/mutation'
 import client from '../../../../swr-client.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { ResponseConfig } from '../../../../swr-client.ts'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -9,33 +8,44 @@ import type {
   UpdatePetWithForm405,
 } from '../../../models/ts/petController/UpdatePetWithForm'
 
+type UpdatePetWithFormClient = typeof client<UpdatePetWithFormMutationResponse, UpdatePetWithForm405, never>
+type UpdatePetWithForm = {
+  data: UpdatePetWithFormMutationResponse
+  error: UpdatePetWithForm405
+  request: never
+  pathParams: UpdatePetWithFormPathParams
+  queryParams: UpdatePetWithFormQueryParams
+  headerParams: never
+  response: Awaited<ReturnType<UpdatePetWithFormClient>>
+  client: {
+    paramaters: Partial<Parameters<UpdatePetWithFormClient>[0]>
+    return: Awaited<ReturnType<UpdatePetWithFormClient>>
+  }
+}
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId */
-export function useUpdatePetWithForm<TData = UpdatePetWithFormMutationResponse, TError = UpdatePetWithForm405>(
-  petId: UpdatePetWithFormPathParams['petId'],
-  params?: UpdatePetWithFormQueryParams,
-  options?: {
-    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
-    shouldFetch?: boolean
-  },
-): SWRMutationResponse<ResponseConfig<TData>, TError> {
+export function useUpdatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithForm['queryParams'], options?: {
+  mutation?: SWRMutationConfiguration<UpdatePetWithForm['response'], UpdatePetWithForm['error']>
+  client?: UpdatePetWithForm['client']['paramaters']
+  shouldFetch?: boolean
+}): SWRMutationResponse<UpdatePetWithForm['response'], UpdatePetWithForm['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/pet/${petId}` as const
   return useSWRMutation<
-    ResponseConfig<TData>,
-    TError,
+    UpdatePetWithForm['response'],
+    UpdatePetWithForm['error'],
     [
       typeof url,
       typeof params,
     ] | null
-  >(shouldFetch ? [url, params] : null, (_url) => {
-    return client<TData, TError>({
+  >(shouldFetch ? [url, params] : null, async (_url) => {
+    const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error']>({
       method: 'post',
       url,
       params,
       ...clientOptions,
     })
+    return res
   }, mutationOptions)
 }

@@ -10,10 +10,11 @@ export async function createUser(
   data?: CreateUserMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<CreateUserMutationResponse>> {
-  return client<CreateUserMutationResponse, CreateUserMutationRequest>({
+  const res = await client<CreateUserMutationResponse, CreateUserMutationRequest>({
     method: 'post',
     url: `/user`,
     data,
     ...options,
   })
+  return res
 }

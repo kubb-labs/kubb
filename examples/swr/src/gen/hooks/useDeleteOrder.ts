@@ -1,31 +1,45 @@
 import useSWRMutation from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { DeleteOrderMutationResponse, DeleteOrderPathParams, DeleteOrder400, DeleteOrder404 } from '../models/DeleteOrder'
 
+type DeleteOrderClient = typeof client<DeleteOrderMutationResponse, DeleteOrder400 | DeleteOrder404, never>
+type DeleteOrder = {
+  data: DeleteOrderMutationResponse
+  error: DeleteOrder400 | DeleteOrder404
+  request: never
+  pathParams: DeleteOrderPathParams
+  queryParams: never
+  headerParams: never
+  response: DeleteOrderMutationResponse
+  client: {
+    paramaters: Partial<Parameters<DeleteOrderClient>[0]>
+    return: Awaited<ReturnType<DeleteOrderClient>>
+  }
+}
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId */
-export function useDeleteOrder<TData = DeleteOrderMutationResponse, TError = DeleteOrder400 | DeleteOrder404>(
+export function useDeleteOrder(
   orderId: DeleteOrderPathParams['orderId'],
   options?: {
-    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    mutation?: SWRMutationConfiguration<DeleteOrder['response'], DeleteOrder['error']>
+    client?: DeleteOrder['client']['paramaters']
     shouldFetch?: boolean
   },
-): SWRMutationResponse<ResponseConfig<TData>, TError> {
+): SWRMutationResponse<DeleteOrder['response'], DeleteOrder['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/store/order/${orderId}` as const
-  return useSWRMutation<ResponseConfig<TData>, TError, typeof url | null>(
+  return useSWRMutation<DeleteOrder['response'], DeleteOrder['error'], typeof url | null>(
     shouldFetch ? url : null,
-    (_url) => {
-      return client<TData, TError>({
+    async (_url) => {
+      const res = await client<DeleteOrder['data'], DeleteOrder['error']>({
         method: 'delete',
         url,
         ...clientOptions,
       })
+      return res.data
     },
     mutationOptions,
   )

@@ -14,7 +14,6 @@ type GetOrderById = {
   queryParams: never
   headerParams: never
   response: GetOrderByIdQueryResponse
-  unionResponse: Awaited<ReturnType<GetOrderByIdClient>> | GetOrderByIdQueryResponse
   client: {
     paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
     return: Awaited<ReturnType<GetOrderByIdClient>>
@@ -31,17 +30,18 @@ export function getOrderByIdQueryOptions<
 >(
   refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>,
   options: GetOrderById['client']['paramaters'] = {},
-): WithRequired<QueryObserverOptions<GetOrderById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<QueryObserverOptions<GetOrderById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdQueryKey(refOrderId)
   return {
     queryKey,
-    queryFn: () => {
+    queryFn: async () => {
       const orderId = unref(refOrderId)
-      return client<TQueryFnData, TError>({
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
         ...options,
-      }).then((res) => res?.data || res)
+      })
+      return res.data
     },
   }
 }

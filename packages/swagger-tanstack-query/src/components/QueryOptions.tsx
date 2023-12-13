@@ -7,7 +7,7 @@ import { getASTParams, getParams, isRequired } from '@kubb/swagger/utils'
 
 import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
-import type { Infinite, Suspense } from '../types.ts'
+import type { Infinite, PluginOptions, Suspense } from '../types.ts'
 
 type TemplateProps = {
   /**
@@ -47,6 +47,7 @@ type TemplateProps = {
   }
   isV5: boolean
   infinite?: Infinite
+  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
 
 function Template({
@@ -59,6 +60,7 @@ function Template({
   client,
   infinite,
   isV5,
+  dataReturnType,
 }: TemplateProps): ReactNode {
   const clientOptions = [
     `method: "${client.method}"`,
@@ -92,11 +94,13 @@ function Template({
 
          return {
            queryKey,
-           queryFn: ({ pageParam }) => {
+           queryFn: async ({ pageParam }) => {
             ${hook.children || ''}
-             return client<${client.generics}>({
+             const res = await client<${client.generics}>({
               ${resolvedClientOptions}
-             }).then(res => res?.data || res)
+             })
+
+             return ${dataReturnType === 'data' ? 'res.data' : 'res'}
            },
            ${resolvedQueryOptions}
          }
@@ -113,11 +117,13 @@ function Template({
 
        return {
          queryKey,
-         queryFn: () => {
+         queryFn: async () => {
           ${hook.children || ''}
-           return client<${client.generics}>({
+           const res = await client<${client.generics}>({
             ${resolvedClientOptions}
-           }).then(res => res?.data || res)
+           })
+
+           return ${dataReturnType === 'data' ? 'res.data' : 'res'}
          },
          ${resolvedQueryOptions}
        }
@@ -242,9 +248,10 @@ type Props = {
    * This will make it possible to override the default behaviour.
    */
   Template?: React.ComponentType<FrameworkProps>
+  dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
 
-export function QueryOptions({ factory, infinite, suspense, resultType, Template = defaultTemplates.react }: Props): ReactNode {
+export function QueryOptions({ factory, infinite, suspense, resultType, dataReturnType, Template = defaultTemplates.react }: Props): ReactNode {
   const { key: pluginKey } = usePlugin()
   const schemas = useSchemas()
   const operation = useOperation()
@@ -267,8 +274,8 @@ export function QueryOptions({ factory, infinite, suspense, resultType, Template
   const clientGenerics = ['TQueryFnData', 'TError']
   // suspense is having 4 generics instead of 5, TQueryData is not needed because data will always be defined
   const resultGenerics = suspense
-    ? [`${factory.name}['unionResponse']`, 'TError', 'TData']
-    : [`${factory.name}['unionResponse']`, 'TError', 'TData', 'TQueryData']
+    ? [`${factory.name}['response']`, 'TError', 'TData']
+    : [`${factory.name}['response']`, 'TError', 'TData', 'TQueryData']
 
   generics.add([
     { type: `TQueryFnData extends ${factory.name}['data']`, default: `${factory.name}["data"]` },
@@ -324,6 +331,7 @@ export function QueryOptions({ factory, infinite, suspense, resultType, Template
       hook={hook}
       isV5={isV5}
       infinite={infinite}
+      dataReturnType={dataReturnType}
       context={{
         factory,
         queryKey,

@@ -9,9 +9,10 @@ export async function getUserByName(
   { username }: GetUserByNamePathParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<GetUserByNameQueryResponse>> {
-  return client<GetUserByNameQueryResponse>({
+  const res = await client<GetUserByNameQueryResponse>({
     method: 'get',
     url: `/user/${username}`,
     ...options,
   })
+  return res
 }

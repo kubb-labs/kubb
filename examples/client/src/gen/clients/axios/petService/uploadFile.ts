@@ -16,12 +16,12 @@ export async function uploadFile(
   params?: UploadFileQueryParams,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<UploadFileMutationResponse>['data']> {
-  const { data: resData } = await client<UploadFileMutationResponse, UploadFileMutationRequest>({
+  const res = await client<UploadFileMutationResponse, UploadFileMutationRequest>({
     method: 'post',
     url: `/pet/${petId}/uploadImage`,
     params,
     data,
     ...options,
   })
-  return resData
+  return res.data
 }

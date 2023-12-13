@@ -21,7 +21,6 @@ type FindPetsByTags = {
   queryParams: FindPetsByTagsQueryParams
   headerParams: never
   response: FindPetsByTagsQueryResponse
-  unionResponse: Awaited<ReturnType<FindPetsByTagsClient>> | FindPetsByTagsQueryResponse
   client: {
     paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
     return: Awaited<ReturnType<FindPetsByTagsClient>>
@@ -37,17 +36,18 @@ export function findPetsByTagsQueryOptions<
 >(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['paramaters'] = {},
-): WithRequired<QueryObserverOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<QueryObserverOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsQueryKey(params)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -89,12 +89,12 @@ export function findPetsByTagsInfiniteQueryOptions<
 >(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['paramaters'] = {},
-): WithRequired<UseInfiniteQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseInfiniteQueryOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return {
     queryKey,
-    queryFn: ({ pageParam }) => {
-      return client<TQueryFnData, TError>({
+    queryFn: async ({ pageParam }) => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         ...options,
@@ -103,7 +103,8 @@ export function findPetsByTagsInfiniteQueryOptions<
           ['id']: pageParam,
           ...(options.params || {}),
         },
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
@@ -146,17 +147,18 @@ export function findPetsByTagsSuspenseQueryOptions<
 >(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['paramaters'] = {},
-): WithRequired<UseSuspenseQueryOptions<FindPetsByTags['unionResponse'], TError, TData>, 'queryKey'> {
+): WithRequired<UseSuspenseQueryOptions<FindPetsByTags['response'], TError, TData>, 'queryKey'> {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }

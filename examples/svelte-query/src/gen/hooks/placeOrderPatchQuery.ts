@@ -12,7 +12,6 @@ type PlaceOrderPatch = {
   queryParams: never
   headerParams: never
   response: PlaceOrderPatchMutationResponse
-  unionResponse: Awaited<ReturnType<PlaceOrderPatchClient>> | PlaceOrderPatchMutationResponse
   client: {
     paramaters: Partial<Parameters<PlaceOrderPatchClient>[0]>
     return: Awaited<ReturnType<PlaceOrderPatchClient>>
@@ -22,21 +21,22 @@ type PlaceOrderPatch = {
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
  * @link /store/order */
-export function placeOrderPatchQuery<TData = PlaceOrderPatch['response'], TError = PlaceOrderPatch['error']>(
+export function placeOrderPatchQuery(
   options: {
-    mutation?: CreateMutationOptions<TData, TError, PlaceOrderPatch['request']>
+    mutation?: CreateMutationOptions<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>
     client?: PlaceOrderPatch['client']['paramaters']
   } = {},
-): CreateMutationResult<TData, TError, PlaceOrderPatch['request']> {
+): CreateMutationResult<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<TData, TError, PlaceOrderPatch['request']>({
-    mutationFn: (data) => {
-      return client<PlaceOrderPatch['data'], TError, PlaceOrderPatch['request']>({
+  return createMutation<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
+    mutationFn: async (data) => {
+      const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
         method: 'patch',
         url: `/store/order`,
         data,
         ...clientOptions,
-      }).then((res) => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

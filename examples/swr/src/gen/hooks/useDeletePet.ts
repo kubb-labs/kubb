@@ -1,33 +1,47 @@
 import useSWRMutation from 'swr/mutation'
 import client from '@kubb/swagger-client/client'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { ResponseConfig } from '@kubb/swagger-client/client'
 import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from '../models/DeletePet'
 
+type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>
+type DeletePet = {
+  data: DeletePetMutationResponse
+  error: DeletePet400
+  request: never
+  pathParams: DeletePetPathParams
+  queryParams: never
+  headerParams: DeletePetHeaderParams
+  response: DeletePetMutationResponse
+  client: {
+    paramaters: Partial<Parameters<DeletePetClient>[0]>
+    return: Awaited<ReturnType<DeletePetClient>>
+  }
+}
 /**
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId */
-export function useDeletePet<TData = DeletePetMutationResponse, TError = DeletePet400>(
+export function useDeletePet(
   petId: DeletePetPathParams['petId'],
-  headers?: DeletePetHeaderParams,
+  headers?: DeletePet['headerParams'],
   options?: {
-    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+    mutation?: SWRMutationConfiguration<DeletePet['response'], DeletePet['error']>
+    client?: DeletePet['client']['paramaters']
     shouldFetch?: boolean
   },
-): SWRMutationResponse<ResponseConfig<TData>, TError> {
+): SWRMutationResponse<DeletePet['response'], DeletePet['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/pet/${petId}` as const
-  return useSWRMutation<ResponseConfig<TData>, TError, typeof url | null>(
+  return useSWRMutation<DeletePet['response'], DeletePet['error'], typeof url | null>(
     shouldFetch ? url : null,
-    (_url) => {
-      return client<TData, TError>({
+    async (_url) => {
+      const res = await client<DeletePet['data'], DeletePet['error']>({
         method: 'delete',
         url,
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
       })
+      return res.data
     },
     mutationOptions,
   )

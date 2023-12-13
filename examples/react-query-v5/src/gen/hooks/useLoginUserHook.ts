@@ -21,7 +21,6 @@ type LoginUser = {
   queryParams: LoginUserQueryParams
   headerParams: never
   response: LoginUserQueryResponse
-  unionResponse: Awaited<ReturnType<LoginUserClient>> | LoginUserQueryResponse
   client: {
     paramaters: Partial<Parameters<LoginUserClient>[0]>
     return: Awaited<ReturnType<LoginUserClient>>
@@ -37,17 +36,18 @@ export function loginUserQueryOptions<
 >(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['paramaters'] = {},
-): WithRequired<QueryObserverOptions<LoginUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<QueryObserverOptions<LoginUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(params)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/login`,
         params,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -88,12 +88,12 @@ export function loginUserInfiniteQueryOptions<
 >(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['paramaters'] = {},
-): WithRequired<UseInfiniteQueryOptions<LoginUser['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseInfiniteQueryOptions<LoginUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserInfiniteQueryKey(params)
   return {
     queryKey,
-    queryFn: ({ pageParam }) => {
-      return client<TQueryFnData, TError>({
+    queryFn: async ({ pageParam }) => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/login`,
         ...options,
@@ -102,7 +102,8 @@ export function loginUserInfiniteQueryOptions<
           ['id']: pageParam,
           ...(options.params || {}),
         },
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
@@ -144,17 +145,18 @@ export function loginUserSuspenseQueryOptions<
 >(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['paramaters'] = {},
-): WithRequired<UseSuspenseQueryOptions<LoginUser['unionResponse'], TError, TData>, 'queryKey'> {
+): WithRequired<UseSuspenseQueryOptions<LoginUser['response'], TError, TData>, 'queryKey'> {
   const queryKey = loginUserSuspenseQueryKey(params)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/login`,
         params,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
