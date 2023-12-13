@@ -1,5 +1,17 @@
 # @kubb/swagger-msw
 
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.0.3
+  - @kubb/parser@2.0.3
+  - @kubb/react@2.0.3
+  - @kubb/swagger@2.0.3
+  - @kubb/swagger-faker@2.0.3
+  - @kubb/swagger-ts@2.0.3
+
 ## 2.0.2
 
 ### Patch Changes
