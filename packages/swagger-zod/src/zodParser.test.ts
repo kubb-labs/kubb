@@ -61,7 +61,10 @@ const input = [
   {
     input: parseZodMeta({
       keyword: 'ref',
-      args: 'Pet',
+      args: {
+        name: 'Pet',
+        external: true,
+      },
     }),
     expected: 'z.lazy(() => Pet).schema',
   },
@@ -98,11 +101,17 @@ const input = [
   {
     input: parseZodMeta({
       keyword: 'array',
-      args: [{ keyword: 'ref', args: 'Pet' }],
+      args: [{ keyword: 'ref', args: { name: 'Pet', external: true } }],
     }),
     expected: 'z.array(z.lazy(() => Pet).schema)',
   },
-
+  {
+    input: parseZodMeta({
+      keyword: 'array',
+      args: [{ keyword: 'ref', args: { name: 'Pet', external: false } }],
+    }),
+    expected: 'z.array(z.lazy(() => Pet))',
+  },
   {
     input: parseZodMeta({
       keyword: 'union',
@@ -135,7 +144,7 @@ const input = [
   {
     input: parseZodMeta({
       keyword: 'catchall',
-      args: [{ keyword: 'ref', args: 'Pet' }],
+      args: [{ keyword: 'ref', args: { name: 'Pet', external: true } }],
     }),
     expected: '.catchall(z.lazy(() => Pet).schema)',
   },

@@ -19,7 +19,7 @@ This made us wonder if it was possible to use React and JSX to create our templa
 
 A template engine is a software program designed to combine templates with a data model to produce a document or output. The language used to write these templates is called a template language. The resulting document can be a web page, a document, or even source code. One specific use case for template engines is source code generation.
 
-Some well known template engines are [Mustache](https://mustache.github.io/), [Handlebars](https://handlebarsjs.com/), and [EJS](https://ejs.co/). To create Javascript/ you can also use the [TypesScript compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API) to create JavaScript/TypeScript and the OpenApi TypeScript generator uses [Handlebars](https://handlebarsjs.com/).
+Some well known template engines are [Mustache](https://mustache.github.io/), [Handlebars](https://handlebarsjs.com/), and [EJS](https://ejs.co/). To create JavaScript/ you can also use the [TypesScript compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API) to create JavaScript/TypeScript and the OpenAPI TypeScript generator uses [Handlebars](https://handlebarsjs.com/).
 
 ### What is source code generation?
 

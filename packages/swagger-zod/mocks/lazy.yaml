@@ -1,0 +1,23 @@
+---
+openapi: 3.0.1
+info:
+  title: Example Schema
+servers:
+- url: http://localhost/
+paths:
+  "/example":
+    get:
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Example"
+components:
+  schemas:
+    Example:
+      type: object
+      properties:
+        nestedExamples:
+          "$ref": "#/components/schemas/Example"

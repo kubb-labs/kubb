@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { bundleRequire } from 'bundle-require'
 import { cosmiconfig } from 'cosmiconfig'
-import tsNode from 'ts-node'
 
 import type { defineConfig, KubbUserConfig } from '@kubb/core'
 
@@ -12,30 +12,12 @@ export type CosmiconfigResult = {
   config: ReturnType<typeof defineConfig> | KubbUserConfig
 }
 
-const tsLoader = (configFile: string) => {
-  let registerer = { enabled() {} }
+const tsLoader = async (configFile: string) => {
+  const { mod } = await bundleRequire({
+    filepath: configFile,
+  })
 
-  try {
-    // Register TypeScript compiler instance
-    registerer = tsNode.register({
-      compilerOptions: { module: 'commonjs' },
-      typeCheck: false,
-    })
-
-    const module = require(configFile)
-
-    return module.default
-  } catch (err) {
-    const error = err as Error
-
-    if (error.name === 'MODULE_NOT_FOUND') {
-      throw new Error(`'ts-node' is required for the TypeScript configuration files. Make sure it is installed\nError: ${error.message}`)
-    }
-
-    throw error
-  } finally {
-    registerer.enabled()
-  }
+  return mod.default
 }
 
 export async function getCosmiConfig(moduleName: string, config?: string): Promise<CosmiconfigResult> {

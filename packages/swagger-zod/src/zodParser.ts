@@ -103,7 +103,10 @@ type ZodMetaObject = { keyword: typeof zodKeywords.object; args?: { [x: string]:
 
 type ZodMetaCatchall = { keyword: typeof zodKeywords.catchall; args?: ZodMeta[] }
 
-type ZodMetaRef = { keyword: typeof zodKeywords.ref; args?: string }
+/**
+ * If external, `.schema` will be added
+ */
+type ZodMetaRef = { keyword: typeof zodKeywords.ref; args?: { name: string; external?: boolean } }
 
 type ZodMetaUnion = { keyword: typeof zodKeywords.union; args?: ZodMeta[] }
 type ZodMetaLiteral = { keyword: typeof zodKeywords.literal; args: string | number }
@@ -239,8 +242,14 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
 
   // custom type
   if (keyword === zodKeywords.ref) {
-    // use of z.lazy because we need to import from files x or we use the type as a self reference
-    return `${mapper.lazy}(() => ${args as string}).schema`
+    // use of z.lazy because we need to import from files x or we use the type as a self reference, external will add `.schema`
+    const refArgs = args as ZodMetaRef['args']
+
+    if (refArgs?.external) {
+      return `${mapper.lazy}(() => ${refArgs?.name}).schema`
+    }
+
+    return `${mapper.lazy}(() => ${refArgs?.name})`
   }
 
   if (keyword === zodKeywords.default && args === undefined) {
