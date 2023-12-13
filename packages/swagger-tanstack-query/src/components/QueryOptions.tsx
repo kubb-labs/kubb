@@ -94,11 +94,13 @@ function Template({
 
          return {
            queryKey,
-           queryFn: ({ pageParam }) => {
+           queryFn: async ({ pageParam }) => {
             ${hook.children || ''}
-             return client<${client.generics}>({
+             const res = await client<${client.generics}>({
               ${resolvedClientOptions}
-             }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'})
+             })
+
+             return ${dataReturnType === 'data' ? 'res.data' : 'res'}
            },
            ${resolvedQueryOptions}
          }
@@ -115,11 +117,13 @@ function Template({
 
        return {
          queryKey,
-         queryFn: () => {
+         queryFn: async () => {
           ${hook.children || ''}
-           return client<${client.generics}>({
+           const res = await client<${client.generics}>({
             ${resolvedClientOptions}
-           }).then(res => res?.data || res)
+           })
+
+           return ${dataReturnType === 'data' ? 'res.data' : 'res'}
          },
          ${resolvedQueryOptions}
        }
@@ -270,8 +274,8 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
   const clientGenerics = ['TQueryFnData', 'TError']
   // suspense is having 4 generics instead of 5, TQueryData is not needed because data will always be defined
   const resultGenerics = suspense
-    ? [`${factory.name}['unionResponse']`, 'TError', 'TData']
-    : [`${factory.name}['unionResponse']`, 'TError', 'TData', 'TQueryData']
+    ? [`${factory.name}['response']`, 'TError', 'TData']
+    : [`${factory.name}['response']`, 'TError', 'TData', 'TQueryData']
 
   generics.add([
     { type: `TQueryFnData extends ${factory.name}['data']`, default: `${factory.name}["data"]` },

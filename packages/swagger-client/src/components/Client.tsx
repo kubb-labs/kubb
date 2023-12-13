@@ -67,9 +67,11 @@ function Template({
   return (
     <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
       {`
-return client<${client.generics}>({
+const res = await client<${client.generics}>({
 ${resolvedClientOptions}
-}).then(res => ${client.dataReturnType === 'data' ? 'res.data' : 'res'})`}
+})
+return ${client.dataReturnType === 'data' ? 'res.data' : 'res'}
+`}
     </Function>
   )
 }

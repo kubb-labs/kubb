@@ -5,6 +5,7 @@ import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
 import { QueryOptions } from './QueryOptions.tsx'
+import { SchemaType } from './SchemaType.tsx'
 
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
@@ -132,31 +133,35 @@ export function Query({
   const client = {
     method: operation.method,
     path: new URLPath(operation.path),
-    generics: ['TData', 'TError'].join(', '),
     withQueryParams: !!schemas.queryParams?.name,
     withData: !!schemas.request?.name,
     withPathParams: !!schemas.pathParams?.name,
     withHeaders: !!schemas.headerParams?.name,
   }
 
-  const resultGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
+  const resultGenerics = [
+    'TData',
+    'TError',
+  ]
 
   generics.add([
-    { type: 'TData', default: schemas.response.name },
-    { type: 'TError', default: schemas.errors?.map((error) => error.name).join(' | ') || 'unknown' },
+    { type: `TData extends ${factory.name}['response']`, default: `${factory.name}["response"]` },
+    { type: 'TError', default: `${factory.name}["error"]` },
   ])
+
+  const queryOptionsGenerics = ['TData', 'TError']
 
   params.add([
     ...getASTParams(schemas.pathParams, { typed: true }),
     {
       name: 'params',
-      type: schemas.queryParams?.name,
+      type: `${factory.name}['queryParams']`,
       enabled: client.withQueryParams,
       required: false,
     },
     {
       name: 'headers',
-      type: schemas.headerParams?.name,
+      type: `${factory.name}['headerParams']`,
       enabled: client.withHeaders,
       required: false,
     },
@@ -165,7 +170,7 @@ export function Query({
       required: false,
       type: `{
         query?: SWRConfiguration<${resultGenerics.join(', ')}>,
-        client?: Partial<Parameters<typeof client<${client.generics}>>[0]>,
+        client?: ${factory.name}['client']['paramaters'],
         shouldFetch?: boolean,
       }`,
       default: '{}',
@@ -193,7 +198,7 @@ export function Query({
   const hook = {
     name: 'useSWR',
     generics: [...resultGenerics, client.withQueryParams ? `[typeof url, typeof params] | null` : 'typeof url | null'].join(', '),
-    queryOptions: `${queryOptionsName}<${client.generics}>(${queryParams.toString()})`,
+    queryOptions: `${queryOptionsName}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
   }
 
   return (
@@ -264,6 +269,7 @@ Query.File = function({ templates }: FileProps): ReactNode {
         />
 
         <File.Source>
+          <SchemaType factory={factory} />
           <Query
             factory={factory}
             Template={Template}

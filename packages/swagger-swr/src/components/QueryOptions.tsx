@@ -67,10 +67,12 @@ function Template({
     <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
       {`
       return {
-        fetcher: () => {
-          return client<${client.generics}>({
+        fetcher: async () => {
+          const res = await client<${client.generics}>({
             ${resolvedClientOptions}
-          }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'})
+          })
+
+          return ${dataReturnType === 'data' ? 'res.data' : 'res'}
         },
       }
 
@@ -104,30 +106,31 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
   const generics = new FunctionParams()
   const params = new FunctionParams()
 
-  const resultGenerics = [dataReturnType === 'data' ? 'TData' : 'ResponseConfig<TData>', 'TError']
+  const clientGenerics = ['TData', 'TError']
+  const resultGenerics = ['TData', 'TError']
 
   generics.add([
-    { type: 'TData', default: schemas.response.name },
-    { type: 'TError', default: schemas.errors?.map((error) => error.name).join(' | ') || 'unknown' },
+    { type: `TData extends ${factory.name}['response']`, default: `${factory.name}['response']` },
+    { type: 'TError', default: `${factory.name}["error"]` },
   ])
 
   params.add([
     ...getASTParams(schemas.pathParams, { typed: true }),
     {
       name: 'params',
-      type: schemas.queryParams?.name,
+      type: `${factory.name}['queryParams']`,
       enabled: !!schemas.queryParams?.name,
       required: false,
     },
     {
       name: 'headers',
-      type: schemas.headerParams?.name,
+      type: `${factory.name}['headerParams']`,
       enabled: !!schemas.headerParams?.name,
       required: false,
     },
     {
       name: 'options',
-      type: `Partial<Parameters<typeof client>[0]>`,
+      type: `${factory.name}['client']['paramaters']`,
       default: '{}',
     },
   ])
@@ -139,7 +142,7 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
     withHeaders: !!schemas.headerParams?.name,
     method: operation.method,
     path: new URLPath(operation.path),
-    generics: ['TData', 'TError'].join(', '),
+    generics: clientGenerics.join(', '),
   }
 
   return (

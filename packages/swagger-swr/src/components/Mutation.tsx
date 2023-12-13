@@ -5,6 +5,8 @@ import { useOperation, useOperationFile, useOperationName, useSchemas } from '@k
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 
+import { SchemaType } from './SchemaType.tsx'
+
 import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
@@ -77,10 +79,12 @@ function Template({
          const url = ${client.path.template} as const
          return ${hook.name}<${hook.generics}>(
           shouldFetch ? [url, params]: null,
-          (_url${client.withData ? ', { arg: data }' : ''}) => {
-            return client<${client.generics}>({
+          async (_url${client.withData ? ', { arg: data }' : ''}) => {
+            const res = await client<${client.generics}>({
               ${resolvedClientOptions}
-            }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'})
+            })
+
+            return ${dataReturnType === 'data' ? 'res.data' : 'res'}
           },
           mutationOptions
         )
@@ -96,10 +100,12 @@ function Template({
        const url = ${client.path.template} as const
        return ${hook.name}<${hook.generics}>(
         shouldFetch ? url : null,
-        (_url${client.withData ? ', { arg: data }' : ''}) => {
-          return client<${client.generics}>({
+        async (_url${client.withData ? ', { arg: data }' : ''}) => {
+          const res = await client<${client.generics}>({
             ${resolvedClientOptions}
-          }).then(res => ${dataReturnType === 'data' ? 'res.data' : 'res'})
+          })
+
+          return ${dataReturnType === 'data' ? 'res.data' : 'res'}
         },
         mutationOptions
       )
@@ -113,6 +119,9 @@ const defaultTemplates = {
 } as const
 
 type Props = {
+  factory: {
+    name: string
+  }
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -120,6 +129,7 @@ type Props = {
 }
 
 export function Mutation({
+  factory,
   Template = defaultTemplates.default,
 }: Props): ReactNode {
   const { options: { dataReturnType } } = usePlugin<PluginOptions>()
@@ -127,12 +137,11 @@ export function Mutation({
   const name = useOperationName({ type: 'function' })
   const schemas = useSchemas()
 
-  const generics = new FunctionParams()
   const params = new FunctionParams()
   const client = {
     method: operation.method,
     path: new URLPath(operation.path),
-    generics: ['TData', 'TError', schemas.request?.name ? `TVariables` : undefined].filter(Boolean).join(', '),
+    generics: [`${factory.name}["data"]`, `${factory.name}["error"]`, schemas.request?.name ? `${factory.name}["request"]` : ''].filter(Boolean).join(', '),
     withQueryParams: !!schemas.queryParams?.name,
     withData: !!schemas.request?.name,
     withPathParams: !!schemas.pathParams?.name,
@@ -140,27 +149,21 @@ export function Mutation({
   }
 
   const resultGenerics = [
-    'ResponseConfig<TData>',
-    'TError',
+    `${factory.name}["response"]`,
+    `${factory.name}["error"]`,
   ]
-
-  generics.add([
-    { type: 'TData', default: schemas.response.name },
-    { type: 'TError', default: schemas.errors?.map((error) => error.name).join(' | ') || 'unknown' },
-    { type: 'TVariables', default: schemas.request?.name, enabled: !!schemas.request?.name },
-  ])
 
   params.add([
     ...getASTParams(schemas.pathParams, { typed: true }),
     {
       name: 'params',
-      type: schemas.queryParams?.name,
+      type: `${factory.name}['queryParams']`,
       enabled: client.withQueryParams,
       required: false,
     },
     {
       name: 'headers',
-      type: schemas.headerParams?.name,
+      type: `${factory.name}['headerParams']`,
       enabled: client.withHeaders,
       required: false,
     },
@@ -169,7 +172,7 @@ export function Mutation({
       required: false,
       type: `{
         mutation?: SWRMutationConfiguration<${resultGenerics.join(', ')}>,
-        client?: Partial<Parameters<typeof client<${client.generics}>>[0]>,
+        client?: ${factory.name}['client']['paramaters'],
         shouldFetch?: boolean,
       }`,
       default: '{}',
@@ -184,7 +187,6 @@ export function Mutation({
   return (
     <Template
       name={name}
-      generics={generics.toString()}
       JSDoc={{ comments: getComments(operation) }}
       client={client}
       hook={hook}
@@ -207,8 +209,12 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
+  const factoryName = useOperationName({ type: 'type' })
 
   const Template = templates.default
+  const factory = {
+    name: factoryName,
+  }
 
   return (
     <>
@@ -238,8 +244,10 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
         />
 
         <File.Source>
+          <SchemaType factory={factory} />
           <Mutation
             Template={Template}
+            factory={factory}
           />
         </File.Source>
       </File>
