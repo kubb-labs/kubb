@@ -55,12 +55,12 @@
     "cac": "^6.7.14",
     "chokidar": "^3.5.3",
     "cosmiconfig": "^9.0.0",
+    "esbuild": "^0.19.9",
     "execa": "^8.0.1",
     "ora": "^7.0.1",
     "pretty-error": "^4.0.0",
     "string-argv": "^0.3.2",
-    "tinyrainbow": "^1.1.1",
-    "esbuild": "^0.19.7"
+    "tinyrainbow": "^1.1.1"
   },
   "devDependencies": {
     "@kubb/swagger": "workspace:*",
