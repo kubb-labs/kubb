@@ -1,0 +1,97 @@
+name: Quality
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+      name: Build
+      timeout-minutes: 15
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 2
+
+        - name: Setup
+          uses: ./.github/setup
+
+        - name: Build
+          run: bun run build --concurrency=1
+
+  typecheck:
+      name: Typecheck
+      timeout-minutes: 15
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 2
+
+        - name: Setup
+          uses: ./.github/setup
+
+        - name: Typecheck
+          run: bun run typecheck --concurrency=1
+
+        - name: Typecheck examples
+          run: bun run typecheck:examples --concurrency=1
+
+  tests:
+      name: Tests
+      timeout-minutes: 15
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 2
+
+        - name: Setup
+          uses: ./.github/setup
+
+        - name: Build
+          run: bun run build
+
+        - name: Test
+          run: bun run test
+
+        - name: Test with Bun
+          continue-on-error: true
+          run: bun run test:bun --coverage
+
+        - name: Upload coverage reports to Codecov
+          uses: codecov/codecov-action@v3
+          env:
+             CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  linting:
+      name: Linting
+      timeout-minutes: 15
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Check out code
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 2
+
+        - name: Setup
+          uses: ./.github/setup
+
+        - name: Build
+          run: bun run build
+
+        - name: Linting
+          env:
+            NODE_OPTIONS: "--max_old_space_size=4096"
+          continue-on-error: true
+          run: bun run lint:ci

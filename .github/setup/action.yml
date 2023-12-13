@@ -1,0 +1,37 @@
+name: "Setup"
+description: "Sets up Node.js and runs install"
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v2.2.4
+      with:
+        version:
+
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: 'pnpm'
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Install bun
+      uses: oven-sh/setup-bun@v1
+      continue-on-error: true
+
+    - name: Setup Git User
+      shell: bash
+      run: |
+        git config --global user.email "stijn@stijnvanhulle.be"
+        git config --global user.name "Stijn Van Hulle"
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --prefer-offline
+
+    - name: Setup Turbo
+      uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      continue-on-error: true
+      with:
+        # Set the prefix for the cache keys.
+        cache-prefix: kubb_

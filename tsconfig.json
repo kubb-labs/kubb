@@ -8,29 +8,20 @@
       "@kubb/ts-config"
     ],
     "paths": {
-      "@kubb/core": [
-        "packages/core/src/index.ts"
-      ],
-      "@kubb/types": [
-        "packages/types/src/index.ts"
-      ],
       "@kubb/core/utils": [
         "packages/core/src/utils/index.ts"
       ],
       "@kubb/core/transformers": [
         "packages/core/src/transformers/index.ts"
       ],
-      "@kubb/swagger": [
-        "packages/swagger/src/index.ts"
+      "@kubb/core/fs": [
+        "packages/core/src/fs/index.ts"
       ],
-      "@kubb/swagger-ts": [
-        "packages/swagger-ts/src/index.ts"
+      "@kubb/core": [
+        "packages/core/src/index.ts"
       ],
-      "@kubb/swagger-ts/hooks": [
-        "packages/swagger-ts/src/hooks/index.ts"
-      ],
-      "@kubb/swagger-ts/oas": [
-        "packages/swagger-ts/src/oas/index.ts"
+      "@kubb/types": [
+        "packages/types/src/index.ts"
       ],
       "@kubb/swagger/hooks": [
         "packages/swagger/src/hooks/index.ts"
@@ -38,11 +29,29 @@
       "@kubb/swagger/utils": [
         "packages/swagger/src/utils/index.ts"
       ],
-      "@kubb/react": [
-        "packages/react/src/index.ts"
+      "@kubb/swagger": [
+        "packages/swagger/src/index.ts"
+      ],
+      "@kubb/swagger-ts/hooks": [
+        "packages/swagger-ts/src/hooks/index.ts"
+      ],
+      "@kubb/swagger-ts/oas": [
+        "packages/swagger-ts/src/oas/index.ts"
+      ],
+      "@kubb/swagger-ts": [
+        "packages/swagger-ts/src/index.ts"
       ],
       "@kubb/react/jsx-runtime": [
         "packages/react/src/jsx-runtime.ts"
+      ],
+      "@kubb/react": [
+        "packages/react/src/index.ts"
+      ],
+      "@kubb/parser/factory": [
+        "packages/parser/src/factory.ts"
+      ],
+      "@kubb/parser": [
+        "packages/parser/src/index.ts"
       ]
     }
   },
