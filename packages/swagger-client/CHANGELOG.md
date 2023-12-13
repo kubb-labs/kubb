@@ -1,5 +1,18 @@
 # @kubb/swagger-client
 
+## 2.0.2
+
+### Patch Changes
+
+- [#720](https://github.com/kubb-project/kubb/pull/720) [`787365b`](https://github.com/kubb-project/kubb/commit/787365b32d1c48fb270445ce2d4d438213e7b0e4) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of `dataReturnType` to set res.data or res
+
+- Updated dependencies []:
+  - @kubb/core@2.0.2
+  - @kubb/parser@2.0.2
+  - @kubb/react@2.0.2
+  - @kubb/swagger@2.0.2
+  - @kubb/swagger-ts@2.0.2
+
 ## 2.0.1
 
 ### Patch Changes
