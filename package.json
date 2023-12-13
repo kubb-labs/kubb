@@ -40,7 +40,7 @@
     "lint:fix": "ESLINT_USE_FLAT_CONFIG=true eslint --fix --format pretty ./packages/* && bun run lint:case",
     "lint:turbo": "turbo run lint",
     "release": "changeset version && changeset publish",
-    "release:canary": "changeset version --snapshot canary && changeset publish",
+    "release:canary": "changeset version --snapshot canary && changeset publish --no-git-tag --snapshot canary",
     "start": "turbo run start --filter=./packages/*",
     "test": "vitest run --config ./configs/vitest.config.ts --coverage",
     "test:bun": "bun test --preload ./configs/setup.ts",
