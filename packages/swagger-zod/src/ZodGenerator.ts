@@ -138,7 +138,6 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
       path: path || '',
       isTypeOnly: false,
     })
-    console.log(propertyName, ref, path)
 
     return [{ keyword: zodKeywords.ref, args: { name: ref.propertyName, external: propertyName !== path } }]
   }

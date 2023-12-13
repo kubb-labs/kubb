@@ -1,13 +1,15 @@
-name: release
+name: Release
 on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: override release tag
+        required: false
   push:
     branches: ['main', 'alpha', 'beta', 'rc']
-    paths-ignore:
-      - "docs/**"
-      - "examples/**"
-      - "**/*.md"
-
-  workflow_dispatch:
+    paths:
+      - ".changeset/**"
+      - "packages/**"
 
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
@@ -23,29 +25,55 @@ jobs:
           with:
             fetch-depth: 2
 
-        - uses: pnpm/action-setup@v2.2.4
-          with:
-            version: 8
+        - name: Setup
+          uses: ./.github/setup
 
-        - name: Setup Node.js environment
-          uses: actions/setup-node@v3
-          with:
-            node-version: 18
-            cache: 'pnpm'
-            registry-url: 'https://registry.npmjs.org'
+        - name: Build
+          run: bun run build --concurrency=1
 
-        - name: Install bun
-          uses: oven-sh/setup-bun@v1
-
-        - name: Install dependencies
-          run: pnpm install --prefer-offline
-
-        - uses: dtinth/setup-github-actions-caching-for-turbo@v1
-          with:
-           # Set the prefix for the cache keys.
-            cache-prefix: kubb_
-
-        - name: Create Release Pull Request
+        - name: Publish
+          id: changesets
           uses: changesets/action@v1
+          if: ${{ github.event.inputs.tag == '' }}
+          with:
+            publish: bun release
+            commit: "ci(changesets): version packages"
+            setupGitUser: false
           env:
+            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        - name: Publish ${{ inputs.tag || 'canary' }}
+          if: steps.changesets.outputs.published != 'true'
+          run: |
+            git checkout main
+            bun version:canary
+            bun release:canary --tag ${{ inputs.tag || 'canary' }}
+          env:
+            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        - name: Send a discord notification
+          if: steps.changesets.outputs.published == 'true'
+          uses: actions/github-script@v6
+          env:
+            DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            script: |
+              fetch(process.env.DISCORD_WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  content: `A new release is available 🎉. \n [Read the changelog](https://github.com/kubb-project/kubb/releases)`
+                }),
+              })
+              .then((res) => {
+                console.log('Sent discord notification', res)
+              })
+              .catch((err) => {
+                console.error('Error sending discord notification', err)
+              })
