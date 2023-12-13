@@ -15,7 +15,6 @@ type UploadFile = {
   queryParams: UploadFileQueryParams
   headerParams: never
   response: UploadFileMutationResponse
-  unionResponse: Awaited<ReturnType<UploadFileClient>> | UploadFileMutationResponse
   client: {
     paramaters: Partial<Parameters<UploadFileClient>[0]>
     return: Awaited<ReturnType<UploadFileClient>>
@@ -24,26 +23,27 @@ type UploadFile = {
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage */
-export function useUploadFile<TData = UploadFile['response'], TError = UploadFile['error']>(
+export function useUploadFile(
   refPetId: MaybeRef<UploadFilePathParams['petId']>,
   refParams?: MaybeRef<UploadFileQueryParams>,
   options: {
-    mutation?: VueMutationObserverOptions<TData, TError, UploadFile['request'], unknown>
+    mutation?: VueMutationObserverOptions<UploadFile['response'], UploadFile['error'], UploadFile['request'], unknown>
     client?: UploadFile['client']['paramaters']
   } = {},
-): UseMutationReturnType<TData, TError, UploadFile['request'], unknown> {
+): UseMutationReturnType<UploadFile['response'], UploadFile['error'], UploadFile['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, UploadFile['request'], unknown>({
-    mutationFn: (data) => {
+  return useMutation<UploadFile['response'], UploadFile['error'], UploadFile['request'], unknown>({
+    mutationFn: async (data) => {
       const petId = unref(refPetId)
       const params = unref(refParams)
-      return client<UploadFile['data'], TError, UploadFile['request']>({
+      const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
         method: 'post',
         url: `/pet/${petId}/uploadImage`,
         params,
         data,
         ...clientOptions,
-      }).then((res) => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

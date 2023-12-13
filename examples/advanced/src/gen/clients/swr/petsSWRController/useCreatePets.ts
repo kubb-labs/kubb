@@ -1,7 +1,6 @@
 import useSWRMutation from 'swr/mutation'
 import client from '../../../../swr-client.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { ResponseConfig } from '../../../../swr-client.ts'
 import type {
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
@@ -12,30 +11,39 @@ import type {
   CreatePetsError,
 } from '../../../models/ts/petsController/CreatePets'
 
+type CreatePetsClient = typeof client<CreatePetsMutationResponse, CreatePets201 | CreatePetsError, CreatePetsMutationRequest>
+type CreatePets = {
+  data: CreatePetsMutationResponse
+  error: CreatePets201 | CreatePetsError
+  request: CreatePetsMutationRequest
+  pathParams: CreatePetsPathParams
+  queryParams: CreatePetsQueryParams
+  headerParams: CreatePetsHeaderParams
+  response: Awaited<ReturnType<CreatePetsClient>>
+  client: {
+    paramaters: Partial<Parameters<CreatePetsClient>[0]>
+    return: Awaited<ReturnType<CreatePetsClient>>
+  }
+}
 /**
  * @summary Create a pet
  * @link /pets/:uuid */
-export function useCreatePets<TData = CreatePetsMutationResponse, TError = CreatePets201 | CreatePetsError, TVariables = CreatePetsMutationRequest>(
-  uuid: CreatePetsPathParams['uuid'],
-  params?: CreatePetsQueryParams,
-  headers?: CreatePetsHeaderParams,
-  options?: {
-    mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError>
-    client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
-    shouldFetch?: boolean
-  },
-): SWRMutationResponse<ResponseConfig<TData>, TError> {
+export function useCreatePets(uuid: CreatePetsPathParams['uuid'], params?: CreatePets['queryParams'], headers?: CreatePets['headerParams'], options?: {
+  mutation?: SWRMutationConfiguration<CreatePets['response'], CreatePets['error']>
+  client?: CreatePets['client']['paramaters']
+  shouldFetch?: boolean
+}): SWRMutationResponse<CreatePets['response'], CreatePets['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/pets/${uuid}` as const
   return useSWRMutation<
-    ResponseConfig<TData>,
-    TError,
+    CreatePets['response'],
+    CreatePets['error'],
     [
       typeof url,
       typeof params,
     ] | null
-  >(shouldFetch ? [url, params] : null, (_url, { arg: data }) => {
-    return client<TData, TError, TVariables>({
+  >(shouldFetch ? [url, params] : null, async (_url, { arg: data }) => {
+    const res = await client<CreatePets['data'], CreatePets['error'], CreatePets['request']>({
       method: 'post',
       url,
       params,
@@ -43,5 +51,6 @@ export function useCreatePets<TData = CreatePetsMutationResponse, TError = Creat
       headers: { ...headers, ...clientOptions.headers },
       ...clientOptions,
     })
+    return res
   }, mutationOptions)
 }

@@ -10,10 +10,10 @@ export async function getPetById(
   petId: GetPetByIdPathParams['petId'],
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<GetPetByIdQueryResponse>['data']> {
-  const { data: resData } = await client<GetPetByIdQueryResponse>({
+  const res = await client<GetPetByIdQueryResponse>({
     method: 'get',
     url: `/pet/${petId}`,
     ...options,
   })
-  return resData
+  return res.data
 }

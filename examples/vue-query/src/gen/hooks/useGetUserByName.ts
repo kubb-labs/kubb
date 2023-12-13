@@ -15,7 +15,6 @@ type GetUserByName = {
   queryParams: never
   headerParams: never
   response: GetUserByNameQueryResponse
-  unionResponse: Awaited<ReturnType<GetUserByNameClient>> | GetUserByNameQueryResponse
   client: {
     paramaters: Partial<Parameters<GetUserByNameClient>[0]>
     return: Awaited<ReturnType<GetUserByNameClient>>
@@ -32,17 +31,18 @@ export function getUserByNameQueryOptions<
 >(
   refUsername: MaybeRef<GetUserByNamePathParams['username']>,
   options: GetUserByName['client']['paramaters'] = {},
-): WithRequired<VueQueryObserverOptions<GetUserByName['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<VueQueryObserverOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameQueryKey(refUsername)
   return {
     queryKey,
-    queryFn: () => {
+    queryFn: async () => {
       const username = unref(refUsername)
-      return client<TQueryFnData, TError>({
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
-      }).then((res) => res?.data || res)
+      })
+      return res.data
     },
   }
 }

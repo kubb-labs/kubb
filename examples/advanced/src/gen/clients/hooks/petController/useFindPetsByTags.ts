@@ -17,7 +17,6 @@ type FindPetsByTags = {
   queryParams: FindPetsByTagsQueryParams
   headerParams: FindPetsByTagsHeaderParams
   response: Awaited<ReturnType<FindPetsByTagsClient>>
-  unionResponse: Awaited<ReturnType<FindPetsByTagsClient>> | FindPetsByTagsQueryResponse
   client: {
     paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
     return: Awaited<ReturnType<FindPetsByTagsClient>>
@@ -34,18 +33,19 @@ export function findPetsByTagsQueryOptions<
   headers: FindPetsByTags['headerParams'],
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['paramaters'] = {},
-): WithRequired<UseBaseQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsQueryKey(params)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
         headers: { ...headers, ...options.headers },
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res
     },
   }
 }
@@ -88,12 +88,12 @@ export function findPetsByTagsInfiniteQueryOptions<
   headers: FindPetsByTags['headerParams'],
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['paramaters'] = {},
-): WithRequired<UseInfiniteQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseInfiniteQueryOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return {
     queryKey,
-    queryFn: ({ pageParam }) => {
-      return client<TQueryFnData, TError>({
+    queryFn: async ({ pageParam }) => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         headers: { ...headers, ...options.headers },
@@ -103,7 +103,8 @@ export function findPetsByTagsInfiniteQueryOptions<
           ['test']: pageParam,
           ...(options.params || {}),
         },
-      }).then(res => res?.data || res)
+      })
+      return res
     },
   }
 }

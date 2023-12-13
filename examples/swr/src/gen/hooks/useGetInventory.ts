@@ -3,16 +3,31 @@ import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { GetInventoryQueryResponse } from '../models/GetInventory'
 
-export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TError = unknown>(
-  options: Partial<Parameters<typeof client>[0]> = {},
+type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
+type GetInventory = {
+  data: GetInventoryQueryResponse
+  error: never
+  request: never
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: GetInventoryQueryResponse
+  client: {
+    paramaters: Partial<Parameters<GetInventoryClient>[0]>
+    return: Awaited<ReturnType<GetInventoryClient>>
+  }
+}
+export function getInventoryQueryOptions<TData extends GetInventory['response'] = GetInventory['response'], TError = GetInventory['error']>(
+  options: GetInventory['client']['paramaters'] = {},
 ): SWRConfiguration<TData, TError> {
   return {
-    fetcher: () => {
-      return client<TData, TError>({
+    fetcher: async () => {
+      const res = await client<TData, TError>({
         method: 'get',
         url: `/store/inventory`,
         ...options,
-      }).then((res) => res.data)
+      })
+      return res.data
     },
   }
 }
@@ -20,9 +35,9 @@ export function getInventoryQueryOptions<TData = GetInventoryQueryResponse, TErr
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
  * @link /store/inventory */
-export function useGetInventory<TData = GetInventoryQueryResponse, TError = unknown>(options?: {
+export function useGetInventory<TData extends GetInventory['response'] = GetInventory['response'], TError = GetInventory['error']>(options?: {
   query?: SWRConfiguration<TData, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+  client?: GetInventory['client']['paramaters']
   shouldFetch?: boolean
 }): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

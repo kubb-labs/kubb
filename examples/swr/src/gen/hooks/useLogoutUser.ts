@@ -3,25 +3,40 @@ import client from '@kubb/swagger-client/client'
 import type { SWRConfiguration, SWRResponse } from 'swr'
 import type { LogoutUserQueryResponse, LogoutUserError } from '../models/LogoutUser'
 
-export function logoutUserQueryOptions<TData = LogoutUserQueryResponse, TError = LogoutUserError>(
-  options: Partial<Parameters<typeof client>[0]> = {},
+type LogoutUserClient = typeof client<LogoutUserQueryResponse, LogoutUserError, never>
+type LogoutUser = {
+  data: LogoutUserQueryResponse
+  error: LogoutUserError
+  request: never
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: LogoutUserQueryResponse
+  client: {
+    paramaters: Partial<Parameters<LogoutUserClient>[0]>
+    return: Awaited<ReturnType<LogoutUserClient>>
+  }
+}
+export function logoutUserQueryOptions<TData extends LogoutUser['response'] = LogoutUser['response'], TError = LogoutUser['error']>(
+  options: LogoutUser['client']['paramaters'] = {},
 ): SWRConfiguration<TData, TError> {
   return {
-    fetcher: () => {
-      return client<TData, TError>({
+    fetcher: async () => {
+      const res = await client<TData, TError>({
         method: 'get',
         url: `/user/logout`,
         ...options,
-      }).then((res) => res.data)
+      })
+      return res.data
     },
   }
 }
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout */
-export function useLogoutUser<TData = LogoutUserQueryResponse, TError = LogoutUserError>(options?: {
+export function useLogoutUser<TData extends LogoutUser['response'] = LogoutUser['response'], TError = LogoutUser['error']>(options?: {
   query?: SWRConfiguration<TData, TError>
-  client?: Partial<Parameters<typeof client<TData, TError>>[0]>
+  client?: LogoutUser['client']['paramaters']
   shouldFetch?: boolean
 }): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

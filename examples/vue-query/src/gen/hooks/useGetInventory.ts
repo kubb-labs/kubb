@@ -13,7 +13,6 @@ type GetInventory = {
   queryParams: never
   headerParams: never
   response: GetInventoryQueryResponse
-  unionResponse: Awaited<ReturnType<GetInventoryClient>> | GetInventoryQueryResponse
   client: {
     paramaters: Partial<Parameters<GetInventoryClient>[0]>
     return: Awaited<ReturnType<GetInventoryClient>>
@@ -26,18 +25,17 @@ export function getInventoryQueryOptions<
   TError = GetInventory['error'],
   TData = GetInventory['response'],
   TQueryData = GetInventory['response'],
->(
-  options: GetInventory['client']['paramaters'] = {},
-): WithRequired<VueQueryObserverOptions<GetInventory['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: GetInventory['client']['paramaters'] = {}): WithRequired<VueQueryObserverOptions<GetInventory['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getInventoryQueryKey()
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/inventory`,
         ...options,
-      }).then((res) => res?.data || res)
+      })
+      return res.data
     },
   }
 }

@@ -15,7 +15,6 @@ type DeleteUser = {
   queryParams: never
   headerParams: never
   response: DeleteUserMutationResponse
-  unionResponse: Awaited<ReturnType<DeleteUserClient>> | DeleteUserMutationResponse
   client: {
     paramaters: Partial<Parameters<DeleteUserClient>[0]>
     return: Awaited<ReturnType<DeleteUserClient>>
@@ -25,22 +24,23 @@ type DeleteUser = {
  * @description This can only be done by the logged in user.
  * @summary Delete user
  * @link /user/:username */
-export function useDeleteUser<TData = DeleteUser['response'], TError = DeleteUser['error']>(
+export function useDeleteUser(
   refUsername: MaybeRef<DeleteUserPathParams['username']>,
   options: {
-    mutation?: VueMutationObserverOptions<TData, TError, void, unknown>
+    mutation?: VueMutationObserverOptions<DeleteUser['response'], DeleteUser['error'], void, unknown>
     client?: DeleteUser['client']['paramaters']
   } = {},
-): UseMutationReturnType<TData, TError, void, unknown> {
+): UseMutationReturnType<DeleteUser['response'], DeleteUser['error'], void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, void, unknown>({
-    mutationFn: () => {
+  return useMutation<DeleteUser['response'], DeleteUser['error'], void, unknown>({
+    mutationFn: async () => {
       const username = unref(refUsername)
-      return client<DeleteUser['data'], TError, void>({
+      const res = await client<DeleteUser['data'], DeleteUser['error'], void>({
         method: 'delete',
         url: `/user/${username}`,
         ...clientOptions,
-      }).then((res) => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

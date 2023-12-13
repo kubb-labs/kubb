@@ -1,34 +1,52 @@
 import useSWRMutation from 'swr/mutation'
 import client from '../../../../swr-client.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { ResponseConfig } from '../../../../swr-client.ts'
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
   CreateUsersWithListInputError,
 } from '../../../models/ts/userController/CreateUsersWithListInput'
 
+type CreateUsersWithListInputClient = typeof client<
+  CreateUsersWithListInputMutationResponse,
+  CreateUsersWithListInputError,
+  CreateUsersWithListInputMutationRequest
+>
+type CreateUsersWithListInput = {
+  data: CreateUsersWithListInputMutationResponse
+  error: CreateUsersWithListInputError
+  request: CreateUsersWithListInputMutationRequest
+  pathParams: never
+  queryParams: never
+  headerParams: never
+  response: Awaited<ReturnType<CreateUsersWithListInputClient>>
+  client: {
+    paramaters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
+    return: Awaited<ReturnType<CreateUsersWithListInputClient>>
+  }
+}
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList */
-export function useCreateUsersWithListInput<
-  TData = CreateUsersWithListInputMutationResponse,
-  TError = CreateUsersWithListInputError,
-  TVariables = CreateUsersWithListInputMutationRequest,
->(options?: {
-  mutation?: SWRMutationConfiguration<ResponseConfig<TData>, TError>
-  client?: Partial<Parameters<typeof client<TData, TError, TVariables>>[0]>
+export function useCreateUsersWithListInput(options?: {
+  mutation?: SWRMutationConfiguration<CreateUsersWithListInput['response'], CreateUsersWithListInput['error']>
+  client?: CreateUsersWithListInput['client']['paramaters']
   shouldFetch?: boolean
-}): SWRMutationResponse<ResponseConfig<TData>, TError> {
+}): SWRMutationResponse<CreateUsersWithListInput['response'], CreateUsersWithListInput['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/user/createWithList` as const
-  return useSWRMutation<ResponseConfig<TData>, TError, typeof url | null>(shouldFetch ? url : null, (_url, { arg: data }) => {
-    return client<TData, TError, TVariables>({
-      method: 'post',
-      url,
-      data,
-      ...clientOptions,
-    })
-  }, mutationOptions)
+  return useSWRMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], typeof url | null>(
+    shouldFetch ? url : null,
+    async (_url, { arg: data }) => {
+      const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
+        method: 'post',
+        url,
+        data,
+        ...clientOptions,
+      })
+      return res
+    },
+    mutationOptions,
+  )
 }

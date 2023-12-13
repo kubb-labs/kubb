@@ -12,7 +12,6 @@ type FindPetsByTags = {
   queryParams: FindPetsByTagsQueryParams
   headerParams: never
   response: FindPetsByTagsQueryResponse
-  unionResponse: Awaited<ReturnType<FindPetsByTagsClient>> | FindPetsByTagsQueryResponse
   client: {
     paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
     return: Awaited<ReturnType<FindPetsByTagsClient>>
@@ -28,17 +27,18 @@ export function findPetsByTagsQueryOptions<
 >(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['paramaters'] = {},
-): WithRequired<UseBaseQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsQueryKey(params)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
         ...options,
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -80,12 +80,12 @@ export function findPetsByTagsInfiniteQueryOptions<
 >(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['paramaters'] = {},
-): WithRequired<UseInfiniteQueryOptions<FindPetsByTags['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseInfiniteQueryOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return {
     queryKey,
-    queryFn: ({ pageParam }) => {
-      return client<TQueryFnData, TError>({
+    queryFn: async ({ pageParam }) => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         ...options,
@@ -94,7 +94,8 @@ export function findPetsByTagsInfiniteQueryOptions<
           ['id']: pageParam,
           ...(options.params || {}),
         },
-      }).then(res => res?.data || res)
+      })
+      return res.data
     },
   }
 }

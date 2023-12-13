@@ -12,7 +12,6 @@ type FindPetsByStatus = {
   queryParams: FindPetsByStatusQueryParams
   headerParams: never
   response: FindPetsByStatusQueryResponse
-  unionResponse: Awaited<ReturnType<FindPetsByStatusClient>> | FindPetsByStatusQueryResponse
   client: {
     paramaters: Partial<Parameters<FindPetsByStatusClient>[0]>
     return: Awaited<ReturnType<FindPetsByStatusClient>>
@@ -28,17 +27,18 @@ export function findPetsByStatusQueryOptions<
 >(
   params?: FindPetsByStatus['queryParams'],
   options: FindPetsByStatus['client']['paramaters'] = {},
-): WithRequired<CreateBaseQueryOptions<FindPetsByStatus['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<CreateBaseQueryOptions<FindPetsByStatus['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByStatusQueryKey(params)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
         params,
         ...options,
-      }).then((res) => res?.data || res)
+      })
+      return res.data
     },
   }
 }

@@ -15,7 +15,6 @@ type UpdateUser = {
   queryParams: never
   headerParams: never
   response: UpdateUserMutationResponse
-  unionResponse: Awaited<ReturnType<UpdateUserClient>> | UpdateUserMutationResponse
   client: {
     paramaters: Partial<Parameters<UpdateUserClient>[0]>
     return: Awaited<ReturnType<UpdateUserClient>>
@@ -25,23 +24,24 @@ type UpdateUser = {
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username */
-export function useUpdateUser<TData = UpdateUser['response'], TError = UpdateUser['error']>(
+export function useUpdateUser(
   refUsername: MaybeRef<UpdateUserPathParams['username']>,
   options: {
-    mutation?: VueMutationObserverOptions<TData, TError, UpdateUser['request'], unknown>
+    mutation?: VueMutationObserverOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request'], unknown>
     client?: UpdateUser['client']['paramaters']
   } = {},
-): UseMutationReturnType<TData, TError, UpdateUser['request'], unknown> {
+): UseMutationReturnType<UpdateUser['response'], UpdateUser['error'], UpdateUser['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, UpdateUser['request'], unknown>({
-    mutationFn: (data) => {
+  return useMutation<UpdateUser['response'], UpdateUser['error'], UpdateUser['request'], unknown>({
+    mutationFn: async (data) => {
       const username = unref(refUsername)
-      return client<UpdateUser['data'], TError, UpdateUser['request']>({
+      const res = await client<UpdateUser['data'], UpdateUser['error'], UpdateUser['request']>({
         method: 'put',
         url: `/user/${username}`,
         data,
         ...clientOptions,
-      }).then((res) => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })

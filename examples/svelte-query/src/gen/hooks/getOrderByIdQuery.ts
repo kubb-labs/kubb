@@ -19,7 +19,6 @@ type GetOrderById = {
   queryParams: never
   headerParams: never
   response: GetOrderByIdQueryResponse
-  unionResponse: Awaited<ReturnType<GetOrderByIdClient>> | GetOrderByIdQueryResponse
   client: {
     paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
     return: Awaited<ReturnType<GetOrderByIdClient>>
@@ -35,16 +34,17 @@ export function getOrderByIdQueryOptions<
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['paramaters'] = {},
-): WithRequired<CreateBaseQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<CreateBaseQueryOptions<GetOrderById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdQueryKey(orderId)
   return {
     queryKey,
-    queryFn: () => {
-      return client<TQueryFnData, TError>({
+    queryFn: async () => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
         ...options,
-      }).then((res) => res?.data || res)
+      })
+      return res.data
     },
   }
 }
@@ -90,16 +90,17 @@ export function getOrderByIdInfiniteQueryOptions<
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['paramaters'] = {},
-): WithRequired<CreateInfiniteQueryOptions<GetOrderById['unionResponse'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<CreateInfiniteQueryOptions<GetOrderById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdInfiniteQueryKey(orderId)
   return {
     queryKey,
-    queryFn: ({ pageParam }) => {
-      return client<TQueryFnData, TError>({
+    queryFn: async ({ pageParam }) => {
+      const res = await client<TQueryFnData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
         ...options,
-      }).then((res) => res?.data || res)
+      })
+      return res.data
     },
   }
 }

@@ -13,10 +13,11 @@ export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},
 ): Promise<ResponseConfig<CreateUsersWithListInputMutationResponse>> {
-  return client<CreateUsersWithListInputMutationResponse, CreateUsersWithListInputMutationRequest>({
+  const res = await client<CreateUsersWithListInputMutationResponse, CreateUsersWithListInputMutationRequest>({
     method: 'post',
     url: `/user/createWithList`,
     data,
     ...options,
   })
+  return res
 }

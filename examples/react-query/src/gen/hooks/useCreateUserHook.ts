@@ -12,7 +12,6 @@ type CreateUser = {
   queryParams: never
   headerParams: never
   response: CreateUserMutationResponse
-  unionResponse: Awaited<ReturnType<CreateUserClient>> | CreateUserMutationResponse
   client: {
     paramaters: Partial<Parameters<CreateUserClient>[0]>
     return: Awaited<ReturnType<CreateUserClient>>
@@ -22,19 +21,20 @@ type CreateUser = {
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user */
-export function useCreateUserHook<TData = CreateUser['response'], TError = CreateUser['error']>(options: {
-  mutation?: UseMutationOptions<TData, TError, CreateUser['request']>
+export function useCreateUserHook(options: {
+  mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
   client?: CreateUser['client']['paramaters']
-} = {}): UseMutationResult<TData, TError, CreateUser['request']> {
+} = {}): UseMutationResult<CreateUser['response'], CreateUser['error'], CreateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<TData, TError, CreateUser['request']>({
-    mutationFn: (data) => {
-      return client<CreateUser['data'], TError, CreateUser['request']>({
+  return useMutation<CreateUser['response'], CreateUser['error'], CreateUser['request']>({
+    mutationFn: async (data) => {
+      const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
         method: 'post',
         url: `/user`,
         data,
         ...clientOptions,
-      }).then(res => res as TData)
+      })
+      return res.data
     },
     ...mutationOptions,
   })
