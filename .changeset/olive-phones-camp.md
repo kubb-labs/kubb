@@ -2,4 +2,4 @@
 "@kubb/cli": patch
 ---
 
-useo of `bundle-require`
+use of `bundle-require`

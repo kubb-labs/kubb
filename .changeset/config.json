@@ -19,6 +19,7 @@
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   },
+  "useCalculatedVersion": true,
   "ignore": [
     "kubb",
     "kubb-docs",

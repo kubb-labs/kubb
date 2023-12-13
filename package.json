@@ -1,6 +1,6 @@
 {
   "name": "@kubb/root",
-  "version": "2.0.0-beta.2",
+  "version": "0.0.0",
   "private": true,
   "description": "Kubb's monorepo",
   "repository": {
@@ -40,7 +40,7 @@
     "lint:fix": "ESLINT_USE_FLAT_CONFIG=true eslint --fix --format pretty ./packages/* && bun run lint:case",
     "lint:turbo": "turbo run lint",
     "release": "changeset version && changeset publish",
-    "release:canary": "changeset version --snapshot && changeset publish",
+    "release:canary": "changeset version --snapshot canary && changeset publish",
     "start": "turbo run start --filter=./packages/*",
     "test": "vitest run --config ./configs/vitest.config.ts --coverage",
     "test:bun": "bun test --preload ./configs/setup.ts",
