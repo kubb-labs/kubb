@@ -1,5 +1,13 @@
 # @kubb/react
 
+## 2.0.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.0.5
+  - @kubb/parser@2.0.5
+
 ## 2.0.4
 
 ## 2.0.3

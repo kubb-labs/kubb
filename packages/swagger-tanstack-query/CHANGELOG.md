@@ -1,5 +1,17 @@
 # @kubb/swagger-tanstack-query
 
+## 2.0.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.0.5
+  - @kubb/parser@2.0.5
+  - @kubb/react@2.0.5
+  - @kubb/swagger@2.0.5
+  - @kubb/swagger-client@2.0.5
+  - @kubb/swagger-ts@2.0.5
+
 ## 2.0.4
 
 ## 2.0.3
