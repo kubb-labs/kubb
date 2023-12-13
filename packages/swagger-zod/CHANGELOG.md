@@ -1,5 +1,17 @@
 # @kubb/swagger-zod
 
+## 2.0.5
+
+### Patch Changes
+
+- [#725](https://github.com/kubb-project/kubb/pull/725) [`f68845b`](https://github.com/kubb-project/kubb/commit/f68845b5c294e7ff56bc9187e86897850e6de8de) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove log
+
+- Updated dependencies []:
+  - @kubb/core@2.0.5
+  - @kubb/parser@2.0.5
+  - @kubb/react@2.0.5
+  - @kubb/swagger@2.0.5
+
 ## 2.0.4
 
 ## 2.0.3
