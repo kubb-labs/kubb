@@ -81,7 +81,7 @@
     "fs-extra": "^11.2.0",
     "js-runtime": "^0.0.7",
     "natural-orderby": "^3.0.2",
-    "p-queue": "^8.0.0",
+    "p-queue": "^8.0.1",
     "seedrandom": "^3.0.5",
     "semver": "^7.5.4"
   },

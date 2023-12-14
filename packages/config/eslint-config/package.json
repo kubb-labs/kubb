@@ -51,7 +51,7 @@
     "eslint-config-turbo": "^1.11.2",
     "eslint-formatter-pretty": "^6.0.0",
     "eslint-plugin-eslint-plugin": "^5.2.1",
-    "eslint-plugin-import": "~2.29.0",
+    "eslint-plugin-import": "~2.29.1",
     "eslint-plugin-react": "~7.33.2",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-turbo": "^1.11.2",
