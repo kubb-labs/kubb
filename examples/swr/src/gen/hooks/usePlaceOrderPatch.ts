@@ -13,7 +13,7 @@ type PlaceOrderPatch = {
   headerParams: never
   response: PlaceOrderPatchMutationResponse
   client: {
-    paramaters: Partial<Parameters<PlaceOrderPatchClient>[0]>
+    parameters: Partial<Parameters<PlaceOrderPatchClient>[0]>
     return: Awaited<ReturnType<PlaceOrderPatchClient>>
   }
 }
@@ -23,7 +23,7 @@ type PlaceOrderPatch = {
  * @link /store/order */
 export function usePlaceOrderPatch(options?: {
   mutation?: SWRMutationConfiguration<PlaceOrderPatch['response'], PlaceOrderPatch['error']>
-  client?: PlaceOrderPatch['client']['paramaters']
+  client?: PlaceOrderPatch['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<PlaceOrderPatch['response'], PlaceOrderPatch['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

@@ -177,7 +177,7 @@ const defaultTemplates = {
           name: 'options',
           type: `{
         mutation?: ${optionsType}<${resultGenerics.join(', ')}>,
-        client?: ${factory.name}['client']['paramaters']
+        client?: ${factory.name}['client']['parameters']
     }`,
           default: '{}',
         },
@@ -290,7 +290,7 @@ export function Mutation({
       name: 'options',
       type: `{
     mutation?: ${optionsType}<${resultGenerics.join(', ')}>,
-    client?: ${factory.name}['client']['paramaters']
+    client?: ${factory.name}['client']['parameters']
 }`,
       default: '{}',
     },

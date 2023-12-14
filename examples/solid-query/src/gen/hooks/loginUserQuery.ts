@@ -13,7 +13,7 @@ type LoginUser = {
   headerParams: never
   response: LoginUserQueryResponse
   client: {
-    paramaters: Partial<Parameters<LoginUserClient>[0]>
+    parameters: Partial<Parameters<LoginUserClient>[0]>
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
@@ -26,7 +26,7 @@ export function loginUserQueryOptions<
   TQueryData = LoginUser['response'],
 >(
   params?: LoginUser['queryParams'],
-  options: LoginUser['client']['paramaters'] = {},
+  options: LoginUser['client']['parameters'] = {},
 ): WithRequired<CreateBaseQueryOptions<LoginUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(params)
   return {
@@ -55,7 +55,7 @@ export function loginUserQuery<
   params?: LoginUser['queryParams'],
   options: {
     query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: LoginUser['client']['paramaters']
+    client?: LoginUser['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
   queryKey: TQueryKey

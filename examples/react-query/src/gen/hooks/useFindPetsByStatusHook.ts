@@ -13,7 +13,7 @@ type FindPetsByStatus = {
   headerParams: never
   response: FindPetsByStatusQueryResponse
   client: {
-    paramaters: Partial<Parameters<FindPetsByStatusClient>[0]>
+    parameters: Partial<Parameters<FindPetsByStatusClient>[0]>
     return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
 }
@@ -26,7 +26,7 @@ export function findPetsByStatusQueryOptions<
   TQueryData = FindPetsByStatus['response'],
 >(
   params?: FindPetsByStatus['queryParams'],
-  options: FindPetsByStatus['client']['paramaters'] = {},
+  options: FindPetsByStatus['client']['parameters'] = {},
 ): WithRequired<UseBaseQueryOptions<FindPetsByStatus['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByStatusQueryKey(params)
   return {
@@ -54,7 +54,7 @@ export function useFindPetsByStatusHook<
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
 >(params?: FindPetsByStatus['queryParams'], options: {
   query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: FindPetsByStatus['client']['paramaters']
+  client?: FindPetsByStatus['client']['parameters']
 } = {}): UseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -80,7 +80,7 @@ export function findPetsByStatusInfiniteQueryOptions<
   TQueryData = FindPetsByStatus['response'],
 >(
   params?: FindPetsByStatus['queryParams'],
-  options: FindPetsByStatus['client']['paramaters'] = {},
+  options: FindPetsByStatus['client']['parameters'] = {},
 ): WithRequired<UseInfiniteQueryOptions<FindPetsByStatus['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByStatusInfiniteQueryKey(params)
   return {
@@ -112,7 +112,7 @@ export function useFindPetsByStatusHookInfinite<
   TQueryKey extends QueryKey = FindPetsByStatusInfiniteQueryKey,
 >(params?: FindPetsByStatus['queryParams'], options: {
   query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: FindPetsByStatus['client']['paramaters']
+  client?: FindPetsByStatus['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {

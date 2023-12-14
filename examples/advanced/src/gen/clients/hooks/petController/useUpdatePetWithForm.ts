@@ -18,7 +18,7 @@ type UpdatePetWithForm = {
   headerParams: never
   response: Awaited<ReturnType<UpdatePetWithFormClient>>
   client: {
-    paramaters: Partial<Parameters<UpdatePetWithFormClient>[0]>
+    parameters: Partial<Parameters<UpdatePetWithFormClient>[0]>
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
 }
@@ -27,7 +27,7 @@ type UpdatePetWithForm = {
  * @link /pet/:petId */
 export function useUpdatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithForm['queryParams'], options: {
   mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void>
-  client?: UpdatePetWithForm['client']['paramaters']
+  client?: UpdatePetWithForm['client']['parameters']
 } = {}): UseMutationResult<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void>({

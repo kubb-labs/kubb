@@ -18,7 +18,7 @@ type UploadFile = {
   headerParams: never
   response: Awaited<ReturnType<UploadFileClient>>
   client: {
-    paramaters: Partial<Parameters<UploadFileClient>[0]>
+    parameters: Partial<Parameters<UploadFileClient>[0]>
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
@@ -27,7 +27,7 @@ type UploadFile = {
  * @link /pet/:petId/uploadImage */
 export function useUploadFile(petId: UploadFilePathParams['petId'], params?: UploadFile['queryParams'], options?: {
   mutation?: SWRMutationConfiguration<UploadFile['response'], UploadFile['error']>
-  client?: UploadFile['client']['paramaters']
+  client?: UploadFile['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<UploadFile['response'], UploadFile['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

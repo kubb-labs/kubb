@@ -14,7 +14,7 @@ type LogoutUser = {
   headerParams: never
   response: LogoutUserQueryResponse
   client: {
-    paramaters: Partial<Parameters<LogoutUserClient>[0]>
+    parameters: Partial<Parameters<LogoutUserClient>[0]>
     return: Awaited<ReturnType<LogoutUserClient>>
   }
 }
@@ -25,7 +25,7 @@ export function logoutUserQueryOptions<
   TError = LogoutUser['error'],
   TData = LogoutUser['response'],
   TQueryData = LogoutUser['response'],
->(options: LogoutUser['client']['paramaters'] = {}): WithRequired<VueQueryObserverOptions<LogoutUser['response'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: LogoutUser['client']['parameters'] = {}): WithRequired<VueQueryObserverOptions<LogoutUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = logoutUserQueryKey()
   return {
     queryKey,
@@ -51,7 +51,7 @@ export function useLogoutUser<
 >(
   options: {
     query?: VueQueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: LogoutUser['client']['paramaters']
+    client?: LogoutUser['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, TError> & {
   queryKey: TQueryKey

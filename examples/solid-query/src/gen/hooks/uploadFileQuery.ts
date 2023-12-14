@@ -13,7 +13,7 @@ type UploadFile = {
   headerParams: never
   response: UploadFileMutationResponse
   client: {
-    paramaters: Partial<Parameters<UploadFileClient>[0]>
+    parameters: Partial<Parameters<UploadFileClient>[0]>
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
@@ -25,7 +25,7 @@ export function uploadFileQuery(
   params?: UploadFile['queryParams'],
   options: {
     mutation?: CreateMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
-    client?: UploadFile['client']['paramaters']
+    client?: UploadFile['client']['parameters']
   } = {},
 ): CreateMutationResult<UploadFile['response'], UploadFile['error'], UploadFile['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

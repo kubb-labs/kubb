@@ -13,13 +13,13 @@ type GetPetById = {
   headerParams: never
   response: Awaited<ReturnType<GetPetByIdClient>>
   client: {
-    paramaters: Partial<Parameters<GetPetByIdClient>[0]>
+    parameters: Partial<Parameters<GetPetByIdClient>[0]>
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
 export function getPetByIdQueryOptions<TData extends GetPetById['response'] = GetPetById['response'], TError = GetPetById['error']>(
   petId: GetPetByIdPathParams['petId'],
-  options: GetPetById['client']['paramaters'] = {},
+  options: GetPetById['client']['parameters'] = {},
 ): SWRConfiguration<TData, TError> {
   return {
     fetcher: async () => {
@@ -40,7 +40,7 @@ export function useGetPetById<TData extends GetPetById['response'] = GetPetById[
   petId: GetPetByIdPathParams['petId'],
   options?: {
     query?: SWRConfiguration<TData, TError>
-    client?: GetPetById['client']['paramaters']
+    client?: GetPetById['client']['parameters']
     shouldFetch?: boolean
   },
 ): SWRResponse<TData, TError> {

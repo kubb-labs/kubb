@@ -13,13 +13,13 @@ type GetOrderById = {
   headerParams: never
   response: GetOrderByIdQueryResponse
   client: {
-    paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
+    parameters: Partial<Parameters<GetOrderByIdClient>[0]>
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
 export function getOrderByIdQueryOptions<TData extends GetOrderById['response'] = GetOrderById['response'], TError = GetOrderById['error']>(
   orderId: GetOrderByIdPathParams['orderId'],
-  options: GetOrderById['client']['paramaters'] = {},
+  options: GetOrderById['client']['parameters'] = {},
 ): SWRConfiguration<TData, TError> {
   return {
     fetcher: async () => {
@@ -40,7 +40,7 @@ export function useGetOrderById<TData extends GetOrderById['response'] = GetOrde
   orderId: GetOrderByIdPathParams['orderId'],
   options?: {
     query?: SWRConfiguration<TData, TError>
-    client?: GetOrderById['client']['paramaters']
+    client?: GetOrderById['client']['parameters']
     shouldFetch?: boolean
   },
 ): SWRResponse<TData, TError> {

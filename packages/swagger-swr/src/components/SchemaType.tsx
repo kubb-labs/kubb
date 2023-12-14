@@ -47,7 +47,7 @@ export function SchemaType({ factory }: Props): ReactNode {
             : `Awaited<ReturnType<${clientType}>>`
         }
           client: {
-            paramaters: Partial<Parameters<${clientType}>[0]>
+            parameters: Partial<Parameters<${clientType}>[0]>
             return: Awaited<ReturnType<${clientType}>>
           }
         }

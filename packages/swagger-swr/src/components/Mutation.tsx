@@ -172,7 +172,7 @@ export function Mutation({
       required: false,
       type: `{
         mutation?: SWRMutationConfiguration<${resultGenerics.join(', ')}>,
-        client?: ${factory.name}['client']['paramaters'],
+        client?: ${factory.name}['client']['parameters'],
         shouldFetch?: boolean,
       }`,
       default: '{}',

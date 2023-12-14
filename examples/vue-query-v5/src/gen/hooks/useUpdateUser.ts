@@ -15,7 +15,7 @@ type UpdateUser = {
   headerParams: never
   response: UpdateUserMutationResponse
   client: {
-    paramaters: Partial<Parameters<UpdateUserClient>[0]>
+    parameters: Partial<Parameters<UpdateUserClient>[0]>
     return: Awaited<ReturnType<UpdateUserClient>>
   }
 }
@@ -27,7 +27,7 @@ export function useUpdateUser(
   refUsername: MaybeRef<UpdateUserPathParams['username']>,
   options: {
     mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request'], unknown>
-    client?: UpdateUser['client']['paramaters']
+    client?: UpdateUser['client']['parameters']
   } = {},
 ): UseMutationReturnType<UpdateUser['response'], UpdateUser['error'], UpdateUser['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

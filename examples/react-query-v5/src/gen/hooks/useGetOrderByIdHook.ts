@@ -22,7 +22,7 @@ type GetOrderById = {
   headerParams: never
   response: GetOrderByIdQueryResponse
   client: {
-    paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
+    parameters: Partial<Parameters<GetOrderByIdClient>[0]>
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
@@ -35,7 +35,7 @@ export function getOrderByIdQueryOptions<
   TQueryData = GetOrderById['response'],
 >(
   orderId: GetOrderByIdPathParams['orderId'],
-  options: GetOrderById['client']['paramaters'] = {},
+  options: GetOrderById['client']['parameters'] = {},
 ): WithRequired<QueryObserverOptions<GetOrderById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdQueryKey(orderId)
   return {
@@ -62,7 +62,7 @@ export function useGetOrderByIdHook<
   TQueryKey extends QueryKey = GetOrderByIdQueryKey,
 >(orderId: GetOrderByIdPathParams['orderId'], options: {
   query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: GetOrderById['client']['paramaters']
+  client?: GetOrderById['client']['parameters']
 } = {}): UseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -88,7 +88,7 @@ export function getOrderByIdInfiniteQueryOptions<
   TQueryData = GetOrderById['response'],
 >(
   orderId: GetOrderByIdPathParams['orderId'],
-  options: GetOrderById['client']['paramaters'] = {},
+  options: GetOrderById['client']['parameters'] = {},
 ): WithRequired<UseInfiniteQueryOptions<GetOrderById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdInfiniteQueryKey(orderId)
   return {
@@ -117,7 +117,7 @@ export function useGetOrderByIdHookInfinite<
   TQueryKey extends QueryKey = GetOrderByIdInfiniteQueryKey,
 >(orderId: GetOrderByIdPathParams['orderId'], options: {
   query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: GetOrderById['client']['paramaters']
+  client?: GetOrderById['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -142,7 +142,7 @@ export function getOrderByIdSuspenseQueryOptions<
   TData = GetOrderById['response'],
 >(
   orderId: GetOrderByIdPathParams['orderId'],
-  options: GetOrderById['client']['paramaters'] = {},
+  options: GetOrderById['client']['parameters'] = {},
 ): WithRequired<UseSuspenseQueryOptions<GetOrderById['response'], TError, TData>, 'queryKey'> {
   const queryKey = getOrderByIdSuspenseQueryKey(orderId)
   return {
@@ -168,7 +168,7 @@ export function useGetOrderByIdHookSuspense<
   TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey,
 >(orderId: GetOrderByIdPathParams['orderId'], options: {
   query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
-  client?: GetOrderById['client']['paramaters']
+  client?: GetOrderById['client']['parameters']
 } = {}): UseSuspenseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {

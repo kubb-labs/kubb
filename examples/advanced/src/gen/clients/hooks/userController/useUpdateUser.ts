@@ -13,7 +13,7 @@ type UpdateUser = {
   headerParams: never
   response: Awaited<ReturnType<UpdateUserClient>>
   client: {
-    paramaters: Partial<Parameters<UpdateUserClient>[0]>
+    parameters: Partial<Parameters<UpdateUserClient>[0]>
     return: Awaited<ReturnType<UpdateUserClient>>
   }
 }
@@ -23,7 +23,7 @@ type UpdateUser = {
  * @link /user/:username */
 export function useUpdateUser(username: UpdateUserPathParams['username'], options: {
   mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
-  client?: UpdateUser['client']['paramaters']
+  client?: UpdateUser['client']['parameters']
 } = {}): UseMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>({

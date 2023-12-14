@@ -13,7 +13,7 @@ type PlaceOrderPatch = {
   headerParams: never
   response: PlaceOrderPatchMutationResponse
   client: {
-    paramaters: Partial<Parameters<PlaceOrderPatchClient>[0]>
+    parameters: Partial<Parameters<PlaceOrderPatchClient>[0]>
     return: Awaited<ReturnType<PlaceOrderPatchClient>>
   }
 }
@@ -23,7 +23,7 @@ type PlaceOrderPatch = {
  * @link /store/order */
 export function usePlaceOrderPatchHook(options: {
   mutation?: UseMutationOptions<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>
-  client?: PlaceOrderPatch['client']['paramaters']
+  client?: PlaceOrderPatch['client']['parameters']
 } = {}): UseMutationResult<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({

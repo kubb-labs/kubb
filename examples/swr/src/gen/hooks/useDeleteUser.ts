@@ -13,7 +13,7 @@ type DeleteUser = {
   headerParams: never
   response: DeleteUserMutationResponse
   client: {
-    paramaters: Partial<Parameters<DeleteUserClient>[0]>
+    parameters: Partial<Parameters<DeleteUserClient>[0]>
     return: Awaited<ReturnType<DeleteUserClient>>
   }
 }
@@ -25,7 +25,7 @@ export function useDeleteUser(
   username: DeleteUserPathParams['username'],
   options?: {
     mutation?: SWRMutationConfiguration<DeleteUser['response'], DeleteUser['error']>
-    client?: DeleteUser['client']['paramaters']
+    client?: DeleteUser['client']['parameters']
     shouldFetch?: boolean
   },
 ): SWRMutationResponse<DeleteUser['response'], DeleteUser['error']> {

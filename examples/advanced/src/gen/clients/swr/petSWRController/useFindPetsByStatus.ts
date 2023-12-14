@@ -13,13 +13,13 @@ type FindPetsByStatus = {
   headerParams: never
   response: Awaited<ReturnType<FindPetsByStatusClient>>
   client: {
-    paramaters: Partial<Parameters<FindPetsByStatusClient>[0]>
+    parameters: Partial<Parameters<FindPetsByStatusClient>[0]>
     return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
 }
 export function findPetsByStatusQueryOptions<TData extends FindPetsByStatus['response'] = FindPetsByStatus['response'], TError = FindPetsByStatus['error']>(
   params?: FindPetsByStatus['queryParams'],
-  options: FindPetsByStatus['client']['paramaters'] = {},
+  options: FindPetsByStatus['client']['parameters'] = {},
 ): SWRConfiguration<TData, TError> {
   return {
     fetcher: async () => {
@@ -41,7 +41,7 @@ export function useFindPetsByStatus<TData extends FindPetsByStatus['response'] =
   params?: FindPetsByStatus['queryParams'],
   options?: {
     query?: SWRConfiguration<TData, TError>
-    client?: FindPetsByStatus['client']['paramaters']
+    client?: FindPetsByStatus['client']['parameters']
     shouldFetch?: boolean
   },
 ): SWRResponse<TData, TError> {

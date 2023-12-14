@@ -13,7 +13,7 @@ type PlaceOrder = {
   headerParams: never
   response: PlaceOrderMutationResponse
   client: {
-    paramaters: Partial<Parameters<PlaceOrderClient>[0]>
+    parameters: Partial<Parameters<PlaceOrderClient>[0]>
     return: Awaited<ReturnType<PlaceOrderClient>>
   }
 }
@@ -24,7 +24,7 @@ type PlaceOrder = {
 export function usePlaceOrder(
   options: {
     mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request'], unknown>
-    client?: PlaceOrder['client']['paramaters']
+    client?: PlaceOrder['client']['parameters']
   } = {},
 ): UseMutationReturnType<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

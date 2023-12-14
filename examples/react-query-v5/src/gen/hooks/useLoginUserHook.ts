@@ -22,7 +22,7 @@ type LoginUser = {
   headerParams: never
   response: LoginUserQueryResponse
   client: {
-    paramaters: Partial<Parameters<LoginUserClient>[0]>
+    parameters: Partial<Parameters<LoginUserClient>[0]>
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
@@ -35,7 +35,7 @@ export function loginUserQueryOptions<
   TQueryData = LoginUser['response'],
 >(
   params?: LoginUser['queryParams'],
-  options: LoginUser['client']['paramaters'] = {},
+  options: LoginUser['client']['parameters'] = {},
 ): WithRequired<QueryObserverOptions<LoginUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(params)
   return {
@@ -62,7 +62,7 @@ export function useLoginUserHook<
   TQueryKey extends QueryKey = LoginUserQueryKey,
 >(params?: LoginUser['queryParams'], options: {
   query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: LoginUser['client']['paramaters']
+  client?: LoginUser['client']['parameters']
 } = {}): UseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -87,7 +87,7 @@ export function loginUserInfiniteQueryOptions<
   TQueryData = LoginUser['response'],
 >(
   params?: LoginUser['queryParams'],
-  options: LoginUser['client']['paramaters'] = {},
+  options: LoginUser['client']['parameters'] = {},
 ): WithRequired<UseInfiniteQueryOptions<LoginUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserInfiniteQueryKey(params)
   return {
@@ -120,7 +120,7 @@ export function useLoginUserHookInfinite<
   TQueryKey extends QueryKey = LoginUserInfiniteQueryKey,
 >(params?: LoginUser['queryParams'], options: {
   query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: LoginUser['client']['paramaters']
+  client?: LoginUser['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -144,7 +144,7 @@ export function loginUserSuspenseQueryOptions<
   TData = LoginUser['response'],
 >(
   params?: LoginUser['queryParams'],
-  options: LoginUser['client']['paramaters'] = {},
+  options: LoginUser['client']['parameters'] = {},
 ): WithRequired<UseSuspenseQueryOptions<LoginUser['response'], TError, TData>, 'queryKey'> {
   const queryKey = loginUserSuspenseQueryKey(params)
   return {
@@ -170,7 +170,7 @@ export function useLoginUserHookSuspense<
   TQueryKey extends QueryKey = LoginUserSuspenseQueryKey,
 >(params?: LoginUser['queryParams'], options: {
   query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
-  client?: LoginUser['client']['paramaters']
+  client?: LoginUser['client']['parameters']
 } = {}): UseSuspenseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {

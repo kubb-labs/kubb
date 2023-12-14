@@ -13,7 +13,7 @@ type DeleteUser = {
   headerParams: never
   response: DeleteUserMutationResponse
   client: {
-    paramaters: Partial<Parameters<DeleteUserClient>[0]>
+    parameters: Partial<Parameters<DeleteUserClient>[0]>
     return: Awaited<ReturnType<DeleteUserClient>>
   }
 }
@@ -25,7 +25,7 @@ export function deleteUserQuery(
   username: DeleteUserPathParams['username'],
   options: {
     mutation?: CreateMutationOptions<DeleteUser['response'], DeleteUser['error'], void>
-    client?: DeleteUser['client']['paramaters']
+    client?: DeleteUser['client']['parameters']
   } = {},
 ): CreateMutationResult<DeleteUser['response'], DeleteUser['error'], void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

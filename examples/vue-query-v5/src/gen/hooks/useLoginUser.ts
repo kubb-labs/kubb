@@ -15,7 +15,7 @@ type LoginUser = {
   headerParams: never
   response: LoginUserQueryResponse
   client: {
-    paramaters: Partial<Parameters<LoginUserClient>[0]>
+    parameters: Partial<Parameters<LoginUserClient>[0]>
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
@@ -28,7 +28,7 @@ export function loginUserQueryOptions<
   TQueryData = LoginUser['response'],
 >(
   refParams?: MaybeRef<LoginUserQueryParams>,
-  options: LoginUser['client']['paramaters'] = {},
+  options: LoginUser['client']['parameters'] = {},
 ): WithRequired<QueryObserverOptions<LoginUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(refParams)
   return {
@@ -58,7 +58,7 @@ export function useLoginUser<
   refParams?: MaybeRef<LoginUserQueryParams>,
   options: {
     query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: LoginUser['client']['paramaters']
+    client?: LoginUser['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, TError> & {
   queryKey: TQueryKey

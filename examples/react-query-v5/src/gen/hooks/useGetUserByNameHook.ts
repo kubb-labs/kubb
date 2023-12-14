@@ -22,7 +22,7 @@ type GetUserByName = {
   headerParams: never
   response: GetUserByNameQueryResponse
   client: {
-    paramaters: Partial<Parameters<GetUserByNameClient>[0]>
+    parameters: Partial<Parameters<GetUserByNameClient>[0]>
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
@@ -35,7 +35,7 @@ export function getUserByNameQueryOptions<
   TQueryData = GetUserByName['response'],
 >(
   username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['paramaters'] = {},
+  options: GetUserByName['client']['parameters'] = {},
 ): WithRequired<QueryObserverOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameQueryKey(username)
   return {
@@ -61,7 +61,7 @@ export function useGetUserByNameHook<
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(username: GetUserByNamePathParams['username'], options: {
   query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: GetUserByName['client']['paramaters']
+  client?: GetUserByName['client']['parameters']
 } = {}): UseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -87,7 +87,7 @@ export function getUserByNameInfiniteQueryOptions<
   TQueryData = GetUserByName['response'],
 >(
   username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['paramaters'] = {},
+  options: GetUserByName['client']['parameters'] = {},
 ): WithRequired<UseInfiniteQueryOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameInfiniteQueryKey(username)
   return {
@@ -115,7 +115,7 @@ export function useGetUserByNameHookInfinite<
   TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
 >(username: GetUserByNamePathParams['username'], options: {
   query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: GetUserByName['client']['paramaters']
+  client?: GetUserByName['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -140,7 +140,7 @@ export function getUserByNameSuspenseQueryOptions<
   TData = GetUserByName['response'],
 >(
   username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['paramaters'] = {},
+  options: GetUserByName['client']['parameters'] = {},
 ): WithRequired<UseSuspenseQueryOptions<GetUserByName['response'], TError, TData>, 'queryKey'> {
   const queryKey = getUserByNameSuspenseQueryKey(username)
   return {
@@ -165,7 +165,7 @@ export function useGetUserByNameHookSuspense<
   TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey,
 >(username: GetUserByNamePathParams['username'], options: {
   query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
-  client?: GetUserByName['client']['paramaters']
+  client?: GetUserByName['client']['parameters']
 } = {}): UseSuspenseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {

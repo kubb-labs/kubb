@@ -16,7 +16,7 @@ type GetUserByName = {
   headerParams: never
   response: GetUserByNameQueryResponse
   client: {
-    paramaters: Partial<Parameters<GetUserByNameClient>[0]>
+    parameters: Partial<Parameters<GetUserByNameClient>[0]>
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
@@ -30,7 +30,7 @@ export function getUserByNameQueryOptions<
   TQueryData = GetUserByName['response'],
 >(
   refUsername: MaybeRef<GetUserByNamePathParams['username']>,
-  options: GetUserByName['client']['paramaters'] = {},
+  options: GetUserByName['client']['parameters'] = {},
 ): WithRequired<VueQueryObserverOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameQueryKey(refUsername)
   return {
@@ -59,7 +59,7 @@ export function useGetUserByName<
   refUsername: GetUserByNamePathParams['username'],
   options: {
     query?: VueQueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: GetUserByName['client']['paramaters']
+    client?: GetUserByName['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, TError> & {
   queryKey: TQueryKey

@@ -13,7 +13,7 @@ type CreateUser = {
   headerParams: never
   response: CreateUserMutationResponse
   client: {
-    paramaters: Partial<Parameters<CreateUserClient>[0]>
+    parameters: Partial<Parameters<CreateUserClient>[0]>
     return: Awaited<ReturnType<CreateUserClient>>
   }
 }
@@ -23,7 +23,7 @@ type CreateUser = {
  * @link /user */
 export function useCreateUser(options?: {
   mutation?: SWRMutationConfiguration<CreateUser['response'], CreateUser['error']>
-  client?: CreateUser['client']['paramaters']
+  client?: CreateUser['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<CreateUser['response'], CreateUser['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

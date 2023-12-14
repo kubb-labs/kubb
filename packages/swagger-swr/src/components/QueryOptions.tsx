@@ -130,7 +130,7 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
     },
     {
       name: 'options',
-      type: `${factory.name}['client']['paramaters']`,
+      type: `${factory.name}['client']['parameters']`,
       default: '{}',
     },
   ])

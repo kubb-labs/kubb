@@ -14,7 +14,7 @@ type CreateUser = {
   headerParams: never
   response: CreateUserMutationResponse
   client: {
-    paramaters: Partial<Parameters<CreateUserClient>[0]>
+    parameters: Partial<Parameters<CreateUserClient>[0]>
     return: Awaited<ReturnType<CreateUserClient>>
   }
 }
@@ -25,7 +25,7 @@ type CreateUser = {
 export function useCreateUser(
   options: {
     mutation?: VueMutationObserverOptions<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown>
-    client?: CreateUser['client']['paramaters']
+    client?: CreateUser['client']['parameters']
   } = {},
 ): UseMutationReturnType<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

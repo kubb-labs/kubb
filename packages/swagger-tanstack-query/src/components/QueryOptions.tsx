@@ -208,7 +208,7 @@ const defaultTemplates = {
         },
         {
           name: 'options',
-          type: `${factory.name}['client']['paramaters']`,
+          type: `${factory.name}['client']['parameters']`,
           default: '{}',
         },
       ])
@@ -302,7 +302,7 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
     },
     {
       name: 'options',
-      type: `${factory.name}['client']['paramaters']`,
+      type: `${factory.name}['client']['parameters']`,
       default: '{}',
     },
   ])

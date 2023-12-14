@@ -41,15 +41,15 @@ export type Options = {
     output?: string
   }
   /**
-   * Array containing exclude paramaters to exclude/skip tags/operations/methods/paths.
+   * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
   exclude?: Array<Exclude>
   /**
-   * Array containing include paramaters to include tags/operations/methods/paths.
+   * Array containing include parameters to include tags/operations/methods/paths.
    */
   include?: Array<Include>
   /**
-   * Array containing override paramaters to override `options` based on tags/operations/methods/paths.
+   * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<Options>>
   /**

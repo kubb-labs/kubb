@@ -18,7 +18,7 @@ type UpdatePetWithForm = {
   headerParams: never
   response: UpdatePetWithFormMutationResponse
   client: {
-    paramaters: Partial<Parameters<UpdatePetWithFormClient>[0]>
+    parameters: Partial<Parameters<UpdatePetWithFormClient>[0]>
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
 }
@@ -30,7 +30,7 @@ export function useUpdatePetWithForm(
   params?: UpdatePetWithForm['queryParams'],
   options?: {
     mutation?: SWRMutationConfiguration<UpdatePetWithForm['response'], UpdatePetWithForm['error']>
-    client?: UpdatePetWithForm['client']['paramaters']
+    client?: UpdatePetWithForm['client']['parameters']
     shouldFetch?: boolean
   },
 ): SWRMutationResponse<UpdatePetWithForm['response'], UpdatePetWithForm['error']> {

@@ -16,7 +16,7 @@ type UploadFile = {
   headerParams: never
   response: UploadFileMutationResponse
   client: {
-    paramaters: Partial<Parameters<UploadFileClient>[0]>
+    parameters: Partial<Parameters<UploadFileClient>[0]>
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
@@ -28,7 +28,7 @@ export function useUploadFile(
   refParams?: MaybeRef<UploadFileQueryParams>,
   options: {
     mutation?: VueMutationObserverOptions<UploadFile['response'], UploadFile['error'], UploadFile['request'], unknown>
-    client?: UploadFile['client']['paramaters']
+    client?: UploadFile['client']['parameters']
   } = {},
 ): UseMutationReturnType<UploadFile['response'], UploadFile['error'], UploadFile['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

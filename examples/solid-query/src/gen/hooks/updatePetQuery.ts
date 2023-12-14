@@ -13,7 +13,7 @@ type UpdatePet = {
   headerParams: never
   response: UpdatePetMutationResponse
   client: {
-    paramaters: Partial<Parameters<UpdatePetClient>[0]>
+    parameters: Partial<Parameters<UpdatePetClient>[0]>
     return: Awaited<ReturnType<UpdatePetClient>>
   }
 }
@@ -24,7 +24,7 @@ type UpdatePet = {
 export function updatePetQuery(
   options: {
     mutation?: CreateMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
-    client?: UpdatePet['client']['paramaters']
+    client?: UpdatePet['client']['parameters']
   } = {},
 ): CreateMutationResult<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

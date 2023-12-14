@@ -13,13 +13,13 @@ type GetUserByName = {
   headerParams: never
   response: Awaited<ReturnType<GetUserByNameClient>>
   client: {
-    paramaters: Partial<Parameters<GetUserByNameClient>[0]>
+    parameters: Partial<Parameters<GetUserByNameClient>[0]>
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
 export function getUserByNameQueryOptions<TData extends GetUserByName['response'] = GetUserByName['response'], TError = GetUserByName['error']>(
   username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['paramaters'] = {},
+  options: GetUserByName['client']['parameters'] = {},
 ): SWRConfiguration<TData, TError> {
   return {
     fetcher: async () => {
@@ -39,7 +39,7 @@ export function useGetUserByName<TData extends GetUserByName['response'] = GetUs
   username: GetUserByNamePathParams['username'],
   options?: {
     query?: SWRConfiguration<TData, TError>
-    client?: GetUserByName['client']['paramaters']
+    client?: GetUserByName['client']['parameters']
     shouldFetch?: boolean
   },
 ): SWRResponse<TData, TError> {

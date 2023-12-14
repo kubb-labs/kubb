@@ -232,7 +232,7 @@ export default defineConfig({
 
 ### include
 
-Array containing include paramaters to include tags/operations/methods/paths.
+Array containing include parameters to include tags/operations/methods/paths.
 
 ::: info type
 
@@ -285,7 +285,7 @@ export default defineConfig({
 
 ### exclude
 
-Array containing exclude paramaters to exclude/skip tags/operations/methods/paths.
+Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
 
 ::: info type
 
@@ -338,7 +338,7 @@ export default defineConfig({
 
 ### override
 
-Array containing override paramaters to override `options` based on tags/operations/methods/paths.
+Array containing override parameters to override `options` based on tags/operations/methods/paths.
 
 ::: info type
 
