@@ -15,7 +15,7 @@ type DeleteOrder = {
   headerParams: never
   response: DeleteOrderMutationResponse
   client: {
-    paramaters: Partial<Parameters<DeleteOrderClient>[0]>
+    parameters: Partial<Parameters<DeleteOrderClient>[0]>
     return: Awaited<ReturnType<DeleteOrderClient>>
   }
 }
@@ -27,7 +27,7 @@ export function useDeleteOrder(
   refOrderId: MaybeRef<DeleteOrderPathParams['orderId']>,
   options: {
     mutation?: UseMutationOptions<DeleteOrder['response'], DeleteOrder['error'], void, unknown>
-    client?: DeleteOrder['client']['paramaters']
+    client?: DeleteOrder['client']['parameters']
   } = {},
 ): UseMutationReturnType<DeleteOrder['response'], DeleteOrder['error'], void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

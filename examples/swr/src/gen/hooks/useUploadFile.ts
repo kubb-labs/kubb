@@ -13,7 +13,7 @@ type UploadFile = {
   headerParams: never
   response: UploadFileMutationResponse
   client: {
-    paramaters: Partial<Parameters<UploadFileClient>[0]>
+    parameters: Partial<Parameters<UploadFileClient>[0]>
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
@@ -25,7 +25,7 @@ export function useUploadFile(
   params?: UploadFile['queryParams'],
   options?: {
     mutation?: SWRMutationConfiguration<UploadFile['response'], UploadFile['error']>
-    client?: UploadFile['client']['paramaters']
+    client?: UploadFile['client']['parameters']
     shouldFetch?: boolean
   },
 ): SWRMutationResponse<UploadFile['response'], UploadFile['error']> {

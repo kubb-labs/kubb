@@ -20,7 +20,7 @@ type GetOrderById = {
   headerParams: never
   response: GetOrderByIdQueryResponse
   client: {
-    paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
+    parameters: Partial<Parameters<GetOrderByIdClient>[0]>
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
@@ -33,7 +33,7 @@ export function getOrderByIdQueryOptions<
   TQueryData = GetOrderById['response'],
 >(
   orderId: GetOrderByIdPathParams['orderId'],
-  options: GetOrderById['client']['paramaters'] = {},
+  options: GetOrderById['client']['parameters'] = {},
 ): WithRequired<CreateBaseQueryOptions<GetOrderById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdQueryKey(orderId)
   return {
@@ -62,7 +62,7 @@ export function getOrderByIdQuery<
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
     query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: GetOrderById['client']['paramaters']
+    client?: GetOrderById['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
   queryKey: TQueryKey
@@ -89,7 +89,7 @@ export function getOrderByIdInfiniteQueryOptions<
   TQueryData = GetOrderById['response'],
 >(
   orderId: GetOrderByIdPathParams['orderId'],
-  options: GetOrderById['client']['paramaters'] = {},
+  options: GetOrderById['client']['parameters'] = {},
 ): WithRequired<CreateInfiniteQueryOptions<GetOrderById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdInfiniteQueryKey(orderId)
   return {
@@ -118,7 +118,7 @@ export function getOrderByIdQueryInfinite<
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
     query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: GetOrderById['client']['paramaters']
+    client?: GetOrderById['client']['parameters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey

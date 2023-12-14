@@ -22,7 +22,7 @@ type FindPetsByTags = {
   headerParams: never
   response: FindPetsByTagsQueryResponse
   client: {
-    paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
+    parameters: Partial<Parameters<FindPetsByTagsClient>[0]>
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
@@ -35,7 +35,7 @@ export function findPetsByTagsQueryOptions<
   TQueryData = FindPetsByTags['response'],
 >(
   params?: FindPetsByTags['queryParams'],
-  options: FindPetsByTags['client']['paramaters'] = {},
+  options: FindPetsByTags['client']['parameters'] = {},
 ): WithRequired<QueryObserverOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsQueryKey(params)
   return {
@@ -63,7 +63,7 @@ export function useFindPetsByTagsHook<
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(params?: FindPetsByTags['queryParams'], options: {
   query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: FindPetsByTags['client']['paramaters']
+  client?: FindPetsByTags['client']['parameters']
 } = {}): UseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -88,7 +88,7 @@ export function findPetsByTagsInfiniteQueryOptions<
   TQueryData = FindPetsByTags['response'],
 >(
   params?: FindPetsByTags['queryParams'],
-  options: FindPetsByTags['client']['paramaters'] = {},
+  options: FindPetsByTags['client']['parameters'] = {},
 ): WithRequired<UseInfiniteQueryOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return {
@@ -122,7 +122,7 @@ export function useFindPetsByTagsHookInfinite<
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(params?: FindPetsByTags['queryParams'], options: {
   query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: FindPetsByTags['client']['paramaters']
+  client?: FindPetsByTags['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -146,7 +146,7 @@ export function findPetsByTagsSuspenseQueryOptions<
   TData = FindPetsByTags['response'],
 >(
   params?: FindPetsByTags['queryParams'],
-  options: FindPetsByTags['client']['paramaters'] = {},
+  options: FindPetsByTags['client']['parameters'] = {},
 ): WithRequired<UseSuspenseQueryOptions<FindPetsByTags['response'], TError, TData>, 'queryKey'> {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
   return {
@@ -173,7 +173,7 @@ export function useFindPetsByTagsHookSuspense<
   TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey,
 >(params?: FindPetsByTags['queryParams'], options: {
   query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
-  client?: FindPetsByTags['client']['paramaters']
+  client?: FindPetsByTags['client']['parameters']
 } = {}): UseSuspenseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {

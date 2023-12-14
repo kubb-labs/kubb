@@ -13,7 +13,7 @@ type GetUserByName = {
   headerParams: never
   response: Awaited<ReturnType<GetUserByNameClient>>
   client: {
-    paramaters: Partial<Parameters<GetUserByNameClient>[0]>
+    parameters: Partial<Parameters<GetUserByNameClient>[0]>
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
@@ -26,7 +26,7 @@ export function getUserByNameQueryOptions<
   TQueryData = GetUserByName['response'],
 >(
   username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['paramaters'] = {},
+  options: GetUserByName['client']['parameters'] = {},
 ): WithRequired<UseBaseQueryOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameQueryKey(username)
   return {
@@ -52,7 +52,7 @@ export function useGetUserByName<
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(username: GetUserByNamePathParams['username'], options: {
   query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: GetUserByName['client']['paramaters']
+  client?: GetUserByName['client']['parameters']
 } = {}): UseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -78,7 +78,7 @@ export function getUserByNameInfiniteQueryOptions<
   TQueryData = GetUserByName['response'],
 >(
   username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['paramaters'] = {},
+  options: GetUserByName['client']['parameters'] = {},
 ): WithRequired<UseInfiniteQueryOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameInfiniteQueryKey(username)
   return {
@@ -104,7 +104,7 @@ export function useGetUserByNameInfinite<
   TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
 >(username: GetUserByNamePathParams['username'], options: {
   query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: GetUserByName['client']['paramaters']
+  client?: GetUserByName['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {

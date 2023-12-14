@@ -13,7 +13,7 @@ type LogoutUser = {
   headerParams: never
   response: LogoutUserQueryResponse
   client: {
-    paramaters: Partial<Parameters<LogoutUserClient>[0]>
+    parameters: Partial<Parameters<LogoutUserClient>[0]>
     return: Awaited<ReturnType<LogoutUserClient>>
   }
 }
@@ -24,7 +24,7 @@ export function logoutUserQueryOptions<
   TError = LogoutUser['error'],
   TData = LogoutUser['response'],
   TQueryData = LogoutUser['response'],
->(options: LogoutUser['client']['paramaters'] = {}): WithRequired<CreateBaseQueryOptions<LogoutUser['response'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: LogoutUser['client']['parameters'] = {}): WithRequired<CreateBaseQueryOptions<LogoutUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = logoutUserQueryKey()
   return {
     queryKey,
@@ -50,7 +50,7 @@ export function logoutUserQuery<
 >(
   options: {
     query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: LogoutUser['client']['paramaters']
+    client?: LogoutUser['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
   queryKey: TQueryKey

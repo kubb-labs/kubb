@@ -14,7 +14,7 @@ type AddPet = {
   headerParams: never
   response: AddPetMutationResponse
   client: {
-    paramaters: Partial<Parameters<AddPetClient>[0]>
+    parameters: Partial<Parameters<AddPetClient>[0]>
     return: Awaited<ReturnType<AddPetClient>>
   }
 }
@@ -25,7 +25,7 @@ type AddPet = {
 export function useAddPet(
   options: {
     mutation?: VueMutationObserverOptions<AddPet['response'], AddPet['error'], AddPet['request'], unknown>
-    client?: AddPet['client']['paramaters']
+    client?: AddPet['client']['parameters']
   } = {},
 ): UseMutationReturnType<AddPet['response'], AddPet['error'], AddPet['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

@@ -13,7 +13,7 @@ type GetPetById = {
   headerParams: never
   response: GetPetByIdQueryResponse
   client: {
-    paramaters: Partial<Parameters<GetPetByIdClient>[0]>
+    parameters: Partial<Parameters<GetPetByIdClient>[0]>
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
@@ -26,7 +26,7 @@ export function getPetByIdQueryOptions<
   TQueryData = GetPetById['response'],
 >(
   petId: GetPetByIdPathParams['petId'],
-  options: GetPetById['client']['paramaters'] = {},
+  options: GetPetById['client']['parameters'] = {},
 ): WithRequired<CreateBaseQueryOptions<GetPetById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getPetByIdQueryKey(petId)
   return {
@@ -55,7 +55,7 @@ export function getPetByIdQuery<
   petId: GetPetByIdPathParams['petId'],
   options: {
     query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: GetPetById['client']['paramaters']
+    client?: GetPetById['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
   queryKey: TQueryKey

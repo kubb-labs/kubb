@@ -13,7 +13,7 @@ type GetInventory = {
   headerParams: never
   response: GetInventoryQueryResponse
   client: {
-    paramaters: Partial<Parameters<GetInventoryClient>[0]>
+    parameters: Partial<Parameters<GetInventoryClient>[0]>
     return: Awaited<ReturnType<GetInventoryClient>>
   }
 }
@@ -24,7 +24,7 @@ export function getInventoryQueryOptions<
   TError = GetInventory['error'],
   TData = GetInventory['response'],
   TQueryData = GetInventory['response'],
->(options: GetInventory['client']['paramaters'] = {}): WithRequired<QueryObserverOptions<GetInventory['response'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: GetInventory['client']['parameters'] = {}): WithRequired<QueryObserverOptions<GetInventory['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getInventoryQueryKey()
   return {
     queryKey,
@@ -51,7 +51,7 @@ export function useGetInventory<
 >(
   options: {
     query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: GetInventory['client']['paramaters']
+    client?: GetInventory['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, TError> & {
   queryKey: TQueryKey

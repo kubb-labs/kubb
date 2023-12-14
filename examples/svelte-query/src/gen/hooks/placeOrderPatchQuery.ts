@@ -13,7 +13,7 @@ type PlaceOrderPatch = {
   headerParams: never
   response: PlaceOrderPatchMutationResponse
   client: {
-    paramaters: Partial<Parameters<PlaceOrderPatchClient>[0]>
+    parameters: Partial<Parameters<PlaceOrderPatchClient>[0]>
     return: Awaited<ReturnType<PlaceOrderPatchClient>>
   }
 }
@@ -24,7 +24,7 @@ type PlaceOrderPatch = {
 export function placeOrderPatchQuery(
   options: {
     mutation?: CreateMutationOptions<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>
-    client?: PlaceOrderPatch['client']['paramaters']
+    client?: PlaceOrderPatch['client']['parameters']
   } = {},
 ): CreateMutationResult<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

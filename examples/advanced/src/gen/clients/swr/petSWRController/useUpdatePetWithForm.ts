@@ -18,7 +18,7 @@ type UpdatePetWithForm = {
   headerParams: never
   response: Awaited<ReturnType<UpdatePetWithFormClient>>
   client: {
-    paramaters: Partial<Parameters<UpdatePetWithFormClient>[0]>
+    parameters: Partial<Parameters<UpdatePetWithFormClient>[0]>
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
 }
@@ -27,7 +27,7 @@ type UpdatePetWithForm = {
  * @link /pet/:petId */
 export function useUpdatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithForm['queryParams'], options?: {
   mutation?: SWRMutationConfiguration<UpdatePetWithForm['response'], UpdatePetWithForm['error']>
-  client?: UpdatePetWithForm['client']['paramaters']
+  client?: UpdatePetWithForm['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<UpdatePetWithForm['response'], UpdatePetWithForm['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

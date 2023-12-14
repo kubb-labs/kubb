@@ -13,7 +13,7 @@ type DeleteUser = {
   headerParams: never
   response: DeleteUserMutationResponse
   client: {
-    paramaters: Partial<Parameters<DeleteUserClient>[0]>
+    parameters: Partial<Parameters<DeleteUserClient>[0]>
     return: Awaited<ReturnType<DeleteUserClient>>
   }
 }
@@ -23,7 +23,7 @@ type DeleteUser = {
  * @link /user/:username */
 export function useDeleteUserHook(username: DeleteUserPathParams['username'], options: {
   mutation?: UseMutationOptions<DeleteUser['response'], DeleteUser['error'], void>
-  client?: DeleteUser['client']['paramaters']
+  client?: DeleteUser['client']['parameters']
 } = {}): UseMutationResult<DeleteUser['response'], DeleteUser['error'], void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<DeleteUser['response'], DeleteUser['error'], void>({

@@ -13,13 +13,13 @@ type LoginUser = {
   headerParams: never
   response: LoginUserQueryResponse
   client: {
-    paramaters: Partial<Parameters<LoginUserClient>[0]>
+    parameters: Partial<Parameters<LoginUserClient>[0]>
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
 export function loginUserQueryOptions<TData extends LoginUser['response'] = LoginUser['response'], TError = LoginUser['error']>(
   params?: LoginUser['queryParams'],
-  options: LoginUser['client']['paramaters'] = {},
+  options: LoginUser['client']['parameters'] = {},
 ): SWRConfiguration<TData, TError> {
   return {
     fetcher: async () => {
@@ -40,7 +40,7 @@ export function useLoginUser<TData extends LoginUser['response'] = LoginUser['re
   params?: LoginUser['queryParams'],
   options?: {
     query?: SWRConfiguration<TData, TError>
-    client?: LoginUser['client']['paramaters']
+    client?: LoginUser['client']['parameters']
     shouldFetch?: boolean
   },
 ): SWRResponse<TData, TError> {

@@ -16,7 +16,7 @@ type DeleteUser = {
   headerParams: never
   response: DeleteUserMutationResponse
   client: {
-    paramaters: Partial<Parameters<DeleteUserClient>[0]>
+    parameters: Partial<Parameters<DeleteUserClient>[0]>
     return: Awaited<ReturnType<DeleteUserClient>>
   }
 }
@@ -28,7 +28,7 @@ export function useDeleteUser(
   refUsername: MaybeRef<DeleteUserPathParams['username']>,
   options: {
     mutation?: VueMutationObserverOptions<DeleteUser['response'], DeleteUser['error'], void, unknown>
-    client?: DeleteUser['client']['paramaters']
+    client?: DeleteUser['client']['parameters']
   } = {},
 ): UseMutationReturnType<DeleteUser['response'], DeleteUser['error'], void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

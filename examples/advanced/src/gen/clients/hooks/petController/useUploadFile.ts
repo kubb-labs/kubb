@@ -18,7 +18,7 @@ type UploadFile = {
   headerParams: never
   response: Awaited<ReturnType<UploadFileClient>>
   client: {
-    paramaters: Partial<Parameters<UploadFileClient>[0]>
+    parameters: Partial<Parameters<UploadFileClient>[0]>
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
@@ -27,7 +27,7 @@ type UploadFile = {
  * @link /pet/:petId/uploadImage */
 export function useUploadFile(petId: UploadFilePathParams['petId'], params?: UploadFile['queryParams'], options: {
   mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
-  client?: UploadFile['client']['paramaters']
+  client?: UploadFile['client']['parameters']
 } = {}): UseMutationResult<UploadFile['response'], UploadFile['error'], UploadFile['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<UploadFile['response'], UploadFile['error'], UploadFile['request']>({

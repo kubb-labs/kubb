@@ -15,7 +15,7 @@ type FindPetsByTags = {
   headerParams: never
   response: FindPetsByTagsQueryResponse
   client: {
-    paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
+    parameters: Partial<Parameters<FindPetsByTagsClient>[0]>
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
@@ -28,7 +28,7 @@ export function findPetsByTagsQueryOptions<
   TQueryData = FindPetsByTags['response'],
 >(
   refParams?: MaybeRef<FindPetsByTagsQueryParams>,
-  options: FindPetsByTags['client']['paramaters'] = {},
+  options: FindPetsByTags['client']['parameters'] = {},
 ): WithRequired<QueryObserverOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsQueryKey(refParams)
   return {
@@ -59,7 +59,7 @@ export function useFindPetsByTags<
   refParams?: MaybeRef<FindPetsByTagsQueryParams>,
   options: {
     query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: FindPetsByTags['client']['paramaters']
+    client?: FindPetsByTags['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, TError> & {
   queryKey: TQueryKey

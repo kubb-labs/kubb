@@ -13,7 +13,7 @@ type UpdateUser = {
   headerParams: never
   response: Awaited<ReturnType<UpdateUserClient>>
   client: {
-    paramaters: Partial<Parameters<UpdateUserClient>[0]>
+    parameters: Partial<Parameters<UpdateUserClient>[0]>
     return: Awaited<ReturnType<UpdateUserClient>>
   }
 }
@@ -23,7 +23,7 @@ type UpdateUser = {
  * @link /user/:username */
 export function useUpdateUser(username: UpdateUserPathParams['username'], options?: {
   mutation?: SWRMutationConfiguration<UpdateUser['response'], UpdateUser['error']>
-  client?: UpdateUser['client']['paramaters']
+  client?: UpdateUser['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<UpdateUser['response'], UpdateUser['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

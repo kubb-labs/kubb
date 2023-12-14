@@ -13,7 +13,7 @@ type UpdatePet = {
   headerParams: never
   response: UpdatePetMutationResponse
   client: {
-    paramaters: Partial<Parameters<UpdatePetClient>[0]>
+    parameters: Partial<Parameters<UpdatePetClient>[0]>
     return: Awaited<ReturnType<UpdatePetClient>>
   }
 }
@@ -23,7 +23,7 @@ type UpdatePet = {
  * @link /pet */
 export function useUpdatePet(options?: {
   mutation?: SWRMutationConfiguration<UpdatePet['response'], UpdatePet['error']>
-  client?: UpdatePet['client']['paramaters']
+  client?: UpdatePet['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<UpdatePet['response'], UpdatePet['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

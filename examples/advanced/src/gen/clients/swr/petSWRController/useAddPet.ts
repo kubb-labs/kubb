@@ -13,7 +13,7 @@ type AddPet = {
   headerParams: never
   response: Awaited<ReturnType<AddPetClient>>
   client: {
-    paramaters: Partial<Parameters<AddPetClient>[0]>
+    parameters: Partial<Parameters<AddPetClient>[0]>
     return: Awaited<ReturnType<AddPetClient>>
   }
 }
@@ -23,7 +23,7 @@ type AddPet = {
  * @link /pet */
 export function useAddPet(options?: {
   mutation?: SWRMutationConfiguration<AddPet['response'], AddPet['error']>
-  client?: AddPet['client']['paramaters']
+  client?: AddPet['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<AddPet['response'], AddPet['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

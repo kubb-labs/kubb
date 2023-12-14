@@ -13,7 +13,7 @@ type AddPet = {
   headerParams: never
   response: Awaited<ReturnType<AddPetClient>>
   client: {
-    paramaters: Partial<Parameters<AddPetClient>[0]>
+    parameters: Partial<Parameters<AddPetClient>[0]>
     return: Awaited<ReturnType<AddPetClient>>
   }
 }
@@ -23,7 +23,7 @@ type AddPet = {
  * @link /pet */
 export function useAddPet(options: {
   mutation?: UseMutationOptions<AddPet['response'], AddPet['error'], AddPet['request']>
-  client?: AddPet['client']['paramaters']
+  client?: AddPet['client']['parameters']
 } = {}): UseMutationResult<AddPet['response'], AddPet['error'], AddPet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<AddPet['response'], AddPet['error'], AddPet['request']>({

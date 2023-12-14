@@ -14,7 +14,7 @@ type UpdatePet = {
   headerParams: never
   response: UpdatePetMutationResponse
   client: {
-    paramaters: Partial<Parameters<UpdatePetClient>[0]>
+    parameters: Partial<Parameters<UpdatePetClient>[0]>
     return: Awaited<ReturnType<UpdatePetClient>>
   }
 }
@@ -25,7 +25,7 @@ type UpdatePet = {
 export function useUpdatePet(
   options: {
     mutation?: VueMutationObserverOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request'], unknown>
-    client?: UpdatePet['client']['paramaters']
+    client?: UpdatePet['client']['parameters']
   } = {},
 ): UseMutationReturnType<UpdatePet['response'], UpdatePet['error'], UpdatePet['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

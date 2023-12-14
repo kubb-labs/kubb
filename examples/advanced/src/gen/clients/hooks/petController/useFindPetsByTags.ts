@@ -18,7 +18,7 @@ type FindPetsByTags = {
   headerParams: FindPetsByTagsHeaderParams
   response: Awaited<ReturnType<FindPetsByTagsClient>>
   client: {
-    paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
+    parameters: Partial<Parameters<FindPetsByTagsClient>[0]>
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
@@ -32,7 +32,7 @@ export function findPetsByTagsQueryOptions<
 >(
   headers: FindPetsByTags['headerParams'],
   params?: FindPetsByTags['queryParams'],
-  options: FindPetsByTags['client']['paramaters'] = {},
+  options: FindPetsByTags['client']['parameters'] = {},
 ): WithRequired<UseBaseQueryOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsQueryKey(params)
   return {
@@ -61,7 +61,7 @@ export function useFindPetsByTags<
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(headers: FindPetsByTags['headerParams'], params?: FindPetsByTags['queryParams'], options: {
   query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: FindPetsByTags['client']['paramaters']
+  client?: FindPetsByTags['client']['parameters']
 } = {}): UseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -87,7 +87,7 @@ export function findPetsByTagsInfiniteQueryOptions<
 >(
   headers: FindPetsByTags['headerParams'],
   params?: FindPetsByTags['queryParams'],
-  options: FindPetsByTags['client']['paramaters'] = {},
+  options: FindPetsByTags['client']['parameters'] = {},
 ): WithRequired<UseInfiniteQueryOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
   return {
@@ -120,7 +120,7 @@ export function useFindPetsByTagsInfinite<
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(headers: FindPetsByTags['headerParams'], params?: FindPetsByTags['queryParams'], options: {
   query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: FindPetsByTags['client']['paramaters']
+  client?: FindPetsByTags['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {

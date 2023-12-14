@@ -20,7 +20,7 @@ type LogoutUser = {
   headerParams: never
   response: LogoutUserQueryResponse
   client: {
-    paramaters: Partial<Parameters<LogoutUserClient>[0]>
+    parameters: Partial<Parameters<LogoutUserClient>[0]>
     return: Awaited<ReturnType<LogoutUserClient>>
   }
 }
@@ -31,7 +31,7 @@ export function logoutUserQueryOptions<
   TError = LogoutUser['error'],
   TData = LogoutUser['response'],
   TQueryData = LogoutUser['response'],
->(options: LogoutUser['client']['paramaters'] = {}): WithRequired<CreateBaseQueryOptions<LogoutUser['response'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: LogoutUser['client']['parameters'] = {}): WithRequired<CreateBaseQueryOptions<LogoutUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = logoutUserQueryKey()
   return {
     queryKey,
@@ -57,7 +57,7 @@ export function logoutUserQuery<
 >(
   options: {
     query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: LogoutUser['client']['paramaters']
+    client?: LogoutUser['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
   queryKey: TQueryKey
@@ -81,7 +81,7 @@ export function logoutUserInfiniteQueryOptions<
   TError = LogoutUser['error'],
   TData = LogoutUser['response'],
   TQueryData = LogoutUser['response'],
->(options: LogoutUser['client']['paramaters'] = {}): WithRequired<CreateInfiniteQueryOptions<LogoutUser['response'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: LogoutUser['client']['parameters'] = {}): WithRequired<CreateInfiniteQueryOptions<LogoutUser['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = logoutUserInfiniteQueryKey()
   return {
     queryKey,
@@ -107,7 +107,7 @@ export function logoutUserQueryInfinite<
 >(
   options: {
     query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: LogoutUser['client']['paramaters']
+    client?: LogoutUser['client']['parameters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey

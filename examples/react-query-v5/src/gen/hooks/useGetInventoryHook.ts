@@ -22,7 +22,7 @@ type GetInventory = {
   headerParams: never
   response: GetInventoryQueryResponse
   client: {
-    paramaters: Partial<Parameters<GetInventoryClient>[0]>
+    parameters: Partial<Parameters<GetInventoryClient>[0]>
     return: Awaited<ReturnType<GetInventoryClient>>
   }
 }
@@ -33,7 +33,7 @@ export function getInventoryQueryOptions<
   TError = GetInventory['error'],
   TData = GetInventory['response'],
   TQueryData = GetInventory['response'],
->(options: GetInventory['client']['paramaters'] = {}): WithRequired<QueryObserverOptions<GetInventory['response'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: GetInventory['client']['parameters'] = {}): WithRequired<QueryObserverOptions<GetInventory['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getInventoryQueryKey()
   return {
     queryKey,
@@ -59,7 +59,7 @@ export function useGetInventoryHook<
   TQueryKey extends QueryKey = GetInventoryQueryKey,
 >(options: {
   query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: GetInventory['client']['paramaters']
+  client?: GetInventory['client']['parameters']
 } = {}): UseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -82,7 +82,7 @@ export function getInventoryInfiniteQueryOptions<
   TError = GetInventory['error'],
   TData = GetInventory['response'],
   TQueryData = GetInventory['response'],
->(options: GetInventory['client']['paramaters'] = {}): WithRequired<UseInfiniteQueryOptions<GetInventory['response'], TError, TData, TQueryData>, 'queryKey'> {
+>(options: GetInventory['client']['parameters'] = {}): WithRequired<UseInfiniteQueryOptions<GetInventory['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getInventoryInfiniteQueryKey()
   return {
     queryKey,
@@ -110,7 +110,7 @@ export function useGetInventoryHookInfinite<
   TQueryKey extends QueryKey = GetInventoryInfiniteQueryKey,
 >(options: {
   query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: GetInventory['client']['paramaters']
+  client?: GetInventory['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {
@@ -132,7 +132,7 @@ export function getInventorySuspenseQueryOptions<
   TQueryFnData extends GetInventory['data'] = GetInventory['data'],
   TError = GetInventory['error'],
   TData = GetInventory['response'],
->(options: GetInventory['client']['paramaters'] = {}): WithRequired<UseSuspenseQueryOptions<GetInventory['response'], TError, TData>, 'queryKey'> {
+>(options: GetInventory['client']['parameters'] = {}): WithRequired<UseSuspenseQueryOptions<GetInventory['response'], TError, TData>, 'queryKey'> {
   const queryKey = getInventorySuspenseQueryKey()
   return {
     queryKey,
@@ -157,7 +157,7 @@ export function useGetInventoryHookSuspense<
   TQueryKey extends QueryKey = GetInventorySuspenseQueryKey,
 >(options: {
   query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
-  client?: GetInventory['client']['paramaters']
+  client?: GetInventory['client']['parameters']
 } = {}): UseSuspenseQueryResult<TData, TError> & {
   queryKey: TQueryKey
 } {

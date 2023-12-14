@@ -15,7 +15,7 @@ type GetOrderById = {
   headerParams: never
   response: GetOrderByIdQueryResponse
   client: {
-    paramaters: Partial<Parameters<GetOrderByIdClient>[0]>
+    parameters: Partial<Parameters<GetOrderByIdClient>[0]>
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
@@ -29,7 +29,7 @@ export function getOrderByIdQueryOptions<
   TQueryData = GetOrderById['response'],
 >(
   refOrderId: MaybeRef<GetOrderByIdPathParams['orderId']>,
-  options: GetOrderById['client']['paramaters'] = {},
+  options: GetOrderById['client']['parameters'] = {},
 ): WithRequired<QueryObserverOptions<GetOrderById['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdQueryKey(refOrderId)
   return {
@@ -59,7 +59,7 @@ export function useGetOrderById<
   refOrderId: GetOrderByIdPathParams['orderId'],
   options: {
     query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: GetOrderById['client']['paramaters']
+    client?: GetOrderById['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, TError> & {
   queryKey: TQueryKey

@@ -22,7 +22,7 @@ type CreateUsersWithListInput = {
   headerParams: never
   response: CreateUsersWithListInputMutationResponse
   client: {
-    paramaters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
+    parameters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
 }
@@ -33,7 +33,7 @@ type CreateUsersWithListInput = {
 export function useCreateUsersWithListInput(
   options: {
     mutation?: VueMutationObserverOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request'], unknown>
-    client?: CreateUsersWithListInput['client']['paramaters']
+    client?: CreateUsersWithListInput['client']['parameters']
   } = {},
 ): UseMutationReturnType<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

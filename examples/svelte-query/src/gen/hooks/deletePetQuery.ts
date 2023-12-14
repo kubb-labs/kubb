@@ -13,7 +13,7 @@ type DeletePet = {
   headerParams: DeletePetHeaderParams
   response: DeletePetMutationResponse
   client: {
-    paramaters: Partial<Parameters<DeletePetClient>[0]>
+    parameters: Partial<Parameters<DeletePetClient>[0]>
     return: Awaited<ReturnType<DeletePetClient>>
   }
 }
@@ -26,7 +26,7 @@ export function deletePetQuery(
   headers?: DeletePet['headerParams'],
   options: {
     mutation?: CreateMutationOptions<DeletePet['response'], DeletePet['error'], void>
-    client?: DeletePet['client']['paramaters']
+    client?: DeletePet['client']['parameters']
   } = {},
 ): CreateMutationResult<DeletePet['response'], DeletePet['error'], void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

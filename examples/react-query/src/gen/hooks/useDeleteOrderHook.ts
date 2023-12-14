@@ -13,7 +13,7 @@ type DeleteOrder = {
   headerParams: never
   response: DeleteOrderMutationResponse
   client: {
-    paramaters: Partial<Parameters<DeleteOrderClient>[0]>
+    parameters: Partial<Parameters<DeleteOrderClient>[0]>
     return: Awaited<ReturnType<DeleteOrderClient>>
   }
 }
@@ -23,7 +23,7 @@ type DeleteOrder = {
  * @link /store/order/:orderId */
 export function useDeleteOrderHook(orderId: DeleteOrderPathParams['orderId'], options: {
   mutation?: UseMutationOptions<DeleteOrder['response'], DeleteOrder['error'], void>
-  client?: DeleteOrder['client']['paramaters']
+  client?: DeleteOrder['client']['parameters']
 } = {}): UseMutationResult<DeleteOrder['response'], DeleteOrder['error'], void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<DeleteOrder['response'], DeleteOrder['error'], void>({

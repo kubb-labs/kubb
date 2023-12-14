@@ -21,7 +21,7 @@ type CreateUsersWithListInput = {
   headerParams: never
   response: Awaited<ReturnType<CreateUsersWithListInputClient>>
   client: {
-    paramaters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
+    parameters: Partial<Parameters<CreateUsersWithListInputClient>[0]>
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
 }
@@ -31,7 +31,7 @@ type CreateUsersWithListInput = {
  * @link /user/createWithList */
 export function useCreateUsersWithListInput(options?: {
   mutation?: SWRMutationConfiguration<CreateUsersWithListInput['response'], CreateUsersWithListInput['error']>
-  client?: CreateUsersWithListInput['client']['paramaters']
+  client?: CreateUsersWithListInput['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<CreateUsersWithListInput['response'], CreateUsersWithListInput['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

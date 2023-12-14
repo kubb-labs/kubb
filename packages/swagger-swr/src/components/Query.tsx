@@ -170,7 +170,7 @@ export function Query({
       required: false,
       type: `{
         query?: SWRConfiguration<${resultGenerics.join(', ')}>,
-        client?: ${factory.name}['client']['paramaters'],
+        client?: ${factory.name}['client']['parameters'],
         shouldFetch?: boolean,
       }`,
       default: '{}',

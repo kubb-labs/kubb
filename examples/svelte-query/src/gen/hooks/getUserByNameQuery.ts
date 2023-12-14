@@ -20,7 +20,7 @@ type GetUserByName = {
   headerParams: never
   response: GetUserByNameQueryResponse
   client: {
-    paramaters: Partial<Parameters<GetUserByNameClient>[0]>
+    parameters: Partial<Parameters<GetUserByNameClient>[0]>
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
@@ -33,7 +33,7 @@ export function getUserByNameQueryOptions<
   TQueryData = GetUserByName['response'],
 >(
   username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['paramaters'] = {},
+  options: GetUserByName['client']['parameters'] = {},
 ): WithRequired<CreateBaseQueryOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameQueryKey(username)
   return {
@@ -61,7 +61,7 @@ export function getUserByNameQuery<
   username: GetUserByNamePathParams['username'],
   options: {
     query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: GetUserByName['client']['paramaters']
+    client?: GetUserByName['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, TError> & {
   queryKey: TQueryKey
@@ -88,7 +88,7 @@ export function getUserByNameInfiniteQueryOptions<
   TQueryData = GetUserByName['response'],
 >(
   username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['paramaters'] = {},
+  options: GetUserByName['client']['parameters'] = {},
 ): WithRequired<CreateInfiniteQueryOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameInfiniteQueryKey(username)
   return {
@@ -116,7 +116,7 @@ export function getUserByNameQueryInfinite<
   username: GetUserByNamePathParams['username'],
   options: {
     query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-    client?: GetUserByName['client']['paramaters']
+    client?: GetUserByName['client']['parameters']
   } = {},
 ): CreateInfiniteQueryResult<TData, TError> & {
   queryKey: TQueryKey

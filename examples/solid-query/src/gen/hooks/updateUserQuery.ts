@@ -13,7 +13,7 @@ type UpdateUser = {
   headerParams: never
   response: UpdateUserMutationResponse
   client: {
-    paramaters: Partial<Parameters<UpdateUserClient>[0]>
+    parameters: Partial<Parameters<UpdateUserClient>[0]>
     return: Awaited<ReturnType<UpdateUserClient>>
   }
 }
@@ -25,7 +25,7 @@ export function updateUserQuery(
   username: UpdateUserPathParams['username'],
   options: {
     mutation?: CreateMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
-    client?: UpdateUser['client']['paramaters']
+    client?: UpdateUser['client']['parameters']
   } = {},
 ): CreateMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}

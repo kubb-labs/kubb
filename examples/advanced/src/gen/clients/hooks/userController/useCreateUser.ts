@@ -13,7 +13,7 @@ type CreateUser = {
   headerParams: never
   response: Awaited<ReturnType<CreateUserClient>>
   client: {
-    paramaters: Partial<Parameters<CreateUserClient>[0]>
+    parameters: Partial<Parameters<CreateUserClient>[0]>
     return: Awaited<ReturnType<CreateUserClient>>
   }
 }
@@ -23,7 +23,7 @@ type CreateUser = {
  * @link /user */
 export function useCreateUser(options: {
   mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
-  client?: CreateUser['client']['paramaters']
+  client?: CreateUser['client']['parameters']
 } = {}): UseMutationResult<CreateUser['response'], CreateUser['error'], CreateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<CreateUser['response'], CreateUser['error'], CreateUser['request']>({

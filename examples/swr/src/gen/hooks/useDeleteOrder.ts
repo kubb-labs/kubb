@@ -13,7 +13,7 @@ type DeleteOrder = {
   headerParams: never
   response: DeleteOrderMutationResponse
   client: {
-    paramaters: Partial<Parameters<DeleteOrderClient>[0]>
+    parameters: Partial<Parameters<DeleteOrderClient>[0]>
     return: Awaited<ReturnType<DeleteOrderClient>>
   }
 }
@@ -25,7 +25,7 @@ export function useDeleteOrder(
   orderId: DeleteOrderPathParams['orderId'],
   options?: {
     mutation?: SWRMutationConfiguration<DeleteOrder['response'], DeleteOrder['error']>
-    client?: DeleteOrder['client']['paramaters']
+    client?: DeleteOrder['client']['parameters']
     shouldFetch?: boolean
   },
 ): SWRMutationResponse<DeleteOrder['response'], DeleteOrder['error']> {

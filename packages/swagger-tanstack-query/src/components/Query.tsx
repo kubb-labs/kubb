@@ -175,7 +175,7 @@ const defaultTemplates = {
           name: 'options',
           type: `{
               query?: ${optionsType}<${queryOptionsOverrideGenerics.join(', ')}>,
-              client?: ${factory.name}['client']['paramaters']
+              client?: ${factory.name}['client']['parameters']
           }`,
           default: '{}',
         },
@@ -327,7 +327,7 @@ export function Query({
       name: 'options',
       type: `{
     query?: ${optionsType}<${queryOptionsOverrideGenerics.join(', ')}>,
-    client?: ${factory.name}['client']['paramaters']
+    client?: ${factory.name}['client']['parameters']
 }`,
       default: '{}',
     },

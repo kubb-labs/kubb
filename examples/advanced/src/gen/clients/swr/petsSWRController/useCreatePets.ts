@@ -21,7 +21,7 @@ type CreatePets = {
   headerParams: CreatePetsHeaderParams
   response: Awaited<ReturnType<CreatePetsClient>>
   client: {
-    paramaters: Partial<Parameters<CreatePetsClient>[0]>
+    parameters: Partial<Parameters<CreatePetsClient>[0]>
     return: Awaited<ReturnType<CreatePetsClient>>
   }
 }
@@ -30,7 +30,7 @@ type CreatePets = {
  * @link /pets/:uuid */
 export function useCreatePets(uuid: CreatePetsPathParams['uuid'], params?: CreatePets['queryParams'], headers?: CreatePets['headerParams'], options?: {
   mutation?: SWRMutationConfiguration<CreatePets['response'], CreatePets['error']>
-  client?: CreatePets['client']['paramaters']
+  client?: CreatePets['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<CreatePets['response'], CreatePets['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}

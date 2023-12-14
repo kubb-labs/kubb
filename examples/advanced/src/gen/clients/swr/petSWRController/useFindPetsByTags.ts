@@ -18,14 +18,14 @@ type FindPetsByTags = {
   headerParams: FindPetsByTagsHeaderParams
   response: Awaited<ReturnType<FindPetsByTagsClient>>
   client: {
-    paramaters: Partial<Parameters<FindPetsByTagsClient>[0]>
+    parameters: Partial<Parameters<FindPetsByTagsClient>[0]>
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
 export function findPetsByTagsQueryOptions<TData extends FindPetsByTags['response'] = FindPetsByTags['response'], TError = FindPetsByTags['error']>(
   params?: FindPetsByTags['queryParams'],
   headers?: FindPetsByTags['headerParams'],
-  options: FindPetsByTags['client']['paramaters'] = {},
+  options: FindPetsByTags['client']['parameters'] = {},
 ): SWRConfiguration<TData, TError> {
   return {
     fetcher: async () => {
@@ -49,7 +49,7 @@ export function useFindPetsByTags<TData extends FindPetsByTags['response'] = Fin
   headers?: FindPetsByTags['headerParams'],
   options?: {
     query?: SWRConfiguration<TData, TError>
-    client?: FindPetsByTags['client']['paramaters']
+    client?: FindPetsByTags['client']['parameters']
     shouldFetch?: boolean
   },
 ): SWRResponse<TData, TError> {
