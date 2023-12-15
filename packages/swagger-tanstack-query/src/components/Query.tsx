@@ -44,6 +44,7 @@ type TemplateProps = {
     queryKey: string
     queryOptions: string
   }
+  infinite?: Infinite
 }
 
 function Template({
@@ -53,8 +54,34 @@ function Template({
   params,
   JSDoc,
   hook,
+  infinite,
 }: TemplateProps): ReactNode {
+  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
   const resolvedReturnType = `${returnType} & { queryKey: TQueryKey }`
+
+  if (isV5) {
+    return (
+      <>
+        <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
+          {`
+         const { query: queryOptions, client: clientOptions = {} } = options ?? {}
+         const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
+
+         const query = ${hook.name}({
+          ...${hook.queryOptions},
+          queryKey,
+          ...queryOptions as ${infinite ? 'InfiniteQueryObserverOptions' : 'QueryObserverOptions'}
+        }) as ${resolvedReturnType}
+
+        query.queryKey = queryKey as TQueryKey
+
+        return query
+
+         `}
+        </Function>
+      </>
+    )
+  }
 
   return (
     <>
@@ -85,7 +112,6 @@ type FrameworkProps = TemplateProps & {
       name: string
     }
     queryKey: string
-    infinite: Infinite | undefined
   }
 }
 
@@ -119,19 +145,19 @@ const defaultTemplates = {
   },
   get vue() {
     return function(
-      { context, ...rest }: FrameworkProps,
+      { context, hook, ...rest }: FrameworkProps,
     ): ReactNode {
-      const { factory, queryKey, infinite } = context
-      const { key: pluginKey } = usePlugin()
-      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+      const { factory, queryKey } = context
       const importNames = getImportNames()
+      const { key: pluginKey } = usePlugin()
+      const queryOptions = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
 
-      const hookName = infinite ? importNames.queryInfinite.vue.hookName : importNames.query.vue.hookName
-      const resultType = infinite ? importNames.queryInfinite.vue.resultType : importNames.query.vue.resultType
-      const optionsType = infinite ? importNames.queryInfinite.vue.optionsType : importNames.query.vue.optionsType
+      const hookName = rest.infinite ? importNames.queryInfinite.vue.hookName : importNames.query.vue.hookName
+      const resultType = rest.infinite ? importNames.queryInfinite.vue.resultType : importNames.query.vue.resultType
+      const optionsType = rest.infinite ? importNames.queryInfinite.vue.optionsType : importNames.query.vue.optionsType
 
       const schemas = useSchemas()
-      const queryOptions = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
+      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const params = new FunctionParams()
       const queryParams = new FunctionParams()
       const client = {
@@ -148,11 +174,12 @@ const defaultTemplates = {
 
       const resultGenerics = [
         'TData',
-        'TError',
+        `${factory.name}['error']`,
       ]
+
       // only needed for the options to override the useQuery options/params
-      const queryOptionsOverrideGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData', 'TQueryKey']
-      const queryOptionsGenerics = ['TQueryFnData', 'TError', 'TData', 'TQueryData']
+      const queryOptionsOverrideGenerics = [`${factory.name}['data']`, `${factory.name}['error']`, 'TData', 'TQueryKey']
+      const queryOptionsGenerics = ['TData', 'TQueryData']
 
       params.add([
         ...getASTParams(schemas.pathParams, {
@@ -202,19 +229,19 @@ const defaultTemplates = {
         },
       ])
 
-      const hook = {
-        name: hookName,
-        generics: [isV5 ? 'any' : 'TQueryFnData', 'TError', 'TData', 'any'].join(', '),
-        queryOptions: `${queryOptions}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
-        queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? ('refParams') : ''})`,
-      }
-
       return (
         <Template
           {...rest}
           params={params.toString()}
           returnType={`${resultType}<${resultGenerics.join(', ')}>`}
-          hook={hook}
+          hook={{
+            ...hook,
+            name: hookName,
+            queryOptions: isV5
+              ? `${queryOptions}(${queryParams.toString()})`
+              : `${queryOptions}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
+            queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? ('refParams') : ''})`,
+          }}
         />
       )
     }
@@ -288,8 +315,6 @@ export function Query({
   }
 
   generics.add([
-    { type: `TQueryFnData extends ${factory.name}['data']`, default: `${factory.name}["data"]` },
-    { type: 'TError', default: `${factory.name}["error"]` },
     { type: 'TData', default: `${factory.name}["response"]` },
     suspense ? undefined : { type: 'TQueryData', default: `${factory.name}["response"]` },
     { type: `TQueryKey extends QueryKey`, default: queryKeyType },
@@ -297,15 +322,18 @@ export function Query({
 
   const pathParams = getParams(schemas.pathParams, {}).toString()
   const resultGenerics = [
-    'TData',
-    'TError',
+    `TData`,
+    `${factory.name}['error']`,
   ]
   // only needed for the options to override the useQuery options/params
   // suspense is having 4 generics instead of 5, TQueryData is not needed because data will always be defined
   const queryOptionsOverrideGenerics = suspense
-    ? ['TQueryFnData', 'TError', 'TData', 'TQueryKey']
-    : ['TQueryFnData', 'TError', 'TData', 'TQueryData', 'TQueryKey']
-  const queryOptionsGenerics = suspense ? ['TQueryFnData', 'TError', 'TData'] : ['TQueryFnData', 'TError', 'TData', 'TQueryData']
+    ? [`${factory.name}['data']`, `${factory.name}['error']`, 'TData', 'TQueryKey']
+    : [`${factory.name}['data']`, `${factory.name}['error']`, 'TData', 'TQueryData', 'TQueryKey']
+
+  const queryOptionsGenerics = suspense
+    ? ['TData']
+    : ['TData', 'TQueryData']
 
   params.add([
     ...getASTParams(schemas.pathParams, {
@@ -355,8 +383,8 @@ export function Query({
 
   const hook = {
     name: hookName,
-    generics: [isV5 ? 'any' : 'TQueryFnData', 'TError', 'TData', 'any'].join(', '),
-    queryOptions: `${queryOptions}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
+    generics: [isV5 ? 'any' : `${factory.name}['data']`, `${factory.name}['error']`, 'TData', 'any'].join(', '),
+    queryOptions: isV5 ? `${queryOptions}(${queryParams.toString()})` : `${queryOptions}<${queryOptionsGenerics.join(', ')}>(${queryParams.toString()})`,
     queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? ('params') : ''})`,
   }
 
@@ -379,10 +407,10 @@ export function Query({
         params={params.toString()}
         returnType={`${resultType}<${resultGenerics.join(', ')}>`}
         hook={hook}
+        infinite={infinite}
         context={{
           factory,
           queryKey,
-          infinite,
         }}
       />
     </>

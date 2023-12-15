@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
 import type { AddPetMutationRequest, AddPetMutationResponse, AddPet405 } from '../models/AddPet'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 
 type AddPetClient = typeof client<AddPetMutationResponse, AddPet405, AddPetMutationRequest>
 type AddPet = {
@@ -24,9 +24,9 @@ type AddPet = {
 export function useAddPetHook(options: {
   mutation?: UseMutationOptions<AddPet['response'], AddPet['error'], AddPet['request']>
   client?: AddPet['client']['parameters']
-} = {}): UseMutationResult<AddPet['response'], AddPet['error'], AddPet['request']> {
+} = {}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<AddPet['response'], AddPet['error'], AddPet['request']>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',

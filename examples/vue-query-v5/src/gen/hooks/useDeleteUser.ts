@@ -2,7 +2,7 @@ import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { DeleteUserMutationResponse, DeleteUserPathParams, DeleteUser400, DeleteUser404 } from '../models/DeleteUser'
-import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
+import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
 type DeleteUserClient = typeof client<DeleteUserMutationResponse, DeleteUser400 | DeleteUser404, never>
@@ -29,9 +29,9 @@ export function useDeleteUser(
     mutation?: UseMutationOptions<DeleteUser['response'], DeleteUser['error'], void, unknown>
     client?: DeleteUser['client']['parameters']
   } = {},
-): UseMutationReturnType<DeleteUser['response'], DeleteUser['error'], void, unknown> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<DeleteUser['response'], DeleteUser['error'], void, unknown>({
+  return useMutation({
     mutationFn: async () => {
       const username = unref(refUsername)
       const res = await client<DeleteUser['data'], DeleteUser['error'], void>({

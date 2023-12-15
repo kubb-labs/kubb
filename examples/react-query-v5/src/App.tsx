@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider, useQueries } from '@tanstack/react-qu
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { useState } from 'react'
 
-import { findPetsByStatusQueryOptions, useFindPetsByStatusHook } from './gen'
+import { findPetsByStatusQueryOptions, useUpdatePetWithFormHook, useFindPetsByStatusHook } from './gen'
 
 import type { FindPetsByStatusQueryParamsStatus } from './gen'
 
@@ -11,12 +11,16 @@ const queryClient = new QueryClient()
 function Pets(): JSX.Element {
   const [status, setStatus] = useState<FindPetsByStatusQueryParamsStatus>('available')
   const { data: pets, queryKey } = useFindPetsByStatusHook({ status }, { query: { enabled: true } })
+  const { mutateAsync } = useUpdatePetWithFormHook(2)
   const { queryKey: _queryKey, initialData } = findPetsByStatusQueryOptions()
   const statuses: FindPetsByStatusQueryParamsStatus[] = ['available', 'pending']
 
   const queries = useQueries({
     queries: statuses.map((status) => findPetsByStatusQueryOptions({ status })),
   })
+
+  console.log(mutateAsync)
+  //            ^?
 
   console.log(pets)
   //            ^?

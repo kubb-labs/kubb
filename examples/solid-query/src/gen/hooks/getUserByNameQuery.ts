@@ -19,20 +19,15 @@ type GetUserByName = {
 }
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
-export function getUserByNameQueryOptions<
-  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
-  TError = GetUserByName['error'],
-  TData = GetUserByName['response'],
-  TQueryData = GetUserByName['response'],
->(
+export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQueryData = GetUserByName['response']>(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<CreateBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameQueryKey(username)
   return {
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<GetUserByName['data'], GetUserByName['error']>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
@@ -45,27 +40,25 @@ export function getUserByNameQueryOptions<
  * @summary Get user by user name
  * @link /user/:username */
 export function getUserByNameQuery<
-  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
-  TError = GetUserByName['error'],
   TData = GetUserByName['response'],
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+    query?: CreateBaseQueryOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryData, TQueryKey>
     client?: GetUserByName['client']['parameters']
   } = {},
-): CreateQueryResult<TData, TError> & {
+): CreateQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
-  const query = createQuery<TQueryFnData, TError, TData, any>({
-    ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
+  const query = createQuery<GetUserByName['data'], GetUserByName['error'], TData, any>({
+    ...getUserByNameQueryOptions<TData, TQueryData>(username, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateQueryResult<TData, TError> & {
+  }) as CreateQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

@@ -19,20 +19,15 @@ type FindPetsByTags = {
 }
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
-export function findPetsByTagsQueryOptions<
-  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
-  TError = FindPetsByTags['error'],
-  TData = FindPetsByTags['response'],
-  TQueryData = FindPetsByTags['response'],
->(
+export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], TQueryData = FindPetsByTags['response']>(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<CreateBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsQueryKey(params)
   return {
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
@@ -47,27 +42,25 @@ export function findPetsByTagsQueryOptions<
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
 export function findPetsByTagsQuery<
-  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
-  TError = FindPetsByTags['error'],
   TData = FindPetsByTags['response'],
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(
   params?: FindPetsByTags['queryParams'],
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+    query?: CreateBaseQueryOptions<FindPetsByTags['data'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
     client?: FindPetsByTags['client']['parameters']
   } = {},
-): CreateQueryResult<TData, TError> & {
+): CreateQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-  const query = createQuery<TQueryFnData, TError, TData, any>({
-    ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+  const query = createQuery<FindPetsByTags['data'], FindPetsByTags['error'], TData, any>({
+    ...findPetsByTagsQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateQueryResult<TData, TError> & {
+  }) as CreateQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

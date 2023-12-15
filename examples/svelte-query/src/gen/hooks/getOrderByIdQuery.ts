@@ -26,20 +26,15 @@ type GetOrderById = {
 }
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
-export function getOrderByIdQueryOptions<
-  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
-  TError = GetOrderById['error'],
-  TData = GetOrderById['response'],
-  TQueryData = GetOrderById['response'],
->(
+export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQueryData = GetOrderById['response']>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['parameters'] = {},
-): WithRequired<CreateBaseQueryOptions<GetOrderById['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<CreateBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdQueryKey(orderId)
   return {
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<GetOrderById['data'], GetOrderById['error']>({
         method: 'get',
         url: `/store/order/${orderId}`,
         ...options,
@@ -52,28 +47,22 @@ export function getOrderByIdQueryOptions<
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId */
-export function getOrderByIdQuery<
-  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
-  TError = GetOrderById['error'],
-  TData = GetOrderById['response'],
-  TQueryData = GetOrderById['response'],
-  TQueryKey extends QueryKey = GetOrderByIdQueryKey,
->(
+export function getOrderByIdQuery<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: CreateBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+    query?: CreateBaseQueryOptions<GetOrderById['data'], GetOrderById['error'], TData, TQueryData, TQueryKey>
     client?: GetOrderById['client']['parameters']
   } = {},
-): CreateQueryResult<TData, TError> & {
+): CreateQueryResult<TData, GetOrderById['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
-  const query = createQuery<TQueryFnData, TError, TData, any>({
-    ...getOrderByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
+  const query = createQuery<GetOrderById['data'], GetOrderById['error'], TData, any>({
+    ...getOrderByIdQueryOptions<TData, TQueryData>(orderId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateQueryResult<TData, TError> & {
+  }) as CreateQueryResult<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -82,20 +71,15 @@ export function getOrderByIdQuery<
 export const getOrderByIdInfiniteQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdInfiniteQueryKey = ReturnType<typeof getOrderByIdInfiniteQueryKey>
-export function getOrderByIdInfiniteQueryOptions<
-  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
-  TError = GetOrderById['error'],
-  TData = GetOrderById['response'],
-  TQueryData = GetOrderById['response'],
->(
+export function getOrderByIdInfiniteQueryOptions<TData = GetOrderById['response'], TQueryData = GetOrderById['response']>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['parameters'] = {},
-): WithRequired<CreateInfiniteQueryOptions<GetOrderById['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<CreateInfiniteQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdInfiniteQueryKey(orderId)
   return {
     queryKey,
     queryFn: async ({ pageParam }) => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<GetOrderById['data'], GetOrderById['error']>({
         method: 'get',
         url: `/store/order/${orderId}`,
         ...options,
@@ -109,27 +93,25 @@ export function getOrderByIdInfiniteQueryOptions<
  * @summary Find purchase order by ID
  * @link /store/order/:orderId */
 export function getOrderByIdQueryInfinite<
-  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
-  TError = GetOrderById['error'],
   TData = GetOrderById['response'],
   TQueryData = GetOrderById['response'],
   TQueryKey extends QueryKey = GetOrderByIdInfiniteQueryKey,
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: CreateInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+    query?: CreateInfiniteQueryOptions<GetOrderById['data'], GetOrderById['error'], TData, TQueryData, TQueryKey>
     client?: GetOrderById['client']['parameters']
   } = {},
-): CreateInfiniteQueryResult<TData, TError> & {
+): CreateInfiniteQueryResult<TData, GetOrderById['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdInfiniteQueryKey(orderId)
-  const query = createInfiniteQuery<TQueryFnData, TError, TData, any>({
-    ...getOrderByIdInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
+  const query = createInfiniteQuery<GetOrderById['data'], GetOrderById['error'], TData, any>({
+    ...getOrderByIdInfiniteQueryOptions<TData, TQueryData>(orderId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateInfiniteQueryResult<TData, TError> & {
+  }) as CreateInfiniteQueryResult<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

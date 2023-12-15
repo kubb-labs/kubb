@@ -5,7 +5,7 @@ import type {
   CreateUsersWithListInputMutationResponse,
   CreateUsersWithListInputError,
 } from '../models/CreateUsersWithListInput'
-import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
+import type { UseMutationOptions } from '@tanstack/react-query'
 
 type CreateUsersWithListInputClient = typeof client<
   CreateUsersWithListInputMutationResponse,
@@ -32,9 +32,9 @@ type CreateUsersWithListInput = {
 export function useCreateUsersWithListInputHook(options: {
   mutation?: UseMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>
   client?: CreateUsersWithListInput['client']['parameters']
-} = {}): UseMutationResult<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']> {
+} = {}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
         method: 'post',

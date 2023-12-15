@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
 import type { LogoutUserQueryResponse, LogoutUserError } from '../models/LogoutUser'
-import type { QueryObserverOptions, UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
+import type { QueryObserverOptions, UseQueryReturnType, QueryKey } from '@tanstack/vue-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, LogoutUserError, never>
 type LogoutUser = {
@@ -19,49 +19,38 @@ type LogoutUser = {
 }
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
-export function logoutUserQueryOptions<
-  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
-  TError = LogoutUser['error'],
-  TData = LogoutUser['response'],
-  TQueryData = LogoutUser['response'],
->(options: LogoutUser['client']['parameters'] = {}): WithRequired<QueryObserverOptions<LogoutUser['response'], TError, TData, TQueryData>, 'queryKey'> {
+export function logoutUserQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
   const queryKey = logoutUserQueryKey()
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
         url: `/user/logout`,
         ...options,
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout */
-export function useLogoutUser<
-  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
-  TError = LogoutUser['error'],
-  TData = LogoutUser['response'],
-  TQueryData = LogoutUser['response'],
-  TQueryKey extends QueryKey = LogoutUserQueryKey,
->(
+export function useLogoutUser<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+    query?: QueryObserverOptions<LogoutUser['data'], LogoutUser['error'], TData, TQueryKey>
     client?: LogoutUser['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, TError> & {
+): UseQueryReturnType<TData, LogoutUser['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
-  const query = useQuery<any, TError, TData, any>({
-    ...logoutUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
+  const query = useQuery({
+    ...logoutUserQueryOptions(clientOptions),
     queryKey,
-    ...queryOptions,
-  }) as UseQueryReturnType<TData, TError> & {
+    ...(queryOptions as QueryObserverOptions),
+  }) as UseQueryReturnType<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

@@ -1,12 +1,11 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions, useInfiniteQuery, infiniteQueryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
 import type {
   QueryObserverOptions,
   UseQueryResult,
   QueryKey,
-  WithRequired,
-  UseInfiniteQueryOptions,
+  InfiniteQueryObserverOptions,
   UseInfiniteQueryResult,
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
@@ -28,50 +27,40 @@ type GetUserByName = {
 }
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
-export function getUserByNameQueryOptions<
-  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
-  TError = GetUserByName['error'],
-  TData = GetUserByName['response'],
-  TQueryData = GetUserByName['response'],
->(
-  username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['parameters'] = {},
-): WithRequired<QueryObserverOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
+export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameQueryKey(username)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<GetUserByName['data'], GetUserByName['error']>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Get user by user name
  * @link /user/:username */
 export function useGetUserByNameHook<
-  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
-  TError = GetUserByName['error'],
   TData = GetUserByName['response'],
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(username: GetUserByNamePathParams['username'], options: {
-  query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  query?: QueryObserverOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryData, TQueryKey>
   client?: GetUserByName['client']['parameters']
-} = {}): UseQueryResult<TData, TError> & {
+} = {}): UseQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
-  const query = useQuery<any, TError, TData, any>({
-    ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
+  const query = useQuery({
+    ...getUserByNameQueryOptions(username, clientOptions),
     queryKey,
-    ...queryOptions,
-  }) as UseQueryResult<TData, TError> & {
+    ...queryOptions as QueryObserverOptions,
+  }) as UseQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -80,20 +69,12 @@ export function useGetUserByNameHook<
 export const getUserByNameInfiniteQueryKey = (username: GetUserByNamePathParams['username']) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameInfiniteQueryKey = ReturnType<typeof getUserByNameInfiniteQueryKey>
-export function getUserByNameInfiniteQueryOptions<
-  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
-  TError = GetUserByName['error'],
-  TData = GetUserByName['response'],
-  TQueryData = GetUserByName['response'],
->(
-  username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['parameters'] = {},
-): WithRequired<UseInfiniteQueryOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
+export function getUserByNameInfiniteQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameInfiniteQueryKey(username)
-  return {
+  return infiniteQueryOptions({
     queryKey,
     queryFn: async ({ pageParam }) => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<GetUserByName['data'], GetUserByName['error']>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
@@ -102,30 +83,28 @@ export function getUserByNameInfiniteQueryOptions<
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
-  }
+  })
 }
 /**
  * @summary Get user by user name
  * @link /user/:username */
 export function useGetUserByNameHookInfinite<
-  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
-  TError = GetUserByName['error'],
   TData = GetUserByName['response'],
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
 >(username: GetUserByNamePathParams['username'], options: {
-  query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  query?: InfiniteQueryObserverOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryData, TQueryKey>
   client?: GetUserByName['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, TError> & {
+} = {}): UseInfiniteQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameInfiniteQueryKey(username)
-  const query = useInfiniteQuery<any, TError, TData, any>({
-    ...getUserByNameInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
+  const query = useInfiniteQuery({
+    ...getUserByNameInfiniteQueryOptions(username, clientOptions),
     queryKey,
-    ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, TError> & {
+    ...queryOptions as InfiniteQueryObserverOptions,
+  }) as UseInfiniteQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -134,48 +113,39 @@ export function useGetUserByNameHookInfinite<
 export const getUserByNameSuspenseQueryKey = (username: GetUserByNamePathParams['username']) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspenseQueryKey>
-export function getUserByNameSuspenseQueryOptions<
-  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
-  TError = GetUserByName['error'],
-  TData = GetUserByName['response'],
->(
-  username: GetUserByNamePathParams['username'],
-  options: GetUserByName['client']['parameters'] = {},
-): WithRequired<UseSuspenseQueryOptions<GetUserByName['response'], TError, TData>, 'queryKey'> {
+export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameSuspenseQueryKey(username)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<GetUserByName['data'], GetUserByName['error']>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @summary Get user by user name
  * @link /user/:username */
-export function useGetUserByNameHookSuspense<
-  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
-  TError = GetUserByName['error'],
-  TData = GetUserByName['response'],
-  TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey,
->(username: GetUserByNamePathParams['username'], options: {
-  query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
-  client?: GetUserByName['client']['parameters']
-} = {}): UseSuspenseQueryResult<TData, TError> & {
+export function useGetUserByNameHookSuspense<TData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey>(
+  username: GetUserByNamePathParams['username'],
+  options: {
+    query?: UseSuspenseQueryOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryKey>
+    client?: GetUserByName['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameSuspenseQueryKey(username)
-  const query = useSuspenseQuery<any, TError, TData, any>({
-    ...getUserByNameSuspenseQueryOptions<TQueryFnData, TError, TData>(username, clientOptions),
+  const query = useSuspenseQuery({
+    ...getUserByNameSuspenseQueryOptions(username, clientOptions),
     queryKey,
-    ...queryOptions,
-  }) as UseSuspenseQueryResult<TData, TError> & {
+    ...queryOptions as QueryObserverOptions,
+  }) as UseSuspenseQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

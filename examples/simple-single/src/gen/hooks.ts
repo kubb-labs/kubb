@@ -162,20 +162,15 @@ type FindPetsByStatus = {
 }
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
-export function findPetsByStatusQueryOptions<
-  TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
-  TError = FindPetsByStatus['error'],
-  TData = FindPetsByStatus['response'],
-  TQueryData = FindPetsByStatus['response'],
->(
+export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'], TQueryData = FindPetsByStatus['response']>(
   params?: FindPetsByStatus['queryParams'],
   options: FindPetsByStatus['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<FindPetsByStatus['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByStatusQueryKey(params)
   return {
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
         method: 'get',
         url: `/pet/findByStatus`,
         params,
@@ -190,24 +185,22 @@ export function findPetsByStatusQueryOptions<
  * @summary Finds Pets by status
  * @link /pet/findByStatus */
 export function useFindPetsByStatus<
-  TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
-  TError = FindPetsByStatus['error'],
   TData = FindPetsByStatus['response'],
   TQueryData = FindPetsByStatus['response'],
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
 >(params?: FindPetsByStatus['queryParams'], options: {
-  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  query?: UseBaseQueryOptions<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>
   client?: FindPetsByStatus['client']['parameters']
-} = {}): UseQueryResult<TData, TError> & {
+} = {}): UseQueryResult<TData, FindPetsByStatus['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
-  const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...findPetsByStatusQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+  const query = useQuery<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, any>({
+    ...findPetsByStatusQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & {
+  }) as UseQueryResult<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -230,20 +223,15 @@ type FindPetsByTags = {
 }
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
-export function findPetsByTagsQueryOptions<
-  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
-  TError = FindPetsByTags['error'],
-  TData = FindPetsByTags['response'],
-  TQueryData = FindPetsByTags['response'],
->(
+export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], TQueryData = FindPetsByTags['response']>(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsQueryKey(params)
   return {
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
@@ -258,24 +246,22 @@ export function findPetsByTagsQueryOptions<
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
 export function useFindPetsByTags<
-  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
-  TError = FindPetsByTags['error'],
   TData = FindPetsByTags['response'],
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(params?: FindPetsByTags['queryParams'], options: {
-  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  query?: UseBaseQueryOptions<FindPetsByTags['data'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
   client?: FindPetsByTags['client']['parameters']
-} = {}): UseQueryResult<TData, TError> & {
+} = {}): UseQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-  const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+  const query = useQuery<FindPetsByTags['data'], FindPetsByTags['error'], TData, any>({
+    ...findPetsByTagsQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & {
+  }) as UseQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -298,20 +284,15 @@ type GetPetById = {
 }
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
-export function getPetByIdQueryOptions<
-  TQueryFnData extends GetPetById['data'] = GetPetById['data'],
-  TError = GetPetById['error'],
-  TData = GetPetById['response'],
-  TQueryData = GetPetById['response'],
->(
+export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryData = GetPetById['response']>(
   petId: GetPetByIdPathParams['petId'],
   options: GetPetById['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<GetPetById['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getPetByIdQueryKey(petId)
   return {
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<GetPetById['data'], GetPetById['error']>({
         method: 'get',
         url: `/pet/${petId}`,
         ...options,
@@ -324,25 +305,22 @@ export function getPetByIdQueryOptions<
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId */
-export function useGetPetById<
-  TQueryFnData extends GetPetById['data'] = GetPetById['data'],
-  TError = GetPetById['error'],
-  TData = GetPetById['response'],
-  TQueryData = GetPetById['response'],
-  TQueryKey extends QueryKey = GetPetByIdQueryKey,
->(petId: GetPetByIdPathParams['petId'], options: {
-  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: GetPetById['client']['parameters']
-} = {}): UseQueryResult<TData, TError> & {
+export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
+  petId: GetPetByIdPathParams['petId'],
+  options: {
+    query?: UseBaseQueryOptions<GetPetById['data'], GetPetById['error'], TData, TQueryData, TQueryKey>
+    client?: GetPetById['client']['parameters']
+  } = {},
+): UseQueryResult<TData, GetPetById['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
-  const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...getPetByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(petId, clientOptions),
+  const query = useQuery<GetPetById['data'], GetPetById['error'], TData, any>({
+    ...getPetByIdQueryOptions<TData, TQueryData>(petId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & {
+  }) as UseQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -475,17 +453,14 @@ type GetInventory = {
 }
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
-export function getInventoryQueryOptions<
-  TQueryFnData extends GetInventory['data'] = GetInventory['data'],
-  TError = GetInventory['error'],
-  TData = GetInventory['response'],
-  TQueryData = GetInventory['response'],
->(options: GetInventory['client']['parameters'] = {}): WithRequired<UseBaseQueryOptions<GetInventory['response'], TError, TData, TQueryData>, 'queryKey'> {
+export function getInventoryQueryOptions<TData = GetInventory['response'], TQueryData = GetInventory['response']>(
+  options: GetInventory['client']['parameters'] = {},
+): WithRequired<UseBaseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getInventoryQueryKey()
   return {
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<GetInventory['data'], GetInventory['error']>({
         method: 'get',
         url: `/store/inventory`,
         ...options,
@@ -498,25 +473,21 @@ export function getInventoryQueryOptions<
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
  * @link /store/inventory */
-export function useGetInventory<
-  TQueryFnData extends GetInventory['data'] = GetInventory['data'],
-  TError = GetInventory['error'],
-  TData = GetInventory['response'],
-  TQueryData = GetInventory['response'],
-  TQueryKey extends QueryKey = GetInventoryQueryKey,
->(options: {
-  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: GetInventory['client']['parameters']
-} = {}): UseQueryResult<TData, TError> & {
+export function useGetInventory<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
+  options: {
+    query?: UseBaseQueryOptions<GetInventory['data'], GetInventory['error'], TData, TQueryData, TQueryKey>
+    client?: GetInventory['client']['parameters']
+  } = {},
+): UseQueryResult<TData, GetInventory['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
-  const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...getInventoryQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
+  const query = useQuery<GetInventory['data'], GetInventory['error'], TData, any>({
+    ...getInventoryQueryOptions<TData, TQueryData>(clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & {
+  }) as UseQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -613,20 +584,15 @@ type GetOrderById = {
 }
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
-export function getOrderByIdQueryOptions<
-  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
-  TError = GetOrderById['error'],
-  TData = GetOrderById['response'],
-  TQueryData = GetOrderById['response'],
->(
+export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQueryData = GetOrderById['response']>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<GetOrderById['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdQueryKey(orderId)
   return {
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<GetOrderById['data'], GetOrderById['error']>({
         method: 'get',
         url: `/store/order/${orderId}`,
         ...options,
@@ -639,25 +605,22 @@ export function getOrderByIdQueryOptions<
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId */
-export function useGetOrderById<
-  TQueryFnData extends GetOrderById['data'] = GetOrderById['data'],
-  TError = GetOrderById['error'],
-  TData = GetOrderById['response'],
-  TQueryData = GetOrderById['response'],
-  TQueryKey extends QueryKey = GetOrderByIdQueryKey,
->(orderId: GetOrderByIdPathParams['orderId'], options: {
-  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: GetOrderById['client']['parameters']
-} = {}): UseQueryResult<TData, TError> & {
+export function useGetOrderById<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
+  orderId: GetOrderByIdPathParams['orderId'],
+  options: {
+    query?: UseBaseQueryOptions<GetOrderById['data'], GetOrderById['error'], TData, TQueryData, TQueryKey>
+    client?: GetOrderById['client']['parameters']
+  } = {},
+): UseQueryResult<TData, GetOrderById['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
-  const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...getOrderByIdQueryOptions<TQueryFnData, TError, TData, TQueryData>(orderId, clientOptions),
+  const query = useQuery<GetOrderById['data'], GetOrderById['error'], TData, any>({
+    ...getOrderByIdQueryOptions<TData, TQueryData>(orderId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & {
+  }) as UseQueryResult<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -794,20 +757,15 @@ type LoginUser = {
 }
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
-export function loginUserQueryOptions<
-  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
-  TError = LoginUser['error'],
-  TData = LoginUser['response'],
-  TQueryData = LoginUser['response'],
->(
+export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData = LoginUser['response']>(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<LoginUser['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(params)
   return {
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<LoginUser['data'], LoginUser['error']>({
         method: 'get',
         url: `/user/login`,
         params,
@@ -820,25 +778,22 @@ export function loginUserQueryOptions<
 /**
  * @summary Logs user into the system
  * @link /user/login */
-export function useLoginUser<
-  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
-  TError = LoginUser['error'],
-  TData = LoginUser['response'],
-  TQueryData = LoginUser['response'],
-  TQueryKey extends QueryKey = LoginUserQueryKey,
->(params?: LoginUser['queryParams'], options: {
-  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: LoginUser['client']['parameters']
-} = {}): UseQueryResult<TData, TError> & {
+export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
+  params?: LoginUser['queryParams'],
+  options: {
+    query?: UseBaseQueryOptions<LoginUser['data'], LoginUser['error'], TData, TQueryData, TQueryKey>
+    client?: LoginUser['client']['parameters']
+  } = {},
+): UseQueryResult<TData, LoginUser['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
-  const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...loginUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+  const query = useQuery<LoginUser['data'], LoginUser['error'], TData, any>({
+    ...loginUserQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & {
+  }) as UseQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -861,17 +816,14 @@ type LogoutUser = {
 }
 export const logoutUserQueryKey = () => [{ url: '/user/logout' }] as const
 export type LogoutUserQueryKey = ReturnType<typeof logoutUserQueryKey>
-export function logoutUserQueryOptions<
-  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
-  TError = LogoutUser['error'],
-  TData = LogoutUser['response'],
-  TQueryData = LogoutUser['response'],
->(options: LogoutUser['client']['parameters'] = {}): WithRequired<UseBaseQueryOptions<LogoutUser['response'], TError, TData, TQueryData>, 'queryKey'> {
+export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryData = LogoutUser['response']>(
+  options: LogoutUser['client']['parameters'] = {},
+): WithRequired<UseBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = logoutUserQueryKey()
   return {
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<LogoutUser['data'], LogoutUser['error']>({
         method: 'get',
         url: `/user/logout`,
         ...options,
@@ -883,25 +835,19 @@ export function logoutUserQueryOptions<
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout */
-export function useLogoutUser<
-  TQueryFnData extends LogoutUser['data'] = LogoutUser['data'],
-  TError = LogoutUser['error'],
-  TData = LogoutUser['response'],
-  TQueryData = LogoutUser['response'],
-  TQueryKey extends QueryKey = LogoutUserQueryKey,
->(options: {
-  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+export function useLogoutUser<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(options: {
+  query?: UseBaseQueryOptions<LogoutUser['data'], LogoutUser['error'], TData, TQueryData, TQueryKey>
   client?: LogoutUser['client']['parameters']
-} = {}): UseQueryResult<TData, TError> & {
+} = {}): UseQueryResult<TData, LogoutUser['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
-  const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...logoutUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(clientOptions),
+  const query = useQuery<LogoutUser['data'], LogoutUser['error'], TData, any>({
+    ...logoutUserQueryOptions<TData, TQueryData>(clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & {
+  }) as UseQueryResult<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -924,20 +870,15 @@ type GetUserByName = {
 }
 export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
-export function getUserByNameQueryOptions<
-  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
-  TError = GetUserByName['error'],
-  TData = GetUserByName['response'],
-  TQueryData = GetUserByName['response'],
->(
+export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQueryData = GetUserByName['response']>(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<GetUserByName['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<UseBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameQueryKey(username)
   return {
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<GetUserByName['data'], GetUserByName['error']>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
@@ -949,25 +890,22 @@ export function getUserByNameQueryOptions<
 /**
  * @summary Get user by user name
  * @link /user/:username */
-export function useGetUserByName<
-  TQueryFnData extends GetUserByName['data'] = GetUserByName['data'],
-  TError = GetUserByName['error'],
-  TData = GetUserByName['response'],
-  TQueryData = GetUserByName['response'],
-  TQueryKey extends QueryKey = GetUserByNameQueryKey,
->(username: GetUserByNamePathParams['username'], options: {
-  query?: UseBaseQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
-  client?: GetUserByName['client']['parameters']
-} = {}): UseQueryResult<TData, TError> & {
+export function useGetUserByName<TData = GetUserByName['response'], TQueryData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameQueryKey>(
+  username: GetUserByNamePathParams['username'],
+  options: {
+    query?: UseBaseQueryOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryData, TQueryKey>
+    client?: GetUserByName['client']['parameters']
+  } = {},
+): UseQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
-  const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...getUserByNameQueryOptions<TQueryFnData, TError, TData, TQueryData>(username, clientOptions),
+  const query = useQuery<GetUserByName['data'], GetUserByName['error'], TData, any>({
+    ...getUserByNameQueryOptions<TData, TQueryData>(username, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, TError> & {
+  }) as UseQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

@@ -2,7 +2,7 @@ import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import { unref } from 'vue'
 import type { UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from '../models/UploadFile'
-import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
+import type { UseMutationOptions } from '@tanstack/vue-query'
 import type { MaybeRef } from 'vue'
 
 type UploadFileClient = typeof client<UploadFileMutationResponse, never, UploadFileMutationRequest>
@@ -29,9 +29,9 @@ export function useUploadFile(
     mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request'], unknown>
     client?: UploadFile['client']['parameters']
   } = {},
-): UseMutationReturnType<UploadFile['response'], UploadFile['error'], UploadFile['request'], unknown> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UploadFile['response'], UploadFile['error'], UploadFile['request'], unknown>({
+  return useMutation({
     mutationFn: async (data) => {
       const petId = unref(refPetId)
       const params = unref(refParams)

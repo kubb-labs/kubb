@@ -8,6 +8,7 @@ import type { ReactNode } from 'react'
 type TemplateProps = {
   path: string
   optionsType: string
+  queryOptions: string | undefined
   resultType: string
   hookName: string
 }
@@ -15,13 +16,16 @@ type TemplateProps = {
 function Template({
   path,
   hookName,
+  queryOptions,
   optionsType,
   resultType,
 }: TemplateProps): ReactNode {
+  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+
   return (
     <>
       <File.Import name={[optionsType, resultType]} path={path} isTypeOnly />
-      <File.Import name={[hookName]} path={path} />
+      <File.Import name={[hookName, queryOptions].filter(Boolean)} path={path} />
       <File.Import name={['QueryKey', 'WithRequired']} path={path} isTypeOnly />
     </>
   )
@@ -40,13 +44,13 @@ const defaultTemplates = {
       { context, ...rest }: FrameworkProps,
     ): ReactNode {
       const importNames = getImportNames()
+      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const { isInfinite, isSuspense } = context
-
-      const props = isSuspense ? importNames.querySuspense.react : isInfinite ? importNames.queryInfinite.react : importNames.query.react
 
       return (
         <Template
-          {...props}
+          {...isSuspense ? importNames.querySuspense.react : isInfinite ? importNames.queryInfinite.react : importNames.query.react}
+          queryOptions={isV5 ? isInfinite ? 'infiniteQueryOptions' : 'queryOptions' : undefined}
           {...rest}
         />
       )
@@ -57,11 +61,13 @@ const defaultTemplates = {
       { context, ...rest }: FrameworkProps,
     ): ReactNode {
       const importNames = getImportNames()
+      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const { isInfinite } = context
 
       return (
         <Template
           {...isInfinite ? importNames.queryInfinite.solid : importNames.query.solid}
+          queryOptions={isV5 ? isInfinite ? 'infiniteQueryOptions' : 'queryOptions' : undefined}
           {...rest}
         />
       )
@@ -72,11 +78,13 @@ const defaultTemplates = {
       { context, ...rest }: FrameworkProps,
     ): ReactNode {
       const importNames = getImportNames()
+      const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
       const { isInfinite } = context
 
       return (
         <Template
           {...isInfinite ? importNames.queryInfinite.svelte : importNames.query.svelte}
+          queryOptions={isV5 ? isInfinite ? 'infiniteQueryOptions' : 'queryOptions' : undefined}
           {...rest}
         />
       )
@@ -98,6 +106,7 @@ const defaultTemplates = {
               <>
                 <Template
                   {...isInfinite ? importNames.queryInfinite.vue : importNames.query.vue}
+                  queryOptions={isInfinite ? 'infiniteQueryOptions' : 'queryOptions'}
                   {...rest}
                 />
                 <File.Import name={['QueryObserverOptions']} path={path} isTypeOnly />
