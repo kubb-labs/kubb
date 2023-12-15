@@ -1,5 +1,6 @@
 import { createNode } from '../shared/dom.ts'
 import { ReactTemplate } from '../shared/ReactTemplate.tsx'
+import { format } from './format.ts'
 
 import type { Logger } from '@kubb/core/logger'
 import type { AppContextProps } from '../components/AppContext.tsx'
@@ -25,7 +26,7 @@ export function createRootServer<Context extends AppContextProps = AppContextPro
     renderToString(children, context?: Context) {
       instance.render(children, context)
 
-      return instance.output
+      return format(instance.output)
     },
     unmount() {
       instance.unmount()

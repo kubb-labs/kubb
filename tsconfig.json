@@ -17,6 +17,9 @@
       "@kubb/core/fs": [
         "packages/core/src/fs/index.ts"
       ],
+      "@kubb/core/mocks": [
+        "packages/core/mocks/index.ts"
+      ],
       "@kubb/core": [
         "packages/core/src/index.ts"
       ],
@@ -49,6 +52,9 @@
       ],
       "@kubb/swagger-client/client": [
         "packages/swagger-client/src/client.ts"
+      ],
+      "@kubb/react/server": [
+        "packages/react/src/server/index.ts"
       ],
       "@kubb/react": [
         "packages/react/src/index.ts"

@@ -88,7 +88,7 @@ function Template({
           },
           mutationOptions
         )
-      }`}
+      `}
       </Function>
     )
   }
@@ -109,7 +109,7 @@ function Template({
         },
         mutationOptions
       )
-    }`}
+    `}
     </Function>
   )
 }

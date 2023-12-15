@@ -59,7 +59,7 @@ export function useGetUserByNameHook<
   const query = useQuery({
     ...getUserByNameQueryOptions(username, clientOptions),
     queryKey,
-    ...queryOptions as QueryObserverOptions,
+    ...queryOptions as unknown as QueryObserverOptions,
   }) as UseQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
@@ -103,7 +103,7 @@ export function useGetUserByNameHookInfinite<
   const query = useInfiniteQuery({
     ...getUserByNameInfiniteQueryOptions(username, clientOptions),
     queryKey,
-    ...queryOptions as InfiniteQueryObserverOptions,
+    ...queryOptions as unknown as InfiniteQueryObserverOptions,
   }) as UseInfiniteQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
@@ -144,7 +144,7 @@ export function useGetUserByNameHookSuspense<TData = GetUserByName['response'], 
   const query = useSuspenseQuery({
     ...getUserByNameSuspenseQueryOptions(username, clientOptions),
     queryKey,
-    ...queryOptions as QueryObserverOptions,
+    ...queryOptions as unknown as QueryObserverOptions,
   }) as UseSuspenseQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }

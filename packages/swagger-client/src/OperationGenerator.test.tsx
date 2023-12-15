@@ -1,3 +1,4 @@
+import { mockedPluginManager } from '@kubb/core/mocks'
 import { OasManager } from '@kubb/swagger'
 
 import CustomClientTemplate from '../mocks/CustomClientTemplate.tsx'
@@ -5,11 +6,9 @@ import { Client } from './components/Client.tsx'
 import { Operations } from './components/Operations.tsx'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
-import type { KubbPlugin, PluginManager } from '@kubb/core'
+import type { KubbPlugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
-
-const mockedPluginManager = { resolveName: ({ name }) => name, resolvePath: ({ baseName }) => baseName } as PluginManager
 
 describe('OperationGenerator', async () => {
   const oas = await OasManager.parseFromConfig({

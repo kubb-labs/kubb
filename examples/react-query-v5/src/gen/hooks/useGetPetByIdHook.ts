@@ -59,7 +59,7 @@ export function useGetPetByIdHook<TData = GetPetById['response'], TQueryData = G
   const query = useQuery({
     ...getPetByIdQueryOptions(petId, clientOptions),
     queryKey,
-    ...queryOptions as QueryObserverOptions,
+    ...queryOptions as unknown as QueryObserverOptions,
   }) as UseQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }
@@ -103,7 +103,7 @@ export function useGetPetByIdHookInfinite<
   const query = useInfiniteQuery({
     ...getPetByIdInfiniteQueryOptions(petId, clientOptions),
     queryKey,
-    ...queryOptions as InfiniteQueryObserverOptions,
+    ...queryOptions as unknown as InfiniteQueryObserverOptions,
   }) as UseInfiniteQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }
@@ -144,7 +144,7 @@ export function useGetPetByIdHookSuspense<TData = GetPetById['response'], TQuery
   const query = useSuspenseQuery({
     ...getPetByIdSuspenseQueryOptions(petId, clientOptions),
     queryKey,
-    ...queryOptions as QueryObserverOptions,
+    ...queryOptions as unknown as QueryObserverOptions,
   }) as UseSuspenseQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }

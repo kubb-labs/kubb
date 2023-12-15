@@ -1,13 +1,11 @@
+import { mockedPluginManager } from '@kubb/core/mocks'
 import { OasManager } from '@kubb/swagger'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
-import type { PluginManager } from '@kubb/core'
 import type { KubbPlugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
-
-const mockedPluginManager = { resolveName: ({ name }) => name, resolvePath: ({ baseName }) => baseName } as PluginManager
 
 describe('OperationGenerator', async () => {
   const oas = await OasManager.parseFromConfig({

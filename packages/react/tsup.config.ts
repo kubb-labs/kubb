@@ -14,6 +14,7 @@ export default defineConfig([
       components: 'src/components/index.ts',
     },
     noExternal: ['react'],
+    external: ['prettier'],
   },
   {
     ...optionsESM,
@@ -26,5 +27,6 @@ export default defineConfig([
       components: 'src/components/index.ts',
     },
     noExternal: ['react'],
+    external: ['prettier'],
   },
 ])

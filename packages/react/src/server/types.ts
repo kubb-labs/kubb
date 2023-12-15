@@ -2,7 +2,7 @@ import type { KubbFile } from '@kubb/core'
 import type { ReactNode } from 'react'
 
 export type RootType<T = unknown> = {
-  renderToString(children: ReactNode, context?: T): void
+  renderToString(children: ReactNode, context?: T): Promise<string>
   unmount(): void
   /**
    * @deprecated

@@ -1,5 +1,6 @@
 import path from 'node:path'
 
+import { mockedPluginManager } from '@kubb/core/mocks'
 import { print } from '@kubb/parser'
 import { OasManager } from '@kubb/swagger'
 
@@ -8,8 +9,6 @@ import { TypeGenerator } from './TypeGenerator.ts'
 
 import type { PluginManager } from '@kubb/core'
 import type { Oas, OasTypes } from '@kubb/swagger/oas'
-
-const mockedPluginManager = { resolveName: ({ name }) => name, resolvePath: ({ baseName }) => baseName } as PluginManager
 
 describe('TypeGenerator simple', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')

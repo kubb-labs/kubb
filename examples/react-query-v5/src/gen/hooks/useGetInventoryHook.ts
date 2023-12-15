@@ -58,7 +58,7 @@ export function useGetInventoryHook<TData = GetInventory['response'], TQueryData
   const query = useQuery({
     ...getInventoryQueryOptions(clientOptions),
     queryKey,
-    ...queryOptions as QueryObserverOptions,
+    ...queryOptions as unknown as QueryObserverOptions,
   }) as UseQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }
@@ -102,7 +102,7 @@ export function useGetInventoryHookInfinite<
   const query = useInfiniteQuery({
     ...getInventoryInfiniteQueryOptions(clientOptions),
     queryKey,
-    ...queryOptions as InfiniteQueryObserverOptions,
+    ...queryOptions as unknown as InfiniteQueryObserverOptions,
   }) as UseInfiniteQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }
@@ -140,7 +140,7 @@ export function useGetInventoryHookSuspense<TData = GetInventory['response'], TQ
   const query = useSuspenseQuery({
     ...getInventorySuspenseQueryOptions(clientOptions),
     queryKey,
-    ...queryOptions as QueryObserverOptions,
+    ...queryOptions as unknown as QueryObserverOptions,
   }) as UseSuspenseQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }

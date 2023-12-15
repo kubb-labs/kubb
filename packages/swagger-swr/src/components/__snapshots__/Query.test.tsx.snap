@@ -1,0 +1,60 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`<Query/> > showPetById 1`] = `
+"type ShowPetByIdClient = typeof client<ShowPetByIdQueryResponse, ShowPetByIdError, never>
+type ShowPetById = {
+  data: ShowPetByIdQueryResponse
+  error: ShowPetByIdError
+  request: never
+  pathParams: ShowPetByIdPathParams
+  queryParams: never
+  headerParams: never
+  response: ShowPetByIdQueryResponse
+  client: {
+    parameters: Partial<Parameters<ShowPetByIdClient>[0]>
+    return: Awaited<ReturnType<ShowPetByIdClient>>
+  }
+}
+
+export function ShowPetByIdQueryOptions<TData extends ShowPetById['response'] = ShowPetById['response'], TError = ShowPetById['error']>(
+  petId: ShowPetByIdPathParams['petId'],
+  testId: ShowPetByIdPathParams['testId'],
+  options: ShowPetById['client']['parameters'] = {},
+): SWRConfiguration<TData, TError> {
+  return {
+    fetcher: async () => {
+      const res = await client<TData, TError>({
+        method: 'get',
+        url: \`/pets/\${petId}\`,
+        ...options,
+      })
+
+      return res.data
+    },
+  }
+}
+/**
+ * @summary Info for a specific pet
+ * @link /pets/:petId */
+
+export function useShowPetById<TData extends ShowPetById['response'] = ShowPetById['response'], TError = ShowPetById['error']>(
+  petId: ShowPetByIdPathParams['petId'],
+  testId: ShowPetByIdPathParams['testId'],
+  options?: {
+    query?: SWRConfiguration<TData, TError>
+    client?: ShowPetById['client']['parameters']
+    shouldFetch?: boolean
+  },
+): SWRResponse<TData, TError> {
+  const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+
+  const url = \`/pets/\${petId}\` as const
+  const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
+    ...ShowPetByIdQueryOptions<TData, TError>(petId, testId, clientOptions),
+    ...queryOptions,
+  })
+
+  return query
+}
+"
+`;

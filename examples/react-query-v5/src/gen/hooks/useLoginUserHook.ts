@@ -59,7 +59,7 @@ export function useLoginUserHook<TData = LoginUser['response'], TQueryData = Log
   const query = useQuery({
     ...loginUserQueryOptions(params, clientOptions),
     queryKey,
-    ...queryOptions as QueryObserverOptions,
+    ...queryOptions as unknown as QueryObserverOptions,
   }) as UseQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }
@@ -107,7 +107,7 @@ export function useLoginUserHookInfinite<
   const query = useInfiniteQuery({
     ...loginUserInfiniteQueryOptions(params, clientOptions),
     queryKey,
-    ...queryOptions as InfiniteQueryObserverOptions,
+    ...queryOptions as unknown as InfiniteQueryObserverOptions,
   }) as UseInfiniteQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }
@@ -148,7 +148,7 @@ export function useLoginUserHookSuspense<TData = LoginUser['response'], TQueryKe
   const query = useSuspenseQuery({
     ...loginUserSuspenseQueryOptions(params, clientOptions),
     queryKey,
-    ...queryOptions as QueryObserverOptions,
+    ...queryOptions as unknown as QueryObserverOptions,
   }) as UseSuspenseQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }

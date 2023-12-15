@@ -1,13 +1,11 @@
 import path from 'node:path'
 
+import { mockedPluginManager } from '@kubb/core/mocks'
 import { OasManager } from '@kubb/swagger'
 
 import { ZodGenerator } from './ZodGenerator.ts'
 
-import type { PluginManager } from '@kubb/core'
 import type { OasTypes } from '@kubb/swagger/oas'
-
-const mockedPluginManager = { resolveName: ({ name }) => name, resolvePath: ({ baseName }) => baseName } as PluginManager
 
 describe('ZodGenerator simple', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')

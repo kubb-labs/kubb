@@ -61,7 +61,7 @@ export function useFindPetsByStatusHook<
   const query = useQuery({
     ...findPetsByStatusQueryOptions(params, clientOptions),
     queryKey,
-    ...queryOptions as QueryObserverOptions,
+    ...queryOptions as unknown as QueryObserverOptions,
   }) as UseQueryResult<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }
@@ -111,7 +111,7 @@ export function useFindPetsByStatusHookInfinite<
   const query = useInfiniteQuery({
     ...findPetsByStatusInfiniteQueryOptions(params, clientOptions),
     queryKey,
-    ...queryOptions as InfiniteQueryObserverOptions,
+    ...queryOptions as unknown as InfiniteQueryObserverOptions,
   }) as UseInfiniteQueryResult<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }
@@ -154,7 +154,7 @@ export function useFindPetsByStatusHookSuspense<TData = FindPetsByStatus['respon
   const query = useSuspenseQuery({
     ...findPetsByStatusSuspenseQueryOptions(params, clientOptions),
     queryKey,
-    ...queryOptions as QueryObserverOptions,
+    ...queryOptions as unknown as QueryObserverOptions,
   }) as UseSuspenseQueryResult<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }

@@ -43,6 +43,11 @@
       "require": "./dist/fs.cjs",
       "default": "./dist/fs.cjs"
     },
+    "./mocks": {
+      "import": "./dist/mocks.js",
+      "require": "./dist/mocks.cjs",
+      "default": "./dist/mocks.cjs"
+    },
     "./package.json": "./package.json",
     "./globals": {
       "types": "./globals.d.ts"

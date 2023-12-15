@@ -55,7 +55,7 @@ export function useGetOrderById<TData = GetOrderById['response'], TQueryData = G
   const query = useQuery({
     ...getOrderByIdQueryOptions(refOrderId, clientOptions),
     queryKey,
-    ...(queryOptions as QueryObserverOptions),
+    ...(queryOptions as unknown as QueryObserverOptions),
   }) as UseQueryReturnType<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }
