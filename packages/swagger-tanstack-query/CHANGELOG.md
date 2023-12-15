@@ -1,5 +1,19 @@
 # @kubb/swagger-tanstack-query
 
+## 2.0.6
+
+### Patch Changes
+
+- [#729](https://github.com/kubb-project/kubb/pull/729) [`0f4a6f1`](https://github.com/kubb-project/kubb/commit/0f4a6f1090e9c2e422ead84fba8174270efdc743) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Cleanup of TypeScript types, removal of returnType and removal of any.
+
+- Updated dependencies []:
+  - @kubb/core@2.0.6
+  - @kubb/parser@2.0.6
+  - @kubb/react@2.0.6
+  - @kubb/swagger@2.0.6
+  - @kubb/swagger-client@2.0.6
+  - @kubb/swagger-ts@2.0.6
+
 ## 2.0.5
 
 ### Patch Changes
