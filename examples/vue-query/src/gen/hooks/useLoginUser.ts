@@ -22,21 +22,16 @@ type LoginUser = {
 }
 export const loginUserQueryKey = (params?: MaybeRef<LoginUser['queryParams']>) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
-export function loginUserQueryOptions<
-  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
-  TError = LoginUser['error'],
-  TData = LoginUser['response'],
-  TQueryData = LoginUser['response'],
->(
+export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData = LoginUser['response']>(
   refParams?: MaybeRef<LoginUserQueryParams>,
   options: LoginUser['client']['parameters'] = {},
-): WithRequired<VueQueryObserverOptions<LoginUser['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<VueQueryObserverOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(refParams)
   return {
     queryKey,
     queryFn: async () => {
       const params = unref(refParams)
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<LoginUser['data'], LoginUser['error']>({
         method: 'get',
         url: `/user/login`,
         params,
@@ -49,28 +44,22 @@ export function loginUserQueryOptions<
 /**
  * @summary Logs user into the system
  * @link /user/login */
-export function useLoginUser<
-  TQueryFnData extends LoginUser['data'] = LoginUser['data'],
-  TError = LoginUser['error'],
-  TData = LoginUser['response'],
-  TQueryData = LoginUser['response'],
-  TQueryKey extends QueryKey = LoginUserQueryKey,
->(
+export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   refParams?: MaybeRef<LoginUserQueryParams>,
   options: {
-    query?: VueQueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+    query?: VueQueryObserverOptions<LoginUser['data'], LoginUser['error'], TData, TQueryKey>
     client?: LoginUser['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, TError> & {
+): UseQueryReturnType<TData, LoginUser['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(refParams)
-  const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...loginUserQueryOptions<TQueryFnData, TError, TData, TQueryData>(refParams, clientOptions),
+  const query = useQuery<LoginUser['data'], LoginUser['error'], TData, any>({
+    ...loginUserQueryOptions<TData, TQueryData>(refParams, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryReturnType<TData, TError> & {
+  }) as UseQueryReturnType<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

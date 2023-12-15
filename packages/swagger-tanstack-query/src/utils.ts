@@ -61,7 +61,7 @@ export function getImportNames() {
       'react': {
         path: '@tanstack/react-query',
         hookName: 'useInfiniteQuery',
-        optionsType: 'UseInfiniteQueryOptions',
+        optionsType: isV5 ? 'InfiniteQueryObserverOptions' : 'UseInfiniteQueryOptions',
         resultType: 'UseInfiniteQueryResult',
       },
       'solid': {

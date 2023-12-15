@@ -44,6 +44,12 @@
       "@kubb/react/jsx-runtime": [
         "packages/react/src/jsx-runtime.ts"
       ],
+      "@kubb/swagger-client": [
+        "packages/swagger-client/src/index.ts"
+      ],
+      "@kubb/swagger-client/client": [
+        "packages/swagger-client/src/client.ts"
+      ],
       "@kubb/react": [
         "packages/react/src/index.ts"
       ],

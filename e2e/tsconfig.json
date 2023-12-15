@@ -6,7 +6,6 @@
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react-jsx",
-    "declaration": true,
     "outDir": "es",
     "experimentalDecorators": true,
     "skipLibCheck": true,

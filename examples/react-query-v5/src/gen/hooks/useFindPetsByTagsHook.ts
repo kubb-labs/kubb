@@ -1,12 +1,11 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions, useInfiniteQuery, infiniteQueryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
 import type {
   QueryObserverOptions,
   UseQueryResult,
   QueryKey,
-  WithRequired,
-  UseInfiniteQueryOptions,
+  InfiniteQueryObserverOptions,
   UseInfiniteQueryResult,
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
@@ -28,20 +27,12 @@ type FindPetsByTags = {
 }
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
-export function findPetsByTagsQueryOptions<
-  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
-  TError = FindPetsByTags['error'],
-  TData = FindPetsByTags['response'],
-  TQueryData = FindPetsByTags['response'],
->(
-  params?: FindPetsByTags['queryParams'],
-  options: FindPetsByTags['client']['parameters'] = {},
-): WithRequired<QueryObserverOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
+export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
@@ -49,31 +40,29 @@ export function findPetsByTagsQueryOptions<
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
 export function useFindPetsByTagsHook<
-  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
-  TError = FindPetsByTags['error'],
   TData = FindPetsByTags['response'],
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(params?: FindPetsByTags['queryParams'], options: {
-  query?: QueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  query?: QueryObserverOptions<FindPetsByTags['data'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
   client?: FindPetsByTags['client']['parameters']
-} = {}): UseQueryResult<TData, TError> & {
+} = {}): UseQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-  const query = useQuery<any, TError, TData, any>({
-    ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+  const query = useQuery({
+    ...findPetsByTagsQueryOptions(params, clientOptions),
     queryKey,
-    ...queryOptions,
-  }) as UseQueryResult<TData, TError> & {
+    ...queryOptions as QueryObserverOptions,
+  }) as UseQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -81,20 +70,12 @@ export function useFindPetsByTagsHook<
 }
 export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
-export function findPetsByTagsInfiniteQueryOptions<
-  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
-  TError = FindPetsByTags['error'],
-  TData = FindPetsByTags['response'],
-  TQueryData = FindPetsByTags['response'],
->(
-  params?: FindPetsByTags['queryParams'],
-  options: FindPetsByTags['client']['parameters'] = {},
-): WithRequired<UseInfiniteQueryOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
+export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
-  return {
+  return infiniteQueryOptions({
     queryKey,
     queryFn: async ({ pageParam }) => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
         url: `/pet/findByTags`,
         ...options,
@@ -108,31 +89,29 @@ export function findPetsByTagsInfiniteQueryOptions<
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage['id'],
-  }
+  })
 }
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
 export function useFindPetsByTagsHookInfinite<
-  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
-  TError = FindPetsByTags['error'],
   TData = FindPetsByTags['response'],
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(params?: FindPetsByTags['queryParams'], options: {
-  query?: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+  query?: InfiniteQueryObserverOptions<FindPetsByTags['data'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
   client?: FindPetsByTags['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, TError> & {
+} = {}): UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
-  const query = useInfiniteQuery<any, TError, TData, any>({
-    ...findPetsByTagsInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData>(params, clientOptions),
+  const query = useInfiniteQuery({
+    ...findPetsByTagsInfiniteQueryOptions(params, clientOptions),
     queryKey,
-    ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, TError> & {
+    ...queryOptions as InfiniteQueryObserverOptions,
+  }) as UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -140,19 +119,12 @@ export function useFindPetsByTagsHookInfinite<
 }
 export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSuspenseQueryKey>
-export function findPetsByTagsSuspenseQueryOptions<
-  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
-  TError = FindPetsByTags['error'],
-  TData = FindPetsByTags['response'],
->(
-  params?: FindPetsByTags['queryParams'],
-  options: FindPetsByTags['client']['parameters'] = {},
-): WithRequired<UseSuspenseQueryOptions<FindPetsByTags['response'], TError, TData>, 'queryKey'> {
+export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
-  return {
+  return queryOptions({
     queryKey,
     queryFn: async () => {
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
@@ -160,30 +132,28 @@ export function findPetsByTagsSuspenseQueryOptions<
       })
       return res.data
     },
-  }
+  })
 }
 /**
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
-export function useFindPetsByTagsHookSuspense<
-  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
-  TError = FindPetsByTags['error'],
-  TData = FindPetsByTags['response'],
-  TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey,
->(params?: FindPetsByTags['queryParams'], options: {
-  query?: UseSuspenseQueryOptions<TQueryFnData, TError, TData, TQueryKey>
-  client?: FindPetsByTags['client']['parameters']
-} = {}): UseSuspenseQueryResult<TData, TError> & {
+export function useFindPetsByTagsHookSuspense<TData = FindPetsByTags['response'], TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey>(
+  params?: FindPetsByTags['queryParams'],
+  options: {
+    query?: UseSuspenseQueryOptions<FindPetsByTags['data'], FindPetsByTags['error'], TData, TQueryKey>
+    client?: FindPetsByTags['client']['parameters']
+  } = {},
+): UseSuspenseQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
-  const query = useSuspenseQuery<any, TError, TData, any>({
-    ...findPetsByTagsSuspenseQueryOptions<TQueryFnData, TError, TData>(params, clientOptions),
+  const query = useSuspenseQuery({
+    ...findPetsByTagsSuspenseQueryOptions(params, clientOptions),
     queryKey,
-    ...queryOptions,
-  }) as UseSuspenseQueryResult<TData, TError> & {
+    ...queryOptions as QueryObserverOptions,
+  }) as UseSuspenseQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

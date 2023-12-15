@@ -8,7 +8,6 @@
     "strictNullChecks": true,
     "jsx": "preserve",
     "jsxImportSource": "vue",
-    "declaration": true,
     "outDir": "es",
     "experimentalDecorators": true,
     "skipLibCheck": true,

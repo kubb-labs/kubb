@@ -45,7 +45,6 @@ type TemplateProps = {
     withData: boolean
     withHeaders: boolean
   }
-  isV5: boolean
   infinite?: Infinite
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
 }
@@ -59,9 +58,10 @@ function Template({
   hook,
   client,
   infinite,
-  isV5,
   dataReturnType,
 }: TemplateProps): ReactNode {
+  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+
   const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
@@ -87,6 +87,30 @@ function Template({
   const resolvedQueryOptions = `${transformers.createIndent(4)}${queryOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
   if (infinite) {
+    if (isV5) {
+      return (
+        <Function name={name} export params={params} JSDoc={JSDoc}>
+          {`
+       const queryKey = ${hook.queryKey}
+
+       return infiniteQueryOptions({
+         queryKey,
+         queryFn: async ({ pageParam }) => {
+          ${hook.children || ''}
+           const res = await client<${client.generics}>({
+            ${resolvedClientOptions}
+           })
+
+           return ${dataReturnType === 'data' ? 'res.data' : 'res'}
+         },
+         ${resolvedQueryOptions}
+       })
+
+       `}
+        </Function>
+      )
+    }
+
     return (
       <Function name={name} export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
@@ -106,6 +130,30 @@ function Template({
          }
 
          `}
+      </Function>
+    )
+  }
+
+  if (isV5) {
+    return (
+      <Function name={name} export params={params} JSDoc={JSDoc}>
+        {`
+   const queryKey = ${hook.queryKey}
+
+   return queryOptions({
+     queryKey,
+     queryFn: async () => {
+      ${hook.children || ''}
+       const res = await client<${client.generics}>({
+        ${resolvedClientOptions}
+       })
+
+       return ${dataReturnType === 'data' ? 'res.data' : 'res'}
+     },
+     ${resolvedQueryOptions}
+   })
+
+   `}
       </Function>
     )
   }
@@ -267,19 +315,16 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
-  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 
   const pathParams = getParams(schemas.pathParams, {}).toString()
 
-  const clientGenerics = ['TQueryFnData', 'TError']
+  const clientGenerics = [`${factory.name}['data']`, `${factory.name}['error']`]
   // suspense is having 4 generics instead of 5, TQueryData is not needed because data will always be defined
   const resultGenerics = suspense
-    ? [`${factory.name}['response']`, 'TError', 'TData']
-    : [`${factory.name}['response']`, 'TError', 'TData', 'TQueryData']
+    ? [`${factory.name}['response']`, `${factory.name}["error"]`, 'TData']
+    : [`${factory.name}['response']`, `${factory.name}["error"]`, 'TData', 'TQueryData']
 
   generics.add([
-    { type: `TQueryFnData extends ${factory.name}['data']`, default: `${factory.name}["data"]` },
-    { type: 'TError', default: `${factory.name}["error"]` },
     { type: 'TData', default: `${factory.name}["response"]` },
     suspense ? undefined : { type: 'TQueryData', default: `${factory.name}["response"]` },
   ])
@@ -329,7 +374,6 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
       returnType={`WithRequired<${resultType}<${resultGenerics.join(', ')}>, 'queryKey'>`}
       client={client}
       hook={hook}
-      isV5={isV5}
       infinite={infinite}
       dataReturnType={dataReturnType}
       context={{

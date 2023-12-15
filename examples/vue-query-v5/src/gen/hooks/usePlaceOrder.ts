@@ -1,7 +1,7 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
 import type { PlaceOrderMutationRequest, PlaceOrderMutationResponse, PlaceOrder405 } from '../models/PlaceOrder'
-import type { UseMutationOptions, UseMutationReturnType } from '@tanstack/vue-query'
+import type { UseMutationOptions } from '@tanstack/vue-query'
 
 type PlaceOrderClient = typeof client<PlaceOrderMutationResponse, PlaceOrder405, PlaceOrderMutationRequest>
 type PlaceOrder = {
@@ -26,9 +26,9 @@ export function usePlaceOrder(
     mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request'], unknown>
     client?: PlaceOrder['client']['parameters']
   } = {},
-): UseMutationReturnType<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request'], unknown> {
+) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request'], unknown>({
+  return useMutation({
     mutationFn: async (data) => {
       const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({
         method: 'post',

@@ -22,21 +22,16 @@ type FindPetsByTags = {
 }
 export const findPetsByTagsQueryKey = (params?: MaybeRef<FindPetsByTags['queryParams']>) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
-export function findPetsByTagsQueryOptions<
-  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
-  TError = FindPetsByTags['error'],
-  TData = FindPetsByTags['response'],
-  TQueryData = FindPetsByTags['response'],
->(
+export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], TQueryData = FindPetsByTags['response']>(
   refParams?: MaybeRef<FindPetsByTagsQueryParams>,
   options: FindPetsByTags['client']['parameters'] = {},
-): WithRequired<VueQueryObserverOptions<FindPetsByTags['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<VueQueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsQueryKey(refParams)
   return {
     queryKey,
     queryFn: async () => {
       const params = unref(refParams)
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<FindPetsByTags['data'], FindPetsByTags['error']>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
@@ -51,27 +46,25 @@ export function findPetsByTagsQueryOptions<
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
 export function useFindPetsByTags<
-  TQueryFnData extends FindPetsByTags['data'] = FindPetsByTags['data'],
-  TError = FindPetsByTags['error'],
   TData = FindPetsByTags['response'],
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(
   refParams?: MaybeRef<FindPetsByTagsQueryParams>,
   options: {
-    query?: VueQueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+    query?: VueQueryObserverOptions<FindPetsByTags['data'], FindPetsByTags['error'], TData, TQueryKey>
     client?: FindPetsByTags['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, TError> & {
+): UseQueryReturnType<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(refParams)
-  const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...findPetsByTagsQueryOptions<TQueryFnData, TError, TData, TQueryData>(refParams, clientOptions),
+  const query = useQuery<FindPetsByTags['data'], FindPetsByTags['error'], TData, any>({
+    ...findPetsByTagsQueryOptions<TData, TQueryData>(refParams, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryReturnType<TData, TError> & {
+  }) as UseQueryReturnType<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

@@ -12,6 +12,7 @@ import { SchemaType } from './SchemaType.tsx'
 import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
+import { PackageManager } from '@kubb/core'
 
 type TemplateProps = {
   /**
@@ -63,6 +64,7 @@ function Template({
   hook,
   dataReturnType,
 }: TemplateProps): ReactNode {
+  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
   const clientOptions = [
     `method: "${client.method}"`,
     `url: ${client.path.template}`,
@@ -73,6 +75,27 @@ function Template({
   ].filter(Boolean)
 
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
+
+  if (isV5) {
+    return (
+      <Function export name={name} params={params} JSDoc={JSDoc}>
+        {`
+         const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
+         return ${hook.name}({
+           mutationFn: async(${client.withData ? 'data' : ''}) => {
+            ${hook.children || ''}
+             const res = await client<${client.generics}>({
+              ${resolvedClientOptions}
+             })
+
+             return ${dataReturnType === 'data' ? 'res.data' : 'res'}
+           },
+           ...mutationOptions
+         })`}
+      </Function>
+    )
+  }
 
   return (
     <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>

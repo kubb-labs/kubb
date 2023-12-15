@@ -23,21 +23,16 @@ type FindPetsByStatus = {
 export const findPetsByStatusQueryKey = (params?: MaybeRef<FindPetsByStatus['queryParams']>) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
-export function findPetsByStatusQueryOptions<
-  TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
-  TError = FindPetsByStatus['error'],
-  TData = FindPetsByStatus['response'],
-  TQueryData = FindPetsByStatus['response'],
->(
+export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'], TQueryData = FindPetsByStatus['response']>(
   refParams?: MaybeRef<FindPetsByStatusQueryParams>,
   options: FindPetsByStatus['client']['parameters'] = {},
-): WithRequired<VueQueryObserverOptions<FindPetsByStatus['response'], TError, TData, TQueryData>, 'queryKey'> {
+): WithRequired<VueQueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByStatusQueryKey(refParams)
   return {
     queryKey,
     queryFn: async () => {
       const params = unref(refParams)
-      const res = await client<TQueryFnData, TError>({
+      const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
         method: 'get',
         url: `/pet/findByStatus`,
         params,
@@ -52,27 +47,25 @@ export function findPetsByStatusQueryOptions<
  * @summary Finds Pets by status
  * @link /pet/findByStatus */
 export function useFindPetsByStatus<
-  TQueryFnData extends FindPetsByStatus['data'] = FindPetsByStatus['data'],
-  TError = FindPetsByStatus['error'],
   TData = FindPetsByStatus['response'],
   TQueryData = FindPetsByStatus['response'],
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
 >(
   refParams?: MaybeRef<FindPetsByStatusQueryParams>,
   options: {
-    query?: VueQueryObserverOptions<TQueryFnData, TError, TData, TQueryData, TQueryKey>
+    query?: VueQueryObserverOptions<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, TQueryKey>
     client?: FindPetsByStatus['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, TError> & {
+): UseQueryReturnType<TData, FindPetsByStatus['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(refParams)
-  const query = useQuery<TQueryFnData, TError, TData, any>({
-    ...findPetsByStatusQueryOptions<TQueryFnData, TError, TData, TQueryData>(refParams, clientOptions),
+  const query = useQuery<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, any>({
+    ...findPetsByStatusQueryOptions<TData, TQueryData>(refParams, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryReturnType<TData, TError> & {
+  }) as UseQueryReturnType<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
