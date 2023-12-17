@@ -80,7 +80,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/react": "^18.2.45",
     "@types/swagger2openapi": "^7.0.4",
-    "eslint": "^8.55.0",
+    "eslint": "^8.56.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3"
   },

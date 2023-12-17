@@ -1,3 +1,4 @@
+import { PackageManager } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { File, Function, usePlugin } from '@kubb/react'
@@ -12,7 +13,6 @@ import { SchemaType } from './SchemaType.tsx'
 import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
-import { PackageManager } from '@kubb/core'
 
 type TemplateProps = {
   /**
