@@ -7,7 +7,7 @@ outline: deep
 
 # @kubb/swagger-faker <a href="https://paka.dev/npm/@kubb/swagger-faker@latest/api">🦙</a>
 
-With the Swagger Faker plugin you can use [Faker](https://fakerjs.dev/) to create mocks based on a Swagger file.
+With the Swagger Faker plugin, you can use [Faker](https://fakerjs.dev/) to create mocks based on a Swagger file.
 
 ## Installation
 
@@ -153,7 +153,7 @@ export default defineConfig({
 
 #### output.exportType
 
-Define what needs to exported, here you can also disable the export of barrel files
+Define what needs to be exported, here you can also disable the export of barrel files
 
 ::: info
 Type: `'barrel' | false` <br/>

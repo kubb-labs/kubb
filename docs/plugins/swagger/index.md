@@ -7,8 +7,8 @@ outline: deep
 
 # @kubb/swagger <a href="https://paka.dev/npm/@kubb/swagger@latest/api">🦙</a>
 
-With the Swagger plugin you can create JSON schema's out of a Swagger file.
-Inside this package you can also use some utils to create your own Swagger plugin.
+With the Swagger plugin, you can create a JSON schema out of a Swagger file.
+Inside this package, you can also use some utils to create your own Swagger plugin.
 We already provide a [react-query plugin](/plugins/swagger-tanstack-query) but if you want to create a plugin for SWR you can use this package to get the core utils.(check if a schema is v2 or v3, validate the schema, generate a OAS object, ...).
 
 <hr/>
@@ -17,10 +17,10 @@ We are using [Oas](https://github.com/readmeio/oas) to convert a YAML/JSON to an
 
 The Swagger plugin also contains some classes and functions that can be used in your own plugin that needs Swagger:
 
-- For example we have [`getReference`](https://github.com/kubb-project/kubb/blob/main/packages/swagger/src/utils/getReference.ts) that will return the ref based on the spec.
+- For example, we have [`getReference`](https://github.com/kubb-project/kubb/blob/main/packages/swagger/src/utils/getReference.ts) that will return the ref based on the spec.
 
 - Next to that we also have the class [`OperationGenerator`](https://github.com/kubb-project/kubb/blob/main/packages/swagger/src/generators/OperationGenerator.ts). This class contains the building blocks of getting the request, response, params, ....
-  <br/>Just call `this.getSchemas` and you will retreive an object contains all the info you need to setup a TypeScript type, React-Query hook, ....
+  <br/>Just call `this.getSchemas` and you will retreive an object contains all the info you need to set up a TypeScript type, React-Query hook,....
 
 ## Installation
 
@@ -79,7 +79,7 @@ export default defineConfig({
 #### output.path
 
 Relative path to save the JSON models.<br/>
-False will not generate the schema JSON's.
+False will not generate the schema JSONs.
 
 ::: info
 Type: `string | false` <br/>
@@ -192,7 +192,7 @@ export default defineConfig({
 
 ### contentType
 
-Override ContentType that wil be used for requests and responses.
+Override ContentType that will be used for requests and responses.
 
 ::: info type
 

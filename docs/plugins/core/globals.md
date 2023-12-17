@@ -9,7 +9,7 @@ outline: deep
 
 ## Features
 
-Every plugin of `Kubb` has options and with the global `Kubb` you can access those options with `KubbJSONPlugins`.
+Every plugin of `Kubb` has options and with the global `Kubb`, you can access those options with `KubbJSONPlugins`.
 
 See [packages/core/src/globals.d.ts](https://github.com/kubb-project/kubb/blob/main/packages/core/global.d.ts)
 

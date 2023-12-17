@@ -11,7 +11,7 @@ outline: deep
 
 Specifies the preceding plugins for the current plugin. You can pass an array of preceding plugin names, and the current plugin will be executed after these plugins.<br/>
 
-Can be used to validate depended plugins.
+Can be used to validate dependent plugins.
 
 ```typescript
 pre: string[]
@@ -28,7 +28,7 @@ post: string[]
 ## buildStart
 
 `hookParallel`: Start of the lifecycle of a plugin.
-BuildStart is used to implement your transformation logic and also the only place where you can run _this.addFile_.
+BuildStart is used to implement your transformation logic and is also the only place where you can run _this.addFile_.
 
 ```typescript
 buildStart: (this: PluginContext, kubbConfig: KubbConfig) => WithPromise<void>
@@ -60,7 +60,7 @@ load: (this: PluginContext, path: Path) => WithPromise<TransformResult | null>
 
 ## transform
 
-`hookReduceArg0`: Transform the source-code.
+`hookReduceArg0`: Transform the source code.
 
 ```typescript
 transform: (this: PluginContext, source: string, path: Path) => WithPromise<TransformResult>
@@ -68,7 +68,7 @@ transform: (this: PluginContext, source: string, path: Path) => WithPromise<Tran
 
 ## writeFile
 
-`hookParallel`: Write the result to the file-system based on the id(defined by `resolvePath` or changed by `load`).
+`hookParallel`: Write the result to the file system based on the id(defined by `resolvePath` or changed by `load`).
 
 ```typescript
 writeFile: (this: PluginContext, source: string | undefined, path: Path) => WithPromise<void>

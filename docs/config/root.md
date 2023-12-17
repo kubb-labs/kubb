@@ -7,7 +7,7 @@ outline: deep
 
 # root
 
-Project root directory. Can be an absolute path, or a path relative from the location of the config file itself.
+Project root directory. Can be an absolute path, or a path relative to the location of the config file itself.
 
 - **Type:** `string` <br/>
 - **Default:** `process.cwd()` <br/>

@@ -34,7 +34,7 @@ export default defineConfig({
 
 ### output.clean
 
-Clean output directory before each build.
+Clean the output directory before each build.
 
 - **Type:** `boolean` <br/>
 
@@ -58,7 +58,7 @@ export default defineConfig({
 
 ### output.write
 
-Write files to the fileSystem.
+Write files to the filesystem.
 
 - **Type:** `boolean` <br/>
 - **Default:** `true`

@@ -7,7 +7,7 @@ outline: deep
 
 # Basic tutorial
 
-This tutorial will describe how you can setup Kubb + use the TypeScript plugin to generate types based on the `petStore.yaml` file.
+This tutorial will describe how you can set up Kubb + use the TypeScript plugin to generate types based on the `petStore.yaml` file.
 
 The setup will contain from the beginning the following folder structure:
 
@@ -81,7 +81,7 @@ This will result in the following folder structure when Kubb has been executed
 
 ## Step two
 
-Update your `package.json` and install `Kubb`, see [installation](/guide/introduction.html#configuration-file).
+Update your `package.json` and install `Kubb, see the [installation](/guide/introduction.html#configuration-file).
 
 Your `package.json` will look like this:
 

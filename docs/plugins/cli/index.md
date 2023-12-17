@@ -59,7 +59,7 @@ Options:
 ## Generate
 
 ::: tip
-`kubb generate` and `kubb` are the same.
+`kubb generate` and `kubb` is the same.
 :::
 
 ```mdx

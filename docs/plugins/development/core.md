@@ -21,13 +21,13 @@ When calling `this.` in a plugin, the `api` of the core plugin will be used.
 
 ### this.config
 
-The current config, see `kubb.config.ts`.
+For the current config, see `kubb.config.ts`.
 
 - **Type:** `KubbConfig` <br/>
 
 ### this.plugins
 
-Return all the plugins that are getting used.
+Return all the plugins that are being used.
 
 - **Type:** `Array<KubbPlugin>` <br/>
 
@@ -63,13 +63,13 @@ Add a file to the current fileManager.
 
 ### this.resolvePath
 
-This will call pluginManager.resolvePath, see [Pluginmanager and resolving a path](/reference/pluginManager/#pluginmanager-resolvepath).
+This will be called pluginManager.resolvePath, see [Pluginmanager and resolving a path](/reference/pluginManager/#pluginmanager-resolvepath).
 
 - **Type:** `(params: ResolvePathParams) => KubbFile.OptionalPath` <br/>
 
 ### this.resolveName
 
-This will call pluginManager.resolveName, see [Pluginmanager and resolving a name](/reference/pluginManager/#pluginmanager-resolvename).
+This will be called pluginManager.resolveName, see [Pluginmanager and resolving a name](/reference/pluginManager/#pluginmanager-resolvename).
 
 - **Type:** `(params: ResolveNameParams) => string` <br/>
 

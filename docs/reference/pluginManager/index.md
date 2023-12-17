@@ -7,7 +7,7 @@ outline: deep
 
 # PluginManager <Badge type="info" text="@kubb/core" />
 
-The `PluginManager` instance contains the building blocks in executing plugins(in a specific order). This contains a queue system, the `FileManager`, `resolvePath` that will be used to retreive a path needed for plugin x and also `resolveName` to retreive a name that can be used for a function/file/type.
+The `PluginManager` instance contains the building blocks for executing plugins(in a specific order). This contains a queue system, the `FileManager`, `resolvePath` that will be used to retrieve a path needed for plugin x and also `resolveName` to retrieve a name that can be used for a function/file/type.
 
 ::: tip
 Here we also create the core plugin with the link(see `this.`) to the `PluginManager`.
@@ -15,7 +15,7 @@ Here we also create the core plugin with the link(see `this.`) to the `PluginMan
 
 ### pluginManager.plugins
 
-Array of plugins with the [lifecycle](/reference/pluginManager/lifecycle) hooks included. This also adds the core plugin. Behind the scene we also convert the api prop from a function to an object.
+An array of plugins with the [lifecycle](/reference/pluginManager/lifecycle) hooks included. This also adds the core plugin. Behind the scene, we also convert the API prop from a function to an object.
 
 - **Type:** `KubbPluginWithLifeCycle` <br/>
 
@@ -27,7 +27,7 @@ Instance of the [FileManager](/reference/filemManager).
 
 ### pluginManager.events
 
-The `PluginManager` is triggering some events when a plugin will be exectued(`execute`), when a plugin has been executed (`executed`) and when something goes wrong (`error`).
+The `PluginManager` triggers some events when a plugin will be executed(`execute`), when a plugin has been executed (`executed`) and when something goes wrong (`error`).
 
 ```typescript [Events]
 type Events = {
@@ -95,11 +95,11 @@ Run a specific hookName for plugin x.
 
 ### pluginManager.hookFirst
 
-First non-null result stops and will return it's value.
+First non-null result stops and will return its value.
 
 ### pluginManager.hookFirstSync
 
-First non-null result stops and will return it's value.
+First non-null result stops and will return its value.
 
 ### pluginManager.hookParallel
 

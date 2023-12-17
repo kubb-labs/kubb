@@ -8,7 +8,7 @@ outline: deep
 # Hooks
 
 Some hooks that can be used with `@kubb/swagger`.<br/>
-See [Oas](https://github.com/readmeio/oas) to understand on how to use the `Oas` instance or the `Oas` schemas.
+See [Oas](https://github.com/readmeio/oas) to understand how to use the `Oas` instance or the `Oas` schemas.
 
 ## useOas
 
@@ -66,7 +66,7 @@ function Component() {
 
 ## useOperationName
 
-`useOperationName` will return the name based on the current operation and plugin(when pluginKey is not provided).<br/>
+`useOperationName` will return the name based on the current operation and plugin(when `pluginKey` is not provided).<br/>
 
 ::: code-group
 
@@ -87,7 +87,7 @@ function Component() {
 
 ## useOperationFile
 
-`useOperationFile` will create all the props used for `<File/>` based on the current operation and plugin(when pluginKey is not provided)<br/>
+`useOperationFile` will create all the props used for `<File/>` based on the current operation and plugin(when `pluginKey` is not provided)<br/>
 
 ::: tip
 Internally `useFile` of `@kubb/react` is getting used.

@@ -43,7 +43,7 @@ features:
   - icon:
       src: ./feature/axios.svg
     title: Axios
-    details: <a href="https://axios-http.com/">Promise based HTTP calls</a> with a custom Client to set baseURL, headers, ... options. <div class="learn-more"><a href="/plugins/swagger-client/">Learn more</a></div>
+    details: <a href="https://axios-http.com/">Promise-based HTTP calls</a> with a custom Client to set baseURL, headers, ... options. <div class="learn-more"><a href="/plugins/swagger-client/">Learn more</a></div>
   - icon:
       src: ./feature/msw.svg
     title: MSW <span class="new">v2 support</span>
@@ -68,16 +68,16 @@ features:
   - icon:
       src: ./feature/cli.svg
     title: CLI support
-    details: Log and see what is happening with the <span class="code">Kubb</span> CLI command. <div class="learn-more"><a href="/plugins/cli">Learn more</a></div>
+    details: Log in and see what is happening with the <span class="code">Kubb</span> CLI command. <div class="learn-more"><a href="/plugins/cli">Learn more</a></div>
   - icon:
       dark: ./feature/plugins-dark.svg
       light: ./feature/plugins-light.svg
     title: Extensible with plugins
-    details: Create your own plugin or fork and change one of the default plugins with your own flavour without the need of forking the full project. <div class="learn-more"><a href="/plugins/overview">Learn more</a></div>
+    details: Create your own plugin or fork and change one of the default plugins with your flavor(without a Kubb fork). <div class="learn-more"><a href="/plugins/overview">Learn more</a></div>
   - icon:
       src: ./feature/react.svg
       height: 24
     title: Templates
-    details: Customize the generated files/output based on a custom defined JSX(React) template. <div class="learn-more"><a href="/reference/templates">Learn more</a></div>
+    details: Customize the generated files/output based on a custom-defined JSX(React) template. <div class="learn-more"><a href="/reference/templates">Learn more</a></div>
 
 ---

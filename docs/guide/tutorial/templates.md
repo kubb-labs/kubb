@@ -25,7 +25,7 @@ The setup will contain from the beginning the following folder structure:
 
 ## Step one
 
-Create a React component inside the templates folder that will be used to override the default behaviour of the `@kubb/swagger-client` generated client.
+Create a React component inside the templates folder that will be used to override the default behavior of the `@kubb/swagger-client` generated client.
 
 ::: tip
 Make sure you inherit from `Client.templates.default` instead of `Client.templates`.
@@ -55,7 +55,7 @@ export type Options = {
 
 The following component will use the props of the template `React.ComponentProps<typeof Client.templates.default>` and return based on those props a function `axios.get`.
 
-Here we also need to add a new import and for that we use `File.Import`. For the other props we just pass them through(JSDoc, params, ...).
+Here we also need to add a new import and for that we use `File.Import`. For the other props, we just pass them(JSDoc, params, ...).
 
 ::: code-group
 
@@ -82,10 +82,10 @@ function ClientTemplate({ name, generics, returnType, params, JSDoc, client }: R
 
 ## Step two
 
-Based on the type we now that we need to return a templates object with `client` and/or `operations`(see types.ts). To make it possible to override the templates we need to add the following export.
+Based on the type we know that we need to return a template object with `client` and/or `operations`(see types.ts). To make it possible to override the templates we need to add the following export.
 
 ::: tip
-Don't forget the default, in the future we will have multiple variants but default will be used as a fallback.
+Don't forget the `default`, in the future we will have multiple variants but the default will be used as a fallback.
 :::
 
 ::: code-group

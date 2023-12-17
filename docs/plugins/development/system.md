@@ -10,7 +10,7 @@ outline: deep
 ::: warning Under construction
 :::
 
-Kubb provides a lightweight yet powerful plugin system to implement most of its functionality and allows implementing your own plugin.
+Kubb provides a lightweight yet powerful plugin system to implement most of its functionality and allows the implementation of your plugin.
 
 Plugins written by developers can generate code, resolve paths, resolve names and call other plugins.<br/>
 
@@ -133,11 +133,11 @@ export type PluginFactoryOptions<Name, Options, ResolveOptions, API, ResolvePath
 ## Configure
 
 To get started with creating plugins you need to set some options for the `PluginManager`. <br>
-More info about the lifecyle: [PluginManager Lifecycle](/reference/pluginManager/lifecycle)<br/>
+More info about the lifecycle: [PluginManager Lifecycle](/reference/pluginManager/lifecycle)<br/>
 More info about the `PluginContext` or `this`: [Plugin Core](/plugins/development/core)
 
 ::: tip
-When using type PluginOptions with `PluginFactoryOptions` you will already receive better types, name will be what you have defined as first parameter to `PluginFactoryOptions` instead of string.
+When using type PluginOptions with `PluginFactoryOptions` you will already receive better types, name will be what you have defined as the first parameter to `PluginFactoryOptions` instead of string.
 :::
 
 - **Type:** `KubbUserPluginWithLifeCycle` <br/>
@@ -168,7 +168,7 @@ Which plugin(s) should be executed after the current one.
 
 ### api
 
-Add some extra functionality to your plugin, here you can even using functions which is not possible with `options`.
+Add some extra functionality to your plugin, here you can even use functions which is not possible with `options`.
 
 - **Type:** `(this: Omit<PluginContext, "addFile">) => object` <br/>
 
@@ -239,8 +239,8 @@ The moment that `build` of `@kubb/core` is called or you trigger the CLI the fol
 
 #### Task
 
-`queueTask` is triggered when a new file is getting added to the `FileManager`.
+`queueTask` is triggered when a new file is added to the `FileManager`.
 
 1. Process the file to get back the generated code with imports, exports and source done by `FileManager.getSource(file)`.
 2. The `PluginManager` instance will call `transform` of all plugins and combine the returned string by using the `transformReducer`.
-3. The `PluginManager` instance wil call `writeFile` of all plugins when `output.write` is set to true(by default) and the first one to **NOT** return null will be used as the returned `KubbFile.File`.
+3. The `PluginManager` instance will call `writeFile` of all plugins when `output.write` is set to true(by default) and the first one to **NOT** return null will be used as the returned `KubbFile.File`.

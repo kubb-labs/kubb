@@ -8,7 +8,7 @@ outline: deep
 # Options
 
 This page is a reference to the different options you can use for configuring your Kubb config.
-By setting the following options you can override the default behaviour of Kubb and even extend it with your own plugins.
+By setting the following options you can override the default behavior of Kubb and even extend it with your plugins.
 
 ::: info INDEX
 
