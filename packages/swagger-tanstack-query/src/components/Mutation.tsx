@@ -98,7 +98,7 @@ function Template({
   }
 
   return (
-    <Function export name={name} generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+    <Function export name={name} returnType={returnType} params={params} JSDoc={JSDoc}>
       {`
        const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 

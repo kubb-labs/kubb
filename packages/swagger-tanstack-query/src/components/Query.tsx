@@ -62,7 +62,7 @@ function Template({
   if (isV5) {
     return (
       <>
-        <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
+        <Function name={name} export returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
           {`
          const { query: queryOptions, client: clientOptions = {} } = options ?? {}
          const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
@@ -85,7 +85,7 @@ function Template({
 
   return (
     <>
-      <Function name={name} export generics={generics} returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
+      <Function name={name} export returnType={resolvedReturnType} params={params} JSDoc={JSDoc}>
         {`
        const { query: queryOptions, client: clientOptions = {} } = options ?? {}
        const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
@@ -302,7 +302,6 @@ export function Query({
     pluginKey,
   })
 
-  const generics = new FunctionParams()
   const params = new FunctionParams()
   const queryParams = new FunctionParams()
   const client = {
@@ -313,12 +312,6 @@ export function Query({
     withPathParams: !!schemas.pathParams?.name,
     withHeaders: !!schemas.headerParams?.name,
   }
-
-  generics.add([
-    { type: 'TData', default: `${factory.name}["response"]` },
-    suspense ? undefined : { type: 'TQueryData', default: `${factory.name}["response"]` },
-    { type: `TQueryKey extends QueryKey`, default: queryKeyType },
-  ])
 
   const pathParams = getParams(schemas.pathParams, {}).toString()
   const resultGenerics = [
@@ -402,7 +395,6 @@ export function Query({
 
       <Template
         name={[name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined].filter(Boolean).join('')}
-        generics={generics.toString()}
         JSDoc={{ comments: getComments(operation) }}
         params={params.toString()}
         returnType={`${resultType}<${resultGenerics.join(', ')}>`}
