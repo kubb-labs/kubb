@@ -313,3 +313,47 @@ describe('TypeGenerator with discriminators', async () => {
     expect(ast_output).toMatchSnapshot()
   })
 })
+
+
+describe('TypeGenerator enums', async () => {
+  const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
+  const oas = await new OasManager().parse(schemaPath)
+  const generator = new TypeGenerator({
+    usedEnumNames: {},
+    enumType: 'asConst',
+    dateType: 'string',
+    optionalType: 'questionToken',
+    transformers: {},
+    oasType: false,
+  }, {
+    oas,
+    pluginManager: mockedPluginManager,
+  })
+
+  const schemas = oas.getDefinition().components?.schemas
+
+
+  test('generate x-enum-varnames types', async () => {
+    
+
+    const node = generator.build({ schema: schemas?.['enumVarNames.Type'] as OasTypes.SchemaObject, baseName: 'enumVarNames' })
+
+    const output = print(node, undefined)
+
+    expect(output).toBeDefined()
+
+    expect(await format(output)).toMatchSnapshot()
+  })
+
+  test('generate x-enumNames types', async () => {
+    
+
+    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
+
+    const output = print(node, undefined)
+
+    expect(output).toBeDefined()
+
+    expect(await format(output)).toMatchSnapshot()
+  })
+})

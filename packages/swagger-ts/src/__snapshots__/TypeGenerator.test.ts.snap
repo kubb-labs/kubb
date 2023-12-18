@@ -1,5 +1,28 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`TypeGenerator enums > generate x-enum-varnames types 1`] = `
+"export const enumVarNames = {
+  Pending: 0,
+  Received: 1,
+} as const
+export type enumVarNames = (typeof enumVarNames)[keyof typeof enumVarNames]
+"
+`;
+
+exports[`TypeGenerator enums > generate x-enumNames types 1`] = `
+"export const enumVarNames = {
+  Pending: 0,
+  Received: 1,
+} as const
+export type enumVarNames = (typeof enumVarNames)[keyof typeof enumVarNames]
+export const enumNames = {
+  Pending: 0,
+  Received: 1,
+} as const
+export type enumNames = (typeof enumNames)[keyof typeof enumNames]
+"
+`;
+
 exports[`TypeGenerator simple > generate type for Pet with optionalType \`questionToken\` 1`] = `
 "export type Pet = {
   /**

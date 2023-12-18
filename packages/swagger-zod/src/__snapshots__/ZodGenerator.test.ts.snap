@@ -48,6 +48,18 @@ exports[`TypeGenerator with const > UuidSchema generates a string with uuid form
 ]
 `;
 
+exports[`ZodGenerator enums > generate x-enum-varnames types 1`] = `
+[
+  "export const enumVarNames = z.enum([\`Pending\`,\`Received\`]);",
+]
+`;
+
+exports[`ZodGenerator enums > generate x-enumNames types 1`] = `
+[
+  "export const enumNames = z.enum([\`Pending\`,\`Received\`]);",
+]
+`;
+
 exports[`ZodGenerator lazy import > generate schema for Example 1`] = `
 [
   "export const Example = z.object({"nestedExamples": z.lazy(() => Example).optional()});",
@@ -57,5 +69,53 @@ exports[`ZodGenerator lazy import > generate schema for Example 1`] = `
 exports[`ZodGenerator simple > generate schema for Pet 1`] = `
 [
   "export const Pet = z.object({"id": z.number(),"name": z.string(),"tag": z.string().optional()});",
+]
+`;
+
+exports[`ZodGenerator with const > MixedValueTypeConst generates zod literal value correctly, overriding the type constraint 1`] = `
+[
+  "export const MixedValueTypeConst = z.object({"foobar": z.literal("foobar")});",
+]
+`;
+
+exports[`ZodGenerator with const > NullConst zodifies correctly 1`] = `
+[
+  "export const NullConst = z.literal(z.null());",
+]
+`;
+
+exports[`ZodGenerator with const > NullableString zodifies correctly 1`] = `
+[
+  "export const NullableString = z.string().nullable();",
+]
+`;
+
+exports[`ZodGenerator with const > NullableStringUuid zodifies correctly to a uuid or null 1`] = `
+[
+  "export const NullableStringUuid = z.string().uuid().nullable();",
+]
+`;
+
+exports[`ZodGenerator with const > NullableStringWithAnyOf results in union of string and null 1`] = `
+[
+  "export const NullableStringWithAnyOf = z.union([z.string(),z.null()]);",
+]
+`;
+
+exports[`ZodGenerator with const > NumberValueConst correctly generates zod literal 1`] = `
+[
+  "export const NumberValueConst = z.object({"foobar": z.literal(42)});",
+]
+`;
+
+exports[`ZodGenerator with const > StringValueConst correctly generates zod literal 1`] = `
+[
+  "export const StringValueConst = z.object({"foobar": z.literal("foobar")});",
+]
+`;
+
+exports[`ZodGenerator with const > UuidSchema generates a string with uuid format constraint 1`] = `
+[
+  "export const UuidSchema = z.string().uuid();",
 ]
 `;
