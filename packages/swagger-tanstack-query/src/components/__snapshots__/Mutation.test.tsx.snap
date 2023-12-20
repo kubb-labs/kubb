@@ -41,7 +41,7 @@ export function CreatePetsQueryOptions<TData = CreatePets['response'], TQueryDat
  * @summary Create a pet
  * @link /pets */
 
-export function useCreatePets<TData = CreatePets['response'], TQueryData = CreatePets['response'], TQueryKey extends QueryKey = CreatePetsQueryKey>(
+export function useCreatePets(
   options: {
     query?: UseBaseQueryOptions<CreatePets['data'], CreatePets['error'], TData, TQueryData, TQueryKey>
     client?: CreatePets['client']['parameters']
