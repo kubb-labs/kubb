@@ -116,9 +116,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       const root = path.resolve(this.config.root, this.config.output.path)
-      const { exportType = 'barrel' } = output
 
-      if (group?.type === 'tag' && exportType === 'barrel') {
+      if (group?.type === 'tag') {
         const rootFiles = await getGroupedByTagFiles({
           logger: this.logger,
           files: this.fileManager.files,
@@ -132,9 +131,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         await this.addFile(...rootFiles)
       }
 
-      if (exportType === 'barrel') {
-        await this.fileManager.addIndexes({ root, output, meta: { pluginKey: this.plugin.key } })
-      }
+      await this.fileManager.addIndexes({ root, output, meta: { pluginKey: this.plugin.key } })
     },
   }
 })

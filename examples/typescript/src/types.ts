@@ -1,8 +1,8 @@
 import type { Infer, Model, RequestParams, Response } from '@kubb/swagger-ts/oas'
 
-import type { models } from './gen/index.ts'
+import type { Oas as GeneratedOas } from './gen/index.ts'
 
-export type UserModel = Model<models.Oas, 'User'>
+export type UserModel = Model<GeneratedOas, 'User'>
 
 const oas = {
   openapi: '3.0.1',

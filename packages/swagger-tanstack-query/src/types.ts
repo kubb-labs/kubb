@@ -48,7 +48,7 @@ export type Options = {
      * Define what needs to exported, here you can also disable the export of barrel files
      * @default `'barrel'`
      */
-    exportType?: 'barrel' | false
+    exportType?: 'barrel' | 'barrelNamed' | false
   }
   /**
    * Group the @tanstack/query hooks based on the provided name.

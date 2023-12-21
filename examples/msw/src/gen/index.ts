@@ -1,2 +1,2 @@
-export * from './models'
-export * from './msw'
+export * from './models/index'
+export * from './msw/index'

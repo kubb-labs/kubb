@@ -1,3 +1,5 @@
+import { getExports } from '@kubb/parser'
+
 import path from 'path'
 
 import { trimExtName } from './transformers/trim.ts'
@@ -5,12 +7,6 @@ import { TreeNode } from './utils/TreeNode.ts'
 
 import type { DirectoryTreeOptions } from 'directory-tree'
 import type { KubbFile } from './FileManager.ts'
-import type { KubbPlugin } from './index.ts'
-
-type FileMeta = {
-  pluginKey?: KubbPlugin['key']
-  treeNode: TreeNode
-}
 
 export type BarrelManagerOptions = {
   treeNode?: DirectoryTreeOptions
@@ -30,17 +26,53 @@ export class BarrelManager {
     return this
   }
 
+  getNamedExport(root: string, item: KubbFile.Export): KubbFile.Export[] {
+    const exportedNames = getExports(path.resolve(root, item.path))
+
+    if (!exportedNames) {
+      return [item]
+    }
+
+    return exportedNames.reduce((prev, curr) => {
+      if (!prev[0]?.name || !prev[1]?.name) {
+        return prev
+      }
+
+      if (curr.isTypeOnly) {
+        prev[1] = { ...prev[1], name: [...prev[1].name, curr.name] }
+      } else {
+        prev[0] = { ...prev[0], name: [...prev[0].name, curr.name] }
+      }
+
+      return prev
+    }, [{
+      ...item,
+      name: [],
+      isTypeOnly: false,
+    }, {
+      ...item,
+      name: [],
+      isTypeOnly: true,
+    }] as KubbFile.Export[])
+  }
+
+  getNamedExports(root: string, exports: KubbFile.Export[]): KubbFile.Export[] {
+    return exports?.map(item => {
+      return this.getNamedExport(root, item)
+    }).flat()
+  }
+
   getIndexes(
-    pathToBuild: string,
-  ): Array<KubbFile.File<FileMeta>> | null {
+    root: string,
+  ): Array<KubbFile.File> | null {
     const { treeNode = {}, isTypeOnly, extName } = this.#options
-    const tree = TreeNode.build(pathToBuild, treeNode)
+    const tree = TreeNode.build(root, treeNode)
 
     if (!tree) {
       return null
     }
 
-    const fileReducer = (files: Array<KubbFile.File<FileMeta>>, treeNode: TreeNode) => {
+    const fileReducer = (files: Array<KubbFile.File>, treeNode: TreeNode) => {
       if (!treeNode.children) {
         return []
       }
@@ -48,7 +80,7 @@ export class BarrelManager {
       if (treeNode.children.length > 1) {
         const indexPath: KubbFile.Path = path.resolve(treeNode.data.path, 'index.ts')
 
-        const exports: KubbFile.Export[] = treeNode.children
+        const exports: Array<KubbFile.Export> = treeNode.children
           .filter(Boolean)
           .map((file) => {
             const importPath: string = file.data.type === 'directory' ? `./${file.data.name}/index` : `./${trimExtName(file.data.name)}`
@@ -69,9 +101,6 @@ export class BarrelManager {
           baseName: 'index.ts',
           source: '',
           exports,
-          meta: {
-            treeNode,
-          },
         })
       } else if (treeNode.children.length === 1) {
         const [treeNodeChild] = treeNode.children as [TreeNode]
@@ -95,9 +124,6 @@ export class BarrelManager {
           baseName: 'index.ts',
           source: '',
           exports,
-          meta: {
-            treeNode,
-          },
         })
       }
 

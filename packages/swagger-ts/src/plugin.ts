@@ -160,15 +160,12 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       }
 
       const root = path.resolve(this.config.root, this.config.output.path)
-      const { exportType = 'barrel' } = output
 
-      if (exportType === 'barrel') {
-        await this.fileManager.addIndexes({
-          root,
-          output,
-          meta: { pluginKey: this.plugin.key },
-        })
-      }
+      await this.fileManager.addIndexes({
+        root,
+        output,
+        meta: { pluginKey: this.plugin.key },
+      })
     },
   }
 })

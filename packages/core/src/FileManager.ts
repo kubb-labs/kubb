@@ -184,7 +184,7 @@ type AddIndexesProps = {
     path: string
     exportAs?: string
     extName?: KubbFile.Extname
-    exportType?: 'barrel' | false
+    exportType?: 'barrel' | 'barrelNamed' | false
   }
   options?: BarrelManagerOptions
   meta?: KubbFile.File['meta']
@@ -272,33 +272,45 @@ export class FileManager {
     return this.#add(file)
   }
 
-  async addIndexes({ root, output, meta, options = {} }: AddIndexesProps): Promise<Array<KubbFile.File> | undefined> {
+  async addIndexes({ root, output, meta, options = {} }: AddIndexesProps): Promise<void> {
     const { exportType = 'barrel' } = output
 
-    if (!exportType) {
+    if (exportType === false) {
       return undefined
     }
 
+    const pathToBuildFrom = resolve(root, output.path)
     const exportPath = output.path.startsWith('./') ? trimExtName(output.path) : `./${trimExtName(output.path)}`
     const mode = FileManager.getMode(output.path)
     const barrelManager = new BarrelManager({ extName: output.extName, ...options })
-    const files = barrelManager.getIndexes(resolve(root, output.path))
-
-    function getPath() {
-      if (output.extName) {
-        if (mode === 'directory') {
-          return `${exportPath}/index${output.extName}`
-        }
-        return `${exportPath}${output.extName}`
-      }
-
-      return exportPath
-    }
+    let files = barrelManager.getIndexes(pathToBuildFrom)
 
     if (!files) {
       return undefined
     }
 
+    if (exportType === 'barrelNamed') {
+      files = files.map(file => {
+        if (file.exports) {
+          return {
+            ...file,
+            exports: barrelManager.getNamedExports(pathToBuildFrom, file.exports),
+          }
+        }
+        return file
+      })
+    }
+
+    await Promise.all(
+      files.map((file) => {
+        return this.#addOrAppend({
+          ...file,
+          meta: meta ? meta : file.meta,
+        })
+      }),
+    )
+
+    const rootPath = mode === 'directory' ? `${exportPath}/index${output.extName || ''}` : `${exportPath}${output.extName || ''}`
     const rootFile: KubbFile.File = {
       path: resolve(root, 'index.ts'),
       baseName: 'index.ts',
@@ -308,29 +320,24 @@ export class FileManager {
           ? {
             name: output.exportAs,
             asAlias: true,
-            path: getPath(),
+            path: rootPath,
             isTypeOnly: options.isTypeOnly,
           }
           : {
-            path: getPath(),
+            path: rootPath,
             isTypeOnly: options.isTypeOnly,
           },
       ],
+    }
+
+    if (exportType === 'barrelNamed' && !output.exportAs && rootFile.exports?.[0]) {
+      rootFile.exports = barrelManager.getNamedExport(root, rootFile.exports[0])
     }
 
     await this.#addOrAppend({
       ...rootFile,
       meta: meta ? meta : rootFile.meta,
     })
-
-    return await Promise.all(
-      files.map((file) => {
-        return this.#addOrAppend({
-          ...file,
-          meta: meta ? meta : file.meta,
-        })
-      }),
-    )
   }
 
   getCacheByUUID(UUID: KubbFile.UUID): KubbFile.File | undefined {
