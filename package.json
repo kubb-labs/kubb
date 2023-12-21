@@ -79,5 +79,10 @@
   "engines": {
     "node": ">=18",
     "pnpm": ">=8.3.0"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@changesets/assemble-release-plan@6.0.0": "patches/@changesets__assemble-release-plan@6.0.0.patch"
+    }
   }
 }
