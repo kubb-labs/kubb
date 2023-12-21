@@ -47,7 +47,7 @@ Default: `'types'`
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -81,7 +81,7 @@ Type: `string` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -115,7 +115,7 @@ Type: `string` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -177,7 +177,7 @@ Default: `'${output}/{{tag}}Controller'`
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -243,7 +243,7 @@ Default: `'asConst'`
 ::: code-group
 
 ```typescript ['enum']
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -264,7 +264,7 @@ export default defineConfig({
 ```
 
 ```typescript ['asConst']
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -285,7 +285,7 @@ export default defineConfig({
 ```
 
 ```typescript ['asPascalConst']
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -331,7 +331,7 @@ Type: `'string' | 'date'` <br/>
 Default: `'string'`
 
 ```typescript ['string']
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -352,7 +352,7 @@ export default defineConfig({
 ```
 
 ```typescript ['date']
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -404,7 +404,7 @@ Default: `'questionToken'`
 ::: code-group
 
 ```typescript ['questionToken']
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -425,7 +425,7 @@ export default defineConfig({
 ```
 
 ```typescript ['undefined']
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -446,7 +446,7 @@ export default defineConfig({
 ```
 
 ```typescript ['questionTokenAndUndefined']
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -490,7 +490,7 @@ Type: `Array<Include>` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -541,7 +541,7 @@ Type: `Array<Exclude>` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -593,7 +593,7 @@ Type: `Array<Override>` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -640,7 +640,7 @@ Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
@@ -679,7 +679,7 @@ Type: `'infer' | false` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 

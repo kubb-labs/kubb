@@ -45,7 +45,7 @@ Default: `'zod'`
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerZod from '@kubb/swagger-zod'
 
@@ -111,7 +111,7 @@ Default: `'{{tag}}Schemas'`
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerZod from '@kubb/swagger-zod'
 
@@ -160,7 +160,7 @@ Type: `Array<Include>` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerZod from '@kubb/swagger-zod'
 
@@ -211,7 +211,7 @@ Type: `Array<Exclude>` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerZod from '@kubb/swagger-zod'
 
@@ -263,7 +263,7 @@ Type: `Array<Override>` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerZod from '@kubb/swagger-zod'
 
@@ -311,7 +311,7 @@ Type: `(name: string, type?: "function" | "type" | "file" ) => string` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerZod from '@kubb/swagger-zod'
 

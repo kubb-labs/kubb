@@ -56,7 +56,7 @@ Default: `true`
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 
 export default defineConfig({
@@ -88,7 +88,7 @@ Default: `'schemas'`
 ::: code-group
 
 ```typescript [output string]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 
 export default defineConfig({
@@ -109,7 +109,7 @@ export default defineConfig({
 ```
 
 ```typescript [output false]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 
 export default defineConfig({
@@ -155,7 +155,7 @@ servers:
 ```
 
 ```typescript [serverIndex 0]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 
 export default defineConfig({
@@ -172,7 +172,7 @@ export default defineConfig({
 ```
 
 ```typescript [serverIndex 1]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 
 export default defineConfig({
@@ -208,7 +208,7 @@ Type: `ContentType` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 
 export default defineConfig({
