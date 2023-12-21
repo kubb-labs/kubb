@@ -7,14 +7,17 @@ import type { UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResp
  */
 
 export function createUpdateUserError(): NonNullable<UpdateUserError> {
+  faker.seed([220])
   return undefined
 }
 
 export function createUpdateUserMutationResponse(): NonNullable<UpdateUserMutationResponse> {
+  faker.seed([220])
   return undefined
 }
 
 export function createUpdateUserPathParams(): NonNullable<UpdateUserPathParams> {
+  faker.seed([220])
   return { 'username': faker.string.alpha() }
 }
 /**
@@ -22,5 +25,6 @@ export function createUpdateUserPathParams(): NonNullable<UpdateUserPathParams> 
  */
 
 export function createUpdateUserMutationRequest(): NonNullable<UpdateUserMutationRequest> {
+  faker.seed([220])
   return createUser()
 }

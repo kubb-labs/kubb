@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker'
 import type { User } from '../models/User'
 
 export function createUser(): NonNullable<User> {
+  faker.seed([220])
   return {
     'id': faker.number.float({}),
     'username': faker.string.alpha(),

@@ -83,12 +83,17 @@ export type Options = {
    * @beta
    */
   mapper?: Record<string, string>
+  /**
+   * The use of Seed is intended to allow for consistent values in a test.
+   */
+  seed?: number | number[]
 }
 
 type ResolvedOptions = {
   dateType: NonNullable<Options['dateType']>
   mapper: NonNullable<Options['mapper']>
   transformers: NonNullable<Options['transformers']>
+  seed: NonNullable<Options['seed']> | undefined
 }
 
 export type FileMeta = {

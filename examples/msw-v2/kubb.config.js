@@ -34,6 +34,7 @@ export default defineConfig(async () => {
           type: 'tag',
           output: './mocks/{{tag}}Mocks',
         },
+        seed: [220],
       }],
       ['@kubb/swagger-msw', {
         output: {

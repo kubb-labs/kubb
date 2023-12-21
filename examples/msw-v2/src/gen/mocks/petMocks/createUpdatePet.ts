@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker'
 import { createPet } from '../createPet'
 import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../models/UpdatePet'
 
@@ -6,6 +7,7 @@ import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest
  */
 
 export function createUpdatePet400(): NonNullable<UpdatePet400> {
+  faker.seed([220])
   return undefined
 }
 /**
@@ -13,6 +15,7 @@ export function createUpdatePet400(): NonNullable<UpdatePet400> {
  */
 
 export function createUpdatePet404(): NonNullable<UpdatePet404> {
+  faker.seed([220])
   return undefined
 }
 /**
@@ -20,6 +23,7 @@ export function createUpdatePet404(): NonNullable<UpdatePet404> {
  */
 
 export function createUpdatePet405(): NonNullable<UpdatePet405> {
+  faker.seed([220])
   return undefined
 }
 /**
@@ -27,6 +31,7 @@ export function createUpdatePet405(): NonNullable<UpdatePet405> {
  */
 
 export function createUpdatePetMutationRequest(): NonNullable<UpdatePetMutationRequest> {
+  faker.seed([220])
   return createPet()
 }
 /**
@@ -34,5 +39,6 @@ export function createUpdatePetMutationRequest(): NonNullable<UpdatePetMutationR
  */
 
 export function createUpdatePetMutationResponse(): NonNullable<UpdatePetMutationResponse> {
+  faker.seed([220])
   return createPet()
 }

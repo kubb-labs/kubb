@@ -1,0 +1,28 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`<Mutation/> > pets 1`] = `
+"/**
+ * @description Null response
+ */
+
+export function createCreatePets201(): NonNullable<CreatePets201> {
+  return undefined
+}
+
+export function createCreatePetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
+  return { name: faker.string.alpha(), tag: faker.string.alpha() }
+}
+
+export function createCreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
+  return undefined
+}
+
+/**
+ * @description unexpected error
+ */
+
+export function createCreatePetsError(): NonNullable<CreatePetsError> {
+  return createError()
+}
+"
+`;

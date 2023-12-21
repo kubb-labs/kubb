@@ -153,7 +153,7 @@ export default defineConfig({
 
 #### output.exportType
 
-Define what needs to be exported, here you can also disable the export of barrel files
+Define what needs to be exported, you can also disable the export of barrel files
 
 ::: info
 Type: `'barrel' | 'barrelNamed' | false` <br/>
@@ -232,7 +232,7 @@ export default defineConfig({
 
 ### include
 
-Array containing include parameters to include tags/operations/methods/paths.
+An array containing include parameters to include tags/operations/methods/paths.
 
 ::: info type
 
@@ -285,7 +285,7 @@ export default defineConfig({
 
 ### exclude
 
-Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
+An array containing exclude parameters to exclude/skip tags/operations/methods/paths.
 
 ::: info type
 
@@ -338,7 +338,7 @@ export default defineConfig({
 
 ### override
 
-Array containing override parameters to override `options` based on tags/operations/methods/paths.
+An array containing override parameters to override `options` based on tags/operations/methods/paths.
 
 ::: info type
 
@@ -509,6 +509,44 @@ export default defineConfig({
     createSwaggerFaker(
       {
         dateType: 'date',
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+### seed
+
+The use of Seed is intended to allow for consistent values in a test.
+
+::: info
+Type: `'number' | 'number[]'` <br/>
+
+:::
+
+::: code-group
+
+```typescript
+import { defineConfig } from '@kubb/swagger'
+import createSwagger from '@kubb/swagger'
+import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerFaker(
+      {
+        seed: [222],
       },
     ),
   ],

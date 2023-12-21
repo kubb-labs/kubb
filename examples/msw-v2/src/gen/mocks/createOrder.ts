@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker'
 import type { Order } from '../models/Order'
 
 export function createOrder(): NonNullable<Order> {
+  faker.seed([220])
   return {
     'id': faker.number.float({}),
     'petId': faker.number.float({}),

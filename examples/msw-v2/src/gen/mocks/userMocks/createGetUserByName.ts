@@ -7,6 +7,7 @@ import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUs
  */
 
 export function createGetUserByName400(): NonNullable<GetUserByName400> {
+  faker.seed([220])
   return undefined
 }
 /**
@@ -14,10 +15,12 @@ export function createGetUserByName400(): NonNullable<GetUserByName400> {
  */
 
 export function createGetUserByName404(): NonNullable<GetUserByName404> {
+  faker.seed([220])
   return undefined
 }
 
 export function createGetUserByNamePathParams(): NonNullable<GetUserByNamePathParams> {
+  faker.seed([220])
   return { 'username': faker.string.alpha() }
 }
 /**
@@ -25,5 +28,6 @@ export function createGetUserByNamePathParams(): NonNullable<GetUserByNamePathPa
  */
 
 export function createGetUserByNameQueryResponse(): NonNullable<GetUserByNameQueryResponse> {
+  faker.seed([220])
   return createUser()
 }

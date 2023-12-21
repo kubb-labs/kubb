@@ -227,9 +227,13 @@ export function parseFakerMeta(item: FakerMeta, mapper: Record<FakerKeyword, str
   return '""'
 }
 
-export function fakerParser(items: FakerMeta[], options: { mapper?: Record<FakerKeyword, string>; name: string; typeName?: string | null }): string {
+export function fakerParser(
+  items: FakerMeta[],
+  options: { seed?: number | number[]; mapper?: Record<FakerKeyword, string>; name: string; typeName?: string | null },
+): string {
   return `
 export function ${options.name}()${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
+  ${options.seed ? `faker.seed(${JSON.stringify(options.seed)})` : ''}
   return ${
     joinItems(
       items.map((item) => parseFakerMeta(item, { ...fakerKeywordMapper, ...options.mapper })),
