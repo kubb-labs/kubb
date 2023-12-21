@@ -1,0 +1,442 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`OperationGenerator > [GET] should generate 1`] = `
+[
+  {
+    "baseName": "listPets.ts",
+    "env": undefined,
+    "exports": [],
+    "id": undefined,
+    "imports": [
+      {
+        "isTypeOnly": undefined,
+        "name": [
+          "faker",
+        ],
+        "path": "@faker-js/faker",
+        "root": undefined,
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Error",
+        ],
+        "path": "Error",
+        "root": "listPets.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ListPetsError",
+        ],
+        "path": "ListPets",
+        "root": "listPets.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ListPetsQueryParams",
+        ],
+        "path": "ListPets",
+        "root": "listPets.ts",
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Pets",
+        ],
+        "path": "Pets",
+        "root": "listPets.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ListPetsQueryResponse",
+        ],
+        "path": "ListPets",
+        "root": "listPets.ts",
+      },
+    ],
+    "meta": {
+      "name": "listPets",
+      "pluginKey": undefined,
+      "tag": "pets",
+    },
+    "override": undefined,
+    "path": "listPets.ts",
+    "source": "export function ListPetsQueryParams(): NonNullable<ListPetsQueryParams> {
+    return { "limit": faker.string.alpha() };
+}
+/**
+ * @description unexpected error
+ */
+
+ export function ListPetsError(): NonNullable<ListPetsError> {
+    return Error();
+}
+/**
+ * @description A paged array of pets
+ */
+
+ export function ListPetsQueryResponse(): NonNullable<ListPetsQueryResponse> {
+    return Pets();
+}
+",
+  },
+]
+`;
+
+exports[`OperationGenerator > [GET] should generate 2`] = `
+[
+  {
+    "baseName": "showPetById.ts",
+    "env": undefined,
+    "exports": [],
+    "id": undefined,
+    "imports": [
+      {
+        "isTypeOnly": undefined,
+        "name": [
+          "faker",
+        ],
+        "path": "@faker-js/faker",
+        "root": undefined,
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Error",
+        ],
+        "path": "Error",
+        "root": "showPetById.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ShowPetByIdError",
+        ],
+        "path": "ShowPetById",
+        "root": "showPetById.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ShowPetByIdPathParams",
+        ],
+        "path": "ShowPetById",
+        "root": "showPetById.ts",
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Pet",
+        ],
+        "path": "Pet",
+        "root": "showPetById.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ShowPetByIdQueryResponse",
+        ],
+        "path": "ShowPetById",
+        "root": "showPetById.ts",
+      },
+    ],
+    "meta": {
+      "name": "showPetById",
+      "pluginKey": undefined,
+      "tag": "pets",
+    },
+    "override": undefined,
+    "path": "showPetById.ts",
+    "source": "export function ShowPetByIdPathParams(): NonNullable<ShowPetByIdPathParams> {
+    return { "petId": faker.string.alpha(), "testId": faker.string.alpha() };
+}
+/**
+ * @description unexpected error
+ */
+
+ export function ShowPetByIdError(): NonNullable<ShowPetByIdError> {
+    return Error();
+}
+/**
+ * @description Expected response to a valid request
+ */
+
+ export function ShowPetByIdQueryResponse(): NonNullable<ShowPetByIdQueryResponse> {
+    return Pet();
+}
+",
+  },
+]
+`;
+
+exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 1`] = `
+[
+  {
+    "baseName": "listPets.ts",
+    "env": undefined,
+    "exports": [],
+    "id": undefined,
+    "imports": [
+      {
+        "isTypeOnly": undefined,
+        "name": [
+          "faker",
+        ],
+        "path": "@faker-js/faker",
+        "root": undefined,
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Error",
+        ],
+        "path": "Error",
+        "root": "listPets.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ListPetsError",
+        ],
+        "path": "ListPets",
+        "root": "listPets.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ListPetsQueryParams",
+        ],
+        "path": "ListPets",
+        "root": "listPets.ts",
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Pets",
+        ],
+        "path": "Pets",
+        "root": "listPets.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ListPetsQueryResponse",
+        ],
+        "path": "ListPets",
+        "root": "listPets.ts",
+      },
+    ],
+    "meta": {
+      "name": "listPets",
+      "pluginKey": undefined,
+      "tag": "pets",
+    },
+    "override": undefined,
+    "path": "listPets.ts",
+    "source": "export function ListPetsQueryParams(): NonNullable<ListPetsQueryParams> {
+    faker.seed([222]);
+    return { "limit": faker.string.alpha() };
+}
+/**
+ * @description unexpected error
+ */
+
+ export function ListPetsError(): NonNullable<ListPetsError> {
+    faker.seed([222]);
+    return Error();
+}
+/**
+ * @description A paged array of pets
+ */
+
+ export function ListPetsQueryResponse(): NonNullable<ListPetsQueryResponse> {
+    faker.seed([222]);
+    return Pets();
+}
+",
+  },
+]
+`;
+
+exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 2`] = `
+[
+  {
+    "baseName": "showPetById.ts",
+    "env": undefined,
+    "exports": [],
+    "id": undefined,
+    "imports": [
+      {
+        "isTypeOnly": undefined,
+        "name": [
+          "faker",
+        ],
+        "path": "@faker-js/faker",
+        "root": undefined,
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Error",
+        ],
+        "path": "Error",
+        "root": "showPetById.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ShowPetByIdError",
+        ],
+        "path": "ShowPetById",
+        "root": "showPetById.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ShowPetByIdPathParams",
+        ],
+        "path": "ShowPetById",
+        "root": "showPetById.ts",
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Pet",
+        ],
+        "path": "Pet",
+        "root": "showPetById.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ShowPetByIdQueryResponse",
+        ],
+        "path": "ShowPetById",
+        "root": "showPetById.ts",
+      },
+    ],
+    "meta": {
+      "name": "showPetById",
+      "pluginKey": undefined,
+      "tag": "pets",
+    },
+    "override": undefined,
+    "path": "showPetById.ts",
+    "source": "export function ShowPetByIdPathParams(): NonNullable<ShowPetByIdPathParams> {
+    faker.seed([222]);
+    return { "petId": faker.string.alpha(), "testId": faker.string.alpha() };
+}
+/**
+ * @description unexpected error
+ */
+
+ export function ShowPetByIdError(): NonNullable<ShowPetByIdError> {
+    faker.seed([222]);
+    return Error();
+}
+/**
+ * @description Expected response to a valid request
+ */
+
+ export function ShowPetByIdQueryResponse(): NonNullable<ShowPetByIdQueryResponse> {
+    faker.seed([222]);
+    return Pet();
+}
+",
+  },
+]
+`;
+
+exports[`OperationGenerator > [POST] should generate 1`] = `
+[
+  {
+    "baseName": "createPets.ts",
+    "env": undefined,
+    "exports": [],
+    "id": undefined,
+    "imports": [
+      {
+        "isTypeOnly": undefined,
+        "name": [
+          "faker",
+        ],
+        "path": "@faker-js/faker",
+        "root": undefined,
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "CreatePets201",
+        ],
+        "path": "CreatePets",
+        "root": "createPets.ts",
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Error",
+        ],
+        "path": "Error",
+        "root": "createPets.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "CreatePetsError",
+        ],
+        "path": "CreatePets",
+        "root": "createPets.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "CreatePetsMutationRequest",
+        ],
+        "path": "CreatePets",
+        "root": "createPets.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "CreatePetsMutationResponse",
+        ],
+        "path": "CreatePets",
+        "root": "createPets.ts",
+      },
+    ],
+    "meta": {
+      "name": "createPets",
+      "pluginKey": undefined,
+      "tag": "pets",
+    },
+    "override": undefined,
+    "path": "createPets.ts",
+    "source": "/**
+ * @description Null response
+ */
+
+ export function CreatePets201(): NonNullable<CreatePets201> {
+    return undefined;
+}
+
+ export function CreatePetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
+    return { "name": faker.string.alpha(), "tag": faker.string.alpha() };
+}
+
+ export function CreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
+    return undefined;
+}
+/**
+ * @description unexpected error
+ */
+
+ export function CreatePetsError(): NonNullable<CreatePetsError> {
+    return Error();
+}
+",
+  },
+]
+`;

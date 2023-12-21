@@ -4,6 +4,7 @@ import { faker } from '@faker-js/faker'
 import type { Pet } from '../models/Pet'
 
 export function createPet(): NonNullable<Pet> {
+  faker.seed([220])
   return {
     'id': faker.number.float({}),
     'name': faker.string.alpha(),

@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker'
 import type { GetInventoryQueryResponse } from '../../models/GetInventory'
 
 /**
@@ -5,5 +6,6 @@ import type { GetInventoryQueryResponse } from '../../models/GetInventory'
  */
 
 export function createGetInventoryQueryResponse(): NonNullable<GetInventoryQueryResponse> {
+  faker.seed([220])
   return {}
 }

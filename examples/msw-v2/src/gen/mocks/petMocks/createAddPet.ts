@@ -4,6 +4,7 @@ import { createPet } from '../createPet'
 import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/AddPet'
 
 export function createAddPet405(): NonNullable<AddPet405> {
+  faker.seed([220])
   return { 'code': faker.number.float({}), 'message': faker.string.alpha() }
 }
 /**
@@ -11,6 +12,7 @@ export function createAddPet405(): NonNullable<AddPet405> {
  */
 
 export function createAddPetMutationRequest(): NonNullable<AddPetMutationRequest> {
+  faker.seed([220])
   return createAddPetRequest()
 }
 /**
@@ -18,5 +20,6 @@ export function createAddPetMutationRequest(): NonNullable<AddPetMutationRequest
  */
 
 export function createAddPetMutationResponse(): NonNullable<AddPetMutationResponse> {
+  faker.seed([220])
   return createPet()
 }

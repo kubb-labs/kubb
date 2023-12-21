@@ -7,10 +7,12 @@ import type { FindPetsByTags400, FindPetsByTagsQueryParams, FindPetsByTagsQueryR
  */
 
 export function createFindPetsByTags400(): NonNullable<FindPetsByTags400> {
+  faker.seed([220])
   return undefined
 }
 
 export function createFindPetsByTagsQueryParams(): NonNullable<FindPetsByTagsQueryParams> {
+  faker.seed([220])
   return { 'tags': faker.helpers.arrayElements([faker.string.alpha()]) as any, 'page': faker.string.alpha(), 'pageSize': faker.string.alpha() }
 }
 /**
@@ -18,5 +20,6 @@ export function createFindPetsByTagsQueryParams(): NonNullable<FindPetsByTagsQue
  */
 
 export function createFindPetsByTagsQueryResponse(): NonNullable<FindPetsByTagsQueryResponse> {
+  faker.seed([220])
   return faker.helpers.arrayElements([createPet()]) as any
 }

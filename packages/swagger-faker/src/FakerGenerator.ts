@@ -58,6 +58,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
       name,
       typeName,
       mapper: this.options.mapper,
+      seed: this.options.seed,
     })
     // hack to add typescript imports
     if (typeName) {

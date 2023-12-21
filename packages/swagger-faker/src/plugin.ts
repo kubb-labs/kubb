@@ -19,7 +19,7 @@ export const pluginName = 'swagger-faker' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { path: 'mocks' }, group, exclude = [], include, override = [], transformers = {}, mapper = {}, dateType = 'string' } = options
+  const { output = { path: 'mocks' }, seed, group, exclude = [], include, override = [], transformers = {}, mapper = {}, dateType = 'string' } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
@@ -28,6 +28,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       transformers,
       mapper,
       dateType,
+      seed,
     },
     pre: [swaggerPluginName, swaggerTypeScriptPluginName],
     resolvePath(baseName, directory, options) {

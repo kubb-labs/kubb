@@ -6,6 +6,7 @@ import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, Delet
  */
 
 export function createDeleteOrder400(): NonNullable<DeleteOrder400> {
+  faker.seed([220])
   return undefined
 }
 /**
@@ -13,13 +14,16 @@ export function createDeleteOrder400(): NonNullable<DeleteOrder400> {
  */
 
 export function createDeleteOrder404(): NonNullable<DeleteOrder404> {
+  faker.seed([220])
   return undefined
 }
 
 export function createDeleteOrderMutationResponse(): NonNullable<DeleteOrderMutationResponse> {
+  faker.seed([220])
   return undefined
 }
 
 export function createDeleteOrderPathParams(): NonNullable<DeleteOrderPathParams> {
+  faker.seed([220])
   return { 'orderId': faker.number.float({}) }
 }

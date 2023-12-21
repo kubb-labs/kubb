@@ -7,6 +7,7 @@ import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQuer
  */
 
 export function createGetPetById400(): NonNullable<GetPetById400> {
+  faker.seed([220])
   return undefined
 }
 /**
@@ -14,10 +15,12 @@ export function createGetPetById400(): NonNullable<GetPetById400> {
  */
 
 export function createGetPetById404(): NonNullable<GetPetById404> {
+  faker.seed([220])
   return undefined
 }
 
 export function createGetPetByIdPathParams(): NonNullable<GetPetByIdPathParams> {
+  faker.seed([220])
   return { 'petId': faker.number.float({}) }
 }
 /**
@@ -25,5 +28,6 @@ export function createGetPetByIdPathParams(): NonNullable<GetPetByIdPathParams> 
  */
 
 export function createGetPetByIdQueryResponse(): NonNullable<GetPetByIdQueryResponse> {
+  faker.seed([220])
   return createPet()
 }

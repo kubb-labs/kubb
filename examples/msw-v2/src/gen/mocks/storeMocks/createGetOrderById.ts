@@ -7,6 +7,7 @@ import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrder
  */
 
 export function createGetOrderById400(): NonNullable<GetOrderById400> {
+  faker.seed([220])
   return undefined
 }
 /**
@@ -14,10 +15,12 @@ export function createGetOrderById400(): NonNullable<GetOrderById400> {
  */
 
 export function createGetOrderById404(): NonNullable<GetOrderById404> {
+  faker.seed([220])
   return undefined
 }
 
 export function createGetOrderByIdPathParams(): NonNullable<GetOrderByIdPathParams> {
+  faker.seed([220])
   return { 'orderId': faker.number.float({}) }
 }
 /**
@@ -25,5 +28,6 @@ export function createGetOrderByIdPathParams(): NonNullable<GetOrderByIdPathPara
  */
 
 export function createGetOrderByIdQueryResponse(): NonNullable<GetOrderByIdQueryResponse> {
+  faker.seed([220])
   return createOrder()
 }
