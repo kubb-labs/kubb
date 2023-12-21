@@ -68,6 +68,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "chiptus",
+      "name": "Chaim Lev-Ari",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1381655?v=4",
+      "profile": "https://github.com/chiptus",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
