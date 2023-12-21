@@ -45,6 +45,9 @@
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/helt"><img src="https://avatars.githubusercontent.com/u/1732112?v=4?s=100" width="100px;" alt="helt"/><br /><sub><b>helt</b></sub></a><br /><a href="https://github.com/kubb-project/kubb/commits?author=helt" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Ti-webdev"><img src="https://avatars.githubusercontent.com/u/478565?v=4?s=100" width="100px;" alt="Vasily Mikhaylovsky"/><br /><sub><b>Vasily Mikhaylovsky</b></sub></a><br /><a href="https://github.com/kubb-project/kubb/commits?author=Ti-webdev" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/chiptus"><img src="https://avatars.githubusercontent.com/u/1381655?v=4?s=100" width="100px;" alt="Chaim Lev-Ari"/><br /><sub><b>Chaim Lev-Ari</b></sub></a><br /><a href="https://github.com/kubb-project/kubb/commits?author=chiptus" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
