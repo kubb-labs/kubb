@@ -1,5 +1,11 @@
 # @kubb/parser
 
+## 2.1.0
+
+### Minor Changes
+
+- [#713](https://github.com/kubb-project/kubb/pull/713) [`c22433e`](https://github.com/kubb-project/kubb/commit/c22433ec2c1b04527d72a6de44e524e580e2d876) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - `barrelNamed` for `exportType` to use `export { nameX, nameY } from '.'`
+
 ## 2.0.6
 
 ## 2.0.5
