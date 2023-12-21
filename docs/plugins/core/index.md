@@ -14,15 +14,14 @@ The core contains the building blocks for all plugins.
 - Read and write to the file system(Windows, Mac and Linux support).
 - Format code/source with [Prettier](https://prettier.io/).
 - Types needed to create a plugin and the types needed for the lifecycle/pluginManager.
-- Basic utilities such as `isPromise`, [`isURL`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/utils/isURL.ts), [`createJSDocBlockText`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/utils/createJSDocBlockText.ts), `cache`,...
+- Basic utilities such as `isPromise`, [`isURL`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/utils/URLPath.ts), [`createJSDocBlockText`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/transformers/createJSDocBlockText.ts), `cache`,...
 - [`createPlugin`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/plugin.ts) functionality to set up a plugin.
 - [`defineConfig`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/config.ts) functionality to set up the `kubb.config.js` file.
 - Abstract classes for plugins
-  - [`Generator`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/generators/Generator.ts) which contains the base with a getter for `options` and a `build` function.
-  - [`SchemaGenerator`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/generators/SchemaGenerator.ts) which is a layer on top of the `Generator`.
+  - [`Generator`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/Generator.ts) which contains the base with a getter for `options` and a `build` function.
 - Managers classes as the base for all logic
-  - [`FileManager`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/managers/fileManager/FileManager.ts) which is used to store all files before those are saved to the file system.
-  - [`PluginManager`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/managers/pluginManager/PluginManager.ts) which contains the logic of when which plugin can be triggered, see [pluginManager](/reference/pluginManager/).
+  - [`FileManager`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/FileManager.ts) which is used to store all files before those are saved to the file system.
+  - [`PluginManager`](https://github.com/kubb-project/kubb/blob/main/packages/core/src/PluginManager.ts) which contains the logic of when which plugin can be triggered, see [pluginManager](/reference/pluginManager/).
 
 ## Installation
 

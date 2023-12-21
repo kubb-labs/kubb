@@ -671,7 +671,7 @@ export default defineConfig({
 ### oasType
 
 Export an Oas object as Oas type with `import type { Infer } from '@kubb/swagger-ts/oas'` <br/>
-See [infer](/plugins/swagger/ts/infer) in how to use the types with `@kubb/swagger-ts/oas`.<br/>
+See [infer](/plugins/swagger-ts/infer) in how to use the types with `@kubb/swagger-ts/oas`.<br/>
 
 ::: info
 Type: `'infer' | false` <br/>

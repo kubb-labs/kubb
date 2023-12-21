@@ -19,8 +19,8 @@ The Swagger plugin also contains some classes and functions that can be used in 
 
 - For example, we have [`getReference`](https://github.com/kubb-project/kubb/blob/main/packages/swagger/src/utils/getReference.ts) that will return the ref based on the spec.
 
-- Next to that we also have the class [`OperationGenerator`](https://github.com/kubb-project/kubb/blob/main/packages/swagger/src/generators/OperationGenerator.ts). This class contains the building blocks of getting the request, response, params, ....
-  <br/>Just call `this.getSchemas` and you will retreive an object contains all the info you need to set up a TypeScript type, React-Query hook,....
+- Next to that we also have the class [`OperationGenerator`](https://github.com/kubb-project/kubb/blob/main/packages/swagger/src/OperationGenerator.ts). This class contains the building blocks of getting the request, response, params, ....
+  <br/>Just call `this.getSchemas` and you will retrieve an object contains all the info you need to set up a TypeScript type, React-Query hook,....
 
 ## Installation
 
@@ -48,7 +48,7 @@ yarn add @kubb/swagger
 
 ### validate
 
-Validate your input(see kubb.config) based on @apidevtools/swagger-parser
+Validate your [`input`](/config/input) based on `@apidevtools/swagger-parser`
 ::: info
 Type: `boolean` <br/>
 Default: `true`

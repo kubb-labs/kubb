@@ -31,7 +31,7 @@ If you are using an older TypeScript version, please migrate to version 4.7 or l
 
 ## Latest <Badge type="tip" :text="version" />
 
-You can install Kubb via [NPM](https://www.npmjs.com/).
+You can install Kubb via [bun](https://bun.sh/), [pnpm](https://pnpm.io/), [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/).
 
 ::: code-group
 
