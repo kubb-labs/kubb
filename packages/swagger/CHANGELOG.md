@@ -1,5 +1,13 @@
 # @kubb/swagger
 
+## 3.0.0
+
+### Patch Changes
+
+- Updated dependencies [[`c22433e`](https://github.com/kubb-project/kubb/commit/c22433ec2c1b04527d72a6de44e524e580e2d876)]:
+  - @kubb/core@3.0.0
+  - @kubb/react@3.0.0
+
 ## 2.0.6
 
 ### Patch Changes
