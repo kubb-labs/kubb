@@ -29,6 +29,9 @@
       "@kubb/swagger/hooks": [
         "packages/swagger/src/hooks/index.ts"
       ],
+      "@kubb/swagger/oas": [
+        "packages/swagger/src/oas/index.ts"
+      ],
       "@kubb/swagger/utils": [
         "packages/swagger/src/utils/index.ts"
       ],
