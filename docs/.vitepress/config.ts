@@ -543,7 +543,7 @@ export default defineConfig({
       },
     ],
     editLink: {
-      pattern: 'https://github.com/kubb-project/kubb/edit/main/docs/src/:path',
+      pattern: 'https://github.com/kubb-project/kubb/edit/main/docs/:path',
     },
     sidebar: {
       '/config': configSidebar,
