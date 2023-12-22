@@ -103,10 +103,7 @@ type ZodMetaObject = { keyword: typeof zodKeywords.object; args?: { [x: string]:
 
 type ZodMetaCatchall = { keyword: typeof zodKeywords.catchall; args?: ZodMeta[] }
 
-/**
- * If external, `.schema` will be added
- */
-type ZodMetaRef = { keyword: typeof zodKeywords.ref; args?: { name: string; external?: boolean } }
+type ZodMetaRef = { keyword: typeof zodKeywords.ref; args?: { name: string } }
 
 type ZodMetaUnion = { keyword: typeof zodKeywords.union; args?: ZodMeta[] }
 type ZodMetaLiteral = { keyword: typeof zodKeywords.literal; args: string | number }
@@ -242,12 +239,7 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
 
   // custom type
   if (keyword === zodKeywords.ref) {
-    // use of z.lazy because we need to import from files x or we use the type as a self reference, external will add `.schema`
     const refArgs = args as ZodMetaRef['args']
-
-    if (refArgs?.external) {
-      return `${mapper.lazy}(() => ${refArgs?.name}).schema`
-    }
 
     return `${mapper.lazy}(() => ${refArgs?.name})`
   }
@@ -269,7 +261,7 @@ export function zodParser(items: ZodMeta[], options: { keysToOmit?: string[]; ma
   }
 
   if (options.keysToOmit?.length) {
-    const omitText = `.omit({ ${options.keysToOmit.map((key) => `${key}: true`).join(',')} })`
+    const omitText = `.schema.omit({ ${options.keysToOmit.map((key) => `${key}: true`).join(',')} })`
     return `export const ${options.name} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')}${omitText};`
   }
 

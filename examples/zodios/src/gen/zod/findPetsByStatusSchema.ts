@@ -12,4 +12,4 @@ export const findPetsByStatusQueryParamsSchema = z.object({
 /**
  * @description successful operation
  */
-export const findPetsByStatusQueryResponseSchema = z.array(z.lazy(() => petSchema).schema)
+export const findPetsByStatusQueryResponseSchema = z.array(z.lazy(() => petSchema))
