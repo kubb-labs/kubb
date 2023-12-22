@@ -47,7 +47,7 @@ export function useLogoutUser<TData = LogoutUser['response'], TQueryData = Logou
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
   const query = useQuery({
-    ...logoutUserQueryOptions(clientOptions),
+    ...(logoutUserQueryOptions(clientOptions) as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as QueryObserverOptions),
   }) as UseQueryReturnType<TData, LogoutUser['error']> & {

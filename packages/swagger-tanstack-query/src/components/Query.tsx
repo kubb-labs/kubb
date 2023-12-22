@@ -68,7 +68,7 @@ function Template({
          const queryKey = queryOptions?.queryKey ?? ${hook.queryKey}
 
          const query = ${hook.name}({
-          ...${hook.queryOptions},
+          ...${hook.queryOptions} as ${infinite ? 'InfiniteQueryObserverOptions' : 'QueryObserverOptions'},
           queryKey,
           ...queryOptions as unknown as ${infinite ? 'InfiniteQueryObserverOptions' : 'QueryObserverOptions'}
         }) as ${resolvedReturnType}

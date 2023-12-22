@@ -80,7 +80,18 @@ function Template({
 
   const queryOptions = [
     isV5 && !!infinite ? `initialPageParam: ${infinite.initialPageParam}` : undefined,
-    isV5 && !!infinite ? `getNextPageParam: (lastPage) => lastPage['${infinite.queryParam}']` : undefined,
+    isV5 && !!infinite && !!infinite.cursorParam
+      ? `getNextPageParam: (lastPage) => lastPage['${infinite.cursorParam}']`
+      : undefined,
+    isV5 && !!infinite && !!infinite.cursorParam
+      ? `getPreviousPageParam: (firstPage) => firstPage['${infinite.cursorParam}']`
+      : undefined,
+    isV5 && !!infinite && !infinite.cursorParam
+      ? `getNextPageParam: (lastPage, allPages, lastPageParam) => lastPage.length === 0 ? undefined : lastPageParam + 1`
+      : undefined,
+    isV5 && !!infinite && !infinite.cursorParam
+      ? `getPreviousPageParam: (firstPage, allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1`
+      : undefined,
   ].filter(Boolean)
 
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`

@@ -1,15 +1,7 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, queryOptions, useInfiniteQuery, infiniteQueryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
-import type {
-  QueryObserverOptions,
-  UseQueryResult,
-  QueryKey,
-  InfiniteQueryObserverOptions,
-  UseInfiniteQueryResult,
-  UseSuspenseQueryOptions,
-  UseSuspenseQueryResult,
-} from '@tanstack/react-query'
+import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
 type GetUserByName = {
@@ -57,54 +49,10 @@ export function useGetUserByNameHook<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(username)
   const query = useQuery({
-    ...getUserByNameQueryOptions(username, clientOptions),
+    ...getUserByNameQueryOptions(username, clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as QueryObserverOptions,
   }) as UseQueryResult<TData, GetUserByName['error']> & {
-    queryKey: TQueryKey
-  }
-  query.queryKey = queryKey as TQueryKey
-  return query
-}
-export const getUserByNameInfiniteQueryKey = (username: GetUserByNamePathParams['username']) =>
-  [{ url: '/user/:username', params: { username: username } }] as const
-export type GetUserByNameInfiniteQueryKey = ReturnType<typeof getUserByNameInfiniteQueryKey>
-export function getUserByNameInfiniteQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
-  const queryKey = getUserByNameInfiniteQueryKey(username)
-  return infiniteQueryOptions({
-    queryKey,
-    queryFn: async ({ pageParam }) => {
-      const res = await client<GetUserByName['data'], GetUserByName['error']>({
-        method: 'get',
-        url: `/user/${username}`,
-        ...options,
-      })
-      return res.data
-    },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage['id'],
-  })
-}
-/**
- * @summary Get user by user name
- * @link /user/:username */
-export function useGetUserByNameHookInfinite<
-  TData = GetUserByName['response'],
-  TQueryData = GetUserByName['response'],
-  TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
->(username: GetUserByNamePathParams['username'], options: {
-  query?: InfiniteQueryObserverOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryData, TQueryKey>
-  client?: GetUserByName['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, GetUserByName['error']> & {
-  queryKey: TQueryKey
-} {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? getUserByNameInfiniteQueryKey(username)
-  const query = useInfiniteQuery({
-    ...getUserByNameInfiniteQueryOptions(username, clientOptions),
-    queryKey,
-    ...queryOptions as unknown as InfiniteQueryObserverOptions,
-  }) as UseInfiniteQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -142,7 +90,7 @@ export function useGetUserByNameHookSuspense<TData = GetUserByName['response'], 
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameSuspenseQueryKey(username)
   const query = useSuspenseQuery({
-    ...getUserByNameSuspenseQueryOptions(username, clientOptions),
+    ...getUserByNameSuspenseQueryOptions(username, clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as QueryObserverOptions,
   }) as UseSuspenseQueryResult<TData, GetUserByName['error']> & {

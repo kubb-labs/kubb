@@ -1,15 +1,7 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, queryOptions, useInfiniteQuery, infiniteQueryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../models/FindPetsByStatus'
-import type {
-  QueryObserverOptions,
-  UseQueryResult,
-  QueryKey,
-  InfiniteQueryObserverOptions,
-  UseInfiniteQueryResult,
-  UseSuspenseQueryOptions,
-  UseSuspenseQueryResult,
-} from '@tanstack/react-query'
+import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 
 type FindPetsByStatusClient = typeof client<FindPetsByStatusQueryResponse, FindPetsByStatus400, never>
 type FindPetsByStatus = {
@@ -59,60 +51,10 @@ export function useFindPetsByStatusHook<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
   const query = useQuery({
-    ...findPetsByStatusQueryOptions(params, clientOptions),
+    ...findPetsByStatusQueryOptions(params, clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as QueryObserverOptions,
   }) as UseQueryResult<TData, FindPetsByStatus['error']> & {
-    queryKey: TQueryKey
-  }
-  query.queryKey = queryKey as TQueryKey
-  return query
-}
-export const findPetsByStatusInfiniteQueryKey = (params?: FindPetsByStatus['queryParams']) =>
-  [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
-export type FindPetsByStatusInfiniteQueryKey = ReturnType<typeof findPetsByStatusInfiniteQueryKey>
-export function findPetsByStatusInfiniteQueryOptions(params?: FindPetsByStatus['queryParams'], options: FindPetsByStatus['client']['parameters'] = {}) {
-  const queryKey = findPetsByStatusInfiniteQueryKey(params)
-  return infiniteQueryOptions({
-    queryKey,
-    queryFn: async ({ pageParam }) => {
-      const res = await client<FindPetsByStatus['data'], FindPetsByStatus['error']>({
-        method: 'get',
-        url: `/pet/findByStatus`,
-        ...options,
-        params: {
-          ...params,
-          ['id']: pageParam,
-          ...(options.params || {}),
-        },
-      })
-      return res.data
-    },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage['id'],
-  })
-}
-/**
- * @description Multiple status values can be provided with comma separated strings
- * @summary Finds Pets by status
- * @link /pet/findByStatus */
-export function useFindPetsByStatusHookInfinite<
-  TData = FindPetsByStatus['response'],
-  TQueryData = FindPetsByStatus['response'],
-  TQueryKey extends QueryKey = FindPetsByStatusInfiniteQueryKey,
->(params?: FindPetsByStatus['queryParams'], options: {
-  query?: InfiniteQueryObserverOptions<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>
-  client?: FindPetsByStatus['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, FindPetsByStatus['error']> & {
-  queryKey: TQueryKey
-} {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? findPetsByStatusInfiniteQueryKey(params)
-  const query = useInfiniteQuery({
-    ...findPetsByStatusInfiniteQueryOptions(params, clientOptions),
-    queryKey,
-    ...queryOptions as unknown as InfiniteQueryObserverOptions,
-  }) as UseInfiniteQueryResult<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -152,7 +94,7 @@ export function useFindPetsByStatusHookSuspense<TData = FindPetsByStatus['respon
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusSuspenseQueryKey(params)
   const query = useSuspenseQuery({
-    ...findPetsByStatusSuspenseQueryOptions(params, clientOptions),
+    ...findPetsByStatusSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as QueryObserverOptions,
   }) as UseSuspenseQueryResult<TData, FindPetsByStatus['error']> & {

@@ -59,7 +59,7 @@ export function useFindPetsByTagsHook<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
   const query = useQuery({
-    ...findPetsByTagsQueryOptions(params, clientOptions),
+    ...findPetsByTagsQueryOptions(params, clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as QueryObserverOptions,
   }) as UseQueryResult<TData, FindPetsByTags['error']> & {
@@ -81,14 +81,15 @@ export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['quer
         ...options,
         params: {
           ...params,
-          ['id']: pageParam,
+          ['pageSize']: pageParam,
           ...(options.params || {}),
         },
       })
       return res.data
     },
     initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage['id'],
+    getNextPageParam: (lastPage, allPages, lastPageParam) => lastPage.length === 0 ? undefined : lastPageParam + 1,
+    getPreviousPageParam: (firstPage, allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1,
   })
 }
 /**
@@ -108,7 +109,7 @@ export function useFindPetsByTagsHookInfinite<
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
   const query = useInfiniteQuery({
-    ...findPetsByTagsInfiniteQueryOptions(params, clientOptions),
+    ...findPetsByTagsInfiniteQueryOptions(params, clientOptions) as InfiniteQueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as InfiniteQueryObserverOptions,
   }) as UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
@@ -150,7 +151,7 @@ export function useFindPetsByTagsHookSuspense<TData = FindPetsByTags['response']
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
   const query = useSuspenseQuery({
-    ...findPetsByTagsSuspenseQueryOptions(params, clientOptions),
+    ...findPetsByTagsSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as QueryObserverOptions,
   }) as UseSuspenseQueryResult<TData, FindPetsByTags['error']> & {

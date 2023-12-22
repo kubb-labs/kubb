@@ -48,7 +48,7 @@ export function useGetInventory<TData = GetInventory['response'], TQueryData = G
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
   const query = useQuery({
-    ...getInventoryQueryOptions(clientOptions),
+    ...(getInventoryQueryOptions(clientOptions) as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as QueryObserverOptions),
   }) as UseQueryReturnType<TData, GetInventory['error']> & {

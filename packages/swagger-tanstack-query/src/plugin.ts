@@ -46,6 +46,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         ? {
           queryParam: 'id',
           initialPageParam: 0,
+          cursorParam: undefined,
           ...infinite,
         }
         : undefined,
