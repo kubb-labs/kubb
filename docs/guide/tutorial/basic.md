@@ -7,7 +7,7 @@ outline: deep
 
 # Basic tutorial
 
-This tutorial will describe how you can set up Kubb + use the TypeScript plugin to generate types based on the `petStore.yaml` file.
+This tutorial will describe how you can set up Kubb and use the [`@kubb/swagger-ts`](/plugins/swagger-ts/) plugin to generate types based on the `petStore.yaml` file.
 
 The setup will contain from the beginning the following folder structure:
 
@@ -21,13 +21,13 @@ The setup will contain from the beginning the following folder structure:
 
 ## Step one
 
-Set up your `kubb.config.ts`` file based on the [Quick-start](/guide/quick-start).
+Set up your `kubb.config.ts` file based on the [Quick start](/guide/quick-start).
 
-We will add here the [Swagger](/plugins/swagger) and [SwaggerTypescript](/plugins/swagger-ts)(which is dependent on the [Swagger](/plugins/swagger) plugin) plugin, those 2 plugins together will generate the TypeScript types.
+We will add the plugins [`@kubb/swagger`](/plugins/swagger) and [`@kubb/swagger-ts`](/plugins/swagger-ts)(which is dependent on the [`@kubb/swagger`](/plugins/swagger) plugin). Together these two plugins will generate the TypeScript types.
 
-Next to that, we will also set `output` to false for the [Swagger](/plugins/swagger) plugin because we don't need the plugin to generate the JSON schemas for us.
+Next to that, we will also set `output` to false for the [`@kubb/swagger`](/plugins/swagger) plugin because we do not need the plugin to generate the JSON schemas for us.
 
-- For the [SwaggerTypescript](/plugins/swagger-ts) plugin, we will set the `output` to the models folder.
+- For the [`@kubb/swagger-ts`](/plugins/swagger-ts/) plugin, we will set the `output` to the `models` folder.
 
 ::: code-group
 
@@ -81,7 +81,7 @@ This will result in the following folder structure when Kubb has been executed
 
 ## Step two
 
-Update your `package.json` and install `Kubb, see the [installation](/guide/introduction.html#configuration-file).
+Update your `package.json` and install `Kubb`, see the [installation](/guide/installation).
 
 Your `package.json` will look like this:
 

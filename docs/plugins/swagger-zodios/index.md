@@ -48,7 +48,7 @@ Default: `'zodios.ts'`
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerZod from '@kubb/swagger-zod'
 import createSwaggerZodios from '@kubb/swagger-zodios'
@@ -86,7 +86,7 @@ Type: `string` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerZod from '@kubb/swagger-zod'
 import createSwaggerZodios from '@kubb/swagger-zodios'
@@ -124,7 +124,7 @@ Type: `string` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerZod from '@kubb/swagger-zod'
 import createSwaggerZodios from '@kubb/swagger-zodios'

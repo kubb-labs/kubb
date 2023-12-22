@@ -54,7 +54,7 @@ Type: `string` <br/>
 Default: `'mocks'`
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
@@ -94,7 +94,7 @@ Type: `string` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
@@ -134,7 +134,7 @@ Type: `string` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
@@ -211,7 +211,7 @@ Default: `'{{tag}}Handlers'`
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
@@ -264,7 +264,7 @@ Type: `Array<Include>` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
@@ -319,7 +319,7 @@ Type: `Array<Exclude>` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
@@ -375,7 +375,7 @@ Type: `Array<Override>` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
@@ -426,7 +426,7 @@ Type: `(name: string) => string` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'
@@ -490,14 +490,14 @@ Type: `Templates` <br/>
 ::: code-group
 
 ```typescript [kubb.config.js]
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerClient from '@kubb/swagger-client'
 import createSwaggerTS from '@kubb/swagger-ts'
 
 import { templates } from './CustomTemplate'
 
-import { defineConfig } from '@kubb/swagger'
+import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerFaker from '@kubb/swagger-faker'
 import createSwaggerMsw from '@kubb/swagger-msw'

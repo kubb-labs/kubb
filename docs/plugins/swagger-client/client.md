@@ -9,12 +9,12 @@ outline: deep
 
 ## Features
 
-- Client that is using 'axios' behind the scenes to do REST calls
+- Client that is using [Axios](https://axios-http.com/docs/intro) behind the scenes to do REST calls
 - Override with your own implementation
 
 ### Default `client`
 
-By default, `@kubb/swagger-client/client` is getting used as the [`client`](http://localhost:3000/plugins/swagger-client/client#default-client).
+By default, `@kubb/swagger-client/client` is getting used as the [`client`](/plugins/swagger-client/client#default-client).
 
 ::: code-group
 
@@ -105,7 +105,7 @@ export function addPet<TData = AddPetMutationResponse, TVariables = AddPetMutati
 Create your own implementation of the `client`.
 Handy when you want for example to use `fetch` instead of `axios`.
 
-You can start by using a copy-paste of `@kubb`/swagger-client/client`.
+You can start by using a copy-paste of `@kubb/swagger-client/client`.
 
 ::: code-group
 
@@ -275,7 +275,3 @@ export const axiosClient = async <TData, TError = unknown, TVariables = unknown>
 
 export default axiosClient
 ```
-
-## Links
-
-- [plugins/core/fileManager#getenveource](/plugins/core/fileManager#getenveource)
