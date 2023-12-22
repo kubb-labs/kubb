@@ -421,7 +421,11 @@ type Infinite = {
    */
   queryParam: string
   /**
-   * For v5
+   * Which field of the data will be used, set it to undefined when no cursor is known.
+   */
+  cursorParam: string | undefined
+  /**
+   * The initial value, the value of the first page.
    * @default `0`
    */
   initialPageParam: number

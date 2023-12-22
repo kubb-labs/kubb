@@ -35,8 +35,18 @@ export default defineConfig({
         path: './hooks',
       },
       framework: 'react',
-      infinite: {},
       suspense: {},
+      override: [{
+        type: 'operationId',
+        pattern: 'findPetsByTags',
+        options: {
+          infinite: {
+            queryParam: 'pageSize',
+            initialPageParam: 0,
+            cursorParam: undefined,
+          },
+        },
+      }],
     }),
   ],
 })

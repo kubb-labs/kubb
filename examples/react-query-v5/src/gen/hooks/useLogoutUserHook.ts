@@ -1,15 +1,7 @@
 import client from '@kubb/swagger-client/client'
-import { useQuery, queryOptions, useInfiniteQuery, infiniteQueryOptions, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 import type { LogoutUserQueryResponse, LogoutUserError } from '../models/LogoutUser'
-import type {
-  QueryObserverOptions,
-  UseQueryResult,
-  QueryKey,
-  InfiniteQueryObserverOptions,
-  UseInfiniteQueryResult,
-  UseSuspenseQueryOptions,
-  UseSuspenseQueryResult,
-} from '@tanstack/react-query'
+import type { QueryObserverOptions, UseQueryResult, QueryKey, UseSuspenseQueryOptions, UseSuspenseQueryResult } from '@tanstack/react-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, LogoutUserError, never>
 type LogoutUser = {
@@ -55,53 +47,10 @@ export function useLogoutUserHook<TData = LogoutUser['response'], TQueryData = L
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserQueryKey()
   const query = useQuery({
-    ...logoutUserQueryOptions(clientOptions),
+    ...logoutUserQueryOptions(clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as QueryObserverOptions,
   }) as UseQueryResult<TData, LogoutUser['error']> & {
-    queryKey: TQueryKey
-  }
-  query.queryKey = queryKey as TQueryKey
-  return query
-}
-export const logoutUserInfiniteQueryKey = () => [{ url: '/user/logout' }] as const
-export type LogoutUserInfiniteQueryKey = ReturnType<typeof logoutUserInfiniteQueryKey>
-export function logoutUserInfiniteQueryOptions(options: LogoutUser['client']['parameters'] = {}) {
-  const queryKey = logoutUserInfiniteQueryKey()
-  return infiniteQueryOptions({
-    queryKey,
-    queryFn: async ({ pageParam }) => {
-      const res = await client<LogoutUser['data'], LogoutUser['error']>({
-        method: 'get',
-        url: `/user/logout`,
-        ...options,
-      })
-      return res.data
-    },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage['id'],
-  })
-}
-/**
- * @summary Logs out current logged in user session
- * @link /user/logout */
-export function useLogoutUserHookInfinite<
-  TData = LogoutUser['response'],
-  TQueryData = LogoutUser['response'],
-  TQueryKey extends QueryKey = LogoutUserInfiniteQueryKey,
->(options: {
-  query?: InfiniteQueryObserverOptions<LogoutUser['data'], LogoutUser['error'], TData, TQueryData, TQueryKey>
-  client?: LogoutUser['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, LogoutUser['error']> & {
-  queryKey: TQueryKey
-} {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? logoutUserInfiniteQueryKey()
-  const query = useInfiniteQuery({
-    ...logoutUserInfiniteQueryOptions(clientOptions),
-    queryKey,
-    ...queryOptions as unknown as InfiniteQueryObserverOptions,
-  }) as UseInfiniteQueryResult<TData, LogoutUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -135,7 +84,7 @@ export function useLogoutUserHookSuspense<TData = LogoutUser['response'], TQuery
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? logoutUserSuspenseQueryKey()
   const query = useSuspenseQuery({
-    ...logoutUserSuspenseQueryOptions(clientOptions),
+    ...logoutUserSuspenseQueryOptions(clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as QueryObserverOptions,
   }) as UseSuspenseQueryResult<TData, LogoutUser['error']> & {
