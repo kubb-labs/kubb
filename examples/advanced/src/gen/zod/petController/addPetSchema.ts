@@ -7,7 +7,7 @@ export const addPet405Schema = z.object({ 'code': z.number().optional(), 'messag
 /**
  * @description Create a new pet in the store
  */
-export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema).schema
+export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema)
 
 /**
  * @description Successful operation

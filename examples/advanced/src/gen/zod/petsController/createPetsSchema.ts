@@ -14,4 +14,4 @@ export const createPetsQueryParamsSchema = z.object({ 'offset': z.number().descr
 /**
  * @description unexpected error
  */
-export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema).schema
+export const createPetsErrorSchema = z.lazy(() => petNotFoundSchema)

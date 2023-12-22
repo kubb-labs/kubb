@@ -8,4 +8,4 @@ export const uploadFileQueryParamsSchema = z.object({ additionalMetadata: z.stri
 /**
  * @description successful operation
  */
-export const uploadFileMutationResponseSchema = z.lazy(() => apiResponseSchema).schema
+export const uploadFileMutationResponseSchema = z.lazy(() => apiResponseSchema)

@@ -125,7 +125,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     const path = this.context.pluginManager.resolvePath({ baseName: propertyName, pluginKey })
 
     if (ref) {
-      return [{ keyword: zodKeywords.ref, args: { name: ref.propertyName, external: propertyName !== path } }]
+      return [{ keyword: zodKeywords.ref, args: { name: ref.propertyName } }]
     }
 
     ref = this.refs[$ref] = {
@@ -139,7 +139,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
       isTypeOnly: false,
     })
 
-    return [{ keyword: zodKeywords.ref, args: { name: ref.propertyName, external: propertyName !== path } }]
+    return [{ keyword: zodKeywords.ref, args: { name: ref.propertyName } }]
   }
 
   #getParsedSchema(schema?: OasTypes.SchemaObject) {
