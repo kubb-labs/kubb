@@ -1,5 +1,19 @@
 # @kubb/swagger-tanstack-query
 
+## 2.1.1
+
+### Patch Changes
+
+- [#747](https://github.com/kubb-project/kubb/pull/747) [`2927221`](https://github.com/kubb-project/kubb/commit/292722122e6901e0e6b1af757ade16b1c870293f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support for dataReturnType `data`
+
+- Updated dependencies []:
+  - @kubb/core@2.1.1
+  - @kubb/parser@2.1.1
+  - @kubb/react@2.1.1
+  - @kubb/swagger@2.1.1
+  - @kubb/swagger-client@2.1.1
+  - @kubb/swagger-ts@2.1.1
+
 ## 2.1.0
 
 ### Minor Changes
