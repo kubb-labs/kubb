@@ -86,7 +86,10 @@ function Template({
     isV5 && !!infinite && !!infinite.cursorParam
       ? `getPreviousPageParam: (firstPage) => firstPage['${infinite.cursorParam}']`
       : undefined,
-    isV5 && !!infinite && !infinite.cursorParam
+    isV5 && !!infinite && !infinite.cursorParam && dataReturnType === 'full'
+      ? `getNextPageParam: (lastPage, allPages, lastPageParam) => lastPage.data.length === 0 ? undefined : lastPageParam + 1`
+      : undefined,
+    isV5 && !!infinite && !infinite.cursorParam && dataReturnType === 'data'
       ? `getNextPageParam: (lastPage, allPages, lastPageParam) => lastPage.length === 0 ? undefined : lastPageParam + 1`
       : undefined,
     isV5 && !!infinite && !infinite.cursorParam
