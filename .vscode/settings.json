@@ -1,4 +1,9 @@
 {
+  "prettier.configPath": "configs/prettier.config.cjs",
+  "editor.defaultFormatter": "dprint.dprint",
+  "[json]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,
@@ -20,9 +25,6 @@
     "*.tmp.txt": true,
     "**/.turbo": true,
     "**/.next": true,
-    "**/node_modules": true
-  },
-  "prettier.configPath": "configs/prettier.config.cjs",
-  "editor.defaultFormatter": "dprint.dprint",
-  "references.preferredLocation": "peek"
+    "**/node_modules": false
+  }
 }
