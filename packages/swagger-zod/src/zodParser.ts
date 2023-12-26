@@ -171,7 +171,7 @@ function zodKeywordSorter(a: ZodMeta, b: ZodMeta): 1 | -1 | 0 {
   return 0
 }
 
-export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> = zodKeywordMapper): string {
+export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> = zodKeywordMapper, indentLevel = 1): string {
   // eslint-disable-next-line prefer-const
   let { keyword, args = '' } = (item || {}) as ZodMetaBase<unknown>
   const value = mapper[keyword]
@@ -217,6 +217,8 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
     if (!args) {
       args = '{}'
     }
+
+    const indent = '    '
     const argsObject = Object.entries(args as ZodMeta)
       .filter((item) => {
         const schema = item[1] as ZodMeta[]
@@ -225,16 +227,16 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
       .map((item) => {
         const name = item[0]
         const schema = item[1] as ZodMeta[]
-        return `"${name}": ${
+        return `${indent.repeat(indentLevel)}"${name}": ${
           schema
             .sort(zodKeywordSorter)
-            .map((item) => parseZodMeta(item, mapper))
+            .map((item) => parseZodMeta(item, mapper, indentLevel + 1))
             .join('')
         }`
       })
-      .join(',')
+      .join(',\n')
 
-    args = `{${argsObject}}`
+    args = `{\n${argsObject}\n${indent.repeat(indentLevel - 1)}}`
   }
 
   // custom type
