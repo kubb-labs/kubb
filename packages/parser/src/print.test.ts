@@ -1,7 +1,3 @@
-import path from 'node:path'
-
-import ts, { createProgram, displayPartsToString } from 'typescript'
-
 import { format } from '../mocks/format.ts'
 import { print } from './print.ts'
 
