@@ -25,6 +25,6 @@
     "*.tmp.txt": true,
     "**/.turbo": true,
     "**/.next": true,
-    "**/node_modules": false
+    "**/node_modules": true
   }
 }

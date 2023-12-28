@@ -31,6 +31,14 @@ jobs:
         - name: Build
           run: bun run build --concurrency=1
 
+        - name: Test
+          run: bun run test
+
+        - name: Upload coverage reports to Codecov
+          uses: codecov/codecov-action@v3
+          env:
+             CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
         - name: Publish
           id: changesets
           uses: changesets/action@v1
