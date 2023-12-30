@@ -1,5 +1,18 @@
 # @kubb/swagger-zodios
 
+## 2.1.2
+
+### Patch Changes
+
+- [`349b568`](https://github.com/kubb-project/kubb/commit/349b568d340fedad37e92b35a2b9c7202df2dc13) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - export endpoints
+
+- Updated dependencies []:
+  - @kubb/core@2.1.2
+  - @kubb/parser@2.1.2
+  - @kubb/react@2.1.2
+  - @kubb/swagger@2.1.2
+  - @kubb/swagger-zod@2.1.2
+
 ## 2.1.1
 
 ### Patch Changes
