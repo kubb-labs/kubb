@@ -43,7 +43,7 @@ export function CreatePetsQueryOptions<TData = CreatePets['response'], TQueryDat
 
 export function useCreatePets<TData = CreatePets['response'], TQueryData = CreatePets['response'], TQueryKey extends QueryKey = CreatePetsQueryKey>(
   options: {
-    query?: UseBaseQueryOptions<CreatePets['response'], CreatePets['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<UseBaseQueryOptions<CreatePets['response'], CreatePets['error'], TData, TQueryData, TQueryKey>>
     client?: CreatePets['client']['parameters']
   } = {},
 ): UseQueryResult<TData, CreatePets['error']> & { queryKey: TQueryKey } {
