@@ -1,7 +1,15 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../models/GetUserByName'
-import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  UseBaseQueryOptions,
+  UseQueryResult,
+  QueryKey,
+  WithRequired,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  InfiniteData,
+} from '@tanstack/react-query'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
 type GetUserByName = {
@@ -44,7 +52,7 @@ export function useGetUserByNameHook<
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(username: GetUserByNamePathParams['username'], options: {
-  query?: UseBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>
+  query?: Partial<UseBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
   client?: GetUserByName['client']['parameters']
 } = {}): UseQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
@@ -89,9 +97,9 @@ export function useGetUserByNameHookInfinite<
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
 >(username: GetUserByNamePathParams['username'], options: {
-  query?: UseInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>
+  query?: Partial<UseInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
   client?: GetUserByName['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, GetUserByName['error']> & {
+} = {}): UseInfiniteQueryResult<InfiniteData<TData>, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -100,7 +108,7 @@ export function useGetUserByNameHookInfinite<
     ...getUserByNameInfiniteQueryOptions<TData, TQueryData>(username, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, GetUserByName['error']> & {
+  }) as UseInfiniteQueryResult<InfiniteData<TData>, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

@@ -40,7 +40,7 @@ export function loginUserQueryOptions(params?: LoginUser['queryParams'], options
 export function useLoginUserHook<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
-    query?: QueryObserverOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<QueryObserverOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>>
     client?: LoginUser['client']['parameters']
   } = {},
 ): UseQueryResult<TData, LoginUser['error']> & {
@@ -81,7 +81,7 @@ export function loginUserSuspenseQueryOptions(params?: LoginUser['queryParams'],
 export function useLoginUserHookSuspense<TData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserSuspenseQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
-    query?: UseSuspenseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryKey>
+    query?: Partial<UseSuspenseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryKey>>
     client?: LoginUser['client']['parameters']
   } = {},
 ): UseSuspenseQueryResult<TData, LoginUser['error']> & {

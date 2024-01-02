@@ -8,6 +8,7 @@ import type {
   WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
+  InfiniteData,
 } from '@tanstack/svelte-query'
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
@@ -50,7 +51,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
 export function getOrderByIdQuery<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: CreateBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, GetOrderById['error']> & {
@@ -99,10 +100,10 @@ export function getOrderByIdQueryInfinite<
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: CreateInfiniteQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateInfiniteQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
-): CreateInfiniteQueryResult<TData, GetOrderById['error']> & {
+): CreateInfiniteQueryResult<InfiniteData<TData>, GetOrderById['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -111,7 +112,7 @@ export function getOrderByIdQueryInfinite<
     ...getOrderByIdInfiniteQueryOptions<TData, TQueryData>(orderId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateInfiniteQueryResult<TData, GetOrderById['error']> & {
+  }) as CreateInfiniteQueryResult<InfiniteData<TData>, GetOrderById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

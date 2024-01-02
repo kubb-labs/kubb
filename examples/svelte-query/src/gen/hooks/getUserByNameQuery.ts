@@ -8,6 +8,7 @@ import type {
   WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
+  InfiniteData,
 } from '@tanstack/svelte-query'
 
 type GetUserByNameClient = typeof client<GetUserByNameQueryResponse, GetUserByName400 | GetUserByName404, never>
@@ -53,7 +54,7 @@ export function getUserByNameQuery<
 >(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: CreateBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
     client?: GetUserByName['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, GetUserByName['error']> & {
@@ -101,10 +102,10 @@ export function getUserByNameQueryInfinite<
 >(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: CreateInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
     client?: GetUserByName['client']['parameters']
   } = {},
-): CreateInfiniteQueryResult<TData, GetUserByName['error']> & {
+): CreateInfiniteQueryResult<InfiniteData<TData>, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -113,7 +114,7 @@ export function getUserByNameQueryInfinite<
     ...getUserByNameInfiniteQueryOptions<TData, TQueryData>(username, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateInfiniteQueryResult<TData, GetUserByName['error']> & {
+  }) as CreateInfiniteQueryResult<InfiniteData<TData>, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

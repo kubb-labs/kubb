@@ -8,6 +8,7 @@ import type {
   WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
+  InfiniteData,
 } from '@tanstack/svelte-query'
 
 type GetInventoryClient = typeof client<GetInventoryQueryResponse, never, never>
@@ -48,7 +49,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
  * @link /store/inventory */
 export function getInventoryQuery<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
-    query?: CreateBaseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateBaseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>>
     client?: GetInventory['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, GetInventory['error']> & {
@@ -94,10 +95,10 @@ export function getInventoryQueryInfinite<
   TQueryKey extends QueryKey = GetInventoryInfiniteQueryKey,
 >(
   options: {
-    query?: CreateInfiniteQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateInfiniteQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>>
     client?: GetInventory['client']['parameters']
   } = {},
-): CreateInfiniteQueryResult<TData, GetInventory['error']> & {
+): CreateInfiniteQueryResult<InfiniteData<TData>, GetInventory['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -106,7 +107,7 @@ export function getInventoryQueryInfinite<
     ...getInventoryInfiniteQueryOptions<TData, TQueryData>(clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateInfiniteQueryResult<TData, GetInventory['error']> & {
+  }) as CreateInfiniteQueryResult<InfiniteData<TData>, GetInventory['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

@@ -8,6 +8,7 @@ import type {
   WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
+  InfiniteData,
 } from '@tanstack/svelte-query'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
@@ -55,7 +56,7 @@ export function findPetsByTagsQuery<
 >(
   params?: FindPetsByTags['queryParams'],
   options: {
-    query?: CreateBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
     client?: FindPetsByTags['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, FindPetsByTags['error']> & {
@@ -108,10 +109,10 @@ export function findPetsByTagsQueryInfinite<
 >(
   params?: FindPetsByTags['queryParams'],
   options: {
-    query?: CreateInfiniteQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateInfiniteQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
     client?: FindPetsByTags['client']['parameters']
   } = {},
-): CreateInfiniteQueryResult<TData, FindPetsByTags['error']> & {
+): CreateInfiniteQueryResult<InfiniteData<TData>, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -120,7 +121,7 @@ export function findPetsByTagsQueryInfinite<
     ...findPetsByTagsInfiniteQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateInfiniteQueryResult<TData, FindPetsByTags['error']> & {
+  }) as CreateInfiniteQueryResult<InfiniteData<TData>, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

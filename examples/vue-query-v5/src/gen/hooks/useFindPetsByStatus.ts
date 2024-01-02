@@ -49,7 +49,7 @@ export function useFindPetsByStatus<
 >(
   refParams?: MaybeRef<FindPetsByStatusQueryParams>,
   options: {
-    query?: QueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryKey>
+    query?: Partial<QueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryKey>>
     client?: FindPetsByStatus['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, FindPetsByStatus['error']> & {

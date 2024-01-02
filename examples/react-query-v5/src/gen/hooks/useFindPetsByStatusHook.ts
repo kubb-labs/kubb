@@ -43,7 +43,7 @@ export function useFindPetsByStatusHook<
   TQueryData = FindPetsByStatus['response'],
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
 >(params?: FindPetsByStatus['queryParams'], options: {
-  query?: QueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>
+  query?: Partial<QueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>>
   client?: FindPetsByStatus['client']['parameters']
 } = {}): UseQueryResult<TData, FindPetsByStatus['error']> & {
   queryKey: TQueryKey
@@ -85,7 +85,7 @@ export function findPetsByStatusSuspenseQueryOptions(params?: FindPetsByStatus['
 export function useFindPetsByStatusHookSuspense<TData = FindPetsByStatus['response'], TQueryKey extends QueryKey = FindPetsByStatusSuspenseQueryKey>(
   params?: FindPetsByStatus['queryParams'],
   options: {
-    query?: UseSuspenseQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryKey>
+    query?: Partial<UseSuspenseQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryKey>>
     client?: FindPetsByStatus['client']['parameters']
   } = {},
 ): UseSuspenseQueryResult<TData, FindPetsByStatus['error']> & {

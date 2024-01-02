@@ -1,7 +1,15 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { GetPetByIdQueryResponse, GetPetByIdPathParams, GetPetById400, GetPetById404 } from '../models/GetPetById'
-import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  UseBaseQueryOptions,
+  UseQueryResult,
+  QueryKey,
+  WithRequired,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  InfiniteData,
+} from '@tanstack/react-query'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
 type GetPetById = {
@@ -43,7 +51,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 export function useGetPetByIdHook<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: UseBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<UseBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetPetById['error']> & {
@@ -89,9 +97,9 @@ export function useGetPetByIdHookInfinite<
   TQueryData = GetPetById['response'],
   TQueryKey extends QueryKey = GetPetByIdInfiniteQueryKey,
 >(petId: GetPetByIdPathParams['petId'], options: {
-  query?: UseInfiniteQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>
+  query?: Partial<UseInfiniteQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
   client?: GetPetById['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, GetPetById['error']> & {
+} = {}): UseInfiniteQueryResult<InfiniteData<TData>, GetPetById['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -100,7 +108,7 @@ export function useGetPetByIdHookInfinite<
     ...getPetByIdInfiniteQueryOptions<TData, TQueryData>(petId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, GetPetById['error']> & {
+  }) as UseInfiniteQueryResult<InfiniteData<TData>, GetPetById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

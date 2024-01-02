@@ -48,7 +48,7 @@ export function useFindPetsByTags<
 >(
   refParams?: MaybeRef<FindPetsByTagsQueryParams>,
   options: {
-    query?: QueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryKey>
+    query?: Partial<QueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryKey>>
     client?: FindPetsByTags['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, FindPetsByTags['error']> & {

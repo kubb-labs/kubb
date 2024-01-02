@@ -11,22 +11,22 @@ type TemplateProps = {
   queryOptions: string | undefined
   resultType: string
   hookName: string
+  isInfinite: boolean
 }
 
 function Template({
   path,
+  isInfinite,
   hookName,
   queryOptions,
   optionsType,
   resultType,
 }: TemplateProps): ReactNode {
-  const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
-
   return (
     <>
       <File.Import name={[optionsType, resultType]} path={path} isTypeOnly />
       <File.Import name={[hookName, queryOptions].filter(Boolean)} path={path} />
-      <File.Import name={['QueryKey', 'WithRequired']} path={path} isTypeOnly />
+      <File.Import name={['QueryKey', 'WithRequired', isInfinite ? 'InfiniteData' : undefined].filter(Boolean)} path={path} isTypeOnly />
     </>
   )
 }
@@ -49,6 +49,7 @@ const defaultTemplates = {
 
       return (
         <Template
+          isInfinite={isInfinite}
           {...isSuspense ? importNames.querySuspense.react : isInfinite ? importNames.queryInfinite.react : importNames.query.react}
           queryOptions={isV5 ? isInfinite ? 'infiniteQueryOptions' : 'queryOptions' : undefined}
           {...rest}
@@ -66,6 +67,7 @@ const defaultTemplates = {
 
       return (
         <Template
+          isInfinite={isInfinite}
           {...isInfinite ? importNames.queryInfinite.solid : importNames.query.solid}
           queryOptions={isV5 ? isInfinite ? 'infiniteQueryOptions' : 'queryOptions' : undefined}
           {...rest}
@@ -83,6 +85,7 @@ const defaultTemplates = {
 
       return (
         <Template
+          isInfinite={isInfinite}
           {...isInfinite ? importNames.queryInfinite.svelte : importNames.query.svelte}
           queryOptions={isV5 ? isInfinite ? 'infiniteQueryOptions' : 'queryOptions' : undefined}
           {...rest}
@@ -105,6 +108,7 @@ const defaultTemplates = {
             && (
               <>
                 <Template
+                  isInfinite={isInfinite}
                   {...isInfinite ? importNames.queryInfinite.vue : importNames.query.vue}
                   queryOptions={isInfinite ? 'infiniteQueryOptions' : 'queryOptions'}
                   {...rest}

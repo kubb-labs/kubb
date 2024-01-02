@@ -55,11 +55,10 @@ function Pets(): JSX.Element {
         const nextPage = pages.length + 1
         return (nextPage <= (numPages ?? 0)) ? nextPage : undefined
       },
-      initialPageParam: 0,
     },
   })
 
-  console.log(data)
+  console.log(data?.pages.at(0)?.data.at(0)?.id)
   //            ^?
   console.log(firstPet)
   //            ^?

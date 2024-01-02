@@ -40,7 +40,7 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], opt
 export function useGetPetByIdHook<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: QueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<QueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetPetById['error']> & {
@@ -81,7 +81,7 @@ export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petI
 export function useGetPetByIdHookSuspense<TData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: UseSuspenseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryKey>
+    query?: Partial<UseSuspenseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
 ): UseSuspenseQueryResult<TData, GetPetById['error']> & {

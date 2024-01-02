@@ -8,6 +8,7 @@ import type {
   WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
+  InfiniteData,
 } from '@tanstack/svelte-query'
 
 type GetPetByIdClient = typeof client<GetPetByIdQueryResponse, GetPetById400 | GetPetById404, never>
@@ -50,7 +51,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 export function getPetByIdQuery<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: CreateBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, GetPetById['error']> & {
@@ -98,10 +99,10 @@ export function getPetByIdQueryInfinite<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: CreateInfiniteQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateInfiniteQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
-): CreateInfiniteQueryResult<TData, GetPetById['error']> & {
+): CreateInfiniteQueryResult<InfiniteData<TData>, GetPetById['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -110,7 +111,7 @@ export function getPetByIdQueryInfinite<
     ...getPetByIdInfiniteQueryOptions<TData, TQueryData>(petId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateInfiniteQueryResult<TData, GetPetById['error']> & {
+  }) as CreateInfiniteQueryResult<InfiniteData<TData>, GetPetById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

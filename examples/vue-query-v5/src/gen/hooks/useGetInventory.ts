@@ -39,7 +39,7 @@ export function getInventoryQueryOptions(options: GetInventory['client']['parame
  * @link /store/inventory */
 export function useGetInventory<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
-    query?: QueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>
+    query?: Partial<QueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>
     client?: GetInventory['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, GetInventory['error']> & {

@@ -43,7 +43,7 @@ export function getPetByIdQueryOptions(refPetId: MaybeRef<GetPetByIdPathParams['
 export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   refPetId: GetPetByIdPathParams['petId'],
   options: {
-    query?: QueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryKey>
+    query?: Partial<QueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, GetPetById['error']> & {

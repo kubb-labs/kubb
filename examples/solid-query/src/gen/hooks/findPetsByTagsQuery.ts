@@ -48,7 +48,7 @@ export function findPetsByTagsQuery<
 >(
   params?: FindPetsByTags['queryParams'],
   options: {
-    query?: CreateBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
     client?: FindPetsByTags['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, FindPetsByTags['error']> & {

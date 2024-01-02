@@ -46,7 +46,7 @@ export function getUserByNameQuery<
 >(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: CreateBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
     client?: GetUserByName['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, GetUserByName['error']> & {

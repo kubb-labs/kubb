@@ -1,7 +1,15 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { LogoutUserQueryResponse, LogoutUserError } from '../models/LogoutUser'
-import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  UseBaseQueryOptions,
+  UseQueryResult,
+  QueryKey,
+  WithRequired,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  InfiniteData,
+} from '@tanstack/react-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, LogoutUserError, never>
 type LogoutUser = {
@@ -40,7 +48,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
  * @link /user/logout */
 export function useLogoutUserHook<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: UseBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<UseBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
     client?: LogoutUser['client']['parameters']
   } = {},
 ): UseQueryResult<TData, LogoutUser['error']> & {
@@ -84,9 +92,9 @@ export function useLogoutUserHookInfinite<
   TQueryData = LogoutUser['response'],
   TQueryKey extends QueryKey = LogoutUserInfiniteQueryKey,
 >(options: {
-  query?: UseInfiniteQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>
+  query?: Partial<UseInfiniteQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
   client?: LogoutUser['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, LogoutUser['error']> & {
+} = {}): UseInfiniteQueryResult<InfiniteData<TData>, LogoutUser['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -95,7 +103,7 @@ export function useLogoutUserHookInfinite<
     ...logoutUserInfiniteQueryOptions<TData, TQueryData>(clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, LogoutUser['error']> & {
+  }) as UseInfiniteQueryResult<InfiniteData<TData>, LogoutUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

@@ -173,7 +173,7 @@ const defaultTemplates = {
         .toString()
 
       const resultGenerics = [
-        'TData',
+        rest.infinite ? 'InfiniteData<TData>' : 'TData',
         `${factory.name}['error']`,
       ]
 
@@ -201,7 +201,7 @@ const defaultTemplates = {
         {
           name: 'options',
           type: `{
-              query?: ${optionsType}<${queryOptionsOverrideGenerics.join(', ')}>,
+              query?: Partial<${optionsType}<${queryOptionsOverrideGenerics.join(', ')}>>,
               client?: ${factory.name}['client']['parameters']
           }`,
           default: '{}',
@@ -322,7 +322,7 @@ export function Query({
 
   const pathParams = getParams(schemas.pathParams, {}).toString()
   const resultGenerics = [
-    `TData`,
+    infinite ? 'InfiniteData<TData>' : 'TData',
     `${factory.name}['error']`,
   ]
   // only needed for the options to override the useQuery options/params
@@ -354,7 +354,7 @@ export function Query({
     {
       name: 'options',
       type: `{
-    query?: ${optionsType}<${queryOptionsOverrideGenerics.join(', ')}>,
+    query?: Partial<${optionsType}<${queryOptionsOverrideGenerics.join(', ')}>>,
     client?: ${factory.name}['client']['parameters']
 }`,
       default: '{}',

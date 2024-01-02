@@ -39,7 +39,7 @@ export function getInventoryQueryOptions(options: GetInventory['client']['parame
  * @link /store/inventory */
 export function useGetInventoryHook<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
-    query?: QueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<QueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>>
     client?: GetInventory['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetInventory['error']> & {
@@ -78,7 +78,7 @@ export function getInventorySuspenseQueryOptions(options: GetInventory['client']
  * @summary Returns pet inventories by status
  * @link /store/inventory */
 export function useGetInventoryHookSuspense<TData = GetInventory['response'], TQueryKey extends QueryKey = GetInventorySuspenseQueryKey>(options: {
-  query?: UseSuspenseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>
+  query?: Partial<UseSuspenseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>
   client?: GetInventory['client']['parameters']
 } = {}): UseSuspenseQueryResult<TData, GetInventory['error']> & {
   queryKey: TQueryKey

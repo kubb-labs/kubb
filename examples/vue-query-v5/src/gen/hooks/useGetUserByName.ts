@@ -43,7 +43,7 @@ export function getUserByNameQueryOptions(refUsername: MaybeRef<GetUserByNamePat
 export function useGetUserByName<TData = GetUserByName['response'], TQueryData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameQueryKey>(
   refUsername: GetUserByNamePathParams['username'],
   options: {
-    query?: QueryObserverOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryKey>
+    query?: Partial<QueryObserverOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryKey>>
     client?: GetUserByName['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, GetUserByName['error']> & {

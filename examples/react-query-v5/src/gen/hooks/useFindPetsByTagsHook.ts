@@ -7,6 +7,7 @@ import type {
   QueryKey,
   InfiniteQueryObserverOptions,
   UseInfiniteQueryResult,
+  InfiniteData,
   UseSuspenseQueryOptions,
   UseSuspenseQueryResult,
 } from '@tanstack/react-query'
@@ -51,7 +52,7 @@ export function useFindPetsByTagsHook<
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(params?: FindPetsByTags['queryParams'], options: {
-  query?: QueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
+  query?: Partial<QueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
   client?: FindPetsByTags['client']['parameters']
 } = {}): UseQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
@@ -101,9 +102,9 @@ export function useFindPetsByTagsHookInfinite<
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(params?: FindPetsByTags['queryParams'], options: {
-  query?: InfiniteQueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
+  query?: Partial<InfiniteQueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
   client?: FindPetsByTags['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
+} = {}): UseInfiniteQueryResult<InfiniteData<TData>, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -112,7 +113,7 @@ export function useFindPetsByTagsHookInfinite<
     ...findPetsByTagsInfiniteQueryOptions(params, clientOptions) as InfiniteQueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as InfiniteQueryObserverOptions,
-  }) as UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
+  }) as UseInfiniteQueryResult<InfiniteData<TData>, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
@@ -142,7 +143,7 @@ export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['quer
 export function useFindPetsByTagsHookSuspense<TData = FindPetsByTags['response'], TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey>(
   params?: FindPetsByTags['queryParams'],
   options: {
-    query?: UseSuspenseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryKey>
+    query?: Partial<UseSuspenseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryKey>>
     client?: FindPetsByTags['client']['parameters']
   } = {},
 ): UseSuspenseQueryResult<TData, FindPetsByTags['error']> & {

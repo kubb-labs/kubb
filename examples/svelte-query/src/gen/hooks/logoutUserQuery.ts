@@ -8,6 +8,7 @@ import type {
   WithRequired,
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
+  InfiniteData,
 } from '@tanstack/svelte-query'
 
 type LogoutUserClient = typeof client<LogoutUserQueryResponse, LogoutUserError, never>
@@ -47,7 +48,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
  * @link /user/logout */
 export function logoutUserQuery<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: CreateBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
     client?: LogoutUser['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, LogoutUser['error']> & {
@@ -92,10 +93,10 @@ export function logoutUserQueryInfinite<
   TQueryKey extends QueryKey = LogoutUserInfiniteQueryKey,
 >(
   options: {
-    query?: CreateInfiniteQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateInfiniteQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>>
     client?: LogoutUser['client']['parameters']
   } = {},
-): CreateInfiniteQueryResult<TData, LogoutUser['error']> & {
+): CreateInfiniteQueryResult<InfiniteData<TData>, LogoutUser['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -104,7 +105,7 @@ export function logoutUserQueryInfinite<
     ...logoutUserInfiniteQueryOptions<TData, TQueryData>(clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateInfiniteQueryResult<TData, LogoutUser['error']> & {
+  }) as CreateInfiniteQueryResult<InfiniteData<TData>, LogoutUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

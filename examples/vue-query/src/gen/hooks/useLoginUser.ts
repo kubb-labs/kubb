@@ -47,7 +47,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
 export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   refParams?: MaybeRef<LoginUserQueryParams>,
   options: {
-    query?: VueQueryObserverOptions<LoginUser['response'], LoginUser['error'], TData, TQueryKey>
+    query?: Partial<VueQueryObserverOptions<LoginUser['response'], LoginUser['error'], TData, TQueryKey>>
     client?: LoginUser['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, LoginUser['error']> & {

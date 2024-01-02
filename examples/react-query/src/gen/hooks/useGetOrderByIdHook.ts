@@ -1,7 +1,15 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { GetOrderByIdQueryResponse, GetOrderByIdPathParams, GetOrderById400, GetOrderById404 } from '../models/GetOrderById'
-import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  UseBaseQueryOptions,
+  UseQueryResult,
+  QueryKey,
+  WithRequired,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  InfiniteData,
+} from '@tanstack/react-query'
 
 type GetOrderByIdClient = typeof client<GetOrderByIdQueryResponse, GetOrderById400 | GetOrderById404, never>
 type GetOrderById = {
@@ -43,7 +51,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
 export function useGetOrderByIdHook<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: UseBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<UseBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetOrderById['error']> & {
@@ -90,9 +98,9 @@ export function useGetOrderByIdHookInfinite<
   TQueryData = GetOrderById['response'],
   TQueryKey extends QueryKey = GetOrderByIdInfiniteQueryKey,
 >(orderId: GetOrderByIdPathParams['orderId'], options: {
-  query?: UseInfiniteQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>
+  query?: Partial<UseInfiniteQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
   client?: GetOrderById['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, GetOrderById['error']> & {
+} = {}): UseInfiniteQueryResult<InfiniteData<TData>, GetOrderById['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -101,7 +109,7 @@ export function useGetOrderByIdHookInfinite<
     ...getOrderByIdInfiniteQueryOptions<TData, TQueryData>(orderId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, GetOrderById['error']> & {
+  }) as UseInfiniteQueryResult<InfiniteData<TData>, GetOrderById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

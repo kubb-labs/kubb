@@ -1,7 +1,15 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { FindPetsByTagsQueryResponse, FindPetsByTagsQueryParams, FindPetsByTags400 } from '../models/FindPetsByTags'
-import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  UseBaseQueryOptions,
+  UseQueryResult,
+  QueryKey,
+  WithRequired,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  InfiniteData,
+} from '@tanstack/react-query'
 
 type FindPetsByTagsClient = typeof client<FindPetsByTagsQueryResponse, FindPetsByTags400, never>
 type FindPetsByTags = {
@@ -46,7 +54,7 @@ export function useFindPetsByTagsHook<
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(params?: FindPetsByTags['queryParams'], options: {
-  query?: UseBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
+  query?: Partial<UseBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
   client?: FindPetsByTags['client']['parameters']
 } = {}): UseQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
@@ -96,9 +104,9 @@ export function useFindPetsByTagsHookInfinite<
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(params?: FindPetsByTags['queryParams'], options: {
-  query?: UseInfiniteQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
+  query?: Partial<UseInfiniteQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
   client?: FindPetsByTags['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
+} = {}): UseInfiniteQueryResult<InfiniteData<TData>, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -107,7 +115,7 @@ export function useFindPetsByTagsHookInfinite<
     ...findPetsByTagsInfiniteQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
+  }) as UseInfiniteQueryResult<InfiniteData<TData>, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

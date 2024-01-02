@@ -44,7 +44,7 @@ export function getOrderByIdQueryOptions(refOrderId: MaybeRef<GetOrderByIdPathPa
 export function useGetOrderById<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   refOrderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: QueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryKey>
+    query?: Partial<QueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, GetOrderById['error']> & {

@@ -42,7 +42,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
  * @link /store/inventory */
 export function useGetInventory<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
-    query?: VueQueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>
+    query?: Partial<VueQueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>
     client?: GetInventory['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, GetInventory['error']> & {

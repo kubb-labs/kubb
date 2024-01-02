@@ -43,7 +43,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
 export function getOrderByIdQuery<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: CreateBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, GetOrderById['error']> & {

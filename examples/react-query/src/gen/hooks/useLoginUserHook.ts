@@ -1,7 +1,15 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../models/LoginUser'
-import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired, UseInfiniteQueryOptions, UseInfiniteQueryResult } from '@tanstack/react-query'
+import type {
+  UseBaseQueryOptions,
+  UseQueryResult,
+  QueryKey,
+  WithRequired,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  InfiniteData,
+} from '@tanstack/react-query'
 
 type LoginUserClient = typeof client<LoginUserQueryResponse, LoginUser400, never>
 type LoginUser = {
@@ -43,7 +51,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
 export function useLoginUserHook<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
-    query?: UseBaseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<UseBaseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>>
     client?: LoginUser['client']['parameters']
   } = {},
 ): UseQueryResult<TData, LoginUser['error']> & {
@@ -93,9 +101,9 @@ export function useLoginUserHookInfinite<
   TQueryData = LoginUser['response'],
   TQueryKey extends QueryKey = LoginUserInfiniteQueryKey,
 >(params?: LoginUser['queryParams'], options: {
-  query?: UseInfiniteQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>
+  query?: Partial<UseInfiniteQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>>
   client?: LoginUser['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, LoginUser['error']> & {
+} = {}): UseInfiniteQueryResult<InfiniteData<TData>, LoginUser['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -104,7 +112,7 @@ export function useLoginUserHookInfinite<
     ...loginUserInfiniteQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, LoginUser['error']> & {
+  }) as UseInfiniteQueryResult<InfiniteData<TData>, LoginUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

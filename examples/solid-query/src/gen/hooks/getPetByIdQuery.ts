@@ -43,7 +43,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 export function getPetByIdQuery<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: CreateBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<CreateBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, GetPetById['error']> & {

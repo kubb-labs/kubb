@@ -240,8 +240,7 @@ export default defineConfig({
 
 Path to the client import path that will be used to do the API calls.<br/>
 It will be used as `import client from '${client.importPath}'`.<br/>
-It allow both relative and absolute path. the path will be applied as is,
-so relative path shoule be based on the file being generated.
+It allows both relative and absolute paths. the path will be applied as is, so the relative path should be based on the file being generated.
 
 ::: info
 Type: `string` <br/>
@@ -406,7 +405,7 @@ export default defineConfig({
 
 ### infinite
 
-When set, an infiniteQuery hooks will be added.
+When set, an 'infiniteQuery' hook will be added.
 
 ::: info type
 
@@ -529,7 +528,46 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerTanstackQuery({
       infinite: {
+        queryParam: 'id',
         initialPageParam: 0,
+      },
+    }),
+  ],
+})
+```
+
+:::
+
+#### infinite.cursorParam
+
+Which field of the data will be used, set it to undefined when no cursor is known.<br/>
+Used inside `useInfiniteQuery`, `createInfiniteQueries`, `createInfiniteQuery` and will only be needed for v5.
+
+::: info
+Type: `string | undefined` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({
+      infinite: {
+        queryParam: 'id',
+        cursorParam: 'nextCursor',
       },
     }),
   ],

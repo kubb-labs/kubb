@@ -40,7 +40,7 @@ export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderI
 export function useGetOrderByIdHook<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: QueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>
+    query?: Partial<QueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetOrderById['error']> & {
@@ -82,7 +82,7 @@ export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams
 export function useGetOrderByIdHookSuspense<TData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdSuspenseQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: UseSuspenseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryKey>
+    query?: Partial<UseSuspenseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
 ): UseSuspenseQueryResult<TData, GetOrderById['error']> & {
