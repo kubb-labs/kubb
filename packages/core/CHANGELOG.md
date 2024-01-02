@@ -1,5 +1,13 @@
 # @kubb/core
 
+## 2.1.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/parser@2.1.4
+  - @kubb/types@2.1.4
+
 ## 2.1.3
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @kubb/swagger-tanstack-query
 
+## 2.1.4
+
+### Patch Changes
+
+- [`ff3c42b`](https://github.com/kubb-project/kubb/commit/ff3c42b6c5bf5d2739832f442a23550e846907a2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - check if lastPage is an array
+
+- Updated dependencies []:
+  - @kubb/core@2.1.4
+  - @kubb/parser@2.1.4
+  - @kubb/react@2.1.4
+  - @kubb/swagger@2.1.4
+  - @kubb/swagger-client@2.1.4
+  - @kubb/swagger-ts@2.1.4
+
 ## 2.1.3
 
 ### Patch Changes
