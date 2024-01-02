@@ -1,5 +1,19 @@
 # @kubb/swagger-tanstack-query
 
+## 2.1.3
+
+### Patch Changes
+
+- [`9307bda`](https://github.com/kubb-project/kubb/commit/9307bda2c2dc08503809eec7d048bba4e6388121) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of Factory['response'] instead of data to support `dataReturnType`
+
+- Updated dependencies [[`9307bda`](https://github.com/kubb-project/kubb/commit/9307bda2c2dc08503809eec7d048bba4e6388121)]:
+  - @kubb/core@2.1.3
+  - @kubb/react@2.1.3
+  - @kubb/swagger@2.1.3
+  - @kubb/swagger-client@2.1.3
+  - @kubb/swagger-ts@2.1.3
+  - @kubb/parser@2.1.3
+
 ## 2.1.2
 
 ### Patch Changes
