@@ -1,5 +1,16 @@
 # @kubb/swagger-ts
 
+## 2.1.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.1.2
+  - @kubb/parser@2.1.2
+  - @kubb/react@2.1.2
+  - @kubb/swagger@2.1.2
+  - @kubb/types@2.1.2
+
 ## 2.1.1
 
 ### Patch Changes
