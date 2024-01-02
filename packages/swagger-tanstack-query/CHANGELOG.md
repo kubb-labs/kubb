@@ -1,5 +1,21 @@
 # @kubb/swagger-tanstack-query
 
+## 2.1.5
+
+### Patch Changes
+
+- [`0ae819a`](https://github.com/kubb-project/kubb/commit/0ae819ad6bc043f93b997e746e1f0bd8a504a81d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - initialPageParam as optional when set in the generated code
+
+- [`0ae819a`](https://github.com/kubb-project/kubb/commit/0ae819ad6bc043f93b997e746e1f0bd8a504a81d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - InfiniteData type for useInfiniteQuery
+
+- Updated dependencies []:
+  - @kubb/core@2.1.5
+  - @kubb/parser@2.1.5
+  - @kubb/react@2.1.5
+  - @kubb/swagger@2.1.5
+  - @kubb/swagger-client@2.1.5
+  - @kubb/swagger-ts@2.1.5
+
 ## 2.1.4
 
 ### Patch Changes
