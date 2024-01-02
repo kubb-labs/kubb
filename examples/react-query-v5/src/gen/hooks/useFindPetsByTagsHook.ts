@@ -88,7 +88,7 @@ export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['quer
       return res
     },
     initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages, lastPageParam) => lastPage.data.length === 0 ? undefined : lastPageParam + 1,
+    getNextPageParam: (lastPage, allPages, lastPageParam) => Array.isArray(lastPage.data) && lastPage.data.length === 0 ? undefined : lastPageParam + 1,
     getPreviousPageParam: (firstPage, allPages, firstPageParam) => firstPageParam <= 1 ? undefined : firstPageParam - 1,
   })
 }
