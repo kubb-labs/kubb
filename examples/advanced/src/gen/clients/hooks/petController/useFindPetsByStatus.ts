@@ -46,7 +46,7 @@ export function useFindPetsByStatus<
   TQueryData = FindPetsByStatus['response'],
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
 >(params?: FindPetsByStatus['queryParams'], options: {
-  query?: UseBaseQueryOptions<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>
+  query?: UseBaseQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>
   client?: FindPetsByStatus['client']['parameters']
 } = {}): UseQueryResult<TData, FindPetsByStatus['error']> & {
   queryKey: TQueryKey
@@ -97,7 +97,7 @@ export function useFindPetsByStatusInfinite<
   TQueryData = FindPetsByStatus['response'],
   TQueryKey extends QueryKey = FindPetsByStatusInfiniteQueryKey,
 >(params?: FindPetsByStatus['queryParams'], options: {
-  query?: UseInfiniteQueryOptions<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>
+  query?: UseInfiniteQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>
   client?: FindPetsByStatus['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, FindPetsByStatus['error']> & {
   queryKey: TQueryKey

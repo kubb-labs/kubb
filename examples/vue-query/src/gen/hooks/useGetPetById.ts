@@ -47,7 +47,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   refPetId: GetPetByIdPathParams['petId'],
   options: {
-    query?: VueQueryObserverOptions<GetPetById['data'], GetPetById['error'], TData, TQueryKey>
+    query?: VueQueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryKey>
     client?: GetPetById['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, GetPetById['error']> & {

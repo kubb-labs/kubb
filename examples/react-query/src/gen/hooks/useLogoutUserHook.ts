@@ -40,7 +40,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
  * @link /user/logout */
 export function useLogoutUserHook<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: UseBaseQueryOptions<LogoutUser['data'], LogoutUser['error'], TData, TQueryData, TQueryKey>
+    query?: UseBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>
     client?: LogoutUser['client']['parameters']
   } = {},
 ): UseQueryResult<TData, LogoutUser['error']> & {
@@ -84,7 +84,7 @@ export function useLogoutUserHookInfinite<
   TQueryData = LogoutUser['response'],
   TQueryKey extends QueryKey = LogoutUserInfiniteQueryKey,
 >(options: {
-  query?: UseInfiniteQueryOptions<LogoutUser['data'], LogoutUser['error'], TData, TQueryData, TQueryKey>
+  query?: UseInfiniteQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>
   client?: LogoutUser['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, LogoutUser['error']> & {
   queryKey: TQueryKey

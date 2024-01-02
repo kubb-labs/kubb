@@ -41,7 +41,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
  * @link /store/inventory */
 export function useGetInventoryHook<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
-    query?: UseBaseQueryOptions<GetInventory['data'], GetInventory['error'], TData, TQueryData, TQueryKey>
+    query?: UseBaseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>
     client?: GetInventory['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetInventory['error']> & {
@@ -86,7 +86,7 @@ export function useGetInventoryHookInfinite<
   TQueryData = GetInventory['response'],
   TQueryKey extends QueryKey = GetInventoryInfiniteQueryKey,
 >(options: {
-  query?: UseInfiniteQueryOptions<GetInventory['data'], GetInventory['error'], TData, TQueryData, TQueryKey>
+  query?: UseInfiniteQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>
   client?: GetInventory['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, GetInventory['error']> & {
   queryKey: TQueryKey

@@ -40,6 +40,7 @@ export default defineConfig({
         type: 'operationId',
         pattern: 'findPetsByTags',
         options: {
+          dataReturnType: 'full',
           infinite: {
             queryParam: 'pageSize',
             initialPageParam: 0,

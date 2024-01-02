@@ -178,7 +178,7 @@ const defaultTemplates = {
       ]
 
       // only needed for the options to override the useQuery options/params
-      const queryOptionsOverrideGenerics = [`${factory.name}['data']`, `${factory.name}['error']`, 'TData', 'TQueryKey']
+      const queryOptionsOverrideGenerics = [`${factory.name}['response']`, `${factory.name}['error']`, 'TData', 'TQueryKey']
       const queryOptionsGenerics = ['TData', 'TQueryData']
 
       params.add([
@@ -328,8 +328,8 @@ export function Query({
   // only needed for the options to override the useQuery options/params
   // suspense is having 4 generics instead of 5, TQueryData is not needed because data will always be defined
   const queryOptionsOverrideGenerics = suspense
-    ? [`${factory.name}['data']`, `${factory.name}['error']`, 'TData', 'TQueryKey']
-    : [`${factory.name}['data']`, `${factory.name}['error']`, 'TData', 'TQueryData', 'TQueryKey']
+    ? [`${factory.name}['response']`, `${factory.name}['error']`, 'TData', 'TQueryKey']
+    : [`${factory.name}['response']`, `${factory.name}['error']`, 'TData', 'TQueryData', 'TQueryKey']
 
   const queryOptionsGenerics = suspense
     ? ['TData']

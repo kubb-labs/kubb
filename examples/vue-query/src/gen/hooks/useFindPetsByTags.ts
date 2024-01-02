@@ -52,7 +52,7 @@ export function useFindPetsByTags<
 >(
   refParams?: MaybeRef<FindPetsByTagsQueryParams>,
   options: {
-    query?: VueQueryObserverOptions<FindPetsByTags['data'], FindPetsByTags['error'], TData, TQueryKey>
+    query?: VueQueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryKey>
     client?: FindPetsByTags['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, FindPetsByTags['error']> & {

@@ -47,7 +47,7 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
 export function useGetUserByName<TData = GetUserByName['response'], TQueryData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameQueryKey>(
   refUsername: GetUserByNamePathParams['username'],
   options: {
-    query?: VueQueryObserverOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryKey>
+    query?: VueQueryObserverOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryKey>
     client?: GetUserByName['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, GetUserByName['error']> & {

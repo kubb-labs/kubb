@@ -50,7 +50,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 export function getPetByIdQuery<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: CreateBaseQueryOptions<GetPetById['data'], GetPetById['error'], TData, TQueryData, TQueryKey>
+    query?: CreateBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>
     client?: GetPetById['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, GetPetById['error']> & {
@@ -98,7 +98,7 @@ export function getPetByIdQueryInfinite<
 >(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: CreateInfiniteQueryOptions<GetPetById['data'], GetPetById['error'], TData, TQueryData, TQueryKey>
+    query?: CreateInfiniteQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>
     client?: GetPetById['client']['parameters']
   } = {},
 ): CreateInfiniteQueryResult<TData, GetPetById['error']> & {

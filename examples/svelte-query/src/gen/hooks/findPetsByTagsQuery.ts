@@ -55,7 +55,7 @@ export function findPetsByTagsQuery<
 >(
   params?: FindPetsByTags['queryParams'],
   options: {
-    query?: CreateBaseQueryOptions<FindPetsByTags['data'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
+    query?: CreateBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
     client?: FindPetsByTags['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, FindPetsByTags['error']> & {
@@ -108,7 +108,7 @@ export function findPetsByTagsQueryInfinite<
 >(
   params?: FindPetsByTags['queryParams'],
   options: {
-    query?: CreateInfiniteQueryOptions<FindPetsByTags['data'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
+    query?: CreateInfiniteQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
     client?: FindPetsByTags['client']['parameters']
   } = {},
 ): CreateInfiniteQueryResult<TData, FindPetsByTags['error']> & {

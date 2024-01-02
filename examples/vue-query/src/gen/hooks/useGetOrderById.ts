@@ -48,7 +48,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
 export function useGetOrderById<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   refOrderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: VueQueryObserverOptions<GetOrderById['data'], GetOrderById['error'], TData, TQueryKey>
+    query?: VueQueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryKey>
     client?: GetOrderById['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, GetOrderById['error']> & {

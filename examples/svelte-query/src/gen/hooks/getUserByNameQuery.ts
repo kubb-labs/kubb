@@ -53,7 +53,7 @@ export function getUserByNameQuery<
 >(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: CreateBaseQueryOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryData, TQueryKey>
+    query?: CreateBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>
     client?: GetUserByName['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, GetUserByName['error']> & {
@@ -101,7 +101,7 @@ export function getUserByNameQueryInfinite<
 >(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: CreateInfiniteQueryOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryData, TQueryKey>
+    query?: CreateInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>
     client?: GetUserByName['client']['parameters']
   } = {},
 ): CreateInfiniteQueryResult<TData, GetUserByName['error']> & {

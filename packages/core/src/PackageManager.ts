@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url'
 
 import { findUp, findUpSync } from 'find-up'
 import { coerce, satisfies } from 'semver'
+import { read, readSync } from './fs/read'
 
 type PackageJSON = {
   dependencies?: Record<string, string>
@@ -81,7 +82,9 @@ export class PackageManager {
       return undefined
     }
 
-    return require(pkgPath) as PackageJSON
+    const json = await read(pkgPath)
+
+    return JSON.parse(json) as PackageJSON
   }
 
   getPackageJSONSync(): PackageJSON | undefined {
@@ -92,7 +95,9 @@ export class PackageManager {
       return undefined
     }
 
-    return require(pkgPath) as PackageJSON
+    const json = readSync(pkgPath)
+
+    return JSON.parse(json) as PackageJSON
   }
 
   static setVersion(dependency: DependencyName, version: DependencyVersion): void {

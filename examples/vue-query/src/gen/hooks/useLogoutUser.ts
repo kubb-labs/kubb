@@ -41,7 +41,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
  * @link /user/logout */
 export function useLogoutUser<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: VueQueryObserverOptions<LogoutUser['data'], LogoutUser['error'], TData, TQueryKey>
+    query?: VueQueryObserverOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryKey>
     client?: LogoutUser['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, LogoutUser['error']> & {

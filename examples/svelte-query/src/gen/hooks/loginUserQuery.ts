@@ -50,7 +50,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
 export function loginUserQuery<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
-    query?: CreateBaseQueryOptions<LoginUser['data'], LoginUser['error'], TData, TQueryData, TQueryKey>
+    query?: CreateBaseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>
     client?: LoginUser['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, LoginUser['error']> & {
@@ -102,7 +102,7 @@ export function loginUserQueryInfinite<
 >(
   params?: LoginUser['queryParams'],
   options: {
-    query?: CreateInfiniteQueryOptions<LoginUser['data'], LoginUser['error'], TData, TQueryData, TQueryKey>
+    query?: CreateInfiniteQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>
     client?: LoginUser['client']['parameters']
   } = {},
 ): CreateInfiniteQueryResult<TData, LoginUser['error']> & {

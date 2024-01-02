@@ -53,7 +53,7 @@ export function useFindPetsByTags<
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(headers: FindPetsByTags['headerParams'], params?: FindPetsByTags['queryParams'], options: {
-  query?: UseBaseQueryOptions<FindPetsByTags['data'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
+  query?: UseBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
   client?: FindPetsByTags['client']['parameters']
 } = {}): UseQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
@@ -105,7 +105,7 @@ export function useFindPetsByTagsInfinite<
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(headers: FindPetsByTags['headerParams'], params?: FindPetsByTags['queryParams'], options: {
-  query?: UseInfiniteQueryOptions<FindPetsByTags['data'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
+  query?: UseInfiniteQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
   client?: FindPetsByTags['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey

@@ -50,7 +50,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
 export function getOrderByIdQuery<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: CreateBaseQueryOptions<GetOrderById['data'], GetOrderById['error'], TData, TQueryData, TQueryKey>
+    query?: CreateBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>
     client?: GetOrderById['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, GetOrderById['error']> & {
@@ -99,7 +99,7 @@ export function getOrderByIdQueryInfinite<
 >(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: CreateInfiniteQueryOptions<GetOrderById['data'], GetOrderById['error'], TData, TQueryData, TQueryKey>
+    query?: CreateInfiniteQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>
     client?: GetOrderById['client']['parameters']
   } = {},
 ): CreateInfiniteQueryResult<TData, GetOrderById['error']> & {

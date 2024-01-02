@@ -40,7 +40,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
  * @link /user/logout */
 export function logoutUserQuery<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(
   options: {
-    query?: CreateBaseQueryOptions<LogoutUser['data'], LogoutUser['error'], TData, TQueryData, TQueryKey>
+    query?: CreateBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>
     client?: LogoutUser['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, LogoutUser['error']> & {

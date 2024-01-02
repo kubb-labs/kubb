@@ -189,7 +189,7 @@ export function useFindPetsByStatus<
   TQueryData = FindPetsByStatus['response'],
   TQueryKey extends QueryKey = FindPetsByStatusQueryKey,
 >(params?: FindPetsByStatus['queryParams'], options: {
-  query?: UseBaseQueryOptions<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>
+  query?: UseBaseQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>
   client?: FindPetsByStatus['client']['parameters']
 } = {}): UseQueryResult<TData, FindPetsByStatus['error']> & {
   queryKey: TQueryKey
@@ -250,7 +250,7 @@ export function useFindPetsByTags<
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsQueryKey,
 >(params?: FindPetsByTags['queryParams'], options: {
-  query?: UseBaseQueryOptions<FindPetsByTags['data'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
+  query?: UseBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>
   client?: FindPetsByTags['client']['parameters']
 } = {}): UseQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
@@ -308,7 +308,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: UseBaseQueryOptions<GetPetById['data'], GetPetById['error'], TData, TQueryData, TQueryKey>
+    query?: UseBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>
     client?: GetPetById['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetPetById['error']> & {
@@ -475,7 +475,7 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
  * @link /store/inventory */
 export function useGetInventory<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
-    query?: UseBaseQueryOptions<GetInventory['data'], GetInventory['error'], TData, TQueryData, TQueryKey>
+    query?: UseBaseQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>
     client?: GetInventory['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetInventory['error']> & {
@@ -608,7 +608,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
 export function useGetOrderById<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
-    query?: UseBaseQueryOptions<GetOrderById['data'], GetOrderById['error'], TData, TQueryData, TQueryKey>
+    query?: UseBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>
     client?: GetOrderById['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetOrderById['error']> & {
@@ -781,7 +781,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
 export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
-    query?: UseBaseQueryOptions<LoginUser['data'], LoginUser['error'], TData, TQueryData, TQueryKey>
+    query?: UseBaseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>
     client?: LoginUser['client']['parameters']
   } = {},
 ): UseQueryResult<TData, LoginUser['error']> & {
@@ -836,7 +836,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
  * @summary Logs out current logged in user session
  * @link /user/logout */
 export function useLogoutUser<TData = LogoutUser['response'], TQueryData = LogoutUser['response'], TQueryKey extends QueryKey = LogoutUserQueryKey>(options: {
-  query?: UseBaseQueryOptions<LogoutUser['data'], LogoutUser['error'], TData, TQueryData, TQueryKey>
+  query?: UseBaseQueryOptions<LogoutUser['response'], LogoutUser['error'], TData, TQueryData, TQueryKey>
   client?: LogoutUser['client']['parameters']
 } = {}): UseQueryResult<TData, LogoutUser['error']> & {
   queryKey: TQueryKey
@@ -893,7 +893,7 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
 export function useGetUserByName<TData = GetUserByName['response'], TQueryData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameQueryKey>(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: UseBaseQueryOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryData, TQueryKey>
+    query?: UseBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>
     client?: GetUserByName['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetUserByName['error']> & {

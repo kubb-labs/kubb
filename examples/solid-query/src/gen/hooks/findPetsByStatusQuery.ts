@@ -48,7 +48,7 @@ export function findPetsByStatusQuery<
 >(
   params?: FindPetsByStatus['queryParams'],
   options: {
-    query?: CreateBaseQueryOptions<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>
+    query?: CreateBaseQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>
     client?: FindPetsByStatus['client']['parameters']
   } = {},
 ): CreateQueryResult<TData, FindPetsByStatus['error']> & {

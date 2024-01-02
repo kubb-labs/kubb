@@ -53,7 +53,7 @@ export function useFindPetsByStatus<
 >(
   refParams?: MaybeRef<FindPetsByStatusQueryParams>,
   options: {
-    query?: VueQueryObserverOptions<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, TQueryKey>
+    query?: VueQueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryKey>
     client?: FindPetsByStatus['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, FindPetsByStatus['error']> & {

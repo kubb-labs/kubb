@@ -43,7 +43,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
 export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
-    query?: UseBaseQueryOptions<GetPetById['data'], GetPetById['error'], TData, TQueryData, TQueryKey>
+    query?: UseBaseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>
     client?: GetPetById['client']['parameters']
   } = {},
 ): UseQueryResult<TData, GetPetById['error']> & {
@@ -89,7 +89,7 @@ export function useGetPetByIdInfinite<
   TQueryData = GetPetById['response'],
   TQueryKey extends QueryKey = GetPetByIdInfiniteQueryKey,
 >(petId: GetPetByIdPathParams['petId'], options: {
-  query?: UseInfiniteQueryOptions<GetPetById['data'], GetPetById['error'], TData, TQueryData, TQueryKey>
+  query?: UseInfiniteQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>
   client?: GetPetById['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, GetPetById['error']> & {
   queryKey: TQueryKey

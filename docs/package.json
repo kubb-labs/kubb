@@ -21,8 +21,8 @@
   "dependencies": {
     "@vercel/analytics": "^1.1.1",
     "sitemap": "^7.1.1",
-    "vitepress": "1.0.0-rc.32",
-    "vue": "^3.4.1"
+    "vitepress": "^1.0.0-rc.34",
+    "vue": "^3.4.3"
   },
   "devDependencies": {
     "@types/node": "^20.10.6"

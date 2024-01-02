@@ -30,14 +30,12 @@ export const optionsESM: Options = {
   format: 'esm',
   dts: true,
   splitting: true,
-  banner: bannerESM,
 }
 
 export const optionsCJS: Options = {
   ...options,
   format: 'cjs',
   dts: true,
-  banner: bannerCJS,
   splitting: true,
 }
 

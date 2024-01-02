@@ -57,7 +57,7 @@ import {
 import { updateUserMutationResponseSchema, updateUserPathParamsSchema, updateUserMutationRequestSchema } from './zod/userController/updateUserSchema'
 import { deleteUserMutationResponseSchema, deleteUserPathParamsSchema, deleteUser400Schema, deleteUser404Schema } from './zod/userController/deleteUserSchema'
 
-const endpoints = makeApi([
+export const endpoints = makeApi([
   {
     method: 'post',
     path: '/pets/:uuid',
@@ -477,5 +477,6 @@ const endpoints = makeApi([
     ],
   },
 ])
+export const getAPI = (baseUrl: string) => new Zodios(baseUrl, endpoints)
 export const api = new Zodios('https://petstore3.swagger.io/api/v3', endpoints)
 export default api

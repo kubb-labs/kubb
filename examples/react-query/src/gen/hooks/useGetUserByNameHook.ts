@@ -44,7 +44,7 @@ export function useGetUserByNameHook<
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(username: GetUserByNamePathParams['username'], options: {
-  query?: UseBaseQueryOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryData, TQueryKey>
+  query?: UseBaseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>
   client?: GetUserByName['client']['parameters']
 } = {}): UseQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
@@ -89,7 +89,7 @@ export function useGetUserByNameHookInfinite<
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
 >(username: GetUserByNamePathParams['username'], options: {
-  query?: UseInfiniteQueryOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryData, TQueryKey>
+  query?: UseInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>
   client?: GetUserByName['client']['parameters']
 } = {}): UseInfiniteQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey

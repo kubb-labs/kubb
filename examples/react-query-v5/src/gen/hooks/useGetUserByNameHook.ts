@@ -41,7 +41,7 @@ export function useGetUserByNameHook<
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameQueryKey,
 >(username: GetUserByNamePathParams['username'], options: {
-  query?: QueryObserverOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryData, TQueryKey>
+  query?: QueryObserverOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>
   client?: GetUserByName['client']['parameters']
 } = {}): UseQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
@@ -81,7 +81,7 @@ export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathPar
 export function useGetUserByNameHookSuspense<TData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameSuspenseQueryKey>(
   username: GetUserByNamePathParams['username'],
   options: {
-    query?: UseSuspenseQueryOptions<GetUserByName['data'], GetUserByName['error'], TData, TQueryKey>
+    query?: UseSuspenseQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryKey>
     client?: GetUserByName['client']['parameters']
   } = {},
 ): UseSuspenseQueryResult<TData, GetUserByName['error']> & {

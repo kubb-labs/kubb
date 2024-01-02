@@ -47,7 +47,7 @@ export function useShowPetById<TData = ShowPetById['response'], TQueryData = Sho
   petId: ShowPetByIdPathParams['petId'],
   testId: ShowPetByIdPathParams['testId'],
   options: {
-    query?: UseBaseQueryOptions<ShowPetById['data'], ShowPetById['error'], TData, TQueryData, TQueryKey>
+    query?: UseBaseQueryOptions<ShowPetById['response'], ShowPetById['error'], TData, TQueryData, TQueryKey>
     client?: ShowPetById['client']['parameters']
   } = {},
 ): UseQueryResult<TData, ShowPetById['error']> & { queryKey: TQueryKey } {

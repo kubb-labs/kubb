@@ -43,7 +43,7 @@ export function loginUserQueryOptions(refParams?: MaybeRef<LoginUserQueryParams>
 export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   refParams?: MaybeRef<LoginUserQueryParams>,
   options: {
-    query?: QueryObserverOptions<LoginUser['data'], LoginUser['error'], TData, TQueryKey>
+    query?: QueryObserverOptions<LoginUser['response'], LoginUser['error'], TData, TQueryKey>
     client?: LoginUser['client']['parameters']
   } = {},
 ): UseQueryReturnType<TData, LoginUser['error']> & {
