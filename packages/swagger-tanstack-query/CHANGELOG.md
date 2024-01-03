@@ -1,5 +1,19 @@
 # @kubb/swagger-tanstack-query
 
+## 2.1.6
+
+### Patch Changes
+
+- [`35c363a`](https://github.com/kubb-project/kubb/commit/35c363aa8c1d3389c1c8d21e131fcfb5d9c298bd) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - correct use of generic when using infinite
+
+- Updated dependencies []:
+  - @kubb/core@2.1.6
+  - @kubb/parser@2.1.6
+  - @kubb/react@2.1.6
+  - @kubb/swagger@2.1.6
+  - @kubb/swagger-client@2.1.6
+  - @kubb/swagger-ts@2.1.6
+
 ## 2.1.5
 
 ### Patch Changes
