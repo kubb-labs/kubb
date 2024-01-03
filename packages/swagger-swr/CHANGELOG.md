@@ -1,5 +1,17 @@
 # @kubb/swagger-swr
 
+## 2.1.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.1.6
+  - @kubb/parser@2.1.6
+  - @kubb/react@2.1.6
+  - @kubb/swagger@2.1.6
+  - @kubb/swagger-client@2.1.6
+  - @kubb/swagger-ts@2.1.6
+
 ## 2.1.5
 
 ### Patch Changes
