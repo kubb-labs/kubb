@@ -98,13 +98,13 @@ export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['quer
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
 export function useFindPetsByTagsHookInfinite<
-  TData = FindPetsByTags['response'],
+  TData = InfiniteData<FindPetsByTags['response']>,
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(params?: FindPetsByTags['queryParams'], options: {
   query?: Partial<InfiniteQueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
   client?: FindPetsByTags['client']['parameters']
-} = {}): UseInfiniteQueryResult<InfiniteData<TData>, FindPetsByTags['error']> & {
+} = {}): UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -113,7 +113,7 @@ export function useFindPetsByTagsHookInfinite<
     ...findPetsByTagsInfiniteQueryOptions(params, clientOptions) as InfiniteQueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as InfiniteQueryObserverOptions,
-  }) as UseInfiniteQueryResult<InfiniteData<TData>, FindPetsByTags['error']> & {
+  }) as UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

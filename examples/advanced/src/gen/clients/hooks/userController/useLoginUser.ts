@@ -96,13 +96,14 @@ export function loginUserInfiniteQueryOptions<TData = LoginUser['response'], TQu
 /**
  * @summary Logs user into the system
  * @link /user/login */
-export function useLoginUserInfinite<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserInfiniteQueryKey>(
-  params?: LoginUser['queryParams'],
-  options: {
-    query?: Partial<UseInfiniteQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>>
-    client?: LoginUser['client']['parameters']
-  } = {},
-): UseInfiniteQueryResult<InfiniteData<TData>, LoginUser['error']> & {
+export function useLoginUserInfinite<
+  TData = InfiniteData<LoginUser['response']>,
+  TQueryData = LoginUser['response'],
+  TQueryKey extends QueryKey = LoginUserInfiniteQueryKey,
+>(params?: LoginUser['queryParams'], options: {
+  query?: Partial<UseInfiniteQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>>
+  client?: LoginUser['client']['parameters']
+} = {}): UseInfiniteQueryResult<TData, LoginUser['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -111,7 +112,7 @@ export function useLoginUserInfinite<TData = LoginUser['response'], TQueryData =
     ...loginUserInfiniteQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseInfiniteQueryResult<InfiniteData<TData>, LoginUser['error']> & {
+  }) as UseInfiniteQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

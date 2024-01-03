@@ -93,13 +93,13 @@ export function getPetByIdInfiniteQueryOptions<TData = GetPetById['response'], T
  * @summary Find pet by ID
  * @link /pet/:petId */
 export function useGetPetByIdHookInfinite<
-  TData = GetPetById['response'],
+  TData = InfiniteData<GetPetById['response']>,
   TQueryData = GetPetById['response'],
   TQueryKey extends QueryKey = GetPetByIdInfiniteQueryKey,
 >(petId: GetPetByIdPathParams['petId'], options: {
   query?: Partial<UseInfiniteQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
   client?: GetPetById['client']['parameters']
-} = {}): UseInfiniteQueryResult<InfiniteData<TData>, GetPetById['error']> & {
+} = {}): UseInfiniteQueryResult<TData, GetPetById['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -108,7 +108,7 @@ export function useGetPetByIdHookInfinite<
     ...getPetByIdInfiniteQueryOptions<TData, TQueryData>(petId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseInfiniteQueryResult<InfiniteData<TData>, GetPetById['error']> & {
+  }) as UseInfiniteQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

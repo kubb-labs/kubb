@@ -96,7 +96,7 @@ export function getUserByNameInfiniteQueryOptions<TData = GetUserByName['respons
  * @summary Get user by user name
  * @link /user/:username */
 export function getUserByNameQueryInfinite<
-  TData = GetUserByName['response'],
+  TData = InfiniteData<GetUserByName['response']>,
   TQueryData = GetUserByName['response'],
   TQueryKey extends QueryKey = GetUserByNameInfiniteQueryKey,
 >(
@@ -105,7 +105,7 @@ export function getUserByNameQueryInfinite<
     query?: Partial<CreateInfiniteQueryOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData, TQueryKey>>
     client?: GetUserByName['client']['parameters']
   } = {},
-): CreateInfiniteQueryResult<InfiniteData<TData>, GetUserByName['error']> & {
+): CreateInfiniteQueryResult<TData, GetUserByName['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -114,7 +114,7 @@ export function getUserByNameQueryInfinite<
     ...getUserByNameInfiniteQueryOptions<TData, TQueryData>(username, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateInfiniteQueryResult<InfiniteData<TData>, GetUserByName['error']> & {
+  }) as CreateInfiniteQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

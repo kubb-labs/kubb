@@ -94,13 +94,13 @@ export function getOrderByIdInfiniteQueryOptions<TData = GetOrderById['response'
  * @summary Find purchase order by ID
  * @link /store/order/:orderId */
 export function useGetOrderByIdHookInfinite<
-  TData = GetOrderById['response'],
+  TData = InfiniteData<GetOrderById['response']>,
   TQueryData = GetOrderById['response'],
   TQueryKey extends QueryKey = GetOrderByIdInfiniteQueryKey,
 >(orderId: GetOrderByIdPathParams['orderId'], options: {
   query?: Partial<UseInfiniteQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
   client?: GetOrderById['client']['parameters']
-} = {}): UseInfiniteQueryResult<InfiniteData<TData>, GetOrderById['error']> & {
+} = {}): UseInfiniteQueryResult<TData, GetOrderById['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -109,7 +109,7 @@ export function useGetOrderByIdHookInfinite<
     ...getOrderByIdInfiniteQueryOptions<TData, TQueryData>(orderId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseInfiniteQueryResult<InfiniteData<TData>, GetOrderById['error']> & {
+  }) as UseInfiniteQueryResult<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

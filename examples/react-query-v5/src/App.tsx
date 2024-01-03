@@ -48,7 +48,7 @@ function Pets(): JSX.Element {
       }),
     },
   })
-  const { data } = useFindPetsByTagsHookInfinite({}, {
+  const { data: pagedPets } = useFindPetsByTagsHookInfinite({}, {
     query: {
       getNextPageParam: (lastPage, pages) => {
         const numPages: number | undefined = lastPage.headers?.['x-pages']
@@ -58,7 +58,22 @@ function Pets(): JSX.Element {
     },
   })
 
-  console.log(data?.pages.at(0)?.data.at(0)?.id)
+  const { data: pagedPet } = useFindPetsByTagsHookInfinite({}, {
+    query: {
+      getNextPageParam: (lastPage, pages) => {
+        const numPages: number | undefined = lastPage.headers?.['x-pages']
+        const nextPage = pages.length + 1
+        return (nextPage <= (numPages ?? 0)) ? nextPage : undefined
+      },
+      select(data) {
+        return data.pages[0]?.data.at(0)
+      },
+    },
+  })
+
+  console.log(pagedPets?.pages.at(0)?.data.at(0)?.id)
+  //            ^?
+  console.log(pagedPet?.id)
   //            ^?
   console.log(firstPet)
   //            ^?

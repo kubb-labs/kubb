@@ -103,7 +103,7 @@ export function findPetsByTagsInfiniteQueryOptions<TData = FindPetsByTags['respo
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
 export function findPetsByTagsQueryInfinite<
-  TData = FindPetsByTags['response'],
+  TData = InfiniteData<FindPetsByTags['response']>,
   TQueryData = FindPetsByTags['response'],
   TQueryKey extends QueryKey = FindPetsByTagsInfiniteQueryKey,
 >(
@@ -112,7 +112,7 @@ export function findPetsByTagsQueryInfinite<
     query?: Partial<CreateInfiniteQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
     client?: FindPetsByTags['client']['parameters']
   } = {},
-): CreateInfiniteQueryResult<InfiniteData<TData>, FindPetsByTags['error']> & {
+): CreateInfiniteQueryResult<TData, FindPetsByTags['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -121,7 +121,7 @@ export function findPetsByTagsQueryInfinite<
     ...findPetsByTagsInfiniteQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateInfiniteQueryResult<InfiniteData<TData>, FindPetsByTags['error']> & {
+  }) as CreateInfiniteQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

@@ -90,7 +90,7 @@ export function getInventoryInfiniteQueryOptions<TData = GetInventory['response'
  * @summary Returns pet inventories by status
  * @link /store/inventory */
 export function getInventoryQueryInfinite<
-  TData = GetInventory['response'],
+  TData = InfiniteData<GetInventory['response']>,
   TQueryData = GetInventory['response'],
   TQueryKey extends QueryKey = GetInventoryInfiniteQueryKey,
 >(
@@ -98,7 +98,7 @@ export function getInventoryQueryInfinite<
     query?: Partial<CreateInfiniteQueryOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData, TQueryKey>>
     client?: GetInventory['client']['parameters']
   } = {},
-): CreateInfiniteQueryResult<InfiniteData<TData>, GetInventory['error']> & {
+): CreateInfiniteQueryResult<TData, GetInventory['error']> & {
   queryKey: TQueryKey
 } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
@@ -107,7 +107,7 @@ export function getInventoryQueryInfinite<
     ...getInventoryInfiniteQueryOptions<TData, TQueryData>(clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateInfiniteQueryResult<InfiniteData<TData>, GetInventory['error']> & {
+  }) as CreateInfiniteQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey

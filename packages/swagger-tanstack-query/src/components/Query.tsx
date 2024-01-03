@@ -173,7 +173,7 @@ const defaultTemplates = {
         .toString()
 
       const resultGenerics = [
-        rest.infinite ? 'InfiniteData<TData>' : 'TData',
+        'TData',
         `${factory.name}['error']`,
       ]
 
@@ -315,14 +315,14 @@ export function Query({
   }
 
   generics.add([
-    { type: 'TData', default: `${factory.name}["response"]` },
+    { type: 'TData', default: infinite ? `InfiniteData<${factory.name}["response"]>` : `${factory.name}["response"]` },
     suspense ? undefined : { type: 'TQueryData', default: `${factory.name}["response"]` },
     { type: `TQueryKey extends QueryKey`, default: queryKeyType },
   ])
 
   const pathParams = getParams(schemas.pathParams, {}).toString()
   const resultGenerics = [
-    infinite ? 'InfiniteData<TData>' : 'TData',
+    'TData',
     `${factory.name}['error']`,
   ]
   // only needed for the options to override the useQuery options/params
