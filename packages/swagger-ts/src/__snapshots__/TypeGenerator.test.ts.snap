@@ -5,7 +5,7 @@ exports[`TypeGenerator enums > generate x-enum-varnames types 1`] = `
   Pending: 0,
   Received: 1,
 } as const
-export type enumVarNames = (typeof enumVarNames)[keyof typeof enumVarNames]
+export type EnumVarNames = (typeof enumVarNames)[keyof typeof enumVarNames]
 "
 `;
 
@@ -14,12 +14,12 @@ exports[`TypeGenerator enums > generate x-enumNames types 1`] = `
   Pending: 0,
   Received: 1,
 } as const
-export type enumVarNames = (typeof enumVarNames)[keyof typeof enumVarNames]
+export type EnumVarNames = (typeof enumVarNames)[keyof typeof enumVarNames]
 export const enumNames = {
   Pending: 0,
   Received: 1,
 } as const
-export type enumNames = (typeof enumNames)[keyof typeof enumNames]
+export type EnumNames = (typeof enumNames)[keyof typeof enumNames]
 "
 `;
 
