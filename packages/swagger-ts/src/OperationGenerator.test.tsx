@@ -6,12 +6,13 @@ import { OperationGenerator } from './OperationGenerator.tsx'
 import type { KubbPlugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
+import { join } from 'node:path'
 
 describe('OperationGenerator', async () => {
   const oas = await OasManager.parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger-ts/mocks/petStore.yaml' },
+    input: { path: join(__dirname, '../mocks/petStore.yaml') },
   })
   test('[GET] should generate with optionalType `questionToken`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
@@ -21,6 +22,7 @@ describe('OperationGenerator', async () => {
       usedEnumNames: {},
       transformers: {},
       oasType: false,
+      renameProperty: false,
     }
 
     const og = await new OperationGenerator(
@@ -53,6 +55,8 @@ describe('OperationGenerator', async () => {
       usedEnumNames: {},
       transformers: {},
       oasType: false,
+      renameProperty: false,
+
     }
 
     const og = await new OperationGenerator(

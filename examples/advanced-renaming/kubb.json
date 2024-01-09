@@ -1,0 +1,32 @@
+{
+  "$schema": "@kubb/core/schemas/config.json",
+  "root": ".",
+  "input": {
+    "path": "./petStore.yaml"
+  },
+  "output": {
+    "path": "./src/gen"
+  },
+  "logLevel": "info",
+  "plugins": [
+    [
+      "@kubb/swagger",
+      {
+        "output": "schemas",
+        "validate": true
+      }
+    ],
+    [
+      "@kubb/swagger-ts",
+      {
+        "output": "models"
+      }
+    ],
+    [
+      "@kubb/swagger-tanstack-query",
+      {
+        "output": "hooks"
+      }
+    ]
+  ]
+}

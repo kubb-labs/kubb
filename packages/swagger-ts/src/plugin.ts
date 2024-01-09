@@ -27,6 +27,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     optionalType = 'questionToken',
     transformers = {},
     oasType = false,
+    renameProperty,
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -40,6 +41,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       oasType,
       // keep the used enumnames between TypeBuilder and OperationGenerator per plugin(pluginKey)
       usedEnumNames: {},
+      renameProperty,
     },
     pre: [swaggerPluginName],
     resolvePath(baseName, directory, options) {

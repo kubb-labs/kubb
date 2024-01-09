@@ -164,6 +164,94 @@ exports[`TypeGenerator with discriminators > StringValueConst const correctly pr
 "
 `;
 
+exports[`TypeGenerator with naming changes > PetStore defined with camel case types 1`] = `
+"export type Pet = {
+    /**
+     * @type integer int64
+    */
+    id: number;
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string | undefined
+    */
+    tag?: string;
+    /**
+     * @type string | undefined
+    */
+    petType?: string;
+};
+"
+`;
+
+exports[`TypeGenerator with naming changes > PetStore defined with kebab case types 1`] = `
+"export type Pet = {
+    /**
+     * @type integer int64
+    */
+    id: number;
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string | undefined
+    */
+    tag?: string;
+    /**
+     * @type string | undefined
+    */
+    "pet-type"?: string;
+};
+"
+`;
+
+exports[`TypeGenerator with naming changes > PetStore defined with pascal case types 1`] = `
+"export type Pet = {
+    /**
+     * @type integer int64
+    */
+    Id: number;
+    /**
+     * @type string
+    */
+    Name: string;
+    /**
+     * @type string | undefined
+    */
+    Tag?: string;
+    /**
+     * @type string | undefined
+    */
+    PetType?: string;
+};
+"
+`;
+
+exports[`TypeGenerator with naming changes > PetStore defined with snake case types 1`] = `
+"export type Pet = {
+    /**
+     * @type integer int64
+    */
+    id: number;
+    /**
+     * @type string
+    */
+    name: string;
+    /**
+     * @type string | undefined
+    */
+    tag?: string;
+    /**
+     * @type string | undefined
+    */
+    pet_type?: string;
+};
+"
+`;
+
 exports[`TypeGenerator with refs > generate type for Pets 1`] = `
 "export type Pets = Pet[]
 "

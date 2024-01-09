@@ -12,6 +12,7 @@ import type { ts } from '@kubb/parser'
 import type { ImportMeta, Refs } from '@kubb/swagger'
 import type { Oas, OasTypes, OpenAPIV3, OpenAPIV3_1 } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
+import { generatePropertyName } from './propertyNameGenerator.ts'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
 
@@ -107,7 +108,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
 
     const members: Array<ts.TypeElement | null> = Object.keys(properties).map((name) => {
       const schema = properties[name] as OasTypes.SchemaObject
-
+            
       const isRequired = Array.isArray(required) ? required.includes(name) : !!required
       let type = this.getTypeFromSchema(schema, this.context.pluginManager.resolveName({ name: `${baseName || ''} ${name}`, pluginKey, type: 'type' }))
 
@@ -118,6 +119,11 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
       if (!isRequired && ['undefined', 'questionTokenAndUndefined'].includes(optionalType as string)) {
         type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] })
       }
+
+      if (!baseName?.endsWith('HeaderParams')) {
+        name = generatePropertyName(name, this.options.renameProperty)
+      }
+
       const propertySignature = factory.createPropertySignature({
         questionToken: ['questionToken', 'questionTokenAndUndefined'].includes(optionalType as string) && !isRequired,
         name,

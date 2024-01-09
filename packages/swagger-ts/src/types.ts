@@ -63,6 +63,11 @@ export type Options = {
    */
   dateType?: 'string' | 'date'
   /**
+   * Choose to have model properties named with either 'snake_case', 'kebab-case', 'camelCase', or PascalCase.
+   * @default false
+   */
+  renameProperty?: false | 'snake_case' | 'kebab-case' | 'camelCase' | 'PascalCase'
+  /**
    * Choose what to use as mode for an optional value.
    * @examples 'questionToken': type?: string
    * @examples 'undefined': type: string | undefined
@@ -89,6 +94,8 @@ type ResolvedOptions = {
   transformers: NonNullable<Options['transformers']>
   oasType: NonNullable<Options['oasType']>
   usedEnumNames: Record<string, number>
+  renameProperty: Options['renameProperty']
+
 }
 
 export type FileMeta = {
