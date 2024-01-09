@@ -407,6 +407,7 @@ petid: string
 Type: `'camelCase' | 'snake_case' | 'kebab-case' | 'PascalCase' | false` <br/>
 Default: `false`
 
+::: code-group
 
 ```typescript ['camelCase']
 import { defineConfig } from '@kubb/core'
