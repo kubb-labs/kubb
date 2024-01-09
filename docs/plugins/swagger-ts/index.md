@@ -374,6 +374,147 @@ export default defineConfig({
 
 :::
 
+### renameProperty
+
+Choose the naming strategy used for properties.
+
+::: info type
+
+::: code-group
+
+```typescript ['camelCase']
+petId: string
+```
+
+```typescript ['snake_case']
+pet_id: string
+```
+
+```typescript ['kebab-case']
+"pet-id": string
+```
+
+```typescript ['PascalCase']
+PetId: string
+```
+```typescript [false]
+petid: string
+```
+:::
+
+::: info
+
+Type: `'camelCase' | 'snake_case' | 'kebab-case' | 'PascalCase' | false` <br/>
+Default: `false`
+
+
+```typescript ['camelCase']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      renameProperty: 'camelCase',
+    }),
+  ],
+})
+```
+
+```typescript ['PascalCase']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      renameProperty: 'PascalCase',
+    }),
+  ],
+})
+```
+
+```typescript ['kebab-case']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      renameProperty: 'kebab-case',
+    }),
+  ],
+})
+```
+
+```typescript ['snake_case']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      renameProperty: 'snake_case',
+    }),
+  ],
+})
+```
+
+```typescript [false]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      renameProperty: false,
+    }),
+  ],
+})
+```
+
+:::
+
 ### optionalType
 
 Choose what to use as mode for an optional value.<br/>
