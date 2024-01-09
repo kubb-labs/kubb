@@ -21,6 +21,9 @@ info:
 paths:
   /var-names:
     get:
+      operationId: varNames_get
+      tags: 
+        - enumVarNames
       consumes:
       - application/json
       responses:
@@ -30,6 +33,9 @@ paths:
             $ref: '#/definitions/enumVarNames.Type'
   /names:
     get:
+      operationId: enumNames_get
+      tags: 
+        - enumNames
       consumes:
       - application/json
       responses:
