@@ -123,8 +123,6 @@ describe('ZodGenerator lazy import', async () => {
   })
 })
 
-
-
 describe('ZodGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
   const oas = await new OasManager().parse(schemaPath)
@@ -139,7 +137,6 @@ describe('ZodGenerator enums', async () => {
   })
 
   const schemas = oas.getDefinition().components?.schemas
-
 
   test('generate x-enum-varnames types', async () => {
     const node = generator.build({ schema: schemas?.['enumVarNames.Type'] as OasTypes.SchemaObject, baseName: 'enumVarNames' })

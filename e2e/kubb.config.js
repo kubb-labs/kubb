@@ -15,7 +15,7 @@ const schemas = [
   ['requestBody', './schemas/requestBody.yaml'],
   ['box', './schemas/box.json'],
   ['digitalocean', './schemas/digitalocean.yaml'],
-  ['enums', './schemas/enums.yaml']
+  ['enums', './schemas/enums.yaml'],
 ]
 
 /** @type {import('@kubb/core').KubbUserConfig} */
