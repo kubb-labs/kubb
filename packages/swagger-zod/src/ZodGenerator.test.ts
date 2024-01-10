@@ -29,7 +29,7 @@ describe('ZodGenerator simple', async () => {
   })
 })
 
-describe('TypeGenerator with const', async () => {
+describe('ZodGenerator with const', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/constCases.yaml')
   const oas = await new OasManager().parse(discriminatorPath)
   const generator = new ZodGenerator({
@@ -118,6 +118,34 @@ describe('ZodGenerator lazy import', async () => {
 
     const schemas = oas.getDefinition().components?.schemas
     const node = generator.build({ schema: schemas?.Example as OasTypes.SchemaObject, baseName: 'Example' })
+
+    expect(node).toMatchSnapshot()
+  })
+})
+
+describe('ZodGenerator enums', async () => {
+  const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
+  const oas = await new OasManager().parse(schemaPath)
+  const generator = new ZodGenerator({
+    exclude: undefined,
+    include: undefined,
+    override: undefined,
+    transformers: {},
+  }, {
+    oas,
+    pluginManager: mockedPluginManager,
+  })
+
+  const schemas = oas.getDefinition().components?.schemas
+
+  test('generate x-enum-varnames types', async () => {
+    const node = generator.build({ schema: schemas?.['enumVarNames.Type'] as OasTypes.SchemaObject, baseName: 'enumVarNames' })
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generate x-enumNames types', async () => {
+    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
 
     expect(node).toMatchSnapshot()
   })

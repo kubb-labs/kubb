@@ -280,10 +280,14 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
 
       let enums: [key: string, value: string | number][] = [...new Set(schema.enum)].map((key) => [key, key])
 
-      if ('x-enumNames' in schema) {
-        enums = [...new Set(schema['x-enumNames'] as string[])].map((key: string, index) => {
-          return [key, schema.enum?.[index] as string]
-        })
+      const extensionEnums: Array<typeof enums> = ['x-enumNames', 'x-enum-varnames']
+        .filter(extensionKey => extensionKey in schema)
+        .map((extensionKey) =>
+          [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((key, index) => [key, schema.enum?.[index] as string] as const)
+        )
+
+      if (extensionEnums.length > 0 && extensionEnums[0]) {
+        enums = extensionEnums[0]
       }
 
       this.extraNodes.push(

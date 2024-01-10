@@ -244,13 +244,17 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
     }
 
     if (schema.enum) {
-      if ('x-enumNames' in schema) {
-        return [
+      const extensionEnums = ['x-enumNames', 'x-enum-varnames']
+        .filter(extensionKey => extensionKey in schema)
+        .map((extensionKey) => [
           {
             keyword: fakerKeywords.enum,
-            args: [`[${[...new Set(schema['x-enumNames'] as string[])].map((value) => `\`${value}\``).join(', ')}]`],
+            args: [`[${[...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((value) => `\`${value}\``).join(', ')}]`],
           },
-        ]
+        ])
+
+      if (extensionEnums.length > 0 && extensionEnums[0]) {
+        return extensionEnums[0]
       }
 
       if (schema.type === 'number' || schema.type === 'integer') {

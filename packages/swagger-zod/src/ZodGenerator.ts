@@ -249,14 +249,20 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     }
 
     if (schema.enum) {
-      if ('x-enumNames' in schema) {
-        return [
-          {
-            keyword: zodKeywords.enum,
-            args: [...new Set(schema['x-enumNames'] as string[])].map((value: string) => `\`${value}\``),
-          },
-          ...baseItems,
-        ]
+      const extensionEnums = ['x-enumNames', 'x-enum-varnames']
+        .filter(extensionKey => extensionKey in schema)
+        .map((extensionKey) => {
+          return [
+            {
+              keyword: zodKeywords.enum,
+              args: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((value: string) => `\`${value}\``),
+            },
+            ...baseItems,
+          ]
+        })
+
+      if (extensionEnums.length > 0 && extensionEnums[0]) {
+        return extensionEnums[0]
       }
 
       if (schema.type === 'number' || schema.type === 'integer') {

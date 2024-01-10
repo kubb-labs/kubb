@@ -1,0 +1,45 @@
+definitions:
+  enumVarNames.Type:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - Pending
+    - Received
+  enumNames.Type:
+    enum:
+    - 0
+    - 1
+    x-enumNames:
+      - Pending
+      - Received
+swagger: "2.0"
+info:
+  title: test
+  version: "1.0.0"
+paths:
+  /var-names:
+    get:
+      operationId: varNames_get
+      tags: 
+        - enumVarNames
+      consumes:
+      - application/json
+      responses:
+        200: 
+          description: Success
+          schema:
+            $ref: '#/definitions/enumVarNames.Type'
+  /names:
+    get:
+      operationId: enumNames_get
+      tags: 
+        - enumNames
+      consumes:
+      - application/json
+      responses:
+        200: 
+          description: Success
+          schema:
+            $ref: '#/definitions/enumNames.Type'
