@@ -9,4 +9,4 @@ export const userSchema = z.object({
   'password': z.string().optional(),
   'phone': z.string().optional(),
   'userStatus': z.number().describe(`User Status`).optional(),
-})
+}).optional()

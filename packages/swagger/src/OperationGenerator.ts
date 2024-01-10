@@ -131,16 +131,17 @@ export abstract class OperationGenerator<
     return params.reduce(
       (schema, pathParameters) => {
         const property = pathParameters.content?.[contentType]?.schema ?? (pathParameters.schema as OasTypes.SchemaObject)
+        const required = [...(schema.required || [] as any), pathParameters.required ? pathParameters.name : undefined]
+          .filter(
+            Boolean,
+          )
+
         return {
           ...schema,
-          description: pathParameters.description,
-          pathParameters: pathParameters.deprecated,
-
-          example: pathParameters.example,
-          required: [...(schema.required || [] as any), pathParameters.required ? pathParameters.name : undefined]
-            .filter(
-              Boolean,
-            ),
+          description: schema.description,
+          deprecated: schema.deprecated,
+          example: schema.example,
+          required: required.length == 0 ? undefined : required,
           properties: {
             ...schema.properties,
             [pathParameters.name]: {

@@ -113,6 +113,17 @@ components:
           type: string
         tag:
           type: string
+
+    OptionalPet:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        tag:
+          type: string
     Pets:
       type: array
       items: {

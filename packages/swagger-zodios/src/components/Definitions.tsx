@@ -43,14 +43,15 @@ const parameters = {
 
     item.keys?.forEach((key) => {
       const schema = item.schema?.properties?.[key] as OasTypes.SchemaObject
-      const zodSchema = item.schema?.$ref ? `${name}.schema.shape['${key}']` : `${name}.shape['${key}']`
+      const shape = item.schema?.$ref ? `schema.shape['${key}']` : `shape['${key}']`
+      const definedSchema = item.schema.required ? `${name}.${shape}` : `${name}.unwrap().${shape}`
 
       parameters.push(`
         {
           name: "${key}",
           description: \`${transformers.escape(schema?.description)}\`,
           type: "Path",
-          schema: ${zodSchema}
+          schema: ${definedSchema}
         }
       `)
     })
@@ -62,14 +63,15 @@ const parameters = {
 
     item.keys?.forEach((key) => {
       const schema = item.schema?.properties?.[key] as OasTypes.SchemaObject
-      const zodSchema = item.schema?.$ref ? `${name}.schema.shape['${key}']` : `${name}.shape['${key}']`
+      const shape = item.schema?.$ref ? `schema.shape['${key}']` : `shape['${key}']`
+      const definedSchema = item.schema.required ? `${name}.${shape}` : `${name}.unwrap().${shape}`
 
       parameters.push(`
       {
         name: "${key}",
         description: \`${transformers.escape(schema?.description)}\`,
         type: "Query",
-        schema: ${zodSchema}
+        schema: ${definedSchema}
       }
     `)
     })
@@ -80,14 +82,15 @@ const parameters = {
 
     item.keys?.forEach((key) => {
       const schema = item.schema?.properties?.[key] as OasTypes.SchemaObject
-      const zodSchema = item.schema?.$ref ? `${name}.schema.shape['${key}']` : `${name}.shape['${key}']`
+      const shape = item.schema?.$ref ? `schema.shape['${key}']` : `shape['${key}']`
+      const definedSchema = item.schema.required ? `${name}.${shape}` : `${name}.unwrap().${shape}`
 
       parameters.push(`
       {
         name: "${key}",
         description: \`${transformers.escape(schema?.description)}\`,
         type: "Header",
-        schema: ${zodSchema}
+        schema: ${definedSchema}
       }
     `)
     })

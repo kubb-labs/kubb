@@ -49,7 +49,11 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
        */`)
     }
 
-    const zodOutput = zodParser(zodInput, { keysToOmit, name: this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' }) })
+    const zodOutput = zodParser(zodInput, {
+      required: !!schema?.required,
+      keysToOmit,
+      name: this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' }),
+    })
 
     texts.push(zodOutput)
 
@@ -291,6 +295,10 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     }
 
     if ('items' in schema) {
+      if (!schema.required && !baseName) {
+        baseItems.push({ keyword: zodKeywords.optional })
+      }
+
       // items -> array
       return [{ keyword: zodKeywords.array, args: this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName) }, ...baseItems]
     }
@@ -313,7 +321,11 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      return this.#getTypeFromProperties(schema, baseName)
+      if (!schema.required) {
+        baseItems.push({ keyword: zodKeywords.optional })
+      }
+
+      return [...this.#getTypeFromProperties(schema, baseName), ...baseItems]
     }
 
     if (version === '3.1' && 'const' in schema) {
