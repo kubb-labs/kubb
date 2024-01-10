@@ -28,15 +28,15 @@
     "@kubb/swagger-client": "workspace:*",
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
-    "@tanstack/react-query": "^5.17.0",
+    "@tanstack/react-query": "^5.17.9",
     "@tanstack/react-query-devtools": "5.0.0",
-    "axios": "^1.6.3",
+    "axios": "^1.6.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tsup": "^8.0.1"
   },
   "devDependencies": {
-    "@types/react": "^18.2.46",
+    "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
     "@vitejs/plugin-react": "^4.2.1",
     "msw": "^1.3.2",

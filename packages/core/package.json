@@ -80,7 +80,7 @@
   "dependencies": {
     "@kubb/parser": "workspace:*",
     "@kubb/types": "workspace:*",
-    "change-case": "^5.3.0",
+    "change-case": "^5.4.0",
     "directory-tree": "^3.5.1",
     "find-up": "^7.0.0",
     "fs-extra": "^11.2.0",
@@ -96,7 +96,7 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash.isequal": "^4.5.8",
-    "@types/react": "^18.2.46",
+    "@types/react": "^18.2.47",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.6",
     "eslint": "^8.56.0",

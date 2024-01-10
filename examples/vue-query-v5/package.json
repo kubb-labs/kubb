@@ -29,9 +29,9 @@
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@tanstack/vue-query": "^5.17.0",
-    "axios": "^1.6.3",
-    "vue": "^3.4.3"
+    "@tanstack/vue-query": "^5.17.9",
+    "axios": "^1.6.5",
+    "vue": "^3.4.8"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.6.2",
