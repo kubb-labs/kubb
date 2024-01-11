@@ -1,5 +1,21 @@
 # @kubb/swagger-zod
 
+## 2.2.0
+
+### Minor Changes
+
+- [`2c20339`](https://github.com/kubb-project/kubb/commit/2c20339cfac5c0789f6bf9086b6106feba4cbbde) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - support x-enum-varnames
+
+### Patch Changes
+
+- [#765](https://github.com/kubb-project/kubb/pull/765) [`9c17a9e`](https://github.com/kubb-project/kubb/commit/9c17a9e1538961fe07f21e6999d4be2aedb896ea) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Zod generated types for all parameters as optional is missing .optional() method call on root object
+
+- Updated dependencies [[`9c17a9e`](https://github.com/kubb-project/kubb/commit/9c17a9e1538961fe07f21e6999d4be2aedb896ea)]:
+  - @kubb/swagger@2.2.0
+  - @kubb/core@2.2.0
+  - @kubb/parser@2.2.0
+  - @kubb/react@2.2.0
+
 ## 2.1.6
 
 ### Patch Changes
