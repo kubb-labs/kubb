@@ -27,6 +27,40 @@ describe('ZodGenerator simple', async () => {
 
     expect(node).toMatchSnapshot()
   })
+
+  test('generate schema for Pets', async () => {
+    const generator = new ZodGenerator({
+      exclude: undefined,
+      include: undefined,
+      override: undefined,
+      transformers: {},
+    }, {
+      oas,
+      pluginManager: mockedPluginManager,
+    })
+
+    const schemas = oas.getDefinition().components?.schemas
+    const node = generator.build({ schema: schemas?.Pets as OasTypes.SchemaObject, baseName: 'Pets' })
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generate schema for OptionalPet', async () => {
+    const generator = new ZodGenerator({
+      exclude: undefined,
+      include: undefined,
+      override: undefined,
+      transformers: {},
+    }, {
+      oas,
+      pluginManager: mockedPluginManager,
+    })
+
+    const schemas = oas.getDefinition().components?.schemas
+    const node = generator.build({ schema: schemas?.OptionalPet as OasTypes.SchemaObject, baseName: 'OptionalPet' })
+
+    expect(node).toMatchSnapshot()
+  })
 })
 
 describe('ZodGenerator with const', async () => {

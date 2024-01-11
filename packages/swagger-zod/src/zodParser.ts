@@ -206,7 +206,10 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
   if (keyword === zodKeywords.and && Array.isArray(args)) {
     return `${
       args
-        .map((item) => parseZodMeta(item as ZodMeta, mapper))
+        .filter((item: ZodMeta) => {
+          return ![zodKeywords.optional, zodKeywords.describe].includes(item.keyword as typeof zodKeywords.optional | typeof zodKeywords.describe)
+        })
+        .map((item: ZodMeta) => parseZodMeta(item, mapper))
         .filter(Boolean)
         .map((item, index) => (index === 0 ? item : `${value}(${item})`))
         .join('')
@@ -255,13 +258,15 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
   return '""'
 }
 
-export function zodParser(items: ZodMeta[], options: { keysToOmit?: string[]; mapper?: Record<ZodKeyword, string>; name: string }): string {
+export function zodParser(items: ZodMeta[], options: { required?: boolean; keysToOmit?: string[]; mapper?: Record<ZodKeyword, string>; name: string }): string {
   if (!items.length) {
     return `export const ${options.name} = '';`
   }
 
   if (options.keysToOmit?.length) {
-    const omitText = `.schema.omit({ ${options.keysToOmit.map((key) => `${key}: true`).join(',')} })`
+    const omitText = options.required
+      ? `.schema.omit({ ${options.keysToOmit.map((key) => `${key}: true`).join(',')} })`
+      : `.schema.unwrap().omit({ ${options.keysToOmit.map((key) => `${key}: true`).join(',')} })`
     return `export const ${options.name} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')}${omitText};`
   }
 

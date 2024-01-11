@@ -2,6 +2,7 @@ import { defineConfig } from '@kubb/core'
 
 const schemas = [
   ['petStoreV3', 'https://petstore3.swagger.io/api/v3/openapi.json'],
+  ['optionalParameters', './schemas/optionalParameters.json'],
   ['allOf', './schemas/allOf.json'],
   ['anyOf', './schemas/anyOf.json'],
   ['petStoreContent', './schemas/petStoreContent.json'],

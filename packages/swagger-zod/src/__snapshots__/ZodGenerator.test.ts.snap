@@ -14,7 +14,13 @@ exports[`ZodGenerator enums > generate x-enumNames types 1`] = `
 
 exports[`ZodGenerator lazy import > generate schema for Example 1`] = `
 [
-  "export const Example = z.object({"nestedExamples": z.lazy(() => Example).optional()});",
+  "export const Example = z.object({"nestedExamples": z.lazy(() => Example).optional()}).optional();",
+]
+`;
+
+exports[`ZodGenerator simple > generate schema for OptionalPet 1`] = `
+[
+  "export const OptionalPet = z.object({"id": z.number().optional(),"name": z.string().optional(),"tag": z.string().optional()}).optional();",
 ]
 `;
 
@@ -24,9 +30,15 @@ exports[`ZodGenerator simple > generate schema for Pet 1`] = `
 ]
 `;
 
+exports[`ZodGenerator simple > generate schema for Pets 1`] = `
+[
+  "export const Pets = z.array(z.object({"id": z.number(),"name": z.string(),"tag": z.string().optional()}));",
+]
+`;
+
 exports[`ZodGenerator with const > MixedValueTypeConst generates zod literal value correctly, overriding the type constraint 1`] = `
 [
-  "export const MixedValueTypeConst = z.object({"foobar": z.literal("foobar")});",
+  "export const MixedValueTypeConst = z.object({"foobar": z.literal("foobar")}).describe(\`This probably should fail miserably\`);",
 ]
 `;
 
@@ -56,13 +68,13 @@ exports[`ZodGenerator with const > NullableStringWithAnyOf results in union of s
 
 exports[`ZodGenerator with const > NumberValueConst correctly generates zod literal 1`] = `
 [
-  "export const NumberValueConst = z.object({"foobar": z.literal(42)});",
+  "export const NumberValueConst = z.object({"foobar": z.literal(42)}).describe(\`its value is equal to the value of the keyword\`);",
 ]
 `;
 
 exports[`ZodGenerator with const > StringValueConst correctly generates zod literal 1`] = `
 [
-  "export const StringValueConst = z.object({"foobar": z.literal("foobar")});",
+  "export const StringValueConst = z.object({"foobar": z.literal("foobar")}).describe(\`its value is equal to the value of the keyword\`);",
 ]
 `;
 

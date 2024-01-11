@@ -1,0 +1,39 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "test",
+    "description": "",
+    "license": {
+      "name": ""
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/test": {
+      "get": {
+        "tags": ["test"],
+        "operationId": "SomeName",
+        "summary": "",
+        "description": "Some description",
+        "parameters": [
+          {
+            "name": "foo",
+            "required": false,
+            "in": "query",
+            "schema": { "minimum": 1, "format": "int32", "default": 1, "type": "integer" }
+          },
+          {
+            "name": "baz",
+            "required": false,
+            "in": "query",
+            "schema": { "minimum": 1, "format": "int32", "default": 10, "type": "integer" }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+    }
+  }
+}
