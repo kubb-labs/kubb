@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url'
 
 import { findUp, findUpSync } from 'find-up'
 import { coerce, satisfies } from 'semver'
+
 import { read, readSync } from './fs/read'
 
 type PackageJSON = {

@@ -1,7 +1,10 @@
-import { OasManager } from '@kubb/swagger'
-import { FakerGenerator } from './FakerGenerator'
 import path from 'node:path'
+
 import { mockedPluginManager } from '@kubb/core/mocks'
+import { OasManager } from '@kubb/swagger'
+
+import { FakerGenerator } from './FakerGenerator'
+
 import type { OasTypes } from '@kubb/swagger/oas'
 
 describe('FakeGenerator enums', async () => {

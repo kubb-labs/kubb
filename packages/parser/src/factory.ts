@@ -1,4 +1,3 @@
-import { createNumericLiteral } from './factory'
 /* eslint-disable @typescript-eslint/unbound-method */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import ts from 'typescript'
