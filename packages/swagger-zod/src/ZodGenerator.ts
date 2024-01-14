@@ -295,7 +295,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     }
 
     if ('items' in schema) {
-      if (!schema.required && !baseName) {
+      if (!schema.required?.length && !baseName) {
         baseItems.push({ keyword: zodKeywords.optional })
       }
 
@@ -321,7 +321,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      if (!schema.required) {
+      if (!schema.required?.length) {
         baseItems.push({ keyword: zodKeywords.optional })
       }
 
