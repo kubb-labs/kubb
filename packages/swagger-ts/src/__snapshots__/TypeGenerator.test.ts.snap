@@ -1,5 +1,117 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`TypeGenerator discriminator > Cat.type defined as const 1`] = `
+"export type Cat = {
+    /**
+     * @type string uuid
+    */
+    id: string;
+    type: "Cat";
+    /**
+     * @type boolean | undefined
+    */
+    meow?: boolean;
+};
+"
+`;
+
+exports[`TypeGenerator discriminator > Dog.type defined as const 1`] = `
+"export type Dog = {
+    /**
+     * @type string uuid
+    */
+    id: string;
+    /**
+     * @type number | undefined
+    */
+    bark?: number;
+    type: "Dog";
+};
+"
+`;
+
+exports[`TypeGenerator discriminator > MixedValueTypeConst ignores type constraint in favor of const constraint 1`] = `
+"export type MixedValueTypeConst = {
+    /**
+     * @type number | undefined
+    */
+    foobar?: "foobar";
+};
+"
+`;
+
+exports[`TypeGenerator discriminator > NullConst correctly produces "null" 1`] = `
+"export type NullConst = {
+    withoutValue?: null;
+};
+"
+`;
+
+exports[`TypeGenerator discriminator > NumberValueConst const correctly produces \`42\` 1`] = `
+"export type NumberValueConst = {
+    /**
+     * @type number | undefined
+    */
+    foobar?: 42;
+};
+"
+`;
+
+exports[`TypeGenerator discriminator > PetStore defined as array with type union 1`] = `
+"export type Petstore = {
+    /**
+     * @type integer
+    */
+    id: number;
+    /**
+     * @type array | undefined
+     * @default
+    */
+    pets?: (Cat | Dog)[];
+};
+"
+`;
+
+exports[`TypeGenerator discriminator > StringValueConst const correctly produces "foobar" 1`] = `
+"export type StringValueConst = {
+    /**
+     * @type string | undefined
+    */
+    foobar?: "foobar";
+};
+"
+`;
+
+exports[`TypeGenerator enums > generate with enumtype asPascalConst 1`] = `
+"export const EnumNames = {
+  Pending: 0,
+  Received: 1,
+} as const
+export type EnumNames = (typeof EnumNames)[keyof typeof EnumNames]
+"
+`;
+
+exports[`TypeGenerator enums > generate with enumtype constEnum 1`] = `
+"export const enum EnumNames {
+  'Pending' = 0,
+  'Received' = 1,
+}
+"
+`;
+
+exports[`TypeGenerator enums > generate with enumtype enum 1`] = `
+"export enum EnumNames {
+  'Pending' = 0,
+  'Received' = 1,
+}
+"
+`;
+
+exports[`TypeGenerator enums > generate with enumtype literal 1`] = `
+"export type EnumNames = 0 | 1
+"
+`;
+
 exports[`TypeGenerator enums > generate x-enum-varnames types 1`] = `
 "export const enumVarNames = {
   Pending: 0,
@@ -23,7 +135,7 @@ export type EnumNames = (typeof enumNames)[keyof typeof enumNames]
 "
 `;
 
-exports[`TypeGenerator simple > generate type for Pet with optionalType \`questionToken\` 1`] = `
+exports[`TypeGenerator petStore > generate type for Pet with optionalType \`questionToken\` 1`] = `
 "export type Pet = {
   /**
    * @type integer int64
@@ -41,7 +153,7 @@ exports[`TypeGenerator simple > generate type for Pet with optionalType \`questi
 "
 `;
 
-exports[`TypeGenerator simple > generate type for Pet with optionalType \`questionTokenAndUndefined\` 1`] = `
+exports[`TypeGenerator petStore > generate type for Pet with optionalType \`questionTokenAndUndefined\` 1`] = `
 "export type Pet = {
   /**
    * @type integer int64
@@ -59,7 +171,7 @@ exports[`TypeGenerator simple > generate type for Pet with optionalType \`questi
 "
 `;
 
-exports[`TypeGenerator simple > generate type for Pet with optionalType \`undefined\` 1`] = `
+exports[`TypeGenerator petStore > generate type for Pet with optionalType \`undefined\` 1`] = `
 "export type Pet = {
   /**
    * @type integer int64
@@ -77,7 +189,7 @@ exports[`TypeGenerator simple > generate type for Pet with optionalType \`undefi
 "
 `;
 
-exports[`TypeGenerator simple > generate type for Pets 1`] = `
+exports[`TypeGenerator petStore > generate type for Pets 1`] = `
 "export type Pets = {
   /**
    * @type integer int64
@@ -95,7 +207,7 @@ exports[`TypeGenerator simple > generate type for Pets 1`] = `
 "
 `;
 
-exports[`TypeGenerator simple > generate type for nullable fields 1`] = `
+exports[`TypeGenerator petStore > generate type for nullable fields 1`] = `
 "export type Test = {
   /**
    * @type string | undefined
@@ -105,89 +217,7 @@ exports[`TypeGenerator simple > generate type for nullable fields 1`] = `
 "
 `;
 
-exports[`TypeGenerator with discriminators > Cat.type defined as const 1`] = `
-"export type Cat = {
-    /**
-     * @type string uuid
-    */
-    id: string;
-    type: "Cat";
-    /**
-     * @type boolean | undefined
-    */
-    meow?: boolean;
-};
-"
-`;
-
-exports[`TypeGenerator with discriminators > Dog.type defined as const 1`] = `
-"export type Dog = {
-    /**
-     * @type string uuid
-    */
-    id: string;
-    /**
-     * @type number | undefined
-    */
-    bark?: number;
-    type: "Dog";
-};
-"
-`;
-
-exports[`TypeGenerator with discriminators > MixedValueTypeConst ignores type constraint in favor of const constraint 1`] = `
-"export type MixedValueTypeConst = {
-    /**
-     * @type number | undefined
-    */
-    foobar?: "foobar";
-};
-"
-`;
-
-exports[`TypeGenerator with discriminators > NullConst correctly produces "null" 1`] = `
-"export type NullConst = {
-    withoutValue?: null;
-};
-"
-`;
-
-exports[`TypeGenerator with discriminators > NumberValueConst const correctly produces \`42\` 1`] = `
-"export type NumberValueConst = {
-    /**
-     * @type number | undefined
-    */
-    foobar?: 42;
-};
-"
-`;
-
-exports[`TypeGenerator with discriminators > PetStore defined as array with type union 1`] = `
-"export type Petstore = {
-    /**
-     * @type integer
-    */
-    id: number;
-    /**
-     * @type array | undefined
-     * @default
-    */
-    pets?: (Cat | Dog)[];
-};
-"
-`;
-
-exports[`TypeGenerator with discriminators > StringValueConst const correctly produces "foobar" 1`] = `
-"export type StringValueConst = {
-    /**
-     * @type string | undefined
-    */
-    foobar?: "foobar";
-};
-"
-`;
-
-exports[`TypeGenerator with refs > generate type for Pets 1`] = `
+exports[`TypeGenerator petStoreRef > generate type for Pets 1`] = `
 "export type Pets = Pet[]
 "
 `;

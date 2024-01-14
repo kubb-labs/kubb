@@ -10,7 +10,7 @@ import { TypeGenerator } from './TypeGenerator.ts'
 import type { PluginManager } from '@kubb/core'
 import type { Oas, OasTypes } from '@kubb/swagger/oas'
 
-describe('TypeGenerator simple', async () => {
+describe('TypeGenerator petStore', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
   const oas = await new OasManager().parse(petStorePath)
 
@@ -134,7 +134,7 @@ describe('TypeGenerator simple', async () => {
   })
 })
 
-describe('TypeGenerator with refs', async () => {
+describe('TypeGenerator petStoreRef', async () => {
   const petStoreRefPath = path.resolve(__dirname, '../mocks/petStoreRef.yaml')
   const oas = await new OasManager().parse(petStoreRefPath)
 
@@ -161,7 +161,7 @@ describe('TypeGenerator with refs', async () => {
   })
 })
 
-describe('TypeGenerator with discriminators', async () => {
+describe('TypeGenerator discriminator', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/discriminator.yaml')
   const oas = await new OasManager().parse(discriminatorPath)
 
@@ -317,7 +317,7 @@ describe('TypeGenerator with discriminators', async () => {
 describe('TypeGenerator enums', async () => {
   const schemaPath = path.resolve(__dirname, '../mocks/enums.yaml')
   const oas = await new OasManager().parse(schemaPath)
-  const generator = new TypeGenerator({
+  const defaultGenerator = new TypeGenerator({
     usedEnumNames: {},
     enumType: 'asConst',
     dateType: 'string',
@@ -332,7 +332,7 @@ describe('TypeGenerator enums', async () => {
   const schemas = oas.getDefinition().components?.schemas
 
   test('generate x-enum-varnames types', async () => {
-    const node = generator.build({ schema: schemas?.['enumVarNames.Type'] as OasTypes.SchemaObject, baseName: 'enumVarNames' })
+    const node = defaultGenerator.build({ schema: schemas?.['enumVarNames.Type'] as OasTypes.SchemaObject, baseName: 'enumVarNames' })
 
     const output = print(node, undefined)
 
@@ -342,6 +342,94 @@ describe('TypeGenerator enums', async () => {
   })
 
   test('generate x-enumNames types', async () => {
+    const node = defaultGenerator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
+
+    const output = print(node, undefined)
+
+    expect(output).toBeDefined()
+
+    expect(await format(output)).toMatchSnapshot()
+  })
+
+  test('generate with enumtype enum', async () => {
+    const generator = new TypeGenerator({
+      usedEnumNames: {},
+      enumType: 'enum',
+      dateType: 'string',
+      optionalType: 'questionToken',
+      transformers: {},
+      oasType: false,
+    }, {
+      oas,
+      pluginManager: mockedPluginManager,
+    })
+
+    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
+
+    const output = print(node, undefined)
+
+    expect(output).toBeDefined()
+
+    expect(await format(output)).toMatchSnapshot()
+  })
+
+  test('generate with enumtype asPascalConst', async () => {
+    const generator = new TypeGenerator({
+      usedEnumNames: {},
+      enumType: 'asPascalConst',
+      dateType: 'string',
+      optionalType: 'questionToken',
+      transformers: {},
+      oasType: false,
+    }, {
+      oas,
+      pluginManager: mockedPluginManager,
+    })
+
+    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
+
+    const output = print(node, undefined)
+
+    expect(output).toBeDefined()
+
+    expect(await format(output)).toMatchSnapshot()
+  })
+
+  test('generate with enumtype constEnum', async () => {
+    const generator = new TypeGenerator({
+      usedEnumNames: {},
+      enumType: 'constEnum',
+      dateType: 'string',
+      optionalType: 'questionToken',
+      transformers: {},
+      oasType: false,
+    }, {
+      oas,
+      pluginManager: mockedPluginManager,
+    })
+
+    const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
+
+    const output = print(node, undefined)
+
+    expect(output).toBeDefined()
+
+    expect(await format(output)).toMatchSnapshot()
+  })
+
+  test('generate with enumtype literal', async () => {
+    const generator = new TypeGenerator({
+      usedEnumNames: {},
+      enumType: 'literal',
+      dateType: 'string',
+      optionalType: 'questionToken',
+      transformers: {},
+      oasType: false,
+    }, {
+      oas,
+      pluginManager: mockedPluginManager,
+    })
+
     const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
 
     const output = print(node, undefined)
