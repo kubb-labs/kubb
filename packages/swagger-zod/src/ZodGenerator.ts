@@ -392,7 +392,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
         baseItems.unshift({ keyword: zodKeywords.email })
       }
 
-      if (schema.format === 'uri' || schema.format === 'hostname') {
+      if (schema.format === 'hostname') {
         baseItems.unshift({ keyword: zodKeywords.url })
       }
       if (schema.format === 'uuid') {
