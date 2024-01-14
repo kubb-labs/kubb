@@ -84,6 +84,7 @@ export default defineConfig(async () => {
           },
           infinite: {},
           dataReturnType: 'full',
+          parser: 'zod',
         },
       ],
       [

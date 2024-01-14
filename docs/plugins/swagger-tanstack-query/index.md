@@ -365,6 +365,68 @@ export default defineConfig({
 
 :::
 
+### parser
+
+Which parser can be used before returning the data to `@tanstack/query`.
+
+`'zod'` will use `@kubb/swagger-zod` to parse the data. <br/>
+
+::: info type
+
+::: code-group
+
+```typescript ['zod']
+export function getPetByIdQueryOptions() {
+  const queryKey = getPetByIdQueryKey(petId)
+  return {
+    queryKey,
+    queryFn: async () => {
+      const res = await client({
+        method: 'get',
+        url: `/pet/${petId}`,
+      })
+
+      return getPetByIdQueryResponseSchema.parse(res.data)
+    },
+  }
+}
+```
+
+:::
+
+::: info
+
+Type: `'zod'` <br/>
+
+::: code-group
+
+```typescript ['zod']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery(
+      {
+        parser: 'zod',
+      },
+    ),
+  ],
+})
+```
+
+:::
+
 ### framework
 
 Framework to be generated for.

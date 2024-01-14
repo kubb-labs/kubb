@@ -107,6 +107,11 @@ export type Options = {
    */
   dataReturnType?: 'data' | 'full'
   /**
+   * Which parser can be used before returning the data to `@tanstack/query`.
+   * `'zod'` will use `@kubb/swagger-zod` to parse the data.
+   */
+  parser?: 'zod'
+  /**
    * Array containing exclude parameters to exclude/skip tags/operations/methods/paths.
    */
   exclude?: Array<Exclude>
@@ -149,6 +154,7 @@ type ResolvedOptions = {
   framework: NonNullable<PluginOptions['options']['framework']>
   client: Required<NonNullable<PluginOptions['options']['client']>>
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
+  parser: PluginOptions['options']['parser']
   /**
    * Only used of infinite
    */

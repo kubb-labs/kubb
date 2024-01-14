@@ -44,6 +44,7 @@ describe('<Query/>', async () => {
     client: {
       importPath: '@kubb/swagger-client/client',
     },
+    parser: undefined,
   }
 
   const plugin = { options } as KubbPlugin<PluginOptions>

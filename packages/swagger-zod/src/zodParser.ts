@@ -264,9 +264,7 @@ export function zodParser(items: ZodMeta[], options: { required?: boolean; keysT
   }
 
   if (options.keysToOmit?.length) {
-    const omitText = options.required
-      ? `.schema.omit({ ${options.keysToOmit.map((key) => `${key}: true`).join(',')} })`
-      : `.schema.unwrap().omit({ ${options.keysToOmit.map((key) => `${key}: true`).join(',')} })`
+    const omitText = `.schema.omit({ ${options.keysToOmit.map((key) => `${key}: true`).join(',')} })`
     return `export const ${options.name} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')}${omitText};`
   }
 

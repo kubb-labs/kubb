@@ -1,3 +1,4 @@
+import { loginUserQueryResponseSchema } from '../../../zod/userController/loginUserSchema'
 import client from '../../../../tanstack-query-client.ts'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { LoginUserQueryResponse, LoginUserQueryParams, LoginUser400 } from '../../../models/ts/userController/LoginUser'
@@ -41,7 +42,7 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
         params,
         ...options,
       })
-      return res
+      return { ...res, data: loginUserQueryResponseSchema.parse(res.data) }
     },
   }
 }
@@ -89,7 +90,7 @@ export function loginUserInfiniteQueryOptions<TData = LoginUser['response'], TQu
           ...(options.params || {}),
         },
       })
-      return res
+      return { ...res, data: loginUserQueryResponseSchema.parse(res.data) }
     },
   }
 }

@@ -44,7 +44,8 @@ const parameters = {
     item.keys?.forEach((key) => {
       const schema = item.schema?.properties?.[key] as OasTypes.SchemaObject
       const shape = item.schema?.$ref ? `schema.shape['${key}']` : `shape['${key}']`
-      const definedSchema = Array.isArray(item.schema.required) && item.schema.required?.length ? `${name}.${shape}` : `${name}.unwrap().${shape}`
+      const required = Array.isArray(item.schema.required) ? !!item.schema.required?.length : !!item.schema.required
+      const definedSchema = required ? `${name}.${shape}` : `${name}.unwrap().${shape}`
 
       parameters.push(`
         {
@@ -64,7 +65,8 @@ const parameters = {
     item.keys?.forEach((key) => {
       const schema = item.schema?.properties?.[key] as OasTypes.SchemaObject
       const shape = item.schema?.$ref ? `schema.shape['${key}']` : `shape['${key}']`
-      const definedSchema = Array.isArray(item.schema.required) && item.schema.required?.length ? `${name}.${shape}` : `${name}.unwrap().${shape}`
+      const required = Array.isArray(item.schema.required) ? !!item.schema.required?.length : !!item.schema.required
+      const definedSchema = required ? `${name}.${shape}` : `${name}.unwrap().${shape}`
 
       parameters.push(`
       {
@@ -83,7 +85,8 @@ const parameters = {
     item.keys?.forEach((key) => {
       const schema = item.schema?.properties?.[key] as OasTypes.SchemaObject
       const shape = item.schema?.$ref ? `schema.shape['${key}']` : `shape['${key}']`
-      const definedSchema = Array.isArray(item.schema.required) && item.schema.required?.length ? `${name}.${shape}` : `${name}.unwrap().${shape}`
+      const required = Array.isArray(item.schema.required) ? !!item.schema.required?.length : !!item.schema.required
+      const definedSchema = required ? `${name}.${shape}` : `${name}.unwrap().${shape}`
 
       parameters.push(`
       {

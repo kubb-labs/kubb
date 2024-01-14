@@ -1,3 +1,4 @@
+import { findPetsByTagsQueryResponseSchema } from '../../../zod/petController/findPetsByTagsSchema'
 import client from '../../../../tanstack-query-client.ts'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type {
@@ -48,7 +49,7 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
         headers: { ...headers, ...options.headers },
         ...options,
       })
-      return res
+      return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
     },
   }
 }
@@ -100,7 +101,7 @@ export function findPetsByTagsInfiniteQueryOptions<TData = FindPetsByTags['respo
           ...(options.params || {}),
         },
       })
-      return res
+      return { ...res, data: findPetsByTagsQueryResponseSchema.parse(res.data) }
     },
   }
 }

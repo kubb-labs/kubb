@@ -6,6 +6,7 @@ import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 import { pluginName as swaggerTsPluginName } from '@kubb/swagger-ts'
+import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
 import { Mutation, Query, QueryKey, QueryOptions } from './components/index.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
@@ -25,6 +26,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     include,
     override = [],
     framework = 'react',
+    parser,
     suspense,
     infinite,
     transformers = {},
@@ -58,8 +60,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         queryKey: QueryKey.templates,
         ...templates,
       },
+      parser,
     },
-    pre: [swaggerPluginName, swaggerTsPluginName],
+    pre: [swaggerPluginName, swaggerTsPluginName, parser === 'zod' ? swaggerZodPluginName : undefined].filter(Boolean),
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
