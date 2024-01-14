@@ -295,7 +295,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     }
 
     if ('items' in schema) {
-      if (!schema.required && !baseName) {
+      if (!schema.required?.length && !baseName) {
         baseItems.push({ keyword: zodKeywords.optional })
       }
 
@@ -321,7 +321,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      if (!schema.required) {
+      if (!schema.required?.length) {
         baseItems.push({ keyword: zodKeywords.optional })
       }
 
@@ -363,7 +363,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
         baseItems.unshift({ keyword: zodKeywords.readOnly })
       }
 
-      if (schema.type === zodKeywords.number || schema.type === zodKeywords.integer) {
+      if (schema.type === zodKeywords.number || schema.type === zodKeywords.integer || schema.type === zodKeywords.string) {
         const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
         const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
 
@@ -392,7 +392,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
         baseItems.unshift({ keyword: zodKeywords.email })
       }
 
-      if (schema.format === 'uri' || schema.format === 'hostname') {
+      if (schema.format === 'hostname') {
         baseItems.unshift({ keyword: zodKeywords.url })
       }
       if (schema.format === 'uuid') {

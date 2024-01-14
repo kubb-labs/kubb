@@ -7,7 +7,7 @@ import { ZodGenerator } from './ZodGenerator.ts'
 
 import type { OasTypes } from '@kubb/swagger/oas'
 
-describe('ZodGenerator simple', async () => {
+describe('ZodGenerator PetStore', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/petStore.yaml')
   const oas = await new OasManager().parse(petStorePath)
 
@@ -63,7 +63,7 @@ describe('ZodGenerator simple', async () => {
   })
 })
 
-describe('ZodGenerator with const', async () => {
+describe('ZodGenerator constCases', async () => {
   const discriminatorPath = path.resolve(__dirname, '../mocks/constCases.yaml')
   const oas = await new OasManager().parse(discriminatorPath)
   const generator = new ZodGenerator({
@@ -135,7 +135,7 @@ describe('ZodGenerator with const', async () => {
   })
 })
 
-describe('ZodGenerator lazy import', async () => {
+describe('ZodGenerator lazy', async () => {
   const petStorePath = path.resolve(__dirname, '../mocks/lazy.yaml')
   const oas = await new OasManager().parse(petStorePath)
 
@@ -180,6 +180,28 @@ describe('ZodGenerator enums', async () => {
 
   test('generate x-enumNames types', async () => {
     const node = generator.build({ schema: schemas?.['enumNames.Type'] as OasTypes.SchemaObject, baseName: 'enumNames' })
+
+    expect(node).toMatchSnapshot()
+  })
+})
+
+describe('ZodGenerator recursive', async () => {
+  const petStorePath = path.resolve(__dirname, '../mocks/recursive.yaml')
+  const oas = await new OasManager().parse(petStorePath)
+
+  test('generate schema for Example', async () => {
+    const generator = new ZodGenerator({
+      exclude: undefined,
+      include: undefined,
+      override: undefined,
+      transformers: {},
+    }, {
+      oas,
+      pluginManager: mockedPluginManager,
+    })
+
+    const schemas = oas.getDefinition().components?.schemas
+    const node = generator.build({ schema: schemas?.Example as OasTypes.SchemaObject, baseName: 'Example' })
 
     expect(node).toMatchSnapshot()
   })

@@ -141,7 +141,7 @@ export abstract class OperationGenerator<
           description: schema.description,
           deprecated: schema.deprecated,
           example: schema.example,
-          required: required.length == 0 ? undefined : required,
+          required,
           properties: {
             ...schema.properties,
             [pathParameters.name]: {
