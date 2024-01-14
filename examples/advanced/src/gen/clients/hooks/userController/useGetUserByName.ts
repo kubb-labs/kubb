@@ -1,3 +1,4 @@
+import { getUserByNameQueryResponseSchema } from '../../../zod/userController/getUserByNameSchema'
 import client from '../../../../tanstack-query-client.ts'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { GetUserByNameQueryResponse, GetUserByNamePathParams, GetUserByName400, GetUserByName404 } from '../../../models/ts/userController/GetUserByName'
@@ -40,7 +41,7 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
         url: `/user/${username}`,
         ...options,
       })
-      return res
+      return { ...res, data: getUserByNameQueryResponseSchema.parse(res.data) }
     },
   }
 }
@@ -84,7 +85,7 @@ export function getUserByNameInfiniteQueryOptions<TData = GetUserByName['respons
         url: `/user/${username}`,
         ...options,
       })
-      return res
+      return { ...res, data: getUserByNameQueryResponseSchema.parse(res.data) }
     },
   }
 }

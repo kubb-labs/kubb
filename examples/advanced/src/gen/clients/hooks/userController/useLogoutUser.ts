@@ -1,3 +1,4 @@
+import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema'
 import client from '../../../../tanstack-query-client.ts'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { LogoutUserQueryResponse, LogoutUserError } from '../../../models/ts/userController/LogoutUser'
@@ -39,7 +40,7 @@ export function logoutUserQueryOptions<TData = LogoutUser['response'], TQueryDat
         url: `/user/logout`,
         ...options,
       })
-      return res
+      return { ...res, data: logoutUserQueryResponseSchema.parse(res.data) }
     },
   }
 }
@@ -78,7 +79,7 @@ export function logoutUserInfiniteQueryOptions<TData = LogoutUser['response'], T
         url: `/user/logout`,
         ...options,
       })
-      return res
+      return { ...res, data: logoutUserQueryResponseSchema.parse(res.data) }
     },
   }
 }

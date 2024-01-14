@@ -1,3 +1,4 @@
+import { findPetsByStatusQueryResponseSchema } from '../../../zod/petController/findPetsByStatusSchema'
 import client from '../../../../tanstack-query-client.ts'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import type { FindPetsByStatusQueryResponse, FindPetsByStatusQueryParams, FindPetsByStatus400 } from '../../../models/ts/petController/FindPetsByStatus'
@@ -41,7 +42,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
         params,
         ...options,
       })
-      return res
+      return { ...res, data: findPetsByStatusQueryResponseSchema.parse(res.data) }
     },
   }
 }
@@ -92,7 +93,7 @@ export function findPetsByStatusInfiniteQueryOptions<TData = FindPetsByStatus['r
           ...(options.params || {}),
         },
       })
-      return res
+      return { ...res, data: findPetsByStatusQueryResponseSchema.parse(res.data) }
     },
   }
 }

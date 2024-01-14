@@ -4,6 +4,7 @@ import { FunctionParams, URLPath } from '@kubb/core/utils'
 import { Function, usePlugin, useResolveName } from '@kubb/react'
 import { useOperation, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getParams, isRequired } from '@kubb/swagger/utils'
+import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
 import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
@@ -47,6 +48,7 @@ type TemplateProps = {
   }
   infinite?: Infinite
   dataReturnType: NonNullable<PluginOptions['options']['dataReturnType']>
+  parser: string | undefined
 }
 
 function Template({
@@ -59,6 +61,7 @@ function Template({
   client,
   infinite,
   dataReturnType,
+  parser,
 }: TemplateProps): ReactNode {
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
 
@@ -100,6 +103,12 @@ function Template({
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
   const resolvedQueryOptions = `${transformers.createIndent(4)}${queryOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
+  let returnRes = parser ? `return ${parser}(res.data)` : `return res.data`
+
+  if (dataReturnType === 'full') {
+    returnRes = parser ? `return {...res, data: ${parser}(res.data)}` : `return res`
+  }
+
   if (infinite) {
     if (isV5) {
       return (
@@ -115,7 +124,7 @@ function Template({
             ${resolvedClientOptions}
            })
 
-           return ${dataReturnType === 'data' ? 'res.data' : 'res'}
+           ${returnRes}
          },
          ${resolvedQueryOptions}
        })
@@ -138,7 +147,7 @@ function Template({
               ${resolvedClientOptions}
              })
 
-             return ${dataReturnType === 'data' ? 'res.data' : 'res'}
+             ${returnRes}
            },
            ${resolvedQueryOptions}
          }
@@ -162,7 +171,7 @@ function Template({
         ${resolvedClientOptions}
        })
 
-       return ${dataReturnType === 'data' ? 'res.data' : 'res'}
+       ${returnRes}
      },
      ${resolvedQueryOptions}
    })
@@ -185,7 +194,7 @@ function Template({
             ${resolvedClientOptions}
            })
 
-           return ${dataReturnType === 'data' ? 'res.data' : 'res'}
+           ${returnRes}
          },
          ${resolvedQueryOptions}
        }
@@ -314,7 +323,7 @@ type Props = {
 }
 
 export function QueryOptions({ factory, infinite, suspense, resultType, dataReturnType, Template = defaultTemplates.react }: Props): ReactNode {
-  const { key: pluginKey } = usePlugin()
+  const { key: pluginKey, options: { parser } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const operation = useOperation()
 
@@ -326,6 +335,8 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryOptions'].filter(Boolean).join(''),
     pluginKey,
   })
+
+  const zodResponseName = useResolveName({ name: schemas.response.name, pluginKey: swaggerZodPluginKey, type: 'function' })
 
   const generics = new FunctionParams()
   const params = new FunctionParams()
@@ -390,6 +401,7 @@ export function QueryOptions({ factory, infinite, suspense, resultType, dataRetu
       hook={hook}
       infinite={infinite}
       dataReturnType={dataReturnType}
+      parser={parser === 'zod' ? `${zodResponseName}.parse` : undefined}
       context={{
         factory,
         queryKey,

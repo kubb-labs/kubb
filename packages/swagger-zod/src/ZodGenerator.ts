@@ -33,11 +33,13 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     schema,
     baseName,
     description,
+    optional,
     keysToOmit,
   }: {
     schema: OasTypes.SchemaObject
     baseName: string
     description?: string
+    optional?: boolean
     keysToOmit?: string[]
   }): string[] {
     const texts: string[] = []
@@ -47,6 +49,12 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
       /**
        * @description ${transformers.trim(description)}
        */`)
+    }
+
+    if (optional) {
+      zodInput.push({
+        keyword: zodKeywords.optional,
+      })
     }
 
     const zodOutput = zodParser(zodInput, {
@@ -295,10 +303,6 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     }
 
     if ('items' in schema) {
-      if (!schema.required?.length && !baseName) {
-        baseItems.push({ keyword: zodKeywords.optional })
-      }
-
       // items -> array
       return [{ keyword: zodKeywords.array, args: this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName) }, ...baseItems]
     }
@@ -320,11 +324,6 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     }
 
     if (schema.properties || schema.additionalProperties) {
-      // properties -> literal type
-      if (!schema.required?.length) {
-        baseItems.push({ keyword: zodKeywords.optional })
-      }
-
       return [...this.#getTypeFromProperties(schema, baseName), ...baseItems]
     }
 

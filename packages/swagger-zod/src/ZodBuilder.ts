@@ -18,11 +18,14 @@ export class ZodBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
       .sort(transformers.nameSorter)
       .map((operationSchema) => {
         const generator = new ZodGenerator(this.options, this.context)
+        const required = Array.isArray(operationSchema.schema?.required) ? !!operationSchema.schema.required.length : !!operationSchema.schema?.required
+
         const sources = generator.build({
           schema: operationSchema.schema,
           baseName: operationSchema.name,
           description: operationSchema.description,
           keysToOmit: operationSchema.keysToOmit,
+          optional: !required && !!operationSchema.name.includes('Params'),
         })
         importMeta.push(...generator.imports)
 

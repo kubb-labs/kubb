@@ -8,4 +8,4 @@ export const orderSchema = z.object({
   'status': z.enum([`placed`, `approved`, `delivered`]).describe(`Order Status`).optional(),
   'http_status': z.enum([`ok`, `not_found`]).describe(`HTTP Status`).optional(),
   'complete': z.boolean().optional(),
-}).optional()
+})

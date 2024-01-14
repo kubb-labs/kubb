@@ -63,7 +63,8 @@
     "@kubb/react": "workspace:*",
     "@kubb/swagger": "workspace:*",
     "@kubb/swagger-client": "workspace:*",
-    "@kubb/swagger-ts": "workspace:*"
+    "@kubb/swagger-ts": "workspace:*",
+    "@kubb/swagger-zod": "workspace:*"
   },
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",

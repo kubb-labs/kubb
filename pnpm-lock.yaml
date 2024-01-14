@@ -1487,6 +1487,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../swagger-ts
+      '@kubb/swagger-zod':
+        specifier: workspace:*
+        version: link:../swagger-zod
     devDependencies:
       '@kubb/eslint-config':
         specifier: workspace:*
