@@ -332,7 +332,7 @@ export function createEnumDeclaration({
   /**
    * @default `'enum'`
    */
-  type?: 'enum' | 'asConst' | 'asPascalConst'
+  type?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   /**
    * Enum name in camelCase.
    */
@@ -343,13 +343,34 @@ export function createEnumDeclaration({
   typeName: string
   enums: [key: string | number, value: string | number | boolean][]
 }) {
-  if (type === 'enum') {
+  if (type === 'literal') {
     return [
-      factory.createEnumDeclaration(
+      factory.createTypeAliasDeclaration(
         [factory.createToken(ts.SyntaxKind.ExportKeyword)],
         factory.createIdentifier(typeName),
+        undefined,
+        factory.createUnionTypeNode(enums.map(([_key, value]) => {
+          if (typeof value === 'number') {
+            return factory.createLiteralTypeNode(factory.createNumericLiteral(value?.toString()))
+          }
+
+          if (typeof value === 'boolean') {
+            return factory.createLiteralTypeNode(value ? factory.createTrue() : factory.createFalse())
+          }
+
+          return factory.createLiteralTypeNode(factory.createStringLiteral(value?.toString()))
+        })),
+      ),
+    ]
+  }
+
+  if (type === 'enum' || type === 'constEnum') {
+    return [
+      factory.createEnumDeclaration(
+        [factory.createToken(ts.SyntaxKind.ExportKeyword), type === 'constEnum' ? factory.createToken(ts.SyntaxKind.ConstKeyword) : undefined].filter(Boolean),
+        factory.createIdentifier(typeName),
         enums.map(([key, value]) => {
-          let initializer: ts.Expression = factory.createStringLiteral(`${value?.toString()}`)
+          let initializer: ts.Expression = factory.createStringLiteral(value?.toString())
 
           if (typeof value === 'number') {
             initializer = factory.createNumericLiteral(value)
