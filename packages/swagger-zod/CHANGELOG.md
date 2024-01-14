@@ -1,5 +1,21 @@
 # @kubb/swagger-zod
 
+## 2.2.1
+
+### Patch Changes
+
+- [#771](https://github.com/kubb-project/kubb/pull/771) [`6165dda`](https://github.com/kubb-project/kubb/commit/6165ddafca56f450f249a26a1f426509170edb8c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Optional properties with type: array allow it's values to be undefined in zod shape
+
+- [#771](https://github.com/kubb-project/kubb/pull/771) [`6165dda`](https://github.com/kubb-project/kubb/commit/6165ddafca56f450f249a26a1f426509170edb8c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - uri should not generate an URL for Zod
+
+- [#771](https://github.com/kubb-project/kubb/pull/771) [`6165dda`](https://github.com/kubb-project/kubb/commit/6165ddafca56f450f249a26a1f426509170edb8c) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - min/max with schema.type == string
+
+- Updated dependencies []:
+  - @kubb/core@2.2.1
+  - @kubb/parser@2.2.1
+  - @kubb/react@2.2.1
+  - @kubb/swagger@2.2.1
+
 ## 2.2.0
 
 ### Minor Changes
