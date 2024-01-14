@@ -363,7 +363,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
         baseItems.unshift({ keyword: zodKeywords.readOnly })
       }
 
-      if (schema.type === zodKeywords.number || schema.type === zodKeywords.integer) {
+      if (schema.type === zodKeywords.number || schema.type === zodKeywords.integer || schema.type === zodKeywords.string) {
         const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
         const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
 

@@ -113,6 +113,8 @@ components:
           type: string
         tag:
           type: string
+          maxLength: 100
+          minLength: 5
 
     OptionalPet:
       type: object

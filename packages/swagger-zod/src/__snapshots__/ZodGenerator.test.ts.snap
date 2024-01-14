@@ -26,7 +26,7 @@ exports[`ZodGenerator simple > generate schema for OptionalPet 1`] = `
 
 exports[`ZodGenerator simple > generate schema for Pet 1`] = `
 [
-  "export const Pet = z.object({"id": z.number(),"name": z.string(),"tag": z.string().optional()});",
+  "export const Pet = z.object({"id": z.number(),"name": z.string(),"tag": z.string().min(5).max(100).optional()});",
 ]
 `;
 

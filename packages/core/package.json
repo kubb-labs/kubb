@@ -80,7 +80,7 @@
   "dependencies": {
     "@kubb/parser": "workspace:*",
     "@kubb/types": "workspace:*",
-    "change-case": "^5.4.0",
+    "change-case": "^5.4.1",
     "directory-tree": "^3.5.1",
     "find-up": "^7.0.0",
     "fs-extra": "^11.2.0",
