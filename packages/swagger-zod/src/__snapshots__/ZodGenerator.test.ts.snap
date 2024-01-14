@@ -1,5 +1,71 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`ZodGenerator PetStore > generate schema for OptionalPet 1`] = `
+[
+  "export const OptionalPet = z.object({"id": z.number().optional(),"name": z.string().optional(),"tag": z.string().optional()}).optional();",
+]
+`;
+
+exports[`ZodGenerator PetStore > generate schema for Pet 1`] = `
+[
+  "export const Pet = z.object({"id": z.number(),"name": z.string(),"tag": z.string().min(5).max(100).optional()});",
+]
+`;
+
+exports[`ZodGenerator PetStore > generate schema for Pets 1`] = `
+[
+  "export const Pets = z.array(z.object({"id": z.number(),"name": z.string(),"tag": z.string().optional()}));",
+]
+`;
+
+exports[`ZodGenerator constCases > MixedValueTypeConst generates zod literal value correctly, overriding the type constraint 1`] = `
+[
+  "export const MixedValueTypeConst = z.object({"foobar": z.literal("foobar")}).describe(\`This probably should fail miserably\`);",
+]
+`;
+
+exports[`ZodGenerator constCases > NullConst zodifies correctly 1`] = `
+[
+  "export const NullConst = z.literal(z.null());",
+]
+`;
+
+exports[`ZodGenerator constCases > NullableString zodifies correctly 1`] = `
+[
+  "export const NullableString = z.string().nullable();",
+]
+`;
+
+exports[`ZodGenerator constCases > NullableStringUuid zodifies correctly to a uuid or null 1`] = `
+[
+  "export const NullableStringUuid = z.string().uuid().nullable();",
+]
+`;
+
+exports[`ZodGenerator constCases > NullableStringWithAnyOf results in union of string and null 1`] = `
+[
+  "export const NullableStringWithAnyOf = z.union([z.string(),z.null()]);",
+]
+`;
+
+exports[`ZodGenerator constCases > NumberValueConst correctly generates zod literal 1`] = `
+[
+  "export const NumberValueConst = z.object({"foobar": z.literal(42)}).describe(\`its value is equal to the value of the keyword\`);",
+]
+`;
+
+exports[`ZodGenerator constCases > StringValueConst correctly generates zod literal 1`] = `
+[
+  "export const StringValueConst = z.object({"foobar": z.literal("foobar")}).describe(\`its value is equal to the value of the keyword\`);",
+]
+`;
+
+exports[`ZodGenerator constCases > UuidSchema generates a string with uuid format constraint 1`] = `
+[
+  "export const UuidSchema = z.string().uuid();",
+]
+`;
+
 exports[`ZodGenerator enums > generate x-enum-varnames types 1`] = `
 [
   "export const enumVarNames = z.enum([\`Pending\`,\`Received\`]);",
@@ -12,9 +78,21 @@ exports[`ZodGenerator enums > generate x-enumNames types 1`] = `
 ]
 `;
 
+exports[`ZodGenerator lazy > generate schema for Example 1`] = `
+[
+  "export const Example = z.object({"nestedExamples": z.lazy(() => Example).optional()}).optional();",
+]
+`;
+
 exports[`ZodGenerator lazy import > generate schema for Example 1`] = `
 [
   "export const Example = z.object({"nestedExamples": z.lazy(() => Example).optional()}).optional();",
+]
+`;
+
+exports[`ZodGenerator recursive > generate schema for Example 1`] = `
+[
+  "export const Example = z.object({"name": z.string(),"children": z.array(z.lazy(() => Example))});",
 ]
 `;
 
