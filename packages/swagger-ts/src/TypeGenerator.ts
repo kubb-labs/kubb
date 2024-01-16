@@ -20,6 +20,9 @@ type Context = {
   pluginManager: PluginManager
 }
 
+
+const FORMAT_PRECEDENCE_PARSING_ENABLED: boolean = false;
+
 export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], Context> {
   refs: Refs = {}
   imports: ImportMeta[] = []
@@ -381,18 +384,55 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
         })
       }
 
-      if (this.options.dateType === 'date' && ['date', 'date-time'].some((item) => item === schema.format)) {
-        return factory.createTypeReferenceNode(factory.createIdentifier('Date'))
+      /**
+       * > Structural validation alone may be insufficient to allow an application to correctly utilize certain values. The "format" 
+       * > annotation keyword is defined to allow schema authors to convey semantic information for a fixed subset of values which are 
+       * > accurately described by authoritative resources, be they RFCs or other external specifications.
+       * 
+       * In other words: format is more specific than type alone, hence it should override the type value, if possible. 
+       *
+       * see also https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
+       */
+      if(FORMAT_PRECEDENCE_PARSING_ENABLED) {
+        if (schema.format) {
+          switch (schema.format) {
+            case "binary":
+              if(schema.type === "string") {
+                return factory.createTypeReferenceNode('Blob', []);
+              }
+              break;
+            // 7.3.1. Dates, Times, and Duration 
+            case "date-time":
+            case "date":
+            case "time":
+              if (this.options.dateType === 'date') {
+                return factory.createTypeReferenceNode(factory.createIdentifier('Date'))
+              }
+              case "uuid":
+                // TODO how to work with this? use https://www.npmjs.com/package/uuid for it?
+                break;
+              case "duration":
+              case "email":
+              case "idn-email":
+              case "hostname":
+              case "idn-hostname":
+              case "ipv4":
+              case "ipv6":
+              case "uri":
+              case "uri-reference":
+              case "json-pointer":
+              case "relative-json-pointer":
+              default:
+                // formats not yet implemented: ignore.
+              break;
+          }
+        }
       }
 
       // string, boolean, null, number
       if (schema.type in factory.keywordTypeNodes) {
         return factory.keywordTypeNodes[schema.type as keyof typeof factory.keywordTypeNodes]
       }
-    }
-
-    if (schema.format === 'binary') {
-      return factory.createTypeReferenceNode('Blob', [])
     }
 
     return factory.keywordTypeNodes.any
