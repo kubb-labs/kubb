@@ -9,4 +9,4 @@ export const updatePetWithFormPathParamsSchema = z.object({ 'petId': z.number().
 export const updatePetWithFormQueryParamsSchema = z.object({
   'name': z.string().describe(`Name of pet that needs to be updated`).optional(),
   'status': z.string().describe(`Status of pet that needs to be updated`).optional(),
-})
+}).optional()

@@ -258,15 +258,20 @@ export function parseZodMeta(item: ZodMeta, mapper: Record<ZodKeyword, string> =
   return '""'
 }
 
-export function zodParser(items: ZodMeta[], options: { required?: boolean; keysToOmit?: string[]; mapper?: Record<ZodKeyword, string>; name: string }): string {
+export function zodParser(
+  items: ZodMeta[],
+  options: { required?: boolean; keysToOmit?: string[]; mapper?: Record<ZodKeyword, string>; name: string; typeName?: string },
+): string {
   if (!items.length) {
     return `export const ${options.name} = '';`
   }
 
+  const constName = options.typeName ? `export const ${options.name}: z.ZodType<${options.typeName}>` : `export const ${options.name}`
+
   if (options.keysToOmit?.length) {
     const omitText = `.schema.omit({ ${options.keysToOmit.map((key) => `${key}: true`).join(',')} })`
-    return `export const ${options.name} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')}${omitText};`
+    return `${constName} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')}${omitText};`
   }
 
-  return `export const ${options.name} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')};`
+  return `${constName} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')};`
 }

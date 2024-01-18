@@ -2,6 +2,7 @@ import { Generator } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
+import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
 import { pluginKey } from './plugin.ts'
 import { zodKeywords, zodParser } from './zodParser.ts'
@@ -61,7 +62,22 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
       required: !!schema?.required,
       keysToOmit,
       name: this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' }),
+      typeName: this.options.typed
+        ? this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
+        : undefined,
     })
+
+    if (this.options.typed) {
+      this.imports.push({
+        ref: {
+          propertyName: baseName,
+          originalName: baseName,
+          pluginKey: swaggerTypeScriptPluginKey,
+        },
+        path: this.context.pluginManager.resolvePath({ baseName, pluginKey: swaggerTypeScriptPluginKey }) || '',
+        isTypeOnly: true,
+      })
+    }
 
     texts.push(zodOutput)
 

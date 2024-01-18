@@ -22,6 +22,7 @@ describe('<Query/>', async () => {
     include: undefined,
     override: undefined,
     transformers: {},
+    typed: false,
   }
 
   const plugin = { options } as KubbPlugin<PluginOptions>

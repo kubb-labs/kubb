@@ -17,6 +17,7 @@ describe('ZodGenerator PetStore', async () => {
       include: undefined,
       override: undefined,
       transformers: {},
+      typed: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -34,6 +35,7 @@ describe('ZodGenerator PetStore', async () => {
       include: undefined,
       override: undefined,
       transformers: {},
+      typed: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -51,6 +53,25 @@ describe('ZodGenerator PetStore', async () => {
       include: undefined,
       override: undefined,
       transformers: {},
+      typed: false,
+    }, {
+      oas,
+      pluginManager: mockedPluginManager,
+    })
+
+    const schemas = oas.getDefinition().components?.schemas
+    const node = generator.build({ schema: schemas?.OptionalPet as OasTypes.SchemaObject, baseName: 'OptionalPet' })
+
+    expect(node).toMatchSnapshot()
+  })
+
+  test('generate schema for OptionalPet typed', async () => {
+    const generator = new ZodGenerator({
+      exclude: undefined,
+      include: undefined,
+      override: undefined,
+      transformers: {},
+      typed: true,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -71,6 +92,7 @@ describe('ZodGenerator constCases', async () => {
     include: undefined,
     override: undefined,
     transformers: {},
+    typed: false,
   }, {
     oas,
     pluginManager: mockedPluginManager,
@@ -145,6 +167,7 @@ describe('ZodGenerator lazy', async () => {
       include: undefined,
       override: undefined,
       transformers: {},
+      typed: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -165,6 +188,7 @@ describe('ZodGenerator enums', async () => {
     include: undefined,
     override: undefined,
     transformers: {},
+    typed: false,
   }, {
     oas,
     pluginManager: mockedPluginManager,
@@ -195,6 +219,7 @@ describe('ZodGenerator recursive', async () => {
       include: undefined,
       override: undefined,
       transformers: {},
+      typed: false,
     }, {
       oas,
       pluginManager: mockedPluginManager,

@@ -5,6 +5,7 @@ import { camelCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { getGroupedByTagFiles } from '@kubb/swagger/utils'
+import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { ZodBuilder } from './ZodBuilder.ts'
@@ -18,7 +19,7 @@ export const pluginName = 'swagger-zod' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { path: 'zod' }, group, exclude = [], include, override = [], transformers = {} } = options
+  const { output = { path: 'zod' }, group, exclude = [], include, override = [], transformers = {}, typed = false } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
@@ -28,8 +29,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       include,
       exclude,
       override,
+      typed,
     },
-    pre: [swaggerPluginName],
+    pre: [swaggerPluginName, typed ? swaggerTypeScriptPluginName : undefined].filter(Boolean),
     resolvePath(baseName, directory, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
       const mode = FileManager.getMode(path.resolve(root, output.path))
