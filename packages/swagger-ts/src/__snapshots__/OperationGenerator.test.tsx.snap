@@ -38,7 +38,7 @@ exports[`OperationGenerator > [GET] should generate with optionalType \`question
      * @type string | undefined
     */
     limit?: string;
-};
+} | undefined;
 
  /**
  * @description unexpected error

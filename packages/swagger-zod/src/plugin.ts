@@ -19,7 +19,7 @@ export const pluginName = 'swagger-zod' satisfies PluginOptions['name']
 export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOptions['key']
 
 export const definePlugin = createPlugin<PluginOptions>((options) => {
-  const { output = { path: 'zod' }, group, exclude = [], include, override = [], transformers = {}, typed = false } = options
+  const { output = { path: 'zod' }, group, exclude = [], include, override = [], transformers = {}, dateType = 'string', typed = false } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
   return {
@@ -30,6 +30,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       exclude,
       override,
       typed,
+      dateType,
     },
     pre: [swaggerPluginName, typed ? swaggerTypeScriptPluginName : undefined].filter(Boolean),
     resolvePath(baseName, directory, options) {

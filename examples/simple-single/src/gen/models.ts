@@ -324,7 +324,7 @@ export type FindPetsByStatusQueryParams = {
    * @default 'available'
    */
   status?: FindPetsByStatusQueryParamsStatus
-}
+} | undefined
 
 /**
  * @description successful operation
@@ -357,7 +357,7 @@ export type FindPetsByTagsQueryParams = {
    * @type string | undefined
    */
   pageSize?: string
-}
+} | undefined
 
 /**
  * @description successful operation
@@ -423,7 +423,7 @@ export type UpdatePetWithFormQueryParams = {
    * @type string | undefined
    */
   status?: string
-}
+} | undefined
 export namespace UpdatePetWithFormMutation {
   export type Response = UpdatePetWithFormMutationResponse
   export type PathParams = UpdatePetWithFormPathParams
@@ -441,7 +441,7 @@ export type DeletePetHeaderParams = {
    * @type string | undefined
    */
   api_key?: string
-}
+} | undefined
 
 export type DeletePetMutationResponse = any | null
 
@@ -475,7 +475,7 @@ export type UploadFileQueryParams = {
    * @type string | undefined
    */
   additionalMetadata?: string
-}
+} | undefined
 
 /**
  * @description successful operation
@@ -635,7 +635,7 @@ export type LoginUserQueryParams = {
    * @type string | undefined
    */
   password?: string
-}
+} | undefined
 
 /**
  * @description successful operation

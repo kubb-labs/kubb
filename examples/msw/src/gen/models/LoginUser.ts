@@ -14,7 +14,7 @@ export type LoginUserQueryParams = {
    * @type string | undefined
    */
   password?: string
-}
+} | undefined
 
 /**
  * @description successful operation

@@ -1,6 +1,7 @@
 import { z } from 'zod'
+import type { User } from '../models/ts/User'
 
-export const userSchema = z.object({
+export const userSchema: z.ZodType<User> = z.object({
   'id': z.number().optional(),
   'username': z.string().optional(),
   'firstName': z.string().optional(),

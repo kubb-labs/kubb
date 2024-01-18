@@ -12,4 +12,4 @@ export const addPetMutationRequestSchema = z.lazy(() => addPetRequestSchema)
 /**
  * @description Successful operation
  */
-export const addPetMutationResponseSchema = z.lazy(() => petSchema).schema.omit({ name: true })
+export const addPetMutationResponseSchema = z.lazy(() => petSchema).schema.and(z.object({ name: z.never() }))

@@ -23,6 +23,7 @@ describe('<Mutation/>', async () => {
     override: undefined,
     transformers: {},
     typed: false,
+    dateType: 'string',
   }
 
   const plugin = { options } as KubbPlugin<PluginOptions>

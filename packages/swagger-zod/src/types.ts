@@ -64,6 +64,11 @@ export type Options = {
     name?: (name: ResolveNameParams['name'], type?: ResolveNameParams['type']) => string
   }
   /**
+   * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
+   * @default 'string'
+   */
+  dateType?: 'string' | 'date'
+  /**
    * Use TypeScript(`@kubb/swagger-ts`) to add type annotation.
    */
   typed?: boolean
@@ -74,6 +79,7 @@ type ResolvedOptions = {
   exclude: Options['exclude']
   include: Options['include']
   override: Options['override']
+  dateType: NonNullable<Options['dateType']>
   typed: NonNullable<Options['typed']>
 }
 

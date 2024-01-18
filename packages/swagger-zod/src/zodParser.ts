@@ -16,6 +16,7 @@ export const zodKeywords = {
   union: 'union',
   literal: 'literal',
   datetime: 'datetime',
+  date: 'date',
   email: 'email',
   uuid: 'uuid',
   url: 'url',
@@ -54,6 +55,7 @@ export const zodKeywordMapper: Record<ZodKeyword, string> = {
   union: 'z.union',
   literal: 'z.literal',
   datetime: '.datetime',
+  date: 'z.date',
   email: '.email',
   uuid: '.uuid',
   url: '.url',
@@ -120,6 +122,8 @@ type ZodMetaDefault = { keyword: typeof zodKeywords.default; args?: string | num
 
 type ZodMetaDatetime = { keyword: typeof zodKeywords.datetime }
 
+type ZodMetaDate = { keyword: typeof zodKeywords.date }
+
 type ZodMetaEmail = { keyword: typeof zodKeywords.email }
 
 type ZodMetaUuid = { keyword: typeof zodKeywords.uuid }
@@ -153,6 +157,7 @@ export type ZodMeta =
   | ZodMetaTuple
   | ZodMetaDefault
   | ZodMetaDatetime
+  | ZodMetaDate
   | ZodMetaEmail
   | ZodMetaUuid
   | ZodMetaLiteral
@@ -269,7 +274,7 @@ export function zodParser(
   const constName = options.typeName ? `export const ${options.name}: z.ZodType<${options.typeName}>` : `export const ${options.name}`
 
   if (options.keysToOmit?.length) {
-    const omitText = `.schema.omit({ ${options.keysToOmit.map((key) => `${key}: true`).join(',')} })`
+    const omitText = `.schema.and(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))`
     return `${constName} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')}${omitText};`
   }
 

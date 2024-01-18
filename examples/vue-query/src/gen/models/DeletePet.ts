@@ -3,12 +3,14 @@
  */
 export type DeletePet400 = any | null
 
-export type DeletePetHeaderParams = {
-  /**
-   * @type string | undefined
-   */
-  api_key?: string
-}
+export type DeletePetHeaderParams =
+  | {
+    /**
+     * @type string | undefined
+     */
+    api_key?: string
+  }
+  | undefined
 
 export type DeletePetMutationResponse = any | null
 

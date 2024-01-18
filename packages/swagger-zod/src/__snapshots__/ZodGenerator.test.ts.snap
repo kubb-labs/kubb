@@ -74,13 +74,13 @@ exports[`ZodGenerator constCases > UuidSchema generates a string with uuid forma
 
 exports[`ZodGenerator enums > generate x-enum-varnames types 1`] = `
 [
-  "export const enumVarNames = z.enum([\`Pending\`,\`Received\`]);",
+  "export const enumVarNames = z.union([z.literal(0),z.literal(1)]);",
 ]
 `;
 
 exports[`ZodGenerator enums > generate x-enumNames types 1`] = `
 [
-  "export const enumNames = z.enum([\`Pending\`,\`Received\`]);",
+  "export const enumNames = z.enum([\`0\`,\`1\`]);",
 ]
 `;
 
