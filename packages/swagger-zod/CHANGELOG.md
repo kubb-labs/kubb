@@ -1,5 +1,20 @@
 # @kubb/swagger-zod
 
+## 2.4.0
+
+### Patch Changes
+
+- [#780](https://github.com/kubb-project/kubb/pull/780) [`b719759`](https://github.com/kubb-project/kubb/commit/b7197592cfbba181a1ed7995c33e640bafb91236) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add types with `@kubb/swagger.ts` for zodSchemas
+
+- [#780](https://github.com/kubb-project/kubb/pull/780) [`b719759`](https://github.com/kubb-project/kubb/commit/b7197592cfbba181a1ed7995c33e640bafb91236) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - dateType for zod
+
+- Updated dependencies []:
+  - @kubb/core@2.4.0
+  - @kubb/parser@2.4.0
+  - @kubb/react@2.4.0
+  - @kubb/swagger@2.4.0
+  - @kubb/swagger-ts@2.4.0
+
 ## 2.3.0
 
 ### Patch Changes
