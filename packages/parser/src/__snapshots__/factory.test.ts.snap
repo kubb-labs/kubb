@@ -43,6 +43,20 @@ export type Hello = (typeof Hello)[keyof typeof Hello]
 "
 `;
 
+exports[`codegen > createEnumDeclaration 4`] = `
+"export const enum Hello {
+  'hello' = 'world',
+  'end' = 2050,
+  'survive' = true,
+}
+"
+`;
+
+exports[`codegen > createEnumDeclaration 5`] = `
+"export type Hello = 'world' | 2050 | true
+"
+`;
+
 exports[`codegen > createExportDeclaration 1`] = `
 "export * from './hello.ts'
 "

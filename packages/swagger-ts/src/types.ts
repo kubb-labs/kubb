@@ -56,7 +56,7 @@ export type Options = {
    * Choose to use `enum` or `as const` for enums
    * @default 'asConst'
    */
-  enumType?: 'enum' | 'asConst' | 'asPascalConst'
+  enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   /**
    * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
    * @default 'string'

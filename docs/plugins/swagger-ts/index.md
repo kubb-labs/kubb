@@ -233,11 +233,22 @@ const PetType = {
 } as const
 ```
 
+```typescript ['constEnum']
+const enum PetType {
+  Dog = 'dog',
+  Cat = 'cat',
+}
+```
+
+```typescript ['literal']
+type PetType = 'dog' | 'cat'
+```
+
 :::
 
 ::: info
 
-Type: `'enum' | 'asConst' | 'asPascalConst'` <br/>
+Type: `'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'` <br/>
 Default: `'asConst'`
 
 ::: code-group
@@ -300,6 +311,48 @@ export default defineConfig({
     createSwagger({ output: false }),
     createSwaggerTS({
       enumType: 'asPascalConst',
+    }),
+  ],
+})
+```
+
+```typescript ['constEnum']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      enumType: 'constEnum',
+    }),
+  ],
+})
+```
+
+```typescript ['literal']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      enumType: 'literal',
     }),
   ],
 })

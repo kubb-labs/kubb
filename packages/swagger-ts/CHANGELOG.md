@@ -1,5 +1,20 @@
 # @kubb/swagger-ts
 
+## 2.3.0
+
+### Minor Changes
+
+- [#773](https://github.com/kubb-project/kubb/pull/773) [`ec9c07d`](https://github.com/kubb-project/kubb/commit/ec9c07d90eb3472f5d0030a1cbb746e0055b8ab8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support for `constEnum` and `literal` for `enumType` for the TypeScript plugin
+
+### Patch Changes
+
+- Updated dependencies [[`ec9c07d`](https://github.com/kubb-project/kubb/commit/ec9c07d90eb3472f5d0030a1cbb746e0055b8ab8)]:
+  - @kubb/parser@2.3.0
+  - @kubb/core@2.3.0
+  - @kubb/react@2.3.0
+  - @kubb/swagger@2.3.0
+  - @kubb/types@2.3.0
+
 ## 2.2.1
 
 ### Patch Changes

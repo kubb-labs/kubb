@@ -32,6 +32,27 @@ export default defineConfig({
     }),
     createSwaggerTS({
       output: {
+        path: 'modelsPascalConst.ts',
+        exportAs: 'modelsPascalConst',
+      },
+      enumType: 'asPascalConst',
+    }),
+    createSwaggerTS({
+      output: {
+        path: 'modelsConstEnum.ts',
+        exportAs: 'modelsConstEnum',
+      },
+      enumType: 'constEnum',
+    }),
+    createSwaggerTS({
+      output: {
+        path: 'modelsLiteral.ts',
+        exportAs: 'modelsLiteral',
+      },
+      enumType: 'literal',
+    }),
+    createSwaggerTS({
+      output: {
         path: 'ts/models',
         exportType: 'barrelNamed',
       },

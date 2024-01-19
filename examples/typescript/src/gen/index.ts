@@ -1,5 +1,8 @@
 export * as models from './models'
 export * as modelsAsConst from './modelsConst'
+export * as modelsConstEnum from './modelsConstEnum'
+export * as modelsLiteral from './modelsLiteral'
+export * as modelsPascalConst from './modelsPascalConst'
 export type {
   AddPet405,
   AddPetMutation,
