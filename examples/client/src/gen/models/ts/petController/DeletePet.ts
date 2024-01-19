@@ -8,7 +8,7 @@ export type DeletePetHeaderParams = {
    * @type string | undefined
    */
   api_key?: string
-}
+} | undefined
 
 export type DeletePetMutationResponse = any | null
 

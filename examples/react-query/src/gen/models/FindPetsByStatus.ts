@@ -18,7 +18,7 @@ export type FindPetsByStatusQueryParams = {
    * @default 'available'
    */
   status?: FindPetsByStatusQueryParamsStatus
-}
+} | undefined
 
 /**
  * @description successful operation

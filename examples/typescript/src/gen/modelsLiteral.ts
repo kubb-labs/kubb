@@ -292,14 +292,16 @@ export namespace AddPetMutation {
 export type FindPetsByStatus400 = any | null
 
 export type FindPetsByStatusQueryParamsStatus = 'available' | 'pending' | 'sold'
-export type FindPetsByStatusQueryParams = {
-  /**
-   * @description Status values that need to be considered for filter
-   * @type string | undefined
-   * @default 'available'
-   */
-  status?: FindPetsByStatusQueryParamsStatus
-}
+export type FindPetsByStatusQueryParams =
+  | {
+    /**
+     * @description Status values that need to be considered for filter
+     * @type string | undefined
+     * @default 'available'
+     */
+    status?: FindPetsByStatusQueryParamsStatus
+  }
+  | undefined
 
 /**
  * @description successful operation
@@ -316,23 +318,25 @@ export namespace FindPetsByStatusQuery {
  */
 export type FindPetsByTags400 = any | null
 
-export type FindPetsByTagsQueryParams = {
-  /**
-   * @description Tags to filter by
-   * @type array | undefined
-   */
-  tags?: string[]
-  /**
-   * @description to request with required page number or pagination
-   * @type string | undefined
-   */
-  page?: string
-  /**
-   * @description to request with required page size
-   * @type string | undefined
-   */
-  pageSize?: string
-}
+export type FindPetsByTagsQueryParams =
+  | {
+    /**
+     * @description Tags to filter by
+     * @type array | undefined
+     */
+    tags?: string[]
+    /**
+     * @description to request with required page number or pagination
+     * @type string | undefined
+     */
+    page?: string
+    /**
+     * @description to request with required page size
+     * @type string | undefined
+     */
+    pageSize?: string
+  }
+  | undefined
 
 /**
  * @description successful operation
@@ -387,18 +391,20 @@ export type UpdatePetWithFormPathParams = {
   petId: number
 }
 
-export type UpdatePetWithFormQueryParams = {
-  /**
-   * @description Name of pet that needs to be updated
-   * @type string | undefined
-   */
-  name?: string
-  /**
-   * @description Status of pet that needs to be updated
-   * @type string | undefined
-   */
-  status?: string
-}
+export type UpdatePetWithFormQueryParams =
+  | {
+    /**
+     * @description Name of pet that needs to be updated
+     * @type string | undefined
+     */
+    name?: string
+    /**
+     * @description Status of pet that needs to be updated
+     * @type string | undefined
+     */
+    status?: string
+  }
+  | undefined
 export namespace UpdatePetWithFormMutation {
   export type Response = UpdatePetWithFormMutationResponse
   export type PathParams = UpdatePetWithFormPathParams
@@ -411,12 +417,14 @@ export namespace UpdatePetWithFormMutation {
  */
 export type DeletePet400 = any | null
 
-export type DeletePetHeaderParams = {
-  /**
-   * @type string | undefined
-   */
-  api_key?: string
-}
+export type DeletePetHeaderParams =
+  | {
+    /**
+     * @type string | undefined
+     */
+    api_key?: string
+  }
+  | undefined
 
 export type DeletePetMutationResponse = any | null
 
@@ -444,13 +452,15 @@ export type UploadFilePathParams = {
   petId: number
 }
 
-export type UploadFileQueryParams = {
-  /**
-   * @description Additional Metadata
-   * @type string | undefined
-   */
-  additionalMetadata?: string
-}
+export type UploadFileQueryParams =
+  | {
+    /**
+     * @description Additional Metadata
+     * @type string | undefined
+     */
+    additionalMetadata?: string
+  }
+  | undefined
 
 /**
  * @description successful operation
@@ -599,18 +609,20 @@ export namespace CreateUsersWithListInputMutation {
  */
 export type LoginUser400 = any | null
 
-export type LoginUserQueryParams = {
-  /**
-   * @description The user name for login
-   * @type string | undefined
-   */
-  username?: string
-  /**
-   * @description The password for login in clear text
-   * @type string | undefined
-   */
-  password?: string
-}
+export type LoginUserQueryParams =
+  | {
+    /**
+     * @description The user name for login
+     * @type string | undefined
+     */
+    username?: string
+    /**
+     * @description The password for login in clear text
+     * @type string | undefined
+     */
+    password?: string
+  }
+  | undefined
 
 /**
  * @description successful operation

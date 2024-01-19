@@ -2,6 +2,7 @@ import { Generator } from '@kubb/core'
 import transformers from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
+import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
 import { pluginKey } from './plugin.ts'
 import { zodKeywords, zodParser } from './zodParser.ts'
@@ -9,7 +10,7 @@ import { zodKeywords, zodParser } from './zodParser.ts'
 import type { PluginManager } from '@kubb/core'
 import type { ts } from '@kubb/parser'
 import type { ImportMeta, Refs } from '@kubb/swagger'
-import type { Oas, OasTypes, OpenAPIV3 } from '@kubb/swagger/oas'
+import type { Oas, OasTypes, OpenAPIV3, Operation } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
 import type { ZodMeta } from './zodParser.ts'
 
@@ -35,12 +36,14 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     description,
     optional,
     keysToOmit,
+    operation,
   }: {
     schema: OasTypes.SchemaObject
     baseName: string
     description?: string
     optional?: boolean
     keysToOmit?: string[]
+    operation?: Operation
   }): string[] {
     const texts: string[] = []
     const zodInput = this.getTypeFromSchema(schema, baseName)
@@ -57,11 +60,35 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
       })
     }
 
+    const withTypeAnnotation = this.options.typed && !operation
+
+    // used for this.options.typed
+    const propertyName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
+
     const zodOutput = zodParser(zodInput, {
       required: !!schema?.required,
       keysToOmit,
       name: this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' }),
+      typeName: withTypeAnnotation
+        ? propertyName
+        : undefined,
     })
+
+    if (withTypeAnnotation && propertyName) {
+      this.imports.push({
+        ref: {
+          propertyName: propertyName,
+          originalName: propertyName,
+          pluginKey: swaggerTypeScriptPluginKey,
+        },
+        path: this.context.pluginManager.resolvePath({
+          baseName: baseName,
+          pluginKey: swaggerTypeScriptPluginKey,
+        })
+          || '',
+        isTypeOnly: true,
+      })
+    }
 
     texts.push(zodOutput)
 
@@ -261,36 +288,45 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     }
 
     if (schema.enum) {
+      // x-enumNames has priority
       const extensionEnums = ['x-enumNames', 'x-enum-varnames']
         .filter(extensionKey => extensionKey in schema)
         .map((extensionKey) => {
-          return [
-            {
-              keyword: zodKeywords.enum,
-              args: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((value: string) => `\`${value}\``),
-            },
-            ...baseItems,
-          ]
+          return [{
+            keyword: zodKeywords.enum,
+            args: [...new Set(schema[extensionKey as keyof typeof schema] as string[])].map((_value, index) => `\`${schema.enum![index]}\``),
+          }, ...baseItems]
         })
-
-      if (extensionEnums.length > 0 && extensionEnums[0]) {
-        return extensionEnums[0]
-      }
 
       if (schema.type === 'number' || schema.type === 'integer') {
         // we cannot use z.enum when enum type is number/integer
+        const enumNames = extensionEnums[0]?.find(item => item.keyword === zodKeywords.enum) as {
+          keyword: typeof zodKeywords.enum
+          args?: Array<string | number>
+        }
         return [
           {
             keyword: zodKeywords.union,
-            args: [...new Set(schema.enum)].map((value: string) => {
-              return {
-                keyword: zodKeywords.literal,
-                args: value,
-              }
-            }),
+            args: enumNames
+              ? enumNames?.args?.map((_value, index) => {
+                return {
+                  keyword: zodKeywords.literal,
+                  args: schema.enum![index],
+                }
+              })
+              : [...new Set(schema.enum)].map((value: string) => {
+                return {
+                  keyword: zodKeywords.literal,
+                  args: value,
+                }
+              }),
           },
           ...baseItems,
         ]
+      }
+
+      if (extensionEnums.length > 0 && extensionEnums[0]) {
+        return extensionEnums[0]
       }
 
       return [
@@ -384,7 +420,13 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
       }
 
       if (schema.format === 'date-time' || baseName === 'date') {
-        baseItems.unshift({ keyword: zodKeywords.datetime })
+        if (this.options.dateType === 'date' && ['date', 'date-time'].some((item) => item === schema.format)) {
+          baseItems.unshift({ keyword: zodKeywords.date })
+
+          return baseItems
+        } else {
+          baseItems.unshift({ keyword: zodKeywords.datetime })
+        }
       }
 
       if (schema.format === 'email' || baseName === 'email') {

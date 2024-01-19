@@ -296,6 +296,112 @@ export default defineConfig({
 })
 ```
 
+### typed
+
+Use TypeScript(`@kubb/swagger-ts`) to add type annotation.
+
+::: info
+
+Type: `boolean` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerZod from '@kubb/swagger-zod'
+import createSwaggerTs from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod(
+      {
+        typed: true,
+      },
+    ),
+    createSwaggerTs(
+      {},
+    ),
+  ],
+})
+```
+
+:::
+
+### dateType
+
+Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
+
+::: info type
+
+::: code-group
+
+```typescript ['string']
+date: string
+```
+
+```typescript ['date']
+date: Date
+```
+
+:::
+
+::: info
+
+Type: `'string' | 'date'` <br/>
+Default: `'string'`
+
+```typescript ['string']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerZod from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod({
+      dateType: 'string',
+    }),
+  ],
+})
+```
+
+```typescript ['date']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerZod from '@kubb/swagger-zod'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerZod({
+      dateType: 'date',
+    }),
+  ],
+})
+```
+
+:::
+
 :::
 
 ### transformers

@@ -166,7 +166,6 @@ const input = [
     }),
     expected: 'z.object({})',
   },
-
   {
     input: parseZodMeta({
       keyword: 'default',
@@ -179,6 +178,12 @@ const input = [
       keyword: 'default',
     }),
     expected: '.default()',
+  },
+  {
+    input: parseZodMeta({
+      keyword: 'date',
+    }),
+    expected: 'z.date()',
   },
 ]
 

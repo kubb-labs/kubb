@@ -33,6 +33,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
 
   build({
     schema,
+    optional,
     baseName,
     description,
     keysToOmit,
@@ -40,13 +41,18 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     schema: OasTypes.SchemaObject
     baseName: string
     description?: string
+    optional?: boolean
     keysToOmit?: string[]
   }): ts.Node[] {
     const nodes: ts.Node[] = []
-    const type = this.getTypeFromSchema(schema, baseName)
+    let type = this.getTypeFromSchema(schema, baseName)
 
     if (!type) {
       return this.extraNodes
+    }
+
+    if (optional) {
+      type = factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.undefined] }) as ts.TypeNode
     }
 
     const node = factory.createTypeAliasDeclaration({

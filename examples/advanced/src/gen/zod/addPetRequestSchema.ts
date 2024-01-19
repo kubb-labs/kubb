@@ -1,8 +1,9 @@
 import { categorySchema } from './categorySchema'
 import { tagSchema } from './tagSchema'
 import { z } from 'zod'
+import type { AddPetRequest } from '../models/ts/AddPetRequest'
 
-export const addPetRequestSchema = z.object({
+export const addPetRequestSchema: z.ZodType<AddPetRequest> = z.object({
   'id': z.number().optional(),
   'name': z.string(),
   'category': z.lazy(() => categorySchema).optional(),

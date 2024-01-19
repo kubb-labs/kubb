@@ -24,7 +24,7 @@ export type UpdatePetWithFormQueryParams = {
    * @type string | undefined
    */
   status?: string
-}
+} | undefined
 export namespace UpdatePetWithFormMutation {
   export type Response = UpdatePetWithFormMutationResponse
   export type PathParams = UpdatePetWithFormPathParams

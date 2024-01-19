@@ -6,6 +6,12 @@ exports[`ZodGenerator PetStore > generate schema for OptionalPet 1`] = `
 ]
 `;
 
+exports[`ZodGenerator PetStore > generate schema for OptionalPet typed 1`] = `
+[
+  "export const OptionalPet: z.ZodType<OptionalPet> = z.object({"id": z.number().optional(),"name": z.string().optional(),"tag": z.string().optional()});",
+]
+`;
+
 exports[`ZodGenerator PetStore > generate schema for Pet 1`] = `
 [
   "export const Pet = z.object({"id": z.number(),"name": z.string(),"tag": z.string().min(5).max(100).optional()});",
@@ -68,13 +74,13 @@ exports[`ZodGenerator constCases > UuidSchema generates a string with uuid forma
 
 exports[`ZodGenerator enums > generate x-enum-varnames types 1`] = `
 [
-  "export const enumVarNames = z.enum([\`Pending\`,\`Received\`]);",
+  "export const enumVarNames = z.union([z.literal(0),z.literal(1)]);",
 ]
 `;
 
 exports[`ZodGenerator enums > generate x-enumNames types 1`] = `
 [
-  "export const enumNames = z.enum([\`Pending\`,\`Received\`]);",
+  "export const enumNames = z.enum([\`0\`,\`1\`]);",
 ]
 `;
 

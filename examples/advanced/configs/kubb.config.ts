@@ -142,6 +142,8 @@ export default defineConfig(async () => {
             },
           ],
           group: { type: 'tag' },
+          dateType: 'date',
+          typed: true,
         },
       ],
       [

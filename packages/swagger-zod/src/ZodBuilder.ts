@@ -25,6 +25,7 @@ export class ZodBuilder extends OasBuilder<PluginOptions['resolvedOptions']> {
           baseName: operationSchema.name,
           description: operationSchema.description,
           keysToOmit: operationSchema.keysToOmit,
+          operation: operationSchema.operation,
           optional: !required && !!operationSchema.name.includes('Params'),
         })
         importMeta.push(...generator.imports)
