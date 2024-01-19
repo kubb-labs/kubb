@@ -30,7 +30,7 @@ export type Infinite = {
    * The initial value, the value of the first page.
    * @default `0`
    */
-  initialPageParam: number
+  initialPageParam: unknown
 }
 
 export type Options = {
