@@ -1,5 +1,24 @@
 # @kubb/swagger-tanstack-query
 
+## 2.4.0
+
+### Minor Changes
+
+- [#780](https://github.com/kubb-project/kubb/pull/780) [`b719759`](https://github.com/kubb-project/kubb/commit/b7197592cfbba181a1ed7995c33e640bafb91236) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - useQuery with Zod validation
+
+### Patch Changes
+
+- [#781](https://github.com/kubb-project/kubb/pull/781) [`0e55383`](https://github.com/kubb-project/kubb/commit/0e553836f1a8a1a832b1f051f58ebfecad9bf7f4) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - initialPageParam with type unknown to support string, number, ...
+
+- Updated dependencies [[`b719759`](https://github.com/kubb-project/kubb/commit/b7197592cfbba181a1ed7995c33e640bafb91236), [`b719759`](https://github.com/kubb-project/kubb/commit/b7197592cfbba181a1ed7995c33e640bafb91236)]:
+  - @kubb/swagger-zod@2.4.0
+  - @kubb/core@2.4.0
+  - @kubb/parser@2.4.0
+  - @kubb/react@2.4.0
+  - @kubb/swagger@2.4.0
+  - @kubb/swagger-client@2.4.0
+  - @kubb/swagger-ts@2.4.0
+
 ## 2.3.0
 
 ### Minor Changes
