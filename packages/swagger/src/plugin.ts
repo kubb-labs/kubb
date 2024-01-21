@@ -1,6 +1,7 @@
 import path from 'node:path'
 
 import { createPlugin } from '@kubb/core'
+import { camelCase } from '@kubb/core/transformers'
 
 import { getSchemas } from './utils/getSchemas.ts'
 import { OasManager } from './OasManager.ts'
@@ -62,6 +63,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return path.resolve(root, output.path, baseName)
     },
+    resolveName(name, type) {
+      return camelCase(name, { isFile: type === 'file' })
+    },
     async writeFile(source, writePath) {
       if (!writePath.endsWith('.json') || !source) {
         return
@@ -84,13 +88,19 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
           pluginKey: this.plugin.key,
         })
 
+        const resvoledFileName = this.resolveName({
+          name: `${name}.json`,
+          pluginKey,
+          type: 'file',
+        }) as `${string}.json`
+
         if (!resolvedPath) {
           return
         }
 
         await this.addFile({
           path: resolvedPath,
-          baseName: `${name}.json`,
+          baseName: resvoledFileName,
           source: JSON.stringify(schema),
           meta: {
             pluginKey: this.plugin.key,

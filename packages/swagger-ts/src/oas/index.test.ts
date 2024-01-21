@@ -5,9 +5,11 @@ import type { Infer, MethodMap, Model, PathMap, RequestParams, Response } from '
 
 describe('swagger Infer', () => {
   type Oas = Infer<typeof oas>
+  //   ^?
   type Paths = keyof PathMap<Oas>
+  //    ^?
   type Methods = keyof MethodMap<Oas, '/pet'>
-
+  //     ^?
   type UserModel = Model<Oas, 'User'>
   //     ^?
   type UserRequestParams = RequestParams<Oas, '/pet', 'post'>

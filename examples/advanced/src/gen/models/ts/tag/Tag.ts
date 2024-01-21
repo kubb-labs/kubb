@@ -1,4 +1,4 @@
-export type Tag = {
+export type TagTag = {
   /**
    * @type integer | undefined int64
    */

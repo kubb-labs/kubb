@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable @typescript-eslint/ban-types */
-
 import type { OasTypes } from '@kubb/swagger/oas'
 import type { SplitByDelimiter, TupleToUnion } from '@kubb/types'
 import type { Pipe, Strings, Tuples } from 'hotscript'
@@ -11,28 +9,28 @@ import type {
 import type { MethodMap, ParamMap, PathMap } from './mappers.ts'
 import type { SecurityParamsBySecurityRef } from './security.ts'
 
-namespace Checks {
-  export type RequestBodyJson = {
+type Checks = {
+  RequestBodyJson: {
     requestBody: { content: { 'application/json': { schema: JSONSchema } } }
   }
-  export type RequestBodyFormData = {
+  RequestBodyFormData: {
     requestBody: {
       content: { 'multipart/form-data': { schema: JSONSchema } }
     }
   }
-  export type RequestBodyFormEncoded = {
+  RequestBodyFormEncoded: {
     requestBody: {
       content: {
         'application/x-www-form-urlencoded': { schema: JSONSchema }
       }
     }
   }
-  export type Parameters = {
+  Parameters: {
     parameters: { name: string; in: string }[]
   }
-  export type PathBrackets = `${string}{${string}}${string}`
-  export type PathPattern = `${string}:${string}${string}`
-  export type Required = { required: true }
+  PathBrackets: `${string}{${string}}${string}`
+  PathPattern: `${string}:${string}${string}`
+  Required: { required: true }
 }
 
 type ExtractPathParamsWithPattern<TPath extends string> = Pipe<
@@ -66,7 +64,7 @@ export type RequestParams<
   TPath extends keyof PathMap<TOAS>,
   TMethod extends keyof MethodMap<TOAS, TPath>,
 > =
-  & (MethodMap<TOAS, TPath>[TMethod] extends Checks.RequestBodyJson ? MethodMap<TOAS, TPath>[TMethod]['requestBody'] extends Checks.Required ? {
+  & (MethodMap<TOAS, TPath>[TMethod] extends Checks['RequestBodyJson'] ? MethodMap<TOAS, TPath>[TMethod]['requestBody'] extends Checks['Required'] ? {
         /**
          * The request body in JSON is required for this request.
          *
@@ -86,7 +84,7 @@ export type RequestParams<
         MethodMap<TOAS, TPath>[TMethod]['requestBody']['content']['application/json']['schema']
       >
     }
-    : MethodMap<TOAS, TPath>[TMethod] extends Checks.RequestBodyFormData ? MethodMap<TOAS, TPath>[TMethod]['requestBody'] extends Checks.Required ? {
+    : MethodMap<TOAS, TPath>[TMethod] extends Checks['RequestBodyFormData'] ? MethodMap<TOAS, TPath>[TMethod]['requestBody'] extends Checks['Required'] ? {
           /**
            * The request body in multipart/form-data is required for this request.
            *
@@ -112,7 +110,7 @@ export type RequestParams<
           >[TMethod]['requestBody']['content']['multipart/form-data']['schema']
         >
       }
-    : MethodMap<TOAS, TPath>[TMethod] extends Checks.RequestBodyFormEncoded ? MethodMap<TOAS, TPath>[TMethod]['requestBody'] extends Checks.Required ? {
+    : MethodMap<TOAS, TPath>[TMethod] extends Checks['RequestBodyFormEncoded'] ? MethodMap<TOAS, TPath>[TMethod]['requestBody'] extends Checks['Required'] ? {
           /**
            * The request body in application/x-www-form-urlencoded is required for this request.
            *
@@ -139,10 +137,10 @@ export type RequestParams<
         >
       }
     : {})
-  & (MethodMap<TOAS, TPath>[TMethod] extends Checks.Parameters ? ParamMap<MethodMap<TOAS, TPath>[TMethod]['parameters']>
+  & (MethodMap<TOAS, TPath>[TMethod] extends Checks['Parameters'] ? ParamMap<MethodMap<TOAS, TPath>[TMethod]['parameters']>
     : {})
   & // If there is any parameters defined in path but not in the parameters array, we should add them to the params
-  (TPath extends Checks.PathBrackets ? {
+  (TPath extends Checks['PathBrackets'] ? {
       /**
        * Parameters defined in the path are required for this request.
        *
@@ -153,7 +151,7 @@ export type RequestParams<
       params: Record<ExtractPathParamsWithBrackets<TPath>, string | number | bigint | boolean>
     }
     : {})
-  & (TPath extends Checks.PathPattern ? {
+  & (TPath extends Checks['PathPattern'] ? {
       /**
        * Parameters defined in the path are required for this request.
        *

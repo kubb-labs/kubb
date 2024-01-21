@@ -11,7 +11,7 @@ export function useOperation(): Operation {
 }
 
 type UseOperationNameProps = {
-  type: NonNullable<ResolveNameParams['type']>
+  type: ResolveNameParams['type']
   pluginKey?: Plugin['key']
 }
 

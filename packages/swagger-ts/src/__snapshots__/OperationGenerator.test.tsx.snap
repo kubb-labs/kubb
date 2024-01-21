@@ -49,11 +49,11 @@ export type ListPetsError = Error;
  * @description A paged array of pets
 */
 export type ListPetsQueryResponse = Pets;
-export namespace ListPetsQuery {
-    export type Response = ListPetsQueryResponse;
-    export type QueryParams = ListPetsQueryParams;
-    export type Errors = ListPetsError;
-}
+export type ListPetsQuery = {
+    Response: ListPetsQueryResponse;
+    QueryParams: ListPetsQueryParams;
+    Errors: ListPetsError;
+};
 ",
   },
 ]
@@ -113,11 +113,11 @@ export type ShowPetByIdError = Error;
  * @description Expected response to a valid request
 */
 export type ShowPetByIdQueryResponse = Pet;
-export namespace ShowPetByIdQuery {
-    export type Response = ShowPetByIdQueryResponse;
-    export type PathParams = ShowPetByIdPathParams;
-    export type Errors = ShowPetByIdError;
-}
+export type ShowPetByIdQuery = {
+    Response: ShowPetByIdQueryResponse;
+    PathParams: ShowPetByIdPathParams;
+    Errors: ShowPetByIdError;
+};
 ",
   },
 ]

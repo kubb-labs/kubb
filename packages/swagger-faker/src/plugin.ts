@@ -52,7 +52,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = camelCase(`create ${name}`)
+      const resolvedName = camelCase(name, { prefix: type ? 'create' : undefined, isFile: type === 'file' })
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName

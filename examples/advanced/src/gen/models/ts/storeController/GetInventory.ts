@@ -4,6 +4,6 @@
 export type GetInventoryQueryResponse = {
   [key: string]: number
 }
-export namespace GetInventoryQuery {
-  export type Response = GetInventoryQueryResponse
+export type GetInventoryQuery = {
+  Response: GetInventoryQueryResponse
 }

@@ -1,4 +1,4 @@
-import { camelCase, pascalCase } from './casing.ts'
+import { camelCase, pascalCase, pathCase } from './casing.ts'
 import { combineCodes } from './combineCodes.ts'
 import { createJSDocBlockText } from './createJSDocBlockText.ts'
 import { escape, jsStringEscape } from './escape.ts'
@@ -8,7 +8,7 @@ import { searchAndReplace } from './searchAndReplace.ts'
 import { transformReservedWord } from './transformReservedWord.ts'
 import { trim, trimExtName } from './trim.ts'
 
-export { camelCase, pascalCase } from './casing.ts'
+export { camelCase, pascalCase, pathCase } from './casing.ts'
 export { combineCodes } from './combineCodes.ts'
 export { createJSDocBlockText } from './createJSDocBlockText.ts'
 export { escape, jsStringEscape } from './escape.ts'
@@ -33,4 +33,5 @@ export default {
   },
   camelCase,
   pascalCase,
+  pathCase,
 } as const

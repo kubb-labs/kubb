@@ -1,4 +1,4 @@
-import path from 'node:path'
+import { resolve } from 'node:path'
 
 import { FileManager } from '@kubb/core'
 import { getRelativePath } from '@kubb/core/fs'
@@ -25,7 +25,8 @@ type Options = {
   output: {
     path: string
     exportAs?: string
-    extName?: string
+    extName?: KubbFile.Extname
+    exportType?: 'barrel' | 'barrelNamed' | false
   }
 }
 
@@ -43,9 +44,10 @@ export async function getGroupedByTagFiles({
   root,
   output,
 }: Options): Promise<KubbFile.File<FileMeta>[]> {
-  const mode = FileManager.getMode(path.resolve(root, output.path))
+  const { path, exportType = 'barrel' } = output
+  const mode = FileManager.getMode(resolve(root, path))
 
-  if (mode === 'file') {
+  if (mode === 'file' || exportType === false) {
     return []
   }
 
@@ -63,13 +65,13 @@ export async function getGroupedByTagFiles({
       }
 
       const tag = file.meta?.tag && transformers.camelCase(file.meta.tag)
-      const tagPath = getRelativePath(path.resolve(root, output.path), path.resolve(root, renderTemplate(template, { tag })))
+      const tagPath = getRelativePath(resolve(root, output.path), resolve(root, renderTemplate(template, { tag })))
       const tagName = renderTemplate(exportAs, { tag })
 
       if (tagName) {
         return {
           baseName: 'index.ts' as const,
-          path: path.resolve(root, output.path, 'index.ts'),
+          path: resolve(root, output.path, 'index.ts'),
           source: '',
           exports: [{ path: output.extName ? `${tagPath}/index${output.extName}` : `${tagPath}/index`, asAlias: true, name: tagName }],
           meta: {

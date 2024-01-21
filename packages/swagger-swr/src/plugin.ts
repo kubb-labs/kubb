@@ -69,7 +69,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       let resolvedName = camelCase(name)
 
       if (type === 'file' || type === 'function') {
-        resolvedName = camelCase(`use ${name}`)
+        resolvedName = camelCase(name, { prefix: 'use', isFile: type === 'file' })
       }
 
       if (type === 'type') {
