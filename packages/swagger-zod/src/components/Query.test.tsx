@@ -24,6 +24,7 @@ describe('<Query/>', async () => {
     transformers: {},
     typed: false,
     dateType: 'string',
+    unknownType: 'any',
   }
 
   const plugin = { options } as KubbPlugin<PluginOptions>
