@@ -22,8 +22,8 @@ export type GetPetByIdPathParams = {
  * @description successful operation
  */
 export type GetPetByIdQueryResponse = Pet
-export namespace GetPetByIdQuery {
-  export type Response = GetPetByIdQueryResponse
-  export type PathParams = GetPetByIdPathParams
-  export type Errors = GetPetById400 | GetPetById404
+export type GetPetByIdQuery = {
+  Response: GetPetByIdQueryResponse
+  PathParams: GetPetByIdPathParams
+  Errors: GetPetById400 | GetPetById404
 }
