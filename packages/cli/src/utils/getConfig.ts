@@ -5,6 +5,9 @@ import { getPlugins } from './getPlugins.ts'
 import type { CLIOptions, Config, UserConfig } from '@kubb/core'
 import type { CosmiconfigResult } from './getCosmiConfig.ts'
 
+/**
+ * Converting UserConfig to Config without a change in the object beside the JSON convert.
+ */
 export async function getConfig(result: CosmiconfigResult, CLIOptions: CLIOptions): Promise<Array<Config> | Config> {
   const config = result?.config
   let kubbUserConfig = Promise.resolve(config) as Promise<UserConfig | Array<UserConfig>>

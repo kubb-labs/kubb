@@ -1,5 +1,5 @@
-import type { Config } from '@kubb/core'
+import type { UserConfig } from '@kubb/core'
 
 export type Options = {
-  config?: Config
+  config?: Omit<UserConfig, 'hooks'>
 }

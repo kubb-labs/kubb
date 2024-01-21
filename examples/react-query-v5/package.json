@@ -13,7 +13,8 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "tsup && vite build",
+    "build": "tsup && build:vite",
+    "build:vite": "vite build",
     "clean": "npx rimraf ./dist",
     "dev": "vite",
     "generate": "kubb generate",

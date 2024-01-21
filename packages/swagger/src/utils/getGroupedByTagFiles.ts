@@ -58,7 +58,7 @@ export async function getGroupedByTagFiles({
     .map((file: KubbFile.File<FileMeta>) => {
       if (!file.meta?.tag) {
         if (logger?.logLevel === LogLevel.debug) {
-          logger?.debug(`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`)
+          logger?.emit('debug', [`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`])
         }
 
         return

@@ -127,11 +127,11 @@ export class PluginManager {
       })
 
       if (paths && paths?.length > 1 && this.logger.logLevel === LogLevel.debug) {
-        this.logger.debug(
+        this.logger.emit('debug', [
           `Cannot return a path where the 'pluginKey' ${params.pluginKey ? JSON.stringify(params.pluginKey) : '"'} is not unique enough\n\nPaths: ${
             JSON.stringify(paths, undefined, 2)
           }\n\nFalling back on the first item.\n`,
-        )
+        ])
       }
 
       return paths?.at(0)
@@ -150,11 +150,11 @@ export class PluginManager {
       })
 
       if (names && names?.length > 1 && this.logger.logLevel === LogLevel.debug) {
-        this.logger.debug(
+        this.logger.emit('debug', [
           `Cannot return a name where the 'pluginKey' ${params.pluginKey ? JSON.stringify(params.pluginKey) : '"'} is not unique enough\n\nNames: ${
             JSON.stringify(names, undefined, 2)
           }\n\nFalling back on the first item.\n`,
-        )
+        ])
       }
 
       return transformReservedWord(names?.at(0) || params.name)
@@ -384,7 +384,7 @@ export class PluginManager {
       if (this.logger.logLevel === LogLevel.info) {
         const containsHookName = plugins.some((item) => item[hookName])
         if (!containsHookName) {
-          this.logger.warn(`No hook ${hookName} found`)
+          this.logger.emit('warning', `No hook ${hookName} found`)
         }
       }
 
@@ -439,9 +439,9 @@ export class PluginManager {
 
       if (this.logger.logLevel === LogLevel.debug) {
         if (corePlugin) {
-          this.logger.debug(`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`)
+          this.logger.emit('debug', [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, falling back on the '@kubb/core' plugin`])
         } else {
-          this.logger.debug(`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`)
+          this.logger.emit('debug', [`No hook '${hookName}' for pluginKey '${JSON.stringify(pluginKey)}' found, no fallback found in the '@kubb/core' plugin`])
         }
       }
 
@@ -576,7 +576,7 @@ export class PluginManager {
   #catcher<H extends PluginLifecycleHooks>(e: Error, plugin?: Plugin, hookName?: H) {
     const text = `${e.message} (plugin: ${plugin?.name || 'unknown'}, hook: ${hookName || 'unknown'})\n`
 
-    this.logger.error(text)
+    this.logger.emit('error', text)
     this.events.emit('error', e)
   }
 

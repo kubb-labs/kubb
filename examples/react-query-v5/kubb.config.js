@@ -3,7 +3,7 @@ import createSwagger from '@kubb/swagger'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
 import createSwaggerTS from '@kubb/swagger-ts'
 
-/** @type {import('@kubb/core').KubbUserConfig} */
+/** @type {import('@kubb/core').UserConfig} */
 export const config = {
   root: '.',
   input: {

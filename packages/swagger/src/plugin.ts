@@ -26,7 +26,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     } catch (e) {
       const error = e as Error
 
-      logger.warn(error?.message)
+      logger.emit('warning', error?.message)
       return OasManager.parseFromConfig(config, { validate: false })
     }
   }

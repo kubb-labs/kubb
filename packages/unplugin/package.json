@@ -109,7 +109,7 @@
     "rollup": "^3",
     "vite": ">=3",
     "webpack": "^4 || ^5",
-    "@kubb/core": "^2.4.0"
+    "@kubb/core": "workspace:*"
   },
   "peerDependenciesMeta": {
     "webpack": {
@@ -137,6 +137,7 @@
   "devDependencies": {
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
+    "@kubb/core": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@nuxt/kit": "^3.9.3",
     "@nuxt/schema": "^3.9.3",

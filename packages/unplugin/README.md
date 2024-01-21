@@ -31,7 +31,7 @@
 ## Install
 
 ```bash
-npm i -D unplugin-kubb
+npm i -D unplugin-kubb @kubb/core
 ```
 
 <details>

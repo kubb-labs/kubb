@@ -113,11 +113,11 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
   pluginManager.on('execute', (executer) => {
     const { hookName, parameters, plugin } = executer
 
-    if (hookName === 'writeFile' && logger.spinner) {
+    if (hookName === 'writeFile') {
       const [code] = parameters as PluginParameter<'writeFile'>
 
       if (logger.logLevel === LogLevel.debug) {
-        logger.debug(`PluginKey ${c.dim(JSON.stringify(plugin.key))} \nwith source\n\n${code}`)
+        logger.emit('debug', [`PluginKey ${c.dim(JSON.stringify(plugin.key))} \nwith source\n\n${code}`])
       }
     }
   })
@@ -127,8 +127,8 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
       return
     }
 
-    if (logger.spinner && count === 0) {
-      logger.spinner?.start(`💾 Writing`)
+    if (count === 0) {
+      logger.emit('start', `💾 Writing`)
     }
   })
 
@@ -169,7 +169,7 @@ async function setup(options: BuildOptions): Promise<PluginManager> {
         output,
       ].filter(Boolean)
 
-      logger.debug(logs.join('\n'))
+      logger.emit('debug', logs as string[])
     }
   })
 
@@ -188,9 +188,8 @@ export async function build(options: BuildOptions): Promise<BuildOutput> {
 
   await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
-  if (logger.logLevel === LogLevel.info && logger.spinner) {
-    logger.spinner.suffixText = ''
-    logger.spinner.succeed(`💾 Writing completed`)
+  if (logger.logLevel === LogLevel.info) {
+    logger.emit('end', `💾 Writing completed`)
   }
 
   return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager }
@@ -209,9 +208,8 @@ export async function safeBuild(options: BuildOptions): Promise<BuildOutput> {
 
     await pluginManager.hookParallel({ hookName: 'buildEnd' })
 
-    if (logger.logLevel === LogLevel.info && logger.spinner) {
-      logger.spinner.suffixText = ''
-      logger.spinner.succeed(`💾 Writing completed`)
+    if (logger.logLevel === LogLevel.info) {
+      logger.emit('end', `💾 Writing completed`)
     }
   } catch (e) {
     return { files: fileManager.files.map((file) => ({ ...file, source: FileManager.getSource(file) })), pluginManager, error: e as Error }

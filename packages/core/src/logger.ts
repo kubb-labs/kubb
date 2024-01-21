@@ -2,6 +2,7 @@ import seedrandom from 'seedrandom'
 import c, { createColors } from 'tinyrainbow'
 
 import { writeLog } from './fs/write.ts'
+import { EventEmitter } from './utils/EventEmitter.ts'
 
 import type { Ora } from 'ora'
 import type { Formatter } from 'tinyrainbow'
@@ -14,19 +15,23 @@ export const LogLevel = {
 
 export type LogLevel = keyof typeof LogLevel
 
+type Events = {
+  start: [message: string]
+  end: [message: string]
+  error: [message: string]
+  warning: [message: string]
+  debug: [logs: string[]]
+}
 export type Logger = {
   /**
    * Optional config name to show in CLI output
    */
   name?: string
   logLevel: LogLevel
-  log: (message: string | null) => void
-  error: (message: string | null) => void
-  info: (message: string | null) => void
-  warn: (message: string | null) => void
-  debug: (message: string | null) => Promise<void>
+
   spinner?: Ora
-  logs: string[]
+  on: EventEmitter<Events>['on']
+  emit: EventEmitter<Events>['emit']
 }
 
 type Props = {
@@ -36,50 +41,45 @@ type Props = {
 }
 
 export function createLogger({ logLevel, name, spinner }: Props): Logger {
-  const logs: string[] = []
-  const log: Logger['log'] = (message) => {
-    if (message && spinner) {
-      spinner.text = message
-      logs.push(message)
-    }
-  }
+  const events = new EventEmitter<Events>()
 
-  const error: Logger['error'] = (message) => {
-    if (message) {
-      throw new Error(message || 'Something went wrong')
+  events.on('start', (message) => {
+    if (spinner) {
+      spinner.start(message)
     }
-  }
+  })
 
-  const warn: Logger['warn'] = (message) => {
-    if (message && spinner) {
+  events.on('end', (message) => {
+    if (spinner) {
+      spinner.suffixText = ''
+      spinner.succeed(message)
+    }
+  })
+
+  events.on('warning', (message) => {
+    if (spinner) {
       spinner.warn(c.yellow(message))
-      logs.push(message)
     }
-  }
+  })
 
-  const info: Logger['warn'] = (message) => {
-    if (message && spinner && logLevel !== LogLevel.silent) {
-      spinner.info(message)
-      logs.push(message)
-    }
-  }
+  events.on('error', (message) => {
+    throw new Error(message || 'Something went wrong')
+  })
 
-  const debug: Logger['debug'] = async (message) => {
-    if (message) {
-      await writeLog(message)
-    }
-  }
+  events.on('debug', async (messages) => {
+    await writeLog(messages.join('\n'))
+  })
 
   const logger: Logger = {
     name,
     logLevel,
-    log,
-    error,
-    warn,
-    info,
-    debug,
     spinner,
-    logs,
+    on: (...args) => {
+      return events.on(...args)
+    },
+    emit: (...args) => {
+      return events.emit(...args)
+    },
   }
 
   return logger

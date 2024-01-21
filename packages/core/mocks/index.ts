@@ -11,17 +11,11 @@ export const mockedPluginManager = {
   },
   resolvePath: ({ baseName }) => baseName,
   logger: {
-    info(message) {
+    emit(message) {
       console.log(message)
     },
-    error(message) {
-      console.log(message)
+    on(eventName, args) {
     },
-    warn(message) {
-      console.log(message)
-    },
-    log(message) {
-      console.log(message)
-    },
+    logLevel: 'info',
   },
 } as PluginManager

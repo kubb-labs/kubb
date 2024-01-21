@@ -57,8 +57,8 @@ export function getSummary({ pluginManager, status, hrstart, config, logger }: S
   } as const
 
   if (logLevel === LogLevel.debug) {
-    logger.debug(c.bold('\nGenerated files:\n'))
-    logger.debug(files.map((file) => `${randomCliColour(JSON.stringify(file.meta?.pluginKey))} ${file.path}`).join('\n'))
+    logger.emit('debug', ['\nGenerated files:\n'])
+    logger.emit('debug', files.map((file) => `${randomCliColour(JSON.stringify(file.meta?.pluginKey))} ${file.path}`))
   }
 
   logs.push(
