@@ -63,31 +63,32 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     const withTypeAnnotation = this.options.typed && !operation
 
     // used for this.options.typed
-    const propertyName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
+    const typeName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'type' })
 
     const zodOutput = zodParser(zodInput, {
       required: !!schema?.required,
       keysToOmit,
       name: this.context.pluginManager.resolveName({ name: baseName, pluginKey, type: 'function' }),
       typeName: withTypeAnnotation
-        ? propertyName
+        ? typeName
         : undefined,
     })
 
-    if (withTypeAnnotation && propertyName) {
-      this.imports.push({
-        ref: {
-          propertyName: propertyName,
-          originalName: propertyName,
-          pluginKey: swaggerTypeScriptPluginKey,
-        },
-        path: this.context.pluginManager.resolvePath({
-          baseName: baseName,
-          pluginKey: swaggerTypeScriptPluginKey,
+    if (withTypeAnnotation && typeName) {
+      const typeFileName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'file' })
+      const typePath = this.context.pluginManager.resolvePath({ baseName: typeFileName, pluginKey: swaggerTypeScriptPluginKey })
+
+      if (typePath) {
+        this.imports.push({
+          ref: {
+            propertyName: typeName,
+            originalName: baseName,
+            pluginKey: swaggerTypeScriptPluginKey,
+          },
+          path: typePath,
+          isTypeOnly: true,
         })
-          || '',
-        isTypeOnly: true,
-      })
+      }
     }
 
     texts.push(zodOutput)

@@ -1,5 +1,5 @@
 import { categorySchema } from './categorySchema'
-import { tagSchema } from './tagSchema'
+import { tagTagSchema } from './tagTagSchema'
 import { z } from 'zod'
 import type { Pet } from '../models/ts/Pet'
 
@@ -8,6 +8,6 @@ export const petSchema: z.ZodType<Pet> = z.object({
   'name': z.string(),
   'category': z.lazy(() => categorySchema).optional(),
   'photoUrls': z.array(z.string()),
-  'tags': z.array(z.lazy(() => tagSchema)).optional(),
+  'tags': z.array(z.lazy(() => tagTagSchema)).optional(),
   'status': z.enum([`available`, `pending`, `sold`]).describe(`pet status in the store`).optional(),
 })

@@ -1,7 +1,7 @@
 import path from 'node:path'
 
 import { createPlugin, FileManager, PluginManager } from '@kubb/core'
-import { camelCase, pascalCase, pathCase } from '@kubb/core/transformers'
+import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 import { pluginName as swaggerPluginName } from '@kubb/swagger'
 
@@ -63,7 +63,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = type === 'file' ? pathCase(name) : pascalCase(name)
+      const resolvedName = pascalCase(name, { isFile: type === 'file' })
+
+      if (name === 'tag.Tag') {
+        console.log({ name, type, resolvedName })
+      }
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName

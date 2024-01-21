@@ -516,23 +516,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User.Test"
+              $ref: "#/components/schemas/User"
           application/xml:
             schema:
-              $ref: "#/components/schemas/User.Test"
+              $ref: "#/components/schemas/User"
           application/x-www-form-urlencoded:
             schema:
-              $ref: "#/components/schemas/User.Test"
+              $ref: "#/components/schemas/User"
       responses:
         default:
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User.Test"
+                $ref: "#/components/schemas/User"
             application/xml:
               schema:
-                $ref: "#/components/schemas/User.Test"
+                $ref: "#/components/schemas/User"
   /user/createWithList:
     post:
       tags:
@@ -546,17 +546,17 @@ paths:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/User.Test"
+                $ref: "#/components/schemas/User"
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User.Test"
+                $ref: "#/components/schemas/User"
             application/xml:
               schema:
-                $ref: "#/components/schemas/User.Test"
+                $ref: "#/components/schemas/User"
         default:
           description: successful operation
   /user/login:
@@ -633,10 +633,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User.Test"
+                $ref: "#/components/schemas/User"
             application/xml:
               schema:
-                $ref: "#/components/schemas/User.Test"
+                $ref: "#/components/schemas/User"
         "400":
           description: Invalid username supplied
         "404":
@@ -659,13 +659,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User.Test"
+              $ref: "#/components/schemas/User"
           application/xml:
             schema:
-              $ref: "#/components/schemas/User.Test"
+              $ref: "#/components/schemas/User"
           application/x-www-form-urlencoded:
             schema:
-              $ref: "#/components/schemas/User.Test"
+              $ref: "#/components/schemas/User"
       responses:
         default:
           description: successful operation
@@ -778,7 +778,7 @@ components:
           example: Dogs
       xml:
         name: category
-    User.Test:
+    User:
       type: object
       properties:
         id:
@@ -810,7 +810,7 @@ components:
           example: 1
       xml:
         name: user
-    Tag:
+    tag.Tag:
       type: object
       properties:
         id:
@@ -851,7 +851,7 @@ components:
           xml:
             wrapped: true
           items:
-            $ref: "#/components/schemas/Tag"
+            $ref: "#/components/schemas/tag.Tag"
         status:
           type: string
           description: pet status in the store
@@ -889,7 +889,7 @@ components:
           xml:
             wrapped: true
           items:
-            $ref: "#/components/schemas/Tag"
+            $ref: "#/components/schemas/tag.Tag"
         status:
           type: string
           description: pet status in the store
@@ -928,7 +928,7 @@ components:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/User.Test"
+              $ref: "#/components/schemas/User"
   securitySchemes:
     petstore_auth:
       type: oauth2

@@ -1,17 +1,35 @@
-import { camelCase as changeCaseCamel, pascalCase as changePascalCase, pathCase as changePathCase } from 'change-case'
+import { camelCase as changeCamelCase, pascalCase as changePascalCase, pathCase as changePathCase } from 'change-case'
 
-export function camelCase(text: string): string {
-  return changeCaseCamel(text, { delimiter: '', mergeAmbiguousCharacters: true })
+type Options = {
+  /**
+   * When set it will replace all `.` with `/`.
+   */
+  isFile?: boolean
 }
 
-export function pascalCase(text: string): string {
+export function camelCase(text: string, { isFile }: Options = {}): string {
+  if (isFile) {
+    const splitArray = text.split('.')
+    return splitArray.map((item, i) => i === splitArray.length - 1 ? camelCase(item) : item).join('/')
+  }
+
+  return changeCamelCase(text, { delimiter: '', mergeAmbiguousCharacters: true })
+}
+
+export function pascalCase(text: string, { isFile }: Options = {}): string {
+  if (isFile) {
+    const splitArray = text.split('.')
+    return splitArray.map((item, i) => i === splitArray.length - 1 ? pascalCase(item) : item).join('/')
+  }
+
   return changePascalCase(text, { delimiter: '', mergeAmbiguousCharacters: true })
 }
 
-export function pathCase(text: string, { mode = 'simple' }: { mode?: 'simple' } = {}): string {
-  if (mode === 'simple') {
-    return text.replaceAll('.', '/')
+export function pathCase(text: string, { isFile }: Options = {}): string {
+  if (isFile) {
+    const splitArray = text.split('.')
+    return splitArray.map((item, i) => i === splitArray.length - 1 ? pathCase(item) : item).join('/')
   }
 
-  return changePathCase(text)
+  return changePathCase(text, { delimiter: '' })
 }

@@ -62,21 +62,25 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
     })
     // hack to add typescript imports
     if (typeName) {
-      const ref = {
-        propertyName: typeName,
-        originalName: baseName,
-      }
-      const path = this.context.pluginManager.resolvePath({
-        baseName: operationName || typeName,
+      const typeFileName = this.context.pluginManager.resolveName({ name: baseName, pluginKey: swaggerTypeScriptPluginKey, type: 'file' })
+
+      const typePath = this.context.pluginManager.resolvePath({
+        baseName: operationName || typeFileName,
         pluginKey: swaggerTypeScriptPluginKey,
         options: { tag: operation?.getTags()[0]?.name },
       })
 
-      this.imports.push({
-        ref,
-        path: path || '',
-        isTypeOnly: true,
-      })
+      if (typePath) {
+        this.imports.push({
+          ref: {
+            propertyName: typeName,
+            originalName: baseName,
+            pluginKey: swaggerTypeScriptPluginKey,
+          },
+          path: typePath,
+          isTypeOnly: true,
+        })
+      }
     }
 
     texts.push(fakerOutput)
