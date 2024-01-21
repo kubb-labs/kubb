@@ -6,7 +6,7 @@ import { camelCase } from '@kubb/core/transformers'
 import { getSchemas } from './utils/getSchemas.ts'
 import { OasManager } from './OasManager.ts'
 
-import type { KubbConfig } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type { Oas, OasTypes } from './oas/index.ts'
 import type { PluginOptions } from './types.ts'
@@ -17,7 +17,7 @@ export const pluginKey: PluginOptions['key'] = [pluginName] satisfies PluginOpti
 export const definePlugin = createPlugin<PluginOptions>((options) => {
   const { output = { path: 'schemas' }, validate = true, serverIndex = 0, contentType } = options
 
-  const getOas = async (config: KubbConfig, logger: Logger): Promise<Oas> => {
+  const getOas = async (config: Config, logger: Logger): Promise<Oas> => {
     try {
       // needs to be in a different variable or the catch here will not work(return of a promise instead)
       const oas = await OasManager.parseFromConfig(config, { validate })
@@ -26,7 +26,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     } catch (e) {
       const error = e as Error
 
-      logger.warn(error?.message)
+      logger.emit('warning', error?.message)
       return OasManager.parseFromConfig(config, { validate: false })
     }
   }

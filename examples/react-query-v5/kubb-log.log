@@ -1,0 +1,6 @@
+[1m[31mswagger-tanstack-query[39m[22m Executing writeFile
+[47mParameters[49m [1m[31mswagger-tanstack-query[39m[22m writeFile
+[
+  "export * from \"./models/index\";\nexport * from \"./hooks/index\";\n\n",
+  "/Users/stijnvanhulle/GitHub/kubb/examples/react-query-v5/src/gen/index.ts"
+]

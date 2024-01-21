@@ -402,7 +402,6 @@ export default defineConfig({
 })
 ```
 
-
 :::
 
 ### transformers

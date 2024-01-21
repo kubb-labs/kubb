@@ -6,13 +6,13 @@ import { LogLevel } from '@kubb/core/logger'
 import transformers from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 
-import type { KubbFile, KubbPlugin } from '@kubb/core'
+import type { KubbFile, Plugin } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 
 type Options = {
   logger?: Logger
   files: KubbFile.File[]
-  plugin: KubbPlugin
+  plugin: Plugin
   template: string
   exportAs: string
   /**
@@ -31,7 +31,7 @@ type Options = {
 }
 
 type FileMeta = {
-  pluginKey?: KubbPlugin['key']
+  pluginKey?: Plugin['key']
   tag?: string
 }
 
@@ -58,7 +58,7 @@ export async function getGroupedByTagFiles({
     .map((file: KubbFile.File<FileMeta>) => {
       if (!file.meta?.tag) {
         if (logger?.logLevel === LogLevel.debug) {
-          logger?.debug(`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`)
+          logger?.emit('debug', [`Could not find a tagName for ${JSON.stringify(file, undefined, 2)}`])
         }
 
         return

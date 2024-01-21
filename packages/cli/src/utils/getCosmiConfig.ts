@@ -4,12 +4,12 @@
 import { bundleRequire } from 'bundle-require'
 import { cosmiconfig } from 'cosmiconfig'
 
-import type { defineConfig, KubbUserConfig } from '@kubb/core'
+import type { defineConfig, UserConfig } from '@kubb/core'
 
 export type CosmiconfigResult = {
   filepath: string
   isEmpty?: boolean
-  config: ReturnType<typeof defineConfig> | KubbUserConfig
+  config: ReturnType<typeof defineConfig> | UserConfig
 }
 
 const tsLoader = async (configFile: string) => {

@@ -7,7 +7,7 @@ import { findSchemaDefinition } from 'oas/utils'
 import { isReference } from './utils/isReference.ts'
 
 import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
-import type { KubbPlugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/types'
 import type { Oas, OasTypes, OpenAPIV3, Operation } from './oas/index.ts'
 import type { ContentType, Exclude, Include, OperationSchemas, Override, Paths } from './types.ts'
@@ -26,7 +26,7 @@ type Context<TOptions, TPluginOptions extends PluginFactoryOptions> = {
   /**
    * Current plugin
    */
-  plugin: KubbPlugin<TPluginOptions>
+  plugin: Plugin<TPluginOptions>
   mode?: KubbFile.Mode
 }
 

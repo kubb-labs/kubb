@@ -1,6 +1,7 @@
 {
   "name": "svelte-query-pet-store",
   "version": "0.0.1",
+  "private": true,
   "description": "SvelteQuery PetStore example",
   "repository": {
     "type": "git",
@@ -10,7 +11,6 @@
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
-  "private": true,
   "type": "module",
   "scripts": {
     "build": "tsup",

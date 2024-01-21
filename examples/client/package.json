@@ -1,6 +1,7 @@
 {
   "name": "client-pet-store",
   "version": "0.0.1",
+  "private": true,
   "description": "Client PetStore example",
   "repository": {
     "type": "git",
@@ -10,7 +11,6 @@
   "license": "MIT",
   "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
   "sideEffects": false,
-  "private": true,
   "scripts": {
     "build": "tsup",
     "clean": "npx rimraf ./dist",

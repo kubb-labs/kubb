@@ -6,7 +6,7 @@ import { getConfig } from './getConfig.ts'
 import type { CosmiconfigResult } from './getCosmiConfig.ts'
 
 describe('getConfig', () => {
-  test('return KubbConfig when config is set with defineConfig', async () => {
+  test('return Config when config is set with defineConfig', async () => {
     const config: CosmiconfigResult['config'] = defineConfig(() => {
       return {
         input: {
@@ -38,7 +38,7 @@ describe('getConfig', () => {
     })
   })
 
-  test('return KubbConfig[] when config is set with defineConfig', async () => {
+  test('return Config[] when config is set with defineConfig', async () => {
     const config: CosmiconfigResult['config'] = defineConfig(() => {
       return [
         {
