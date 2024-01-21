@@ -3,46 +3,46 @@
 
 import type { Call, Objects, Tuples } from 'hotscript'
 
-namespace Checks {
-  export type Security = { security: { [key: string]: any }[] }
+type Checks = {
+  Security: { security: { [key: string]: any }[] }
 
-  export namespace AuthParams {
-    export type Basic =
+  AuthParams: {
+    Basic:
       | {
         type: 'http'
         scheme: 'basic'
       }
       | { type: 'basic' }
-    export type Bearer =
+    Bearer:
       | {
         type: 'http'
         scheme: 'bearer'
       }
       | { type: 'bearer' }
 
-    export type OAuth2 = {
+    OAuth2: {
       type: 'oauth2'
     }
-    export type ApiKey = {
+    ApiKey: {
       type: 'apiKey'
       in: 'header'
     }
   }
 
-  export namespace AuthName {
-    export type Basic = `basic${string}`
-    export type Bearer = `bearer${string}`
-    export type OAuth2 = `oauth${string}`
+  AuthName: {
+    Basic: `basic${string}`
+    Bearer: `bearer${string}`
+    OAuth2: `oauth${string}`
   }
 }
 
-type SecuritySchemeName<T extends Checks.Security> = Call<
+type SecuritySchemeName<T extends Checks['Security']> = Call<
   Tuples.Map<Objects.Keys>,
   T['security']
 >[number]
 
 namespace AuthParams {
-  export type Basic<TSecurityScheme> = TSecurityScheme extends Checks.AuthParams.Basic ? {
+  export type Basic<TSecurityScheme> = TSecurityScheme extends Checks['AuthParams']['Basic'] ? {
       headers: {
         /**
          * `Authorization` header is required for basic authentication
@@ -60,7 +60,7 @@ namespace AuthParams {
     }
     : {}
 
-  export type Bearer<TSecurityScheme> = TSecurityScheme extends Checks.AuthParams.Bearer ? {
+  export type Bearer<TSecurityScheme> = TSecurityScheme extends Checks['AuthParams']['Bearer'] ? {
       /**
        * `Authorization` header is required for bearer authentication
        * @see https://swagger.io/docs/specification/authentication/bearer-authentication/
@@ -79,7 +79,7 @@ namespace AuthParams {
     }
     : {}
 
-  export type ApiKey<TSecurityScheme> = TSecurityScheme extends Checks.AuthParams.ApiKey & { name: infer TApiKeyHeaderName } ? {
+  export type ApiKey<TSecurityScheme> = TSecurityScheme extends Checks['AuthParams']['ApiKey'] & { name: infer TApiKeyHeaderName } ? {
       headers: {
         /**
          * Header required for API key authentication
@@ -101,7 +101,7 @@ namespace AuthParams {
       }
     : {}
 
-  export type OAuth2<TSecurityScheme> = TSecurityScheme extends Checks.AuthParams.OAuth2 ? {
+  export type OAuth2<TSecurityScheme> = TSecurityScheme extends Checks['AuthParams']['OAuth2'] ? {
       /**
        * `Authorization` header is required for OAuth2.
        */
@@ -122,7 +122,7 @@ type OASSecurityParams<TSecurityScheme> =
   & AuthParams.ApiKey<TSecurityScheme>
   & AuthParams.OAuth2<TSecurityScheme>
 
-export type SecurityParamsBySecurityRef<TOAS, TSecurityObj> = TSecurityObj extends Checks.Security ? TOAS extends
+export type SecurityParamsBySecurityRef<TOAS, TSecurityObj> = TSecurityObj extends Checks['Security'] ? TOAS extends
     | {
       components: {
         securitySchemes: {
@@ -143,15 +143,15 @@ export type SecurityParamsBySecurityRef<TOAS, TSecurityObj> = TSecurityObj exten
     } ? OASSecurityParams<TSecurityScheme>
     // OAS may have a bad reference to a security scheme
     // So we can assume it
-  : SecuritySchemeName<TSecurityObj> extends Checks.AuthName.Basic ? AuthParams.Basic<{
+  : SecuritySchemeName<TSecurityObj> extends Checks['AuthName']['Basic'] ? AuthParams.Basic<{
       type: 'http'
       scheme: 'basic'
     }>
-  : SecuritySchemeName<TSecurityObj> extends Checks.AuthName.Bearer ? AuthParams.Bearer<{
+  : SecuritySchemeName<TSecurityObj> extends Checks['AuthName']['Bearer'] ? AuthParams.Bearer<{
       type: 'http'
       scheme: 'bearer'
     }>
-  : SecuritySchemeName<TSecurityObj> extends Checks.AuthName.OAuth2 ? AuthParams.OAuth2<{
+  : SecuritySchemeName<TSecurityObj> extends Checks['AuthName']['OAuth2'] ? AuthParams.OAuth2<{
       type: 'oauth2'
     }>
   : {}

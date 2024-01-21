@@ -1,27 +1,26 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 import type { OasTypes } from '@kubb/swagger/oas'
 import type {
   FromSchema,
   JSONSchema,
 } from 'json-schema-to-ts'
 
-namespace Checks {
-  export type ModelWithSchemas = {
+type Checks<TName extends string | number | symbol = never> = {
+  ModelWithSchemas: {
     components: {
       schemas: Record<string, JSONSchema>
     }
   }
-  export type ModelWithSchemasNamed<TName extends string | number | symbol> = {
+  ModelWithSchemasNamed: {
     components: {
       schemas: {
         [TModelName in TName]: JSONSchema
       }
     }
   }
-  export type ModelWithDefinitions = {
+  ModelWithDefinitions: {
     definitions: Record<string, JSONSchema>
   }
-  export type ModelWithDefinitionsNamed<TName extends string | number | symbol = never> = {
+  ModelWithDefinitionsNamed: {
     definitions: {
       [TModelName in TName]: JSONSchema
     }
@@ -30,9 +29,9 @@ namespace Checks {
 
 export type Model<
   TOAS extends OasTypes.OASDocument,
-  TName extends TOAS extends Checks.ModelWithSchemas ? keyof TOAS['components']['schemas']
-    : TOAS extends Checks.ModelWithDefinitions ? keyof TOAS['definitions']
+  TName extends TOAS extends Checks['ModelWithSchemas'] ? keyof TOAS['components']['schemas']
+    : TOAS extends Checks['ModelWithDefinitions'] ? keyof TOAS['definitions']
     : never,
-> = TOAS extends Checks.ModelWithSchemasNamed<TName> ? FromSchema<TOAS['components']['schemas'][TName]>
-  : TOAS extends Checks.ModelWithDefinitionsNamed<TName> ? FromSchema<TOAS['definitions'][TName]>
+> = TOAS extends Checks<TName>['ModelWithSchemasNamed'] ? FromSchema<TOAS['components']['schemas'][TName]>
+  : TOAS extends Checks<TName>['ModelWithDefinitionsNamed'] ? FromSchema<TOAS['definitions'][TName]>
   : never
