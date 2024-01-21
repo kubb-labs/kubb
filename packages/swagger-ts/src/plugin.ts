@@ -65,10 +65,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     resolveName(name, type) {
       const resolvedName = pascalCase(name, { isFile: type === 'file' })
 
-      if (name === 'tag.Tag') {
-        console.log({ name, type, resolvedName })
-      }
-
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName
       }

@@ -1,5 +1,5 @@
 import { categorySchema } from './categorySchema'
-import { tagTagSchema } from './tagTagSchema'
+import { tagTagSchema } from './tag/tagSchema'
 import { z } from 'zod'
 import type { AddPetRequest } from '../models/ts/AddPetRequest'
 

@@ -145,12 +145,13 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
     const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey, type: 'function' })
 
+    const fileName = this.context.pluginManager.resolveName({ name: originalName, pluginKey, type: 'file' })
+    const path = this.context.pluginManager.resolvePath({ baseName: fileName, pluginKey })
+
     ref = this.refs[$ref] = {
       propertyName,
       originalName,
     }
-
-    const path = this.context.pluginManager.resolvePath({ baseName: propertyName, pluginKey })
 
     this.imports.push({
       ref,

@@ -162,7 +162,6 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
     const propertyName = this.context.pluginManager.resolveName({ name: originalName, pluginKey, 'type': 'function' })
-    const path = this.context.pluginManager.resolvePath({ baseName: propertyName, pluginKey })
 
     if (ref) {
       return [{ keyword: zodKeywords.ref, args: { name: ref.propertyName } }]
@@ -173,11 +172,16 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
       originalName,
     }
 
-    this.imports.push({
-      ref,
-      path: path || '',
-      isTypeOnly: false,
-    })
+    const fileName = this.context.pluginManager.resolveName({ name: originalName, pluginKey, type: 'file' })
+    const path = this.context.pluginManager.resolvePath({ baseName: fileName, pluginKey })
+
+    if (path) {
+      this.imports.push({
+        ref,
+        path,
+        isTypeOnly: false,
+      })
+    }
 
     return [{ keyword: zodKeywords.ref, args: { name: ref.propertyName } }]
   }

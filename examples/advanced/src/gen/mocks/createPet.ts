@@ -1,5 +1,5 @@
 import { createCategory } from './createCategory'
-import { createTagTag } from './createTagTag'
+import { createTagTag } from './tag/createTag'
 import { faker } from '@faker-js/faker'
 import type { Pet } from '../models/ts/Pet'
 

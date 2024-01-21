@@ -30,8 +30,8 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       return path.resolve(root, baseName)
     },
-    resolveName(name) {
-      return camelCase(name)
+    resolveName(name, type) {
+      return camelCase(name, { isFile: type === 'file' })
     },
     async writeFile(source, writePath) {
       if (!writePath.endsWith('.ts') || !source) {
