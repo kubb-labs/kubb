@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 2.4.1
+
+### Patch Changes
+
+- [#791](https://github.com/kubb-project/kubb/pull/791) [`e9aaa92`](https://github.com/kubb-project/kubb/commit/e9aaa92b891971d22cbb19f4a1bd37edbdc8bd7d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Do not create barrel files with `getGroupedByTagFiles`
+
+- Updated dependencies []:
+  - @kubb/core@2.4.1
+  - @kubb/react@2.4.1
+
 ## 2.4.0
 
 ### Patch Changes
