@@ -1,5 +1,6 @@
 export const zodKeywords = {
   any: 'any',
+  unknown: 'unknown',
   number: 'number',
   integer: 'integer',
   object: 'object',
@@ -39,6 +40,7 @@ export type ZodKeyword = keyof typeof zodKeywords
 
 export const zodKeywordMapper: Record<ZodKeyword, string> = {
   any: 'z.any',
+  unknown: 'z.unknown',
   number: 'z.number',
   integer: 'z.number',
   object: 'z.object',
@@ -79,7 +81,7 @@ type ZodMetaBase<T> = {
   args: T
 }
 
-type ZodMetaUnknown = { keyword: string }
+type ZodMetaUnknown = { keyword: typeof zodKeywords.unknown }
 
 type ZodMetaAny = { keyword: typeof zodKeywords.any }
 type ZodMetaNull = { keyword: typeof zodKeywords.null }
@@ -132,6 +134,7 @@ type ZodMetaUrl = { keyword: typeof zodKeywords.url }
 type ZodMetaReadOnly = { keyword: typeof zodKeywords.readOnly }
 
 export type ZodMeta =
+  | { keyword: string }
   | ZodMetaUnknown
   | ZodMetaAny
   | ZodMetaNull

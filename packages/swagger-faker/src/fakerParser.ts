@@ -1,5 +1,6 @@
 export const fakerKeywords = {
   any: 'any',
+  unknown: 'unknown',
   number: 'number',
   integer: 'integer',
   string: 'string',
@@ -32,6 +33,7 @@ export type FakerKeyword = keyof typeof fakerKeywords
 
 export const fakerKeywordMapper: Record<FakerKeyword, string> = {
   any: 'undefined',
+  unknown: 'unknown',
   number: 'faker.number.float',
   integer: 'faker.number.int',
   string: 'faker.string.alpha',
@@ -65,7 +67,7 @@ type FakerMetaBase<T> = {
   args: T
 }
 
-type FakerMetaUnknown = { keyword: string }
+type FakerMetaUnknown = { keyword: typeof fakerKeywords.unknown }
 
 type FakerMetaAny = { keyword: typeof fakerKeywords.any }
 type FakerMetaNull = { keyword: typeof fakerKeywords.null }
@@ -111,6 +113,7 @@ type FakerMetaUuid = { keyword: typeof fakerKeywords.uuid }
 type FakerMetaUrl = { keyword: typeof fakerKeywords.url }
 
 export type FakerMeta =
+  | { keyword: string }
   | FakerMetaUnknown
   | FakerMetaAny
   | FakerMetaNull

@@ -24,6 +24,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     override = [],
     enumType = 'asConst',
     dateType = 'string',
+    unknownType = 'any',
     optionalType = 'questionToken',
     transformers = {},
     oasType = false,
@@ -40,6 +41,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       oasType,
       // keep the used enumnames between TypeBuilder and OperationGenerator per plugin(pluginKey)
       usedEnumNames: {},
+      unknownType,
     },
     pre: [swaggerPluginName],
     resolvePath(baseName, directory, options) {

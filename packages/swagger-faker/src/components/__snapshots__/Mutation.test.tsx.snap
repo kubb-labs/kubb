@@ -6,7 +6,7 @@ exports[`<Mutation/> > pets 1`] = `
  */
 
 export function createCreatePets201(): NonNullable<CreatePets201> {
-  return undefined
+  return unknown()
 }
 
 export function createCreatePetsMutationRequest(): NonNullable<CreatePetsMutationRequest> {
@@ -14,7 +14,7 @@ export function createCreatePetsMutationRequest(): NonNullable<CreatePetsMutatio
 }
 
 export function createCreatePetsMutationResponse(): NonNullable<CreatePetsMutationResponse> {
-  return undefined
+  return unknown()
 }
 
 /**

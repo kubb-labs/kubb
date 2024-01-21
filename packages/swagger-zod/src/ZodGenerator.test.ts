@@ -19,6 +19,7 @@ describe('ZodGenerator PetStore', async () => {
       transformers: {},
       typed: false,
       dateType: 'string',
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -38,6 +39,7 @@ describe('ZodGenerator PetStore', async () => {
       transformers: {},
       typed: false,
       dateType: 'string',
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -57,6 +59,7 @@ describe('ZodGenerator PetStore', async () => {
       transformers: {},
       typed: false,
       dateType: 'string',
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -76,6 +79,7 @@ describe('ZodGenerator PetStore', async () => {
       transformers: {},
       typed: true,
       dateType: 'string',
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -98,6 +102,7 @@ describe('ZodGenerator constCases', async () => {
     transformers: {},
     typed: false,
     dateType: 'string',
+    unknownType: 'any',
   }, {
     oas,
     pluginManager: mockedPluginManager,
@@ -174,6 +179,7 @@ describe('ZodGenerator lazy', async () => {
       transformers: {},
       typed: false,
       dateType: 'string',
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -196,6 +202,7 @@ describe('ZodGenerator enums', async () => {
     transformers: {},
     typed: false,
     dateType: 'string',
+    unknownType: 'any',
   }, {
     oas,
     pluginManager: mockedPluginManager,
@@ -228,6 +235,7 @@ describe('ZodGenerator recursive', async () => {
       transformers: {},
       typed: false,
       dateType: 'string',
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,

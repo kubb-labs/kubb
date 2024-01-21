@@ -69,6 +69,11 @@ export type Options = {
    */
   dateType?: 'string' | 'date'
   /**
+   * Which type to use when the Swagger/OpenAPI file is not providing more information
+   * @default 'any'
+   */
+  unknownType?: 'any' | 'unknown'
+  /**
    * Use TypeScript(`@kubb/swagger-ts`) to add type annotation.
    */
   typed?: boolean
@@ -80,6 +85,7 @@ type ResolvedOptions = {
   include: Options['include']
   override: Options['override']
   dateType: NonNullable<Options['dateType']>
+  unknownType: NonNullable<Options['unknownType']>
   typed: NonNullable<Options['typed']>
 }
 

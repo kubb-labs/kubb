@@ -455,6 +455,7 @@ export function createOmitDeclaration({ keys, type, nonNullable }: { keys: Array
 
 export const keywordTypeNodes = {
   any: factory.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword),
+  unknown: factory.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword),
   number: factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
   integer: factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
   object: factory.createKeywordTypeNode(ts.SyntaxKind.ObjectKeyword),

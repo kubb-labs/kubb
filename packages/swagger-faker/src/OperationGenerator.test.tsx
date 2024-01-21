@@ -19,6 +19,7 @@ describe('OperationGenerator', async () => {
       mapper: {},
       seed: undefined,
       transformers: {},
+      unknownType: 'any',
     }
 
     const og = await new OperationGenerator(
@@ -49,6 +50,7 @@ describe('OperationGenerator', async () => {
       mapper: {},
       seed: [222],
       transformers: {},
+      unknownType: 'any',
     }
 
     const og = await new OperationGenerator(
@@ -79,6 +81,7 @@ describe('OperationGenerator', async () => {
       mapper: {},
       seed: undefined,
       transformers: {},
+      unknownType: 'any',
     }
 
     const og = await new OperationGenerator(
@@ -94,6 +97,33 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pets', 'post')
+    const files = await og.post(operation, og.getSchemas(operation), options)
+
+    expect(files).toMatchSnapshot()
+  })
+
+  test('[DELETE] should generate with unknownType `any`', async () => {
+    const options: GetOperationGeneratorOptions<OperationGenerator> = {
+      dateType: 'date',
+      mapper: {},
+      seed: undefined,
+      transformers: {},
+      unknownType: 'any',
+    }
+
+    const og = await new OperationGenerator(
+      options,
+      {
+        oas,
+        exclude: [],
+        include: undefined,
+        pluginManager: mockedPluginManager,
+        plugin: {} as KubbPlugin<PluginOptions>,
+        contentType: undefined,
+        override: undefined,
+      },
+    )
+    const operation = oas.operation('/pet/{petId}', 'delete')
     const files = await og.post(operation, og.getSchemas(operation), options)
 
     expect(files).toMatchSnapshot()

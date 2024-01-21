@@ -143,7 +143,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
 
     if (additionalProperties) {
       const addionalValidationFunctions: ZodMeta[] = additionalProperties === true
-        ? [{ keyword: zodKeywords.any }]
+        ? [{ keyword: this.#unknownReturn }]
         : this.getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
 
       members.push({ keyword: zodKeywords.catchall, args: addionalValidationFunctions })
@@ -194,7 +194,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     const { schema, version } = this.#getParsedSchema(_schema)
 
     if (!schema) {
-      return [{ keyword: zodKeywords.any }]
+      return [{ keyword: this.#unknownReturn }]
     }
 
     if (isReference(schema)) {
@@ -228,7 +228,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
           })
           .filter(Boolean)
           .filter((item) => {
-            return item && item.keyword !== zodKeywords.any
+            return item && item.keyword !== this.#unknownReturn
           }),
       }
       if (schemaWithoutOneOf.properties) {
@@ -250,7 +250,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
           })
           .filter(Boolean)
           .filter((item) => {
-            return item && item.keyword !== zodKeywords.any
+            return item && item.keyword !== this.#unknownReturn
           }),
       }
       if (schemaWithoutAnyOf.properties) {
@@ -271,7 +271,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
           })
           .filter(Boolean)
           .filter((item) => {
-            return item && item.keyword !== zodKeywords.any
+            return item && item.keyword !== this.#unknownReturn
           }),
       }
 
@@ -452,6 +452,13 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
       // TODO binary
     }
 
-    return [{ keyword: zodKeywords.any }]
+    return [{ keyword: this.#unknownReturn }]
+  }
+  get #unknownReturn() {
+    if (this.options.unknownType === 'any') {
+      return zodKeywords.any
+    }
+
+    return zodKeywords.unknown
   }
 }

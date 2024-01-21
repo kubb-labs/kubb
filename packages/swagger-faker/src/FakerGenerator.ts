@@ -118,7 +118,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
 
     if (additionalProperties) {
       const addionalValidationFunctions: FakerMeta[] = additionalProperties === true
-        ? [{ keyword: fakerKeywords.any }]
+        ? [{ keyword: this.#unknownReturn }]
         : this.getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
 
       members.push({ keyword: fakerKeywords.catchall, args: addionalValidationFunctions })
@@ -170,7 +170,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
     const { schema, version } = this.#getParsedSchema(_schema)
 
     if (!schema) {
-      return [{ keyword: fakerKeywords.any }]
+      return [{ keyword: this.#unknownReturn }]
     }
 
     if (isReference(schema)) {
@@ -189,7 +189,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
           })
           .filter(Boolean)
           .filter((item) => {
-            return item && item.keyword !== fakerKeywords.any
+            return item && item.keyword !== this.#unknownReturn
           }),
       }
       if (schemaWithoutOneOf.properties && union.args) {
@@ -211,7 +211,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
           })
           .filter(Boolean)
           .filter((item) => {
-            return item && item.keyword !== fakerKeywords.any
+            return item && item.keyword !== this.#unknownReturn
           }),
       }
       if (schemaWithouAnyOf.properties && union.args) {
@@ -232,7 +232,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
           })
           .filter(Boolean)
           .filter((item) => {
-            return item && item.keyword !== fakerKeywords.any
+            return item && item.keyword !== this.#unknownReturn
           }),
       }
 
@@ -371,6 +371,14 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
       // TODO binary
     }
 
-    return [{ keyword: fakerKeywords.any }]
+    return [{ keyword: this.#unknownReturn }]
+  }
+
+  get #unknownReturn() {
+    if (this.options.unknownType === 'any') {
+      return fakerKeywords.any
+    }
+
+    return fakerKeywords.unknown
   }
 }

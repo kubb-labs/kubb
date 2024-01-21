@@ -11,16 +11,16 @@ describe('OperationGenerator', async () => {
   const oas = await OasManager.parseFromConfig({
     root: './',
     output: { path: 'test', clean: true },
-    input: { path: 'packages/swagger-ts/mocks/petStore.yaml' },
+    input: { path: 'packages/swagger-zod/mocks/petStore.yaml' },
   })
-  test('[GET] should generate with optionalType `questionToken`', async () => {
+  test('[GET] should generate', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
-      enumType: 'asConst',
-      dateType: 'string',
-      optionalType: 'questionToken',
-      usedEnumNames: {},
+      dateType: 'date',
       transformers: {},
-      oasType: false,
+      typed: false,
+      exclude: undefined,
+      include: undefined,
+      override: undefined,
       unknownType: 'any',
     }
 
@@ -48,12 +48,12 @@ describe('OperationGenerator', async () => {
 
   test('[POST] should generate', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
-      enumType: 'asConst',
-      dateType: 'string',
-      optionalType: 'questionToken',
-      usedEnumNames: {},
+      dateType: 'date',
       transformers: {},
-      oasType: false,
+      typed: false,
+      exclude: undefined,
+      include: undefined,
+      override: undefined,
       unknownType: 'any',
     }
 
@@ -77,12 +77,12 @@ describe('OperationGenerator', async () => {
 
   test('[DELETE] should generate with unknownType `any`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
-      enumType: 'asConst',
-      dateType: 'string',
-      optionalType: 'questionToken',
-      usedEnumNames: {},
+      dateType: 'date',
       transformers: {},
-      oasType: false,
+      typed: false,
+      exclude: undefined,
+      include: undefined,
+      override: undefined,
       unknownType: 'any',
     }
 
@@ -103,14 +103,15 @@ describe('OperationGenerator', async () => {
 
     expect(files).toMatchSnapshot()
   })
+
   test('[DELETE] should generate with unknownType `unknown`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
-      enumType: 'asConst',
-      dateType: 'string',
-      optionalType: 'questionToken',
-      usedEnumNames: {},
+      dateType: 'date',
       transformers: {},
-      oasType: false,
+      typed: false,
+      exclude: undefined,
+      include: undefined,
+      override: undefined,
       unknownType: 'unknown',
     }
 

@@ -22,6 +22,7 @@ describe('TypeGenerator petStore', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -45,6 +46,7 @@ describe('TypeGenerator petStore', async () => {
       optionalType: 'undefined',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -68,6 +70,7 @@ describe('TypeGenerator petStore', async () => {
       optionalType: 'questionTokenAndUndefined',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -91,6 +94,7 @@ describe('TypeGenerator petStore', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas: {} as Oas,
       pluginManager: { resolveName: ({ name }) => name, resolvePath: ({ baseName }) => baseName } as PluginManager,
@@ -119,6 +123,7 @@ describe('TypeGenerator petStore', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -146,6 +151,7 @@ describe('TypeGenerator petStoreRef', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -173,6 +179,7 @@ describe('TypeGenerator discriminator', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -195,6 +202,7 @@ describe('TypeGenerator discriminator', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -216,6 +224,7 @@ describe('TypeGenerator discriminator', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -237,6 +246,7 @@ describe('TypeGenerator discriminator', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -257,6 +267,7 @@ describe('TypeGenerator discriminator', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -278,6 +289,7 @@ describe('TypeGenerator discriminator', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -299,6 +311,7 @@ describe('TypeGenerator discriminator', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -324,6 +337,7 @@ describe('TypeGenerator enums', async () => {
     optionalType: 'questionToken',
     transformers: {},
     oasType: false,
+    unknownType: 'any',
   }, {
     oas,
     pluginManager: mockedPluginManager,
@@ -359,6 +373,7 @@ describe('TypeGenerator enums', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -381,6 +396,7 @@ describe('TypeGenerator enums', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -403,6 +419,7 @@ describe('TypeGenerator enums', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,
@@ -425,6 +442,7 @@ describe('TypeGenerator enums', async () => {
       optionalType: 'questionToken',
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }, {
       oas,
       pluginManager: mockedPluginManager,

@@ -65,6 +65,11 @@ export type Options = {
    * @default 'string'
    */
   dateType?: 'string' | 'date'
+  /**
+   * Which type to use when the Swagger/OpenAPI file is not providing more information
+   * @default 'any'
+   */
+  unknownType?: 'any' | 'unknown'
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -91,6 +96,7 @@ export type Options = {
 
 type ResolvedOptions = {
   dateType: NonNullable<Options['dateType']>
+  unknownType: NonNullable<Options['unknownType']>
   mapper: NonNullable<Options['mapper']>
   transformers: NonNullable<Options['transformers']>
   seed: NonNullable<Options['seed']> | undefined

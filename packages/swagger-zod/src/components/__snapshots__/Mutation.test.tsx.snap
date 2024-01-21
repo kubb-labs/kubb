@@ -4,9 +4,9 @@ exports[`<Mutation/> > pets 1`] = `
 "/**
  * @description Null response
  */
-export const CreatePets201 = z.any()
+export const CreatePets201 = z.unknown()
 export const CreatePetsMutationRequest = z.object({ name: z.string(), tag: z.string() })
-export const CreatePetsMutationResponse = z.any()
+export const CreatePetsMutationResponse = z.unknown()
 
 /**
  * @description unexpected error
