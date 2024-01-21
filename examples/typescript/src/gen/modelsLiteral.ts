@@ -307,10 +307,10 @@ export type FindPetsByStatusQueryParams =
  * @description successful operation
  */
 export type FindPetsByStatusQueryResponse = Pet[]
-export namespace FindPetsByStatusQuery {
-  export type Response = FindPetsByStatusQueryResponse
-  export type QueryParams = FindPetsByStatusQueryParams
-  export type Errors = FindPetsByStatus400
+export type FindPetsByStatusQuery = {
+  Response: FindPetsByStatusQueryResponse
+  QueryParams: FindPetsByStatusQueryParams
+  Errors: FindPetsByStatus400
 }
 
 /**
@@ -342,10 +342,10 @@ export type FindPetsByTagsQueryParams =
  * @description successful operation
  */
 export type FindPetsByTagsQueryResponse = Pet[]
-export namespace FindPetsByTagsQuery {
-  export type Response = FindPetsByTagsQueryResponse
-  export type QueryParams = FindPetsByTagsQueryParams
-  export type Errors = FindPetsByTags400
+export type FindPetsByTagsQuery = {
+  Response: FindPetsByTagsQueryResponse
+  QueryParams: FindPetsByTagsQueryParams
+  Errors: FindPetsByTags400
 }
 
 /**
@@ -370,10 +370,10 @@ export type GetPetByIdPathParams = {
  * @description successful operation
  */
 export type GetPetByIdQueryResponse = Pet
-export namespace GetPetByIdQuery {
-  export type Response = GetPetByIdQueryResponse
-  export type PathParams = GetPetByIdPathParams
-  export type Errors = GetPetById400 | GetPetById404
+export type GetPetByIdQuery = {
+  Response: GetPetByIdQueryResponse
+  PathParams: GetPetByIdPathParams
+  Errors: GetPetById400 | GetPetById404
 }
 
 /**
@@ -479,8 +479,8 @@ export namespace UploadFileMutation {
 export type GetInventoryQueryResponse = {
   [key: string]: number
 }
-export namespace GetInventoryQuery {
-  export type Response = GetInventoryQueryResponse
+export type GetInventoryQuery = {
+  Response: GetInventoryQueryResponse
 }
 
 /**
@@ -539,10 +539,10 @@ export type GetOrderByIdPathParams = {
  * @description successful operation
  */
 export type GetOrderByIdQueryResponse = Order
-export namespace GetOrderByIdQuery {
-  export type Response = GetOrderByIdQueryResponse
-  export type PathParams = GetOrderByIdPathParams
-  export type Errors = GetOrderById400 | GetOrderById404
+export type GetOrderByIdQuery = {
+  Response: GetOrderByIdQueryResponse
+  PathParams: GetOrderByIdPathParams
+  Errors: GetOrderById400 | GetOrderById404
 }
 
 /**
@@ -628,10 +628,10 @@ export type LoginUserQueryParams =
  * @description successful operation
  */
 export type LoginUserQueryResponse = string
-export namespace LoginUserQuery {
-  export type Response = LoginUserQueryResponse
-  export type QueryParams = LoginUserQueryParams
-  export type Errors = LoginUser400
+export type LoginUserQuery = {
+  Response: LoginUserQueryResponse
+  QueryParams: LoginUserQueryParams
+  Errors: LoginUser400
 }
 
 /**
@@ -640,9 +640,9 @@ export namespace LoginUserQuery {
 export type LogoutUserError = any | null
 
 export type LogoutUserQueryResponse = any | null
-export namespace LogoutUserQuery {
-  export type Response = LogoutUserQueryResponse
-  export type Errors = LogoutUserError
+export type LogoutUserQuery = {
+  Response: LogoutUserQueryResponse
+  Errors: LogoutUserError
 }
 
 /**
@@ -667,10 +667,10 @@ export type GetUserByNamePathParams = {
  * @description successful operation
  */
 export type GetUserByNameQueryResponse = User
-export namespace GetUserByNameQuery {
-  export type Response = GetUserByNameQueryResponse
-  export type PathParams = GetUserByNamePathParams
-  export type Errors = GetUserByName400 | GetUserByName404
+export type GetUserByNameQuery = {
+  Response: GetUserByNameQueryResponse
+  PathParams: GetUserByNamePathParams
+  Errors: GetUserByName400 | GetUserByName404
 }
 
 /**
