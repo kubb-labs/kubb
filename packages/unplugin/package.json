@@ -11,7 +11,7 @@
     "astro",
     "kubb",
     "swagger",
-    "openAPI",
+    "OpenAPI",
     "rspack",
     "nuxt",
     "esbuild"

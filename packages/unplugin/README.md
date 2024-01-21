@@ -4,7 +4,7 @@
 <h1>unplugin-tsup</h1>
 
 <p>
-   Kubb plugin for Vite, Webpack, Esbuild, Rollup, Nuxt, Astro and Rspack.
+   Kubb plugin for Vite, webpack, esbuild, Rollup, Nuxt, Astro and Rspack.
   </p>
   <img src="https://raw.githubusercontent.com/kubb-project/kubb/main/assets/banner.png" alt="logo"  height="auto" />
 
@@ -69,7 +69,7 @@ export default {
 <br></details>
 
 <details>
-<summary>Webpack</summary><br>
+<summary>webpack</summary><br>
 
 ```ts
 // webpack.config.js

@@ -17,18 +17,18 @@ import type { KubbFile } from './FileManager.ts'
 import type { Logger } from './logger.ts'
 import type { CorePluginOptions } from './plugin.ts'
 import type {
-  GetPluginFactoryOptions,
   Config,
+  GetPluginFactoryOptions,
   Plugin,
-  PluginWithLifeCycle,
-  UserPlugin,
-  UserPluginWithLifeCycle,
   PluginFactoryOptions,
   PluginLifecycle,
   PluginLifecycleHooks,
   PluginParameter,
+  PluginWithLifeCycle,
   ResolveNameParams,
   ResolvePathParams,
+  UserPlugin,
+  UserPluginWithLifeCycle,
 } from './types.ts'
 
 type RequiredPluginLifecycle = Required<PluginLifecycle>
