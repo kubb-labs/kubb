@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- <img src="assets/logo.png" alt="logo" width="200" height="auto" /> -->
-<h1>unplugin-tsup</h1>
+<h1>unplugin-kubb</h1>
 
 <p>
    Kubb plugin for Vite, webpack, esbuild, Rollup, Nuxt, Astro and Rspack.

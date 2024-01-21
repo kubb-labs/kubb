@@ -1,7 +1,7 @@
 {
   "name": "unplugin-kubb",
   "version": "0.1.1",
-  "description": "Generator types",
+  "description": "Unplugin for Kubb",
   "keywords": [
     "unplugin",
     "vite",
