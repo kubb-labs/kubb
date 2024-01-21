@@ -102,7 +102,7 @@ Mock.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileFaker = useOperationFile({ pluginKey: fakerPluginKey })
-  const responseName = useResolveName({ pluginKey: fakerPluginKey, name: schemas.response.name, type: 'type' })
+  const responseName = useResolveName({ pluginKey: fakerPluginKey, name: schemas.response.name, type: 'function' })
 
   const isV2 = new PackageManager().isValidSync('msw', '>=2')
 

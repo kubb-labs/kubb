@@ -1,5 +1,5 @@
 import type { Category } from './Category'
-import type { Tag } from './Tag'
+import type { TagTag } from './tag/Tag'
 
 export const PetStatus = {
   'available': 'available',
@@ -26,7 +26,7 @@ export type Pet = {
   /**
    * @type array | undefined
    */
-  tags?: Tag[]
+  tags?: TagTag[]
   /**
    * @description pet status in the store
    * @type string | undefined

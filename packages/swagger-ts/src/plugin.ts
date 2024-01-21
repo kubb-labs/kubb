@@ -63,7 +63,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = pascalCase(name)
+      const resolvedName = pascalCase(name, { isFile: type === 'file' })
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName

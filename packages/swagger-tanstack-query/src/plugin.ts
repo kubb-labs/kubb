@@ -88,11 +88,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (type === 'file' || type === 'function') {
         if (framework === 'react' || framework === 'vue') {
-          resolvedName = camelCase(`use ${name}`)
+          resolvedName = camelCase(name, { prefix: 'use', isFile: type === 'file' })
         }
 
         if (framework === 'svelte' || framework === 'solid') {
-          resolvedName = camelCase(`${name} query`)
+          resolvedName = camelCase(name, { suffix: 'query', isFile: type === 'file' })
         }
       }
       if (type === 'type') {
