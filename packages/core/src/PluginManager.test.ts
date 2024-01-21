@@ -3,7 +3,7 @@ import { createLogger } from './logger.ts'
 import { createPlugin } from './plugin.ts'
 import { PluginManager } from './PluginManager.ts'
 
-import type { KubbConfig, KubbPlugin, TransformResult } from './types.ts'
+import type { Config, Plugin, TransformResult } from './types.ts'
 
 describe('PluginManager', () => {
   const pluginAMocks = {
@@ -103,8 +103,8 @@ describe('PluginManager', () => {
       path: './src/gen',
       clean: true,
     },
-    plugins: [pluginA({}), pluginB({}), pluginBBis({})] as KubbPlugin[],
-  } satisfies KubbConfig
+    plugins: [pluginA({}), pluginB({}), pluginBBis({})] as Plugin[],
+  } satisfies Config
   const queueTaskMock = vi.fn()
   const pluginManager = new PluginManager(config, {
     logger: createLogger({ logLevel: 'silent' }),
@@ -254,12 +254,12 @@ describe('PluginManager', () => {
   })
 
   test('if validatePlugins works with 2 plugins', () => {
-    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as KubbPlugin[], 'pluginA')).toBeTruthy()
-    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as KubbPlugin[], 'pluginB')).toBeTruthy()
-    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as KubbPlugin[], ['pluginA', 'pluginC']))
+    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], 'pluginA')).toBeTruthy()
+    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], 'pluginB')).toBeTruthy()
+    expect(PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], ['pluginA', 'pluginC']))
       .toBeTruthy()
     try {
-      PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as KubbPlugin[], ['pluginA', 'pluginD'])
+      PluginManager.getDependedPlugins([{ name: 'pluginA' }, { name: 'pluginB' }, { name: 'pluginC' }] as Plugin[], ['pluginA', 'pluginD'])
     } catch (e) {
       expect(e).toBeDefined()
     }

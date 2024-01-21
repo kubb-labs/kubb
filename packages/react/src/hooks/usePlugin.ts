@@ -1,9 +1,9 @@
 import { useApp } from './useApp.ts'
 
-import type { KubbPlugin, PluginFactoryOptions } from '@kubb/core'
+import type { Plugin, PluginFactoryOptions } from '@kubb/core'
 
-export function usePlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(): KubbPlugin<TOptions> {
-  const app = useApp<{ plugin: KubbPlugin<TOptions> }>()
+export function usePlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(): Plugin<TOptions> {
+  const app = useApp<{ plugin: Plugin<TOptions> }>()
 
   return app.meta.plugin
 }

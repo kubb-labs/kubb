@@ -8,7 +8,7 @@ import { pluginName as swaggerPluginName } from '@kubb/swagger'
 import { OperationGenerator } from './OperationGenerator.tsx'
 import { TypeBuilder } from './TypeBuilder.ts'
 
-import type { KubbFile, KubbPlugin } from '@kubb/core'
+import type { KubbFile, Plugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { OasTypes } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
@@ -65,7 +65,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return path.resolve(root, output.path, baseName)
     },
     resolveName(name, type) {
-      const resolvedName = pascalCase(name)
+      const resolvedName = pascalCase(name, { isFile: type === 'file' })
 
       if (type) {
         return transformers?.name?.(resolvedName, type) || resolvedName
@@ -81,7 +81,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      const [swaggerPlugin]: [KubbPlugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
+      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
 
       const oas = await swaggerPlugin.api.getOas()
 

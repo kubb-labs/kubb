@@ -172,7 +172,8 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
       originalName,
     }
 
-    const path = this.context.pluginManager.resolvePath({ baseName: propertyName, pluginKey })
+    const fileName = this.context.pluginManager.resolveName({ name: originalName, pluginKey, type: 'file' })
+    const path = this.context.pluginManager.resolvePath({ baseName: fileName, pluginKey })
 
     this.imports.push({
       ref,

@@ -1,4 +1,4 @@
-import type { KubbFile, KubbPlugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
+import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 import type { OasTypes } from '@kubb/swagger/oas'
 import type { FakerMeta } from './fakerParser.ts'
@@ -103,7 +103,7 @@ type ResolvedOptions = {
 }
 
 export type FileMeta = {
-  pluginKey?: KubbPlugin['key']
+  pluginKey?: Plugin['key']
   tag?: string
 }
 

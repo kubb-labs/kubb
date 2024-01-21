@@ -17,7 +17,7 @@ import { BarrelManager } from './BarrelManager.ts'
 
 import type { GreaterThan } from '@kubb/types'
 import type { BarrelManagerOptions } from './BarrelManager.ts'
-import type { KubbPlugin } from './types.ts'
+import type { Plugin } from './types.ts'
 
 type BasePath<T extends string = string> = `${T}/`
 
@@ -106,7 +106,7 @@ export namespace KubbFile {
   export type OptionalPath = Path | undefined | null
 
   export type FileMetaBase = {
-    pluginKey?: KubbPlugin['key']
+    pluginKey?: Plugin['key']
   }
 
   export type File<

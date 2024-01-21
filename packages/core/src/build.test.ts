@@ -2,7 +2,7 @@ import { build } from './build.ts'
 import { createPlugin } from './plugin.ts'
 
 import type { KubbFile } from './FileManager.ts'
-import type { KubbConfig, KubbPlugin } from './types.ts'
+import type { Config, Plugin } from './types.ts'
 
 describe('build', () => {
   const pluginMocks = {
@@ -60,8 +60,8 @@ describe('build', () => {
       path: './src/gen',
       clean: true,
     },
-    plugins: [plugin({})] as KubbPlugin[],
-  } satisfies KubbConfig
+    plugins: [plugin({})] as Plugin[],
+  } satisfies Config
 
   afterEach(() => {
     Object.keys(pluginMocks).forEach((key) => {

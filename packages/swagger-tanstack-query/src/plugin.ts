@@ -11,7 +11,7 @@ import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 import { Mutation, Query, QueryKey, QueryOptions } from './components/index.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
-import type { KubbPlugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import type { PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
@@ -88,11 +88,11 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
 
       if (type === 'file' || type === 'function') {
         if (framework === 'react' || framework === 'vue') {
-          resolvedName = camelCase(`use ${name}`)
+          resolvedName = camelCase(name, { prefix: 'use', isFile: type === 'file' })
         }
 
         if (framework === 'svelte' || framework === 'solid') {
-          resolvedName = camelCase(`${name} query`)
+          resolvedName = camelCase(name, { suffix: 'query', isFile: type === 'file' })
         }
       }
       if (type === 'type') {
@@ -106,7 +106,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return resolvedName
     },
     async buildStart() {
-      const [swaggerPlugin]: [KubbPlugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
+      const [swaggerPlugin]: [Plugin<SwaggerPluginOptions>] = PluginManager.getDependedPlugins<SwaggerPluginOptions>(this.plugins, [swaggerPluginName])
 
       const oas = await swaggerPlugin.api.getOas()
 

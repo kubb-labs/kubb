@@ -17,7 +17,11 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "strict": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "paths": {
+      "unplugin-kubb": ["../../packages/unplugin/src/index.ts"],
+      "unplugin-kubb/vite": ["../../packages/unplugin/src/vite.ts"]
+    }
   },
   "include": [
     "./src/**/*"

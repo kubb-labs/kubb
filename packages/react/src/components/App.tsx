@@ -20,8 +20,10 @@ class ErrorBoundary extends Component<{ onError: Props['onError']; logger?: Logg
   }
 
   componentDidCatch(error: Error) {
-    this.props.onError(error)
-    this.props.logger?.error(error?.message)
+    if (error) {
+      this.props.onError(error)
+      this.props.logger?.emit('error', error.message)
+    }
   }
 
   render() {

@@ -3,7 +3,8 @@ import createSwagger from '@kubb/swagger'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
 import createSwaggerTS from '@kubb/swagger-ts'
 
-export default defineConfig({
+/** @type {import('@kubb/core').UserConfig} */
+export const config = {
   root: '.',
   input: {
     path: './petStore.yaml',
@@ -50,4 +51,6 @@ export default defineConfig({
       }],
     }),
   ],
-})
+}
+
+export default defineConfig(config)

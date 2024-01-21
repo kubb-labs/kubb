@@ -1,4 +1,4 @@
-import type { KubbFile, KubbPlugin, PluginFactoryOptions } from '@kubb/core'
+import type { KubbFile, Plugin, PluginFactoryOptions } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta } from '@kubb/swagger'
 
 export type Options = {
@@ -31,7 +31,7 @@ type ResolveOptions = {
 }
 
 export type FileMeta = {
-  pluginKey?: KubbPlugin['key']
+  pluginKey?: Plugin['key']
   tag?: string
 }
 

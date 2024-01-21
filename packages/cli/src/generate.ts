@@ -10,17 +10,17 @@ import { OraWritable } from './utils/OraWritable.ts'
 import { spinner } from './utils/spinner.ts'
 
 import type { Writable } from 'node:stream'
-import type { CLIOptions, KubbConfig } from '@kubb/core'
+import type { CLIOptions, Config } from '@kubb/core'
 import type { ExecaReturnValue } from 'execa'
 
 type GenerateProps = {
   input?: string
-  config: KubbConfig
+  config: Config
   CLIOptions: CLIOptions
 }
 
 type ExecutingHooksProps = {
-  hooks: KubbConfig['hooks']
+  hooks: Config['hooks']
   logLevel: LogLevel
 }
 

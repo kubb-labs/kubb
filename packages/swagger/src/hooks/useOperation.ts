@@ -1,6 +1,6 @@
 import { useApp, useFile, usePlugin, usePluginManager } from '@kubb/react'
 
-import type { KubbFile, KubbPlugin, ResolveNameParams } from '@kubb/core'
+import type { KubbFile, Plugin, ResolveNameParams } from '@kubb/core'
 import type { Operation } from 'oas/operation'
 import type { PluginOptions, ResolvePathOptions } from '../types.ts'
 
@@ -11,8 +11,8 @@ export function useOperation(): Operation {
 }
 
 type UseOperationNameProps = {
-  type: NonNullable<ResolveNameParams['type']>
-  pluginKey?: KubbPlugin['key']
+  type: ResolveNameParams['type']
+  pluginKey?: Plugin['key']
 }
 
 export function useOperationName({ type, ...rest }: UseOperationNameProps): string {
@@ -26,13 +26,13 @@ export function useOperationName({ type, ...rest }: UseOperationNameProps): stri
 }
 
 type FileMeta = KubbFile.FileMetaBase & {
-  pluginKey: KubbPlugin['key']
+  pluginKey: Plugin['key']
   name: string
   tag?: string
 }
 
 type UseOperationFileProps = {
-  pluginKey?: KubbPlugin['key']
+  pluginKey?: Plugin['key']
 }
 
 export function useOperationFile(props: UseOperationFileProps = {}): KubbFile.File<FileMeta> {

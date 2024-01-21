@@ -6,7 +6,7 @@ import { Client } from './components/Client.tsx'
 import { Operations } from './components/Operations.tsx'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
-import type { KubbPlugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
@@ -37,7 +37,7 @@ describe('OperationGenerator', async () => {
         exclude: [],
         include: undefined,
         pluginManager: mockedPluginManager,
-        plugin: { options } as KubbPlugin<PluginOptions>,
+        plugin: { options } as Plugin<PluginOptions>,
         contentType: undefined,
         override: undefined,
       },
@@ -68,7 +68,7 @@ describe('OperationGenerator', async () => {
         exclude: [],
         include: undefined,
         pluginManager: mockedPluginManager,
-        plugin: { options } as KubbPlugin<PluginOptions>,
+        plugin: { options } as Plugin<PluginOptions>,
         contentType: undefined,
         override: undefined,
       },
@@ -101,7 +101,7 @@ describe('OperationGenerator', async () => {
         exclude: [],
         include: undefined,
         pluginManager: mockedPluginManager,
-        plugin: { options } as KubbPlugin<PluginOptions>,
+        plugin: { options } as Plugin<PluginOptions>,
         contentType: undefined,
         override: undefined,
       },
