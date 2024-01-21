@@ -67,6 +67,9 @@
       ],
       "@kubb/parser": [
         "packages/parser/src/index.ts"
+      ],
+      "unplugin-kubb": [
+        "packages/unplugin/src/index.ts"
       ]
     }
   },
