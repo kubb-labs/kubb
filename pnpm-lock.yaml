@@ -1689,9 +1689,6 @@ importers:
       esbuild:
         specifier: '*'
         version: 0.19.9
-      ora:
-        specifier: ^8.0.1
-        version: 8.0.1
       unplugin:
         specifier: ^1.6.0
         version: 1.6.0
@@ -1726,9 +1723,6 @@ importers:
       rollup:
         specifier: ^4.9.6
         version: 4.9.6
-      tinyrainbow:
-        specifier: ^1.1.1
-        version: 1.1.1
       tsup:
         specifier: ^8.0.1
         version: 8.0.1(@microsoft/api-extractor@7.39.1)(ts-node@10.9.2)(typescript@5.3.3)
