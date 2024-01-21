@@ -135,9 +135,9 @@
     "unplugin": "^1.6.0"
   },
   "devDependencies": {
+    "@kubb/core": "workspace:*",
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
-    "@kubb/core": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@nuxt/kit": "^3.9.3",
     "@nuxt/schema": "^3.9.3",

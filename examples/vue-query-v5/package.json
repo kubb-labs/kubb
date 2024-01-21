@@ -29,7 +29,7 @@
     "@kubb/swagger-tanstack-query": "workspace:*",
     "@kubb/swagger-ts": "workspace:*",
     "@kubb/swagger-zod": "workspace:*",
-    "@tanstack/vue-query": "^5.17.15",
+    "@tanstack/vue-query": "^5.17.19",
     "axios": "^1.6.5",
     "vue": "^3.4.15"
   },
@@ -38,7 +38,7 @@
     "msw": "^1.3.2",
     "tsup": "^8.0.1",
     "typescript": "~5.2.2",
-    "vite": "^4.5.1"
+    "vite": "^4.5.2"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

@@ -3,7 +3,7 @@ import { OasManager } from '@kubb/swagger'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
-import type { KubbPlugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
@@ -31,7 +31,7 @@ describe('OperationGenerator', async () => {
         exclude: [],
         include: undefined,
         pluginManager: mockedPluginManager,
-        plugin: {} as KubbPlugin<PluginOptions>,
+        plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         override: undefined,
       },
@@ -64,7 +64,7 @@ describe('OperationGenerator', async () => {
         exclude: [],
         include: undefined,
         pluginManager: mockedPluginManager,
-        plugin: {} as KubbPlugin<PluginOptions>,
+        plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         override: undefined,
       },
@@ -93,7 +93,7 @@ describe('OperationGenerator', async () => {
         exclude: [],
         include: undefined,
         pluginManager: mockedPluginManager,
-        plugin: {} as KubbPlugin<PluginOptions>,
+        plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         override: undefined,
       },
@@ -122,7 +122,7 @@ describe('OperationGenerator', async () => {
         exclude: [],
         include: undefined,
         pluginManager: mockedPluginManager,
-        plugin: {} as KubbPlugin<PluginOptions>,
+        plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         override: undefined,
       },

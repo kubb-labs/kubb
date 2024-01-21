@@ -118,7 +118,7 @@ describe('OperationGenerator', async () => {
         exclude: [],
         include: undefined,
         pluginManager: mockedPluginManager,
-        plugin: {} as KubbPlugin<PluginOptions>,
+        plugin: {} as Plugin<PluginOptions>,
         contentType: undefined,
         override: undefined,
       },
