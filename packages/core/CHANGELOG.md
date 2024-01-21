@@ -1,5 +1,15 @@
 # @kubb/core
 
+## 2.4.1
+
+### Patch Changes
+
+- [#796](https://github.com/kubb-project/kubb/pull/796) [`bf1e521`](https://github.com/kubb-project/kubb/commit/bf1e52182b636cef8c2cd54bcb123baf47d2d624) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - A schema name with `pet.Pets` will be moved inside of the folder `src/gen/pet/pets/ts` instead of `src/gen/petPets.ts`
+
+- Updated dependencies []:
+  - @kubb/parser@2.4.1
+  - @kubb/types@2.4.1
+
 ## 2.4.0
 
 ### Patch Changes
