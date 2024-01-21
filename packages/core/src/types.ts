@@ -1,6 +1,6 @@
 import type { PossiblePromise } from '@kubb/types'
 import type { FileManager, KubbFile } from './FileManager.ts'
-import type { OptionsPlugins, PluginUnion } from './index.ts'
+import type { OptionsPlugins, PluginUnion } from './kubb.ts'
 import type { Logger, LogLevel } from './logger.ts'
 import type { PluginManager } from './PluginManager.ts'
 import type { Cache } from './utils/cache.ts'
@@ -15,8 +15,8 @@ import type { Cache } from './utils/cache.ts'
  * ...
  * })
  */
-export type KubbUserConfig =
-  & Omit<KubbConfig, 'root' | 'plugins'>
+export type UserConfig =
+  & Omit<Config, 'root' | 'plugins'>
   & {
     /**
      * Project root directory. Can be an absolute path, or a path relative from
@@ -25,11 +25,11 @@ export type KubbUserConfig =
      */
     root?: string
     /**
-     * Plugin type can be KubbJSONPlugin or KubbPlugin
+     * Plugin type can be KubbJSONPlugin or Plugin
      * Example: ['@kubb/swagger', { output: false }]
      * Or: createSwagger({ output: false })
      */
-    plugins?: Array<Omit<UnknownKubbUserPlugin, 'api'> | KubbUnionPlugins | [name: string, options: object]>
+    plugins?: Array<Omit<UnknownUserPlugin, 'api'> | UnionPlugins | [name: string, options: object]>
   }
 
 export type InputPath = {
@@ -51,7 +51,7 @@ type Input = InputPath | InputData
 /**
  * @private
  */
-export type KubbConfig<TInput = Input> = {
+export type Config<TInput = Input> = {
   /**
    * Optional config name to show in CLI output
    */
@@ -85,7 +85,7 @@ export type KubbConfig<TInput = Input> = {
    * The plugin/package can forsee some options that you need to pass through.
    * Sometimes a plugin is depended on another plugin, if that's the case you will get an error back from the plugin you installed.
    */
-  plugins?: Array<KubbPlugin>
+  plugins?: Array<Plugin>
   /**
    * Hooks that will be called when a specific action is triggered in Kubb.
    */
@@ -123,9 +123,9 @@ export type CLIOptions = {
 
 // plugin
 
-export type KubbUnionPlugins = PluginUnion
+export type UnionPlugins = PluginUnion
 
-export type KubbObjectPlugin = keyof OptionsPlugins
+export type ObjectPlugin = keyof OptionsPlugins
 
 export type PluginFactoryOptions<
   /**
@@ -165,13 +165,13 @@ export type PluginFactoryOptions<
   resolvePathOptions: TResolvePathOptions
   appMeta: {
     pluginManager: PluginManager
-    plugin: KubbPlugin<PluginFactoryOptions<TName, TOptions, TResolvedOptions, TAPI, TResolvePathOptions, TAppMeta>>
+    plugin: Plugin<PluginFactoryOptions<TName, TOptions, TResolvedOptions, TAPI, TResolvePathOptions, TAppMeta>>
   } & TAppMeta
 }
 
-export type GetPluginFactoryOptions<TPlugin extends KubbUserPlugin> = TPlugin extends KubbUserPlugin<infer X> ? X : never
+export type GetPluginFactoryOptions<TPlugin extends UserPlugin> = TPlugin extends UserPlugin<infer X> ? X : never
 
-export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
+export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
   & {
     /**
      * Unique name used for the plugin
@@ -200,11 +200,11 @@ export type KubbUserPlugin<TOptions extends PluginFactoryOptions = PluginFactory
       api: (this: TOptions['name'] extends 'core' ? null : Omit<PluginContext<TOptions>, 'addFile'>) => TOptions['api']
     })
 
-export type KubbUserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = KubbUserPlugin<TOptions> & PluginLifecycle<TOptions>
+export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
-type UnknownKubbUserPlugin = KubbUserPlugin<PluginFactoryOptions<any, any, any, any, any, any>>
+type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<any, any, any, any, any, any>>
 
-export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
+export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
   & {
     /**
      * Unique name used for the plugin
@@ -230,7 +230,7 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
      */
     options: TOptions['resolvedOptions']
     /**
-     * Define an api that can be used by other plugins, see `PluginManager' where we convert from `KubbUserPlugin` to `KubbPlugin`(used when calling `createPlugin`).
+     * Define an api that can be used by other plugins, see `PluginManager' where we convert from `UserPlugin` to `Plugin`(used when calling `createPlugin`).
      */
   }
   & (TOptions['api'] extends never ? {
@@ -240,14 +240,14 @@ export type KubbPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
       api: TOptions['api']
     })
 
-export type KubbPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = KubbPlugin<TOptions> & PluginLifecycle<TOptions>
+export type PluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TOptions> & PluginLifecycle<TOptions>
 
 export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
    * Start of the lifecycle of a plugin.
    * @type hookParallel
    */
-  buildStart?: (this: PluginContext<TOptions>, kubbConfig: KubbConfig) => PossiblePromise<void>
+  buildStart?: (this: PluginContext<TOptions>, Config: Config) => PossiblePromise<void>
   /**
    * Resolve to a Path based on a baseName(example: `./Pet.ts`) and directory(example: `./models`).
    * Options can als be included.
@@ -291,7 +291,7 @@ export type PluginParameter<H extends PluginLifecycleHooks> = Parameters<Require
 export type PluginCache = Record<string, [number, unknown]>
 
 export type ResolvePathParams<TOptions = object> = {
-  pluginKey?: KubbPlugin['key']
+  pluginKey?: Plugin['key']
   baseName: string
   directory?: string | undefined
   /**
@@ -302,7 +302,7 @@ export type ResolvePathParams<TOptions = object> = {
 
 export type ResolveNameParams = {
   name: string
-  pluginKey?: KubbPlugin['key']
+  pluginKey?: Plugin['key']
   /**
    * `file` will be used to customize the name of the created file(use of camelCase)
    * `function` can be used used to customize the exported functions(use of camelCase)
@@ -312,7 +312,7 @@ export type ResolveNameParams = {
 }
 
 export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
-  config: KubbConfig
+  config: Config
   cache: Cache<PluginCache>
   fileManager: FileManager
   pluginManager: PluginManager
@@ -323,11 +323,11 @@ export type PluginContext<TOptions extends PluginFactoryOptions = PluginFactoryO
   /**
    * All plugins
    */
-  plugins: KubbPlugin[]
+  plugins: Plugin[]
   /**
    * Current plugin
    */
-  plugin: KubbPlugin<TOptions>
+  plugin: Plugin<TOptions>
 }
 
 // null will mean clear the watcher for this key

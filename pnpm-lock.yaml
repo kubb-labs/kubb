@@ -544,6 +544,9 @@ importers:
       typescript:
         specifier: ~5.2.2
         version: 5.2.2
+      unplugin-kubb:
+        specifier: workspace:*
+        version: link:../../packages/unplugin
       vite:
         specifier: ^4.5.1
         version: 4.5.1(@types/node@20.11.5)

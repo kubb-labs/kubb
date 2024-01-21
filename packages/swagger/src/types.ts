@@ -1,4 +1,4 @@
-import type { KubbPlugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { SchemaObject } from 'oas/types'
 import type { HttpMethod, Oas, Operation } from './oas/index.ts'
@@ -9,7 +9,7 @@ export type ContentType = 'application/json' | (string & {})
 
 export type FileResolver = (name: string, ref: Ref) => string | null | undefined
 
-export type ResolvePathOptions = { pluginKey?: KubbPlugin['key']; tag?: string; type?: ResolveNameParams['type'] }
+export type ResolvePathOptions = { pluginKey?: Plugin['key']; tag?: string; type?: ResolveNameParams['type'] }
 
 export type API = {
   getOas: () => Promise<Oas>
@@ -58,7 +58,7 @@ export type Options = {
  * @example import a type(swagger-ts) for a mock file(swagger-faker)
  */
 
-export type Ref = { propertyName: string; originalName: string; pluginKey?: KubbPlugin['key'] }
+export type Ref = { propertyName: string; originalName: string; pluginKey?: Plugin['key'] }
 export type Refs = Record<string, Ref>
 
 export type Resolver = {

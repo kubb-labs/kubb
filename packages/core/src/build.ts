@@ -11,7 +11,7 @@ import { isPromise } from './PromiseManager.ts'
 
 import type { KubbFile } from './FileManager.ts'
 import type { Logger } from './logger.ts'
-import type { KubbPlugin, PluginContext, PluginParameter, TransformResult } from './types.ts'
+import type { Plugin, PluginContext, PluginParameter, TransformResult } from './types.ts'
 
 type BuildOptions = {
   config: PluginContext['config']
@@ -34,7 +34,7 @@ async function transformReducer(
   this: PluginContext,
   _previousCode: string,
   result: TransformResult | Promise<TransformResult>,
-  _plugin: KubbPlugin,
+  _plugin: Plugin,
 ): Promise<string | null> {
   return result
 }

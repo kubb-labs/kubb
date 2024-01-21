@@ -5,7 +5,7 @@ import { OasManager } from '@kubb/swagger'
 import { OperationGenerator } from '../OperationGenerator.tsx'
 import { Operations } from './Operations.tsx'
 
-import type { KubbPlugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions, Paths } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
@@ -27,7 +27,7 @@ describe('<Operations/>', async () => {
       importPath: '@kubb/swagger-client/client',
     },
   }
-  const plugin = { options } as KubbPlugin<PluginOptions>
+  const plugin = { options } as Plugin<PluginOptions>
   const og = await new OperationGenerator(
     options,
     {

@@ -6,14 +6,14 @@ import c from 'tinyrainbow'
 
 import { parseHrtimeToSeconds } from './parseHrtimeToSeconds.ts'
 
-import type { KubbConfig, PluginManager } from '@kubb/core'
+import type { Config, PluginManager } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 
 type SummaryProps = {
   pluginManager: PluginManager
   status: 'success' | 'failed'
   hrstart: [number, number]
-  config: KubbConfig
+  config: Config
   logger: Logger
 }
 

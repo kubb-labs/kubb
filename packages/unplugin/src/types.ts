@@ -1,1 +1,5 @@
-export type { KubbConfig as Options } from '@kubb/core'
+import type { Config } from '@kubb/core'
+
+export type Options = {
+  config?: Config
+}

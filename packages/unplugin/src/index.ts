@@ -13,11 +13,11 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options) =
   return {
     name,
     async buildEnd() {
-      if (!options) {
+      if (!options?.config) {
         throw new Error('Options are not set')
       }
       await build({
-        config: options,
+        config: options.config,
         logger,
       })
     },

@@ -7,7 +7,7 @@ import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
 import { OperationGenerator } from './OperationGenerator.tsx'
 
-import type { KubbPlugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import type { Override, PluginOptions as SwaggerPluginOptions } from '@kubb/swagger'
 import type { PluginOptions as SwaggerZodPluginOptions } from '@kubb/swagger-zod'
 import type { PluginOptions } from './types.ts'
@@ -41,7 +41,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return this.fileManager.write(source, writePath, { sanity: false })
     },
     async buildStart() {
-      const [swaggerPlugin, swaggerZodPlugin]: [KubbPlugin<SwaggerPluginOptions>, KubbPlugin<SwaggerZodPluginOptions>] = PluginManager.getDependedPlugins<
+      const [swaggerPlugin, swaggerZodPlugin]: [Plugin<SwaggerPluginOptions>, Plugin<SwaggerZodPluginOptions>] = PluginManager.getDependedPlugins<
         SwaggerPluginOptions,
         SwaggerZodPluginOptions
       >(this.plugins, [swaggerPluginName, swaggerZodPluginName])

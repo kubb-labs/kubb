@@ -5,7 +5,7 @@ import { OasManager } from '@kubb/swagger'
 import { OperationGenerator } from '../OperationGenerator.tsx'
 import { Query } from './Query.tsx'
 
-import type { KubbPlugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
@@ -26,7 +26,7 @@ describe('<Query/>', async () => {
     dateType: 'string',
   }
 
-  const plugin = { options } as KubbPlugin<PluginOptions>
+  const plugin = { options } as Plugin<PluginOptions>
   const og = await new OperationGenerator(
     options,
     {

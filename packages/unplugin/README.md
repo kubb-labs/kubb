@@ -39,11 +39,11 @@ npm i -D unplugin-kubb
 
 ```ts
 // vite.config.ts
-import kubbPlugin from 'unplugin-kubb/vite'
+import Plugin from 'unplugin-kubb/vite'
 
 export default defineConfig({
   plugins: [
-    kubbPlugin({/* options */}),
+    Plugin({/* options */}),
   ],
 })
 ```
@@ -57,11 +57,11 @@ Example: [`playground/`](./playground/)
 
 ```ts
 // rollup.config.js
-import kubbPlugin from 'unplugin-kubb/rollup'
+import Plugin from 'unplugin-kubb/rollup'
 
 export default {
   plugins: [
-    kubbPlugin({/* options */}),
+    Plugin({/* options */}),
   ],
 }
 ```
@@ -121,10 +121,10 @@ module.exports = {
 ```ts
 // esbuild.config.js
 import { build } from 'esbuild'
-import kubbPlugin from 'unplugin-kubb/esbuild'
+import Plugin from 'unplugin-kubb/esbuild'
 
 build({
-  plugins: [kubbPlugin()],
+  plugins: [Plugin()],
 })
 ```
 

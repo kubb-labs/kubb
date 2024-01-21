@@ -6,13 +6,13 @@ import { LogLevel } from '@kubb/core/logger'
 import transformers from '@kubb/core/transformers'
 import { renderTemplate } from '@kubb/core/utils'
 
-import type { KubbFile, KubbPlugin } from '@kubb/core'
+import type { KubbFile, Plugin } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 
 type Options = {
   logger?: Logger
   files: KubbFile.File[]
-  plugin: KubbPlugin
+  plugin: Plugin
   template: string
   exportAs: string
   /**
@@ -30,7 +30,7 @@ type Options = {
 }
 
 type FileMeta = {
-  pluginKey?: KubbPlugin['key']
+  pluginKey?: Plugin['key']
   tag?: string
 }
 

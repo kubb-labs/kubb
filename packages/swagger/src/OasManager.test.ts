@@ -4,7 +4,7 @@ import yaml from 'js-yaml'
 
 import { OasManager } from './OasManager.ts'
 
-import type { KubbConfig } from '@kubb/core'
+import type { Config } from '@kubb/core'
 
 describe('OasManager', () => {
   const petStoreV3 = path.resolve(__dirname, '../mocks/petStore.yaml')
@@ -76,7 +76,7 @@ components:
       input: {
         data,
       },
-    } as KubbConfig)
+    } as Config)
 
     expect(oas).toBeDefined()
     expect(oas.api?.info.title).toBe('Swagger Petstore')
@@ -87,7 +87,7 @@ components:
       input: {
         data: JSON.stringify(petStoreObject),
       },
-    } as KubbConfig)
+    } as Config)
 
     expect(oas).toBeDefined()
     expect(oas.api?.info.title).toBe('Swagger Petstore')
@@ -98,7 +98,7 @@ components:
       input: {
         data: petStoreObject,
       },
-    } as KubbConfig)
+    } as Config)
 
     expect(oas).toBeDefined()
     expect(oas.api?.info.title).toBe('Swagger Petstore')
@@ -109,7 +109,7 @@ components:
       input: {
         data: yamlPetStoreString,
       },
-    } as KubbConfig)
+    } as Config)
 
     expect(oas).toBeDefined()
     expect(oas.api?.info.title).toBe('Swagger Petstore')

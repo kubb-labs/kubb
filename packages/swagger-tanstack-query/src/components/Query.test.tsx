@@ -8,7 +8,7 @@ import { Query } from './Query.tsx'
 import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
 
-import type { KubbPlugin } from '@kubb/core'
+import type { Plugin } from '@kubb/core'
 import type { ResolveNameParams } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
@@ -47,7 +47,7 @@ describe('<Query/>', async () => {
     parser: undefined,
   }
 
-  const plugin = { options } as KubbPlugin<PluginOptions>
+  const plugin = { options } as Plugin<PluginOptions>
   const og = await new OperationGenerator(
     options,
     {

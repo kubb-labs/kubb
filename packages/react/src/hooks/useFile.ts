@@ -1,15 +1,15 @@
 import { readSync } from '@kubb/core/fs'
 import { usePluginManager } from '@kubb/react'
 
-import type { KubbFile, KubbPlugin } from '@kubb/core'
+import type { KubbFile, Plugin } from '@kubb/core'
 
 type Props<TOptions = object> = {
   name: string
-  pluginKey: KubbPlugin['key']
+  pluginKey: Plugin['key']
   options?: TOptions
 }
 
-export function useFile<TOptions = object>({ name, pluginKey, options }: Props<TOptions>): KubbFile.File<{ pluginKey: KubbPlugin['key'] }> {
+export function useFile<TOptions = object>({ name, pluginKey, options }: Props<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
   const pluginManager = usePluginManager()
 
   let source = ''

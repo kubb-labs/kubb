@@ -40,7 +40,7 @@ async function generateAction(input: string, CLIOptions: CLIOptions) {
 
   if (CLIOptions.watch) {
     if (Array.isArray(config)) {
-      throw new Error('Cannot use watcher with multiple KubbConfigs(array)')
+      throw new Error('Cannot use watcher with multiple Configs(array)')
     }
 
     if (isInputPath(config)) {
