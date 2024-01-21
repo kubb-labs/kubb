@@ -296,6 +296,8 @@ export default defineConfig({
 })
 ```
 
+:::
+
 ### typed
 
 Use TypeScript(`@kubb/swagger-ts`) to add type annotation.
@@ -400,7 +402,6 @@ export default defineConfig({
 })
 ```
 
-:::
 
 :::
 
