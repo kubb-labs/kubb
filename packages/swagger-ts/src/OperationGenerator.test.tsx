@@ -21,6 +21,7 @@ describe('OperationGenerator', async () => {
       usedEnumNames: {},
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }
 
     const og = await new OperationGenerator(
@@ -53,6 +54,7 @@ describe('OperationGenerator', async () => {
       usedEnumNames: {},
       transformers: {},
       oasType: false,
+      unknownType: 'any',
     }
 
     const og = await new OperationGenerator(
@@ -68,6 +70,63 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pets', 'post')
+    const files = await og.post(operation, og.getSchemas(operation), options)
+
+    expect(files).toMatchSnapshot()
+  })
+
+  test('[DELETE] should generate with unknownType `any`', async () => {
+    const options: GetOperationGeneratorOptions<OperationGenerator> = {
+      enumType: 'asConst',
+      dateType: 'string',
+      optionalType: 'questionToken',
+      usedEnumNames: {},
+      transformers: {},
+      oasType: false,
+      unknownType: 'any',
+    }
+
+    const og = await new OperationGenerator(
+      options,
+      {
+        oas,
+        exclude: [],
+        include: undefined,
+        pluginManager: mockedPluginManager,
+        plugin: {} as Plugin<PluginOptions>,
+        contentType: undefined,
+        override: undefined,
+      },
+    )
+    const operation = oas.operation('/pet/{petId}', 'delete')
+    const files = await og.post(operation, og.getSchemas(operation), options)
+
+    expect(files).toMatchSnapshot()
+  })
+  test('[DELETE] should generate with unknownType `unknown`', async () => {
+    const options: GetOperationGeneratorOptions<OperationGenerator> = {
+      enumType: 'asConst',
+      dateType: 'string',
+      optionalType: 'questionToken',
+      usedEnumNames: {},
+      transformers: {},
+      oasType: false,
+      unknownType: 'unknown',
+    }
+
+    const og = await new OperationGenerator(
+      options,
+      {
+        oas,
+        exclude: [],
+        include: undefined,
+        pluginManager: mockedPluginManager,
+        plugin: {} as Plugin<PluginOptions>,
+        contentType: undefined,
+        override: undefined,
+      },
+    )
+    const operation = oas.operation('/pet/{petId}', 'delete')
     const files = await og.post(operation, og.getSchemas(operation), options)
 
     expect(files).toMatchSnapshot()

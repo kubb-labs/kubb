@@ -1,5 +1,45 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 1`] = `
+[
+  {
+    "baseName": "delete_pet-petid.ts",
+    "env": undefined,
+    "exports": [],
+    "id": undefined,
+    "imports": [
+      {
+        "isTypeOnly": undefined,
+        "name": [
+          "faker",
+        ],
+        "path": "@faker-js/faker",
+        "root": undefined,
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "DeletePetPetidMutationResponse",
+        ],
+        "path": "DeletePetPetid",
+        "root": "delete_pet-petid.ts",
+      },
+    ],
+    "meta": {
+      "name": "delete_pet-petid",
+      "pluginKey": undefined,
+      "tag": undefined,
+    },
+    "override": undefined,
+    "path": "delete_pet-petid.ts",
+    "source": "export function DeletePetPetidMutationResponse(): NonNullable<DeletePetPetidMutationResponse> {
+    return undefined;
+}
+",
+  },
+]
+`;
+
 exports[`OperationGenerator > [GET] should generate 1`] = `
 [
   {

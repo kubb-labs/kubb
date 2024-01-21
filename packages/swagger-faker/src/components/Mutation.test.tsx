@@ -33,6 +33,7 @@ describe('<Mutation/>', async () => {
     mapper: {},
     seed: undefined,
     transformers: {},
+    unknownType: 'any',
   }
 
   const plugin = { options } as Plugin<PluginOptions>

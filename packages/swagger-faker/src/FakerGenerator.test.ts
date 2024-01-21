@@ -15,6 +15,7 @@ describe('FakeGenerator enums', async () => {
     mapper: {},
     seed: 1,
     transformers: {},
+    unknownType: 'any',
   }, {
     oas,
     pluginManager: mockedPluginManager,

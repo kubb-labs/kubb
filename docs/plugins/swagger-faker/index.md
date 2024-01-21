@@ -448,11 +448,11 @@ Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
 ::: code-group
 
 ```typescript ['string']
-date: string
+faker.string.alpha
 ```
 
 ```typescript ['date']
-date: Date
+faker.date.anytime()
 ```
 
 :::
@@ -509,6 +509,84 @@ export default defineConfig({
     createSwaggerFaker(
       {
         dateType: 'date',
+      },
+    ),
+  ],
+})
+```
+
+:::
+
+### unknownType
+
+Which type to use when the Swagger/OpenAPI file is not providing more information.
+
+::: info type
+
+::: code-group
+
+```typescript ['any']
+any
+```
+
+```typescript ['unknown']
+unknown
+```
+
+:::
+
+::: info
+Type: `'any' | 'unknown'` <br/>
+Default: `'any'`
+
+:::
+
+::: code-group
+
+```typescript ['any']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerFaker(
+      {
+        unknownType: 'any',
+      },
+    ),
+  ],
+})
+```
+
+```typescript ['unknown']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerFaker from '@kubb/swagger-faker'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerFaker(
+      {
+        unknownType: 'unknown',
       },
     ),
   ],

@@ -24,6 +24,7 @@ describe('<Mutation/>', async () => {
     transformers: {},
     typed: false,
     dateType: 'string',
+    unknownType: 'any',
   }
 
   const plugin = { options } as Plugin<PluginOptions>

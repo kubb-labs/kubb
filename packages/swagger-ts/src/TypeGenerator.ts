@@ -142,11 +142,9 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
           schema.default !== undefined && typeof schema.default !== 'string' ? `@default ${schema.default as string}` : undefined,
         ].filter(Boolean),
       })
-
-      return propertySignature
     })
     if (additionalProperties) {
-      const type = additionalProperties === true ? factory.keywordTypeNodes.any : this.getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
+      const type = additionalProperties === true ? this.#unknownReturn : this.getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
 
       if (type) {
         members.push(factory.createIndexSignature(type))
@@ -202,7 +200,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     const { schema, version } = this.#getParsedSchema(_schema)
 
     if (!schema) {
-      return factory.keywordTypeNodes.any
+      return this.#unknownReturn
     }
 
     if (isReference(schema)) {
@@ -220,7 +218,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
             return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)
           })
           .filter((item) => {
-            return item && item !== factory.keywordTypeNodes.any
+            return item && item !== this.#unknownReturn
           }) as Array<ts.TypeNode>,
       })
 
@@ -243,7 +241,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
             return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)
           })
           .filter((item) => {
-            return item && item !== factory.keywordTypeNodes.any
+            return item && item !== this.#unknownReturn
           }) as Array<ts.TypeNode>,
       })
 
@@ -266,7 +264,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
             return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)
           })
           .filter((item) => {
-            return item && item !== factory.keywordTypeNodes.any
+            return item && item !== this.#unknownReturn
           }) as Array<ts.TypeNode>,
       })
 
@@ -402,6 +400,14 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
       return factory.createTypeReferenceNode('Blob', [])
     }
 
-    return factory.keywordTypeNodes.any
+    return this.#unknownReturn
+  }
+
+  get #unknownReturn() {
+    if (this.options.unknownType === 'any') {
+      return factory.keywordTypeNodes.any
+    }
+
+    return factory.keywordTypeNodes.unknown
   }
 }

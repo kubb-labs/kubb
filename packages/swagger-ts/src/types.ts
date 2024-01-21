@@ -63,6 +63,11 @@ export type Options = {
    */
   dateType?: 'string' | 'date'
   /**
+   * Which type to use when the Swagger/OpenAPI file is not providing more information.
+   * @default 'any'
+   */
+  unknownType?: 'any' | 'unknown'
+  /**
    * Choose what to use as mode for an optional value.
    * @examples 'questionToken': type?: string
    * @examples 'undefined': type: string | undefined
@@ -85,6 +90,7 @@ export type Options = {
 type ResolvedOptions = {
   enumType: NonNullable<Options['enumType']>
   dateType: NonNullable<Options['dateType']>
+  unknownType: NonNullable<Options['unknownType']>
   optionalType: NonNullable<Options['optionalType']>
   transformers: NonNullable<Options['transformers']>
   oasType: NonNullable<Options['oasType']>

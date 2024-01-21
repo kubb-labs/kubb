@@ -383,6 +383,10 @@ date: Date
 Type: `'string' | 'date'` <br/>
 Default: `'string'`
 
+:::
+
+::: code-group
+
 ```typescript ['string']
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
@@ -420,6 +424,76 @@ export default defineConfig({
     createSwagger({ output: false }),
     createSwaggerTS({
       dateType: 'date',
+    }),
+  ],
+})
+```
+
+:::
+
+### unknownType
+
+Which type to use when the Swagger/OpenAPI file is not providing more information.
+
+::: info type
+
+::: code-group
+
+```typescript ['any']
+any
+```
+
+```typescript ['unknown']
+unknown
+```
+
+:::
+
+::: info
+Type: `'any' | 'unknown'` <br/>
+Default: `'any'`
+
+:::
+
+::: code-group
+
+```typescript ['any']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      unknownType: 'any',
+    }),
+  ],
+})
+```
+
+```typescript ['unknown']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      unknownType: 'unknown',
     }),
   ],
 })
