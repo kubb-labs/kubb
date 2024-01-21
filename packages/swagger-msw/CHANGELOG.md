@@ -1,5 +1,17 @@
 # @kubb/swagger-msw
 
+## 2.5.0
+
+### Patch Changes
+
+- Updated dependencies [[`457ee7f`](https://github.com/kubb-project/kubb/commit/457ee7fc6c6b6e37f7bf499e8a2182cd8f56fa97)]:
+  - @kubb/swagger-faker@2.5.0
+  - @kubb/swagger-ts@2.5.0
+  - @kubb/core@2.5.0
+  - @kubb/parser@2.5.0
+  - @kubb/react@2.5.0
+  - @kubb/swagger@2.5.0
+
 ## 2.4.1
 
 ### Patch Changes
