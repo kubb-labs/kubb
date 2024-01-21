@@ -14,9 +14,7 @@ export default defineNuxtModule<ModuleOptions>({
     name: 'nuxt-unplugin-starter',
     configKey: 'unpluginStarter',
   },
-  defaults: {
-    // ...default options
-  },
+  defaults: undefined,
   setup(options, _nuxt) {
     addVitePlugin(() => vite(options))
     addWebpackPlugin(() => webpack(options))
