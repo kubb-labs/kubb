@@ -1,5 +1,18 @@
 # @kubb/swagger-ts
 
+## 2.5.1
+
+### Patch Changes
+
+- [`96461a6`](https://github.com/kubb-project/kubb/commit/96461a6028d5be9cf0903d3729fd6153185092c2) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - remove namespace for mutations
+
+- Updated dependencies []:
+  - @kubb/core@2.5.1
+  - @kubb/parser@2.5.1
+  - @kubb/react@2.5.1
+  - @kubb/swagger@2.5.1
+  - @kubb/types@2.5.1
+
 ## 2.5.0
 
 ### Minor Changes
