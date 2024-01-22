@@ -16,9 +16,9 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 
     "override": undefined,
     "path": "delete_pet-petid.ts",
     "source": "export type DeletePetPetidMutationResponse = any | null;
-export namespace DeletePetPetidMutation {
-    export type Response = DeletePetPetidMutationResponse;
-}
+export type DeletePetPetidMutation = {
+    Response: DeletePetPetidMutationResponse;
+};
 ",
   },
 ]
@@ -40,9 +40,9 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`unknow
     "override": undefined,
     "path": "delete_pet-petid.ts",
     "source": "export type DeletePetPetidMutationResponse = unknown | null;
-export namespace DeletePetPetidMutation {
-    export type Response = DeletePetPetidMutationResponse;
-}
+export type DeletePetPetidMutation = {
+    Response: DeletePetPetidMutationResponse;
+};
 ",
   },
 ]
@@ -217,11 +217,11 @@ export type CreatePets201 = any | null;
  * @description unexpected error
 */
 export type CreatePetsError = Error;
-export namespace CreatePetsMutation {
-    export type Response = CreatePetsMutationResponse;
-    export type Request = CreatePetsMutationRequest;
-    export type Errors = CreatePets201 | CreatePetsError;
-}
+export type CreatePetsMutation = {
+    Response: CreatePetsMutationResponse;
+    Request: CreatePetsMutationRequest;
+    Errors: CreatePets201 | CreatePetsError;
+};
 ",
   },
 ]
