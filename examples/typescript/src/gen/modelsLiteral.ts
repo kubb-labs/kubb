@@ -254,10 +254,10 @@ export type UpdatePetMutationRequest = Pet
  * @description Successful operation
  */
 export type UpdatePetMutationResponse = Pet
-export namespace UpdatePetMutation {
-  export type Response = UpdatePetMutationResponse
-  export type Request = UpdatePetMutationRequest
-  export type Errors = UpdatePet400 | UpdatePet404 | UpdatePet405
+export type UpdatePetMutation = {
+  Response: UpdatePetMutationResponse
+  Request: UpdatePetMutationRequest
+  Errors: UpdatePet400 | UpdatePet404 | UpdatePet405
 }
 
 export type AddPet405 = {
@@ -280,10 +280,10 @@ export type AddPetMutationRequest = AddPetRequest
  * @description Successful operation
  */
 export type AddPetMutationResponse = Pet
-export namespace AddPetMutation {
-  export type Response = AddPetMutationResponse
-  export type Request = AddPetMutationRequest
-  export type Errors = AddPet405
+export type AddPetMutation = {
+  Response: AddPetMutationResponse
+  Request: AddPetMutationRequest
+  Errors: AddPet405
 }
 
 /**
@@ -405,11 +405,11 @@ export type UpdatePetWithFormQueryParams =
     status?: string
   }
   | undefined
-export namespace UpdatePetWithFormMutation {
-  export type Response = UpdatePetWithFormMutationResponse
-  export type PathParams = UpdatePetWithFormPathParams
-  export type QueryParams = UpdatePetWithFormQueryParams
-  export type Errors = UpdatePetWithForm405
+export type UpdatePetWithFormMutation = {
+  Response: UpdatePetWithFormMutationResponse
+  PathParams: UpdatePetWithFormPathParams
+  QueryParams: UpdatePetWithFormQueryParams
+  Errors: UpdatePetWithForm405
 }
 
 /**
@@ -435,11 +435,11 @@ export type DeletePetPathParams = {
    */
   petId: number
 }
-export namespace DeletePetMutation {
-  export type Response = DeletePetMutationResponse
-  export type PathParams = DeletePetPathParams
-  export type HeaderParams = DeletePetHeaderParams
-  export type Errors = DeletePet400
+export type DeletePetMutation = {
+  Response: DeletePetMutationResponse
+  PathParams: DeletePetPathParams
+  HeaderParams: DeletePetHeaderParams
+  Errors: DeletePet400
 }
 
 export type UploadFileMutationRequest = string
@@ -466,11 +466,11 @@ export type UploadFileQueryParams =
  * @description successful operation
  */
 export type UploadFileMutationResponse = ApiResponse
-export namespace UploadFileMutation {
-  export type Response = UploadFileMutationResponse
-  export type Request = UploadFileMutationRequest
-  export type PathParams = UploadFilePathParams
-  export type QueryParams = UploadFileQueryParams
+export type UploadFileMutation = {
+  Response: UploadFileMutationResponse
+  Request: UploadFileMutationRequest
+  PathParams: UploadFilePathParams
+  QueryParams: UploadFileQueryParams
 }
 
 /**
@@ -494,10 +494,10 @@ export type PlaceOrderMutationRequest = Order
  * @description successful operation
  */
 export type PlaceOrderMutationResponse = Order
-export namespace PlaceOrderMutation {
-  export type Response = PlaceOrderMutationResponse
-  export type Request = PlaceOrderMutationRequest
-  export type Errors = PlaceOrder405
+export type PlaceOrderMutation = {
+  Response: PlaceOrderMutationResponse
+  Request: PlaceOrderMutationRequest
+  Errors: PlaceOrder405
 }
 
 /**
@@ -511,10 +511,10 @@ export type PlaceOrderPatchMutationRequest = Order
  * @description successful operation
  */
 export type PlaceOrderPatchMutationResponse = Order
-export namespace PlaceOrderPatchMutation {
-  export type Response = PlaceOrderPatchMutationResponse
-  export type Request = PlaceOrderPatchMutationRequest
-  export type Errors = PlaceOrderPatch405
+export type PlaceOrderPatchMutation = {
+  Response: PlaceOrderPatchMutationResponse
+  Request: PlaceOrderPatchMutationRequest
+  Errors: PlaceOrderPatch405
 }
 
 /**
@@ -564,10 +564,10 @@ export type DeleteOrderPathParams = {
    */
   orderId: number
 }
-export namespace DeleteOrderMutation {
-  export type Response = DeleteOrderMutationResponse
-  export type PathParams = DeleteOrderPathParams
-  export type Errors = DeleteOrder400 | DeleteOrder404
+export type DeleteOrderMutation = {
+  Response: DeleteOrderMutationResponse
+  PathParams: DeleteOrderPathParams
+  Errors: DeleteOrder400 | DeleteOrder404
 }
 
 export type CreateUserMutationResponse = any | null
@@ -581,10 +581,10 @@ export type CreateUserError = User
  * @description Created user object
  */
 export type CreateUserMutationRequest = User
-export namespace CreateUserMutation {
-  export type Response = CreateUserMutationResponse
-  export type Request = CreateUserMutationRequest
-  export type Errors = CreateUserError
+export type CreateUserMutation = {
+  Response: CreateUserMutationResponse
+  Request: CreateUserMutationRequest
+  Errors: CreateUserError
 }
 
 /**
@@ -598,10 +598,10 @@ export type CreateUsersWithListInputMutationRequest = User[]
  * @description Successful operation
  */
 export type CreateUsersWithListInputMutationResponse = User
-export namespace CreateUsersWithListInputMutation {
-  export type Response = CreateUsersWithListInputMutationResponse
-  export type Request = CreateUsersWithListInputMutationRequest
-  export type Errors = CreateUsersWithListInputError
+export type CreateUsersWithListInputMutation = {
+  Response: CreateUsersWithListInputMutationResponse
+  Request: CreateUsersWithListInputMutationRequest
+  Errors: CreateUsersWithListInputError
 }
 
 /**
@@ -692,11 +692,11 @@ export type UpdateUserPathParams = {
  * @description Update an existent user in the store
  */
 export type UpdateUserMutationRequest = User
-export namespace UpdateUserMutation {
-  export type Response = UpdateUserMutationResponse
-  export type Request = UpdateUserMutationRequest
-  export type PathParams = UpdateUserPathParams
-  export type Errors = UpdateUserError
+export type UpdateUserMutation = {
+  Response: UpdateUserMutationResponse
+  Request: UpdateUserMutationRequest
+  PathParams: UpdateUserPathParams
+  Errors: UpdateUserError
 }
 
 /**
@@ -718,8 +718,8 @@ export type DeleteUserPathParams = {
    */
   username: string
 }
-export namespace DeleteUserMutation {
-  export type Response = DeleteUserMutationResponse
-  export type PathParams = DeleteUserPathParams
-  export type Errors = DeleteUser400 | DeleteUser404
+export type DeleteUserMutation = {
+  Response: DeleteUserMutationResponse
+  PathParams: DeleteUserPathParams
+  Errors: DeleteUser400 | DeleteUser404
 }

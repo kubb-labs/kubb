@@ -11,8 +11,8 @@ export type PlaceOrderPatchMutationRequest = Order
  * @description successful operation
  */
 export type PlaceOrderPatchMutationResponse = Order
-export namespace PlaceOrderPatchMutation {
-  export type Response = PlaceOrderPatchMutationResponse
-  export type Request = PlaceOrderPatchMutationRequest
-  export type Errors = PlaceOrderPatch405
+export type PlaceOrderPatchMutation = {
+  Response: PlaceOrderPatchMutationResponse
+  Request: PlaceOrderPatchMutationRequest
+  Errors: PlaceOrderPatch405
 }

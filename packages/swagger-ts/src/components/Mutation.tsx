@@ -63,20 +63,24 @@ function printCombinedSchema(name: string, operation: Operation, schemas: Operat
       }),
     })!
   }
-
-  const namespaceNode = factory.createNamespaceDeclaration({
+  const namespaceNode = factory.createTypeAliasDeclaration({
     name: operation.method === 'get' ? `${name}Query` : `${name}Mutation`,
-    statements: Object.keys(properties).map(key => {
-      const type = properties[key]
-      if (!type) {
-        return undefined
-      }
-      return factory.createTypeAliasDeclaration({
-        modifiers: [factory.modifiers.export],
-        name: transformers.pascalCase(key),
-        type,
-      })
-    }).filter(Boolean),
+    type: factory.createTypeLiteralNode(
+      Object.keys(properties).map(key => {
+        const type = properties[key]
+        if (!type) {
+          return undefined
+        }
+
+        return factory.createPropertySignature(
+          {
+            name: transformers.pascalCase(key),
+            type,
+          },
+        )
+      }).filter(Boolean),
+    ),
+    modifiers: [factory.modifiers.export],
   })
 
   return print(namespaceNode)

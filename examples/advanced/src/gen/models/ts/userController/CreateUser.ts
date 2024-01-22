@@ -11,8 +11,8 @@ export type CreateUserError = User
  * @description Created user object
  */
 export type CreateUserMutationRequest = User
-export namespace CreateUserMutation {
-  export type Response = CreateUserMutationResponse
-  export type Request = CreateUserMutationRequest
-  export type Errors = CreateUserError
+export type CreateUserMutation = {
+  Response: CreateUserMutationResponse
+  Request: CreateUserMutationRequest
+  Errors: CreateUserError
 }
