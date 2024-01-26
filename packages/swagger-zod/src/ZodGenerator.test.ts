@@ -90,6 +90,26 @@ describe('ZodGenerator PetStore', async () => {
 
     expect(node).toMatchSnapshot()
   })
+
+  test('generate schema for PetArray', async () => {
+    const generator = new ZodGenerator({
+      exclude: undefined,
+      include: undefined,
+      override: undefined,
+      transformers: {},
+      typed: false,
+      dateType: 'string',
+      unknownType: 'any',
+    }, {
+      oas,
+      pluginManager: mockedPluginManager,
+    })
+
+    const schemas = oas.getDefinition().components?.schemas
+    const node = generator.build({ schema: schemas?.PetArray as OasTypes.SchemaObject, baseName: 'PetArray' })
+
+    expect(node).toMatchSnapshot()
+  })
 })
 
 describe('ZodGenerator constCases', async () => {

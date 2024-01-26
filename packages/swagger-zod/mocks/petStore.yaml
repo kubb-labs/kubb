@@ -115,7 +115,13 @@ components:
           type: string
           maxLength: 100
           minLength: 5
-
+    PetArray:
+      description: List of Pet object
+      type: array
+      minItems: 1
+      maxItems: 3
+      items:
+        $ref: '#/components/schemas/Pet'
     OptionalPet:
       type: object
       properties:
