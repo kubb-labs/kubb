@@ -8,7 +8,7 @@ exports[`ZodGenerator PetStore > generate schema for OptionalPet 1`] = `
 
 exports[`ZodGenerator PetStore > generate schema for OptionalPet typed 1`] = `
 [
-  "export const OptionalPet: z.ZodType<OptionalPet> = z.object({"id": z.number().optional(),"name": z.string().optional(),"tag": z.string().optional()});",
+  "export const OptionalPet = z.object({"id": z.number().optional(),"name": z.string().optional(),"tag": z.string().optional()}) as z.ZodType<OptionalPet>;",
 ]
 `;
 

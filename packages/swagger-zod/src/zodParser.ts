@@ -274,12 +274,13 @@ export function zodParser(
     return `export const ${options.name} = '';`
   }
 
-  const constName = options.typeName ? `export const ${options.name}: z.ZodType<${options.typeName}>` : `export const ${options.name}`
+  const constName = `export const ${options.name}`
+  const typeName = options.typeName ? ` as z.ZodType<${options.typeName}>` : ''
 
   if (options.keysToOmit?.length) {
     const omitText = `.schema.and(z.object({ ${options.keysToOmit.map((key) => `${key}: z.never()`).join(',')} }))`
-    return `${constName} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')}${omitText};`
+    return `${constName} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')}${omitText}${typeName};`
   }
 
-  return `${constName} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')};`
+  return `${constName} = ${items.map((item) => parseZodMeta(item, { ...zodKeywordMapper, ...options.mapper })).join('')}${typeName};`
 }
