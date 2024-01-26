@@ -323,7 +323,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
         ].filter(Boolean)
       }
 
-      if (schema.type === fakerKeywords.number || schema.type === fakerKeywords.integer) {
+      if ([fakerKeywords.number as string, fakerKeywords.integer as string].includes(schema.type)) {
         const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
         const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
 

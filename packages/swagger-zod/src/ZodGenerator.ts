@@ -344,6 +344,17 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
     }
 
     if ('items' in schema) {
+      const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
+      const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
+
+      if (max !== undefined) {
+        baseItems.unshift({ keyword: zodKeywords.max, args: max })
+      }
+
+      if (min !== undefined) {
+        baseItems.unshift({ keyword: zodKeywords.min, args: min })
+      }
+
       // items -> array
       return [{ keyword: zodKeywords.array, args: this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName) }, ...baseItems]
     }
@@ -403,7 +414,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
         baseItems.unshift({ keyword: zodKeywords.readOnly })
       }
 
-      if (schema.type === zodKeywords.number || schema.type === zodKeywords.integer || schema.type === zodKeywords.string) {
+      if ([zodKeywords.number as string, zodKeywords.integer as string, zodKeywords.string as string].includes(schema.type)) {
         const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
         const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
 
