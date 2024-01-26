@@ -1,5 +1,20 @@
 # @kubb/swagger-zod
 
+## 2.5.2
+
+### Patch Changes
+
+- [#807](https://github.com/kubb-project/kubb/pull/807) [`4924023`](https://github.com/kubb-project/kubb/commit/49240237e35604434ae960d5f14c978f10f1779f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - array type with min/max
+
+- [#809](https://github.com/kubb-project/kubb/pull/809) [`f9f3dfb`](https://github.com/kubb-project/kubb/commit/f9f3dfbe4fbdbd2c51549b6bfc1e3831cb0ffa15) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of casting for type option
+
+- Updated dependencies []:
+  - @kubb/core@2.5.2
+  - @kubb/parser@2.5.2
+  - @kubb/react@2.5.2
+  - @kubb/swagger@2.5.2
+  - @kubb/swagger-ts@2.5.2
+
 ## 2.5.1
 
 ### Patch Changes
