@@ -191,6 +191,8 @@ paths:
             application/json:
               schema:
                 type: array
+                minItems: 1
+                maxItems: 3
                 items:
                   $ref: "#/components/schemas/Pet"
             application/xml:
