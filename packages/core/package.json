@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "Generator core",
   "keywords": [
     "typescript",

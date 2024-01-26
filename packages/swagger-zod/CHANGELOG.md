@@ -1,5 +1,18 @@
 # @kubb/swagger-zod
 
+## 2.5.2
+
+### Patch Changes
+
+- [#807](https://github.com/kubb-project/kubb/pull/807) [`4924023`](https://github.com/kubb-project/kubb/commit/49240237e35604434ae960d5f14c978f10f1779f) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - array type with min/max
+
+- Updated dependencies []:
+  - @kubb/core@2.5.2
+  - @kubb/parser@2.5.2
+  - @kubb/react@2.5.2
+  - @kubb/swagger@2.5.2
+  - @kubb/swagger-ts@2.5.2
+
 ## 2.5.1
 
 ### Patch Changes
