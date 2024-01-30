@@ -1,3 +1,4 @@
+export { addPetRequestStatus, findPetsByStatusQueryParamsStatus, orderHttpStatus, orderStatus, petStatus } from './models/index'
 export * from './hooks/index'
 export type {
   AddPet405,
@@ -105,4 +106,3 @@ export type {
   User,
   UserArray,
 } from './models/index'
-export { addPetRequestStatus, findPetsByStatusQueryParamsStatus, orderHttpStatus, orderStatus, petStatus } from './models/index'
