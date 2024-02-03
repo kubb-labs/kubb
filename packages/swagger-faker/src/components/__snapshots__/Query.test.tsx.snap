@@ -1,24 +1,27 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<Query/> > showPetById 1`] = `
-"export function createShowPetByIdPathParams(): NonNullable<ShowPetByIdPathParams> {
-  return { petId: faker.string.alpha(), testId: faker.string.alpha() }
+"export function createShowPetByIdPathParams(override: Partial<ShowPetByIdPathParams> = {}): NonNullable<ShowPetByIdPathParams> {
+  return {
+    ...{ petId: faker.string.alpha(), testId: faker.string.alpha() },
+    ...override,
+  }
 }
 
 /**
  * @description unexpected error
  */
 
-export function createShowPetByIdError(): NonNullable<ShowPetByIdError> {
-  return createError()
+export function createShowPetByIdError(override?: Partial<ShowPetByIdError>): NonNullable<ShowPetByIdError> {
+  return createError(override)
 }
 
 /**
  * @description Expected response to a valid request
  */
 
-export function createShowPetByIdQueryResponse(): NonNullable<ShowPetByIdQueryResponse> {
-  return createPet()
+export function createShowPetByIdQueryResponse(override?: Partial<ShowPetByIdQueryResponse>): NonNullable<ShowPetByIdQueryResponse> {
+  return createPet(override)
 }
 "
 `;
