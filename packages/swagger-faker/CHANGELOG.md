@@ -1,5 +1,18 @@
 # @kubb/swagger-faker
 
+## 2.5.3
+
+### Patch Changes
+
+- [`4e8de2e`](https://github.com/kubb-project/kubb/commit/4e8de2ea5e8d9df594b6a7041bb3dd48ff849c4d) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - make it possible to override faker creators
+
+- Updated dependencies []:
+  - @kubb/core@2.5.3
+  - @kubb/parser@2.5.3
+  - @kubb/react@2.5.3
+  - @kubb/swagger@2.5.3
+  - @kubb/swagger-ts@2.5.3
+
 ## 2.5.2
 
 ### Patch Changes
