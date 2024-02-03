@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
 import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/CreateUser'
 
-export function createCreateUserMutationResponse(): NonNullable<CreateUserMutationResponse> {
+export function createCreateUserMutationResponse(override?: Partial<CreateUserMutationResponse>): NonNullable<CreateUserMutationResponse> {
   faker.seed([220])
   return undefined
 }
@@ -10,15 +10,15 @@ export function createCreateUserMutationResponse(): NonNullable<CreateUserMutati
  * @description successful operation
  */
 
-export function createCreateUserError(): NonNullable<CreateUserError> {
+export function createCreateUserError(override?: Partial<CreateUserError>): NonNullable<CreateUserError> {
   faker.seed([220])
-  return createUser()
+  return createUser(override)
 }
 /**
  * @description Created user object
  */
 
-export function createCreateUserMutationRequest(): NonNullable<CreateUserMutationRequest> {
+export function createCreateUserMutationRequest(override?: Partial<CreateUserMutationRequest>): NonNullable<CreateUserMutationRequest> {
   faker.seed([220])
-  return createUser()
+  return createUser(override)
 }

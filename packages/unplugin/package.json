@@ -141,7 +141,7 @@
     "@kubb/tsup-config": "workspace:*",
     "@nuxt/kit": "^3.10.0",
     "@nuxt/schema": "^3.10.0",
-    "@types/node": "^20.11.11",
+    "@types/node": "^20.11.16",
     "eslint": "^8.56.0",
     "rimraf": "^5.0.5",
     "rollup": "^4.9.6",
@@ -149,7 +149,7 @@
     "typescript": "^5.3.3",
     "vite": "^5.0.12",
     "vitest": "^1.2.2",
-    "webpack": "^5.90.0"
+    "webpack": "^5.90.1"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

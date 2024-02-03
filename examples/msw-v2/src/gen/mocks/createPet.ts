@@ -3,14 +3,17 @@ import { createTag } from './createTag'
 import { faker } from '@faker-js/faker'
 import type { Pet } from '../models/Pet'
 
-export function createPet(): NonNullable<Pet> {
+export function createPet(override: Partial<Pet> = {}): NonNullable<Pet> {
   faker.seed([220])
   return {
-    'id': faker.number.float({}),
-    'name': faker.string.alpha(),
-    'category': createCategory(),
-    'photoUrls': faker.helpers.arrayElements([faker.string.alpha()]) as any,
-    'tags': faker.helpers.arrayElements([createTag()]) as any,
-    'status': faker.helpers.arrayElement<any>([`available`, `pending`, `sold`]),
+    ...{
+      'id': faker.number.float({}),
+      'name': faker.string.alpha(),
+      'category': createCategory(),
+      'photoUrls': faker.helpers.arrayElements([faker.string.alpha()]) as any,
+      'tags': faker.helpers.arrayElements([createTag()]) as any,
+      'status': faker.helpers.arrayElement<any>([`available`, `pending`, `sold`]),
+    },
+    ...override,
   }
 }

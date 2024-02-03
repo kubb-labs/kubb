@@ -6,24 +6,27 @@ import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQuer
  * @description Invalid ID supplied
  */
 
-export function createGetPetById400(): NonNullable<GetPetById400> {
+export function createGetPetById400(override?: Partial<GetPetById400>): NonNullable<GetPetById400> {
   return undefined
 }
 /**
  * @description Pet not found
  */
 
-export function createGetPetById404(): NonNullable<GetPetById404> {
+export function createGetPetById404(override?: Partial<GetPetById404>): NonNullable<GetPetById404> {
   return undefined
 }
 
-export function createGetPetByIdPathParams(): NonNullable<GetPetByIdPathParams> {
-  return { 'petId': faker.number.float({}) }
+export function createGetPetByIdPathParams(override: Partial<GetPetByIdPathParams> = {}): NonNullable<GetPetByIdPathParams> {
+  return {
+    ...{ 'petId': faker.number.float({}) },
+    ...override,
+  }
 }
 /**
  * @description successful operation
  */
 
-export function createGetPetByIdQueryResponse(): NonNullable<GetPetByIdQueryResponse> {
-  return createPet()
+export function createGetPetByIdQueryResponse(override?: Partial<GetPetByIdQueryResponse>): NonNullable<GetPetByIdQueryResponse> {
+  return createPet(override)
 }

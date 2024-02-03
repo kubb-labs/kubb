@@ -6,7 +6,7 @@ import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrder
  * @description Invalid ID supplied
  */
 
-export function createGetOrderById400(): NonNullable<GetOrderById400> {
+export function createGetOrderById400(override?: Partial<GetOrderById400>): NonNullable<GetOrderById400> {
   faker.seed([220])
   return undefined
 }
@@ -14,20 +14,23 @@ export function createGetOrderById400(): NonNullable<GetOrderById400> {
  * @description Order not found
  */
 
-export function createGetOrderById404(): NonNullable<GetOrderById404> {
+export function createGetOrderById404(override?: Partial<GetOrderById404>): NonNullable<GetOrderById404> {
   faker.seed([220])
   return undefined
 }
 
-export function createGetOrderByIdPathParams(): NonNullable<GetOrderByIdPathParams> {
+export function createGetOrderByIdPathParams(override: Partial<GetOrderByIdPathParams> = {}): NonNullable<GetOrderByIdPathParams> {
   faker.seed([220])
-  return { 'orderId': faker.number.float({}) }
+  return {
+    ...{ 'orderId': faker.number.float({}) },
+    ...override,
+  }
 }
 /**
  * @description successful operation
  */
 
-export function createGetOrderByIdQueryResponse(): NonNullable<GetOrderByIdQueryResponse> {
+export function createGetOrderByIdQueryResponse(override?: Partial<GetOrderByIdQueryResponse>): NonNullable<GetOrderByIdQueryResponse> {
   faker.seed([220])
-  return createOrder()
+  return createOrder(override)
 }

@@ -5,17 +5,17 @@ import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatc
  * @description Invalid input
  */
 
-export function createPlaceOrderPatch405(): NonNullable<PlaceOrderPatch405> {
+export function createPlaceOrderPatch405(override?: Partial<PlaceOrderPatch405>): NonNullable<PlaceOrderPatch405> {
   return undefined
 }
 
-export function createPlaceOrderPatchMutationRequest(): NonNullable<PlaceOrderPatchMutationRequest> {
-  return createOrder()
+export function createPlaceOrderPatchMutationRequest(override?: Partial<PlaceOrderPatchMutationRequest>): NonNullable<PlaceOrderPatchMutationRequest> {
+  return createOrder(override)
 }
 /**
  * @description successful operation
  */
 
-export function createPlaceOrderPatchMutationResponse(): NonNullable<PlaceOrderPatchMutationResponse> {
-  return createOrder()
+export function createPlaceOrderPatchMutationResponse(override?: Partial<PlaceOrderPatchMutationResponse>): NonNullable<PlaceOrderPatchMutationResponse> {
+  return createOrder(override)
 }

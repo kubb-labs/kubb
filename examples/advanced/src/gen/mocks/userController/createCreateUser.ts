@@ -1,20 +1,20 @@
 import { createUser } from '../createUser'
 import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/ts/userController/CreateUser'
 
-export function createCreateUserMutationResponse(): NonNullable<CreateUserMutationResponse> {
+export function createCreateUserMutationResponse(override?: Partial<CreateUserMutationResponse>): NonNullable<CreateUserMutationResponse> {
   return undefined
 }
 /**
  * @description successful operation
  */
 
-export function createCreateUserError(): NonNullable<CreateUserError> {
-  return createUser()
+export function createCreateUserError(override?: Partial<CreateUserError>): NonNullable<CreateUserError> {
+  return createUser(override)
 }
 /**
  * @description Created user object
  */
 
-export function createCreateUserMutationRequest(): NonNullable<CreateUserMutationRequest> {
-  return createUser()
+export function createCreateUserMutationRequest(override?: Partial<CreateUserMutationRequest>): NonNullable<CreateUserMutationRequest> {
+  return createUser(override)
 }

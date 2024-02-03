@@ -10,17 +10,24 @@ import type {
  * @description successful operation
  */
 
-export function createCreateUsersWithListInputError(): NonNullable<CreateUsersWithListInputError> {
+export function createCreateUsersWithListInputError(override?: Partial<CreateUsersWithListInputError>): NonNullable<CreateUsersWithListInputError> {
   return undefined
 }
 
-export function createCreateUsersWithListInputMutationRequest(): NonNullable<CreateUsersWithListInputMutationRequest> {
-  return faker.helpers.arrayElements([createUser()]) as any
+export function createCreateUsersWithListInputMutationRequest(
+  override: Partial<CreateUsersWithListInputMutationRequest> = [],
+): NonNullable<CreateUsersWithListInputMutationRequest> {
+  return [
+    ...faker.helpers.arrayElements([createUser()]) as any,
+    ...override,
+  ]
 }
 /**
  * @description Successful operation
  */
 
-export function createCreateUsersWithListInputMutationResponse(): NonNullable<CreateUsersWithListInputMutationResponse> {
-  return createUser()
+export function createCreateUsersWithListInputMutationResponse(
+  override?: Partial<CreateUsersWithListInputMutationResponse>,
+): NonNullable<CreateUsersWithListInputMutationResponse> {
+  return createUser(override)
 }

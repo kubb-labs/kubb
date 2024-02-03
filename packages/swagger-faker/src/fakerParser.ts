@@ -31,7 +31,7 @@ export const fakerKeywords = {
 
 export type FakerKeyword = keyof typeof fakerKeywords
 
-export const fakerKeywordMapper: Record<FakerKeyword, string> = {
+export const fakerKeywordMapper = {
   any: 'undefined',
   unknown: 'unknown',
   number: 'faker.number.float',
@@ -60,7 +60,7 @@ export const fakerKeywordMapper: Record<FakerKeyword, string> = {
   lastName: 'faker.person.lastName',
   password: 'faker.internet.password',
   phone: 'faker.phone.number',
-} as const
+} as const satisfies Record<FakerKeyword, string>
 
 type FakerMetaBase<T> = {
   keyword: FakerKeyword
@@ -163,20 +163,23 @@ function joinItems(items: string[]): string {
   }
 }
 
-export function parseFakerMeta(item: FakerMeta, mapper: Record<FakerKeyword, string> = fakerKeywordMapper): string {
+export function parseFakerMeta(
+  item: FakerMeta,
+  { mapper = fakerKeywordMapper, withOverride }: { mapper?: Record<FakerKeyword, string>; withOverride?: boolean } = {},
+): string {
   // eslint-disable-next-line prefer-const
   let { keyword, args } = (item || {}) as FakerMetaBase<unknown>
   const value = mapper[keyword]
 
   if (keyword === fakerKeywords.tuple || keyword === fakerKeywords.array || keyword === fakerKeywords.union) {
     return `${value}(${
-      Array.isArray(args) ? `[${args.map((item) => parseFakerMeta(item as FakerMeta, mapper)).join(',')}]` : parseFakerMeta(args as FakerMeta)
+      Array.isArray(args) ? `[${args.map((item) => parseFakerMeta(item as FakerMeta, { mapper })).join(',')}]` : parseFakerMeta(args as FakerMeta)
     }) as any`
   }
 
   if (keyword === fakerKeywords.and) {
     return `${value}({},${
-      Array.isArray(args) ? `${args.map((item) => parseFakerMeta(item as FakerMeta, mapper)).join(',')}` : parseFakerMeta(args as FakerMeta)
+      Array.isArray(args) ? `${args.map((item) => parseFakerMeta(item as FakerMeta, { mapper })).join(',')}` : parseFakerMeta(args as FakerMeta)
     })`
   }
 
@@ -204,7 +207,7 @@ export function parseFakerMeta(item: FakerMeta, mapper: Record<FakerKeyword, str
           joinItems(
             schema
               .sort(fakerKeywordSorter)
-              .map((item) => parseFakerMeta(item, mapper)),
+              .map((item) => parseFakerMeta(item, { mapper })),
           )
         }`
       })
@@ -215,6 +218,9 @@ export function parseFakerMeta(item: FakerMeta, mapper: Record<FakerKeyword, str
 
   // custom type
   if (keyword === fakerKeywords.ref) {
+    if (withOverride) {
+      return `${args as string}(override)`
+    }
     return `${args as string}()`
   }
 
@@ -234,14 +240,35 @@ export function fakerParser(
   items: FakerMeta[],
   options: { seed?: number | number[]; mapper?: Record<FakerKeyword, string>; name: string; typeName?: string | null },
 ): string {
+  const fakerText = joinItems(
+    items.map((item) => parseFakerMeta(item, { mapper: { ...fakerKeywordMapper, ...options.mapper }, withOverride: true })),
+  )
+
+  let fakerDefaultOverride: '' | '[]' | '{}' = ''
+  let fakerTextWithOverride = fakerText
+
+  if (fakerText.startsWith('{')) {
+    fakerDefaultOverride = '{}'
+    fakerTextWithOverride = `{
+  ...${fakerText},
+  ...override
+}`
+  }
+
+  if (fakerText.startsWith(fakerKeywordMapper.array)) {
+    fakerDefaultOverride = '[]'
+    fakerTextWithOverride = `[
+      ...${fakerText},
+      ...override
+    ]`
+  }
+
   return `
-export function ${options.name}()${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
+export function ${options.name}(${
+    fakerDefaultOverride ? `override: Partial<${options.typeName}> = ${fakerDefaultOverride}` : `override?: Partial<${options.typeName}>`
+  })${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
   ${options.seed ? `faker.seed(${JSON.stringify(options.seed)})` : ''}
-  return ${
-    joinItems(
-      items.map((item) => parseFakerMeta(item, { ...fakerKeywordMapper, ...options.mapper })),
-    )
-  };
+  return ${fakerTextWithOverride};
 }
   `
 }

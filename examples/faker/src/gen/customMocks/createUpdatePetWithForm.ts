@@ -10,18 +10,24 @@ import type {
  * @description Invalid input
  */
 
-export function createUpdatePetWithForm405(): NonNullable<UpdatePetWithForm405> {
+export function createUpdatePetWithForm405(override?: Partial<UpdatePetWithForm405>): NonNullable<UpdatePetWithForm405> {
   return undefined
 }
 
-export function createUpdatePetWithFormMutationResponse(): NonNullable<UpdatePetWithFormMutationResponse> {
+export function createUpdatePetWithFormMutationResponse(override?: Partial<UpdatePetWithFormMutationResponse>): NonNullable<UpdatePetWithFormMutationResponse> {
   return undefined
 }
 
-export function createUpdatePetWithFormPathParams(): NonNullable<UpdatePetWithFormPathParams> {
-  return { 'petId': faker.number.float({}) }
+export function createUpdatePetWithFormPathParams(override: Partial<UpdatePetWithFormPathParams> = {}): NonNullable<UpdatePetWithFormPathParams> {
+  return {
+    ...{ 'petId': faker.number.float({}) },
+    ...override,
+  }
 }
 
-export function createUpdatePetWithFormQueryParams(): NonNullable<UpdatePetWithFormQueryParams> {
-  return { 'name': faker.commerce.productName(), 'status': faker.string.alpha() }
+export function createUpdatePetWithFormQueryParams(override: Partial<UpdatePetWithFormQueryParams> = {}): NonNullable<UpdatePetWithFormQueryParams> {
+  return {
+    ...{ 'name': faker.commerce.productName(), 'status': faker.string.alpha() },
+    ...override,
+  }
 }

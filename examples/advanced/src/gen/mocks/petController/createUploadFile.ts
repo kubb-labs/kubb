@@ -7,21 +7,27 @@ import type {
   UploadFileQueryParams,
 } from '../../models/ts/petController/UploadFile'
 
-export function createUploadFileMutationRequest(): NonNullable<UploadFileMutationRequest> {
+export function createUploadFileMutationRequest(override?: Partial<UploadFileMutationRequest>): NonNullable<UploadFileMutationRequest> {
   return faker.string.alpha()
 }
 
-export function createUploadFilePathParams(): NonNullable<UploadFilePathParams> {
-  return { 'petId': faker.number.float({}) }
+export function createUploadFilePathParams(override: Partial<UploadFilePathParams> = {}): NonNullable<UploadFilePathParams> {
+  return {
+    ...{ 'petId': faker.number.float({}) },
+    ...override,
+  }
 }
 
-export function createUploadFileQueryParams(): NonNullable<UploadFileQueryParams> {
-  return { 'additionalMetadata': faker.string.alpha() }
+export function createUploadFileQueryParams(override: Partial<UploadFileQueryParams> = {}): NonNullable<UploadFileQueryParams> {
+  return {
+    ...{ 'additionalMetadata': faker.string.alpha() },
+    ...override,
+  }
 }
 /**
  * @description successful operation
  */
 
-export function createUploadFileMutationResponse(): NonNullable<UploadFileMutationResponse> {
-  return createApiResponse()
+export function createUploadFileMutationResponse(override?: Partial<UploadFileMutationResponse>): NonNullable<UploadFileMutationResponse> {
+  return createApiResponse(override)
 }

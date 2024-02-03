@@ -6,7 +6,7 @@ import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUs
  * @description Invalid username supplied
  */
 
-export function createGetUserByName400(): NonNullable<GetUserByName400> {
+export function createGetUserByName400(override?: Partial<GetUserByName400>): NonNullable<GetUserByName400> {
   faker.seed([220])
   return undefined
 }
@@ -14,20 +14,23 @@ export function createGetUserByName400(): NonNullable<GetUserByName400> {
  * @description User not found
  */
 
-export function createGetUserByName404(): NonNullable<GetUserByName404> {
+export function createGetUserByName404(override?: Partial<GetUserByName404>): NonNullable<GetUserByName404> {
   faker.seed([220])
   return undefined
 }
 
-export function createGetUserByNamePathParams(): NonNullable<GetUserByNamePathParams> {
+export function createGetUserByNamePathParams(override: Partial<GetUserByNamePathParams> = {}): NonNullable<GetUserByNamePathParams> {
   faker.seed([220])
-  return { 'username': faker.string.alpha() }
+  return {
+    ...{ 'username': faker.string.alpha() },
+    ...override,
+  }
 }
 /**
  * @description successful operation
  */
 
-export function createGetUserByNameQueryResponse(): NonNullable<GetUserByNameQueryResponse> {
+export function createGetUserByNameQueryResponse(override?: Partial<GetUserByNameQueryResponse>): NonNullable<GetUserByNameQueryResponse> {
   faker.seed([220])
-  return createUser()
+  return createUser(override)
 }

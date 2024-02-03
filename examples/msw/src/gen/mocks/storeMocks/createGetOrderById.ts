@@ -6,24 +6,27 @@ import type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrder
  * @description Invalid ID supplied
  */
 
-export function createGetOrderById400(): NonNullable<GetOrderById400> {
+export function createGetOrderById400(override?: Partial<GetOrderById400>): NonNullable<GetOrderById400> {
   return undefined
 }
 /**
  * @description Order not found
  */
 
-export function createGetOrderById404(): NonNullable<GetOrderById404> {
+export function createGetOrderById404(override?: Partial<GetOrderById404>): NonNullable<GetOrderById404> {
   return undefined
 }
 
-export function createGetOrderByIdPathParams(): NonNullable<GetOrderByIdPathParams> {
-  return { 'orderId': faker.number.float({}) }
+export function createGetOrderByIdPathParams(override: Partial<GetOrderByIdPathParams> = {}): NonNullable<GetOrderByIdPathParams> {
+  return {
+    ...{ 'orderId': faker.number.float({}) },
+    ...override,
+  }
 }
 /**
  * @description successful operation
  */
 
-export function createGetOrderByIdQueryResponse(): NonNullable<GetOrderByIdQueryResponse> {
-  return createOrder()
+export function createGetOrderByIdQueryResponse(override?: Partial<GetOrderByIdQueryResponse>): NonNullable<GetOrderByIdQueryResponse> {
+  return createOrder(override)
 }

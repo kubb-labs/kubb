@@ -5,22 +5,28 @@ import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, De
  * @description Invalid pet value
  */
 
-export function createDeletePet400(): NonNullable<DeletePet400> {
+export function createDeletePet400(override?: Partial<DeletePet400>): NonNullable<DeletePet400> {
   faker.seed([220])
   return undefined
 }
 
-export function createDeletePetHeaderParams(): NonNullable<DeletePetHeaderParams> {
+export function createDeletePetHeaderParams(override: Partial<DeletePetHeaderParams> = {}): NonNullable<DeletePetHeaderParams> {
   faker.seed([220])
-  return { 'api_key': faker.string.alpha() }
+  return {
+    ...{ 'api_key': faker.string.alpha() },
+    ...override,
+  }
 }
 
-export function createDeletePetMutationResponse(): NonNullable<DeletePetMutationResponse> {
+export function createDeletePetMutationResponse(override?: Partial<DeletePetMutationResponse>): NonNullable<DeletePetMutationResponse> {
   faker.seed([220])
   return undefined
 }
 
-export function createDeletePetPathParams(): NonNullable<DeletePetPathParams> {
+export function createDeletePetPathParams(override: Partial<DeletePetPathParams> = {}): NonNullable<DeletePetPathParams> {
   faker.seed([220])
-  return { 'petId': faker.number.float({}) }
+  return {
+    ...{ 'petId': faker.number.float({}) },
+    ...override,
+  }
 }

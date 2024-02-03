@@ -38,7 +38,7 @@ export const zodKeywords = {
 
 export type ZodKeyword = keyof typeof zodKeywords
 
-export const zodKeywordMapper: Record<ZodKeyword, string> = {
+export const zodKeywordMapper = {
   any: 'z.any',
   unknown: 'z.unknown',
   number: 'z.number',
@@ -74,7 +74,7 @@ export const zodKeywordMapper: Record<ZodKeyword, string> = {
   // custom ones
   ref: 'ref',
   matches: '.regex',
-} as const
+} as const satisfies Record<ZodKeyword, string>
 
 type ZodMetaBase<T> = {
   keyword: ZodKeyword

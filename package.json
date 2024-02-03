@@ -60,7 +60,7 @@
     "@changesets/cli": "^2.27.1",
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
-    "@types/node": "^20.11.11",
+    "@types/node": "^20.11.16",
     "@vitest/coverage-v8": "^1.2.2",
     "@vitest/ui": "^1.2.2",
     "bun-types": "^1.0.25",
@@ -69,7 +69,7 @@
     "prettier-eslint": "^16.3.0",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.2",
-    "turbo": "^1.11.3",
+    "turbo": "^1.12.2",
     "typescript": "^5.3.3",
     "vite-tsconfig-paths": "^4.3.1",
     "vitest": "^1.2.2"

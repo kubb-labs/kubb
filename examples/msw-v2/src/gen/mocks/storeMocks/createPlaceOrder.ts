@@ -6,20 +6,20 @@ import type { PlaceOrder405, PlaceOrderMutationRequest, PlaceOrderMutationRespon
  * @description Invalid input
  */
 
-export function createPlaceOrder405(): NonNullable<PlaceOrder405> {
+export function createPlaceOrder405(override?: Partial<PlaceOrder405>): NonNullable<PlaceOrder405> {
   faker.seed([220])
   return undefined
 }
 
-export function createPlaceOrderMutationRequest(): NonNullable<PlaceOrderMutationRequest> {
+export function createPlaceOrderMutationRequest(override?: Partial<PlaceOrderMutationRequest>): NonNullable<PlaceOrderMutationRequest> {
   faker.seed([220])
-  return createOrder()
+  return createOrder(override)
 }
 /**
  * @description successful operation
  */
 
-export function createPlaceOrderMutationResponse(): NonNullable<PlaceOrderMutationResponse> {
+export function createPlaceOrderMutationResponse(override?: Partial<PlaceOrderMutationResponse>): NonNullable<PlaceOrderMutationResponse> {
   faker.seed([220])
-  return createOrder()
+  return createOrder(override)
 }
