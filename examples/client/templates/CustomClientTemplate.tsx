@@ -1,4 +1,4 @@
-import { File, Function, Language } from '@kubb/react'
+import { File, Function, Editor } from '@kubb/react'
 import { Client } from '@kubb/swagger-client/components'
 import React from 'react'
 import { useOperationFile } from '@kubb/swagger/hooks'
@@ -11,13 +11,13 @@ export const templates = {
 
     return (
       <>
-        <Language value="typescript">
+        <Editor language="typescript">
           <File.Import name="axios" path="axios" />
           <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
             {`return axios.${client.method}(${clientParams}`}
           </Function>
-        </Language>
-        <Language value="kotlin">
+        </Editor>
+        <Editor language="kotlin">
           {`
 package com.example.blog
 
@@ -36,8 +36,8 @@ class HtmlController {
   }
 }
         `}
-        </Language>
-        <Language value="text">
+        </Editor>
+        <Editor language="text">
           <File
             baseName={file.baseName}
             path={file.path}
@@ -47,7 +47,7 @@ class HtmlController {
               ai ai ai
             </File.Source>
           </File>
-        </Language>
+        </Editor>
       </>
     )
   },

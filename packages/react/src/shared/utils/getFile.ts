@@ -6,7 +6,7 @@ import { squashSourceNodes } from './squashSourceNodes.ts'
 import type { KubbFile } from '@kubb/core'
 import type React from 'react'
 import type { File } from '../../components/File.tsx'
-import type { Language } from '../../components/Language.tsx'
+import type { Language } from '../../components/Editor.tsx'
 import type { DOMElement } from '../../types.ts'
 
 export function getFile(node: DOMElement): KubbFile.File | undefined {

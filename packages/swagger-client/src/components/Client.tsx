@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
-import { File, Function, Language, usePlugin } from '@kubb/react'
+import { File, Function, Editor, usePlugin } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
@@ -65,7 +65,7 @@ function Template({
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
   return (
-    <Language value="typescript">
+    <Editor language="typescript">
       <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
 const res = await client<${client.generics}>({
@@ -74,7 +74,7 @@ ${resolvedClientOptions}
 return ${client.dataReturnType === 'data' ? 'res.data' : 'res'}
 `}
       </Function>
-    </Language>
+    </Editor>
   )
 }
 
@@ -166,7 +166,7 @@ Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
 
   return (
     <>
-      <Language.Provider value="typescript">
+      <Editor.Provider value={{ language: 'typescript' }}>
         <File<FileMeta>
           baseName={file.baseName}
           path={file.path}
@@ -186,8 +186,8 @@ Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
             <Client Template={Template} />
           </File.Source>
         </File>
-      </Language.Provider>
-      <Language.Provider value="kotlin">
+      </Editor.Provider>
+      <Editor.Provider value={{ language: 'kotlin' }}>
         <File<FileMeta>
           baseName={kotlinFile.baseName}
           path={kotlinFile.path}
@@ -197,10 +197,10 @@ Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
             <Client Template={Template} />
           </File.Source>
         </File>
-      </Language.Provider>
-      <Language.Provider value={'text'}>
+      </Editor.Provider>
+      <Editor.Provider value={{ language: 'text' }}>
         <Client Template={Template} />
-      </Language.Provider>
+      </Editor.Provider>
     </>
   )
 }

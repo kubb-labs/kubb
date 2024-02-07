@@ -47,9 +47,10 @@ declare global {
         print?: boolean
       }
 
-      'kubb-language': {
-        value?: string
+      'kubb-editor': {
+        language?: string
         key?: Key
+        children?: ReactNode
       }
     }
   }

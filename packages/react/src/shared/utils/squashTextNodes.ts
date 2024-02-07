@@ -6,7 +6,7 @@ import { read } from './read.ts'
 
 import type { File } from '../../components/File.tsx'
 import type { DOMElement } from '../../types.ts'
-import type { Language } from '../../components/Language.tsx'
+import type { Language } from '../../components/Editor.tsx'
 import { format } from './format.ts'
 
 // Squashing text nodes allows to combine multiple text nodes into one and write
@@ -50,7 +50,7 @@ export function squashTextNodes(node: DOMElement): string {
           }),
         )
       }
-      if (childNode.nodeName === 'kubb-language') {
+      if (childNode.nodeName === 'kubb-editor') {
         return format(text, childNode)
       }
 
@@ -64,7 +64,7 @@ export function squashTextNodes(node: DOMElement): string {
     if (childNode.nodeName === '#text') {
       nodeText = childNode.nodeValue
     } else {
-      if (['kubb-text', 'kubb-file', 'kubb-source', 'kubb-language'].includes(childNode.nodeName)) {
+      if (['kubb-text', 'kubb-file', 'kubb-source', 'kubb-editor'].includes(childNode.nodeName)) {
         nodeText = squashTextNodes(childNode)
       }
 
