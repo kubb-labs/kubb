@@ -10,7 +10,7 @@ import { renderer } from './renderer.ts'
 import type { KubbFile } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type { ReactNode } from 'react'
-import type { AppContextProps } from '../components/AppContext.tsx'
+import type { AppContextProps } from '../components/AppContext.ts'
 import type { FiberRoot } from '../reconciler.ts'
 import type { DOMElement } from '../types.ts'
 

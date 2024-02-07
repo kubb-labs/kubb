@@ -15,6 +15,8 @@ export type CosmiconfigResult = {
 const tsLoader = async (configFile: string) => {
   const { mod } = await bundleRequire({
     filepath: configFile,
+    // makes it possible to use React and hooks
+    format: 'cjs',
   })
 
   return mod.default

@@ -32,21 +32,35 @@ declare global {
         key?: Key
         path?: string
         print?: boolean
-        removeComments?: boolean
-        noEmitHelpers?: boolean
       }
 
       'kubb-import': KubbFile.Import & {
         print?: boolean
       }
+
       'kubb-export': KubbFile.Export & {
         print?: boolean
+      }
+
+      'kubb-language': {
+        language?: string
+        key?: Key
+        children?: ReactNode
       }
     }
   }
 }
 
-export type ElementNames = ReactElementNames | 'kubb-text' | 'kubb-file' | 'kubb-source' | 'kubb-import' | 'kubb-export' | 'kubb-root' | 'kubb-app'
+export type ElementNames =
+  | ReactElementNames
+  | 'kubb-text'
+  | 'kubb-file'
+  | 'kubb-source'
+  | 'kubb-import'
+  | 'kubb-export'
+  | 'kubb-root'
+  | 'kubb-app'
+  | 'kubb-language'
 
 export type Node = {
   parentNode: DOMElement | undefined

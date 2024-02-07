@@ -108,7 +108,7 @@ type FileProps = {
 Handlers.File = function({ name, paths, templates = defaultTemplates }: FileProps): ReactNode {
   const pluginManager = usePluginManager()
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name, pluginKey })
+  const file = useFile({ name, extName: '.ts', pluginKey })
 
   const handlersImports = getHandlersImports(paths, { resolveName: pluginManager.resolveName, resolvePath: pluginManager.resolvePath, pluginKey })
 

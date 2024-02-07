@@ -37,15 +37,19 @@ declare global {
         key?: Key
         path?: string
         print?: boolean
-        removeComments?: boolean
-        noEmitHelpers?: boolean
       }
 
       'kubb-import': KubbFile.Import & {
         print?: boolean
       }
+
       'kubb-export': KubbFile.Export & {
         print?: boolean
+      }
+
+      'kubb-language': {
+        language?: string
+        key?: Key
       }
     }
   }

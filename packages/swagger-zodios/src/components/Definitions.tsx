@@ -309,7 +309,7 @@ type FileProps = {
 Definitions.File = function({ name, baseURL, paths, templates = defaultTemplates }: FileProps): ReactNode {
   const pluginManager = usePluginManager()
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name, pluginKey })
+  const file = useFile({ name, extName: '.ts', pluginKey })
 
   const definitionsImports = getDefinitionsImports(paths, {
     resolveName: pluginManager.resolveName,
