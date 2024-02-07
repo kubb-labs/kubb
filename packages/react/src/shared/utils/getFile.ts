@@ -6,6 +6,7 @@ import { squashSourceNodes } from './squashSourceNodes.ts'
 import type { KubbFile } from '@kubb/core'
 import type React from 'react'
 import type { File } from '../../components/File.tsx'
+import type { Language } from '../../components/Language.tsx'
 import type { DOMElement } from '../../types.ts'
 
 export function getFile(node: DOMElement): KubbFile.File | undefined {
@@ -38,7 +39,7 @@ export function getFile(node: DOMElement): KubbFile.File | undefined {
   return file
 }
 
-export function getFiles(node: DOMElement): KubbFile.File[] {
+export function getFiles(node: DOMElement, language?: string): KubbFile.File[] {
   let files: KubbFile.File[] = []
 
   for (let index = 0; index < node.childNodes.length; index++) {
@@ -49,7 +50,12 @@ export function getFiles(node: DOMElement): KubbFile.File[] {
     }
 
     if (childNode.nodeName !== '#text' && nodeNames.includes(childNode.nodeName)) {
-      files = [...files, ...getFiles(childNode)]
+      if (childNode.nodeName === 'kubb-language') {
+        const attributes = childNode.attributes as React.ComponentProps<(typeof Language)>
+        files = [...files, ...getFiles(childNode, attributes.value)]
+      } else {
+        files = [...files, ...getFiles(childNode)]
+      }
     }
 
     if (childNode.nodeName === 'kubb-file') {
@@ -66,6 +72,7 @@ export function getFiles(node: DOMElement): KubbFile.File[] {
           imports: squashImportNodes(childNode),
           override: attributes.override,
           meta: attributes.meta,
+          language,
         }
 
         files.push(file)

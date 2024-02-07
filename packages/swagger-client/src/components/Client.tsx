@@ -65,7 +65,7 @@ function Template({
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
   return (
-    <Language language="typescript">
+    <Language value="typescript">
       <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
         {`
 const res = await client<${client.generics}>({
