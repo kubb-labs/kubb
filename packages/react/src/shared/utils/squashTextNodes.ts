@@ -2,10 +2,12 @@ import { getRelativePath } from '@kubb/core/fs'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 
-import { printOrRead } from './printOrRead.ts'
+import { read } from './read.ts'
 
 import type { File } from '../../components/File.tsx'
 import type { DOMElement } from '../../types.ts'
+import type { Language } from '../../components/Language.tsx'
+import { format } from './format.ts'
 
 // Squashing text nodes allows to combine multiple text nodes into one and write
 // to `Output` instance only once. For example, <Text>hello{' '}world</Text>
@@ -48,16 +50,21 @@ export function squashTextNodes(node: DOMElement): string {
           }),
         )
       }
-      if (childNode.nodeName === 'kubb-source') {
-        return printOrRead(text, childNode)
+      if (childNode.nodeName === 'kubb-language') {
+        return format(text, childNode)
       }
+
+      if (childNode.nodeName === 'kubb-source') {
+        return read(text, childNode)
+      }
+
       return text
     }
 
     if (childNode.nodeName === '#text') {
       nodeText = childNode.nodeValue
     } else {
-      if (['kubb-text', 'kubb-file', 'kubb-source'].includes(childNode.nodeName)) {
+      if (['kubb-text', 'kubb-file', 'kubb-source', 'kubb-language'].includes(childNode.nodeName)) {
         nodeText = squashTextNodes(childNode)
       }
 

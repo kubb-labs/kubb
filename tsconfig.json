@@ -56,6 +56,9 @@
       "@kubb/swagger-client/client": [
         "packages/swagger-client/src/client.ts"
       ],
+      "@kubb/swagger-client/components": [
+        "packages/swagger-client/src/components/index.ts"
+      ],
       "@kubb/react/server": [
         "packages/react/src/server/index.ts"
       ],

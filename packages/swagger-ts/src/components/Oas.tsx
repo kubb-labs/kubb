@@ -63,7 +63,7 @@ type FileProps = {
 
 Oas.File = function({ name, typeName, templates = defaultTemplates }: FileProps): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name, pluginKey })
+  const file = useFile({ name, extName: '.ts', pluginKey })
 
   const Template = templates.default
 

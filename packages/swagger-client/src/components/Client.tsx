@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
-import { File, Function, usePlugin } from '@kubb/react'
+import { File, Function, Language, usePlugin } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
@@ -65,14 +65,16 @@ function Template({
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
   return (
-    <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-      {`
+    <Language language="typescript">
+      <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+        {`
 const res = await client<${client.generics}>({
 ${resolvedClientOptions}
 })
 return ${client.dataReturnType === 'data' ? 'res.data' : 'res'}
 `}
-    </Function>
+      </Function>
+    </Language>
   )
 }
 
@@ -157,30 +159,49 @@ Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
   const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
+  const kotlinFile = useOperationFile({ extName: '.kt' })
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
   const Template = templates.default
 
   return (
-    <File<FileMeta>
-      baseName={file.baseName}
-      path={file.path}
-      meta={file.meta}
-    >
-      <File.Import name={'client'} path={importPath} />
-      <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-      <File.Import
-        name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
-          Boolean,
-        )}
-        root={file.path}
-        path={fileType.path}
-        isTypeOnly
-      />
-      <File.Source>
+    <>
+      <Language.Provider value="typescript">
+        <File<FileMeta>
+          baseName={file.baseName}
+          path={file.path}
+          meta={file.meta}
+        >
+          <File.Import name={'client'} path={importPath} />
+          <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+          <File.Import
+            name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
+              Boolean,
+            )}
+            root={file.path}
+            path={fileType.path}
+            isTypeOnly
+          />
+          <File.Source>
+            <Client Template={Template} />
+          </File.Source>
+        </File>
+      </Language.Provider>
+      <Language.Provider value="kotlin">
+        <File<FileMeta>
+          baseName={kotlinFile.baseName}
+          path={kotlinFile.path}
+          meta={kotlinFile.meta}
+        >
+          <File.Source>
+            <Client Template={Template} />
+          </File.Source>
+        </File>
+      </Language.Provider>
+      <Language.Provider value={'text'}>
         <Client Template={Template} />
-      </File.Source>
-    </File>
+      </Language.Provider>
+    </>
   )
 }
 

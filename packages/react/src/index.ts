@@ -1,14 +1,15 @@
-import transformers from '@kubb/core/transformers'
+import React from 'react'
 
 export type { RootType } from './client/index.ts'
 export { createRoot } from './client/index.ts'
 export type { AppContextProps } from './components/index.ts'
-export { File, Function, Text, Type } from './components/index.ts'
+export { File, Function, Language, Text, Type } from './components/index.ts'
 export {
   useApp,
   useFile,
   useFileManager,
   useIndent,
+  useLanguage,
   useMeta,
   usePackageVersion,
   usePlugin,
@@ -17,7 +18,5 @@ export {
   useResolvePath,
 } from './hooks/index.ts'
 export type * from './types.ts'
-/**
- * @deprecated use `@kubb/core/utils' import instead
- */
-export const createIndent = transformers.createIndent
+
+export default React
