@@ -11,13 +11,13 @@ export const templates = {
 
     return (
       <>
-        <Language language="typescript">
+        <Language value="typescript">
           <File.Import name="axios" path="axios" />
           <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
             {`return axios.${client.method}(${clientParams}`}
           </Function>
         </Language>
-        <Language language="kotlin">
+        <Language value="kotlin">
           {`
 package com.example.blog
 
@@ -37,7 +37,7 @@ class HtmlController {
 }
         `}
         </Language>
-        <Language>
+        <Language value="text">
           <File
             baseName={file.baseName}
             path={file.path}

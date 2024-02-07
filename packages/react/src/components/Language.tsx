@@ -12,7 +12,7 @@ type Props = {
    * Name of the language used.
    * @default 'text'
    */
-  language?: LanguageContextProps
+  value?: LanguageContextProps
   children?: KubbNode
 }
 
@@ -24,21 +24,21 @@ export function Typescript({ children }: Omit<Props, 'language'>): KubbNode {
   }
 
   return (
-    <kubb-language language="typescript">
+    <kubb-language value="typescript">
       {children}
     </kubb-language>
   )
 }
 
-export function Language({ language = 'text', children }: Props): KubbNode {
+export function Language({ value = 'text', children }: Props): KubbNode {
   const currentLanguage = useContext(LanguageContext)
 
-  if (language && currentLanguage !== language) {
+  if (value && currentLanguage !== value) {
     return null
   }
 
   return (
-    <kubb-language language={language}>
+    <kubb-language value={value}>
       {children}
     </kubb-language>
   )

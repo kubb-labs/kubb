@@ -145,6 +145,10 @@ export namespace KubbFile {
      * This will override `process.env[key]` inside the `source`, see `getFileSource`.
      */
     env?: NodeJS.ProcessEnv
+    /**
+     * The name of the language being used. This can be TypeScript, JavaScript and still have another ext.
+     */
+    language?: string
   }
 
   export type ResolvedFile<
@@ -390,7 +394,7 @@ export class FileManager {
     return ['.js', '.ts', '.tsx']
   }
 
-  static isExtensionAllowed(baseName: string): boolean {
+  static isJavascript(baseName: string): boolean {
     return FileManager.extensions.some((extension) => baseName.endsWith(extension))
   }
 }
@@ -431,7 +435,8 @@ function combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBas
 }
 
 export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
-  if (!FileManager.isExtensionAllowed(file.baseName)) {
+  // only use .js, .ts or .tsx files for ESM imports
+  if (file.language ? ['typescript', 'javascript'].includes(file.language) : !FileManager.isJavascript(file.baseName)) {
     return file.source
   }
 

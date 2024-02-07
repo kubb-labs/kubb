@@ -43,7 +43,7 @@ declare global {
       }
 
       'kubb-language': {
-        language?: string
+        value?: string
         key?: Key
         children?: ReactNode
       }
