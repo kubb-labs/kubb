@@ -96,7 +96,7 @@ describe('<File/>', () => {
       return (
         <File baseName="test.ts" path="path">
           <File.Source path={path.resolve(mocksPath, './test.ts')} print></File.Source>
-          <File.Source print removeComments>
+          <File.Source print>
             {`
             // comment that should be removed
             const test = 2;
@@ -116,7 +116,7 @@ describe('<File/>', () => {
       return (
         <>
           <File baseName="test.ts" path="./">
-            <File.Source print removeComments>
+            <File.Source print>
               {`
             const test = 1;
             `}
@@ -124,7 +124,7 @@ describe('<File/>', () => {
             </File.Source>
           </File>
           <File baseName="test2.ts" path="./">
-            <File.Source print removeComments>
+            <File.Source print>
               {`
             const test2 = 2;
             `}
@@ -166,7 +166,7 @@ describe('<File/>', () => {
       return (
         <File baseName="test.ts" path="path">
           <File.Source path={path.resolve(mocksPath, './test.ts')} print></File.Source>
-          <File.Source print removeComments>
+          <File.Source print>
             {`
             // comment that should be removed
             const test = 2;
@@ -186,7 +186,7 @@ describe('<File/>', () => {
       return (
         <>
           <File baseName="test.ts" path="./">
-            <File.Source print removeComments>
+            <File.Source print>
               {`
             const test = 1;
             `}
@@ -194,7 +194,7 @@ describe('<File/>', () => {
             </File.Source>
           </File>
           <File baseName="test2.ts" path="./">
-            <File.Source print removeComments>
+            <File.Source print>
               {`
             const test2 = 2;
             `}

@@ -1,9 +1,9 @@
 import { useContext } from 'react'
 
-import { Language } from '../components/Language.tsx'
+import { Editor } from '../components/index.ts'
 
-import type { LanguageContextProps } from '../components/Language.tsx'
+import type { EditorContextProps } from '../components/Editor.tsx'
 
-export function useLanguage(): LanguageContextProps | null {
-  return useContext(Language.Context)
+export function useLanguage(): EditorContextProps {
+  return useContext(Editor.Context)
 }

@@ -1,6 +1,6 @@
 import { print } from '@kubb/parser'
 
-import type { Language } from '../../components/Language.tsx'
+import type { Language } from '../../components/Editor.tsx'
 import type { DOMElement } from '../../types.ts'
 
 export function format(text: string, node: DOMElement): string {

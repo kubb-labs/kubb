@@ -1,6 +1,6 @@
 export type { AppContextProps } from './AppContext.ts'
+export { Editor, Typescript } from './Editor.tsx'
 export { File } from './File.tsx'
 export { Function } from './Function.tsx'
-export { Language, Typescript } from './Language.tsx'
 export { Text } from './Text.tsx'
 export { Type } from './Type.tsx'
