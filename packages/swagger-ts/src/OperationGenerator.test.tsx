@@ -46,7 +46,7 @@ describe('OperationGenerator', async () => {
     expect(getShowByIdFiles).toMatchSnapshot()
   })
 
-  test.only('[POST] /pets 201', async () => {
+  test('[POST] /pets 201', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
       dateType: 'string',
