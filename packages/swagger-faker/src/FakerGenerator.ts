@@ -159,7 +159,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
       isTypeOnly: false,
     })
 
-    return [{ keyword: fakerKeywords.ref, args: ref.propertyName }]
+    return [{ keyword: fakerKeywords.ref, args: { name: ref.propertyName } }]
   }
 
   #getParsedSchema(schema?: OasTypes.SchemaObject) {

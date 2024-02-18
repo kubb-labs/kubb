@@ -178,10 +178,14 @@ export function parseFakerMeta(
 
   // custom type
   if (isKeyword(item, fakerKeywords.ref)) {
-    if (withOverride) {
-      return `${item.args?.name as string}(override)`
+    if (!item.args?.name) {
+      throw new Error(`Name not defined for keyword ${item.keyword}`)
     }
-    return `${item.args?.name as string}()`
+
+    if (withOverride) {
+      return `${item.args.name}(override)`
+    }
+    return `${item.args.name}()`
   }
 
   if (isKeyword(item, fakerKeywords.null) || isKeyword(item, fakerKeywords.undefined) || isKeyword(item, fakerKeywords.any)) {
