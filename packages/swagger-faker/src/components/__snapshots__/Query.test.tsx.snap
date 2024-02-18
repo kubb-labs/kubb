@@ -13,7 +13,7 @@ exports[`<Query/> > showPetById 1`] = `
  */
 
 export function createShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError>>): NonNullable<ShowPetByIdError> {
-  return createError(override)
+  return createPet(override)
 }
 
 /**

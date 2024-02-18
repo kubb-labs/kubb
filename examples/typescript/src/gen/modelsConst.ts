@@ -469,6 +469,11 @@ export type DeletePetMutation = {
 
 export type UploadFileMutationRequest = string
 
+/**
+ * @description successful operation
+ */
+export type UploadFileMutationResponse = any | null
+
 export type UploadFilePathParams = {
   /**
    * @description ID of pet to update
@@ -486,11 +491,6 @@ export type UploadFileQueryParams =
     additionalMetadata?: string
   }
   | undefined
-
-/**
- * @description successful operation
- */
-export type UploadFileMutationResponse = ApiResponse
 export type UploadFileMutation = {
   Response: UploadFileMutationResponse
   Request: UploadFileMutationRequest
@@ -595,12 +595,12 @@ export type DeleteOrderMutation = {
   Errors: DeleteOrder400 | DeleteOrder404
 }
 
-export type CreateUserMutationResponse = any | null
-
 /**
  * @description successful operation
  */
-export type CreateUserError = User
+export type CreateUserError = any | null
+
+export type CreateUserMutationResponse = any | null
 
 /**
  * @description Created user object
@@ -615,7 +615,7 @@ export type CreateUserMutation = {
 /**
  * @description successful operation
  */
-export type CreateUsersWithListInputError = any | null
+export type CreateUsersWithListInputError = User
 
 export type CreateUsersWithListInputMutationRequest = User[]
 

@@ -79,9 +79,9 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
       {
         "isTypeOnly": false,
         "name": [
-          "Error",
+          "Pets",
         ],
-        "path": "Error",
+        "path": "Pets",
         "root": "listPets.ts",
       },
       {
@@ -105,7 +105,7 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
  /**
        * @description unexpected error
        */
-export const ListPetsError = z.lazy(() => Error);
+export const ListPetsError = z.lazy(() => Pets);
 
  /**
        * @description A paged array of pets
@@ -135,9 +135,9 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
       {
         "isTypeOnly": false,
         "name": [
-          "Error",
+          "Pet",
         ],
-        "path": "Error",
+        "path": "Pet",
         "root": "showPetById.ts",
       },
       {
@@ -161,7 +161,7 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
  /**
        * @description unexpected error
        */
-export const ShowPetByIdError = z.lazy(() => Error);
+export const ShowPetByIdError = z.lazy(() => Pet);
 
  /**
        * @description Expected response to a valid request
@@ -188,14 +188,6 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
         "path": "zod",
         "root": undefined,
       },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "createPets.ts",
-      },
     ],
     "meta": {
       "name": "createPets",
@@ -208,13 +200,13 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
  * @description Null response
  */
 export const CreatePets201 = z.any();
-export const CreatePetsMutationRequest = z.object({ "name": z.string(), "tag": z.string() });
-export const CreatePetsMutationResponse = z.any();
 
  /**
        * @description unexpected error
        */
-export const CreatePetsError = z.lazy(() => Error);
+export const CreatePetsError = z.any();
+export const CreatePetsMutationRequest = z.object({ "name": z.string(), "tag": z.string() });
+export const CreatePetsMutationResponse = z.any();
 ",
   },
 ]

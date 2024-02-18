@@ -1,11 +1,11 @@
 import type { User } from '../../models'
 
-export type CreateUserMutationResponse = any | null
-
 /**
  * @description successful operation
  */
-export type CreateUserError = User
+export type CreateUserError = any | null
+
+export type CreateUserMutationResponse = any | null
 
 /**
  * @description Created user object

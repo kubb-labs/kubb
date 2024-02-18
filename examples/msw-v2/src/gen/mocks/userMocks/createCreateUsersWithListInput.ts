@@ -14,7 +14,7 @@ export function createCreateUsersWithListInputError(
   override?: NonNullable<Partial<CreateUsersWithListInputError>>,
 ): NonNullable<CreateUsersWithListInputError> {
   faker.seed([220])
-  return undefined
+  return createUser(override)
 }
 
 export function createCreateUsersWithListInputMutationRequest(

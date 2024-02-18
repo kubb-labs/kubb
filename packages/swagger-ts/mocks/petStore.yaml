@@ -60,12 +60,24 @@ paths:
       responses:
         '201':
           description: Null response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Error'
+                  - type: object
+                    required:
+                        - code
+                    properties:
+                        name:
+                            $ref: "#/components/schemas/ErrorCode"
         default:
           description: unexpected error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
   /pets/{petId}:
     get:
       summary: Info for a specific pet
@@ -130,4 +142,15 @@ components:
           type: integer
           format: int32
         message:
+          type: string
+    ErrorCode:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
           type: string

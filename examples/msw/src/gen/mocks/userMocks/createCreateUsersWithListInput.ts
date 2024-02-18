@@ -13,7 +13,7 @@ import type {
 export function createCreateUsersWithListInputError(
   override?: NonNullable<Partial<CreateUsersWithListInputError>>,
 ): NonNullable<CreateUsersWithListInputError> {
-  return undefined
+  return createUser(override)
 }
 
 export function createCreateUsersWithListInputMutationRequest(
