@@ -1,10 +1,10 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<Mutation/> > pets 1`] = `
-"type CreatePetsClient = typeof client<CreatePetsMutationResponse, CreatePets201 | CreatePetsError, CreatePetsMutationRequest>
+"type CreatePetsClient = typeof client<CreatePetsMutationResponse, never, CreatePetsMutationRequest>
 type CreatePets = {
   data: CreatePetsMutationResponse
-  error: CreatePets201 | CreatePetsError
+  error: never
   request: CreatePetsMutationRequest
   pathParams: never
   queryParams: never

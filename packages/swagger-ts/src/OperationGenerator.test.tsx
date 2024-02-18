@@ -13,7 +13,7 @@ describe('OperationGenerator', async () => {
     output: { path: 'test', clean: true },
     input: { path: 'packages/swagger-ts/mocks/petStore.yaml' },
   })
-  test('[GET] should generate with optionalType `questionToken`', async () => {
+  test('[GET] /pets with optionalType `questionToken`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
       dateType: 'string',
@@ -46,7 +46,7 @@ describe('OperationGenerator', async () => {
     expect(getShowByIdFiles).toMatchSnapshot()
   })
 
-  test('[POST] should generate', async () => {
+  test('[POST] /pets 201', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
       dateType: 'string',
@@ -70,12 +70,12 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pets', 'post')
-    const files = await og.post(operation, og.getSchemas(operation), options)
+    const files = await og.post(operation, og.getSchemas(operation, 201), options)
 
     expect(files).toMatchSnapshot()
   })
 
-  test('[DELETE] should generate with unknownType `any`', async () => {
+  test('[DELETE] /pet/{petId} with unknownType `any`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
       dateType: 'string',
@@ -103,7 +103,7 @@ describe('OperationGenerator', async () => {
 
     expect(files).toMatchSnapshot()
   })
-  test('[DELETE] should generate with unknownType `unknown`', async () => {
+  test('[DELETE] /pet/{petId} with unknownType `unknown`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
       dateType: 'string',

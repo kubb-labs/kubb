@@ -1,10 +1,3 @@
-import type { PetNotFound } from '../PetNotFound'
-
-/**
- * @description Null response
- */
-export type CreatePets201 = any | null
-
 export const CreatePetsHeaderParamsXExample = {
   'ONE': 'ONE',
   'TWO': 'TWO',
@@ -47,16 +40,10 @@ export type CreatePetsQueryParams = {
    */
   offset?: number
 } | undefined
-
-/**
- * @description unexpected error
- */
-export type CreatePetsError = PetNotFound
 export type CreatePetsMutation = {
   Response: CreatePetsMutationResponse
   Request: CreatePetsMutationRequest
   PathParams: CreatePetsPathParams
   QueryParams: CreatePetsQueryParams
   HeaderParams: CreatePetsHeaderParams
-  Errors: CreatePets201 | CreatePetsError
 }

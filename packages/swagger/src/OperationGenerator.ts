@@ -158,8 +158,7 @@ export abstract class OperationGenerator<
   #getResponseSchema(operation: Operation, statusCode?: string | number): OasTypes.SchemaObject {
     const contentType = this.context.contentType || operation.getContentType()
     const responseStatusCode = statusCode || (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
-    const schema = operation.schema.responses?.[responseStatusCode] as OpenAPIV3.ReferenceObject
-
+    const schema = operation.schema.responses?.[responseStatusCode] as OpenAPIV3.ReferenceObject | OpenAPIV3.ResponseObject | undefined
     if (isReference(schema)) {
       const responseSchema = findSchemaDefinition(schema?.$ref, operation.api) as OasTypes.ResponseObject
       const contentTypeSchema = responseSchema.content?.[contentType]?.schema as OasTypes.SchemaObject
@@ -173,7 +172,11 @@ export abstract class OperationGenerator<
 
       return contentTypeSchema
     }
-    const responseJSONSchema = operation.getResponseAsJSONSchema(responseStatusCode)?.at(0)?.schema as OasTypes.SchemaObject
+
+    // check if contentType of content x exists, sometimes requestBody can have contentType x and responses 200 y.
+    const responseJSONSchema = schema?.content?.[contentType]
+      ? schema?.content?.[contentType]?.schema as OasTypes.SchemaObject
+      : operation.getResponseAsJSONSchema(responseStatusCode)?.at(0)?.schema as OasTypes.SchemaObject
 
     if (isReference(responseJSONSchema)) {
       return {
@@ -209,12 +212,12 @@ export abstract class OperationGenerator<
     return schema
   }
 
-  getSchemas(operation: Operation): OperationSchemas {
+  getSchemas(operation: Operation, statusCode: string | number = 200): OperationSchemas {
     const pathParamsSchema = this.#getParametersSchema(operation, 'path')
     const queryParamsSchema = this.#getParametersSchema(operation, 'query')
     const headerParamsSchema = this.#getParametersSchema(operation, 'header')
     const requestSchema = this.#getRequestSchema(operation)
-    const responseSchema = this.#getResponseSchema(operation)
+    const responseSchema = this.#getResponseSchema(operation, statusCode)
 
     return {
       pathParams: pathParamsSchema
@@ -262,11 +265,11 @@ export abstract class OperationGenerator<
         : undefined,
       response: {
         name: transformers.pascalCase(`${operation.getOperationId()} ${operation.method === 'get' ? 'queryResponse' : 'mutationResponse'}`),
-        description: operation.getResponseAsJSONSchema('200')?.at(0)?.description,
+        description: operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description,
         operation,
         operationName: transformers.pascalCase(`${operation.getOperationId()}`),
         schema: responseSchema,
-        statusCode: 200,
+        statusCode: Number(statusCode),
         keys: responseSchema?.properties ? Object.keys(responseSchema.properties) : undefined,
         keysToOmit: responseSchema?.properties
           ? Object.keys(responseSchema.properties).filter((key) => {
@@ -277,7 +280,7 @@ export abstract class OperationGenerator<
       },
       errors: operation
         .getResponseStatusCodes()
-        .filter((statusCode) => statusCode !== '200')
+        .filter((statusCode) => statusCode.startsWith('4') || statusCode.startsWith('5'))
         .map((statusCode) => {
           let name = statusCode
           if (name === 'default') {

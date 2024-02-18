@@ -1,13 +1,13 @@
 import client from '@kubb/swagger-client/client'
 import { useQuery } from '@tanstack/vue-query'
-import type { LogoutUserQueryResponse, LogoutUserError } from '../models/LogoutUser'
+import type { LogoutUserQueryResponse } from '../models/LogoutUser'
 import type { UseQueryReturnType, QueryKey, WithRequired } from '@tanstack/vue-query'
 import type { VueQueryObserverOptions } from '@tanstack/vue-query/build/lib/types'
 
-type LogoutUserClient = typeof client<LogoutUserQueryResponse, LogoutUserError, never>
+type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {
   data: LogoutUserQueryResponse
-  error: LogoutUserError
+  error: never
   request: never
   pathParams: never
   queryParams: never

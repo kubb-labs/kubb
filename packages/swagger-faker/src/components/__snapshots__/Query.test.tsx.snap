@@ -9,14 +9,6 @@ exports[`<Query/> > showPetById 1`] = `
 }
 
 /**
- * @description unexpected error
- */
-
-export function createShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError>>): NonNullable<ShowPetByIdError> {
-  return createError(override)
-}
-
-/**
  * @description Expected response to a valid request
  */
 

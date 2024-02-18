@@ -1,7 +1,7 @@
 import { logoutUserQueryResponseSchema } from '../../../zod/userController/logoutUserSchema'
 import client from '../../../../tanstack-query-client.ts'
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
-import type { LogoutUserQueryResponse, LogoutUserError } from '../../../models/ts/userController/LogoutUser'
+import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 import type {
   UseBaseQueryOptions,
   UseQueryResult,
@@ -12,10 +12,10 @@ import type {
   InfiniteData,
 } from '@tanstack/react-query'
 
-type LogoutUserClient = typeof client<LogoutUserQueryResponse, LogoutUserError, never>
+type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {
   data: LogoutUserQueryResponse
-  error: LogoutUserError
+  error: never
   request: never
   pathParams: never
   queryParams: never
