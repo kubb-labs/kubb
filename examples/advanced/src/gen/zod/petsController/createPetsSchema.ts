@@ -1,14 +1,5 @@
 import { z } from 'zod'
 
-/**
- * @description Null response
- */
-export const createPets201Schema = z.any()
-
-/**
- * @description unexpected error
- */
-export const createPetsErrorSchema = z.any()
 export const createPetsHeaderParamsSchema = z.object({ 'X-EXAMPLE': z.enum([`ONE`, `TWO`, `THREE`]).describe(`Header parameters`) })
 export const createPetsMutationRequestSchema = z.object({ 'name': z.string(), 'tag': z.string() })
 export const createPetsMutationResponseSchema = z.any()

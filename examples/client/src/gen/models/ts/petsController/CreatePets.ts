@@ -1,13 +1,3 @@
-/**
- * @description Null response
- */
-export type CreatePets201 = any | null
-
-/**
- * @description unexpected error
- */
-export type CreatePetsError = any | null
-
 export const CreatePetsHeaderParamsXExample = {
   'ONE': 'ONE',
   'TWO': 'TWO',
@@ -56,5 +46,4 @@ export type CreatePetsMutation = {
   PathParams: CreatePetsPathParams
   QueryParams: CreatePetsQueryParams
   HeaderParams: CreatePetsHeaderParams
-  Errors: CreatePets201 | CreatePetsError
 }

@@ -1,9 +1,6 @@
-export type UploadFileMutationRequest = string
+import type { ApiResponse } from './ApiResponse'
 
-/**
- * @description successful operation
- */
-export type UploadFileMutationResponse = any | null
+export type UploadFileMutationRequest = string
 
 export type UploadFilePathParams = {
   /**
@@ -20,6 +17,11 @@ export type UploadFileQueryParams = {
    */
   additionalMetadata?: string
 } | undefined
+
+/**
+ * @description successful operation
+ */
+export type UploadFileMutationResponse = ApiResponse
 export type UploadFileMutation = {
   Response: UploadFileMutationResponse
   Request: UploadFileMutationRequest

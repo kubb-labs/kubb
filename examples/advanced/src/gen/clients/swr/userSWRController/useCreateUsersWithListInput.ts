@@ -4,17 +4,12 @@ import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation
 import type {
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
-  CreateUsersWithListInputError,
 } from '../../../models/ts/userController/CreateUsersWithListInput'
 
-type CreateUsersWithListInputClient = typeof client<
-  CreateUsersWithListInputMutationResponse,
-  CreateUsersWithListInputError,
-  CreateUsersWithListInputMutationRequest
->
+type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
-  error: CreateUsersWithListInputError
+  error: never
   request: CreateUsersWithListInputMutationRequest
   pathParams: never
   queryParams: never

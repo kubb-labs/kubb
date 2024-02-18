@@ -1,20 +1,12 @@
 import client from '@kubb/swagger-client/client'
 import { createMutation } from '@tanstack/svelte-query'
-import type {
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
-  CreateUsersWithListInputError,
-} from '../models/CreateUsersWithListInput'
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 import type { CreateMutationOptions, CreateMutationResult } from '@tanstack/svelte-query'
 
-type CreateUsersWithListInputClient = typeof client<
-  CreateUsersWithListInputMutationResponse,
-  CreateUsersWithListInputError,
-  CreateUsersWithListInputMutationRequest
->
+type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
-  error: CreateUsersWithListInputError
+  error: never
   request: CreateUsersWithListInputMutationRequest
   pathParams: never
   queryParams: never

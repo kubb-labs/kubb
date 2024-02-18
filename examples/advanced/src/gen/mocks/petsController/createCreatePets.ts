@@ -1,28 +1,11 @@
 import { faker } from '@faker-js/faker'
 import type {
-  CreatePets201,
-  CreatePetsError,
   CreatePetsHeaderParams,
   CreatePetsMutationRequest,
   CreatePetsMutationResponse,
   CreatePetsPathParams,
   CreatePetsQueryParams,
 } from '../../models/ts/petsController/CreatePets'
-
-/**
- * @description Null response
- */
-
-export function createCreatePets201(override?: NonNullable<Partial<CreatePets201>>): NonNullable<CreatePets201> {
-  return undefined
-}
-/**
- * @description unexpected error
- */
-
-export function createCreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
-  return undefined
-}
 
 export function createCreatePetsHeaderParams(override: NonNullable<Partial<CreatePetsHeaderParams>> = {}): NonNullable<CreatePetsHeaderParams> {
   return {

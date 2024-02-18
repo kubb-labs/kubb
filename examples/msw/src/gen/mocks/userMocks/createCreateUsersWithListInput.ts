@@ -1,20 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
-import type {
-  CreateUsersWithListInputError,
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
-} from '../../models/CreateUsersWithListInput'
-
-/**
- * @description successful operation
- */
-
-export function createCreateUsersWithListInputError(
-  override?: NonNullable<Partial<CreateUsersWithListInputError>>,
-): NonNullable<CreateUsersWithListInputError> {
-  return createUser(override)
-}
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../../models/CreateUsersWithListInput'
 
 export function createCreateUsersWithListInputMutationRequest(
   override: NonNullable<Partial<CreateUsersWithListInputMutationRequest>> = [],

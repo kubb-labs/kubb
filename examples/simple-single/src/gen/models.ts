@@ -461,11 +461,6 @@ export type DeletePetMutation = {
 
 export type UploadFileMutationRequest = string
 
-/**
- * @description successful operation
- */
-export type UploadFileMutationResponse = any | null
-
 export type UploadFilePathParams = {
   /**
    * @description ID of pet to update
@@ -481,6 +476,11 @@ export type UploadFileQueryParams = {
    */
   additionalMetadata?: string
 } | undefined
+
+/**
+ * @description successful operation
+ */
+export type UploadFileMutationResponse = ApiResponse
 export type UploadFileMutation = {
   Response: UploadFileMutationResponse
   Request: UploadFileMutationRequest
@@ -585,11 +585,6 @@ export type DeleteOrderMutation = {
   Errors: DeleteOrder400 | DeleteOrder404
 }
 
-/**
- * @description successful operation
- */
-export type CreateUserError = any | null
-
 export type CreateUserMutationResponse = any | null
 
 /**
@@ -599,13 +594,7 @@ export type CreateUserMutationRequest = User
 export type CreateUserMutation = {
   Response: CreateUserMutationResponse
   Request: CreateUserMutationRequest
-  Errors: CreateUserError
 }
-
-/**
- * @description successful operation
- */
-export type CreateUsersWithListInputError = User
 
 export type CreateUsersWithListInputMutationRequest = User[]
 
@@ -616,7 +605,6 @@ export type CreateUsersWithListInputMutationResponse = User
 export type CreateUsersWithListInputMutation = {
   Response: CreateUsersWithListInputMutationResponse
   Request: CreateUsersWithListInputMutationRequest
-  Errors: CreateUsersWithListInputError
 }
 
 /**
@@ -647,15 +635,9 @@ export type LoginUserQuery = {
   Errors: LoginUser400
 }
 
-/**
- * @description successful operation
- */
-export type LogoutUserError = any | null
-
 export type LogoutUserQueryResponse = any | null
 export type LogoutUserQuery = {
   Response: LogoutUserQueryResponse
-  Errors: LogoutUserError
 }
 
 /**
@@ -686,11 +668,6 @@ export type GetUserByNameQuery = {
   Errors: GetUserByName400 | GetUserByName404
 }
 
-/**
- * @description successful operation
- */
-export type UpdateUserError = any | null
-
 export type UpdateUserMutationResponse = any | null
 
 export type UpdateUserPathParams = {
@@ -709,7 +686,6 @@ export type UpdateUserMutation = {
   Response: UpdateUserMutationResponse
   Request: UpdateUserMutationRequest
   PathParams: UpdateUserPathParams
-  Errors: UpdateUserError
 }
 
 /**

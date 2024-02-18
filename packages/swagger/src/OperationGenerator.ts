@@ -172,7 +172,11 @@ export abstract class OperationGenerator<
 
       return contentTypeSchema
     }
-    const responseJSONSchema = schema?.content?.[contentType]?.schema as OasTypes.SchemaObject
+
+    // check if contentType of content x exists, sometimes requestBody can have contentType x and responses 200 y.
+    const responseJSONSchema = schema?.content?.[contentType]
+      ? schema?.content?.[contentType]?.schema as OasTypes.SchemaObject
+      : operation.getResponseAsJSONSchema(responseStatusCode)?.at(0)?.schema as OasTypes.SchemaObject
 
     if (isReference(responseJSONSchema)) {
       return {
@@ -215,7 +219,6 @@ export abstract class OperationGenerator<
     const requestSchema = this.#getRequestSchema(operation)
     const responseSchema = this.#getResponseSchema(operation, statusCode)
 
-    console.log(JSON.stringify(responseSchema, undefined, 2))
     return {
       pathParams: pathParamsSchema
         ? {
@@ -277,14 +280,14 @@ export abstract class OperationGenerator<
       },
       errors: operation
         .getResponseStatusCodes()
-        .filter((statusCode) => statusCode !== '200')
+        .filter((statusCode) => statusCode.startsWith('4') || statusCode.startsWith('5'))
         .map((statusCode) => {
           let name = statusCode
           if (name === 'default') {
             name = 'error'
           }
 
-          const schema = this.#getResponseSchema(operation, Number(statusCode))
+          const schema = this.#getResponseSchema(operation, statusCode)
 
           return {
             name: transformers.pascalCase(`${operation.getOperationId()} ${name}`),

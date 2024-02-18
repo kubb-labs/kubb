@@ -4,9 +4,8 @@ export { addPetRequestStatus } from './AddPetRequest'
 export type { Address } from './Address'
 export type { ApiResponse } from './ApiResponse'
 export type { Category } from './Category'
-export type { CreateUserError, CreateUserMutation, CreateUserMutationRequest, CreateUserMutationResponse } from './CreateUser'
+export type { CreateUserMutation, CreateUserMutationRequest, CreateUserMutationResponse } from './CreateUser'
 export type {
-  CreateUsersWithListInputError,
   CreateUsersWithListInputMutation,
   CreateUsersWithListInputMutationRequest,
   CreateUsersWithListInputMutationResponse,
@@ -29,7 +28,7 @@ export type { GetOrderById400, GetOrderById404, GetOrderByIdPathParams, GetOrder
 export type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQuery, GetPetByIdQueryResponse } from './GetPetById'
 export type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQuery, GetUserByNameQueryResponse } from './GetUserByName'
 export type { LoginUser400, LoginUserQuery, LoginUserQueryParams, LoginUserQueryResponse } from './LoginUser'
-export type { LogoutUserError, LogoutUserQuery, LogoutUserQueryResponse } from './LogoutUser'
+export type { LogoutUserQuery, LogoutUserQueryResponse } from './LogoutUser'
 export type { Order, OrderHttpStatus, OrderStatus } from './Order'
 export { orderHttpStatus, orderStatus } from './Order'
 export type { Pet, PetStatus } from './Pet'
@@ -46,7 +45,7 @@ export type {
   UpdatePetWithFormPathParams,
   UpdatePetWithFormQueryParams,
 } from './UpdatePetWithForm'
-export type { UpdateUserError, UpdateUserMutation, UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from './UpdateUser'
+export type { UpdateUserMutation, UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from './UpdateUser'
 export type { UploadFileMutation, UploadFileMutationRequest, UploadFileMutationResponse, UploadFilePathParams, UploadFileQueryParams } from './UploadFile'
 export type { User } from './User'
 export type { UserArray } from './UserArray'

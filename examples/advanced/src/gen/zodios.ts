@@ -5,7 +5,6 @@ import {
   createPetsQueryParamsSchema,
   createPetsHeaderParamsSchema,
   createPetsMutationRequestSchema,
-  createPets201Schema,
 } from './zod/petsController/createPetsSchema'
 import { addPetMutationResponseSchema, addPetMutationRequestSchema, addPet405Schema } from './zod/petController/addPetSchema'
 import {
@@ -90,13 +89,7 @@ export const endpoints = makeApi([
       },
     ],
     response: createPetsMutationResponseSchema,
-    errors: [
-      {
-        status: 201,
-        description: `Null response`,
-        schema: createPets201Schema,
-      },
-    ],
+    errors: [],
   },
   {
     method: 'post',

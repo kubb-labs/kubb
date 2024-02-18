@@ -1,12 +1,12 @@
 import useSWRMutation from 'swr/mutation'
 import client from '../../../../swr-client.ts'
 import type { SWRMutationConfiguration, SWRMutationResponse } from 'swr/mutation'
-import type { CreateUserMutationRequest, CreateUserMutationResponse, CreateUserError } from '../../../models/ts/userController/CreateUser'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../../models/ts/userController/CreateUser'
 
-type CreateUserClient = typeof client<CreateUserMutationResponse, CreateUserError, CreateUserMutationRequest>
+type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
 type CreateUser = {
   data: CreateUserMutationResponse
-  error: CreateUserError
+  error: never
   request: CreateUserMutationRequest
   pathParams: never
   queryParams: never
