@@ -6,18 +6,18 @@ import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUs
  * @description Invalid username supplied
  */
 
-export function createGetUserByName400(override?: Partial<GetUserByName400>): NonNullable<GetUserByName400> {
+export function createGetUserByName400(override?: NonNullable<Partial<GetUserByName400>>): NonNullable<GetUserByName400> {
   return undefined
 }
 /**
  * @description User not found
  */
 
-export function createGetUserByName404(override?: Partial<GetUserByName404>): NonNullable<GetUserByName404> {
+export function createGetUserByName404(override?: NonNullable<Partial<GetUserByName404>>): NonNullable<GetUserByName404> {
   return undefined
 }
 
-export function createGetUserByNamePathParams(override: Partial<GetUserByNamePathParams> = {}): NonNullable<GetUserByNamePathParams> {
+export function createGetUserByNamePathParams(override: NonNullable<Partial<GetUserByNamePathParams>> = {}): NonNullable<GetUserByNamePathParams> {
   return {
     ...{ 'username': faker.string.alpha() },
     ...override,
@@ -27,6 +27,6 @@ export function createGetUserByNamePathParams(override: Partial<GetUserByNamePat
  * @description successful operation
  */
 
-export function createGetUserByNameQueryResponse(override?: Partial<GetUserByNameQueryResponse>): NonNullable<GetUserByNameQueryResponse> {
+export function createGetUserByNameQueryResponse(override?: NonNullable<Partial<GetUserByNameQueryResponse>>): NonNullable<GetUserByNameQueryResponse> {
   return createUser(override)
 }

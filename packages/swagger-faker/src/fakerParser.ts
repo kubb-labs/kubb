@@ -265,7 +265,9 @@ export function fakerParser(
 
   return `
 export function ${options.name}(${
-    fakerDefaultOverride ? `override: Partial<${options.typeName}> = ${fakerDefaultOverride}` : `override?: Partial<${options.typeName}>`
+    fakerDefaultOverride
+      ? `override: NonNullable<Partial<${options.typeName}>> = ${fakerDefaultOverride}`
+      : `override?: NonNullable<Partial<${options.typeName}>>`
   })${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
   ${options.seed ? `faker.seed(${JSON.stringify(options.seed)})` : ''}
   return ${fakerTextWithOverride};

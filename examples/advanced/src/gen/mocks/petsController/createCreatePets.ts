@@ -14,36 +14,36 @@ import type {
  * @description Null response
  */
 
-export function createCreatePets201(override?: Partial<CreatePets201>): NonNullable<CreatePets201> {
+export function createCreatePets201(override?: NonNullable<Partial<CreatePets201>>): NonNullable<CreatePets201> {
   return undefined
 }
 
-export function createCreatePetsHeaderParams(override: Partial<CreatePetsHeaderParams> = {}): NonNullable<CreatePetsHeaderParams> {
+export function createCreatePetsHeaderParams(override: NonNullable<Partial<CreatePetsHeaderParams>> = {}): NonNullable<CreatePetsHeaderParams> {
   return {
     ...{ 'X-EXAMPLE': faker.helpers.arrayElement<any>([`ONE`, `TWO`, `THREE`]) },
     ...override,
   }
 }
 
-export function createCreatePetsMutationRequest(override: Partial<CreatePetsMutationRequest> = {}): NonNullable<CreatePetsMutationRequest> {
+export function createCreatePetsMutationRequest(override: NonNullable<Partial<CreatePetsMutationRequest>> = {}): NonNullable<CreatePetsMutationRequest> {
   return {
     ...{ 'name': faker.string.alpha(), 'tag': faker.string.alpha() },
     ...override,
   }
 }
 
-export function createCreatePetsMutationResponse(override?: Partial<CreatePetsMutationResponse>): NonNullable<CreatePetsMutationResponse> {
+export function createCreatePetsMutationResponse(override?: NonNullable<Partial<CreatePetsMutationResponse>>): NonNullable<CreatePetsMutationResponse> {
   return undefined
 }
 
-export function createCreatePetsPathParams(override: Partial<CreatePetsPathParams> = {}): NonNullable<CreatePetsPathParams> {
+export function createCreatePetsPathParams(override: NonNullable<Partial<CreatePetsPathParams>> = {}): NonNullable<CreatePetsPathParams> {
   return {
     ...{ 'uuid': faker.string.alpha() },
     ...override,
   }
 }
 
-export function createCreatePetsQueryParams(override: Partial<CreatePetsQueryParams> = {}): NonNullable<CreatePetsQueryParams> {
+export function createCreatePetsQueryParams(override: NonNullable<Partial<CreatePetsQueryParams>> = {}): NonNullable<CreatePetsQueryParams> {
   return {
     ...{ 'offset': faker.number.float({}) },
     ...override,
@@ -53,6 +53,6 @@ export function createCreatePetsQueryParams(override: Partial<CreatePetsQueryPar
  * @description unexpected error
  */
 
-export function createCreatePetsError(override?: Partial<CreatePetsError>): NonNullable<CreatePetsError> {
+export function createCreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
   return createPetNotFound(override)
 }

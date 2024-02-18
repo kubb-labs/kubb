@@ -6,7 +6,7 @@ import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQuer
  * @description Invalid ID supplied
  */
 
-export function createGetPetById400(override?: Partial<GetPetById400>): NonNullable<GetPetById400> {
+export function createGetPetById400(override?: NonNullable<Partial<GetPetById400>>): NonNullable<GetPetById400> {
   faker.seed([220])
   return undefined
 }
@@ -14,12 +14,12 @@ export function createGetPetById400(override?: Partial<GetPetById400>): NonNulla
  * @description Pet not found
  */
 
-export function createGetPetById404(override?: Partial<GetPetById404>): NonNullable<GetPetById404> {
+export function createGetPetById404(override?: NonNullable<Partial<GetPetById404>>): NonNullable<GetPetById404> {
   faker.seed([220])
   return undefined
 }
 
-export function createGetPetByIdPathParams(override: Partial<GetPetByIdPathParams> = {}): NonNullable<GetPetByIdPathParams> {
+export function createGetPetByIdPathParams(override: NonNullable<Partial<GetPetByIdPathParams>> = {}): NonNullable<GetPetByIdPathParams> {
   faker.seed([220])
   return {
     ...{ 'petId': faker.number.float({}) },
@@ -30,7 +30,7 @@ export function createGetPetByIdPathParams(override: Partial<GetPetByIdPathParam
  * @description successful operation
  */
 
-export function createGetPetByIdQueryResponse(override?: Partial<GetPetByIdQueryResponse>): NonNullable<GetPetByIdQueryResponse> {
+export function createGetPetByIdQueryResponse(override?: NonNullable<Partial<GetPetByIdQueryResponse>>): NonNullable<GetPetByIdQueryResponse> {
   faker.seed([220])
   return createPet(override)
 }

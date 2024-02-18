@@ -6,15 +6,15 @@ import type { UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResp
  * @description successful operation
  */
 
-export function createUpdateUserError(override?: Partial<UpdateUserError>): NonNullable<UpdateUserError> {
+export function createUpdateUserError(override?: NonNullable<Partial<UpdateUserError>>): NonNullable<UpdateUserError> {
   return undefined
 }
 
-export function createUpdateUserMutationResponse(override?: Partial<UpdateUserMutationResponse>): NonNullable<UpdateUserMutationResponse> {
+export function createUpdateUserMutationResponse(override?: NonNullable<Partial<UpdateUserMutationResponse>>): NonNullable<UpdateUserMutationResponse> {
   return undefined
 }
 
-export function createUpdateUserPathParams(override: Partial<UpdateUserPathParams> = {}): NonNullable<UpdateUserPathParams> {
+export function createUpdateUserPathParams(override: NonNullable<Partial<UpdateUserPathParams>> = {}): NonNullable<UpdateUserPathParams> {
   return {
     ...{ 'username': faker.string.alpha() },
     ...override,
@@ -24,6 +24,6 @@ export function createUpdateUserPathParams(override: Partial<UpdateUserPathParam
  * @description Update an existent user in the store
  */
 
-export function createUpdateUserMutationRequest(override?: Partial<UpdateUserMutationRequest>): NonNullable<UpdateUserMutationRequest> {
+export function createUpdateUserMutationRequest(override?: NonNullable<Partial<UpdateUserMutationRequest>>): NonNullable<UpdateUserMutationRequest> {
   return createUser(override)
 }

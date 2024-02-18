@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import type { User } from '../models/User'
 
-export function createUser(override: Partial<User> = {}): NonNullable<User> {
+export function createUser(override: NonNullable<Partial<User>> = {}): NonNullable<User> {
   return {
     ...{
       'id': faker.number.float({}),

@@ -3,7 +3,7 @@ import { createTag } from './createTag'
 import { faker } from '@faker-js/faker'
 import type { AddPetRequest } from '../models/AddPetRequest'
 
-export function createAddPetRequest(override: Partial<AddPetRequest> = {}): NonNullable<AddPetRequest> {
+export function createAddPetRequest(override: NonNullable<Partial<AddPetRequest>> = {}): NonNullable<AddPetRequest> {
   return {
     ...{
       'id': faker.number.float({}),

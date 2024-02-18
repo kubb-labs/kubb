@@ -4,10 +4,10 @@ import type { LogoutUserError, LogoutUserQueryResponse } from '../../models/ts/u
  * @description successful operation
  */
 
-export function createLogoutUserError(override?: Partial<LogoutUserError>): NonNullable<LogoutUserError> {
+export function createLogoutUserError(override?: NonNullable<Partial<LogoutUserError>>): NonNullable<LogoutUserError> {
   return undefined
 }
 
-export function createLogoutUserQueryResponse(override?: Partial<LogoutUserQueryResponse>): NonNullable<LogoutUserQueryResponse> {
+export function createLogoutUserQueryResponse(override?: NonNullable<Partial<LogoutUserQueryResponse>>): NonNullable<LogoutUserQueryResponse> {
   return undefined
 }
