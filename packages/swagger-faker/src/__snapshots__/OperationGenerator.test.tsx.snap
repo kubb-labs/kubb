@@ -57,22 +57,6 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
         "root": undefined,
       },
       {
-        "isTypeOnly": false,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ListPetsError",
-        ],
-        "path": "ListPets",
-        "root": "listPets.ts",
-      },
-      {
         "isTypeOnly": true,
         "name": [
           "ListPetsQueryParams",
@@ -111,18 +95,11 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
     };
 }
 /**
- * @description unexpected error
- */
-
- export function ListPetsError(override?: NonNullable<Partial<ListPetsError>>): NonNullable<ListPetsError> {
-    return undefined(override);
-}
-/**
  * @description A paged array of pets
  */
 
  export function ListPetsQueryResponse(override?: NonNullable<Partial<ListPetsQueryResponse>>): NonNullable<ListPetsQueryResponse> {
-    return undefined(override);
+    return Pets(override);
 }
 ",
   },
@@ -146,22 +123,6 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
         "root": undefined,
       },
       {
-        "isTypeOnly": false,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ShowPetByIdError",
-        ],
-        "path": "ShowPetById",
-        "root": "showPetById.ts",
-      },
-      {
         "isTypeOnly": true,
         "name": [
           "ShowPetByIdPathParams",
@@ -200,18 +161,11 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
     };
 }
 /**
- * @description unexpected error
- */
-
- export function ShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError>>): NonNullable<ShowPetByIdError> {
-    return undefined(override);
-}
-/**
  * @description Expected response to a valid request
  */
 
  export function ShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetByIdQueryResponse>>): NonNullable<ShowPetByIdQueryResponse> {
-    return undefined(override);
+    return Pet(override);
 }
 ",
   },
@@ -233,22 +187,6 @@ exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 1`] = `
         ],
         "path": "@faker-js/faker",
         "root": undefined,
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ListPetsError",
-        ],
-        "path": "ListPets",
-        "root": "listPets.ts",
       },
       {
         "isTypeOnly": true,
@@ -290,20 +228,12 @@ exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 1`] = `
     };
 }
 /**
- * @description unexpected error
- */
-
- export function ListPetsError(override?: NonNullable<Partial<ListPetsError>>): NonNullable<ListPetsError> {
-    faker.seed([222]);
-    return undefined(override);
-}
-/**
  * @description A paged array of pets
  */
 
  export function ListPetsQueryResponse(override?: NonNullable<Partial<ListPetsQueryResponse>>): NonNullable<ListPetsQueryResponse> {
     faker.seed([222]);
-    return undefined(override);
+    return Pets(override);
 }
 ",
   },
@@ -325,22 +255,6 @@ exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 2`] = `
         ],
         "path": "@faker-js/faker",
         "root": undefined,
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ShowPetByIdError",
-        ],
-        "path": "ShowPetById",
-        "root": "showPetById.ts",
       },
       {
         "isTypeOnly": true,
@@ -382,20 +296,12 @@ exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 2`] = `
     };
 }
 /**
- * @description unexpected error
- */
-
- export function ShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError>>): NonNullable<ShowPetByIdError> {
-    faker.seed([222]);
-    return undefined(override);
-}
-/**
  * @description Expected response to a valid request
  */
 
  export function ShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetByIdQueryResponse>>): NonNullable<ShowPetByIdQueryResponse> {
     faker.seed([222]);
-    return undefined(override);
+    return Pet(override);
 }
 ",
   },
@@ -421,30 +327,6 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
       {
         "isTypeOnly": true,
         "name": [
-          "CreatePets201",
-        ],
-        "path": "CreatePets",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "CreatePetsError",
-        ],
-        "path": "CreatePets",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
           "CreatePetsMutationRequest",
         ],
         "path": "CreatePets",
@@ -466,15 +348,7 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
     },
     "override": undefined,
     "path": "createPets.ts",
-    "source": "/**
- * @description Null response
- */
-
- export function CreatePets201(override?: NonNullable<Partial<CreatePets201>>): NonNullable<CreatePets201> {
-    return undefined;
-}
-
- export function CreatePetsMutationRequest(override: NonNullable<Partial<CreatePetsMutationRequest>> = {}): NonNullable<CreatePetsMutationRequest> {
+    "source": "export function CreatePetsMutationRequest(override: NonNullable<Partial<CreatePetsMutationRequest>> = {}): NonNullable<CreatePetsMutationRequest> {
     return {
         ...{ "name": faker.string.alpha(), "tag": faker.string.alpha() },
         ...override
@@ -483,13 +357,6 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
 
  export function CreatePetsMutationResponse(override?: NonNullable<Partial<CreatePetsMutationResponse>>): NonNullable<CreatePetsMutationResponse> {
     return undefined;
-}
-/**
- * @description unexpected error
- */
-
- export function CreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
-    return undefined(override);
 }
 ",
   },

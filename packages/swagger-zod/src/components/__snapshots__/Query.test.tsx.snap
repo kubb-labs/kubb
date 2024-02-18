@@ -7,11 +7,6 @@ exports[`<Query/> > showPetById 1`] = `
 })
 
 /**
- * @description unexpected error
- */
-export const ShowPetByIdError = z.lazy(() => Error)
-
-/**
  * @description Expected response to a valid request
  */
 export const ShowPetByIdQueryResponse = z.lazy(() => Pet)

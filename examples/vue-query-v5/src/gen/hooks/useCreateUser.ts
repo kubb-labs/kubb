@@ -1,12 +1,12 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
-import type { CreateUserMutationRequest, CreateUserMutationResponse, CreateUserError } from '../models/CreateUser'
+import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../models/CreateUser'
 import type { UseMutationOptions } from '@tanstack/vue-query'
 
-type CreateUserClient = typeof client<CreateUserMutationResponse, CreateUserError, CreateUserMutationRequest>
+type CreateUserClient = typeof client<CreateUserMutationResponse, never, CreateUserMutationRequest>
 type CreateUser = {
   data: CreateUserMutationResponse
-  error: CreateUserError
+  error: never
   request: CreateUserMutationRequest
   pathParams: never
   queryParams: never

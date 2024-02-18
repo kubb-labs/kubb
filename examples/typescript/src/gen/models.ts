@@ -593,24 +593,13 @@ export type DeleteOrderMutation = {
 export type CreateUserMutationResponse = any | null
 
 /**
- * @description successful operation
- */
-export type CreateUserError = User
-
-/**
  * @description Created user object
  */
 export type CreateUserMutationRequest = User
 export type CreateUserMutation = {
   Response: CreateUserMutationResponse
   Request: CreateUserMutationRequest
-  Errors: CreateUserError
 }
-
-/**
- * @description successful operation
- */
-export type CreateUsersWithListInputError = any | null
 
 export type CreateUsersWithListInputMutationRequest = User[]
 
@@ -621,7 +610,6 @@ export type CreateUsersWithListInputMutationResponse = User
 export type CreateUsersWithListInputMutation = {
   Response: CreateUsersWithListInputMutationResponse
   Request: CreateUsersWithListInputMutationRequest
-  Errors: CreateUsersWithListInputError
 }
 
 /**
@@ -654,15 +642,9 @@ export type LoginUserQuery = {
   Errors: LoginUser400
 }
 
-/**
- * @description successful operation
- */
-export type LogoutUserError = any | null
-
 export type LogoutUserQueryResponse = any | null
 export type LogoutUserQuery = {
   Response: LogoutUserQueryResponse
-  Errors: LogoutUserError
 }
 
 /**
@@ -693,11 +675,6 @@ export type GetUserByNameQuery = {
   Errors: GetUserByName400 | GetUserByName404
 }
 
-/**
- * @description successful operation
- */
-export type UpdateUserError = any | null
-
 export type UpdateUserMutationResponse = any | null
 
 export type UpdateUserPathParams = {
@@ -716,7 +693,6 @@ export type UpdateUserMutation = {
   Response: UpdateUserMutationResponse
   Request: UpdateUserMutationRequest
   PathParams: UpdateUserPathParams
-  Errors: UpdateUserError
 }
 
 /**

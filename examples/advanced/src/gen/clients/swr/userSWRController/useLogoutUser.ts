@@ -1,12 +1,12 @@
 import useSWR from 'swr'
 import client from '../../../../swr-client.ts'
 import type { SWRConfiguration, SWRResponse } from 'swr'
-import type { LogoutUserQueryResponse, LogoutUserError } from '../../../models/ts/userController/LogoutUser'
+import type { LogoutUserQueryResponse } from '../../../models/ts/userController/LogoutUser'
 
-type LogoutUserClient = typeof client<LogoutUserQueryResponse, LogoutUserError, never>
+type LogoutUserClient = typeof client<LogoutUserQueryResponse, never, never>
 type LogoutUser = {
   data: LogoutUserQueryResponse
-  error: LogoutUserError
+  error: never
   request: never
   pathParams: never
   queryParams: never

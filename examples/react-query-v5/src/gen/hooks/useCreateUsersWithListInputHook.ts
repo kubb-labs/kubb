@@ -1,20 +1,12 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
-import type {
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
-  CreateUsersWithListInputError,
-} from '../models/CreateUsersWithListInput'
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 import type { UseMutationOptions } from '@tanstack/react-query'
 
-type CreateUsersWithListInputClient = typeof client<
-  CreateUsersWithListInputMutationResponse,
-  CreateUsersWithListInputError,
-  CreateUsersWithListInputMutationRequest
->
+type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
-  error: CreateUsersWithListInputError
+  error: never
   request: CreateUsersWithListInputMutationRequest
   pathParams: never
   queryParams: never

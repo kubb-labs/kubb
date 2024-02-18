@@ -9,19 +9,11 @@ exports[`<Query/> > showPetById 1`] = `
 }
 
 /**
- * @description unexpected error
- */
-
-export function createShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError>>): NonNullable<ShowPetByIdError> {
-  return undefined(override)
-}
-
-/**
  * @description Expected response to a valid request
  */
 
 export function createShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetByIdQueryResponse>>): NonNullable<ShowPetByIdQueryResponse> {
-  return undefined(override)
+  return createPet(override)
 }
 "
 `;
