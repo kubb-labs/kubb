@@ -36,6 +36,9 @@ export const config = {
         path: './hooks',
       },
       framework: 'react',
+      query: {
+        queryKey: (keys) => ['v5', ...keys],
+      },
       suspense: {},
       override: [{
         type: 'operationId',

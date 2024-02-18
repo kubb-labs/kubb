@@ -78,10 +78,10 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/js-yaml": "^4.0.9",
-    "@types/react": "^18.2.52",
+    "@types/react": "^18.2.56",
     "@types/swagger2openapi": "^7.0.4",
     "eslint": "^8.56.0",
-    "tsup": "^8.0.1",
+    "tsup": "^8.0.2",
     "typescript": "^5.3.3"
   },
   "peerDependencies": {

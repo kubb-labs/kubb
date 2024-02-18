@@ -32,6 +32,6 @@
     "@tanstack/react-query": "^4.36.1",
     "axios": "^1.6.7",
     "react": "^18.2.0",
-    "tsup": "^8.0.1"
+    "tsup": "^8.0.2"
   }
 }

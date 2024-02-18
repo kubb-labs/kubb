@@ -134,6 +134,7 @@ const defaultTemplates = {
 
 type Props = {
   name: string
+  keys: unknown[]
   typeName: string
   factory: {
     name: string
@@ -144,12 +145,9 @@ type Props = {
   Template?: React.ComponentType<FrameworkProps>
 }
 
-export function QueryKey({ name, typeName, factory, Template = defaultTemplates.react }: Props): ReactNode {
+export function QueryKey({ name, keys, typeName, factory, Template = defaultTemplates.react }: Props): ReactNode {
   const schemas = useSchemas()
-  const operation = useOperation()
-  const path = new URLPath(operation.path)
   const params = new FunctionParams()
-  const withQueryParams = !!schemas.queryParams?.name
 
   params.add([
     ...getASTParams(schemas.pathParams, {
@@ -162,14 +160,6 @@ export function QueryKey({ name, typeName, factory, Template = defaultTemplates.
       required: isRequired(schemas.queryParams?.schema),
     },
   ])
-
-  const keys = [
-    path.toObject({
-      type: 'path',
-      stringify: true,
-    }),
-    withQueryParams ? `...(params ? [params] : [])` : undefined,
-  ].filter(Boolean)
 
   return <Template typeName={typeName} name={name} params={params.toString()} keys={keys.join(', ')} context={{ factory }} />
 }

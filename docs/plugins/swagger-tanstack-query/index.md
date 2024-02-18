@@ -638,9 +638,92 @@ export default defineConfig({
 
 :::
 
+### query
+
+Override some useQuery behaviours.
+
+::: info type
+
+::: code-group
+
+```typescript [Query]
+type Query = {
+  /**
+   * Customize the queryKey, here you can specify a suffix.
+   */
+  queryKey?: (key: unknown[]) => unknown[]
+}
+```
+
+:::
+
+::: info
+Type: `Query` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({ query: {} }),
+  ],
+})
+```
+
+:::
+
+#### query.queryKey
+
+Customize the queryKey, here you can specify a suffix.
+
+::: info
+Type: `(key: unknown[]) => unknown[]` <br/>
+
+::: code-group
+
+```typescript [kubb.config.js]
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery({
+      query: {
+        queryKey: (key: string[]) => ['SUFFIX', ...key],
+      },
+    }),
+  ],
+})
+```
+
+:::
+
 ### suspense
 
-When set, a suspenseQuery hooks will be added. This will only work for v5 and react.
+When set, a suspenseQuery hook will be added. This will only work for v5 and react.
 
 ::: info type
 

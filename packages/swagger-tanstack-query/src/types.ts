@@ -1,19 +1,26 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 import type { Mutation } from './components/Mutation.tsx'
-import type { Query } from './components/Query.tsx'
+import type { Query as QueryTemplate } from './components/Query.tsx'
 import type { QueryKey } from './components/QueryKey.tsx'
 import type { QueryOptions } from './components/QueryOptions.tsx'
 
 type Templates = {
   mutation?: typeof Mutation.templates | false
-  query?: typeof Query.templates | false
+  query?: typeof QueryTemplate.templates | false
   queryOptions?: typeof QueryOptions.templates | false
   queryKey?: typeof QueryKey.templates | false
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type Suspense = {}
+
+export type Query = {
+  /**
+   * Customize the queryKey, here you can specify a suffix.
+   */
+  queryKey?: (key: unknown[]) => unknown[]
+}
 
 export type Infinite = {
   /**
@@ -136,6 +143,10 @@ export type Options = {
    * When set, a suspenseQuery hooks will be added.
    */
   suspense?: Suspense
+  /**
+   * Override some useQuery behaviours.
+   */
+  query?: Query
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -160,6 +171,7 @@ type ResolvedOptions = {
    */
   infinite: Infinite | undefined
   suspense: Suspense | undefined
+  query: Query | undefined
   templates: NonNullable<Templates>
 }
 

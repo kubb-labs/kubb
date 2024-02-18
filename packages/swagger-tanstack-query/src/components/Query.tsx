@@ -7,6 +7,7 @@ import { getASTParams, getComments, getParams, isRequired } from '@kubb/swagger/
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
+import type { Query as QueryPluginOptions } from '../types.ts'
 import { getImportNames } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
 import { QueryKey } from './QueryKey.tsx'
@@ -257,6 +258,7 @@ type Props = {
   hookName: string
   optionsType: string
   infinite: Infinite | undefined
+  query: QueryPluginOptions | undefined
   suspense: Suspense | undefined
   /**
    * This will make it possible to override the default behaviour.
@@ -276,6 +278,7 @@ export function Query({
   factory,
   infinite,
   suspense,
+  query,
   optionsType,
   hookName,
   resultType,
@@ -288,6 +291,8 @@ export function Query({
   const schemas = useSchemas()
   const name = useOperationName({ type: 'function' })
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
+  const path = new URLPath(operation.path)
+  const withQueryParams = !!schemas.queryParams?.name
 
   const queryKey = useResolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
@@ -389,9 +394,17 @@ export function Query({
     queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? ('params') : ''})`,
   }
 
+  const keys = [
+    path.toObject({
+      type: 'path',
+      stringify: true,
+    }),
+    withQueryParams ? `...(params ? [params] : [])` : undefined,
+  ].filter(Boolean)
+
   return (
     <>
-      <QueryKey Template={QueryKeyTemplate} factory={factory} name={queryKey} typeName={queryKeyType} />
+      <QueryKey keys={query?.queryKey ? query.queryKey(keys) : keys} Template={QueryKeyTemplate} factory={factory} name={queryKey} typeName={queryKeyType} />
       <QueryOptions
         Template={QueryOptionsTemplate}
         factory={factory}
@@ -431,7 +444,7 @@ type FileProps = {
 }
 
 Query.File = function({ templates, imports = QueryImports.templates }: FileProps): ReactNode {
-  const { options: { client: { importPath }, framework, infinite, suspense, parser } } = usePlugin<PluginOptions>()
+  const { options: { client: { importPath }, framework, infinite, suspense, query, parser } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
@@ -488,6 +501,7 @@ Query.File = function({ templates, imports = QueryImports.templates }: FileProps
           QueryOptionsTemplate={QueryOptionsTemplate}
           infinite={undefined}
           suspense={undefined}
+          query={query}
           hookName={importNames.query[framework].hookName}
           resultType={importNames.query[framework].resultType}
           optionsType={importNames.query[framework].optionsType}
@@ -500,6 +514,7 @@ Query.File = function({ templates, imports = QueryImports.templates }: FileProps
             QueryOptionsTemplate={QueryOptionsTemplate}
             infinite={infinite}
             suspense={undefined}
+            query={query}
             hookName={importNames.queryInfinite[framework].hookName}
             resultType={importNames.queryInfinite[framework].resultType}
             optionsType={importNames.queryInfinite[framework].optionsType}
@@ -513,6 +528,7 @@ Query.File = function({ templates, imports = QueryImports.templates }: FileProps
             QueryOptionsTemplate={QueryOptionsTemplate}
             infinite={undefined}
             suspense={suspense}
+            query={query}
             hookName={importNames.querySuspense[framework].hookName}
             resultType={importNames.querySuspense[framework].resultType}
             optionsType={importNames.querySuspense[framework].optionsType}
