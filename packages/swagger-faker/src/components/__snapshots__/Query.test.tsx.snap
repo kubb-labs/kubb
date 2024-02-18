@@ -13,7 +13,7 @@ exports[`<Query/> > showPetById 1`] = `
  */
 
 export function createShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError>>): NonNullable<ShowPetByIdError> {
-  return createError(override)
+  return undefined(override)
 }
 
 /**
@@ -21,7 +21,7 @@ export function createShowPetByIdError(override?: NonNullable<Partial<ShowPetByI
  */
 
 export function createShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetByIdQueryResponse>>): NonNullable<ShowPetByIdQueryResponse> {
-  return createPet(override)
+  return undefined(override)
 }
 "
 `;

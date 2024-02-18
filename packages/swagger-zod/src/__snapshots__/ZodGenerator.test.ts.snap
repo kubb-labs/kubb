@@ -30,6 +30,12 @@ exports[`ZodGenerator PetStore > generate schema for Pets 1`] = `
 ]
 `;
 
+exports[`ZodGenerator anyof > anyof with 2 objects 1`] = `
+[
+  "export const test = z.union([z.object({"propertyA": z.string()}).strict(),z.object({"propertyA": z.string(),"propertyB": z.string()}).strict()]);",
+]
+`;
+
 exports[`ZodGenerator constCases > MixedValueTypeConst generates zod literal value correctly, overriding the type constraint 1`] = `
 [
   "export const MixedValueTypeConst = z.object({"foobar": z.literal("foobar")}).describe(\`This probably should fail miserably\`);",

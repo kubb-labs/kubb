@@ -25,7 +25,7 @@ export function createCreatePetsMutationResponse(override?: NonNullable<Partial<
  */
 
 export function createCreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
-  return createError(override)
+  return undefined(override)
 }
 "
 `;

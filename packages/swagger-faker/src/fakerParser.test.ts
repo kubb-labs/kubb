@@ -48,7 +48,7 @@ const input = [
   {
     input: parseFakerMeta({
       keyword: 'ref',
-      args: 'createPet',
+      args: { name: 'createPet' },
     }),
     expected: 'createPet()',
   },
@@ -85,7 +85,7 @@ const input = [
   {
     input: parseFakerMeta({
       keyword: 'array',
-      args: [{ keyword: 'ref', args: 'createPet' }],
+      args: [{ keyword: 'ref', args: { name: 'createPet' } }],
     }),
     expected: 'faker.helpers.arrayElements([createPet()]) as any',
   },
@@ -132,8 +132,10 @@ const input = [
     input: parseFakerMeta({
       keyword: 'object',
       args: {
-        firstName: [{ keyword: 'string', args: { min: 2 } }],
-        address: [{ keyword: 'string' }, { keyword: 'null' }],
+        entries: {
+          firstName: [{ keyword: 'string', args: { min: 2 } }],
+          address: [{ keyword: 'string' }, { keyword: 'null' }],
+        },
       },
     }),
     expected: '{"firstName": faker.string.alpha({"min":2}),"address": faker.helpers.arrayElement([faker.string.alpha(),null])}',
