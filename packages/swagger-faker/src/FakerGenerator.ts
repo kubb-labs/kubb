@@ -128,7 +128,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
       members.push({ keyword: fakerKeywords.catchall, args: addionalValidationFunctions })
     }
 
-    return [{ keyword: fakerKeywords.object, args: objectMembers }]
+    return [{ keyword: fakerKeywords.object, args: { entries: objectMembers } }]
   }
 
   /**
@@ -137,9 +137,9 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
   #getRefAlias(obj: OpenAPIV3.ReferenceObject, _baseName?: string): FakerMeta[] {
     const { $ref } = obj
     let ref = this.refs[$ref]
-
+    1
     if (ref) {
-      return [{ keyword: fakerKeywords.ref, args: ref.propertyName }]
+      return [{ keyword: fakerKeywords.ref, args: { name: ref.propertyName } }]
     }
 
     const originalName = getUniqueName($ref.replace(/.+\//, ''), this.#usedAliasNames)
@@ -159,7 +159,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
       isTypeOnly: false,
     })
 
-    return [{ keyword: fakerKeywords.ref, args: ref.propertyName }]
+    return [{ keyword: fakerKeywords.ref, args: { name: ref.propertyName } }]
   }
 
   #getParsedSchema(schema?: OasTypes.SchemaObject) {

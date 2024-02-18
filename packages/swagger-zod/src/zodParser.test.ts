@@ -153,8 +153,10 @@ const input = [
     input: parseZodMeta({
       keyword: 'object',
       args: {
-        firstName: [{ keyword: 'string' }, { keyword: 'min', args: 2 }],
-        address: [{ keyword: 'string' }, { keyword: 'nullable' }, { keyword: 'describe', args: '"Your address"' }],
+        entries: {
+          firstName: [{ keyword: 'string' }, { keyword: 'min', args: 2 }],
+          address: [{ keyword: 'string' }, { keyword: 'nullable' }, { keyword: 'describe', args: '"Your address"' }],
+        },
       },
     }),
     expected: 'z.object({"firstName": z.string().min(2),"address": z.string().nullable().describe("Your address")})',
