@@ -18,7 +18,7 @@ export const throttle = <R, A extends any[]>(fn: (...args: A) => R, delay: numbe
 
       timeout = setTimeout(() => {
         wait = false
-      }, delay)
+      }, delay) as NodeJS.Timeout
 
       return val
     },
