@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 2.6.1
+
+### Patch Changes
+
+- [#820](https://github.com/kubb-project/kubb/pull/820) [`69897f5`](https://github.com/kubb-project/kubb/commit/69897f5ab4097ec1970b874d724319fb1e1e7f30) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - AllOf when used in responses
+
+- Updated dependencies []:
+  - @kubb/core@2.6.1
+  - @kubb/react@2.6.1
+
 ## 2.6.0
 
 ### Patch Changes
