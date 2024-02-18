@@ -54,7 +54,7 @@ export function useLoginUser<TData = LoginUser['response'], TQueryData = LoginUs
   const query = useQuery({
     ...(loginUserQueryOptions(refParams, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...(queryOptions as unknown as QueryObserverOptions),
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }

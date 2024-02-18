@@ -54,7 +54,7 @@ export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPe
   const query = useQuery({
     ...(getPetByIdQueryOptions(refPetId, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...(queryOptions as unknown as QueryObserverOptions),
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }

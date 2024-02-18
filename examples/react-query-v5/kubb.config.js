@@ -37,7 +37,7 @@ export const config = {
       },
       framework: 'react',
       query: {
-        queryKey: (keys) => ['v5', ...keys],
+        queryKey: (keys) => ['"v5"', ...keys],
       },
       suspense: {},
       override: [{

@@ -7,7 +7,6 @@ import { getASTParams, getComments, getParams, isRequired } from '@kubb/swagger/
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
-import type { Query as QueryPluginOptions } from '../types.ts'
 import { getImportNames } from '../utils.ts'
 import { QueryImports } from './QueryImports.tsx'
 import { QueryKey } from './QueryKey.tsx'
@@ -15,6 +14,7 @@ import { QueryOptions } from './QueryOptions.tsx'
 import { SchemaType } from './SchemaType.tsx'
 
 import type { ReactNode } from 'react'
+import type { Query as QueryPluginOptions } from '../types.ts'
 import type { FileMeta, Infinite, PluginOptions, Suspense } from '../types.ts'
 
 type TemplateProps = {
@@ -72,7 +72,7 @@ function Template({
          const query = ${hook.name}({
           ...${hook.queryOptions} as ${infinite ? 'InfiniteQueryObserverOptions' : 'QueryObserverOptions'},
           queryKey,
-          ...queryOptions as unknown as ${infinite ? 'InfiniteQueryObserverOptions' : 'QueryObserverOptions'}
+          ...queryOptions as unknown as ${infinite ? 'Omit<InfiniteQueryObserverOptions, "queryKey">' : 'Omit<QueryObserverOptions, "queryKey">'}
         }) as ${resolvedReturnType}
 
         query.queryKey = queryKey as TQueryKey
@@ -291,8 +291,6 @@ export function Query({
   const schemas = useSchemas()
   const name = useOperationName({ type: 'function' })
   const isV5 = new PackageManager().isValidSync(/@tanstack/, '>=5')
-  const path = new URLPath(operation.path)
-  const withQueryParams = !!schemas.queryParams?.name
 
   const queryKey = useResolveName({
     name: [factory.name, infinite ? 'Infinite' : undefined, suspense ? 'Suspense' : undefined, 'QueryKey'].filter(Boolean).join(''),
@@ -394,17 +392,9 @@ export function Query({
     queryKey: `${queryKey}(${client.withPathParams ? `${pathParams}, ` : ''}${client.withQueryParams ? ('params') : ''})`,
   }
 
-  const keys = [
-    path.toObject({
-      type: 'path',
-      stringify: true,
-    }),
-    withQueryParams ? `...(params ? [params] : [])` : undefined,
-  ].filter(Boolean)
-
   return (
     <>
-      <QueryKey keys={query?.queryKey ? query.queryKey(keys) : keys} Template={QueryKeyTemplate} factory={factory} name={queryKey} typeName={queryKeyType} />
+      <QueryKey keysFn={query?.queryKey} Template={QueryKeyTemplate} factory={factory} name={queryKey} typeName={queryKeyType} />
       <QueryOptions
         Template={QueryOptionsTemplate}
         factory={factory}

@@ -17,7 +17,7 @@ type GetInventory = {
     return: Awaited<ReturnType<GetInventoryClient>>
   }
 }
-export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
+export const getInventoryQueryKey = () => ['v5', { url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 export function getInventoryQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventoryQueryKey()
@@ -50,14 +50,14 @@ export function useGetInventoryHook<TData = GetInventory['response'], TQueryData
   const query = useQuery({
     ...getInventoryQueryOptions(clientOptions) as QueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as QueryObserverOptions,
+    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
   }) as UseQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
   return query
 }
-export const getInventorySuspenseQueryKey = () => [{ url: '/store/inventory' }] as const
+export const getInventorySuspenseQueryKey = () => ['v5', { url: '/store/inventory' }] as const
 export type GetInventorySuspenseQueryKey = ReturnType<typeof getInventorySuspenseQueryKey>
 export function getInventorySuspenseQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventorySuspenseQueryKey()
@@ -88,7 +88,7 @@ export function useGetInventoryHookSuspense<TData = GetInventory['response'], TQ
   const query = useSuspenseQuery({
     ...getInventorySuspenseQueryOptions(clientOptions) as QueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as QueryObserverOptions,
+    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
   }) as UseSuspenseQueryResult<TData, GetInventory['error']> & {
     queryKey: TQueryKey
   }

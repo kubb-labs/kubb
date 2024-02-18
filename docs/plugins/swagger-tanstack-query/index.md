@@ -689,6 +689,10 @@ export default defineConfig({
 
 Customize the queryKey, here you can specify a suffix.
 
+::: warning
+When using a string you need to use `JSON.stringify`.
+:::
+
 ::: info
 Type: `(key: unknown[]) => unknown[]` <br/>
 
@@ -712,7 +716,7 @@ export default defineConfig({
     createSwaggerTS({}),
     createSwaggerTanstackQuery({
       query: {
-        queryKey: (key: string[]) => ['SUFFIX', ...key],
+        queryKey: (key: string[]) => [JSON.stringify('SUFFIX'), ...key],
       },
     }),
   ],

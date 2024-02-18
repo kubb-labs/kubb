@@ -54,7 +54,7 @@ export function useGetUserByName<TData = GetUserByName['response'], TQueryData =
   const query = useQuery({
     ...(getUserByNameQueryOptions(refUsername, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...(queryOptions as unknown as QueryObserverOptions),
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
