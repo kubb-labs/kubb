@@ -1,5 +1,22 @@
 # @kubb/swagger-tanstack-query
 
+## 2.6.0
+
+### Minor Changes
+
+- [`e7f3612`](https://github.com/kubb-project/kubb/commit/e7f3612093927c42c88090997496570ba47864a0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - override queryKey of @tanstack/query
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.6.0
+  - @kubb/parser@2.6.0
+  - @kubb/react@2.6.0
+  - @kubb/swagger@2.6.0
+  - @kubb/swagger-client@2.6.0
+  - @kubb/swagger-ts@2.6.0
+  - @kubb/swagger-zod@2.6.0
+
 ## 2.5.3
 
 ### Patch Changes
