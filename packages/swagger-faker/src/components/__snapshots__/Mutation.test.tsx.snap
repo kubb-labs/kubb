@@ -5,18 +5,18 @@ exports[`<Mutation/> > pets 1`] = `
  * @description Null response
  */
 
-export function createCreatePets201(override?: Partial<CreatePets201>): NonNullable<CreatePets201> {
+export function createCreatePets201(override?: NonNullable<Partial<CreatePets201>>): NonNullable<CreatePets201> {
   return undefined
 }
 
-export function createCreatePetsMutationRequest(override: Partial<CreatePetsMutationRequest> = {}): NonNullable<CreatePetsMutationRequest> {
+export function createCreatePetsMutationRequest(override: NonNullable<Partial<CreatePetsMutationRequest>> = {}): NonNullable<CreatePetsMutationRequest> {
   return {
     ...{ name: faker.string.alpha(), tag: faker.string.alpha() },
     ...override,
   }
 }
 
-export function createCreatePetsMutationResponse(override?: Partial<CreatePetsMutationResponse>): NonNullable<CreatePetsMutationResponse> {
+export function createCreatePetsMutationResponse(override?: NonNullable<Partial<CreatePetsMutationResponse>>): NonNullable<CreatePetsMutationResponse> {
   return undefined
 }
 
@@ -24,7 +24,7 @@ export function createCreatePetsMutationResponse(override?: Partial<CreatePetsMu
  * @description unexpected error
  */
 
-export function createCreatePetsError(override?: Partial<CreatePetsError>): NonNullable<CreatePetsError> {
+export function createCreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
   return createError(override)
 }
 "

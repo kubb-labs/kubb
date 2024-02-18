@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`<Query/> > showPetById 1`] = `
-"export function createShowPetByIdPathParams(override: Partial<ShowPetByIdPathParams> = {}): NonNullable<ShowPetByIdPathParams> {
+"export function createShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
   return {
     ...{ petId: faker.string.alpha(), testId: faker.string.alpha() },
     ...override,
@@ -12,7 +12,7 @@ exports[`<Query/> > showPetById 1`] = `
  * @description unexpected error
  */
 
-export function createShowPetByIdError(override?: Partial<ShowPetByIdError>): NonNullable<ShowPetByIdError> {
+export function createShowPetByIdError(override?: NonNullable<Partial<ShowPetByIdError>>): NonNullable<ShowPetByIdError> {
   return createError(override)
 }
 
@@ -20,7 +20,7 @@ export function createShowPetByIdError(override?: Partial<ShowPetByIdError>): No
  * @description Expected response to a valid request
  */
 
-export function createShowPetByIdQueryResponse(override?: Partial<ShowPetByIdQueryResponse>): NonNullable<ShowPetByIdQueryResponse> {
+export function createShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetByIdQueryResponse>>): NonNullable<ShowPetByIdQueryResponse> {
   return createPet(override)
 }
 "
