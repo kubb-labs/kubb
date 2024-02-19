@@ -8,7 +8,7 @@ exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`any\` 1`]
     "exports": [],
     "id": undefined,
     "imports": [],
-    "language": undefined,
+    "language": "typescript",
     "meta": {
       "name": "delete_pet-petid",
       "pluginKey": undefined,
@@ -33,7 +33,7 @@ exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`unknown\`
     "exports": [],
     "id": undefined,
     "imports": [],
-    "language": undefined,
+    "language": "typescript",
     "meta": {
       "name": "delete_pet-petid",
       "pluginKey": undefined,
@@ -67,7 +67,7 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 1`
         "root": "listPets.ts",
       },
     ],
-    "language": undefined,
+    "language": "typescript",
     "meta": {
       "name": "listPets",
       "pluginKey": undefined,
@@ -113,7 +113,7 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 2`
         "root": "showPetById.ts",
       },
     ],
-    "language": undefined,
+    "language": "typescript",
     "meta": {
       "name": "showPetById",
       "pluginKey": undefined,
@@ -172,7 +172,7 @@ exports[`OperationGenerator > [POST] /pets 201 1`] = `
         "root": "createPets.ts",
       },
     ],
-    "language": undefined,
+    "language": "typescript",
     "meta": {
       "name": "createPets",
       "pluginKey": undefined,

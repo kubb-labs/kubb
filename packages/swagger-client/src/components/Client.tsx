@@ -188,7 +188,7 @@ type FileProps = {
   /**
    * This will make it possible to override the default behaviour.
    */
-  templates: Templates
+  templates?: Templates
 }
 
 Client.File = function(props: FileProps): KubbNode {
