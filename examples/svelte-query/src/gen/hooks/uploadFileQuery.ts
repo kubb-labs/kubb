@@ -17,11 +17,9 @@ type UploadFile = {
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
-
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage */
-
 export function uploadFileQuery(
   petId: UploadFilePathParams['petId'],
   params?: UploadFile['queryParams'],
@@ -31,7 +29,6 @@ export function uploadFileQuery(
   } = {},
 ): CreateMutationResult<UploadFile['response'], UploadFile['error'], UploadFile['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<UploadFile['response'], UploadFile['error'], UploadFile['request']>({
     mutationFn: async (data) => {
       const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
@@ -41,7 +38,6 @@ export function uploadFileQuery(
         data,
         ...clientOptions,
       })
-
       return res.data
     },
     ...mutationOptions,

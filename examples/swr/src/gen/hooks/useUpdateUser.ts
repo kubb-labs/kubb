@@ -17,12 +17,10 @@ type UpdateUser = {
     return: Awaited<ReturnType<UpdateUserClient>>
   }
 }
-
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username */
-
 export function useUpdateUser(
   username: UpdateUserPathParams['username'],
   options?: {
@@ -32,7 +30,6 @@ export function useUpdateUser(
   },
 ): SWRMutationResponse<UpdateUser['response'], UpdateUser['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = `/user/${username}` as const
   return useSWRMutation<UpdateUser['response'], UpdateUser['error'], typeof url | null>(
     shouldFetch ? url : null,
@@ -43,7 +40,6 @@ export function useUpdateUser(
         data,
         ...clientOptions,
       })
-
       return res.data
     },
     mutationOptions,

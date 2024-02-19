@@ -17,19 +17,16 @@ type CreateUser = {
     return: Awaited<ReturnType<CreateUserClient>>
   }
 }
-
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user */
-
 export function useCreateUser(options?: {
   mutation?: SWRMutationConfiguration<CreateUser['response'], CreateUser['error']>
   client?: CreateUser['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<CreateUser['response'], CreateUser['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = `/user` as const
   return useSWRMutation<CreateUser['response'], CreateUser['error'], typeof url | null>(
     shouldFetch ? url : null,
@@ -40,7 +37,6 @@ export function useCreateUser(options?: {
         data,
         ...clientOptions,
       })
-
       return res.data
     },
     mutationOptions,

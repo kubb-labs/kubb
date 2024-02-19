@@ -17,12 +17,10 @@ type LoginUser = {
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
-
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => ['v5', { url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 export function loginUserQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserQueryKey(params)
-
   return queryOptions({
     queryKey,
     queryFn: async () => {
@@ -32,7 +30,6 @@ export function loginUserQueryOptions(params?: LoginUser['queryParams'], options
         params,
         ...options,
       })
-
       return res.data
     },
   })
@@ -40,32 +37,31 @@ export function loginUserQueryOptions(params?: LoginUser['queryParams'], options
 /**
  * @summary Logs user into the system
  * @link /user/login */
-
 export function useLoginUserHook<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
     query?: Partial<QueryObserverOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>>
     client?: LoginUser['client']['parameters']
   } = {},
-): UseQueryResult<TData, LoginUser['error']> & { queryKey: TQueryKey } {
+): UseQueryResult<TData, LoginUser['error']> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
-
   const query = useQuery({
     ...loginUserQueryOptions(params, clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
-  }) as UseQueryResult<TData, LoginUser['error']> & { queryKey: TQueryKey }
-
+  }) as UseQueryResult<TData, LoginUser['error']> & {
+    queryKey: TQueryKey
+  }
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
 export const loginUserSuspenseQueryKey = (params?: LoginUser['queryParams']) => ['v5', { url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserSuspenseQueryKey = ReturnType<typeof loginUserSuspenseQueryKey>
 export function loginUserSuspenseQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserSuspenseQueryKey(params)
-
   return queryOptions({
     queryKey,
     queryFn: async () => {
@@ -75,7 +71,6 @@ export function loginUserSuspenseQueryOptions(params?: LoginUser['queryParams'],
         params,
         ...options,
       })
-
       return res.data
     },
   })
@@ -83,24 +78,24 @@ export function loginUserSuspenseQueryOptions(params?: LoginUser['queryParams'],
 /**
  * @summary Logs user into the system
  * @link /user/login */
-
 export function useLoginUserHookSuspense<TData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserSuspenseQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
     query?: Partial<UseSuspenseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryKey>>
     client?: LoginUser['client']['parameters']
   } = {},
-): UseSuspenseQueryResult<TData, LoginUser['error']> & { queryKey: TQueryKey } {
+): UseSuspenseQueryResult<TData, LoginUser['error']> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserSuspenseQueryKey(params)
-
   const query = useSuspenseQuery({
     ...loginUserSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
-  }) as UseSuspenseQueryResult<TData, LoginUser['error']> & { queryKey: TQueryKey }
-
+  }) as UseSuspenseQueryResult<TData, LoginUser['error']> & {
+    queryKey: TQueryKey
+  }
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

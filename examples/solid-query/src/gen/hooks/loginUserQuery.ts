@@ -17,7 +17,6 @@ type LoginUser = {
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
-
 export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData = LoginUser['response']>(
@@ -25,7 +24,6 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
   options: LoginUser['client']['parameters'] = {},
 ): WithRequired<CreateBaseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = loginUserQueryKey(params)
-
   return {
     queryKey,
     queryFn: async () => {
@@ -35,7 +33,6 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
         params,
         ...options,
       })
-
       return res.data
     },
   }
@@ -43,24 +40,24 @@ export function loginUserQueryOptions<TData = LoginUser['response'], TQueryData 
 /**
  * @summary Logs user into the system
  * @link /user/login */
-
 export function loginUserQuery<TData = LoginUser['response'], TQueryData = LoginUser['response'], TQueryKey extends QueryKey = LoginUserQueryKey>(
   params?: LoginUser['queryParams'],
   options: {
     query?: Partial<CreateBaseQueryOptions<LoginUser['response'], LoginUser['error'], TData, TQueryData, TQueryKey>>
     client?: LoginUser['client']['parameters']
   } = {},
-): CreateQueryResult<TData, LoginUser['error']> & { queryKey: TQueryKey } {
+): CreateQueryResult<TData, LoginUser['error']> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? loginUserQueryKey(params)
-
   const query = createQuery<LoginUser['data'], LoginUser['error'], TData, any>({
     ...loginUserQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateQueryResult<TData, LoginUser['error']> & { queryKey: TQueryKey }
-
+  }) as CreateQueryResult<TData, LoginUser['error']> & {
+    queryKey: TQueryKey
+  }
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

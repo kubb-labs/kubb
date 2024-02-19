@@ -22,11 +22,9 @@ type UpdatePetWithForm = {
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
 }
-
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId */
-
 export function useUpdatePetWithForm(
   petId: UpdatePetWithFormPathParams['petId'],
   params?: UpdatePetWithForm['queryParams'],
@@ -37,7 +35,6 @@ export function useUpdatePetWithForm(
   },
 ): SWRMutationResponse<UpdatePetWithForm['response'], UpdatePetWithForm['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = `/pet/${petId}` as const
   return useSWRMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], [typeof url, typeof params] | null>(
     shouldFetch ? [url, params] : null,
@@ -48,7 +45,6 @@ export function useUpdatePetWithForm(
         params,
         ...clientOptions,
       })
-
       return res.data
     },
     mutationOptions,

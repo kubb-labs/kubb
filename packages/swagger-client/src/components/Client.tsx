@@ -76,7 +76,45 @@ return ${client.dataReturnType === 'data' ? 'res.data' : 'res'}
   )
 }
 
-const defaultTemplates = { default: Template } as const
+type EditorTemplateProps = {
+  children?: React.ReactNode
+}
+
+function EditorTemplate({ children }: EditorTemplateProps) {
+  const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
+
+  const schemas = useSchemas()
+  const file = useOperationFile()
+  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
+
+  return (
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        <File.Import name={'client'} path={importPath} />
+        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+        <File.Import
+          name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
+            Boolean,
+          )}
+          root={file.path}
+          path={fileType.path}
+          isTypeOnly
+        />
+        <File.Source>
+          {children}
+        </File.Source>
+      </File>
+    </Editor>
+  )
+}
+
+const defaultTemplates = { default: Template, editor: EditorTemplate } as const
+
+type Templates = Partial<typeof defaultTemplates>
 
 type ClientProps = {
   /**
@@ -147,51 +185,23 @@ export function Client({
 }
 
 type FileProps = {
-  languages?: Array<'typescript' | 'text'>
   /**
    * This will make it possible to override the default behaviour.
    */
-  templates?: typeof defaultTemplates
+  templates: Templates
 }
 
-Client.File = function({ languages = ['typescript'], templates = defaultTemplates }: FileProps): KubbNode {
-  const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
-  const schemas = useSchemas()
-  const file = useOperationFile()
-  const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
+Client.File = function(props: FileProps): KubbNode {
+  const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default
+  const EditorTemplate = templates.editor
 
   return (
-    <>
-      <Editor.Provider value={{ language: 'typescript' }}>
-        <Editor language="typescript">
-          <File<FileMeta>
-            baseName={file.baseName}
-            path={file.path}
-            meta={file.meta}
-          >
-            <File.Import name={'client'} path={importPath} />
-            <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-            <File.Import
-              name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
-                Boolean,
-              )}
-              root={file.path}
-              path={fileType.path}
-              isTypeOnly
-            />
-            <File.Source>
-              <Client Template={Template} />
-            </File.Source>
-          </File>
-        </Editor>
-      </Editor.Provider>
-      <Editor.Provider value={{ language: 'text' }}>
-        <Client Template={Template} />
-      </Editor.Provider>
-    </>
+    <EditorTemplate>
+      <Client Template={Template} />
+    </EditorTemplate>
   )
 }
 
-Client.templates = defaultTemplates
+Client.templates = defaultTemplates as Templates

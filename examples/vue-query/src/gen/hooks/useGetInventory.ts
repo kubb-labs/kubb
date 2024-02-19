@@ -18,14 +18,12 @@ type GetInventory = {
     return: Awaited<ReturnType<GetInventoryClient>>
   }
 }
-
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 export function getInventoryQueryOptions<TData = GetInventory['response'], TQueryData = GetInventory['response']>(
   options: GetInventory['client']['parameters'] = {},
 ): WithRequired<VueQueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getInventoryQueryKey()
-
   return {
     queryKey,
     queryFn: async () => {
@@ -34,7 +32,6 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
         url: `/store/inventory`,
         ...options,
       })
-
       return res.data
     },
   }
@@ -43,23 +40,23 @@ export function getInventoryQueryOptions<TData = GetInventory['response'], TQuer
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
  * @link /store/inventory */
-
 export function useGetInventory<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
     query?: Partial<VueQueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>
     client?: GetInventory['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, GetInventory['error']> & { queryKey: TQueryKey } {
+): UseQueryReturnType<TData, GetInventory['error']> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
-
   const query = useQuery<GetInventory['data'], GetInventory['error'], TData, any>({
     ...getInventoryQueryOptions<TData, TQueryData>(clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryReturnType<TData, GetInventory['error']> & { queryKey: TQueryKey }
-
+  }) as UseQueryReturnType<TData, GetInventory['error']> & {
+    queryKey: TQueryKey
+  }
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

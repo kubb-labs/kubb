@@ -361,44 +361,42 @@ Mutation.File = function({ templates = defaultTemplates, imports = MutationImpor
   }
 
   return (
-    <Editor.Provider value={{ language: 'typescript' }}>
-      <Editor language="typescript">
-        <File<FileMeta>
-          baseName={file.baseName}
-          path={file.path}
-          meta={file.meta}
-        >
-          <File.Import name={'client'} path={importPath} />
-          <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-          <File.Import
-            name={[
-              schemas.request?.name,
-              schemas.response.name,
-              schemas.pathParams?.name,
-              schemas.queryParams?.name,
-              schemas.headerParams?.name,
-              ...schemas.errors?.map((error) => error.name) || [],
-            ].filter(
-              Boolean,
-            )}
-            root={file.path}
-            path={fileType.path}
-            isTypeOnly
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        <File.Import name={'client'} path={importPath} />
+        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+        <File.Import
+          name={[
+            schemas.request?.name,
+            schemas.response.name,
+            schemas.pathParams?.name,
+            schemas.queryParams?.name,
+            schemas.headerParams?.name,
+            ...schemas.errors?.map((error) => error.name) || [],
+          ].filter(
+            Boolean,
+          )}
+          root={file.path}
+          path={fileType.path}
+          isTypeOnly
+        />
+        <MutationImports Template={Import} />
+        <File.Source>
+          <SchemaType factory={factory} />
+          <Mutation
+            factory={factory}
+            Template={Template}
+            hookName={importNames.mutation[framework].hookName}
+            resultType={importNames.mutation[framework].resultType}
+            optionsType={importNames.mutation[framework].optionsType}
           />
-          <MutationImports Template={Import} />
-          <File.Source>
-            <SchemaType factory={factory} />
-            <Mutation
-              factory={factory}
-              Template={Template}
-              hookName={importNames.mutation[framework].hookName}
-              resultType={importNames.mutation[framework].resultType}
-              optionsType={importNames.mutation[framework].optionsType}
-            />
-          </File.Source>
-        </File>
-      </Editor>
-    </Editor.Provider>
+        </File.Source>
+      </File>
+    </Editor>
   )
 }
 

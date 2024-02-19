@@ -17,12 +17,10 @@ type UpdateUser = {
     return: Awaited<ReturnType<UpdateUserClient>>
   }
 }
-
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username */
-
 export function updateUserQuery(
   username: UpdateUserPathParams['username'],
   options: {
@@ -31,7 +29,6 @@ export function updateUserQuery(
   } = {},
 ): CreateMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>({
     mutationFn: async (data) => {
       const res = await client<UpdateUser['data'], UpdateUser['error'], UpdateUser['request']>({
@@ -40,7 +37,6 @@ export function updateUserQuery(
         data,
         ...clientOptions,
       })
-
       return res.data
     },
     ...mutationOptions,

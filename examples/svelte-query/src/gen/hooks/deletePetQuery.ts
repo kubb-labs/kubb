@@ -17,12 +17,10 @@ type DeletePet = {
     return: Awaited<ReturnType<DeletePetClient>>
   }
 }
-
 /**
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId */
-
 export function deletePetQuery(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePet['headerParams'],
@@ -32,7 +30,6 @@ export function deletePetQuery(
   } = {},
 ): CreateMutationResult<DeletePet['response'], DeletePet['error'], void> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return createMutation<DeletePet['response'], DeletePet['error'], void>({
     mutationFn: async () => {
       const res = await client<DeletePet['data'], DeletePet['error'], void>({
@@ -41,7 +38,6 @@ export function deletePetQuery(
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
       })
-
       return res.data
     },
     ...mutationOptions,

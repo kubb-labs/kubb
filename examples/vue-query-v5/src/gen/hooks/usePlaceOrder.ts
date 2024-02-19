@@ -17,12 +17,10 @@ type PlaceOrder = {
     return: Awaited<ReturnType<PlaceOrderClient>>
   }
 }
-
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order */
-
 export function usePlaceOrder(
   options: {
     mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request'], unknown>
@@ -30,7 +28,6 @@ export function usePlaceOrder(
   } = {},
 ) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation({
     mutationFn: async (data) => {
       const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({
@@ -39,7 +36,6 @@ export function usePlaceOrder(
         data,
         ...clientOptions,
       })
-
       return res.data
     },
     ...mutationOptions,

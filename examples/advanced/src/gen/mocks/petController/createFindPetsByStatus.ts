@@ -16,7 +16,6 @@ export function createFindPetsByStatusQueryParams(override: NonNullable<Partial<
     ...override,
   }
 }
-
 /**
  * @description successful operation
  */

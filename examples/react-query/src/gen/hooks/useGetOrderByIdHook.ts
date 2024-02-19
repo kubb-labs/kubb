@@ -25,7 +25,6 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
-
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQueryData = GetOrderById['response']>(
@@ -33,7 +32,6 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
   options: GetOrderById['client']['parameters'] = {},
 ): WithRequired<UseBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdQueryKey(orderId)
-
   return {
     queryKey,
     queryFn: async () => {
@@ -42,7 +40,6 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
         url: `/store/order/${orderId}`,
         ...options,
       })
-
       return res.data
     },
   }
@@ -51,25 +48,25 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId */
-
 export function useGetOrderByIdHook<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
     query?: Partial<UseBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
-): UseQueryResult<TData, GetOrderById['error']> & { queryKey: TQueryKey } {
+): UseQueryResult<TData, GetOrderById['error']> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
-
   const query = useQuery<GetOrderById['data'], GetOrderById['error'], TData, any>({
     ...getOrderByIdQueryOptions<TData, TQueryData>(orderId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, GetOrderById['error']> & { queryKey: TQueryKey }
-
+  }) as UseQueryResult<TData, GetOrderById['error']> & {
+    queryKey: TQueryKey
+  }
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
 export const getOrderByIdInfiniteQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
@@ -80,7 +77,6 @@ export function getOrderByIdInfiniteQueryOptions<TData = GetOrderById['response'
   options: GetOrderById['client']['parameters'] = {},
 ): WithRequired<UseInfiniteQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdInfiniteQueryKey(orderId)
-
   return {
     queryKey,
     queryFn: async ({ pageParam }) => {
@@ -89,7 +85,6 @@ export function getOrderByIdInfiniteQueryOptions<TData = GetOrderById['response'
         url: `/store/order/${orderId}`,
         ...options,
       })
-
       return res.data
     },
   }
@@ -98,7 +93,6 @@ export function getOrderByIdInfiniteQueryOptions<TData = GetOrderById['response'
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId */
-
 export function useGetOrderByIdHookInfinite<
   TData = InfiniteData<GetOrderById['response']>,
   TQueryData = GetOrderById['response'],
@@ -106,17 +100,18 @@ export function useGetOrderByIdHookInfinite<
 >(orderId: GetOrderByIdPathParams['orderId'], options: {
   query?: Partial<UseInfiniteQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
   client?: GetOrderById['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, GetOrderById['error']> & { queryKey: TQueryKey } {
+} = {}): UseInfiniteQueryResult<TData, GetOrderById['error']> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdInfiniteQueryKey(orderId)
-
   const query = useInfiniteQuery<GetOrderById['data'], GetOrderById['error'], TData, any>({
     ...getOrderByIdInfiniteQueryOptions<TData, TQueryData>(orderId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseInfiniteQueryResult<TData, GetOrderById['error']> & { queryKey: TQueryKey }
-
+  }) as UseInfiniteQueryResult<TData, GetOrderById['error']> & {
+    queryKey: TQueryKey
+  }
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

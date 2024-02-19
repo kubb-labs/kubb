@@ -17,7 +17,6 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
-
 export function getOrderByIdQueryOptions<TData extends GetOrderById['response'] = GetOrderById['response'], TError = GetOrderById['error']>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['parameters'] = {},
@@ -29,7 +28,6 @@ export function getOrderByIdQueryOptions<TData extends GetOrderById['response'] 
         url: `/store/order/${orderId}`,
         ...options,
       })
-
       return res.data
     },
   }
@@ -38,7 +36,6 @@ export function getOrderByIdQueryOptions<TData extends GetOrderById['response'] 
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId */
-
 export function useGetOrderById<TData extends GetOrderById['response'] = GetOrderById['response'], TError = GetOrderById['error']>(
   orderId: GetOrderByIdPathParams['orderId'],
   options?: {
@@ -48,12 +45,10 @@ export function useGetOrderById<TData extends GetOrderById['response'] = GetOrde
   },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = `/store/order/${orderId}` as const
   const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
     ...getOrderByIdQueryOptions<TData, TError>(orderId, clientOptions),
     ...queryOptions,
   })
-
   return query
 }

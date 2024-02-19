@@ -456,80 +456,78 @@ Query.File = function({ templates, imports = QueryImports.templates }: FileProps
   }
 
   return (
-    <Editor.Provider value={{ language: 'typescript' }}>
-      <Editor language="typescript">
-        <File<FileMeta>
-          baseName={file.baseName}
-          path={file.path}
-          meta={file.meta}
-        >
-          {parser === 'zod' && <File.Import name={[zodResponseName]} root={file.path} path={fileZodSchemas.path} />}
-          <File.Import name={'client'} path={importPath} />
-          <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-          <File.Import
-            name={[
-              schemas.response.name,
-              schemas.pathParams?.name,
-              schemas.queryParams?.name,
-              schemas.headerParams?.name,
-              ...schemas.errors?.map((error) => error.name) || [],
-            ].filter(
-              Boolean,
-            )}
-            root={file.path}
-            path={fileType.path}
-            isTypeOnly
-          />
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        {parser === 'zod' && <File.Import name={[zodResponseName]} root={file.path} path={fileZodSchemas.path} />}
+        <File.Import name={'client'} path={importPath} />
+        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+        <File.Import
+          name={[
+            schemas.response.name,
+            schemas.pathParams?.name,
+            schemas.queryParams?.name,
+            schemas.headerParams?.name,
+            ...schemas.errors?.map((error) => error.name) || [],
+          ].filter(
+            Boolean,
+          )}
+          root={file.path}
+          path={fileType.path}
+          isTypeOnly
+        />
 
-          <QueryImports Template={Import} isInfinite={false} isSuspense={false} />
-          {!!infinite && <QueryImports Template={Import} isInfinite={true} isSuspense={false} />}
-          {!!suspense && isV5 && framework === 'react' && <QueryImports Template={Import} isInfinite={false} isSuspense={true} />}
-          <File.Source>
-            <SchemaType factory={factory} />
+        <QueryImports Template={Import} isInfinite={false} isSuspense={false} />
+        {!!infinite && <QueryImports Template={Import} isInfinite={true} isSuspense={false} />}
+        {!!suspense && isV5 && framework === 'react' && <QueryImports Template={Import} isInfinite={false} isSuspense={true} />}
+        <File.Source>
+          <SchemaType factory={factory} />
+          <Query
+            factory={factory}
+            Template={Template}
+            QueryKeyTemplate={QueryKeyTemplate}
+            QueryOptionsTemplate={QueryOptionsTemplate}
+            infinite={undefined}
+            suspense={undefined}
+            query={query}
+            hookName={importNames.query[framework].hookName}
+            resultType={importNames.query[framework].resultType}
+            optionsType={importNames.query[framework].optionsType}
+          />
+          {!!infinite && (
+            <Query
+              factory={factory}
+              Template={Template}
+              QueryKeyTemplate={QueryKeyTemplate}
+              QueryOptionsTemplate={QueryOptionsTemplate}
+              infinite={infinite}
+              suspense={undefined}
+              query={query}
+              hookName={importNames.queryInfinite[framework].hookName}
+              resultType={importNames.queryInfinite[framework].resultType}
+              optionsType={importNames.queryInfinite[framework].optionsType}
+            />
+          )}
+          {!!suspense && isV5 && framework === 'react' && (
             <Query
               factory={factory}
               Template={Template}
               QueryKeyTemplate={QueryKeyTemplate}
               QueryOptionsTemplate={QueryOptionsTemplate}
               infinite={undefined}
-              suspense={undefined}
+              suspense={suspense}
               query={query}
-              hookName={importNames.query[framework].hookName}
-              resultType={importNames.query[framework].resultType}
-              optionsType={importNames.query[framework].optionsType}
+              hookName={importNames.querySuspense[framework].hookName}
+              resultType={importNames.querySuspense[framework].resultType}
+              optionsType={importNames.querySuspense[framework].optionsType}
             />
-            {!!infinite && (
-              <Query
-                factory={factory}
-                Template={Template}
-                QueryKeyTemplate={QueryKeyTemplate}
-                QueryOptionsTemplate={QueryOptionsTemplate}
-                infinite={infinite}
-                suspense={undefined}
-                query={query}
-                hookName={importNames.queryInfinite[framework].hookName}
-                resultType={importNames.queryInfinite[framework].resultType}
-                optionsType={importNames.queryInfinite[framework].optionsType}
-              />
-            )}
-            {!!suspense && isV5 && framework === 'react' && (
-              <Query
-                factory={factory}
-                Template={Template}
-                QueryKeyTemplate={QueryKeyTemplate}
-                QueryOptionsTemplate={QueryOptionsTemplate}
-                infinite={undefined}
-                suspense={suspense}
-                query={query}
-                hookName={importNames.querySuspense[framework].hookName}
-                resultType={importNames.querySuspense[framework].resultType}
-                optionsType={importNames.querySuspense[framework].optionsType}
-              />
-            )}
-          </File.Source>
-        </File>
-      </Editor>
-    </Editor.Provider>
+          )}
+        </File.Source>
+      </File>
+    </Editor>
   )
 }
 

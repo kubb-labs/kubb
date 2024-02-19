@@ -9,7 +9,6 @@ import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQuer
 export function createGetPetById400(override?: NonNullable<Partial<GetPetById400>>): NonNullable<GetPetById400> {
   return undefined
 }
-
 /**
  * @description Pet not found
  */
@@ -24,7 +23,6 @@ export function createGetPetByIdPathParams(override: NonNullable<Partial<GetPetB
     ...override,
   }
 }
-
 /**
  * @description successful operation
  */

@@ -18,12 +18,10 @@ type PlaceOrder = {
     return: Awaited<ReturnType<PlaceOrderClient>>
   }
 }
-
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order */
-
 export function usePlaceOrder(
   options: {
     mutation?: VueMutationObserverOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request'], unknown>
@@ -31,7 +29,6 @@ export function usePlaceOrder(
   } = {},
 ): UseMutationReturnType<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request'], unknown>({
     mutationFn: async (data) => {
       const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({
@@ -40,7 +37,6 @@ export function usePlaceOrder(
         data,
         ...clientOptions,
       })
-
       return res.data
     },
     ...mutationOptions,

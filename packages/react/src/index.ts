@@ -3,6 +3,7 @@ import React from 'react'
 export type { RootType } from './client/index.ts'
 export { createRoot } from './client/index.ts'
 export type { AppContextProps } from './components/index.ts'
+export type { EditorLanguage } from './components/index.ts'
 export { Editor, File, Function, Text, Type } from './components/index.ts'
 export {
   useApp,

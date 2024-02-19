@@ -5,7 +5,6 @@ import type { KubbFile } from '@kubb/core'
 import type { KubbNode } from '../types.ts'
 
 type BasePropsWithBaseName = {
-  extName?: KubbFile.Extname
   /**
    * Name to be used to dynamicly create the baseName(based on input.path).
    * Based on UNIX basename
@@ -19,7 +18,6 @@ type BasePropsWithBaseName = {
 }
 
 type BasePropsWithoutBaseName = {
-  extName?: KubbFile.Extname
   baseName?: never
   /**
    * Path will be full qualified path to a specified file.

@@ -17,12 +17,10 @@ type GetPetById = {
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
-
 export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => ['v5', { url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdQueryKey(petId)
-
   return queryOptions({
     queryKey,
     queryFn: async () => {
@@ -31,7 +29,6 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], opt
         url: `/pet/${petId}`,
         ...options,
       })
-
       return res.data
     },
   })
@@ -40,32 +37,31 @@ export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], opt
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId */
-
 export function useGetPetByIdHook<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
     query?: Partial<QueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
-): UseQueryResult<TData, GetPetById['error']> & { queryKey: TQueryKey } {
+): UseQueryResult<TData, GetPetById['error']> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(petId)
-
   const query = useQuery({
     ...getPetByIdQueryOptions(petId, clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
-  }) as UseQueryResult<TData, GetPetById['error']> & { queryKey: TQueryKey }
-
+  }) as UseQueryResult<TData, GetPetById['error']> & {
+    queryKey: TQueryKey
+  }
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
 export const getPetByIdSuspenseQueryKey = (petId: GetPetByIdPathParams['petId']) => ['v5', { url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQueryKey>
 export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdSuspenseQueryKey(petId)
-
   return queryOptions({
     queryKey,
     queryFn: async () => {
@@ -74,7 +70,6 @@ export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petI
         url: `/pet/${petId}`,
         ...options,
       })
-
       return res.data
     },
   })
@@ -83,24 +78,24 @@ export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petI
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId */
-
 export function useGetPetByIdHookSuspense<TData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdSuspenseQueryKey>(
   petId: GetPetByIdPathParams['petId'],
   options: {
     query?: Partial<UseSuspenseQueryOptions<GetPetById['response'], GetPetById['error'], TData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
-): UseSuspenseQueryResult<TData, GetPetById['error']> & { queryKey: TQueryKey } {
+): UseSuspenseQueryResult<TData, GetPetById['error']> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdSuspenseQueryKey(petId)
-
   const query = useSuspenseQuery({
     ...getPetByIdSuspenseQueryOptions(petId, clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
-  }) as UseSuspenseQueryResult<TData, GetPetById['error']> & { queryKey: TQueryKey }
-
+  }) as UseSuspenseQueryResult<TData, GetPetById['error']> & {
+    queryKey: TQueryKey
+  }
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

@@ -12,7 +12,6 @@ export function createPlaceOrder405(override?: NonNullable<Partial<PlaceOrder405
 export function createPlaceOrderMutationRequest(override?: NonNullable<Partial<PlaceOrderMutationRequest>>): NonNullable<PlaceOrderMutationRequest> {
   return createOrder(override)
 }
-
 /**
  * @description successful operation
  */

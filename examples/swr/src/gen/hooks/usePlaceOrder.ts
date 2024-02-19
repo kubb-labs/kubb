@@ -17,19 +17,16 @@ type PlaceOrder = {
     return: Awaited<ReturnType<PlaceOrderClient>>
   }
 }
-
 /**
  * @description Place a new order in the store
  * @summary Place an order for a pet
  * @link /store/order */
-
 export function usePlaceOrder(options?: {
   mutation?: SWRMutationConfiguration<PlaceOrder['response'], PlaceOrder['error']>
   client?: PlaceOrder['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<PlaceOrder['response'], PlaceOrder['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = `/store/order` as const
   return useSWRMutation<PlaceOrder['response'], PlaceOrder['error'], typeof url | null>(
     shouldFetch ? url : null,
@@ -40,7 +37,6 @@ export function usePlaceOrder(options?: {
         data,
         ...clientOptions,
       })
-
       return res.data
     },
     mutationOptions,

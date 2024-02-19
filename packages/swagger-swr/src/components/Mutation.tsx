@@ -217,43 +217,41 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
   }
 
   return (
-    <Editor.Provider value={{ language: 'typescript' }}>
-      <Editor language="typescript">
-        <File<FileMeta>
-          baseName={file.baseName}
-          path={file.path}
-          meta={file.meta}
-        >
-          <File.Import name="useSWRMutation" path="swr/mutation" />
-          <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path="swr/mutation" isTypeOnly />
-          <File.Import name={'client'} path={importPath} />
-          <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-          <File.Import
-            name={[
-              schemas.request?.name,
-              schemas.response.name,
-              schemas.pathParams?.name,
-              schemas.queryParams?.name,
-              schemas.headerParams?.name,
-              ...schemas.errors?.map((error) => error.name) || [],
-            ].filter(
-              Boolean,
-            )}
-            root={file.path}
-            path={fileType.path}
-            isTypeOnly
-          />
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        <File.Import name="useSWRMutation" path="swr/mutation" />
+        <File.Import name={['SWRMutationConfiguration', 'SWRMutationResponse']} path="swr/mutation" isTypeOnly />
+        <File.Import name={'client'} path={importPath} />
+        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+        <File.Import
+          name={[
+            schemas.request?.name,
+            schemas.response.name,
+            schemas.pathParams?.name,
+            schemas.queryParams?.name,
+            schemas.headerParams?.name,
+            ...schemas.errors?.map((error) => error.name) || [],
+          ].filter(
+            Boolean,
+          )}
+          root={file.path}
+          path={fileType.path}
+          isTypeOnly
+        />
 
-          <File.Source>
-            <SchemaType factory={factory} />
-            <Mutation
-              Template={Template}
-              factory={factory}
-            />
-          </File.Source>
-        </File>
-      </Editor>
-    </Editor.Provider>
+        <File.Source>
+          <SchemaType factory={factory} />
+          <Mutation
+            Template={Template}
+            factory={factory}
+          />
+        </File.Source>
+      </File>
+    </Editor>
   )
 }
 

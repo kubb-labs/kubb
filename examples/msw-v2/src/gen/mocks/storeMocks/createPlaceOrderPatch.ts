@@ -17,7 +17,6 @@ export function createPlaceOrderPatchMutationRequest(
   faker.seed([220])
   return createOrder(override)
 }
-
 /**
  * @description successful operation
  */

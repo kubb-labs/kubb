@@ -41,41 +41,27 @@ const test2 = 2
 
 exports[`<File/> > render multiple Files 2`] = `
 "const test = 1
-
-const test2 = 2
 "
 `;
 
 exports[`<File/> > render multiple Files 3`] = `
-"const test = 1
+"const test2 = 2
 "
 `;
 
 exports[`<File/> > render multiple Files 4`] = `
-"const test2 = 2
+"const test = 1
+
+const test2 = 2
 "
 `;
 
 exports[`<File/> > render multiple Files 5`] = `
 "const test = 1
-
-const test2 = 2
 "
 `;
 
 exports[`<File/> > render multiple Files 6`] = `
-"const test = 1
-
-const test2 = 2
-"
-`;
-
-exports[`<File/> > render multiple Files 7`] = `
-"const test = 1
-"
-`;
-
-exports[`<File/> > render multiple Files 8`] = `
 "const test2 = 2
 "
 `;

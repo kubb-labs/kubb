@@ -20,7 +20,6 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
-
 export const getOrderByIdQueryKey = (orderId: MaybeRef<GetOrderByIdPathParams['orderId']>) =>
   [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
@@ -29,7 +28,6 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
   options: GetOrderById['client']['parameters'] = {},
 ): WithRequired<VueQueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdQueryKey(refOrderId)
-
   return {
     queryKey,
     queryFn: async () => {
@@ -39,7 +37,6 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
         url: `/store/order/${orderId}`,
         ...options,
       })
-
       return res.data
     },
   }
@@ -48,24 +45,24 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId */
-
 export function useGetOrderById<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   refOrderId: GetOrderByIdPathParams['orderId'],
   options: {
     query?: Partial<VueQueryObserverOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, GetOrderById['error']> & { queryKey: TQueryKey } {
+): UseQueryReturnType<TData, GetOrderById['error']> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(refOrderId)
-
   const query = useQuery<GetOrderById['data'], GetOrderById['error'], TData, any>({
     ...getOrderByIdQueryOptions<TData, TQueryData>(refOrderId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryReturnType<TData, GetOrderById['error']> & { queryKey: TQueryKey }
-
+  }) as UseQueryReturnType<TData, GetOrderById['error']> & {
+    queryKey: TQueryKey
+  }
   query.queryKey = queryKey as TQueryKey
-
   return query
 }

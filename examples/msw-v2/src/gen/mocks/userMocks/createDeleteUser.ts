@@ -9,7 +9,6 @@ export function createDeleteUser400(override?: NonNullable<Partial<DeleteUser400
   faker.seed([220])
   return undefined
 }
-
 /**
  * @description User not found
  */

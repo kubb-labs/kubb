@@ -19,12 +19,10 @@ type GetPetById = {
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
-
 export const getPetByIdQueryKey = (petId: MaybeRef<GetPetByIdPathParams['petId']>) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 export function getPetByIdQueryOptions(refPetId: MaybeRef<GetPetByIdPathParams['petId']>, options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdQueryKey(refPetId)
-
   return queryOptions({
     queryKey,
     queryFn: async () => {
@@ -34,7 +32,6 @@ export function getPetByIdQueryOptions(refPetId: MaybeRef<GetPetByIdPathParams['
         url: `/pet/${petId}`,
         ...options,
       })
-
       return res.data
     },
   })
@@ -43,24 +40,24 @@ export function getPetByIdQueryOptions(refPetId: MaybeRef<GetPetByIdPathParams['
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId */
-
 export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   refPetId: GetPetByIdPathParams['petId'],
   options: {
     query?: Partial<QueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, GetPetById['error']> & { queryKey: TQueryKey } {
+): UseQueryReturnType<TData, GetPetById['error']> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(refPetId)
-
   const query = useQuery({
     ...(getPetByIdQueryOptions(refPetId, clientOptions) as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryReturnType<TData, GetPetById['error']> & { queryKey: TQueryKey }
-
+  }) as UseQueryReturnType<TData, GetPetById['error']> & {
+    queryKey: TQueryKey
+  }
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
