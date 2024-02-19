@@ -27,12 +27,7 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
   // Ignore last render after unmounting a tree to prevent empty output before exit
   #isUnmounted: boolean
   #lastOutput: string
-  /**
-   * @deprecated
-   * Use Files instead
-   * File will include all sources combined
-   */
-  #lastFile?: KubbFile.File
+
   #lastFiles: KubbFile.File[] = []
   readonly #container: FiberRoot
   readonly #rootNode: DOMElement
@@ -88,10 +83,6 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
     return this.#lastOutput
   }
 
-  get file(): KubbFile.File | undefined {
-    return this.#lastFile
-  }
-
   get files(): KubbFile.File[] {
     return this.#lastFiles
   }
@@ -109,10 +100,9 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
       return
     }
 
-    const { output, file, files } = renderer(this.#rootNode)
+    const { output, files } = renderer(this.#rootNode)
 
     this.#lastOutput = output
-    this.#lastFile = file
     this.#lastFiles = files
   }
   onError(error: Error): void {

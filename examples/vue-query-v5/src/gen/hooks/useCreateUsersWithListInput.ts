@@ -17,12 +17,10 @@ type CreateUsersWithListInput = {
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
 }
-
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList */
-
 export function useCreateUsersWithListInput(
   options: {
     mutation?: UseMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request'], unknown>
@@ -30,7 +28,6 @@ export function useCreateUsersWithListInput(
   } = {},
 ) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation({
     mutationFn: async (data) => {
       const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
@@ -39,7 +36,6 @@ export function useCreateUsersWithListInput(
         data,
         ...clientOptions,
       })
-
       return res.data
     },
     ...mutationOptions,

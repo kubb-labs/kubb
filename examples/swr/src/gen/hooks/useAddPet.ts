@@ -17,19 +17,16 @@ type AddPet = {
     return: Awaited<ReturnType<AddPetClient>>
   }
 }
-
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet */
-
 export function useAddPet(options?: {
   mutation?: SWRMutationConfiguration<AddPet['response'], AddPet['error']>
   client?: AddPet['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<AddPet['response'], AddPet['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = `/pet` as const
   return useSWRMutation<AddPet['response'], AddPet['error'], typeof url | null>(
     shouldFetch ? url : null,
@@ -40,7 +37,6 @@ export function useAddPet(options?: {
         data,
         ...clientOptions,
       })
-
       return res.data
     },
     mutationOptions,

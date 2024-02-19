@@ -17,12 +17,10 @@ type DeletePet = {
     return: Awaited<ReturnType<DeletePetClient>>
   }
 }
-
 /**
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId */
-
 export function useDeletePet(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePet['headerParams'],
@@ -33,7 +31,6 @@ export function useDeletePet(
   },
 ): SWRMutationResponse<DeletePet['response'], DeletePet['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = `/pet/${petId}` as const
   return useSWRMutation<DeletePet['response'], DeletePet['error'], typeof url | null>(
     shouldFetch ? url : null,
@@ -44,7 +41,6 @@ export function useDeletePet(
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
       })
-
       return res.data
     },
     mutationOptions,

@@ -25,15 +25,11 @@ export function createRootServer<Context extends AppContextProps = AppContextPro
   return {
     renderToString(children, context?: Context) {
       instance.render(children, context)
-
       return format(instance.output)
     },
     unmount() {
       instance.unmount()
       instances.delete(instance.id)
-    },
-    get file() {
-      return instance.file
     },
     get files() {
       return instance.files

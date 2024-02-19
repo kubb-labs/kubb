@@ -109,22 +109,20 @@ Mock.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
   const Template = templates.default
 
   return (
-    <Editor.Provider value={{ language: 'typescript' }}>
-      <Editor language="typescript">
-        <File<FileMeta>
-          baseName={file.baseName}
-          path={file.path}
-          meta={file.meta}
-        >
-          {!isV2 && <File.Import name={['rest']} path={'msw'} />}
-          {isV2 && <File.Import name={['http']} path={'msw'} />}
-          {fileFaker && responseName && <File.Import name={[responseName]} root={file.path} path={fileFaker.path} />}
-          <File.Source>
-            <Mock Template={Template} />
-          </File.Source>
-        </File>
-      </Editor>
-    </Editor.Provider>
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        {!isV2 && <File.Import name={['rest']} path={'msw'} />}
+        {isV2 && <File.Import name={['http']} path={'msw'} />}
+        {fileFaker && responseName && <File.Import name={[responseName]} root={file.path} path={fileFaker.path} />}
+        <File.Source>
+          <Mock Template={Template} />
+        </File.Source>
+      </File>
+    </Editor>
   )
 }
 

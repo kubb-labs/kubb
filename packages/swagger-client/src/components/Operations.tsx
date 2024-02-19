@@ -88,24 +88,17 @@ Operations.File = function({ name, paths, templates = defaultTemplates }: FilePr
   const Template = templates.default
 
   return (
-    <>
-      <Editor.Provider value={{ language: 'typescript' }}>
-        <Editor language="typescript">
-          <File<FileMeta>
-            baseName={file.baseName}
-            path={file.path}
-            meta={file.meta}
-          >
-            <File.Source>
-              <Operations Template={Template} paths={paths} />
-            </File.Source>
-          </File>
-        </Editor>
-      </Editor.Provider>
-      <Editor.Provider value={{ language: 'text' }}>
-        <Operations Template={Template} paths={paths} />
-      </Editor.Provider>
-    </>
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        <File.Source>
+          <Operations Template={Template} paths={paths} />
+        </File.Source>
+      </File>
+    </Editor>
   )
 }
 

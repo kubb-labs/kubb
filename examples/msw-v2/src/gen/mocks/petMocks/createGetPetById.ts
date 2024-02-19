@@ -10,7 +10,6 @@ export function createGetPetById400(override?: NonNullable<Partial<GetPetById400
   faker.seed([220])
   return undefined
 }
-
 /**
  * @description Pet not found
  */
@@ -27,7 +26,6 @@ export function createGetPetByIdPathParams(override: NonNullable<Partial<GetPetB
     ...override,
   }
 }
-
 /**
  * @description successful operation
  */

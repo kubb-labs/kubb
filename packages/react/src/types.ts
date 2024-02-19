@@ -67,7 +67,6 @@ export type ElementNames =
   | 'kubb-app'
   | 'kubb-language'
   | 'kubb-editor'
-  | 'kubb-editor-provider'
 
 export type Node = {
   parentNode: DOMElement | undefined

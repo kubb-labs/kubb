@@ -32,9 +32,6 @@ export function createRoot<Context extends AppContextProps = AppContextProps>({ 
     get output() {
       return instance.output
     },
-    get file() {
-      return instance.file
-    },
     get files() {
       return instance.files
     },

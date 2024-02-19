@@ -24,11 +24,9 @@ type UpdatePetWithForm = {
     return: Awaited<ReturnType<UpdatePetWithFormClient>>
   }
 }
-
 /**
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId */
-
 export function useUpdatePetWithForm(
   refPetId: MaybeRef<UpdatePetWithFormPathParams['petId']>,
   refParams?: MaybeRef<UpdatePetWithFormQueryParams>,
@@ -38,7 +36,6 @@ export function useUpdatePetWithForm(
   } = {},
 ) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation({
     mutationFn: async () => {
       const petId = unref(refPetId)
@@ -49,7 +46,6 @@ export function useUpdatePetWithForm(
         params,
         ...clientOptions,
       })
-
       return res.data
     },
     ...mutationOptions,

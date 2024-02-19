@@ -17,17 +17,14 @@ type UploadFile = {
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
-
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage */
-
 export function useUploadFileHook(petId: UploadFilePathParams['petId'], params?: UploadFile['queryParams'], options: {
   mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
   client?: UploadFile['client']['parameters']
 } = {}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation({
     mutationFn: async (data) => {
       const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
@@ -37,7 +34,6 @@ export function useUploadFileHook(petId: UploadFilePathParams['petId'], params?:
         data,
         ...clientOptions,
       })
-
       return res.data
     },
     ...mutationOptions,

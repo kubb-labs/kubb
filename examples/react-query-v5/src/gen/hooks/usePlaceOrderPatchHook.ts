@@ -17,18 +17,15 @@ type PlaceOrderPatch = {
     return: Awaited<ReturnType<PlaceOrderPatchClient>>
   }
 }
-
 /**
  * @description Place a new order in the store with patch
  * @summary Place an order for a pet with patch
  * @link /store/order */
-
 export function usePlaceOrderPatchHook(options: {
   mutation?: UseMutationOptions<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>
   client?: PlaceOrderPatch['client']['parameters']
 } = {}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation({
     mutationFn: async (data) => {
       const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
@@ -37,7 +34,6 @@ export function usePlaceOrderPatchHook(options: {
         data,
         ...clientOptions,
       })
-
       return res.data
     },
     ...mutationOptions,

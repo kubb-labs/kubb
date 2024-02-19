@@ -9,7 +9,6 @@ export function createDeleteOrder400(override?: NonNullable<Partial<DeleteOrder4
   faker.seed([220])
   return undefined
 }
-
 /**
  * @description Order not found
  */

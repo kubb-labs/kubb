@@ -45,22 +45,20 @@ Query.File = function({ mode }: FileProps): ReactNode {
   const { source, imports } = builder.build()
 
   return (
-    <Editor.Provider value={{ language: 'typescript' }}>
-      <Editor language="typescript">
-        <File<FileMeta>
-          baseName={file.baseName}
-          path={file.path}
-          meta={file.meta}
-        >
-          <File.Import name={['z']} path="zod" />
-          {mode === 'directory' && imports.map((item, index) => {
-            return <File.Import key={index} root={file.path} {...item} />
-          })}
-          <File.Source>
-            {source}
-          </File.Source>
-        </File>
-      </Editor>
-    </Editor.Provider>
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        <File.Import name={['z']} path="zod" />
+        {mode === 'directory' && imports.map((item, index) => {
+          return <File.Import key={index} root={file.path} {...item} />
+        })}
+        <File.Source>
+          {source}
+        </File.Source>
+      </File>
+    </Editor>
   )
 }

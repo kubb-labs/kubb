@@ -30,7 +30,7 @@ describe('<File/>', () => {
     const root = createRoot()
     root.render(<Component />)
 
-    expect(root.file?.exports).toStrictEqual([
+    expect(root.files.at(0)?.exports).toStrictEqual([
       {
         asAlias: true,
         isTypeOnly: undefined,
@@ -39,7 +39,7 @@ describe('<File/>', () => {
       },
     ])
 
-    expect(root.file?.imports).toStrictEqual([
+    expect(root.files.at(0)?.imports).toStrictEqual([
       {
         isTypeOnly: undefined,
         name: 'React',
@@ -138,15 +138,6 @@ describe('<File/>', () => {
 
     expect(await format(root.output)).toMatchSnapshot()
 
-    expect(await format(root.file?.source)).toMatchSnapshot()
-
-    expect(root.file?.imports).toStrictEqual([{
-      'isTypeOnly': undefined,
-      'name': 'node',
-      'path': 'node',
-      'root': undefined,
-    }])
-
     expect(root.files.length).toBe(2)
 
     expect(await format(root.files[0]?.source)).toMatchSnapshot()
@@ -206,15 +197,6 @@ describe('<File/>', () => {
     root.render(<Component />)
 
     expect(await format(root.output)).toMatchSnapshot()
-
-    expect(await format(root.file?.source)).toMatchSnapshot()
-
-    expect(root.file?.imports).toStrictEqual([{
-      'isTypeOnly': undefined,
-      'name': 'node',
-      'path': 'node',
-      'root': undefined,
-    }])
 
     expect(root.files.length).toBe(2)
 

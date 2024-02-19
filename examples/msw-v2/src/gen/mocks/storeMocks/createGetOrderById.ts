@@ -10,7 +10,6 @@ export function createGetOrderById400(override?: NonNullable<Partial<GetOrderByI
   faker.seed([220])
   return undefined
 }
-
 /**
  * @description Order not found
  */
@@ -27,7 +26,6 @@ export function createGetOrderByIdPathParams(override: NonNullable<Partial<GetOr
     ...override,
   }
 }
-
 /**
  * @description successful operation
  */

@@ -6,7 +6,6 @@ import type { LogoutUserQueryResponse } from '../../../models/ts/userController/
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout */
-
 export async function logoutUser(options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<LogoutUserQueryResponse>['data']> {
   return axios.get(`/user/logout`, options)
 }

@@ -331,21 +331,19 @@ Definitions.File = function({ name, baseURL, paths, templates = defaultTemplates
   const Template = templates.default
 
   return (
-    <Editor.Provider value={{ language: 'typescript' }}>
-      <Editor language="typescript">
-        <File<FileMeta>
-          baseName={file.baseName}
-          path={file.path}
-          meta={file.meta}
-        >
-          <File.Import name={['makeApi', 'Zodios']} path="@zodios/core" />
-          {imports}
-          <File.Source>
-            <Definitions Template={Template} paths={paths} baseURL={baseURL} />
-          </File.Source>
-        </File>
-      </Editor>
-    </Editor.Provider>
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        <File.Import name={['makeApi', 'Zodios']} path="@zodios/core" />
+        {imports}
+        <File.Source>
+          <Definitions Template={Template} paths={paths} baseURL={baseURL} />
+        </File.Source>
+      </File>
+    </Editor>
   )
 }
 

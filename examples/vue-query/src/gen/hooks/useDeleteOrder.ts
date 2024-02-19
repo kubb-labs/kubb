@@ -20,12 +20,10 @@ type DeleteOrder = {
     return: Awaited<ReturnType<DeleteOrderClient>>
   }
 }
-
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId */
-
 export function useDeleteOrder(
   refOrderId: MaybeRef<DeleteOrderPathParams['orderId']>,
   options: {
@@ -34,7 +32,6 @@ export function useDeleteOrder(
   } = {},
 ): UseMutationReturnType<DeleteOrder['response'], DeleteOrder['error'], void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<DeleteOrder['response'], DeleteOrder['error'], void, unknown>({
     mutationFn: async () => {
       const orderId = unref(refOrderId)
@@ -43,7 +40,6 @@ export function useDeleteOrder(
         url: `/store/order/${orderId}`,
         ...clientOptions,
       })
-
       return res.data
     },
     ...mutationOptions,

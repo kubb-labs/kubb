@@ -23,7 +23,6 @@ export function createPlaceOrderMutationRequest(override?: NonNullable<Partial<P
   faker.seed([220])
   return createOrder(override)
 }
-
 /**
  * @description successful operation
  */

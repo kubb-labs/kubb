@@ -4,29 +4,33 @@ import React from 'react'
 import { useOperationFile } from '@kubb/swagger/hooks'
 
 export const templates = {
-  default: function({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof Client.templates.default>) {
-    const clientParams = [client.path.template, client.withData ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
-
+  default: function({ client }: React.ComponentProps<typeof Client.templates.default>) {
+    return (
+      <>
+        import requests
+        <br />
+        {`response = requests.${client.method}("${client.path.URL}")`}
+        <br />
+        <br />
+        print(response.status_code)
+      </>
+    )
+  },
+  editor({ children }: React.ComponentProps<typeof Client.templates.editor>) {
     const filePython = useOperationFile({ extName: '.py' })
 
     return (
-      <>
-        <Editor language="typescript" />
-        <Editor language="text">
-          <File
-            baseName={filePython.baseName}
-            path={filePython.path}
-            meta={filePython.meta}
-          >
-            <File.Source>
-              import requests
-              <br />
-              {`response = requests.${client.method}("${client.path.URL}")`}
-              print(response.status_code)
-            </File.Source>
-          </File>
-        </Editor>
-      </>
+      <Editor language="python">
+        <File
+          baseName={filePython.baseName}
+          path={filePython.path}
+          meta={filePython.meta}
+        >
+          <File.Source>
+            {children}
+          </File.Source>
+        </File>
+      </Editor>
     )
   },
 } as const

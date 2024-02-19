@@ -68,20 +68,18 @@ Oas.File = function({ name, typeName, templates = defaultTemplates }: FileProps)
   const Template = templates.default
 
   return (
-    <Editor.Provider value={{ language: 'typescript' }}>
-      <Editor language="typescript">
-        <File<FileMeta>
-          baseName={file.baseName}
-          path={file.path}
-          meta={file.meta}
-        >
-          <File.Import name={['Infer']} path="@kubb/swagger-ts/oas" isTypeOnly />
-          <File.Source>
-            <Oas Template={Template} name={name} typeName={typeName} />
-          </File.Source>
-        </File>
-      </Editor>
-    </Editor.Provider>
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        <File.Import name={['Infer']} path="@kubb/swagger-ts/oas" isTypeOnly />
+        <File.Source>
+          <Oas Template={Template} name={name} typeName={typeName} />
+        </File.Source>
+      </File>
+    </Editor>
   )
 }
 

@@ -17,12 +17,10 @@ type DeleteOrder = {
     return: Awaited<ReturnType<DeleteOrderClient>>
   }
 }
-
 /**
  * @description For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId */
-
 export function useDeleteOrder(
   orderId: DeleteOrderPathParams['orderId'],
   options?: {
@@ -32,7 +30,6 @@ export function useDeleteOrder(
   },
 ): SWRMutationResponse<DeleteOrder['response'], DeleteOrder['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
-
   const url = `/store/order/${orderId}` as const
   return useSWRMutation<DeleteOrder['response'], DeleteOrder['error'], typeof url | null>(
     shouldFetch ? url : null,
@@ -42,7 +39,6 @@ export function useDeleteOrder(
         url,
         ...clientOptions,
       })
-
       return res.data
     },
     mutationOptions,

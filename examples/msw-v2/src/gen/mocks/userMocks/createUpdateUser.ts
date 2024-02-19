@@ -23,7 +23,6 @@ export function createUpdateUserPathParams(override: NonNullable<Partial<UpdateU
     ...override,
   }
 }
-
 /**
  * @description Update an existent user in the store
  */

@@ -17,18 +17,15 @@ type CreateUser = {
     return: Awaited<ReturnType<CreateUserClient>>
   }
 }
-
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user */
-
 export function useCreateUserHook(options: {
   mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
   client?: CreateUser['client']['parameters']
 } = {}): UseMutationResult<CreateUser['response'], CreateUser['error'], CreateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-
   return useMutation<CreateUser['response'], CreateUser['error'], CreateUser['request']>({
     mutationFn: async (data) => {
       const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
@@ -37,7 +34,6 @@ export function useCreateUserHook(options: {
         data,
         ...clientOptions,
       })
-
       return res.data
     },
     ...mutationOptions,

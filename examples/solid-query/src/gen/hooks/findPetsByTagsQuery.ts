@@ -17,7 +17,6 @@ type FindPetsByTags = {
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
-
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], TQueryData = FindPetsByTags['response']>(
@@ -25,7 +24,6 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
   options: FindPetsByTags['client']['parameters'] = {},
 ): WithRequired<CreateBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByTagsQueryKey(params)
-
   return {
     queryKey,
     queryFn: async () => {
@@ -35,7 +33,6 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
         params,
         ...options,
       })
-
       return res.data
     },
   }
@@ -44,7 +41,6 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response'], T
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
-
 export function findPetsByTagsQuery<
   TData = FindPetsByTags['response'],
   TQueryData = FindPetsByTags['response'],
@@ -55,17 +51,18 @@ export function findPetsByTagsQuery<
     query?: Partial<CreateBaseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
     client?: FindPetsByTags['client']['parameters']
   } = {},
-): CreateQueryResult<TData, FindPetsByTags['error']> & { queryKey: TQueryKey } {
+): CreateQueryResult<TData, FindPetsByTags['error']> & {
+  queryKey: TQueryKey
+} {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
-
   const query = createQuery<FindPetsByTags['data'], FindPetsByTags['error'], TData, any>({
     ...findPetsByTagsQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateQueryResult<TData, FindPetsByTags['error']> & { queryKey: TQueryKey }
-
+  }) as CreateQueryResult<TData, FindPetsByTags['error']> & {
+    queryKey: TQueryKey
+  }
   query.queryKey = queryKey as TQueryKey
-
   return query
 }
