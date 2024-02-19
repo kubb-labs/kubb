@@ -1,6 +1,6 @@
 import { PackageManager } from '@kubb/core'
 import { URLPath } from '@kubb/core/utils'
-import { File, useResolveName } from '@kubb/react'
+import { Editor, File, useResolveName } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { pluginKey as fakerPluginKey } from '@kubb/swagger-faker'
 
@@ -109,18 +109,22 @@ Mock.File = function({ templates = defaultTemplates }: FileProps): ReactNode {
   const Template = templates.default
 
   return (
-    <File<FileMeta>
-      baseName={file.baseName}
-      path={file.path}
-      meta={file.meta}
-    >
-      {!isV2 && <File.Import name={['rest']} path={'msw'} />}
-      {isV2 && <File.Import name={['http']} path={'msw'} />}
-      {fileFaker && responseName && <File.Import name={[responseName]} root={file.path} path={fileFaker.path} />}
-      <File.Source>
-        <Mock Template={Template} />
-      </File.Source>
-    </File>
+    <Editor.Provider value={{ language: 'typescript' }}>
+      <Editor language="typescript">
+        <File<FileMeta>
+          baseName={file.baseName}
+          path={file.path}
+          meta={file.meta}
+        >
+          {!isV2 && <File.Import name={['rest']} path={'msw'} />}
+          {isV2 && <File.Import name={['http']} path={'msw'} />}
+          {fileFaker && responseName && <File.Import name={[responseName]} root={file.path} path={fileFaker.path} />}
+          <File.Source>
+            <Mock Template={Template} />
+          </File.Source>
+        </File>
+      </Editor>
+    </Editor.Provider>
   )
 }
 

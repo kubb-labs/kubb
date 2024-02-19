@@ -1,4 +1,4 @@
-import { File, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
 import { useOas, useOperationFile, useSchemas } from '@kubb/swagger/hooks'
 
 import { FakerBuilder } from '../FakerBuilder.ts'
@@ -43,20 +43,22 @@ Query.File = function({}: FileProps): ReactNode {
   const { source, imports } = builder.build()
 
   return (
-    <>
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
-        <File.Import name={['faker']} path="@faker-js/faker" />
-        {imports.map((item, index) => {
-          return <File.Import key={index} root={file.path} {...item} />
-        })}
-        <File.Source>
-          {source}
-        </File.Source>
-      </File>
-    </>
+    <Editor.Provider value={{ language: 'typescript' }}>
+      <Editor language="typescript">
+        <File<FileMeta>
+          baseName={file.baseName}
+          path={file.path}
+          meta={file.meta}
+        >
+          <File.Import name={['faker']} path="@faker-js/faker" />
+          {imports.map((item, index) => {
+            return <File.Import key={index} root={file.path} {...item} />
+          })}
+          <File.Source>
+            {source}
+          </File.Source>
+        </File>
+      </Editor>
+    </Editor.Provider>
   )
 }

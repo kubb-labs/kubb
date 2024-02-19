@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
-import { File, useFile, usePlugin } from '@kubb/react'
+import { Editor, File, useFile, usePlugin } from '@kubb/react'
 import { usePluginManager } from '@kubb/react'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
@@ -327,17 +327,21 @@ Definitions.File = function({ name, baseURL, paths, templates = defaultTemplates
   const Template = templates.default
 
   return (
-    <File<FileMeta>
-      baseName={file.baseName}
-      path={file.path}
-      meta={file.meta}
-    >
-      <File.Import name={['makeApi', 'Zodios']} path="@zodios/core" />
-      {imports}
-      <File.Source>
-        <Definitions Template={Template} paths={paths} baseURL={baseURL} />
-      </File.Source>
-    </File>
+    <Editor.Provider value={{ language: 'typescript' }}>
+      <Editor language="typescript">
+        <File<FileMeta>
+          baseName={file.baseName}
+          path={file.path}
+          meta={file.meta}
+        >
+          <File.Import name={['makeApi', 'Zodios']} path="@zodios/core" />
+          {imports}
+          <File.Source>
+            <Definitions Template={Template} paths={paths} baseURL={baseURL} />
+          </File.Source>
+        </File>
+      </Editor>
+    </Editor.Provider>
   )
 }
 
