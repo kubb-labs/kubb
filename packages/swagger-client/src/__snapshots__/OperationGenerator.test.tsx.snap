@@ -32,7 +32,7 @@ exports[`OperationGenerator > [GET] should generate with pathParamsType \`inline
         "root": "showPetById.ts",
       },
     ],
-    "language": undefined,
+    "language": "typescript",
     "meta": {
       "name": "showPetById",
       "pluginKey": undefined,
@@ -91,7 +91,7 @@ exports[`OperationGenerator > [GET] should generate with pathParamsType \`object
         "root": "showPetById.ts",
       },
     ],
-    "language": undefined,
+    "language": "typescript",
     "meta": {
       "name": "showPetById",
       "pluginKey": undefined,
@@ -156,7 +156,7 @@ exports[`OperationGenerator > [GET] should generate with templates 1`] = `
         "root": undefined,
       },
     ],
-    "language": undefined,
+    "language": "typescript",
     "meta": {
       "name": "showPetById",
       "pluginKey": undefined,
