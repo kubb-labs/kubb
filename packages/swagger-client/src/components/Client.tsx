@@ -65,16 +65,14 @@ function Template({
   const resolvedClientOptions = `${transformers.createIndent(4)}${clientOptions.join(`,\n${transformers.createIndent(4)}`)}`
 
   return (
-    <Editor language="typescript">
-      <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-        {`
+    <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
+      {`
 const res = await client<${client.generics}>({
 ${resolvedClientOptions}
 })
 return ${client.dataReturnType === 'data' ? 'res.data' : 'res'}
 `}
-      </Function>
-    </Editor>
+    </Function>
   )
 }
 
@@ -166,25 +164,27 @@ Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
   return (
     <>
       <Editor.Provider value={{ language: 'typescript' }}>
-        <File<FileMeta>
-          baseName={file.baseName}
-          path={file.path}
-          meta={file.meta}
-        >
-          <File.Import name={'client'} path={importPath} />
-          <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-          <File.Import
-            name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
-              Boolean,
-            )}
-            root={file.path}
-            path={fileType.path}
-            isTypeOnly
-          />
-          <File.Source>
-            <Client Template={Template} />
-          </File.Source>
-        </File>
+        <Editor language="typescript">
+          <File<FileMeta>
+            baseName={file.baseName}
+            path={file.path}
+            meta={file.meta}
+          >
+            <File.Import name={'client'} path={importPath} />
+            <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+            <File.Import
+              name={[schemas.request?.name, schemas.response.name, schemas.pathParams?.name, schemas.queryParams?.name, schemas.headerParams?.name].filter(
+                Boolean,
+              )}
+              root={file.path}
+              path={fileType.path}
+              isTypeOnly
+            />
+            <File.Source>
+              <Client Template={Template} />
+            </File.Source>
+          </File>
+        </Editor>
       </Editor.Provider>
       <Editor.Provider value={{ language: 'text' }}>
         <Client Template={Template} />

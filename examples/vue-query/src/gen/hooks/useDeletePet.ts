@@ -20,10 +20,12 @@ type DeletePet = {
     return: Awaited<ReturnType<DeletePetClient>>
   }
 }
+
 /**
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId */
+
 export function useDeletePet(
   refPetId: MaybeRef<DeletePetPathParams['petId']>,
   refHeaders?: MaybeRef<DeletePetHeaderParams>,
@@ -33,6 +35,7 @@ export function useDeletePet(
   } = {},
 ): UseMutationReturnType<DeletePet['response'], DeletePet['error'], void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<DeletePet['response'], DeletePet['error'], void, unknown>({
     mutationFn: async () => {
       const petId = unref(refPetId)
@@ -43,6 +46,7 @@ export function useDeletePet(
         headers: { ...headers, ...clientOptions.headers },
         ...clientOptions,
       })
+
       return res.data
     },
     ...mutationOptions,

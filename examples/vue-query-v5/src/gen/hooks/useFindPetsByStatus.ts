@@ -19,11 +19,13 @@ type FindPetsByStatus = {
     return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
 }
+
 export const findPetsByStatusQueryKey = (params?: MaybeRef<FindPetsByStatus['queryParams']>) =>
   [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
 export function findPetsByStatusQueryOptions(refParams?: MaybeRef<FindPetsByStatusQueryParams>, options: FindPetsByStatus['client']['parameters'] = {}) {
   const queryKey = findPetsByStatusQueryKey(refParams)
+
   return queryOptions({
     queryKey,
     queryFn: async () => {
@@ -34,6 +36,7 @@ export function findPetsByStatusQueryOptions(refParams?: MaybeRef<FindPetsByStat
         params,
         ...options,
       })
+
       return res.data
     },
   })
@@ -42,6 +45,7 @@ export function findPetsByStatusQueryOptions(refParams?: MaybeRef<FindPetsByStat
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
  * @link /pet/findByStatus */
+
 export function useFindPetsByStatus<
   TData = FindPetsByStatus['response'],
   TQueryData = FindPetsByStatus['response'],
@@ -52,18 +56,17 @@ export function useFindPetsByStatus<
     query?: Partial<QueryObserverOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryKey>>
     client?: FindPetsByStatus['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, FindPetsByStatus['error']> & {
-  queryKey: TQueryKey
-} {
+): UseQueryReturnType<TData, FindPetsByStatus['error']> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(refParams)
+
   const query = useQuery({
     ...(findPetsByStatusQueryOptions(refParams, clientOptions) as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryReturnType<TData, FindPetsByStatus['error']> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryReturnType<TData, FindPetsByStatus['error']> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

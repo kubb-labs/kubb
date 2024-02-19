@@ -17,17 +17,19 @@ type GetUserByName = {
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
-export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
+
+export function getUserByNameQueryOptions<TData extends GetUserByName['response'] = GetUserByName['response'], TError = GetUserByName['error']>(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['parameters'] = {},
-): SWRConfiguration<TData, GetUserByName['error']> {
+): SWRConfiguration<TData, TError> {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetUserByName['error']>({
+      const res = await client<TData, TError>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
       })
+
       return res.data
     },
   }
@@ -35,19 +37,22 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
 /**
  * @summary Get user by user name
  * @link /user/:username */
-export function useGetUserByName<TData = GetUserByName['response']>(
+
+export function useGetUserByName<TData extends GetUserByName['response'] = GetUserByName['response'], TError = GetUserByName['error']>(
   username: GetUserByNamePathParams['username'],
   options?: {
-    query?: SWRConfiguration<TData, GetUserByName['error']>
+    query?: SWRConfiguration<TData, TError>
     client?: GetUserByName['client']['parameters']
     shouldFetch?: boolean
   },
-): SWRResponse<TData, GetUserByName['error']> {
+): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+
   const url = `/user/${username}` as const
-  const query = useSWR<TData, GetUserByName['error'], typeof url | null>(shouldFetch ? url : null, {
-    ...getUserByNameQueryOptions<TData>(username, clientOptions),
+  const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
+    ...getUserByNameQueryOptions<TData, TError>(username, clientOptions),
     ...queryOptions,
   })
+
   return query
 }

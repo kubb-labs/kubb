@@ -17,10 +17,12 @@ type AddPet = {
     return: Awaited<ReturnType<AddPetClient>>
   }
 }
+
 /**
  * @description Add a new pet to the store
  * @summary Add a new pet to the store
  * @link /pet */
+
 export function addPetQuery(
   options: {
     mutation?: CreateMutationOptions<AddPet['response'], AddPet['error'], AddPet['request']>
@@ -28,6 +30,7 @@ export function addPetQuery(
   } = {},
 ): CreateMutationResult<AddPet['response'], AddPet['error'], AddPet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return createMutation<AddPet['response'], AddPet['error'], AddPet['request']>({
     mutationFn: async (data) => {
       const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
@@ -36,6 +39,7 @@ export function addPetQuery(
         data,
         ...clientOptions,
       })
+
       return res.data
     },
     ...mutationOptions,

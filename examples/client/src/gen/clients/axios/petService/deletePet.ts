@@ -6,6 +6,7 @@ import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderPar
  * @description delete a pet
  * @summary Deletes a pet
  * @link /pet/:petId */
+
 export async function deletePet(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePetHeaderParams,

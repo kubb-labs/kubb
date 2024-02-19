@@ -22,6 +22,7 @@ export function createUploadFileQueryParams(override: NonNullable<Partial<Upload
     ...override,
   }
 }
+
 /**
  * @description successful operation
  */

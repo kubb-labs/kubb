@@ -22,6 +22,7 @@ export function createLoginUserQueryParams(override: NonNullable<Partial<LoginUs
     ...override,
   }
 }
+
 /**
  * @description successful operation
  */

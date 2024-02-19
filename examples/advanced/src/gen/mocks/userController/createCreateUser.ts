@@ -4,6 +4,7 @@ import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResp
 export function createCreateUserMutationResponse(override?: NonNullable<Partial<CreateUserMutationResponse>>): NonNullable<CreateUserMutationResponse> {
   return undefined
 }
+
 /**
  * @description successful operation
  */

@@ -7,18 +7,25 @@ export const templates = {
   default: function({ name, generics, returnType, params, JSDoc, client }: React.ComponentProps<typeof Client.templates.default>) {
     const clientParams = [client.path.template, client.withData ? 'data' : undefined, 'options'].filter(Boolean).join(', ')
 
-    const file = useOperationFile({ extName: '.py' })
+    const filePython = useOperationFile({ extName: '.py' })
+    const fileKotlin = useOperationFile({ extName: '.kt' })
 
     return (
       <>
         <Editor language="typescript">
           <File.Import name="axios" path="axios" />
           <Function name={name} async export generics={generics} returnType={returnType} params={params} JSDoc={JSDoc}>
-            {`return axios.${client.method}(${clientParams}`}
+            {`return axios.${client.method}(${clientParams})`}
           </Function>
         </Editor>
-        <Editor language="kotlin">
-          {`
+        <Editor language="text">
+          <File
+            baseName={fileKotlin.baseName}
+            path={fileKotlin.path}
+            meta={fileKotlin.meta}
+          >
+            <File.Source>
+              {`
 package com.example.blog
 
 import org.springframework.stereotype.Controller
@@ -36,15 +43,23 @@ class HtmlController {
   }
 }
         `}
+            </File.Source>
+          </File>
         </Editor>
         <Editor language="text">
           <File
-            baseName={file.baseName}
-            path={file.path}
-            meta={file.meta}
+            baseName={filePython.baseName}
+            path={filePython.path}
+            meta={filePython.meta}
           >
             <File.Source>
-              ai ai ai
+              import requests
+              <br />
+              <br />
+              {`response = requests.${client.method}("${client.path.URL}")`}
+              <br />
+              <br />
+              print(response.status_code)
             </File.Source>
           </File>
         </Editor>

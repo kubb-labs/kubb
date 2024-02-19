@@ -24,7 +24,7 @@ export function Mutation({
 }
 
 type FileProps = {
-  mode: KubbFile.Mode
+  mode: KubbFile.Mode | undefined
 }
 
 Mutation.File = function({ mode }: FileProps): ReactNode {

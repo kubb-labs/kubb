@@ -17,18 +17,20 @@ type FindPetsByStatus = {
     return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
 }
-export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response']>(
+
+export function findPetsByStatusQueryOptions<TData extends FindPetsByStatus['response'] = FindPetsByStatus['response'], TError = FindPetsByStatus['error']>(
   params?: FindPetsByStatus['queryParams'],
   options: FindPetsByStatus['client']['parameters'] = {},
-): SWRConfiguration<TData, FindPetsByStatus['error']> {
+): SWRConfiguration<TData, TError> {
   return {
     fetcher: async () => {
-      const res = await client<TData, FindPetsByStatus['error']>({
+      const res = await client<TData, TError>({
         method: 'get',
         url: `/pet/findByStatus`,
         params,
         ...options,
       })
+
       return res.data
     },
   }
@@ -37,19 +39,22 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
  * @link /pet/findByStatus */
-export function useFindPetsByStatus<TData = FindPetsByStatus['response']>(
+
+export function useFindPetsByStatus<TData extends FindPetsByStatus['response'] = FindPetsByStatus['response'], TError = FindPetsByStatus['error']>(
   params?: FindPetsByStatus['queryParams'],
   options?: {
-    query?: SWRConfiguration<TData, FindPetsByStatus['error']>
+    query?: SWRConfiguration<TData, TError>
     client?: FindPetsByStatus['client']['parameters']
     shouldFetch?: boolean
   },
-): SWRResponse<TData, FindPetsByStatus['error']> {
+): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+
   const url = `/pet/findByStatus` as const
-  const query = useSWR<TData, FindPetsByStatus['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
-    ...findPetsByStatusQueryOptions<TData>(params, clientOptions),
+  const query = useSWR<TData, TError, [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
+    ...findPetsByStatusQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
   })
+
   return query
 }

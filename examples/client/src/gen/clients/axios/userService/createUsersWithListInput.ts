@@ -10,6 +10,7 @@ import type {
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList */
+
 export async function createUsersWithListInput(
   data?: CreateUsersWithListInputMutationRequest,
   options: Partial<Parameters<typeof client>[0]> = {},

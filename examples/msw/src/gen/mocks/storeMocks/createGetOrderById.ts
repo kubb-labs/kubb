@@ -9,6 +9,7 @@ import type { GetOrderById200, GetOrderById400, GetOrderById404, GetOrderByIdPat
 export function createGetOrderById400(override?: NonNullable<Partial<GetOrderById400>>): NonNullable<GetOrderById400> {
   return undefined
 }
+
 /**
  * @description Order not found
  */
@@ -23,6 +24,7 @@ export function createGetOrderByIdPathParams(override: NonNullable<Partial<GetOr
     ...override,
   }
 }
+
 /**
  * @description successful operation
  */

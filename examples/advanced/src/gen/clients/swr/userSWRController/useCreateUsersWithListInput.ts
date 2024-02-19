@@ -20,16 +20,19 @@ type CreateUsersWithListInput = {
     return: Awaited<ReturnType<CreateUsersWithListInputClient>>
   }
 }
+
 /**
  * @description Creates list of users with given input array
  * @summary Creates list of users with given input array
  * @link /user/createWithList */
+
 export function useCreateUsersWithListInput(options?: {
   mutation?: SWRMutationConfiguration<CreateUsersWithListInput['response'], CreateUsersWithListInput['error']>
   client?: CreateUsersWithListInput['client']['parameters']
   shouldFetch?: boolean
 }): SWRMutationResponse<CreateUsersWithListInput['response'], CreateUsersWithListInput['error']> {
   const { mutation: mutationOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+
   const url = `/user/createWithList` as const
   return useSWRMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], typeof url | null>(
     shouldFetch ? url : null,
@@ -40,6 +43,7 @@ export function useCreateUsersWithListInput(options?: {
         data,
         ...clientOptions,
       })
+
       return res
     },
     mutationOptions,

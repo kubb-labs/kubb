@@ -1,5 +1,4 @@
 import { nodeNames } from '../dom.ts'
-import { format } from './format.ts'
 import { read } from './read.ts'
 
 import type { DOMElement } from '../../types.ts'
@@ -25,10 +24,6 @@ export function squashSourceNodes(node: DOMElement): string {
 
       if (childNode.nodeName === 'kubb-source') {
         nodeText = read(nodeText, childNode)
-      }
-
-      if (childNode.nodeName === 'kubb-language') {
-        nodeText = format(nodeText, childNode)
       }
 
       if (childNode.nodeName === 'br') {

@@ -8,6 +8,7 @@ import type { DeleteOrder400, DeleteOrder404, DeleteOrderMutationResponse, Delet
 export function createDeleteOrder400(override?: NonNullable<Partial<DeleteOrder400>>): NonNullable<DeleteOrder400> {
   return undefined
 }
+
 /**
  * @description Order not found
  */

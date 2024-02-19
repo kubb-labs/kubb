@@ -28,9 +28,12 @@ function Template({
   return (
     <>
       {`export const endpoints = makeApi([${definitions.join(',')}])`}
+      <br />
       {`export const getAPI = (baseUrl: string) => new Zodios(baseUrl, endpoints)`}
+      <br />
       {baseURL && `export const ${name} = new Zodios('${baseURL}', endpoints)`}
       {!baseURL && `export const  ${name} = new Zodios(endpoints)`}
+      <br />
       {`export default ${name}`}
     </>
   )

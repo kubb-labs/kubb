@@ -17,17 +17,19 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
-export function getOrderByIdQueryOptions<TData = GetOrderById['response']>(
+
+export function getOrderByIdQueryOptions<TData extends GetOrderById['response'] = GetOrderById['response'], TError = GetOrderById['error']>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['parameters'] = {},
-): SWRConfiguration<TData, GetOrderById['error']> {
+): SWRConfiguration<TData, TError> {
   return {
     fetcher: async () => {
-      const res = await client<TData, GetOrderById['error']>({
+      const res = await client<TData, TError>({
         method: 'get',
         url: `/store/order/${orderId}`,
         ...options,
       })
+
       return res.data
     },
   }
@@ -36,19 +38,22 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response']>(
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId */
-export function useGetOrderById<TData = GetOrderById['response']>(
+
+export function useGetOrderById<TData extends GetOrderById['response'] = GetOrderById['response'], TError = GetOrderById['error']>(
   orderId: GetOrderByIdPathParams['orderId'],
   options?: {
-    query?: SWRConfiguration<TData, GetOrderById['error']>
+    query?: SWRConfiguration<TData, TError>
     client?: GetOrderById['client']['parameters']
     shouldFetch?: boolean
   },
-): SWRResponse<TData, GetOrderById['error']> {
+): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+
   const url = `/store/order/${orderId}` as const
-  const query = useSWR<TData, GetOrderById['error'], typeof url | null>(shouldFetch ? url : null, {
-    ...getOrderByIdQueryOptions<TData>(orderId, clientOptions),
+  const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
+    ...getOrderByIdQueryOptions<TData, TError>(orderId, clientOptions),
     ...queryOptions,
   })
+
   return query
 }

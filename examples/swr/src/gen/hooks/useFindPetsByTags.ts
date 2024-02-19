@@ -17,18 +17,20 @@ type FindPetsByTags = {
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
-export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
+
+export function findPetsByTagsQueryOptions<TData extends FindPetsByTags['response'] = FindPetsByTags['response'], TError = FindPetsByTags['error']>(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['parameters'] = {},
-): SWRConfiguration<TData, FindPetsByTags['error']> {
+): SWRConfiguration<TData, TError> {
   return {
     fetcher: async () => {
-      const res = await client<TData, FindPetsByTags['error']>({
+      const res = await client<TData, TError>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
         ...options,
       })
+
       return res.data
     },
   }
@@ -37,19 +39,22 @@ export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
-export function useFindPetsByTags<TData = FindPetsByTags['response']>(
+
+export function useFindPetsByTags<TData extends FindPetsByTags['response'] = FindPetsByTags['response'], TError = FindPetsByTags['error']>(
   params?: FindPetsByTags['queryParams'],
   options?: {
-    query?: SWRConfiguration<TData, FindPetsByTags['error']>
+    query?: SWRConfiguration<TData, TError>
     client?: FindPetsByTags['client']['parameters']
     shouldFetch?: boolean
   },
-): SWRResponse<TData, FindPetsByTags['error']> {
+): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+
   const url = `/pet/findByTags` as const
-  const query = useSWR<TData, FindPetsByTags['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
-    ...findPetsByTagsQueryOptions<TData>(params, clientOptions),
+  const query = useSWR<TData, TError, [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
+    ...findPetsByTagsQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
   })
+
   return query
 }

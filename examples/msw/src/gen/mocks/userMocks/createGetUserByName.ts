@@ -9,6 +9,7 @@ import type { GetUserByName200, GetUserByName400, GetUserByName404, GetUserByNam
 export function createGetUserByName400(override?: NonNullable<Partial<GetUserByName400>>): NonNullable<GetUserByName400> {
   return undefined
 }
+
 /**
  * @description User not found
  */
@@ -23,6 +24,7 @@ export function createGetUserByNamePathParams(override: NonNullable<Partial<GetU
     ...override,
   }
 }
+
 /**
  * @description successful operation
  */

@@ -17,18 +17,20 @@ type LoginUser = {
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
-export function loginUserQueryOptions<TData = LoginUser['response']>(
+
+export function loginUserQueryOptions<TData extends LoginUser['response'] = LoginUser['response'], TError = LoginUser['error']>(
   params?: LoginUser['queryParams'],
   options: LoginUser['client']['parameters'] = {},
-): SWRConfiguration<TData, LoginUser['error']> {
+): SWRConfiguration<TData, TError> {
   return {
     fetcher: async () => {
-      const res = await client<TData, LoginUser['error']>({
+      const res = await client<TData, TError>({
         method: 'get',
         url: `/user/login`,
         params,
         ...options,
       })
+
       return res.data
     },
   }
@@ -36,19 +38,22 @@ export function loginUserQueryOptions<TData = LoginUser['response']>(
 /**
  * @summary Logs user into the system
  * @link /user/login */
-export function useLoginUser<TData = LoginUser['response']>(
+
+export function useLoginUser<TData extends LoginUser['response'] = LoginUser['response'], TError = LoginUser['error']>(
   params?: LoginUser['queryParams'],
   options?: {
-    query?: SWRConfiguration<TData, LoginUser['error']>
+    query?: SWRConfiguration<TData, TError>
     client?: LoginUser['client']['parameters']
     shouldFetch?: boolean
   },
-): SWRResponse<TData, LoginUser['error']> {
+): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+
   const url = `/user/login` as const
-  const query = useSWR<TData, LoginUser['error'], [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
-    ...loginUserQueryOptions<TData>(params, clientOptions),
+  const query = useSWR<TData, TError, [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
+    ...loginUserQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
   })
+
   return query
 }

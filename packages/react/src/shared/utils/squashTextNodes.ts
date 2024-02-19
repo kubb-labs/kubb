@@ -2,7 +2,6 @@ import { getRelativePath } from '@kubb/core/fs'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
 
-import { format } from './format.ts'
 import { read } from './read.ts'
 
 import type { File } from '../../components/File.tsx'
@@ -66,10 +65,6 @@ export function squashTextNodes(node: DOMElement): string {
 
       if (childNode.attributes.print) {
         nodeText = getPrintText(nodeText)
-      }
-
-      if (childNode.nodeName === 'kubb-editor') {
-        nodeText = format(nodeText, childNode)
       }
 
       if (childNode.nodeName === 'br') {

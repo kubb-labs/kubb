@@ -20,6 +20,7 @@ type GetUserByName = {
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
+
 export const getUserByNameQueryKey = (username: MaybeRef<GetUserByNamePathParams['username']>) =>
   [{ url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
@@ -28,6 +29,7 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
   options: GetUserByName['client']['parameters'] = {},
 ): WithRequired<VueQueryObserverOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getUserByNameQueryKey(refUsername)
+
   return {
     queryKey,
     queryFn: async () => {
@@ -37,6 +39,7 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
         url: `/user/${username}`,
         ...options,
       })
+
       return res.data
     },
   }
@@ -44,24 +47,24 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response'], TQu
 /**
  * @summary Get user by user name
  * @link /user/:username */
+
 export function useGetUserByName<TData = GetUserByName['response'], TQueryData = GetUserByName['response'], TQueryKey extends QueryKey = GetUserByNameQueryKey>(
   refUsername: GetUserByNamePathParams['username'],
   options: {
     query?: Partial<VueQueryObserverOptions<GetUserByName['response'], GetUserByName['error'], TData, TQueryKey>>
     client?: GetUserByName['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, GetUserByName['error']> & {
-  queryKey: TQueryKey
-} {
+): UseQueryReturnType<TData, GetUserByName['error']> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getUserByNameQueryKey(refUsername)
+
   const query = useQuery<GetUserByName['data'], GetUserByName['error'], TData, any>({
     ...getUserByNameQueryOptions<TData, TQueryData>(refUsername, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryReturnType<TData, GetUserByName['error']> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryReturnType<TData, GetUserByName['error']> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
