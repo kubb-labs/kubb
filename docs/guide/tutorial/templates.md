@@ -125,7 +125,7 @@ import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTS from '@kubb/swagger-ts'
 
-import { templates } from './templates/CustomClientTemplates.tsx'
+import { templates } from './templates/CustomClientTemplate.tsx'
 
 export default defineConfig(async () => {
   return {
