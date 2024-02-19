@@ -1,5 +1,16 @@
 # @kubb/swagger-faker
 
+## 2.6.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.6.2
+  - @kubb/parser@2.6.2
+  - @kubb/react@2.6.2
+  - @kubb/swagger@2.6.2
+  - @kubb/swagger-ts@2.6.2
+
 ## 2.6.1
 
 ### Patch Changes
