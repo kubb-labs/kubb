@@ -32,7 +32,7 @@ exports[`OperationGenerator > [GET] should generate with pathParamsType \`inline
         "root": "showPetById.ts",
       },
     ],
-    "language": "typescript",
+    "language": undefined,
     "meta": {
       "name": "showPetById",
       "pluginKey": undefined,
@@ -43,13 +43,16 @@ exports[`OperationGenerator > [GET] should generate with pathParamsType \`inline
     "source": "/**
      * @summary Info for a specific pet
      * @link /pets/:pet_id */
-export async function showPetById(petId: ShowPetByIdPathParams["pet_id"], testId: ShowPetByIdPathParams["testId"], options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
+    
+export async function showPetById (petId: ShowPetByIdPathParams["pet_id"], testId: ShowPetByIdPathParams["testId"], options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
+    
     const res = await client<ShowPetByIdQueryResponse>({
         method: "get",
         url: \`/pets/\${petId}\`,
         ...options
-    });
-    return res.data;
+    })
+    return res.data
+    
 }
 ",
   },
@@ -88,7 +91,7 @@ exports[`OperationGenerator > [GET] should generate with pathParamsType \`object
         "root": "showPetById.ts",
       },
     ],
-    "language": "typescript",
+    "language": undefined,
     "meta": {
       "name": "showPetById",
       "pluginKey": undefined,
@@ -99,13 +102,16 @@ exports[`OperationGenerator > [GET] should generate with pathParamsType \`object
     "source": "/**
      * @summary Info for a specific pet
      * @link /pets/:pet_id */
-export async function showPetById({ petId, testId }: ShowPetByIdPathParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
+    
+export async function showPetById ({ petId, testId }: ShowPetByIdPathParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
+    
     const res = await client<ShowPetByIdQueryResponse>({
         method: "get",
         url: \`/pets/\${petId}\`,
         ...options
-    });
-    return res.data;
+    })
+    return res.data
+    
 }
 ",
   },
@@ -150,7 +156,7 @@ exports[`OperationGenerator > [GET] should generate with templates 1`] = `
         "root": undefined,
       },
     ],
-    "language": "typescript",
+    "language": undefined,
     "meta": {
       "name": "showPetById",
       "pluginKey": undefined,
@@ -161,8 +167,9 @@ exports[`OperationGenerator > [GET] should generate with templates 1`] = `
     "source": "/**
      * @summary Info for a specific pet
      * @link /pets/:pet_id */
-export async function showPetById({ petId, testId }: ShowPetByIdPathParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
-    return axios.get(\`/pets/\${petId}\`, options);
+    
+export async function showPetById ({ petId, testId }: ShowPetByIdPathParams, options: Partial<Parameters<typeof client>[0]> = {}): Promise<ResponseConfig<ShowPetByIdQueryResponse>["data"]> {
+    return axios.get(\`/pets/\${petId}\`, options
 }
 ",
   },

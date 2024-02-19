@@ -59,7 +59,7 @@ export function squashTextNodes(node: DOMElement): string {
     if (childNode.nodeName === '#text') {
       nodeText = childNode.nodeValue
     } else {
-      if (['kubb-text', 'kubb-file', 'kubb-source', 'kubb-editor'].includes(childNode.nodeName)) {
+      if (['kubb-text', 'kubb-file', 'kubb-source', 'kubb-editor', 'kubb-editor-provider'].includes(childNode.nodeName)) {
         nodeText = squashTextNodes(childNode)
       }
 
