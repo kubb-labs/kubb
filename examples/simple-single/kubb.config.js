@@ -2,6 +2,7 @@ import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
 import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerZod from '@kubb/swagger-zod'
 
 export default defineConfig({
   root: '.',
@@ -25,6 +26,11 @@ export default defineConfig({
     createSwaggerTanstackQuery({
       output: {
         path: './hooks.ts',
+      },
+    }),
+    createSwaggerZod({
+      output: {
+        path: './zod.ts',
       },
     }),
   ],

@@ -571,6 +571,9 @@ importers:
       '@kubb/swagger-ts':
         specifier: workspace:*
         version: link:../../packages/swagger-ts
+      '@kubb/swagger-zod':
+        specifier: workspace:*
+        version: link:../../packages/swagger-zod
       '@tanstack/react-query':
         specifier: ^4.36.1
         version: 4.36.1(react-dom@18.2.0)(react@18.2.0)
@@ -583,6 +586,9 @@ importers:
       tsup:
         specifier: ^8.0.2
         version: 8.0.2(@microsoft/api-extractor@7.40.2)(ts-node@10.9.2)(typescript@5.3.3)
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
 
   examples/solid-query:
     dependencies:

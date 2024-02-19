@@ -7,7 +7,7 @@ outline: deep
 
 # unplugin-kubb <a href="https://paka.dev/npm/unplugin-kubb@latest/api">🦙</a>
 
-Kubb plugin for Vite, Webpack, Esbuild, Rollup, Nuxt, Astro and Rspack.
+Kubb plugin for Vite, webpack, esbuild, Rollup, Nuxt, Astro and Rspack.
 
 ## Installation
 
@@ -127,7 +127,7 @@ export default {
 }
 ```
 
-### Webpack
+### webpack
 
 ```ts
 // webpack.config.js
@@ -165,7 +165,7 @@ module.exports = {
 }
 ```
 
-### Esbuild
+### esbuild
 
 ```ts
 // esbuild.config.js
