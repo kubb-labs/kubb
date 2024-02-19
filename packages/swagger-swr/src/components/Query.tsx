@@ -1,5 +1,5 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function, usePlugin, useResolveName } from '@kubb/react'
+import { Editor, File, Function, usePlugin, useResolveName } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
@@ -141,14 +141,15 @@ export function Query({
 
   const resultGenerics = [
     'TData',
-    `${factory.name}["error"]`,
+    'TError',
   ]
 
   generics.add([
-    { type: `TData`, default: `${factory.name}["response"]` },
+    { type: `TData extends ${factory.name}['response']`, default: `${factory.name}["response"]` },
+    { type: 'TError', default: `${factory.name}["error"]` },
   ])
 
-  const queryOptionsGenerics = ['TData']
+  const queryOptionsGenerics = ['TData', 'TError']
 
   params.add([
     ...getASTParams(schemas.pathParams, { typed: true }),
@@ -241,42 +242,44 @@ Query.File = function({ templates }: FileProps): ReactNode {
   }
 
   return (
-    <>
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
-        <File.Import name="useSWR" path="swr" />
-        <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
-        <File.Import name={'client'} path={importPath} />
-        <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
-        <File.Import
-          name={[
-            schemas.request?.name,
-            schemas.response.name,
-            schemas.pathParams?.name,
-            schemas.queryParams?.name,
-            schemas.headerParams?.name,
-            ...schemas.statusCodes?.map((item) => item.name) || [],
-          ].filter(
-            Boolean,
-          )}
-          root={file.path}
-          path={fileType.path}
-          isTypeOnly
-        />
-
-        <File.Source>
-          <SchemaType factory={factory} />
-          <Query
-            factory={factory}
-            Template={Template}
-            QueryOptionsTemplate={QueryOptionsTemplate}
+    <Editor.Provider value={{ language: 'typescript' }}>
+      <Editor language="typescript">
+        <File<FileMeta>
+          baseName={file.baseName}
+          path={file.path}
+          meta={file.meta}
+        >
+          <File.Import name="useSWR" path="swr" />
+          <File.Import name={['SWRConfiguration', 'SWRResponse']} path="swr" isTypeOnly />
+          <File.Import name={'client'} path={importPath} />
+          <File.Import name={['ResponseConfig']} path={importPath} isTypeOnly />
+          <File.Import
+            name={[
+              schemas.request?.name,
+              schemas.response.name,
+              schemas.pathParams?.name,
+              schemas.queryParams?.name,
+              schemas.headerParams?.name,
+              ...schemas.errors?.map((error) => error.name) || [],
+            ].filter(
+              Boolean,
+            )}
+            root={file.path}
+            path={fileType.path}
+            isTypeOnly
           />
-        </File.Source>
-      </File>
-    </>
+
+          <File.Source>
+            <SchemaType factory={factory} />
+            <Query
+              factory={factory}
+              Template={Template}
+              QueryOptionsTemplate={QueryOptionsTemplate}
+            />
+          </File.Source>
+        </File>
+      </Editor>
+    </Editor.Provider>
   )
 }
 

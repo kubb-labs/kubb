@@ -432,6 +432,43 @@ importers:
         specifier: ~5.2.2
         version: 5.2.2
 
+  examples/python:
+    dependencies:
+      '@kubb/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../../packages/react
+      '@kubb/swagger':
+        specifier: workspace:*
+        version: link:../../packages/swagger
+      '@kubb/swagger-client':
+        specifier: workspace:*
+        version: link:../../packages/swagger-client
+      '@kubb/swagger-ts':
+        specifier: workspace:*
+        version: link:../../packages/swagger-ts
+      axios:
+        specifier: ^1.6.7
+        version: 1.6.7
+    devDependencies:
+      '@kubb/ts-config':
+        specifier: workspace:*
+        version: link:../../packages/config/ts-config
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      tsup:
+        specifier: ^8.0.2
+        version: 8.0.2(@microsoft/api-extractor@7.40.2)(ts-node@10.9.2)(typescript@5.3.3)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.3.3
+
   examples/react-query:
     dependencies:
       '@kubb/cli':

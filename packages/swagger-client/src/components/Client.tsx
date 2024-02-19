@@ -147,13 +147,14 @@ export function Client({
 }
 
 type FileProps = {
+  languages?: Array<'typescript' | 'text'>
   /**
    * This will make it possible to override the default behaviour.
    */
   templates?: typeof defaultTemplates
 }
 
-Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
+Client.File = function({ languages = ['typescript'], templates = defaultTemplates }: FileProps): KubbNode {
   const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()

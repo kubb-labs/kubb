@@ -436,12 +436,14 @@ function combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBas
 
 export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
   // only use .js, .ts or .tsx files for ESM imports
+
   if (file.language ? ['typescript', 'javascript'].includes(file.language) : !FileManager.isJavascript(file.baseName)) {
     return file.source
   }
 
   const exports = file.exports ? combineExports(file.exports) : []
-  const imports = file.imports ? combineImports(file.imports, exports, file.source) : []
+  // imports should be defined and source should contain code or we have imports without them being used
+  const imports = file.imports && file.source ? combineImports(file.imports, exports, file.source) : []
 
   const importNodes = imports.filter(item => {
     // isImportNotNeeded

@@ -1,4 +1,4 @@
-import { File, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
 import { useFile } from '@kubb/react'
 
 import type { KubbFile, ResolveNameParams, ResolvePathParams } from '@kubb/core'
@@ -123,16 +123,20 @@ Handlers.File = function({ name, paths, templates = defaultTemplates }: FileProp
   const Template = templates.default
 
   return (
-    <File<FileMeta>
-      baseName={file.baseName}
-      path={file.path}
-      meta={file.meta}
-    >
-      {imports}
-      <File.Source>
-        <Handlers Template={Template} paths={paths} />
-      </File.Source>
-    </File>
+    <Editor.Provider value={{ language: 'typescript' }}>
+      <Editor language="typescript">
+        <File<FileMeta>
+          baseName={file.baseName}
+          path={file.path}
+          meta={file.meta}
+        >
+          {imports}
+          <File.Source>
+            <Handlers Template={Template} paths={paths} />
+          </File.Source>
+        </File>
+      </Editor>
+    </Editor.Provider>
   )
 }
 

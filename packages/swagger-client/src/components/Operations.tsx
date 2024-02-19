@@ -1,5 +1,5 @@
 import { URLPath } from '@kubb/core/utils'
-import { File, usePlugin } from '@kubb/react'
+import { Editor, File, usePlugin } from '@kubb/react'
 import { useFile } from '@kubb/react'
 import { useOas } from '@kubb/swagger/hooks'
 
@@ -88,15 +88,24 @@ Operations.File = function({ name, paths, templates = defaultTemplates }: FilePr
   const Template = templates.default
 
   return (
-    <File<FileMeta>
-      baseName={file.baseName}
-      path={file.path}
-      meta={file.meta}
-    >
-      <File.Source>
+    <>
+      <Editor.Provider value={{ language: 'typescript' }}>
+        <Editor language="typescript">
+          <File<FileMeta>
+            baseName={file.baseName}
+            path={file.path}
+            meta={file.meta}
+          >
+            <File.Source>
+              <Operations Template={Template} paths={paths} />
+            </File.Source>
+          </File>
+        </Editor>
+      </Editor.Provider>
+      <Editor.Provider value={{ language: 'text' }}>
         <Operations Template={Template} paths={paths} />
-      </File.Source>
-    </File>
+      </Editor.Provider>
+    </>
   )
 }
 

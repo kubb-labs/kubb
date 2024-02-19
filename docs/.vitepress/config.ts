@@ -346,6 +346,10 @@ const examplesSidebar = [
     text: 'Templates <span class="new">new</span>',
     link: '/examples/client',
   },
+  {
+    text: 'Python <span class="new">new</span>',
+    link: '/examples/python',
+  },
 ]
 
 const blogSidebar = [

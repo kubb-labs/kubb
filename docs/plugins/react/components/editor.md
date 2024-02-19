@@ -7,8 +7,6 @@ outline: deep
 
 # Editor
 
-## Editor
-
 ::: code-group
 
 ```tsx [simple]
