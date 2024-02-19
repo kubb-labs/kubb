@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams } from '@kubb/core/utils'
 import { URLPath } from '@kubb/core/utils'
-import { File, Function, Editor, usePlugin } from '@kubb/react'
+import { Editor, File, Function, usePlugin } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments, isRequired } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
@@ -159,7 +159,6 @@ Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
   const { options: { client: { importPath } } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
-  const kotlinFile = useOperationFile({ extName: '.kt' })
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
 
   const Template = templates.default
@@ -182,17 +181,6 @@ Client.File = function({ templates = defaultTemplates }: FileProps): KubbNode {
             path={fileType.path}
             isTypeOnly
           />
-          <File.Source>
-            <Client Template={Template} />
-          </File.Source>
-        </File>
-      </Editor.Provider>
-      <Editor.Provider value={{ language: 'kotlin' }}>
-        <File<FileMeta>
-          baseName={kotlinFile.baseName}
-          path={kotlinFile.path}
-          meta={kotlinFile.meta}
-        >
           <File.Source>
             <Client Template={Template} />
           </File.Source>

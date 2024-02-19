@@ -2,6 +2,7 @@ import path from 'node:path'
 
 import { format } from '../../mocks/format.ts'
 import { createRoot } from '../client/createRoot.ts'
+import { Editor } from './Editor.tsx'
 import { File } from './File.tsx'
 
 describe('<File/>', () => {
@@ -98,7 +99,6 @@ describe('<File/>', () => {
           <File.Source path={path.resolve(mocksPath, './test.ts')} print></File.Source>
           <File.Source print>
             {`
-            // comment that should be removed
             const test = 2;
             `}
           </File.Source>
@@ -168,7 +168,6 @@ describe('<File/>', () => {
           <File.Source path={path.resolve(mocksPath, './test.ts')} print></File.Source>
           <File.Source print>
             {`
-            // comment that should be removed
             const test = 2;
             `}
           </File.Source>

@@ -8,6 +8,7 @@ exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`any\` 1`]
     "exports": [],
     "id": undefined,
     "imports": [],
+    "language": undefined,
     "meta": {
       "name": "delete_pet-petid",
       "pluginKey": undefined,
@@ -32,6 +33,7 @@ exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`unknown\`
     "exports": [],
     "id": undefined,
     "imports": [],
+    "language": undefined,
     "meta": {
       "name": "delete_pet-petid",
       "pluginKey": undefined,
@@ -64,23 +66,8 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 1`
         "path": "Pets",
         "root": "listPets.ts",
       },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Pets",
-        ],
-        "path": "Pets",
-        "root": "listPets.ts",
-      },
     ],
+    "language": undefined,
     "meta": {
       "name": "listPets",
       "pluginKey": undefined,
@@ -96,17 +83,7 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 1`
     limit?: string;
 } | undefined;
 
- /**
- * @description A paged array of pets
-*/
-export type ListPets200 = Pets;
-
- /**
- * @description unexpected error
-*/
-export type ListPetsError = Error;
-
- /**
+/**
  * @description A paged array of pets
 */
 export type ListPetsQueryResponse = Pets;
@@ -135,23 +112,8 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 2`
         "path": "Pet",
         "root": "showPetById.ts",
       },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Pet",
-        ],
-        "path": "Pet",
-        "root": "showPetById.ts",
-      },
     ],
+    "language": undefined,
     "meta": {
       "name": "showPetById",
       "pluginKey": undefined,
@@ -172,17 +134,7 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 2`
     testId: string;
 };
 
- /**
- * @description Expected response to a valid request
-*/
-export type ShowPetById200 = Pet;
-
- /**
- * @description unexpected error
-*/
-export type ShowPetByIdError = Error;
-
- /**
+/**
  * @description Expected response to a valid request
 */
 export type ShowPetByIdQueryResponse = Pet;
@@ -219,31 +171,8 @@ exports[`OperationGenerator > [POST] /pets 201 1`] = `
         "path": "ErrorCode",
         "root": "createPets.ts",
       },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ErrorCode",
-        ],
-        "path": "ErrorCode",
-        "root": "createPets.ts",
-      },
     ],
+    "language": undefined,
     "meta": {
       "name": "createPets",
       "pluginKey": undefined,
@@ -262,19 +191,7 @@ exports[`OperationGenerator > [POST] /pets 201 1`] = `
     tag: string;
 };
 
- /**
- * @description unexpected error
-*/
-export type CreatePetsError = Error;
-
- /**
- * @description Null response
-*/
-export type CreatePets201 = (Error & {
-    name?: ErrorCode;
-});
-
- /**
+/**
  * @description Null response
 */
 export type CreatePetsMutationResponse = (Error & {

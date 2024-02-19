@@ -2,9 +2,11 @@ import { createContext, useContext } from 'react'
 
 import type { KubbNode } from '../types.ts'
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Language = 'typescript' | 'text' | (string & {})
+
 export type EditorContextProps = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  language: 'typescript' | 'text' | (string & {})
+  language: Language
 }
 
 const EditorContext = createContext<EditorContextProps>({ language: 'text' })
