@@ -17,6 +17,7 @@ type GetInventory = {
     return: Awaited<ReturnType<GetInventoryClient>>
   }
 }
+
 export function getInventoryQueryOptions<TData extends GetInventory['response'] = GetInventory['response'], TError = GetInventory['error']>(
   options: GetInventory['client']['parameters'] = {},
 ): SWRConfiguration<TData, TError> {
@@ -27,6 +28,7 @@ export function getInventoryQueryOptions<TData extends GetInventory['response'] 
         url: `/store/inventory`,
         ...options,
       })
+
       return res.data
     },
   }
@@ -35,16 +37,19 @@ export function getInventoryQueryOptions<TData extends GetInventory['response'] 
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
  * @link /store/inventory */
+
 export function useGetInventory<TData extends GetInventory['response'] = GetInventory['response'], TError = GetInventory['error']>(options?: {
   query?: SWRConfiguration<TData, TError>
   client?: GetInventory['client']['parameters']
   shouldFetch?: boolean
 }): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+
   const url = `/store/inventory` as const
   const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
     ...getInventoryQueryOptions<TData, TError>(clientOptions),
     ...queryOptions,
   })
+
   return query
 }

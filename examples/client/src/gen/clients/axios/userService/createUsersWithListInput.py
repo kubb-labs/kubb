@@ -1,1 +1,5 @@
-ai ai ai
+import requests
+
+response = requests.post("/user/createWithList")
+
+print(response.status_code)

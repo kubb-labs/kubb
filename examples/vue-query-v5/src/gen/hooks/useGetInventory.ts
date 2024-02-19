@@ -17,10 +17,12 @@ type GetInventory = {
     return: Awaited<ReturnType<GetInventoryClient>>
   }
 }
+
 export const getInventoryQueryKey = () => [{ url: '/store/inventory' }] as const
 export type GetInventoryQueryKey = ReturnType<typeof getInventoryQueryKey>
 export function getInventoryQueryOptions(options: GetInventory['client']['parameters'] = {}) {
   const queryKey = getInventoryQueryKey()
+
   return queryOptions({
     queryKey,
     queryFn: async () => {
@@ -29,6 +31,7 @@ export function getInventoryQueryOptions(options: GetInventory['client']['parame
         url: `/store/inventory`,
         ...options,
       })
+
       return res.data
     },
   })
@@ -37,23 +40,23 @@ export function getInventoryQueryOptions(options: GetInventory['client']['parame
  * @description Returns a map of status codes to quantities
  * @summary Returns pet inventories by status
  * @link /store/inventory */
+
 export function useGetInventory<TData = GetInventory['response'], TQueryData = GetInventory['response'], TQueryKey extends QueryKey = GetInventoryQueryKey>(
   options: {
     query?: Partial<QueryObserverOptions<GetInventory['response'], GetInventory['error'], TData, TQueryKey>>
     client?: GetInventory['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, GetInventory['error']> & {
-  queryKey: TQueryKey
-} {
+): UseQueryReturnType<TData, GetInventory['error']> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getInventoryQueryKey()
+
   const query = useQuery({
     ...(getInventoryQueryOptions(clientOptions) as QueryObserverOptions),
     queryKey,
     ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
-  }) as UseQueryReturnType<TData, GetInventory['error']> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryReturnType<TData, GetInventory['error']> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

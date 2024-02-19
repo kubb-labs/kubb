@@ -20,6 +20,7 @@ type GetPetById = {
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
+
 export const getPetByIdQueryKey = (petId: MaybeRef<GetPetByIdPathParams['petId']>) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryData = GetPetById['response']>(
@@ -27,6 +28,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
   options: GetPetById['client']['parameters'] = {},
 ): WithRequired<VueQueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getPetByIdQueryKey(refPetId)
+
   return {
     queryKey,
     queryFn: async () => {
@@ -36,6 +38,7 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
         url: `/pet/${petId}`,
         ...options,
       })
+
       return res.data
     },
   }
@@ -44,24 +47,24 @@ export function getPetByIdQueryOptions<TData = GetPetById['response'], TQueryDat
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId */
+
 export function useGetPetById<TData = GetPetById['response'], TQueryData = GetPetById['response'], TQueryKey extends QueryKey = GetPetByIdQueryKey>(
   refPetId: GetPetByIdPathParams['petId'],
   options: {
     query?: Partial<VueQueryObserverOptions<GetPetById['response'], GetPetById['error'], TData, TQueryKey>>
     client?: GetPetById['client']['parameters']
   } = {},
-): UseQueryReturnType<TData, GetPetById['error']> & {
-  queryKey: TQueryKey
-} {
+): UseQueryReturnType<TData, GetPetById['error']> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getPetByIdQueryKey(refPetId)
+
   const query = useQuery<GetPetById['data'], GetPetById['error'], TData, any>({
     ...getPetByIdQueryOptions<TData, TQueryData>(refPetId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryReturnType<TData, GetPetById['error']> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryReturnType<TData, GetPetById['error']> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

@@ -3,9 +3,9 @@ import { useOas, useOperationFile, useSchemas } from '@kubb/swagger/hooks'
 
 import { ZodBuilder } from '../ZodBuilder.ts'
 
+import type { KubbFile } from '@kubb/core'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
-import type { KubbFile } from '@kubb/core'
 
 type Props = {
   builder: ZodBuilder
@@ -24,7 +24,7 @@ export function Query({
 }
 
 type FileProps = {
-  mode: KubbFile.Mode
+  mode: KubbFile.Mode | undefined
 }
 
 Query.File = function({ mode }: FileProps): ReactNode {

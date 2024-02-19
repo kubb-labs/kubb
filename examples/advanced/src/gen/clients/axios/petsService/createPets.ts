@@ -11,6 +11,7 @@ import type {
 /**
  * @summary Create a pet
  * @link /pets/:uuid */
+
 export async function createPets(
   { uuid }: CreatePetsPathParams,
   data: CreatePetsMutationRequest,

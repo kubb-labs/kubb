@@ -6,6 +6,7 @@ export function createCreateUserMutationResponse(override?: NonNullable<Partial<
   faker.seed([220])
   return undefined
 }
+
 /**
  * @description Created user object
  */

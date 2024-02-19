@@ -26,10 +26,12 @@ type FindPetsByTags = {
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
+
 export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
+
   return queryOptions({
     queryKey,
     queryFn: async () => {
@@ -39,6 +41,7 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'
         params,
         ...options,
       })
+
       return res
     },
   })
@@ -47,6 +50,7 @@ export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
+
 export function useFindPetsByTagsHook<
   TData = FindPetsByTags['response'],
   TQueryData = FindPetsByTags['response'],
@@ -54,19 +58,18 @@ export function useFindPetsByTagsHook<
 >(params?: FindPetsByTags['queryParams'], options: {
   query?: Partial<QueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
   client?: FindPetsByTags['client']['parameters']
-} = {}): UseQueryResult<TData, FindPetsByTags['error']> & {
-  queryKey: TQueryKey
-} {
+} = {}): UseQueryResult<TData, FindPetsByTags['error']> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsQueryKey(params)
+
   const query = useQuery({
     ...findPetsByTagsQueryOptions(params, clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
-  }) as UseQueryResult<TData, FindPetsByTags['error']> & {
-    queryKey: TQueryKey
-  }
+  }) as UseQueryResult<TData, FindPetsByTags['error']> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTags['queryParams']) =>
@@ -74,6 +77,7 @@ export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTags['queryPar
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
 export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
+
   return infiniteQueryOptions({
     queryKey,
     queryFn: async ({ pageParam }) => {
@@ -87,6 +91,7 @@ export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['quer
           ...(options.params || {}),
         },
       })
+
       return res
     },
     initialPageParam: 0,
@@ -98,6 +103,7 @@ export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['quer
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
+
 export function useFindPetsByTagsHookInfinite<
   TData = InfiniteData<FindPetsByTags['response']>,
   TQueryData = FindPetsByTags['response'],
@@ -105,19 +111,18 @@ export function useFindPetsByTagsHookInfinite<
 >(params?: FindPetsByTags['queryParams'], options: {
   query?: Partial<InfiniteQueryObserverOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryData, TQueryKey>>
   client?: FindPetsByTags['client']['parameters']
-} = {}): UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
-  queryKey: TQueryKey
-} {
+} = {}): UseInfiniteQueryResult<TData, FindPetsByTags['error']> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsInfiniteQueryKey(params)
+
   const query = useInfiniteQuery({
     ...findPetsByTagsInfiniteQueryOptions(params, clientOptions) as InfiniteQueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as Omit<InfiniteQueryObserverOptions, 'queryKey'>,
-  }) as UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
-    queryKey: TQueryKey
-  }
+  }) as UseInfiniteQueryResult<TData, FindPetsByTags['error']> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTags['queryParams']) =>
@@ -125,6 +130,7 @@ export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTags['queryPar
 export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSuspenseQueryKey>
 export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
+
   return queryOptions({
     queryKey,
     queryFn: async () => {
@@ -134,6 +140,7 @@ export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['quer
         params,
         ...options,
       })
+
       return res
     },
   })
@@ -142,24 +149,24 @@ export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['quer
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
+
 export function useFindPetsByTagsHookSuspense<TData = FindPetsByTags['response'], TQueryKey extends QueryKey = FindPetsByTagsSuspenseQueryKey>(
   params?: FindPetsByTags['queryParams'],
   options: {
     query?: Partial<UseSuspenseQueryOptions<FindPetsByTags['response'], FindPetsByTags['error'], TData, TQueryKey>>
     client?: FindPetsByTags['client']['parameters']
   } = {},
-): UseSuspenseQueryResult<TData, FindPetsByTags['error']> & {
-  queryKey: TQueryKey
-} {
+): UseSuspenseQueryResult<TData, FindPetsByTags['error']> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByTagsSuspenseQueryKey(params)
+
   const query = useSuspenseQuery({
     ...findPetsByTagsSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions,
     queryKey,
     ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
-  }) as UseSuspenseQueryResult<TData, FindPetsByTags['error']> & {
-    queryKey: TQueryKey
-  }
+  }) as UseSuspenseQueryResult<TData, FindPetsByTags['error']> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

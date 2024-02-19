@@ -52,6 +52,11 @@ declare global {
         key?: Key
         children?: ReactNode
       }
+      'kubb-editor-provider': {
+        language?: string
+        key?: Key
+        children?: ReactNode
+      }
     }
   }
 }

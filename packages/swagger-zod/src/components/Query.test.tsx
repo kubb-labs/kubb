@@ -47,7 +47,7 @@ describe('<Query/>', async () => {
     const context: AppContextProps<PluginOptions['appMeta']> = { meta: { oas, pluginManager: mockedPluginManager, plugin, schemas, operation } }
 
     const Component = () => {
-      return <Query.File />
+      return <Query.File mode="directory" />
     }
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)

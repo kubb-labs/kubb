@@ -47,6 +47,11 @@ declare global {
         key?: Key
         children?: ReactNode
       }
+      'kubb-editor-provider': {
+        language?: string
+        key?: Key
+        children?: ReactNode
+      }
     }
   }
 }
@@ -62,6 +67,7 @@ export type ElementNames =
   | 'kubb-app'
   | 'kubb-language'
   | 'kubb-editor'
+  | 'kubb-editor-provider'
 
 export type Node = {
   parentNode: DOMElement | undefined

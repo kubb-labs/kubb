@@ -18,10 +18,12 @@ type CreateUser = {
     return: Awaited<ReturnType<CreateUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Create user
  * @link /user */
+
 export function useCreateUser(
   options: {
     mutation?: VueMutationObserverOptions<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown>
@@ -29,6 +31,7 @@ export function useCreateUser(
   } = {},
 ): UseMutationReturnType<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<CreateUser['response'], CreateUser['error'], CreateUser['request'], unknown>({
     mutationFn: async (data) => {
       const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
@@ -37,6 +40,7 @@ export function useCreateUser(
         data,
         ...clientOptions,
       })
+
       return res.data
     },
     ...mutationOptions,

@@ -10,6 +10,7 @@ export function createUpdatePet400(override?: NonNullable<Partial<UpdatePet400>>
   faker.seed([220])
   return undefined
 }
+
 /**
  * @description Pet not found
  */
@@ -18,6 +19,7 @@ export function createUpdatePet404(override?: NonNullable<Partial<UpdatePet404>>
   faker.seed([220])
   return undefined
 }
+
 /**
  * @description Validation exception
  */
@@ -26,6 +28,7 @@ export function createUpdatePet405(override?: NonNullable<Partial<UpdatePet405>>
   faker.seed([220])
   return undefined
 }
+
 /**
  * @description Update an existent pet in the store
  */
@@ -34,6 +37,7 @@ export function createUpdatePetMutationRequest(override?: NonNullable<Partial<Up
   faker.seed([220])
   return createPet(override)
 }
+
 /**
  * @description Successful operation
  */

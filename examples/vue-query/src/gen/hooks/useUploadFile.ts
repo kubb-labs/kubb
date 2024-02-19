@@ -20,9 +20,11 @@ type UploadFile = {
     return: Awaited<ReturnType<UploadFileClient>>
   }
 }
+
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage */
+
 export function useUploadFile(
   refPetId: MaybeRef<UploadFilePathParams['petId']>,
   refParams?: MaybeRef<UploadFileQueryParams>,
@@ -32,6 +34,7 @@ export function useUploadFile(
   } = {},
 ): UseMutationReturnType<UploadFile['response'], UploadFile['error'], UploadFile['request'], unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation<UploadFile['response'], UploadFile['error'], UploadFile['request'], unknown>({
     mutationFn: async (data) => {
       const petId = unref(refPetId)
@@ -43,6 +46,7 @@ export function useUploadFile(
         data,
         ...clientOptions,
       })
+
       return res.data
     },
     ...mutationOptions,

@@ -1,15 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`<File/> > render File and remove comments 1`] = `
-"export function test() {
-  return true
-}
-
-// comment that should be removed
-const test = 2
-"
-`;
-
 exports[`<File/> > render File with Import and Export and print imports/exports 1`] = `
 "import React from 'react'
 

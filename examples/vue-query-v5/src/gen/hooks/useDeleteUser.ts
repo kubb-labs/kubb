@@ -19,10 +19,12 @@ type DeleteUser = {
     return: Awaited<ReturnType<DeleteUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Delete user
  * @link /user/:username */
+
 export function useDeleteUser(
   refUsername: MaybeRef<DeleteUserPathParams['username']>,
   options: {
@@ -31,6 +33,7 @@ export function useDeleteUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation({
     mutationFn: async () => {
       const username = unref(refUsername)
@@ -39,6 +42,7 @@ export function useDeleteUser(
         url: `/user/${username}`,
         ...clientOptions,
       })
+
       return res.data
     },
     ...mutationOptions,

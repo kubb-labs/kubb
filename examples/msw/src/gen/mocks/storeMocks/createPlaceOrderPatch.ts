@@ -14,6 +14,7 @@ export function createPlaceOrderPatchMutationRequest(
 ): NonNullable<PlaceOrderPatchMutationRequest> {
   return createOrder(override)
 }
+
 /**
  * @description successful operation
  */

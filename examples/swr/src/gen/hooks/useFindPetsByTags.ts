@@ -17,6 +17,7 @@ type FindPetsByTags = {
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
+
 export function findPetsByTagsQueryOptions<TData extends FindPetsByTags['response'] = FindPetsByTags['response'], TError = FindPetsByTags['error']>(
   params?: FindPetsByTags['queryParams'],
   options: FindPetsByTags['client']['parameters'] = {},
@@ -29,6 +30,7 @@ export function findPetsByTagsQueryOptions<TData extends FindPetsByTags['respons
         params,
         ...options,
       })
+
       return res.data
     },
   }
@@ -37,6 +39,7 @@ export function findPetsByTagsQueryOptions<TData extends FindPetsByTags['respons
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
+
 export function useFindPetsByTags<TData extends FindPetsByTags['response'] = FindPetsByTags['response'], TError = FindPetsByTags['error']>(
   params?: FindPetsByTags['queryParams'],
   options?: {
@@ -46,10 +49,12 @@ export function useFindPetsByTags<TData extends FindPetsByTags['response'] = Fin
   },
 ): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+
   const url = `/pet/findByTags` as const
   const query = useSWR<TData, TError, [typeof url, typeof params] | null>(shouldFetch ? [url, params] : null, {
     ...findPetsByTagsQueryOptions<TData, TError>(params, clientOptions),
     ...queryOptions,
   })
+
   return query
 }

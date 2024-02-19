@@ -19,10 +19,12 @@ type UpdateUser = {
     return: Awaited<ReturnType<UpdateUserClient>>
   }
 }
+
 /**
  * @description This can only be done by the logged in user.
  * @summary Update user
  * @link /user/:username */
+
 export function useUpdateUser(
   refUsername: MaybeRef<UpdateUserPathParams['username']>,
   options: {
@@ -31,6 +33,7 @@ export function useUpdateUser(
   } = {},
 ) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+
   return useMutation({
     mutationFn: async (data) => {
       const username = unref(refUsername)
@@ -40,6 +43,7 @@ export function useUpdateUser(
         data,
         ...clientOptions,
       })
+
       return res.data
     },
     ...mutationOptions,

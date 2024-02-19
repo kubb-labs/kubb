@@ -25,6 +25,7 @@ type FindPetsByStatus = {
     return: Awaited<ReturnType<FindPetsByStatusClient>>
   }
 }
+
 export const findPetsByStatusQueryKey = (params?: FindPetsByStatus['queryParams']) => [{ url: '/pet/findByStatus' }, ...(params ? [params] : [])] as const
 export type FindPetsByStatusQueryKey = ReturnType<typeof findPetsByStatusQueryKey>
 export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'], TQueryData = FindPetsByStatus['response']>(
@@ -32,6 +33,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
   options: FindPetsByStatus['client']['parameters'] = {},
 ): WithRequired<CreateBaseQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByStatusQueryKey(params)
+
   return {
     queryKey,
     queryFn: async () => {
@@ -41,6 +43,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
         params,
         ...options,
       })
+
       return res.data
     },
   }
@@ -49,6 +52,7 @@ export function findPetsByStatusQueryOptions<TData = FindPetsByStatus['response'
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
  * @link /pet/findByStatus */
+
 export function findPetsByStatusQuery<
   TData = FindPetsByStatus['response'],
   TQueryData = FindPetsByStatus['response'],
@@ -59,19 +63,18 @@ export function findPetsByStatusQuery<
     query?: Partial<CreateBaseQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>>
     client?: FindPetsByStatus['client']['parameters']
   } = {},
-): CreateQueryResult<TData, FindPetsByStatus['error']> & {
-  queryKey: TQueryKey
-} {
+): CreateQueryResult<TData, FindPetsByStatus['error']> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusQueryKey(params)
+
   const query = createQuery<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, any>({
     ...findPetsByStatusQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateQueryResult<TData, FindPetsByStatus['error']> & {
-    queryKey: TQueryKey
-  }
+  }) as CreateQueryResult<TData, FindPetsByStatus['error']> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }
 export const findPetsByStatusInfiniteQueryKey = (params?: FindPetsByStatus['queryParams']) =>
@@ -82,6 +85,7 @@ export function findPetsByStatusInfiniteQueryOptions<TData = FindPetsByStatus['r
   options: FindPetsByStatus['client']['parameters'] = {},
 ): WithRequired<CreateInfiniteQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = findPetsByStatusInfiniteQueryKey(params)
+
   return {
     queryKey,
     queryFn: async ({ pageParam }) => {
@@ -95,6 +99,7 @@ export function findPetsByStatusInfiniteQueryOptions<TData = FindPetsByStatus['r
           ...(options.params || {}),
         },
       })
+
       return res.data
     },
   }
@@ -103,6 +108,7 @@ export function findPetsByStatusInfiniteQueryOptions<TData = FindPetsByStatus['r
  * @description Multiple status values can be provided with comma separated strings
  * @summary Finds Pets by status
  * @link /pet/findByStatus */
+
 export function findPetsByStatusQueryInfinite<
   TData = InfiniteData<FindPetsByStatus['response']>,
   TQueryData = FindPetsByStatus['response'],
@@ -113,18 +119,17 @@ export function findPetsByStatusQueryInfinite<
     query?: Partial<CreateInfiniteQueryOptions<FindPetsByStatus['response'], FindPetsByStatus['error'], TData, TQueryData, TQueryKey>>
     client?: FindPetsByStatus['client']['parameters']
   } = {},
-): CreateInfiniteQueryResult<TData, FindPetsByStatus['error']> & {
-  queryKey: TQueryKey
-} {
+): CreateInfiniteQueryResult<TData, FindPetsByStatus['error']> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? findPetsByStatusInfiniteQueryKey(params)
+
   const query = createInfiniteQuery<FindPetsByStatus['data'], FindPetsByStatus['error'], TData, any>({
     ...findPetsByStatusInfiniteQueryOptions<TData, TQueryData>(params, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateInfiniteQueryResult<TData, FindPetsByStatus['error']> & {
-    queryKey: TQueryKey
-  }
+  }) as CreateInfiniteQueryResult<TData, FindPetsByStatus['error']> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

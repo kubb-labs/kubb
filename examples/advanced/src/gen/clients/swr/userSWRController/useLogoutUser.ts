@@ -17,6 +17,7 @@ type LogoutUser = {
     return: Awaited<ReturnType<LogoutUserClient>>
   }
 }
+
 export function logoutUserQueryOptions<TData extends LogoutUser['response'] = LogoutUser['response'], TError = LogoutUser['error']>(
   options: LogoutUser['client']['parameters'] = {},
 ): SWRConfiguration<TData, TError> {
@@ -27,6 +28,7 @@ export function logoutUserQueryOptions<TData extends LogoutUser['response'] = Lo
         url: `/user/logout`,
         ...options,
       })
+
       return res
     },
   }
@@ -34,16 +36,22 @@ export function logoutUserQueryOptions<TData extends LogoutUser['response'] = Lo
 /**
  * @summary Logs out current logged in user session
  * @link /user/logout */
+
 export function useLogoutUser<TData extends LogoutUser['response'] = LogoutUser['response'], TError = LogoutUser['error']>(options?: {
   query?: SWRConfiguration<TData, TError>
   client?: LogoutUser['client']['parameters']
   shouldFetch?: boolean
 }): SWRResponse<TData, TError> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
+
   const url = `/user/logout` as const
-  const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
-    ...logoutUserQueryOptions<TData, TError>(clientOptions),
-    ...queryOptions,
-  })
+  const query = useSWR<TData, TError, typeof url | null>(
+    shouldFetch ? url : null,
+    {
+      ...logoutUserQueryOptions<TData, TError>(clientOptions),
+      ...queryOptions,
+    },
+  )
+
   return query
 }

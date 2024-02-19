@@ -5,10 +5,10 @@ describe('<Editor/>', () => {
   test('render Editor with language typescript', () => {
     const Component = () => {
       return (
-        <Editor.Context.Provider value={{ language: 'typescript' }}>
+        <Editor.Provider value={{ language: 'typescript' }}>
           <Editor language="text">test</Editor>
           <Editor language="typescript">export const test = 2;</Editor>
-        </Editor.Context.Provider>
+        </Editor.Provider>
       )
     }
     const root = createRoot()
@@ -20,10 +20,10 @@ describe('<Editor/>', () => {
   test('render Editor with language text', () => {
     const Component = () => {
       return (
-        <Editor.Context.Provider value={{ language: 'text' }}>
+        <Editor.Provider value={{ language: 'text' }}>
           <Editor language="text">test</Editor>
           <Editor language="typescript">export const test = 2;</Editor>
-        </Editor.Context.Provider>
+        </Editor.Provider>
       )
     }
     const root = createRoot()

@@ -10,6 +10,7 @@ export function createAddPet405(override: NonNullable<Partial<AddPet405>> = {}):
     ...override,
   }
 }
+
 /**
  * @description Create a new pet in the store
  */
@@ -18,6 +19,7 @@ export function createAddPetMutationRequest(override?: NonNullable<Partial<AddPe
   faker.seed([220])
   return createAddPetRequest(override)
 }
+
 /**
  * @description Successful operation
  */

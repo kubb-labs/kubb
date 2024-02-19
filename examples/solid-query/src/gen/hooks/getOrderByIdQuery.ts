@@ -17,6 +17,7 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
+
 export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQueryData = GetOrderById['response']>(
@@ -24,6 +25,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
   options: GetOrderById['client']['parameters'] = {},
 ): WithRequired<CreateBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData>, 'queryKey'> {
   const queryKey = getOrderByIdQueryKey(orderId)
+
   return {
     queryKey,
     queryFn: async () => {
@@ -32,6 +34,7 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
         url: `/store/order/${orderId}`,
         ...options,
       })
+
       return res.data
     },
   }
@@ -40,24 +43,24 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response'], TQuer
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId */
+
 export function getOrderByIdQuery<TData = GetOrderById['response'], TQueryData = GetOrderById['response'], TQueryKey extends QueryKey = GetOrderByIdQueryKey>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: {
     query?: Partial<CreateBaseQueryOptions<GetOrderById['response'], GetOrderById['error'], TData, TQueryData, TQueryKey>>
     client?: GetOrderById['client']['parameters']
   } = {},
-): CreateQueryResult<TData, GetOrderById['error']> & {
-  queryKey: TQueryKey
-} {
+): CreateQueryResult<TData, GetOrderById['error']> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
   const queryKey = queryOptions?.queryKey ?? getOrderByIdQueryKey(orderId)
+
   const query = createQuery<GetOrderById['data'], GetOrderById['error'], TData, any>({
     ...getOrderByIdQueryOptions<TData, TQueryData>(orderId, clientOptions),
     queryKey,
     ...queryOptions,
-  }) as CreateQueryResult<TData, GetOrderById['error']> & {
-    queryKey: TQueryKey
-  }
+  }) as CreateQueryResult<TData, GetOrderById['error']> & { queryKey: TQueryKey }
+
   query.queryKey = queryKey as TQueryKey
+
   return query
 }

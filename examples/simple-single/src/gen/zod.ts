@@ -51,6 +51,7 @@ export const petSchema = z.object({
   'tags': z.array(z.lazy(() => tagSchema)).optional(),
   'status': z.enum([`available`, `pending`, `sold`]).describe(`pet status in the store`).optional(),
 })
+
 /**
  * @description Invalid ID supplied
  */
@@ -75,7 +76,6 @@ export const updatePetMutationRequestSchema = z.lazy(() => petSchema)
  * @description Successful operation
  */
 export const updatePetMutationResponseSchema = z.lazy(() => petSchema)
-
 export const addPet405Schema = z.object({ 'code': z.number().optional(), 'message': z.string().optional() })
 
 /**
@@ -150,7 +150,6 @@ export const deletePet400Schema = z.any()
 export const deletePetHeaderParamsSchema = z.object({ 'api_key': z.string().optional() }).optional()
 export const deletePetMutationResponseSchema = z.any()
 export const deletePetPathParamsSchema = z.object({ 'petId': z.number().describe(`Pet id to delete`) })
-
 export const uploadFileMutationRequestSchema = z.string()
 export const uploadFilePathParamsSchema = z.object({ 'petId': z.number().describe(`ID of pet to update`) })
 export const uploadFileQueryParamsSchema = z.object({ 'additionalMetadata': z.string().describe(`Additional Metadata`).optional() }).optional()
@@ -214,14 +213,12 @@ export const deleteOrder400Schema = z.any()
 export const deleteOrder404Schema = z.any()
 export const deleteOrderMutationResponseSchema = z.any()
 export const deleteOrderPathParamsSchema = z.object({ 'orderId': z.number().describe(`ID of the order that needs to be deleted`) })
-
 export const createUserMutationResponseSchema = z.any()
 
 /**
  * @description Created user object
  */
 export const createUserMutationRequestSchema = z.lazy(() => userSchema)
-
 export const createUsersWithListInputMutationRequestSchema = z.array(z.lazy(() => userSchema))
 
 /**
@@ -242,7 +239,6 @@ export const loginUserQueryParamsSchema = z.object({
  * @description successful operation
  */
 export const loginUserQueryResponseSchema = z.string()
-
 export const logoutUserQueryResponseSchema = z.any()
 
 /**
@@ -260,7 +256,6 @@ export const getUserByNamePathParamsSchema = z.object({ 'username': z.string().d
  * @description successful operation
  */
 export const getUserByNameQueryResponseSchema = z.lazy(() => userSchema)
-
 export const updateUserMutationResponseSchema = z.any()
 export const updateUserPathParamsSchema = z.object({ 'username': z.string().describe(`name that need to be deleted`) })
 
