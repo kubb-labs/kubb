@@ -7,14 +7,12 @@ import type {
   CreatePetsPathParams,
   CreatePetsQueryParams,
   CreatePetsHeaderParams,
-  CreatePets201,
-  CreatePetsError,
 } from '../../../models/ts/petsController/CreatePets'
 
-type CreatePetsClient = typeof client<CreatePetsMutationResponse, CreatePets201 | CreatePetsError, CreatePetsMutationRequest>
+type CreatePetsClient = typeof client<CreatePetsMutationResponse, never, CreatePetsMutationRequest>
 type CreatePets = {
   data: CreatePetsMutationResponse
-  error: CreatePets201 | CreatePetsError
+  error: never
   request: CreatePetsMutationRequest
   pathParams: CreatePetsPathParams
   queryParams: CreatePetsQueryParams

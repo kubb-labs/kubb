@@ -17,7 +17,8 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
-export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) => [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+export const getOrderByIdQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
+  ['v5', { url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdQueryKey = ReturnType<typeof getOrderByIdQueryKey>
 export function getOrderByIdQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdQueryKey(orderId)
@@ -51,7 +52,7 @@ export function useGetOrderByIdHook<TData = GetOrderById['response'], TQueryData
   const query = useQuery({
     ...getOrderByIdQueryOptions(orderId, clientOptions) as QueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as QueryObserverOptions,
+    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
   }) as UseQueryResult<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }
@@ -59,7 +60,7 @@ export function useGetOrderByIdHook<TData = GetOrderById['response'], TQueryData
   return query
 }
 export const getOrderByIdSuspenseQueryKey = (orderId: GetOrderByIdPathParams['orderId']) =>
-  [{ url: '/store/order/:orderId', params: { orderId: orderId } }] as const
+  ['v5', { url: '/store/order/:orderId', params: { orderId: orderId } }] as const
 export type GetOrderByIdSuspenseQueryKey = ReturnType<typeof getOrderByIdSuspenseQueryKey>
 export function getOrderByIdSuspenseQueryOptions(orderId: GetOrderByIdPathParams['orderId'], options: GetOrderById['client']['parameters'] = {}) {
   const queryKey = getOrderByIdSuspenseQueryKey(orderId)
@@ -93,7 +94,7 @@ export function useGetOrderByIdHookSuspense<TData = GetOrderById['response'], TQ
   const query = useSuspenseQuery({
     ...getOrderByIdSuspenseQueryOptions(orderId, clientOptions) as QueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as QueryObserverOptions,
+    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
   }) as UseSuspenseQueryResult<TData, GetOrderById['error']> & {
     queryKey: TQueryKey
   }

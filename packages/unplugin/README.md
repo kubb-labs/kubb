@@ -48,8 +48,6 @@ export default defineConfig({
 })
 ```
 
-Example: [`playground/`](./playground/)
-
 <br></details>
 
 <details>
@@ -129,6 +127,20 @@ build({
 ```
 
 <br></details>
+
+## Options
+
+### config
+
+Define the options for Kubb.
+
+::: info type
+
+```typescript [Options]
+type Options = {
+  config: UserConfig
+}
+```
 
 <!-- Badges -->
 

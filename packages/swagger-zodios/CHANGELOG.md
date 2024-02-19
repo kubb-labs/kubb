@@ -1,5 +1,38 @@
 # @kubb/swagger-zodios
 
+## 2.6.2
+
+### Patch Changes
+
+- Updated dependencies [[`a18fe79`](https://github.com/kubb-project/kubb/commit/a18fe7996907a5a7615cdde049d5d97e98fcf0c7)]:
+  - @kubb/swagger-zod@2.6.2
+  - @kubb/core@2.6.2
+  - @kubb/parser@2.6.2
+  - @kubb/react@2.6.2
+  - @kubb/swagger@2.6.2
+
+## 2.6.1
+
+### Patch Changes
+
+- Updated dependencies [[`69897f5`](https://github.com/kubb-project/kubb/commit/69897f5ab4097ec1970b874d724319fb1e1e7f30), [`1383571`](https://github.com/kubb-project/kubb/commit/1383571a360257adff728265735283fa45ba8e94)]:
+  - @kubb/swagger@2.6.1
+  - @kubb/swagger-zod@2.6.1
+  - @kubb/core@2.6.1
+  - @kubb/parser@2.6.1
+  - @kubb/react@2.6.1
+
+## 2.6.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.6.0
+  - @kubb/parser@2.6.0
+  - @kubb/react@2.6.0
+  - @kubb/swagger@2.6.0
+  - @kubb/swagger-zod@2.6.0
+
 ## 2.5.3
 
 ### Patch Changes

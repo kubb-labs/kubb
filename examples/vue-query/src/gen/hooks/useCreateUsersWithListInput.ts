@@ -1,21 +1,13 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/vue-query'
-import type {
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
-  CreateUsersWithListInputError,
-} from '../models/CreateUsersWithListInput'
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 import type { UseMutationReturnType } from '@tanstack/vue-query'
 import type { VueMutationObserverOptions } from '@tanstack/vue-query/build/lib/useMutation'
 
-type CreateUsersWithListInputClient = typeof client<
-  CreateUsersWithListInputMutationResponse,
-  CreateUsersWithListInputError,
-  CreateUsersWithListInputMutationRequest
->
+type CreateUsersWithListInputClient = typeof client<CreateUsersWithListInputMutationResponse, never, CreateUsersWithListInputMutationRequest>
 type CreateUsersWithListInput = {
   data: CreateUsersWithListInputMutationResponse
-  error: CreateUsersWithListInputError
+  error: never
   request: CreateUsersWithListInputMutationRequest
   pathParams: never
   queryParams: never

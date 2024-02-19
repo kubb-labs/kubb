@@ -5,11 +5,11 @@ import type { LoginUser400, LoginUserQueryParams, LoginUserQueryResponse } from 
  * @description Invalid username/password supplied
  */
 
-export function createLoginUser400(override?: Partial<LoginUser400>): NonNullable<LoginUser400> {
+export function createLoginUser400(override?: NonNullable<Partial<LoginUser400>>): NonNullable<LoginUser400> {
   return undefined
 }
 
-export function createLoginUserQueryParams(override: Partial<LoginUserQueryParams> = {}): NonNullable<LoginUserQueryParams> {
+export function createLoginUserQueryParams(override: NonNullable<Partial<LoginUserQueryParams>> = {}): NonNullable<LoginUserQueryParams> {
   return {
     ...{ 'username': faker.string.alpha(), 'password': faker.internet.password() },
     ...override,
@@ -19,6 +19,6 @@ export function createLoginUserQueryParams(override: Partial<LoginUserQueryParam
  * @description successful operation
  */
 
-export function createLoginUserQueryResponse(override?: Partial<LoginUserQueryResponse>): NonNullable<LoginUserQueryResponse> {
+export function createLoginUserQueryResponse(override?: NonNullable<Partial<LoginUserQueryResponse>>): NonNullable<LoginUserQueryResponse> {
   return faker.string.alpha()
 }

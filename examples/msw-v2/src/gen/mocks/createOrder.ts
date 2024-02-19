@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import type { Order } from '../models/Order'
 
-export function createOrder(override: Partial<Order> = {}): NonNullable<Order> {
+export function createOrder(override: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
   faker.seed([220])
   return {
     ...{

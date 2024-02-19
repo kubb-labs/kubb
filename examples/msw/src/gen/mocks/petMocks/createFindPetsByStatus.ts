@@ -6,11 +6,11 @@ import type { FindPetsByStatus400, FindPetsByStatusQueryParams, FindPetsByStatus
  * @description Invalid status value
  */
 
-export function createFindPetsByStatus400(override?: Partial<FindPetsByStatus400>): NonNullable<FindPetsByStatus400> {
+export function createFindPetsByStatus400(override?: NonNullable<Partial<FindPetsByStatus400>>): NonNullable<FindPetsByStatus400> {
   return undefined
 }
 
-export function createFindPetsByStatusQueryParams(override: Partial<FindPetsByStatusQueryParams> = {}): NonNullable<FindPetsByStatusQueryParams> {
+export function createFindPetsByStatusQueryParams(override: NonNullable<Partial<FindPetsByStatusQueryParams>> = {}): NonNullable<FindPetsByStatusQueryParams> {
   return {
     ...{ 'status': faker.helpers.arrayElement<any>([`available`, `pending`, `sold`]) },
     ...override,
@@ -20,7 +20,9 @@ export function createFindPetsByStatusQueryParams(override: Partial<FindPetsBySt
  * @description successful operation
  */
 
-export function createFindPetsByStatusQueryResponse(override: Partial<FindPetsByStatusQueryResponse> = []): NonNullable<FindPetsByStatusQueryResponse> {
+export function createFindPetsByStatusQueryResponse(
+  override: NonNullable<Partial<FindPetsByStatusQueryResponse>> = [],
+): NonNullable<FindPetsByStatusQueryResponse> {
   return [
     ...faker.helpers.arrayElements([createPet()]) as any,
     ...override,

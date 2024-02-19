@@ -1,3 +1,31 @@
+export type FakerMetaMapper = {
+  object: { keyword: 'object'; args: { entries: { [x: string]: FakerMeta[] }; strict?: boolean } }
+  url: { keyword: 'url' }
+  uuid: { keyword: 'uuid' }
+  email: { keyword: 'email' }
+  firstName: { keyword: 'firstName' }
+  lastName: { keyword: 'lastName' }
+  phone: { keyword: 'phone' }
+  password: { keyword: 'password' }
+  datetime: { keyword: 'datetime' }
+  tuple: { keyword: 'tuple'; args?: FakerMeta[] }
+  array: { keyword: 'array'; args?: FakerMeta[] }
+  enum: { keyword: 'enum'; args?: Array<string | number> }
+  and: { keyword: 'and'; args?: FakerMeta[] }
+  union: { keyword: 'union'; args?: FakerMeta[] }
+  ref: { keyword: 'ref'; args?: { name: string } }
+  catchall: { keyword: 'catchall'; args?: FakerMeta[] }
+  matches: { keyword: 'matches'; args?: string }
+  boolean: { keyword: 'boolean' }
+  string: { keyword: 'string'; args?: { min?: number; max?: number } }
+  integer: { keyword: 'integer'; args?: { min?: number; max?: number } }
+  number: { keyword: 'number'; args?: { min?: number; max?: number } }
+  undefined: { keyword: 'undefined' }
+  null: { keyword: 'null' }
+  any: { keyword: 'any' }
+  unknown: { keyword: 'unknown' }
+}
+
 export const fakerKeywords = {
   any: 'any',
   unknown: 'unknown',
@@ -27,7 +55,7 @@ export const fakerKeywords = {
   lastName: 'lastName',
   password: 'password',
   phone: 'phone',
-} as const
+} satisfies { [K in keyof FakerMetaMapper]: FakerMetaMapper[K]['keyword'] }
 
 export type FakerKeyword = keyof typeof fakerKeywords
 
@@ -60,86 +88,21 @@ export const fakerKeywordMapper = {
   lastName: 'faker.person.lastName',
   password: 'faker.internet.password',
   phone: 'faker.phone.number',
-} as const satisfies Record<FakerKeyword, string>
+} satisfies { [K in keyof FakerMetaMapper]: string }
 
 type FakerMetaBase<T> = {
   keyword: FakerKeyword
   args: T
 }
 
-type FakerMetaUnknown = { keyword: typeof fakerKeywords.unknown }
-
-type FakerMetaAny = { keyword: typeof fakerKeywords.any }
-type FakerMetaNull = { keyword: typeof fakerKeywords.null }
-type FakerMetaUndefined = { keyword: typeof fakerKeywords.undefined }
-
-type FakerMetaNumber = { keyword: typeof fakerKeywords.number; args?: { min?: number; max?: number } }
-type FakerMetaInteger = { keyword: typeof fakerKeywords.integer; args?: { min?: number; max?: number } }
-
-type FakerMetaString = { keyword: typeof fakerKeywords.string; args?: { min?: number; max?: number } }
-
-type FakerMetaBoolean = { keyword: typeof fakerKeywords.boolean }
-
-type FakerMetaMatches = { keyword: typeof fakerKeywords.matches; args?: string }
-
-type FakerMetaObject = { keyword: typeof fakerKeywords.object; args?: { [x: string]: FakerMeta[] } }
-
-type FakerMetaCatchall = { keyword: typeof fakerKeywords.catchall; args?: FakerMeta[] }
-
-type FakerMetaRef = { keyword: typeof fakerKeywords.ref; args?: string }
-
-type FakerMetaUnion = { keyword: typeof fakerKeywords.union; args?: FakerMeta[] }
-
-type FakerMetaAnd = { keyword: typeof fakerKeywords.and; args?: FakerMeta[] }
-
-type FakerMetaEnum = { keyword: typeof fakerKeywords.enum; args?: Array<string | number> }
-
-type FakerMetaArray = { keyword: typeof fakerKeywords.array; args?: FakerMeta[] }
-
-type FakerMetaTuple = { keyword: typeof fakerKeywords.tuple; args?: FakerMeta[] }
-type FakerMetaEmail = { keyword: typeof fakerKeywords.email }
-
-type FakerMetaFirstName = { keyword: typeof fakerKeywords.firstName }
-
-type FakerMetaLastName = { keyword: typeof fakerKeywords.lastName }
-type FakerMetaPassword = { keyword: typeof fakerKeywords.password }
-
-type FakerMetaPhone = { keyword: typeof fakerKeywords.phone }
-
-type FakerMetaDatetime = { keyword: typeof fakerKeywords.datetime }
-
-type FakerMetaUuid = { keyword: typeof fakerKeywords.uuid }
-
-type FakerMetaUrl = { keyword: typeof fakerKeywords.url }
-
 export type FakerMeta =
   | { keyword: string }
-  | FakerMetaUnknown
-  | FakerMetaAny
-  | FakerMetaNull
-  | FakerMetaUndefined
-  | FakerMetaNumber
-  | FakerMetaInteger
-  | FakerMetaString
-  | FakerMetaBoolean
-  | FakerMetaMatches
-  | FakerMetaObject
-  | FakerMetaCatchall
-  | FakerMetaRef
-  | FakerMetaUnion
-  | FakerMetaAnd
-  | FakerMetaEnum
-  | FakerMetaArray
-  | FakerMetaTuple
-  | FakerMetaEmail
-  | FakerMetaFirstName
-  | FakerMetaLastName
-  | FakerMetaPassword
-  | FakerMetaPhone
-  | FakerMetaDatetime
-  | FakerMetaUuid
-  | FakerMetaUrl
-// use example
+  | FakerMetaMapper[keyof FakerMetaMapper]
+
+export function isKeyword<T extends FakerMeta, K extends keyof FakerMetaMapper>(meta: T, keyword: K): meta is Extract<T, FakerMetaMapper[K]> {
+  return meta.keyword === keyword
+}
+
 /**
  * @link based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
  */
@@ -164,45 +127,42 @@ function joinItems(items: string[]): string {
 }
 
 export function parseFakerMeta(
-  item: FakerMeta,
+  item: FakerMeta = {} as FakerMeta,
   { mapper = fakerKeywordMapper, withOverride }: { mapper?: Record<FakerKeyword, string>; withOverride?: boolean } = {},
 ): string {
-  // eslint-disable-next-line prefer-const
-  let { keyword, args } = (item || {}) as FakerMetaBase<unknown>
-  const value = mapper[keyword]
+  const value = mapper[item.keyword as keyof typeof mapper]
 
-  if (keyword === fakerKeywords.tuple || keyword === fakerKeywords.array || keyword === fakerKeywords.union) {
+  if (isKeyword(item, fakerKeywords.tuple) || isKeyword(item, fakerKeywords.array) || isKeyword(item, fakerKeywords.union)) {
     return `${value}(${
-      Array.isArray(args) ? `[${args.map((item) => parseFakerMeta(item as FakerMeta, { mapper })).join(',')}]` : parseFakerMeta(args as FakerMeta)
+      Array.isArray(item.args)
+        ? `[${item.args.map((orItem) => parseFakerMeta(orItem, { mapper })).join(',')}]`
+        : parseFakerMeta(item.args)
     }) as any`
   }
 
-  if (keyword === fakerKeywords.and) {
+  if (isKeyword(item, fakerKeywords.and)) {
     return `${value}({},${
-      Array.isArray(args) ? `${args.map((item) => parseFakerMeta(item as FakerMeta, { mapper })).join(',')}` : parseFakerMeta(args as FakerMeta)
+      Array.isArray(item.args) ? `${item.args.map((andItem) => parseFakerMeta(andItem, { mapper })).join(',')}` : parseFakerMeta(item.args)
     })`
   }
 
-  if (keyword === fakerKeywords.enum) {
-    return `${value}(${Array.isArray(args) ? `${args.join(',')}` : parseFakerMeta(args as FakerMeta)})`
+  if (isKeyword(item, fakerKeywords.enum)) {
+    return `${value}(${Array.isArray(item.args) ? `${item.args.join(',')}` : parseFakerMeta(item.args)})`
   }
 
-  if (keyword === fakerKeywords.catchall) {
+  if (isKeyword(item, fakerKeywords.catchall)) {
     throw new Error('catchall is not implemented')
   }
 
-  if (keyword === fakerKeywords.object) {
-    if (!args) {
-      args = '{}'
-    }
-    const argsObject = Object.entries(args as FakerMeta)
+  if (isKeyword(item, fakerKeywords.object)) {
+    const argsObject = Object.entries(item.args?.entries || '{}')
       .filter((item) => {
-        const schema = item[1] as FakerMeta[]
+        const schema = item[1]
         return schema && typeof schema.map === 'function'
       })
       .map((item) => {
         const name = item[0]
-        const schema = item[1] as FakerMeta[]
+        const schema = item[1]
         return `"${name}": ${
           joinItems(
             schema
@@ -217,19 +177,23 @@ export function parseFakerMeta(
   }
 
   // custom type
-  if (keyword === fakerKeywords.ref) {
-    if (withOverride) {
-      return `${args as string}(override)`
+  if (isKeyword(item, fakerKeywords.ref)) {
+    if (!item.args?.name) {
+      throw new Error(`Name not defined for keyword ${item.keyword}`)
     }
-    return `${args as string}()`
+
+    if (withOverride) {
+      return `${item.args.name}(override)`
+    }
+    return `${item.args.name}()`
   }
 
-  if (keyword === fakerKeywords.null || keyword === fakerKeywords.undefined || keyword === fakerKeywords.any) {
+  if (isKeyword(item, fakerKeywords.null) || isKeyword(item, fakerKeywords.undefined) || isKeyword(item, fakerKeywords.any)) {
     return value
   }
 
-  if (keyword in mapper) {
-    const options = JSON.stringify(args)
+  if (item.keyword in mapper) {
+    const options = JSON.stringify((item as FakerMetaBase<unknown>).args)
     return `${value}(${options ?? ''})`
   }
 
@@ -265,7 +229,9 @@ export function fakerParser(
 
   return `
 export function ${options.name}(${
-    fakerDefaultOverride ? `override: Partial<${options.typeName}> = ${fakerDefaultOverride}` : `override?: Partial<${options.typeName}>`
+    fakerDefaultOverride
+      ? `override: NonNullable<Partial<${options.typeName}>> = ${fakerDefaultOverride}`
+      : `override?: NonNullable<Partial<${options.typeName}>>`
   })${options.typeName ? `: NonNullable<${options.typeName}>` : ''} {
   ${options.seed ? `faker.seed(${JSON.stringify(options.seed)})` : ''}
   return ${fakerTextWithOverride};

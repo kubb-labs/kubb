@@ -6,12 +6,14 @@ import type { PlaceOrderPatch405, PlaceOrderPatchMutationRequest, PlaceOrderPatc
  * @description Invalid input
  */
 
-export function createPlaceOrderPatch405(override?: Partial<PlaceOrderPatch405>): NonNullable<PlaceOrderPatch405> {
+export function createPlaceOrderPatch405(override?: NonNullable<Partial<PlaceOrderPatch405>>): NonNullable<PlaceOrderPatch405> {
   faker.seed([220])
   return undefined
 }
 
-export function createPlaceOrderPatchMutationRequest(override?: Partial<PlaceOrderPatchMutationRequest>): NonNullable<PlaceOrderPatchMutationRequest> {
+export function createPlaceOrderPatchMutationRequest(
+  override?: NonNullable<Partial<PlaceOrderPatchMutationRequest>>,
+): NonNullable<PlaceOrderPatchMutationRequest> {
   faker.seed([220])
   return createOrder(override)
 }
@@ -19,7 +21,9 @@ export function createPlaceOrderPatchMutationRequest(override?: Partial<PlaceOrd
  * @description successful operation
  */
 
-export function createPlaceOrderPatchMutationResponse(override?: Partial<PlaceOrderPatchMutationResponse>): NonNullable<PlaceOrderPatchMutationResponse> {
+export function createPlaceOrderPatchMutationResponse(
+  override?: NonNullable<Partial<PlaceOrderPatchMutationResponse>>,
+): NonNullable<PlaceOrderPatchMutationResponse> {
   faker.seed([220])
   return createOrder(override)
 }

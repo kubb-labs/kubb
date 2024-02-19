@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 1`] = `
+exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`any\` 1`] = `
 [
   {
     "baseName": "delete_pet-petid.ts",
@@ -24,7 +24,7 @@ export type DeletePetPetidMutation = {
 ]
 `;
 
-exports[`OperationGenerator > [DELETE] should generate with unknownType \`unknown\` 1`] = `
+exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`unknown\` 1`] = `
 [
   {
     "baseName": "delete_pet-petid.ts",
@@ -48,7 +48,7 @@ export type DeletePetPetidMutation = {
 ]
 `;
 
-exports[`OperationGenerator > [GET] should generate with optionalType \`questionToken\` 1`] = `
+exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 1`] = `
 [
   {
     "baseName": "listPets.ts",
@@ -56,14 +56,6 @@ exports[`OperationGenerator > [GET] should generate with optionalType \`question
     "exports": [],
     "id": undefined,
     "imports": [
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "listPets.ts",
-      },
       {
         "isTypeOnly": true,
         "name": [
@@ -89,25 +81,19 @@ exports[`OperationGenerator > [GET] should generate with optionalType \`question
 } | undefined;
 
  /**
- * @description unexpected error
-*/
-export type ListPetsError = Error;
-
- /**
  * @description A paged array of pets
 */
 export type ListPetsQueryResponse = Pets;
 export type ListPetsQuery = {
     Response: ListPetsQueryResponse;
     QueryParams: ListPetsQueryParams;
-    Errors: ListPetsError;
 };
 ",
   },
 ]
 `;
 
-exports[`OperationGenerator > [GET] should generate with optionalType \`questionToken\` 2`] = `
+exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 2`] = `
 [
   {
     "baseName": "showPetById.ts",
@@ -115,14 +101,6 @@ exports[`OperationGenerator > [GET] should generate with optionalType \`question
     "exports": [],
     "id": undefined,
     "imports": [
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "showPetById.ts",
-      },
       {
         "isTypeOnly": true,
         "name": [
@@ -153,25 +131,19 @@ exports[`OperationGenerator > [GET] should generate with optionalType \`question
 };
 
  /**
- * @description unexpected error
-*/
-export type ShowPetByIdError = Error;
-
- /**
  * @description Expected response to a valid request
 */
 export type ShowPetByIdQueryResponse = Pet;
 export type ShowPetByIdQuery = {
     Response: ShowPetByIdQueryResponse;
     PathParams: ShowPetByIdPathParams;
-    Errors: ShowPetByIdError;
 };
 ",
   },
 ]
 `;
 
-exports[`OperationGenerator > [POST] should generate 1`] = `
+exports[`OperationGenerator > [POST] /pets 201 1`] = `
 [
   {
     "baseName": "createPets.ts",
@@ -187,6 +159,14 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
         "path": "Error",
         "root": "createPets.ts",
       },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ErrorCode",
+        ],
+        "path": "ErrorCode",
+        "root": "createPets.ts",
+      },
     ],
     "meta": {
       "name": "createPets",
@@ -195,12 +175,7 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
     },
     "override": undefined,
     "path": "createPets.ts",
-    "source": "/**
- * @description Null response
-*/
-export type CreatePets201 = any | null;
-
- export type CreatePetsMutationRequest = {
+    "source": "export type CreatePetsMutationRequest = {
     /**
      * @type string
     */
@@ -211,16 +186,15 @@ export type CreatePets201 = any | null;
     tag: string;
 };
 
- export type CreatePetsMutationResponse = any | null;
-
  /**
- * @description unexpected error
+ * @description Null response
 */
-export type CreatePetsError = Error;
+export type CreatePetsMutationResponse = (Error & {
+    name?: ErrorCode;
+});
 export type CreatePetsMutation = {
     Response: CreatePetsMutationResponse;
     Request: CreatePetsMutationRequest;
-    Errors: CreatePets201 | CreatePetsError;
 };
 ",
   },

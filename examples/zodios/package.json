@@ -40,7 +40,7 @@
     "@kubb/ts-config": "workspace:*",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "tsup": "^8.0.1",
+    "tsup": "^8.0.2",
     "typescript": "^5.3.3"
   },
   "packageManager": "pnpm@8.3.0",

@@ -5,7 +5,7 @@ import { getSchemaFactory, isReference } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTypeScriptPluginKey } from '@kubb/swagger-ts'
 
 import { pluginKey } from './plugin.ts'
-import { zodKeywords, zodParser } from './zodParser.ts'
+import { isKeyword, zodKeywords, zodParser } from './zodParser.ts'
 
 import type { PluginManager } from '@kubb/core'
 import type { ts } from '@kubb/parser'
@@ -140,7 +140,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
 
     const members: ZodMeta[] = []
 
-    members.push({ keyword: zodKeywords.object, args: objectMembers })
+    members.push({ keyword: zodKeywords.object, args: { entries: objectMembers } })
 
     if (additionalProperties) {
       const addionalValidationFunctions: ZodMeta[] = additionalProperties === true
@@ -256,6 +256,17 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
           .filter(Boolean)
           .filter((item) => {
             return item && item.keyword !== this.#unknownReturn
+          }).map(item => {
+            if (isKeyword(item, zodKeywords.object)) {
+              return {
+                ...item,
+                args: {
+                  ...item.args,
+                  strict: true,
+                },
+              }
+            }
+            return item
           }),
       }
       if (schemaWithoutAnyOf.properties) {

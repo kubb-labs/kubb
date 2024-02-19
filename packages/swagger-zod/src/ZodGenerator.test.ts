@@ -267,3 +267,29 @@ describe('ZodGenerator recursive', async () => {
     expect(node).toMatchSnapshot()
   })
 })
+
+describe('ZodGenerator anyof', async () => {
+  const discriminatorPath = path.resolve(__dirname, '../mocks/anyof.yaml')
+  const oas = await new OasManager().parse(discriminatorPath)
+  const generator = new ZodGenerator({
+    exclude: undefined,
+    include: undefined,
+    override: undefined,
+    transformers: {},
+    typed: false,
+    dateType: 'string',
+    unknownType: 'any',
+  }, {
+    oas,
+    pluginManager: mockedPluginManager,
+  })
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+  const schemas = oas.getDefinition().components?.schemas!
+
+  test('anyof with 2 objects', async () => {
+    const schema = schemas['test'] as OasTypes.SchemaObject
+    const node = generator.build({ schema, baseName: 'test' })
+
+    expect(node).toMatchSnapshot()
+  })
+})

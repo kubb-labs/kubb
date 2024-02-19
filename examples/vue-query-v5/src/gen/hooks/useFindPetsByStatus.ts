@@ -60,7 +60,7 @@ export function useFindPetsByStatus<
   const query = useQuery({
     ...(findPetsByStatusQueryOptions(refParams, clientOptions) as QueryObserverOptions),
     queryKey,
-    ...(queryOptions as unknown as QueryObserverOptions),
+    ...(queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>),
   }) as UseQueryReturnType<TData, FindPetsByStatus['error']> & {
     queryKey: TQueryKey
   }

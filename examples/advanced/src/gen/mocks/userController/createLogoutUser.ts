@@ -1,13 +1,5 @@
-import type { LogoutUserError, LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUser'
+import type { LogoutUserQueryResponse } from '../../models/ts/userController/LogoutUser'
 
-/**
- * @description successful operation
- */
-
-export function createLogoutUserError(override?: Partial<LogoutUserError>): NonNullable<LogoutUserError> {
-  return undefined
-}
-
-export function createLogoutUserQueryResponse(override?: Partial<LogoutUserQueryResponse>): NonNullable<LogoutUserQueryResponse> {
+export function createLogoutUserQueryResponse(override?: NonNullable<Partial<LogoutUserQueryResponse>>): NonNullable<LogoutUserQueryResponse> {
   return undefined
 }

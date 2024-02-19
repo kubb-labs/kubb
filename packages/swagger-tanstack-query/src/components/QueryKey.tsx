@@ -135,6 +135,7 @@ const defaultTemplates = {
 type Props = {
   name: string
   typeName: string
+  keysFn?: (keys: unknown[]) => unknown[]
   factory: {
     name: string
   }
@@ -144,7 +145,7 @@ type Props = {
   Template?: React.ComponentType<FrameworkProps>
 }
 
-export function QueryKey({ name, typeName, factory, Template = defaultTemplates.react }: Props): ReactNode {
+export function QueryKey({ name, typeName, factory, keysFn = (keys) => keys, Template = defaultTemplates.react }: Props): ReactNode {
   const schemas = useSchemas()
   const operation = useOperation()
   const path = new URLPath(operation.path)
@@ -171,7 +172,7 @@ export function QueryKey({ name, typeName, factory, Template = defaultTemplates.
     withQueryParams ? `...(params ? [params] : [])` : undefined,
   ].filter(Boolean)
 
-  return <Template typeName={typeName} name={name} params={params.toString()} keys={keys.join(', ')} context={{ factory }} />
+  return <Template typeName={typeName} name={name} params={params.toString()} keys={keysFn(keys).join(', ')} context={{ factory }} />
 }
 
 QueryKey.templates = defaultTemplates

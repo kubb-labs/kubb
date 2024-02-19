@@ -32,6 +32,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     transformers = {},
     dataReturnType = 'data',
     templates,
+    query,
   } = options
   const template = group?.output ? group.output : `${output.path}/{{tag}}Controller`
 
@@ -53,6 +54,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         }
         : undefined,
       suspense,
+      query,
       templates: {
         mutation: Mutation.templates,
         query: Query.templates,

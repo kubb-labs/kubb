@@ -14,6 +14,7 @@ import { QueryOptions } from './QueryOptions.tsx'
 import { SchemaType } from './SchemaType.tsx'
 
 import type { ReactNode } from 'react'
+import type { Query as QueryPluginOptions } from '../types.ts'
 import type { FileMeta, Infinite, PluginOptions, Suspense } from '../types.ts'
 
 type TemplateProps = {
@@ -71,7 +72,7 @@ function Template({
          const query = ${hook.name}({
           ...${hook.queryOptions} as ${infinite ? 'InfiniteQueryObserverOptions' : 'QueryObserverOptions'},
           queryKey,
-          ...queryOptions as unknown as ${infinite ? 'InfiniteQueryObserverOptions' : 'QueryObserverOptions'}
+          ...queryOptions as unknown as ${infinite ? 'Omit<InfiniteQueryObserverOptions, "queryKey">' : 'Omit<QueryObserverOptions, "queryKey">'}
         }) as ${resolvedReturnType}
 
         query.queryKey = queryKey as TQueryKey
@@ -257,6 +258,7 @@ type Props = {
   hookName: string
   optionsType: string
   infinite: Infinite | undefined
+  query: QueryPluginOptions | undefined
   suspense: Suspense | undefined
   /**
    * This will make it possible to override the default behaviour.
@@ -276,6 +278,7 @@ export function Query({
   factory,
   infinite,
   suspense,
+  query,
   optionsType,
   hookName,
   resultType,
@@ -391,7 +394,7 @@ export function Query({
 
   return (
     <>
-      <QueryKey Template={QueryKeyTemplate} factory={factory} name={queryKey} typeName={queryKeyType} />
+      <QueryKey keysFn={query?.queryKey} Template={QueryKeyTemplate} factory={factory} name={queryKey} typeName={queryKeyType} />
       <QueryOptions
         Template={QueryOptionsTemplate}
         factory={factory}
@@ -431,7 +434,7 @@ type FileProps = {
 }
 
 Query.File = function({ templates, imports = QueryImports.templates }: FileProps): ReactNode {
-  const { options: { client: { importPath }, framework, infinite, suspense, parser } } = usePlugin<PluginOptions>()
+  const { options: { client: { importPath }, framework, infinite, suspense, query, parser } } = usePlugin<PluginOptions>()
   const schemas = useSchemas()
   const file = useOperationFile()
   const fileType = useOperationFile({ pluginKey: swaggerTsPluginKey })
@@ -488,6 +491,7 @@ Query.File = function({ templates, imports = QueryImports.templates }: FileProps
           QueryOptionsTemplate={QueryOptionsTemplate}
           infinite={undefined}
           suspense={undefined}
+          query={query}
           hookName={importNames.query[framework].hookName}
           resultType={importNames.query[framework].resultType}
           optionsType={importNames.query[framework].optionsType}
@@ -500,6 +504,7 @@ Query.File = function({ templates, imports = QueryImports.templates }: FileProps
             QueryOptionsTemplate={QueryOptionsTemplate}
             infinite={infinite}
             suspense={undefined}
+            query={query}
             hookName={importNames.queryInfinite[framework].hookName}
             resultType={importNames.queryInfinite[framework].resultType}
             optionsType={importNames.queryInfinite[framework].optionsType}
@@ -513,6 +518,7 @@ Query.File = function({ templates, imports = QueryImports.templates }: FileProps
             QueryOptionsTemplate={QueryOptionsTemplate}
             infinite={undefined}
             suspense={suspense}
+            query={query}
             hookName={importNames.querySuspense[framework].hookName}
             resultType={importNames.querySuspense[framework].resultType}
             optionsType={importNames.querySuspense[framework].optionsType}

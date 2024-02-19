@@ -1,20 +1,12 @@
 import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
-import type { UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/ts/userController/UpdateUser'
+import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/ts/userController/UpdateUser'
 
-/**
- * @description successful operation
- */
-
-export function createUpdateUserError(override?: Partial<UpdateUserError>): NonNullable<UpdateUserError> {
+export function createUpdateUserMutationResponse(override?: NonNullable<Partial<UpdateUserMutationResponse>>): NonNullable<UpdateUserMutationResponse> {
   return undefined
 }
 
-export function createUpdateUserMutationResponse(override?: Partial<UpdateUserMutationResponse>): NonNullable<UpdateUserMutationResponse> {
-  return undefined
-}
-
-export function createUpdateUserPathParams(override: Partial<UpdateUserPathParams> = {}): NonNullable<UpdateUserPathParams> {
+export function createUpdateUserPathParams(override: NonNullable<Partial<UpdateUserPathParams>> = {}): NonNullable<UpdateUserPathParams> {
   return {
     ...{ 'username': faker.string.alpha() },
     ...override,
@@ -24,6 +16,6 @@ export function createUpdateUserPathParams(override: Partial<UpdateUserPathParam
  * @description Update an existent user in the store
  */
 
-export function createUpdateUserMutationRequest(override?: Partial<UpdateUserMutationRequest>): NonNullable<UpdateUserMutationRequest> {
+export function createUpdateUserMutationRequest(override?: NonNullable<Partial<UpdateUserMutationRequest>>): NonNullable<UpdateUserMutationRequest> {
   return createUser(override)
 }

@@ -26,7 +26,7 @@ type FindPetsByTags = {
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
-export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsQueryKey = (params?: FindPetsByTags['queryParams']) => ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsQueryKey = ReturnType<typeof findPetsByTagsQueryKey>
 export function findPetsByTagsQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsQueryKey(params)
@@ -62,14 +62,15 @@ export function useFindPetsByTagsHook<
   const query = useQuery({
     ...findPetsByTagsQueryOptions(params, clientOptions) as QueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as QueryObserverOptions,
+    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
   }) as UseQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
   return query
 }
-export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsInfiniteQueryKey = (params?: FindPetsByTags['queryParams']) =>
+  ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsInfiniteQueryKey = ReturnType<typeof findPetsByTagsInfiniteQueryKey>
 export function findPetsByTagsInfiniteQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsInfiniteQueryKey(params)
@@ -112,14 +113,15 @@ export function useFindPetsByTagsHookInfinite<
   const query = useInfiniteQuery({
     ...findPetsByTagsInfiniteQueryOptions(params, clientOptions) as InfiniteQueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as InfiniteQueryObserverOptions,
+    ...queryOptions as unknown as Omit<InfiniteQueryObserverOptions, 'queryKey'>,
   }) as UseInfiniteQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
   return query
 }
-export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTags['queryParams']) => [{ url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
+export const findPetsByTagsSuspenseQueryKey = (params?: FindPetsByTags['queryParams']) =>
+  ['v5', { url: '/pet/findByTags' }, ...(params ? [params] : [])] as const
 export type FindPetsByTagsSuspenseQueryKey = ReturnType<typeof findPetsByTagsSuspenseQueryKey>
 export function findPetsByTagsSuspenseQueryOptions(params?: FindPetsByTags['queryParams'], options: FindPetsByTags['client']['parameters'] = {}) {
   const queryKey = findPetsByTagsSuspenseQueryKey(params)
@@ -154,7 +156,7 @@ export function useFindPetsByTagsHookSuspense<TData = FindPetsByTags['response']
   const query = useSuspenseQuery({
     ...findPetsByTagsSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as QueryObserverOptions,
+    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
   }) as UseSuspenseQueryResult<TData, FindPetsByTags['error']> & {
     queryKey: TQueryKey
   }

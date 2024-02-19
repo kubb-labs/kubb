@@ -17,7 +17,7 @@ type GetPetById = {
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId']) => ['v5', { url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 export function getPetByIdQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdQueryKey(petId)
@@ -51,14 +51,14 @@ export function useGetPetByIdHook<TData = GetPetById['response'], TQueryData = G
   const query = useQuery({
     ...getPetByIdQueryOptions(petId, clientOptions) as QueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as QueryObserverOptions,
+    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
   }) as UseQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
   return query
 }
-export const getPetByIdSuspenseQueryKey = (petId: GetPetByIdPathParams['petId']) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
+export const getPetByIdSuspenseQueryKey = (petId: GetPetByIdPathParams['petId']) => ['v5', { url: '/pet/:petId', params: { petId: petId } }] as const
 export type GetPetByIdSuspenseQueryKey = ReturnType<typeof getPetByIdSuspenseQueryKey>
 export function getPetByIdSuspenseQueryOptions(petId: GetPetByIdPathParams['petId'], options: GetPetById['client']['parameters'] = {}) {
   const queryKey = getPetByIdSuspenseQueryKey(petId)
@@ -92,7 +92,7 @@ export function useGetPetByIdHookSuspense<TData = GetPetById['response'], TQuery
   const query = useSuspenseQuery({
     ...getPetByIdSuspenseQueryOptions(petId, clientOptions) as QueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as QueryObserverOptions,
+    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
   }) as UseSuspenseQueryResult<TData, GetPetById['error']> & {
     queryKey: TQueryKey
   }

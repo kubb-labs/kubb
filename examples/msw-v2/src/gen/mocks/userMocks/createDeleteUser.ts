@@ -5,7 +5,7 @@ import type { DeleteUser400, DeleteUser404, DeleteUserMutationResponse, DeleteUs
  * @description Invalid username supplied
  */
 
-export function createDeleteUser400(override?: Partial<DeleteUser400>): NonNullable<DeleteUser400> {
+export function createDeleteUser400(override?: NonNullable<Partial<DeleteUser400>>): NonNullable<DeleteUser400> {
   faker.seed([220])
   return undefined
 }
@@ -13,17 +13,17 @@ export function createDeleteUser400(override?: Partial<DeleteUser400>): NonNulla
  * @description User not found
  */
 
-export function createDeleteUser404(override?: Partial<DeleteUser404>): NonNullable<DeleteUser404> {
+export function createDeleteUser404(override?: NonNullable<Partial<DeleteUser404>>): NonNullable<DeleteUser404> {
   faker.seed([220])
   return undefined
 }
 
-export function createDeleteUserMutationResponse(override?: Partial<DeleteUserMutationResponse>): NonNullable<DeleteUserMutationResponse> {
+export function createDeleteUserMutationResponse(override?: NonNullable<Partial<DeleteUserMutationResponse>>): NonNullable<DeleteUserMutationResponse> {
   faker.seed([220])
   return undefined
 }
 
-export function createDeleteUserPathParams(override: Partial<DeleteUserPathParams> = {}): NonNullable<DeleteUserPathParams> {
+export function createDeleteUserPathParams(override: NonNullable<Partial<DeleteUserPathParams>> = {}): NonNullable<DeleteUserPathParams> {
   faker.seed([220])
   return {
     ...{ 'username': faker.string.alpha() },

@@ -17,7 +17,7 @@ type LoginUser = {
     return: Awaited<ReturnType<LoginUserClient>>
   }
 }
-export const loginUserQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+export const loginUserQueryKey = (params?: LoginUser['queryParams']) => ['v5', { url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserQueryKey = ReturnType<typeof loginUserQueryKey>
 export function loginUserQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserQueryKey(params)
@@ -51,14 +51,14 @@ export function useLoginUserHook<TData = LoginUser['response'], TQueryData = Log
   const query = useQuery({
     ...loginUserQueryOptions(params, clientOptions) as QueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as QueryObserverOptions,
+    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
   }) as UseQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }
   query.queryKey = queryKey as TQueryKey
   return query
 }
-export const loginUserSuspenseQueryKey = (params?: LoginUser['queryParams']) => [{ url: '/user/login' }, ...(params ? [params] : [])] as const
+export const loginUserSuspenseQueryKey = (params?: LoginUser['queryParams']) => ['v5', { url: '/user/login' }, ...(params ? [params] : [])] as const
 export type LoginUserSuspenseQueryKey = ReturnType<typeof loginUserSuspenseQueryKey>
 export function loginUserSuspenseQueryOptions(params?: LoginUser['queryParams'], options: LoginUser['client']['parameters'] = {}) {
   const queryKey = loginUserSuspenseQueryKey(params)
@@ -92,7 +92,7 @@ export function useLoginUserHookSuspense<TData = LoginUser['response'], TQueryKe
   const query = useSuspenseQuery({
     ...loginUserSuspenseQueryOptions(params, clientOptions) as QueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as QueryObserverOptions,
+    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
   }) as UseSuspenseQueryResult<TData, LoginUser['error']> & {
     queryKey: TQueryKey
   }

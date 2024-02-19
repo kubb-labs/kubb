@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-zodios",
-  "version": "2.5.3",
+  "version": "2.6.2",
   "description": "Generator swagger-zodios",
   "keywords": [
     "zod",
@@ -65,10 +65,10 @@
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/react": "^18.2.52",
+    "@types/react": "^18.2.56",
     "eslint": "^8.56.0",
     "react": "^18.2.0",
-    "tsup": "^8.0.1",
+    "tsup": "^8.0.2",
     "typescript": "^5.3.3"
   },
   "packageManager": "pnpm@8.3.0",

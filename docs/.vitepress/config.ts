@@ -183,6 +183,17 @@ const pluginsSidebar = [
     ],
   },
   {
+    text: 'Build plugins',
+    collapsed: false,
+    items: [
+      {
+        text: 'unplugin-kubb <span class="new">new</span>',
+        collapsed: false,
+        link: '/plugins/unplugin/',
+      },
+    ],
+  },
+  {
     text: 'Swagger plugins',
     collapsed: false,
     items: [
@@ -367,6 +378,17 @@ const pluginsMenu = [
       {
         text: '@kubb/react',
         link: '/plugins/react/',
+      },
+    ],
+  },
+  {
+    text: 'Build plugins',
+    collapsed: false,
+    items: [
+      {
+        text: 'unplugin-kubb',
+        collapsed: false,
+        link: '/plugins/unplugin/',
       },
     ],
   },

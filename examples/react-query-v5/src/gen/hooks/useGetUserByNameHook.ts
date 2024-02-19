@@ -17,7 +17,8 @@ type GetUserByName = {
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
-export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) => [{ url: '/user/:username', params: { username: username } }] as const
+export const getUserByNameQueryKey = (username: GetUserByNamePathParams['username']) =>
+  ['v5', { url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameQueryKey = ReturnType<typeof getUserByNameQueryKey>
 export function getUserByNameQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameQueryKey(username)
@@ -51,7 +52,7 @@ export function useGetUserByNameHook<
   const query = useQuery({
     ...getUserByNameQueryOptions(username, clientOptions) as QueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as QueryObserverOptions,
+    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
   }) as UseQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }
@@ -59,7 +60,7 @@ export function useGetUserByNameHook<
   return query
 }
 export const getUserByNameSuspenseQueryKey = (username: GetUserByNamePathParams['username']) =>
-  [{ url: '/user/:username', params: { username: username } }] as const
+  ['v5', { url: '/user/:username', params: { username: username } }] as const
 export type GetUserByNameSuspenseQueryKey = ReturnType<typeof getUserByNameSuspenseQueryKey>
 export function getUserByNameSuspenseQueryOptions(username: GetUserByNamePathParams['username'], options: GetUserByName['client']['parameters'] = {}) {
   const queryKey = getUserByNameSuspenseQueryKey(username)
@@ -92,7 +93,7 @@ export function useGetUserByNameHookSuspense<TData = GetUserByName['response'], 
   const query = useSuspenseQuery({
     ...getUserByNameSuspenseQueryOptions(username, clientOptions) as QueryObserverOptions,
     queryKey,
-    ...queryOptions as unknown as QueryObserverOptions,
+    ...queryOptions as unknown as Omit<QueryObserverOptions, 'queryKey'>,
   }) as UseSuspenseQueryResult<TData, GetUserByName['error']> & {
     queryKey: TQueryKey
   }

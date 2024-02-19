@@ -1,21 +1,9 @@
 import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
-import type {
-  CreateUsersWithListInputError,
-  CreateUsersWithListInputMutationRequest,
-  CreateUsersWithListInputMutationResponse,
-} from '../../models/ts/userController/CreateUsersWithListInput'
-
-/**
- * @description successful operation
- */
-
-export function createCreateUsersWithListInputError(override?: Partial<CreateUsersWithListInputError>): NonNullable<CreateUsersWithListInputError> {
-  return undefined
-}
+import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../../models/ts/userController/CreateUsersWithListInput'
 
 export function createCreateUsersWithListInputMutationRequest(
-  override: Partial<CreateUsersWithListInputMutationRequest> = [],
+  override: NonNullable<Partial<CreateUsersWithListInputMutationRequest>> = [],
 ): NonNullable<CreateUsersWithListInputMutationRequest> {
   return [
     ...faker.helpers.arrayElements([createUser()]) as any,
@@ -27,7 +15,7 @@ export function createCreateUsersWithListInputMutationRequest(
  */
 
 export function createCreateUsersWithListInputMutationResponse(
-  override?: Partial<CreateUsersWithListInputMutationResponse>,
+  override?: NonNullable<Partial<CreateUsersWithListInputMutationResponse>>,
 ): NonNullable<CreateUsersWithListInputMutationResponse> {
   return createUser(override)
 }
