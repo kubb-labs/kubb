@@ -8,6 +8,7 @@ exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`any\` 1`]
     "exports": [],
     "id": undefined,
     "imports": [],
+    "language": undefined,
     "meta": {
       "name": "delete_pet-petid",
       "pluginKey": undefined,
@@ -32,6 +33,7 @@ exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`unknown\`
     "exports": [],
     "id": undefined,
     "imports": [],
+    "language": undefined,
     "meta": {
       "name": "delete_pet-petid",
       "pluginKey": undefined,
@@ -65,6 +67,7 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 1`
         "root": "listPets.ts",
       },
     ],
+    "language": undefined,
     "meta": {
       "name": "listPets",
       "pluginKey": undefined,
@@ -80,7 +83,7 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 1`
     limit?: string;
 } | undefined;
 
- /**
+/**
  * @description A paged array of pets
 */
 export type ListPetsQueryResponse = Pets;
@@ -110,6 +113,7 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 2`
         "root": "showPetById.ts",
       },
     ],
+    "language": undefined,
     "meta": {
       "name": "showPetById",
       "pluginKey": undefined,
@@ -130,7 +134,7 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 2`
     testId: string;
 };
 
- /**
+/**
  * @description Expected response to a valid request
 */
 export type ShowPetByIdQueryResponse = Pet;
@@ -168,6 +172,7 @@ exports[`OperationGenerator > [POST] /pets 201 1`] = `
         "root": "createPets.ts",
       },
     ],
+    "language": undefined,
     "meta": {
       "name": "createPets",
       "pluginKey": undefined,
@@ -186,7 +191,7 @@ exports[`OperationGenerator > [POST] /pets 201 1`] = `
     tag: string;
 };
 
- /**
+/**
  * @description Null response
 */
 export type CreatePetsMutationResponse = (Error & {

@@ -17,6 +17,7 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 
         "root": undefined,
       },
     ],
+    "language": undefined,
     "meta": {
       "name": "delete_pet-petid",
       "pluginKey": undefined,
@@ -24,8 +25,7 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 
     },
     "override": undefined,
     "path": "delete_pet-petid.ts",
-    "source": "export const DeletePetPetidMutationResponse = z.any();
-",
+    "source": "export const DeletePetPetidMutationResponse = z.any();",
   },
 ]
 `;
@@ -47,6 +47,7 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`unknow
         "root": undefined,
       },
     ],
+    "language": undefined,
     "meta": {
       "name": "delete_pet-petid",
       "pluginKey": undefined,
@@ -54,8 +55,7 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`unknow
     },
     "override": undefined,
     "path": "delete_pet-petid.ts",
-    "source": "export const DeletePetPetidMutationResponse = z.unknown();
-",
+    "source": "export const DeletePetPetidMutationResponse = z.unknown();",
   },
 ]
 `;
@@ -77,6 +77,7 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
         "root": undefined,
       },
     ],
+    "language": undefined,
     "meta": {
       "name": "listPets",
       "pluginKey": undefined,
@@ -84,13 +85,12 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
     },
     "override": undefined,
     "path": "listPets.ts",
-    "source": "export const ListPetsQueryParams = z.object({ "limit": z.string().describe(\`How many items to return at one time (max 100)\`).optional() }).optional();
+    "source": "export const ListPetsQueryParams = z.object({"limit": z.string().describe(\`How many items to return at one time (max 100)\`).optional()}).optional();
 
- /**
+      /**
        * @description A paged array of pets
        */
-export const ListPetsQueryResponse = z.lazy(() => Pets);
-",
+export const ListPetsQueryResponse = z.lazy(() => Pets);",
   },
 ]
 `;
@@ -112,6 +112,7 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
         "root": undefined,
       },
     ],
+    "language": undefined,
     "meta": {
       "name": "showPetById",
       "pluginKey": undefined,
@@ -119,13 +120,12 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
     },
     "override": undefined,
     "path": "showPetById.ts",
-    "source": "export const ShowPetByIdPathParams = z.object({ "petId": z.string().describe(\`The id of the pet to retrieve\`), "testId": z.string().describe(\`The id of the pet to retrieve\`) });
+    "source": "export const ShowPetByIdPathParams = z.object({"petId": z.string().describe(\`The id of the pet to retrieve\`),"testId": z.string().describe(\`The id of the pet to retrieve\`)});
 
- /**
+      /**
        * @description Expected response to a valid request
        */
-export const ShowPetByIdQueryResponse = z.lazy(() => Pet);
-",
+export const ShowPetByIdQueryResponse = z.lazy(() => Pet);",
   },
 ]
 `;
@@ -147,6 +147,7 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
         "root": undefined,
       },
     ],
+    "language": undefined,
     "meta": {
       "name": "createPets",
       "pluginKey": undefined,
@@ -154,9 +155,8 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
     },
     "override": undefined,
     "path": "createPets.ts",
-    "source": "export const CreatePetsMutationRequest = z.object({ "name": z.string(), "tag": z.string() });
-export const CreatePetsMutationResponse = z.any();
-",
+    "source": "export const CreatePetsMutationRequest = z.object({"name": z.string(),"tag": z.string()});
+export const CreatePetsMutationResponse = z.any();",
   },
 ]
 `;

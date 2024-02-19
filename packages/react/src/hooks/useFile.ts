@@ -4,8 +4,8 @@ import { usePluginManager } from '@kubb/react'
 import type { KubbFile, Plugin } from '@kubb/core'
 
 type Props<TOptions = object> = {
-  extName: KubbFile.Extname
   name: string
+  extName: KubbFile.Extname
   pluginKey: Plugin['key']
   options?: TOptions
 }
