@@ -123,17 +123,17 @@ importers:
         specifier: workspace:*
         version: link:../packages/swagger-zodios
       '@tanstack/react-query':
-        specifier: ^5.21.7
-        version: 5.21.7(react@18.2.0)
+        specifier: ^5.22.2
+        version: 5.22.2(react@18.2.0)
       '@tanstack/solid-query':
-        specifier: ^5.21.7
-        version: 5.21.7(solid-js@1.8.15)
+        specifier: ^5.22.2
+        version: 5.22.2(solid-js@1.8.15)
       '@tanstack/svelte-query':
-        specifier: ^5.21.7
-        version: 5.21.7(svelte@3.59.2)
+        specifier: ^5.22.2
+        version: 5.22.2(svelte@3.59.2)
       '@tanstack/vue-query':
-        specifier: ^5.21.7
-        version: 5.21.7(vue@3.4.19)
+        specifier: ^5.22.2
+        version: 5.22.2(vue@3.4.19)
       '@zodios/core':
         specifier: ^10.9.6
         version: 10.9.6(axios@1.6.7)(zod@3.22.4)
@@ -511,11 +511,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-ts
       '@tanstack/react-query':
-        specifier: ^5.21.7
-        version: 5.21.7(react@18.2.0)
+        specifier: ^5.22.2
+        version: 5.22.2(react@18.2.0)
       '@tanstack/react-query-devtools':
         specifier: 5.0.0
-        version: 5.0.0(@tanstack/react-query@5.21.7)(react-dom@18.2.0)(react@18.2.0)
+        version: 5.0.0(@tanstack/react-query@5.22.2)(react-dom@18.2.0)(react@18.2.0)
       axios:
         specifier: ^1.6.7
         version: 1.6.7
@@ -804,8 +804,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swagger-zod
       '@tanstack/vue-query':
-        specifier: ^5.21.7
-        version: 5.21.7(vue@3.4.19)
+        specifier: ^5.22.2
+        version: 5.22.2(vue@3.4.19)
       axios:
         specifier: ^1.6.7
         version: 1.6.7
@@ -1742,8 +1742,8 @@ importers:
         specifier: ^1.3.0
         version: 1.3.0(@types/node@20.11.19)(@vitest/ui@1.3.0)
       webpack:
-        specifier: ^5.90.2
-        version: 5.90.2(esbuild@0.19.9)
+        specifier: ^5.90.3
+        version: 5.90.3(esbuild@0.19.9)
 
 packages:
 
@@ -3716,8 +3716,8 @@ packages:
     resolution: {integrity: sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==}
     dev: false
 
-  /@tanstack/query-core@5.21.7:
-    resolution: {integrity: sha512-z0NSWFsM75esVmkxeuDWeyo9Wv4CZ/WsLMZgu1Zz164S6Oc/57NMia88dTu/d51wdVowMTAcDMQgRmiWmyPMxQ==}
+  /@tanstack/query-core@5.22.2:
+    resolution: {integrity: sha512-z3PwKFUFACMUqe1eyesCIKg3Jv1mysSrYfrEW5ww5DCDUD4zlpTKBvUDaEjsfZzL3ULrFLDM9yVUxI/fega1Qg==}
     dev: false
 
   /@tanstack/query-devtools@5.0.0:
@@ -3739,7 +3739,7 @@ packages:
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/react-query-devtools@5.0.0(@tanstack/react-query@5.21.7)(react-dom@18.2.0)(react@18.2.0):
+  /@tanstack/react-query-devtools@5.0.0(@tanstack/react-query@5.22.2)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-4yw29d89eOqUmliRKGmEOjuq2AGSM3i4jjw/YFMrErg0neVITy2bkoU3fPXZ339czlupqq0b4e20uFVtqkEqGQ==}
     peerDependencies:
       '@tanstack/react-query': ^5.0.0
@@ -3747,7 +3747,7 @@ packages:
       react-dom: ^18.0.0
     dependencies:
       '@tanstack/query-devtools': 5.0.0
-      '@tanstack/react-query': 5.21.7(react@18.2.0)
+      '@tanstack/react-query': 5.22.2(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
@@ -3770,12 +3770,12 @@ packages:
       use-sync-external-store: 1.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/react-query@5.21.7(react@18.2.0):
-    resolution: {integrity: sha512-Op9nVL/L0Lg+aSPFSGbrymu6d3tzUoZ+FZ+rRIZpu5HkGasflqzhsXkL26Sa+MEwLyox7Q1erSFwNIRO3TYjXQ==}
+  /@tanstack/react-query@5.22.2(react@18.2.0):
+    resolution: {integrity: sha512-TaxJDRzJ8/NWRT4lY2jguKCrNI6MRN+67dELzPjNUlvqzTxGANlMp68l7aC7hG8Bd1uHNxHl7ihv7MT50i/43A==}
     peerDependencies:
       react: ^18.0.0
     dependencies:
-      '@tanstack/query-core': 5.21.7
+      '@tanstack/query-core': 5.22.2
       react: 18.2.0
     dev: false
 
@@ -3788,12 +3788,12 @@ packages:
       solid-js: 1.8.15
     dev: false
 
-  /@tanstack/solid-query@5.21.7(solid-js@1.8.15):
-    resolution: {integrity: sha512-RjiuWZL1mCrNe0YyWq4OFiSQ4SrXfkCYKtfSU/FJZqksUQdThR/ad8/IWIc8swdKVQKg208+kUHBSK3CVffCww==}
+  /@tanstack/solid-query@5.22.2(solid-js@1.8.15):
+    resolution: {integrity: sha512-WvUDTtO7AtTWqRU9j1BDMWLlPZ1/1/h9+bMXKeNeiqiHN/jg91KOMKHHQeBax+RASH4XZoBbWix0OuwM+qMa+w==}
     peerDependencies:
       solid-js: ^1.6.0
     dependencies:
-      '@tanstack/query-core': 5.21.7
+      '@tanstack/query-core': 5.22.2
       solid-js: 1.8.15
     dev: false
 
@@ -3806,12 +3806,12 @@ packages:
       svelte: 3.59.2
     dev: false
 
-  /@tanstack/svelte-query@5.21.7(svelte@3.59.2):
-    resolution: {integrity: sha512-wgezaM8y6e4hqvkPlH4qkUrUWRGi0Jan04+DazI0YyWMBDFQeyiT7OFj7YoZPiqLRwBh2RPn5CZ0pPjWNqc3zg==}
+  /@tanstack/svelte-query@5.22.2(svelte@3.59.2):
+    resolution: {integrity: sha512-7ZK/EoAAIB6KIKiSC3NSTJPJYo2meOZjsyBXLtbEpLYr7U/mCJwgJ0dXKOUt9n3eKwUyX9N/stqwyD10F+KS8Q==}
     peerDependencies:
       svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
     dependencies:
-      '@tanstack/query-core': 5.21.7
+      '@tanstack/query-core': 5.22.2
       svelte: 3.59.2
     dev: false
 
@@ -3831,8 +3831,8 @@ packages:
       vue-demi: 0.13.11(vue@3.4.19)
     dev: false
 
-  /@tanstack/vue-query@5.21.7(vue@3.4.19):
-    resolution: {integrity: sha512-eMHOGs4FfrEt0tmjXQrvh7j0KUdugFTGsuuFuEOIRJNbt0IcK4MLfPDxFllnw7Jb6l7BomcUZgw2rIzBOcVaUQ==}
+  /@tanstack/vue-query@5.22.2(vue@3.4.19):
+    resolution: {integrity: sha512-4Vg73x3Po4ED1ttv5TOb5ebqNMtOwY9EmSGHbN1Y208zlVaTw9jwe7I27D4wew3UbFEuqjx3I6roykye096j1A==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -3841,7 +3841,7 @@ packages:
         optional: true
     dependencies:
       '@tanstack/match-sorter-utils': 8.11.8
-      '@tanstack/query-core': 5.21.7
+      '@tanstack/query-core': 5.22.2
       '@vue/devtools-api': 6.5.1
       vue: 3.4.19(typescript@5.2.2)
       vue-demi: 0.14.6(vue@3.4.19)
@@ -9744,7 +9744,7 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /terser-webpack-plugin@5.3.10(esbuild@0.19.9)(webpack@5.90.2):
+  /terser-webpack-plugin@5.3.10(esbuild@0.19.9)(webpack@5.90.3):
     resolution: {integrity: sha512-BKFPWlPDndPs+NGGCr1U59t0XScL5317Y0UReNrHaw9/FwhPENlq6bfgs+4yPfyP51vqC1bQ4rp1EfXW5ZSH9w==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -9766,7 +9766,7 @@ packages:
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
       terser: 5.27.0
-      webpack: 5.90.2(esbuild@0.19.9)
+      webpack: 5.90.3(esbuild@0.19.9)
     dev: true
 
   /terser@5.27.0:
@@ -10724,8 +10724,8 @@ packages:
   /webpack-virtual-modules@0.6.1:
     resolution: {integrity: sha512-poXpCylU7ExuvZK8z+On3kX+S8o/2dQ/SVYueKA0D4WEMXROXgY8Ez50/bQEUmvoSMMrWcrJqCHuhAbsiwg7Dg==}
 
-  /webpack@5.90.2(esbuild@0.19.9):
-    resolution: {integrity: sha512-ziXu8ABGr0InCMEYFnHrYweinHK2PWrMqnwdHk2oK3rRhv/1B+2FnfwYv5oD+RrknK/Pp/Hmyvu+eAsaMYhzCw==}
+  /webpack@5.90.3(esbuild@0.19.9):
+    resolution: {integrity: sha512-h6uDYlWCctQRuXBs1oYpVe6sFcWedl0dpcVaTf/YF67J9bKvwJajFulMVSYKHrksMB3I/pIagRzDxwxkebuzKA==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -10755,7 +10755,7 @@ packages:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(esbuild@0.19.9)(webpack@5.90.2)
+      terser-webpack-plugin: 5.3.10(esbuild@0.19.9)(webpack@5.90.3)
       watchpack: 2.4.0
       webpack-sources: 3.2.3
     transitivePeerDependencies:
