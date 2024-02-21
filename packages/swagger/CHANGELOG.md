@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 2.6.3
+
+### Patch Changes
+
+- [`52e802a`](https://github.com/kubb-project/kubb/commit/52e802ac61a5c1820020ad1ec80ddcf930a647f1) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - expose 200-300
+
+- Updated dependencies []:
+  - @kubb/core@2.6.3
+  - @kubb/react@2.6.3
+
 ## 2.6.2
 
 ### Patch Changes
