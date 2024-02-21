@@ -96,7 +96,7 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash.isequal": "^4.5.8",
-    "@types/react": "^18.2.56",
+    "@types/react": "^18.2.57",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.7",
     "eslint": "^8.56.0",

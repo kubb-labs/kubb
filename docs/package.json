@@ -19,7 +19,7 @@
     "serve": "vitepress serve"
   },
   "dependencies": {
-    "@vercel/analytics": "^1.2.1",
+    "@vercel/analytics": "^1.2.2",
     "sitemap": "^7.1.1",
     "vitepress": "^1.0.0-rc.44",
     "vue": "^3.4.19"
