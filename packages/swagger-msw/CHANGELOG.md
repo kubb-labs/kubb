@@ -1,5 +1,17 @@
 # @kubb/swagger-msw
 
+## 2.6.3
+
+### Patch Changes
+
+- Updated dependencies [[`52e802a`](https://github.com/kubb-project/kubb/commit/52e802ac61a5c1820020ad1ec80ddcf930a647f1)]:
+  - @kubb/swagger@2.6.3
+  - @kubb/swagger-faker@2.6.3
+  - @kubb/swagger-ts@2.6.3
+  - @kubb/core@2.6.3
+  - @kubb/parser@2.6.3
+  - @kubb/react@2.6.3
+
 ## 2.6.2
 
 ### Patch Changes
