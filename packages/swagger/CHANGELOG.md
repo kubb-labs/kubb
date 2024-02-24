@@ -1,5 +1,15 @@
 # @kubb/swagger
 
+## 2.6.4
+
+### Patch Changes
+
+- [`ee1dd8e`](https://github.com/kubb-project/kubb/commit/ee1dd8ebf6cd7331176670af7bbb2c9cf98b4ce9) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - return all statusCodes schemas
+
+- Updated dependencies []:
+  - @kubb/core@2.6.4
+  - @kubb/react@2.6.4
+
 ## 2.6.3
 
 ### Patch Changes
