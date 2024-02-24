@@ -1,34 +1,34 @@
-import type { User } from './User'
+import type { User } from "./User";
 
-/**
+ /**
  * @description Invalid username supplied
- */
-export type GetUserByName400 = any | null
+*/
+export type GetUserByName400 = any | null;
 
-/**
+ /**
  * @description User not found
- */
-export type GetUserByName404 = any | null
+*/
+export type GetUserByName404 = any | null;
 
-export type GetUserByNamePathParams = {
-  /**
-   * @description The name that needs to be fetched. Use user1 for testing.
-   * @type string
-   */
-  username: string
-}
+ export type GetUserByNamePathParams = {
+    /**
+     * @description The name that needs to be fetched. Use user1 for testing.
+     * @type string
+    */
+    username: string;
+};
 
-/**
+ /**
  * @description successful operation
- */
-export type GetUserByName200 = User
+*/
+export type GetUserByName200 = User;
 
-/**
+ /**
  * @description successful operation
- */
-export type GetUserByNameQueryResponse = User
+*/
+export type GetUserByNameQueryResponse = User;
 export type GetUserByNameQuery = {
-  Response: GetUserByNameQueryResponse
-  PathParams: GetUserByNamePathParams
-  Errors: GetUserByName400 | GetUserByName404
-}
+    Response: GetUserByNameQueryResponse;
+    PathParams: GetUserByNamePathParams;
+    Errors: GetUserByName400 | GetUserByName404;
+};
