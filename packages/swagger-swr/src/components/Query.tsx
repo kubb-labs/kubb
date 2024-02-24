@@ -141,15 +141,14 @@ export function Query({
 
   const resultGenerics = [
     'TData',
-    'TError',
+    `${factory.name}["error"]`,
   ]
 
   generics.add([
-    { type: `TData extends ${factory.name}['response']`, default: `${factory.name}["response"]` },
-    { type: 'TError', default: `${factory.name}["error"]` },
+    { type: `TData`, default: `${factory.name}["response"]` },
   ])
 
-  const queryOptionsGenerics = ['TData', 'TError']
+  const queryOptionsGenerics = ['TData']
 
   params.add([
     ...getASTParams(schemas.pathParams, { typed: true }),

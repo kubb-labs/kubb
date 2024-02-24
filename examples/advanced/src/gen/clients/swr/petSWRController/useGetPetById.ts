@@ -17,13 +17,13 @@ type GetPetById = {
     return: Awaited<ReturnType<GetPetByIdClient>>
   }
 }
-export function getPetByIdQueryOptions<TData extends GetPetById['response'] = GetPetById['response'], TError = GetPetById['error']>(
+export function getPetByIdQueryOptions<TData = GetPetById['response']>(
   petId: GetPetByIdPathParams['petId'],
   options: GetPetById['client']['parameters'] = {},
-): SWRConfiguration<TData, TError> {
+): SWRConfiguration<TData, GetPetById['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, TError>({
+      const res = await client<TData, GetPetById['error']>({
         method: 'get',
         url: `/pet/${petId}`,
         ...options,
@@ -36,18 +36,15 @@ export function getPetByIdQueryOptions<TData extends GetPetById['response'] = Ge
  * @description Returns a single pet
  * @summary Find pet by ID
  * @link /pet/:petId */
-export function useGetPetById<TData extends GetPetById['response'] = GetPetById['response'], TError = GetPetById['error']>(
-  petId: GetPetByIdPathParams['petId'],
-  options?: {
-    query?: SWRConfiguration<TData, TError>
-    client?: GetPetById['client']['parameters']
-    shouldFetch?: boolean
-  },
-): SWRResponse<TData, TError> {
+export function useGetPetById<TData = GetPetById['response']>(petId: GetPetByIdPathParams['petId'], options?: {
+  query?: SWRConfiguration<TData, GetPetById['error']>
+  client?: GetPetById['client']['parameters']
+  shouldFetch?: boolean
+}): SWRResponse<TData, GetPetById['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/pet/${petId}` as const
-  const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
-    ...getPetByIdQueryOptions<TData, TError>(petId, clientOptions),
+  const query = useSWR<TData, GetPetById['error'], typeof url | null>(shouldFetch ? url : null, {
+    ...getPetByIdQueryOptions<TData>(petId, clientOptions),
     ...queryOptions,
   })
   return query

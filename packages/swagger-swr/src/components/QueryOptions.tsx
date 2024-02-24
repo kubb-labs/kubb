@@ -106,12 +106,11 @@ export function QueryOptions({ factory, dataReturnType, Template = defaultTempla
   const generics = new FunctionParams()
   const params = new FunctionParams()
 
-  const clientGenerics = ['TData', 'TError']
-  const resultGenerics = ['TData', 'TError']
+  const clientGenerics = ['TData', `${factory.name}['error']`]
+  const resultGenerics = ['TData', `${factory.name}['error']`]
 
   generics.add([
-    { type: `TData extends ${factory.name}['response']`, default: `${factory.name}['response']` },
-    { type: 'TError', default: `${factory.name}["error"]` },
+    { type: `TData`, default: `${factory.name}['response']` },
   ])
 
   params.add([
