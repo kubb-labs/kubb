@@ -470,7 +470,7 @@ Query.File = function({ templates, imports = QueryImports.templates }: FileProps
           schemas.pathParams?.name,
           schemas.queryParams?.name,
           schemas.headerParams?.name,
-          ...schemas.errors?.map((error) => error.name) || [],
+          ...schemas.statusCodes?.map((item) => item.name) || [],
         ].filter(
           Boolean,
         )}

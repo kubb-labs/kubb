@@ -1,6 +1,17 @@
 import { faker } from '@faker-js/faker'
-import type { GetInventoryQueryResponse } from '../../models/GetInventory'
+import type { GetInventory200, GetInventoryQueryResponse } from '../../models/GetInventory'
 
+/**
+ * @description successful operation
+ */
+
+export function createGetInventory200(override: NonNullable<Partial<GetInventory200>> = {}): NonNullable<GetInventory200> {
+  faker.seed([220])
+  return {
+    ...{},
+    ...override,
+  }
+}
 /**
  * @description successful operation
  */

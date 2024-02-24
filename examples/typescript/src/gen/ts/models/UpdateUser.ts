@@ -1,5 +1,10 @@
 import type { User } from '../../models'
 
+/**
+ * @description successful operation
+ */
+export type UpdateUserError = any | null
+
 export type UpdateUserMutationResponse = any | null
 
 export type UpdateUserPathParams = {

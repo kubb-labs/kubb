@@ -157,15 +157,17 @@ function getDefinitionsImports(
         definitions.push({ name, operation })
       }
       if (schemas.errors) {
-        schemas.errors.forEach((errorOperationSchema) => {
-          if (!errorOperationSchema.statusCode) {
-            return
-          }
+        schemas.errors.forEach(
+          (errorOperationSchema) => {
+            if (!errorOperationSchema.statusCode) {
+              return
+            }
 
-          const name = resolveName({ name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`, pluginKey, type: 'function' })
+            const name = resolveName({ name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`, pluginKey, type: 'function' })
 
-          definitions.push({ name, operation })
-        })
+            definitions.push({ name, operation })
+          },
+        )
       }
     })
   })
@@ -225,23 +227,25 @@ function getDefinitions(
         // definitions.push({ name, operation, parameters: parameters.getRequest(name, schemas.request), errors: [] })
       }
       if (schemas.errors) {
-        schemas.errors.forEach((errorOperationSchema) => {
-          if (!errorOperationSchema.statusCode) {
-            return
-          }
+        schemas.errors.forEach(
+          (errorOperationSchema) => {
+            if (!errorOperationSchema.statusCode) {
+              return
+            }
 
-          const name = resolveName({ name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`, pluginKey, type: 'function' })
+            const name = resolveName({ name: `${operation.getOperationId()} ${errorOperationSchema.statusCode}`, pluginKey, type: 'function' })
 
-          if (errorOperationSchema.statusCode) {
-            errors.push(`
+            if (errorOperationSchema.statusCode) {
+              errors.push(`
               {
                 status: ${errorOperationSchema.statusCode},
                 description: \`${transformers.escape(errorOperationSchema.description)}\`,
                 schema: ${name}
               }
             `)
-          }
-        })
+            }
+          },
+        )
       }
       definitions.push({ operation, parameters: params, errors, response: responseName })
     })

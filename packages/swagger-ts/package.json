@@ -70,8 +70,8 @@
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/react": "^18.2.57",
-    "eslint": "^8.56.0",
+    "@types/react": "^18.2.58",
+    "eslint": "^8.57.0",
     "expect-type": "^0.17.3",
     "react": "^18.2.0",
     "tsup": "^8.0.2"

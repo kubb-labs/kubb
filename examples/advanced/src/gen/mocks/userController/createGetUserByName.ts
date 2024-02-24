@@ -1,6 +1,12 @@
 import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
-import type { GetUserByName400, GetUserByName404, GetUserByNamePathParams, GetUserByNameQueryResponse } from '../../models/ts/userController/GetUserByName'
+import type {
+  GetUserByName200,
+  GetUserByName400,
+  GetUserByName404,
+  GetUserByNamePathParams,
+  GetUserByNameQueryResponse,
+} from '../../models/ts/userController/GetUserByName'
 
 /**
  * @description Invalid username supplied
@@ -22,6 +28,13 @@ export function createGetUserByNamePathParams(override: NonNullable<Partial<GetU
     ...{ 'username': faker.string.alpha() },
     ...override,
   }
+}
+/**
+ * @description successful operation
+ */
+
+export function createGetUserByName200(override?: NonNullable<Partial<GetUserByName200>>): NonNullable<GetUserByName200> {
+  return createUser(override)
 }
 /**
  * @description successful operation

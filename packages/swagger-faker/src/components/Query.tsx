@@ -38,7 +38,7 @@ Query.File = function({}: FileProps): ReactNode {
     .add(schemas.queryParams)
     .add(schemas.headerParams)
     .add(schemas.response)
-    .add(schemas.errors)
+    .add(schemas.statusCodes)
 
   const { source, imports } = builder.build()
 

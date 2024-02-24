@@ -93,6 +93,7 @@ export type OperationSchemas = {
   headerParams?: OperationSchema & { keysToOmit?: never }
   request?: OperationSchema
   response: OperationSchema
+  statusCodes?: Array<OperationSchema>
   errors?: Array<OperationSchema>
 }
 

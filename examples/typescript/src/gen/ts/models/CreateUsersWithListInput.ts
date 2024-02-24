@@ -1,5 +1,15 @@
 import type { User } from '../../models'
 
+/**
+ * @description successful operation
+ */
+export type CreateUsersWithListInputError = any | null
+
+/**
+ * @description Successful operation
+ */
+export type CreateUsersWithListInput200 = User
+
 export type CreateUsersWithListInputMutationRequest = User[]
 
 /**

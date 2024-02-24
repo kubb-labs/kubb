@@ -16,4 +16,9 @@ export const findPetsByTagsQueryParamsSchema = z
 /**
  * @description successful operation
  */
+export const findPetsByTags200Schema = z.array(z.lazy(() => petSchema))
+
+/**
+ * @description successful operation
+ */
 export const findPetsByTagsQueryResponseSchema = z.array(z.lazy(() => petSchema))

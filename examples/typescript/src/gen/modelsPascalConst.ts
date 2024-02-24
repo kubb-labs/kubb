@@ -266,6 +266,11 @@ export type UpdatePet404 = any | null
 export type UpdatePet405 = any | null
 
 /**
+ * @description Successful operation
+ */
+export type UpdatePet200 = Pet
+
+/**
  * @description Update an existent pet in the store
  */
 export type UpdatePetMutationRequest = Pet
@@ -290,6 +295,11 @@ export type AddPet405 = {
    */
   message?: string
 }
+
+/**
+ * @description Successful operation
+ */
+export type AddPet200 = Pet
 
 /**
  * @description Create a new pet in the store
@@ -331,6 +341,11 @@ export type FindPetsByStatusQueryParams =
 /**
  * @description successful operation
  */
+export type FindPetsByStatus200 = Pet[]
+
+/**
+ * @description successful operation
+ */
 export type FindPetsByStatusQueryResponse = Pet[]
 export type FindPetsByStatusQuery = {
   Response: FindPetsByStatusQueryResponse
@@ -366,6 +381,11 @@ export type FindPetsByTagsQueryParams =
 /**
  * @description successful operation
  */
+export type FindPetsByTags200 = Pet[]
+
+/**
+ * @description successful operation
+ */
 export type FindPetsByTagsQueryResponse = Pet[]
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTagsQueryResponse
@@ -390,6 +410,11 @@ export type GetPetByIdPathParams = {
    */
   petId: number
 }
+
+/**
+ * @description successful operation
+ */
+export type GetPetById200 = Pet
 
 /**
  * @description successful operation
@@ -490,12 +515,24 @@ export type UploadFileQueryParams =
 /**
  * @description successful operation
  */
+export type UploadFile200 = ApiResponse
+
+/**
+ * @description successful operation
+ */
 export type UploadFileMutationResponse = ApiResponse
 export type UploadFileMutation = {
   Response: UploadFileMutationResponse
   Request: UploadFileMutationRequest
   PathParams: UploadFilePathParams
   QueryParams: UploadFileQueryParams
+}
+
+/**
+ * @description successful operation
+ */
+export type GetInventory200 = {
+  [key: string]: number
 }
 
 /**
@@ -513,6 +550,11 @@ export type GetInventoryQuery = {
  */
 export type PlaceOrder405 = any | null
 
+/**
+ * @description successful operation
+ */
+export type PlaceOrder200 = Order
+
 export type PlaceOrderMutationRequest = Order
 
 /**
@@ -529,6 +571,11 @@ export type PlaceOrderMutation = {
  * @description Invalid input
  */
 export type PlaceOrderPatch405 = any | null
+
+/**
+ * @description successful operation
+ */
+export type PlaceOrderPatch200 = Order
 
 export type PlaceOrderPatchMutationRequest = Order
 
@@ -559,6 +606,11 @@ export type GetOrderByIdPathParams = {
    */
   orderId: number
 }
+
+/**
+ * @description successful operation
+ */
+export type GetOrderById200 = Order
 
 /**
  * @description successful operation
@@ -598,6 +650,11 @@ export type DeleteOrderMutation = {
 export type CreateUserMutationResponse = any | null
 
 /**
+ * @description successful operation
+ */
+export type CreateUserError = User
+
+/**
  * @description Created user object
  */
 export type CreateUserMutationRequest = User
@@ -605,6 +662,16 @@ export type CreateUserMutation = {
   Response: CreateUserMutationResponse
   Request: CreateUserMutationRequest
 }
+
+/**
+ * @description successful operation
+ */
+export type CreateUsersWithListInputError = any | null
+
+/**
+ * @description Successful operation
+ */
+export type CreateUsersWithListInput200 = User
 
 export type CreateUsersWithListInputMutationRequest = User[]
 
@@ -616,6 +683,11 @@ export type CreateUsersWithListInputMutation = {
   Response: CreateUsersWithListInputMutationResponse
   Request: CreateUsersWithListInputMutationRequest
 }
+
+/**
+ * @description successful operation
+ */
+export type LoginUser200 = string
 
 /**
  * @description Invalid username/password supplied
@@ -647,6 +719,11 @@ export type LoginUserQuery = {
   Errors: LoginUser400
 }
 
+/**
+ * @description successful operation
+ */
+export type LogoutUserError = any | null
+
 export type LogoutUserQueryResponse = any | null
 export type LogoutUserQuery = {
   Response: LogoutUserQueryResponse
@@ -673,12 +750,22 @@ export type GetUserByNamePathParams = {
 /**
  * @description successful operation
  */
+export type GetUserByName200 = User
+
+/**
+ * @description successful operation
+ */
 export type GetUserByNameQueryResponse = User
 export type GetUserByNameQuery = {
   Response: GetUserByNameQueryResponse
   PathParams: GetUserByNamePathParams
   Errors: GetUserByName400 | GetUserByName404
 }
+
+/**
+ * @description successful operation
+ */
+export type UpdateUserError = any | null
 
 export type UpdateUserMutationResponse = any | null
 

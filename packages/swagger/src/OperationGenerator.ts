@@ -219,6 +219,26 @@ export abstract class OperationGenerator<
     const requestSchema = this.#getRequestSchema(operation)
     const responseStatusCode = statusCode || (operation.schema.responses && Object.keys(operation.schema.responses).find((key) => key.startsWith('2'))) || 200
     const responseSchema = this.#getResponseSchema(operation, responseStatusCode)
+    const statusCodes = operation
+      .getResponseStatusCodes()
+      .map((statusCode) => {
+        let name = statusCode
+        if (name === 'default') {
+          name = 'error'
+        }
+
+        const schema = this.#getResponseSchema(operation, statusCode)
+
+        return {
+          name: transformers.pascalCase(`${operation.getOperationId()} ${name}`),
+          description: (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
+          schema,
+          operation,
+          operationName: transformers.pascalCase(`${operation.getOperationId()}`),
+          statusCode: name === 'error' ? undefined : Number(statusCode),
+          keys: schema?.properties ? Object.keys(schema.properties) : undefined,
+        }
+      })
 
     return {
       pathParams: pathParamsSchema
@@ -279,28 +299,8 @@ export abstract class OperationGenerator<
           })
           : undefined,
       },
-      errors: operation
-        .getResponseStatusCodes()
-        .filter((statusCode) => statusCode.startsWith('4') || statusCode.startsWith('5'))
-        .map((statusCode) => {
-          let name = statusCode
-          if (name === 'default') {
-            name = 'error'
-          }
-
-          const schema = this.#getResponseSchema(operation, statusCode)
-
-          return {
-            name: transformers.pascalCase(`${operation.getOperationId()} ${name}`),
-            description: operation.getResponseAsJSONSchema(statusCode)?.at(0)?.description
-              || (operation.getResponseByStatusCode(statusCode) as OasTypes.ResponseObject)?.description,
-            schema,
-            operation,
-            operationName: transformers.pascalCase(`${operation.getOperationId()}`),
-            statusCode: name === 'error' ? undefined : Number(statusCode),
-            keys: schema?.properties ? Object.keys(schema.properties) : undefined,
-          }
-        }),
+      errors: statusCodes.filter(item => item.statusCode?.toString().startsWith('4') || item.statusCode?.toString().startsWith('5')),
+      statusCodes,
     }
   }
 

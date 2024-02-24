@@ -234,7 +234,7 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
             schemas.pathParams?.name,
             schemas.queryParams?.name,
             schemas.headerParams?.name,
-            ...schemas.errors?.map((error) => error.name) || [],
+            ...schemas.statusCodes?.map((item) => item.name) || [],
           ].filter(
             Boolean,
           )}

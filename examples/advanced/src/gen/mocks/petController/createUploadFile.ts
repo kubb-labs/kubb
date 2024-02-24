@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { createApiResponse } from '../createApiResponse'
 import type {
+  UploadFile200,
   UploadFileMutationRequest,
   UploadFileMutationResponse,
   UploadFilePathParams,
@@ -23,6 +24,13 @@ export function createUploadFileQueryParams(override: NonNullable<Partial<Upload
     ...{ 'additionalMetadata': faker.string.alpha() },
     ...override,
   }
+}
+/**
+ * @description successful operation
+ */
+
+export function createUploadFile200(override?: NonNullable<Partial<UploadFile200>>): NonNullable<UploadFile200> {
+  return createApiResponse(override)
 }
 /**
  * @description successful operation

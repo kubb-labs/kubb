@@ -3,9 +3,9 @@ import { useOas, useOperationFile, useSchemas } from '@kubb/swagger/hooks'
 
 import { ZodBuilder } from '../ZodBuilder.ts'
 
+import type { KubbFile } from '@kubb/core'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
-import type { KubbFile } from '@kubb/core'
 
 type Props = {
   builder: ZodBuilder
@@ -40,7 +40,7 @@ Query.File = function({ mode }: FileProps): ReactNode {
     .add(schemas.queryParams)
     .add(schemas.headerParams)
     .add(schemas.response)
-    .add(schemas.errors)
+    .add(schemas.statusCodes)
 
   const { source, imports } = builder.build()
 
