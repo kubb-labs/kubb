@@ -222,8 +222,13 @@ exports[`TypeGenerator petStoreRef > generate type for Pets 1`] = `
 "
 `;
 
-exports[`TypeGenerator type assertions > generates Date type correctly 1`] = `
+exports[`TypeGenerator type assertions > generates Date type correctly when dateType = date 1`] = `
 "export type PlainDate = Date;
+"
+`;
+
+exports[`TypeGenerator type assertions > generates Date type correctly when dateType = string 1`] = `
+"export type PlainDate = string;
 "
 `;
 
