@@ -39,6 +39,13 @@
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "components": [
+        "./dist/components.d.ts"
+      ]
+    }
+  },
   "files": [
     "src",
     "dist",

@@ -3,7 +3,7 @@
     "target": "ES2020",
     /* If NOT transpiling with TypeScript: */
     "module": "ES2020",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "node",
     "sourceMap": true,
     "strictNullChecks": true,
     "jsx": "react-jsx",
@@ -15,13 +15,7 @@
     "esModuleInterop": true,
     "allowJs": true,
     "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "paths": {
-      "unplugin-kubb": ["../../packages/unplugin/src/index.ts"],
-      "unplugin-kubb/vite": ["../../packages/unplugin/src/vite.ts"]
-    }
+    "noEmit": true
   },
   "include": [
     "./src/**/*"
