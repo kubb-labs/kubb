@@ -39,7 +39,7 @@ Mutation.File = function({}: FileProps): ReactNode {
     .add(schemas.headerParams)
     .add(schemas.response)
     .add(schemas.request)
-    .add(schemas.errors)
+    .add(schemas.statusCodes)
 
   const { source, imports } = builder.build()
 

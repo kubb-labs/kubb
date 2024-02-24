@@ -5,6 +5,11 @@ import type { Order } from '../../models'
  */
 export type PlaceOrder405 = any | null
 
+/**
+ * @description successful operation
+ */
+export type PlaceOrder200 = Order
+
 export type PlaceOrderMutationRequest = Order
 
 /**

@@ -1,13 +1,20 @@
 import { faker } from '@faker-js/faker'
-import { createAddPetRequest } from '../createAddPetRequest'
 import { createPet } from '../createPet'
-import type { AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/petController/AddPet'
+import { createAddPetRequest } from '../createAddPetRequest'
+import type { AddPet200, AddPet405, AddPetMutationRequest, AddPetMutationResponse } from '../../models/ts/petController/AddPet'
 
 export function createAddPet405(override: NonNullable<Partial<AddPet405>> = {}): NonNullable<AddPet405> {
   return {
     ...{ 'code': faker.number.float({}), 'message': faker.string.alpha() },
     ...override,
   }
+}
+/**
+ * @description Successful operation
+ */
+
+export function createAddPet200(override?: NonNullable<Partial<AddPet200>>): NonNullable<AddPet200> {
+  return createPet(override)
 }
 /**
  * @description Create a new pet in the store

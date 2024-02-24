@@ -141,15 +141,14 @@ export function Query({
 
   const resultGenerics = [
     'TData',
-    'TError',
+    `${factory.name}["error"]`,
   ]
 
   generics.add([
-    { type: `TData extends ${factory.name}['response']`, default: `${factory.name}["response"]` },
-    { type: 'TError', default: `${factory.name}["error"]` },
+    { type: `TData`, default: `${factory.name}["response"]` },
   ])
 
-  const queryOptionsGenerics = ['TData', 'TError']
+  const queryOptionsGenerics = ['TData']
 
   params.add([
     ...getASTParams(schemas.pathParams, { typed: true }),
@@ -259,7 +258,7 @@ Query.File = function({ templates }: FileProps): ReactNode {
             schemas.pathParams?.name,
             schemas.queryParams?.name,
             schemas.headerParams?.name,
-            ...schemas.errors?.map((error) => error.name) || [],
+            ...schemas.statusCodes?.map((item) => item.name) || [],
           ].filter(
             Boolean,
           )}

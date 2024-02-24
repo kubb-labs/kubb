@@ -20,6 +20,9 @@
       "@kubb/core/mocks": [
         "packages/core/mocks/index.ts"
       ],
+      "@kubb/core/transformer": [
+        "packages/core/transformer/index.ts"
+      ],
       "@kubb/core": [
         "packages/core/src/index.ts"
       ],

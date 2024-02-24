@@ -1,11 +1,28 @@
-import type { User } from './User'
+import type { CreateUserResult } from './CreateUserResult'
 
-export type CreateUserMutationResponse = any | null
+export type CreateUser = {
+  /**
+   * @type string | undefined
+   */
+  email?: string
+}
+
+export type CreateUserMutationRequest = {
+  /**
+   * @type string
+   */
+  name: string
+}
 
 /**
- * @description Created user object
+ * @description OK
  */
-export type CreateUserMutationRequest = User
+export type CreateUser201 = CreateUserResult
+
+/**
+ * @description OK
+ */
+export type CreateUserMutationResponse = CreateUserResult
 export type CreateUserMutation = {
   Response: CreateUserMutationResponse
   Request: CreateUserMutationRequest

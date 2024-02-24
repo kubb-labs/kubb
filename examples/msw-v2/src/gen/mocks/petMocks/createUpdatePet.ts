@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { createPet } from '../createPet'
-import type { UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../models/UpdatePet'
+import type { UpdatePet200, UpdatePet400, UpdatePet404, UpdatePet405, UpdatePetMutationRequest, UpdatePetMutationResponse } from '../../models/UpdatePet'
 
 /**
  * @description Invalid ID supplied
@@ -25,6 +25,14 @@ export function createUpdatePet404(override?: NonNullable<Partial<UpdatePet404>>
 export function createUpdatePet405(override?: NonNullable<Partial<UpdatePet405>>): NonNullable<UpdatePet405> {
   faker.seed([220])
   return undefined
+}
+/**
+ * @description Successful operation
+ */
+
+export function createUpdatePet200(override?: NonNullable<Partial<UpdatePet200>>): NonNullable<UpdatePet200> {
+  faker.seed([220])
+  return createPet(override)
 }
 /**
  * @description Update an existent pet in the store

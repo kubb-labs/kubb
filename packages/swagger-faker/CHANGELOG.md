@@ -1,5 +1,27 @@
 # @kubb/swagger-faker
 
+## 2.6.4
+
+### Patch Changes
+
+- Updated dependencies [[`ee1dd8e`](https://github.com/kubb-project/kubb/commit/ee1dd8ebf6cd7331176670af7bbb2c9cf98b4ce9)]:
+  - @kubb/swagger@2.6.4
+  - @kubb/swagger-ts@2.6.4
+  - @kubb/core@2.6.4
+  - @kubb/parser@2.6.4
+  - @kubb/react@2.6.4
+
+## 2.6.3
+
+### Patch Changes
+
+- Updated dependencies [[`52e802a`](https://github.com/kubb-project/kubb/commit/52e802ac61a5c1820020ad1ec80ddcf930a647f1)]:
+  - @kubb/swagger@2.6.3
+  - @kubb/swagger-ts@2.6.3
+  - @kubb/core@2.6.3
+  - @kubb/parser@2.6.3
+  - @kubb/react@2.6.3
+
 ## 2.6.2
 
 ### Patch Changes

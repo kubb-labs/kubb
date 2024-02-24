@@ -16,6 +16,11 @@ export type UpdatePet404 = any | null
 export type UpdatePet405 = any | null
 
 /**
+ * @description Successful operation
+ */
+export type UpdatePet200 = Pet
+
+/**
  * @description Update an existent pet in the store
  */
 export type UpdatePetMutationRequest = Pet

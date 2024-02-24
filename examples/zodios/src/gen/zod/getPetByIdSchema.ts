@@ -15,4 +15,9 @@ export const getPetByIdPathParamsSchema = z.object({ petId: z.number().describe(
 /**
  * @description successful operation
  */
+export const getPetById200Schema = z.lazy(() => petSchema)
+
+/**
+ * @description successful operation
+ */
 export const getPetByIdQueryResponseSchema = z.lazy(() => petSchema)

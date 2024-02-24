@@ -11,7 +11,7 @@ declare const AXIOS_HEADERS: string
 export type RequestConfig<TData = unknown> = {
   url?: string
   method: 'get' | 'put' | 'patch' | 'post' | 'delete'
-  params?: unknown
+  params?: object
   data?: TData
   responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream'
   signal?: AbortSignal

@@ -1,4 +1,4 @@
-import type { AddPetRequest, Pet } from '../../models'
+import type { Pet, AddPetRequest } from '../../models'
 
 export type AddPet405 = {
   /**
@@ -10,6 +10,11 @@ export type AddPet405 = {
    */
   message?: string
 }
+
+/**
+ * @description Successful operation
+ */
+export type AddPet200 = Pet
 
 /**
  * @description Create a new pet in the store

@@ -1,6 +1,15 @@
 import { faker } from '@faker-js/faker'
 import { createUser } from '../createUser'
-import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/UpdateUser'
+import type { UpdateUserError, UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from '../../models/UpdateUser'
+
+/**
+ * @description successful operation
+ */
+
+export function createUpdateUserError(override?: NonNullable<Partial<UpdateUserError>>): NonNullable<UpdateUserError> {
+  faker.seed([220])
+  return undefined
+}
 
 export function createUpdateUserMutationResponse(override?: NonNullable<Partial<UpdateUserMutationResponse>>): NonNullable<UpdateUserMutationResponse> {
   faker.seed([220])

@@ -17,7 +17,8 @@ export function SchemaType({ factory }: Props): ReactNode {
 
   const [TData, TError, TRequest, TPathParams, TQueryParams, THeaderParams, TResponse] = [
     schemas.response.name,
-    schemas.errors?.map((error) => error.name).join(' | ') || 'never',
+    schemas.errors?.map((item) => item.name)
+      .join(' | ') || 'never',
     schemas.request?.name || 'never',
     schemas.pathParams?.name || 'never',
     schemas.queryParams?.name || 'never',

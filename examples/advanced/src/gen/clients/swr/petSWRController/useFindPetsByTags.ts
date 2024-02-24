@@ -22,14 +22,14 @@ type FindPetsByTags = {
     return: Awaited<ReturnType<FindPetsByTagsClient>>
   }
 }
-export function findPetsByTagsQueryOptions<TData extends FindPetsByTags['response'] = FindPetsByTags['response'], TError = FindPetsByTags['error']>(
+export function findPetsByTagsQueryOptions<TData = FindPetsByTags['response']>(
   params?: FindPetsByTags['queryParams'],
   headers?: FindPetsByTags['headerParams'],
   options: FindPetsByTags['client']['parameters'] = {},
-): SWRConfiguration<TData, TError> {
+): SWRConfiguration<TData, FindPetsByTags['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, TError>({
+      const res = await client<TData, FindPetsByTags['error']>({
         method: 'get',
         url: `/pet/findByTags`,
         params,
@@ -44,26 +44,26 @@ export function findPetsByTagsQueryOptions<TData extends FindPetsByTags['respons
  * @description Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  * @summary Finds Pets by tags
  * @link /pet/findByTags */
-export function useFindPetsByTags<TData extends FindPetsByTags['response'] = FindPetsByTags['response'], TError = FindPetsByTags['error']>(
+export function useFindPetsByTags<TData = FindPetsByTags['response']>(
   params?: FindPetsByTags['queryParams'],
   headers?: FindPetsByTags['headerParams'],
   options?: {
-    query?: SWRConfiguration<TData, TError>
+    query?: SWRConfiguration<TData, FindPetsByTags['error']>
     client?: FindPetsByTags['client']['parameters']
     shouldFetch?: boolean
   },
-): SWRResponse<TData, TError> {
+): SWRResponse<TData, FindPetsByTags['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/pet/findByTags` as const
   const query = useSWR<
     TData,
-    TError,
+    FindPetsByTags['error'],
     [
       typeof url,
       typeof params,
     ] | null
   >(shouldFetch ? [url, params] : null, {
-    ...findPetsByTagsQueryOptions<TData, TError>(params, headers, clientOptions),
+    ...findPetsByTagsQueryOptions<TData>(params, headers, clientOptions),
     ...queryOptions,
   })
   return query

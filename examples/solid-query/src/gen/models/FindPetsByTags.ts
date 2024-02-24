@@ -28,6 +28,11 @@ export type FindPetsByTagsQueryParams =
 /**
  * @description successful operation
  */
+export type FindPetsByTags200 = Pet[]
+
+/**
+ * @description successful operation
+ */
 export type FindPetsByTagsQueryResponse = Pet[]
 export type FindPetsByTagsQuery = {
   Response: FindPetsByTagsQueryResponse

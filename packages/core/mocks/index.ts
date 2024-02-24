@@ -14,8 +14,7 @@ export const mockedPluginManager = {
     emit(message) {
       console.log(message)
     },
-    on(eventName, args) {
-    },
+    on(eventName, args) {},
     logLevel: 'info',
   },
 } as PluginManager

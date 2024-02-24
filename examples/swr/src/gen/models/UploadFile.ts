@@ -23,6 +23,11 @@ export type UploadFileQueryParams =
 /**
  * @description successful operation
  */
+export type UploadFile200 = ApiResponse
+
+/**
+ * @description successful operation
+ */
 export type UploadFileMutationResponse = ApiResponse
 export type UploadFileMutation = {
   Response: UploadFileMutationResponse

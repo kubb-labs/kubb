@@ -1,8 +1,15 @@
 import { createUser } from '../createUser'
-import type { CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/CreateUser'
+import type { CreateUserError, CreateUserMutationRequest, CreateUserMutationResponse } from '../../models/CreateUser'
 
 export function createCreateUserMutationResponse(override?: NonNullable<Partial<CreateUserMutationResponse>>): NonNullable<CreateUserMutationResponse> {
   return undefined
+}
+/**
+ * @description successful operation
+ */
+
+export function createCreateUserError(override?: NonNullable<Partial<CreateUserError>>): NonNullable<CreateUserError> {
+  return createUser(override)
 }
 /**
  * @description Created user object

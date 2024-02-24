@@ -17,13 +17,13 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
-export function getOrderByIdQueryOptions<TData extends GetOrderById['response'] = GetOrderById['response'], TError = GetOrderById['error']>(
+export function getOrderByIdQueryOptions<TData = GetOrderById['response']>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['parameters'] = {},
-): SWRConfiguration<TData, TError> {
+): SWRConfiguration<TData, GetOrderById['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, TError>({
+      const res = await client<TData, GetOrderById['error']>({
         method: 'get',
         url: `/store/order/${orderId}`,
         ...options,
@@ -36,18 +36,18 @@ export function getOrderByIdQueryOptions<TData extends GetOrderById['response'] 
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId */
-export function useGetOrderById<TData extends GetOrderById['response'] = GetOrderById['response'], TError = GetOrderById['error']>(
+export function useGetOrderById<TData = GetOrderById['response']>(
   orderId: GetOrderByIdPathParams['orderId'],
   options?: {
-    query?: SWRConfiguration<TData, TError>
+    query?: SWRConfiguration<TData, GetOrderById['error']>
     client?: GetOrderById['client']['parameters']
     shouldFetch?: boolean
   },
-): SWRResponse<TData, TError> {
+): SWRResponse<TData, GetOrderById['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/store/order/${orderId}` as const
-  const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
-    ...getOrderByIdQueryOptions<TData, TError>(orderId, clientOptions),
+  const query = useSWR<TData, GetOrderById['error'], typeof url | null>(shouldFetch ? url : null, {
+    ...getOrderByIdQueryOptions<TData>(orderId, clientOptions),
     ...queryOptions,
   })
   return query
