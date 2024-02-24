@@ -1,5 +1,19 @@
 # @kubb/swagger-swr
 
+## 2.6.5
+
+### Patch Changes
+
+- [`77f0a18`](https://github.com/kubb-project/kubb/commit/77f0a1889c8c3ad1b39e00cf44c7c023f29e6323) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - no `extends` for ts generics
+
+- Updated dependencies []:
+  - @kubb/core@2.6.5
+  - @kubb/parser@2.6.5
+  - @kubb/react@2.6.5
+  - @kubb/swagger@2.6.5
+  - @kubb/swagger-client@2.6.5
+  - @kubb/swagger-ts@2.6.5
+
 ## 2.6.4
 
 ### Patch Changes

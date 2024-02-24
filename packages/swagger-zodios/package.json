@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-zodios",
-  "version": "2.6.4",
+  "version": "2.6.5",
   "description": "Generator swagger-zodios",
   "keywords": [
     "zod",
