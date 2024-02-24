@@ -1,4 +1,4 @@
-<div align="center">
+<div style="text-align: center;">
 
 <img src="https://raw.githubusercontent.com/kubb-project/kubb/main/assets/banner.png" alt="logo"  height="auto" />
 
