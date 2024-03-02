@@ -1,5 +1,16 @@
 # @kubb/swagger-client
 
+## 2.6.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.6.6
+  - @kubb/parser@2.6.6
+  - @kubb/react@2.6.6
+  - @kubb/swagger@2.6.6
+  - @kubb/swagger-ts@2.6.6
+
 ## 2.6.5
 
 ### Patch Changes

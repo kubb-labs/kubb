@@ -1,5 +1,18 @@
 # @kubb/swagger-zod
 
+## 2.6.6
+
+### Patch Changes
+
+- [`dc95f9d`](https://github.com/kubb-project/kubb/commit/dc95f9da65e264208d063f730d240d6d5df47bf8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Ability to use the email field with my own validation rules
+
+- Updated dependencies []:
+  - @kubb/core@2.6.6
+  - @kubb/parser@2.6.6
+  - @kubb/react@2.6.6
+  - @kubb/swagger@2.6.6
+  - @kubb/swagger-ts@2.6.6
+
 ## 2.6.5
 
 ### Patch Changes
