@@ -151,7 +151,7 @@ const defaultTemplates = {
     ): ReactNode {
       const { factory, queryKey } = context
       const importNames = getImportNames()
-      const { key: pluginKey } = usePlugin()
+      const { key: pluginKey, options: { pathParamsType } } = usePlugin<PluginOptions>()
       const queryOptions = useResolveName({ name: `${factory.name}QueryOptions`, pluginKey })
 
       const hookName = rest.infinite ? importNames.queryInfinite.vue.hookName : importNames.query.vue.hookName
@@ -186,6 +186,7 @@ const defaultTemplates = {
       params.add([
         ...getASTParams(schemas.pathParams, {
           typed: true,
+          asObject: pathParamsType === 'object',
           override: (item) => ({ ...item, name: item.name ? `ref${transformers.pascalCase(item.name)}` : undefined }),
         }),
         {
@@ -286,7 +287,7 @@ export function Query({
   QueryKeyTemplate = QueryKey.templates.react,
   QueryOptionsTemplate = QueryOptions.templates.react,
 }: Props): ReactNode {
-  const { key: pluginKey, options: { dataReturnType } } = usePlugin<PluginOptions>()
+  const { key: pluginKey, options: { dataReturnType, pathParamsType } } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const schemas = useSchemas()
   const name = useOperationName({ type: 'function' })
@@ -342,6 +343,7 @@ export function Query({
   params.add([
     ...getASTParams(schemas.pathParams, {
       typed: true,
+      asObject: pathParamsType === 'object',
     }),
     {
       name: 'params',
@@ -368,6 +370,7 @@ export function Query({
   queryParams.add([
     ...getASTParams(schemas.pathParams, {
       typed: false,
+      asObject: pathParamsType === 'object',
     }),
     {
       name: 'params',

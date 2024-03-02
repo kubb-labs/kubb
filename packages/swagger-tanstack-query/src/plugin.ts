@@ -31,6 +31,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     infinite,
     transformers = {},
     dataReturnType = 'data',
+    pathParamsType = 'inline',
     templates,
     query,
   } = options
@@ -45,6 +46,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         ...options.client,
       },
       dataReturnType,
+      pathParamsType,
       infinite: infinite
         ? {
           queryParam: 'id',

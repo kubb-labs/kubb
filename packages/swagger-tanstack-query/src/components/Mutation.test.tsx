@@ -35,6 +35,7 @@ describe('<Mutation/>', async () => {
     infinite: undefined,
     suspense: undefined,
     dataReturnType: 'data',
+    pathParamsType: 'inline',
     templates: {
       query: Query.templates,
       queryKey: QueryKey.templates,

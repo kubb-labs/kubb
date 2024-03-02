@@ -259,7 +259,7 @@ export function Mutation({
   optionsType,
   Template = defaultTemplates.react,
 }: Props): ReactNode {
-  const { options: { dataReturnType } } = usePlugin<PluginOptions>()
+  const { options: { dataReturnType, pathParamsType } } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
   const schemas = useSchemas()
@@ -294,9 +294,7 @@ export function Mutation({
   ]
 
   params.add([
-    ...getASTParams(schemas.pathParams, {
-      typed: true,
-    }),
+    ...getASTParams(schemas.pathParams, { typed: true, asObject: pathParamsType === 'object' }),
     {
       name: 'params',
       type: `${factory.name}['queryParams']`,
