@@ -76,6 +76,30 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
         "path": "zod",
         "root": undefined,
       },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Pets",
+        ],
+        "path": "Pets",
+        "root": "listPets.ts",
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Error",
+        ],
+        "path": "Error",
+        "root": "listPets.ts",
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Pets",
+        ],
+        "path": "Pets",
+        "root": "listPets.ts",
+      },
     ],
     "meta": {
       "name": "listPets",
@@ -121,6 +145,30 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
         "path": "zod",
         "root": undefined,
       },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Pet",
+        ],
+        "path": "Pet",
+        "root": "showPetById.ts",
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Error",
+        ],
+        "path": "Error",
+        "root": "showPetById.ts",
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Pet",
+        ],
+        "path": "Pet",
+        "root": "showPetById.ts",
+      },
     ],
     "meta": {
       "name": "showPetById",
@@ -165,6 +213,14 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
         ],
         "path": "zod",
         "root": undefined,
+      },
+      {
+        "isTypeOnly": false,
+        "name": [
+          "Error",
+        ],
+        "path": "Error",
+        "root": "createPets.ts",
       },
     ],
     "meta": {

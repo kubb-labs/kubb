@@ -24,10 +24,10 @@ export function Query({
 }
 
 type FileProps = {
-  mode: KubbFile.Mode
+  mode: KubbFile.Mode | undefined
 }
 
-Query.File = function({ mode }: FileProps): ReactNode {
+Query.File = function({ mode = 'directory' }: FileProps): ReactNode {
   const { options } = usePlugin<PluginOptions>()
 
   const schemas = useSchemas()

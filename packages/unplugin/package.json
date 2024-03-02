@@ -141,7 +141,7 @@
     "@kubb/tsup-config": "workspace:*",
     "@nuxt/kit": "^3.10.3",
     "@nuxt/schema": "^3.10.3",
-    "@types/node": "^20.11.20",
+    "@types/node": "^20.11.24",
     "eslint": "^8.57.0",
     "rimraf": "^5.0.5",
     "rollup": "^4.12.0",
