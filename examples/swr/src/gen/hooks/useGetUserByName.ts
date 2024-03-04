@@ -35,17 +35,17 @@ export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
 /**
  * @summary Get user by user name
  * @link /user/:username */
-export function useGetUserByName<TData extends GetUserByName['response'] = GetUserByName['response'], TError = GetUserByName['error']>(
+export function useGetUserByName<TData = GetUserByName['response']>(
   username: GetUserByNamePathParams['username'],
   options?: {
-    query?: SWRConfiguration<TData, TError>
+    query?: SWRConfiguration<TData, GetUserByName['error']>
     client?: GetUserByName['client']['parameters']
     shouldFetch?: boolean
   },
-): SWRResponse<TData, TError> {
+): SWRResponse<TData, GetUserByName['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/user/${username}` as const
-  const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
+  const query = useSWR<TData, GetUserByName['error'], typeof url | null>(shouldFetch ? url : null, {
     ...getUserByNameQueryOptions<TData>(username, clientOptions),
     ...queryOptions,
   })

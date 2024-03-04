@@ -36,17 +36,17 @@ export function getOrderByIdQueryOptions<TData = GetOrderById['response']>(
  * @description For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  * @summary Find purchase order by ID
  * @link /store/order/:orderId */
-export function useGetOrderById<TData extends GetOrderById['response'] = GetOrderById['response'], TError = GetOrderById['error']>(
+export function useGetOrderById<TData = GetOrderById['response']>(
   orderId: GetOrderByIdPathParams['orderId'],
   options?: {
-    query?: SWRConfiguration<TData, TError>
+    query?: SWRConfiguration<TData, GetOrderById['error']>
     client?: GetOrderById['client']['parameters']
     shouldFetch?: boolean
   },
-): SWRResponse<TData, TError> {
+): SWRResponse<TData, GetOrderById['error']> {
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/store/order/${orderId}` as const
-  const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
+  const query = useSWR<TData, GetOrderById['error'], typeof url | null>(shouldFetch ? url : null, {
     ...getOrderByIdQueryOptions<TData>(orderId, clientOptions),
     ...queryOptions,
   })
