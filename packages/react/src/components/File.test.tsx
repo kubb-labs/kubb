@@ -2,7 +2,6 @@ import path from 'node:path'
 
 import { format } from '../../mocks/format.ts'
 import { createRoot } from '../client/createRoot.ts'
-import { Editor } from './Editor.tsx'
 import { File } from './File.tsx'
 
 describe('<File/>', () => {

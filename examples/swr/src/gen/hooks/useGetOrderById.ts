@@ -17,13 +17,13 @@ type GetOrderById = {
     return: Awaited<ReturnType<GetOrderByIdClient>>
   }
 }
-export function getOrderByIdQueryOptions<TData extends GetOrderById['response'] = GetOrderById['response'], TError = GetOrderById['error']>(
+export function getOrderByIdQueryOptions<TData = GetOrderById['response']>(
   orderId: GetOrderByIdPathParams['orderId'],
   options: GetOrderById['client']['parameters'] = {},
-): SWRConfiguration<TData, TError> {
+): SWRConfiguration<TData, GetOrderById['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, TError>({
+      const res = await client<TData, GetOrderById['error']>({
         method: 'get',
         url: `/store/order/${orderId}`,
         ...options,
@@ -47,7 +47,7 @@ export function useGetOrderById<TData extends GetOrderById['response'] = GetOrde
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/store/order/${orderId}` as const
   const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
-    ...getOrderByIdQueryOptions<TData, TError>(orderId, clientOptions),
+    ...getOrderByIdQueryOptions<TData>(orderId, clientOptions),
     ...queryOptions,
   })
   return query

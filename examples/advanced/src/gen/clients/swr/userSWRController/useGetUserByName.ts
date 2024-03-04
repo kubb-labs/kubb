@@ -17,13 +17,13 @@ type GetUserByName = {
     return: Awaited<ReturnType<GetUserByNameClient>>
   }
 }
-export function getUserByNameQueryOptions<TData extends GetUserByName['response'] = GetUserByName['response'], TError = GetUserByName['error']>(
+export function getUserByNameQueryOptions<TData = GetUserByName['response']>(
   username: GetUserByNamePathParams['username'],
   options: GetUserByName['client']['parameters'] = {},
-): SWRConfiguration<TData, TError> {
+): SWRConfiguration<TData, GetUserByName['error']> {
   return {
     fetcher: async () => {
-      const res = await client<TData, TError>({
+      const res = await client<TData, GetUserByName['error']>({
         method: 'get',
         url: `/user/${username}`,
         ...options,
@@ -46,7 +46,7 @@ export function useGetUserByName<TData extends GetUserByName['response'] = GetUs
   const { query: queryOptions, client: clientOptions = {}, shouldFetch = true } = options ?? {}
   const url = `/user/${username}` as const
   const query = useSWR<TData, TError, typeof url | null>(shouldFetch ? url : null, {
-    ...getUserByNameQueryOptions<TData, TError>(username, clientOptions),
+    ...getUserByNameQueryOptions<TData>(username, clientOptions),
     ...queryOptions,
   })
   return query
