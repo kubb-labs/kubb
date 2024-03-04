@@ -132,7 +132,7 @@
     }
   },
   "dependencies": {
-    "unplugin": "^1.7.1"
+    "unplugin": "^1.8.0"
   },
   "devDependencies": {
     "@kubb/core": "workspace:*",
