@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-ts",
-  "version": "2.6.5",
+  "version": "2.6.7",
   "description": "Generator swagger-ts",
   "keywords": [
     "typescript",
@@ -80,7 +80,7 @@
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/react": "^18.2.58",
+    "@types/react": "^18.2.62",
     "eslint": "^8.57.0",
     "expect-type": "^0.17.3",
     "react": "^18.2.0",

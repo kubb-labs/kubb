@@ -27,7 +27,7 @@ type FileProps = {
   mode: KubbFile.Mode | undefined
 }
 
-Mutation.File = function({ mode }: FileProps): ReactNode {
+Mutation.File = function({ mode = 'directory' }: FileProps): ReactNode {
   const { options } = usePlugin<PluginOptions>()
 
   const schemas = useSchemas()

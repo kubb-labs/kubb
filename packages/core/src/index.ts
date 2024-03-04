@@ -8,7 +8,7 @@ export { PackageManager } from './PackageManager.ts'
 export { createPlugin, pluginName as name, pluginName } from './plugin.ts'
 export { PluginManager } from './PluginManager.ts'
 export { PromiseManager } from './PromiseManager.ts'
-export type { CLIOptions, Config, Plugin, PluginFactoryOptions, ResolveNameParams, ResolvePathParams, UserConfig } from './types.ts'
+export type * from './types.ts'
 
 export interface _Register {}
 

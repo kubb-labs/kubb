@@ -1,4 +1,4 @@
-<div align="center">
+<div style="text-align: center;">
 
 <img src="https://raw.githubusercontent.com/kubb-project/kubb/main/assets/banner.png" alt="logo"  height="auto" />
 
@@ -47,6 +47,7 @@
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/chiptus"><img src="https://avatars.githubusercontent.com/u/1381655?v=4?s=100" width="100px;" alt="Chaim Lev-Ari"/><br /><sub><b>Chaim Lev-Ari</b></sub></a><br /><a href="https://github.com/kubb-project/kubb/commits?author=chiptus" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://projects.pafnuty.name"><img src="https://avatars.githubusercontent.com/u/1635679?v=4?s=100" width="100px;" alt="Pavel Belousov"/><br /><sub><b>Pavel Belousov</b></sub></a><br /><a href="https://github.com/kubb-project/kubb/commits?author=pafnuty" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

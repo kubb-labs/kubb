@@ -19,7 +19,7 @@ const schemas = [
   ['enums', './schemas/enums.yaml'],
 ]
 
-/** @type {import('@kubb/core').KubbUserConfig} */
+/** @type {import('@kubb/core').UserConfig} */
 const baseConfig = {
   root: '.',
   input: {

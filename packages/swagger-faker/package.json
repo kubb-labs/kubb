@@ -1,6 +1,6 @@
 {
   "name": "@kubb/swagger-faker",
-  "version": "2.6.5",
+  "version": "2.6.7",
   "description": "Generator swagger-faker",
   "keywords": [
     "faker",
@@ -74,7 +74,7 @@
     "@kubb/eslint-config": "workspace:*",
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
-    "@types/react": "^18.2.58",
+    "@types/react": "^18.2.62",
     "eslint": "^8.57.0",
     "react": "^18.2.0",
     "tsup": "^8.0.2",

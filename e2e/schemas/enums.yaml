@@ -1,45 +1,651 @@
-definitions:
-  enumVarNames.Type:
-    enum:
-    - 0
-    - 1
-    type: integer
-    x-enum-varnames:
-    - Pending
-    - Received
-  enumNames.Type:
-    enum:
-    - 0
-    - 1
-    x-enumNames:
-      - Pending
-      - Received
-swagger: "2.0"
+openapi: 3.0.0
 info:
-  title: test
-  version: "1.0.0"
+  title: Zoning API
+  description: |-
+    An API for serving data related to the zoning of New York City.
+  version: 0.1.0
+servers:
+  - url: https://zoning.planningdigital.com/api
+tags:
+  - name: Boroughs
+  - name: Land Uses
+  - name: Tax Lots
+  - name: Zoning Districts
+  - name: GeoJSON
 paths:
-  /var-names:
+  /boroughs:
     get:
-      operationId: varNames_get
-      tags: 
-        - enumVarNames
-      consumes:
-      - application/json
+      summary: List boroughs
+      operationId: findBoroughs
+      tags:
+      - Boroughs
       responses:
-        200: 
-          description: Success
-          schema:
-            $ref: '#/definitions/enumVarNames.Type'
-  /names:
+        '200':
+          description: An object containing all boroughs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  boroughs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Borough'
+                required:
+                  - boroughs
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /land-uses:
     get:
-      operationId: enumNames_get
-      tags: 
-        - enumNames
-      consumes:
-      - application/json
+      summary: List land uses
+      operationId: findLandUses
+      tags:
+      - Land Uses
       responses:
-        200: 
-          description: Success
+        '200':
+          description: An object containing all land uses.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  landUses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LandUse'
+                required:
+                  - landUses
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /tax-lots:
+    get:
+      summary: Non-spatial details for tax lots
+      operationId: findTaxLots
+      tags:
+        - Tax Lots
+      parameters:
+        - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/offsetParam"
+      responses:
+        '200':
+          description: An object containing a list of tax lots and pagination metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaxLotBasicPage"
+        '400':
+            $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /tax-lots/{bbl}:
+    get:
+      summary: Non-spatial details for a specific tax lot
+      operationId: findTaxLotByBbl
+      tags:
+      - Tax Lots
+      parameters:
+        - $ref: "#/components/parameters/bblParam"
+      responses:
+        '200':
+          description: A tax lot object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaxLot'
+        '400':
+            $ref: "#/components/responses/BadRequest"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /tax-lots/{bbl}/geojson:
+    get:
+      summary: GeoJSON for a specific tax lot
+      operationId: findTaxLotGeoJsonByBbl
+      tags:
+      - Tax Lots
+      - GeoJSON
+      parameters:
+        - $ref: "#/components/parameters/bblParam"
+      responses:
+        '200':
+          description: A tax lot geojson object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaxLotGeoJson'
+        '400':
+            $ref: "#/components/responses/BadRequest"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /tax-lots/{bbl}/zoning-districts:
+    get:
+      summary: Non-spatial details for zoning districts that spatially intersect a tax lot.
+      operationId: findZoningDistrictsByTaxLotBbl
+      tags:
+      - Tax Lots
+      - Zoning Districts
+      parameters:
+        - $ref: "#/components/parameters/bblParam"
+      responses:
+        '200':
+          description: An object containing zoning districts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zoningDistricts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ZoningDistrict'
+                required:
+                  -  zoningDistricts
+        '400':
+            $ref: "#/components/responses/BadRequest"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /tax-lots/{bbl}/zoning-districts/classes:
+    get:
+      summary: Class schemas for all zoning districts that spatially intersect the tax lot
+      operationId: findZoningDistrictClassesByTaxLotBbl
+      tags:
+        - Tax Lots
+        - Zoning Districts
+      parameters:
+        - $ref: "#/components/parameters/bblParam"
+      responses:
+        '200':
+          description: An object containing zoning district class schemas.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zoningDistrictClasses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ZoningDistrictClass'
+                required:
+                  - zoningDistrictClasses
+        '400':
+            $ref: "#/components/responses/BadRequest"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /zoning-districts/{id}:
+    get:
+      summary: Non-spatial details for a specific zoning district
+      operationId: findZoningDistrictByZoningDistrictId
+      tags:
+      - Zoning Districts
+      parameters:
+        - name: id
+          in: path
+          required: true
           schema:
-            $ref: '#/definitions/enumNames.Type'
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A zoning district object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoningDistrict'
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /zoning-districts/{id}/classes:
+    get:
+      summary: Class schemas for the specified zoning district
+      operationId: findZoningDistrictClassesByZoningDistrictId
+      tags:
+      - Zoning Districts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: An object of class schemas for the zoning district.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zoningDistrictClasses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ZoningDistrictClass'
+                required:
+                  - zoningDistrictClasses
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /zoning-district-classes:
+    get:
+      summary: Class schemas for all zoning districts
+      operationId: findZoningDistrictClasses
+      tags:
+      - Zoning Districts
+      responses:
+        '200':
+          description: An object containing all zoning district class schemas.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zoningDistrictClasses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ZoningDistrictClass"
+                required:
+                  - zoningDistrictClasses
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /zoning-district-classes/category-colors:
+    get:
+      summary: List of color and class category
+      operationId: findZoningDistrictClassCategoryColors
+      tags:
+      - Zoning Districts
+      responses:
+        '200':
+            description: An object containing all zoning district category colors.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    zoningDistrictClassCategoryColors:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/ZoningDistrictClassCategoryColor"
+                  required:
+                    - zoningDistrictClassCategoryColors
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /zoning-district-classes/{id}:
+    get:
+      summary: Class schema for the specified class
+      operationId: findZoningDistrictClassByZoningDistrictClassId
+      tags:
+      - Zoning Districts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[A-z][0-9]+$
+      responses:
+        '200':
+          description: A class schema for a zoning district
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/ZoningDistrictClass"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+components:
+  parameters:
+    bblParam:
+      name: bbl
+      required: true
+      in: path
+      schema:
+        type: string
+        pattern: '^([0-9]{10})$'
+        example: '1000477501'
+      description: The ten character code compromised of a one character borough, five character block, and four character lot codes.
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        example: 100
+      description: The maximum number of results to be returned in each response. The default value is 20. It must be between 1 and 100, inclusive.
+    offsetParam:
+      name: offset
+      required: false
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        example: 100
+      description: The position in the full list to begin returning results. Default offset is 0. If the offset is beyond the end of the list, no results will be returned.
+  schemas:
+    Borough:
+      type: object
+      properties:
+        id:
+          type: string
+          description: A single character numeric string containing the common number used to refer to the borough. Possible values are 1-5.
+          pattern: \b[1-9]\b
+          example: 1
+        title:
+          type: string
+          description: The full name of the borough.
+          example: Manhattan
+        abbr:
+          type: string
+          description: The two character abbreviation for the borough.
+          minLength: 2
+          maxLength: 2
+          example: MN
+      required:
+        - id
+        - title
+        - abbr
+    LandUse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The two character code to represent the land use. Possible values are 01-11.
+          minLength: 2
+          maxLength: 2
+          example: '05'
+        description:
+          type: string
+          description: The description of the land use.
+          example: Commercial and Office Buildings
+        color:
+          type: string
+          description: Hex-style color code to represent the land use.
+          pattern: '^#([A-Fa-f0-9]{8})$'
+          example: '#fc2929ff'
+      required:
+        - id
+        - description
+        - color
+    TaxLot:
+      type: object
+      properties:
+        bbl:
+          type: string
+          description: The ten character code compromised of a one character borough, five character block, and four character lot codes.
+          pattern: '^([0-9]{10})$'
+          example: '1000477501'
+        borough:
+          $ref: '#/components/schemas/Borough'
+        block:
+          type: string
+          description: The block code, without its padding zeros.
+          minLength: 1
+          maxLength: 5
+          example: 47
+        lot:
+          type: string
+          description: The lot code, without its padding zeros.
+          minLength: 1
+          maxLength: 4
+          example: 7501
+        address:
+          type: string
+          description: The street address.
+          example: 120 BROADWAY
+        landUse:
+          $ref: '#/components/schemas/LandUse'
+      required:
+        - bbl
+        - borough
+        - block
+        - lot
+        - address
+        - landUse
+    TaxLotBasic:
+      type: object
+      properties:
+        bbl:
+          type: string
+          description: The ten character code compromised of a one character borough, five character block, and four character lot codes.
+          pattern: '^([0-9]{10})$'
+          example: '1000477501'
+        boroughId:
+          type: string
+          description: A single character numeric string containing the common number used to refer to the borough. Possible values are 1-5.
+          pattern: \b[1-9]\b
+          example: 1
+        block:
+          type: string
+          description: The block code, without its padding zeros.
+          minLength: 1
+          maxLength: 5
+          example: 47
+        lot:
+          type: string
+          description: The lot code, without its padding zeros.
+          minLength: 1
+          maxLength: 4
+          example: 7501
+        address:
+          type: string
+          description: The street address.
+          example: 120 BROADWAY
+        landUseId:
+          type: string
+          description: The two character code to represent the land use. Possible values are 01-11.
+          minLength: 2
+          maxLength: 2
+          example: '05'
+      required:
+        - bbl
+        - boroughId
+        - block
+        - lot
+        - address
+        - landUseId
+    TaxLotGeoJson:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The bbl of the tax lot.
+          minLength: 10
+          maxLength: 10
+          example: '1000477501'
+        type:
+          type: string
+          enum:
+            - Feature
+        geometry:
+          $ref: '#/components/schemas/MultiPolygon'
+        properties:
+          $ref: '#/components/schemas/TaxLot'
+      required:
+        - id
+        - type
+        - geometry
+        - properties
+    ZoningDistrict:
+      type: object
+      properties:
+        id:
+          type: string
+          description: An automatically generated uuid.
+          format: uuid
+          example: d1c09f3a-553b-4574-811e-abd59d19e01b
+        label:
+          type: string
+          description: The zoning codes that apply to the district. Multiple codes are concatenated with a slash.
+          example: M1-5/R7-3
+      required:
+        - id
+        - label
+    ZoningDistrictClass:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The code associated with the Zoning class.
+          pattern:  ^[A-Z][0-9]+$
+          example: M1
+        category:
+          $ref: "#/components/schemas/ZoningDistrictClassCategory"
+        description:
+          type: string
+          description: Zoning class descriptions.
+        url:
+          type: string
+          description: Planning website page that explains the Zoning District
+        color:
+          type: string
+          description: Zoning classes from layer groups.
+          pattern: '^#([A-Fa-f0-9]{8})$'
+          example: '#f3b3ffff'
+      required:
+        - id
+        - category
+        - description
+        - url
+        - color
+    ZoningDistrictClassCategory:
+      type: string
+      enum:
+        - "Residential"
+        - "Commercial"
+        - "Manufacturing"
+      description: The type of zoning district.
+    ZoningDistrictClassCategoryColor:
+      type: object
+      properties:
+        category:
+          $ref: "#/components/schemas/ZoningDistrictClassCategory"
+        color:
+          type: string
+          description: The color for the zoning district class category.
+          pattern: '^#([A-Fa-f0-9]{8})$'
+          example: '#f3b3ffff'
+      required:
+        - category
+        - color
+    Position:
+      type: array
+      description: The fundamental spatial construct
+      minItems: 2
+      maxItems: 3
+      items:
+        type: number
+      example: [-74.010835, 40.708442]
+    MultiPolygon:
+      type: object
+      description: A geojson implementation of a MultiPolygon Simple Feature
+      properties:
+        type:
+          type: string
+          enum:
+            - "MultiPolygon"
+        coordinates:
+          type: array
+          description: Array of polygon coordinate arrays.
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Position'
+      required:
+        - type
+        - coordinates
+    Error:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        message:
+          type: string
+        error:
+          type: string
+      required:
+        - statusCode
+        - message
+    Page:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: The limit used for the response. Defaults to 20 when the request does not specify one.
+          minimum: 1
+          maximum: 100
+          example: 20
+        offset:
+          type: integer
+          description: The offset used for the response. Defaults to 0 when the request does not specify one.
+          minimum: 0
+          example: 0
+        total:
+          type: integer
+          description: The number of rows returned in the response. If the total is less than the limit, the user is on the last page and no more results match the query.
+          minimum: 0
+          example: 10
+        order:
+          type: string
+          description: The criteria used to sort the results. Defaults to the primary key of the table, ascending
+          example: "bbl"
+      required:
+        - limit
+        - offset
+        - total
+        - order
+    TaxLotBasicPage:
+      allOf:
+        - $ref: "#/components/schemas/Page"
+        - type: object
+          properties:
+            taxLots:
+              type: array
+              items:
+                $ref: "#/components/schemas/TaxLotBasic"
+          required:
+            - taxLots
+  responses:
+    BadRequest:
+      description: Invalid client request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InternalServerError:
+      description: Server side error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Requested resource does not exist or is not available
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
