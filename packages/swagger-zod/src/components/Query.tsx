@@ -1,4 +1,4 @@
-import { File, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
 import { useOas, useOperationFile, useSchemas } from '@kubb/swagger/hooks'
 
 import { ZodBuilder } from '../ZodBuilder.ts'
@@ -45,7 +45,7 @@ Query.File = function({ mode = 'directory' }: FileProps): ReactNode {
   const { source, imports } = builder.build()
 
   return (
-    <>
+    <Editor language="typescript">
       <File<FileMeta>
         baseName={file.baseName}
         path={file.path}
@@ -59,6 +59,6 @@ Query.File = function({ mode = 'directory' }: FileProps): ReactNode {
           {source}
         </File.Source>
       </File>
-    </>
+    </Editor>
   )
 }

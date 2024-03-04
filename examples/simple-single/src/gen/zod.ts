@@ -24,7 +24,7 @@ export const userSchema = z.object({
   'username': z.string().optional(),
   'firstName': z.string().optional(),
   'lastName': z.string().optional(),
-  'email': z.string().email().optional(),
+  'email': z.string().optional(),
   'password': z.string().optional(),
   'phone': z.string().optional(),
   'userStatus': z.number().describe(`User Status`).optional(),
@@ -51,6 +51,7 @@ export const petSchema = z.object({
   'tags': z.array(z.lazy(() => tagSchema)).optional(),
   'status': z.enum([`available`, `pending`, `sold`]).describe(`pet status in the store`).optional(),
 })
+
 /**
  * @description Invalid ID supplied
  */
@@ -80,7 +81,6 @@ export const updatePetMutationRequestSchema = z.lazy(() => petSchema)
  * @description Successful operation
  */
 export const updatePetMutationResponseSchema = z.lazy(() => petSchema)
-
 export const addPet405Schema = z.object({ 'code': z.number().optional(), 'message': z.string().optional() })
 
 /**
@@ -175,7 +175,6 @@ export const deletePet400Schema = z.any()
 export const deletePetHeaderParamsSchema = z.object({ 'api_key': z.string().optional() }).optional()
 export const deletePetMutationResponseSchema = z.any()
 export const deletePetPathParamsSchema = z.object({ 'petId': z.number().describe(`Pet id to delete`) })
-
 export const uploadFileMutationRequestSchema = z.string()
 export const uploadFilePathParamsSchema = z.object({ 'petId': z.number().describe(`ID of pet to update`) })
 export const uploadFileQueryParamsSchema = z.object({ 'additionalMetadata': z.string().describe(`Additional Metadata`).optional() }).optional()
@@ -264,7 +263,6 @@ export const deleteOrder400Schema = z.any()
 export const deleteOrder404Schema = z.any()
 export const deleteOrderMutationResponseSchema = z.any()
 export const deleteOrderPathParamsSchema = z.object({ 'orderId': z.number().describe(`ID of the order that needs to be deleted`) })
-
 export const createUserMutationResponseSchema = z.any()
 
 /**

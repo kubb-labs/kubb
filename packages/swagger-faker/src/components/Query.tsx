@@ -1,4 +1,4 @@
-import { File, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
 import { useOas, useOperationFile, useSchemas } from '@kubb/swagger/hooks'
 
 import { FakerBuilder } from '../FakerBuilder.ts'
@@ -43,7 +43,7 @@ Query.File = function({}: FileProps): ReactNode {
   const { source, imports } = builder.build()
 
   return (
-    <>
+    <Editor language="typescript">
       <File<FileMeta>
         baseName={file.baseName}
         path={file.path}
@@ -57,6 +57,6 @@ Query.File = function({}: FileProps): ReactNode {
           {source}
         </File.Source>
       </File>
-    </>
+    </Editor>
   )
 }

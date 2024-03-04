@@ -1,5 +1,5 @@
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function, usePlugin, useResolveName } from '@kubb/react'
+import { Editor, File, Function, usePlugin, useResolveName } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
@@ -241,7 +241,7 @@ Query.File = function({ templates }: FileProps): ReactNode {
   }
 
   return (
-    <>
+    <Editor language="typescript">
       <File<FileMeta>
         baseName={file.baseName}
         path={file.path}
@@ -276,7 +276,7 @@ Query.File = function({ templates }: FileProps): ReactNode {
           />
         </File.Source>
       </File>
-    </>
+    </Editor>
   )
 }
 

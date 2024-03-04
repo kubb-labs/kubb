@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { createUserResultSchema } from './createUserResultSchema'
 
-export const createUserSchema = z.object({ email: z.string().email().optional() })
+export const createUserSchema = z.object({ email: z.string().optional() })
 export const createUserMutationRequestSchema = z.object({ name: z.string() })
 
 /**

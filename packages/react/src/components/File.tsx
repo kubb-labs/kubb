@@ -77,19 +77,11 @@ type FileSourceProps = FileSourceUnionProps & {
    * When false, it will add the import to a KubbFile instance(see fileManager).
    */
   print?: boolean
-  /**
-   * Removes comments.
-   */
-  removeComments?: boolean
-  /**
-   * When set it can override the print of the TypeScript compiler.
-   */
-  noEmitHelpers?: boolean
 }
 
-function FileSource({ path, print, removeComments, noEmitHelpers, children }: FileSourceProps): KubbNode {
+function FileSource({ path, print, children }: FileSourceProps): KubbNode {
   return (
-    <kubb-source path={path} print={print} removeComments={removeComments} noEmitHelpers={noEmitHelpers}>
+    <kubb-source path={path} print={print}>
       {children}
     </kubb-source>
   )

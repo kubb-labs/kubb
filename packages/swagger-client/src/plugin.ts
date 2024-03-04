@@ -77,7 +77,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       return resolvedName
     },
     async writeFile(source, writePath) {
-      if (!writePath.endsWith('.ts') || !source) {
+      if (!source) {
         return
       }
 

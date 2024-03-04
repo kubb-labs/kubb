@@ -1,5 +1,5 @@
 import { URLPath } from '@kubb/core/utils'
-import { File, usePlugin } from '@kubb/react'
+import { Editor, File, usePlugin } from '@kubb/react'
 import { useFile } from '@kubb/react'
 import { useOas } from '@kubb/swagger/hooks'
 
@@ -83,20 +83,22 @@ type FileProps = {
 
 Operations.File = function({ name, paths, templates = defaultTemplates }: FileProps): KubbNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name, pluginKey })
+  const file = useFile({ name, extName: '.ts', pluginKey })
 
   const Template = templates.default
 
   return (
-    <File<FileMeta>
-      baseName={file.baseName}
-      path={file.path}
-      meta={file.meta}
-    >
-      <File.Source>
-        <Operations Template={Template} paths={paths} />
-      </File.Source>
-    </File>
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        <File.Source>
+          <Operations Template={Template} paths={paths} />
+        </File.Source>
+      </File>
+    </Editor>
   )
 }
 

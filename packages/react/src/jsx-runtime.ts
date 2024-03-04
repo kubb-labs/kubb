@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import ReactJSXRuntime from 'react/jsx-runtime'
 
 import type { KubbFile } from '@kubb/core'
@@ -37,15 +37,25 @@ declare global {
         key?: Key
         path?: string
         print?: boolean
-        removeComments?: boolean
-        noEmitHelpers?: boolean
       }
 
       'kubb-import': KubbFile.Import & {
         print?: boolean
       }
+
       'kubb-export': KubbFile.Export & {
         print?: boolean
+      }
+
+      'kubb-editor': {
+        language?: string
+        key?: Key
+        children?: ReactNode
+      }
+      'kubb-editor-provider': {
+        language?: string
+        key?: Key
+        children?: ReactNode
       }
     }
   }

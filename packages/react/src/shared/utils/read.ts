@@ -1,10 +1,9 @@
 import { readSync } from '@kubb/core/fs'
-import { print } from '@kubb/parser'
 
 import type { File } from '../../components/File.tsx'
 import type { DOMElement } from '../../types.ts'
 
-export function printOrRead(text: string, node: DOMElement): string {
+export function read(text: string, node: DOMElement): string {
   const attributes = node.attributes as React.ComponentProps<(typeof File.Source)>
   try {
     let source = text
@@ -13,7 +12,7 @@ export function printOrRead(text: string, node: DOMElement): string {
       source = readSync(attributes.path)
     }
 
-    return print([], { source, removeComments: attributes.removeComments, noEmitHelpers: false })
+    return source
   } catch (e) {
     console.log(e)
   }

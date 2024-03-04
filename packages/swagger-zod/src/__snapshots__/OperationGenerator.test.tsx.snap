@@ -17,6 +17,7 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 
         "root": undefined,
       },
     ],
+    "language": "typescript",
     "meta": {
       "name": "delete_pet-petid",
       "pluginKey": undefined,
@@ -24,8 +25,7 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 
     },
     "override": undefined,
     "path": "delete_pet-petid.ts",
-    "source": "export const DeletePetPetidMutationResponse = z.any();
-",
+    "source": "export const DeletePetPetidMutationResponse = z.any();",
   },
 ]
 `;
@@ -47,6 +47,7 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`unknow
         "root": undefined,
       },
     ],
+    "language": "typescript",
     "meta": {
       "name": "delete_pet-petid",
       "pluginKey": undefined,
@@ -54,8 +55,7 @@ exports[`OperationGenerator > [DELETE] should generate with unknownType \`unknow
     },
     "override": undefined,
     "path": "delete_pet-petid.ts",
-    "source": "export const DeletePetPetidMutationResponse = z.unknown();
-",
+    "source": "export const DeletePetPetidMutationResponse = z.unknown();",
   },
 ]
 `;
@@ -101,6 +101,7 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
         "root": "listPets.ts",
       },
     ],
+    "language": "typescript",
     "meta": {
       "name": "listPets",
       "pluginKey": undefined,
@@ -108,23 +109,22 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
     },
     "override": undefined,
     "path": "listPets.ts",
-    "source": "export const ListPetsQueryParams = z.object({ "limit": z.string().describe(\`How many items to return at one time (max 100)\`).optional() }).optional();
+    "source": "export const ListPetsQueryParams = z.object({"limit": z.string().describe(\`How many items to return at one time (max 100)\`).optional()}).optional();
 
- /**
+      /**
        * @description A paged array of pets
        */
 export const ListPets200 = z.lazy(() => Pets);
 
- /**
+      /**
        * @description unexpected error
        */
 export const ListPetsError = z.lazy(() => Error);
 
- /**
+      /**
        * @description A paged array of pets
        */
-export const ListPetsQueryResponse = z.lazy(() => Pets);
-",
+export const ListPetsQueryResponse = z.lazy(() => Pets);",
   },
 ]
 `;
@@ -170,6 +170,7 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
         "root": "showPetById.ts",
       },
     ],
+    "language": "typescript",
     "meta": {
       "name": "showPetById",
       "pluginKey": undefined,
@@ -177,23 +178,22 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
     },
     "override": undefined,
     "path": "showPetById.ts",
-    "source": "export const ShowPetByIdPathParams = z.object({ "petId": z.string().describe(\`The id of the pet to retrieve\`), "testId": z.string().describe(\`The id of the pet to retrieve\`) });
+    "source": "export const ShowPetByIdPathParams = z.object({"petId": z.string().describe(\`The id of the pet to retrieve\`),"testId": z.string().describe(\`The id of the pet to retrieve\`)});
 
- /**
+      /**
        * @description Expected response to a valid request
        */
 export const ShowPetById200 = z.lazy(() => Pet);
 
- /**
+      /**
        * @description unexpected error
        */
 export const ShowPetByIdError = z.lazy(() => Error);
 
- /**
+      /**
        * @description Expected response to a valid request
        */
-export const ShowPetByIdQueryResponse = z.lazy(() => Pet);
-",
+export const ShowPetByIdQueryResponse = z.lazy(() => Pet);",
   },
 ]
 `;
@@ -223,6 +223,7 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
         "root": "createPets.ts",
       },
     ],
+    "language": "typescript",
     "meta": {
       "name": "createPets",
       "pluginKey": undefined,
@@ -230,18 +231,18 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
     },
     "override": undefined,
     "path": "createPets.ts",
-    "source": "/**
- * @description Null response
- */
+    "source": "
+      /**
+       * @description Null response
+       */
 export const CreatePets201 = z.any();
-export const CreatePetsMutationRequest = z.object({ "name": z.string(), "tag": z.string() });
+export const CreatePetsMutationRequest = z.object({"name": z.string(),"tag": z.string()});
 export const CreatePetsMutationResponse = z.any();
 
- /**
+      /**
        * @description unexpected error
        */
-export const CreatePetsError = z.lazy(() => Error);
-",
+export const CreatePetsError = z.lazy(() => Error);",
   },
 ]
 `;
