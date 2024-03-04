@@ -1,5 +1,13 @@
 # @kubb/swagger
 
+## 2.7.0
+
+### Patch Changes
+
+- Updated dependencies [[`26dcce7`](https://github.com/kubb-project/kubb/commit/26dcce7c21ecc81e03943f80a60178f5456caeef)]:
+  - @kubb/react@2.7.0
+  - @kubb/core@2.7.0
+
 ## 2.6.7
 
 ### Patch Changes
