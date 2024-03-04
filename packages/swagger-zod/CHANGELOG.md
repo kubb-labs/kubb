@@ -1,5 +1,16 @@
 # @kubb/swagger-zod
 
+## 2.6.7
+
+### Patch Changes
+
+- Updated dependencies [[`93940b3`](https://github.com/kubb-project/kubb/commit/93940b34dbe0c0ad5e81db3c0db5c40dfeed380f)]:
+  - @kubb/core@2.6.7
+  - @kubb/react@2.6.7
+  - @kubb/swagger@2.6.7
+  - @kubb/swagger-ts@2.6.7
+  - @kubb/parser@2.6.7
+
 ## 2.6.6
 
 ### Patch Changes
