@@ -23,7 +23,10 @@ export type Query = {
 }
 
 export type Mutate = {
-  paramsType?: 'data' | 'full'
+  /**
+   * @default `'hook'`
+   */
+  paramsType?: 'mutate' | 'hook'
 }
 
 export type Infinite = {
@@ -191,6 +194,7 @@ type ResolvedOptions = {
   infinite: Infinite | undefined
   suspense: Suspense | undefined
   query: Query | undefined
+  mutate: Mutate | undefined
   templates: NonNullable<Templates>
 }
 

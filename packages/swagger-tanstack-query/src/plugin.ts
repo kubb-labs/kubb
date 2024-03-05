@@ -32,6 +32,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     transformers = {},
     dataReturnType = 'data',
     pathParamsType = 'inline',
+    mutate = {},
     templates,
     query,
   } = options
@@ -57,6 +58,10 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         : undefined,
       suspense,
       query,
+      mutate: {
+        paramsType: 'hook',
+        ...mutate,
+      },
       templates: {
         mutation: Mutation.templates,
         query: Query.templates,

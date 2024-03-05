@@ -7,23 +7,33 @@ import type { FunctionParamsAST } from '@kubb/core/utils'
 import type { OasTypes } from '../oas/index.ts'
 import type { OperationSchema } from '../types.ts'
 
+type Options = {
+  typed?: boolean
+  object?: { suffix?: string } | true
+  /**
+   * @deprecated use object instead
+   */
+  asObject?: boolean
+  override?: (data: FunctionParamsAST) => FunctionParamsAST
+}
+
 export function getASTParams(
   operationSchema: OperationSchema | undefined,
-  { typed = false, override, asObject = false }: { typed?: boolean; asObject?: boolean; override?: (data: FunctionParamsAST) => FunctionParamsAST } = {},
+  { typed = false, override, object = undefined, asObject = false }: Options = {},
 ): FunctionParamsAST[] {
   if (!operationSchema || !operationSchema.schema.properties || !operationSchema.name) {
     return []
   }
 
-  if (asObject) {
+  if (asObject || !!object) {
     const nameText = getASTParams(operationSchema)
       .map((item) => item.name ? transformers.camelCase(item.name) : item.name)
       .join(', ')
 
     return [
       {
-        name: `{ ${nameText} }`,
-        type: operationSchema?.name,
+        name: `{ ${[nameText, typeof object === 'object' ? object?.suffix : undefined].join(',')} }`,
+        type: typed ? operationSchema?.name : undefined,
         enabled: !!operationSchema?.name,
         required: true,
       },
@@ -45,9 +55,9 @@ type GetParamsResult = {
 // TODO convert to class together with `createFunctionParams` and `getASTParams`
 export function getParams(
   operationSchema: OperationSchema | undefined,
-  { typed = false, override, asObject = false }: { typed?: boolean; asObject?: boolean; override?: (data: FunctionParamsAST) => FunctionParamsAST } = {},
+  options: Options = {},
 ): GetParamsResult {
-  const ast = getASTParams(operationSchema, { typed, override, asObject })
+  const ast = getASTParams(operationSchema, options)
   const functionParams = new FunctionParams()
   functionParams.add(ast)
 
