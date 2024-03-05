@@ -1,6 +1,6 @@
 import { defineConfig } from '@kubb/core'
 
-import { templates } from './templates/CustomClientTemplate'
+import * as client from './templates/client/index'
 
 export default defineConfig(async () => {
   await setTimeout(() => {
@@ -52,7 +52,7 @@ export default defineConfig(async () => {
               pattern: 'user',
               options: {
                 templates: {
-                  client: templates,
+                  client: client.templates,
                 },
               },
             },

@@ -535,6 +535,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@kubb/react':
+        specifier: workspace:*
+        version: link:../../packages/react
       '@kubb/swagger':
         specifier: workspace:*
         version: link:../../packages/swagger
