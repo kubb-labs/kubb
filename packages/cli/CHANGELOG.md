@@ -1,5 +1,14 @@
 # @kubb/cli
 
+## 2.7.1
+
+### Patch Changes
+
+- [#842](https://github.com/kubb-project/kubb/pull/842) [`e851171`](https://github.com/kubb-project/kubb/commit/e8511712d34aa73ef468cc972397a7dd550cf8da) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - correct import with bundle-require
+
+- Updated dependencies []:
+  - @kubb/core@2.7.1
+
 ## 2.7.0
 
 ### Patch Changes
