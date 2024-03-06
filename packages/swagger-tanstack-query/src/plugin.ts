@@ -59,7 +59,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       suspense,
       query,
       mutate: {
-        paramsType: 'hook',
+        variablesType: 'hook',
         ...mutate,
       },
       templates: {

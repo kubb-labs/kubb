@@ -26,7 +26,7 @@ export type Mutate = {
   /**
    * @default `'hook'`
    */
-  paramsType?: 'mutate' | 'hook'
+  variablesType?: 'mutate' | 'hook'
 }
 
 export type Infinite = {

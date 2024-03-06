@@ -1,22 +1,23 @@
 import { defineConfig } from '@kubb/core'
 
 const schemas = [
-  ['petStoreV3', 'https://petstore3.swagger.io/api/v3/openapi.json'],
-  ['optionalParameters', './schemas/optionalParameters.json'],
-  ['allOf', './schemas/allOf.json'],
-  ['anyOf', './schemas/anyOf.json'],
-  ['petStoreContent', './schemas/petStoreContent.json'],
-  ['twitter', './schemas/twitter.json'],
-  ['twitter2', './schemas/twitter2.json'],
-  ['bunq.com', './schemas/bunq.com.json'],
-  ['jokesOne', './schemas/jokesOne.yaml'],
-  ['readme.io', './schemas/readme.io.yaml'],
-  ['worldtime', './schemas/worldtime.yaml'],
-  ['zalando', './schemas/zalando.yaml'],
-  ['requestBody', './schemas/requestBody.yaml'],
-  ['box', './schemas/box.json'],
-  ['digitalocean', './schemas/digitalocean.yaml'],
-  ['enums', './schemas/enums.yaml'],
+  ['mgx', './schemas/test.json'],
+  // ['petStoreV3', 'https://petstore3.swagger.io/api/v3/openapi.json'],
+  // ['optionalParameters', './schemas/optionalParameters.json'],
+  // ['allOf', './schemas/allOf.json'],
+  // ['anyOf', './schemas/anyOf.json'],
+  // ['petStoreContent', './schemas/petStoreContent.json'],
+  // ['twitter', './schemas/twitter.json'],
+  // ['twitter2', './schemas/twitter2.json'],
+  // ['bunq.com', './schemas/bunq.com.json'],
+  // ['jokesOne', './schemas/jokesOne.yaml'],
+  // ['readme.io', './schemas/readme.io.yaml'],
+  // ['worldtime', './schemas/worldtime.yaml'],
+  // ['zalando', './schemas/zalando.yaml'],
+  // ['requestBody', './schemas/requestBody.yaml'],
+  // ['box', './schemas/box.json'],
+  // ['digitalocean', './schemas/digitalocean.yaml'],
+  // ['enums', './schemas/enums.yaml'],
 ]
 
 /** @type {import('@kubb/core').KubbUserConfig} */
@@ -55,6 +56,9 @@ const baseConfig = {
         path: './clients/hooks',
       },
       group: { type: 'tag' },
+      mutate: {
+        paramsType: 'mutate',
+      },
     }],
     ['@kubb/swagger-swr', {
       output: {

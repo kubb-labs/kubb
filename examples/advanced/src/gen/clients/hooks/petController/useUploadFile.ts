@@ -25,13 +25,25 @@ type UploadFile = {
 /**
  * @summary uploads an image
  * @link /pet/:petId/uploadImage */
-export function useUploadFile(petId: UploadFilePathParams['petId'], params?: UploadFile['queryParams'], options: {
-  mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
+export function useUploadFile(options: {
+  mutation?: UseMutationOptions<
+    UploadFile['response'],
+    UploadFile['error'],
+    UploadFile['pathParams'] & {
+      data: UploadFile['request']
+    }
+  >
   client?: UploadFile['client']['parameters']
-} = {}): UseMutationResult<UploadFile['response'], UploadFile['error'], UploadFile['request']> {
+} = {}): UseMutationResult<
+  UploadFile['response'],
+  UploadFile['error'],
+  UploadFile['pathParams'] & {
+    data: UploadFile['request']
+  }
+> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<UploadFile['response'], UploadFile['error'], UploadFile['request']>({
-    mutationFn: async (data) => {
+    mutationFn: async ({ petId, data }) => {
       const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
         method: 'post',
         url: `/pet/${petId}/uploadImage`,

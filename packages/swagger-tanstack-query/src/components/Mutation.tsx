@@ -296,7 +296,7 @@ export function Mutation({
     `${factory.name}["error"]`,
   ]
 
-  if (mutate?.paramsType === 'mutate') {
+  if (mutate?.variablesType === 'mutate') {
     // TODO check on headers(schemas.headerParams.name)
     if (schemas.pathParams?.name) {
       resultGenerics.push(
@@ -328,6 +328,8 @@ export function Mutation({
     mutateParams.add([
       ...getASTParams(schemas.pathParams, { typed: false, object: { suffix: schemas.request?.name ? 'data' : undefined } }),
     ])
+    // instead of object or isObject move the logic for combining to one name to the toString() funcionality
+    // add key so we can group them based on key or array in array [[],[]]
     if (!mutateParams.items.length) {
       mutateParams.add([
         {

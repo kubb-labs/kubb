@@ -1,2 +1,2 @@
 export * from './hooks/index'
-export * from './models'
+export * from './models/index'

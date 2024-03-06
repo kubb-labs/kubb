@@ -75,6 +75,9 @@ export default defineConfig(async () => {
                 infinite: {
                   queryParam: 'test',
                 },
+                mutate: {
+                  paramsType: 'mutate',
+                },
               },
             },
           ],
