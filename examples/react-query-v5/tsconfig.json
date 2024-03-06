@@ -18,7 +18,8 @@
     "noEmit": true
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "./templates/**/*"
   ],
   "exclude": [
     "**/node_modules",

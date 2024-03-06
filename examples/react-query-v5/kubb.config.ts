@@ -3,6 +3,8 @@ import createSwagger from '@kubb/swagger'
 import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
 import createSwaggerTS from '@kubb/swagger-ts'
 
+import * as queryKey from './templates/queryKey/index'
+
 /** @type {import('@kubb/core').UserConfig} */
 export const config = {
   root: '.',
@@ -49,6 +51,9 @@ export const config = {
             queryParam: 'pageSize',
             initialPageParam: 0,
             cursorParam: undefined,
+          },
+          templates: {
+            queryKey: queryKey.templates,
           },
         },
       }],
