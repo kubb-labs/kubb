@@ -21,11 +21,11 @@
   "dependencies": {
     "@vercel/analytics": "^1.2.2",
     "sitemap": "^7.1.1",
-    "vitepress": "^1.0.0-rc.44",
-    "vue": "^3.4.19"
+    "vitepress": "^1.0.0-rc.45",
+    "vue": "^3.4.21"
   },
   "devDependencies": {
-    "@types/node": "^20.11.20"
+    "@types/node": "^20.11.25"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

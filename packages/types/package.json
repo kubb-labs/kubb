@@ -1,6 +1,6 @@
 {
   "name": "@kubb/types",
-  "version": "2.6.5",
+  "version": "2.7.1",
   "description": "Generator types",
   "keywords": [
     "typescript",
@@ -55,7 +55,7 @@
     "@kubb/tsup-config": "workspace:*",
     "eslint": "^8.57.0",
     "tsup": "^8.0.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.2"
   },
   "packageManager": "pnpm@8.3.0",
   "engines": {

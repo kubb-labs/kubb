@@ -13,7 +13,6 @@ export default defineConfig([
       hooks: 'src/hooks/index.ts',
       components: 'src/components/index.ts',
     },
-    noExternal: ['react'],
     external: ['prettier'],
   },
   {
@@ -26,7 +25,6 @@ export default defineConfig([
       hooks: 'src/hooks/index.ts',
       components: 'src/components/index.ts',
     },
-    noExternal: ['react'],
     external: ['prettier'],
   },
 ])

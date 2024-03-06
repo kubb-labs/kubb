@@ -15,11 +15,17 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps>({ logger: pluginManager.logger })
 
-    if (!this.options.templates?.handlers) {
+    const templates = {
+      handlers: Handlers.templates,
+      mock: Mock.templates,
+      ...this.options.templates,
+    }
+
+    if (!templates?.handlers) {
       return []
     }
 
-    root.render(<Handlers.File name="handlers" paths={paths} templates={this.options.templates.handlers} />, { meta: { oas, pluginManager, plugin } })
+    root.render(<Handlers.File name="handlers" paths={paths} templates={templates.handlers} />, { meta: { oas, pluginManager, plugin } })
 
     return root.files
   }
@@ -29,11 +35,17 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
-    if (!options.templates?.mock) {
+    const templates = {
+      handlers: Handlers.templates,
+      mock: Mock.templates,
+      ...options.templates,
+    }
+
+    if (!templates?.mock) {
       return []
     }
 
-    root.render(<Mock.File templates={options.templates.mock} />, { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } })
+    root.render(<Mock.File templates={templates.mock} />, { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } })
 
     return root.files
   }

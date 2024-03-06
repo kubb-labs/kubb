@@ -1,5 +1,33 @@
 # unplugin-kubb
 
+## 0.1.14
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.7.1
+
+## 0.1.13
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.7.0
+
+## 0.1.12
+
+### Patch Changes
+
+- Updated dependencies [[`93940b3`](https://github.com/kubb-project/kubb/commit/93940b34dbe0c0ad5e81db3c0db5c40dfeed380f)]:
+  - @kubb/core@2.6.7
+
+## 0.1.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.6.6
+
 ## 0.1.10
 
 ### Patch Changes

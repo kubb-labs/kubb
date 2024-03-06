@@ -1,4 +1,4 @@
-import { File, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
 import { useOas, useOperationFile, useSchemas } from '@kubb/swagger/hooks'
 
 import { ZodBuilder } from '../ZodBuilder.ts'
@@ -24,10 +24,10 @@ export function Mutation({
 }
 
 type FileProps = {
-  mode: KubbFile.Mode
+  mode: KubbFile.Mode | undefined
 }
 
-Mutation.File = function({ mode }: FileProps): ReactNode {
+Mutation.File = function({ mode = 'directory' }: FileProps): ReactNode {
   const { options } = usePlugin<PluginOptions>()
 
   const schemas = useSchemas()
@@ -46,7 +46,7 @@ Mutation.File = function({ mode }: FileProps): ReactNode {
   const { source, imports } = builder.build()
 
   return (
-    <>
+    <Editor language="typescript">
       <File<FileMeta>
         baseName={file.baseName}
         path={file.path}
@@ -60,6 +60,6 @@ Mutation.File = function({ mode }: FileProps): ReactNode {
           {source}
         </File.Source>
       </File>
-    </>
+    </Editor>
   )
 }

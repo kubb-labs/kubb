@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import { URLPath } from '@kubb/core/utils'
-import { File, useFile, usePlugin } from '@kubb/react'
+import { Editor, File, useFile, usePlugin } from '@kubb/react'
 import { usePluginManager } from '@kubb/react'
 import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
@@ -28,9 +28,12 @@ function Template({
   return (
     <>
       {`export const endpoints = makeApi([${definitions.join(',')}])`}
+      <br />
       {`export const getAPI = (baseUrl: string) => new Zodios(baseUrl, endpoints)`}
+      <br />
       {baseURL && `export const ${name} = new Zodios('${baseURL}', endpoints)`}
       {!baseURL && `export const  ${name} = new Zodios(endpoints)`}
+      <br />
       {`export default ${name}`}
     </>
   )
@@ -309,7 +312,7 @@ type FileProps = {
 Definitions.File = function({ name, baseURL, paths, templates = defaultTemplates }: FileProps): ReactNode {
   const pluginManager = usePluginManager()
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name, pluginKey })
+  const file = useFile({ name, extName: '.ts', pluginKey })
 
   const definitionsImports = getDefinitionsImports(paths, {
     resolveName: pluginManager.resolveName,
@@ -328,17 +331,19 @@ Definitions.File = function({ name, baseURL, paths, templates = defaultTemplates
   const Template = templates.default
 
   return (
-    <File<FileMeta>
-      baseName={file.baseName}
-      path={file.path}
-      meta={file.meta}
-    >
-      <File.Import name={['makeApi', 'Zodios']} path="@zodios/core" />
-      {imports}
-      <File.Source>
-        <Definitions Template={Template} paths={paths} baseURL={baseURL} />
-      </File.Source>
-    </File>
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        <File.Import name={['makeApi', 'Zodios']} path="@zodios/core" />
+        {imports}
+        <File.Source>
+          <Definitions Template={Template} paths={paths} baseURL={baseURL} />
+        </File.Source>
+      </File>
+    </Editor>
   )
 }
 

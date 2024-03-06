@@ -77,6 +77,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "pafnuty",
+      "name": "Pavel Belousov",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1635679?v=4",
+      "profile": "http://projects.pafnuty.name",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

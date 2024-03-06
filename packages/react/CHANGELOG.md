@@ -1,5 +1,41 @@
 # @kubb/react
 
+## 2.7.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.7.1
+  - @kubb/parser@2.7.1
+
+## 2.7.0
+
+### Minor Changes
+
+- [#815](https://github.com/kubb-project/kubb/pull/815) [`26dcce7`](https://github.com/kubb-project/kubb/commit/26dcce7c21ecc81e03943f80a60178f5456caeef) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - editor component to support multiple languages with Kubb templates
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.7.0
+  - @kubb/parser@2.7.0
+
+## 2.6.7
+
+### Patch Changes
+
+- Updated dependencies [[`93940b3`](https://github.com/kubb-project/kubb/commit/93940b34dbe0c0ad5e81db3c0db5c40dfeed380f)]:
+  - @kubb/core@2.6.7
+  - @kubb/parser@2.6.7
+
+## 2.6.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.6.6
+  - @kubb/parser@2.6.6
+
 ## 2.6.5
 
 ### Patch Changes

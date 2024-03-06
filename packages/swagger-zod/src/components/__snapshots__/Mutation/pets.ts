@@ -1,7 +1,4 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`<Mutation/> > pets 1`] = `
-"/**
+/**
  * @description Null response
  */
 export const CreatePets201 = z.any()
@@ -12,5 +9,3 @@ export const CreatePetsMutationResponse = z.any()
  * @description unexpected error
  */
 export const CreatePetsError = z.lazy(() => Error)
-"
-`;

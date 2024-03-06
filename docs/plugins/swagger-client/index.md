@@ -712,7 +712,7 @@ export default defineConfig({
 })
 ```
 
-<<< @/../examples/client/templates/CustomClientTemplates.tsx
+<<< @/../examples/client/templates/client/index.tsx
 
 :::
 

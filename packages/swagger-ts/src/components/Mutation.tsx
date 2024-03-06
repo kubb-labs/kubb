@@ -1,7 +1,7 @@
 import transformers from '@kubb/core/transformers'
 import { print } from '@kubb/parser'
 import * as factory from '@kubb/parser/factory'
-import { File, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
 import { useOas, useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 
 import { TypeBuilder } from '../TypeBuilder.ts'
@@ -123,7 +123,7 @@ Mutation.File = function({ mode }: FileProps): ReactNode {
   const { source, imports } = builder.build()
 
   return (
-    <>
+    <Editor language="typescript">
       <File<FileMeta>
         baseName={file.baseName}
         path={file.path}
@@ -137,6 +137,6 @@ Mutation.File = function({ mode }: FileProps): ReactNode {
           {printCombinedSchema(factoryName, operation, schemas)}
         </File.Source>
       </File>
-    </>
+    </Editor>
   )
 }

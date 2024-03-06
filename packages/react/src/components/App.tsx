@@ -1,6 +1,6 @@
 import { Component } from 'react'
 
-import { AppContext } from './AppContext.tsx'
+import { AppContext } from './AppContext.ts'
 
 import type { Logger } from '@kubb/core/logger'
 import type { KubbNode } from '../types.ts'

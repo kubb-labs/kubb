@@ -47,11 +47,11 @@ describe('<Mutation/>', async () => {
     const context: AppContextProps<PluginOptions['appMeta']> = { meta: { oas, pluginManager: mockedPluginManager, plugin, schemas, operation } }
 
     const Component = () => {
-      return <Mutation.File />
+      return <Mutation.File mode="directory" />
     }
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
 
-    expect(output).toMatchSnapshot()
+    expect(output).toMatchFileSnapshot('./__snapshots__/Mutation/pets.ts')
   })
 })

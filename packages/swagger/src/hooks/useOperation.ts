@@ -32,6 +32,7 @@ type FileMeta = KubbFile.FileMetaBase & {
 }
 
 type UseOperationFileProps = {
+  extName?: KubbFile.Extname
   pluginKey?: Plugin['key']
 }
 
@@ -43,7 +44,8 @@ export function useOperationFile(props: UseOperationFileProps = {}): KubbFile.Fi
   // needed for the `output.group`
   const tag = operation?.getTags().at(0)?.name
   const name = useOperationName({ type: 'file', pluginKey })
-  const file = useFile<ResolvePathOptions>({ name, pluginKey, options: { type: 'file', pluginKey, tag } })
+  const extName = props.extName || '.ts'
+  const file = useFile<ResolvePathOptions>({ name, extName, pluginKey, options: { type: 'file', pluginKey, tag } })
 
   return {
     ...file,

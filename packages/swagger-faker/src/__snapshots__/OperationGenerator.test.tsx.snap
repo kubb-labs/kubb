@@ -1,126 +1,23 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`OperationGenerator > [DELETE] should generate with unknownType \`any\` 1`] = `
-[
-  {
-    "baseName": "delete_pet-petid.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": undefined,
-        "name": [
-          "faker",
-        ],
-        "path": "@faker-js/faker",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "DeletePetPetidMutationResponse",
-        ],
-        "path": "DeletePetPetid",
-        "root": "delete_pet-petid.ts",
-      },
-    ],
-    "meta": {
-      "name": "delete_pet-petid",
-      "pluginKey": undefined,
-      "tag": undefined,
-    },
-    "override": undefined,
-    "path": "delete_pet-petid.ts",
-    "source": "export function DeletePetPetidMutationResponse(override?: NonNullable<Partial<DeletePetPetidMutationResponse>>): NonNullable<DeletePetPetidMutationResponse> {
+"import type { DeletePetPetidMutationResponse } from "./DeletePetPetid";
+
+
+export function DeletePetPetidMutationResponse(override?: NonNullable<Partial<DeletePetPetidMutationResponse>>): NonNullable<DeletePetPetidMutationResponse> {
     return undefined;
 }
-",
-  },
-]
+"
 `;
 
 exports[`OperationGenerator > [GET] should generate 1`] = `
-[
-  {
-    "baseName": "listPets.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": undefined,
-        "name": [
-          "faker",
-        ],
-        "path": "@faker-js/faker",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Pets",
-        ],
-        "path": "Pets",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ListPets200",
-        ],
-        "path": "ListPets",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ListPetsError",
-        ],
-        "path": "ListPets",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ListPetsQueryParams",
-        ],
-        "path": "ListPets",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Pets",
-        ],
-        "path": "Pets",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ListPetsQueryResponse",
-        ],
-        "path": "ListPets",
-        "root": "listPets.ts",
-      },
-    ],
-    "meta": {
-      "name": "listPets",
-      "pluginKey": undefined,
-      "tag": "pets",
-    },
-    "override": undefined,
-    "path": "listPets.ts",
-    "source": "export function ListPetsQueryParams(override: NonNullable<Partial<ListPetsQueryParams>> = {}): NonNullable<ListPetsQueryParams> {
+"import { faker } from "@faker-js/faker";
+import { Pets } from "./Pets";
+import { Error } from "./Error";
+import type { ListPets200, ListPetsError, ListPetsQueryParams, ListPetsQueryResponse } from "./ListPets";
+
+
+export function ListPetsQueryParams(override: NonNullable<Partial<ListPetsQueryParams>> = {}): NonNullable<ListPetsQueryParams> {
     return {
         ...{ "limit": faker.string.alpha() },
         ...override
@@ -147,92 +44,17 @@ exports[`OperationGenerator > [GET] should generate 1`] = `
  export function ListPetsQueryResponse(override?: NonNullable<Partial<ListPetsQueryResponse>>): NonNullable<ListPetsQueryResponse> {
     return Pets(override);
 }
-",
-  },
-]
+"
 `;
 
 exports[`OperationGenerator > [GET] should generate 2`] = `
-[
-  {
-    "baseName": "showPetById.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": undefined,
-        "name": [
-          "faker",
-        ],
-        "path": "@faker-js/faker",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Pet",
-        ],
-        "path": "Pet",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ShowPetById200",
-        ],
-        "path": "ShowPetById",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ShowPetByIdError",
-        ],
-        "path": "ShowPetById",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ShowPetByIdPathParams",
-        ],
-        "path": "ShowPetById",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Pet",
-        ],
-        "path": "Pet",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ShowPetByIdQueryResponse",
-        ],
-        "path": "ShowPetById",
-        "root": "showPetById.ts",
-      },
-    ],
-    "meta": {
-      "name": "showPetById",
-      "pluginKey": undefined,
-      "tag": "pets",
-    },
-    "override": undefined,
-    "path": "showPetById.ts",
-    "source": "export function ShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
+"import { faker } from "@faker-js/faker";
+import { Pet } from "./Pet";
+import { Error } from "./Error";
+import type { ShowPetById200, ShowPetByIdError, ShowPetByIdPathParams, ShowPetByIdQueryResponse } from "./ShowPetById";
+
+
+export function ShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
     return {
         ...{ "petId": faker.string.alpha(), "testId": faker.string.alpha() },
         ...override
@@ -259,92 +81,17 @@ exports[`OperationGenerator > [GET] should generate 2`] = `
  export function ShowPetByIdQueryResponse(override?: NonNullable<Partial<ShowPetByIdQueryResponse>>): NonNullable<ShowPetByIdQueryResponse> {
     return Pet(override);
 }
-",
-  },
-]
+"
 `;
 
 exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 1`] = `
-[
-  {
-    "baseName": "listPets.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": undefined,
-        "name": [
-          "faker",
-        ],
-        "path": "@faker-js/faker",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Pets",
-        ],
-        "path": "Pets",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ListPets200",
-        ],
-        "path": "ListPets",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ListPetsError",
-        ],
-        "path": "ListPets",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ListPetsQueryParams",
-        ],
-        "path": "ListPets",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Pets",
-        ],
-        "path": "Pets",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ListPetsQueryResponse",
-        ],
-        "path": "ListPets",
-        "root": "listPets.ts",
-      },
-    ],
-    "meta": {
-      "name": "listPets",
-      "pluginKey": undefined,
-      "tag": "pets",
-    },
-    "override": undefined,
-    "path": "listPets.ts",
-    "source": "export function ListPetsQueryParams(override: NonNullable<Partial<ListPetsQueryParams>> = {}): NonNullable<ListPetsQueryParams> {
+"import { faker } from "@faker-js/faker";
+import { Pets } from "./Pets";
+import { Error } from "./Error";
+import type { ListPets200, ListPetsError, ListPetsQueryParams, ListPetsQueryResponse } from "./ListPets";
+
+
+export function ListPetsQueryParams(override: NonNullable<Partial<ListPetsQueryParams>> = {}): NonNullable<ListPetsQueryParams> {
     faker.seed([222]);
     return {
         ...{ "limit": faker.string.alpha() },
@@ -375,92 +122,17 @@ exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 1`] = `
     faker.seed([222]);
     return Pets(override);
 }
-",
-  },
-]
+"
 `;
 
 exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 2`] = `
-[
-  {
-    "baseName": "showPetById.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": undefined,
-        "name": [
-          "faker",
-        ],
-        "path": "@faker-js/faker",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Pet",
-        ],
-        "path": "Pet",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ShowPetById200",
-        ],
-        "path": "ShowPetById",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ShowPetByIdError",
-        ],
-        "path": "ShowPetById",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ShowPetByIdPathParams",
-        ],
-        "path": "ShowPetById",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Pet",
-        ],
-        "path": "Pet",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ShowPetByIdQueryResponse",
-        ],
-        "path": "ShowPetById",
-        "root": "showPetById.ts",
-      },
-    ],
-    "meta": {
-      "name": "showPetById",
-      "pluginKey": undefined,
-      "tag": "pets",
-    },
-    "override": undefined,
-    "path": "showPetById.ts",
-    "source": "export function ShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
+"import { faker } from "@faker-js/faker";
+import { Pet } from "./Pet";
+import { Error } from "./Error";
+import type { ShowPetById200, ShowPetByIdError, ShowPetByIdPathParams, ShowPetByIdQueryResponse } from "./ShowPetById";
+
+
+export function ShowPetByIdPathParams(override: NonNullable<Partial<ShowPetByIdPathParams>> = {}): NonNullable<ShowPetByIdPathParams> {
     faker.seed([222]);
     return {
         ...{ "petId": faker.string.alpha(), "testId": faker.string.alpha() },
@@ -491,76 +163,15 @@ exports[`OperationGenerator > [GET] should generate with seed \`[222]\` 2`] = `
     faker.seed([222]);
     return Pet(override);
 }
-",
-  },
-]
+"
 `;
 
 exports[`OperationGenerator > [POST] should generate 1`] = `
-[
-  {
-    "baseName": "createPets.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": undefined,
-        "name": [
-          "faker",
-        ],
-        "path": "@faker-js/faker",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "CreatePets201",
-        ],
-        "path": "CreatePets",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": false,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "CreatePetsError",
-        ],
-        "path": "CreatePets",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "CreatePetsMutationRequest",
-        ],
-        "path": "CreatePets",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "CreatePetsMutationResponse",
-        ],
-        "path": "CreatePets",
-        "root": "createPets.ts",
-      },
-    ],
-    "meta": {
-      "name": "createPets",
-      "pluginKey": undefined,
-      "tag": "pets",
-    },
-    "override": undefined,
-    "path": "createPets.ts",
-    "source": "/**
+"import { faker } from "@faker-js/faker";
+import { Error } from "./Error";
+import type { CreatePets201, CreatePetsError, CreatePetsMutationRequest, CreatePetsMutationResponse } from "./CreatePets";
+
+ /**
  * @description Null response
  */
 
@@ -585,7 +196,5 @@ exports[`OperationGenerator > [POST] should generate 1`] = `
  export function CreatePetsError(override?: NonNullable<Partial<CreatePetsError>>): NonNullable<CreatePetsError> {
     return Error(override);
 }
-",
-  },
-]
+"
 `;

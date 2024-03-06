@@ -446,7 +446,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
         baseItems.unshift({ keyword: zodKeywords.matches, args: regexp })
       }
 
-      if (schema.format === 'date-time' || baseName === 'date') {
+      if (schema.format === 'date-time') {
         if (this.options.dateType === 'date' && ['date', 'date-time'].some((item) => item === schema.format)) {
           baseItems.unshift({ keyword: zodKeywords.date })
 
@@ -456,7 +456,7 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
         }
       }
 
-      if (schema.format === 'email' || baseName === 'email') {
+      if (schema.format === 'email') {
         baseItems.unshift({ keyword: zodKeywords.email })
       }
 

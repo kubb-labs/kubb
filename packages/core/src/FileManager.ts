@@ -145,6 +145,10 @@ export namespace KubbFile {
      * This will override `process.env[key]` inside the `source`, see `getFileSource`.
      */
     env?: NodeJS.ProcessEnv
+    /**
+     * The name of the language being used. This can be TypeScript, JavaScript and still have another ext.
+     */
+    language?: string
   }
 
   export type ResolvedFile<
@@ -390,7 +394,7 @@ export class FileManager {
     return ['.js', '.ts', '.tsx']
   }
 
-  static isExtensionAllowed(baseName: string): boolean {
+  static isJavascript(baseName: string): boolean {
     return FileManager.extensions.some((extension) => baseName.endsWith(extension))
   }
 }
@@ -431,12 +435,15 @@ function combineFiles<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBas
 }
 
 export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase>(file: KubbFile.File<TMeta>): string {
-  if (!FileManager.isExtensionAllowed(file.baseName)) {
+  // only use .js, .ts or .tsx files for ESM imports
+
+  if (file.language ? !['typescript', 'javascript'].includes(file.language) : !FileManager.isJavascript(file.baseName)) {
     return file.source
   }
 
   const exports = file.exports ? combineExports(file.exports) : []
-  const imports = file.imports ? combineImports(file.imports, exports, file.source) : []
+  // imports should be defined and source should contain code or we have imports without them being used
+  const imports = file.imports && file.source ? combineImports(file.imports, exports, file.source) : []
 
   const importNodes = imports.filter(item => {
     // isImportNotNeeded
@@ -458,7 +465,10 @@ export function getSource<TMeta extends KubbFile.FileMetaBase = KubbFile.FileMet
     })
   )
 
-  return [print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')
+  const source = [print([...importNodes, ...exportNodes]), getEnvSource(file.source, file.env)].join('\n')
+
+  // do some basic linting with the ts compiler
+  return print([], { source, noEmitHelpers: false })
 }
 
 export function combineExports(exports: Array<KubbFile.Export>): Array<KubbFile.Export> {

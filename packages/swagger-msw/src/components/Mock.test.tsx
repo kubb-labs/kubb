@@ -48,7 +48,7 @@ describe('<Mock/>', async () => {
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
 
-    expect(output).toMatchSnapshot()
+    expect(output).toMatchFileSnapshot('./__snapshots__/Mock/showPetsById.ts')
   })
 
   test('pets', async () => {
@@ -62,6 +62,6 @@ describe('<Mock/>', async () => {
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
 
-    expect(output).toMatchSnapshot()
+    expect(output).toMatchFileSnapshot('./__snapshots__/Mock/Pets.ts')
   })
 })

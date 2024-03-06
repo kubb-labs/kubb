@@ -1,3 +1,4 @@
+import { FileManager } from '@kubb/core'
 import { mockedPluginManager } from '@kubb/core/mocks'
 import { OasManager } from '@kubb/swagger'
 
@@ -6,6 +7,7 @@ import { Client } from './components/Client.tsx'
 import { Operations } from './components/Operations.tsx'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
+import type { KubbFile } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
@@ -43,9 +45,11 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pets/{pet_id}', 'get')
-    const files = await og.get(operation, og.getSchemas(operation), options)
+    const files = await og.get(operation, og.getSchemas(operation), options) as KubbFile.File[]
 
-    expect(files).toMatchSnapshot()
+    files.forEach(file => {
+      expect(FileManager.getSource(file)).toMatchSnapshot()
+    })
   })
 
   test('[GET] should generate with pathParamsType `object`', async () => {
@@ -74,9 +78,11 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pets/{pet_id}', 'get')
-    const files = await og.get(operation, og.getSchemas(operation), options)
+    const files = await og.get(operation, og.getSchemas(operation), options) as KubbFile.File[]
 
-    expect(files).toMatchSnapshot()
+    files.forEach(file => {
+      expect(FileManager.getSource(file)).toMatchSnapshot()
+    })
   })
 
   test('[GET] should generate with templates', async () => {
@@ -107,8 +113,10 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pets/{pet_id}', 'get')
-    const files = await og.get(operation, og.getSchemas(operation), options)
+    const files = await og.get(operation, og.getSchemas(operation), options) as KubbFile.File[]
 
-    expect(files).toMatchSnapshot()
+    files.forEach(file => {
+      expect(FileManager.getSource(file)).toMatchSnapshot()
+    })
   })
 })

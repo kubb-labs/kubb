@@ -1,6 +1,6 @@
 import transformers from '@kubb/core/transformers'
 import { FunctionParams, URLPath } from '@kubb/core/utils'
-import { File, Function, usePlugin } from '@kubb/react'
+import { Editor, File, Function, usePlugin } from '@kubb/react'
 import { useOperation, useOperationFile, useOperationName, useSchemas } from '@kubb/swagger/hooks'
 import { getASTParams, getComments } from '@kubb/swagger/utils'
 import { pluginKey as swaggerTsPluginKey } from '@kubb/swagger-ts'
@@ -217,7 +217,7 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
   }
 
   return (
-    <>
+    <Editor language="typescript">
       <File<FileMeta>
         baseName={file.baseName}
         path={file.path}
@@ -234,7 +234,7 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
             schemas.pathParams?.name,
             schemas.queryParams?.name,
             schemas.headerParams?.name,
-            ...schemas.statusCodes?.map((item) => item.name) || [],
+            ...schemas.errors?.map((error) => error.name) || [],
           ].filter(
             Boolean,
           )}
@@ -251,7 +251,7 @@ Mutation.File = function({ templates = defaultTemplates }: FileProps): ReactNode
           />
         </File.Source>
       </File>
-    </>
+    </Editor>
   )
 }
 

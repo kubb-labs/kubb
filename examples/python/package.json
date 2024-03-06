@@ -1,0 +1,45 @@
+{
+  "name": "python-pet-store",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Client PetStore example",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kubb-project/kubb.git",
+    "directory": "packages/examples/python"
+  },
+  "license": "MIT",
+  "author": "Stijn Van Hulle <stijn@stijnvanhulle.be",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "clean": "npx rimraf ./dist",
+    "generate": "kubb generate --config kubb.config.ts",
+    "start": "tsup --watch",
+    "test": "vitest",
+    "typecheck": ""
+  },
+  "dependencies": {
+    "@kubb/cli": "workspace:*",
+    "@kubb/core": "workspace:*",
+    "@kubb/react": "workspace:*",
+    "@kubb/swagger": "workspace:*",
+    "@kubb/swagger-client": "workspace:*",
+    "@kubb/swagger-ts": "workspace:*",
+    "axios": "^1.6.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@kubb/ts-config": "workspace:*",
+    "@types/react": "^18.2.63",
+    "@types/react-dom": "^18.2.20",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.2"
+  },
+  "packageManager": "pnpm@8.3.0",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8.3.0"
+  }
+}

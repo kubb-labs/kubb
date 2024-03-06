@@ -3,6 +3,8 @@ import { OperationGenerator as Generator } from '@kubb/swagger'
 
 import { Mutation } from './components/Mutation.tsx'
 import { Query } from './components/Query.tsx'
+import { QueryKey } from './components/QueryKey.tsx'
+import { QueryOptions } from './components/QueryOptions.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
@@ -20,12 +22,20 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
-    if (!options.templates?.query || !options.templates?.queryKey || !options.templates.queryOptions) {
+    const templates = {
+      mutation: Mutation.templates,
+      query: Query.templates,
+      queryOptions: QueryOptions.templates,
+      queryKey: QueryKey.templates,
+      ...options.templates,
+    }
+
+    if (!templates?.query || !templates?.queryKey || !templates.queryOptions) {
       return []
     }
 
     root.render(
-      <Query.File templates={{ query: options.templates.query, queryKey: options.templates.queryKey, queryOptions: options.templates.queryOptions }} />,
+      <Query.File templates={{ query: templates.query, queryKey: templates.queryKey, queryOptions: templates.queryOptions }} />,
       { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } },
     )
 
@@ -37,11 +47,19 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
-    if (!options.templates?.mutation) {
+    const templates = {
+      mutation: Mutation.templates,
+      query: Query.templates,
+      queryOptions: QueryOptions.templates,
+      queryKey: QueryKey.templates,
+      ...options.templates,
+    }
+
+    if (!templates?.mutation) {
       return []
     }
 
-    root.render(<Mutation.File templates={options.templates.mutation} />, { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } })
+    root.render(<Mutation.File templates={templates.mutation} />, { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } })
 
     return root.files
   }
