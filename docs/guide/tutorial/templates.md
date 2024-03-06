@@ -123,7 +123,7 @@ Update your `kubb.config.ts` file to include the `templates` options.
 ```typescript [kubb.config.ts]
 import { defineConfig } from '@kubb/core'
 import createSwagger from '@kubb/swagger'
-import createSwaggerTS from '@kubb/swagger-ts'
+import createSwaggerClient from '@kubb/swagger-client'
 
 import { templates } from './templates/CustomClientTemplate.tsx'
 
@@ -143,7 +143,7 @@ export default defineConfig(async () => {
           validate: true,
         },
       ),
-      createSwaggerTS(
+      createSwaggerClient(
         {
           output: {
             path: 'models',
