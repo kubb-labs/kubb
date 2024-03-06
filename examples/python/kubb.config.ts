@@ -1,6 +1,8 @@
 import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import { definePlugin as createSwaggerClient } from '@kubb/swagger-client'
 
-import { templates } from './templates/CustomClientTemplate'
+import * as client from './templates/client/index'
 
 export default defineConfig(async () => {
   return {
@@ -17,21 +19,18 @@ export default defineConfig(async () => {
       // done: ['npx eslint --fix ./src/gen', 'prettier --write "**/*.{ts,tsx}"', 'pnpm typecheck'],
     },
     plugins: [
-      ['@kubb/swagger', { output: false, validate: true }],
-      [
-        '@kubb/swagger-client',
-        {
-          output: {
-            path: './',
-            exportType: false,
-          },
-          group: { type: 'tag', output: './{{tag}}Service' },
-          templates: {
-            client: templates,
-            operations: false,
-          },
+      createSwagger({ output: false, validate: true }),
+      createSwaggerClient({
+        output: {
+          path: './',
+          exportType: false,
         },
-      ],
+        group: { type: 'tag', output: './{{tag}}Service' },
+        templates: {
+          client: client.templates,
+          operations: false,
+        },
+      }),
     ],
   }
 })
