@@ -1,34 +1,31 @@
-type ShowPetByIdClient = typeof client<ShowPetByIdQueryResponse, never, never>
-type ShowPetById = {
-  data: ShowPetByIdQueryResponse
+type GetPetsUuidClient = typeof client<GetPetsUuidQueryResponse, never, never>
+type GetPetsUuid = {
+  data: GetPetsUuidQueryResponse
   error: never
   request: never
-  pathParams: ShowPetByIdPathParams
+  pathParams: never
   queryParams: never
   headerParams: never
-  response: ShowPetByIdQueryResponse
+  response: GetPetsUuidQueryResponse
   client: {
-    parameters: Partial<Parameters<ShowPetByIdClient>[0]>
-    return: Awaited<ReturnType<ShowPetByIdClient>>
+    parameters: Partial<Parameters<GetPetsUuidClient>[0]>
+    return: Awaited<ReturnType<GetPetsUuidClient>>
   }
 }
 
-export const ShowPetByIdQueryKey = (petId: ShowPetByIdPathParams['petId'], testId: ShowPetByIdPathParams['testId']) =>
-  [{ url: '/pets/:petId', params: { petId: petId } }] as const
-export type ShowPetByIdQueryKey = ReturnType<typeof ShowPetByIdQueryKey>
-export function ShowPetByIdQueryOptions<TData = ShowPetById['response'], TQueryData = ShowPetById['response']>(
-  petId: ShowPetByIdPathParams['petId'],
-  testId: ShowPetByIdPathParams['testId'],
-  options: ShowPetById['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<ShowPetById['response'], ShowPetById['error'], TData, TQueryData>, 'queryKey'> {
-  const queryKey = ShowPetByIdQueryKey(petId, testId)
+export const GetPetsUuidQueryKey = () => [{ url: '/pets/:uuid', params: { uuid: uuid } }] as const
+export type GetPetsUuidQueryKey = ReturnType<typeof GetPetsUuidQueryKey>
+export function GetPetsUuidQueryOptions<TData = GetPetsUuid['response'], TQueryData = GetPetsUuid['response']>(
+  options: GetPetsUuid['client']['parameters'] = {},
+): WithRequired<UseBaseQueryOptions<GetPetsUuid['response'], GetPetsUuid['error'], TData, TQueryData>, 'queryKey'> {
+  const queryKey = GetPetsUuidQueryKey()
 
   return {
     queryKey,
     queryFn: async () => {
-      const res = await client<ShowPetById['data'], ShowPetById['error']>({
+      const res = await client<GetPetsUuid['data'], GetPetsUuid['error']>({
         method: 'get',
-        url: `/pets/${petId}`,
+        url: `/pets/${uuid}`,
         ...options,
       })
 
@@ -37,25 +34,22 @@ export function ShowPetByIdQueryOptions<TData = ShowPetById['response'], TQueryD
   }
 }
 /**
- * @summary Info for a specific pet
- * @link /pets/:petId */
+ * @link /pets/:uuid */
 
-export function useShowPetById<TData = ShowPetById['response'], TQueryData = ShowPetById['response'], TQueryKey extends QueryKey = ShowPetByIdQueryKey>(
-  petId: ShowPetByIdPathParams['petId'],
-  testId: ShowPetByIdPathParams['testId'],
+export function useGetPetsUuid<TData = GetPetsUuid['response'], TQueryData = GetPetsUuid['response'], TQueryKey extends QueryKey = GetPetsUuidQueryKey>(
   options: {
-    query?: Partial<UseBaseQueryOptions<ShowPetById['response'], ShowPetById['error'], TData, TQueryData, TQueryKey>>
-    client?: ShowPetById['client']['parameters']
+    query?: Partial<UseBaseQueryOptions<GetPetsUuid['response'], GetPetsUuid['error'], TData, TQueryData, TQueryKey>>
+    client?: GetPetsUuid['client']['parameters']
   } = {},
-): UseQueryResult<TData, ShowPetById['error']> & { queryKey: TQueryKey } {
+): UseQueryResult<TData, GetPetsUuid['error']> & { queryKey: TQueryKey } {
   const { query: queryOptions, client: clientOptions = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? ShowPetByIdQueryKey(petId, testId)
+  const queryKey = queryOptions?.queryKey ?? GetPetsUuidQueryKey()
 
-  const query = useQuery<ShowPetById['data'], ShowPetById['error'], TData, any>({
-    ...ShowPetByIdQueryOptions<TData, TQueryData>(petId, testId, clientOptions),
+  const query = useQuery<GetPetsUuid['data'], GetPetsUuid['error'], TData, any>({
+    ...GetPetsUuidQueryOptions<TData, TQueryData>(clientOptions),
     queryKey,
     ...queryOptions,
-  }) as UseQueryResult<TData, ShowPetById['error']> & { queryKey: TQueryKey }
+  }) as UseQueryResult<TData, GetPetsUuid['error']> & { queryKey: TQueryKey }
 
   query.queryKey = queryKey as TQueryKey
 

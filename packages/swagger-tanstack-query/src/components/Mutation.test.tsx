@@ -4,6 +4,7 @@ import { createRootServer } from '@kubb/react/server'
 import { OasManager } from '@kubb/swagger'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
+import { Mutation } from './Mutation.tsx'
 import { Query } from './Query.tsx'
 import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
@@ -40,15 +41,14 @@ describe('<Mutation/>', async () => {
       query: Query.templates,
       queryKey: QueryKey.templates,
       queryOptions: QueryOptions.templates,
+      mutation: Mutation.templates,
     },
     client: {
       importPath: '@kubb/swagger-client/client',
     },
     parser: undefined,
     query: {},
-    mutate: {
-      variablesType: 'hook',
-    },
+    mutate: { variablesType: 'mutate' },
   }
 
   const plugin = { options } as Plugin<PluginOptions>
@@ -71,7 +71,7 @@ describe('<Mutation/>', async () => {
     const context: AppContextProps<PluginOptions['appMeta']> = { meta: { oas, pluginManager: mockedPluginManager, plugin, schemas, operation } }
 
     const Component = () => {
-      return <Query.File />
+      return <Mutation.File />
     }
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)

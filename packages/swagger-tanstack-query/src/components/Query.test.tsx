@@ -65,7 +65,7 @@ describe('<Query/>', async () => {
   )
 
   test('showPetById', async () => {
-    const operation = oas.operation('/pets/{petId}', 'get')
+    const operation = oas.operation('/pets/{uuid}', 'get')
     const schemas = og.getSchemas(operation)
     const context: AppContextProps<PluginOptions['appMeta']> = { meta: { oas, pluginManager: mockedPluginManager, plugin, schemas, operation } }
 

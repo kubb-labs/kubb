@@ -1,3 +1,4 @@
+import { FileManager } from '@kubb/core'
 import { mockedPluginManager } from '@kubb/core/mocks'
 import { OasManager } from '@kubb/swagger'
 
@@ -7,6 +8,7 @@ import { QueryKey } from './components/QueryKey.tsx'
 import { QueryOptions } from './components/QueryOptions.tsx'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
+import type { KubbFile } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
@@ -51,9 +53,11 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pets/{uuid}', 'get')
-    const files = await og.get(operation, og.getSchemas(operation), options)
+    const files = await og.get(operation, og.getSchemas(operation), options) as KubbFile.File[]
 
-    expect(files).toMatchSnapshot()
+    files.forEach(file => {
+      expect(FileManager.getSource(file)).toMatchSnapshot()
+    })
   })
 
   test('[GET] should generate with pathParamsType `object`', async () => {
@@ -89,9 +93,11 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pets/{pet_id}', 'get')
-    const files = await og.get(operation, og.getSchemas(operation), options)
+    const files = await og.get(operation, og.getSchemas(operation), options) as KubbFile.File[]
 
-    expect(files).toMatchSnapshot()
+    files.forEach(file => {
+      expect(FileManager.getSource(file)).toMatchSnapshot()
+    })
   })
 
   test('[POST] should generate with variablesType `mutate`', async () => {
@@ -130,9 +136,11 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pets', 'post')
-    const files = await og.post(operation, og.getSchemas(operation), options)
+    const files = await og.post(operation, og.getSchemas(operation), options) as KubbFile.File[]
 
-    expect(files).toMatchSnapshot()
+    files.forEach(file => {
+      expect(FileManager.getSource(file)).toMatchSnapshot()
+    })
   })
 
   test('[DELETE] should generate with variablesType `mutate`', async () => {
@@ -171,8 +179,10 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pet/{petId}', 'delete')
-    const files = await og.delete(operation, og.getSchemas(operation), options)
+    const files = await og.delete(operation, og.getSchemas(operation), options) as KubbFile.File[]
 
-    expect(files).toMatchSnapshot()
+    files.forEach(file => {
+      expect(FileManager.getSource(file)).toMatchSnapshot()
+    })
   })
 })

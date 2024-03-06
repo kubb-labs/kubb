@@ -1,64 +1,12 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`OperationGenerator > [DELETE] should generate with variablesType \`mutate\` 1`] = `
-[
-  {
-    "baseName": "deletePet.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": undefined,
-        "name": "client",
-        "path": "@kubb/swagger-client/client",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ResponseConfig",
-        ],
-        "path": "@kubb/swagger-client/client",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "DeletePetMutationResponse",
-          "DeletePetPathParams",
-          "DeletePetHeaderParams",
-          "DeletePet400",
-        ],
-        "path": "deletePet.ts",
-        "root": "deletePet.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "UseMutationOptions",
-          "UseMutationResult",
-        ],
-        "path": "@tanstack/react-query",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": undefined,
-        "name": [
-          "useMutation",
-        ],
-        "path": "@tanstack/react-query",
-        "root": undefined,
-      },
-    ],
-    "meta": {
-      "name": "deletePet",
-      "pluginKey": undefined,
-      "tag": "pet",
-    },
-    "override": undefined,
-    "path": "deletePet.ts",
-    "source": "type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>;
+"import client from "@kubb/swagger-client/client";
+import { useMutation } from "@tanstack/react-query";
+import type { DeletePetMutationResponse, DeletePetPathParams, DeletePetHeaderParams, DeletePet400 } from "./";
+import type { UseMutationOptions, UseMutationResult } from "@tanstack/react-query";
+
+ type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>;
 type DeletePet = {
     data: DeletePetMutationResponse;
     error: DeletePet400;
@@ -103,76 +51,16 @@ export function deletePet(options: {
         ...mutationOptions
     });
 }
-",
-  },
-]
+"
 `;
 
 exports[`OperationGenerator > [GET] should generate with pathParamsType \`inline\` 1`] = `
-[
-  {
-    "baseName": "get_pets-uuid.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": undefined,
-        "name": "client",
-        "path": "@kubb/swagger-client/client",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ResponseConfig",
-        ],
-        "path": "@kubb/swagger-client/client",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "GetPetsUuidQueryResponse",
-        ],
-        "path": "get_pets-uuid.ts",
-        "root": "get_pets-uuid.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "UseBaseQueryOptions",
-          "UseQueryResult",
-        ],
-        "path": "@tanstack/react-query",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": undefined,
-        "name": [
-          "useQuery",
-        ],
-        "path": "@tanstack/react-query",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "QueryKey",
-          "WithRequired",
-        ],
-        "path": "@tanstack/react-query",
-        "root": undefined,
-      },
-    ],
-    "meta": {
-      "name": "get_pets-uuid",
-      "pluginKey": undefined,
-      "tag": undefined,
-    },
-    "override": undefined,
-    "path": "get_pets-uuid.ts",
-    "source": "type GetPetsUuidClient = typeof client<GetPetsUuidQueryResponse, never, never>;
+"import client from "@kubb/swagger-client/client";
+import { useQuery } from "@tanstack/react-query";
+import type { GetPetsUuidQueryResponse } from "./";
+import type { UseBaseQueryOptions, UseQueryResult, QueryKey, WithRequired } from "@tanstack/react-query";
+
+ type GetPetsUuidClient = typeof client<GetPetsUuidQueryResponse, never, never>;
 type GetPetsUuid = {
     data: GetPetsUuidQueryResponse;
     error: never;
@@ -227,11 +115,5 @@ UseQueryResult<TData, GetPetsUuid["error"]> & { queryKey: TQueryKey };
     query.queryKey = queryKey as TQueryKey;
     return query;
 }
-",
-  },
-]
+"
 `;
-
-exports[`OperationGenerator > [GET] should generate with pathParamsType \`object\` 1`] = `[]`;
-
-exports[`OperationGenerator > [POST] should generate with variablesType \`mutate\` 1`] = `[]`;

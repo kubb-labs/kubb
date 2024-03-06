@@ -10,7 +10,6 @@ import { getImportNames } from '../utils.ts'
 import { MutationImports } from './MutationImports.tsx'
 import { SchemaType } from './SchemaType.tsx'
 
-import type { OperationSchema } from '@kubb/swagger'
 import type { HttpMethod } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
@@ -263,6 +262,7 @@ export function Mutation({
   optionsType,
   Template = defaultTemplates.react,
 }: Props): ReactNode {
+  // TODO do checks on pathParamsType
   const { options: { dataReturnType, pathParamsType, mutate } } = usePlugin<PluginOptions>()
   const operation = useOperation()
   const name = useOperationName({ type: 'function' })
