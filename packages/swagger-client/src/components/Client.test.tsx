@@ -52,6 +52,6 @@ describe('<Client/>', async () => {
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
 
-    expect(output).toMatchSnapshot()
+    expect(output).toMatchFileSnapshot('./__snapshots__/Client/showPetById.ts')
   })
 })

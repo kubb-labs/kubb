@@ -1,9 +1,6 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`<Query/> > showPetById 1`] = `
-"export const ShowPetByIdPathParams = z.object({
-  petId: z.string().describe(\`The id of the pet to retrieve\`),
-  testId: z.string().describe(\`The id of the pet to retrieve\`),
+export const ShowPetByIdPathParams = z.object({
+  petId: z.string().describe(`The id of the pet to retrieve`),
+  testId: z.string().describe(`The id of the pet to retrieve`),
 })
 
 /**
@@ -20,5 +17,3 @@ export const ShowPetByIdError = z.lazy(() => Error)
  * @description Expected response to a valid request
  */
 export const ShowPetByIdQueryResponse = z.lazy(() => Pet)
-"
-`;

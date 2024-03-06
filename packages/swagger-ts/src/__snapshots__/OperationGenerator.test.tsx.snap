@@ -1,97 +1,26 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`any\` 1`] = `
-[
-  {
-    "baseName": "delete_pet-petid.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [],
-    "language": "typescript",
-    "meta": {
-      "name": "delete_pet-petid",
-      "pluginKey": undefined,
-      "tag": undefined,
-    },
-    "override": undefined,
-    "path": "delete_pet-petid.ts",
-    "source": "export type DeletePetPetidMutationResponse = any | null;
+"export type DeletePetPetidMutationResponse = any | null;
 export type DeletePetPetidMutation = {
     Response: DeletePetPetidMutationResponse;
 };
-",
-  },
-]
+"
 `;
 
 exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`unknown\` 1`] = `
-[
-  {
-    "baseName": "delete_pet-petid.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [],
-    "language": "typescript",
-    "meta": {
-      "name": "delete_pet-petid",
-      "pluginKey": undefined,
-      "tag": undefined,
-    },
-    "override": undefined,
-    "path": "delete_pet-petid.ts",
-    "source": "export type DeletePetPetidMutationResponse = unknown | null;
+"export type DeletePetPetidMutationResponse = unknown | null;
 export type DeletePetPetidMutation = {
     Response: DeletePetPetidMutationResponse;
 };
-",
-  },
-]
+"
 `;
 
 exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 1`] = `
-[
-  {
-    "baseName": "listPets.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Pets",
-        ],
-        "path": "Pets",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "listPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Pets",
-        ],
-        "path": "Pets",
-        "root": "listPets.ts",
-      },
-    ],
-    "language": "typescript",
-    "meta": {
-      "name": "listPets",
-      "pluginKey": undefined,
-      "tag": "pets",
-    },
-    "override": undefined,
-    "path": "listPets.ts",
-    "source": "export type ListPetsQueryParams = {
+"import type { Pets } from "./Pets";
+import type { Error } from "./Error";
+
+ export type ListPetsQueryParams = {
     /**
      * @description How many items to return at one time (max 100)
      * @type string | undefined
@@ -99,17 +28,17 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 1`
     limit?: string;
 } | undefined;
 
-/**
+ /**
  * @description A paged array of pets
 */
 export type ListPets200 = Pets;
 
-/**
+ /**
  * @description unexpected error
 */
 export type ListPetsError = Error;
 
-/**
+ /**
  * @description A paged array of pets
 */
 export type ListPetsQueryResponse = Pets;
@@ -117,53 +46,14 @@ export type ListPetsQuery = {
     Response: ListPetsQueryResponse;
     QueryParams: ListPetsQueryParams;
 };
-",
-  },
-]
+"
 `;
 
 exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 2`] = `
-[
-  {
-    "baseName": "showPetById.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Pet",
-        ],
-        "path": "Pet",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Pet",
-        ],
-        "path": "Pet",
-        "root": "showPetById.ts",
-      },
-    ],
-    "language": "typescript",
-    "meta": {
-      "name": "showPetById",
-      "pluginKey": undefined,
-      "tag": "pets",
-    },
-    "override": undefined,
-    "path": "showPetById.ts",
-    "source": "export type ShowPetByIdPathParams = {
+"import type { Pet } from "./Pet";
+import type { Error } from "./Error";
+
+ export type ShowPetByIdPathParams = {
     /**
      * @description The id of the pet to retrieve
      * @type string
@@ -176,17 +66,17 @@ exports[`OperationGenerator > [GET] /pets with optionalType \`questionToken\` 2`
     testId: string;
 };
 
-/**
+ /**
  * @description Expected response to a valid request
 */
 export type ShowPetById200 = Pet;
 
-/**
+ /**
  * @description unexpected error
 */
 export type ShowPetByIdError = Error;
 
-/**
+ /**
  * @description Expected response to a valid request
 */
 export type ShowPetByIdQueryResponse = Pet;
@@ -194,69 +84,14 @@ export type ShowPetByIdQuery = {
     Response: ShowPetByIdQueryResponse;
     PathParams: ShowPetByIdPathParams;
 };
-",
-  },
-]
+"
 `;
 
 exports[`OperationGenerator > [POST] /pets 201 1`] = `
-[
-  {
-    "baseName": "createPets.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ErrorCode",
-        ],
-        "path": "ErrorCode",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "Error",
-        ],
-        "path": "Error",
-        "root": "createPets.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ErrorCode",
-        ],
-        "path": "ErrorCode",
-        "root": "createPets.ts",
-      },
-    ],
-    "language": "typescript",
-    "meta": {
-      "name": "createPets",
-      "pluginKey": undefined,
-      "tag": "pets",
-    },
-    "override": undefined,
-    "path": "createPets.ts",
-    "source": "export type CreatePetsMutationRequest = {
+"import type { Error } from "./Error";
+import type { ErrorCode } from "./ErrorCode";
+
+ export type CreatePetsMutationRequest = {
     /**
      * @type string
     */
@@ -267,19 +102,19 @@ exports[`OperationGenerator > [POST] /pets 201 1`] = `
     tag: string;
 };
 
-/**
+ /**
  * @description unexpected error
 */
 export type CreatePetsError = Error;
 
-/**
+ /**
  * @description Null response
 */
 export type CreatePets201 = (Error & {
     name?: ErrorCode;
 });
 
-/**
+ /**
  * @description Null response
 */
 export type CreatePetsMutationResponse = (Error & {
@@ -289,7 +124,5 @@ export type CreatePetsMutation = {
     Response: CreatePetsMutationResponse;
     Request: CreatePetsMutationRequest;
 };
-",
-  },
-]
+"
 `;
