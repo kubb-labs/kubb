@@ -30,7 +30,9 @@ export function useAddPet(options: {
   data: AddPet['request']
 }> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<AddPet['response'], AddPet['error'], AddPet['request']>({
+  return useMutation<AddPet['response'], AddPet['error'], {
+    data: AddPet['request']
+  }>({
     mutationFn: async ({ data }) => {
       const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',

@@ -22,12 +22,14 @@ type CreateUsersWithListInput = {
  * @summary Creates list of users with given input array
  * @link /user/createWithList */
 export function useCreateUsersWithListInputHook(options: {
-  mutation?: UseMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>
+  mutation?: UseMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], {
+    data: CreateUsersWithListInput['request']
+  }>
   client?: CreateUsersWithListInput['client']['parameters']
 } = {}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation({
-    mutationFn: async (data) => {
+    mutationFn: async ({ data }) => {
       const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
         method: 'post',
         url: `/user/createWithList`,

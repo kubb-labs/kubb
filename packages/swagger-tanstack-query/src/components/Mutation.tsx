@@ -231,6 +231,7 @@ const defaultTemplates = {
         <>
           <Template
             {...rest}
+            mutateParams="data"
             params={params.toString()}
             returnType={`${resultType}<${resultGenerics.join(', ')}>`}
             client={client}
@@ -269,13 +270,53 @@ export function Mutation({
 
   const params = new FunctionParams()
   const mutateParams = new FunctionParams()
+
+  const requestType = FunctionParams.toObject(
+    mutate?.variablesType === 'mutate'
+      ? [
+        ...getASTParams(schemas.pathParams, { typed: true }),
+        {
+          name: 'params',
+          type: `${factory.name}['queryParams']`,
+          enabled: !!schemas.queryParams?.name,
+          required: isRequired(schemas.queryParams?.schema),
+        },
+        {
+          name: 'headers',
+          type: `${factory.name}['headerParams']`,
+          enabled: !!schemas.headerParams?.name,
+          required: isRequired(schemas.headerParams?.schema),
+        },
+        {
+          name: 'data',
+          type: `${factory.name}['request']`,
+          enabled: !!schemas.request?.name,
+          required: isRequired(schemas.request?.schema),
+        },
+      ]
+      : [
+        {
+          name: 'data',
+          type: `${factory.name}['request']`,
+          enabled: !!schemas.request?.name,
+          required: true,
+        },
+        {
+          name: 'data',
+          type: `${factory.name}['request']`,
+          enabled: !schemas.request?.name,
+          required: true,
+        },
+      ],
+  )?.type
+
   const client = {
     method: operation.method,
     path: new URLPath(operation.path),
     generics: [
       `${factory.name}["data"]`,
       `${factory.name}["error"]`,
-      schemas.request?.name ? `${factory.name}["request"]` : 'void',
+      requestType ? `${factory.name}["request"]` : 'void',
     ].join(', '),
     withQueryParams: !!schemas.queryParams?.name,
     withData: !!schemas.request?.name,
@@ -287,31 +328,17 @@ export function Mutation({
     generics: [
       `${factory.name}['response']`,
       `${factory.name}["error"]`,
-      client.withData ? `${factory.name}["request"]` : 'void',
+      requestType ? `${requestType}` : 'void',
     ].join(', '),
   }
 
   const resultGenerics = [
     `${factory.name}["response"]`,
     `${factory.name}["error"]`,
+    requestType,
   ]
 
   if (mutate?.variablesType === 'mutate') {
-    // TODO check on headers(schemas.headerParams.name)
-    if (schemas.pathParams?.name) {
-      resultGenerics.push(
-        schemas.request?.name
-          ? `${factory.name}["pathParams"] & { data: ${factory.name}["request"] }`
-          : `${factory.name}["pathParams"]`,
-      )
-    } else {
-      resultGenerics.push(
-        schemas.request?.name
-          ? `{ data: ${factory.name}["request"] }`
-          : `void`,
-      )
-    }
-
     params.add([
       {
         name: 'options',
@@ -323,30 +350,29 @@ export function Mutation({
       },
     ])
 
-    // hacky way of adding key `data`
-    // TODO check on headers(schemas.headerParams.name)
     mutateParams.add([
-      ...getASTParams(schemas.pathParams, { typed: false, object: { suffix: schemas.request?.name ? 'data' : undefined } }),
-    ])
-    // instead of object or isObject move the logic for combining to one name to the toString() funcionality
-    // add key so we can group them based on key or array in array [[],[]]
-    if (!mutateParams.items.length) {
-      mutateParams.add([
+      [
+        ...getASTParams(schemas.pathParams, { typed: false }),
         {
-          name: '{ data }',
+          name: 'params',
+          enabled: client.withQueryParams,
+          required: isRequired(schemas.queryParams?.schema),
+        },
+        {
+          name: 'headers',
+          enabled: client.withHeaders,
+          required: isRequired(schemas.headerParams?.schema),
+        },
+        {
+          name: 'data',
           enabled: !!schemas.request?.name,
           required: isRequired(schemas.request?.schema),
         },
-      ])
-    }
+      ],
+    ])
   } else {
-    resultGenerics.push(
-      schemas.request?.name
-        ? `${factory.name}["request"]`
-        : 'void',
-    )
     params.add([
-      ...getASTParams(schemas.pathParams, { typed: true, asObject: pathParamsType === 'object' }),
+      ...getASTParams(schemas.pathParams, { typed: true }),
       {
         name: 'params',
         type: `${factory.name}['queryParams']`,
@@ -371,7 +397,7 @@ export function Mutation({
 
     mutateParams.add([
       {
-        name: 'data',
+        name: '{ data }',
         enabled: !!schemas.request?.name,
         required: isRequired(schemas.request?.schema),
       },

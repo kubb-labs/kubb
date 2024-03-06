@@ -38,10 +38,10 @@ export function useUpdatePetWithForm(
 ): UseMutationReturnType<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], void, unknown>({
-    mutationFn: async () => {
+    mutationFn: async (data) => {
       const petId = unref(refPetId)
       const params = unref(refParams)
-      const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error'], void>({
+      const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>({
         method: 'post',
         url: `/pet/${petId}`,
         params,

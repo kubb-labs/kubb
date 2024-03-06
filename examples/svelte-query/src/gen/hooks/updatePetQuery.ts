@@ -23,13 +23,31 @@ type UpdatePet = {
  * @link /pet */
 export function updatePetQuery(
   options: {
-    mutation?: CreateMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
+    mutation?: CreateMutationOptions<
+      UpdatePet['response'],
+      UpdatePet['error'],
+      {
+        data: UpdatePet['request']
+      }
+    >
     client?: UpdatePet['client']['parameters']
   } = {},
-): CreateMutationResult<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']> {
+): CreateMutationResult<
+  UpdatePet['response'],
+  UpdatePet['error'],
+  {
+    data: UpdatePet['request']
+  }
+> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>({
-    mutationFn: async (data) => {
+  return createMutation<
+    UpdatePet['response'],
+    UpdatePet['error'],
+    {
+      data: UpdatePet['request']
+    }
+  >({
+    mutationFn: async ({ data }) => {
       const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
         method: 'put',
         url: `/pet`,

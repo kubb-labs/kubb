@@ -76,7 +76,7 @@ export default defineConfig(async () => {
                   queryParam: 'test',
                 },
                 mutate: {
-                  paramsType: 'mutate',
+                  variablesType: 'mutate',
                 },
               },
             },

@@ -34,10 +34,10 @@ export function useDeletePet(
 ): UseMutationReturnType<DeletePet['response'], DeletePet['error'], void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<DeletePet['response'], DeletePet['error'], void, unknown>({
-    mutationFn: async () => {
+    mutationFn: async (data) => {
       const petId = unref(refPetId)
       const headers = unref(refHeaders)
-      const res = await client<DeletePet['data'], DeletePet['error'], void>({
+      const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
         method: 'delete',
         url: `/pet/${petId}`,
         headers: { ...headers, ...clientOptions.headers },

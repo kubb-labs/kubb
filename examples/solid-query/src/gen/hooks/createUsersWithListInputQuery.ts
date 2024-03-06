@@ -23,13 +23,31 @@ type CreateUsersWithListInput = {
  * @link /user/createWithList */
 export function createUsersWithListInputQuery(
   options: {
-    mutation?: CreateMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>
+    mutation?: CreateMutationOptions<
+      CreateUsersWithListInput['response'],
+      CreateUsersWithListInput['error'],
+      {
+        data: CreateUsersWithListInput['request']
+      }
+    >
     client?: CreateUsersWithListInput['client']['parameters']
   } = {},
-): CreateMutationResult<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']> {
+): CreateMutationResult<
+  CreateUsersWithListInput['response'],
+  CreateUsersWithListInput['error'],
+  {
+    data: CreateUsersWithListInput['request']
+  }
+> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
-    mutationFn: async (data) => {
+  return createMutation<
+    CreateUsersWithListInput['response'],
+    CreateUsersWithListInput['error'],
+    {
+      data: CreateUsersWithListInput['request']
+    }
+  >({
+    mutationFn: async ({ data }) => {
       const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
         method: 'post',
         url: `/user/createWithList`,

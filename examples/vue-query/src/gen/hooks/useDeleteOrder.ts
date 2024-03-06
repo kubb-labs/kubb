@@ -33,9 +33,9 @@ export function useDeleteOrder(
 ): UseMutationReturnType<DeleteOrder['response'], DeleteOrder['error'], void, unknown> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation<DeleteOrder['response'], DeleteOrder['error'], void, unknown>({
-    mutationFn: async () => {
+    mutationFn: async (data) => {
       const orderId = unref(refOrderId)
-      const res = await client<DeleteOrder['data'], DeleteOrder['error'], void>({
+      const res = await client<DeleteOrder['data'], DeleteOrder['error'], DeleteOrder['request']>({
         method: 'delete',
         url: `/store/order/${orderId}`,
         ...clientOptions,

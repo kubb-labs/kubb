@@ -46,6 +46,9 @@ describe('<Mutation/>', async () => {
     },
     parser: undefined,
     query: {},
+    mutate: {
+      variablesType: 'hook',
+    },
   }
 
   const plugin = { options } as Plugin<PluginOptions>

@@ -27,24 +27,27 @@ type CreatePets = {
  * @summary Create a pet
  * @link /pets/:uuid */
 export function useCreatePets(options: {
-  mutation?: UseMutationOptions<
-    CreatePets['response'],
-    CreatePets['error'],
-    CreatePets['pathParams'] & {
-      data: CreatePets['request']
-    }
-  >
-  client?: CreatePets['client']['parameters']
-} = {}): UseMutationResult<
-  CreatePets['response'],
-  CreatePets['error'],
-  CreatePets['pathParams'] & {
+  mutation?: UseMutationOptions<CreatePets['response'], CreatePets['error'], {
+    uuid: CreatePetsPathParams['uuid']
+    params?: CreatePets['queryParams']
+    headers: CreatePets['headerParams']
     data: CreatePets['request']
-  }
-> {
+  }>
+  client?: CreatePets['client']['parameters']
+} = {}): UseMutationResult<CreatePets['response'], CreatePets['error'], {
+  uuid: CreatePetsPathParams['uuid']
+  params?: CreatePets['queryParams']
+  headers: CreatePets['headerParams']
+  data: CreatePets['request']
+}> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<CreatePets['response'], CreatePets['error'], CreatePets['request']>({
-    mutationFn: async ({ uuid, data }) => {
+  return useMutation<CreatePets['response'], CreatePets['error'], {
+    uuid: CreatePetsPathParams['uuid']
+    params?: CreatePets['queryParams']
+    headers: CreatePets['headerParams']
+    data: CreatePets['request']
+  }>({
+    mutationFn: async ({ uuid, headers, data, params }) => {
       const res = await client<CreatePets['data'], CreatePets['error'], CreatePets['request']>({
         method: 'post',
         url: `/pets/${uuid}`,

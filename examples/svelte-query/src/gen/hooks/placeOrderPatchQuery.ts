@@ -23,13 +23,31 @@ type PlaceOrderPatch = {
  * @link /store/order */
 export function placeOrderPatchQuery(
   options: {
-    mutation?: CreateMutationOptions<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>
+    mutation?: CreateMutationOptions<
+      PlaceOrderPatch['response'],
+      PlaceOrderPatch['error'],
+      {
+        data: PlaceOrderPatch['request']
+      }
+    >
     client?: PlaceOrderPatch['client']['parameters']
   } = {},
-): CreateMutationResult<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']> {
+): CreateMutationResult<
+  PlaceOrderPatch['response'],
+  PlaceOrderPatch['error'],
+  {
+    data: PlaceOrderPatch['request']
+  }
+> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
-    mutationFn: async (data) => {
+  return createMutation<
+    PlaceOrderPatch['response'],
+    PlaceOrderPatch['error'],
+    {
+      data: PlaceOrderPatch['request']
+    }
+  >({
+    mutationFn: async ({ data }) => {
       const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
         method: 'patch',
         url: `/store/order`,

@@ -47,6 +47,7 @@ describe('<Query/>', async () => {
     },
     parser: undefined,
     query: {},
+    mutate: {},
   }
 
   const plugin = { options } as Plugin<PluginOptions>

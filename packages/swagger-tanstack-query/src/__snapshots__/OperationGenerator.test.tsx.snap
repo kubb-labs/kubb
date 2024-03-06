@@ -1,9 +1,9 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`OperationGenerator > [GET] should generate with pathParamsType \`inline\` 1`] = `
+exports[`OperationGenerator > [DELETE] should generate with variablesType \`mutate\` 1`] = `
 [
   {
-    "baseName": "showPetById.ts",
+    "baseName": "deletePet.ts",
     "env": undefined,
     "exports": [],
     "id": undefined,
@@ -25,13 +25,118 @@ exports[`OperationGenerator > [GET] should generate with pathParamsType \`inline
       {
         "isTypeOnly": true,
         "name": [
-          "ShowPetByIdQueryResponse",
-          "ShowPetByIdPathParams",
-          "ShowPetById200",
-          "ShowPetByIdError",
+          "DeletePetMutationResponse",
+          "DeletePetPathParams",
+          "DeletePetHeaderParams",
+          "DeletePet400",
         ],
-        "path": "showPetById.ts",
-        "root": "showPetById.ts",
+        "path": "deletePet.ts",
+        "root": "deletePet.ts",
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "UseMutationOptions",
+          "UseMutationResult",
+        ],
+        "path": "@tanstack/react-query",
+        "root": undefined,
+      },
+      {
+        "isTypeOnly": undefined,
+        "name": [
+          "useMutation",
+        ],
+        "path": "@tanstack/react-query",
+        "root": undefined,
+      },
+    ],
+    "meta": {
+      "name": "deletePet",
+      "pluginKey": undefined,
+      "tag": "pet",
+    },
+    "override": undefined,
+    "path": "deletePet.ts",
+    "source": "type DeletePetClient = typeof client<DeletePetMutationResponse, DeletePet400, never>;
+type DeletePet = {
+    data: DeletePetMutationResponse;
+    error: DeletePet400;
+    request: never;
+    pathParams: DeletePetPathParams;
+    queryParams: never;
+    headerParams: DeletePetHeaderParams;
+    response: DeletePetMutationResponse;
+    client: {
+        parameters: Partial<Parameters<DeletePetClient>[0]>;
+        return: Awaited<ReturnType<DeletePetClient>>;
+    };
+};
+/**
+     * @description delete a pet
+     * @summary Deletes a pet
+     * @link /pet/:petId */
+export function deletePet(options: {
+    mutation?: UseMutationOptions<DeletePet["response"], DeletePet["error"], {
+        petId: DeletePetPathParams["petId"];
+        headers?: DeletePet["headerParams"];
+    }>;
+    client?: DeletePet["client"]["parameters"];
+} = {}): UseMutationResult<DeletePet["response"], DeletePet["error"], {
+    petId: DeletePetPathParams["petId"];
+    headers?: DeletePet["headerParams"];
+}> {
+    const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
+    return useMutation<DeletePet["response"], DeletePet["error"], {
+        petId: DeletePetPathParams["petId"];
+        headers?: DeletePet["headerParams"];
+    }>({
+        mutationFn: async ({ petId, headers }) => {
+            const res = await client<DeletePet["data"], DeletePet["error"], DeletePet["request"]>({
+                method: "delete",
+                url: \`/pet/\${petId}\`,
+                headers: { ...headers, ...clientOptions.headers },
+                ...clientOptions
+            });
+            return res.data;
+        },
+        ...mutationOptions
+    });
+}
+",
+  },
+]
+`;
+
+exports[`OperationGenerator > [GET] should generate with pathParamsType \`inline\` 1`] = `
+[
+  {
+    "baseName": "get_pets-uuid.ts",
+    "env": undefined,
+    "exports": [],
+    "id": undefined,
+    "imports": [
+      {
+        "isTypeOnly": undefined,
+        "name": "client",
+        "path": "@kubb/swagger-client/client",
+        "root": undefined,
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "ResponseConfig",
+        ],
+        "path": "@kubb/swagger-client/client",
+        "root": undefined,
+      },
+      {
+        "isTypeOnly": true,
+        "name": [
+          "GetPetsUuidQueryResponse",
+        ],
+        "path": "get_pets-uuid.ts",
+        "root": "get_pets-uuid.ts",
       },
       {
         "isTypeOnly": true,
@@ -61,36 +166,36 @@ exports[`OperationGenerator > [GET] should generate with pathParamsType \`inline
       },
     ],
     "meta": {
-      "name": "showPetById",
+      "name": "get_pets-uuid",
       "pluginKey": undefined,
-      "tag": "pets",
+      "tag": undefined,
     },
     "override": undefined,
-    "path": "showPetById.ts",
-    "source": "type ShowPetByIdClient = typeof client<ShowPetByIdQueryResponse, never, never>;
-type ShowPetById = {
-    data: ShowPetByIdQueryResponse;
+    "path": "get_pets-uuid.ts",
+    "source": "type GetPetsUuidClient = typeof client<GetPetsUuidQueryResponse, never, never>;
+type GetPetsUuid = {
+    data: GetPetsUuidQueryResponse;
     error: never;
     request: never;
-    pathParams: ShowPetByIdPathParams;
+    pathParams: never;
     queryParams: never;
     headerParams: never;
-    response: ShowPetByIdQueryResponse;
+    response: GetPetsUuidQueryResponse;
     client: {
-        parameters: Partial<Parameters<ShowPetByIdClient>[0]>;
-        return: Awaited<ReturnType<ShowPetByIdClient>>;
+        parameters: Partial<Parameters<GetPetsUuidClient>[0]>;
+        return: Awaited<ReturnType<GetPetsUuidClient>>;
     };
 };
-export const ShowPetByIdQueryKey = (petId: ShowPetByIdPathParams["pet_id"], testId: ShowPetByIdPathParams["testId"]) => [{ url: "/pets/:pet_id", params: { petId: petId } }] as const;
-export type ShowPetByIdQueryKey = ReturnType<typeof ShowPetByIdQueryKey>;
-export function ShowPetByIdQueryOptions<TData = ShowPetById["response"], TQueryData = ShowPetById["response"]>(petId: ShowPetByIdPathParams["pet_id"], testId: ShowPetByIdPathParams["testId"], options: ShowPetById["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<ShowPetById["response"], ShowPetById["error"], TData, TQueryData>, "queryKey"> {
-    const queryKey = ShowPetByIdQueryKey(petId, testId);
+export const GetPetsUuidQueryKey = () => [{ url: "/pets/:uuid", params: { uuid: uuid } }] as const;
+export type GetPetsUuidQueryKey = ReturnType<typeof GetPetsUuidQueryKey>;
+export function GetPetsUuidQueryOptions<TData = GetPetsUuid["response"], TQueryData = GetPetsUuid["response"]>(options: GetPetsUuid["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<GetPetsUuid["response"], GetPetsUuid["error"], TData, TQueryData>, "queryKey"> {
+    const queryKey = GetPetsUuidQueryKey();
     return {
         queryKey,
         queryFn: async () => {
-            const res = await client<ShowPetById["data"], ShowPetById["error"]>({
+            const res = await client<GetPetsUuid["data"], GetPetsUuid["error"]>({
                 method: "get",
-                url: \`/pets/\${petId}\`,
+                url: \`/pets/\${uuid}\`,
                 ...options
             });
             return res.data;
@@ -98,21 +203,25 @@ export function ShowPetByIdQueryOptions<TData = ShowPetById["response"], TQueryD
     };
 }
 /**
-     * @summary Info for a specific pet
-     * @link /pets/:pet_id */
-export function showPetById<TData = ShowPetById["response"], TQueryData = ShowPetById["response"], TQueryKey extends QueryKey = ShowPetByIdQueryKey>(petId: ShowPetByIdPathParams["pet_id"], testId: ShowPetByIdPathParams["testId"], options: {
-    query?: Partial<UseBaseQueryOptions<ShowPetById["response"], ShowPetById["error"], TData, TQueryData, TQueryKey>>;
-    client?: ShowPetById["client"]["parameters"];
-} = {}): UseQueryResult<TData, ShowPetById["error"]> & {
-    queryKey: TQueryKey;
-} {
+     * @link /pets/:uuid */
+export function get_pets() { }
+-uuid < TData;
+GetPetsUuid["response"], TQueryData = GetPetsUuid["response"], TQueryKey;
+QueryKey = GetPetsUuidQueryKey > (options);
+{
+    query ?  : Partial<UseBaseQueryOptions<GetPetsUuid["response"], GetPetsUuid["error"], TData, TQueryData, TQueryKey>>,
+        client ?  : GetPetsUuid["client"]["parameters"];
+}
+{ }
+UseQueryResult<TData, GetPetsUuid["error"]> & { queryKey: TQueryKey };
+{
     const { query: queryOptions, client: clientOptions = {} } = options ?? {};
-    const queryKey = queryOptions?.queryKey ?? ShowPetByIdQueryKey(petId, testId);
-    const query = useQuery<ShowPetById["data"], ShowPetById["error"], TData, any>({
-        ...ShowPetByIdQueryOptions<TData, TQueryData>(petId, testId, clientOptions),
+    const queryKey = queryOptions?.queryKey ?? GetPetsUuidQueryKey();
+    const query = useQuery<GetPetsUuid["data"], GetPetsUuid["error"], TData, any>({
+        ...GetPetsUuidQueryOptions<TData, TQueryData>(clientOptions),
         queryKey,
         ...queryOptions
-    }) as UseQueryResult<TData, ShowPetById["error"]> & {
+    }) as UseQueryResult<TData, GetPetsUuid["error"]> & {
         queryKey: TQueryKey;
     };
     query.queryKey = queryKey as TQueryKey;
@@ -123,125 +232,6 @@ export function showPetById<TData = ShowPetById["response"], TQueryData = ShowPe
 ]
 `;
 
-exports[`OperationGenerator > [GET] should generate with pathParamsType \`object\` 1`] = `
-[
-  {
-    "baseName": "showPetById.ts",
-    "env": undefined,
-    "exports": [],
-    "id": undefined,
-    "imports": [
-      {
-        "isTypeOnly": undefined,
-        "name": "client",
-        "path": "@kubb/swagger-client/client",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ResponseConfig",
-        ],
-        "path": "@kubb/swagger-client/client",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "ShowPetByIdQueryResponse",
-          "ShowPetByIdPathParams",
-          "ShowPetById200",
-          "ShowPetByIdError",
-        ],
-        "path": "showPetById.ts",
-        "root": "showPetById.ts",
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "UseBaseQueryOptions",
-          "UseQueryResult",
-        ],
-        "path": "@tanstack/react-query",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": undefined,
-        "name": [
-          "useQuery",
-        ],
-        "path": "@tanstack/react-query",
-        "root": undefined,
-      },
-      {
-        "isTypeOnly": true,
-        "name": [
-          "QueryKey",
-          "WithRequired",
-        ],
-        "path": "@tanstack/react-query",
-        "root": undefined,
-      },
-    ],
-    "meta": {
-      "name": "showPetById",
-      "pluginKey": undefined,
-      "tag": "pets",
-    },
-    "override": undefined,
-    "path": "showPetById.ts",
-    "source": "type ShowPetByIdClient = typeof client<ShowPetByIdQueryResponse, never, never>;
-type ShowPetById = {
-    data: ShowPetByIdQueryResponse;
-    error: never;
-    request: never;
-    pathParams: ShowPetByIdPathParams;
-    queryParams: never;
-    headerParams: never;
-    response: ShowPetByIdQueryResponse;
-    client: {
-        parameters: Partial<Parameters<ShowPetByIdClient>[0]>;
-        return: Awaited<ReturnType<ShowPetByIdClient>>;
-    };
-};
-export const ShowPetByIdQueryKey = ({ petId, testId }: ShowPetByIdPathParams) => [{ url: "/pets/:pet_id", params: { petId: petId } }] as const;
-export type ShowPetByIdQueryKey = ReturnType<typeof ShowPetByIdQueryKey>;
-export function ShowPetByIdQueryOptions<TData = ShowPetById["response"], TQueryData = ShowPetById["response"]>({ petId, testId }: ShowPetByIdPathParams, options: ShowPetById["client"]["parameters"] = {}): WithRequired<UseBaseQueryOptions<ShowPetById["response"], ShowPetById["error"], TData, TQueryData>, "queryKey"> {
-    const queryKey = ShowPetByIdQueryKey(petId, testId);
-    return {
-        queryKey,
-        queryFn: async () => {
-            const res = await client<ShowPetById["data"], ShowPetById["error"]>({
-                method: "get",
-                url: \`/pets/\${petId}\`,
-                ...options
-            });
-            return res.data;
-        },
-    };
-}
-/**
-     * @summary Info for a specific pet
-     * @link /pets/:pet_id */
-export function showPetById<TData = ShowPetById["response"], TQueryData = ShowPetById["response"], TQueryKey extends QueryKey = ShowPetByIdQueryKey>({ petId, testId }: ShowPetByIdPathParams, options: {
-    query?: Partial<UseBaseQueryOptions<ShowPetById["response"], ShowPetById["error"], TData, TQueryData, TQueryKey>>;
-    client?: ShowPetById["client"]["parameters"];
-} = {}): UseQueryResult<TData, ShowPetById["error"]> & {
-    queryKey: TQueryKey;
-} {
-    const { query: queryOptions, client: clientOptions = {} } = options ?? {};
-    const queryKey = queryOptions?.queryKey ?? ShowPetByIdQueryKey(petId, testId);
-    const query = useQuery<ShowPetById["data"], ShowPetById["error"], TData, any>({
-        ...ShowPetByIdQueryOptions<TData, TQueryData>({ petId, testId }, ShowPetByIdPathParams, clientOptions),
-        queryKey,
-        ...queryOptions
-    }) as UseQueryResult<TData, ShowPetById["error"]> & {
-        queryKey: TQueryKey;
-    };
-    query.queryKey = queryKey as TQueryKey;
-    return query;
-}
-",
-  },
-]
-`;
+exports[`OperationGenerator > [GET] should generate with pathParamsType \`object\` 1`] = `[]`;
+
+exports[`OperationGenerator > [POST] should generate with variablesType \`mutate\` 1`] = `[]`;

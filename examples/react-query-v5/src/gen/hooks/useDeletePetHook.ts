@@ -22,13 +22,15 @@ type DeletePet = {
  * @summary Deletes a pet
  * @link /pet/:petId */
 export function useDeletePetHook(petId: DeletePetPathParams['petId'], headers?: DeletePet['headerParams'], options: {
-  mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], void>
+  mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], {
+    data: DeletePet['request']
+  }>
   client?: DeletePet['client']['parameters']
 } = {}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   return useMutation({
     mutationFn: async () => {
-      const res = await client<DeletePet['data'], DeletePet['error'], void>({
+      const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
         method: 'delete',
         url: `/pet/${petId}`,
         headers: { ...headers, ...clientOptions.headers },

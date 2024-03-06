@@ -99,7 +99,7 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pet/{petId}', 'delete')
-    const files = await og.post(operation, og.getSchemas(operation), options)
+    const files = await og.delete(operation, og.getSchemas(operation), options)
 
     expect(files).toMatchSnapshot()
   })
@@ -127,7 +127,7 @@ describe('OperationGenerator', async () => {
       },
     )
     const operation = oas.operation('/pet/{petId}', 'delete')
-    const files = await og.post(operation, og.getSchemas(operation), options)
+    const files = await og.delete(operation, og.getSchemas(operation), options)
 
     expect(files).toMatchSnapshot()
   })
