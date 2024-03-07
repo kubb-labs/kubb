@@ -66,7 +66,7 @@ describe('<Mutation/>', async () => {
   )
 
   test('pets', async () => {
-    const operation = oas.operation('/pets', 'post')
+    const operation = oas.operation('/pets/{uuid}', 'post')
     const schemas = og.getSchemas(operation)
     const context: AppContextProps<PluginOptions['appMeta']> = { meta: { oas, pluginManager: mockedPluginManager, plugin, schemas, operation } }
 

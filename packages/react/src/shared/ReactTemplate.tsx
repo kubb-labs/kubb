@@ -106,6 +106,9 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
     this.#lastFiles = files
   }
   onError(error: Error): void {
+    if (process.env.NODE_ENV === 'test') {
+      console.error(error)
+    }
     if (!this.logger) {
       console.error(error)
     }

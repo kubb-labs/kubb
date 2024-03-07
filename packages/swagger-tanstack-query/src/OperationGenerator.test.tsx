@@ -1,4 +1,3 @@
-import { FileManager } from '@kubb/core'
 import { mockedPluginManager } from '@kubb/core/mocks'
 import { OasManager } from '@kubb/swagger'
 
@@ -8,8 +7,7 @@ import { QueryKey } from './components/QueryKey.tsx'
 import { QueryOptions } from './components/QueryOptions.tsx'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
-import type { KubbFile } from '@kubb/core'
-import type { Plugin } from '@kubb/core'
+import { FileManager, KubbFile, type Plugin } from '@kubb/core'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from './types.ts'
 
