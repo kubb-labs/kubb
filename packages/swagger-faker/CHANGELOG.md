@@ -1,5 +1,18 @@
 # @kubb/swagger-faker
 
+## 2.7.2
+
+### Patch Changes
+
+- [#848](https://github.com/kubb-project/kubb/pull/848) [`7027af9`](https://github.com/kubb-project/kubb/commit/7027af91c28475c9ab98b16d237fc3fb429962b4) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - correct use of regex for faker
+
+- Updated dependencies []:
+  - @kubb/core@2.7.2
+  - @kubb/parser@2.7.2
+  - @kubb/react@2.7.2
+  - @kubb/swagger@2.7.2
+  - @kubb/swagger-ts@2.7.2
+
 ## 2.7.1
 
 ### Patch Changes
