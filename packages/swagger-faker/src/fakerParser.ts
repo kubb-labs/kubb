@@ -192,6 +192,18 @@ export function parseFakerMeta(
     return value
   }
 
+  if (isKeyword(item, fakerKeywords.matches)) {
+    const options = (item as FakerMetaBase<unknown>).args as string
+    let regex
+    try {
+      regex = new RegExp(options)
+    } catch (_e) {
+      regex = JSON.stringify(options)
+    }
+
+    return `${value}(${regex ?? ''})`
+  }
+
   if (item.keyword in mapper) {
     const options = JSON.stringify((item as FakerMetaBase<unknown>).args)
     return `${value}(${options ?? ''})`

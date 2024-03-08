@@ -47,6 +47,13 @@ const input = [
   },
   {
     input: parseFakerMeta({
+      keyword: 'matches',
+      args: '^[A-Z]{2}$',
+    }),
+    expected: 'faker.helpers.fromRegExp(/^[A-Z]{2}$/)',
+  },
+  {
+    input: parseFakerMeta({
       keyword: 'ref',
       args: { name: 'createPet' },
     }),

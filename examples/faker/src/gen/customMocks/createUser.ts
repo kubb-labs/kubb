@@ -12,6 +12,7 @@ export function createUser(override: NonNullable<Partial<User>> = {}): NonNullab
       'password': faker.internet.password(),
       'phone': faker.phone.number(),
       'userStatus': faker.number.float({}),
+      'nationalityCode': faker.helpers.fromRegExp(/^[A-Z]{2}$/),
     },
     ...override,
   }

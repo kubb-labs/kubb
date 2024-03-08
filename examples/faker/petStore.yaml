@@ -671,7 +671,7 @@ components:
               description: Description
             - enum:
                 - "NW"
-                - "NE" 
+                - "NE"
                 - "SW"
                 - "SE"
               description: Wind direction
@@ -719,6 +719,9 @@ components:
           description: User Status
           format: int32
           example: 1
+        nationalityCode:
+          type: string
+          pattern: "^[A-Z]{2}$"
       xml:
         name: user
     Tag:
