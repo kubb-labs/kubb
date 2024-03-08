@@ -1,5 +1,18 @@
 # @kubb/swagger-zod
 
+## 2.7.2
+
+### Patch Changes
+
+- [`5857667`](https://github.com/kubb-project/kubb/commit/5857667ca41cbc8fb983d335691fa8c8047e1f48) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Support x-nullable as an alternative to nullable behind an option
+
+- Updated dependencies [[`5857667`](https://github.com/kubb-project/kubb/commit/5857667ca41cbc8fb983d335691fa8c8047e1f48)]:
+  - @kubb/swagger-ts@2.7.2
+  - @kubb/core@2.7.2
+  - @kubb/parser@2.7.2
+  - @kubb/react@2.7.2
+  - @kubb/swagger@2.7.2
+
 ## 2.7.1
 
 ### Patch Changes
