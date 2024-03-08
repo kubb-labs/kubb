@@ -3,7 +3,7 @@ import type { User } from '../../models'
 /**
  * @description successful operation
  */
-export type CreateUsersWithListInputError = any | null
+export type CreateUsersWithListInputError = any
 
 /**
  * @description Successful operation

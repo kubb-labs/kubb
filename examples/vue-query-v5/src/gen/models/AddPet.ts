@@ -3,7 +3,7 @@ import type { Pet } from './Pet'
 /**
  * @description Invalid input
  */
-export type AddPet405 = any | null
+export type AddPet405 = any
 
 /**
  * @description Successful operation

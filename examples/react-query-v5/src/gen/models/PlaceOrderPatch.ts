@@ -1,23 +1,23 @@
-import type { Order } from './Order'
+import type { Order } from "./Order";
 
-/**
+ /**
  * @description Invalid input
- */
-export type PlaceOrderPatch405 = any | null
+*/
+export type PlaceOrderPatch405 = any;
 
-/**
+ /**
  * @description successful operation
- */
-export type PlaceOrderPatch200 = Order
+*/
+export type PlaceOrderPatch200 = Order;
 
-export type PlaceOrderPatchMutationRequest = Order
+ export type PlaceOrderPatchMutationRequest = Order;
 
-/**
+ /**
  * @description successful operation
- */
-export type PlaceOrderPatchMutationResponse = Order
+*/
+export type PlaceOrderPatchMutationResponse = Order;
 export type PlaceOrderPatchMutation = {
-  Response: PlaceOrderPatchMutationResponse
-  Request: PlaceOrderPatchMutationRequest
-  Errors: PlaceOrderPatch405
-}
+    Response: PlaceOrderPatchMutationResponse;
+    Request: PlaceOrderPatchMutationRequest;
+    Errors: PlaceOrderPatch405;
+};

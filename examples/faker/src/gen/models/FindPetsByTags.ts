@@ -3,7 +3,7 @@ import type { Pet } from './Pet'
 /**
  * @description Invalid tag value
  */
-export type FindPetsByTags400 = any | null
+export type FindPetsByTags400 = any
 
 export type FindPetsByTagsQueryParams = {
   /**

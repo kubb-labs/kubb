@@ -1,9 +1,9 @@
 /**
  * @description Invalid input
  */
-export type UpdatePetWithForm405 = any | null
+export type UpdatePetWithForm405 = any
 
-export type UpdatePetWithFormMutationResponse = any | null
+export type UpdatePetWithFormMutationResponse = any
 
 export type UpdatePetWithFormPathParams = {
   /**

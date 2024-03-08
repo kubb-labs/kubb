@@ -3,7 +3,7 @@ import type { Order } from '../../models'
 /**
  * @description Invalid input
  */
-export type PlaceOrder405 = any | null
+export type PlaceOrder405 = any
 
 /**
  * @description successful operation

@@ -901,6 +901,7 @@ export const oas = {
             required: true,
             schema: {
               type: 'string',
+              nullable: true,
             },
           },
         ],

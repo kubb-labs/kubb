@@ -3,17 +3,17 @@ import type { Pet } from '../../models'
 /**
  * @description Invalid ID supplied
  */
-export type UpdatePet400 = any | null
+export type UpdatePet400 = any
 
 /**
  * @description Pet not found
  */
-export type UpdatePet404 = any | null
+export type UpdatePet404 = any
 
 /**
  * @description Validation exception
  */
-export type UpdatePet405 = any | null
+export type UpdatePet405 = any
 
 /**
  * @description Successful operation

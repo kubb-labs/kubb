@@ -3,12 +3,12 @@ import type { User } from '../../models'
 /**
  * @description Invalid username supplied
  */
-export type GetUserByName400 = any | null
+export type GetUserByName400 = any
 
 /**
  * @description User not found
  */
-export type GetUserByName404 = any | null
+export type GetUserByName404 = any
 
 export type GetUserByNamePathParams = {
   /**

@@ -88,18 +88,20 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  getTypeFromSchema(schema?: OasTypes.SchemaObject, name?: string): ts.TypeNode | null {
+  getTypeFromSchema(schema?: OasTypes.SchemaObject & { 'x-nullable': boolean }, name?: string): ts.TypeNode | null {
     const type = this.#getBaseTypeFromSchema(schema, name)
 
     if (!type) {
       return null
     }
 
-    if (schema && !schema.nullable) {
-      return type
+    const nullable = (schema?.nullable ?? schema?.['x-nullable']) ?? false
+
+    if (nullable) {
+      return factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.null] })
     }
 
-    return factory.createUnionDeclaration({ nodes: [type, factory.keywordTypeNodes.null] })
+    return type
   }
 
   /**
