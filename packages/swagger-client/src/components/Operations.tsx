@@ -121,4 +121,4 @@ Operations.File = function(props: FileProps): KubbNode {
   )
 }
 
-Operations.templates = defaultTemplates as Templates
+Operations.templates = defaultTemplates

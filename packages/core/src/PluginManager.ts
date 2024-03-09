@@ -123,7 +123,7 @@ export class PluginManager {
       const paths = this.hookForPluginSync({
         pluginKey: params.pluginKey,
         hookName: 'resolvePath',
-        parameters: [params.baseName, params.directory, params.options as object],
+        parameters: [params.baseName, params.mode, params.options as object],
       })
 
       if (paths && paths?.length > 1 && this.logger.logLevel === LogLevel.debug) {
@@ -138,7 +138,7 @@ export class PluginManager {
     }
     return this.hookFirstSync({
       hookName: 'resolvePath',
-      parameters: [params.baseName, params.directory, params.options as object],
+      parameters: [params.baseName, params.mode, params.options as object],
     }).result
   }
   resolveName = (params: ResolveNameParams): string => {

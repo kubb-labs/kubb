@@ -19,7 +19,7 @@ type EditorTemplateProps = {
 
 function EditorTemplate({ children }: EditorTemplateProps) {
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name: 'operations', extName: '.ts', pluginKey })
+  const file = useFile({ name: 'operations', mode: 'directory', extName: '.ts', pluginKey })
 
   return (
     <Editor language="typescript">
@@ -73,4 +73,4 @@ Operations.File = function(props: FileProps): KubbNode {
   )
 }
 
-Operations.templates = defaultTemplates as Templates
+Operations.templates = defaultTemplates

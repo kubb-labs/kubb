@@ -47,7 +47,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     name: pluginName,
     options,
     pre: [],
-    resolvePath(baseName, directory, options) {
+    resolvePath(baseName, mode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
 
       return path.resolve(root, output.path, baseName)
@@ -176,7 +176,7 @@ Add some extra functionality to your plugin, here you can even use functions whi
 
 This will be called when pluginManager.resolvePath is called, see [Pluginmanager and resolving a path](/reference/pluginManager/#pluginmanager-resolvepath).
 
-- **Type:** `(this: PluginContext, baseName: string, directory?: string | undefined, options?: object) => KubbFile.OptionalPath` <br/>
+- **Type:** `(this: PluginContext, baseName: string, mode?: 'file' | 'directory', options?: object) => KubbFile.OptionalPath` <br/>
 
 ### resolveName
 

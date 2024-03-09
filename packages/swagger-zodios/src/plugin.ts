@@ -25,7 +25,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       baseURL: undefined,
     },
     pre: [swaggerPluginName, swaggerZodPluginName],
-    resolvePath(baseName, _directory) {
+    resolvePath(baseName) {
       const root = path.resolve(this.config.root, this.config.output.path)
 
       return path.resolve(root, baseName)

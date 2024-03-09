@@ -66,9 +66,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       parser,
     },
     pre: [swaggerPluginName, swaggerTsPluginName, parser === 'zod' ? swaggerZodPluginName : undefined].filter(Boolean),
-    resolvePath(baseName, directory, options) {
+    resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = FileManager.getMode(path.resolve(root, output.path))
+      const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
 
       if (mode === 'file') {
         /**
@@ -127,7 +127,6 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       )
 
       const files = await operationGenerator.build()
-
       await this.addFile(...files)
     },
     async writeFile(source, writePath) {

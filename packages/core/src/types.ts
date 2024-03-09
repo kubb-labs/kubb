@@ -249,7 +249,7 @@ export type PluginLifecycle<TOptions extends PluginFactoryOptions = PluginFactor
    * @type hookFirst
    * @example ('./Pet.ts', './src/gen/') => '/src/gen/Pet.ts'
    */
-  resolvePath?: (this: PluginContext<TOptions>, baseName: string, directory?: string, options?: TOptions['resolvePathOptions']) => KubbFile.OptionalPath
+  resolvePath?: (this: PluginContext<TOptions>, baseName: string, mode?: KubbFile.Mode, options?: TOptions['resolvePathOptions']) => KubbFile.OptionalPath
   /**
    * Resolve to a name based on a string.
    * Useful when converting to PascalCase or camelCase.
@@ -288,7 +288,7 @@ export type PluginCache = Record<string, [number, unknown]>
 export type ResolvePathParams<TOptions = object> = {
   pluginKey?: Plugin['key']
   baseName: string
-  directory?: string | undefined
+  mode?: KubbFile.Mode
   /**
    * Options to be passed to 'resolvePath' 3th parameter
    */
