@@ -2,6 +2,7 @@ import { mockedPluginManager } from '@kubb/core/mocks'
 import { camelCase, pascalCase } from '@kubb/core/transformers'
 import { createRootServer } from '@kubb/react/server'
 import { OasManager } from '@kubb/swagger'
+import { Oas } from '@kubb/swagger/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
 import { Query } from './Query.tsx'
@@ -64,11 +65,16 @@ describe('<Query/>', async () => {
 
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{petId}', 'get')
-    const schemas = og.getSchemas(operation)
-    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { oas, pluginManager: mockedPluginManager, plugin, schemas, operation } }
+    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
     const Component = () => {
-      return <Query.File />
+      return (
+        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas.Operation operation={operation}>
+            <Query.File />
+          </Oas.Operation>
+        </Oas>
+      )
     }
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)

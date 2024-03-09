@@ -35,6 +35,11 @@
       "require": "./dist/hooks.cjs",
       "default": "./dist/hooks.cjs"
     },
+    "./components": {
+      "import": "./dist/components.js",
+      "require": "./dist/components.cjs",
+      "default": "./dist/components.cjs"
+    },
     "./oas": {
       "import": "./dist/oas.js",
       "require": "./dist/oas.cjs",
@@ -56,6 +61,9 @@
       ],
       "oas": [
         "./dist/oas.d.ts"
+      ],
+      "components": [
+        "./dist/components.d.ts"
       ]
     }
   },
@@ -91,9 +99,10 @@
     "@kubb/ts-config": "workspace:*",
     "@kubb/tsup-config": "workspace:*",
     "@types/js-yaml": "^4.0.9",
-    "@types/react": "^18.2.64",
     "@types/swagger2openapi": "^7.0.4",
+    "@types/react": "^18.2.64",
     "eslint": "^8.57.0",
+    "react": "^18.2.0",
     "tsup": "^8.0.2",
     "typescript": "^5.4.2"
   },

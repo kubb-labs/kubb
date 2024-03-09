@@ -1343,6 +1343,9 @@ importers:
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
       tsup:
         specifier: ^8.0.2
         version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)

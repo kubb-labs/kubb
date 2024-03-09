@@ -1,13 +1,14 @@
 import { mockedPluginManager } from '@kubb/core/mocks'
 import { createRootServer } from '@kubb/react/server'
 import { OasManager } from '@kubb/swagger'
+import { Oas } from '@kubb/swagger/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
 import { Operations } from './Operations.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
-import type { GetOperationGeneratorOptions, Paths } from '@kubb/swagger'
+import type { GetOperationGeneratorOptions, OperationsByMethod } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
 
 describe('<Operations/>', async () => {
@@ -44,23 +45,28 @@ describe('<Operations/>', async () => {
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{pet_id}', 'get')
     const schemas = og.getSchemas(operation)
-    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { oas, pluginManager: mockedPluginManager, plugin, schemas, operation } }
+
+    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
     const Component = () => {
       return (
-        <Operations.File
-          name="operations"
-          paths={{
-            '/pets/{pet_id}': {
-              get: {
-                operation,
-                schemas,
-              },
-            },
-          } as unknown as Paths}
-        />
+        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas.Operation operation={operation}>
+            <Operations.File
+              operationsByMethod={{
+                '/pets/{pet_id}': {
+                  get: {
+                    operation,
+                    schemas,
+                  },
+                },
+              } as unknown as OperationsByMethod}
+            />
+          </Oas.Operation>
+        </Oas>
       )
     }
+
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
 

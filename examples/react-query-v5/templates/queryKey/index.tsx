@@ -22,7 +22,7 @@ export const templates = {
     ].filter(Boolean)
 
     return (
-      <Editor language="typescript">
+      <>
         <Function.Arrow name={name} export generics={generics} params={params} returnType={returnType} singleLine JSDoc={JSDoc}>
           {`[${keys}] as const`}
         </Function.Arrow>
@@ -30,7 +30,7 @@ export const templates = {
         <Type name={typeName} export>
           {`ReturnType<typeof ${name}>`}
         </Type>
-      </Editor>
+      </>
     )
   },
 } as const

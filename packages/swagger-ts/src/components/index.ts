@@ -1,3 +1,3 @@
 export { Mutation } from './Mutation.tsx'
-export { Oas } from './Oas.tsx'
+export { OasType } from './OasType.tsx'
 export { Query } from './Query.tsx'

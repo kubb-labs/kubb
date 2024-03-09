@@ -4,7 +4,7 @@ import { useFile } from '@kubb/react'
 import { useOas } from '@kubb/swagger/hooks'
 
 import type { KubbNode } from '@kubb/react'
-import type { Paths } from '@kubb/swagger'
+import type { OperationsByMethod } from '@kubb/swagger'
 import type { HttpMethod, Oas } from '@kubb/swagger/oas'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
@@ -28,13 +28,38 @@ function Template({
   )
 }
 
-const defaultTemplates = { default: Template } as const
+type EditorTemplateProps = {
+  children?: React.ReactNode
+}
 
-function getOperations(oas: Oas, paths: Paths): Record<string, { path: string; method: HttpMethod }> {
+function EditorTemplate({ children }: EditorTemplateProps) {
+  const { key: pluginKey } = usePlugin<PluginOptions>()
+  const file = useFile({ name: 'operations', extName: '.ts', pluginKey })
+
+  return (
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        <File.Source>
+          {children}
+        </File.Source>
+      </File>
+    </Editor>
+  )
+}
+
+const defaultTemplates = { default: Template, editor: EditorTemplate } as const
+
+type Templates = Partial<typeof defaultTemplates>
+
+function getOperations(oas: Oas, operationsByMethod: OperationsByMethod): Record<string, { path: string; method: HttpMethod }> {
   const operations: Record<string, { path: string; method: HttpMethod }> = {}
 
-  Object.keys(paths).forEach((path) => {
-    const methods = paths[path] || []
+  Object.keys(operationsByMethod).forEach((path) => {
+    const methods = operationsByMethod[path] || []
     Object.keys(methods).forEach((method) => {
       const operation = oas.operation(path, method as HttpMethod)
       if (operation) {
@@ -50,7 +75,7 @@ function getOperations(oas: Oas, paths: Paths): Record<string, { path: string; m
 }
 
 type Props = {
-  paths: Paths
+  operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -58,12 +83,12 @@ type Props = {
 }
 
 export function Operations({
-  paths,
+  operationsByMethod,
   Template = defaultTemplates.default,
 }: Props): KubbNode {
-  const oas = useOas()
+  const { oas } = useOas()
 
-  const operations = getOperations(oas, paths)
+  const operations = getOperations(oas, operationsByMethod)
   return (
     <Template
       name="operations"
@@ -73,32 +98,26 @@ export function Operations({
 }
 
 type FileProps = {
-  name: string
-  paths: Paths
+  /**
+   * @deprecated
+   */
+  operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
-  templates?: typeof defaultTemplates
+  templates?: Templates
 }
 
-Operations.File = function({ name, paths, templates = defaultTemplates }: FileProps): KubbNode {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name, extName: '.ts', pluginKey })
+Operations.File = function(props: FileProps): KubbNode {
+  const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default
+  const EditorTemplate = templates.editor
 
   return (
-    <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
-        <File.Source>
-          <Operations Template={Template} paths={paths} />
-        </File.Source>
-      </File>
-    </Editor>
+    <EditorTemplate>
+      <Operations Template={Template} operationsByMethod={props.operationsByMethod} />
+    </EditorTemplate>
   )
 }
 

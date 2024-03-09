@@ -1,6 +1,4 @@
-import { Component } from 'react'
-
-import { AppContext } from './AppContext.ts'
+import { Component, createContext } from 'react'
 
 import type { Logger } from '@kubb/core/logger'
 import type { KubbNode } from '../types.ts'
@@ -34,6 +32,14 @@ class ErrorBoundary extends Component<{ onError: Props['onError']; logger?: Logg
   }
 }
 
+export type AppContextProps<Meta extends Record<string, unknown> = Record<string, unknown>> = {
+  meta: Meta
+}
+
+const AppContext = createContext<AppContextProps>({
+  meta: {},
+})
+
 export function App<Meta extends Record<string, unknown> = Record<string, unknown>>({ onError, logger, meta, children }: Props<Meta>): KubbNode {
   return (
     <ErrorBoundary logger={logger} onError={onError}>
@@ -41,3 +47,5 @@ export function App<Meta extends Record<string, unknown> = Record<string, unknow
     </ErrorBoundary>
   )
 }
+
+App.Context = AppContext

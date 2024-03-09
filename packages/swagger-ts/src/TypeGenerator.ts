@@ -342,7 +342,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      return this.#getTypeFromProperties(schema, baseName)
+      return this.#getTypeFromProperties(schema as SchemaObject, baseName)
     }
 
     /**
@@ -380,7 +380,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
               {
                 ...schema,
                 type,
-              },
+              } as SchemaObject,
               baseName,
             ),
             nullable ? factory.createLiteralTypeNode(factory.createNull()) : undefined,

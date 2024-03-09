@@ -4,6 +4,7 @@ import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
 import createSwaggerTS from '@kubb/swagger-ts'
 
 import * as queryKey from './templates/queryKey/index'
+import * as operations from './templates/operations/index'
 
 /** @type {import('@kubb/core').UserConfig} */
 export const config = {
@@ -57,6 +58,9 @@ export const config = {
           },
         },
       }],
+      templates: {
+        operations: operations.templates,
+      },
     }),
   ],
 }

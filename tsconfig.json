@@ -38,6 +38,9 @@
       "@kubb/swagger/utils": [
         "packages/swagger/src/utils/index.ts"
       ],
+      "@kubb/swagger/components": [
+        "packages/swagger/src/components/index.ts"
+      ],
       "@kubb/swagger": [
         "packages/swagger/src/index.ts"
       ],

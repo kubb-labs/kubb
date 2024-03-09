@@ -10,7 +10,7 @@ import { renderer } from './renderer.ts'
 import type { KubbFile } from '@kubb/core'
 import type { Logger } from '@kubb/core/logger'
 import type { ReactNode } from 'react'
-import type { AppContextProps } from '../components/AppContext.ts'
+import type { AppContextProps } from '../components/App.tsx'
 import type { FiberRoot } from '../reconciler.ts'
 import type { DOMElement } from '../types.ts'
 
@@ -106,6 +106,10 @@ export class ReactTemplate<Context extends AppContextProps = AppContextProps> {
     this.#lastFiles = files
   }
   onError(error: Error): void {
+    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+      console.error(error)
+    }
+
     if (!this.logger) {
       console.error(error)
     }
