@@ -67,7 +67,7 @@ describe('<Mutation/>', async () => {
   )
 
   test('pets', async () => {
-    const operation = oas.operation('/pets', 'post')
+    const operation = oas.operation('/pets/{uuid}', 'post')
     const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
     const Component = () => {
