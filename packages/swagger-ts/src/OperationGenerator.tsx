@@ -7,7 +7,7 @@ import { OasType } from './components/OasType.tsx'
 import { Query } from './components/Query.tsx'
 
 import type { AppContextProps } from '@kubb/react'
-import type { OperationMethodResult, OperationSchemas } from '@kubb/swagger'
+import type { OperationMethodResult } from '@kubb/swagger'
 import type { Operation } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
@@ -15,15 +15,11 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   async all(operations: Operation[]): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin } = this.context
 
-    if (!plugin.options.oasType) {
-      return null
-    }
-
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
     root.render(
       <Oas oas={oas} operations={operations} getSchemas={(...props) => this.getSchemas(...props)}>
-        <OasType.File name="oas" typeName="Oas" />
+        {plugin.options.oasType && <OasType.File name="oas" typeName="Oas" />}
       </Oas>,
       { meta: { pluginManager, plugin } },
     )
@@ -31,7 +27,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return root.files
   }
 
-  async get(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+  async get(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode = 'directory' } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
@@ -47,7 +43,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return root.files
   }
 
-  async post(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+  async post(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin, mode = 'directory' } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
@@ -63,13 +59,13 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     return root.files
   }
 
-  async put(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.post(operation, schemas, options)
+  async put(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+    return this.post(operation, options)
   }
-  async patch(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.post(operation, schemas, options)
+  async patch(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+    return this.post(operation, options)
   }
-  async delete(operation: Operation, schemas: OperationSchemas, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
-    return this.post(operation, schemas, options)
+  async delete(operation: Operation, options: PluginOptions['resolvedOptions']): OperationMethodResult<FileMeta> {
+    return this.post(operation, options)
   }
 }

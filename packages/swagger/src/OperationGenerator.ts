@@ -362,10 +362,10 @@ export abstract class OperationGenerator<
         const methods = Object.keys(filterdPaths[path]!) as HttpMethod[]
 
         methods.forEach((method) => {
-          const { operation, schemas } = filterdPaths[path]![method]
+          const { operation } = filterdPaths[path]![method]
           const options = this.#getOptions(operation, method)
 
-          const promise = this.#methods[method].call(this, operation, schemas, { ...this.options, ...options })
+          const promise = this.#methods[method].call(this, operation, { ...this.options, ...options })
           if (promise) {
             acc.push(promise)
           }
@@ -389,26 +389,26 @@ export abstract class OperationGenerator<
   /**
    * GET
    */
-  abstract get(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
+  abstract get(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * POST
    */
-  abstract post(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
+  abstract post(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
   /**
    * PATCH
    */
-  abstract patch(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
+  abstract patch(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * PUT
    */
-  abstract put(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
+  abstract put(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * DELETE
    */
-  abstract delete(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
+  abstract delete(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE

@@ -13,47 +13,29 @@ type CreatePets = {
   }
 }
 
-export const CreatePetsQueryKey = () => [{ url: '/pets' }] as const
-export type CreatePetsQueryKey = ReturnType<typeof CreatePetsQueryKey>
-export function CreatePetsQueryOptions<TData = CreatePets['response'], TQueryData = CreatePets['response']>(
-  options: CreatePets['client']['parameters'] = {},
-): WithRequired<UseBaseQueryOptions<CreatePets['response'], CreatePets['error'], TData, TQueryData>, 'queryKey'> {
-  const queryKey = CreatePetsQueryKey()
-
-  return {
-    queryKey,
-    queryFn: async () => {
-      const res = await client<CreatePets['data'], CreatePets['error']>({
-        method: 'post',
-        url: `/pets`,
-        data,
-        ...options,
-      })
-
-      return res.data
-    },
-  }
-}
 /**
  * @summary Create a pet
  * @link /pets */
 
-export function useCreatePets<TData = CreatePets['response'], TQueryData = CreatePets['response'], TQueryKey extends QueryKey = CreatePetsQueryKey>(
+export function useCreatePets(
   options: {
-    query?: Partial<UseBaseQueryOptions<CreatePets['response'], CreatePets['error'], TData, TQueryData, TQueryKey>>
+    mutation?: UseMutationOptions<CreatePets['response'], CreatePets['error'], CreatePets['request']>
     client?: CreatePets['client']['parameters']
   } = {},
-): UseQueryResult<TData, CreatePets['error']> & { queryKey: TQueryKey } {
-  const { query: queryOptions, client: clientOptions = {} } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? CreatePetsQueryKey()
+): UseMutationResult<CreatePets['response'], CreatePets['error'], CreatePets['request']> {
+  const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
 
-  const query = useQuery<CreatePets['data'], CreatePets['error'], TData, any>({
-    ...CreatePetsQueryOptions<TData, TQueryData>(clientOptions),
-    queryKey,
-    ...queryOptions,
-  }) as UseQueryResult<TData, CreatePets['error']> & { queryKey: TQueryKey }
+  return useMutation<CreatePets['response'], CreatePets['error'], CreatePets['request']>({
+    mutationFn: async (data) => {
+      const res = await client<CreatePets['data'], CreatePets['error'], CreatePets['request']>({
+        method: 'post',
+        url: `/pets`,
+        data,
+        ...clientOptions,
+      })
 
-  query.queryKey = queryKey as TQueryKey
-
-  return query
+      return res.data
+    },
+    ...mutationOptions,
+  })
 }

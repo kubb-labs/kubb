@@ -1,50 +1,44 @@
-import { URLPath } from '@kubb/core/utils'
 import { Editor, File, usePlugin } from '@kubb/react'
 import { useFile } from '@kubb/react'
-import { useOas, useOperation, useOperations } from '@kubb/swagger/hooks'
 
 import type { KubbNode } from '@kubb/react'
-import type { OperationsByMethod } from '@kubb/swagger'
-import type { HttpMethod, Oas } from '@kubb/swagger/oas'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
-type TemplateProps = {
-  /**
-   * Name of the function
-   */
-  name: string
+// eslint-disable-next-line @typescript-eslint/ban-types
+type TemplateProps = {}
+
+// eslint-disable-next-line no-empty-pattern
+function Template({}: TemplateProps): KubbNode {
+  return null
 }
 
-function Template({
-  name,
-}: TemplateProps): KubbNode {
+type EditorTemplateProps = {
+  children?: React.ReactNode
+}
+
+function EditorTemplate({ children }: EditorTemplateProps) {
+  const { key: pluginKey } = usePlugin<PluginOptions>()
+  const file = useFile({ name: 'operations', extName: '.ts', pluginKey })
+
   return (
-    <>
-    </>
+    <Editor language="typescript">
+      <File<FileMeta>
+        baseName={file.baseName}
+        path={file.path}
+        meta={file.meta}
+      >
+        <File.Source>
+          {children}
+        </File.Source>
+      </File>
+    </Editor>
   )
 }
 
-const defaultTemplates = { default: Template } as const
+const defaultTemplates = { default: Template, editor: EditorTemplate } as const
 
-function getOperations(oas: Oas, paths: OperationsByMethod): Record<string, { path: string; method: HttpMethod }> {
-  const operations: Record<string, { path: string; method: HttpMethod }> = {}
-
-  Object.keys(paths).forEach((path) => {
-    const methods = paths[path] || []
-    Object.keys(methods).forEach((method) => {
-      const operation = oas.operation(path, method as HttpMethod)
-      if (operation) {
-        operations[operation.getOperationId()] = {
-          path: new URLPath(path).URL,
-          method: method as HttpMethod,
-        }
-      }
-    })
-  })
-
-  return operations
-}
+type Templates = Partial<typeof defaultTemplates>
 
 type Props = {
   /**
@@ -56,39 +50,27 @@ type Props = {
 export function Operations({
   Template = defaultTemplates.default,
 }: Props): KubbNode {
-  const operations = useOperations()
-  console.log({ operations })
-
-  return <Template name="operations" />
+  return <Template />
 }
 
 type FileProps = {
-  name: string
   /**
    * This will make it possible to override the default behaviour.
    */
-  templates?: typeof defaultTemplates
+  templates?: Templates
 }
 
-Operations.File = function({ name, templates = defaultTemplates }: FileProps): KubbNode {
-  const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name, extName: '.ts', pluginKey })
+Operations.File = function(props: FileProps): KubbNode {
+  const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default
+  const EditorTemplate = templates.editor
 
   return (
-    <Editor language="typescript">
-      <File<FileMeta>
-        baseName={file.baseName}
-        path={file.path}
-        meta={file.meta}
-      >
-        <File.Source>
-          <Operations Template={Template} />
-        </File.Source>
-      </File>
-    </Editor>
+    <EditorTemplate>
+      <Operations Template={Template} />
+    </EditorTemplate>
   )
 }
 
-Operations.templates = defaultTemplates
+Operations.templates = defaultTemplates as Templates

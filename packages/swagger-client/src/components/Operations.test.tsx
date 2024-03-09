@@ -53,7 +53,6 @@ describe('<Operations/>', async () => {
         <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
           <Oas.Operation operation={operation}>
             <Operations.File
-              name="operations"
               operationsByMethod={{
                 '/pets/{pet_id}': {
                   get: {

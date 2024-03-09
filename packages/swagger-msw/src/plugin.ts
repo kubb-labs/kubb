@@ -8,7 +8,7 @@ import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 import { pluginName as swaggerFakerPluginName } from '@kubb/swagger-faker'
 import { pluginName as swaggerTypeScriptPluginName } from '@kubb/swagger-ts'
 
-import { Handlers, Mock } from './components/index.ts'
+import { Mock, Operations } from './components/index.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
@@ -26,7 +26,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     name: pluginName,
     options: {
       templates: {
-        handlers: Handlers.templates,
+        operations: Operations.templates,
         mock: Mock.templates,
         ...templates,
       },

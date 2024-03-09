@@ -1,12 +1,11 @@
-import { URLPath } from '@kubb/core/utils'
-import { Editor, File, usePlugin } from '@kubb/react'
+import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
 import { useFile } from '@kubb/react'
-import { useOas } from '@kubb/swagger/hooks'
+
+import { getHandlers, getHandlersImports } from './utils.ts'
 
 import type { KubbNode } from '@kubb/react'
 import type { OperationsByMethod } from '@kubb/swagger'
-import type { HttpMethod, Oas } from '@kubb/swagger/oas'
-import type { ComponentProps, ComponentType } from 'react'
+import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
 type TemplateProps = {
@@ -14,27 +13,43 @@ type TemplateProps = {
    * Name of the function
    */
   name: string
-  operations: Record<string, { path: string; method: HttpMethod }>
+  handlers: string[]
 }
 
 function Template({
   name,
-  operations,
-}: TemplateProps): KubbNode {
+  handlers,
+}: TemplateProps): ReactNode {
   return (
     <>
-      {`export const ${name} = ${JSON.stringify(operations)} as const;`}
+      {`export const ${name} = ${JSON.stringify(handlers).replaceAll(`"`, '')} as const`}
     </>
   )
 }
 
 type EditorTemplateProps = {
+  /**
+   * @deprecated
+   */
+  operationsByMethod: OperationsByMethod
   children?: React.ReactNode
 }
 
-function EditorTemplate({ children }: EditorTemplateProps) {
+function EditorTemplate({ operationsByMethod, children }: EditorTemplateProps) {
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const file = useFile({ name: 'operations', extName: '.ts', pluginKey })
+  const file = useFile({ name: 'handlers', extName: '.ts', pluginKey })
+
+  const pluginManager = usePluginManager()
+
+  const handlersImports = getHandlersImports(operationsByMethod, { resolveName: pluginManager.resolveName, resolvePath: pluginManager.resolvePath, pluginKey })
+
+  const imports = handlersImports.map(({ name, path }, index) => {
+    if (!path) {
+      return null
+    }
+
+    return <File.Import key={index} name={[name]} root={file.path} path={path} />
+  }).filter(Boolean)
 
   return (
     <Editor language="typescript">
@@ -43,6 +58,7 @@ function EditorTemplate({ children }: EditorTemplateProps) {
         path={file.path}
         meta={file.meta}
       >
+        {imports}
         <File.Source>
           {children}
         </File.Source>
@@ -55,44 +71,27 @@ const defaultTemplates = { default: Template, editor: EditorTemplate } as const
 
 type Templates = Partial<typeof defaultTemplates>
 
-function getOperations(oas: Oas, operationsByMethod: OperationsByMethod): Record<string, { path: string; method: HttpMethod }> {
-  const operations: Record<string, { path: string; method: HttpMethod }> = {}
-
-  Object.keys(operationsByMethod).forEach((path) => {
-    const methods = operationsByMethod[path] || []
-    Object.keys(methods).forEach((method) => {
-      const operation = oas.operation(path, method as HttpMethod)
-      if (operation) {
-        operations[operation.getOperationId()] = {
-          path: new URLPath(path).URL,
-          method: method as HttpMethod,
-        }
-      }
-    })
-  })
-
-  return operations
-}
-
 type Props = {
   operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
-  Template?: ComponentType<ComponentProps<typeof Template>>
+  Template?: React.ComponentType<React.ComponentProps<typeof Template>>
 }
 
 export function Operations({
   operationsByMethod,
   Template = defaultTemplates.default,
-}: Props): KubbNode {
-  const oas = useOas()
+}: Props): ReactNode {
+  const { key: pluginKey } = usePlugin<PluginOptions>()
+  const pluginManager = usePluginManager()
 
-  const operations = getOperations(oas, operationsByMethod)
+  const handlers = getHandlers(operationsByMethod, { resolveName: pluginManager.resolveName, pluginKey })
+
   return (
     <Template
-      name="operations"
-      operations={operations}
+      name="handlers"
+      handlers={handlers.map(item => item.name)}
     />
   )
 }
@@ -115,7 +114,7 @@ Operations.File = function(props: FileProps): KubbNode {
   const EditorTemplate = templates.editor
 
   return (
-    <EditorTemplate>
+    <EditorTemplate operationsByMethod={props.operationsByMethod}>
       <Operations Template={Template} operationsByMethod={props.operationsByMethod} />
     </EditorTemplate>
   )
