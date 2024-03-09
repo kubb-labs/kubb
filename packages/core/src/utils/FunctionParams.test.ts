@@ -91,4 +91,6 @@ describe('objectToParameters', () => {
         .toString(),
     ).toEqual('{ id, data }?: { id: Id, data: Data }, params: Params')
   })
+
+  test.todo('if static functionality works')
 })

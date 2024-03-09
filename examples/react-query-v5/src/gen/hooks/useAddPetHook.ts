@@ -23,15 +23,13 @@ type AddPet = {
  * @summary Add a new pet to the store
  * @link /pet */
 export function useAddPetHook(options: {
-  mutation?: UseMutationOptions<AddPet['response'], AddPet['error'], {
-    data: AddPet['request']
-  }>
+  mutation?: UseMutationOptions<AddPet['response'], AddPet['error'], AddPet['request']>
   client?: AddPet['client']['parameters']
 } = {}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   const invalidationOnSuccess = useInvalidationForMutation('useAddPetHook')
   return useMutation({
-    mutationFn: async ({ data }) => {
+    mutationFn: async (data) => {
       const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',
         url: `/pet`,

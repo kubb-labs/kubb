@@ -87,18 +87,12 @@ type UpdatePet = {
  * @summary Update an existing pet
  * @link /pet */
 export function useUpdatePet(options: {
-  mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], {
-    data: UpdatePet['request']
-  }>
+  mutation?: UseMutationOptions<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>
   client?: UpdatePet['client']['parameters']
-} = {}): UseMutationResult<UpdatePet['response'], UpdatePet['error'], {
-  data: UpdatePet['request']
-}> {
+} = {}): UseMutationResult<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UpdatePet['response'], UpdatePet['error'], {
-    data: UpdatePet['request']
-  }>({
-    mutationFn: async ({ data }) => {
+  return useMutation<UpdatePet['response'], UpdatePet['error'], UpdatePet['request']>({
+    mutationFn: async (data) => {
       const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
         method: 'put',
         url: `/pet`,
@@ -130,18 +124,12 @@ type AddPet = {
  * @summary Add a new pet to the store
  * @link /pet */
 export function useAddPet(options: {
-  mutation?: UseMutationOptions<AddPet['response'], AddPet['error'], {
-    data: AddPet['request']
-  }>
+  mutation?: UseMutationOptions<AddPet['response'], AddPet['error'], AddPet['request']>
   client?: AddPet['client']['parameters']
-} = {}): UseMutationResult<AddPet['response'], AddPet['error'], {
-  data: AddPet['request']
-}> {
+} = {}): UseMutationResult<AddPet['response'], AddPet['error'], AddPet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<AddPet['response'], AddPet['error'], {
-    data: AddPet['request']
-  }>({
-    mutationFn: async ({ data }) => {
+  return useMutation<AddPet['response'], AddPet['error'], AddPet['request']>({
+    mutationFn: async (data) => {
       const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',
         url: `/pet`,
@@ -353,17 +341,11 @@ type UpdatePetWithForm = {
  * @summary Updates a pet in the store with form data
  * @link /pet/:petId */
 export function useUpdatePetWithForm(petId: UpdatePetWithFormPathParams['petId'], params?: UpdatePetWithForm['queryParams'], options: {
-  mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], {
-    data: UpdatePetWithForm['request']
-  }>
+  mutation?: UseMutationOptions<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>
   client?: UpdatePetWithForm['client']['parameters']
-} = {}): UseMutationResult<UpdatePetWithForm['response'], UpdatePetWithForm['error'], {
-  data: UpdatePetWithForm['request']
-}> {
+} = {}): UseMutationResult<UpdatePetWithForm['response'], UpdatePetWithForm['error'], UpdatePetWithForm['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], {
-    data: UpdatePetWithForm['request']
-  }>({
+  return useMutation<UpdatePetWithForm['response'], UpdatePetWithForm['error'], never>({
     mutationFn: async () => {
       const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>({
         method: 'post',
@@ -396,17 +378,11 @@ type DeletePet = {
  * @summary Deletes a pet
  * @link /pet/:petId */
 export function useDeletePet(petId: DeletePetPathParams['petId'], headers?: DeletePet['headerParams'], options: {
-  mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], {
-    data: DeletePet['request']
-  }>
+  mutation?: UseMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
   client?: DeletePet['client']['parameters']
-} = {}): UseMutationResult<DeletePet['response'], DeletePet['error'], {
-  data: DeletePet['request']
-}> {
+} = {}): UseMutationResult<DeletePet['response'], DeletePet['error'], DeletePet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<DeletePet['response'], DeletePet['error'], {
-    data: DeletePet['request']
-  }>({
+  return useMutation<DeletePet['response'], DeletePet['error'], never>({
     mutationFn: async () => {
       const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
         method: 'delete',
@@ -438,18 +414,12 @@ type UploadFile = {
  * @summary uploads an image
  * @link /pet/:petId/uploadImage */
 export function useUploadFile(petId: UploadFilePathParams['petId'], params?: UploadFile['queryParams'], options: {
-  mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], {
-    data: UploadFile['request']
-  }>
+  mutation?: UseMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
   client?: UploadFile['client']['parameters']
-} = {}): UseMutationResult<UploadFile['response'], UploadFile['error'], {
-  data: UploadFile['request']
-}> {
+} = {}): UseMutationResult<UploadFile['response'], UploadFile['error'], UploadFile['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UploadFile['response'], UploadFile['error'], {
-    data: UploadFile['request']
-  }>({
-    mutationFn: async ({ data }) => {
+  return useMutation<UploadFile['response'], UploadFile['error'], UploadFile['request']>({
+    mutationFn: async (data) => {
       const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
         method: 'post',
         url: `/pet/${petId}/uploadImage`,
@@ -539,18 +509,12 @@ type PlaceOrder = {
  * @summary Place an order for a pet
  * @link /store/order */
 export function usePlaceOrder(options: {
-  mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], {
-    data: PlaceOrder['request']
-  }>
+  mutation?: UseMutationOptions<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>
   client?: PlaceOrder['client']['parameters']
-} = {}): UseMutationResult<PlaceOrder['response'], PlaceOrder['error'], {
-  data: PlaceOrder['request']
-}> {
+} = {}): UseMutationResult<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<PlaceOrder['response'], PlaceOrder['error'], {
-    data: PlaceOrder['request']
-  }>({
-    mutationFn: async ({ data }) => {
+  return useMutation<PlaceOrder['response'], PlaceOrder['error'], PlaceOrder['request']>({
+    mutationFn: async (data) => {
       const res = await client<PlaceOrder['data'], PlaceOrder['error'], PlaceOrder['request']>({
         method: 'post',
         url: `/store/order`,
@@ -582,18 +546,12 @@ type PlaceOrderPatch = {
  * @summary Place an order for a pet with patch
  * @link /store/order */
 export function usePlaceOrderPatch(options: {
-  mutation?: UseMutationOptions<PlaceOrderPatch['response'], PlaceOrderPatch['error'], {
-    data: PlaceOrderPatch['request']
-  }>
+  mutation?: UseMutationOptions<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>
   client?: PlaceOrderPatch['client']['parameters']
-} = {}): UseMutationResult<PlaceOrderPatch['response'], PlaceOrderPatch['error'], {
-  data: PlaceOrderPatch['request']
-}> {
+} = {}): UseMutationResult<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<PlaceOrderPatch['response'], PlaceOrderPatch['error'], {
-    data: PlaceOrderPatch['request']
-  }>({
-    mutationFn: async ({ data }) => {
+  return useMutation<PlaceOrderPatch['response'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
+    mutationFn: async (data) => {
       const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
         method: 'patch',
         url: `/store/order`,
@@ -684,17 +642,11 @@ type DeleteOrder = {
  * @summary Delete purchase order by ID
  * @link /store/order/:orderId */
 export function useDeleteOrder(orderId: DeleteOrderPathParams['orderId'], options: {
-  mutation?: UseMutationOptions<DeleteOrder['response'], DeleteOrder['error'], {
-    data: DeleteOrder['request']
-  }>
+  mutation?: UseMutationOptions<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']>
   client?: DeleteOrder['client']['parameters']
-} = {}): UseMutationResult<DeleteOrder['response'], DeleteOrder['error'], {
-  data: DeleteOrder['request']
-}> {
+} = {}): UseMutationResult<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<DeleteOrder['response'], DeleteOrder['error'], {
-    data: DeleteOrder['request']
-  }>({
+  return useMutation<DeleteOrder['response'], DeleteOrder['error'], never>({
     mutationFn: async () => {
       const res = await client<DeleteOrder['data'], DeleteOrder['error'], DeleteOrder['request']>({
         method: 'delete',
@@ -726,18 +678,12 @@ type CreateUser = {
  * @summary Create user
  * @link /user */
 export function useCreateUser(options: {
-  mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], {
-    data: CreateUser['request']
-  }>
+  mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
   client?: CreateUser['client']['parameters']
-} = {}): UseMutationResult<CreateUser['response'], CreateUser['error'], {
-  data: CreateUser['request']
-}> {
+} = {}): UseMutationResult<CreateUser['response'], CreateUser['error'], CreateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<CreateUser['response'], CreateUser['error'], {
-    data: CreateUser['request']
-  }>({
-    mutationFn: async ({ data }) => {
+  return useMutation<CreateUser['response'], CreateUser['error'], CreateUser['request']>({
+    mutationFn: async (data) => {
       const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
         method: 'post',
         url: `/user`,
@@ -769,18 +715,12 @@ type CreateUsersWithListInput = {
  * @summary Creates list of users with given input array
  * @link /user/createWithList */
 export function useCreateUsersWithListInput(options: {
-  mutation?: UseMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], {
-    data: CreateUsersWithListInput['request']
-  }>
+  mutation?: UseMutationOptions<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>
   client?: CreateUsersWithListInput['client']['parameters']
-} = {}): UseMutationResult<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], {
-  data: CreateUsersWithListInput['request']
-}> {
+} = {}): UseMutationResult<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], {
-    data: CreateUsersWithListInput['request']
-  }>({
-    mutationFn: async ({ data }) => {
+  return useMutation<CreateUsersWithListInput['response'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
+    mutationFn: async (data) => {
       const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
         method: 'post',
         url: `/user/createWithList`,
@@ -983,18 +923,12 @@ type UpdateUser = {
  * @summary Update user
  * @link /user/:username */
 export function useUpdateUser(username: UpdateUserPathParams['username'], options: {
-  mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], {
-    data: UpdateUser['request']
-  }>
+  mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
   client?: UpdateUser['client']['parameters']
-} = {}): UseMutationResult<UpdateUser['response'], UpdateUser['error'], {
-  data: UpdateUser['request']
-}> {
+} = {}): UseMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UpdateUser['response'], UpdateUser['error'], {
-    data: UpdateUser['request']
-  }>({
-    mutationFn: async ({ data }) => {
+  return useMutation<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>({
+    mutationFn: async (data) => {
       const res = await client<UpdateUser['data'], UpdateUser['error'], UpdateUser['request']>({
         method: 'put',
         url: `/user/${username}`,
@@ -1026,17 +960,11 @@ type DeleteUser = {
  * @summary Delete user
  * @link /user/:username */
 export function useDeleteUser(username: DeleteUserPathParams['username'], options: {
-  mutation?: UseMutationOptions<DeleteUser['response'], DeleteUser['error'], {
-    data: DeleteUser['request']
-  }>
+  mutation?: UseMutationOptions<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']>
   client?: DeleteUser['client']['parameters']
-} = {}): UseMutationResult<DeleteUser['response'], DeleteUser['error'], {
-  data: DeleteUser['request']
-}> {
+} = {}): UseMutationResult<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<DeleteUser['response'], DeleteUser['error'], {
-    data: DeleteUser['request']
-  }>({
+  return useMutation<DeleteUser['response'], DeleteUser['error'], never>({
     mutationFn: async () => {
       const res = await client<DeleteUser['data'], DeleteUser['error'], DeleteUser['request']>({
         method: 'delete',

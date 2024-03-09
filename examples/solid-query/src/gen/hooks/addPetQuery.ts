@@ -23,31 +23,13 @@ type AddPet = {
  * @link /pet */
 export function addPetQuery(
   options: {
-    mutation?: CreateMutationOptions<
-      AddPet['response'],
-      AddPet['error'],
-      {
-        data: AddPet['request']
-      }
-    >
+    mutation?: CreateMutationOptions<AddPet['response'], AddPet['error'], AddPet['request']>
     client?: AddPet['client']['parameters']
   } = {},
-): CreateMutationResult<
-  AddPet['response'],
-  AddPet['error'],
-  {
-    data: AddPet['request']
-  }
-> {
+): CreateMutationResult<AddPet['response'], AddPet['error'], AddPet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<
-    AddPet['response'],
-    AddPet['error'],
-    {
-      data: AddPet['request']
-    }
-  >({
-    mutationFn: async ({ data }) => {
+  return createMutation<AddPet['response'], AddPet['error'], AddPet['request']>({
+    mutationFn: async (data) => {
       const res = await client<AddPet['data'], AddPet['error'], AddPet['request']>({
         method: 'post',
         url: `/pet`,

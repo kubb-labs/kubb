@@ -25,30 +25,12 @@ export function deletePetQuery(
   petId: DeletePetPathParams['petId'],
   headers?: DeletePet['headerParams'],
   options: {
-    mutation?: CreateMutationOptions<
-      DeletePet['response'],
-      DeletePet['error'],
-      {
-        data: DeletePet['request']
-      }
-    >
+    mutation?: CreateMutationOptions<DeletePet['response'], DeletePet['error'], DeletePet['request']>
     client?: DeletePet['client']['parameters']
   } = {},
-): CreateMutationResult<
-  DeletePet['response'],
-  DeletePet['error'],
-  {
-    data: DeletePet['request']
-  }
-> {
+): CreateMutationResult<DeletePet['response'], DeletePet['error'], DeletePet['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<
-    DeletePet['response'],
-    DeletePet['error'],
-    {
-      data: DeletePet['request']
-    }
-  >({
+  return createMutation<DeletePet['response'], DeletePet['error'], never>({
     mutationFn: async () => {
       const res = await client<DeletePet['data'], DeletePet['error'], DeletePet['request']>({
         method: 'delete',

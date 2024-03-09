@@ -22,18 +22,12 @@ type UpdateUser = {
  * @summary Update user
  * @link /user/:username */
 export function useUpdateUserHook(username: UpdateUserPathParams['username'], options: {
-  mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], {
-    data: UpdateUser['request']
-  }>
+  mutation?: UseMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
   client?: UpdateUser['client']['parameters']
-} = {}): UseMutationResult<UpdateUser['response'], UpdateUser['error'], {
-  data: UpdateUser['request']
-}> {
+} = {}): UseMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return useMutation<UpdateUser['response'], UpdateUser['error'], {
-    data: UpdateUser['request']
-  }>({
-    mutationFn: async ({ data }) => {
+  return useMutation<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>({
+    mutationFn: async (data) => {
       const res = await client<UpdateUser['data'], UpdateUser['error'], UpdateUser['request']>({
         method: 'put',
         url: `/user/${username}`,

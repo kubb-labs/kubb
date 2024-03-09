@@ -24,31 +24,13 @@ export function uploadFileQuery(
   petId: UploadFilePathParams['petId'],
   params?: UploadFile['queryParams'],
   options: {
-    mutation?: CreateMutationOptions<
-      UploadFile['response'],
-      UploadFile['error'],
-      {
-        data: UploadFile['request']
-      }
-    >
+    mutation?: CreateMutationOptions<UploadFile['response'], UploadFile['error'], UploadFile['request']>
     client?: UploadFile['client']['parameters']
   } = {},
-): CreateMutationResult<
-  UploadFile['response'],
-  UploadFile['error'],
-  {
-    data: UploadFile['request']
-  }
-> {
+): CreateMutationResult<UploadFile['response'], UploadFile['error'], UploadFile['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<
-    UploadFile['response'],
-    UploadFile['error'],
-    {
-      data: UploadFile['request']
-    }
-  >({
-    mutationFn: async ({ data }) => {
+  return createMutation<UploadFile['response'], UploadFile['error'], UploadFile['request']>({
+    mutationFn: async (data) => {
       const res = await client<UploadFile['data'], UploadFile['error'], UploadFile['request']>({
         method: 'post',
         url: `/pet/${petId}/uploadImage`,

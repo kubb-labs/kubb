@@ -23,15 +23,13 @@ type CreateUser = {
  * @summary Create user
  * @link /user */
 export function useCreateUserHook(options: {
-  mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], {
-    data: CreateUser['request']
-  }>
+  mutation?: UseMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
   client?: CreateUser['client']['parameters']
 } = {}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
   const invalidationOnSuccess = useInvalidationForMutation('useCreateUserHook')
   return useMutation({
-    mutationFn: async ({ data }) => {
+    mutationFn: async (data) => {
       const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
         method: 'post',
         url: `/user`,

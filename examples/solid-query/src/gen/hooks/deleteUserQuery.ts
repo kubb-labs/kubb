@@ -24,30 +24,12 @@ type DeleteUser = {
 export function deleteUserQuery(
   username: DeleteUserPathParams['username'],
   options: {
-    mutation?: CreateMutationOptions<
-      DeleteUser['response'],
-      DeleteUser['error'],
-      {
-        data: DeleteUser['request']
-      }
-    >
+    mutation?: CreateMutationOptions<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']>
     client?: DeleteUser['client']['parameters']
   } = {},
-): CreateMutationResult<
-  DeleteUser['response'],
-  DeleteUser['error'],
-  {
-    data: DeleteUser['request']
-  }
-> {
+): CreateMutationResult<DeleteUser['response'], DeleteUser['error'], DeleteUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<
-    DeleteUser['response'],
-    DeleteUser['error'],
-    {
-      data: DeleteUser['request']
-    }
-  >({
+  return createMutation<DeleteUser['response'], DeleteUser['error'], never>({
     mutationFn: async () => {
       const res = await client<DeleteUser['data'], DeleteUser['error'], DeleteUser['request']>({
         method: 'delete',

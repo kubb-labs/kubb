@@ -57,7 +57,7 @@ export class FunctionParams {
 
     return this
   }
-  #orderItems(items: Array<FunctionParamsAST | FunctionParamsAST[]>) {
+  static #orderItems(items: Array<FunctionParamsAST | FunctionParamsAST[]>) {
     return orderBy(items.filter(Boolean), [
       (v) => {
         if (Array.isArray(v)) {
@@ -106,7 +106,7 @@ export class FunctionParams {
     return acc
   }
 
-  static #convertToObject(items: FunctionParamsAST[]): FunctionParamsAST {
+  static toObject(items: FunctionParamsAST[]): FunctionParamsAST {
     let type: string[] = []
     let name: string[] = []
 
@@ -128,18 +128,14 @@ export class FunctionParams {
     }
   }
 
-  static toObject(item: FunctionParamsAST[]): FunctionParamsAST {
-    return FunctionParams.#convertToObject(item)
-  }
-
-  toString(): string {
-    const sortedData = this.#orderItems(this.#items)
+  static toString(items: (FunctionParamsAST | FunctionParamsAST[])[]): string {
+    const sortedData = this.#orderItems(items)
 
     return sortedData
       .reduce((acc, item) => {
         if (Array.isArray(item)) {
           const subItems = this.#orderItems(item) as FunctionParamsAST[]
-          const objectItem = FunctionParams.#convertToObject(subItems)
+          const objectItem = FunctionParams.toObject(subItems)
 
           return FunctionParams.#addParams(acc, objectItem)
         }
@@ -147,5 +143,17 @@ export class FunctionParams {
         return FunctionParams.#addParams(acc, item)
       }, [] as string[])
       .join(', ')
+  }
+
+  toObject(): FunctionParamsAST {
+    const items = FunctionParams.#orderItems(this.#items).flat()
+
+    return FunctionParams.toObject(items)
+  }
+
+  toString(): string {
+    const items = FunctionParams.#orderItems(this.#items)
+
+    return FunctionParams.toString(items)
   }
 }

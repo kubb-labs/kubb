@@ -23,31 +23,13 @@ type CreateUser = {
  * @link /user */
 export function createUserQuery(
   options: {
-    mutation?: CreateMutationOptions<
-      CreateUser['response'],
-      CreateUser['error'],
-      {
-        data: CreateUser['request']
-      }
-    >
+    mutation?: CreateMutationOptions<CreateUser['response'], CreateUser['error'], CreateUser['request']>
     client?: CreateUser['client']['parameters']
   } = {},
-): CreateMutationResult<
-  CreateUser['response'],
-  CreateUser['error'],
-  {
-    data: CreateUser['request']
-  }
-> {
+): CreateMutationResult<CreateUser['response'], CreateUser['error'], CreateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<
-    CreateUser['response'],
-    CreateUser['error'],
-    {
-      data: CreateUser['request']
-    }
-  >({
-    mutationFn: async ({ data }) => {
+  return createMutation<CreateUser['response'], CreateUser['error'], CreateUser['request']>({
+    mutationFn: async (data) => {
       const res = await client<CreateUser['data'], CreateUser['error'], CreateUser['request']>({
         method: 'post',
         url: `/user`,

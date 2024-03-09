@@ -24,30 +24,12 @@ type DeleteOrder = {
 export function deleteOrderQuery(
   orderId: DeleteOrderPathParams['orderId'],
   options: {
-    mutation?: CreateMutationOptions<
-      DeleteOrder['response'],
-      DeleteOrder['error'],
-      {
-        data: DeleteOrder['request']
-      }
-    >
+    mutation?: CreateMutationOptions<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']>
     client?: DeleteOrder['client']['parameters']
   } = {},
-): CreateMutationResult<
-  DeleteOrder['response'],
-  DeleteOrder['error'],
-  {
-    data: DeleteOrder['request']
-  }
-> {
+): CreateMutationResult<DeleteOrder['response'], DeleteOrder['error'], DeleteOrder['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<
-    DeleteOrder['response'],
-    DeleteOrder['error'],
-    {
-      data: DeleteOrder['request']
-    }
-  >({
+  return createMutation<DeleteOrder['response'], DeleteOrder['error'], never>({
     mutationFn: async () => {
       const res = await client<DeleteOrder['data'], DeleteOrder['error'], DeleteOrder['request']>({
         method: 'delete',

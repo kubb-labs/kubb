@@ -271,9 +271,9 @@ export function Mutation({
   const params = new FunctionParams()
   const mutateParams = new FunctionParams()
 
-  const requestType = FunctionParams.toObject(
-    mutate?.variablesType === 'mutate'
-      ? [
+  const requestType = mutate?.variablesType === 'mutate'
+    ? FunctionParams.toObject(
+      [
         ...getASTParams(schemas.pathParams, { typed: true }),
         {
           name: 'params',
@@ -293,22 +293,11 @@ export function Mutation({
           enabled: !!schemas.request?.name,
           required: isRequired(schemas.request?.schema),
         },
-      ]
-      : [
-        {
-          name: 'data',
-          type: `${factory.name}['request']`,
-          enabled: !!schemas.request?.name,
-          required: true,
-        },
-        {
-          name: 'data',
-          type: `${factory.name}['request']`,
-          enabled: !schemas.request?.name,
-          required: true,
-        },
       ],
-  )?.type
+    )?.type
+    : schemas.request?.name
+    ? `${factory.name}['request']`
+    : 'never'
 
   const client = {
     method: operation.method,
@@ -335,7 +324,7 @@ export function Mutation({
   const resultGenerics = [
     `${factory.name}["response"]`,
     `${factory.name}["error"]`,
-    requestType,
+    mutate?.variablesType === 'mutate' ? requestType : `${factory.name}["request"]`,
   ]
 
   if (mutate?.variablesType === 'mutate') {
@@ -397,7 +386,7 @@ export function Mutation({
 
     mutateParams.add([
       {
-        name: '{ data }',
+        name: 'data',
         enabled: !!schemas.request?.name,
         required: isRequired(schemas.request?.schema),
       },

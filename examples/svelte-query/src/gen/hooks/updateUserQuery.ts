@@ -24,31 +24,13 @@ type UpdateUser = {
 export function updateUserQuery(
   username: UpdateUserPathParams['username'],
   options: {
-    mutation?: CreateMutationOptions<
-      UpdateUser['response'],
-      UpdateUser['error'],
-      {
-        data: UpdateUser['request']
-      }
-    >
+    mutation?: CreateMutationOptions<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>
     client?: UpdateUser['client']['parameters']
   } = {},
-): CreateMutationResult<
-  UpdateUser['response'],
-  UpdateUser['error'],
-  {
-    data: UpdateUser['request']
-  }
-> {
+): CreateMutationResult<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']> {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
-  return createMutation<
-    UpdateUser['response'],
-    UpdateUser['error'],
-    {
-      data: UpdateUser['request']
-    }
-  >({
-    mutationFn: async ({ data }) => {
+  return createMutation<UpdateUser['response'], UpdateUser['error'], UpdateUser['request']>({
+    mutationFn: async (data) => {
       const res = await client<UpdateUser['data'], UpdateUser['error'], UpdateUser['request']>({
         method: 'put',
         url: `/user/${username}`,
