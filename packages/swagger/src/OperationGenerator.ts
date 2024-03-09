@@ -35,6 +35,15 @@ export abstract class OperationGenerator<
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase,
 > extends Generator<TOptions, Context<TOptions, TPluginOptions>> {
+  #operationsByMethod: OperationsByMethod = {}
+  get operationsByMethod(): OperationsByMethod {
+    return this.#operationsByMethod
+  }
+
+  set operationsByMethod(paths: OperationsByMethod) {
+    this.#operationsByMethod = paths
+  }
+
   #getOptions(operation: Operation, method: HttpMethod): Partial<TOptions> {
     const { override = [] } = this.context
 
@@ -311,15 +320,9 @@ export abstract class OperationGenerator<
       patch: this.patch,
       put: this.put,
       delete: this.delete,
-      head: () => {
-        return null
-      },
-      options: () => {
-        return null
-      },
-      trace: () => {
-        return null
-      },
+      head: undefined,
+      options: undefined,
+      trace: undefined,
     } as const
   }
 
@@ -327,7 +330,7 @@ export abstract class OperationGenerator<
     const { oas } = this.context
 
     const paths = oas.getPaths()
-    const filterdPaths = Object.keys(paths).reduce(
+    this.operationsByMethod = Object.keys(paths).reduce(
       (acc, path) => {
         const methods = Object.keys(paths[path]!) as HttpMethod[]
 
@@ -357,15 +360,15 @@ export abstract class OperationGenerator<
       {} as OperationsByMethod,
     )
 
-    const promises = Object.keys(filterdPaths).reduce(
+    const promises = Object.keys(this.operationsByMethod).reduce(
       (acc, path) => {
-        const methods = Object.keys(filterdPaths[path]!) as HttpMethod[]
+        const methods = this.operationsByMethod[path] ? Object.keys(this.operationsByMethod[path]!) as HttpMethod[] : []
 
         methods.forEach((method) => {
-          const { operation } = filterdPaths[path]![method]
+          const { operation } = this.operationsByMethod[path]![method]
           const options = this.#getOptions(operation, method)
+          const promise = this.#methods[method]!.call(this, operation, { ...this.options, ...options })
 
-          const promise = this.#methods[method].call(this, operation, { ...this.options, ...options })
           if (promise) {
             acc.push(promise)
           }
@@ -376,9 +379,9 @@ export abstract class OperationGenerator<
       [] as OperationMethodResult<TFileMeta>[],
     )
 
-    const operations = Object.values(filterdPaths).map(item => Object.values(item).map(item => item.operation))
+    const operations = Object.values(this.operationsByMethod).map(item => Object.values(item).map(item => item.operation))
 
-    promises.push(this.all(operations.flat(), filterdPaths))
+    promises.push(this.all(operations.flat().filter(Boolean), this.operationsByMethod))
 
     const files = await Promise.all(promises)
 
