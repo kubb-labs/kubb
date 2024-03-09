@@ -40,7 +40,6 @@ describe('<Mock/>', async () => {
 
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{petId}', 'get')
-    const schemas = og.getSchemas(operation)
     const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
     const Component = () => {
@@ -60,7 +59,6 @@ describe('<Mock/>', async () => {
 
   test('pets', async () => {
     const operation = oas.operation('/pets', 'post')
-    const schemas = og.getSchemas(operation)
     const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
     const Component = () => {

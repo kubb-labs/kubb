@@ -2,6 +2,7 @@
 
 import PQueue from 'p-queue'
 
+import { readSync } from './fs/read.ts'
 import { transformReservedWord } from './transformers/transformReservedWord.ts'
 import { EventEmitter } from './utils/EventEmitter.ts'
 import { setUniqueName } from './utils/uniqueName.ts'
@@ -73,6 +74,14 @@ type Events = {
   error: [error: Error]
 }
 
+type GetFileProps<TOptions = object> = {
+  name: string
+  mode?: KubbFile.Mode
+  extName: KubbFile.Extname
+  pluginKey: Plugin['key']
+  options?: TOptions
+}
+
 export class PluginManager {
   readonly plugins: PluginWithLifeCycle[]
   readonly fileManager: FileManager
@@ -116,6 +125,31 @@ export class PluginManager {
     })
 
     return this
+  }
+
+  getFile<TOptions = object>({ name, mode, extName, pluginKey, options }: GetFileProps<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
+    let source = ''
+    const baseName = `${name}${extName}` as const
+    const path = this.resolvePath({ baseName, mode, pluginKey, options })
+
+    if (!path) {
+      throw new Error(`Filepath should be defined for resolvedName "${name}" and pluginKey [${JSON.stringify(pluginKey)}]`)
+    }
+
+    try {
+      source = readSync(path)
+    } catch (_e) {
+      //
+    }
+
+    return {
+      path,
+      baseName,
+      meta: {
+        pluginKey,
+      },
+      source,
+    }
   }
 
   resolvePath = <TOptions = object>(params: ResolvePathParams<TOptions>): KubbFile.OptionalPath => {

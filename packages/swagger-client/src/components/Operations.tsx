@@ -86,7 +86,7 @@ export function Operations({
   operationsByMethod,
   Template = defaultTemplates.default,
 }: Props): KubbNode {
-  const oas = useOas()
+  const { oas } = useOas()
 
   const operations = getOperations(oas, operationsByMethod)
   return (

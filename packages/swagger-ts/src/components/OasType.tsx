@@ -47,7 +47,7 @@ export function OasType({
   typeName,
   Template = defaultTemplates.default,
 }: Props): ReactNode {
-  const oas = useOas()
+  const { oas } = useOas()
 
   return <Template name={name} typeName={typeName} api={oas.api} />
 }

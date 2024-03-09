@@ -18,6 +18,7 @@ describe('OperationGenerator', async () => {
   test('[GET] /pets with optionalType `questionToken`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       usedEnumNames: {},
@@ -56,6 +57,7 @@ describe('OperationGenerator', async () => {
   test('[POST] /pets 201', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       usedEnumNames: {},
@@ -87,6 +89,7 @@ describe('OperationGenerator', async () => {
   test('[DELETE] /pet/{petId} with unknownType `any`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       usedEnumNames: {},
@@ -117,6 +120,7 @@ describe('OperationGenerator', async () => {
   test('[DELETE] /pet/{petId} with unknownType `unknown`', async () => {
     const options: GetOperationGeneratorOptions<OperationGenerator> = {
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       usedEnumNames: {},

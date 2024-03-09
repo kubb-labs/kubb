@@ -721,7 +721,7 @@ components:
           example: 1
         nationalityCode:
           type: string
-          pattern: "^[A-Z]{2}$"
+          pattern: ^[A-Z]{2}$
       xml:
         name: user
     Tag:

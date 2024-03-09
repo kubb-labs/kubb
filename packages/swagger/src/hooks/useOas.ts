@@ -2,14 +2,20 @@ import { useContext } from '@kubb/react'
 
 import { Oas } from '../components/Oas.tsx'
 
+import type { GetSchemas } from '../components/Oas.tsx'
 import type { Oas as OasType } from '../oas/index.ts'
 
-export function useOas(): OasType {
-  const { oas } = useContext(Oas.Context)
+type Result = {
+  oas: OasType
+  getSchemas: GetSchemas
+}
 
-  if (!oas) {
+export function useOas(): Result {
+  const { oas, getSchemas } = useContext(Oas.Context)
+
+  if (!oas || !getSchemas) {
     throw new Error('Oas is not defined')
   }
 
-  return oas
+  return { oas, getSchemas }
 }
