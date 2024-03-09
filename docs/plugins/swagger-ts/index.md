@@ -360,6 +360,42 @@ export default defineConfig({
 
 :::
 
+### enumSuffix
+
+Set a suffix for the generated enums.
+
+::: info Type
+
+::: info
+
+Type: `string` <br/>
+Default: `''`
+
+::: code-group
+
+```typescript
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({
+      enumSuffix: 'enum',
+    }),
+  ],
+})
+```
+
+:::
+
 ### dateType
 
 Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.

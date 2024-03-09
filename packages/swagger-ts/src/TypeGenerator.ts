@@ -1,5 +1,5 @@
 import { Generator } from '@kubb/core'
-import transformers from '@kubb/core/transformers'
+import transformers, { pascalCase } from '@kubb/core/transformers'
 import { getUniqueName } from '@kubb/core/utils'
 import * as factory from '@kubb/parser/factory'
 import { keywordTypeNodes } from '@kubb/parser/factory'
@@ -283,7 +283,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
      * Enum will be defined outside the baseType(hints the baseName check)
      */
     if (schema.enum && baseName) {
-      const enumName = getUniqueName(baseName, this.options.usedEnumNames)
+      const enumName = getUniqueName(pascalCase([baseName, this.options.enumSuffix].join(' ')), this.options.usedEnumNames)
 
       let enums: [key: string, value: string | number][] = [...new Set(schema.enum)].map((key) => [key, key])
 
