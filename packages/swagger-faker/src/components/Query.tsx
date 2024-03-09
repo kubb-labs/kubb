@@ -30,7 +30,7 @@ Query.File = function({}: FileProps): ReactNode {
 
   const schemas = useSchemas()
   const pluginManager = usePluginManager()
-  const oas = useOas()
+  const { oas } = useOas()
   const file = useOperationFile()
 
   const builder = new FakerBuilder(options, { oas, pluginManager })
