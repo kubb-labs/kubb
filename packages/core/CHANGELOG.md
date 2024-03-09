@@ -1,5 +1,15 @@
 # @kubb/core
 
+## 2.8.0
+
+### Patch Changes
+
+- [#852](https://github.com/kubb-project/kubb/pull/852) [`752f9a0`](https://github.com/kubb-project/kubb/commit/752f9a02f642f2c5e948b96622fdc73c33d571b8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - useOperation and useSchema with a component Oas and Oas.Operation
+
+- Updated dependencies []:
+  - @kubb/parser@2.8.0
+  - @kubb/types@2.8.0
+
 ## 2.7.2
 
 ### Patch Changes
