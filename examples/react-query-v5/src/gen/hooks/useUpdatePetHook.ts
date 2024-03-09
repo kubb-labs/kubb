@@ -1,5 +1,6 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
+import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { UpdatePetMutationRequest, UpdatePetMutationResponse, UpdatePet400, UpdatePet404, UpdatePet405 } from '../models/UpdatePet'
 import type { UseMutationOptions } from '@tanstack/react-query'
 
@@ -26,6 +27,7 @@ export function useUpdatePetHook(options: {
   client?: UpdatePet['client']['parameters']
 } = {}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const invalidationOnSuccess = useInvalidationForMutation('useUpdatePetHook')
   return useMutation({
     mutationFn: async (data) => {
       const res = await client<UpdatePet['data'], UpdatePet['error'], UpdatePet['request']>({
@@ -35,6 +37,14 @@ export function useUpdatePetHook(options: {
         ...clientOptions,
       })
       return res.data
+    },
+    onSuccess: (...args) => {
+      if (invalidationOnSuccess) {
+        invalidationOnSuccess(...args)
+      }
+      if (mutationOptions?.onSuccess) {
+        mutationOptions.onSuccess(...args)
+      }
     },
     ...mutationOptions,
   })
