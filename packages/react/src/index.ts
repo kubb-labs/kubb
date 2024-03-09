@@ -17,4 +17,4 @@ export {
   useResolvePath,
 } from './hooks/index.ts'
 export type * from './types.ts'
-export { useContext } from 'react'
+export { createContext, useContext } from 'react'

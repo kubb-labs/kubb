@@ -1,4 +1,4 @@
-import { createContext } from 'react'
+import { createContext } from '@kubb/react'
 
 import type { KubbNode } from '@kubb/react'
 import type { Operation as OperationType } from '../oas/index.ts'

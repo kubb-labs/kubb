@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext } from '@kubb/react'
 
 import { Oas } from '../components/Oas.tsx'
 
