@@ -56,7 +56,7 @@ const baseConfig = {
       },
       group: { type: 'tag' },
       mutate: {
-        paramsType: 'mutate',
+        variablesType: 'mutate',
       },
     }],
     ['@kubb/swagger-swr', {
