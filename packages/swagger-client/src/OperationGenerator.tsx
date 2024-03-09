@@ -5,12 +5,12 @@ import { Oas } from '@kubb/swagger/components'
 import { Client, Operations } from './components/index.ts'
 
 import type { AppContextProps } from '@kubb/react'
-import type { OperationMethodResult, OperationSchemas, Paths } from '@kubb/swagger'
+import type { OperationMethodResult, OperationsByMethod, OperationSchemas } from '@kubb/swagger'
 import type { Operation } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
-  async all(paths: Paths): OperationMethodResult<FileMeta> {
+  async all(operations: Operation[], operationsByMethod: OperationsByMethod): OperationMethodResult<FileMeta> {
     const { pluginManager, oas, plugin } = this.context
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
@@ -26,8 +26,8 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     }
 
     root.render(
-      <Oas oas={oas}>
-        <Operations.File name="operations" paths={paths} templates={templates.operations} />
+      <Oas oas={oas} operations={operations} getSchemas={(...props) => this.getSchemas(...props)}>
+        <Operations.File name="operations" operationsByMethod={operationsByMethod} templates={templates.operations} />
       </Oas>,
       { meta: { pluginManager, plugin } },
     )
@@ -51,8 +51,8 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     }
 
     root.render(
-      <Oas oas={oas}>
-        <Oas.Operation schemas={schemas} operation={operation}>
+      <Oas oas={oas} operations={[operation]} getSchemas={(...props) => this.getSchemas(...props)}>
+        <Oas.Operation operation={operation}>
           <Client.File templates={templates.client} />
         </Oas.Operation>
       </Oas>,

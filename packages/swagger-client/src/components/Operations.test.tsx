@@ -1,15 +1,15 @@
 import { mockedPluginManager } from '@kubb/core/mocks'
 import { createRootServer } from '@kubb/react/server'
 import { OasManager } from '@kubb/swagger'
+import { Oas } from '@kubb/swagger/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
 import { Operations } from './Operations.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
-import type { GetOperationGeneratorOptions, Paths } from '@kubb/swagger'
+import type { GetOperationGeneratorOptions, OperationsByMethod } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
-import { Oas } from '@kubb/swagger/components'
 
 describe('<Operations/>', async () => {
   const oas = await OasManager.parseFromConfig({
@@ -50,18 +50,18 @@ describe('<Operations/>', async () => {
 
     const Component = () => {
       return (
-        <Oas oas={oas}>
-          <Oas.Operation schemas={schemas} operation={operation}>
+        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas.Operation operation={operation}>
             <Operations.File
               name="operations"
-              paths={{
+              operationsByMethod={{
                 '/pets/{pet_id}': {
                   get: {
                     operation,
                     schemas,
                   },
                 },
-              } as unknown as Paths}
+              } as unknown as OperationsByMethod}
             />
           </Oas.Operation>
         </Oas>

@@ -6,7 +6,7 @@ import { pluginKey as swaggerZodPluginKey } from '@kubb/swagger-zod'
 
 import type { ResolveNameParams, ResolvePathParams } from '@kubb/core'
 import type { KubbFile } from '@kubb/core'
-import type { OperationSchemas, Paths } from '@kubb/swagger'
+import type { OperationsByMethod, OperationSchemas } from '@kubb/swagger'
 import type { OasTypes, Operation } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
@@ -118,7 +118,7 @@ const parameters = {
 } as const
 
 function getDefinitionsImports(
-  paths: Paths,
+  operationsByMethod: OperationsByMethod,
   { resolveName, resolvePath, pluginKey }: {
     resolveName: (params: ResolveNameParams) => string
     resolvePath: (params: ResolvePathParams) => KubbFile.OptionalPath
@@ -127,8 +127,8 @@ function getDefinitionsImports(
 ): Array<{ name: string; path: KubbFile.OptionalPath }> {
   const definitions: Array<{ name: string; operation: Operation }> = []
 
-  Object.keys(paths).forEach((path) => {
-    const operations = paths[path]
+  Object.keys(operationsByMethod).forEach((path) => {
+    const operations = operationsByMethod[path]
     const filteredOperations = [operations?.get, operations?.post, operations?.patch, operations?.put, operations?.delete].filter(Boolean)
 
     filteredOperations.forEach(({ operation, schemas }) => {
@@ -190,13 +190,13 @@ function getDefinitionsImports(
 }
 
 function getDefinitions(
-  paths: Paths,
+  operationsByMethod: OperationsByMethod,
   { resolveName, pluginKey }: { resolveName: (params: ResolveNameParams) => string; pluginKey: ResolveNameParams['pluginKey'] },
 ): Array<{ operation: Operation; response: string | undefined; parameters: string[]; errors: string[] }> {
   const definitions: Array<{ response: string; operation: Operation; parameters: string[]; errors: string[] }> = []
 
-  Object.keys(paths).forEach((path) => {
-    const operations = paths[path]
+  Object.keys(operationsByMethod).forEach((path) => {
+    const operations = operationsByMethod[path]
     const filteredOperations = [operations?.get, operations?.post, operations?.patch, operations?.put, operations?.delete].filter(Boolean)
 
     filteredOperations.forEach(({ operation, schemas }) => {
@@ -259,7 +259,7 @@ function getDefinitions(
 
 type Props = {
   baseURL: string | undefined
-  paths: Paths
+  operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -268,11 +268,11 @@ type Props = {
 
 export function Definitions({
   baseURL,
-  paths,
+  operationsByMethod,
   Template = defaultTemplates.default,
 }: Props): ReactNode {
   const pluginManager = usePluginManager()
-  const definitions = getDefinitions(paths, { resolveName: pluginManager.resolveName, pluginKey: swaggerZodPluginKey })
+  const definitions = getDefinitions(operationsByMethod, { resolveName: pluginManager.resolveName, pluginKey: swaggerZodPluginKey })
 
   return (
     <Template
@@ -302,19 +302,19 @@ export function Definitions({
 type FileProps = {
   name: string
   baseURL: string | undefined
-  paths: Paths
+  operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
   templates?: typeof defaultTemplates
 }
 
-Definitions.File = function({ name, baseURL, paths, templates = defaultTemplates }: FileProps): ReactNode {
+Definitions.File = function({ name, baseURL, operationsByMethod, templates = defaultTemplates }: FileProps): ReactNode {
   const pluginManager = usePluginManager()
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const file = useFile({ name, extName: '.ts', pluginKey })
 
-  const definitionsImports = getDefinitionsImports(paths, {
+  const definitionsImports = getDefinitionsImports(operationsByMethod, {
     resolveName: pluginManager.resolveName,
     resolvePath: pluginManager.resolvePath,
     pluginKey: swaggerZodPluginKey,
@@ -340,7 +340,7 @@ Definitions.File = function({ name, baseURL, paths, templates = defaultTemplates
         <File.Import name={['makeApi', 'Zodios']} path="@zodios/core" />
         {imports}
         <File.Source>
-          <Definitions Template={Template} paths={paths} baseURL={baseURL} />
+          <Definitions Template={Template} operationsByMethod={operationsByMethod} baseURL={baseURL} />
         </File.Source>
       </File>
     </Editor>

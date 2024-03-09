@@ -1,6 +1,7 @@
 import { mockedPluginManager } from '@kubb/core/mocks'
 import { createRootServer } from '@kubb/react/server'
 import { OasManager } from '@kubb/swagger'
+import { Oas } from '@kubb/swagger/components'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
 import { Mock } from './Mock.tsx'
@@ -9,7 +10,6 @@ import type { Plugin } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
-import { Oas } from '@kubb/swagger/components'
 
 describe('<Mock/>', async () => {
   const oas = await OasManager.parseFromConfig({
@@ -45,8 +45,8 @@ describe('<Mock/>', async () => {
 
     const Component = () => {
       return (
-        <Oas oas={oas}>
-          <Oas.Operation schemas={schemas} operation={operation}>
+        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas.Operation operation={operation}>
             <Mock.File />
           </Oas.Operation>
         </Oas>
@@ -65,8 +65,8 @@ describe('<Mock/>', async () => {
 
     const Component = () => {
       return (
-        <Oas oas={oas}>
-          <Oas.Operation schemas={schemas} operation={operation}>
+        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas.Operation operation={operation}>
             <Mock.File />
           </Oas.Operation>
         </Oas>

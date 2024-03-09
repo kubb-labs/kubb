@@ -96,7 +96,7 @@ export type OperationSchemas = {
   errors?: Array<OperationSchema>
 }
 
-export type Paths = Record<string, Record<HttpMethod, { operation: Operation; schemas: OperationSchemas }>>
+export type OperationsByMethod = Record<string, Record<HttpMethod, { operation: Operation; schemas: OperationSchemas }>>
 
 type ByTag = {
   type: 'tag'

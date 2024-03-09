@@ -1,11 +1,13 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
 import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 import type { Mutation } from './components/Mutation.tsx'
+import type { Operations } from './components/Operations.tsx'
 import type { Query as QueryTemplate } from './components/Query.tsx'
 import type { QueryKey } from './components/QueryKey.tsx'
 import type { QueryOptions } from './components/QueryOptions.tsx'
 
 type Templates = {
+  operations?: typeof Operations.templates | false
   mutation?: typeof Mutation.templates | false
   query?: typeof QueryTemplate.templates | false
   queryOptions?: typeof QueryOptions.templates | false

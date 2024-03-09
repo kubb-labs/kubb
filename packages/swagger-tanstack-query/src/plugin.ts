@@ -8,7 +8,7 @@ import { getGroupedByTagFiles } from '@kubb/swagger/utils'
 import { pluginName as swaggerTsPluginName } from '@kubb/swagger-ts'
 import { pluginName as swaggerZodPluginName } from '@kubb/swagger-zod'
 
-import { Mutation, Query, QueryKey, QueryOptions } from './components/index.ts'
+import { Mutation, Operations, Query, QueryKey, QueryOptions } from './components/index.ts'
 import { OperationGenerator } from './OperationGenerator.tsx'
 
 import type { Plugin } from '@kubb/core'
@@ -60,6 +60,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
         query: Query.templates,
         queryOptions: QueryOptions.templates,
         queryKey: QueryKey.templates,
+        operations: Operations.templates,
         ...templates,
       },
       parser,

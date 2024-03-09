@@ -5,12 +5,19 @@ import type { Operation as OperationType } from '../oas/index.ts'
 import type { OperationSchemas } from '../types.ts'
 
 type Props = {
-  schemas: OperationSchemas
+  /**
+   * When no set it will be calculated based on useOas.getSchemas(see operationGenerator in Swagger)
+   * @deprecated better to use <Oas getSchemas /> on top of your component.
+   */
+  schemas?: OperationSchemas
   operation: OperationType
   children?: KubbNode
 }
 
 type OperationContextProps = {
+  /**
+   * @deprecated better to use <Oas getSchemas /> on top of your component.
+   */
   schemas?: OperationSchemas
   operation?: OperationType
 }

@@ -21,8 +21,8 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
     root.render(
-      <Oas oas={oas}>
-        <Oas.Operation schemas={schemas} operation={operation}>
+      <Oas oas={oas} operations={[operation]} getSchemas={(...props) => this.getSchemas(...props)}>
+        <Oas.Operation operation={operation}>
           <Query.File />
         </Oas.Operation>
       </Oas>,
@@ -37,8 +37,8 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
     root.render(
-      <Oas oas={oas}>
-        <Oas.Operation schemas={schemas} operation={operation}>
+      <Oas oas={oas} operations={[operation]} getSchemas={(...props) => this.getSchemas(...props)}>
+        <Oas.Operation operation={operation}>
           <Mutation.File />
         </Oas.Operation>
       </Oas>,

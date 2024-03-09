@@ -12,7 +12,7 @@ import type { Operation } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
 export class OperationGenerator extends Generator<PluginOptions['resolvedOptions'], PluginOptions> {
-  async all(): OperationMethodResult<FileMeta> {
+  async all(operations: Operation[]): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin } = this.context
 
     if (!plugin.options.oasType) {
@@ -22,7 +22,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
     root.render(
-      <Oas oas={oas}>
+      <Oas oas={oas} operations={operations} getSchemas={(...props) => this.getSchemas(...props)}>
         <OasType.File name="oas" typeName="Oas" />
       </Oas>,
       { meta: { pluginManager, plugin } },
@@ -36,8 +36,8 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
     root.render(
-      <Oas oas={oas}>
-        <Oas.Operation schemas={schemas} operation={operation}>
+      <Oas oas={oas} operations={[operation]} getSchemas={(...props) => this.getSchemas(...props)}>
+        <Oas.Operation operation={operation}>
           <Query.File mode={mode} />
         </Oas.Operation>
       </Oas>,
@@ -52,8 +52,8 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
     root.render(
-      <Oas oas={oas}>
-        <Oas.Operation schemas={schemas} operation={operation}>
+      <Oas oas={oas} operations={[operation]} getSchemas={(...props) => this.getSchemas(...props)}>
+        <Oas.Operation operation={operation}>
           <Mutation.File mode={mode} />
         </Oas.Operation>
       </Oas>,

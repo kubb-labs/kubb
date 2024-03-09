@@ -1,7 +1,7 @@
 import { URLPath } from '@kubb/core/utils'
 import { Editor, File, usePlugin } from '@kubb/react'
 import { useFile } from '@kubb/react'
-import { useOas } from '@kubb/swagger/hooks'
+import { useOas, useOperation, useOperations } from '@kubb/swagger/hooks'
 
 import type { KubbNode } from '@kubb/react'
 import type { OperationsByMethod } from '@kubb/swagger'
@@ -14,27 +14,24 @@ type TemplateProps = {
    * Name of the function
    */
   name: string
-  operations: Record<string, { path: string; method: HttpMethod }>
 }
 
 function Template({
   name,
-  operations,
 }: TemplateProps): KubbNode {
   return (
     <>
-      {`export const ${name} = ${JSON.stringify(operations)} as const;`}
     </>
   )
 }
 
 const defaultTemplates = { default: Template } as const
 
-function getOperations(oas: Oas, operationsByMethod: OperationsByMethod): Record<string, { path: string; method: HttpMethod }> {
+function getOperations(oas: Oas, paths: OperationsByMethod): Record<string, { path: string; method: HttpMethod }> {
   const operations: Record<string, { path: string; method: HttpMethod }> = {}
 
-  Object.keys(operationsByMethod).forEach((path) => {
-    const methods = operationsByMethod[path] || []
+  Object.keys(paths).forEach((path) => {
+    const methods = paths[path] || []
     Object.keys(methods).forEach((method) => {
       const operation = oas.operation(path, method as HttpMethod)
       if (operation) {
@@ -50,7 +47,6 @@ function getOperations(oas: Oas, operationsByMethod: OperationsByMethod): Record
 }
 
 type Props = {
-  operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -58,30 +54,23 @@ type Props = {
 }
 
 export function Operations({
-  operationsByMethod,
   Template = defaultTemplates.default,
 }: Props): KubbNode {
-  const oas = useOas()
+  const operations = useOperations()
+  console.log({ operations })
 
-  const operations = getOperations(oas, operationsByMethod)
-  return (
-    <Template
-      name="operations"
-      operations={operations}
-    />
-  )
+  return <Template name="operations" />
 }
 
 type FileProps = {
   name: string
-  operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
   templates?: typeof defaultTemplates
 }
 
-Operations.File = function({ name, operationsByMethod, templates = defaultTemplates }: FileProps): KubbNode {
+Operations.File = function({ name, templates = defaultTemplates }: FileProps): KubbNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const file = useFile({ name, extName: '.ts', pluginKey })
 
@@ -95,7 +84,7 @@ Operations.File = function({ name, operationsByMethod, templates = defaultTempla
         meta={file.meta}
       >
         <File.Source>
-          <Operations Template={Template} operationsByMethod={operationsByMethod} />
+          <Operations Template={Template} />
         </File.Source>
       </File>
     </Editor>

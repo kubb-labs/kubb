@@ -49,8 +49,8 @@ describe('<Query/>', async () => {
 
     const Component = () => {
       return (
-        <Oas oas={oas}>
-          <Oas.Operation schemas={schemas} operation={operation}>
+        <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
+          <Oas.Operation operation={operation}>
             <Query.File mode="directory" />
           </Oas.Operation>
         </Oas>

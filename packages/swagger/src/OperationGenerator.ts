@@ -10,7 +10,7 @@ import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/types'
 import type { Oas, OasTypes, OpenAPIV3, Operation } from './oas/index.ts'
-import type { ContentType, Exclude, Include, OperationSchemas, Override, Paths } from './types.ts'
+import type { ContentType, Exclude, Include, OperationsByMethod, OperationSchemas, Override } from './types.ts'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
 
@@ -339,7 +339,7 @@ export abstract class OperationGenerator<
 
             if (isIncluded && !isExcluded) {
               if (!acc[path]) {
-                acc[path] = {} as Paths['get']
+                acc[path] = {} as OperationsByMethod['get']
               }
               acc[path] = {
                 ...acc[path],
@@ -347,14 +347,14 @@ export abstract class OperationGenerator<
                   operation,
                   schemas: this.getSchemas(operation),
                 },
-              } as Paths['get']
+              } as OperationsByMethod['get']
             }
           }
         })
 
         return acc
       },
-      {} as Paths,
+      {} as OperationsByMethod,
     )
 
     const promises = Object.keys(filterdPaths).reduce(
@@ -376,7 +376,9 @@ export abstract class OperationGenerator<
       [] as OperationMethodResult<TFileMeta>[],
     )
 
-    promises.push(this.all(filterdPaths))
+    const operations = Object.values(filterdPaths).map(item => Object.values(item).map(item => item.operation))
+
+    promises.push(this.all(operations.flat(), filterdPaths))
 
     const files = await Promise.all(promises)
 
@@ -411,5 +413,5 @@ export abstract class OperationGenerator<
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE
    */
-  abstract all(paths: Paths): OperationMethodResult<TFileMeta>
+  abstract all(operations: Operation[], paths: OperationsByMethod): OperationMethodResult<TFileMeta>
 }

@@ -2,7 +2,7 @@ import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
 import { useFile } from '@kubb/react'
 
 import type { KubbFile, ResolveNameParams, ResolvePathParams } from '@kubb/core'
-import type { Paths } from '@kubb/swagger'
+import type { OperationsByMethod } from '@kubb/swagger'
 import type { Operation } from '@kubb/swagger/oas'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
@@ -29,13 +29,13 @@ function Template({
 const defaultTemplates = { default: Template } as const
 
 function getHandlers(
-  paths: Paths,
+  operationsByMethod: OperationsByMethod,
   { resolveName, pluginKey }: { resolveName: (params: ResolveNameParams) => string; pluginKey: ResolveNameParams['pluginKey'] },
 ): Array<{ name: string; operation: Operation }> {
   const handlers: Array<{ name: string; operation: Operation }> = []
 
-  Object.keys(paths).forEach((path) => {
-    const operations = paths[path]
+  Object.keys(operationsByMethod).forEach((path) => {
+    const operations = operationsByMethod[path]
     const filteredOperations = [operations?.get, operations?.post, operations?.patch, operations?.put, operations?.delete].filter(Boolean)
 
     filteredOperations.forEach(({ operation }) => {
@@ -50,14 +50,14 @@ function getHandlers(
 }
 
 function getHandlersImports(
-  paths: Paths,
+  operationsByMethod: OperationsByMethod,
   { resolveName, resolvePath, pluginKey }: {
     resolveName: (params: ResolveNameParams) => string
     resolvePath: (params: ResolvePathParams) => KubbFile.OptionalPath
     pluginKey: ResolveNameParams['pluginKey']
   },
 ): Array<{ name: string; path: KubbFile.OptionalPath }> {
-  const handlers = getHandlers(paths, { resolveName, pluginKey })
+  const handlers = getHandlers(operationsByMethod, { resolveName, pluginKey })
 
   return handlers.map(({ name, operation }) => {
     const path = resolvePath({
@@ -72,7 +72,7 @@ function getHandlersImports(
 }
 
 type Props = {
-  paths: Paths
+  operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -80,13 +80,13 @@ type Props = {
 }
 
 export function Handlers({
-  paths,
+  operationsByMethod,
   Template = defaultTemplates.default,
 }: Props): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const pluginManager = usePluginManager()
 
-  const handlers = getHandlers(paths, { resolveName: pluginManager.resolveName, pluginKey })
+  const handlers = getHandlers(operationsByMethod, { resolveName: pluginManager.resolveName, pluginKey })
 
   return (
     <Template
@@ -98,19 +98,19 @@ export function Handlers({
 
 type FileProps = {
   name: string
-  paths: Paths
+  operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
   templates?: typeof defaultTemplates
 }
 
-Handlers.File = function({ name, paths, templates = defaultTemplates }: FileProps): ReactNode {
+Handlers.File = function({ name, operationsByMethod, templates = defaultTemplates }: FileProps): ReactNode {
   const pluginManager = usePluginManager()
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const file = useFile({ name, extName: '.ts', pluginKey })
 
-  const handlersImports = getHandlersImports(paths, { resolveName: pluginManager.resolveName, resolvePath: pluginManager.resolvePath, pluginKey })
+  const handlersImports = getHandlersImports(operationsByMethod, { resolveName: pluginManager.resolveName, resolvePath: pluginManager.resolvePath, pluginKey })
 
   const imports = handlersImports.map(({ name, path }, index) => {
     if (!path) {
@@ -131,7 +131,7 @@ Handlers.File = function({ name, paths, templates = defaultTemplates }: FileProp
       >
         {imports}
         <File.Source>
-          <Handlers Template={Template} paths={paths} />
+          <Handlers Template={Template} operationsByMethod={operationsByMethod} />
         </File.Source>
       </File>
     </Editor>
