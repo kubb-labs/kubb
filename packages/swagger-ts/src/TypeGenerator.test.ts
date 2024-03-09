@@ -18,6 +18,7 @@ describe('TypeGenerator petStore', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: 'enum',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -42,6 +43,7 @@ describe('TypeGenerator petStore', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'undefined',
       transformers: {},
@@ -66,6 +68,7 @@ describe('TypeGenerator petStore', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionTokenAndUndefined',
       transformers: {},
@@ -90,6 +93,7 @@ describe('TypeGenerator petStore', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -119,6 +123,7 @@ describe('TypeGenerator petStore', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -147,6 +152,7 @@ describe('TypeGenerator petStoreRef', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -175,6 +181,7 @@ describe('TypeGenerator discriminator', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -198,6 +205,7 @@ describe('TypeGenerator discriminator', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -220,6 +228,7 @@ describe('TypeGenerator discriminator', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -242,6 +251,7 @@ describe('TypeGenerator discriminator', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -263,6 +273,7 @@ describe('TypeGenerator discriminator', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -285,6 +296,7 @@ describe('TypeGenerator discriminator', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -307,6 +319,7 @@ describe('TypeGenerator discriminator', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -333,6 +346,7 @@ describe('TypeGenerator enums', async () => {
   const defaultGenerator = new TypeGenerator({
     usedEnumNames: {},
     enumType: 'asConst',
+    enumSuffix: '',
     dateType: 'string',
     optionalType: 'questionToken',
     transformers: {},
@@ -369,6 +383,7 @@ describe('TypeGenerator enums', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'enum',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -392,6 +407,7 @@ describe('TypeGenerator enums', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'asPascalConst',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -415,6 +431,7 @@ describe('TypeGenerator enums', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'constEnum',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},
@@ -438,6 +455,7 @@ describe('TypeGenerator enums', async () => {
     const generator = new TypeGenerator({
       usedEnumNames: {},
       enumType: 'literal',
+      enumSuffix: '',
       dateType: 'string',
       optionalType: 'questionToken',
       transformers: {},

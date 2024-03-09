@@ -58,6 +58,13 @@ export type Options = {
    */
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   /**
+   * Set a suffix for the generated enums.
+   * @default ''
+   * Default will be `'enum'` in version 3 of Kubb
+   */
+  enumSuffix?: string
+
+  /**
    * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
    * @default 'string'
    */
@@ -89,6 +96,7 @@ export type Options = {
 
 type ResolvedOptions = {
   enumType: NonNullable<Options['enumType']>
+  enumSuffix: NonNullable<Options['enumSuffix']>
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
   optionalType: NonNullable<Options['optionalType']>

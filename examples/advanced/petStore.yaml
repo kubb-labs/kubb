@@ -706,6 +706,15 @@ components:
           type: integer
           format: int32
           example: 7
+        orderType:
+           type: string
+           enum:
+             - foo
+             - bar
+        type:
+           type: string
+           description: Order Status
+           example: approved
         shipDate:
           type: string
           format: date-time

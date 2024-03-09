@@ -23,6 +23,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     include,
     override = [],
     enumType = 'asConst',
+    enumSuffix = '',
     dateType = 'string',
     unknownType = 'any',
     optionalType = 'questionToken',
@@ -37,6 +38,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       transformers,
       dateType,
       enumType,
+      enumSuffix,
       optionalType,
       oasType,
       // keep the used enumnames between TypeBuilder and OperationGenerator per plugin(pluginKey)

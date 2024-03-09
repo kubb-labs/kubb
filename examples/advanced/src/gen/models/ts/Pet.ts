@@ -1,12 +1,12 @@
 import type { Category } from './Category'
 import type { TagTag } from './tag/Tag'
 
-export const PetStatus = {
+export const PetStatusEnum = {
   'available': 'available',
   'pending': 'pending',
   'sold': 'sold',
 } as const
-export type PetStatus = (typeof PetStatus)[keyof typeof PetStatus]
+export type PetStatusEnum = (typeof PetStatusEnum)[keyof typeof PetStatusEnum]
 export type Pet = {
   /**
    * @type integer | undefined int64
@@ -31,5 +31,5 @@ export type Pet = {
    * @description pet status in the store
    * @type string | undefined
    */
-  status?: PetStatus
+  status?: PetStatusEnum
 }
