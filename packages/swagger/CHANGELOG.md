@@ -1,5 +1,13 @@
 # @kubb/swagger
 
+## 2.8.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.8.0
+  - @kubb/react@2.8.0
+
 ## 2.7.2
 
 ### Patch Changes
