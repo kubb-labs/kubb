@@ -169,30 +169,24 @@ export function getDefinitions(
       const errors: string[] = []
       const responseName = resolveName({ name: schemas.response.name, pluginKey, type: 'function' })
 
-      // definitions.push({ name: responseName, response: responseName, operation, parameters: [], errors: [] })
-
       if (schemas.pathParams?.name) {
         const name = resolveName({ name: schemas.pathParams.name, pluginKey, type: 'function' })
         params = [...params, ...parameters.getPathParams(name, schemas.pathParams)]
-        // definitions.push({ name, response: undefined, operation, parameters: parameters.getPathParams(name, schemas.pathParams), errors: [] })
       }
 
       if (schemas.queryParams?.name) {
         const name = resolveName({ name: schemas.queryParams.name, pluginKey, type: 'function' })
         params = [...params, ...parameters.getQueryParams(name, schemas.queryParams)]
-        // definitions.push({ name, operation, parameters: parameters.getQueryParams(name, schemas.queryParams), errors: [] })
       }
 
       if (schemas.headerParams?.name) {
         const name = resolveName({ name: schemas.headerParams.name, pluginKey, type: 'function' })
         params = [...params, ...parameters.getHeaderParams(name, schemas.headerParams)]
-        // definitions.push({ name, operation, parameters: parameters.getHeaderParams(name, schemas.headerParams), errors: [] })
       }
 
       if (schemas.request?.name) {
         const name = resolveName({ name: schemas.request.name, pluginKey, type: 'function' })
         params = [...params, ...parameters.getRequest(name, schemas.request)]
-        // definitions.push({ name, operation, parameters: parameters.getRequest(name, schemas.request), errors: [] })
       }
       if (schemas.errors) {
         schemas.errors.forEach(

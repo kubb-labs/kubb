@@ -1,44 +1,62 @@
-import { Editor, Function, File, useFile, usePlugin } from '@kubb/react'
-import { useOperations } from '@kubb/swagger/hooks'
+import { Editor, Type, File, usePlugin } from '@kubb/react'
+import { useOperationHelpers, useOperations, useOas } from '@kubb/swagger/hooks'
 import { Operations } from '@kubb/swagger-tanstack-query/components'
 import React from 'react'
 import { FileMeta, PluginOptions } from '@kubb/swagger-tanstack-query'
-import { Operation } from '@kubb/swagger/oas'
+import path from 'node:path'
+import { usePluginManager } from '@kubb/react'
 
 export const templates = {
   ...Operations.templates,
-  editor: function({ children }: React.ComponentProps<typeof Operations.templates.editor>) {
+  editor: function({}: React.ComponentProps<typeof Operations.templates.editor>) {
+    const pluginManager = usePluginManager()
     const { key: pluginKey } = usePlugin<PluginOptions>()
+    const operations = useOperations()
+    const { getSchemas } = useOas()
+    const { getOperationName } = useOperationHelpers()
 
-    const file = useFile({ name: 'operations', extName: '.ts', pluginKey })
+    const root = path.resolve(pluginManager.config.root, pluginManager.config.output.path)
+
+    const imports = operations.map(operation => {
+      const schemas = getSchemas(operation)
+
+      return [schemas.response?.name, schemas.request?.name]
+    }).flat().filter(Boolean)
+
+    const invalidations = operations.reduce((acc, operation) => {
+      const name = getOperationName(operation, { pluginKey, type: 'function' })
+      const schemas = getSchemas(operation)
+
+      acc[name] = `UseMutationOptions<${schemas.response.name}, unknown, ${schemas.request?.name || 'void'}>['onSuccess']`
+
+      return acc
+    }, {} as Record<string, string>)
 
     return (
       <Editor language="typescript">
         <File<FileMeta>
-          baseName={file.baseName}
-          path={file.path}
-          meta={file.meta}
+          baseName={'invalidations.ts'}
+          path={path.join(root, './invalidations.ts')}
         >
+          <File.Import
+            name={imports}
+            path={path.join(root, './index.ts')}
+            root={path.join(root, './invalidations.ts')}
+            isTypeOnly
+          />
+
+          <File.Import isTypeOnly name={['UseMutationOptions']} path="@tanstack/react-query" />
           <File.Source>
-            {children}
+            <Type export name="Invalidations">
+              {`{ ${
+                Object.keys(invalidations).map(key => {
+                  return `${JSON.stringify(key)}: ${invalidations[key]}`
+                })
+              } }`}
+            </Type>
           </File.Source>
         </File>
       </Editor>
-    )
-  },
-  default: function({}: React.ComponentProps<typeof Operations.templates.default>) {
-    const operations = useOperations()
-
-    return (
-      <>
-        {operations.map((item) => {
-          return (
-            <Function name={item.getOperationId()} export>
-              return {JSON.stringify(item.path)}
-            </Function>
-          )
-        })}
-      </>
     )
   },
 } as const

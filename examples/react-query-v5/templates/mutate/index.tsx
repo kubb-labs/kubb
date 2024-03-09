@@ -7,7 +7,7 @@ import transformers from '@kubb/core/transformers'
 
 export const templates = {
   ...Mutation.templates,
-  react: function({ name, generics, returnType, params, JSDoc, client, hook, dataReturnType }: React.ComponentProps<typeof Mutation.templates.react>) {
+  react: function({ name, params, JSDoc, client, hook, dataReturnType }: React.ComponentProps<typeof Mutation.templates.react>) {
     const pluginManager = usePluginManager()
     const file = useOperationFile()
     const clientOptions = [

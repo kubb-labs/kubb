@@ -41,6 +41,9 @@ const defaultTemplates = { default: Template } as const
 
 type Props = {
   baseURL: string | undefined
+  /**
+   * @deprecated
+   */
   operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.

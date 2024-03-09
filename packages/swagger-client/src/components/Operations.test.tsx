@@ -8,7 +8,7 @@ import { Operations } from './Operations.tsx'
 
 import type { Plugin } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
-import type { GetOperationGeneratorOptions, OperationsByMethod } from '@kubb/swagger'
+import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
 
 describe('<Operations/>', async () => {
@@ -44,7 +44,6 @@ describe('<Operations/>', async () => {
 
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{pet_id}', 'get')
-    const schemas = og.getSchemas(operation)
 
     const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
@@ -52,16 +51,7 @@ describe('<Operations/>', async () => {
       return (
         <Oas oas={oas} operations={[operation]} getSchemas={(...props) => og.getSchemas(...props)}>
           <Oas.Operation operation={operation}>
-            <Operations.File
-              operationsByMethod={{
-                '/pets/{pet_id}': {
-                  get: {
-                    operation,
-                    schemas,
-                  },
-                },
-              } as unknown as OperationsByMethod}
-            />
+            <Operations.File />
           </Oas.Operation>
         </Oas>
       )
