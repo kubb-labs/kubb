@@ -1,5 +1,6 @@
 import client from "@kubb/swagger-client/client";
 import { useMutation } from "@tanstack/react-query";
+import { useInvalidationForMutation } from "../../useInvalidationForMutation";
 import type { UpdateUserMutationRequest, UpdateUserMutationResponse, UpdateUserPathParams } from "../models/UpdateUser";
 import type { UseMutationOptions } from "@tanstack/react-query";
 
@@ -26,6 +27,7 @@ export function useUpdateUserHook(username: UpdateUserPathParams["username"], op
     client?: UpdateUser["client"]["parameters"];
 } = {}) {
     const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {};
+    const invalidationOnSuccess = useInvalidationForMutation("useUpdateUserHook");
     return useMutation({
         mutationFn: async (data) => {
             const res = await client<UpdateUser["data"], UpdateUser["error"], UpdateUser["request"]>({
@@ -35,6 +37,12 @@ export function useUpdateUserHook(username: UpdateUserPathParams["username"], op
                 ...clientOptions
             });
             return res.data;
+        },
+        onSuccess: (...args) => {
+            if (invalidationOnSuccess)
+                invalidationOnSuccess(...args);
+            if (mutationOptions?.onSuccess)
+                mutationOptions.onSuccess(...args);
         },
         ...mutationOptions
     });

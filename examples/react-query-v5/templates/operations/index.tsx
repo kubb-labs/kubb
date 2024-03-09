@@ -16,14 +16,15 @@ export const templates = {
 
     const root = path.resolve(pluginManager.config.root, pluginManager.config.output.path)
 
-    const responsesTypes = operations.map(operation => {
-      return getSchemas(operation).response?.name
-    })
+    const imports = operations.map(operation => {
+      return [getSchemas(operation).response?.name, getSchemas(operation).request?.name]
+    }).flat().filter(Boolean)
 
     const invalidations = operations.reduce((acc, operation) => {
       const name = pluginManager.resolveName({ name: operation.getOperationId(), pluginKey, type: 'function' })
       const responseName = getSchemas(operation).response?.name
-      acc[name] = `UseMutationOptions<${responseName}, unknown, void>['onSuccess']`
+      const variableName = getSchemas(operation).request?.name
+      acc[name] = `UseMutationOptions<${responseName}, unknown, ${variableName || 'void'}>['onSuccess']`
 
       return acc
     }, {} as Record<string, string>)
@@ -35,7 +36,7 @@ export const templates = {
           path={path.join(root, './invalidations.ts')}
         >
           <File.Import
-            name={responsesTypes}
+            name={imports}
             path={path.join(root, './index.ts')}
             root={path.join(root, './invalidations.ts')}
             isTypeOnly
