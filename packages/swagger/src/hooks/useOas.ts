@@ -1,10 +1,15 @@
-import { useApp } from '@kubb/react'
+import { useContext } from 'react'
 
-import type { Oas } from '../oas/index.ts'
-import type { PluginOptions } from '../types.ts'
+import { Oas } from '../components/Oas.tsx'
 
-export function useOas(): Oas {
-  const { meta } = useApp<PluginOptions['appMeta']>()
+import type { Oas as OasType } from '../oas/index.ts'
 
-  return meta.oas
+export function useOas(): OasType {
+  const { oas } = useContext(Oas.Context)
+
+  if (!oas) {
+    throw new Error('Oas is not defined')
+  }
+
+  return oas
 }

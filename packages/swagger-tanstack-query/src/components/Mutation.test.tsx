@@ -5,6 +5,7 @@ import { OasManager } from '@kubb/swagger'
 
 import { OperationGenerator } from '../OperationGenerator.tsx'
 import { Query } from './Query.tsx'
+import { Mutation } from './Mutation.tsx'
 import { QueryKey } from './QueryKey.tsx'
 import { QueryOptions } from './QueryOptions.tsx'
 
@@ -12,6 +13,7 @@ import type { Plugin, ResolveNameParams } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
+import { Oas } from '@kubb/swagger/components'
 
 describe('<Mutation/>', async () => {
   const oas = await OasManager.parseFromConfig({
@@ -64,10 +66,16 @@ describe('<Mutation/>', async () => {
   test('pets', async () => {
     const operation = oas.operation('/pets', 'post')
     const schemas = og.getSchemas(operation)
-    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { oas, pluginManager: mockedPluginManager, plugin, schemas, operation } }
+    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
     const Component = () => {
-      return <Query.File />
+      return (
+        <Oas oas={oas}>
+          <Oas.Operation schemas={schemas} operation={operation}>
+            <Mutation.File />
+          </Oas.Operation>
+        </Oas>
+      )
     }
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)

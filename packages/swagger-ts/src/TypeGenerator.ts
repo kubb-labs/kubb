@@ -10,7 +10,7 @@ import { pluginKey } from './plugin.ts'
 import type { PluginManager } from '@kubb/core'
 import type { ts } from '@kubb/parser'
 import type { ImportMeta, Refs } from '@kubb/swagger'
-import type { Oas, OasTypes, OpenAPIV3, OpenAPIV3_1 } from '@kubb/swagger/oas'
+import type { Oas, OpenAPIV3, OpenAPIV3_1, SchemaObject } from '@kubb/swagger/oas'
 import type { PluginOptions } from './types.ts'
 
 // based on https://github.com/cellular/oazapfts/blob/7ba226ebb15374e8483cc53e7532f1663179a22c/src/codegen/generate.ts#L398
@@ -38,7 +38,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     description,
     keysToOmit,
   }: {
-    schema: OasTypes.SchemaObject
+    schema: SchemaObject
     baseName: string
     description?: string
     optional?: boolean
@@ -88,7 +88,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
    * Delegates to getBaseTypeFromSchema internally and
    * optionally adds a union with null.
    */
-  getTypeFromSchema(schema?: OasTypes.SchemaObject & { 'x-nullable': boolean }, name?: string): ts.TypeNode | null {
+  getTypeFromSchema(schema?: SchemaObject, name?: string): ts.TypeNode | null {
     const type = this.#getBaseTypeFromSchema(schema, name)
 
     if (!type) {
@@ -107,14 +107,14 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
   /**
    * Recursively creates a type literal with the given props.
    */
-  #getTypeFromProperties(baseSchema?: OasTypes.SchemaObject, baseName?: string): ts.TypeNode | null {
+  #getTypeFromProperties(baseSchema?: SchemaObject, baseName?: string): ts.TypeNode | null {
     const { optionalType } = this.options
     const properties = baseSchema?.properties || {}
     const required = baseSchema?.required
     const additionalProperties = baseSchema?.additionalProperties
 
     const members: Array<ts.TypeElement | null> = Object.keys(properties).map((name) => {
-      const schema = properties[name] as OasTypes.SchemaObject
+      const schema = properties[name] as SchemaObject
 
       const isRequired = Array.isArray(required) ? required.includes(name) : !!required
       let type = this.getTypeFromSchema(schema, this.context.pluginManager.resolveName({ name: `${baseName || ''} ${name}`, pluginKey, type: 'type' }))
@@ -146,7 +146,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
       })
     })
     if (additionalProperties) {
-      const type = additionalProperties === true ? this.#unknownReturn : this.getTypeFromSchema(additionalProperties as OasTypes.SchemaObject)
+      const type = additionalProperties === true ? this.#unknownReturn : this.getTypeFromSchema(additionalProperties as SchemaObject)
 
       if (type) {
         members.push(factory.createIndexSignature(type))
@@ -186,7 +186,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     return factory.createTypeReferenceNode(ref.propertyName, undefined)
   }
 
-  #getParsedSchema(schema?: OasTypes.SchemaObject) {
+  #getParsedSchema(schema?: SchemaObject) {
     const parsedSchema = getSchemaFactory(this.context.oas)(schema)
     return parsedSchema
   }
@@ -196,7 +196,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
    * schema and returns the appropriate type.
    */
   #getBaseTypeFromSchema(
-    _schema: OasTypes.SchemaObject | undefined,
+    _schema: SchemaObject | undefined,
     baseName?: string,
   ): ts.TypeNode | null {
     const { schema, version } = this.#getParsedSchema(_schema)
@@ -211,13 +211,13 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
 
     if (schema.oneOf) {
       // union
-      const schemaWithoutOneOf = { ...schema, oneOf: undefined } as OasTypes.SchemaObject
+      const schemaWithoutOneOf = { ...schema, oneOf: undefined } as SchemaObject
 
       const union = factory.createUnionDeclaration({
         withParentheses: true,
         nodes: schema.oneOf
           .map((item) => {
-            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)
+            return item && this.getTypeFromSchema(item as SchemaObject)
           })
           .filter((item) => {
             return item && item !== this.#unknownReturn
@@ -234,13 +234,13 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     }
 
     if (schema.anyOf) {
-      const schemaWithoutAnyOf = { ...schema, anyOf: undefined } as OasTypes.SchemaObject
+      const schemaWithoutAnyOf = { ...schema, anyOf: undefined } as SchemaObject
 
       const union = factory.createUnionDeclaration({
         withParentheses: true,
         nodes: schema.anyOf
           .map((item) => {
-            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)
+            return item && this.getTypeFromSchema(item as SchemaObject)
           })
           .filter((item) => {
             return item && item !== this.#unknownReturn
@@ -257,13 +257,13 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
     }
     if (schema.allOf) {
       // intersection/add
-      const schemaWithoutAllOf = { ...schema, allOf: undefined } as OasTypes.SchemaObject
+      const schemaWithoutAllOf = { ...schema, allOf: undefined } as SchemaObject
 
       const and = factory.createIntersectionDeclaration({
         withParentheses: true,
         nodes: schema.allOf
           .map((item) => {
-            return item && this.getTypeFromSchema(item as OasTypes.SchemaObject)
+            return item && this.getTypeFromSchema(item as SchemaObject)
           })
           .filter((item) => {
             return item && item !== this.#unknownReturn
@@ -318,7 +318,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
 
     if ('items' in schema) {
       // items -> array
-      const node = this.getTypeFromSchema(schema.items as OasTypes.SchemaObject, baseName)
+      const node = this.getTypeFromSchema(schema.items as SchemaObject, baseName)
       if (node) {
         return factory.createArrayTypeNode(node)
       }
@@ -330,7 +330,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
      */
 
     if ('prefixItems' in schema) {
-      const prefixItems = schema.prefixItems as OasTypes.SchemaObject[]
+      const prefixItems = schema.prefixItems as SchemaObject[]
 
       return factory.createTupleDeclaration({
         nodes: prefixItems.map((item) => {
@@ -342,7 +342,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
 
     if (schema.properties || schema.additionalProperties) {
       // properties -> literal type
-      return this.#getTypeFromProperties(schema, baseName)
+      return this.#getTypeFromProperties(schema as SchemaObject, baseName)
     }
 
     /**
@@ -380,7 +380,7 @@ export class TypeGenerator extends Generator<PluginOptions['resolvedOptions'], C
               {
                 ...schema,
                 type,
-              },
+              } as SchemaObject,
               baseName,
             ),
             nullable ? factory.createLiteralTypeNode(factory.createNull()) : undefined,

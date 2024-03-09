@@ -8,6 +8,7 @@ export default defineConfig([
     entry: {
       index: 'src/index.ts',
       utils: 'src/utils/index.ts',
+      components: 'src/components/index.ts',
       hooks: 'src/hooks/index.ts',
       oas: 'src/oas/index.ts',
     },
@@ -17,6 +18,7 @@ export default defineConfig([
     entry: {
       index: 'src/index.ts',
       utils: 'src/utils/index.ts',
+      components: 'src/components/index.ts',
       hooks: 'src/hooks/index.ts',
       oas: 'src/oas/index.ts',
     },

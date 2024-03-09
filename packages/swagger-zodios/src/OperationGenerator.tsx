@@ -1,5 +1,6 @@
 import { createRoot } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/swagger'
+import { Oas } from '@kubb/swagger/components'
 
 import { Definitions } from './components/Definitions.tsx'
 
@@ -11,11 +12,16 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   async all(paths: Paths): OperationMethodResult<FileMeta> {
     const { oas, pluginManager, plugin } = this.context
 
-    const root = createRoot<AppContextProps>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
-    root.render(<Definitions.File name={this.options.name} baseURL={this.options.baseURL} paths={paths} />, {
-      meta: { oas, pluginManager, plugin },
-    })
+    root.render(
+      <Oas oas={oas}>
+        <Definitions.File name={this.options.name} baseURL={this.options.baseURL} paths={paths} />
+      </Oas>,
+      {
+        meta: { pluginManager, plugin },
+      },
+    )
 
     return root.files
   }

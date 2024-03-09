@@ -1,13 +1,19 @@
-import { useApp, useFile, usePlugin, usePluginManager } from '@kubb/react'
+import { useContext, useFile, usePlugin, usePluginManager } from '@kubb/react'
+
+import { Operation } from '../components/Operation.tsx'
 
 import type { KubbFile, Plugin, ResolveNameParams } from '@kubb/core'
-import type { Operation } from 'oas/operation'
-import type { PluginOptions, ResolvePathOptions } from '../types.ts'
+import type { Operation as OperationType } from '../oas/index.ts'
+import type { ResolvePathOptions } from '../types.ts'
 
-export function useOperation(): Operation {
-  const { meta } = useApp<PluginOptions['appMeta']>()
+export function useOperation(): OperationType {
+  const { operation } = useContext(Operation.Context)
 
-  return meta.operation
+  if (!operation) {
+    throw new Error('Operation is not defined')
+  }
+
+  return operation
 }
 
 type UseOperationNameProps = {

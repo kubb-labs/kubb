@@ -1,9 +1,15 @@
-import { useApp } from '@kubb/react'
+import { useContext } from '@kubb/react'
 
-import type { OperationSchemas, PluginOptions } from '../types.ts'
+import { Operation } from '../components/Operation.tsx'
+
+import type { OperationSchemas } from '../types.ts'
 
 export function useSchemas(): OperationSchemas {
-  const { meta } = useApp<PluginOptions['appMeta']>()
+  const { schemas } = useContext(Operation.Context)
 
-  return meta.schemas
+  if (!schemas) {
+    throw new Error('Schemas is not defined')
+  }
+
+  return schemas
 }

@@ -3,7 +3,7 @@ import { ReactTemplate } from '../shared/ReactTemplate.tsx'
 import { format } from './format.ts'
 
 import type { Logger } from '@kubb/core/logger'
-import type { AppContextProps } from '../components/AppContext.ts'
+import type { AppContextProps } from '../components/App.tsx'
 import type { DOMElement } from '../types.ts'
 import type { RootType } from './types.ts'
 

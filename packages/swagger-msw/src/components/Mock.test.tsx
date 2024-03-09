@@ -9,6 +9,7 @@ import type { Plugin } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
+import { Oas } from '@kubb/swagger/components'
 
 describe('<Mock/>', async () => {
   const oas = await OasManager.parseFromConfig({
@@ -40,10 +41,16 @@ describe('<Mock/>', async () => {
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{petId}', 'get')
     const schemas = og.getSchemas(operation)
-    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { oas, pluginManager: mockedPluginManager, plugin, schemas, operation } }
+    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
     const Component = () => {
-      return <Mock.File />
+      return (
+        <Oas oas={oas}>
+          <Oas.Operation schemas={schemas} operation={operation}>
+            <Mock.File />
+          </Oas.Operation>
+        </Oas>
+      )
     }
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
@@ -54,11 +61,18 @@ describe('<Mock/>', async () => {
   test('pets', async () => {
     const operation = oas.operation('/pets', 'post')
     const schemas = og.getSchemas(operation)
-    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { oas, pluginManager: mockedPluginManager, plugin, schemas, operation } }
+    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
     const Component = () => {
-      return <Mock.File />
+      return (
+        <Oas oas={oas}>
+          <Oas.Operation schemas={schemas} operation={operation}>
+            <Mock.File />
+          </Oas.Operation>
+        </Oas>
+      )
     }
+
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
 

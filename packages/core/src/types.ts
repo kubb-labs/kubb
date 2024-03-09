@@ -148,11 +148,6 @@ export type PluginFactoryOptions<
    * When calling `resolvePath` you can specify better types.
    */
   TResolvePathOptions extends object = object,
-  /**
-   * When using @kubb/react(based on React) you can specify here which types should be used when calling render.
-   * Always extend from `AppMeta` of the core.
-   */
-  TAppMeta = unknown,
 > = {
   name: TName
   /**
@@ -165,8 +160,8 @@ export type PluginFactoryOptions<
   resolvePathOptions: TResolvePathOptions
   appMeta: {
     pluginManager: PluginManager
-    plugin: Plugin<PluginFactoryOptions<TName, TOptions, TResolvedOptions, TAPI, TResolvePathOptions, TAppMeta>>
-  } & TAppMeta
+    plugin: Plugin<PluginFactoryOptions<TName, TOptions, TResolvedOptions, TAPI, TResolvePathOptions>>
+  }
 }
 
 export type GetPluginFactoryOptions<TPlugin extends UserPlugin> = TPlugin extends UserPlugin<infer X> ? X : never
@@ -202,7 +197,7 @@ export type UserPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOpti
 
 export type UserPluginWithLifeCycle<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = UserPlugin<TOptions> & PluginLifecycle<TOptions>
 
-type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<any, any, any, any, any, any>>
+type UnknownUserPlugin = UserPlugin<PluginFactoryOptions<any, any, any, any, any>>
 
 export type Plugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> =
   & {

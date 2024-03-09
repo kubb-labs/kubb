@@ -1,5 +1,6 @@
 import { createRoot } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/swagger'
+import { Oas } from '@kubb/swagger/components'
 
 import { Client, Operations } from './components/index.ts'
 
@@ -12,7 +13,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
   async all(paths: Paths): OperationMethodResult<FileMeta> {
     const { pluginManager, oas, plugin } = this.context
 
-    const root = createRoot<AppContextProps>({ logger: pluginManager.logger })
+    const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
 
     const templates = {
       operations: Operations.templates,
@@ -24,7 +25,12 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
       return []
     }
 
-    root.render(<Operations.File name="operations" paths={paths} templates={templates.operations} />, { meta: { oas, pluginManager, plugin } })
+    root.render(
+      <Oas oas={oas}>
+        <Operations.File name="operations" paths={paths} templates={templates.operations} />
+      </Oas>,
+      { meta: { pluginManager, plugin } },
+    )
 
     return root.files
   }
@@ -44,7 +50,14 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
       return []
     }
 
-    root.render(<Client.File templates={templates.client} />, { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } })
+    root.render(
+      <Oas oas={oas}>
+        <Oas.Operation schemas={schemas} operation={operation}>
+          <Client.File templates={templates.client} />
+        </Oas.Operation>
+      </Oas>,
+      { meta: { pluginManager, plugin: { ...plugin, options } } },
+    )
 
     return root.files
   }

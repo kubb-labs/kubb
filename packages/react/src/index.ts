@@ -1,5 +1,3 @@
-import React from 'react'
-
 export type { RootType } from './client/index.ts'
 export { createRoot } from './client/index.ts'
 export type { AppContextProps } from './components/index.ts'
@@ -19,5 +17,4 @@ export {
   useResolvePath,
 } from './hooks/index.ts'
 export type * from './types.ts'
-
-export default React
+export { useContext } from 'react'

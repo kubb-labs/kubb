@@ -1,5 +1,6 @@
 import { createRoot } from '@kubb/react'
 import { OperationGenerator as Generator } from '@kubb/swagger'
+import { Oas } from '@kubb/swagger/components'
 
 import { Mutation } from './components/Mutation.tsx'
 import { Query } from './components/Query.tsx'
@@ -20,8 +21,12 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
     root.render(
-      <Query.File mode={mode} />,
-      { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } },
+      <Oas oas={oas}>
+        <Oas.Operation schemas={schemas} operation={operation}>
+          <Query.File mode={mode} />
+        </Oas.Operation>
+      </Oas>,
+      { meta: { pluginManager, plugin: { ...plugin, options } } },
     )
 
     return root.files
@@ -32,8 +37,12 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     const root = createRoot<AppContextProps<PluginOptions['appMeta']>>({ logger: pluginManager.logger })
     root.render(
-      <Mutation.File mode={mode} />,
-      { meta: { oas, pluginManager, plugin: { ...plugin, options }, schemas, operation } },
+      <Oas oas={oas}>
+        <Oas.Operation schemas={schemas} operation={operation}>
+          <Mutation.File mode={mode} />
+        </Oas.Operation>
+      </Oas>,
+      { meta: { pluginManager, plugin: { ...plugin, options } } },
     )
 
     return root.files

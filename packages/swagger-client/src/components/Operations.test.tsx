@@ -9,6 +9,7 @@ import type { Plugin } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
 import type { GetOperationGeneratorOptions, Paths } from '@kubb/swagger'
 import type { PluginOptions } from '../types.ts'
+import { Oas } from '@kubb/swagger/components'
 
 describe('<Operations/>', async () => {
   const oas = await OasManager.parseFromConfig({
@@ -44,23 +45,29 @@ describe('<Operations/>', async () => {
   test('showPetById', async () => {
     const operation = oas.operation('/pets/{pet_id}', 'get')
     const schemas = og.getSchemas(operation)
-    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { oas, pluginManager: mockedPluginManager, plugin, schemas, operation } }
+
+    const context: AppContextProps<PluginOptions['appMeta']> = { meta: { pluginManager: mockedPluginManager, plugin } }
 
     const Component = () => {
       return (
-        <Operations.File
-          name="operations"
-          paths={{
-            '/pets/{pet_id}': {
-              get: {
-                operation,
-                schemas,
-              },
-            },
-          } as unknown as Paths}
-        />
+        <Oas oas={oas}>
+          <Oas.Operation schemas={schemas} operation={operation}>
+            <Operations.File
+              name="operations"
+              paths={{
+                '/pets/{pet_id}': {
+                  get: {
+                    operation,
+                    schemas,
+                  },
+                },
+              } as unknown as Paths}
+            />
+          </Oas.Operation>
+        </Oas>
       )
     }
+
     const root = createRootServer({ logger: mockedPluginManager.logger })
     const output = await root.renderToString(<Component />, context)
 
