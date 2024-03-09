@@ -1,6 +1,6 @@
 import { useContext } from '@kubb/react'
 
-import { Oas } from '../components/Oas.tsx'
+import { Oas, type GetSchemas } from '../components/Oas.tsx'
 import { Operation } from '../components/Operation.tsx'
 
 import type { OperationSchemas } from '../types.ts'
@@ -21,4 +21,14 @@ export function useSchemas(): OperationSchemas {
   }
 
   return schemas
+}
+
+export function useGetSchemas(): GetSchemas {
+  const { getSchemas } = useContext(Oas.Context)
+
+  if (!getSchemas) {
+    throw new Error(`getSchemas is not defined`)
+  }
+
+  return getSchemas
 }
