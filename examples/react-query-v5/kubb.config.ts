@@ -5,6 +5,7 @@ import createSwaggerTS from '@kubb/swagger-ts'
 
 import * as queryKey from './templates/queryKey/index'
 import * as operations from './templates/operations/index'
+import * as mutation from './templates/mutate/index'
 
 /** @type {import('@kubb/core').UserConfig} */
 export const config = {
@@ -60,6 +61,7 @@ export const config = {
       }],
       templates: {
         operations: operations.templates,
+        mutation: mutation.templates,
       },
     }),
   ],

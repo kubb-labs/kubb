@@ -24,7 +24,7 @@ export class OperationGenerator extends Generator<PluginOptions['resolvedOptions
 
     root.render(
       <Oas oas={oas} operations={operations} getSchemas={(...props) => this.getSchemas(...props)}>
-        {templates?.operations && <Operations.File operationsByMethod={operationsByMethod} templates={templates.operations} />}
+        {templates?.operations && <Operations.File templates={templates.operations} />}
       </Oas>,
       { meta: { pluginManager, plugin } },
     )

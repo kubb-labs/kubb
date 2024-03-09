@@ -1,10 +1,8 @@
-import { Editor, File, usePlugin, usePluginManager } from '@kubb/react'
+import { Editor, File, usePlugin } from '@kubb/react'
 import { useFile } from '@kubb/react'
-
-import { getHandlers, getHandlersImports } from './utils.ts'
+import { useOperationHelpers, useOperations } from '@kubb/swagger/hooks'
 
 import type { KubbNode } from '@kubb/react'
-import type { OperationsByMethod } from '@kubb/swagger'
 import type { ReactNode } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
@@ -28,27 +26,22 @@ function Template({
 }
 
 type EditorTemplateProps = {
-  /**
-   * @deprecated
-   */
-  operationsByMethod: OperationsByMethod
   children?: React.ReactNode
 }
 
-function EditorTemplate({ operationsByMethod, children }: EditorTemplateProps) {
+function EditorTemplate({ children }: EditorTemplateProps) {
   const { key: pluginKey } = usePlugin<PluginOptions>()
+
   const file = useFile({ name: 'handlers', extName: '.ts', pluginKey })
+  const operations = useOperations()
 
-  const pluginManager = usePluginManager()
+  const { getOperationName, getOperationFile } = useOperationHelpers()
 
-  const handlersImports = getHandlersImports(operationsByMethod, { resolveName: pluginManager.resolveName, resolvePath: pluginManager.resolvePath, pluginKey })
+  const imports = operations.map(operation => {
+    const operationFile = getOperationFile(operation, { pluginKey })
+    const operationName = getOperationName(operation, { pluginKey, type: 'function' })
 
-  const imports = handlersImports.map(({ name, path }, index) => {
-    if (!path) {
-      return null
-    }
-
-    return <File.Import key={index} name={[name]} root={file.path} path={path} />
+    return <File.Import key={operationFile.path} name={[operationName]} root={file.path} path={operationFile.path} />
   }).filter(Boolean)
 
   return (
@@ -72,7 +65,6 @@ const defaultTemplates = { default: Template, editor: EditorTemplate } as const
 type Templates = Partial<typeof defaultTemplates>
 
 type Props = {
-  operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -80,27 +72,22 @@ type Props = {
 }
 
 export function Operations({
-  operationsByMethod,
   Template = defaultTemplates.default,
 }: Props): ReactNode {
   const { key: pluginKey } = usePlugin<PluginOptions>()
-  const pluginManager = usePluginManager()
 
-  const handlers = getHandlers(operationsByMethod, { resolveName: pluginManager.resolveName, pluginKey })
+  const operations = useOperations()
+  const { getOperationName } = useOperationHelpers()
 
   return (
     <Template
       name="handlers"
-      handlers={handlers.map(item => item.name)}
+      handlers={operations.map(operation => getOperationName(operation, { type: 'function', pluginKey }))}
     />
   )
 }
 
 type FileProps = {
-  /**
-   * @deprecated
-   */
-  operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -114,8 +101,8 @@ Operations.File = function(props: FileProps): KubbNode {
   const EditorTemplate = templates.editor
 
   return (
-    <EditorTemplate operationsByMethod={props.operationsByMethod}>
-      <Operations Template={Template} operationsByMethod={props.operationsByMethod} />
+    <EditorTemplate>
+      <Operations Template={Template} />
     </EditorTemplate>
   )
 }

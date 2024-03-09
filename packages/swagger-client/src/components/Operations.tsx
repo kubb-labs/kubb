@@ -1,11 +1,10 @@
 import { URLPath } from '@kubb/core/utils'
 import { Editor, File, usePlugin } from '@kubb/react'
 import { useFile } from '@kubb/react'
-import { useOas } from '@kubb/swagger/hooks'
+import { useOperations } from '@kubb/swagger/hooks'
 
 import type { KubbNode } from '@kubb/react'
-import type { OperationsByMethod } from '@kubb/swagger'
-import type { HttpMethod, Oas } from '@kubb/swagger/oas'
+import type { HttpMethod, Operation } from '@kubb/swagger/oas'
 import type { ComponentProps, ComponentType } from 'react'
 import type { FileMeta, PluginOptions } from '../types.ts'
 
@@ -14,16 +13,25 @@ type TemplateProps = {
    * Name of the function
    */
   name: string
-  operations: Record<string, { path: string; method: HttpMethod }>
+  operations: Operation[]
 }
 
 function Template({
   name,
   operations,
 }: TemplateProps): KubbNode {
+  const operationsObject: Record<string, { path: string; method: HttpMethod }> = {}
+
+  operations.forEach(operation => {
+    operationsObject[operation.getOperationId()] = {
+      path: new URLPath(operation.path).URL,
+      method: operation.method,
+    }
+  })
+
   return (
     <>
-      {`export const ${name} = ${JSON.stringify(operations)} as const;`}
+      {`export const ${name} = ${JSON.stringify(operationsObject)} as const;`}
     </>
   )
 }
@@ -55,27 +63,7 @@ const defaultTemplates = { default: Template, editor: EditorTemplate } as const
 
 type Templates = Partial<typeof defaultTemplates>
 
-function getOperations(oas: Oas, operationsByMethod: OperationsByMethod): Record<string, { path: string; method: HttpMethod }> {
-  const operations: Record<string, { path: string; method: HttpMethod }> = {}
-
-  Object.keys(operationsByMethod).forEach((path) => {
-    const methods = operationsByMethod[path] || []
-    Object.keys(methods).forEach((method) => {
-      const operation = oas.operation(path, method as HttpMethod)
-      if (operation) {
-        operations[operation.getOperationId()] = {
-          path: new URLPath(path).URL,
-          method: method as HttpMethod,
-        }
-      }
-    })
-  })
-
-  return operations
-}
-
 type Props = {
-  operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -83,12 +71,10 @@ type Props = {
 }
 
 export function Operations({
-  operationsByMethod,
   Template = defaultTemplates.default,
 }: Props): KubbNode {
-  const { oas } = useOas()
+  const operations = useOperations()
 
-  const operations = getOperations(oas, operationsByMethod)
   return (
     <Template
       name="operations"
@@ -98,10 +84,6 @@ export function Operations({
 }
 
 type FileProps = {
-  /**
-   * @deprecated
-   */
-  operationsByMethod: OperationsByMethod
   /**
    * This will make it possible to override the default behaviour.
    */
@@ -116,7 +98,7 @@ Operations.File = function(props: FileProps): KubbNode {
 
   return (
     <EditorTemplate>
-      <Operations Template={Template} operationsByMethod={props.operationsByMethod} />
+      <Operations Template={Template} />
     </EditorTemplate>
   )
 }
