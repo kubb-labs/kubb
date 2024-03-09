@@ -3,12 +3,12 @@ import type { Order } from './Order'
 /**
  * @description Invalid ID supplied
  */
-export type GetOrderById400 = any | null
+export type GetOrderById400 = any
 
 /**
  * @description Order not found
  */
-export type GetOrderById404 = any | null
+export type GetOrderById404 = any
 
 export type GetOrderByIdPathParams = {
   /**

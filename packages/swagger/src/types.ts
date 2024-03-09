@@ -1,7 +1,6 @@
 import type { Plugin } from '@kubb/core'
 import type { KubbFile, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { SchemaObject } from 'oas/types'
-import type { HttpMethod, Oas, Operation } from './oas/index.ts'
+import type { HttpMethod, Oas, Operation, SchemaObject } from './oas/index.ts'
 import type { GetSchemasProps } from './utils/getSchemas.ts'
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -97,7 +96,7 @@ export type OperationSchemas = {
   errors?: Array<OperationSchema>
 }
 
-export type Paths = Record<string, Record<HttpMethod, { operation: Operation; schemas: OperationSchemas }>>
+export type OperationsByMethod = Record<string, Record<HttpMethod, { operation: Operation; schemas: OperationSchemas }>>
 
 type ByTag = {
   type: 'tag'
@@ -124,15 +123,13 @@ export type Include = ByTag | ByOperationId | ByPath | ByMethod
 
 export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod) & { options: Partial<TOptions> }
 
-export type AppMeta = { schemas: OperationSchemas; operation: Operation; oas: Oas }
-
 export type ImportMeta = {
   ref: Ref
   path: string
   isTypeOnly: boolean
 }
 
-export type PluginOptions = PluginFactoryOptions<'swagger', Options, Options, API, never, AppMeta>
+export type PluginOptions = PluginFactoryOptions<'swagger', Options, Options, API, never>
 
 declare module '@kubb/core' {
   export interface _Register {

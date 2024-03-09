@@ -1,6 +1,6 @@
 import type { User } from '../../models'
 
-export type CreateUserMutationResponse = any | null
+export type CreateUserMutationResponse = any
 
 /**
  * @description successful operation

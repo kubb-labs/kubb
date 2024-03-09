@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "2.7.1",
+  "version": "2.8.0",
   "description": "Generator core",
   "keywords": [
     "typescript",
@@ -115,7 +115,7 @@
     "@kubb/tsup-config": "workspace:*",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash.isequal": "^4.5.8",
-    "@types/react": "^18.2.63",
+    "@types/react": "^18.2.64",
     "@types/seedrandom": "^3.0.8",
     "@types/semver": "^7.5.8",
     "eslint": "^8.57.0",

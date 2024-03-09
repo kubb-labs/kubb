@@ -23,6 +23,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
     include,
     override = [],
     enumType = 'asConst',
+    enumSuffix = '',
     dateType = 'string',
     unknownType = 'any',
     optionalType = 'questionToken',
@@ -37,6 +38,7 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       transformers,
       dateType,
       enumType,
+      enumSuffix,
       optionalType,
       oasType,
       // keep the used enumnames between TypeBuilder and OperationGenerator per plugin(pluginKey)
@@ -44,9 +46,9 @@ export const definePlugin = createPlugin<PluginOptions>((options) => {
       unknownType,
     },
     pre: [swaggerPluginName],
-    resolvePath(baseName, directory, options) {
+    resolvePath(baseName, pathMode, options) {
       const root = path.resolve(this.config.root, this.config.output.path)
-      const mode = FileManager.getMode(path.resolve(root, output.path))
+      const mode = pathMode ?? FileManager.getMode(path.resolve(root, output.path))
 
       if (mode === 'file') {
         /**

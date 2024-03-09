@@ -20,7 +20,7 @@ See [Oas](https://github.com/readmeio/oas) to understand how to use the `Oas` in
 import { useOas } from '@kubb/react'
 
 function Component() {
-  const oas = useOas()
+  const { oas } = useOas()
 
   return null
 }

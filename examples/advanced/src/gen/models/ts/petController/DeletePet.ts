@@ -1,7 +1,7 @@
 /**
  * @description Invalid pet value
  */
-export type DeletePet400 = any | null
+export type DeletePet400 = any
 
 export type DeletePetHeaderParams = {
   /**
@@ -10,7 +10,7 @@ export type DeletePetHeaderParams = {
   api_key?: string
 } | undefined
 
-export type DeletePetMutationResponse = any | null
+export type DeletePetMutationResponse = any
 
 export type DeletePetPathParams = {
   /**

@@ -1,5 +1,29 @@
 # @kubb/swagger-client
 
+## 2.8.0
+
+### Patch Changes
+
+- [#852](https://github.com/kubb-project/kubb/pull/852) [`752f9a0`](https://github.com/kubb-project/kubb/commit/752f9a02f642f2c5e948b96622fdc73c33d571b8) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - useOperation and useSchema with a component Oas and Oas.Operation
+
+- Updated dependencies [[`752f9a0`](https://github.com/kubb-project/kubb/commit/752f9a02f642f2c5e948b96622fdc73c33d571b8), [`e2eed44`](https://github.com/kubb-project/kubb/commit/e2eed4482e2e49d41c87e64eb484ebedbeb3ccc8)]:
+  - @kubb/swagger-ts@2.8.0
+  - @kubb/swagger@2.8.0
+  - @kubb/react@2.8.0
+  - @kubb/core@2.8.0
+  - @kubb/parser@2.8.0
+
+## 2.7.2
+
+### Patch Changes
+
+- Updated dependencies [[`5857667`](https://github.com/kubb-project/kubb/commit/5857667ca41cbc8fb983d335691fa8c8047e1f48)]:
+  - @kubb/swagger-ts@2.7.2
+  - @kubb/core@2.7.2
+  - @kubb/parser@2.7.2
+  - @kubb/react@2.7.2
+  - @kubb/swagger@2.7.2
+
 ## 2.7.1
 
 ### Patch Changes

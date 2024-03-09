@@ -117,12 +117,12 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
       .map((name) => {
         const validationFunctions: ZodMeta[] = []
 
-        const schema = properties[name] as OasTypes.SchemaObject
+        const schema = properties[name] as OasTypes.SchemaObject & { 'x-nullable': boolean }
         const isRequired = Array.isArray(required) ? required.includes(name) : !!required
 
         validationFunctions.push(...this.getTypeFromSchema(schema, name))
 
-        const nullable = schema.nullable ?? false
+        const nullable = (schema.nullable ?? schema['x-nullable']) ?? false
 
         if (!isRequired && nullable) {
           validationFunctions.push({ keyword: zodKeywords.nullish })

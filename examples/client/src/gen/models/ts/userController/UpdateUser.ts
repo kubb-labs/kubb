@@ -3,9 +3,9 @@ import type { User } from '../User'
 /**
  * @description successful operation
  */
-export type UpdateUserError = any | null
+export type UpdateUserError = any
 
-export type UpdateUserMutationResponse = any | null
+export type UpdateUserMutationResponse = any
 
 export type UpdateUserPathParams = {
   /**

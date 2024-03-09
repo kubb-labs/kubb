@@ -3,20 +3,20 @@ import type { PetNotFound } from '../PetNotFound'
 /**
  * @description Null response
  */
-export type CreatePets201 = any | null
+export type CreatePets201 = any
 
-export const CreatePetsHeaderParamsXExample = {
+export const CreatePetsHeaderParamsXExampleEnum = {
   'ONE': 'ONE',
   'TWO': 'TWO',
   'THREE': 'THREE',
 } as const
-export type CreatePetsHeaderParamsXExample = (typeof CreatePetsHeaderParamsXExample)[keyof typeof CreatePetsHeaderParamsXExample]
+export type CreatePetsHeaderParamsXExampleEnum = (typeof CreatePetsHeaderParamsXExampleEnum)[keyof typeof CreatePetsHeaderParamsXExampleEnum]
 export type CreatePetsHeaderParams = {
   /**
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': CreatePetsHeaderParamsXExample
+  'X-EXAMPLE': CreatePetsHeaderParamsXExampleEnum
 }
 
 export type CreatePetsMutationRequest = {
@@ -30,7 +30,7 @@ export type CreatePetsMutationRequest = {
   tag: string
 }
 
-export type CreatePetsMutationResponse = any | null
+export type CreatePetsMutationResponse = any
 
 export type CreatePetsPathParams = {
   /**

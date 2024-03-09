@@ -2,7 +2,7 @@ import { createNode } from '../shared/dom.ts'
 import { ReactTemplate } from '../shared/ReactTemplate.tsx'
 
 import type { Logger } from '@kubb/core/logger'
-import type { AppContextProps } from '../components/AppContext.ts'
+import type { AppContextProps } from '../components/App.tsx'
 import type { DOMElement } from '../types.ts'
 import type { RootType } from './types.ts'
 

@@ -3,20 +3,20 @@ import type { Pet } from '../Pet'
 /**
  * @description Invalid tag value
  */
-export type FindPetsByTags400 = any | null
+export type FindPetsByTags400 = any
 
-export const FindPetsByTagsHeaderParamsXExample = {
+export const FindPetsByTagsHeaderParamsXExampleEnum = {
   'ONE': 'ONE',
   'TWO': 'TWO',
   'THREE': 'THREE',
 } as const
-export type FindPetsByTagsHeaderParamsXExample = (typeof FindPetsByTagsHeaderParamsXExample)[keyof typeof FindPetsByTagsHeaderParamsXExample]
+export type FindPetsByTagsHeaderParamsXExampleEnum = (typeof FindPetsByTagsHeaderParamsXExampleEnum)[keyof typeof FindPetsByTagsHeaderParamsXExampleEnum]
 export type FindPetsByTagsHeaderParams = {
   /**
    * @description Header parameters
    * @type string
    */
-  'X-EXAMPLE': FindPetsByTagsHeaderParamsXExample
+  'X-EXAMPLE': FindPetsByTagsHeaderParamsXExampleEnum
 }
 
 export type FindPetsByTagsQueryParams = {

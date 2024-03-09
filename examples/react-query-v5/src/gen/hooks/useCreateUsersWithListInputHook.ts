@@ -1,5 +1,6 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
+import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { CreateUsersWithListInputMutationRequest, CreateUsersWithListInputMutationResponse } from '../models/CreateUsersWithListInput'
 import type { UseMutationOptions } from '@tanstack/react-query'
 
@@ -28,6 +29,7 @@ export function useCreateUsersWithListInputHook(options: {
   client?: CreateUsersWithListInput['client']['parameters']
 } = {}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const invalidationOnSuccess = useInvalidationForMutation('useCreateUsersWithListInputHook')
   return useMutation({
     mutationFn: async ({ data }) => {
       const res = await client<CreateUsersWithListInput['data'], CreateUsersWithListInput['error'], CreateUsersWithListInput['request']>({
@@ -37,6 +39,14 @@ export function useCreateUsersWithListInputHook(options: {
         ...clientOptions,
       })
       return res.data
+    },
+    onSuccess: (...args) => {
+      if (invalidationOnSuccess) {
+        invalidationOnSuccess(...args)
+      }
+      if (mutationOptions?.onSuccess) {
+        mutationOptions.onSuccess(...args)
+      }
     },
     ...mutationOptions,
   })

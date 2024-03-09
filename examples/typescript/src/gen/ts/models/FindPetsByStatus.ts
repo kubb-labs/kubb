@@ -3,7 +3,7 @@ import type { Pet } from '../../models'
 /**
  * @description Invalid status value
  */
-export type FindPetsByStatus400 = any | null
+export type FindPetsByStatus400 = any
 
 export const findPetsByStatusQueryParamsStatus = {
   available: 'available',

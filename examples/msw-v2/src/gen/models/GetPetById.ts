@@ -3,12 +3,12 @@ import type { Pet } from './Pet'
 /**
  * @description Invalid ID supplied
  */
-export type GetPetById400 = any | null
+export type GetPetById400 = any
 
 /**
  * @description Pet not found
  */
-export type GetPetById404 = any | null
+export type GetPetById404 = any
 
 export type GetPetByIdPathParams = {
   /**

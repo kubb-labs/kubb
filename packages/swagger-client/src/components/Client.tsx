@@ -204,4 +204,4 @@ Client.File = function(props: FileProps): KubbNode {
   )
 }
 
-Client.templates = defaultTemplates as Templates
+Client.templates = defaultTemplates

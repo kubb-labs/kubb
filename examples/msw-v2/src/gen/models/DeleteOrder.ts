@@ -1,14 +1,14 @@
 /**
  * @description Invalid ID supplied
  */
-export type DeleteOrder400 = any | null
+export type DeleteOrder400 = any
 
 /**
  * @description Order not found
  */
-export type DeleteOrder404 = any | null
+export type DeleteOrder404 = any
 
-export type DeleteOrderMutationResponse = any | null
+export type DeleteOrderMutationResponse = any
 
 export type DeleteOrderPathParams = {
   /**

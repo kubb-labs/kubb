@@ -1,4 +1,13 @@
 import { defineConfig } from '@kubb/core'
+import { definePlugin as swagger } from '@kubb/swagger'
+import { definePlugin as swaggerTS } from '@kubb/swagger-ts'
+import { definePlugin as swaggerTanstackQuery } from '@kubb/swagger-tanstack-query'
+import { definePlugin as swaggerSwr } from '@kubb/swagger-swr'
+import { definePlugin as swaggerClient } from '@kubb/swagger-client'
+import { definePlugin as swaggerZod } from '@kubb/swagger-zod'
+import { definePlugin as swaggerZodios } from '@kubb/swagger-zodios'
+import { definePlugin as swaggerFaker } from '@kubb/swagger-faker'
+import { definePlugin as swaggerMsw } from '@kubb/swagger-msw'
 
 export default defineConfig(async () => {
   await setTimeout(() => {
@@ -19,164 +28,144 @@ export default defineConfig(async () => {
       // done: ['npx eslint --fix ./src/gen', 'prettier --write "**/*.{ts,tsx}"', 'pnpm typecheck'],
     },
     plugins: [
-      ['@kubb/swagger', {
+      swagger({
         output: {
           path: 'schemas',
         },
         validate: true,
-      }],
-      ['@kubb/swagger', {
+      }),
+      swagger({
         output: {
           path: 'schemas2',
         },
         validate: true,
-      }],
-      [
-        '@kubb/swagger-ts',
-        {
-          output: {
-            path: 'models/ts',
-            extName: '.js',
+      }),
+      swaggerTS({
+        output: {
+          path: 'models/ts',
+          extName: '.js',
+        },
+        group: {
+          type: 'tag',
+        },
+        enumType: 'asPascalConst',
+        enumSuffix: 'enum',
+        dateType: 'date',
+        override: [
+          {
+            type: 'operationId',
+            pattern: 'findPetsByStatus',
+            options: {
+              enumType: 'enum',
+            },
           },
-          group: {
+        ],
+      }),
+      swaggerTanstackQuery({
+        output: {
+          path: './clients/hooks',
+          exportAs: 'hooks',
+        },
+        exclude: [
+          {
             type: 'tag',
+            pattern: 'store',
           },
-          enumType: 'asPascalConst',
-          dateType: 'date',
-          override: [
-            {
-              type: 'operationId',
-              pattern: 'findPetsByStatus',
-              options: {
-                enumType: 'enum',
+        ],
+        override: [
+          {
+            type: 'tag',
+            pattern: 'pet',
+            options: {
+              infinite: {
+                queryParam: 'test',
+                initialPageParam: '0',
+              },
+              mutate: {
+                variablesType: 'mutate',
               },
             },
-          ],
+          },
+        ],
+        group: { type: 'tag' },
+        client: {
+          importPath: '../../../../tanstack-query-client.ts',
         },
-      ],
-      [
-        '@kubb/swagger-tanstack-query',
-        {
-          output: {
-            path: './clients/hooks',
-            exportAs: 'hooks',
-          },
-          exclude: [
-            {
-              type: 'tag',
-              pattern: 'store',
-            },
-          ],
-          override: [
-            {
-              type: 'tag',
-              pattern: 'pet',
-              options: {
-                infinite: {
-                  queryParam: 'test',
-                },
-                mutate: {
-                  variablesType: 'mutate',
-                },
-              },
-            },
-          ],
-          group: { type: 'tag' },
-          client: {
-            importPath: '../../../../tanstack-query-client.ts',
-          },
-          infinite: {},
-          dataReturnType: 'full',
-          parser: 'zod',
+        infinite: {},
+        dataReturnType: 'full',
+        parser: 'zod',
+      }),
+      swaggerSwr({
+        output: {
+          path: './clients/swr',
+          exportAs: 'swrHooks',
         },
-      ],
-      [
-        '@kubb/swagger-swr',
-        {
-          output: {
-            path: './clients/swr',
-            exportAs: 'swrHooks',
+        exclude: [
+          {
+            type: 'tag',
+            pattern: 'store',
           },
-          exclude: [
-            {
-              type: 'tag',
-              pattern: 'store',
-            },
-          ],
-          group: { type: 'tag' },
-          client: {
-            importPath: '../../../../swr-client.ts',
-          },
-          dataReturnType: 'full',
+        ],
+        group: { type: 'tag' },
+        client: {
+          importPath: '../../../../swr-client.ts',
         },
-      ],
-      [
-        '@kubb/swagger-client',
-        {
-          output: {
-            path: './clients/axios',
-            exportAs: 'clients',
-          },
-          exclude: [
-            {
-              type: 'tag',
-              pattern: 'store',
-            },
-          ],
-          group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
-          client: {
-            importPath: '../../../../axios-client.ts',
-          },
-          dataReturnType: 'full',
-          pathParamsType: 'object',
+        dataReturnType: 'full',
+      }),
+      swaggerClient({
+        output: {
+          path: './clients/axios',
+          exportAs: 'clients',
         },
-      ],
-      [
-        '@kubb/swagger-zod',
-        {
-          output: {
-            path: './zod',
-            exportAs: 'zod',
+        exclude: [
+          {
+            type: 'tag',
+            pattern: 'store',
           },
-          exclude: [
-            {
-              type: 'tag',
-              pattern: 'store',
-            },
-          ],
-          group: { type: 'tag' },
-          dateType: 'date',
-          typed: true,
+        ],
+        group: { type: 'tag', output: './clients/axios/{{tag}}Service' },
+        client: {
+          importPath: '../../../../axios-client.ts',
         },
-      ],
-      [
-        '@kubb/swagger-zodios',
-        {
-          output: {
-            path: 'zodios.ts',
-            exportAs: 'zodios',
+        dataReturnType: 'full',
+        pathParamsType: 'object',
+      }),
+      swaggerZod({
+        output: {
+          path: './zod',
+          exportAs: 'zod',
+        },
+        exclude: [
+          {
+            type: 'tag',
+            pattern: 'store',
           },
+        ],
+        group: { type: 'tag' },
+        dateType: 'date',
+        typed: true,
+      }),
+      swaggerZodios({
+        output: {
+          path: 'zodios.ts',
+          exportAs: 'zodios',
         },
-      ],
-      [
-        '@kubb/swagger-faker',
-        {
-          output: {
-            path: 'mocks',
-            exportAs: 'faker',
+      }),
+      swaggerFaker({
+        output: {
+          path: 'mocks',
+          exportAs: 'faker',
+        },
+        exclude: [
+          {
+            type: 'tag',
+            pattern: 'store',
           },
-          exclude: [
-            {
-              type: 'tag',
-              pattern: 'store',
-            },
-          ],
-          group: { type: 'tag' },
-          dateType: 'date',
-        },
-      ],
-      [
-        '@kubb/swagger-msw',
+        ],
+        group: { type: 'tag' },
+        dateType: 'date',
+      }),
+      swaggerMsw(
         {
           output: {
             path: 'msw',
@@ -190,7 +179,7 @@ export default defineConfig(async () => {
           ],
           group: { type: 'tag' },
         },
-      ],
+      ),
     ],
   }
 })

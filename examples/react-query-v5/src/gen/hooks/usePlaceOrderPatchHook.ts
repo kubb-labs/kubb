@@ -1,5 +1,6 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
+import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type { PlaceOrderPatchMutationRequest, PlaceOrderPatchMutationResponse, PlaceOrderPatch405 } from '../models/PlaceOrderPatch'
 import type { UseMutationOptions } from '@tanstack/react-query'
 
@@ -28,6 +29,7 @@ export function usePlaceOrderPatchHook(options: {
   client?: PlaceOrderPatch['client']['parameters']
 } = {}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const invalidationOnSuccess = useInvalidationForMutation('usePlaceOrderPatchHook')
   return useMutation({
     mutationFn: async ({ data }) => {
       const res = await client<PlaceOrderPatch['data'], PlaceOrderPatch['error'], PlaceOrderPatch['request']>({
@@ -37,6 +39,14 @@ export function usePlaceOrderPatchHook(options: {
         ...clientOptions,
       })
       return res.data
+    },
+    onSuccess: (...args) => {
+      if (invalidationOnSuccess) {
+        invalidationOnSuccess(...args)
+      }
+      if (mutationOptions?.onSuccess) {
+        mutationOptions.onSuccess(...args)
+      }
     },
     ...mutationOptions,
   })

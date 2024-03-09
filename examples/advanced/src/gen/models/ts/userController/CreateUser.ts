@@ -1,6 +1,6 @@
 import type { User } from '../User'
 
-export type CreateUserMutationResponse = any | null
+export type CreateUserMutationResponse = any
 
 /**
  * @description successful operation

@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`any\` 1`] = `
-"export type DeletePetPetidMutationResponse = any | null;
+"export type DeletePetPetidMutationResponse = any;
 export type DeletePetPetidMutation = {
     Response: DeletePetPetidMutationResponse;
 };
@@ -9,7 +9,7 @@ export type DeletePetPetidMutation = {
 `;
 
 exports[`OperationGenerator > [DELETE] /pet/{petId} with unknownType \`unknown\` 1`] = `
-"export type DeletePetPetidMutationResponse = unknown | null;
+"export type DeletePetPetidMutationResponse = unknown;
 export type DeletePetPetidMutation = {
     Response: DeletePetPetidMutationResponse;
 };

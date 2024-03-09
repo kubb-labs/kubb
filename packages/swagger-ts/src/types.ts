@@ -1,5 +1,5 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
 
 export type Options = {
   output?: {
@@ -58,6 +58,13 @@ export type Options = {
    */
   enumType?: 'enum' | 'asConst' | 'asPascalConst' | 'constEnum' | 'literal'
   /**
+   * Set a suffix for the generated enums.
+   * @default ''
+   * Default will be `'enum'` in version 3 of Kubb
+   */
+  enumSuffix?: string
+
+  /**
    * Choose to use `date` or `datetime` as JavaScript `Date` instead of `string`.
    * @default 'string'
    */
@@ -89,6 +96,7 @@ export type Options = {
 
 type ResolvedOptions = {
   enumType: NonNullable<Options['enumType']>
+  enumSuffix: NonNullable<Options['enumSuffix']>
   dateType: NonNullable<Options['dateType']>
   unknownType: NonNullable<Options['unknownType']>
   optionalType: NonNullable<Options['optionalType']>
@@ -103,9 +111,7 @@ export type FileMeta = {
   tag?: string
 }
 
-type AppMeta = SwaggerAppMeta
-
-export type PluginOptions = PluginFactoryOptions<'swagger-ts', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
+export type PluginOptions = PluginFactoryOptions<'swagger-ts', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {

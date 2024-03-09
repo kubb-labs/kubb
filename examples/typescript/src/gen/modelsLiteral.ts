@@ -233,17 +233,17 @@ export type Pet = {
 /**
  * @description Invalid ID supplied
  */
-export type UpdatePet400 = any | null
+export type UpdatePet400 = any
 
 /**
  * @description Pet not found
  */
-export type UpdatePet404 = any | null
+export type UpdatePet404 = any
 
 /**
  * @description Validation exception
  */
-export type UpdatePet405 = any | null
+export type UpdatePet405 = any
 
 /**
  * @description Successful operation
@@ -299,7 +299,7 @@ export type AddPetMutation = {
 /**
  * @description Invalid status value
  */
-export type FindPetsByStatus400 = any | null
+export type FindPetsByStatus400 = any
 
 export type FindPetsByStatusQueryParamsStatus = 'available' | 'pending' | 'sold'
 export type FindPetsByStatusQueryParams =
@@ -331,7 +331,7 @@ export type FindPetsByStatusQuery = {
 /**
  * @description Invalid tag value
  */
-export type FindPetsByTags400 = any | null
+export type FindPetsByTags400 = any
 
 export type FindPetsByTagsQueryParams =
   | {
@@ -371,12 +371,12 @@ export type FindPetsByTagsQuery = {
 /**
  * @description Invalid ID supplied
  */
-export type GetPetById400 = any | null
+export type GetPetById400 = any
 
 /**
  * @description Pet not found
  */
-export type GetPetById404 = any | null
+export type GetPetById404 = any
 
 export type GetPetByIdPathParams = {
   /**
@@ -404,9 +404,9 @@ export type GetPetByIdQuery = {
 /**
  * @description Invalid input
  */
-export type UpdatePetWithForm405 = any | null
+export type UpdatePetWithForm405 = any
 
-export type UpdatePetWithFormMutationResponse = any | null
+export type UpdatePetWithFormMutationResponse = any
 
 export type UpdatePetWithFormPathParams = {
   /**
@@ -440,7 +440,7 @@ export type UpdatePetWithFormMutation = {
 /**
  * @description Invalid pet value
  */
-export type DeletePet400 = any | null
+export type DeletePet400 = any
 
 export type DeletePetHeaderParams =
   | {
@@ -451,7 +451,7 @@ export type DeletePetHeaderParams =
   }
   | undefined
 
-export type DeletePetMutationResponse = any | null
+export type DeletePetMutationResponse = any
 
 export type DeletePetPathParams = {
   /**
@@ -523,7 +523,7 @@ export type GetInventoryQuery = {
 /**
  * @description Invalid input
  */
-export type PlaceOrder405 = any | null
+export type PlaceOrder405 = any
 
 /**
  * @description successful operation
@@ -545,7 +545,7 @@ export type PlaceOrderMutation = {
 /**
  * @description Invalid input
  */
-export type PlaceOrderPatch405 = any | null
+export type PlaceOrderPatch405 = any
 
 /**
  * @description successful operation
@@ -567,12 +567,12 @@ export type PlaceOrderPatchMutation = {
 /**
  * @description Invalid ID supplied
  */
-export type GetOrderById400 = any | null
+export type GetOrderById400 = any
 
 /**
  * @description Order not found
  */
-export type GetOrderById404 = any | null
+export type GetOrderById404 = any
 
 export type GetOrderByIdPathParams = {
   /**
@@ -600,14 +600,14 @@ export type GetOrderByIdQuery = {
 /**
  * @description Invalid ID supplied
  */
-export type DeleteOrder400 = any | null
+export type DeleteOrder400 = any
 
 /**
  * @description Order not found
  */
-export type DeleteOrder404 = any | null
+export type DeleteOrder404 = any
 
-export type DeleteOrderMutationResponse = any | null
+export type DeleteOrderMutationResponse = any
 
 export type DeleteOrderPathParams = {
   /**
@@ -622,7 +622,7 @@ export type DeleteOrderMutation = {
   Errors: DeleteOrder400 | DeleteOrder404
 }
 
-export type CreateUserMutationResponse = any | null
+export type CreateUserMutationResponse = any
 
 /**
  * @description successful operation
@@ -641,7 +641,7 @@ export type CreateUserMutation = {
 /**
  * @description successful operation
  */
-export type CreateUsersWithListInputError = any | null
+export type CreateUsersWithListInputError = any
 
 /**
  * @description Successful operation
@@ -667,7 +667,7 @@ export type LoginUser200 = string
 /**
  * @description Invalid username/password supplied
  */
-export type LoginUser400 = any | null
+export type LoginUser400 = any
 
 export type LoginUserQueryParams =
   | {
@@ -697,9 +697,9 @@ export type LoginUserQuery = {
 /**
  * @description successful operation
  */
-export type LogoutUserError = any | null
+export type LogoutUserError = any
 
-export type LogoutUserQueryResponse = any | null
+export type LogoutUserQueryResponse = any
 export type LogoutUserQuery = {
   Response: LogoutUserQueryResponse
 }
@@ -707,12 +707,12 @@ export type LogoutUserQuery = {
 /**
  * @description Invalid username supplied
  */
-export type GetUserByName400 = any | null
+export type GetUserByName400 = any
 
 /**
  * @description User not found
  */
-export type GetUserByName404 = any | null
+export type GetUserByName404 = any
 
 export type GetUserByNamePathParams = {
   /**
@@ -740,9 +740,9 @@ export type GetUserByNameQuery = {
 /**
  * @description successful operation
  */
-export type UpdateUserError = any | null
+export type UpdateUserError = any
 
-export type UpdateUserMutationResponse = any | null
+export type UpdateUserMutationResponse = any
 
 export type UpdateUserPathParams = {
   /**
@@ -765,21 +765,21 @@ export type UpdateUserMutation = {
 /**
  * @description Invalid username supplied
  */
-export type DeleteUser400 = any | null
+export type DeleteUser400 = any
 
 /**
  * @description User not found
  */
-export type DeleteUser404 = any | null
+export type DeleteUser404 = any
 
-export type DeleteUserMutationResponse = any | null
+export type DeleteUserMutationResponse = any
 
 export type DeleteUserPathParams = {
   /**
    * @description The name that needs to be deleted
    * @type string
    */
-  username: string
+  username: string | null
 }
 export type DeleteUserMutation = {
   Response: DeleteUserMutationResponse

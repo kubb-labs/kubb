@@ -1,5 +1,6 @@
 import client from '@kubb/swagger-client/client'
 import { useMutation } from '@tanstack/react-query'
+import { useInvalidationForMutation } from '../../useInvalidationForMutation'
 import type {
   UpdatePetWithFormMutationResponse,
   UpdatePetWithFormPathParams,
@@ -32,6 +33,7 @@ export function useUpdatePetWithFormHook(petId: UpdatePetWithFormPathParams['pet
   client?: UpdatePetWithForm['client']['parameters']
 } = {}) {
   const { mutation: mutationOptions, client: clientOptions = {} } = options ?? {}
+  const invalidationOnSuccess = useInvalidationForMutation('useUpdatePetWithFormHook')
   return useMutation({
     mutationFn: async () => {
       const res = await client<UpdatePetWithForm['data'], UpdatePetWithForm['error'], UpdatePetWithForm['request']>({
@@ -41,6 +43,14 @@ export function useUpdatePetWithFormHook(petId: UpdatePetWithFormPathParams['pet
         ...clientOptions,
       })
       return res.data
+    },
+    onSuccess: (...args) => {
+      if (invalidationOnSuccess) {
+        invalidationOnSuccess(...args)
+      }
+      if (mutationOptions?.onSuccess) {
+        mutationOptions.onSuccess(...args)
+      }
     },
     ...mutationOptions,
   })

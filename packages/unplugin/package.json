@@ -1,6 +1,6 @@
 {
   "name": "unplugin-kubb",
-  "version": "0.1.14",
+  "version": "0.1.16",
   "description": "Unplugin for Kubb",
   "keywords": [
     "unplugin",
@@ -132,7 +132,7 @@
     }
   },
   "dependencies": {
-    "unplugin": "^1.8.2"
+    "unplugin": "^1.9.0"
   },
   "devDependencies": {
     "@kubb/core": "workspace:*",

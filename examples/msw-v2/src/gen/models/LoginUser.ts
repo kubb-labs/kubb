@@ -6,7 +6,7 @@ export type LoginUser200 = string
 /**
  * @description Invalid username/password supplied
  */
-export type LoginUser400 = any | null
+export type LoginUser400 = any
 
 export type LoginUserQueryParams = {
   /**

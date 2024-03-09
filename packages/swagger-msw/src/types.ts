@@ -1,9 +1,9 @@
 import type { KubbFile, Plugin, PluginFactoryOptions, ResolveNameParams } from '@kubb/core'
-import type { AppMeta as SwaggerAppMeta, Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
-import type { Handlers, Mock } from './components/index.ts'
+import type { Exclude, Include, Override, ResolvePathOptions } from '@kubb/swagger'
+import type { Mock, Operations } from './components/index.ts'
 
 type Templates = {
-  handlers?: typeof Handlers.templates | false
+  operations?: typeof Operations.templates | false
   mock?: typeof Mock.templates | false
 }
 
@@ -82,9 +82,8 @@ export type FileMeta = {
   pluginKey?: Plugin['key']
   tag?: string
 }
-type AppMeta = SwaggerAppMeta
 
-export type PluginOptions = PluginFactoryOptions<'swagger-msw', Options, ResolvedOptions, never, ResolvePathOptions, AppMeta>
+export type PluginOptions = PluginFactoryOptions<'swagger-msw', Options, ResolvedOptions, never, ResolvePathOptions>
 
 declare module '@kubb/core' {
   export interface _Register {

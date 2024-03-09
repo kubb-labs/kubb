@@ -10,7 +10,7 @@ import type { KubbFile, PluginFactoryOptions, PluginManager } from '@kubb/core'
 import type { Plugin } from '@kubb/core'
 import type { HttpMethods as HttpMethod, MediaTypeObject, RequestBodyObject } from 'oas/types'
 import type { Oas, OasTypes, OpenAPIV3, Operation } from './oas/index.ts'
-import type { ContentType, Exclude, Include, OperationSchemas, Override, Paths } from './types.ts'
+import type { ContentType, Exclude, Include, OperationsByMethod, OperationSchemas, Override } from './types.ts'
 
 export type GetOperationGeneratorOptions<T extends OperationGenerator<any, any, any>> = T extends OperationGenerator<infer Options, any, any> ? Options : never
 
@@ -35,6 +35,15 @@ export abstract class OperationGenerator<
   TPluginOptions extends PluginFactoryOptions = PluginFactoryOptions,
   TFileMeta extends KubbFile.FileMetaBase = KubbFile.FileMetaBase,
 > extends Generator<TOptions, Context<TOptions, TPluginOptions>> {
+  #operationsByMethod: OperationsByMethod = {}
+  get operationsByMethod(): OperationsByMethod {
+    return this.#operationsByMethod
+  }
+
+  set operationsByMethod(paths: OperationsByMethod) {
+    this.#operationsByMethod = paths
+  }
+
   #getOptions(operation: Operation, method: HttpMethod): Partial<TOptions> {
     const { override = [] } = this.context
 
@@ -311,15 +320,9 @@ export abstract class OperationGenerator<
       patch: this.patch,
       put: this.put,
       delete: this.delete,
-      head: () => {
-        return null
-      },
-      options: () => {
-        return null
-      },
-      trace: () => {
-        return null
-      },
+      head: undefined,
+      options: undefined,
+      trace: undefined,
     } as const
   }
 
@@ -327,7 +330,7 @@ export abstract class OperationGenerator<
     const { oas } = this.context
 
     const paths = oas.getPaths()
-    const filterdPaths = Object.keys(paths).reduce(
+    this.operationsByMethod = Object.keys(paths).reduce(
       (acc, path) => {
         const methods = Object.keys(paths[path]!) as HttpMethod[]
 
@@ -339,7 +342,7 @@ export abstract class OperationGenerator<
 
             if (isIncluded && !isExcluded) {
               if (!acc[path]) {
-                acc[path] = {} as Paths['get']
+                acc[path] = {} as OperationsByMethod['get']
               }
               acc[path] = {
                 ...acc[path],
@@ -347,25 +350,25 @@ export abstract class OperationGenerator<
                   operation,
                   schemas: this.getSchemas(operation),
                 },
-              } as Paths['get']
+              } as OperationsByMethod['get']
             }
           }
         })
 
         return acc
       },
-      {} as Paths,
+      {} as OperationsByMethod,
     )
 
-    const promises = Object.keys(filterdPaths).reduce(
+    const promises = Object.keys(this.operationsByMethod).reduce(
       (acc, path) => {
-        const methods = Object.keys(filterdPaths[path]!) as HttpMethod[]
+        const methods = this.operationsByMethod[path] ? Object.keys(this.operationsByMethod[path]!) as HttpMethod[] : []
 
         methods.forEach((method) => {
-          const { operation, schemas } = filterdPaths[path]![method]
+          const { operation } = this.operationsByMethod[path]![method]
           const options = this.#getOptions(operation, method)
+          const promise = this.#methods[method]!.call(this, operation, { ...this.options, ...options })
 
-          const promise = this.#methods[method].call(this, operation, schemas, { ...this.options, ...options })
           if (promise) {
             acc.push(promise)
           }
@@ -376,7 +379,9 @@ export abstract class OperationGenerator<
       [] as OperationMethodResult<TFileMeta>[],
     )
 
-    promises.push(this.all(filterdPaths))
+    const operations = Object.values(this.operationsByMethod).map(item => Object.values(item).map(item => item.operation))
+
+    promises.push(this.all(operations.flat().filter(Boolean), this.operationsByMethod))
 
     const files = await Promise.all(promises)
 
@@ -387,29 +392,29 @@ export abstract class OperationGenerator<
   /**
    * GET
    */
-  abstract get(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
+  abstract get(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * POST
    */
-  abstract post(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
+  abstract post(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
   /**
    * PATCH
    */
-  abstract patch(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
+  abstract patch(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * PUT
    */
-  abstract put(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
+  abstract put(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * DELETE
    */
-  abstract delete(operation: Operation, schemas: OperationSchemas, options: TOptions): OperationMethodResult<TFileMeta>
+  abstract delete(operation: Operation, options: TOptions): OperationMethodResult<TFileMeta>
 
   /**
    * Combination of GET, POST, PATCH, PUT, DELETE
    */
-  abstract all(paths: Paths): OperationMethodResult<TFileMeta>
+  abstract all(operations: Operation[], paths: OperationsByMethod): OperationMethodResult<TFileMeta>
 }

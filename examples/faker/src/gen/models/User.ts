@@ -40,4 +40,8 @@ export type User = {
    * @example 1
    */
   userStatus?: number
+  /**
+   * @type string | undefined
+   */
+  nationalityCode?: string
 }
