@@ -73,7 +73,7 @@
     "@kubb/swagger": "workspace:*",
     "@kubb/types": "workspace:*",
     "hotscript": "^1.0.13",
-    "json-schema-to-ts": "^3.0.0",
+    "json-schema-to-ts": "^3.0.1",
     "ts-toolbelt": "^9.6.0"
   },
   "devDependencies": {

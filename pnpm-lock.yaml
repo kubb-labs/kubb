@@ -1604,8 +1604,8 @@ importers:
         specifier: ^1.0.13
         version: 1.0.13
       json-schema-to-ts:
-        specifier: ^3.0.0
-        version: 3.0.0
+        specifier: ^3.0.1
+        version: 3.0.1
       ts-toolbelt:
         specifier: ^9.6.0
         version: 9.6.0
@@ -7774,12 +7774,11 @@ packages:
       lodash: 4.17.21
     dev: false
 
-  /json-schema-to-ts@3.0.0:
-    resolution: {integrity: sha512-2adDesYifYEXYxNySx3gG0RR69rDWIjqAFzK/JPXdOvjHLZ/UP6d2rkpy6a+AxyhtRp2SvFPZ4+EW36jBinUbA==}
+  /json-schema-to-ts@3.0.1:
+    resolution: {integrity: sha512-ANphQxnKbzLWPeYDmdoci8C9g9ttpfMx8etTlJJ8UCEmNXH9jxGkn3AAbMe+lR4N5OG/01nYxPrDyugLdsRt+A==}
     engines: {node: '>=16'}
     dependencies:
       '@babel/runtime': 7.23.6
-      '@types/json-schema': 7.0.15
       ts-algebra: 1.2.2
     dev: false
 
