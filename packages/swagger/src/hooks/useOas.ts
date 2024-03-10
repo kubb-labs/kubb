@@ -7,6 +7,9 @@ import type { Oas as OasType } from '../oas/index.ts'
 
 type Result = {
   oas: OasType
+  /**
+   * @deprecated replace 'getSchemas' with `useOperationHelpers`
+   */
   getSchemas: GetSchemas
 }
 

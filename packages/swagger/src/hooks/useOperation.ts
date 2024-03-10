@@ -24,12 +24,10 @@ type UseOperationNameProps = {
 export function useOperationName({ type, ...rest }: UseOperationNameProps): string {
   const plugin = usePlugin()
   const operation = useOperation()
-  const { getOperationName } = useOperationHelpers()
+  const { getName } = useOperationHelpers()
 
-  const pluginKey = rest.pluginKey || plugin.key
-
-  return getOperationName(operation, {
-    pluginKey,
+  return getName(operation, {
+    pluginKey: rest.pluginKey || plugin.key,
     type,
   })
 }
@@ -49,13 +47,10 @@ export function useOperationFile(props: UseOperationFileProps = {}): KubbFile.Fi
   const plugin = usePlugin()
   const operation = useOperation()
 
-  const { getOperationFile } = useOperationHelpers()
+  const { getFile } = useOperationHelpers()
 
-  const pluginKey = props.pluginKey || plugin.key
-  const extName = props.extName || '.ts'
-
-  return getOperationFile(operation, {
-    pluginKey,
-    extName,
+  return getFile(operation, {
+    pluginKey: props.pluginKey || plugin.key,
+    extName: props.extName,
   })
 }

@@ -93,7 +93,7 @@ describe('OperationGenerator', async () => {
         operations: Operations.templates,
         client: {
           default: CustomClientTemplate,
-          editor: Client.templates.editor,
+          root: Client.templates.root,
         },
       },
       client: {

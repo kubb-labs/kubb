@@ -1,6 +1,9 @@
-import { usePluginManager } from '@kubb/react'
+import { useContext, usePlugin, usePluginManager } from '@kubb/react'
+
+import { Oas } from '../components/Oas.tsx'
 
 import type { KubbFile, Plugin, ResolveNameParams } from '@kubb/core'
+import type { GetSchemas } from '../components/Oas.tsx'
 import type { Operation as OperationType } from '../oas/index.ts'
 
 type FileMeta = KubbFile.FileMetaBase & {
@@ -10,21 +13,23 @@ type FileMeta = KubbFile.FileMetaBase & {
 }
 
 type UseOperationHelpersResult = {
-  getOperationName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
-  getOperationFile: (operation: OperationType, params: { pluginKey: Plugin['key']; extName?: KubbFile.Extname }) => KubbFile.File<FileMeta>
+  getName: (operation: OperationType, params: { pluginKey?: Plugin['key']; type: ResolveNameParams['type'] }) => string
+  getFile: (operation: OperationType, params: { pluginKey: Plugin['key']; extName?: KubbFile.Extname }) => KubbFile.File<FileMeta>
+  getSchemas: GetSchemas
 }
 
 export function useOperationHelpers(): UseOperationHelpersResult {
   const pluginManager = usePluginManager()
+  const { getSchemas } = useContext(Oas.Context)
 
-  const getOperationName: UseOperationHelpersResult['getOperationName'] = (operation, { pluginKey, type }) => {
+  const getName: UseOperationHelpersResult['getName'] = (operation, { pluginKey, type }) => {
     return pluginManager.resolveName({ name: operation.getOperationId(), pluginKey, type })
   }
 
-  const getOperationFile: UseOperationHelpersResult['getOperationFile'] = (operation, { pluginKey, extName = '.ts' }) => {
+  const getFile: UseOperationHelpersResult['getFile'] = (operation, { pluginKey, extName = '.ts' }) => {
     // needed for the `output.group`
     const tag = operation?.getTags().at(0)?.name
-    const name = getOperationName(operation, { type: 'file', pluginKey })
+    const name = getName(operation, { type: 'file', pluginKey })
 
     const file = pluginManager.getFile({ name, extName, pluginKey, options: { type: 'file', pluginKey, tag } })
 
@@ -39,8 +44,13 @@ export function useOperationHelpers(): UseOperationHelpersResult {
     }
   }
 
+  if (!getSchemas) {
+    throw new Error(`'getSchemas' is not defined`)
+  }
+
   return {
-    getOperationName,
-    getOperationFile,
+    getName,
+    getFile,
+    getSchemas,
   }
 }

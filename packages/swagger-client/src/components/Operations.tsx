@@ -36,11 +36,11 @@ function Template({
   )
 }
 
-type EditorTemplateProps = {
+type RootTemplateProps = {
   children?: React.ReactNode
 }
 
-function EditorTemplate({ children }: EditorTemplateProps) {
+function RootTemplate({ children }: RootTemplateProps) {
   const { key: pluginKey } = usePlugin<PluginOptions>()
   const file = useFile({ name: 'operations', extName: '.ts', pluginKey })
 
@@ -59,7 +59,7 @@ function EditorTemplate({ children }: EditorTemplateProps) {
   )
 }
 
-const defaultTemplates = { default: Template, editor: EditorTemplate } as const
+const defaultTemplates = { default: Template, root: RootTemplate } as const
 
 type Templates = Partial<typeof defaultTemplates>
 
@@ -94,12 +94,12 @@ Operations.File = function(props: FileProps): KubbNode {
   const templates = { ...defaultTemplates, ...props.templates }
 
   const Template = templates.default
-  const EditorTemplate = templates.editor
+  const RootTemplate = templates.root
 
   return (
-    <EditorTemplate>
+    <RootTemplate>
       <Operations Template={Template} />
-    </EditorTemplate>
+    </RootTemplate>
   )
 }
 
