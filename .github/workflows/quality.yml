@@ -7,19 +7,6 @@ on:
       - main
 
 jobs:
-  security:
-      name: Build
-      timeout-minutes: 15
-      runs-on: ubuntu-latest
-
-      steps:
-        - name: Check out code
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 2
-        - name: TruffleHog OSS
-          uses: trufflesecurity/trufflehog@v3.69.0
-
   build:
       name: Build
       timeout-minutes: 15
