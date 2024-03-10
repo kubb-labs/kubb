@@ -365,6 +365,92 @@ export default defineConfig({
 
 :::
 
+### variablesType
+
+Define the way of passing thought the queryParams, headerParams and data.
+
+`'mutate'` will use the `mutate` or `mutateAsync` function. <br/>
+`'hook'` will use the `useMutation` hook.
+
+::: info type
+
+::: code-group
+
+```typescript ['mutate']
+const { mutate } = useDeletePet()
+
+mutate({
+  petId: 1,
+})
+```
+
+```typescript ['hook']
+const { mutate } = useDeletePet(1)
+
+mutate()
+```
+
+:::
+
+::: info
+
+Type: `'mutate' | 'hook'` <br/>
+Default: `'hook'`
+
+::: code-group
+
+```typescript ['mutate']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery(
+      {
+        variablesType: 'mutate',
+      },
+    ),
+  ],
+})
+```
+
+```typescript ['hook']
+import { defineConfig } from '@kubb/core'
+import createSwagger from '@kubb/swagger'
+import createSwaggerTanstackQuery from '@kubb/swagger-tanstack-query'
+import createSwaggerTS from '@kubb/swagger-ts'
+
+export default defineConfig({
+  input: {
+    path: './petStore.yaml',
+  },
+  output: {
+    path: './src/gen',
+  },
+  plugins: [
+    createSwagger({ output: false }),
+    createSwaggerTS({}),
+    createSwaggerTanstackQuery(
+      {
+        variablesType: 'hook',
+      },
+    ),
+  ],
+})
+```
+
+:::
+
 ### parser
 
 Which parser can be used before returning the data to `@tanstack/query`.

@@ -10,6 +10,9 @@ type Props<TOptions = object> = {
   options?: TOptions
 }
 
+/**
+ * With `useFile` you can get all props needed to create a file(path, baseName, source).
+ */
 export function useFile<TOptions = object>({ name, mode, extName, pluginKey, options }: Props<TOptions>): KubbFile.File<{ pluginKey: Plugin['key'] }> {
   const pluginManager = usePluginManager()
 

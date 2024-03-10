@@ -1,4 +1,4 @@
-import { useContext, usePlugin, usePluginManager } from '@kubb/react'
+import { useContext, usePluginManager } from '@kubb/react'
 
 import { Oas } from '../components/Oas.tsx'
 
@@ -18,6 +18,9 @@ type UseOperationHelpersResult = {
   getSchemas: GetSchemas
 }
 
+/**
+ * `useOperationHelpers` will return some helper functions that can be used to get the operation file, get the operation name.
+ */
 export function useOperationHelpers(): UseOperationHelpersResult {
   const pluginManager = usePluginManager()
   const { getSchemas } = useContext(Oas.Context)

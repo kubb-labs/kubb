@@ -17,6 +17,9 @@ type UseOperationsProps = {
   method?: HttpMethod
 }
 
+/**
+ * `useOperations` will return all the Operations
+ */
 export function useOperations({ method, path }: UseOperationsProps = {}): Operation[] {
   const { operations } = useContext(Oas.Context)
 

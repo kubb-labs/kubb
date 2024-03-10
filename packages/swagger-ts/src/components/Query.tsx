@@ -108,7 +108,7 @@ Query.File = function({ mode }: FileProps): ReactNode {
 
   const schemas = useSchemas()
   const pluginManager = usePluginManager()
-  const { oas } = useOas()
+  const oas = useOas()
   const file = useOperationFile()
   const factoryName = useOperationName({ type: 'type' })
   const operation = useOperation()

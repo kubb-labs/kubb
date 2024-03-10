@@ -32,6 +32,24 @@ function Component() {
 
 :::
 
+## useLanguage
+
+`useLanguage` will return the current language set by the parent `Editor` component.
+
+::: code-group
+
+```typescript
+import { useLanguage } from '@kubb/react'
+
+function Component() {
+  const language = useLanguage()
+
+  return null
+}
+```
+
+:::
+
 ## usePluginManager
 
 `usePluginManager` will return the PluginManager instance.
