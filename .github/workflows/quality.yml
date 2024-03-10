@@ -18,7 +18,7 @@ jobs:
           with:
             fetch-depth: 2
         - name: TruffleHog OSS
-          uses: trufflesecurity/trufflehog@v3
+          uses: trufflesecurity/trufflehog@v3.69.0
 
   build:
       name: Build
@@ -85,8 +85,6 @@ jobs:
         - name: Test with Bun
           continue-on-error: true
           run: bun run test:bun --coverage
-
-
 
   linting:
       name: Linting
