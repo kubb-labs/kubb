@@ -22,7 +22,7 @@ export function createGetOrderById404(override?: NonNullable<Partial<GetOrderByI
 export function createGetOrderByIdPathParams(override: NonNullable<Partial<GetOrderByIdPathParams>> = {}): NonNullable<GetOrderByIdPathParams> {
   faker.seed([220])
   return {
-    ...{ 'orderId': faker.number.float({}) },
+    ...{ 'orderId': faker.number.int({}) },
     ...override,
   }
 }

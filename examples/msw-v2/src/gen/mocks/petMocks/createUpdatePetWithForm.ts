@@ -25,7 +25,7 @@ export function createUpdatePetWithFormMutationResponse(
 export function createUpdatePetWithFormPathParams(override: NonNullable<Partial<UpdatePetWithFormPathParams>> = {}): NonNullable<UpdatePetWithFormPathParams> {
   faker.seed([220])
   return {
-    ...{ 'petId': faker.number.float({}) },
+    ...{ 'petId': faker.number.int({}) },
     ...override,
   }
 }

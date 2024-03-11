@@ -6,7 +6,7 @@ import type { Pet } from '../models/ts/Pet'
 export function createPet(override: NonNullable<Partial<Pet>> = {}): NonNullable<Pet> {
   return {
     ...{
-      'id': faker.number.float({}),
+      'id': faker.number.int({}),
       'name': faker.string.alpha(),
       'category': createCategory(),
       'photoUrls': faker.helpers.arrayElements([faker.string.alpha()]) as any,

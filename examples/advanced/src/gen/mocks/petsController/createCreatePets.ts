@@ -45,7 +45,7 @@ export function createCreatePetsPathParams(override: NonNullable<Partial<CreateP
 
 export function createCreatePetsQueryParams(override: NonNullable<Partial<CreatePetsQueryParams>> = {}): NonNullable<CreatePetsQueryParams> {
   return {
-    ...{ 'offset': faker.number.float({}) },
+    ...{ 'offset': faker.number.int({}) },
     ...override,
   }
 }

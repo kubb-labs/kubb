@@ -327,7 +327,7 @@ export class FakerGenerator extends Generator<PluginOptions['resolvedOptions'], 
         const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
         const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined
 
-        return [{ keyword: fakerKeywords.number, args: { min, max } }]
+        return [{ keyword: schema.type as 'number', args: { min, max } }]
       }
 
       if (schema.pattern) {

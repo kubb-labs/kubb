@@ -7,7 +7,7 @@ export function createAddPetRequest(override: NonNullable<Partial<AddPetRequest>
   faker.seed([220])
   return {
     ...{
-      'id': faker.number.float({}),
+      'id': faker.number.int({}),
       'name': faker.string.alpha(),
       'category': createCategory(),
       'photoUrls': faker.helpers.arrayElements([faker.string.alpha()]) as any,

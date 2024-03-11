@@ -19,7 +19,7 @@ export function createGetPetById404(override?: NonNullable<Partial<GetPetById404
 
 export function createGetPetByIdPathParams(override: NonNullable<Partial<GetPetByIdPathParams>> = {}): NonNullable<GetPetByIdPathParams> {
   return {
-    ...{ 'petId': faker.number.float({}) },
+    ...{ 'petId': faker.number.int({}) },
     ...override,
   }
 }

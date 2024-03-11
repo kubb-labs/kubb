@@ -22,7 +22,7 @@ export function createDeletePetMutationResponse(override?: NonNullable<Partial<D
 
 export function createDeletePetPathParams(override: NonNullable<Partial<DeletePetPathParams>> = {}): NonNullable<DeletePetPathParams> {
   return {
-    ...{ 'petId': faker.number.float({}) },
+    ...{ 'petId': faker.number.int({}) },
     ...override,
   }
 }

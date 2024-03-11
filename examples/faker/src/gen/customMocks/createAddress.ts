@@ -8,11 +8,7 @@ export function createAddress(override: NonNullable<Partial<Address>> = {}): Non
       'city': faker.string.alpha(),
       'state': faker.string.alpha(),
       'zip': faker.string.alpha(),
-      'identifier': faker.helpers.arrayElements([
-        faker.number.float({}),
-        faker.string.alpha(),
-        faker.helpers.arrayElement<any>([`NW`, `NE`, `SW`, `SE`]),
-      ]) as any,
+      'identifier': faker.helpers.arrayElements([faker.number.int({}), faker.string.alpha(), faker.helpers.arrayElement<any>([`NW`, `NE`, `SW`, `SE`])]) as any,
     },
     ...override,
   }

@@ -8,7 +8,7 @@ export function createUploadFileMutationRequest(override?: NonNullable<Partial<U
 
 export function createUploadFilePathParams(override: NonNullable<Partial<UploadFilePathParams>> = {}): NonNullable<UploadFilePathParams> {
   return {
-    ...{ 'petId': faker.number.float({}) },
+    ...{ 'petId': faker.number.int({}) },
     ...override,
   }
 }

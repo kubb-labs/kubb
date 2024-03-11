@@ -22,7 +22,7 @@ export function createDeleteOrderMutationResponse(override?: NonNullable<Partial
 
 export function createDeleteOrderPathParams(override: NonNullable<Partial<DeleteOrderPathParams>> = {}): NonNullable<DeleteOrderPathParams> {
   return {
-    ...{ 'orderId': faker.number.float({}) },
+    ...{ 'orderId': faker.number.int({}) },
     ...override,
   }
 }

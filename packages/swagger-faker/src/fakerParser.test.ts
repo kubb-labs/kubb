@@ -15,6 +15,12 @@ const input = [
   },
   {
     input: parseFakerMeta({
+      keyword: 'integer',
+    }),
+    expected: 'faker.number.int()',
+  },
+  {
+    input: parseFakerMeta({
       keyword: 'boolean',
     }),
     expected: 'faker.datatype.boolean()',

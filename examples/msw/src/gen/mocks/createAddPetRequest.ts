@@ -6,7 +6,7 @@ import type { AddPetRequest } from '../models/AddPetRequest'
 export function createAddPetRequest(override: NonNullable<Partial<AddPetRequest>> = {}): NonNullable<AddPetRequest> {
   return {
     ...{
-      'id': faker.number.float({}),
+      'id': faker.number.int({}),
       'name': faker.string.alpha(),
       'category': createCategory(),
       'photoUrls': faker.helpers.arrayElements([faker.string.alpha()]) as any,

@@ -4,9 +4,9 @@ import type { Order } from '../models/ts/Order'
 export function createOrder(override: NonNullable<Partial<Order>> = {}): NonNullable<Order> {
   return {
     ...{
-      'id': faker.number.float({}),
-      'petId': faker.number.float({}),
-      'quantity': faker.number.float({}),
+      'id': faker.number.int({}),
+      'petId': faker.number.int({}),
+      'quantity': faker.number.int({}),
       'orderType': faker.helpers.arrayElement<any>([`foo`, `bar`]),
       'type': faker.string.alpha(),
       'shipDate': faker.date.anytime(),
