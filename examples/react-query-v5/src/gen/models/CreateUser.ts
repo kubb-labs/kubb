@@ -1,17 +1,17 @@
-import type { User } from "./User";
+import type { User } from './User'
 
- export type CreateUserMutationResponse = any;
+export type CreateUserMutationResponse = any
 
- /**
+/**
  * @description successful operation
-*/
-export type CreateUserError = User;
+ */
+export type CreateUserError = User
 
- /**
+/**
  * @description Created user object
-*/
-export type CreateUserMutationRequest = User;
+ */
+export type CreateUserMutationRequest = User
 export type CreateUserMutation = {
-    Response: CreateUserMutationResponse;
-    Request: CreateUserMutationRequest;
-};
+  Response: CreateUserMutationResponse
+  Request: CreateUserMutationRequest
+}
