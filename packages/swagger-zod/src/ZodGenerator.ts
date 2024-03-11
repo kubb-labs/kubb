@@ -421,10 +421,6 @@ export class ZodGenerator extends Generator<PluginOptions['resolvedOptions'], Co
         ].filter(Boolean)
       }
 
-      if (schema.readOnly) {
-        baseItems.unshift({ keyword: zodKeywords.readOnly })
-      }
-
       if ([zodKeywords.number as string, zodKeywords.integer as string, zodKeywords.string as string].includes(schema.type)) {
         const min = schema.minimum ?? schema.minLength ?? schema.minItems ?? undefined
         const max = schema.maximum ?? schema.maxLength ?? schema.maxItems ?? undefined

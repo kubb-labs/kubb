@@ -4,7 +4,7 @@ import { z } from 'zod'
 import type { Pet } from '../models/ts/Pet'
 
 export const petSchema = z.object({
-  'id': z.number().readonly().optional(),
+  'id': z.number().optional(),
   'name': z.string(),
   'category': z.lazy(() => categorySchema).optional(),
   'photoUrls': z.array(z.string()),

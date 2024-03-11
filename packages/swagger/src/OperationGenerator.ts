@@ -288,6 +288,7 @@ export abstract class OperationGenerator<
           keysToOmit: requestSchema.properties
             ? Object.keys(requestSchema.properties).filter((key) => {
               const item = requestSchema.properties![key] as OasTypes.SchemaObject
+
               return item?.readOnly
             })
             : undefined,

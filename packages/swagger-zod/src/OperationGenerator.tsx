@@ -7,7 +7,7 @@ import { Query } from './components/Query.tsx'
 
 import type { KubbFile } from '@kubb/core'
 import type { AppContextProps } from '@kubb/react'
-import type { OperationMethodResult, OperationSchemas } from '@kubb/swagger'
+import type { OperationMethodResult } from '@kubb/swagger'
 import type { Operation } from '@kubb/swagger/oas'
 import type { FileMeta, PluginOptions } from './types.ts'
 
