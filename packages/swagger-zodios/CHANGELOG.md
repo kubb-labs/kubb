@@ -1,5 +1,16 @@
 # @kubb/swagger-zodios
 
+## 2.8.2
+
+### Patch Changes
+
+- Updated dependencies [[`9759907`](https://github.com/kubb-project/kubb/commit/9759907ac07abd69021712666331f34fc8fa33f0)]:
+  - @kubb/parser@2.8.2
+  - @kubb/core@2.8.2
+  - @kubb/react@2.8.2
+  - @kubb/swagger-zod@2.8.2
+  - @kubb/swagger@2.8.2
+
 ## 2.8.1
 
 ### Patch Changes
