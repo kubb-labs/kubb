@@ -1248,9 +1248,15 @@ importers:
       '@kubb/tsup-config':
         specifier: workspace:*
         version: link:../config/tsup-config
+      '@types/lodash.tonumber':
+        specifier: ^4.0.3
+        version: 4.0.9
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
+      lodash.tonumber:
+        specifier: ^4.0.3
+        version: 4.0.3
       tsup:
         specifier: ^8.0.2
         version: 8.0.2(@microsoft/api-extractor@7.42.3)(ts-node@10.9.2)(typescript@5.4.2)
@@ -4154,6 +4160,12 @@ packages:
 
   /@types/lodash.isequal@4.5.8:
     resolution: {integrity: sha512-uput6pg4E/tj2LGxCZo9+y27JNyB2OZuuI/T5F+ylVDYuqICLG2/ktjxx0v6GvVntAf8TvEzeQLcV0ffRirXuA==}
+    dependencies:
+      '@types/lodash': 4.14.202
+    dev: true
+
+  /@types/lodash.tonumber@4.0.9:
+    resolution: {integrity: sha512-53rIpKcaX3lrKLbdMLsQlyhRfNBjHivG3Fy3foCjmL+oG4f4oZgmow6UxSoDjxtxmzwMS4mDnEIr390ffN9t9Q==}
     dependencies:
       '@types/lodash': 4.14.202
     dev: true
@@ -8013,6 +8025,10 @@ packages:
 
   /lodash.startcase@4.4.0:
     resolution: {integrity: sha512-+WKqsK294HMSc2jEbNgpHpd0JfIBhp7rEV4aqXWqFr6AlXov+SlcgB1Fv01y2kGe3Gc8nMW7VA0SrGuSkRfIEg==}
+    dev: true
+
+  /lodash.tonumber@4.0.3:
+    resolution: {integrity: sha512-SY0SwuPOHRwKcCNTdsntPYb+Zddz5mDUIVFABzRMqmAiL41pMeyoQFGxYAw5zdc9NnH4pbJqiqqp5ckfxa+zSA==}
     dev: true
 
   /lodash@4.17.21:

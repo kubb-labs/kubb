@@ -57,6 +57,15 @@ exports[`codegen > createEnumDeclaration 5`] = `
 "
 `;
 
+exports[`codegen > createEnumDeclaration 6`] = `
+"export enum Hello {
+  'Hello_1' = 'world',
+  'Hello_2' = 2050,
+  'Hello_3' = true,
+}
+"
+`;
+
 exports[`codegen > createExportDeclaration 1`] = `
 "export * from './hello.ts'
 "

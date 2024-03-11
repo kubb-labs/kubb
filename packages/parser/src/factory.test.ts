@@ -22,7 +22,14 @@ describe('codegen', () => {
   const node = factory.createVariableStatement(
     undefined,
     factory.createVariableDeclarationList(
-      [factory.createVariableDeclaration(factory.createIdentifier('hello'), undefined, undefined, factory.createStringLiteral('world'))],
+      [
+        factory.createVariableDeclaration(
+          factory.createIdentifier('hello'),
+          undefined,
+          undefined,
+          factory.createStringLiteral('world'),
+        ),
+      ],
       ts.NodeFlags.Const,
     ),
   )
@@ -40,7 +47,10 @@ describe('codegen', () => {
     expect(
       print(
         createIntersectionDeclaration({
-          nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)],
+          nodes: [
+            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+            factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
+          ],
         }),
       ),
     ).toMatchSnapshot()
@@ -49,7 +59,10 @@ describe('codegen', () => {
     expect(
       print(
         createUnionDeclaration({
-          nodes: [factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword)],
+          nodes: [
+            factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+            factory.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword),
+          ],
         }),
       ),
     ).toMatchSnapshot()
@@ -67,11 +80,29 @@ describe('codegen', () => {
   })
 
   test('createParameter', () => {
-    expect(print(createParameterSignature('hello', { type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword) }))).toMatchSnapshot()
-    expect(print(createParameterSignature('hello', { questionToken: true, type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword) })))
-      .toMatchSnapshot()
-    expect(print(createParameterSignature('hello', { questionToken: true, type: factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword) })))
-      .toMatchSnapshot()
+    expect(
+      print(
+        createParameterSignature('hello', {
+          type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+        }),
+      ),
+    ).toMatchSnapshot()
+    expect(
+      print(
+        createParameterSignature('hello', {
+          questionToken: true,
+          type: factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+        }),
+      ),
+    ).toMatchSnapshot()
+    expect(
+      print(
+        createParameterSignature('hello', {
+          questionToken: true,
+          type: factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword),
+        }),
+      ),
+    ).toMatchSnapshot()
   })
 
   test('createJSDoc', async () => {
@@ -265,6 +296,21 @@ describe('codegen', () => {
             ['hello', 'world'],
             ['end', 2050],
             ['survive', true],
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
+
+    expect(
+      await formatTS(
+        createEnumDeclaration({
+          type: 'enum',
+          name: 'hello',
+          typeName: 'Hello',
+          enums: [
+            ['1', 'world'],
+            ['2', 2050],
+            ['3', true],
           ],
         }),
       ),
