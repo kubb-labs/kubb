@@ -1,5 +1,11 @@
 # @kubb/parser
 
+## 2.8.2
+
+### Patch Changes
+
+- [`9759907`](https://github.com/kubb-project/kubb/commit/9759907ac07abd69021712666331f34fc8fa33f0) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of custon isNumber check to also check on NaN
+
 ## 2.8.1
 
 ## 2.8.0
