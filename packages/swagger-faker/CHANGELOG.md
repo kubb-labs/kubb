@@ -1,5 +1,18 @@
 # @kubb/swagger-faker
 
+## 2.8.1
+
+### Patch Changes
+
+- [`e9396d7`](https://github.com/kubb-project/kubb/commit/e9396d76a74fd3992444bbc21f3dedda1ee99ea4) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of faker.number.int for type integer
+
+- Updated dependencies []:
+  - @kubb/core@2.8.1
+  - @kubb/parser@2.8.1
+  - @kubb/react@2.8.1
+  - @kubb/swagger@2.8.1
+  - @kubb/swagger-ts@2.8.1
+
 ## 2.8.0
 
 ### Patch Changes
