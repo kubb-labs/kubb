@@ -1,5 +1,16 @@
 # @kubb/swagger-ts
 
+## 2.9.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.9.0
+  - @kubb/parser@2.9.0
+  - @kubb/react@2.9.0
+  - @kubb/swagger@2.9.0
+  - @kubb/types@2.9.0
+
 ## 2.8.2
 
 ### Patch Changes
