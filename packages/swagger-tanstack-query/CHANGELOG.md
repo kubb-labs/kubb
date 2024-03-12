@@ -1,5 +1,22 @@
 # @kubb/swagger-tanstack-query
 
+## 2.9.0
+
+### Minor Changes
+
+- [#835](https://github.com/kubb-project/kubb/pull/835) [`efa7c75`](https://github.com/kubb-project/kubb/commit/efa7c752295848362475a4f18d91e201b14dfa8a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - use of `mutate.variablesType` to override mutation behaviour(params in the generated hook or mutate function with extra params)
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/core@2.9.0
+  - @kubb/parser@2.9.0
+  - @kubb/react@2.9.0
+  - @kubb/swagger@2.9.0
+  - @kubb/swagger-client@2.9.0
+  - @kubb/swagger-ts@2.9.0
+  - @kubb/swagger-zod@2.9.0
+
 ## 2.8.2
 
 ### Patch Changes
